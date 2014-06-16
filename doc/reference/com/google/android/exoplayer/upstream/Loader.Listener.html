@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width" />
+
+<link rel="shortcut icon" type="image/x-icon" href="../../../../../../favicon.ico" />
+<title>Loader.Listener - ExoPlayer | Android Developers</title>
+
+<!-- STYLESHEETS -->
+<link rel="stylesheet"
+href="http://fonts.googleapis.com/css?family=Roboto:regular,medium,thin,italic,mediumitalic,bold" title="roboto">
+<link href="../../../../../../assets/css/default.css" rel="stylesheet" type="text/css">
+
+
+<!-- FULLSCREEN STYLESHEET -->
+<link href="../../../../../../assets/css/fullscreen.css" rel="stylesheet" class="fullscreen"
+type="text/css">
+
+
+<!-- JAVASCRIPT -->
+<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+<script src="../../../../../../assets/js/android_3p-bundle.js" type="text/javascript"></script>
+<script type="text/javascript">
+  var toRoot = "../../../../../../";
+  var metaTags = [];
+  var devsite = false;
+</script>
+<script src="../../../../../../assets/js/docs.js" type="text/javascript"></script>
+
+<!-- RESOURCES LIBRARY -->
+<script src="http://androiddevdocs-staging.appspot.com/ytblogger_lists_unified.js" type="text/javascript"></script>
+<script src="../../../../../../jd_lists_unified.js" type="text/javascript"></script>
+<script src="../../../../../../assets/js/jd_tag_helpers.js" type="text/javascript"></script>
+<link href="../../../../../../assets/css/resourcecards.css"  rel="stylesheet" type="text/css" />
+<script src="../../../../../../assets/js/resourcecards.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-5831155-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+</head>
+<body class="gc-documentation 
+  develop" itemscope itemtype="http://schema.org/Article">
+  <div id="doc-api-level" class="" style="display:none"></div>
+  <a name="top"></a>
+
+
+  <div class="wrap clearfix" id="body-content">
+    <div class="col-4" id="side-nav" itemscope itemtype="http://schema.org/SiteNavigationElement">
+      <div id="devdoc-nav">
+
+<a class="totop" href="#top" data-g-event="left-nav-top">to top</a>
+      <div id="api-nav-header">
+        <div id="api-nav-title">ExoPlayerLib APIs</div>
+        </div><!-- end nav header -->
+      <script>
+        var SINCE_DATA = [  ];
+        buildApiLevelSelector();
+      </script>
+                  
+      <div id="swapper">
+        <div id="nav-panels">
+          <div id="resize-packages-nav">
+            <div id="packages-nav" class="scroll-pane">
+
+              <ul>
+                
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/parser/package-summary.html">com.google.android.exoplayer.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/parser/mp4/package-summary.html">com.google.android.exoplayer.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/parser/webm/package-summary.html">com.google.android.exoplayer.parser.webm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="selected api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/upstream/cache/package-summary.html">com.google.android.exoplayer.upstream.cache</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/util/package-summary.html">com.google.android.exoplayer.util</a></li>
+              </ul><br/>
+
+            </div> <!-- end packages-nav -->
+          </div> <!-- end resize-packages -->
+          <div id="classes-nav" class="scroll-pane">
+
+
+
+            <ul>
+              
+              
+    <li><h2>Interfaces</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Allocation.html">Allocation</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Allocator.html">Allocator</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html">BandwidthMeter</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSink.html">DataSink</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DefaultBandwidthMeter.EventListener.html">DefaultBandwidthMeter.EventListener</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Listener.html">Loader.Listener</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/NonBlockingInputStream.html">NonBlockingInputStream</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/TransferListener.html">TransferListener</a></li>
+      </ul>
+    </li>
+              
+    <li><h2>Classes</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/BufferPool.html">BufferPool</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/ByteArrayDataSink.html">ByteArrayDataSink</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/ByteArrayDataSource.html">ByteArrayDataSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/ByteArrayNonBlockingInputStream.html">ByteArrayNonBlockingInputStream</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSourceInputStream.html">DataSourceInputStream</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSourceStream.html">DataSourceStream</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DefaultBandwidthMeter.html">DefaultBandwidthMeter</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/FileDataSource.html">FileDataSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/HttpDataSource.html">HttpDataSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html">Loader</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/NetworkLock.html">NetworkLock</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/PriorityDataSource.html">PriorityDataSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/TeeDataSource.html">TeeDataSource</a></li>
+      </ul>
+    </li>
+              
+              
+    <li><h2>Exceptions</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSourceStream.DataSourceStreamLoadException.html">DataSourceStream.DataSourceStreamLoadException</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/FileDataSource.FileDataSourceException.html">FileDataSource.FileDataSourceException</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/HttpDataSource.HttpDataSourceException.html">HttpDataSource.HttpDataSourceException</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/HttpDataSource.InvalidContentTypeException.html">HttpDataSource.InvalidContentTypeException</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/HttpDataSource.InvalidResponseCodeException.html">HttpDataSource.InvalidResponseCodeException</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.UnexpectedLoaderException.html">Loader.UnexpectedLoaderException</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/NetworkLock.PriorityTooLowException.html">NetworkLock.PriorityTooLowException</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/UnexpectedLengthException.html">UnexpectedLengthException</a></li>
+      </ul>
+    </li>
+              
+            </ul><br/>
+        
+
+          </div><!-- end classes -->
+        </div><!-- end nav-panels -->
+        <div id="nav-tree" style="display:none" class="scroll-pane">
+          <div id="tree-list"></div>
+        </div><!-- end nav-tree -->
+      </div><!-- end swapper -->
+      <div id="nav-swap">
+      <a class="fullscreen">fullscreen</a>
+      <a href='#' onclick='swapNav();return false;'><span id='tree-link'>Use Tree Navigation</span><span id='panel-link' style='display:none'>Use Panel Navigation</span></a>
+      </div>
+    </div> <!-- end devdoc-nav -->
+    </div> <!-- end side-nav -->
+    <script type="text/javascript">
+      // init fullscreen based on user pref
+      var fullscreen = readCookie("fullscreen");
+      if (fullscreen != 0) {
+        if (fullscreen == "false") {
+          toggleFullscreen(false);
+        } else {
+          toggleFullscreen(true);
+        }
+      }
+      // init nav version for mobile
+      if (isMobile) {
+        swapNav(); // tree view should be used on mobile
+        $('#nav-swap').hide();
+      } else {
+        chooseDefaultNav();
+        if ($("#nav-tree").is(':visible')) {
+          init_default_navtree("../../../../../../");
+        }
+      }
+      // scroll the selected page into view
+      $(document).ready(function() {
+        scrollIntoView("packages-nav");
+        scrollIntoView("classes-nav");
+        });
+    </script>
+
+     
+
+
+
+<div class="col-12"  id="doc-col">
+
+<div id="api-info-block">
+
+
+
+
+<div class="sum-details-links">
+
+Summary:
+
+
+
+
+
+
+
+
+
+
+
+  <a href="#pubmethods">Methods</a>
+  
+
+
+
+&#124; <a href="#" onclick="return toggleAllClassInherited()" id="toggleAllClassInherited">[Expand All]</a>
+
+</div><!-- end sum-details-links -->
+<div class="api-level">
+  
+  
+  
+
+</div>
+</div><!-- end api-info-block -->
+
+
+<!-- ======== START OF CLASS DATA ======== -->
+
+<div id="jd-header">
+    public
+    static 
+     
+    
+    interface
+<h1 itemprop="name">Loader.Listener</h1>
+
+
+
+  
+  
+  
+
+
+</div><!-- end header -->
+
+<div id="naMessage"></div>
+
+<div id="jd-content" class="api apilevel-">
+<table class="jd-inheritance-table">
+
+
+    <tr>
+         	
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.upstream.Loader.Listener</td>
+    </tr>
+    
+
+</table>
+
+
+
+
+
+
+<table class="jd-sumtable jd-sumtable-subclasses"><tr><td colspan="12" style="border:none;margin:0;padding:0;">
+
+  <a href="#" onclick="return toggleInherited(this, null)" id="subclasses-indirect" class="jd-expando-trigger closed"
+          ><img id="subclasses-indirect-trigger"
+          src="../../../../../../assets/images/triangle-closed.png"
+          class="jd-expando-trigger-img" /></a>Known Indirect Subclasses
+
+  <div id="subclasses-indirect">
+      <div id="subclasses-indirect-list"
+              class="jd-inheritedlinks"
+              
+              >
+          
+            
+              <a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a>
+            
+          
+      </div>
+      <div id="subclasses-indirect-summary"
+              style="display: none;"
+              >
+  <table class="jd-sumtable-expando">
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a></td>
+              <td class="jd-descrcol" width="100%">A <code><a href="../../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a></code> that loads media in <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></code>s, which are themselves obtained from a
+ <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></code>.&nbsp;</td>
+          </tr>
+  </table>
+      </div>
+  </div>
+</td></tr></table>
+
+
+<div class="jd-descr">
+
+
+<h2>Class Overview</h2>
+<p itemprop="articleBody">Interface definition for a callback to be notified of <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html">Loader</a></code> events.
+</p>
+
+
+
+
+
+</div><!-- jd-descr -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Summary</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
+
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Listener.html#onCanceled()">onCanceled</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Invoked when loading has been canceled.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Listener.html#onError(java.io.IOException)">onError</a></span>(<a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a> exception)</nobr>
+        
+        <div class="jd-descrdiv">Invoked when the data source is stopped due to an error.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Listener.html#onLoaded()">onLoaded</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Invoked when the data source has been fully loaded.</div>
+  
+  </td></tr>
+
+
+
+</table>
+
+
+
+
+
+
+
+</div><!-- jd-descr (summary) -->
+
+<!-- Details -->
+
+
+
+
+
+
+
+
+<!-- XML Attributes -->
+
+
+<!-- Enum Values -->
+
+
+<!-- Constants -->
+
+
+<!-- Fields -->
+
+
+<!-- Public ctors -->
+
+
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<!-- Protected ctors -->
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+<!-- Public methdos -->
+
+<h2>Public Methods</h2>
+
+
+
+<A NAME="onCanceled()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">onCanceled</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Invoked when loading has been canceled.
+</p></div>
+
+    </div>
+</div>
+
+
+<A NAME="onError(java.io.IOException)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">onError</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a> exception)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Invoked when the data source is stopped due to an error.
+</p></div>
+
+    </div>
+</div>
+
+
+<A NAME="onLoaded()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">onLoaded</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Invoked when the data source has been fully loaded.
+</p></div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+
+
+
+<!-- ========= END OF CLASS DATA ========= -->
+<A NAME="navbar_top"></A>
+
+<div id="footer" class="wrap" >
+        
+<div id="copyright">
+  
+  Except as noted, this content is licensed under <a
+  href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a>.
+</div>
+
+</div> <!-- end footer -->
+
+</div> <!-- jd-content -->
+
+</div><!-- end doc-content -->
+
+</div> <!-- end body-content --> 
+
+
+
+
+
+
+</body>
+</html>

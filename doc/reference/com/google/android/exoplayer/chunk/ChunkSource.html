@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width" />
+
+<link rel="shortcut icon" type="image/x-icon" href="../../../../../../favicon.ico" />
+<title>ChunkSource - ExoPlayer | Android Developers</title>
+
+<!-- STYLESHEETS -->
+<link rel="stylesheet"
+href="http://fonts.googleapis.com/css?family=Roboto:regular,medium,thin,italic,mediumitalic,bold" title="roboto">
+<link href="../../../../../../assets/css/default.css" rel="stylesheet" type="text/css">
+
+
+<!-- FULLSCREEN STYLESHEET -->
+<link href="../../../../../../assets/css/fullscreen.css" rel="stylesheet" class="fullscreen"
+type="text/css">
+
+
+<!-- JAVASCRIPT -->
+<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+<script src="../../../../../../assets/js/android_3p-bundle.js" type="text/javascript"></script>
+<script type="text/javascript">
+  var toRoot = "../../../../../../";
+  var metaTags = [];
+  var devsite = false;
+</script>
+<script src="../../../../../../assets/js/docs.js" type="text/javascript"></script>
+
+<!-- RESOURCES LIBRARY -->
+<script src="http://androiddevdocs-staging.appspot.com/ytblogger_lists_unified.js" type="text/javascript"></script>
+<script src="../../../../../../jd_lists_unified.js" type="text/javascript"></script>
+<script src="../../../../../../assets/js/jd_tag_helpers.js" type="text/javascript"></script>
+<link href="../../../../../../assets/css/resourcecards.css"  rel="stylesheet" type="text/css" />
+<script src="../../../../../../assets/js/resourcecards.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-5831155-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+</head>
+<body class="gc-documentation 
+  develop" itemscope itemtype="http://schema.org/Article">
+  <div id="doc-api-level" class="" style="display:none"></div>
+  <a name="top"></a>
+
+
+  <div class="wrap clearfix" id="body-content">
+    <div class="col-4" id="side-nav" itemscope itemtype="http://schema.org/SiteNavigationElement">
+      <div id="devdoc-nav">
+
+<a class="totop" href="#top" data-g-event="left-nav-top">to top</a>
+      <div id="api-nav-header">
+        <div id="api-nav-title">ExoPlayerLib APIs</div>
+        </div><!-- end nav header -->
+      <script>
+        var SINCE_DATA = [  ];
+        buildApiLevelSelector();
+      </script>
+                  
+      <div id="swapper">
+        <div id="nav-panels">
+          <div id="resize-packages-nav">
+            <div id="packages-nav" class="scroll-pane">
+
+              <ul>
+                
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
+    <li class="selected api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/parser/package-summary.html">com.google.android.exoplayer.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/parser/mp4/package-summary.html">com.google.android.exoplayer.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/parser/webm/package-summary.html">com.google.android.exoplayer.parser.webm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/upstream/cache/package-summary.html">com.google.android.exoplayer.upstream.cache</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/util/package-summary.html">com.google.android.exoplayer.util</a></li>
+              </ul><br/>
+
+            </div> <!-- end packages-nav -->
+          </div> <!-- end resize-packages -->
+          <div id="classes-nav" class="scroll-pane">
+
+
+
+            <ul>
+              
+              
+    <li><h2>Interfaces</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.EventListener.html">ChunkSampleSource.EventListener</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.html">FormatEvaluator</a></li>
+      </ul>
+    </li>
+              
+    <li><h2>Classes</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html">ChunkOperationHolder</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.DecreasingBandwidthComparator.html">Format.DecreasingBandwidthComparator</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.AdaptiveEvaluator.html">FormatEvaluator.AdaptiveEvaluator</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.Evaluation.html">FormatEvaluator.Evaluation</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.FixedEvaluator.html">FormatEvaluator.FixedEvaluator</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.RandomEvaluator.html">FormatEvaluator.RandomEvaluator</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html">Mp4MediaChunk</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MultiTrackChunkSource.html">MultiTrackChunkSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/SingleSampleMediaChunk.html">SingleSampleMediaChunk</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/WebmMediaChunk.html">WebmMediaChunk</a></li>
+      </ul>
+    </li>
+              
+              
+              
+            </ul><br/>
+        
+
+          </div><!-- end classes -->
+        </div><!-- end nav-panels -->
+        <div id="nav-tree" style="display:none" class="scroll-pane">
+          <div id="tree-list"></div>
+        </div><!-- end nav-tree -->
+      </div><!-- end swapper -->
+      <div id="nav-swap">
+      <a class="fullscreen">fullscreen</a>
+      <a href='#' onclick='swapNav();return false;'><span id='tree-link'>Use Tree Navigation</span><span id='panel-link' style='display:none'>Use Panel Navigation</span></a>
+      </div>
+    </div> <!-- end devdoc-nav -->
+    </div> <!-- end side-nav -->
+    <script type="text/javascript">
+      // init fullscreen based on user pref
+      var fullscreen = readCookie("fullscreen");
+      if (fullscreen != 0) {
+        if (fullscreen == "false") {
+          toggleFullscreen(false);
+        } else {
+          toggleFullscreen(true);
+        }
+      }
+      // init nav version for mobile
+      if (isMobile) {
+        swapNav(); // tree view should be used on mobile
+        $('#nav-swap').hide();
+      } else {
+        chooseDefaultNav();
+        if ($("#nav-tree").is(':visible')) {
+          init_default_navtree("../../../../../../");
+        }
+      }
+      // scroll the selected page into view
+      $(document).ready(function() {
+        scrollIntoView("packages-nav");
+        scrollIntoView("classes-nav");
+        });
+    </script>
+
+     
+
+
+
+<div class="col-12"  id="doc-col">
+
+<div id="api-info-block">
+
+
+
+
+<div class="sum-details-links">
+
+Summary:
+
+
+
+
+
+
+
+
+
+
+
+  <a href="#pubmethods">Methods</a>
+  
+
+
+
+&#124; <a href="#" onclick="return toggleAllClassInherited()" id="toggleAllClassInherited">[Expand All]</a>
+
+</div><!-- end sum-details-links -->
+<div class="api-level">
+  
+  
+  
+
+</div>
+</div><!-- end api-info-block -->
+
+
+<!-- ======== START OF CLASS DATA ======== -->
+
+<div id="jd-header">
+    public
+     
+     
+    
+    interface
+<h1 itemprop="name">ChunkSource</h1>
+
+
+
+  
+  
+  
+
+
+</div><!-- end header -->
+
+<div id="naMessage"></div>
+
+<div id="jd-content" class="api apilevel-">
+<table class="jd-inheritance-table">
+
+
+    <tr>
+         	
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.chunk.ChunkSource</td>
+    </tr>
+    
+
+</table>
+
+
+
+
+
+
+<table class="jd-sumtable jd-sumtable-subclasses"><tr><td colspan="12" style="border:none;margin:0;padding:0;">
+
+  <a href="#" onclick="return toggleInherited(this, null)" id="subclasses-indirect" class="jd-expando-trigger closed"
+          ><img id="subclasses-indirect-trigger"
+          src="../../../../../../assets/images/triangle-closed.png"
+          class="jd-expando-trigger-img" /></a>Known Indirect Subclasses
+
+  <div id="subclasses-indirect">
+      <div id="subclasses-indirect-list"
+              class="jd-inheritedlinks"
+              
+              >
+          
+            
+              <a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html">DashMp4ChunkSource</a>,
+            
+              <a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWebmChunkSource.html">DashWebmChunkSource</a>,
+            
+              <a href="../../../../../../reference/com/google/android/exoplayer/chunk/MultiTrackChunkSource.html">MultiTrackChunkSource</a>,
+            
+              <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingChunkSource.html">SmoothStreamingChunkSource</a>
+            
+          
+      </div>
+      <div id="subclasses-indirect-summary"
+              style="display: none;"
+              >
+  <table class="jd-sumtable-expando">
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html">DashMp4ChunkSource</a></td>
+              <td class="jd-descrcol" width="100%">An <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></code> for Mp4 DASH streams.&nbsp;</td>
+          </tr>
+        <tr class=" api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWebmChunkSource.html">DashWebmChunkSource</a></td>
+              <td class="jd-descrcol" width="100%">An <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></code> for WebM DASH streams.&nbsp;</td>
+          </tr>
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MultiTrackChunkSource.html">MultiTrackChunkSource</a></td>
+              <td class="jd-descrcol" width="100%">A <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></code> providing the ability to switch between multiple other <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></code>
+ instances.&nbsp;</td>
+          </tr>
+        <tr class=" api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingChunkSource.html">SmoothStreamingChunkSource</a></td>
+              <td class="jd-descrcol" width="100%">An <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></code> for SmoothStreaming.&nbsp;</td>
+          </tr>
+  </table>
+      </div>
+  </div>
+</td></tr></table>
+
+
+<div class="jd-descr">
+
+
+<h2>Class Overview</h2>
+<p itemprop="articleBody">A provider of <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></code>s for a <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a></code> to load.
+</p>
+
+
+
+
+
+</div><!-- jd-descr -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Summary</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
+
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#continueBuffering(long)">continueBuffering</a></span>(long playbackPositionUs)</nobr>
+        
+        <div class="jd-descrdiv">Indicates to the source that it should still be checking for updates to the stream.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#disable(java.util.List<com.google.android.exoplayer.chunk.MediaChunk>)">disable</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</nobr>
+        
+        <div class="jd-descrdiv">Called when the source is disabled.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#enable()">enable</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Called when the source is enabled.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#getChunkOperation(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>, long, long, com.google.android.exoplayer.chunk.ChunkOperationHolder)">getChunkOperation</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue, long seekPositionUs, long playbackPositionUs, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html">ChunkOperationHolder</a> out)</nobr>
+        
+        <div class="jd-descrdiv">Updates the provided <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html">ChunkOperationHolder</a></code> to contain the next operation that should
+ be performed by the calling <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a></code>.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#getError()">getError</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">If the <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></code> is currently unable to provide chunks through
+ <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#getChunkOperation(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>, long, long, com.google.android.exoplayer.chunk.ChunkOperationHolder)">getChunkOperation(List<? extends MediaChunk>, long, long, ChunkOperationHolder)</a></code>, then this method returns the underlying cause.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#getMaxVideoDimensions(com.google.android.exoplayer.MediaFormat)">getMaxVideoDimensions</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> out)</nobr>
+        
+        <div class="jd-descrdiv">Adaptive video <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></code> implementations must set the maximum video dimensions on
+ the supplied <code><a href="../../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a></code>.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="../../../../../../reference/com/google/android/exoplayer/TrackInfo.html">TrackInfo</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#getTrackInfo()">getTrackInfo</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Gets information about the track for which this instance provides <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></code>s.</div>
+  
+  </td></tr>
+
+
+
+</table>
+
+
+
+
+
+
+
+</div><!-- jd-descr (summary) -->
+
+<!-- Details -->
+
+
+
+
+
+
+
+
+<!-- XML Attributes -->
+
+
+<!-- Enum Values -->
+
+
+<!-- Constants -->
+
+
+<!-- Fields -->
+
+
+<!-- Public ctors -->
+
+
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<!-- Protected ctors -->
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+<!-- Public methdos -->
+
+<h2>Public Methods</h2>
+
+
+
+<A NAME="continueBuffering(long)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">continueBuffering</span>
+      <span class="normal">(long playbackPositionUs)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Indicates to the source that it should still be checking for updates to the stream.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>playbackPositionUs</td>
+          <td>The current playback position.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="disable(java.util.List<com.google.android.exoplayer.chunk.MediaChunk>)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">disable</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Called when the source is disabled.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>queue</td>
+          <td>A representation of the currently buffered <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a></code>s.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="enable()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">enable</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Called when the source is enabled.
+</p></div>
+
+    </div>
+</div>
+
+
+<A NAME="getChunkOperation(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>, long, long, com.google.android.exoplayer.chunk.ChunkOperationHolder)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">getChunkOperation</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue, long seekPositionUs, long playbackPositionUs, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html">ChunkOperationHolder</a> out)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Updates the provided <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html">ChunkOperationHolder</a></code> to contain the next operation that should
+ be performed by the calling <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a></code>.
+ <p>
+ The next operation comprises of a possibly shortened queue length (shortened if the
+ implementation wishes for the caller to discard <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a></code>s from the queue), together
+ with the next <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></code> to load. The next chunk may be a <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a></code> to be added to
+ the queue, or another <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></code> type (e.g. to load initialization data), or null if the
+ source is not able to provide a chunk in its current state.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>queue</td>
+          <td>A representation of the currently buffered <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a></code>s.</td>
+        </tr>
+        <tr>
+          <th>seekPositionUs</td>
+          <td>If the queue is empty, this parameter must specify the seek position. If
+     the queue is non-empty then this parameter is ignored.</td>
+        </tr>
+        <tr>
+          <th>playbackPositionUs</td>
+          <td>The current playback position.</td>
+        </tr>
+        <tr>
+          <th>out</td>
+          <td>A holder for the next operation, whose <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html#queueSize">queueSize</a></code> is
+     initially equal to the length of the queue, and whose <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html#chunk">chunk</a></code> is
+     initially equal to null or a <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></code> previously supplied by the <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></code>
+     that the caller has not yet finished loading. In the latter case the chunk can either be
+     replaced or left unchanged. Note that leaving the chunk unchanged is both preferred and
+     more efficient than replacing it with a new but identical chunk.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getError()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        <a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a>
+      </span>
+      <span class="sympad">getError</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>If the <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></code> is currently unable to provide chunks through
+ <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#getChunkOperation(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>, long, long, com.google.android.exoplayer.chunk.ChunkOperationHolder)">getChunkOperation(List<? extends MediaChunk>, long, long, ChunkOperationHolder)</a></code>, then this method returns the underlying cause. Returns
+ null otherwise.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>An <code><a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a></code>, or null.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getMaxVideoDimensions(com.google.android.exoplayer.MediaFormat)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">getMaxVideoDimensions</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> out)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Adaptive video <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></code> implementations must set the maximum video dimensions on
+ the supplied <code><a href="../../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a></code>. Other implementations do nothing.
+ <p>
+ Only called when the source is enabled.
+</p></div>
+
+    </div>
+</div>
+
+
+<A NAME="getTrackInfo()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        <a href="../../../../../../reference/com/google/android/exoplayer/TrackInfo.html">TrackInfo</a>
+      </span>
+      <span class="sympad">getTrackInfo</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Gets information about the track for which this instance provides <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></code>s.
+ <p>
+ May be called when the source is disabled or enabled.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>Information about the track.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+
+
+
+<!-- ========= END OF CLASS DATA ========= -->
+<A NAME="navbar_top"></A>
+
+<div id="footer" class="wrap" >
+        
+<div id="copyright">
+  
+  Except as noted, this content is licensed under <a
+  href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a>.
+</div>
+
+</div> <!-- end footer -->
+
+</div> <!-- jd-content -->
+
+</div><!-- end doc-content -->
+
+</div> <!-- end body-content --> 
+
+
+
+
+
+
+</body>
+</html>

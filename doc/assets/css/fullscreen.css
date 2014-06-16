@@ -1,0 +1,200 @@
+
+/* =============================================================================
+   Columns
+   ========================================================================== */
+/* Applied to body to debug layout alignments
+.grid {
+  width:100%;
+  height:100%;
+  background:url(../images/grid.png) center repeat-y;
+  top:0px;
+  margin:auto;
+  position:absolute;
+}   
+*/
+
+@media screen, projection, print {
+.full {
+	padding: 2.5em 0;
+	border-top: solid 1px #ddd;
+	border-bottom: solid 1px #ddd;
+	background: #f7f7f7;	
+}
+.wrap {
+	margin: 0 auto;
+	width: 100%;
+	min-width:600px;
+	clear: both;
+}
+.cols {
+    height: 1%;
+    margin: 0 -1.533742331288343558282%;
+    width: 103.06748466257669%}
+*+html .cols {
+    margin-bottom: 20px;
+}
+.cols:after {
+    clear: both;
+    content: ' ';
+    display: block;
+    height: 0;
+    visibility: hidden;
+}
+.col-1, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-10, .col-11, .col-12,
+.col-13, .col-14, .col-15, .col-16 {
+    float: left;
+    margin: 0 1.063829787234% 20px 1.063829787234%;
+}
+* html .col-1, * html .col-2, * html .col-3, * html .col-4, * html .col-5, * html .col-6, * html
+.col-7, * html .col-8, * html .col-9, * html .col-10, * html .col-11, * html .col-12, * html
+.col-13, * html .col-14, * html .col-15, * html .col-16  {
+    margin: 0;
+    margin: 0 1.063829787234% 20px 1.063829787234%;
+}
+[dir='rtl'] .col-1, [dir='rtl'] .col-2, [dir='rtl'] .col-3, [dir='rtl'] .col-4, [dir='rtl'] .col-5,
+[dir='rtl'] .col-6, [dir='rtl'] .col-7, [dir='rtl'] .col-8, [dir='rtl'] .col-9, [dir='rtl'] .col-10,
+[dir='rtl'] .col-11, [dir='rtl'] .col-12 {
+    float: right;
+}
+.col-1 {
+    width: 4.16666666666667%;
+}
+.col-2 {
+    width: 10.4166666666667%;
+}
+.col-3 {
+    width: 16.6666666666667%;
+}
+.col-4 {
+    width: 22.9166666666667%;
+}
+.col-5 {
+    width: 29.1666666666667%;
+}
+.col-6 {
+    width: 35.4166666666667%;
+}
+.col-7 {
+    width: 41.6666666666667%;
+}
+.col-8 {
+    width: 47.9166666666667%;
+}
+.col-9 {
+    width: 55.3333333333333%;
+}
+.col-10 {
+    width: 60.4166666666667%;
+}
+.col-11 {
+    width: 66.6666666666667%;
+}
+.col-12 {
+    width: 72.9166666666667%;
+}
+.col-13 {
+    width: 79.1666666666667%;
+}
+.col-14 {
+    width: 85.4166666666667%;
+}
+.col-15 {
+    width: 91.6666666666667%;
+}
+.col-16 {
+    width: 97.9166666666667%;
+}
+
+
+
+
+
+
+
+#header .col-1,
+#nav-x .col-1 { width: 40px }
+#header .col-2,
+#nav-x .col-2 { width: 100px }
+#header .col-3,
+#nav-x .col-3 { width: 160px }
+#header .col-4,
+#nav-x .col-4 { width: 220px }
+#header .col-5,
+#nav-x .col-5 { width: 280px }
+#header .col-6,
+#nav-x .col-6 { width: 340px }
+#header .col-7,
+#nav-x .col-7 { width: 400px }
+#header .col-8,
+#nav-x .col-8 { width: 460px }
+#header .col-9,
+#nav-x .col-9 { width: 520px }
+#header .col-10,
+#nav-x .col-10 { width: 580px }
+#header .col-11,
+#nav-x .col-11 { width: 640px }
+#header .col-12,
+#nav-x .col-12 { width: 700px }
+#header .col-13,
+#nav-x .col-13 { width: 760px }
+#header .col-14,
+#nav-x .col-14 { width: 820px }
+#header .col-15,
+#nav-x .col-15 { width: 880px }
+#header .col-16,
+#nav-x .col-16 { width: 940px }
+
+
+
+body {
+  padding:0 20px;
+}
+#header,
+#searchResults,
+#nav-x {
+  margin:0;
+}
+#body-content {
+  margin:0;
+}
+#body-content > .col-12 {
+  width:77.9804965%;
+  margin:0 0 0 0.97%; /* this percentage chosen to make IE9 happy */
+}
+#side-nav {
+  width: 19.9804965%;
+  margin:0 1.063829787234% 0 0;
+}
+
+#header .wrap {
+  max-width: 100%;
+}
+
+#nav-x .wrap,
+#searchResults.wrap {
+    max-width:100%;
+}
+
+.nav-x {
+  margin:-2px 0 0 0;
+}
+
+#devdoc-nav.fixed,
+#devdoc-nav.fixed a.totop {
+  left:20px; /* !important ... for IE i think */
+}
+
+
+
+
+}
+
+.col-right {
+  margin-right:0px;
+}
+
+@media screen and (max-width:772px) {
+.col-5, .col-6, .col-7 {
+    clear: both;
+    width: 97.0238096%}
+}

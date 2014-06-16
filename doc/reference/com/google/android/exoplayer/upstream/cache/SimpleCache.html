@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width" />
+
+<link rel="shortcut icon" type="image/x-icon" href="../../../../../../../favicon.ico" />
+<title>SimpleCache - ExoPlayer | Android Developers</title>
+
+<!-- STYLESHEETS -->
+<link rel="stylesheet"
+href="http://fonts.googleapis.com/css?family=Roboto:regular,medium,thin,italic,mediumitalic,bold" title="roboto">
+<link href="../../../../../../../assets/css/default.css" rel="stylesheet" type="text/css">
+
+
+<!-- FULLSCREEN STYLESHEET -->
+<link href="../../../../../../../assets/css/fullscreen.css" rel="stylesheet" class="fullscreen"
+type="text/css">
+
+
+<!-- JAVASCRIPT -->
+<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+<script src="../../../../../../../assets/js/android_3p-bundle.js" type="text/javascript"></script>
+<script type="text/javascript">
+  var toRoot = "../../../../../../../";
+  var metaTags = [];
+  var devsite = false;
+</script>
+<script src="../../../../../../../assets/js/docs.js" type="text/javascript"></script>
+
+<!-- RESOURCES LIBRARY -->
+<script src="http://androiddevdocs-staging.appspot.com/ytblogger_lists_unified.js" type="text/javascript"></script>
+<script src="../../../../../../../jd_lists_unified.js" type="text/javascript"></script>
+<script src="../../../../../../../assets/js/jd_tag_helpers.js" type="text/javascript"></script>
+<link href="../../../../../../../assets/css/resourcecards.css"  rel="stylesheet" type="text/css" />
+<script src="../../../../../../../assets/js/resourcecards.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-5831155-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+</head>
+<body class="gc-documentation 
+  develop" itemscope itemtype="http://schema.org/Article">
+  <div id="doc-api-level" class="" style="display:none"></div>
+  <a name="top"></a>
+
+
+  <div class="wrap clearfix" id="body-content">
+    <div class="col-4" id="side-nav" itemscope itemtype="http://schema.org/SiteNavigationElement">
+      <div id="devdoc-nav">
+
+<a class="totop" href="#top" data-g-event="left-nav-top">to top</a>
+      <div id="api-nav-header">
+        <div id="api-nav-title">ExoPlayerLib APIs</div>
+        </div><!-- end nav header -->
+      <script>
+        var SINCE_DATA = [  ];
+        buildApiLevelSelector();
+      </script>
+                  
+      <div id="swapper">
+        <div id="nav-panels">
+          <div id="resize-packages-nav">
+            <div id="packages-nav" class="scroll-pane">
+
+              <ul>
+                
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/parser/package-summary.html">com.google.android.exoplayer.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/package-summary.html">com.google.android.exoplayer.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/parser/webm/package-summary.html">com.google.android.exoplayer.parser.webm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
+    <li class="selected api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/package-summary.html">com.google.android.exoplayer.upstream.cache</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/util/package-summary.html">com.google.android.exoplayer.util</a></li>
+              </ul><br/>
+
+            </div> <!-- end packages-nav -->
+          </div> <!-- end resize-packages -->
+          <div id="classes-nav" class="scroll-pane">
+
+
+
+            <ul>
+              
+              
+    <li><h2>Interfaces</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheEvictor.html">CacheEvictor</a></li>
+      </ul>
+    </li>
+              
+    <li><h2>Classes</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSink.html">CacheDataSink</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.html">CacheDataSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/LeastRecentlyUsedCacheEvictor.html">LeastRecentlyUsedCacheEvictor</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/NoOpCacheEvictor.html">NoOpCacheEvictor</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html">SimpleCache</a></li>
+      </ul>
+    </li>
+              
+              
+    <li><h2>Exceptions</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSink.CacheDataSinkException.html">CacheDataSink.CacheDataSinkException</a></li>
+      </ul>
+    </li>
+              
+            </ul><br/>
+        
+
+          </div><!-- end classes -->
+        </div><!-- end nav-panels -->
+        <div id="nav-tree" style="display:none" class="scroll-pane">
+          <div id="tree-list"></div>
+        </div><!-- end nav-tree -->
+      </div><!-- end swapper -->
+      <div id="nav-swap">
+      <a class="fullscreen">fullscreen</a>
+      <a href='#' onclick='swapNav();return false;'><span id='tree-link'>Use Tree Navigation</span><span id='panel-link' style='display:none'>Use Panel Navigation</span></a>
+      </div>
+    </div> <!-- end devdoc-nav -->
+    </div> <!-- end side-nav -->
+    <script type="text/javascript">
+      // init fullscreen based on user pref
+      var fullscreen = readCookie("fullscreen");
+      if (fullscreen != 0) {
+        if (fullscreen == "false") {
+          toggleFullscreen(false);
+        } else {
+          toggleFullscreen(true);
+        }
+      }
+      // init nav version for mobile
+      if (isMobile) {
+        swapNav(); // tree view should be used on mobile
+        $('#nav-swap').hide();
+      } else {
+        chooseDefaultNav();
+        if ($("#nav-tree").is(':visible')) {
+          init_default_navtree("../../../../../../../");
+        }
+      }
+      // scroll the selected page into view
+      $(document).ready(function() {
+        scrollIntoView("packages-nav");
+        scrollIntoView("classes-nav");
+        });
+    </script>
+
+     
+
+
+
+<div class="col-12"  id="doc-col">
+
+<div id="api-info-block">
+
+
+
+  
+   
+  
+  
+  
+  
+
+  
+   
+  
+  
+  
+  
+
+
+<div class="sum-details-links">
+
+Summary:
+
+
+
+
+
+
+
+
+
+  <a href="#pubctors">Ctors</a>
+  
+
+
+
+  &#124; <a href="#pubmethods">Methods</a>
+  
+
+
+
+  &#124; <a href="#inhmethods">Inherited Methods</a>
+
+&#124; <a href="#" onclick="return toggleAllClassInherited()" id="toggleAllClassInherited">[Expand All]</a>
+
+</div><!-- end sum-details-links -->
+<div class="api-level">
+  
+  
+  
+
+</div>
+</div><!-- end api-info-block -->
+
+
+<!-- ======== START OF CLASS DATA ======== -->
+
+<div id="jd-header">
+    public
+     
+     
+    
+    class
+<h1 itemprop="name">SimpleCache</h1>
+
+
+
+  
+    extends <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a><br/>
+  
+  
+  
+
+  
+  
+      implements 
+      
+        <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a> 
+      
+  
+  
+
+
+</div><!-- end header -->
+
+<div id="naMessage"></div>
+
+<div id="jd-content" class="api apilevel-">
+<table class="jd-inheritance-table">
+
+
+    <tr>
+         	
+        <td colspan="2" class="jd-inheritance-class-cell"><a href="http://developer.android.com/reference/java/lang/Object.html">java.lang.Object</a></td>
+    </tr>
+    
+
+    <tr>
+        
+            <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
+         	
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.upstream.cache.SimpleCache</td>
+    </tr>
+    
+
+</table>
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Class Overview</h2>
+<p itemprop="articleBody">A <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a></code> implementation that maintains an in-memory representation.
+</p>
+
+
+
+
+
+</div><!-- jd-descr -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Summary</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<table id="pubctors" class="jd-sumtable"><tr><th colspan="12">Public Constructors</th></tr>
+
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            </nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#SimpleCache(java.io.File, com.google.android.exoplayer.upstream.cache.CacheEvictor)">SimpleCache</a></span>(<a href="http://developer.android.com/reference/java/io/File.html">File</a> cacheDir, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheEvictor.html">CacheEvictor</a> evictor)</nobr>
+        
+        <div class="jd-descrdiv">Constructs the cache.</div>
+  
+  </td></tr>
+
+
+
+</table>
+
+
+
+
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
+
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            synchronized
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/util/NavigableSet.html">NavigableSet</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>&gt;</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#addListener(java.lang.String, com.google.android.exoplayer.upstream.cache.Cache.Listener)">addListener</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</nobr>
+        
+        <div class="jd-descrdiv">Registers a listener to listen for changes to a given key.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            synchronized
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#commitFile(java.io.File)">commitFile</a></span>(<a href="http://developer.android.com/reference/java/io/File.html">File</a> file)</nobr>
+        
+        <div class="jd-descrdiv">Commits a file into the cache.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            synchronized
+            
+            
+            
+            long</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#getCacheSpace()">getCacheSpace</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Returns the total disk space in bytes used by the cache.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            synchronized
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/util/NavigableSet.html">NavigableSet</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>&gt;</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#getCachedSpans(java.lang.String)">getCachedSpans</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key)</nobr>
+        
+        <div class="jd-descrdiv">Returns the cached spans for a given cache key.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            synchronized
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/util/Set.html">Set</a>&lt;<a href="http://developer.android.com/reference/java/lang/String.html">String</a>&gt;</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#getKeys()">getKeys</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Returns all keys in the cache.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            synchronized
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#releaseHoleSpan(com.google.android.exoplayer.upstream.cache.CacheSpan)">releaseHoleSpan</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> holeSpan)</nobr>
+        
+        <div class="jd-descrdiv">Releases a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> obtained from <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code> which
+ corresponded to a hole in the cache.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            synchronized
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#removeListener(java.lang.String, com.google.android.exoplayer.upstream.cache.Cache.Listener)">removeListener</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</nobr>
+        
+        <div class="jd-descrdiv">Unregisters a listener.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            synchronized
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#removeSpan(com.google.android.exoplayer.upstream.cache.CacheSpan)">removeSpan</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> span)</nobr>
+        
+        <div class="jd-descrdiv">Removes a cached <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> from the cache, deleting the underlying file.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            synchronized
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/io/File.html">File</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#startFile(java.lang.String, long, long)">startFile</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, long length)</nobr>
+        
+        <div class="jd-descrdiv">Obtains a cache file into which data can be written.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            synchronized
+            
+            
+            
+            <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#startReadWrite(java.lang.String, long)">startReadWrite</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</nobr>
+        
+        <div class="jd-descrdiv">A caller should invoke this method when they require data from a given position for a given
+ key.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            synchronized
+            
+            
+            
+            <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#startReadWriteNonBlocking(java.lang.String, long)">startReadWriteNonBlocking</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</nobr>
+        
+        <div class="jd-descrdiv">Same as <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code>.</div>
+  
+  </td></tr>
+
+
+
+</table>
+
+
+
+
+
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="inhmethods" class="jd-sumtable"><tr><th>
+  <a href="#" class="toggle-all" onclick="return toggleAllInherited(this, null)">[Expand]</a>
+  <div style="clear:left;">Inherited Methods</div></th></tr>
+
+
+<tr class="api apilevel-" >
+<td colspan="12">
+  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-java.lang.Object" class="jd-expando-trigger closed"
+          ><img id="inherited-methods-java.lang.Object-trigger"
+          src="../../../../../../../assets/images/triangle-closed.png"
+          class="jd-expando-trigger-img" /></a>
+From class
+
+  <a href="http://developer.android.com/reference/java/lang/Object.html">java.lang.Object</a>
+
+<div id="inherited-methods-java.lang.Object">
+  <div id="inherited-methods-java.lang.Object-list"
+        class="jd-inheritedlinks">
+  </div>
+  <div id="inherited-methods-java.lang.Object-summary" style="display: none;">
+    <table class="jd-sumtable-expando">
+    
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">clone</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">finalize</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/Class.html">Class</a>&lt;?&gt;</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">getClass</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">hashCode</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">notify</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">notifyAll</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">toString</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">wait</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">wait</span>(long arg0, int arg1)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">wait</span>(long arg0)</nobr>
+        
+  </td></tr>
+
+
+</table>
+  </div>
+</div>
+</td></tr>
+
+
+
+<tr class="api apilevel-" >
+<td colspan="12">
+  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-com.google.android.exoplayer.upstream.cache.Cache" class="jd-expando-trigger closed"
+          ><img id="inherited-methods-com.google.android.exoplayer.upstream.cache.Cache-trigger"
+          src="../../../../../../../assets/images/triangle-closed.png"
+          class="jd-expando-trigger-img" /></a>
+From interface
+
+  <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">com.google.android.exoplayer.upstream.cache.Cache</a>
+
+<div id="inherited-methods-com.google.android.exoplayer.upstream.cache.Cache">
+  <div id="inherited-methods-com.google.android.exoplayer.upstream.cache.Cache-list"
+        class="jd-inheritedlinks">
+  </div>
+  <div id="inherited-methods-com.google.android.exoplayer.upstream.cache.Cache-summary" style="display: none;">
+    <table class="jd-sumtable-expando">
+    
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/util/NavigableSet.html">NavigableSet</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>&gt;</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#addListener(java.lang.String, com.google.android.exoplayer.upstream.cache.Cache.Listener)">addListener</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</nobr>
+        
+        <div class="jd-descrdiv">Registers a listener to listen for changes to a given key.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#commitFile(java.io.File)">commitFile</a></span>(<a href="http://developer.android.com/reference/java/io/File.html">File</a> file)</nobr>
+        
+        <div class="jd-descrdiv">Commits a file into the cache.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            long</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#getCacheSpace()">getCacheSpace</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Returns the total disk space in bytes used by the cache.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/util/NavigableSet.html">NavigableSet</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>&gt;</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#getCachedSpans(java.lang.String)">getCachedSpans</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key)</nobr>
+        
+        <div class="jd-descrdiv">Returns the cached spans for a given cache key.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/util/Set.html">Set</a>&lt;<a href="http://developer.android.com/reference/java/lang/String.html">String</a>&gt;</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#getKeys()">getKeys</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Returns all keys in the cache.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#releaseHoleSpan(com.google.android.exoplayer.upstream.cache.CacheSpan)">releaseHoleSpan</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> holeSpan)</nobr>
+        
+        <div class="jd-descrdiv">Releases a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> obtained from <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code> which
+ corresponded to a hole in the cache.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#removeListener(java.lang.String, com.google.android.exoplayer.upstream.cache.Cache.Listener)">removeListener</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</nobr>
+        
+        <div class="jd-descrdiv">Unregisters a listener.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#removeSpan(com.google.android.exoplayer.upstream.cache.CacheSpan)">removeSpan</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> span)</nobr>
+        
+        <div class="jd-descrdiv">Removes a cached <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> from the cache, deleting the underlying file.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/io/File.html">File</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startFile(java.lang.String, long, long)">startFile</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, long length)</nobr>
+        
+        <div class="jd-descrdiv">Obtains a cache file into which data can be written.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</nobr>
+        
+        <div class="jd-descrdiv">A caller should invoke this method when they require data from a given position for a given
+ key.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWriteNonBlocking(java.lang.String, long)">startReadWriteNonBlocking</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</nobr>
+        
+        <div class="jd-descrdiv">Same as <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code>.</div>
+  
+  </td></tr>
+
+
+</table>
+  </div>
+</div>
+</td></tr>
+
+
+</table>
+
+
+</div><!-- jd-descr (summary) -->
+
+<!-- Details -->
+
+
+
+
+
+
+
+
+<!-- XML Attributes -->
+
+
+<!-- Enum Values -->
+
+
+<!-- Constants -->
+
+
+<!-- Fields -->
+
+
+<!-- Public ctors -->
+
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<h2>Public Constructors</h2>
+
+
+
+<A NAME="SimpleCache(java.io.File, com.google.android.exoplayer.upstream.cache.CacheEvictor)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        
+      </span>
+      <span class="sympad">SimpleCache</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/io/File.html">File</a> cacheDir, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheEvictor.html">CacheEvictor</a> evictor)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
+ the directory cannot be used to store other files.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>cacheDir</td>
+          <td>A dedicated cache directory.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<!-- Protected ctors -->
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+<!-- Public methdos -->
+
+<h2>Public Methods</h2>
+
+
+
+<A NAME="addListener(java.lang.String, com.google.android.exoplayer.upstream.cache.Cache.Listener)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+        synchronized 
+        <a href="http://developer.android.com/reference/java/util/NavigableSet.html">NavigableSet</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>&gt;
+      </span>
+      <span class="sympad">addListener</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Registers a listener to listen for changes to a given key.
+ <p>
+ No guarantees are made about the thread or threads on which the listener is invoked, but it
+ is guaranteed that listener methods will be invoked in a serial fashion (i.e. one at a time)
+ and in the same order as events occurred.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>key</td>
+          <td>The key to listen to.</td>
+        </tr>
+        <tr>
+          <th>listener</td>
+          <td>The listener to add.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The current spans for the key.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="commitFile(java.io.File)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+        synchronized 
+        void
+      </span>
+      <span class="sympad">commitFile</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/io/File.html">File</a> file)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Commits a file into the cache. Must only be called when holding a corresponding hole
+ <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> obtained from <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code></p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>file</td>
+          <td>A newly written cache file.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getCacheSpace()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+        synchronized 
+        long
+      </span>
+      <span class="sympad">getCacheSpace</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the total disk space in bytes used by the cache.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The total disk space in bytes.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getCachedSpans(java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+        synchronized 
+        <a href="http://developer.android.com/reference/java/util/NavigableSet.html">NavigableSet</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>&gt;
+      </span>
+      <span class="sympad">getCachedSpans</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the cached spans for a given cache key.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>key</td>
+          <td>The key for which spans should be returned.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The spans for the key. May be null if there are no such spans.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getKeys()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+        synchronized 
+        <a href="http://developer.android.com/reference/java/util/Set.html">Set</a>&lt;<a href="http://developer.android.com/reference/java/lang/String.html">String</a>&gt;
+      </span>
+      <span class="sympad">getKeys</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns all keys in the cache.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>All the keys in the cache.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="releaseHoleSpan(com.google.android.exoplayer.upstream.cache.CacheSpan)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+        synchronized 
+        void
+      </span>
+      <span class="sympad">releaseHoleSpan</span>
+      <span class="normal">(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> holeSpan)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Releases a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> obtained from <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code> which
+ corresponded to a hole in the cache.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>holeSpan</td>
+          <td>The <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> being released.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="removeListener(java.lang.String, com.google.android.exoplayer.upstream.cache.Cache.Listener)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+        synchronized 
+        void
+      </span>
+      <span class="sympad">removeListener</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Unregisters a listener.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>key</td>
+          <td>The key to stop listening to.</td>
+        </tr>
+        <tr>
+          <th>listener</td>
+          <td>The listener to remove.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="removeSpan(com.google.android.exoplayer.upstream.cache.CacheSpan)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+        synchronized 
+        void
+      </span>
+      <span class="sympad">removeSpan</span>
+      <span class="normal">(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> span)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Removes a cached <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> from the cache, deleting the underlying file.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>span</td>
+          <td>The <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> to remove.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="startFile(java.lang.String, long, long)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+        synchronized 
+        <a href="http://developer.android.com/reference/java/io/File.html">File</a>
+      </span>
+      <span class="sympad">startFile</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, long length)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Obtains a cache file into which data can be written. Must only be called when holding a
+ corresponding hole <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> obtained from <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code>.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>key</td>
+          <td>The cache key for the data.</td>
+        </tr>
+        <tr>
+          <th>position</td>
+          <td>The starting position of the data.</td>
+        </tr>
+        <tr>
+          <th>length</td>
+          <td>The length of the data to be written. Used only to ensure that there is enough
+     space in the cache.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The file into which data should be written.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="startReadWrite(java.lang.String, long)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+        synchronized 
+        <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>
+      </span>
+      <span class="sympad">startReadWrite</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>A caller should invoke this method when they require data from a given position for a given
+ key.
+ <p>
+ If there is a cache entry that overlaps the position, then the returned <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code>
+ defines the file in which the data is stored. <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html#isCached">isCached</a></code> is true. The caller
+ may read from the cache file, but does not acquire any locks.
+ <p>
+ If there is no cache entry overlapping <code>offset</code>, then the returned <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code>
+ defines a hole in the cache starting at <code>position</code> into which the caller may write as it
+ obtains the data from some other source. The returned <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> serves as a lock.
+ Whilst the caller holds the lock it may write data into the hole. It may split data into
+ multiple files. When the caller has finished writing a file it should commit it to the cache
+ by calling <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#commitFile(java.io.File)">commitFile(File)</a></code>. When the caller has finished writing, it must release
+ the lock by calling <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#releaseHoleSpan(com.google.android.exoplayer.upstream.cache.CacheSpan)">releaseHoleSpan(CacheSpan)</a></code>.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>key</td>
+          <td>The key of the data being requested.</td>
+        </tr>
+        <tr>
+          <th>position</td>
+          <td>The position of the data being requested.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code>.</li></ul>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Throws</h5>
+      <table class="jd-tagtable">  
+        <tr>
+            <th><a href="http://developer.android.com/reference/java/lang/InterruptedException.html">InterruptedException</a></td>
+            <td></td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="startReadWriteNonBlocking(java.lang.String, long)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+        synchronized 
+        <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>
+      </span>
+      <span class="sympad">startReadWriteNonBlocking</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Same as <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code>. However, if the cache entry is locked, then
+ instead of blocking, this method will return null as the <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code>.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>key</td>
+          <td>The key of the data being requested.</td>
+        </tr>
+        <tr>
+          <th>position</td>
+          <td>The position of the data being requested.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code>. Or null if the cache entry is locked.</li></ul>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Throws</h5>
+      <table class="jd-tagtable">  
+        <tr>
+            <th><a href="http://developer.android.com/reference/java/lang/InterruptedException.html">InterruptedException</a></td>
+            <td></td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+
+
+
+<!-- ========= END OF CLASS DATA ========= -->
+<A NAME="navbar_top"></A>
+
+<div id="footer" class="wrap" >
+        
+<div id="copyright">
+  
+  Except as noted, this content is licensed under <a
+  href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a>.
+</div>
+
+</div> <!-- end footer -->
+
+</div> <!-- jd-content -->
+
+</div><!-- end doc-content -->
+
+</div> <!-- end body-content --> 
+
+
+
+
+
+
+</body>
+</html>
