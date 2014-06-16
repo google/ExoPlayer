@@ -1,0 +1,123 @@
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.google.android.exoplayer.upstream.cache;
+
+import com.google.android.exoplayer.upstream.DataSink;
+import com.google.android.exoplayer.upstream.DataSpec;
+import com.google.android.exoplayer.util.Assertions;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+/**
+ * Writes data into a cache.
+ */
+public class CacheDataSink implements DataSink {
+
+  private final Cache cache;
+  private final long maxCacheFileSize;
+
+  private DataSpec dataSpec;
+  private File file;
+  private FileOutputStream outputStream;
+  private long outputStreamBytesWritten;
+  private long dataSpecBytesWritten;
+
+  /**
+   * Thrown when IOException is encountered when writing data into sink.
+   */
+  public static class CacheDataSinkException extends IOException {
+
+    public CacheDataSinkException(IOException cause) {
+      super(cause);
+    }
+
+  }
+
+
+  /**
+   * @param cache The cache into which data should be written.
+   * @param maxCacheFileSize The maximum size of a cache file, in bytes. If the sink is opened for
+   *    a {@link DataSpec} whose size exceeds this value, then the data will be fragmented into
+   *    multiple cache files.
+   */
+  public CacheDataSink(Cache cache, long maxCacheFileSize) {
+    this.cache = Assertions.checkNotNull(cache);
+    this.maxCacheFileSize = maxCacheFileSize;
+  }
+
+  @Override
+  public DataSink open(DataSpec dataSpec) throws CacheDataSinkException {
+    try {
+      this.dataSpec = dataSpec;
+      dataSpecBytesWritten = 0;
+      openNextOutputStream();
+      return this;
+    } catch (FileNotFoundException e) {
+      throw new CacheDataSinkException(e);
+    }
+  }
+
+  @Override
+  public void write(byte[] buffer, int offset, int length) throws CacheDataSinkException {
+    try {
+      int bytesWritten = 0;
+      while (bytesWritten < length) {
+        if (outputStreamBytesWritten == maxCacheFileSize) {
+          closeCurrentOutputStream();
+          openNextOutputStream();
+        }
+        int bytesToWrite = (int) Math.min(length - bytesWritten,
+            maxCacheFileSize - outputStreamBytesWritten);
+        outputStream.write(buffer, offset + bytesWritten, bytesToWrite);
+        bytesWritten += bytesToWrite;
+        outputStreamBytesWritten += bytesToWrite;
+        dataSpecBytesWritten += bytesToWrite;
+      }
+    } catch (IOException e) {
+      throw new CacheDataSinkException(e);
+    }
+  }
+
+  @Override
+  public void close() throws CacheDataSinkException {
+    try {
+      closeCurrentOutputStream();
+    } catch (IOException e) {
+      throw new CacheDataSinkException(e);
+    }
+  }
+
+  private void openNextOutputStream() throws FileNotFoundException {
+    file = cache.startFile(dataSpec.key, dataSpec.absoluteStreamPosition + dataSpecBytesWritten,
+        Math.min(dataSpec.length - dataSpecBytesWritten, maxCacheFileSize));
+    outputStream = new FileOutputStream(file);
+    outputStreamBytesWritten = 0;
+  }
+
+  private void closeCurrentOutputStream() throws IOException {
+    if (outputStream != null) {
+      outputStream.flush();
+      outputStream.close();
+      outputStream = null;
+      cache.commitFile(file);
+      file = null;
+    }
+  }
+
+}
