@@ -113,7 +113,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
       try {
         drmSessionManager = V18Compat.getDrmSessionManager(manifest.protectionElement.uuid, player,
             drmCallback);
-      } catch (UnsupportedSchemeException e) {
+      } catch (Exception e) {
         callback.onRenderersError(e);
         return;
       }
