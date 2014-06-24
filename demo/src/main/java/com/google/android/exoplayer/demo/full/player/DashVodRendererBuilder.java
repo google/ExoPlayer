@@ -153,7 +153,7 @@ public class DashVodRendererBuilder implements RendererBuilder,
           // HD streams require L1 security.
           videoRepresentations = getSdRepresentations(videoRepresentations);
         }
-      } catch (UnsupportedSchemeException e) {
+      } catch (Exception e) {
         callback.onRenderersError(e);
         return;
       }

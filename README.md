@@ -19,6 +19,13 @@ get started.
 [ExoPlayer developer guide]: http://developer.android.com/guide/topics/media/exoplayer.html
 
 
+## Reference documentation ##
+
+[Class reference][] (Documents the ExoPlayer library classes).
+
+[Class reference]: http://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer/package-summary.html
+
+
 ## Using Eclipse ##
 
 The repository includes Eclipse projects for both the ExoPlayer library and its
