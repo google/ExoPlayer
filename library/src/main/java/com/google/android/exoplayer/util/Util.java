@@ -117,99 +117,13 @@ public final class Util {
     return text == null ? null : text.toLowerCase(Locale.US);
   }
 
-  /**
-   * Like {@link Uri#parse(String)}, but discards the part of the uri that follows the final
-   * forward slash.
-   *
-   * @param uriString An RFC 2396-compliant, encoded uri.
-   * @return The parsed base uri.
-   */
-  public static Uri parseBaseUri(String uriString) {
-    return Uri.parse(uriString.substring(0, uriString.lastIndexOf('/')));
+  public static String makeAbsoluteUrl(String baseUrl, String relativeUrl) {
+    try {
+        URL baseURL = new URL(baseUrl);
+        URL absoluteURL = new URL(baseURL , relativeUrl);
+        return absoluteURL.toString();
+    } catch (Exception e) {
+        return baseUrl + "/" + relativeUrl;
+    }
   }
-
-  /**
-   * Returns the index of the largest value in an array that is less than (or optionally equal to)
-   * a specified key.
-   * <p>
-   * The search is performed using a binary search algorithm, and so the array must be sorted.
-   *
-   * @param a The array to search.
-   * @param key The key being searched for.
-   * @param inclusive If the key is present in the array, whether to return the corresponding index.
-   *     If false then the returned index corresponds to the largest value in the array that is
-   *     strictly less than the key.
-   * @param stayInBounds If true, then 0 will be returned in the case that the key is smaller than
-   *     the smallest value in the array. If false then -1 will be returned.
-   */
-  public static int binarySearchFloor(long[] a, long key, boolean inclusive, boolean stayInBounds) {
-    int index = Arrays.binarySearch(a, key);
-    index = index < 0 ? -(index + 2) : (inclusive ? index : (index - 1));
-    return stayInBounds ? Math.max(0, index) : index;
-  }
-
-  /**
-   * Returns the index of the smallest value in an array that is greater than (or optionally equal
-   * to) a specified key.
-   * <p>
-   * The search is performed using a binary search algorithm, and so the array must be sorted.
-   *
-   * @param a The array to search.
-   * @param key The key being searched for.
-   * @param inclusive If the key is present in the array, whether to return the corresponding index.
-   *     If false then the returned index corresponds to the smallest value in the array that is
-   *     strictly greater than the key.
-   * @param stayInBounds If true, then {@code (a.length - 1)} will be returned in the case that the
-   *     key is greater than the largest value in the array. If false then {@code a.length} will be
-   *     returned.
-   */
-  public static int binarySearchCeil(long[] a, long key, boolean inclusive, boolean stayInBounds) {
-    int index = Arrays.binarySearch(a, key);
-    index = index < 0 ? ~index : (inclusive ? index : (index + 1));
-    return stayInBounds ? Math.min(a.length - 1, index) : index;
-  }
-
-  /**
-   * Returns the index of the largest value in an list that is less than (or optionally equal to)
-   * a specified key.
-   * <p>
-   * The search is performed using a binary search algorithm, and so the list must be sorted.
-   *
-   * @param list The list to search.
-   * @param key The key being searched for.
-   * @param inclusive If the key is present in the list, whether to return the corresponding index.
-   *     If false then the returned index corresponds to the largest value in the list that is
-   *     strictly less than the key.
-   * @param stayInBounds If true, then 0 will be returned in the case that the key is smaller than
-   *     the smallest value in the list. If false then -1 will be returned.
-   */
-  public static<T> int binarySearchFloor(List<? extends Comparable<? super T>> list, T key,
-      boolean inclusive, boolean stayInBounds) {
-    int index = Collections.binarySearch(list, key);
-    index = index < 0 ? -(index + 2) : (inclusive ? index : (index - 1));
-    return stayInBounds ? Math.max(0, index) : index;
-  }
-
-  /**
-   * Returns the index of the smallest value in an list that is greater than (or optionally equal
-   * to) a specified key.
-   * <p>
-   * The search is performed using a binary search algorithm, and so the list must be sorted.
-   *
-   * @param list The list to search.
-   * @param key The key being searched for.
-   * @param inclusive If the key is present in the list, whether to return the corresponding index.
-   *     If false then the returned index corresponds to the smallest value in the list that is
-   *     strictly greater than the key.
-   * @param stayInBounds If true, then {@code (list.size() - 1)} will be returned in the case that
-   *     the key is greater than the largest value in the list. If false then {@code list.size()}
-   *     will be returned.
-   */
-  public static<T> int binarySearchCeil(List<? extends Comparable<? super T>> list, T key,
-      boolean inclusive, boolean stayInBounds) {
-    int index = Collections.binarySearch(list, key);
-    index = index < 0 ? ~index : (inclusive ? index : (index + 1));
-    return stayInBounds ? Math.min(list.size() - 1, index) : index;
-  }
-
 }
