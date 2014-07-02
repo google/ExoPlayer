@@ -20,6 +20,7 @@ import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 
 /**
@@ -199,6 +200,7 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
             targetArrayOffset, bufferReadLength);
         targetArrayOffset += bufferReadLength;
       }
+
       readHead.position += bufferReadLength;
       bytesRead += bufferReadLength;
       readHead.fragmentOffset += bufferReadLength;

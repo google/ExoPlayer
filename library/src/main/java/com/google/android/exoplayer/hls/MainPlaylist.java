@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +32,7 @@ public class MainPlaylist {
     public String url;
 
     public MainPlaylist() {
-
+        entries = new ArrayList<Entry>();
     }
     
     public static MainPlaylist parse(String url, InputStream stream, String inputEncoding) throws IOException{
