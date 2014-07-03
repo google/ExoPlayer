@@ -58,7 +58,7 @@ public interface ChunkSource {
    *
    * @param queue A representation of the currently buffered {@link MediaChunk}s.
    */
-  void disable(List<MediaChunk> queue);
+  void disable(List<? extends MediaChunk> queue);
 
   /**
    * Indicates to the source that it should still be checking for updates to the stream.

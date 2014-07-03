@@ -129,7 +129,7 @@ public class DashMp4ChunkSource implements ChunkSource {
   }
 
   @Override
-  public void disable(List<MediaChunk> queue) {
+  public void disable(List<? extends MediaChunk> queue) {
     evaluator.disable();
   }
 
