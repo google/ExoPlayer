@@ -391,7 +391,9 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     while (result == SampleSource.SAMPLE_READ && currentPositionUs <= timeUs) {
       result = source.readData(trackIndex, currentPositionUs, formatHolder, sampleHolder, false);
       if (result == SampleSource.SAMPLE_READ) {
-        currentPositionUs = sampleHolder.timeUs;
+        if (!sampleHolder.decodeOnly) {
+          currentPositionUs = sampleHolder.timeUs;
+        }
         codecCounters.discardedSamplesCount++;
       } else if (result == SampleSource.FORMAT_READ) {
         onInputFormatChanged(formatHolder);
@@ -677,15 +679,15 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       return false;
     }
 
-    if (decodeOnlyPresentationTimestamps.remove(outputBufferInfo.presentationTimeUs)) {
-      codec.releaseOutputBuffer(outputIndex, false);
-      outputIndex = -1;
-      return true;
-    }
-
+    boolean decodeOnly = decodeOnlyPresentationTimestamps.contains(
+        outputBufferInfo.presentationTimeUs);
     if (processOutputBuffer(timeUs, codec, outputBuffers[outputIndex], outputBufferInfo,
-        outputIndex)) {
-      currentPositionUs = outputBufferInfo.presentationTimeUs;
+        outputIndex, decodeOnly)) {
+      if (decodeOnly) {
+        decodeOnlyPresentationTimestamps.remove(outputBufferInfo.presentationTimeUs);
+      } else {
+        currentPositionUs = outputBufferInfo.presentationTimeUs;
+      }
       outputIndex = -1;
       return true;
     }
@@ -701,7 +703,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    * @throws ExoPlaybackException If an error occurs processing the output buffer.
    */
   protected abstract boolean processOutputBuffer(long timeUs, MediaCodec codec, ByteBuffer buffer,
-      MediaCodec.BufferInfo bufferInfo, int bufferIndex) throws ExoPlaybackException;
+      MediaCodec.BufferInfo bufferInfo, int bufferIndex, boolean shouldSkip)
+      throws ExoPlaybackException;
 
   /**
    * Returns the name of the secure variant of a given decoder.
