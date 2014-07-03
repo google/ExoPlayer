@@ -110,6 +110,11 @@ public class SingleSampleMediaChunk extends MediaChunk {
   }
 
   @Override
+  public void seekToStart() {
+    resetReadPosition();
+  }
+
+  @Override
   public boolean seekTo(long positionUs, boolean allowNoop) {
     resetReadPosition();
     return true;

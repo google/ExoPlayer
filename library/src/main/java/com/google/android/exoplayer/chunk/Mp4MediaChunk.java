@@ -55,6 +55,12 @@ public final class Mp4MediaChunk extends MediaChunk {
   }
 
   @Override
+  public void seekToStart() {
+    extractor.seekTo(0, false);
+    resetReadPosition();
+  }
+
+  @Override
   public boolean seekTo(long positionUs, boolean allowNoop) {
     long seekTimeUs = positionUs + sampleOffsetUs;
     boolean isDiscontinuous = extractor.seekTo(seekTimeUs, allowNoop);
