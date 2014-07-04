@@ -102,4 +102,9 @@ public class MultiTrackChunkSource implements ChunkSource, ExoPlayerComponent {
     }
   }
 
+  @Override
+  public void onChunkLoadError(Chunk chunk, Exception e) {
+    selectedSource.onChunkLoadError(chunk, e);
+  }
+
 }

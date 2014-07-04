@@ -430,6 +430,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
     currentLoadableExceptionCount++;
     currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
     notifyUpstreamError(e);
+    chunkSource.onChunkLoadError(currentLoadableHolder.chunk, e);
     updateLoadControl();
   }
 

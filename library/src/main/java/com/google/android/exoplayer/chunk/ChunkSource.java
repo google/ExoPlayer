@@ -100,4 +100,13 @@ public interface ChunkSource {
    */
   IOException getError();
 
+  /**
+   * Invoked when the {@link ChunkSampleSource} encounters an error loading a chunk obtained from
+   * this source.
+   *
+   * @param chunk The chunk whose load encountered the error.
+   * @param e The error.
+   */
+  void onChunkLoadError(Chunk chunk, Exception e);
+
 }

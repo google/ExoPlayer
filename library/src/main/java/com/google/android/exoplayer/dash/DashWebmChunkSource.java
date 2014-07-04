@@ -173,6 +173,11 @@ public class DashWebmChunkSource implements ChunkSource {
     return null;
   }
 
+  @Override
+  public void onChunkLoadError(Chunk chunk, Exception e) {
+    // Do nothing.
+  }
+
   private static Chunk newInitializationChunk(Representation representation,
       WebmExtractor extractor, DataSource dataSource, int trigger) {
     DataSpec dataSpec = new DataSpec(representation.uri, 0, representation.indexEnd + 1,

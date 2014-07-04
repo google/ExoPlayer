@@ -192,6 +192,11 @@ public class DashMp4ChunkSource implements ChunkSource {
     return null;
   }
 
+  @Override
+  public void onChunkLoadError(Chunk chunk, Exception e) {
+    // Do nothing.
+  }
+  
   private static Chunk newInitializationChunk(Representation representation,
       FragmentedMp4Extractor extractor, DataSource dataSource, int trigger) {
     DataSpec dataSpec = new DataSpec(representation.uri, 0, representation.indexEnd + 1,

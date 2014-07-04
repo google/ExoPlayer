@@ -196,6 +196,11 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     return null;
   }
 
+  @Override
+  public void onChunkLoadError(Chunk chunk, Exception e) {
+    // Do nothing.
+  }
+
   private static MediaFormat getMediaFormat(StreamElement streamElement, int trackIndex) {
     TrackElement trackElement = streamElement.tracks[trackIndex];
     String mimeType = trackElement.mimeType;
