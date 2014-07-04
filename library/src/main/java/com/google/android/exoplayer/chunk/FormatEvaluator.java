@@ -146,7 +146,7 @@ public interface FormatEvaluator {
     public void evaluate(List<? extends MediaChunk> queue, long playbackPositionUs,
         Format[] formats, Evaluation evaluation) {
       Format newFormat = formats[random.nextInt(formats.length)];
-      if (evaluation.format != null && evaluation.format.id != newFormat.id) {
+      if (evaluation.format != null && !evaluation.format.id.equals(newFormat.id)) {
         evaluation.trigger = TRIGGER_ADAPTIVE;
       }
       evaluation.format = newFormat;

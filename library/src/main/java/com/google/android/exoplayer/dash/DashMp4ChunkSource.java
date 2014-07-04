@@ -35,10 +35,10 @@ import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 
 import android.util.Log;
-import android.util.SparseArray;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -64,8 +64,8 @@ public class DashMp4ChunkSource implements ChunkSource {
   private final int numSegmentsPerChunk;
 
   private final Format[] formats;
-  private final SparseArray<Representation> representations;
-  private final SparseArray<FragmentedMp4Extractor> extractors;
+  private final HashMap<String, Representation> representations;
+  private final HashMap<String, FragmentedMp4Extractor> extractors;
 
   private boolean lastChunkWasInitialization;
 
@@ -92,8 +92,8 @@ public class DashMp4ChunkSource implements ChunkSource {
     this.evaluator = evaluator;
     this.numSegmentsPerChunk = numSegmentsPerChunk;
     this.formats = new Format[representations.length];
-    this.extractors = new SparseArray<FragmentedMp4Extractor>();
-    this.representations = new SparseArray<Representation>();
+    this.extractors = new HashMap<String, FragmentedMp4Extractor>();
+    this.representations = new HashMap<String, Representation>();
     this.trackInfo = new TrackInfo(representations[0].format.mimeType,
         representations[0].periodDuration * 1000);
     this.evaluation = new Evaluation();
@@ -103,7 +103,7 @@ public class DashMp4ChunkSource implements ChunkSource {
       formats[i] = representations[i].format;
       maxWidth = Math.max(formats[i].width, maxWidth);
       maxHeight = Math.max(formats[i].height, maxHeight);
-      extractors.append(formats[i].id, new FragmentedMp4Extractor());
+      extractors.put(formats[i].id, new FragmentedMp4Extractor());
       this.representations.put(formats[i].id, representations[i]);
     }
     this.maxWidth = maxWidth;
@@ -152,7 +152,7 @@ public class DashMp4ChunkSource implements ChunkSource {
       out.chunk = null;
       return;
     } else if (out.queueSize == queue.size() && out.chunk != null
-        && out.chunk.format.id == selectedFormat.id) {
+        && out.chunk.format.id.equals(selectedFormat.id)) {
       // We already have a chunk, and the evaluation hasn't changed either the format or the size
       // of the queue. Leave unchanged.
       return;

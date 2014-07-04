@@ -59,7 +59,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
      *     load is for initialization data.
      * @param totalBytes The length of the data being loaded in bytes.
      */
-    void onLoadStarted(int sourceId, int formatId, int trigger, boolean isInitialization,
+    void onLoadStarted(int sourceId, String formatId, int trigger, boolean isInitialization,
         int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes);
 
     /**
@@ -126,7 +126,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
      *     {@link ChunkSource}.
      * @param mediaTimeMs The media time at which the change occurred.
      */
-    void onDownstreamFormatChanged(int sourceId, int formatId, int trigger, int mediaTimeMs);
+    void onDownstreamFormatChanged(int sourceId, String formatId, int trigger, int mediaTimeMs);
 
   }
 
@@ -295,7 +295,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
         }
         return NOTHING_READ;
       }
-    } else if (downstreamFormat == null || downstreamFormat.id != mediaChunk.format.id) {
+    } else if (downstreamFormat == null || !downstreamFormat.id.equals(mediaChunk.format.id)) {
       notifyDownstreamFormatChanged(mediaChunk.format.id, mediaChunk.trigger,
           mediaChunk.startTimeUs);
       MediaFormat format = mediaChunk.getMediaFormat();
@@ -653,7 +653,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
     return (int) (timeUs / 1000);
   }
 
-  private void notifyLoadStarted(final int formatId, final int trigger,
+  private void notifyLoadStarted(final String formatId, final int trigger,
       final boolean isInitialization, final long mediaStartTimeUs, final long mediaEndTimeUs,
       final long totalBytes) {
     if (eventHandler != null && eventListener != null) {
@@ -724,7 +724,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
     }
   }
 
-  private void notifyDownstreamFormatChanged(final int formatId, final int trigger,
+  private void notifyDownstreamFormatChanged(final String formatId, final int trigger,
       final long mediaTimeUs) {
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable()  {

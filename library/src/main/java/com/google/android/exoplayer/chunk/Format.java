@@ -20,7 +20,7 @@ import java.util.Comparator;
 /**
  * A format definition for streams.
  */
-public final class Format {
+public class Format {
 
   /**
    * Sorts {@link Format} objects in order of decreasing bandwidth.
@@ -37,7 +37,7 @@ public final class Format {
   /**
    * An identifier for the format.
    */
-  public final int id;
+  public final String id;
 
   /**
    * The mime type of the format.
@@ -70,6 +70,8 @@ public final class Format {
   public final int bandwidth;
 
   /**
+   * @deprecated Format identifiers are now strings.
+   *
    * @param id The format identifier.
    * @param mimeType The format mime type.
    * @param width The width of the video in pixels, or -1 for non-video formats.
@@ -78,7 +80,22 @@ public final class Format {
    * @param audioSamplingRate The audio sampling rate in Hz, or -1 for non-audio formats.
    * @param bandwidth The average bandwidth of the format in bytes per second.
    */
+  @Deprecated
   public Format(int id, String mimeType, int width, int height, int numChannels,
+      int audioSamplingRate, int bandwidth) {
+    this(String.valueOf(id), mimeType, width, height, numChannels, audioSamplingRate, bandwidth);
+  }
+
+  /**
+   * @param id The format identifier.
+   * @param mimeType The format mime type.
+   * @param width The width of the video in pixels, or -1 for non-video formats.
+   * @param height The height of the video in pixels, or -1 for non-video formats.
+   * @param numChannels The number of audio channels, or -1 for non-audio formats.
+   * @param audioSamplingRate The audio sampling rate in Hz, or -1 for non-audio formats.
+   * @param bandwidth The average bandwidth of the format in bytes per second.
+   */
+  public Format(String id, String mimeType, int width, int height, int numChannels,
       int audioSamplingRate, int bandwidth) {
     this.id = id;
     this.mimeType = mimeType;
