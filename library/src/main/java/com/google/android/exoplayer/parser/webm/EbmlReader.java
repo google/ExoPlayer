@@ -290,8 +290,8 @@ public abstract class EbmlReader {
 
   /**
    * Resets the entire state of the reader so that it will read a new EBML structure from scratch.
-   * This includes resetting {@link #bytesRead} back to 0 and discarding all pending
-   * {@link #onMasterElementEnd(int)} events.
+   * This includes resetting the value returned from {@link #getBytesRead()} to 0 and discarding
+   * all pending {@link #onMasterElementEnd(int)} events.
    */
   protected final void reset() {
     prepareForNextElement();

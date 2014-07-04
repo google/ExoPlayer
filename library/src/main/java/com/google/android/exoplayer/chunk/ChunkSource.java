@@ -58,7 +58,7 @@ public interface ChunkSource {
    *
    * @param queue A representation of the currently buffered {@link MediaChunk}s.
    */
-  void disable(List<MediaChunk> queue);
+  void disable(List<? extends MediaChunk> queue);
 
   /**
    * Indicates to the source that it should still be checking for updates to the stream.
@@ -99,5 +99,14 @@ public interface ChunkSource {
    * @return An {@link IOException}, or null.
    */
   IOException getError();
+
+  /**
+   * Invoked when the {@link ChunkSampleSource} encounters an error loading a chunk obtained from
+   * this source.
+   *
+   * @param chunk The chunk whose load encountered the error.
+   * @param e The error.
+   */
+  void onChunkLoadError(Chunk chunk, Exception e);
 
 }

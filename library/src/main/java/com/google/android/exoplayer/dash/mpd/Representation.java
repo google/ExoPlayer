@@ -81,7 +81,7 @@ public class Representation {
 
   /**
    * Generates a cache key for the {@link Representation}, in the format
-   * {@link #contentId}.{@link #format.id}.{@link #revisionId}.
+   * {@code contentId + "." + format.id + "." + revisionId}.
    *
    * @return A cache key.
    */

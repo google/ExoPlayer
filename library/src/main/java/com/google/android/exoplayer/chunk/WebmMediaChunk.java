@@ -51,6 +51,11 @@ public final class WebmMediaChunk extends MediaChunk {
   }
 
   @Override
+  public void seekToStart() {
+    seekTo(0, false);
+  }
+
+  @Override
   public boolean seekTo(long positionUs, boolean allowNoop) {
     boolean isDiscontinuous = extractor.seekTo(positionUs, allowNoop);
     if (isDiscontinuous) {

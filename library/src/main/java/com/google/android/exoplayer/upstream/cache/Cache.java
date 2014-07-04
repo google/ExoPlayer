@@ -134,9 +134,8 @@ public interface Cache {
    * @param key The key of the data being requested.
    * @param position The position of the data being requested.
    * @return The {@link CacheSpan}. Or null if the cache entry is locked.
-   * @throws InterruptedException
    */
-  CacheSpan startReadWriteNonBlocking(String key, long position) throws InterruptedException;
+  CacheSpan startReadWriteNonBlocking(String key, long position);
 
   /**
    * Obtains a cache file into which data can be written. Must only be called when holding a
@@ -172,5 +171,15 @@ public interface Cache {
    * @param span The {@link CacheSpan} to remove.
    */
   void removeSpan(CacheSpan span);
+
+ /**
+  * Queries if a range is entirely available in the cache.
+  *
+  * @param key The cache key for the data.
+  * @param position The starting position of the data.
+  * @param length The length of the data.
+  * @return true if the data is available in the Cache otherwise false;
+  */
+  boolean isCached(String key, long position, long length);
 
 }

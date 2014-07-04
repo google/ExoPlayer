@@ -29,7 +29,7 @@ import android.view.Surface;
 import java.nio.ByteBuffer;
 
 /**
- * Decodes and renders video using {@MediaCodec}.
+ * Decodes and renders video using {@link MediaCodec}.
  */
 @TargetApi(16)
 public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
@@ -338,7 +338,12 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected boolean processOutputBuffer(long timeUs, MediaCodec codec, ByteBuffer buffer,
-      MediaCodec.BufferInfo bufferInfo, int bufferIndex) {
+      MediaCodec.BufferInfo bufferInfo, int bufferIndex, boolean shouldSkip) {
+    if (shouldSkip) {
+      skipOutputBuffer(codec, bufferIndex);
+      return true;
+    }
+
     long earlyUs = bufferInfo.presentationTimeUs - timeUs;
     if (earlyUs < -30000) {
       // We're more than 30ms late rendering the frame.
@@ -369,6 +374,13 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
     // We're either not playing, or it's not time to render the frame yet.
     return false;
+  }
+
+  private void skipOutputBuffer(MediaCodec codec, int bufferIndex) {
+    TraceUtil.beginSection("skipVideoBuffer");
+    codec.releaseOutputBuffer(bufferIndex, false);
+    TraceUtil.endSection();
+    codecCounters.skippedOutputBufferCount++;
   }
 
   private void dropOutputBuffer(MediaCodec codec, int bufferIndex) {

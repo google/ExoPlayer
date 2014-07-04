@@ -21,7 +21,6 @@ import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.net.Uri;
-import android.util.Log;
 
 import org.xml.sax.helpers.DefaultHandler;
 import org.xmlpull.v1.XmlPullParser;
@@ -44,8 +43,6 @@ import java.util.regex.Pattern;
  * TODO: Decide how best to represent missing integer/double/long attributes.
  */
 public class MediaPresentationDescriptionParser extends DefaultHandler {
-
-  private static final String TAG = "MediaPresentationDescriptionParser";
 
   // Note: Does not support the date part of ISO 8601
   private static final Pattern DURATION =
@@ -214,14 +211,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
   private Representation parseRepresentation(XmlPullParser xpp, String contentId, long periodStart,
       long periodDuration, String parentMimeType, List<Segment.Timeline> segmentTimelineList)
       throws XmlPullParserException, IOException {
-    int id;
-    try {
-      id = parseInt(xpp, "id");
-    } catch (NumberFormatException nfe) {
-      Log.d(TAG, "Unable to parse id; " + nfe.getMessage());
-      // TODO: need a way to generate a unique and stable id; use hashCode for now
-      id = xpp.getAttributeValue(null, "id").hashCode();
-    }
+    String id = xpp.getAttributeValue(null, "id");
     int bandwidth = parseInt(xpp, "bandwidth") / 8;
     int audioSamplingRate = parseInt(xpp, "audioSamplingRate");
     int width = parseInt(xpp, "width");

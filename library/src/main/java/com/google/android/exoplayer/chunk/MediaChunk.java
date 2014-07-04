@@ -73,9 +73,7 @@ public abstract class MediaChunk extends Chunk {
   /**
    * Seeks to the beginning of the chunk.
    */
-  public final void seekToStart() {
-    seekTo(startTimeUs, false);
-  }
+  public abstract void seekToStart();
 
   /**
    * Seeks to the specified position within the chunk.

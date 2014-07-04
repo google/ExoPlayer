@@ -35,10 +35,10 @@ import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 
 import android.util.Log;
-import android.util.SparseArray;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -57,8 +57,8 @@ public class DashWebmChunkSource implements ChunkSource {
   private final int numSegmentsPerChunk;
 
   private final Format[] formats;
-  private final SparseArray<Representation> representations;
-  private final SparseArray<WebmExtractor> extractors;
+  private final HashMap<String, Representation> representations;
+  private final HashMap<String, WebmExtractor> extractors;
 
   private boolean lastChunkWasInitialization;
 
@@ -73,8 +73,8 @@ public class DashWebmChunkSource implements ChunkSource {
     this.evaluator = evaluator;
     this.numSegmentsPerChunk = numSegmentsPerChunk;
     this.formats = new Format[representations.length];
-    this.extractors = new SparseArray<WebmExtractor>();
-    this.representations = new SparseArray<Representation>();
+    this.extractors = new HashMap<String, WebmExtractor>();
+    this.representations = new HashMap<String, Representation>();
     this.trackInfo = new TrackInfo(
         representations[0].format.mimeType, representations[0].periodDuration * 1000);
     this.evaluation = new Evaluation();
@@ -84,7 +84,7 @@ public class DashWebmChunkSource implements ChunkSource {
       formats[i] = representations[i].format;
       maxWidth = Math.max(formats[i].width, maxWidth);
       maxHeight = Math.max(formats[i].height, maxHeight);
-      extractors.append(formats[i].id, new WebmExtractor());
+      extractors.put(formats[i].id, new WebmExtractor());
       this.representations.put(formats[i].id, representations[i]);
     }
     this.maxWidth = maxWidth;
@@ -110,7 +110,7 @@ public class DashWebmChunkSource implements ChunkSource {
   }
 
   @Override
-  public void disable(List<MediaChunk> queue) {
+  public void disable(List<? extends MediaChunk> queue) {
      evaluator.disable();
   }
 
@@ -133,7 +133,7 @@ public class DashWebmChunkSource implements ChunkSource {
       out.chunk = null;
       return;
     } else if (out.queueSize == queue.size() && out.chunk != null
-        && out.chunk.format.id == selectedFormat.id) {
+        && out.chunk.format.id.equals(selectedFormat.id)) {
       // We already have a chunk, and the evaluation hasn't changed either the format or the size
       // of the queue. Leave unchanged.
       return;
@@ -171,6 +171,11 @@ public class DashWebmChunkSource implements ChunkSource {
   @Override
   public IOException getError() {
     return null;
+  }
+
+  @Override
+  public void onChunkLoadError(Chunk chunk, Exception e) {
+    // Do nothing.
   }
 
   private static Chunk newInitializationChunk(Representation representation,
