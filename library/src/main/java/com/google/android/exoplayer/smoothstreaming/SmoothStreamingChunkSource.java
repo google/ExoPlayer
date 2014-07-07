@@ -110,7 +110,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       MediaFormat mediaFormat = getMediaFormat(streamElement, trackIndex);
       int trackType = streamElement.type == StreamElement.TYPE_VIDEO ? Track.TYPE_VIDEO
           : Track.TYPE_AUDIO;
-      FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(true);
+      FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
+          FragmentedMp4Extractor.WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME);
       extractor.setTrack(new Track(trackIndex, trackType, streamElement.timeScale, mediaFormat,
           trackEncryptionBoxes));
       if (protectionElement != null) {

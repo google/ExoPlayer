@@ -50,6 +50,15 @@ import java.util.UUID;
 public final class FragmentedMp4Extractor {
 
   /**
+   * Flag to work around an issue in some video streams where every frame is marked as a sync frame.
+   * The workaround overrides the sync frame flags in the stream, forcing them to false except for
+   * the first sample in each segment.
+   * <p>
+   * This flag does nothing if the stream is not a video stream.
+   */
+  public static final int WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME = 1;
+
+  /**
    * An attempt to read from the input stream returned 0 bytes of data.
    */
   public static final int RESULT_NEED_MORE_DATA = 1;
@@ -97,6 +106,7 @@ public final class FragmentedMp4Extractor {
   static {
     HashSet<Integer> parsedAtoms = new HashSet<Integer>();
     parsedAtoms.add(Atom.TYPE_avc1);
+    parsedAtoms.add(Atom.TYPE_avc3);
     parsedAtoms.add(Atom.TYPE_esds);
     parsedAtoms.add(Atom.TYPE_hdlr);
     parsedAtoms.add(Atom.TYPE_mdat);
@@ -140,7 +150,7 @@ public final class FragmentedMp4Extractor {
     CONTAINER_TYPES = Collections.unmodifiableSet(atomContainerTypes);
   }
 
-  private final boolean enableSmoothStreamingWorkarounds;
+  private final int workaroundFlags;
 
   // Parser state
   private final ParsableByteArray atomHeader;
@@ -172,16 +182,15 @@ public final class FragmentedMp4Extractor {
   private TrackFragment fragmentRun;
 
   public FragmentedMp4Extractor() {
-    this(false);
+    this(0);
   }
 
   /**
-   * @param enableSmoothStreamingWorkarounds Set to true if this extractor will be used to parse
-   *     SmoothStreaming streams. This will enable workarounds for SmoothStreaming violations of
-   *     the ISO base media file format (ISO 14496-12). Set to false otherwise.
+   * @param workaroundFlags Flags to allow parsing of faulty streams.
+   *     {@link #WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME} is currently the only flag defined.
    */
-  public FragmentedMp4Extractor(boolean enableSmoothStreamingWorkarounds) {
-    this.enableSmoothStreamingWorkarounds = enableSmoothStreamingWorkarounds;
+  public FragmentedMp4Extractor(int workaroundFlags) {
+    this.workaroundFlags = workaroundFlags;
     parserState = STATE_READING_ATOM_HEADER;
     atomHeader = new ParsableByteArray(ATOM_HEADER_SIZE);
     containerAtoms = new Stack<ContainerAtom>();
@@ -466,7 +475,7 @@ public final class FragmentedMp4Extractor {
 
   private void onMoofContainerAtomRead(ContainerAtom moof) {
     fragmentRun = new TrackFragment();
-    parseMoof(track, extendsDefaults, moof, fragmentRun, enableSmoothStreamingWorkarounds);
+    parseMoof(track, extendsDefaults, moof, fragmentRun, workaroundFlags);
     sampleIndex = 0;
     lastSyncSampleIndex = 0;
     pendingSeekSyncSampleIndex = 0;
@@ -572,11 +581,12 @@ public final class FragmentedMp4Extractor {
       int childStartPosition = stsd.getPosition();
       int childAtomSize = stsd.readInt();
       int childAtomType = stsd.readInt();
-      if (childAtomType == Atom.TYPE_avc1 || childAtomType == Atom.TYPE_encv) {
-        Pair<MediaFormat, TrackEncryptionBox> avc1 =
-            parseAvc1FromParent(stsd, childStartPosition, childAtomSize);
-        mediaFormat = avc1.first;
-        trackEncryptionBoxes[i] = avc1.second;
+      if (childAtomType == Atom.TYPE_avc1 || childAtomType == Atom.TYPE_avc3
+          || childAtomType == Atom.TYPE_encv) {
+        Pair<MediaFormat, TrackEncryptionBox> avc =
+            parseAvcFromParent(stsd, childStartPosition, childAtomSize);
+        mediaFormat = avc.first;
+        trackEncryptionBoxes[i] = avc.second;
       } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca) {
         Pair<MediaFormat, TrackEncryptionBox> mp4a =
             parseMp4aFromParent(stsd, childStartPosition, childAtomSize);
@@ -588,7 +598,7 @@ public final class FragmentedMp4Extractor {
     return Pair.create(mediaFormat, trackEncryptionBoxes);
   }
 
-  private static Pair<MediaFormat, TrackEncryptionBox> parseAvc1FromParent(ParsableByteArray parent,
+  private static Pair<MediaFormat, TrackEncryptionBox> parseAvcFromParent(ParsableByteArray parent,
       int position, int size) {
     parent.setPosition(position + ATOM_HEADER_SIZE);
 
@@ -695,7 +705,7 @@ public final class FragmentedMp4Extractor {
       int childAtomSize = parent.readInt();
       int childAtomType = parent.readInt();
       if (childAtomType == Atom.TYPE_frma) {
-        parent.readInt(); // dataFormat. Expect TYPE_avc1 (video) or TYPE_mp4a (audio).
+        parent.readInt(); // dataFormat.
       } else if (childAtomType == Atom.TYPE_schm) {
         parent.skip(4);
         parent.readInt(); // schemeType. Expect cenc
@@ -774,11 +784,11 @@ public final class FragmentedMp4Extractor {
   }
 
   private static void parseMoof(Track track, DefaultSampleValues extendsDefaults,
-      ContainerAtom moof, TrackFragment out, boolean enableSmoothStreamingWorkarounds) {
+      ContainerAtom moof, TrackFragment out, int workaroundFlags) {
     // TODO: Consider checking that the sequence number returned by parseMfhd is as expected.
     parseMfhd(moof.getLeafAtomOfType(Atom.TYPE_mfhd).getData());
     parseTraf(track, extendsDefaults, moof.getContainerAtomOfType(Atom.TYPE_traf),
-        out, enableSmoothStreamingWorkarounds);
+        out, workaroundFlags);
   }
 
   /**
@@ -796,7 +806,7 @@ public final class FragmentedMp4Extractor {
    * Parses a traf atom (defined in 14496-12).
    */
   private static void parseTraf(Track track, DefaultSampleValues extendsDefaults,
-      ContainerAtom traf, TrackFragment out, boolean enableSmoothStreamingWorkarounds) {
+      ContainerAtom traf, TrackFragment out, int workaroundFlags) {
     LeafAtom saiz = traf.getLeafAtomOfType(Atom.TYPE_saiz);
     if (saiz != null) {
       parseSaiz(saiz.getData(), out);
@@ -809,8 +819,7 @@ public final class FragmentedMp4Extractor {
     out.setSampleDescriptionIndex(fragmentHeader.sampleDescriptionIndex);
 
     LeafAtom trun = traf.getLeafAtomOfType(Atom.TYPE_trun);
-    parseTrun(track, fragmentHeader, decodeTime, enableSmoothStreamingWorkarounds, trun.getData(),
-        out);
+    parseTrun(track, fragmentHeader, decodeTime, workaroundFlags, trun.getData(), out);
     LeafAtom uuid = traf.getLeafAtomOfType(Atom.TYPE_uuid);
     if (uuid != null) {
       parseUuid(uuid.getData(), out);
@@ -895,8 +904,7 @@ public final class FragmentedMp4Extractor {
    * @param out The {@TrackFragment} into which parsed data should be placed.
    */
   private static void parseTrun(Track track, DefaultSampleValues defaultSampleValues,
-      long decodeTime, boolean enableSmoothStreamingWorkarounds, ParsableByteArray trun,
-      TrackFragment out) {
+      long decodeTime, int workaroundFlags, ParsableByteArray trun, TrackFragment out) {
     trun.setPosition(ATOM_HEADER_SIZE);
     int fullAtom = trun.readInt();
     int version = parseFullAtomVersion(fullAtom);
@@ -926,6 +934,9 @@ public final class FragmentedMp4Extractor {
 
     long timescale = track.timescale;
     long cumulativeTime = decodeTime;
+    boolean workaroundEveryVideoFrameIsSyncFrame = track.type == Track.TYPE_VIDEO
+        && ((workaroundFlags & WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME)
+        == WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME);
     for (int i = 0; i < numberOfEntries; i++) {
       // Use trun values if present, otherwise tfhd, otherwise trex.
       int sampleDuration = sampleDurationsPresent ? trun.readUnsignedIntToInt()
@@ -934,11 +945,14 @@ public final class FragmentedMp4Extractor {
       int sampleFlags = (i == 0 && firstSampleFlagsPresent) ? firstSampleFlags
           : sampleFlagsPresent ? trun.readInt() : defaultSampleValues.flags;
       if (sampleCompositionTimeOffsetsPresent) {
-        // Fragmented mp4 streams packaged for smooth streaming violate the BMFF spec by specifying
-        // the sample offset as a signed integer in conjunction with a box version of 0.
         int sampleOffset;
-        if (version == 0 && !enableSmoothStreamingWorkarounds) {
-          sampleOffset = trun.readUnsignedIntToInt();
+        if (version == 0) {
+          // The BMFF spec (ISO 14496-12) states that sample offsets should be unsigned integers in
+          // version 0 trun boxes, however a significant number of streams violate the spec and use
+          // signed integers instead. It's safe to always parse sample offsets as signed integers
+          // here, because unsigned integers will still be parsed correctly (unless their top bit is
+          // set, which is never true in practice because sample offsets are always small).
+          sampleOffset = trun.readInt();
         } else {
           sampleOffset = trun.readInt();
         }
@@ -947,9 +961,7 @@ public final class FragmentedMp4Extractor {
       sampleDecodingTimeTable[i] = (int) ((cumulativeTime * 1000) / timescale);
       sampleSizeTable[i] = sampleSize;
       boolean isSync = ((sampleFlags >> 16) & 0x1) == 0;
-      if (track.type == Track.TYPE_VIDEO && enableSmoothStreamingWorkarounds && i != 0) {
-        // Fragmented mp4 streams packaged for smooth streaming violate the BMFF spec by indicating
-        // that every sample is a sync frame, when this is not actually the case.
+      if (workaroundEveryVideoFrameIsSyncFrame && i != 0) {
         isSync = false;
       }
       if (isSync) {
