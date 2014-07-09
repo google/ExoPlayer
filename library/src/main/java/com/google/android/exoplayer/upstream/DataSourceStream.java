@@ -22,9 +22,10 @@ import com.google.android.exoplayer.util.Util;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 /**
- * Loads data from a {@link DataSource} into an in-memory {@link Allocation}. The loaded data
+ * Loads data from a {@link DataSource} into in-memory buffers. The loaded data
  * can be consumed by treating the instance as a non-blocking {@link NonBlockingInputStream}.
  */
 public final class DataSourceStream implements Loadable, NonBlockingInputStream {
@@ -45,14 +46,17 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
   private final Allocator allocator;
   private final ReadHead readHead;
 
-  private Allocation allocation;
-
   private volatile boolean loadCanceled;
   private volatile long loadPosition;
+  private volatile long loadedLength;
+  private volatile long openLength;
 
   private int writeFragmentIndex;
   private int writeFragmentOffset;
   private int writeFragmentRemainingLength;
+  private byte[] writeBuffer;
+
+  private final ArrayList<byte []> buffers;
 
   /**
    * @param dataSource The source from which the data should be loaded.
@@ -60,14 +64,17 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
    *     {@link Integer#MAX_VALUE}. If {@code dataSpec.length == DataSpec.LENGTH_UNBOUNDED} then
    *     the length resolved by {@code dataSource.open(dataSpec)} must not exceed
    *     {@link Integer#MAX_VALUE}.
-   * @param allocator Used to obtain an {@link Allocation} for holding the data.
+   * @param allocator Used to obtain buffers for holding the data.
    */
   public DataSourceStream(DataSource dataSource, DataSpec dataSpec, Allocator allocator) {
     Assertions.checkState(dataSpec.length <= Integer.MAX_VALUE);
     this.dataSource = dataSource;
     this.dataSpec = dataSpec;
     this.allocator = allocator;
+    this.openLength = DataSpec.LENGTH_UNBOUNDED;
+    this.loadedLength = DataSpec.LENGTH_UNBOUNDED;
     readHead = new ReadHead();
+    buffers = new ArrayList<byte[]>();
   }
 
   /**
@@ -102,7 +109,13 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
    *     has yet to be determined.
    */
   public long getLength() {
-    return resolvedLength != DataSpec.LENGTH_UNBOUNDED ? resolvedLength : dataSpec.length;
+    if (openLength != DataSpec.LENGTH_UNBOUNDED)
+        return openLength;
+    else if (loadedLength != DataSpec.LENGTH_UNBOUNDED)
+        return loadedLength;
+    else
+        // XXX: should I return DataSpec.LENGTH_UNBOUNDED instead ?
+        return dataSpec.length;
   }
 
   /**
@@ -111,7 +124,7 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
    * @return True if the stream has finished loading. False otherwise.
    */
   public boolean isLoadFinished() {
-    return resolvedLength != DataSpec.LENGTH_UNBOUNDED && loadPosition == resolvedLength;
+    return (loadedLength != DataSpec.LENGTH_UNBOUNDED);
   }
 
   /**
@@ -143,14 +156,13 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
 
   @Override
   public boolean isEndOfStream() {
-    return resolvedLength != DataSpec.LENGTH_UNBOUNDED && readHead.position == resolvedLength;
+    return loadedLength != DataSpec.LENGTH_UNBOUNDED && readHead.position == loadedLength;
   }
 
   @Override
   public void close() {
-    if (allocation != null) {
-      allocation.release();
-      allocation = null;
+    for (byte [] buffer : buffers) {
+        allocator.releaseBuffer(buffer);
     }
   }
 
@@ -182,19 +194,20 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
     if (bytesToRead == 0) {
       return 0;
     }
+
     if (readHead.position == 0) {
-      readHead.fragmentIndex = 0;
-      readHead.fragmentOffset = allocation.getFragmentOffset(0);
-      readHead.fragmentRemaining = allocation.getFragmentLength(0);
+        readHead.fragmentIndex = 0;
+        readHead.fragmentOffset = 0;
+        readHead.fragmentRemaining = buffers.get(0).length;
     }
+
     int bytesRead = 0;
-    byte[][] buffers = allocation.getBuffers();
     while (bytesRead < bytesToRead) {
       int bufferReadLength = Math.min(readHead.fragmentRemaining, bytesToRead - bytesRead);
       if (target != null) {
-        target.put(buffers[readHead.fragmentIndex], readHead.fragmentOffset, bufferReadLength);
+        target.put(buffers.get(readHead.fragmentIndex), readHead.fragmentOffset, bufferReadLength);
       } else if (targetArray != null) {
-        System.arraycopy(buffers[readHead.fragmentIndex], readHead.fragmentOffset, targetArray,
+        System.arraycopy(buffers.get(readHead.fragmentIndex), readHead.fragmentOffset, targetArray,
             targetArrayOffset, bufferReadLength);
         targetArrayOffset += bufferReadLength;
       }
@@ -203,10 +216,10 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
       bytesRead += bufferReadLength;
       readHead.fragmentOffset += bufferReadLength;
       readHead.fragmentRemaining -= bufferReadLength;
-      if (readHead.fragmentRemaining == 0 && readHead.position < resolvedLength) {
+      if (readHead.fragmentRemaining == 0 && readHead.position < loadedLength) {
         readHead.fragmentIndex++;
-        readHead.fragmentOffset = allocation.getFragmentOffset(readHead.fragmentIndex);
-        readHead.fragmentRemaining = allocation.getFragmentLength(readHead.fragmentIndex);
+        readHead.fragmentOffset = 0;
+        readHead.fragmentRemaining = buffers.get(readHead.fragmentIndex).length;
       }
     }
 
@@ -233,48 +246,42 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
     }
     try {
       DataSpec loadDataSpec;
-      if (resolvedLength == DataSpec.LENGTH_UNBOUNDED) {
+      if (openLength == DataSpec.LENGTH_UNBOUNDED) {
         loadDataSpec = dataSpec;
-        dataSource.open(loadDataSpec);
-        if (resolvedLength > Integer.MAX_VALUE) {
+          openLength = dataSource.open(loadDataSpec);
+        if (openLength > Integer.MAX_VALUE) {
           throw new DataSourceStreamLoadException(
-              new UnexpectedLengthException(dataSpec.length, resolvedLength));
+              new UnexpectedLengthException(dataSpec.length, openLength));
         }
       } else {
         loadDataSpec = new DataSpec(dataSpec.uri, dataSpec.position + loadPosition,
-            resolvedLength - loadPosition, dataSpec.key);
+                openLength - loadPosition, dataSpec.key);
         dataSource.open(loadDataSpec);
-      }
-      if (allocation == null) {
-        allocation = allocator.allocate((int) resolvedLength);
-      }
-      if (loadPosition == 0) {
-        writeFragmentIndex = 0;
-        writeFragmentOffset = allocation.getFragmentOffset(0);
-        writeFragmentRemainingLength = allocation.getFragmentLength(0);
       }
 
       int read = Integer.MAX_VALUE;
-      byte[][] buffers = allocation.getBuffers();
-      while (!loadCanceled && loadPosition < resolvedLength && read > 0) {
+      while (!loadCanceled && read > 0) {
         if (Thread.interrupted()) {
           throw new InterruptedException();
         }
-        int writeLength = (int) Math.min(writeFragmentRemainingLength,
-            resolvedLength - loadPosition);
-        read = dataSource.read(buffers[writeFragmentIndex], writeFragmentOffset, writeLength);
+        if (writeFragmentRemainingLength == 0) {
+            writeBuffer = allocator.allocateBuffer();
+            buffers.add(writeBuffer);
+            writeFragmentOffset = 0;
+            writeFragmentRemainingLength = writeBuffer.length;
+        }
+
+        read = dataSource.read(writeBuffer, writeFragmentOffset, writeFragmentRemainingLength);
         if (read > 0) {
           loadPosition += read;
           writeFragmentOffset += read;
           writeFragmentRemainingLength -= read;
-          if (writeFragmentRemainingLength == 0 && loadPosition < resolvedLength) {
-            writeFragmentIndex++;
-            writeFragmentOffset = allocation.getFragmentOffset(writeFragmentIndex);
-            writeFragmentRemainingLength = allocation.getFragmentLength(writeFragmentIndex);
-          }
-        } else if (resolvedLength != loadPosition) {
-          throw new DataSourceStreamLoadException(
-              new UnexpectedLengthException(resolvedLength, loadPosition));
+        } else {
+            if (openLength != DataSpec.LENGTH_UNBOUNDED && openLength != loadPosition) {
+                throw new DataSourceStreamLoadException(
+                        new UnexpectedLengthException(openLength, loadPosition));
+            }
+            loadedLength = loadPosition;
         }
       }
     } finally {

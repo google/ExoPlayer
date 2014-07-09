@@ -226,7 +226,7 @@ public class HttpDataSource implements DataSource {
   }
 
   @Override
-  public void open(DataSpec dataSpec) throws HttpDataSourceException {
+  public long open(DataSpec dataSpec) throws HttpDataSourceException {
     this.dataSpec = dataSpec;
     this.bytesRead = 0;
     try {
@@ -262,9 +262,9 @@ public class HttpDataSource implements DataSource {
     if (dataLength == DataSpec.LENGTH_UNBOUNDED) {
       // The DataSpec specified unbounded length and we failed to resolve a length from the
       // response headers.
-      // throw new HttpDataSourceException(
+      //throw new HttpDataSourceException(
       //    new UnexpectedLengthException(DataSpec.LENGTH_UNBOUNDED, DataSpec.LENGTH_UNBOUNDED),
-//          dataSpec);
+      //    dataSpec);
     }
 
     if (dataSpec.length != DataSpec.LENGTH_UNBOUNDED && contentLength != DataSpec.LENGTH_UNBOUNDED
@@ -287,6 +287,8 @@ public class HttpDataSource implements DataSource {
     if (listener != null) {
       listener.onTransferStart();
     }
+
+    return dataLength;
   }
 
   @Override
@@ -303,7 +305,7 @@ public class HttpDataSource implements DataSource {
       if (listener != null) {
         listener.onBytesTransferred(read);
       }
-    } else if (dataLength != bytesRead) {
+    } else if (dataLength != DataSpec.LENGTH_UNBOUNDED && dataLength != bytesRead) {
       // Check for cases where the server closed the connection having not sent the correct amount
       // of data.
       throw new HttpDataSourceException(new UnexpectedLengthException(dataLength, bytesRead),
@@ -359,17 +361,6 @@ public class HttpDataSource implements DataSource {
    */
   protected final long bytesRead() {
     return bytesRead;
-  }
-
-  /**
-   * Returns the number of bytes that are still to be read for the current {@link DataSpec}. This
-   * value is equivalent to {@code dataSpec.length - bytesRead()}, where dataSpec is the
-   * {@link DataSpec} that was passed to the most recent call of {@link #open(DataSpec)}.
-   *
-   * @return The number of bytes remaining.
-   */
-  protected final long bytesRemaining() {
-    return dataLength - bytesRead;
   }
 
   private HttpURLConnection makeConnection(DataSpec dataSpec) throws IOException {

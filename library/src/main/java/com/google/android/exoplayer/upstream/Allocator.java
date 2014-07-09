@@ -16,21 +16,26 @@
 package com.google.android.exoplayer.upstream;
 
 /**
- * A source of {@link Allocation}s.
+ * A source of buffers.
  */
 public interface Allocator {
 
   /**
-   * Obtains an allocation of at least the specified size.
+   * Obtains a buffer
    *
-   * @param size The size of the required allocation, in bytes.
-   * @return The allocation.
+   * @return The buffer.
    */
-  public Allocation allocate(int size);
+  public byte[] allocateBuffer();
+
+    /**
+     * Releases a buffer
+     *
+     */
+  public void releaseBuffer(byte[] buffer);
 
   /**
    * Hints to the {@link Allocator} that it should make a best effort to release any memory that it
-   * has allocated for the purpose of backing {@link Allocation}s, beyond the specified target
+   * has allocated for the purpose of backing buffers, beyond the specified target
    * number of bytes.
    *
    * @param targetSize The target size in bytes.
@@ -38,7 +43,7 @@ public interface Allocator {
   public void trim(int targetSize);
 
   /**
-   * Returns the number of bytes currently allocated in the form of {@link Allocation}s.
+   * Returns the number of bytes currently allocated in the form of buffers.
    *
    * @return The number of allocated bytes.
    */

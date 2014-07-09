@@ -57,11 +57,9 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
      *     load is for initialization data.
      * @param mediaEndTimeMs The media time of the end of the data being loaded, or -1 if this
      *     load is for initialization data.
-     * @param totalBytes The length of the data being loaded in bytes.
      */
     void onLoadStarted(int sourceId, String formatId, int trigger, boolean isInitialization,
-        int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes);
-
+        int mediaStartTimeMs, int mediaEndTimeMs);
     /**
      * Invoked when the current load operation completes.
      *
@@ -673,7 +671,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
         @Override
         public void run() {
           eventListener.onLoadStarted(eventSourceId, formatId, trigger, isInitialization,
-              usToMs(mediaStartTimeUs), usToMs(mediaEndTimeUs), totalBytes);
+              usToMs(mediaStartTimeUs), usToMs(mediaEndTimeUs));
         }
       });
     }

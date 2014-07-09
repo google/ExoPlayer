@@ -123,7 +123,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     void onDroppedFrames(int count, long elapsed);
     void onBandwidthSample(int elapsedMs, long bytes, long bandwidthEstimate);
     void onLoadStarted(int sourceId, String formatId, int trigger, boolean isInitialization,
-        int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes);
+        int mediaStartTimeMs, int mediaEndTimeMs);
     void onLoadCompleted(int sourceId);
   }
 
@@ -471,10 +471,10 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
 
   @Override
   public void onLoadStarted(int sourceId, String formatId, int trigger, boolean isInitialization,
-      int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes) {
+      int mediaStartTimeMs, int mediaEndTimeMs) {
     if (infoListener != null) {
       infoListener.onLoadStarted(sourceId, formatId, trigger, isInitialization, mediaStartTimeMs,
-          mediaEndTimeMs, totalBytes);
+          mediaEndTimeMs);
     }
   }
 
