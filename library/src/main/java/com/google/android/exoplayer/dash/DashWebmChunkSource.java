@@ -29,6 +29,7 @@ import com.google.android.exoplayer.chunk.MediaChunk;
 import com.google.android.exoplayer.chunk.WebmMediaChunk;
 import com.google.android.exoplayer.dash.mpd.Representation;
 import com.google.android.exoplayer.parser.SegmentIndex;
+import com.google.android.exoplayer.parser.webm.DefaultWebmExtractor;
 import com.google.android.exoplayer.parser.webm.WebmExtractor;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -85,7 +86,7 @@ public class DashWebmChunkSource implements ChunkSource {
       formats[i] = representations[i].format;
       maxWidth = Math.max(formats[i].width, maxWidth);
       maxHeight = Math.max(formats[i].height, maxHeight);
-      extractors.put(formats[i].id, new WebmExtractor());
+      extractors.put(formats[i].id, new DefaultWebmExtractor());
       this.representations.put(formats[i].id, representations[i]);
     }
     this.maxWidth = maxWidth;
