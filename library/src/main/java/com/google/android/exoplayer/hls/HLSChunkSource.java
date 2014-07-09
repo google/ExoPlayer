@@ -130,7 +130,7 @@ public class HLSChunkSource implements ChunkSource {
         Uri uri = Uri.parse(chunkUrl);
         long offset = 0;
         DataSpec dataSpec = new DataSpec(uri, offset, -1, null);
-        Chunk mediaChunk = new TSMediaChunk(dataSource, mediaFormats[selectedFormat.id], dataSpec, selectedFormat, nextChunkIndex);
+        Chunk mediaChunk = new TSMediaChunk(dataSource, mediaFormats[selectedFormat.id], dataSpec, selectedFormat, isLastChunk ? -1 : nextChunkIndex + 1);
         out.chunk = mediaChunk;
     }
 
