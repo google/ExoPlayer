@@ -57,7 +57,8 @@ public class VariantPlaylist {
                 if (e == null) {
                     e = new Entry();
                 }
-                e.extinf = Double.parseDouble(line.substring(M3U8Constants.EXTINF.length() + 1));
+                String extinfString = line.substring(M3U8Constants.EXTINF.length() + 1).split(",")[0];
+                e.extinf = Double.parseDouble(extinfString);
             } else if (e != null && !line.startsWith("#")) {
                 e.url = line;
                 if (e.extinf == 0.0) {

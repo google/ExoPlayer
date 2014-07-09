@@ -18,6 +18,8 @@ public class MainPlaylist {
     public static class Entry implements Comparable<Entry> {
         public String url;
         public int bps;
+        public int width;
+        public int height;
         public VariantPlaylist variantPlaylist;
 
         Entry() {}
@@ -54,8 +56,13 @@ public class MainPlaylist {
                 if (e == null) {
                     e = new Entry();
                 }
-                HashMap<String,String> attributes = M3U8Utils.parseAtrributeList(line);
+                HashMap<String,String> attributes = M3U8Utils.parseAtrributeList(line.substring(M3U8Constants.EXT_X_STREAM_INF.length() + 1));
                 e.bps = Integer.parseInt(attributes.get("BANDWIDTH"));
+                if (attributes.containsKey("RESOLUTION")) {
+                    String resolution[] = attributes.get("RESOLUTION").split("x");
+                    e.width = Integer.parseInt(resolution[0]);
+                    e.height = Integer.parseInt(resolution[1]);
+                }
             } else if (e != null && !line.startsWith("#")) {
                 e.url = line;
                 mainPlaylist.entries.add(e);

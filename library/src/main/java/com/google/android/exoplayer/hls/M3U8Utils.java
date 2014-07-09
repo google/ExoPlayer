@@ -3,13 +3,10 @@ package com.google.android.exoplayer.hls;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by martin on 27/06/14.
- */
 public class M3U8Utils {
     static HashMap<String,String> parseAtrributeList(String s){
-        String name = null;
-        String value = null;
+        String name = "";
+        String value = "";
         boolean in_name = true;
         boolean quoted = false;
 
@@ -34,15 +31,15 @@ public class M3U8Utils {
                     value += c;
                 } else {
                     attr.put(name, value);
-                    name = null;
-                    value = null;
-                    in_name = false;
+                    name = "";
+                    value = "";
+                    in_name = true;
                     quoted = false;
                 }
             }
         }
         //add last attribute
-        if (name != null && value != null) {
+        if (name != "" && value != "") {
             attr.put(name, value);
         }
 

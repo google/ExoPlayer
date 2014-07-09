@@ -2,6 +2,7 @@ package com.google.android.exoplayer.demo.full.player;
 
 import android.media.MediaCodec;
 import android.os.Handler;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.google.android.exoplayer.DefaultLoadControl;
@@ -25,6 +26,8 @@ public class HLSRendererBuilder implements DemoPlayer.RendererBuilder, ManifestF
     private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
     private static final int VIDEO_BUFFER_SEGMENTS = 200;
     private static final int AUDIO_BUFFER_SEGMENTS = 60;
+
+    private static final String TAG = "HLSRendererBuilder";
 
     private final String userAgent;
     private final TextView debugTextView;
@@ -88,6 +91,7 @@ public class HLSRendererBuilder implements DemoPlayer.RendererBuilder, ManifestF
 
     @Override
     public void onManifestError(String contentId, Exception e) {
-
+        Log.d(TAG, "ManifestError");
+        e.printStackTrace();
     }
 }

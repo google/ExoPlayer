@@ -49,7 +49,6 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
 
   private volatile boolean loadCanceled;
   private volatile long loadPosition;
-  private volatile long resolvedLength;
 
   private int writeFragmentIndex;
   private int writeFragmentOffset;
@@ -68,7 +67,6 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
     this.dataSource = dataSource;
     this.dataSpec = dataSpec;
     this.allocator = allocator;
-    resolvedLength = DataSpec.LENGTH_UNBOUNDED;
     readHead = new ReadHead();
   }
 
@@ -237,7 +235,7 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
       DataSpec loadDataSpec;
       if (resolvedLength == DataSpec.LENGTH_UNBOUNDED) {
         loadDataSpec = dataSpec;
-        resolvedLength = dataSource.open(loadDataSpec);
+        dataSource.open(loadDataSpec);
         if (resolvedLength > Integer.MAX_VALUE) {
           throw new DataSourceStreamLoadException(
               new UnexpectedLengthException(dataSpec.length, resolvedLength));

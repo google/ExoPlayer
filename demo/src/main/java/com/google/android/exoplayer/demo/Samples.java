@@ -134,6 +134,9 @@ package com.google.android.exoplayer.demo;
   public static final Sample[] MISC = new Sample[] {
     new Sample("Dizzy", "uid:misc:dizzy", "http://html5demos.com/assets/dizzy.mp4",
         DemoUtil.TYPE_OTHER, false, true),
+    new Sample("Tour de france", "uid:misc:dailymotion", "http://www.dailymotion.com/cdn/manifest/video/x20w6of.m3u8?auth=1404898273-2562-43f3jisk-7f2f31a90f32169b5df80741f18eb69d",
+        DemoUtil.TYPE_HLS, false, true),
+
   };
 
   private Samples() {}

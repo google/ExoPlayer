@@ -30,55 +30,126 @@ public class TSExtractor {
     private ByteBuffer packet;
     private final SparseArray<PayloadHandler> activePayloadHandlers;
 
+    private SampleHolder holder;
+    private boolean holderValid;
+
     static abstract class PayloadHandler {
         public int cc_counter;
 
-        abstract public void handlePayloadData(byte[] data);
-    }
-
-    abstract class SectionHandler extends PayloadHandler {
-        protected int table_id;
-        protected int section_length;
-        protected ByteBuffer section;
-
-        public SectionHandler(int table_id) {
-            this.table_id = table_id;
-        }
-
-        @Override
-        public void handlePayloadData(byte[] data) {
-            int offset = 0;
-            if (section_length == 0) {
-                int pointer_field = data[0];
-                // XXX: what if pointer_field is != 0 ?
-                if (table_id != data[1]) {
-                    Log.d(TAG, "unexepected table_id: " + data[i] + " != " + table_id);
-                }
-                section_length = ((data[1] & 0xf) << 8) | data[2];
-                if (section.capacity() < section_length) {
-                    section = ByteBuffer.allocate(section_length);
-                }
-            }
-            int copy = Math.min(section_length - section.position(), data.length - offset);
-
-            section.put(data, offset, copy);
-
-            if (section.position() == section_length) {
-                handleSectionData(section.array());
-                section.clear();
-                section_length = 0;
-            }
-        }
-
-        abstract protected void handleSectionData(byte[] data);
+        /**
+         *
+         * @param packet: the TS packet with position set to the beginning of the payload
+         * @param unit_start
+         */
+        abstract public void handlePayload(ByteBuffer packet, boolean unit_start);
     }
 
     class PESHandler extends PayloadHandler {
+        byte [] temporaryPayload;
+        int temporaryPayloadPosition;
+        int temporaryPts;
+
+        public PESHandler() {
+            temporaryPayload = new byte[188];
+        }
+        @Override
+        public void handlePayload(ByteBuffer packet, boolean unit_start) {
+            if (unit_start) {
+                // output previous packet
+                if (holder.data.position() > 0) {
+                    holder.timeUs = (long)temporaryPts * 1000 / 45;
+                    holderValid = true;
+                }
+
+                byte[] prefix = new byte[3];
+                packet.get(prefix, 0, 3);
+                if (prefix[0] != 0 || prefix[1] != 0 || prefix[2] != 1 ) {
+                    Log.d(TAG, String.format("bad start code: 0x%02x%02x%02x", prefix[0], prefix[1], prefix[2]));
+                }
+                // skip stream id
+                packet.get();
+                // length should be 0 for my use case
+                int length = packet.getShort();
+                if (length != 0) {
+                    Log.d(TAG, "PES length != 0: " + length);
+                }
+
+                // skip some stuff
+                packet.get();
+                int flags = packet.get();
+                int headerDataLength = packet.get();
+
+                if ((flags & 0x80) == 0x80) {
+                    temporaryPts = (packet.get() & 0xd) << 29;
+                    temporaryPts |= (packet.get()) << 21;
+                    temporaryPts |= (packet.get() & 0xfd) << 14;
+                    temporaryPts |= (packet.get()) << 6;
+                    temporaryPts |= (packet.get() & 0xfd) >> 1;
+                }
+                if ((flags & 0x40) == 0x40) {
+                    // DTS
+                    packet.get();
+                    packet.get();
+                    packet.get();
+                    packet.get();
+                }
+
+                packet.position(packet.position() + headerDataLength);
+                // remember this payload for later
+                int remaining = packet.remaining();
+                packet.get(temporaryPayload, 0, remaining);
+                temporaryPayloadPosition = remaining;
+                return;
+            }
+
+            if (temporaryPayloadPosition > 0) {
+                holder.data.put(temporaryPayload,0,temporaryPayloadPosition);
+                temporaryPayloadPosition = 0;
+            }
+
+            holder.data.put(packet);
+        }
+    }
+
+    abstract class SectionHandler extends PayloadHandler {
+        protected int tableID;
+        protected int sectionLength;
+        protected byte[] section;
+        protected int sectionPosition;
+
+        public SectionHandler(int tableID) {
+            this.tableID = tableID;
+            section = new byte[2*1024];
+        }
 
         @Override
-        public void handlePayloadData(byte[] data) {
+        public void handlePayload(ByteBuffer packet, boolean unit_start) {
+            if (sectionLength == 0) {
+                int pointer_field = packet.get();
+                // XXX: what if pointer_field is != 0 ?
+                int tableID = packet.get();
+                if (this.tableID != tableID) {
+                    Log.d(TAG, "unexepected tableID: " + tableID + " != " + this.tableID);
+                }
+                sectionLength = ((packet.get() & 0xf) << 8) | packet.get();
+                sectionPosition = 0;
+            }
+            int copy = Math.min(sectionLength - sectionPosition, packet.remaining());
 
+            if (sectionPosition + copy > section.length) {
+                byte[] newSection = new byte[2*(sectionPosition + copy)];
+                System.arraycopy(section, 0, newSection, 0, sectionPosition);
+            }
+
+            packet.get(section, sectionPosition, copy);
+            sectionPosition += copy;
+            if (sectionPosition == sectionLength) {
+                handleSection(section);
+                sectionLength = 0;
+            }
         }
+
+        abstract protected void handleSection(byte[] data);
     }
 
     class PMTHandler extends SectionHandler {
@@ -98,7 +169,7 @@ public class TSExtractor {
         }
 
         @Override
-        protected void handleSectionData(byte[] data) {
+        protected void handleSection(byte[] data) {
             // start from 5 to skip transport_stream_id, version_number, current_next_indicator, etc.
             int i = 7;
             int program_info_length = ((data[i] & 0xf) << 8) | data[i+1];
@@ -121,6 +192,7 @@ public class TSExtractor {
                 handler = null;
                 if (audio_handler == null && s.type == STREAM_TYPE_AAC_ADTS) {
                     audio_handler = new PESHandler();
+                    // XXX: uncomment when audio is needed
                     handler = audio_handler;
                     Log.d(TAG, String.format("audio found on pid %04x", s.pid));
                 } else if (video_handler == null && s.type == STREAM_TYPE_H264) {
@@ -149,7 +221,7 @@ public class TSExtractor {
         }
 
         @Override
-        public void handleSectionData(byte[] data) {
+        public void handleSection(byte[] data) {
             // start from 5 to skip transport_stream_id, version_number, current_next_indicator, etc.
             // stop at length - 4 to skip crc
             for (int i = 5; i < data.length - 4; ){
@@ -197,6 +269,7 @@ public class TSExtractor {
             throw new ParserException("bad sync byte: " + data[0]);
         }
 
+        boolean unit_start = (data[1] & 0x40) != 0;
         int pid = (data[1] & 0x1f) << 8;
         pid |= data[2];
 
@@ -204,6 +277,7 @@ public class TSExtractor {
 
         PayloadHandler payloadHandler = activePayloadHandlers.get(pid);
         if (payloadHandler == null) {
+            // skip packet
             return RESULT_NEED_MORE_DATA;
         }
 
@@ -215,10 +289,20 @@ public class TSExtractor {
 
         boolean adaptation_field_exists = (data[3] & 0x20) != 0;
 
-        int payload_start = 4;
+        int payload_offset = 4;
 
         if (adaptation_field_exists) {
-            payload_start += data[4] + 1;
+            payload_offset += data[4] + 1;
+        }
+
+        holder = out;
+        packet.position(payload_offset);
+        payloadHandler.handlePayload(packet, unit_start);
+        if (holderValid) {
+            holderValid = false;
+            return RESULT_READ_SAMPLE_FULL;
+        } else {
+            return RESULT_NEED_MORE_DATA;
         }
     }
 }

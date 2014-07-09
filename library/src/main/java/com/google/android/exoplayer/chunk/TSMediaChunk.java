@@ -11,6 +11,7 @@ import java.util.UUID;
 
 public class TSMediaChunk extends MediaChunk {
 
+    private MediaFormat mediaFormat;
 
     /**
      * Constructor for a chunk of media samples.
@@ -20,8 +21,9 @@ public class TSMediaChunk extends MediaChunk {
      * @param format         The format of the stream to which this chunk belongs.
      * @param nextChunkIndex The index of the next chunk, or -1 if this is the last chunk.
      */
-    public TSMediaChunk(DataSource dataSource, DataSpec dataSpec, Format format, int nextChunkIndex) {
+    public TSMediaChunk(DataSource dataSource, MediaFormat mediaFormat, DataSpec dataSpec, Format format, int nextChunkIndex) {
         super(dataSource, dataSpec, format, 0, 0, 0, nextChunkIndex);
+        this.mediaFormat = mediaFormat;
     }
 
     @Override
@@ -36,7 +38,7 @@ public class TSMediaChunk extends MediaChunk {
 
     @Override
     public MediaFormat getMediaFormat() {
-        return null;
+        return mediaFormat;
     }
 
     @Override

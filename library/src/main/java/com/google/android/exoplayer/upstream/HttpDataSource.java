@@ -226,7 +226,7 @@ public class HttpDataSource implements DataSource {
   }
 
   @Override
-  public long open(DataSpec dataSpec) throws HttpDataSourceException {
+  public void open(DataSpec dataSpec) throws HttpDataSourceException {
     this.dataSpec = dataSpec;
     this.bytesRead = 0;
     try {
@@ -262,9 +262,9 @@ public class HttpDataSource implements DataSource {
     if (dataLength == DataSpec.LENGTH_UNBOUNDED) {
       // The DataSpec specified unbounded length and we failed to resolve a length from the
       // response headers.
-      throw new HttpDataSourceException(
-          new UnexpectedLengthException(DataSpec.LENGTH_UNBOUNDED, DataSpec.LENGTH_UNBOUNDED),
-          dataSpec);
+      // throw new HttpDataSourceException(
+      //    new UnexpectedLengthException(DataSpec.LENGTH_UNBOUNDED, DataSpec.LENGTH_UNBOUNDED),
+//          dataSpec);
     }
 
     if (dataSpec.length != DataSpec.LENGTH_UNBOUNDED && contentLength != DataSpec.LENGTH_UNBOUNDED
@@ -287,8 +287,6 @@ public class HttpDataSource implements DataSource {
     if (listener != null) {
       listener.onTransferStart();
     }
-
-    return dataLength;
   }
 
   @Override

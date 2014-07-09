@@ -38,14 +38,13 @@ public final class FileDataSource implements DataSource {
   private long bytesRemaining;
 
   @Override
-  public long open(DataSpec dataSpec) throws FileDataSourceException {
+  public void open(DataSpec dataSpec) throws FileDataSourceException {
     try {
       file = new RandomAccessFile(dataSpec.uri.getPath(), "r");
       file.seek(dataSpec.position);
       bytesRemaining = dataSpec.length == DataSpec.LENGTH_UNBOUNDED
           ? file.length() - dataSpec.position
           : dataSpec.length;
-      return bytesRemaining;
     } catch (IOException e) {
       throw new FileDataSourceException(e);
     }

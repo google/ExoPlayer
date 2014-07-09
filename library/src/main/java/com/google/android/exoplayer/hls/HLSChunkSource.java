@@ -18,6 +18,7 @@ import com.google.android.exoplayer.parser.mp4.TrackEncryptionBox;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
@@ -34,6 +35,7 @@ public class HLSChunkSource implements ChunkSource {
     private final FormatEvaluator formatEvaluator;
     private final FormatEvaluator.Evaluation evaluation;
     private final Format[] formats;
+    private final MediaFormat[] mediaFormats;
     private TrackInfo trackInfo;
     private MainPlaylist mainPlaylist;
     private VariantPlaylist currentVariantPlaylist;
@@ -50,6 +52,14 @@ public class HLSChunkSource implements ChunkSource {
 
         for (int i = 0; i < trackCount; i++) {
             formats[i] = new Format(i, "video/mp2t", 1920, 1080, 2, 44100, mainPlaylist.entries.get(i).bps);
+        }
+
+        mediaFormats = new MediaFormat[trackCount];
+
+        for (int i =0; i < trackCount; i++) {
+            MainPlaylist.Entry entry = mainPlaylist.entries.get(i);
+            mediaFormats[i] = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
+                    entry.width, entry.height, null);
         }
 
         Arrays.sort(formats, new Format.DecreasingBandwidthComparator());
@@ -120,7 +130,7 @@ public class HLSChunkSource implements ChunkSource {
         Uri uri = Uri.parse(chunkUrl);
         long offset = 0;
         DataSpec dataSpec = new DataSpec(uri, offset, -1, null);
-        Chunk mediaChunk = new TSMediaChunk(dataSource, dataSpec, selectedFormat, nextChunkIndex);
+        Chunk mediaChunk = new TSMediaChunk(dataSource, mediaFormats[selectedFormat.id], dataSpec, selectedFormat, nextChunkIndex);
         out.chunk = mediaChunk;
     }
 
