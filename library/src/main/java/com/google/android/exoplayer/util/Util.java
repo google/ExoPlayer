@@ -17,6 +17,8 @@ package com.google.android.exoplayer.util;
 
 import com.google.android.exoplayer.upstream.DataSource;
 
+import android.net.Uri;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
@@ -113,6 +115,17 @@ public final class Util {
    */
   public static String toLowerInvariant(String text) {
     return text == null ? null : text.toLowerCase(Locale.US);
+  }
+
+  /**
+   * Like {@link Uri#parse(String)}, but discards the part of the uri that follows the final
+   * forward slash.
+   *
+   * @param uriString An RFC 2396-compliant, encoded uri.
+   * @return The parsed base uri.
+   */
+  public static Uri parseBaseUri(String uriString) {
+    return Uri.parse(uriString.substring(0, uriString.lastIndexOf('/')));
   }
 
   /**
