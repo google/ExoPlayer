@@ -16,8 +16,7 @@
 package com.google.android.exoplayer.text.ttml;
 
 import com.google.android.exoplayer.text.Subtitle;
-
-import java.util.Arrays;
+import com.google.android.exoplayer.util.Util;
 
 /**
  * A representation of a TTML subtitle.
@@ -41,8 +40,7 @@ public final class TtmlSubtitle implements Subtitle {
 
   @Override
   public int getNextEventTimeIndex(long timeUs) {
-    int index = Arrays.binarySearch(eventTimesUs, timeUs - startTimeUs);
-    index = index >= 0 ? index + 1 : ~index;
+    int index = Util.binarySearchCeil(eventTimesUs, timeUs - startTimeUs, false, false);
     return index < eventTimesUs.length ? index : -1;
   }
 

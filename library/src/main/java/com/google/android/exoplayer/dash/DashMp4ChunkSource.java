@@ -33,6 +33,7 @@ import com.google.android.exoplayer.parser.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
+import com.google.android.exoplayer.util.Util;
 
 import android.util.Log;
 
@@ -170,8 +171,8 @@ public class DashMp4ChunkSource implements ChunkSource {
 
     int nextIndex;
     if (queue.isEmpty()) {
-      nextIndex = Arrays.binarySearch(extractor.getSegmentIndex().timesUs, seekPositionUs);
-      nextIndex = nextIndex < 0 ? -nextIndex - 2 : nextIndex;
+      nextIndex = Util.binarySearchFloor(extractor.getSegmentIndex().timesUs, seekPositionUs,
+          true, true);
     } else {
       nextIndex = queue.get(out.queueSize - 1).nextChunkIndex;
     }
@@ -196,7 +197,7 @@ public class DashMp4ChunkSource implements ChunkSource {
   public void onChunkLoadError(Chunk chunk, Exception e) {
     // Do nothing.
   }
-  
+
   private static Chunk newInitializationChunk(Representation representation,
       FragmentedMp4Extractor extractor, DataSource dataSource, int trigger) {
     DataSpec dataSpec = new DataSpec(representation.uri, 0, representation.indexEnd + 1,

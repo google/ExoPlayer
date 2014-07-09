@@ -33,6 +33,7 @@ import com.google.android.exoplayer.parser.webm.WebmExtractor;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
+import com.google.android.exoplayer.util.Util;
 
 import android.util.Log;
 
@@ -151,8 +152,7 @@ public class DashWebmChunkSource implements ChunkSource {
 
     int nextIndex;
     if (queue.isEmpty()) {
-      nextIndex = Arrays.binarySearch(extractor.getCues().timesUs, seekPositionUs);
-      nextIndex = nextIndex < 0 ? -nextIndex - 2 : nextIndex;
+      nextIndex = Util.binarySearchFloor(extractor.getCues().timesUs, seekPositionUs, true, true);
     } else {
       nextIndex = queue.get(out.queueSize - 1).nextChunkIndex;
     }
