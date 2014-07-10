@@ -37,11 +37,6 @@ public class TSMediaChunk extends MediaChunk {
         this.mediaFormat = mediaFormat;
         this.extractor = new TSExtractor();
         File root = Environment.getExternalStorageDirectory();
-        try {
-            debugFile = new FileOutputStream(new File(root, "raw" + nextChunkIndex + ".h264"));
-        } catch (Exception e) {
-            Log.d("TSMediaChunk", "error");
-        }
     }
 
     @Override
@@ -55,15 +50,6 @@ public class TSMediaChunk extends MediaChunk {
         NonBlockingInputStream inputStream = getNonBlockingInputStream();
         Assertions.checkState(inputStream != null);
         int result = extractor.read(inputStream, holder);
-        if (result == TSExtractor.RESULT_READ_SAMPLE_FULL) {
-            try {
-                for (int i = 0; i < holder.data.position(); i++) {
-                    debugFile.write(holder.data.get(i));
-                }
-            } catch (Exception e) {
-                Log.d("TSMediaChunk", "error");
-            }
-        }
         return (result == TSExtractor.RESULT_READ_SAMPLE_FULL);
     }
 

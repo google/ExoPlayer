@@ -117,11 +117,11 @@ public class TSExtractor {
                 int fixedOffset = offset;
 
                 if ((flags & 0x80) == 0x80) {
-                    temporaryPts = (long)(packet.get(offset++) & 0xd) << 29;
+                    temporaryPts = (long)(packet.get(offset++) & 0x0e) << 28;
                     temporaryPts |= (packet.get(offset++)) << 21;
-                    temporaryPts |= (packet.get(offset++) & 0xfd) << 14;
-                    temporaryPts |= (packet.get(offset++)) << 6;
-                    temporaryPts |= (packet.get(offset++) & 0xfd) >> 1;
+                    temporaryPts |= (packet.get(offset++) & 0xfe) << 12;
+                    temporaryPts |= (packet.get(offset++)) << 5;
+                    temporaryPts |= (packet.get(offset++) & 0xfe) >> 2;
                 }
                 if ((flags & 0x40) == 0x40) {
                     // DTS
