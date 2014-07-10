@@ -18,9 +18,11 @@ package com.google.android.exoplayer.dash.mpd;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.upstream.DataSpec;
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.net.Uri;
+import android.text.TextUtils;
 
 import org.xml.sax.helpers.DefaultHandler;
 import org.xmlpull.v1.XmlPullParser;
@@ -163,43 +165,32 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
       throws XmlPullParserException, IOException {
     Uri baseUrl = parentBaseUrl;
     int id = -1;
-    int contentType = AdaptationSet.TYPE_UNKNOWN;
 
     // TODO: Correctly handle other common attributes and elements. See 23009-1 Table 9.
     String mimeType = xpp.getAttributeValue(null, "mimeType");
-    if (mimeType != null) {
-      if (MimeTypes.isAudio(mimeType)) {
-        contentType = AdaptationSet.TYPE_AUDIO;
-      } else if (MimeTypes.isVideo(mimeType)) {
-        contentType = AdaptationSet.TYPE_VIDEO;
-      } else if (MimeTypes.isText(mimeType)
-          || mimeType.equalsIgnoreCase(MimeTypes.APPLICATION_TTML)) {
-        contentType = AdaptationSet.TYPE_TEXT;
-      }
-    }
+    int contentType = parseAdaptationSetTypeFromMimeType(mimeType);
 
     List<ContentProtection> contentProtections = null;
     List<Representation> representations = new ArrayList<Representation>();
     do {
       xpp.next();
-      if (contentType != AdaptationSet.TYPE_UNKNOWN) {
-        if (isStartTag(xpp, "BaseURL")) {
-          baseUrl = parseBaseUrl(xpp, parentBaseUrl);
-        } else if (isStartTag(xpp, "ContentProtection")) {
-          if (contentProtections == null) {
-            contentProtections = new ArrayList<ContentProtection>();
-          }
-          contentProtections.add(parseContentProtection(xpp));
-        } else if (isStartTag(xpp, "ContentComponent")) {
-          id = Integer.parseInt(xpp.getAttributeValue(null, "id"));
-          String contentTypeString = xpp.getAttributeValue(null, "contentType");
-          contentType = "video".equals(contentTypeString) ? AdaptationSet.TYPE_VIDEO
-              : "audio".equals(contentTypeString) ? AdaptationSet.TYPE_AUDIO
-              : AdaptationSet.TYPE_UNKNOWN;
-        } else if (isStartTag(xpp, "Representation")) {
-          representations.add(parseRepresentation(xpp, contentId, baseUrl, periodStart,
-              periodDuration, mimeType, segmentTimelineList));
+      if (isStartTag(xpp, "BaseURL")) {
+        baseUrl = parseBaseUrl(xpp, parentBaseUrl);
+      } else if (isStartTag(xpp, "ContentProtection")) {
+        if (contentProtections == null) {
+          contentProtections = new ArrayList<ContentProtection>();
         }
+        contentProtections.add(parseContentProtection(xpp));
+      } else if (isStartTag(xpp, "ContentComponent")) {
+        id = Integer.parseInt(xpp.getAttributeValue(null, "id"));
+        contentType = checkAdaptationSetTypeConsistency(contentType,
+            parseAdaptationSetType(xpp.getAttributeValue(null, "contentType")));
+      } else if (isStartTag(xpp, "Representation")) {
+        Representation representation = parseRepresentation(xpp, contentId, baseUrl, periodStart,
+            periodDuration, mimeType, segmentTimelineList);
+        contentType = checkAdaptationSetTypeConsistency(contentType,
+            parseAdaptationSetTypeFromMimeType(representation.format.mimeType));
+        representations.add(representation);
       }
     } while (!isEndTag(xpp, "AdaptationSet"));
 
@@ -357,6 +348,44 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
       return newBaseUri;
     } else {
       return parentBaseUrl.buildUpon().appendEncodedPath(newBaseUrlText).build();
+    }
+  }
+
+  private static int parseAdaptationSetType(String contentType) {
+    return TextUtils.isEmpty(contentType) ? AdaptationSet.TYPE_UNKNOWN
+        : MimeTypes.BASE_TYPE_AUDIO.equals(contentType) ? AdaptationSet.TYPE_AUDIO
+        : MimeTypes.BASE_TYPE_VIDEO.equals(contentType) ? AdaptationSet.TYPE_VIDEO
+        : MimeTypes.BASE_TYPE_TEXT.equals(contentType) ? AdaptationSet.TYPE_TEXT
+        : AdaptationSet.TYPE_UNKNOWN;
+  }
+
+  private static int parseAdaptationSetTypeFromMimeType(String mimeType) {
+    return TextUtils.isEmpty(mimeType) ? AdaptationSet.TYPE_UNKNOWN
+        : MimeTypes.isAudio(mimeType) ? AdaptationSet.TYPE_AUDIO
+        : MimeTypes.isVideo(mimeType) ? AdaptationSet.TYPE_VIDEO
+        : MimeTypes.isText(mimeType) || MimeTypes.isTtml(mimeType) ? AdaptationSet.TYPE_TEXT
+        : AdaptationSet.TYPE_UNKNOWN;
+  }
+
+  /**
+   * Checks two adaptation set types for consistency, returning the consistent type, or throwing an
+   * {@link IllegalStateException} if the types are inconsistent.
+   * <p>
+   * Two types are consistent if they are equal, or if one is {@link AdaptationSet#TYPE_UNKNOWN}.
+   * Where one of the types is {@link AdaptationSet#TYPE_UNKNOWN}, the other is returned.
+   *
+   * @param firstType The first type.
+   * @param secondType The second type.
+   * @return The consistent type.
+   */
+  private static int checkAdaptationSetTypeConsistency(int firstType, int secondType) {
+    if (firstType == AdaptationSet.TYPE_UNKNOWN) {
+      return secondType;
+    } else if (secondType == AdaptationSet.TYPE_UNKNOWN) {
+      return firstType;
+    } else {
+      Assertions.checkState(firstType == secondType);
+      return firstType;
     }
   }
 
