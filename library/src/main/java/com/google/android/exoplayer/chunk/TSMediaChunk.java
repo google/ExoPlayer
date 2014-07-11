@@ -32,11 +32,10 @@ public class TSMediaChunk extends MediaChunk {
      * @param format         The format of the stream to which this chunk belongs.
      * @param nextChunkIndex The index of the next chunk, or -1 if this is the last chunk.
      */
-    public TSMediaChunk(DataSource dataSource, MediaFormat mediaFormat, DataSpec dataSpec, Format format, int nextChunkIndex) {
-        super(dataSource, dataSpec, format, 0, 0, 0, nextChunkIndex);
+    public TSMediaChunk(DataSource dataSource, MediaFormat mediaFormat, DataSpec dataSpec, Format format, long startTimeUs, long endTimeUs, int nextChunkIndex) {
+        super(dataSource, dataSpec, format, 0, startTimeUs, startTimeUs, nextChunkIndex);
         this.mediaFormat = mediaFormat;
         this.extractor = new TSExtractor();
-        File root = Environment.getExternalStorageDirectory();
     }
 
     @Override

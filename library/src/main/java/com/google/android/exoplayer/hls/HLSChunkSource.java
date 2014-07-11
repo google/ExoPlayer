@@ -26,9 +26,6 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by martin on 30/06/14.
- */
 public class HLSChunkSource implements ChunkSource {
     private final String baseUrl;
     private final DataSource dataSource;
@@ -125,12 +122,16 @@ public class HLSChunkSource implements ChunkSource {
             return;
         }
 
-        boolean isLastChunk = nextChunkIndex == currentVariantPlaylist.mediaSequence + currentVariantPlaylist.entries.size() - 1;
-        String chunkUrl = Util.makeAbsoluteUrl(currentVariantPlaylist.url, currentVariantPlaylist.entries.get(nextChunkIndex - currentVariantPlaylist.mediaSequence).url);
+        boolean isLastChunk = (nextChunkIndex == currentVariantPlaylist.mediaSequence + currentVariantPlaylist.entries.size() - 1);
+        VariantPlaylist.Entry entry = currentVariantPlaylist.entries.get(nextChunkIndex - currentVariantPlaylist.mediaSequence);
+
+        String chunkUrl = Util.makeAbsoluteUrl(currentVariantPlaylist.url, entry.url);
         Uri uri = Uri.parse(chunkUrl);
         long offset = 0;
         DataSpec dataSpec = new DataSpec(uri, offset, -1, null);
-        Chunk mediaChunk = new TSMediaChunk(dataSource, mediaFormats[selectedFormat.id], dataSpec, selectedFormat, isLastChunk ? -1 : nextChunkIndex + 1);
+        Chunk mediaChunk = new TSMediaChunk(dataSource, mediaFormats[selectedFormat.id], dataSpec, selectedFormat,
+                                            (long)(entry.startTime * 1000000), (long)((entry.startTime + entry.extinf) * 1000000),
+                                            isLastChunk ? -1 : nextChunkIndex + 1);
         out.chunk = mediaChunk;
     }
 

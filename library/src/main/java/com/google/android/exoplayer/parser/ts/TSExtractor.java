@@ -90,6 +90,11 @@ public class TSExtractor {
                 // output previous packet
                 if (holder.data.position() > 0) {
                     holder.timeUs = temporaryPts * 1000 / 45;
+                    // XXX: remove
+                    holder.timeUs -= 10 * 1000000;
+
+                    Log.d(TAG, "timestamp:" + holder.timeUs/1000);
+
                     holder.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
                     holderValid = true;
                 }
@@ -119,9 +124,10 @@ public class TSExtractor {
                 if ((flags & 0x80) == 0x80) {
                     temporaryPts = (long)(packet.get(offset++) & 0x0e) << 28;
                     temporaryPts |= (packet.get(offset++)) << 21;
-                    temporaryPts |= (packet.get(offset++) & 0xfe) << 12;
-                    temporaryPts |= (packet.get(offset++)) << 5;
+                    temporaryPts |= (packet.get(offset++) & 0xfe) << 13;
+                    temporaryPts |= (packet.get(offset++)) << 6;
                     temporaryPts |= (packet.get(offset++) & 0xfe) >> 2;
+
                 }
                 if ((flags & 0x40) == 0x40) {
                     // DTS
@@ -283,8 +289,8 @@ public class TSExtractor {
         activePayloadHandlers.put(0, payloadHandler);
     }
 
-    public int read(NonBlockingInputStream inputStream, SampleHolder out)
-            throws ParserException {
+    private int readOnePacket(NonBlockingInputStream inputStream, SampleHolder out) throws ParserException
+    {
         int result;
         int remaining = 188 - packetWriteOffset;
 
@@ -336,5 +342,15 @@ public class TSExtractor {
         } else {
             return RESULT_NEED_MORE_DATA;
         }
+    }
+
+    public int read(NonBlockingInputStream inputStream, SampleHolder out)
+            throws ParserException {
+        // XXX: this breaks buffering as the MediaCodecTrack stops feeding its inputBuffers and
+        // ExoPlayerImplInternal believes the renderer is not ready
+       // return readOnePacket(inputStream, out);
+
+        while (readOnePacket(inputStream,out) == RESULT_NEED_MORE_DATA) {}
+        return RESULT_READ_SAMPLE_FULL;
     }
 }

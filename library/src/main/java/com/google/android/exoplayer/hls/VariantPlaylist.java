@@ -23,6 +23,7 @@ public class VariantPlaylist {
     static class Entry {
         String url;
         double extinf;
+        double startTime;
     }
 
     public List<Entry> entries;
@@ -36,6 +37,7 @@ public class VariantPlaylist {
         VariantPlaylist variantPlaylist = new VariantPlaylist();
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         variantPlaylist.url = url;
+        double startTime = 0;
 
         String line = reader.readLine();
         if (line == null) {
@@ -64,6 +66,8 @@ public class VariantPlaylist {
                 if (e.extinf == 0.0) {
                     e.extinf = variantPlaylist.targetDuration;
                 }
+                e.startTime = startTime;
+                startTime += e.extinf;
                 variantPlaylist.entries.add(e);
                 e = null;
             }
