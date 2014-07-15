@@ -103,6 +103,7 @@ import java.nio.ByteBuffer;
    * <li>{@link EbmlReader#readBytes(NonBlockingInputStream, ByteBuffer, int)}.
    * <li>{@link EbmlReader#skipBytes(NonBlockingInputStream, int)}.
    * <li>{@link EbmlReader#getBytesRead()}.
+   * </ul>
    *
    * @param id The integer ID of this element
    * @param elementOffsetBytes The byte offset where this element starts
