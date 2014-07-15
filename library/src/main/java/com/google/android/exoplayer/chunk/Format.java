@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.chunk;
 
+import com.google.android.exoplayer.util.Assertions;
+
 import java.util.Comparator;
 
 /**
@@ -97,13 +99,28 @@ public class Format {
    */
   public Format(String id, String mimeType, int width, int height, int numChannels,
       int audioSamplingRate, int bandwidth) {
-    this.id = id;
+    this.id = Assertions.checkNotNull(id);
     this.mimeType = mimeType;
     this.width = width;
     this.height = height;
     this.numChannels = numChannels;
     this.audioSamplingRate = audioSamplingRate;
     this.bandwidth = bandwidth;
+  }
+
+  /**
+   * Implements equality based on {@link #id} only.
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    Format other = (Format) obj;
+    return other.id.equals(id);
   }
 
 }

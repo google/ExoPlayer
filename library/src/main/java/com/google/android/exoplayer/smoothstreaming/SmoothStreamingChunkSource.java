@@ -235,8 +235,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     DataSpec dataSpec = new DataSpec(uri, offset, -1, cacheKey);
     // In SmoothStreaming each chunk contains sample timestamps relative to the start of the chunk.
     // To convert them the absolute timestamps, we need to set sampleOffsetUs to -chunkStartTimeUs.
-    return new Mp4MediaChunk(dataSource, dataSpec, formatInfo, trigger, extractor,
-        chunkStartTimeUs, nextStartTimeUs, -chunkStartTimeUs, nextChunkIndex);
+    return new Mp4MediaChunk(dataSource, dataSpec, formatInfo, trigger, chunkStartTimeUs,
+        nextStartTimeUs, nextChunkIndex, extractor, false, -chunkStartTimeUs);
   }
 
   private static byte[] getKeyId(byte[] initData) {

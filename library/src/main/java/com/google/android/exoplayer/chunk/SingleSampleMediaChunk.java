@@ -78,6 +78,11 @@ public class SingleSampleMediaChunk extends MediaChunk {
   }
 
   @Override
+  public boolean prepare() {
+    return true;
+  }
+
+  @Override
   public boolean read(SampleHolder holder) {
     NonBlockingInputStream inputStream = getNonBlockingInputStream();
     Assertions.checkState(inputStream != null);

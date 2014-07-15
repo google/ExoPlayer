@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
  * More info about WebM is <a href="http://www.webmproject.org/code/specs/container/">here</a>.
  */
 @TargetApi(16)
-public final class DefaultWebmExtractor implements WebmExtractor, EbmlEventHandler {
+public final class DefaultWebmExtractor implements WebmExtractor {
 
   private static final String DOC_TYPE_WEBM = "webm";
   private static final String CODEC_ID_VP9 = "V_VP9";
@@ -104,7 +104,7 @@ public final class DefaultWebmExtractor implements WebmExtractor, EbmlEventHandl
 
   /* package */ DefaultWebmExtractor(EbmlReader reader) {
     this.reader = reader;
-    this.reader.setEventHandler(this);
+    this.reader.setEventHandler(new InnerEbmlEventHandler());
     this.cueTimesUs = new LongArray();
     this.cueClusterPositions = new LongArray();
   }
@@ -150,8 +150,7 @@ public final class DefaultWebmExtractor implements WebmExtractor, EbmlEventHandl
     return format;
   }
 
-  @Override
-  public int getElementType(int id) {
+  /* package */ int getElementType(int id) {
     switch (id) {
       case ID_EBML:
       case ID_SEGMENT:
@@ -185,8 +184,7 @@ public final class DefaultWebmExtractor implements WebmExtractor, EbmlEventHandl
     }
   }
 
-  @Override
-  public boolean onMasterElementStart(
+  /* package */ boolean onMasterElementStart(
       int id, long elementOffsetBytes, int headerSizeBytes, long contentsSizeBytes) {
     switch (id) {
       case ID_SEGMENT:
@@ -205,8 +203,7 @@ public final class DefaultWebmExtractor implements WebmExtractor, EbmlEventHandl
     return true;
   }
 
-  @Override
-  public boolean onMasterElementEnd(int id) {
+  /* package */ boolean onMasterElementEnd(int id) {
     if (id == ID_CUES) {
       finishPreparing();
       return false;
@@ -214,8 +211,7 @@ public final class DefaultWebmExtractor implements WebmExtractor, EbmlEventHandl
     return true;
   }
 
-  @Override
-  public boolean onIntegerElement(int id, long value) {
+  /* package */ boolean onIntegerElement(int id, long value) {
     switch (id) {
       case ID_EBML_READ_VERSION:
         // Validate that EBMLReadVersion is supported. This extractor only supports v1.
@@ -253,16 +249,14 @@ public final class DefaultWebmExtractor implements WebmExtractor, EbmlEventHandl
     return true;
   }
 
-  @Override
-  public boolean onFloatElement(int id, double value) {
+  /* package */ boolean onFloatElement(int id, double value) {
     if (id == ID_DURATION) {
       durationUs = scaleTimecodeToUs((long) value);
     }
     return true;
   }
 
-  @Override
-  public boolean onStringElement(int id, String value) {
+  /* package */ boolean onStringElement(int id, String value) {
     switch (id) {
       case ID_DOC_TYPE:
         // Validate that DocType is supported. This extractor only supports "webm".
@@ -282,8 +276,7 @@ public final class DefaultWebmExtractor implements WebmExtractor, EbmlEventHandl
     return true;
   }
 
-  @Override
-  public boolean onBinaryElement(
+  /* package */ boolean onBinaryElement(
       int id, long elementOffsetBytes, int headerSizeBytes, int contentsSizeBytes,
       NonBlockingInputStream inputStream) {
     if (id == ID_SIMPLE_BLOCK) {
@@ -381,6 +374,54 @@ public final class DefaultWebmExtractor implements WebmExtractor, EbmlEventHandl
     cueClusterPositions = null;
 
     prepared = true;
+  }
+
+  /**
+   * Passes events through to {@link DefaultWebmExtractor} as
+   * callbacks from {@link EbmlReader} are received.
+   */
+  private final class InnerEbmlEventHandler implements EbmlEventHandler {
+
+    @Override
+    public int getElementType(int id) {
+      return DefaultWebmExtractor.this.getElementType(id);
+    }
+
+    @Override
+    public boolean onMasterElementStart(
+        int id, long elementOffsetBytes, int headerSizeBytes, long contentsSizeBytes) {
+      return DefaultWebmExtractor.this.onMasterElementStart(
+          id, elementOffsetBytes, headerSizeBytes, contentsSizeBytes);
+    }
+
+    @Override
+    public boolean onMasterElementEnd(int id) {
+      return DefaultWebmExtractor.this.onMasterElementEnd(id);
+    }
+
+    @Override
+    public boolean onIntegerElement(int id, long value) {
+      return DefaultWebmExtractor.this.onIntegerElement(id, value);
+    }
+
+    @Override
+    public boolean onFloatElement(int id, double value) {
+      return DefaultWebmExtractor.this.onFloatElement(id, value);
+    }
+
+    @Override
+    public boolean onStringElement(int id, String value) {
+      return DefaultWebmExtractor.this.onStringElement(id, value);
+    }
+
+    @Override
+    public boolean onBinaryElement(
+        int id, long elementOffsetBytes, int headerSizeBytes, int contentsSizeBytes,
+        NonBlockingInputStream inputStream) {
+      return DefaultWebmExtractor.this.onBinaryElement(
+          id, elementOffsetBytes, headerSizeBytes, contentsSizeBytes, inputStream);
+    }
+
   }
 
 }

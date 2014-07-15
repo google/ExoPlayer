@@ -160,6 +160,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
   private int currentLoadableExceptionCount;
   private long currentLoadableExceptionTimestamp;
 
+  private MediaFormat downstreamMediaFormat;
   private volatile Format downstreamFormat;
 
   public ChunkSampleSource(ChunkSource chunkSource, LoadControl loadControl,
@@ -221,6 +222,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
     chunkSource.enable();
     loadControl.register(this, bufferSizeContribution);
     downstreamFormat = null;
+    downstreamMediaFormat = null;
     downstreamPositionUs = timeUs;
     lastSeekPositionUs = timeUs;
     restartFrom(timeUs);
@@ -288,21 +290,30 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
         return readData(track, playbackPositionUs, formatHolder, sampleHolder, false);
       } else if (mediaChunk.isLastChunk()) {
         return END_OF_STREAM;
-      } else {
-        IOException chunkSourceException = chunkSource.getError();
-        if (chunkSourceException != null) {
-          throw chunkSourceException;
-        }
-        return NOTHING_READ;
       }
-    } else if (downstreamFormat == null || !downstreamFormat.id.equals(mediaChunk.format.id)) {
+      IOException chunkSourceException = chunkSource.getError();
+      if (chunkSourceException != null) {
+        throw chunkSourceException;
+      }
+      return NOTHING_READ;
+    }
+
+    if (downstreamFormat == null || !downstreamFormat.equals(mediaChunk.format)) {
       notifyDownstreamFormatChanged(mediaChunk.format.id, mediaChunk.trigger,
           mediaChunk.startTimeUs);
-      MediaFormat format = mediaChunk.getMediaFormat();
-      chunkSource.getMaxVideoDimensions(format);
-      formatHolder.format = format;
-      formatHolder.drmInitData = mediaChunk.getPsshInfo();
       downstreamFormat = mediaChunk.format;
+    }
+
+    if (!mediaChunk.prepare()) {
+      return NOTHING_READ;
+    }
+
+    MediaFormat mediaFormat = mediaChunk.getMediaFormat();
+    if (downstreamMediaFormat == null || !downstreamMediaFormat.equals(mediaFormat)) {
+      chunkSource.getMaxVideoDimensions(mediaFormat);
+      formatHolder.format = mediaFormat;
+      formatHolder.drmInitData = mediaChunk.getPsshInfo();
+      downstreamMediaFormat = mediaFormat;
       return FORMAT_READ;
     }
 

@@ -83,9 +83,13 @@ public final class FragmentedMp4Extractor {
    * A sidx atom was read. The parsed data can be read using {@link #getSegmentIndex()}.
    */
   public static final int RESULT_READ_SIDX = 32;
+  /**
+   * The next thing to be read is a sample, but a {@link SampleHolder} was not supplied.
+   */
+  public static final int RESULT_NEED_SAMPLE_HOLDER = 64;
 
   private static final int READ_TERMINATING_RESULTS = RESULT_NEED_MORE_DATA | RESULT_END_OF_STREAM
-      | RESULT_READ_SAMPLE_FULL;
+      | RESULT_READ_SAMPLE_FULL | RESULT_NEED_SAMPLE_HOLDER;
   private static final byte[] NAL_START_CODE = new byte[] {0, 0, 0, 1};
   private static final byte[] PIFF_SAMPLE_ENCRYPTION_BOX_EXTENDED_TYPE =
       new byte[] {-94, 57, 79, 82, 90, -101, 79, 20, -94, 68, 108, 66, 124, 100, -115, -12};
@@ -272,7 +276,8 @@ public final class FragmentedMp4Extractor {
    * in subsequent calls until the whole sample has been read.
    *
    * @param inputStream The input stream from which data should be read.
-   * @param out A {@link SampleHolder} into which the sample should be read.
+   * @param out A {@link SampleHolder} into which the next sample should be read. If null then
+   *     {@link #RESULT_NEED_SAMPLE_HOLDER} will be returned once a sample has been reached.
    * @return One or more of the {@code RESULT_*} flags defined in this class.
    * @throws ParserException If an error occurs parsing the media data.
    */
@@ -1142,6 +1147,9 @@ public final class FragmentedMp4Extractor {
 
   @SuppressLint("InlinedApi")
   private int readSample(NonBlockingInputStream inputStream, SampleHolder out) {
+    if (out == null) {
+      return RESULT_NEED_SAMPLE_HOLDER;
+    }
     int sampleSize = fragmentRun.sampleSizeTable[sampleIndex];
     ByteBuffer outputData = out.data;
     if (parserState == STATE_READING_SAMPLE_START) {

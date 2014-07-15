@@ -231,8 +231,8 @@ public class DashMp4ChunkSource implements ChunkSource {
 
     DataSpec dataSpec = new DataSpec(representation.uri, offset, size,
         representation.getCacheKey());
-    return new Mp4MediaChunk(dataSource, dataSpec, representation.format, trigger, extractor,
-        startTimeUs, endTimeUs, 0, nextIndex);
+    return new Mp4MediaChunk(dataSource, dataSpec, representation.format, trigger, startTimeUs,
+        endTimeUs, nextIndex, extractor, false, 0);
   }
 
   private static class InitializationMp4Loadable extends Chunk {
