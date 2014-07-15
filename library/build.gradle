@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 apply plugin: 'android-library'
+apply plugin: 'android-maven'
+
+configurations {
+    deployerJars
+}
 
 android {
     compileSdkVersion 19
@@ -35,4 +40,16 @@ android {
 }
 
 dependencies {
+    deployerJars "org.kuali.maven.wagons:maven-s3-wagon:1.2.1"
 }
+
+uploadArchives {
+    repositories.mavenDeployer {
+        configuration = configurations.deployerJars
+        repository(url: 's3://repo.brightcove.com/releases') {
+        }
+        snapshotRepository(url: 's3://repo.brightcove.com/snapshots') {
+        }
+    }
+}
+uploadArchives.dependsOn 'install'
