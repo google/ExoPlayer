@@ -111,7 +111,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
   private Period parsePeriod(XmlPullParser xpp, String contentId, Uri parentBaseUrl,
       long mediaPresentationDuration) throws XmlPullParserException, IOException {
     Uri baseUrl = parentBaseUrl;
-    int id = parseInt(xpp, "id");
+    String id = xpp.getAttributeValue(null, "id");
     long start = parseDurationMs(xpp, "start", 0);
     long duration = parseDurationMs(xpp, "duration", mediaPresentationDuration);
 
@@ -214,7 +214,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
       List<Segment.Timeline> segmentTimelineList) throws XmlPullParserException, IOException {
     Uri baseUrl = parentBaseUrl;
     String id = xpp.getAttributeValue(null, "id");
-    int bandwidth = parseInt(xpp, "bandwidth") / 8;
+    int bandwidth = parseInt(xpp, "bandwidth");
     int audioSamplingRate = parseInt(xpp, "audioSamplingRate");
     int width = parseInt(xpp, "width");
     int height = parseInt(xpp, "height");

@@ -31,7 +31,7 @@ public class Format {
 
     @Override
     public int compare(Format a, Format b) {
-      return b.bandwidth - a.bandwidth;
+      return b.bitrate - a.bitrate;
     }
 
   }
@@ -67,45 +67,37 @@ public class Format {
   public final int audioSamplingRate;
 
   /**
-   * The average bandwidth in bytes per second.
+   * The average bandwidth in bits per second.
    */
+  public final int bitrate;
+
+  /**
+   * The average bandwidth in bytes per second.
+   *
+   * @deprecated Use {@link #bitrate}. However note that the units of measurement are different.
+   */
+  @Deprecated
   public final int bandwidth;
 
   /**
-   * @deprecated Format identifiers are now strings.
-   *
    * @param id The format identifier.
    * @param mimeType The format mime type.
    * @param width The width of the video in pixels, or -1 for non-video formats.
    * @param height The height of the video in pixels, or -1 for non-video formats.
    * @param numChannels The number of audio channels, or -1 for non-audio formats.
    * @param audioSamplingRate The audio sampling rate in Hz, or -1 for non-audio formats.
-   * @param bandwidth The average bandwidth of the format in bytes per second.
-   */
-  @Deprecated
-  public Format(int id, String mimeType, int width, int height, int numChannels,
-      int audioSamplingRate, int bandwidth) {
-    this(String.valueOf(id), mimeType, width, height, numChannels, audioSamplingRate, bandwidth);
-  }
-
-  /**
-   * @param id The format identifier.
-   * @param mimeType The format mime type.
-   * @param width The width of the video in pixels, or -1 for non-video formats.
-   * @param height The height of the video in pixels, or -1 for non-video formats.
-   * @param numChannels The number of audio channels, or -1 for non-audio formats.
-   * @param audioSamplingRate The audio sampling rate in Hz, or -1 for non-audio formats.
-   * @param bandwidth The average bandwidth of the format in bytes per second.
+   * @param bitrate The average bandwidth of the format in bits per second.
    */
   public Format(String id, String mimeType, int width, int height, int numChannels,
-      int audioSamplingRate, int bandwidth) {
+      int audioSamplingRate, int bitrate) {
     this.id = Assertions.checkNotNull(id);
     this.mimeType = mimeType;
     this.width = width;
     this.height = height;
     this.numChannels = numChannels;
     this.audioSamplingRate = audioSamplingRate;
-    this.bandwidth = bandwidth;
+    this.bitrate = bitrate;
+    this.bandwidth = bitrate / 8;
   }
 
   /**

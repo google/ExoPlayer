@@ -103,7 +103,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       TrackElement trackElement = streamElement.tracks[trackIndex];
       formats[i] = new SmoothStreamingFormat(String.valueOf(trackIndex), trackElement.mimeType,
           trackElement.maxWidth, trackElement.maxHeight, trackElement.numChannels,
-          trackElement.sampleRate, trackElement.bitrate / 8, trackIndex);
+          trackElement.sampleRate, trackElement.bitrate, trackIndex);
       maxWidth = Math.max(maxWidth, trackElement.maxWidth);
       maxHeight = Math.max(maxHeight, trackElement.maxHeight);
 
@@ -266,8 +266,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     public final int trackIndex;
 
     public SmoothStreamingFormat(String id, String mimeType, int width, int height,
-        int numChannels, int audioSamplingRate, int bandwidth, int trackIndex) {
-      super(id, mimeType, width, height, numChannels, audioSamplingRate, bandwidth);
+        int numChannels, int audioSamplingRate, int bitrate, int trackIndex) {
+      super(id, mimeType, width, height, numChannels, audioSamplingRate, bitrate);
       this.trackIndex = trackIndex;
     }
 

@@ -23,7 +23,7 @@ import java.util.List;
  */
 public final class Period {
 
-  public final int id;
+  public final String id;
 
   public final long start;
 
@@ -39,16 +39,16 @@ public final class Period {
 
   public final long presentationTimeOffset;
 
-  public Period(int id, long start, long duration, List<AdaptationSet> adaptationSets) {
+  public Period(String id, long start, long duration, List<AdaptationSet> adaptationSets) {
     this(id, start, duration, adaptationSets, null, 0, 0, 0);
   }
 
-  public Period(int id, long start, long duration, List<AdaptationSet> adaptationSets,
+  public Period(String id, long start, long duration, List<AdaptationSet> adaptationSets,
       List<Segment.Timeline> segmentList, int segmentStartNumber, int segmentTimescale) {
     this(id, start, duration, adaptationSets, segmentList, segmentStartNumber, segmentTimescale, 0);
   }
 
-  public Period(int id, long start, long duration, List<AdaptationSet> adaptationSets,
+  public Period(String id, long start, long duration, List<AdaptationSet> adaptationSets,
       List<Segment.Timeline> segmentList, int segmentStartNumber, int segmentTimescale,
       long presentationTimeOffset) {
     this.id = id;
