@@ -33,7 +33,7 @@ public class VariantPlaylist {
         endList = false;
     }
 
-    public static VariantPlaylist parse(String url, InputStream stream, String contentEncoding) throws IOException {
+    public static VariantPlaylist parse(String url, InputStream stream) throws IOException {
         VariantPlaylist variantPlaylist = new VariantPlaylist();
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         variantPlaylist.url = url;

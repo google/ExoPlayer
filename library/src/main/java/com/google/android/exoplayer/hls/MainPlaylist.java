@@ -20,6 +20,7 @@ public class MainPlaylist {
         public int bps;
         public int width;
         public int height;
+        public int mediaTypes;
         public VariantPlaylist variantPlaylist;
 
         Entry() {}
@@ -30,6 +31,9 @@ public class MainPlaylist {
         }
     }
 
+    static final int MEDIA_TYPE_AUDIO = 1;
+    static final int MEDIA_TYPE_VIDEO = 2;
+
     public List<Entry> entries;
     public String url;
 
@@ -37,8 +41,48 @@ public class MainPlaylist {
         entries = new ArrayList<Entry>();
     }
     
-    public static MainPlaylist parse(String url, InputStream stream, String inputEncoding) throws IOException{
+    static private InputStream getInputStream(URL url) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setConnectTimeout(8000);
+        connection.setReadTimeout(8000);
+        connection.setDoOutput(false);
+        connection.connect();
+        return connection.getInputStream();
+    }
+
+    /**
+     * creates a simple mainPlaylist with just one entry
+     * @param url
+     * @return
+     */
+    public static MainPlaylist createVideoMainPlaylist(String url) {
         MainPlaylist mainPlaylist = new MainPlaylist();
+        Entry e = new Entry();
+        e.bps = 424242;
+        e.url = url;
+        e.mediaTypes = MEDIA_TYPE_VIDEO;
+        mainPlaylist.entries.add(e);
+        return mainPlaylist;
+    }
+
+    /**
+     * creates a simple mainPlaylist with just one entry
+     * @param url
+     * @return
+     */
+    public static MainPlaylist createAudioMainPlaylist(String url) {
+        MainPlaylist mainPlaylist = new MainPlaylist();
+        Entry e = new Entry();
+        e.bps = 424242;
+        e.url = url;
+        e.mediaTypes = MEDIA_TYPE_AUDIO;
+        mainPlaylist.entries.add(e);
+        return mainPlaylist;
+    }
+
+    public static MainPlaylist parse(String url) throws IOException {
+        MainPlaylist mainPlaylist = new MainPlaylist();
+        InputStream stream = getInputStream(new URL(url));
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         mainPlaylist.url = url;
 
@@ -56,7 +100,7 @@ public class MainPlaylist {
                 if (e == null) {
                     e = new Entry();
                 }
-                HashMap<String,String> attributes = M3U8Utils.parseAtrributeList(line.substring(M3U8Constants.EXT_X_STREAM_INF.length() + 1));
+                HashMap<String, String> attributes = M3U8Utils.parseAtrributeList(line.substring(M3U8Constants.EXT_X_STREAM_INF.length() + 1));
                 e.bps = Integer.parseInt(attributes.get("BANDWIDTH"));
                 if (attributes.containsKey("RESOLUTION")) {
                     String resolution[] = attributes.get("RESOLUTION").split("x");
@@ -65,25 +109,24 @@ public class MainPlaylist {
                 }
             } else if (e != null && !line.startsWith("#")) {
                 e.url = line;
+                e.mediaTypes = MEDIA_TYPE_VIDEO;
                 mainPlaylist.entries.add(e);
                 e = null;
             }
         }
 
         Collections.sort(mainPlaylist.entries);
+        stream.close();
+        return mainPlaylist;
+    }
 
-        for (int i = 0; i < mainPlaylist.entries.size(); i++) {
-            URL variantURL = new URL(Util.makeAbsoluteUrl(url, mainPlaylist.entries.get(0).url));
+    public void parseVariants() throws IOException{
+        for (int i = 0; i < entries.size(); i++) {
+            URL variantURL = new URL(Util.makeAbsoluteUrl(url, entries.get(0).url));
 
-            InputStream inputStream = null;
+            InputStream inputStream = getInputStream(variantURL);
             try {
-                HttpURLConnection connection = (HttpURLConnection) variantURL.openConnection();
-                connection.setConnectTimeout(8000);
-                connection.setReadTimeout(8000);
-                connection.setDoOutput(false);
-                connection.connect();
-                inputStream = connection.getInputStream();
-                mainPlaylist.entries.get(i).variantPlaylist = VariantPlaylist.parse(variantURL.toString(), inputStream, connection.getContentEncoding());
+                entries.get(i).variantPlaylist = VariantPlaylist.parse(variantURL.toString(), inputStream);
             } finally {
                 if (inputStream != null) {
                     inputStream.close();
@@ -91,7 +134,5 @@ public class MainPlaylist {
             }
 
         }
-
-        return mainPlaylist;
     }
 }

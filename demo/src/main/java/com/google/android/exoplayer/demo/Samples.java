@@ -136,6 +136,8 @@ package com.google.android.exoplayer.demo;
         DemoUtil.TYPE_OTHER, false, true),
     new Sample("Tour de france", "uid:misc:dailymotion", "http://preprod.dailymotion.com/cdn/manifest/video/x20w6of.m3u8?auth=1410713010-2560-vews7plt-7604c8dc30cf60a2f355aeedeb49672a",
         DemoUtil.TYPE_HLS, false, true),
+    new Sample("Audio-only", "uid:misc:audioonly", "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear0/prog_index.m3u8",
+        DemoUtil.TYPE_HLS_AUDIO_ONLY, false, true)
 
   };
 

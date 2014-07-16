@@ -48,7 +48,8 @@ public class HLSChunkSource implements ChunkSource {
         formats = new Format[trackCount];
 
         for (int i = 0; i < trackCount; i++) {
-            formats[i] = new Format(i, "video/mp2t", 1920, 1080, 2, 44100, mainPlaylist.entries.get(i).bps);
+            MainPlaylist.Entry entry = mainPlaylist.entries.get(i);
+            formats[i] = new Format(i, "video/mp2t", entry.width, entry.height, 2, 44100, entry.bps);
         }
 
         mediaFormats = new MediaFormat[trackCount];

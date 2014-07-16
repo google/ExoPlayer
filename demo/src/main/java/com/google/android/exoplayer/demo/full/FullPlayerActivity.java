@@ -25,6 +25,7 @@ import com.google.android.exoplayer.demo.full.player.DemoPlayer;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.full.player.HLSRendererBuilder;
 import com.google.android.exoplayer.demo.full.player.SmoothStreamingRendererBuilder;
+import com.google.android.exoplayer.hls.MainPlaylist;
 import com.google.android.exoplayer.util.VerboseLogUtil;
 
 import android.app.Activity;
@@ -166,6 +167,9 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
         case DemoUtil.TYPE_HLS:
             return new HLSRendererBuilder(userAgent, contentUri.toString(),
              debugTextView);
+        case DemoUtil.TYPE_HLS_AUDIO_ONLY:
+            return new HLSRendererBuilder(userAgent, contentUri.toString(),
+                    debugTextView, MainPlaylist.createAudioMainPlaylist(contentUri.toString()));
       default:
         return new DefaultRendererBuilder(this, contentUri, debugTextView);
     }
