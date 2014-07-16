@@ -62,6 +62,7 @@ public class MainPlaylist {
         e.url = url;
         e.mediaTypes = MEDIA_TYPE_VIDEO;
         mainPlaylist.entries.add(e);
+        mainPlaylist.url = ".";
         return mainPlaylist;
     }
 
@@ -77,6 +78,7 @@ public class MainPlaylist {
         e.url = url;
         e.mediaTypes = MEDIA_TYPE_AUDIO;
         mainPlaylist.entries.add(e);
+        mainPlaylist.url = ".";
         return mainPlaylist;
     }
 

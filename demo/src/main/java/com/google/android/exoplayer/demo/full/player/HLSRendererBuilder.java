@@ -43,6 +43,8 @@ public class HLSRendererBuilder implements DemoPlayer.RendererBuilder {
                 try {
                     mainPlaylist = MainPlaylist.parse(HLSRendererBuilder.this.url);
                 } catch (Exception e) {
+                    Log.d(TAG, "cannot parse main playlist");
+                    e.printStackTrace();
 
                 }
                 if (mainPlaylist == null) {
@@ -77,7 +79,7 @@ public class HLSRendererBuilder implements DemoPlayer.RendererBuilder {
 
     public HLSRendererBuilder(String userAgent, String url,
                               TextView debugTextView) {
-        this(url, userAgent, debugTextView, null);
+        this(userAgent, url, debugTextView, null);
     }
 
     public void buildRenderers(DemoPlayer player, RendererBuilderCallback callback) {

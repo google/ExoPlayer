@@ -350,7 +350,10 @@ public class TSExtractor {
         // ExoPlayerImplInternal believes the renderer is not ready
        // return readOnePacket(inputStream, out);
 
-        while (readOnePacket(inputStream,out) == RESULT_NEED_MORE_DATA) {}
-        return RESULT_READ_SAMPLE_FULL;
+        int ret = RESULT_NEED_MORE_DATA;
+        while (ret == RESULT_NEED_MORE_DATA) {
+            ret = readOnePacket(inputStream,out);
+        }
+        return ret;
     }
 }
