@@ -93,7 +93,7 @@ public class TSExtractor {
                     // XXX: remove
                     holder.timeUs -= 10 * 1000000;
 
-                    Log.d(TAG, "timestamp:" + holder.timeUs/1000);
+                    //Log.d(TAG, "timestamp:" + holder.timeUs/1000);
 
                     holder.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
                     holderValid = true;

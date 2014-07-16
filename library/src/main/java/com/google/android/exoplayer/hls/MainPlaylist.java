@@ -124,7 +124,7 @@ public class MainPlaylist {
 
     public void parseVariants() throws IOException{
         for (int i = 0; i < entries.size(); i++) {
-            URL variantURL = new URL(Util.makeAbsoluteUrl(url, entries.get(0).url));
+            URL variantURL = new URL(Util.makeAbsoluteUrl(url, entries.get(i).url));
 
             InputStream inputStream = getInputStream(variantURL);
             try {

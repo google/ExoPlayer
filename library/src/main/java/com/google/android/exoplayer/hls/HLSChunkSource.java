@@ -1,6 +1,7 @@
 package com.google.android.exoplayer.hls;
 
 import android.net.Uri;
+import android.util.Log;
 import android.util.SparseArray;
 
 import com.google.android.exoplayer.MediaFormat;
@@ -27,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class HLSChunkSource implements ChunkSource {
+    private static final String TAG = "HLSChunkSource";
     private final String baseUrl;
     private final DataSource dataSource;
     private final FormatEvaluator formatEvaluator;
@@ -127,6 +129,7 @@ public class HLSChunkSource implements ChunkSource {
         VariantPlaylist.Entry entry = currentVariantPlaylist.entries.get(nextChunkIndex - currentVariantPlaylist.mediaSequence);
 
         String chunkUrl = Util.makeAbsoluteUrl(currentVariantPlaylist.url, entry.url);
+        Log.d(TAG, "opening " + chunkUrl);
         Uri uri = Uri.parse(chunkUrl);
         long offset = 0;
         DataSpec dataSpec = new DataSpec(uri, offset, -1, null);
