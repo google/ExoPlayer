@@ -145,7 +145,8 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
   private final Handler eventHandler;
   private final EventListener eventListener;
 
-  private int state;
+  private boolean prepared;
+  private boolean trackEnabled[];
   private long downstreamPositionUs;
   private long lastSeekPositionUs;
   private long pendingResetTime;
@@ -179,7 +180,6 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
     currentLoadableHolder = new ChunkOperationHolder();
     mediaChunks = new LinkedList<MediaChunk>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
-    state = STATE_UNPREPARED;
   }
 
   /**
@@ -193,57 +193,75 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
 
   @Override
   public boolean prepare() {
-    if (state != STATE_PREPARED) {
+    if (!prepared) {
         loader = new Loader("Loader", this);
-        state = STATE_PREPARED;
+        trackEnabled = new boolean[chunkSource.getTrackCount()];
+        prepared = true;
     }
     return true;
   }
 
   @Override
   public int getTrackCount() {
-    Assertions.checkState(state != STATE_UNPREPARED);
+    Assertions.checkState(prepared);
     return chunkSource.getTrackCount();
   }
 
   @Override
   public TrackInfo getTrackInfo(int track) {
-    Assertions.checkState(state != STATE_UNPREPARED);
+    Assertions.checkState(prepared);
     return chunkSource.getTrackInfo(track);
+  }
+
+  public boolean hasOneTrackEnabled()
+  {
+      for (boolean b : trackEnabled) {
+          if (b)
+              return true;
+      }
+      return false;
   }
 
   @Override
   public void enable(int track, long timeUs) {
-    Assertions.checkState(state == STATE_PREPARED);
-    state = STATE_ENABLED;
-    chunkSource.enable();
-    loadControl.register(this, bufferSizeContribution);
-    downstreamFormat = null;
-    downstreamMediaFormat = null;
-    downstreamPositionUs = timeUs;
-    lastSeekPositionUs = timeUs;
-    restartFrom(timeUs);
+    Assertions.checkState(prepared);
+    boolean wasEnabled = hasOneTrackEnabled();
+    chunkSource.enable(track);
+    trackEnabled[track] = true;
+
+    if (!wasEnabled) {
+        loadControl.register(this, bufferSizeContribution);
+        downstreamFormat = null;
+        downstreamMediaFormat = null;
+        downstreamPositionUs = timeUs;
+        lastSeekPositionUs = timeUs;
+        restartFrom(timeUs);
+    }
   }
 
   @Override
   public void disable(int track) {
-    Assertions.checkState(state == STATE_ENABLED);
-    pendingDiscontinuity = false;
-    state = STATE_PREPARED;
-    loadControl.unregister(this);
-    chunkSource.disable(mediaChunks);
-    if (loader.isLoading()) {
-      loader.cancelLoading();
-    } else {
-      clearMediaChunks();
-      clearCurrentLoadable();
-      loadControl.trimAllocator();
+    Assertions.checkState(prepared);
+    boolean wasEnabled = hasOneTrackEnabled();
+    chunkSource.disable(track, mediaChunks);
+    trackEnabled[track] = false;
+
+    if (wasEnabled && !hasOneTrackEnabled()) {
+        pendingDiscontinuity = false;
+        loadControl.unregister(this);
+        if (loader.isLoading()) {
+            loader.cancelLoading();
+        } else {
+            clearMediaChunks();
+            clearCurrentLoadable();
+            loadControl.trimAllocator();
+        }
     }
   }
 
   @Override
   public void continueBuffering(long playbackPositionUs) {
-    Assertions.checkState(state == STATE_ENABLED);
+    Assertions.checkState(hasOneTrackEnabled());
     downstreamPositionUs = playbackPositionUs;
     chunkSource.continueBuffering(playbackPositionUs);
     updateLoadControl();
@@ -252,7 +270,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
   @Override
   public int readData(int track, long playbackPositionUs, FormatHolder formatHolder,
       SampleHolder sampleHolder, boolean onlyReadDiscontinuity) throws IOException {
-    Assertions.checkState(state == STATE_ENABLED);
+    Assertions.checkState(hasOneTrackEnabled());
 
     if (pendingDiscontinuity) {
       pendingDiscontinuity = false;
@@ -307,7 +325,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
       return NOTHING_READ;
     }
 
-    MediaFormat mediaFormat = mediaChunk.getMediaFormat();
+    MediaFormat mediaFormat = mediaChunk.getMediaFormat(track);
     if (mediaFormat != null && !mediaFormat.equals(downstreamMediaFormat)) {
       chunkSource.getMaxVideoDimensions(mediaFormat);
       formatHolder.format = mediaFormat;
@@ -330,7 +348,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
 
   @Override
   public void seekToUs(long timeUs) {
-    Assertions.checkState(state == STATE_ENABLED);
+    Assertions.checkState(hasOneTrackEnabled());
     downstreamPositionUs = timeUs;
     lastSeekPositionUs = timeUs;
     if (pendingResetTime == timeUs) {
@@ -363,7 +381,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
 
   @Override
   public long getBufferedPositionUs() {
-    Assertions.checkState(state == STATE_ENABLED);
+    Assertions.checkState(hasOneTrackEnabled());
     if (isPendingReset()) {
       return pendingResetTime;
     }
@@ -387,12 +405,10 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
 
   @Override
   public void release() {
-    Assertions.checkState(state != STATE_ENABLED);
     if (loader != null) {
       loader.release();
       loader = null;
     }
-    state = STATE_UNPREPARED;
   }
 
   @Override
@@ -426,7 +442,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
     }
     clearCurrentLoadable();
     notifyLoadCanceled();
-    if (state == STATE_ENABLED) {
+    if (hasOneTrackEnabled()) {
       restartFrom(pendingResetTime);
     } else {
       clearMediaChunks();

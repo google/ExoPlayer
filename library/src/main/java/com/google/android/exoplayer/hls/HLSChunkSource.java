@@ -19,7 +19,6 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -86,8 +85,15 @@ public class HLSChunkSource implements ChunkSource {
             ArrayList<MediaFormat> list = new ArrayList<MediaFormat>();
             mediaFormats.add(list);
             if (hasAudio == 1) {
+                List<byte[]> initializationData = new ArrayList<byte[]>();
+                byte[] data = new byte[2];
+                data[0] = 18;
+                data[1] = 16;
+                initializationData.add(data);
                 // XXX: can we get the sample rate ?
-                list.add(MediaFormat.createAudioFormat(MimeTypes.AUDIO_AAC, -1, 2, 44100, null));
+                MediaFormat mediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_AAC, -1, 2, 44100, initializationData);
+                mediaFormat.setIsADTS(true);
+                list.add(mediaFormat);
             }
             if (hasVideo == 1) {
                 list.add(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
@@ -118,12 +124,12 @@ public class HLSChunkSource implements ChunkSource {
     }
 
     @Override
-    public void enable() {
+    public void enable(int track) {
 
     }
 
     @Override
-    public void disable(List<MediaChunk> queue) {
+    public void disable(int track, List<MediaChunk> queue) {
 
     }
 

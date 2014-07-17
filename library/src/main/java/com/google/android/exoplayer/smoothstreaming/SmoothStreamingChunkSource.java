@@ -145,12 +145,12 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   }
 
   @Override
-  public void enable() {
+  public void enable(int track) {
     // Do nothing.
   }
 
   @Override
-  public void disable(List<? extends MediaChunk> queue) {
+  public void disable(int track, List<? extends MediaChunk> queue) {
     // Do nothing.
   }
 

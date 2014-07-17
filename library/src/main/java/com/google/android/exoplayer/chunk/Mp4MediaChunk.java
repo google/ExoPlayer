@@ -117,15 +117,10 @@ public final class Mp4MediaChunk extends MediaChunk {
   }
 
   @Override
-<<<<<<< HEAD
-  public MediaFormat getMediaFormat() {
-    return mediaFormat;
-=======
   public MediaFormat getMediaFormat(int track) {
 
       Assertions.checkState(track == 0);
-      return extractor.getFormat();
->>>>>>> adding audio support: work in progress
+      return mediaFormat;
   }
 
   @Override

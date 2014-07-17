@@ -31,6 +31,8 @@ public class TSExtractor {
     public static final int TYPE_VIDEO = 0;
     public static final int TYPE_AUDIO = 1;
 
+    private boolean formatSent;
+
     private UnsignedByteArray packet;
     int packetWriteOffset;
 
@@ -104,6 +106,7 @@ public class TSExtractor {
     class PESHandler extends PayloadHandler {
         private Sample currentSample;
         private LinkedList<Sample> list;
+        private int length;
 
         public PESHandler(LinkedList<Sample> list) {
             this.list = list;
@@ -118,6 +121,9 @@ public class TSExtractor {
                 // output previous packet
                 if (currentSample != null) {
                     list.add(currentSample);
+                    if (length != 0 && length != currentSample.position) {
+                        Log.d(TAG, "PES length " + currentSample.position + " != " + length);
+                    }
                 }
 
                 currentSample = getSample();
@@ -131,12 +137,8 @@ public class TSExtractor {
                 }
                 // skip stream id
                 offset++;
-                // length should be 0 for my use case
-                int length = packet.getShort(offset);
+                length = packet.getShort(offset);
                 offset += 2;
-                if (length != 0) {
-                    Log.d(TAG, "PES length != 0: " + length);
-                }
 
                 // skip some stuff
                 offset++;
@@ -162,6 +164,8 @@ public class TSExtractor {
                 currentSample.timeUs -= 10 * 1000000;
 
                 offset = fixedOffset + headerDataLength;
+                if (length > 0)
+                    length -= headerDataLength + 3;
                 System.arraycopy(packet.array(), offset, currentSample.data.array(), 0, 188 - offset);
                 currentSample.position = 188 - offset;
                 return;
@@ -394,9 +398,29 @@ public class TSExtractor {
 
         if (list.size() > 0) {
             Sample s = list.removeFirst();
-            out.data.put(s.data.array(), 0, s.position);
-            out.timeUs = s.timeUs;
-            out.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
+            if (out.data != null) {
+                out.data.put(s.data.array(), 0, s.position);
+                out.timeUs = s.timeUs;
+                out.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
+            } else if (type == TYPE_AUDIO && !formatSent) {
+                UnsignedByteArray d = s.data;
+                if (d.get(0) != 0xff || ((d.get(1) & 0xf0) != 0xf0)) {
+                    Log.d(TAG, "no ADTS sync");
+                }
+
+                Log.d(TAG, "version: " + ((d.get(1) & 0x08) >> 3));
+                Log.d(TAG, "layer: " + ((d.get(1) & 0x06) >> 1));
+                Log.d(TAG, "protection absent: " + ((d.get(1) & 0x01) >> 0));
+                Log.d(TAG, "profile: " + ((d.get(2) & 0xc0) >> 6));
+                Log.d(TAG, "freq index: " + ((d.get(2) & 0x3c) >> 2));
+                Log.d(TAG, "channel config index: " + (((d.get(2) & 0x1) << 2) + ((d.get(3) & 0xc0) >> 6)));
+                int frameLength = (d.get(3) & 0x3) << 11;
+                frameLength += (d.get(4) << 3);
+                frameLength += (d.get(5) & 0xe0) >> 5;
+                Log.d(TAG, "frame length: " + frameLength);
+
+                formatSent = true;
+            }
             releaseSample(s);
             return RESULT_READ_SAMPLE_FULL;
         } else {

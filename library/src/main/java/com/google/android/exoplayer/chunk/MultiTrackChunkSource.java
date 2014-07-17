@@ -63,14 +63,14 @@ public class MultiTrackChunkSource implements ChunkSource, ExoPlayerComponent {
   }
 
   @Override
-  public void enable() {
-    selectedSource.enable();
+  public void enable(int track) {
+    selectedSource.enable(track);
     enabled = true;
   }
 
   @Override
-  public void disable(List<? extends MediaChunk> queue) {
-    selectedSource.disable(queue);
+  public void disable(int track, List<? extends MediaChunk> queue) {
+    selectedSource.disable(track, queue);
     enabled = false;
   }
 

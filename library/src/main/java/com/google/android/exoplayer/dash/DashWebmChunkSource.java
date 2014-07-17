@@ -111,12 +111,12 @@ public class DashWebmChunkSource implements ChunkSource {
   }
 
   @Override
-  public void enable() {
+  public void enable(int track) {
     evaluator.enable();
   }
 
   @Override
-  public void disable(List<? extends MediaChunk> queue) {
+  public void disable(int track, List<? extends MediaChunk> queue) {
      evaluator.disable();
   }
 

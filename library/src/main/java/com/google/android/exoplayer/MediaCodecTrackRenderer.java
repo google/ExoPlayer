@@ -26,6 +26,7 @@ import android.media.MediaCrypto;
 import android.media.MediaExtractor;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -39,7 +40,9 @@ import java.util.UUID;
 @TargetApi(16)
 public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
-  /**
+    private static final String TAG = "MediaCodecTrackRenderer";
+
+    /**
    * Interface definition for a callback to be notified of {@link MediaCodecTrackRenderer} events.
    */
   public interface EventListener {
@@ -248,7 +251,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     codecIsAdaptive = selectedDecoderInfo.adaptive;
     try {
       codec = MediaCodec.createByCodecName(selectedDecoderName);
-      configureCodec(codec, format.getFrameworkMediaFormatV16(), mediaCrypto);
+      android.media.MediaFormat infoV16 = format.getFrameworkMediaFormatV16();
+      configureCodec(codec, infoV16, mediaCrypto);
       codec.start();
       inputBuffers = codec.getInputBuffers();
       outputBuffers = codec.getOutputBuffers();

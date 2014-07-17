@@ -115,7 +115,7 @@ public class HLSRendererBuilder implements DemoPlayer.RendererBuilder {
                 mainHandler, player, 50);
 
         // Build the audio renderer
-        MediaCodecAudioTrackRenderer audioRenderer = null;// new MediaCodecAudioTrackRenderer(sampleSource, null, true, mainHandler, player);
+        MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource, null, true, mainHandler, player);
 
         // Build the debug renderer.
         TrackRenderer debugRenderer = debugTextView != null

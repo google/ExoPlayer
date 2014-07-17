@@ -57,15 +57,17 @@ public interface ChunkSource {
 
   /**
    * Called when the source is enabled.
+   * @param track
    */
-  void enable();
+  void enable(int track);
 
   /**
    * Called when the source is disabled.
    *
-   * @param queue A representation of the currently buffered {@link MediaChunk}s.
+   * @param track
+   * @param queue A representation of the currently buffered {@link com.google.android.exoplayer.chunk.MediaChunk}s.
    */
-  void disable(List<? extends MediaChunk> queue);
+  void disable(int track, List<? extends MediaChunk> queue);
 
   /**
    * Indicates to the source that it should still be checking for updates to the stream.

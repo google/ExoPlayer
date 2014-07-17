@@ -41,6 +41,7 @@ public class MediaFormat {
 
   public final int channelCount;
   public final int sampleRate;
+  private boolean isADTS;
 
   private int maxWidth;
   private int maxHeight;
@@ -110,6 +111,10 @@ public class MediaFormat {
     if (frameworkMediaFormat != null) {
       maybeSetMaxDimensionsV16(frameworkMediaFormat);
     }
+  }
+
+  public void setIsADTS(boolean isADTS) {
+      this.isADTS = isADTS;
   }
 
   public int getMaxVideoWidth() {
@@ -183,6 +188,7 @@ public class MediaFormat {
       maybeSetIntegerV16(format, android.media.MediaFormat.KEY_HEIGHT, height);
       maybeSetIntegerV16(format, android.media.MediaFormat.KEY_CHANNEL_COUNT, channelCount);
       maybeSetIntegerV16(format, android.media.MediaFormat.KEY_SAMPLE_RATE, sampleRate);
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_IS_ADTS, isADTS ? 1 : 0);
       for (int i = 0; i < initializationData.size(); i++) {
         format.setByteBuffer("csd-" + i, ByteBuffer.wrap(initializationData.get(i)));
       }
