@@ -129,6 +129,10 @@ package com.google.android.exoplayer.demo;
         + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
         + "&expire=19000000000&signature=88DC53943385CED8CF9F37ADD9E9843E3BF621E6."
         + "22727BB612D24AA4FACE4EF62726F9461A9BF57A&key=ik0", DemoUtil.TYPE_DASH_VOD, true, true),
+        new Sample("WV: 30s license duration", "f9a34cab7b05881a",
+            "http://dash.edgesuite.net/digitalprimates/fraunhofer/480p_video/heaac_2_0_with_video/ElephantsDream/elephants_dream_480p_heaac2_0.mpd", DemoUtil.TYPE_DASH_VOD, false, true),
+        
+        
   };
 
   public static final Sample[] MISC = new Sample[] {

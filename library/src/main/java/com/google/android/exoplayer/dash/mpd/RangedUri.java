@@ -42,6 +42,8 @@ public final class RangedUri {
   private final Uri baseUri;
   private final String stringUri;
 
+  private int hashCode;
+
   /**
    * Constructs an ranged uri.
    * <p>
@@ -80,6 +82,57 @@ public final class RangedUri {
       uri = Uri.withAppendedPath(baseUri, stringUri);
     }
     return uri;
+  }
+
+  /**
+   * Attempts to merge this {@link RangedUri} with another.
+   * <p>
+   * A merge is successful if both instances define the same {@link Uri}, and if one starte the
+   * byte after the other ends, forming a contiguous region with no overlap.
+   * <p>
+   * If {@code other} is null then the merge is considered unsuccessful, and null is returned.
+   *
+   * @param other The {@link RangedUri} to merge.
+   * @return The merged {@link RangedUri} if the merge was successful. Null otherwise.
+   */
+  public RangedUri attemptMerge(RangedUri other) {
+    if (other == null || !getUri().equals(other.getUri())) {
+      return null;
+    } else if (length != -1 && start + length == other.start) {
+      return new RangedUri(baseUri, stringUri, start,
+          other.length == -1 ? -1 : length + other.length);
+    } else if (other.length != -1 && other.start + other.length == start) {
+      return new RangedUri(baseUri, stringUri, other.start,
+          length == -1 ? -1 : other.length + length);
+    } else {
+      return null;
+    }
+  }
+
+  @Override
+  public int hashCode() {
+    if (hashCode == 0) {
+      int result = 17;
+      result = 31 * result + (int) start;
+      result = 31 * result + (int) length;
+      result = 31 * result + getUri().hashCode();
+      hashCode = result;
+    }
+    return hashCode;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    RangedUri other = (RangedUri) obj;
+    return this.start == other.start
+        && this.length == other.length
+        && getUri().equals(other.getUri());
   }
 
 }

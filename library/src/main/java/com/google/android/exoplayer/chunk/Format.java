@@ -100,6 +100,11 @@ public class Format {
     this.bandwidth = bitrate / 8;
   }
 
+  @Override
+  public int hashCode() {
+    return id.hashCode();
+  }
+
   /**
    * Implements equality based on {@link #id} only.
    */

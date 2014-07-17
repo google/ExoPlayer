@@ -27,16 +27,15 @@ import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer.chunk.MediaChunk;
 import com.google.android.exoplayer.chunk.WebmMediaChunk;
+import com.google.android.exoplayer.dash.mpd.RangedUri;
 import com.google.android.exoplayer.dash.mpd.Representation;
-import com.google.android.exoplayer.parser.SegmentIndex;
 import com.google.android.exoplayer.parser.webm.DefaultWebmExtractor;
 import com.google.android.exoplayer.parser.webm.WebmExtractor;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
-import com.google.android.exoplayer.util.Util;
 
-import android.util.Log;
+import android.net.Uri;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -48,34 +47,27 @@ import java.util.List;
  */
 public class DashWebmChunkSource implements ChunkSource {
 
-  private static final String TAG = "DashWebmChunkSource";
-
   private final TrackInfo trackInfo;
   private final DataSource dataSource;
   private final FormatEvaluator evaluator;
   private final Evaluation evaluation;
   private final int maxWidth;
   private final int maxHeight;
-  private final int numSegmentsPerChunk;
 
   private final Format[] formats;
   private final HashMap<String, Representation> representations;
   private final HashMap<String, WebmExtractor> extractors;
+  private final HashMap<String, DashSegmentIndex> segmentIndexes;
 
   private boolean lastChunkWasInitialization;
 
-  public DashWebmChunkSource(
-      DataSource dataSource, FormatEvaluator evaluator, Representation... representations) {
-    this(dataSource, evaluator, 1, representations);
-  }
-
   public DashWebmChunkSource(DataSource dataSource, FormatEvaluator evaluator,
-      int numSegmentsPerChunk, Representation... representations) {
+      Representation... representations) {
     this.dataSource = dataSource;
     this.evaluator = evaluator;
-    this.numSegmentsPerChunk = numSegmentsPerChunk;
     this.formats = new Format[representations.length];
     this.extractors = new HashMap<String, WebmExtractor>();
+    this.segmentIndexes = new HashMap<String, DashSegmentIndex>();
     this.representations = new HashMap<String, Representation>();
     this.trackInfo = new TrackInfo(
         representations[0].format.mimeType, representations[0].periodDuration * 1000);
@@ -88,6 +80,10 @@ public class DashWebmChunkSource implements ChunkSource {
       maxHeight = Math.max(formats[i].height, maxHeight);
       extractors.put(formats[i].id, new DefaultWebmExtractor());
       this.representations.put(formats[i].id, representations[i]);
+      DashSegmentIndex segmentIndex = representations[i].getIndex();
+      if (segmentIndex != null) {
+        segmentIndexes.put(formats[i].id, segmentIndex);
+      }
     }
     this.maxWidth = maxWidth;
     this.maxHeight = maxHeight;
@@ -143,28 +139,34 @@ public class DashWebmChunkSource implements ChunkSource {
 
     Representation selectedRepresentation = representations.get(selectedFormat.id);
     WebmExtractor extractor = extractors.get(selectedRepresentation.format.id);
+
     if (!extractor.isPrepared()) {
-      Chunk initializationChunk = newInitializationChunk(selectedRepresentation, extractor,
-          dataSource, evaluation.trigger);
+      // TODO: This code forces cues to exist and to immediately follow the initialization
+      // data. Webm extractor should be generalized to allow cues to be optional. See [redacted].
+      RangedUri initializationUri = selectedRepresentation.getInitializationUri().attemptMerge(
+           selectedRepresentation.getIndexUri());
+      Chunk initializationChunk = newInitializationChunk(initializationUri, selectedRepresentation,
+          extractor, dataSource, evaluation.trigger);
       lastChunkWasInitialization = true;
       out.chunk = initializationChunk;
       return;
     }
 
-    int nextIndex;
+    int nextSegmentNum;
+    DashSegmentIndex segmentIndex = segmentIndexes.get(selectedRepresentation.format.id);
     if (queue.isEmpty()) {
-      nextIndex = Util.binarySearchFloor(extractor.getCues().timesUs, seekPositionUs, true, true);
+      nextSegmentNum = segmentIndex.getSegmentNum(seekPositionUs);
     } else {
-      nextIndex = queue.get(out.queueSize - 1).nextChunkIndex;
+      nextSegmentNum = queue.get(out.queueSize - 1).nextChunkIndex;
     }
 
-    if (nextIndex == -1) {
+    if (nextSegmentNum == -1) {
       out.chunk = null;
       return;
     }
 
-    Chunk nextMediaChunk = newMediaChunk(selectedRepresentation, extractor, dataSource,
-        extractor.getCues(), nextIndex, evaluation.trigger, numSegmentsPerChunk);
+    Chunk nextMediaChunk = newMediaChunk(selectedRepresentation, segmentIndex, extractor,
+        dataSource, nextSegmentNum, evaluation.trigger);
     lastChunkWasInitialization = false;
     out.chunk = nextMediaChunk;
   }
@@ -179,53 +181,38 @@ public class DashWebmChunkSource implements ChunkSource {
     // Do nothing.
   }
 
-  private static Chunk newInitializationChunk(Representation representation,
+  private Chunk newInitializationChunk(RangedUri initializationUri, Representation representation,
       WebmExtractor extractor, DataSource dataSource, int trigger) {
-    DataSpec dataSpec = new DataSpec(representation.uri, 0, representation.indexEnd + 1,
-        representation.getCacheKey());
-    return new InitializationWebmLoadable(dataSource, dataSpec, trigger, extractor, representation);
+    DataSpec dataSpec = new DataSpec(initializationUri.getUri(), initializationUri.start,
+        initializationUri.length, representation.getCacheKey());
+    return new InitializationWebmLoadable(dataSource, dataSpec, trigger, representation.format,
+        extractor);
   }
 
-  private static Chunk newMediaChunk(Representation representation,
-      WebmExtractor extractor, DataSource dataSource, SegmentIndex cues, int index,
-      int trigger, int numSegmentsPerChunk) {
-
-    // Computes the segments to included in the next fetch.
-    int numSegmentsToFetch = Math.min(numSegmentsPerChunk, cues.length - index);
-    int lastSegmentInChunk = index + numSegmentsToFetch - 1;
-    int nextIndex = lastSegmentInChunk == cues.length - 1 ? -1 : lastSegmentInChunk + 1;
-
-    long startTimeUs = cues.timesUs[index];
-
-    // Compute the end time, prefer to use next segment start time if there is a next segment.
-    long endTimeUs = nextIndex == -1 ?
-      cues.timesUs[lastSegmentInChunk] + cues.durationsUs[lastSegmentInChunk] :
-      cues.timesUs[nextIndex];
-
-    long offset = cues.offsets[index];
-
-    // Compute combined segments byte length.
-    long size = 0;
-    for (int i = index; i <= lastSegmentInChunk; i++) {
-      size += cues.sizes[i];
-    }
-
-    DataSpec dataSpec = new DataSpec(representation.uri, offset, size,
+  private Chunk newMediaChunk(Representation representation, DashSegmentIndex segmentIndex,
+      WebmExtractor extractor, DataSource dataSource, int segmentNum, int trigger) {
+    int lastSegmentNum = segmentIndex.getLastSegmentNum();
+    int nextSegmentNum = segmentNum == lastSegmentNum ? -1 : segmentNum + 1;
+    long startTimeUs = segmentIndex.getTimeUs(segmentNum);
+    long endTimeUs = segmentNum < lastSegmentNum ? segmentIndex.getTimeUs(segmentNum + 1)
+        : startTimeUs + segmentIndex.getDurationUs(segmentNum);
+    RangedUri segmentUri = segmentIndex.getSegmentUrl(segmentNum);
+    DataSpec dataSpec = new DataSpec(segmentUri.getUri(), segmentUri.start, segmentUri.length,
         representation.getCacheKey());
     return new WebmMediaChunk(dataSource, dataSpec, representation.format, trigger, extractor,
-        startTimeUs, endTimeUs, nextIndex);
+        startTimeUs, endTimeUs, nextSegmentNum);
   }
 
-  private static class InitializationWebmLoadable extends Chunk {
+  private class InitializationWebmLoadable extends Chunk {
 
-    private final Representation representation;
     private final WebmExtractor extractor;
+    private final Uri uri;
 
     public InitializationWebmLoadable(DataSource dataSource, DataSpec dataSpec, int trigger,
-        WebmExtractor extractor, Representation representation) {
-      super(dataSource, dataSpec, representation.format, trigger);
+        Format format, WebmExtractor extractor) {
+      super(dataSource, dataSpec, format, trigger);
       this.extractor = extractor;
-      this.representation = representation;
+      this.uri = dataSpec.uri;
     }
 
     @Override
@@ -234,22 +221,7 @@ public class DashWebmChunkSource implements ChunkSource {
       if (!extractor.isPrepared()) {
         throw new ParserException("Invalid initialization data");
       }
-      validateCues(extractor.getCues());
-    }
-
-    private void validateCues(SegmentIndex cues) {
-      long expectedSizeBytes = representation.indexEnd - representation.indexStart + 1;
-      if (cues.sizeBytes != expectedSizeBytes) {
-        Log.w(TAG, "Cues length mismatch: got " + cues.sizeBytes +
-            " but expected " + expectedSizeBytes);
-      }
-      long expectedContentLength = cues.offsets[cues.length - 1] +
-          cues.sizes[cues.length - 1] + representation.indexEnd + 1;
-      if (representation.contentLength > 0
-          && expectedContentLength != representation.contentLength) {
-        Log.w(TAG, "ContentLength mismatch: got " + expectedContentLength +
-          " but expected " + representation.contentLength);
-      }
+      segmentIndexes.put(format.id, new DashWrappingSegmentIndex(extractor.getCues(), uri, 0));
     }
 
   }

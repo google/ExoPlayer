@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.dash.mpd;
 
 import com.google.android.exoplayer.chunk.Format;
+import com.google.android.exoplayer.dash.DashSegmentIndex;
 
 import android.net.Uri;
 
@@ -77,6 +78,37 @@ public class Representation {
     this.periodStart = periodStart;
     this.periodDuration = periodDuration;
     this.uri = uri;
+  }
+
+  /**
+   * Gets a {@link RangedUri} defining the location of the representation's initialization data.
+   * May be null if no initialization data exists.
+   *
+   * @return A {@link RangedUri} defining the location of the initialization data, or null.
+   */
+  public RangedUri getInitializationUri() {
+    return new RangedUri(uri, null, initializationStart,
+        initializationEnd - initializationStart + 1);
+  }
+
+  /**
+   * Gets a {@link RangedUri} defining the location of the representation's segment index. Null if
+   * the representation provides an index directly.
+   *
+   * @return The location of the segment index, or null.
+   */
+  public RangedUri getIndexUri() {
+    return new RangedUri(uri, null, indexStart, indexEnd - indexStart + 1);
+  }
+
+  /**
+   * Gets a segment index, if the representation is able to provide one directly. Null if the
+   * segment index is defined externally.
+   *
+   * @return The segment index, or null.
+   */
+  public DashSegmentIndex getIndex() {
+    return null;
   }
 
   /**
