@@ -104,9 +104,10 @@ public final class Mp4MediaChunk extends MediaChunk {
   }
 
   @Override
-  public boolean read(SampleHolder holder) throws ParserException {
+  public boolean read(int track, SampleHolder holder) throws ParserException {
     NonBlockingInputStream inputStream = getNonBlockingInputStream();
     Assertions.checkState(inputStream != null);
+    Assertions.checkState(track == 0);
     int result = extractor.read(inputStream, holder);
     boolean sampleRead = (result & FragmentedMp4Extractor.RESULT_READ_SAMPLE_FULL) != 0;
     if (sampleRead) {
@@ -116,8 +117,15 @@ public final class Mp4MediaChunk extends MediaChunk {
   }
 
   @Override
+<<<<<<< HEAD
   public MediaFormat getMediaFormat() {
     return mediaFormat;
+=======
+  public MediaFormat getMediaFormat(int track) {
+
+      Assertions.checkState(track == 0);
+      return extractor.getFormat();
+>>>>>>> adding audio support: work in progress
   }
 
   @Override

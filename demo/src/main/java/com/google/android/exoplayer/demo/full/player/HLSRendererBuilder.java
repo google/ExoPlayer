@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
+import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
@@ -104,22 +105,27 @@ public class HLSRendererBuilder implements DemoPlayer.RendererBuilder {
         ChunkSource chunkSource = new HLSChunkSource(url, this.mainPlaylist, dataSource,
                 new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter));
 
-        // Build the video renderer.
-        ChunkSampleSource videoSampleSource = new ChunkSampleSource(chunkSource, loadControl,
+        ChunkSampleSource sampleSource = new ChunkSampleSource(chunkSource, loadControl,
                 VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
                 DemoPlayer.TYPE_VIDEO);
-        MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource,
+
+        // Build the video renderer.
+        MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
                 null, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000,
                 mainHandler, player, 50);
 
+        // Build the audio renderer
+        MediaCodecAudioTrackRenderer audioRenderer = null;// new MediaCodecAudioTrackRenderer(sampleSource, null, true, mainHandler, player);
+
         // Build the debug renderer.
         TrackRenderer debugRenderer = debugTextView != null
-                ? new DebugTrackRenderer(debugTextView, videoRenderer, videoSampleSource)
+                ? new DebugTrackRenderer(debugTextView, videoRenderer, sampleSource)
                 : null;
+        //debugRenderer = null;
 
         TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
         renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
-        renderers[DemoPlayer.TYPE_AUDIO] = null;
+        renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
         renderers[DemoPlayer.TYPE_TEXT] = null;
         renderers[DemoPlayer.TYPE_DEBUG] = debugRenderer;
         callback.onRenderers(null, null, renderers);

@@ -8,8 +8,8 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class TSExtractor {
@@ -28,13 +28,17 @@ public class TSExtractor {
      */
     public static final int RESULT_READ_SAMPLE_FULL = 3;
 
+    public static final int TYPE_VIDEO = 0;
+    public static final int TYPE_AUDIO = 1;
+
     private UnsignedByteArray packet;
     int packetWriteOffset;
 
     private final SparseArray<PayloadHandler> activePayloadHandlers;
 
-    private SampleHolder holder;
-    private boolean holderValid;
+    private LinkedList<Sample> recycledSampleList;
+    private ArrayList<LinkedList<Sample>> sampleLists;
+    private boolean endOfStream;
 
     static class UnsignedByteArray {
         byte[] array;
@@ -45,6 +49,7 @@ public class TSExtractor {
         public void resize(int newLength) {
             byte [] newArray = new byte[newLength];
             System.arraycopy(array, 0, newArray, 0, array.length);
+            array = newArray;
         }
 
         public int length() {
@@ -62,6 +67,16 @@ public class TSExtractor {
         }
     }
 
+    static class Sample {
+        public UnsignedByteArray data;
+        public int position;
+        public long timeUs;
+
+        public Sample() {
+            data = new UnsignedByteArray(2*1024);
+        }
+    }
+
     static abstract class PayloadHandler {
         public int cc_counter;
 
@@ -74,30 +89,38 @@ public class TSExtractor {
         abstract public void handlePayload(UnsignedByteArray packet, int payloadStart, boolean unit_start);
     }
 
-    class PESHandler extends PayloadHandler {
-        UnsignedByteArray temporaryPayload;
-        int temporaryPayloadLength;
-        long temporaryPts;
+    Sample getSample() {
+        if (recycledSampleList.size() > 0) {
+            return recycledSampleList.removeFirst();
+        } else {
+            return new Sample();
+        }
+    }
 
-        public PESHandler() {
-            temporaryPayload = new UnsignedByteArray(188);
+    void releaseSample(Sample s) {
+        recycledSampleList.add(s);
+    }
+
+    class PESHandler extends PayloadHandler {
+        private Sample currentSample;
+        private LinkedList<Sample> list;
+
+        public PESHandler(LinkedList<Sample> list) {
+            this.list = list;
         }
 
         @Override
         public void handlePayload(UnsignedByteArray packet, int payloadStart, boolean unit_start) {
             int offset = payloadStart;
             if (unit_start) {
+                long pts = 0;
+
                 // output previous packet
-                if (holder.data.position() > 0) {
-                    holder.timeUs = temporaryPts * 1000 / 45;
-                    // XXX: remove
-                    holder.timeUs -= 10 * 1000000;
-
-                    //Log.d(TAG, "timestamp:" + holder.timeUs/1000);
-
-                    holder.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
-                    holderValid = true;
+                if (currentSample != null) {
+                    list.add(currentSample);
                 }
+
+                currentSample = getSample();
 
                 int[] prefix = new int[3];
                 prefix[0] = packet.get(offset++);
@@ -122,11 +145,11 @@ public class TSExtractor {
                 int fixedOffset = offset;
 
                 if ((flags & 0x80) == 0x80) {
-                    temporaryPts = (long)(packet.get(offset++) & 0x0e) << 28;
-                    temporaryPts |= (packet.get(offset++)) << 21;
-                    temporaryPts |= (packet.get(offset++) & 0xfe) << 13;
-                    temporaryPts |= (packet.get(offset++)) << 6;
-                    temporaryPts |= (packet.get(offset++) & 0xfe) >> 2;
+                    pts = (long)(packet.get(offset++) & 0x0e) << 28;
+                    pts |= (packet.get(offset++)) << 21;
+                    pts |= (packet.get(offset++) & 0xfe) << 13;
+                    pts |= (packet.get(offset++)) << 6;
+                    pts |= (packet.get(offset++) & 0xfe) >> 2;
 
                 }
                 if ((flags & 0x40) == 0x40) {
@@ -134,19 +157,21 @@ public class TSExtractor {
                     offset += 5;
                 }
 
+                currentSample.timeUs = pts  * 1000 / 45;
+                // XXX: remove
+                currentSample.timeUs -= 10 * 1000000;
+
                 offset = fixedOffset + headerDataLength;
-                temporaryPayloadLength = 188 - offset;
-                // remember this payload for later
-                System.arraycopy(packet.array(), offset, temporaryPayload.array(), 0, temporaryPayloadLength);
+                System.arraycopy(packet.array(), offset, currentSample.data.array(), 0, 188 - offset);
+                currentSample.position = 188 - offset;
                 return;
             }
 
-            if (temporaryPayloadLength > 0) {
-                holder.data.put(temporaryPayload.array(), 0, temporaryPayloadLength);
-                temporaryPayloadLength = 0;
+            if (currentSample.position + 188 > currentSample.data.length()) {
+                currentSample.data.resize(2*(currentSample.position + 188));
             }
-
-            holder.data.put(packet.array(), offset, 188 - offset);
+            System.arraycopy(packet.array(), offset, currentSample.data.array(), currentSample.position, 188 - offset);
+            currentSample.position += 188 - offset;
         }
     }
 
@@ -230,12 +255,12 @@ public class TSExtractor {
             for (Stream s: streams) {
                 handler = null;
                 if (audio_handler == null && s.type == STREAM_TYPE_AAC_ADTS) {
-                    audio_handler = new PESHandler();
+                    audio_handler = new PESHandler(sampleLists.get(TYPE_AUDIO));
                     // XXX: uncomment when audio is needed
-                    // handler = audio_handler;
+                    handler = audio_handler;
                     Log.d(TAG, String.format("audio found on pid %04x", s.pid));
                 } else if (video_handler == null && s.type == STREAM_TYPE_H264) {
-                    video_handler = new PESHandler();
+                    video_handler = new PESHandler(sampleLists.get(TYPE_VIDEO));
                     handler = video_handler;
                     Log.d(TAG, String.format("video found on pid %04x", s.pid));
                 }
@@ -287,18 +312,34 @@ public class TSExtractor {
         activePayloadHandlers = new SparseArray<PayloadHandler>(4);
         PayloadHandler payloadHandler = (PayloadHandler)new PATHandler();
         activePayloadHandlers.put(0, payloadHandler);
+        recycledSampleList = new LinkedList<Sample>();
+        sampleLists = new ArrayList<LinkedList<Sample>>();
+        sampleLists.add(new LinkedList<Sample>());
+        sampleLists.add(new LinkedList<Sample>());
     }
 
-    private int readOnePacket(NonBlockingInputStream inputStream, SampleHolder out) throws ParserException
+    /**
+     *
+     * @param inputStream
+     * @return true if it wants to ba called again
+     * @throws ParserException
+     */
+    private boolean readOnePacket(NonBlockingInputStream inputStream) throws ParserException
     {
         int result;
         int remaining = 188 - packetWriteOffset;
 
-        result = inputStream.read(packet.array(), 0, remaining);
+        result = inputStream.read(packet.array(), packetWriteOffset, remaining);
         if (result == -1) {
-            return RESULT_END_OF_STREAM;
-        } else if (result != remaining) {
-            return  RESULT_NEED_MORE_DATA;
+            endOfStream = true;
+            return false;
+        }
+
+        packetWriteOffset += result;
+
+        if (result != remaining) {
+            packetWriteOffset = 0;
+            return false;
         }
 
         if (packet.get(0) != 0x47) {
@@ -316,7 +357,7 @@ public class TSExtractor {
         if (payloadHandler == null) {
             // skip packet
             packetWriteOffset = 0;
-            return RESULT_NEED_MORE_DATA;
+            return true;
         }
 
         int expected_cc_counter = (payloadHandler.cc_counter + 1) & 0xf;
@@ -333,27 +374,37 @@ public class TSExtractor {
             payload_offset += packet.get(4) + 1;
         }
 
-        holder = out;
         payloadHandler.handlePayload(packet, payload_offset, unit_start);
         packetWriteOffset = 0;
-        if (holderValid) {
-            holderValid = false;
-            return RESULT_READ_SAMPLE_FULL;
-        } else {
-            return RESULT_NEED_MORE_DATA;
-        }
+        return true;
     }
 
-    public int read(NonBlockingInputStream inputStream, SampleHolder out)
+    public int read(int type, NonBlockingInputStream inputStream, SampleHolder out)
             throws ParserException {
-        // XXX: this breaks buffering as the MediaCodecTrack stops feeding its inputBuffers and
-        // ExoPlayerImplInternal believes the renderer is not ready
-       // return readOnePacket(inputStream, out);
 
-        int ret = RESULT_NEED_MORE_DATA;
-        while (ret == RESULT_NEED_MORE_DATA) {
-            ret = readOnePacket(inputStream,out);
+        LinkedList<Sample> list = sampleLists.get(type);
+        LinkedList<Sample> otherList = sampleLists.get(1 - type);
+
+        // XXX: should I check that the otherList does not grow too much ?
+        while (list.size() == 0) {
+            if (!readOnePacket(inputStream)) {
+                break;
+            }
         }
-        return ret;
+
+        if (list.size() > 0) {
+            Sample s = list.removeFirst();
+            out.data.put(s.data.array(), 0, s.position);
+            out.timeUs = s.timeUs;
+            out.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
+            releaseSample(s);
+            return RESULT_READ_SAMPLE_FULL;
+        } else {
+            if (endOfStream && otherList.size() == 0) {
+                return RESULT_END_OF_STREAM;
+            } else {
+                return RESULT_NEED_MORE_DATA;
+            }
+        }
     }
 }

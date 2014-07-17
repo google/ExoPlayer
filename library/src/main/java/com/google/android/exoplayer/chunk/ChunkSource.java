@@ -31,14 +31,21 @@ import java.util.List;
  */
 public interface ChunkSource {
 
-  /**
+   /**
+    * Returns the number of tracks exposed by the ChunkSource.
+    *
+    * @return The number of tracks.
+    */
+  int getTrackCount();
+
+   /**
    * Gets information about the track for which this instance provides {@link Chunk}s.
    * <p>
    * May be called when the source is disabled or enabled.
    *
    * @return Information about the track.
    */
-  TrackInfo getTrackInfo();
+  TrackInfo getTrackInfo(int track);
 
   /**
    * Adaptive video {@link ChunkSource} implementations must set the maximum video dimensions on

@@ -70,14 +70,14 @@ public final class WebmMediaChunk extends MediaChunk {
   }
 
   @Override
-  public boolean read(SampleHolder holder) {
+  public boolean read(int track, SampleHolder holder) {
     NonBlockingInputStream inputStream = getNonBlockingInputStream();
     Assertions.checkState(inputStream != null);
     return extractor.read(inputStream, holder);
   }
 
   @Override
-  public MediaFormat getMediaFormat() {
+  public MediaFormat getMediaFormat(int track) {
     return extractor.getFormat();
   }
 

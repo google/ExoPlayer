@@ -20,19 +20,18 @@ public class MainPlaylist {
         public int bps;
         public int width;
         public int height;
-        public int mediaTypes;
+        public ArrayList<String> codecs;
         public VariantPlaylist variantPlaylist;
 
-        Entry() {}
+        Entry() {
+            codecs = new ArrayList<String>();
+        }
 
         @Override
         public int compareTo(Entry another) {
             return bps - another.bps;
         }
     }
-
-    static final int MEDIA_TYPE_AUDIO = 1;
-    static final int MEDIA_TYPE_VIDEO = 2;
 
     public List<Entry> entries;
     public String url;
@@ -50,20 +49,28 @@ public class MainPlaylist {
         return connection.getInputStream();
     }
 
+    public static MainPlaylist createSimpleMainPlaylist(String url, boolean audioOnly) {
+        MainPlaylist mainPlaylist = new MainPlaylist();
+        Entry e = new Entry();
+        e.bps = 424242;
+        e.url = url;
+        e.codecs.add("mp4a");
+        if (!audioOnly) {
+            e.codecs.add("avc1");
+        }
+        mainPlaylist.entries.add(e);
+        mainPlaylist.url = ".";
+        return mainPlaylist;
+
+    }
+
     /**
      * creates a simple mainPlaylist with just one entry
      * @param url
      * @return
      */
     public static MainPlaylist createVideoMainPlaylist(String url) {
-        MainPlaylist mainPlaylist = new MainPlaylist();
-        Entry e = new Entry();
-        e.bps = 424242;
-        e.url = url;
-        e.mediaTypes = MEDIA_TYPE_VIDEO;
-        mainPlaylist.entries.add(e);
-        mainPlaylist.url = ".";
-        return mainPlaylist;
+        return createSimpleMainPlaylist(url, false);
     }
 
     /**
@@ -72,14 +79,7 @@ public class MainPlaylist {
      * @return
      */
     public static MainPlaylist createAudioMainPlaylist(String url) {
-        MainPlaylist mainPlaylist = new MainPlaylist();
-        Entry e = new Entry();
-        e.bps = 424242;
-        e.url = url;
-        e.mediaTypes = MEDIA_TYPE_AUDIO;
-        mainPlaylist.entries.add(e);
-        mainPlaylist.url = ".";
-        return mainPlaylist;
+        return createSimpleMainPlaylist(url, true);
     }
 
     public static MainPlaylist parse(String url) throws IOException {
@@ -109,9 +109,20 @@ public class MainPlaylist {
                     e.width = Integer.parseInt(resolution[0]);
                     e.height = Integer.parseInt(resolution[1]);
                 }
+                if (attributes.containsKey("CODECS")) {
+                    String codecs[] = attributes.get("CODECS").split(",");
+                    for (String codec : codecs) {
+                        String [] parts = codec.split("\\.");
+                        e.codecs.add(parts[0]);
+                    }
+                }
+                if (e.codecs.size() == 0) {
+                    // by default, assume chunks contain aac + h264
+                    e.codecs.add("mp4a");
+                    e.codecs.add("avc1");
+                }
             } else if (e != null && !line.startsWith("#")) {
                 e.url = line;
-                e.mediaTypes = MEDIA_TYPE_VIDEO;
                 mainPlaylist.entries.add(e);
                 e = null;
             }

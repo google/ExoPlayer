@@ -2,7 +2,6 @@ package com.google.android.exoplayer.hls;
 
 import android.net.Uri;
 import android.util.Log;
-import android.util.SparseArray;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.TrackInfo;
@@ -13,17 +12,15 @@ import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.MediaChunk;
 import com.google.android.exoplayer.chunk.TSMediaChunk;
-import com.google.android.exoplayer.parser.mp4.FragmentedMp4Extractor;
-import com.google.android.exoplayer.parser.mp4.Track;
-import com.google.android.exoplayer.parser.mp4.TrackEncryptionBox;
-import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest;
+import com.google.android.exoplayer.parser.ts.TSExtractor;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
-import java.net.URL;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,10 +31,13 @@ public class HLSChunkSource implements ChunkSource {
     private final FormatEvaluator formatEvaluator;
     private final FormatEvaluator.Evaluation evaluation;
     private final Format[] formats;
-    private final MediaFormat[] mediaFormats;
-    private TrackInfo trackInfo;
+
     private MainPlaylist mainPlaylist;
     private VariantPlaylist currentVariantPlaylist;
+
+    private final ArrayList<Integer> trackList;
+    private final ArrayList<TrackInfo> trackInfoList;
+    private final ArrayList<ArrayList<MediaFormat>> mediaFormats;
 
     public HLSChunkSource(String baseUrl, MainPlaylist mainPlaylist, DataSource dataSource, FormatEvaluator formatEvaluator) {
         this.baseUrl = baseUrl;
@@ -46,35 +46,74 @@ public class HLSChunkSource implements ChunkSource {
         this.evaluation = new FormatEvaluator.Evaluation();
         this.mainPlaylist = mainPlaylist;
 
-        int trackCount = mainPlaylist.entries.size();
-        formats = new Format[trackCount];
+        int entryCount = mainPlaylist.entries.size();
+        formats = new Format[entryCount];
 
-        for (int i = 0; i < trackCount; i++) {
-            MainPlaylist.Entry entry = mainPlaylist.entries.get(i);
-            formats[i] = new Format(i, "video/mp2t", entry.width, entry.height, 2, 44100, entry.bps);
+        int hasVideo = 0;
+        int hasAudio = 0;
+
+        for (MainPlaylist.Entry entry : mainPlaylist.entries) {
+            if (entry.codecs.contains("mp4a")) {
+                hasAudio = 1;
+            }
+            if (entry.codecs.contains("avc1")) {
+                hasVideo = 1;
+            }
         }
 
-        mediaFormats = new MediaFormat[trackCount];
+        int i = 0;
+        for (MainPlaylist.Entry entry : mainPlaylist.entries) {
+            formats[i] = new Format(i, "video/mp2t", entry.width, entry.height, 2, 44100, entry.bps);
+            i++;
+        }
 
-        for (int i =0; i < trackCount; i++) {
-            MainPlaylist.Entry entry = mainPlaylist.entries.get(i);
-            mediaFormats[i] = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
-                    entry.width, entry.height, null);
+        trackList = new ArrayList<Integer>();
+        trackInfoList = new ArrayList<TrackInfo>();
+        long durationUs = (long)mainPlaylist.entries.get(0).variantPlaylist.duration * 1000000;
+        if (hasAudio == 1) {
+            trackList.add(TSExtractor.TYPE_AUDIO);
+            trackInfoList.add(new TrackInfo(MimeTypes.AUDIO_AAC, durationUs));
+        }
+        if (hasVideo == 1) {
+            trackList.add(TSExtractor.TYPE_VIDEO);
+            trackInfoList.add(new TrackInfo(MimeTypes.VIDEO_H264, durationUs));
+        }
+
+        i = 0;
+        mediaFormats = new ArrayList<ArrayList<MediaFormat>>();
+
+        for (MainPlaylist.Entry entry : mainPlaylist.entries) {
+            ArrayList<MediaFormat> list = new ArrayList<MediaFormat>();
+            mediaFormats.add(list);
+            if (hasAudio == 1) {
+                // XXX: can we get the sample rate ?
+                list.add(MediaFormat.createAudioFormat(MimeTypes.AUDIO_AAC, -1, 2, 44100, null));
+            }
+            if (hasVideo == 1) {
+                list.add(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
+                        entry.width, entry.height, null));
+            }
+            i++;
         }
 
         Arrays.sort(formats, new Format.DecreasingBandwidthComparator());
     }
 
     @Override
-    public TrackInfo getTrackInfo() {
-        if (trackInfo == null) {
-            trackInfo = new TrackInfo("video/mp2t", (long)mainPlaylist.entries.get(0).variantPlaylist.duration * 1000000);
-        }
-        return trackInfo;
+    public int getTrackCount() {
+
+        return trackList.size();
+    }
+
+    @Override
+    public TrackInfo getTrackInfo(int track) {
+
+        return trackInfoList.get(track);
     }
 
     @Override
     public void getMaxVideoDimensions(MediaFormat out) {
+
         out.setMaxVideoDimensions(1920, 1080);
     }
 
@@ -133,7 +172,7 @@ public class HLSChunkSource implements ChunkSource {
         Uri uri = Uri.parse(chunkUrl);
         long offset = 0;
         DataSpec dataSpec = new DataSpec(uri, offset, -1, null);
-        Chunk mediaChunk = new TSMediaChunk(dataSource, mediaFormats[selectedFormat.id], dataSpec, selectedFormat,
+        Chunk mediaChunk = new TSMediaChunk(dataSource, trackList, mediaFormats.get(selectedFormat.id), dataSpec, selectedFormat,
                                             (long)(entry.startTime * 1000000), (long)((entry.startTime + entry.extinf) * 1000000),
                                             isLastChunk ? -1 : nextChunkIndex + 1);
         out.chunk = mediaChunk;

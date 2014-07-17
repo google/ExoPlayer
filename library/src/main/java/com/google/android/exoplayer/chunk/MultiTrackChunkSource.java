@@ -57,8 +57,9 @@ public class MultiTrackChunkSource implements ChunkSource, ExoPlayerComponent {
   }
 
   @Override
-  public TrackInfo getTrackInfo() {
-    return selectedSource.getTrackInfo();
+  public TrackInfo getTrackInfo(int track) {
+
+      return selectedSource.getTrackInfo(track);
   }
 
   @Override

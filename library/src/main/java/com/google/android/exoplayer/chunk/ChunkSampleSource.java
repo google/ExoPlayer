@@ -193,29 +193,28 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
 
   @Override
   public boolean prepare() {
-    Assertions.checkState(state == STATE_UNPREPARED);
-    loader = new Loader("Loader:" + chunkSource.getTrackInfo().mimeType, this);
-    state = STATE_PREPARED;
+    if (state != STATE_PREPARED) {
+        loader = new Loader("Loader", this);
+        state = STATE_PREPARED;
+    }
     return true;
   }
 
   @Override
   public int getTrackCount() {
     Assertions.checkState(state != STATE_UNPREPARED);
-    return 1;
+    return chunkSource.getTrackCount();
   }
 
   @Override
   public TrackInfo getTrackInfo(int track) {
     Assertions.checkState(state != STATE_UNPREPARED);
-    Assertions.checkState(track == 0);
-    return chunkSource.getTrackInfo();
+    return chunkSource.getTrackInfo(track);
   }
 
   @Override
   public void enable(int track, long timeUs) {
     Assertions.checkState(state == STATE_PREPARED);
-    Assertions.checkState(track == 0);
     state = STATE_ENABLED;
     chunkSource.enable();
     loadControl.register(this, bufferSizeContribution);
@@ -229,7 +228,6 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
   @Override
   public void disable(int track) {
     Assertions.checkState(state == STATE_ENABLED);
-    Assertions.checkState(track == 0);
     pendingDiscontinuity = false;
     state = STATE_PREPARED;
     loadControl.unregister(this);
@@ -255,7 +253,6 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
   public int readData(int track, long playbackPositionUs, FormatHolder formatHolder,
       SampleHolder sampleHolder, boolean onlyReadDiscontinuity) throws IOException {
     Assertions.checkState(state == STATE_ENABLED);
-    Assertions.checkState(track == 0);
 
     if (pendingDiscontinuity) {
       pendingDiscontinuity = false;
@@ -299,6 +296,10 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
     if (downstreamFormat == null || !downstreamFormat.equals(mediaChunk.format)) {
       notifyDownstreamFormatChanged(mediaChunk.format.id, mediaChunk.trigger,
           mediaChunk.startTimeUs);
+      MediaFormat format = mediaChunk.getMediaFormat(track);
+      chunkSource.getMaxVideoDimensions(format);
+      formatHolder.format = format;
+      formatHolder.drmInitData = mediaChunk.getPsshInfo();
       downstreamFormat = mediaChunk.format;
     }
 
@@ -315,7 +316,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
       return FORMAT_READ;
     }
 
-    if (mediaChunk.read(sampleHolder)) {
+    if (mediaChunk.read(track, sampleHolder)) {
       sampleHolder.decodeOnly = frameAccurateSeeking && sampleHolder.timeUs < lastSeekPositionUs;
       onSampleRead(mediaChunk, sampleHolder);
       return SAMPLE_READ;
