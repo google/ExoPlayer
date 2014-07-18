@@ -26,6 +26,16 @@ get started.
 [Class reference]: http://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer/package-summary.html
 
 
+## Project branches ##
+
+  * The [master][] branch holds the most recent minor release.
+  * Most development work happens on the [dev][] branch.
+  * Additional development branches may be established for major features.
+
+[master]: https://github.com/google/ExoPlayer/tree/master
+[dev]: https://github.com/google/ExoPlayer/tree/dev
+
+
 ## Using Eclipse ##
 
 The repository includes Eclipse projects for both the ExoPlayer library and its

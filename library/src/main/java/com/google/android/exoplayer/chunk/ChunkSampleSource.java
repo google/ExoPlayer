@@ -59,7 +59,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
      *     load is for initialization data.
      * @param totalBytes The length of the data being loaded in bytes.
      */
-    void onLoadStarted(int sourceId, int formatId, int trigger, boolean isInitialization,
+    void onLoadStarted(int sourceId, String formatId, int trigger, boolean isInitialization,
         int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes);
 
     /**
@@ -126,7 +126,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
      *     {@link ChunkSource}.
      * @param mediaTimeMs The media time at which the change occurred.
      */
-    void onDownstreamFormatChanged(int sourceId, int formatId, int trigger, int mediaTimeMs);
+    void onDownstreamFormatChanged(int sourceId, String formatId, int trigger, int mediaTimeMs);
 
   }
 
@@ -160,6 +160,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
   private int currentLoadableExceptionCount;
   private long currentLoadableExceptionTimestamp;
 
+  private MediaFormat downstreamMediaFormat;
   private volatile Format downstreamFormat;
 
   public ChunkSampleSource(ChunkSource chunkSource, LoadControl loadControl,
@@ -221,6 +222,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
     chunkSource.enable();
     loadControl.register(this, bufferSizeContribution);
     downstreamFormat = null;
+    downstreamMediaFormat = null;
     downstreamPositionUs = timeUs;
     lastSeekPositionUs = timeUs;
     restartFrom(timeUs);
@@ -288,21 +290,30 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
         return readData(track, playbackPositionUs, formatHolder, sampleHolder, false);
       } else if (mediaChunk.isLastChunk()) {
         return END_OF_STREAM;
-      } else {
-        IOException chunkSourceException = chunkSource.getError();
-        if (chunkSourceException != null) {
-          throw chunkSourceException;
-        }
-        return NOTHING_READ;
       }
-    } else if (downstreamFormat == null || downstreamFormat.id != mediaChunk.format.id) {
+      IOException chunkSourceException = chunkSource.getError();
+      if (chunkSourceException != null) {
+        throw chunkSourceException;
+      }
+      return NOTHING_READ;
+    }
+
+    if (downstreamFormat == null || !downstreamFormat.equals(mediaChunk.format)) {
       notifyDownstreamFormatChanged(mediaChunk.format.id, mediaChunk.trigger,
           mediaChunk.startTimeUs);
-      MediaFormat format = mediaChunk.getMediaFormat();
-      chunkSource.getMaxVideoDimensions(format);
-      formatHolder.format = format;
-      formatHolder.drmInitData = mediaChunk.getPsshInfo();
       downstreamFormat = mediaChunk.format;
+    }
+
+    if (!mediaChunk.prepare()) {
+      return NOTHING_READ;
+    }
+
+    MediaFormat mediaFormat = mediaChunk.getMediaFormat();
+    if (mediaFormat != null && !mediaFormat.equals(downstreamMediaFormat)) {
+      chunkSource.getMaxVideoDimensions(mediaFormat);
+      formatHolder.format = mediaFormat;
+      formatHolder.drmInitData = mediaChunk.getPsshInfo();
+      downstreamMediaFormat = mediaFormat;
       return FORMAT_READ;
     }
 
@@ -430,6 +441,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
     currentLoadableExceptionCount++;
     currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
     notifyUpstreamError(e);
+    chunkSource.onChunkLoadError(currentLoadableHolder.chunk, e);
     updateLoadControl();
   }
 
@@ -653,7 +665,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
     return (int) (timeUs / 1000);
   }
 
-  private void notifyLoadStarted(final int formatId, final int trigger,
+  private void notifyLoadStarted(final String formatId, final int trigger,
       final boolean isInitialization, final long mediaStartTimeUs, final long mediaEndTimeUs,
       final long totalBytes) {
     if (eventHandler != null && eventListener != null) {
@@ -724,7 +736,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
     }
   }
 
-  private void notifyDownstreamFormatChanged(final int formatId, final int trigger,
+  private void notifyDownstreamFormatChanged(final String formatId, final int trigger,
       final long mediaTimeUs) {
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable()  {

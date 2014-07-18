@@ -176,7 +176,7 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
    */
   private int read(ByteBuffer target, byte[] targetArray, int targetArrayOffset,
       ReadHead readHead, int readLength) {
-    if (readHead.position == dataSpec.length) {
+    if (isEndOfStream()) {
       return -1;
     }
     int bytesToRead = (int) Math.min(loadPosition - readHead.position, readLength);

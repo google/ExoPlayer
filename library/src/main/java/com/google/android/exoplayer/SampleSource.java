@@ -54,8 +54,8 @@ public interface SampleSource {
    * Prepares the source.
    * <p>
    * Preparation may require reading from the data source (e.g. to determine the available tracks
-   * and formats). If insufficient data is available then the call will return rather than block.
-   * The method can be called repeatedly until the return value indicates success.
+   * and formats). If insufficient data is available then the call will return {@code false} rather
+   * than block. The method can be called repeatedly until the return value indicates success.
    *
    * @return True if the source was prepared successfully, false otherwise.
    * @throws IOException If an error occurred preparing the source.

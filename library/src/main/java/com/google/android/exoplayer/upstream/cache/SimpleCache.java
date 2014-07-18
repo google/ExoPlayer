@@ -109,26 +109,29 @@ public class SimpleCache implements Cache {
   public synchronized CacheSpan startReadWrite(String key, long position)
       throws InterruptedException {
     CacheSpan lookupSpan = CacheSpan.createLookup(key, position);
-    // Wait until no-one holds a lock for the key.
-    while (lockedSpans.containsKey(key)) {
-      wait();
+    while (true) {
+      CacheSpan span = startReadWriteNonBlocking(lookupSpan);
+      if (span != null) {
+        return span;
+      } else {
+        // Write case, lock not available. We'll be woken up when a locked span is released (if the
+        // released lock is for the requested key then we'll be able to make progress) or when a
+        // span is added to the cache (if the span is for the requested key and covers the requested
+        // position, then we'll become a read and be able to make progress).
+        wait();
+      }
     }
-    return getSpanningRegion(key, lookupSpan);
   }
 
   @Override
-  public synchronized CacheSpan startReadWriteNonBlocking(String key, long position)
-      throws InterruptedException {
-    CacheSpan lookupSpan = CacheSpan.createLookup(key, position);
-    // Return null if key is locked
-    if (lockedSpans.containsKey(key)) {
-      return null;
-    }
-    return getSpanningRegion(key, lookupSpan);
+  public synchronized CacheSpan startReadWriteNonBlocking(String key, long position) {
+    return startReadWriteNonBlocking(CacheSpan.createLookup(key, position));
   }
 
-  private CacheSpan getSpanningRegion(String key, CacheSpan lookupSpan) {
+  private synchronized CacheSpan startReadWriteNonBlocking(CacheSpan lookupSpan) {
     CacheSpan spanningRegion = getSpan(lookupSpan);
+
+    // Read case.
     if (spanningRegion.isCached) {
       CacheSpan oldCacheSpan = spanningRegion;
       // Remove the old span from the in-memory representation.
@@ -139,10 +142,17 @@ public class SimpleCache implements Cache {
       // Add the updated span back into the in-memory representation.
       spansForKey.add(spanningRegion);
       notifySpanTouched(oldCacheSpan, spanningRegion);
-    } else {
-      lockedSpans.put(key, spanningRegion);
+      return spanningRegion;
     }
-    return spanningRegion;
+
+    // Write case, lock available.
+    if (!lockedSpans.containsKey(lookupSpan.key)) {
+      lockedSpans.put(lookupSpan.key, spanningRegion);
+      return spanningRegion;
+    }
+
+    // Write case, lock not available.
+    return null;
   }
 
   @Override
@@ -173,6 +183,7 @@ public class SimpleCache implements Cache {
       return;
     }
     addSpan(span);
+    notifyAll();
   }
 
   @Override
@@ -328,6 +339,43 @@ public class SimpleCache implements Cache {
       }
     }
     evictor.onSpanTouched(this, oldSpan, newSpan);
+  }
+
+  @Override
+  public synchronized boolean isCached(String key, long position, long length) {
+    TreeSet<CacheSpan> entries = cachedSpans.get(key);
+    if (entries == null) {
+      return false;
+    }
+    CacheSpan lookupSpan = CacheSpan.createLookup(key, position);
+    CacheSpan floorSpan = entries.floor(lookupSpan);
+    if (floorSpan == null || floorSpan.position + floorSpan.length <= position) {
+      // We don't have a span covering the start of the queried region.
+      return false;
+    }
+    long queryEndPosition = position + length;
+    long currentEndPosition = floorSpan.position + floorSpan.length;
+    if (currentEndPosition >= queryEndPosition) {
+      // floorSpan covers the queried region.
+      return true;
+    }
+    Iterator<CacheSpan> iterator = entries.tailSet(floorSpan, false).iterator();
+    while (iterator.hasNext()) {
+      CacheSpan next = iterator.next();
+      if (next.position > currentEndPosition) {
+        // There's a hole in the cache within the queried region.
+        return false;
+      }
+      // We expect currentEndPosition to always equal (next.position + next.length), but
+      // perform a max check anyway to guard against the existence of overlapping spans.
+      currentEndPosition = Math.max(currentEndPosition, next.position + next.length);
+      if (currentEndPosition >= queryEndPosition) {
+        // We've found spans covering the queried region.
+        return true;
+      }
+    }
+    // We ran out of spans before covering the queried region.
+    return false;
   }
 
 }

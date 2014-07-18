@@ -73,9 +73,7 @@ public abstract class MediaChunk extends Chunk {
   /**
    * Seeks to the beginning of the chunk.
    */
-  public final void seekToStart() {
-    seekTo(startTimeUs, false);
-  }
+  public abstract void seekToStart();
 
   /**
    * Seeks to the specified position within the chunk.
@@ -90,7 +88,21 @@ public abstract class MediaChunk extends Chunk {
   public abstract boolean seekTo(long positionUs, boolean allowNoop);
 
   /**
+   * Prepares the chunk for reading. Does nothing if the chunk is already prepared.
+   * <p>
+   * Preparation may require consuming some of the chunk. If the data is not yet available then
+   * this method will return {@code false} rather than block. The method can be called repeatedly
+   * until the return value indicates success.
+   *
+   * @return True if the chunk was prepared. False otherwise.
+   * @throws ParserException If an error occurs parsing the media data.
+   */
+  public abstract boolean prepare() throws ParserException;
+
+  /**
    * Reads the next media sample from the chunk.
+   * <p>
+   * Should only be called after the chunk has been successfully prepared.
    *
    * @param holder A holder to store the read sample.
    * @return True if a sample was read. False if more data is still required.
@@ -101,6 +113,8 @@ public abstract class MediaChunk extends Chunk {
 
   /**
    * Returns the media format of the samples contained within this chunk.
+   * <p>
+   * Should only be called after the chunk has been successfully prepared.
    *
    * @return The sample media format.
    */
@@ -108,6 +122,8 @@ public abstract class MediaChunk extends Chunk {
 
   /**
    * Returns the pssh information associated with the chunk.
+   * <p>
+   * Should only be called after the chunk has been successfully prepared.
    *
    * @return The pssh information.
    */

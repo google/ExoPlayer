@@ -17,11 +17,15 @@ package com.google.android.exoplayer.dash.mpd;
 
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.chunk.Format;
-import com.google.android.exoplayer.upstream.DataSpec;
+import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentList;
+import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTemplate;
+import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTimelineElement;
+import com.google.android.exoplayer.dash.mpd.SegmentBase.SingleSegmentBase;
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.net.Uri;
-import android.util.Log;
+import android.text.TextUtils;
 
 import org.xml.sax.helpers.DefaultHandler;
 import org.xmlpull.v1.XmlPullParser;
@@ -38,14 +42,7 @@ import java.util.regex.Pattern;
 /**
  * A parser of media presentation description files.
  */
-/*
- * TODO: Parse representation base attributes at multiple levels, and normalize the resulting
- * datastructure.
- * TODO: Decide how best to represent missing integer/double/long attributes.
- */
 public class MediaPresentationDescriptionParser extends DefaultHandler {
-
-  private static final String TAG = "MediaPresentationDescriptionParser";
 
   // Note: Does not support the date part of ISO 8601
   private static final Pattern DURATION =
@@ -61,20 +58,23 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
     }
   }
 
+  // MPD parsing.
+
   /**
    * Parses a manifest from the provided {@link InputStream}.
    *
    * @param inputStream The stream from which to parse the manifest.
    * @param inputEncoding The encoding of the input.
    * @param contentId The content id of the media.
+   * @param baseUrl The url that any relative urls defined within the manifest are relative to.
    * @return The parsed manifest.
    * @throws IOException If a problem occurred reading from the stream.
    * @throws XmlPullParserException If a problem occurred parsing the stream as xml.
    * @throws ParserException If a problem occurred parsing the xml as a DASH mpd.
    */
   public MediaPresentationDescription parseMediaPresentationDescription(InputStream inputStream,
-      String inputEncoding, String contentId) throws XmlPullParserException, IOException,
-      ParserException {
+      String inputEncoding, String contentId, Uri baseUrl) throws XmlPullParserException,
+      IOException, ParserException {
     XmlPullParser xpp = xmlParserFactory.newPullParser();
     xpp.setInput(inputStream, inputEncoding);
     int eventType = xpp.next();
@@ -82,121 +82,137 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
       throw new ParserException(
           "inputStream does not contain a valid media presentation description");
     }
-    return parseMediaPresentationDescription(xpp, contentId);
+    return parseMediaPresentationDescription(xpp, contentId, baseUrl);
   }
 
   private MediaPresentationDescription parseMediaPresentationDescription(XmlPullParser xpp,
-      String contentId) throws XmlPullParserException, IOException {
-    long duration = parseDurationMs(xpp, "mediaPresentationDuration");
-    long minBufferTime = parseDurationMs(xpp, "minBufferTime");
+      String contentId, Uri baseUrl) throws XmlPullParserException, IOException {
+    long durationMs = parseDurationMs(xpp, "mediaPresentationDuration");
+    long minBufferTimeMs = parseDurationMs(xpp, "minBufferTime");
     String typeString = xpp.getAttributeValue(null, "type");
     boolean dynamic = (typeString != null) ? typeString.equals("dynamic") : false;
-    long minUpdateTime = (dynamic) ? parseDurationMs(xpp, "minimumUpdatePeriod", -1) : -1;
+    long minUpdateTimeMs = (dynamic) ? parseDurationMs(xpp, "minimumUpdatePeriod", -1) : -1;
 
     List<Period> periods = new ArrayList<Period>();
     do {
       xpp.next();
-      if (isStartTag(xpp, "Period")) {
-        periods.add(parsePeriod(xpp, contentId, duration));
+      if (isStartTag(xpp, "BaseURL")) {
+        baseUrl = parseBaseUrl(xpp, baseUrl);
+      } else if (isStartTag(xpp, "Period")) {
+        periods.add(parsePeriod(xpp, contentId, baseUrl, durationMs));
       }
     } while (!isEndTag(xpp, "MPD"));
 
-    return new MediaPresentationDescription(duration, minBufferTime, dynamic, minUpdateTime,
+    return new MediaPresentationDescription(durationMs, minBufferTimeMs, dynamic, minUpdateTimeMs,
         periods);
   }
 
-  private Period parsePeriod(XmlPullParser xpp, String contentId, long mediaPresentationDuration)
+  private Period parsePeriod(XmlPullParser xpp, String contentId, Uri baseUrl, long mpdDurationMs)
       throws XmlPullParserException, IOException {
-    int id = parseInt(xpp, "id");
-    long start = parseDurationMs(xpp, "start", 0);
-    long duration = parseDurationMs(xpp, "duration", mediaPresentationDuration);
-
+    String id = xpp.getAttributeValue(null, "id");
+    long startMs = parseDurationMs(xpp, "start", 0);
+    long durationMs = parseDurationMs(xpp, "duration", mpdDurationMs);
+    SegmentBase segmentBase = null;
     List<AdaptationSet> adaptationSets = new ArrayList<AdaptationSet>();
-    List<Segment.Timeline> segmentTimelineList = null;
-    int segmentStartNumber = 0;
-    int segmentTimescale = 0;
-    long presentationTimeOffset = 0;
     do {
       xpp.next();
-      if (isStartTag(xpp, "AdaptationSet")) {
-        adaptationSets.add(parseAdaptationSet(xpp, contentId, start, duration,
-            segmentTimelineList));
+      if (isStartTag(xpp, "BaseURL")) {
+        baseUrl = parseBaseUrl(xpp, baseUrl);
+      } else if (isStartTag(xpp, "AdaptationSet")) {
+        adaptationSets.add(parseAdaptationSet(xpp, contentId, baseUrl, startMs, durationMs,
+            segmentBase));
+      } else if (isStartTag(xpp, "SegmentBase")) {
+        segmentBase = parseSegmentBase(xpp, baseUrl, null);
       } else if (isStartTag(xpp, "SegmentList")) {
-        segmentStartNumber = parseInt(xpp, "startNumber");
-        segmentTimescale = parseInt(xpp, "timescale");
-        presentationTimeOffset = parseLong(xpp, "presentationTimeOffset", 0);
-        segmentTimelineList = parsePeriodSegmentList(xpp, segmentStartNumber);
+        segmentBase = parseSegmentList(xpp, baseUrl, null, durationMs);
+      } else if (isStartTag(xpp, "SegmentTemplate")) {
+        segmentBase = parseSegmentTemplate(xpp, baseUrl, null, durationMs);
       }
     } while (!isEndTag(xpp, "Period"));
 
-    return new Period(id, start, duration, adaptationSets, segmentTimelineList,
-        segmentStartNumber, segmentTimescale, presentationTimeOffset);
+    return new Period(id, startMs, durationMs, adaptationSets);
   }
 
-  private List<Segment.Timeline> parsePeriodSegmentList(
-      XmlPullParser xpp, long segmentStartNumber) throws XmlPullParserException, IOException {
-    List<Segment.Timeline> segmentTimelineList = new ArrayList<Segment.Timeline>();
+  // AdaptationSet parsing.
 
-    do {
-      xpp.next();
-      if (isStartTag(xpp, "SegmentTimeline")) {
-        do {
-          xpp.next();
-          if (isStartTag(xpp, "S")) {
-            long duration = parseLong(xpp, "d");
-            segmentTimelineList.add(new Segment.Timeline(segmentStartNumber, duration));
-            segmentStartNumber++;
-          }
-        } while (!isEndTag(xpp, "SegmentTimeline"));
-      }
-    } while (!isEndTag(xpp, "SegmentList"));
-
-    return segmentTimelineList;
-  }
-
-  private AdaptationSet parseAdaptationSet(XmlPullParser xpp, String contentId, long periodStart,
-      long periodDuration, List<Segment.Timeline> segmentTimelineList)
+  private AdaptationSet parseAdaptationSet(XmlPullParser xpp, String contentId, Uri baseUrl,
+      long periodStartMs, long periodDurationMs, SegmentBase segmentBase)
       throws XmlPullParserException, IOException {
-    int id = -1;
-    int contentType = AdaptationSet.TYPE_UNKNOWN;
 
-    // TODO: Correctly handle other common attributes and elements. See 23009-1 Table 9.
     String mimeType = xpp.getAttributeValue(null, "mimeType");
-    if (mimeType != null) {
-      if (MimeTypes.isAudio(mimeType)) {
-        contentType = AdaptationSet.TYPE_AUDIO;
-      } else if (MimeTypes.isVideo(mimeType)) {
-        contentType = AdaptationSet.TYPE_VIDEO;
-      } else if (MimeTypes.isText(mimeType)
-          || mimeType.equalsIgnoreCase(MimeTypes.APPLICATION_TTML)) {
-        contentType = AdaptationSet.TYPE_TEXT;
-      }
-    }
+    int contentType = parseAdaptationSetTypeFromMimeType(mimeType);
 
+    int id = -1;
     List<ContentProtection> contentProtections = null;
     List<Representation> representations = new ArrayList<Representation>();
     do {
       xpp.next();
-      if (contentType != AdaptationSet.TYPE_UNKNOWN) {
-        if (isStartTag(xpp, "ContentProtection")) {
-          if (contentProtections == null) {
-            contentProtections = new ArrayList<ContentProtection>();
-          }
-          contentProtections.add(parseContentProtection(xpp));
-        } else if (isStartTag(xpp, "ContentComponent")) {
-          id = Integer.parseInt(xpp.getAttributeValue(null, "id"));
-          String contentTypeString = xpp.getAttributeValue(null, "contentType");
-          contentType = "video".equals(contentTypeString) ? AdaptationSet.TYPE_VIDEO
-              : "audio".equals(contentTypeString) ? AdaptationSet.TYPE_AUDIO
-              : AdaptationSet.TYPE_UNKNOWN;
-        } else if (isStartTag(xpp, "Representation")) {
-          representations.add(parseRepresentation(xpp, contentId, periodStart, periodDuration,
-              mimeType, segmentTimelineList));
+      if (isStartTag(xpp, "BaseURL")) {
+        baseUrl = parseBaseUrl(xpp, baseUrl);
+      } else if (isStartTag(xpp, "ContentProtection")) {
+        if (contentProtections == null) {
+          contentProtections = new ArrayList<ContentProtection>();
         }
+        contentProtections.add(parseContentProtection(xpp));
+      } else if (isStartTag(xpp, "ContentComponent")) {
+        id = Integer.parseInt(xpp.getAttributeValue(null, "id"));
+        contentType = checkAdaptationSetTypeConsistency(contentType,
+            parseAdaptationSetType(xpp.getAttributeValue(null, "contentType")));
+      } else if (isStartTag(xpp, "Representation")) {
+        Representation representation = parseRepresentation(xpp, contentId, baseUrl, periodStartMs,
+            periodDurationMs, mimeType, segmentBase);
+        contentType = checkAdaptationSetTypeConsistency(contentType,
+            parseAdaptationSetTypeFromMimeType(representation.format.mimeType));
+        representations.add(representation);
+      } else if (isStartTag(xpp, "SegmentBase")) {
+        segmentBase = parseSegmentBase(xpp, baseUrl, (SingleSegmentBase) segmentBase);
+      } else if (isStartTag(xpp, "SegmentList")) {
+        segmentBase = parseSegmentList(xpp, baseUrl, (SegmentList) segmentBase, periodDurationMs);
+      } else if (isStartTag(xpp, "SegmentTemplate")) {
+        segmentBase = parseSegmentTemplate(xpp, baseUrl, (SegmentTemplate) segmentBase,
+            periodDurationMs);
       }
     } while (!isEndTag(xpp, "AdaptationSet"));
 
     return new AdaptationSet(id, contentType, representations, contentProtections);
+  }
+
+  private int parseAdaptationSetType(String contentType) {
+    return TextUtils.isEmpty(contentType) ? AdaptationSet.TYPE_UNKNOWN
+        : MimeTypes.BASE_TYPE_AUDIO.equals(contentType) ? AdaptationSet.TYPE_AUDIO
+        : MimeTypes.BASE_TYPE_VIDEO.equals(contentType) ? AdaptationSet.TYPE_VIDEO
+        : MimeTypes.BASE_TYPE_TEXT.equals(contentType) ? AdaptationSet.TYPE_TEXT
+        : AdaptationSet.TYPE_UNKNOWN;
+  }
+
+  private int parseAdaptationSetTypeFromMimeType(String mimeType) {
+    return TextUtils.isEmpty(mimeType) ? AdaptationSet.TYPE_UNKNOWN
+        : MimeTypes.isAudio(mimeType) ? AdaptationSet.TYPE_AUDIO
+        : MimeTypes.isVideo(mimeType) ? AdaptationSet.TYPE_VIDEO
+        : MimeTypes.isText(mimeType) || MimeTypes.isTtml(mimeType) ? AdaptationSet.TYPE_TEXT
+        : AdaptationSet.TYPE_UNKNOWN;
+  }
+
+  /**
+   * Checks two adaptation set types for consistency, returning the consistent type, or throwing an
+   * {@link IllegalStateException} if the types are inconsistent.
+   * <p>
+   * Two types are consistent if they are equal, or if one is {@link AdaptationSet#TYPE_UNKNOWN}.
+   * Where one of the types is {@link AdaptationSet#TYPE_UNKNOWN}, the other is returned.
+   *
+   * @param firstType The first type.
+   * @param secondType The second type.
+   * @return The consistent type.
+   */
+  private int checkAdaptationSetTypeConsistency(int firstType, int secondType) {
+    if (firstType == AdaptationSet.TYPE_UNKNOWN) {
+      return secondType;
+    } else if (secondType == AdaptationSet.TYPE_UNKNOWN) {
+      return firstType;
+    } else {
+      Assertions.checkState(firstType == secondType);
+      return firstType;
+    }
   }
 
   /**
@@ -211,98 +227,193 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
     return new ContentProtection(schemeUriId, null);
   }
 
-  private Representation parseRepresentation(XmlPullParser xpp, String contentId, long periodStart,
-      long periodDuration, String parentMimeType, List<Segment.Timeline> segmentTimelineList)
+  // Representation parsing.
+
+  private Representation parseRepresentation(XmlPullParser xpp, String contentId, Uri baseUrl,
+      long periodStartMs, long periodDurationMs, String mimeType, SegmentBase segmentBase)
       throws XmlPullParserException, IOException {
-    int id;
-    try {
-      id = parseInt(xpp, "id");
-    } catch (NumberFormatException nfe) {
-      Log.d(TAG, "Unable to parse id; " + nfe.getMessage());
-      // TODO: need a way to generate a unique and stable id; use hashCode for now
-      id = xpp.getAttributeValue(null, "id").hashCode();
-    }
-    int bandwidth = parseInt(xpp, "bandwidth") / 8;
+    String id = xpp.getAttributeValue(null, "id");
+    int bandwidth = parseInt(xpp, "bandwidth");
     int audioSamplingRate = parseInt(xpp, "audioSamplingRate");
     int width = parseInt(xpp, "width");
     int height = parseInt(xpp, "height");
+    mimeType = parseString(xpp, "mimeType", mimeType);
 
-    String mimeType = xpp.getAttributeValue(null, "mimeType");
-    if (mimeType == null) {
-      mimeType = parentMimeType;
-    }
-
-    String representationUrl = null;
-    long indexStart = -1;
-    long indexEnd = -1;
-    long initializationStart = -1;
-    long initializationEnd = -1;
     int numChannels = -1;
-    List<Segment> segmentList = null;
     do {
       xpp.next();
       if (isStartTag(xpp, "BaseURL")) {
-        xpp.next();
-        representationUrl = xpp.getText();
+        baseUrl = parseBaseUrl(xpp, baseUrl);
       } else if (isStartTag(xpp, "AudioChannelConfiguration")) {
         numChannels = Integer.parseInt(xpp.getAttributeValue(null, "value"));
       } else if (isStartTag(xpp, "SegmentBase")) {
-        String[] indexRange = xpp.getAttributeValue(null, "indexRange").split("-");
-        indexStart = Long.parseLong(indexRange[0]);
-        indexEnd = Long.parseLong(indexRange[1]);
+        segmentBase = parseSegmentBase(xpp, baseUrl, (SingleSegmentBase) segmentBase);
       } else if (isStartTag(xpp, "SegmentList")) {
-        segmentList = parseRepresentationSegmentList(xpp, segmentTimelineList);
-      } else if (isStartTag(xpp, "Initialization")) {
-        String[] indexRange = xpp.getAttributeValue(null, "range").split("-");
-        initializationStart = Long.parseLong(indexRange[0]);
-        initializationEnd = Long.parseLong(indexRange[1]);
+        segmentBase = parseSegmentList(xpp, baseUrl, (SegmentList) segmentBase, periodDurationMs);
+      } else if (isStartTag(xpp, "SegmentTemplate")) {
+        segmentBase = parseSegmentTemplate(xpp, baseUrl, (SegmentTemplate) segmentBase,
+            periodDurationMs);
       }
     } while (!isEndTag(xpp, "Representation"));
 
-    Uri uri = Uri.parse(representationUrl);
     Format format = new Format(id, mimeType, width, height, numChannels, audioSamplingRate,
         bandwidth);
-    if (segmentList == null) {
-      return new Representation(contentId, -1, format, uri, DataSpec.LENGTH_UNBOUNDED,
-          initializationStart, initializationEnd, indexStart, indexEnd, periodStart,
-          periodDuration);
-    } else {
-      return new SegmentedRepresentation(contentId, format, uri, initializationStart,
-          initializationEnd, indexStart, indexEnd, periodStart, periodDuration, segmentList);
-    }
+    return Representation.newInstance(periodStartMs, periodDurationMs, contentId, -1, format,
+        segmentBase);
   }
 
-  private List<Segment> parseRepresentationSegmentList(XmlPullParser xpp,
-      List<Segment.Timeline> segmentTimelineList) throws XmlPullParserException, IOException {
-    List<Segment> segmentList = new ArrayList<Segment>();
-    int i = 0;
+  // SegmentBase, SegmentList and SegmentTemplate parsing.
+
+  private SingleSegmentBase parseSegmentBase(XmlPullParser xpp, Uri baseUrl,
+      SingleSegmentBase parent) throws XmlPullParserException, IOException {
+
+    long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
+    long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
+        parent != null ? parent.presentationTimeOffset : 0);
+
+    long indexStart = parent != null ? parent.indexStart : 0;
+    long indexLength = parent != null ? parent.indexLength : -1;
+    String indexRangeText = xpp.getAttributeValue(null, "indexRange");
+    if (indexRangeText != null) {
+      String[] indexRange = indexRangeText.split("-");
+      indexStart = Long.parseLong(indexRange[0]);
+      indexLength = Long.parseLong(indexRange[1]) - indexStart + 1;
+    }
+
+    RangedUri initialization = parent != null ? parent.initialization : null;
+    do {
+      xpp.next();
+      if (isStartTag(xpp, "Initialization")) {
+        initialization = parseInitialization(xpp, baseUrl);
+      }
+    } while (!isEndTag(xpp, "SegmentBase"));
+
+    return new SingleSegmentBase(initialization, timescale, presentationTimeOffset, baseUrl,
+        indexStart, indexLength);
+  }
+
+  private SegmentList parseSegmentList(XmlPullParser xpp, Uri baseUrl, SegmentList parent,
+      long periodDuration) throws XmlPullParserException, IOException {
+
+    long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
+    long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
+        parent != null ? parent.presentationTimeOffset : 0);
+    long duration = parseLong(xpp, "duration", parent != null ? parent.duration : -1);
+    int startNumber = parseInt(xpp, "startNumber", parent != null ? parent.startNumber : 0);
+
+    RangedUri initialization = null;
+    List<SegmentTimelineElement> timeline = null;
+    List<RangedUri> segments = null;
 
     do {
       xpp.next();
       if (isStartTag(xpp, "Initialization")) {
-        String url = xpp.getAttributeValue(null, "sourceURL");
-        String[] indexRange = xpp.getAttributeValue(null, "range").split("-");
-        long initializationStart = Long.parseLong(indexRange[0]);
-        long initializationEnd = Long.parseLong(indexRange[1]);
-        segmentList.add(new Segment.Initialization(url, initializationStart, initializationEnd));
+        initialization = parseInitialization(xpp, baseUrl);
+      } else if (isStartTag(xpp, "SegmentTimeline")) {
+        timeline = parseSegmentTimeline(xpp);
       } else if (isStartTag(xpp, "SegmentURL")) {
-        String url = xpp.getAttributeValue(null, "media");
-        String mediaRange = xpp.getAttributeValue(null, "mediaRange");
-        long sequenceNumber = segmentTimelineList.get(i).sequenceNumber;
-        long duration = segmentTimelineList.get(i).duration;
-        i++;
-        if (mediaRange != null) {
-          String[] mediaRangeArray = xpp.getAttributeValue(null, "mediaRange").split("-");
-          long mediaStart = Long.parseLong(mediaRangeArray[0]);
-          segmentList.add(new Segment.Media(url, mediaStart, sequenceNumber, duration));
-        } else {
-          segmentList.add(new Segment.Media(url, sequenceNumber, duration));
+        if (segments == null) {
+          segments = new ArrayList<RangedUri>();
         }
+        segments.add(parseSegmentUrl(xpp, baseUrl));
       }
     } while (!isEndTag(xpp, "SegmentList"));
 
-    return segmentList;
+    if (parent != null) {
+      initialization = initialization != null ? initialization : parent.initialization;
+      timeline = timeline != null ? timeline : parent.segmentTimeline;
+      segments = segments != null ? segments : parent.mediaSegments;
+    }
+
+    return new SegmentList(initialization, timescale, presentationTimeOffset, periodDuration,
+        startNumber, duration, timeline, segments);
   }
+
+  private SegmentTemplate parseSegmentTemplate(XmlPullParser xpp, Uri baseUrl,
+      SegmentTemplate parent, long periodDuration) throws XmlPullParserException, IOException {
+
+    long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
+    long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
+        parent != null ? parent.presentationTimeOffset : 0);
+    long duration = parseLong(xpp, "duration", parent != null ? parent.duration : -1);
+    int startNumber = parseInt(xpp, "startNumber", parent != null ? parent.startNumber : 0);
+    UrlTemplate mediaTemplate = parseUrlTemplate(xpp, "media",
+        parent != null ? parent.mediaTemplate : null);
+    UrlTemplate initializationTemplate = parseUrlTemplate(xpp, "initialization",
+        parent != null ? parent.initializationTemplate : null);
+
+    RangedUri initialization = null;
+    List<SegmentTimelineElement> timeline = null;
+
+    do {
+      xpp.next();
+      if (isStartTag(xpp, "Initialization")) {
+        initialization = parseInitialization(xpp, baseUrl);
+      } else if (isStartTag(xpp, "SegmentTimeline")) {
+        timeline = parseSegmentTimeline(xpp);
+      }
+    } while (!isEndTag(xpp, "SegmentTemplate"));
+
+    if (parent != null) {
+      initialization = initialization != null ? initialization : parent.initialization;
+      timeline = timeline != null ? timeline : parent.segmentTimeline;
+    }
+
+    return new SegmentTemplate(initialization, timescale, presentationTimeOffset, periodDuration,
+        startNumber, duration, timeline, initializationTemplate, mediaTemplate, baseUrl);
+  }
+
+  private List<SegmentTimelineElement> parseSegmentTimeline(XmlPullParser xpp)
+      throws XmlPullParserException, IOException {
+    List<SegmentTimelineElement> segmentTimeline = new ArrayList<SegmentTimelineElement>();
+    long elapsedTime = 0;
+    do {
+      xpp.next();
+      if (isStartTag(xpp, "S")) {
+        elapsedTime = parseLong(xpp, "t", elapsedTime);
+        long duration = parseLong(xpp, "d");
+        int count = 1 + parseInt(xpp, "r", 0);
+        for (int i = 0; i < count; i++) {
+          segmentTimeline.add(new SegmentTimelineElement(elapsedTime, duration));
+          elapsedTime += duration;
+        }
+      }
+    } while (!isEndTag(xpp, "SegmentTimeline"));
+    return segmentTimeline;
+  }
+
+  private UrlTemplate parseUrlTemplate(XmlPullParser xpp, String name,
+      UrlTemplate defaultValue) {
+    String valueString = xpp.getAttributeValue(null, name);
+    if (valueString != null) {
+      return UrlTemplate.compile(valueString);
+    }
+    return defaultValue;
+  }
+
+  private RangedUri parseInitialization(XmlPullParser xpp, Uri baseUrl) {
+    return parseRangedUrl(xpp, baseUrl, "sourceURL", "range");
+  }
+
+  private RangedUri parseSegmentUrl(XmlPullParser xpp, Uri baseUrl) {
+    return parseRangedUrl(xpp, baseUrl, "media", "mediaRange");
+  }
+
+  private RangedUri parseRangedUrl(XmlPullParser xpp, Uri baseUrl, String urlAttribute,
+      String rangeAttribute) {
+    String urlText = xpp.getAttributeValue(null, urlAttribute);
+    long rangeStart = 0;
+    long rangeLength = -1;
+    String rangeText = xpp.getAttributeValue(null, rangeAttribute);
+    if (rangeText != null) {
+      String[] rangeTextArray = rangeText.split("-");
+      rangeStart = Long.parseLong(rangeTextArray[0]);
+      rangeLength = Long.parseLong(rangeTextArray[1]) - rangeStart + 1;
+    }
+    return new RangedUri(baseUrl, urlText, rangeStart, rangeLength);
+  }
+
+  // Utility methods.
 
   protected static boolean isEndTag(XmlPullParser xpp, String name) throws XmlPullParserException {
     return xpp.getEventType() == XmlPullParser.END_TAG && name.equals(xpp.getName());
@@ -313,25 +424,11 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
     return xpp.getEventType() == XmlPullParser.START_TAG && name.equals(xpp.getName());
   }
 
-  protected static int parseInt(XmlPullParser xpp, String name) {
-    String value = xpp.getAttributeValue(null, name);
-    return value == null ? -1 : Integer.parseInt(value);
-  }
-
-  protected static long parseLong(XmlPullParser xpp, String name) {
-    return parseLong(xpp, name, -1);
-  }
-
-  protected static long parseLong(XmlPullParser xpp, String name, long defaultValue) {
-    String value = xpp.getAttributeValue(null, name);
-    return value == null ? defaultValue : Long.parseLong(value);
-  }
-
-  private long parseDurationMs(XmlPullParser xpp, String name) {
+  private static long parseDurationMs(XmlPullParser xpp, String name) {
     return parseDurationMs(xpp, name, -1);
   }
 
-  private long parseDurationMs(XmlPullParser xpp, String name, long defaultValue) {
+  private static long parseDurationMs(XmlPullParser xpp, String name, long defaultValue) {
     String value = xpp.getAttributeValue(null, name);
     if (value != null) {
       Matcher matcher = DURATION.matcher(value);
@@ -348,6 +445,40 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
       }
     }
     return defaultValue;
+  }
+
+  protected static Uri parseBaseUrl(XmlPullParser xpp, Uri parentBaseUrl)
+      throws XmlPullParserException, IOException {
+    xpp.next();
+    String newBaseUrlText = xpp.getText();
+    Uri newBaseUri = Uri.parse(newBaseUrlText);
+    if (!newBaseUri.isAbsolute()) {
+      newBaseUri = Uri.withAppendedPath(parentBaseUrl, newBaseUrlText);
+    }
+    return newBaseUri;
+  }
+
+  protected static int parseInt(XmlPullParser xpp, String name) {
+    return parseInt(xpp, name, -1);
+  }
+
+  protected static int parseInt(XmlPullParser xpp, String name, int defaultValue) {
+    String value = xpp.getAttributeValue(null, name);
+    return value == null ? defaultValue : Integer.parseInt(value);
+  }
+
+  protected static long parseLong(XmlPullParser xpp, String name) {
+    return parseLong(xpp, name, -1);
+  }
+
+  protected static long parseLong(XmlPullParser xpp, String name, long defaultValue) {
+    String value = xpp.getAttributeValue(null, name);
+    return value == null ? defaultValue : Long.parseLong(value);
+  }
+
+  protected static String parseString(XmlPullParser xpp, String name, String defaultValue) {
+    String value = xpp.getAttributeValue(null, name);
+    return value == null ? defaultValue : value;
   }
 
 }

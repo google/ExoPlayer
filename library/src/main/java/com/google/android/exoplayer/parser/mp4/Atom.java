@@ -21,6 +21,7 @@ import java.util.List;
 /* package */ abstract class Atom {
 
   public static final int TYPE_avc1 = 0x61766331;
+  public static final int TYPE_avc3 = 0x61766333;
   public static final int TYPE_esds = 0x65736473;
   public static final int TYPE_mdat = 0x6D646174;
   public static final int TYPE_mfhd = 0x6D666864;
