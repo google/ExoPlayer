@@ -83,7 +83,7 @@
 <meta name="viewport" content="width=device-width" />
 
 <link rel="shortcut icon" type="image/x-icon" href="../../../../../../../favicon.ico" />
-<title>MediaPresentationDescriptionFetcher - ExoPlayer | Android Developers</title>
+<title>SegmentBase.SegmentTemplate - ExoPlayer | Android Developers</title>
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
@@ -196,7 +196,7 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/ContentProtection.html">ContentProtection</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html">MediaPresentationDescription</a></li>
-          <li class="selected api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionFetcher.html">MediaPresentationDescriptionFetcher</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionFetcher.html">MediaPresentationDescriptionFetcher</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionParser.html">MediaPresentationDescriptionParser</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></li>
@@ -206,7 +206,7 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.html">SegmentBase</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html">SegmentBase.MultiSegmentBase</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentList.html">SegmentBase.SegmentList</a></li>
-          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTemplate.html">SegmentBase.SegmentTemplate</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTemplate.html">SegmentBase.SegmentTemplate</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTimelineElement.html">SegmentBase.SegmentTimelineElement</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SingleSegmentBase.html">SegmentBase.SingleSegmentBase</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UrlTemplate.html">UrlTemplate</a></li>
@@ -271,8 +271,6 @@ type="text/css">
    
   
   
-   
-  
   
   
 
@@ -280,8 +278,6 @@ type="text/css">
    
   
   
-  
-   
   
   
 
@@ -302,23 +298,17 @@ Summary:
 
 
 
-  <a href="#inhconstants">Inherited Constants</a>
+
+
+
+  <a href="#pubctors">Ctors</a>
   
 
 
 
-  &#124; <a href="#inhfields">Inherited Fields</a>
+  &#124; <a href="#pubmethods">Methods</a>
   
 
-
-  &#124; <a href="#pubctors">Ctors</a>
-  
-
-
-
-
-  &#124; <a href="#promethods">Protected Methods</a>
-  
 
 
   &#124; <a href="#inhmethods">Inherited Methods</a>
@@ -339,11 +329,11 @@ Summary:
 
 <div id="jd-header">
     public
+    static 
      
-    final 
     
     class
-<h1 itemprop="name">MediaPresentationDescriptionFetcher</h1>
+<h1 itemprop="name">SegmentBase.SegmentTemplate</h1>
 
 
 
@@ -356,7 +346,7 @@ Summary:
   
 
   
-    extends <a href="../../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html">ManifestFetcher</a>&lt;T&gt;<br/>
+    extends <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html">SegmentBase.MultiSegmentBase</a><br/>
   
   
   
@@ -384,7 +374,7 @@ Summary:
         
             <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
          	
-        <td colspan="3" class="jd-inheritance-class-cell"><a href="http://developer.android.com/reference/android/os/AsyncTask.html">android.os.AsyncTask</a>&lt;Params,&nbsp;Progress,&nbsp;Result&gt;</td>
+        <td colspan="3" class="jd-inheritance-class-cell"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.html">com.google.android.exoplayer.dash.mpd.SegmentBase</a></td>
     </tr>
     
 
@@ -394,7 +384,7 @@ Summary:
         
             <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
          	
-        <td colspan="2" class="jd-inheritance-class-cell"><a href="../../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html">com.google.android.exoplayer.util.ManifestFetcher</a>&lt;T&gt;</td>
+        <td colspan="2" class="jd-inheritance-class-cell"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html">com.google.android.exoplayer.dash.mpd.SegmentBase.MultiSegmentBase</a></td>
     </tr>
     
 
@@ -406,7 +396,7 @@ Summary:
         
             <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
          	
-        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.dash.mpd.MediaPresentationDescriptionFetcher</td>
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTemplate</td>
     </tr>
     
 
@@ -422,12 +412,7 @@ Summary:
 
 
 <h2>Class Overview</h2>
-<p itemprop="articleBody">A concrete implementation of <code><a href="../../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html">ManifestFetcher</a></code> for loading DASH manifests.
- <p>
- This class is provided for convenience, however it is expected that most applications will
- contain their own mechanisms for making asynchronous network requests and parsing the response.
- In such cases it is recommended that application developers use their existing solution rather
- than this one.
+<p itemprop="articleBody">A <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html">SegmentBase.MultiSegmentBase</a></code> that uses a SegmentTemplate to define its segments.
 </p>
 
 
@@ -471,110 +456,9 @@ Summary:
 
 
 
-<!-- =========== ENUM CONSTANT SUMMARY =========== -->
-<table id="inhconstants" class="jd-sumtable"><tr><th>
-  <a href="#" class="toggle-all" onclick="return toggleAllInherited(this, null)">[Expand]</a>
-  <div style="clear:left;">Inherited Constants</div></th></tr>
-
-
-<tr class="api apilevel-" >
-<td colspan="12">
-
-  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-constants-com.google.android.exoplayer.util.ManifestFetcher" class="jd-expando-trigger closed"
-          ><img id="inherited-constants-com.google.android.exoplayer.util.ManifestFetcher-trigger"
-          src="../../../../../../../assets/images/triangle-closed.png"
-          class="jd-expando-trigger-img" /></a>From class
-<a href="../../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html">com.google.android.exoplayer.util.ManifestFetcher</a>
-<div id="inherited-constants-com.google.android.exoplayer.util.ManifestFetcher">
-  <div id="inherited-constants-com.google.android.exoplayer.util.ManifestFetcher-list"
-        class="jd-inheritedlinks">
-  </div>
-  <div id="inherited-constants-com.google.android.exoplayer.util.ManifestFetcher-summary" style="display: none;">
-    <table class="jd-sumtable-expando">
-    
-
-    
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol">int</td>
-        <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#DEFAULT_HTTP_TIMEOUT_MILLIS">DEFAULT_HTTP_TIMEOUT_MILLIS</a></td>
-        <td class="jd-descrcol" width="100%"></td>
-    </tr>
-    
-    
-</table>
-  </div>
-</div>
-</td></tr>
 
 
 
-
-
-
-</table>
-
-
-
-
-
-
-
-<!-- =========== FIELD SUMMARY =========== -->
-<table id="inhfields" class="jd-sumtable"><tr><th>
-  <a href="#" class="toggle-all" onclick="return toggleAllInherited(this, null)">[Expand]</a>
-  <div style="clear:left;">Inherited Fields</div></th></tr>
-
-
-
-
-<tr class="api apilevel-" >
-<td colspan="12">
-
-  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-fields-android.os.AsyncTask" class="jd-expando-trigger closed"
-          ><img id="inherited-fields-android.os.AsyncTask-trigger"
-          src="../../../../../../../assets/images/triangle-closed.png"
-          class="jd-expando-trigger-img" /></a>From class
-android.os.AsyncTask
-<div id="inherited-fields-android.os.AsyncTask">
-  <div id="inherited-fields-android.os.AsyncTask-list"
-        class="jd-inheritedlinks">
-  </div>
-  <div id="inherited-fields-android.os.AsyncTask-summary" style="display: none;">
-    <table class="jd-sumtable-expando">
-    
-
-    
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          static
-          final
-          <a href="http://developer.android.com/reference/java/util/concurrent/Executor.html">Executor</a></nobr></td>
-          <td class="jd-linkcol">SERIAL_EXECUTOR</td>
-          <td class="jd-descrcol" width="100%"></td>
-      </tr>
-      
-    
-      <tr class=" api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          static
-          final
-          <a href="http://developer.android.com/reference/java/util/concurrent/Executor.html">Executor</a></nobr></td>
-          <td class="jd-linkcol">THREAD_POOL_EXECUTOR</td>
-          <td class="jd-descrcol" width="100%"></td>
-      </tr>
-      
-    
-</table>
-  </div>
-</div>
-</td></tr>
-
-
-
-
-</table>
 
 
 
@@ -595,23 +479,7 @@ android.os.AsyncTask
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionFetcher.html#MediaPresentationDescriptionFetcher(com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback<com.google.android.exoplayer.dash.mpd.MediaPresentationDescription>)">MediaPresentationDescriptionFetcher</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestCallback</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html">MediaPresentationDescription</a>&gt; callback)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            
-            
-            </nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionFetcher.html#MediaPresentationDescriptionFetcher(com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback<com.google.android.exoplayer.dash.mpd.MediaPresentationDescription>, int)">MediaPresentationDescriptionFetcher</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestCallback</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html">MediaPresentationDescription</a>&gt; callback, int timeoutMillis)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTemplate.html#SegmentBase.SegmentTemplate(com.google.android.exoplayer.dash.mpd.RangedUri, long, long, long, int, long, java.util.List<com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTimelineElement>, com.google.android.exoplayer.dash.mpd.UrlTemplate, com.google.android.exoplayer.dash.mpd.UrlTemplate, android.net.Uri)">SegmentBase.SegmentTemplate</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a> initialization, long timescale, long presentationTimeOffset, long periodDurationMs, int startNumber, long duration, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTimelineElement.html">SegmentBase.SegmentTimelineElement</a>&gt; segmentTimeline, <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UrlTemplate.html">UrlTemplate</a> initializationTemplate, <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UrlTemplate.html">UrlTemplate</a> mediaTemplate, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> baseUrl)</nobr>
         
   </td></tr>
 
@@ -624,10 +492,8 @@ android.os.AsyncTask
 
 
 
-
-
 <!-- ========== METHOD SUMMARY =========== -->
-<table id="promethods" class="jd-sumtable"><tr><th colspan="12">Protected Methods</th></tr>
+<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
 
 
 
@@ -639,18 +505,53 @@ android.os.AsyncTask
             
             
             
-            <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html">MediaPresentationDescription</a></nobr>
+            <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionFetcher.html#parse(java.io.InputStream, java.lang.String, java.lang.String, android.net.Uri)">parse</a></span>(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> stream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> baseUrl)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTemplate.html#getInitialization(com.google.android.exoplayer.dash.mpd.Representation)">getInitialization</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation</a> representation)</nobr>
         
-        <div class="jd-descrdiv">Reads the <code><a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a></code> and parses it into a manifest.</div>
+        <div class="jd-descrdiv">Gets the <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> defining the location of initialization data for a given
+ representation.</div>
   
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTemplate.html#getLastSegmentNum()">getLastSegmentNum</a></span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTemplate.html#getSegmentUrl(com.google.android.exoplayer.dash.mpd.Representation, int)">getSegmentUrl</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation</a> representation, int sequenceNumber)</nobr>
+        
   </td></tr>
 
 
 
 </table>
+
+
 
 
 
@@ -664,21 +565,53 @@ android.os.AsyncTask
 
 <tr class="api apilevel-" >
 <td colspan="12">
-  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-com.google.android.exoplayer.util.ManifestFetcher" class="jd-expando-trigger closed"
-          ><img id="inherited-methods-com.google.android.exoplayer.util.ManifestFetcher-trigger"
+  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-com.google.android.exoplayer.dash.mpd.SegmentBase.MultiSegmentBase" class="jd-expando-trigger closed"
+          ><img id="inherited-methods-com.google.android.exoplayer.dash.mpd.SegmentBase.MultiSegmentBase-trigger"
           src="../../../../../../../assets/images/triangle-closed.png"
           class="jd-expando-trigger-img" /></a>
 From class
 
-  <a href="../../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html">com.google.android.exoplayer.util.ManifestFetcher</a>
+  <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html">com.google.android.exoplayer.dash.mpd.SegmentBase.MultiSegmentBase</a>
 
-<div id="inherited-methods-com.google.android.exoplayer.util.ManifestFetcher">
-  <div id="inherited-methods-com.google.android.exoplayer.util.ManifestFetcher-list"
+<div id="inherited-methods-com.google.android.exoplayer.dash.mpd.SegmentBase.MultiSegmentBase">
+  <div id="inherited-methods-com.google.android.exoplayer.dash.mpd.SegmentBase.MultiSegmentBase-list"
         class="jd-inheritedlinks">
   </div>
-  <div id="inherited-methods-com.google.android.exoplayer.util.ManifestFetcher-summary" style="display: none;">
+  <div id="inherited-methods-com.google.android.exoplayer.dash.mpd.SegmentBase.MultiSegmentBase-summary" style="display: none;">
     <table class="jd-sumtable-expando">
     
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html#getFirstSegmentNum()">getFirstSegmentNum</a></span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html#getLastSegmentNum()">getLastSegmentNum</a></span>()</nobr>
+        
+  </td></tr>
 
 
 	 
@@ -689,10 +622,10 @@ From class
             final
             
             
-            T</nobr>
+            long</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#doInBackground(java.lang.String...)">doInBackground</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String...</a> data)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html#getSegmentDurationUs(int)">getSegmentDurationUs</a></span>(int sequenceNumber)</nobr>
         
   </td></tr>
 
@@ -705,10 +638,10 @@ From class
             final
             
             
-            void</nobr>
+            int</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#onPostExecute(T)">onPostExecute</a></span>(T manifest)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html#getSegmentNum(long)">getSegmentNum</a></span>(long timeUs)</nobr>
         
   </td></tr>
 
@@ -716,18 +649,32 @@ From class
 	 
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            long</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html#getSegmentTimeUs(int)">getSegmentTimeUs</a></span>(int sequenceNumber)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
             abstract
             
             
             
             
-            T</nobr>
+            <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#parse(java.io.InputStream, java.lang.String, java.lang.String, android.net.Uri)">parse</a></span>(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> stream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> baseUrl)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html#getSegmentUrl(com.google.android.exoplayer.dash.mpd.Representation, int)">getSegmentUrl</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation</a> representation, int index)</nobr>
         
-        <div class="jd-descrdiv">Reads the <code><a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a></code> and parses it into a manifest.</div>
-  
   </td></tr>
 
 
@@ -740,19 +687,19 @@ From class
 
 <tr class="api apilevel-" >
 <td colspan="12">
-  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-android.os.AsyncTask" class="jd-expando-trigger closed"
-          ><img id="inherited-methods-android.os.AsyncTask-trigger"
+  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-com.google.android.exoplayer.dash.mpd.SegmentBase" class="jd-expando-trigger closed"
+          ><img id="inherited-methods-com.google.android.exoplayer.dash.mpd.SegmentBase-trigger"
           src="../../../../../../../assets/images/triangle-closed.png"
           class="jd-expando-trigger-img" /></a>
 From class
 
-  <a href="http://developer.android.com/reference/android/os/AsyncTask.html">android.os.AsyncTask</a>
+  <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.html">com.google.android.exoplayer.dash.mpd.SegmentBase</a>
 
-<div id="inherited-methods-android.os.AsyncTask">
-  <div id="inherited-methods-android.os.AsyncTask-list"
+<div id="inherited-methods-com.google.android.exoplayer.dash.mpd.SegmentBase">
+  <div id="inherited-methods-com.google.android.exoplayer.dash.mpd.SegmentBase-list"
         class="jd-inheritedlinks">
   </div>
-  <div id="inherited-methods-android.os.AsyncTask-summary" style="display: none;">
+  <div id="inherited-methods-com.google.android.exoplayer.dash.mpd.SegmentBase-summary" style="display: none;">
     <table class="jd-sumtable-expando">
     
 
@@ -762,238 +709,17 @@ From class
         <td class="jd-typecol"><nobr>
             
             
-            final
             
             
-            boolean</nobr>
+            
+            <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">cancel</span>(boolean arg0)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.html#getInitialization(com.google.android.exoplayer.dash.mpd.Representation)">getInitialization</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation</a> representation)</nobr>
         
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            abstract
-            
-            
-            
-            
-            Result</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">doInBackground</span>(Params... arg0)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            static
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">execute</span>(<a href="http://developer.android.com/reference/java/lang/Runnable.html">Runnable</a> arg0)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            final
-            
-            
-            <a href="http://developer.android.com/reference/android/os/AsyncTask.html">AsyncTask</a>&lt;Params,&nbsp;Progress,&nbsp;Result&gt;</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">execute</span>(Params... arg0)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            final
-            
-            
-            <a href="http://developer.android.com/reference/android/os/AsyncTask.html">AsyncTask</a>&lt;Params,&nbsp;Progress,&nbsp;Result&gt;</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">executeOnExecutor</span>(<a href="http://developer.android.com/reference/java/util/concurrent/Executor.html">Executor</a> arg0, Params... arg1)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            final
-            
-            
-            Result</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">get</span>(long arg0, <a href="http://developer.android.com/reference/java/util/concurrent/TimeUnit.html">TimeUnit</a> arg1)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            final
-            
-            
-            Result</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">get</span>()</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            final
-            
-            
-            <a href="http://developer.android.com/reference/android/os/AsyncTask.Status.html">AsyncTask.Status</a></nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">getStatus</span>()</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            final
-            
-            
-            boolean</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">isCancelled</span>()</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">onCancelled</span>(Result arg0)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">onCancelled</span>()</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">onPostExecute</span>(Result arg0)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">onPreExecute</span>()</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">onProgressUpdate</span>(Progress... arg0)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            final
-            
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">publishProgress</span>(Progress... arg0)</nobr>
-        
+        <div class="jd-descrdiv">Gets the <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> defining the location of initialization data for a given
+ representation.</div>
+  
   </td></tr>
 
 
@@ -1239,7 +965,7 @@ From class
 
 
 
-<A NAME="MediaPresentationDescriptionFetcher(com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback<com.google.android.exoplayer.dash.mpd.MediaPresentationDescription>)"></A>
+<A NAME="SegmentBase.SegmentTemplate(com.google.android.exoplayer.dash.mpd.RangedUri, long, long, long, int, long, java.util.List<com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTimelineElement>, com.google.android.exoplayer.dash.mpd.UrlTemplate, com.google.android.exoplayer.dash.mpd.UrlTemplate, android.net.Uri)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1251,8 +977,8 @@ From class
          
         
       </span>
-      <span class="sympad">MediaPresentationDescriptionFetcher</span>
-      <span class="normal">(<a href="../../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestCallback</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html">MediaPresentationDescription</a>&gt; callback)</span>
+      <span class="sympad">SegmentBase.SegmentTemplate</span>
+      <span class="normal">(<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a> initialization, long timescale, long presentationTimeOffset, long periodDurationMs, int startNumber, long duration, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTimelineElement.html">SegmentBase.SegmentTimelineElement</a>&gt; segmentTimeline, <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UrlTemplate.html">UrlTemplate</a> initializationTemplate, <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UrlTemplate.html">UrlTemplate</a> mediaTemplate, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> baseUrl)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1267,51 +993,53 @@ From class
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
         <tr>
-          <th>callback</td>
-          <td>The callback to provide with the parsed manifest (or error).
-</td>
-        </tr>
-      </table>
-  </div>
-
-    </div>
-</div>
-
-
-<A NAME="MediaPresentationDescriptionFetcher(com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback<com.google.android.exoplayer.dash.mpd.MediaPresentationDescription>, int)"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-         
-         
-         
-        
-      </span>
-      <span class="sympad">MediaPresentationDescriptionFetcher</span>
-      <span class="normal">(<a href="../../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestCallback</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html">MediaPresentationDescription</a>&gt; callback, int timeoutMillis)</span>
-    </h4>
-      <div class="api-level">
-        <div></div>
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p></p></div>
-  <div class="jd-tagdata">
-      <h5 class="jd-tagtitle">Parameters</h5>
-      <table class="jd-tagtable">
-        <tr>
-          <th>callback</td>
-          <td>The callback to provide with the parsed manifest (or error).</td>
+          <th>initialization</td>
+          <td>A <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> corresponding to initialization data, if such data
+     exists. The value of this parameter is ignored if <code>initializationTemplate</code> is
+     non-null.</td>
         </tr>
         <tr>
-          <th>timeoutMillis</td>
-          <td>The timeout in milliseconds for the connection used to load the data.
+          <th>timescale</td>
+          <td>The timescale in units per second.</td>
+        </tr>
+        <tr>
+          <th>presentationTimeOffset</td>
+          <td>The presentation time offset. The value in seconds is the
+     division of this value and <code>timescale</code>.</td>
+        </tr>
+        <tr>
+          <th>periodDurationMs</td>
+          <td>The duration of the enclosing period in milliseconds.</td>
+        </tr>
+        <tr>
+          <th>startNumber</td>
+          <td>The sequence number of the first segment.</td>
+        </tr>
+        <tr>
+          <th>duration</td>
+          <td>The duration of each segment in the case of fixed duration segments. The
+     value in seconds is the division of this value and <code>timescale</code>. If
+     <code>segmentTimeline</code> is non-null then this parameter is ignored.</td>
+        </tr>
+        <tr>
+          <th>segmentTimeline</td>
+          <td>A segment timeline corresponding to the segments. If null, then
+     segments are assumed to be of fixed duration as specified by the <code>duration</code>
+     parameter.</td>
+        </tr>
+        <tr>
+          <th>initializationTemplate</td>
+          <td>A template defining the location of initialization data, if
+     such data exists. If non-null then the <code>initialization</code> parameter is ignored. If
+     null then <code>initialization</code> will be used.</td>
+        </tr>
+        <tr>
+          <th>mediaTemplate</td>
+          <td>A template defining the location of each media segment.</td>
+        </tr>
+        <tr>
+          <th>baseUrl</td>
+          <td>A url to use as the base for relative urls generated by the templates.
 </td>
         </tr>
       </table>
@@ -1332,28 +1060,24 @@ From class
 <!-- ========= METHOD DETAIL ======== -->
 <!-- Public methdos -->
 
-
-
-<!-- ========= METHOD DETAIL ======== -->
-
-<h2>Protected Methods</h2>
+<h2>Public Methods</h2>
 
 
 
-<A NAME="parse(java.io.InputStream, java.lang.String, java.lang.String, android.net.Uri)"></A>
+<A NAME="getInitialization(com.google.android.exoplayer.dash.mpd.Representation)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
       <span class="normal">
-        protected 
+        public 
          
          
          
          
-        <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html">MediaPresentationDescription</a>
+        <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a>
       </span>
-      <span class="sympad">parse</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> stream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> baseUrl)</span>
+      <span class="sympad">getInitialization</span>
+      <span class="normal">(<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation</a> representation)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1363,48 +1087,89 @@ From class
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Reads the <code><a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a></code> and parses it into a manifest. Invoked from the
- <code><a href="http://developer.android.com/reference/android/os/AsyncTask.html">AsyncTask</a></code>'s background thread.</p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Gets the <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> defining the location of initialization data for a given
+ representation. May be null if no initialization data exists.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
         <tr>
-          <th>stream</td>
-          <td>The input stream to read.</td>
-        </tr>
-        <tr>
-          <th>inputEncoding</td>
-          <td>The encoding of the input stream.</td>
-        </tr>
-        <tr>
-          <th>contentId</td>
-          <td>The content id of the media.</td>
-        </tr>
-        <tr>
-          <th>baseUrl</td>
-          <td>Required where the manifest contains urls that are relative to a base url. May
-     be null where this is not the case.</td>
+          <th>representation</td>
+          <td>The <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation</a></code> for which initialization data is required.</td>
         </tr>
       </table>
   </div>
   <div class="jd-tagdata">
-      <h5 class="jd-tagtitle">Throws</h5>
-      <table class="jd-tagtable">  
-        <tr>
-            <th><a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a></td>
-            <td></td>
-        </tr>  
-        <tr>
-            <th><a href="../../../../../../../reference/com/google/android/exoplayer/ParserException.html">ParserException</a></td>
-            <td></td>
-        </tr>
-      </table>
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>A <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> defining the location of the initialization data, or null.
+</li></ul>
   </div>
 
     </div>
 </div>
 
 
+<A NAME="getLastSegmentNum()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">getLastSegmentNum</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+
+    </div>
+</div>
+
+
+<A NAME="getSegmentUrl(com.google.android.exoplayer.dash.mpd.Representation, int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a>
+      </span>
+      <span class="sympad">getSegmentUrl</span>
+      <span class="normal">(<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation</a> representation, int sequenceNumber)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
 
 
 

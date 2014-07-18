@@ -200,12 +200,17 @@ type="text/css">
         <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionFetcher.html">MediaPresentationDescriptionFetcher</a></li>
         <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionParser.html">MediaPresentationDescriptionParser</a></li>
         <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a></li>
+        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></li>
         <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation</a></li>
-        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Segment.html">Segment</a></li>
-        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Segment.Initialization.html">Segment.Initialization</a></li>
-        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Segment.Media.html">Segment.Media</a></li>
-        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Segment.Timeline.html">Segment.Timeline</a></li>
-        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentedRepresentation.html">SegmentedRepresentation</a></li>
+        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.MultiSegmentRepresentation.html">Representation.MultiSegmentRepresentation</a></li>
+        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.SingleSegmentRepresentation.html">Representation.SingleSegmentRepresentation</a></li>
+        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.html">SegmentBase</a></li>
+        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html">SegmentBase.MultiSegmentBase</a></li>
+        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentList.html">SegmentBase.SegmentList</a></li>
+        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTemplate.html">SegmentBase.SegmentTemplate</a></li>
+        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTimelineElement.html">SegmentBase.SegmentTimelineElement</a></li>
+        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SingleSegmentBase.html">SegmentBase.SingleSegmentBase</a></li>
+        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UrlTemplate.html">UrlTemplate</a></li>
       </ul>
     </li>
               
@@ -318,28 +323,48 @@ type="text/css">
               <td class="jd-descrcol" width="100%">Encapsulates media content components over a contiguous period of time.&nbsp;</td>
           </tr>
         <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></td>
+              <td class="jd-descrcol" width="100%">Defines a range of data located at a <code><a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a></code>.&nbsp;</td>
+          </tr>
+        <tr class=" api apilevel-" >
               <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation</a></td>
-              <td class="jd-descrcol" width="100%">A flat version of a DASH representation.&nbsp;</td>
-          </tr>
-        <tr class=" api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Segment.html">Segment</a></td>
-              <td class="jd-descrcol" width="100%">Represents a particular segment in a Representation.&nbsp;</td>
+              <td class="jd-descrcol" width="100%">A DASH representation.&nbsp;</td>
           </tr>
         <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Segment.Initialization.html">Segment.Initialization</a></td>
-              <td class="jd-descrcol" width="100%">Represents an initialization segment.&nbsp;</td>
+              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.MultiSegmentRepresentation.html">Representation.MultiSegmentRepresentation</a></td>
+              <td class="jd-descrcol" width="100%">A DASH representation consisting of multiple segments.&nbsp;</td>
           </tr>
         <tr class=" api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Segment.Media.html">Segment.Media</a></td>
-              <td class="jd-descrcol" width="100%">Represents a media segment.&nbsp;</td>
+              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.SingleSegmentRepresentation.html">Representation.SingleSegmentRepresentation</a></td>
+              <td class="jd-descrcol" width="100%">A DASH representation consisting of a single segment.&nbsp;</td>
           </tr>
         <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Segment.Timeline.html">Segment.Timeline</a></td>
+              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.html">SegmentBase</a></td>
+              <td class="jd-descrcol" width="100%">An approximate representation of a SegmentBase manifest element.&nbsp;</td>
+          </tr>
+        <tr class=" api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html">SegmentBase.MultiSegmentBase</a></td>
+              <td class="jd-descrcol" width="100%">A <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.html">SegmentBase</a></code> that consists of multiple segments.&nbsp;</td>
+          </tr>
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentList.html">SegmentBase.SegmentList</a></td>
+              <td class="jd-descrcol" width="100%">A <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html">SegmentBase.MultiSegmentBase</a></code> that uses a SegmentList to define its segments.&nbsp;</td>
+          </tr>
+        <tr class=" api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTemplate.html">SegmentBase.SegmentTemplate</a></td>
+              <td class="jd-descrcol" width="100%">A <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html">SegmentBase.MultiSegmentBase</a></code> that uses a SegmentTemplate to define its segments.&nbsp;</td>
+          </tr>
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTimelineElement.html">SegmentBase.SegmentTimelineElement</a></td>
               <td class="jd-descrcol" width="100%">Represents a timeline segment from the MPD's SegmentTimeline list.&nbsp;</td>
           </tr>
         <tr class=" api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentedRepresentation.html">SegmentedRepresentation</a></td>
-              <td class="jd-descrcol" width="100%">Represents a DASH Representation which uses the SegmentList structure (i.e.&nbsp;</td>
+              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SingleSegmentBase.html">SegmentBase.SingleSegmentBase</a></td>
+              <td class="jd-descrcol" width="100%">A <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.html">SegmentBase</a></code> that defines a single segment.&nbsp;</td>
+          </tr>
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UrlTemplate.html">UrlTemplate</a></td>
+              <td class="jd-descrcol" width="100%">A template from which URLs can be built.&nbsp;</td>
           </tr>
   </table>
     </div>

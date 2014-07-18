@@ -83,7 +83,7 @@
 <meta name="viewport" content="width=device-width" />
 
 <link rel="shortcut icon" type="image/x-icon" href="../../../../../../../favicon.ico" />
-<title>Period - ExoPlayer | Android Developers</title>
+<title>SegmentBase.SegmentTimelineElement - ExoPlayer | Android Developers</title>
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
@@ -198,7 +198,7 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html">MediaPresentationDescription</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionFetcher.html">MediaPresentationDescriptionFetcher</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionParser.html">MediaPresentationDescriptionParser</a></li>
-          <li class="selected api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.MultiSegmentRepresentation.html">Representation.MultiSegmentRepresentation</a></li>
@@ -207,7 +207,7 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html">SegmentBase.MultiSegmentBase</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentList.html">SegmentBase.SegmentList</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTemplate.html">SegmentBase.SegmentTemplate</a></li>
-          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTimelineElement.html">SegmentBase.SegmentTimelineElement</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTimelineElement.html">SegmentBase.SegmentTimelineElement</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SingleSegmentBase.html">SegmentBase.SingleSegmentBase</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UrlTemplate.html">UrlTemplate</a></li>
       </ul>
@@ -285,12 +285,9 @@ Summary:
 
 
 
-  <a href="#lfields">Fields</a>
-  
 
 
-
-  &#124; <a href="#pubctors">Ctors</a>
+  <a href="#pubctors">Ctors</a>
   
 
 
@@ -315,11 +312,11 @@ Summary:
 
 <div id="jd-header">
     public
+    static 
      
-    final 
     
     class
-<h1 itemprop="name">Period</h1>
+<h1 itemprop="name">SegmentBase.SegmentTimelineElement</h1>
 
 
 
@@ -352,7 +349,7 @@ Summary:
         
             <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
          	
-        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.dash.mpd.Period</td>
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTimelineElement</td>
     </tr>
     
 
@@ -368,7 +365,7 @@ Summary:
 
 
 <h2>Class Overview</h2>
-<p itemprop="articleBody">Encapsulates media content components over a contiguous period of time.
+<p itemprop="articleBody">Represents a timeline segment from the MPD's SegmentTimeline list.
 </p>
 
 
@@ -414,59 +411,6 @@ Summary:
 
 
 
-<!-- =========== FIELD SUMMARY =========== -->
-<table id="lfields" class="jd-sumtable"><tr><th colspan="12">Fields</th></tr>
-
-
-    
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a>&gt;</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#adaptationSets">adaptationSets</a></td>
-          <td class="jd-descrcol" width="100%">The adaptation sets belonging to the period.</td>
-      </tr>
-      
-    
-      <tr class=" api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          long</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#durationMs">durationMs</a></td>
-          <td class="jd-descrcol" width="100%">The duration of the period in milliseconds, or -1 if the duration is unknown.</td>
-      </tr>
-      
-    
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#id">id</a></td>
-          <td class="jd-descrcol" width="100%">The period identifier, if one exists.</td>
-      </tr>
-      
-    
-      <tr class=" api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          long</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#startMs">startMs</a></td>
-          <td class="jd-descrcol" width="100%">The start time of the period in milliseconds.</td>
-      </tr>
-      
-    
-
-</table>
-
-
 
 
 
@@ -488,7 +432,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#Period(java.lang.String, long, long, java.util.List<com.google.android.exoplayer.dash.mpd.AdaptationSet>)">Period</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, long start, long duration, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a>&gt; adaptationSets)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTimelineElement.html#SegmentBase.SegmentTimelineElement(long, long)">SegmentBase.SegmentTimelineElement</a></span>(long startTime, long duration)</nobr>
         
   </td></tr>
 
@@ -739,129 +683,6 @@ From class
 <!-- Fields -->
 
 
-<!-- ========= FIELD DETAIL ======== -->
-<h2>Fields</h2>
-
-
-
-
-<A NAME="adaptationSets"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a>&gt;
-      </span>
-        adaptationSets
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The adaptation sets belonging to the period.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="durationMs"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        long
-      </span>
-        durationMs
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The duration of the period in milliseconds, or -1 if the duration is unknown.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="id"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
-      </span>
-        id
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The period identifier, if one exists.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="startMs"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        long
-      </span>
-        startMs
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The start time of the period in milliseconds.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-
 <!-- Public ctors -->
 
 
@@ -870,7 +691,7 @@ From class
 
 
 
-<A NAME="Period(java.lang.String, long, long, java.util.List<com.google.android.exoplayer.dash.mpd.AdaptationSet>)"></A>
+<A NAME="SegmentBase.SegmentTimelineElement(long, long)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -882,8 +703,8 @@ From class
          
         
       </span>
-      <span class="sympad">Period</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, long start, long duration, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a>&gt; adaptationSets)</span>
+      <span class="sympad">SegmentBase.SegmentTimelineElement</span>
+      <span class="normal">(long startTime, long duration)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -898,20 +719,14 @@ From class
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
         <tr>
-          <th>id</td>
-          <td>The period identifier. May be null.</td>
-        </tr>
-        <tr>
-          <th>start</td>
-          <td>The start time of the period in milliseconds.</td>
+          <th>startTime</td>
+          <td>The start time of the element. The value in seconds is the division of this
+     value and the <code>timescale</code> of the enclosing element.</td>
         </tr>
         <tr>
           <th>duration</td>
-          <td>The duration of the period in milliseconds, or -1 if the duration is unknown.</td>
-        </tr>
-        <tr>
-          <th>adaptationSets</td>
-          <td>The adaptation sets belonging to the period.
+          <td>The duration of the element. The value in seconds is the division of this
+     value and the <code>timescale</code> of the enclosing element.
 </td>
         </tr>
       </table>

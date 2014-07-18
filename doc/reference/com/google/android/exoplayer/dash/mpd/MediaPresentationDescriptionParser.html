@@ -199,12 +199,17 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionFetcher.html">MediaPresentationDescriptionFetcher</a></li>
           <li class="selected api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionParser.html">MediaPresentationDescriptionParser</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation</a></li>
-          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Segment.html">Segment</a></li>
-          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Segment.Initialization.html">Segment.Initialization</a></li>
-          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Segment.Media.html">Segment.Media</a></li>
-          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Segment.Timeline.html">Segment.Timeline</a></li>
-          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentedRepresentation.html">SegmentedRepresentation</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.MultiSegmentRepresentation.html">Representation.MultiSegmentRepresentation</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.SingleSegmentRepresentation.html">Representation.SingleSegmentRepresentation</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.html">SegmentBase</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html">SegmentBase.MultiSegmentBase</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentList.html">SegmentBase.SegmentList</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTemplate.html">SegmentBase.SegmentTemplate</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTimelineElement.html">SegmentBase.SegmentTimelineElement</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SingleSegmentBase.html">SegmentBase.SingleSegmentBase</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UrlTemplate.html">UrlTemplate</a></li>
       </ul>
     </li>
               
@@ -511,7 +516,7 @@ Summary:
             <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html">MediaPresentationDescription</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionParser.html#parseMediaPresentationDescription(java.io.InputStream, java.lang.String, java.lang.String)">parseMediaPresentationDescription</a></span>(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> inputStream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionParser.html#parseMediaPresentationDescription(java.io.InputStream, java.lang.String, java.lang.String, android.net.Uri)">parseMediaPresentationDescription</a></span>(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> inputStream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> baseUrl)</nobr>
         
         <div class="jd-descrdiv">Parses a manifest from the provided <code><a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a></code>.</div>
   
@@ -567,6 +572,22 @@ Summary:
             
             
             
+            static
+            
+            <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionParser.html#parseBaseUrl(org.xmlpull.v1.XmlPullParser, android.net.Uri)">parseBaseUrl</a></span>(<a href="http://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html">XmlPullParser</a> xpp, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> parentBaseUrl)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
             
             
             <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/ContentProtection.html">ContentProtection</a></nobr>
@@ -576,6 +597,22 @@ Summary:
         
         <div class="jd-descrdiv">Parses a ContentProtection element.</div>
   
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionParser.html#parseInt(org.xmlpull.v1.XmlPullParser, java.lang.String)">parseInt</a></span>(<a href="http://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html">XmlPullParser</a> xpp, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> name)</nobr>
+        
   </td></tr>
 
 
@@ -590,7 +627,7 @@ Summary:
             int</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionParser.html#parseInt(org.xmlpull.v1.XmlPullParser, java.lang.String)">parseInt</a></span>(<a href="http://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html">XmlPullParser</a> xpp, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> name)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionParser.html#parseInt(org.xmlpull.v1.XmlPullParser, java.lang.String, int)">parseInt</a></span>(<a href="http://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html">XmlPullParser</a> xpp, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> name, int defaultValue)</nobr>
         
   </td></tr>
 
@@ -623,6 +660,22 @@ Summary:
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionParser.html#parseLong(org.xmlpull.v1.XmlPullParser, java.lang.String)">parseLong</a></span>(<a href="http://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html">XmlPullParser</a> xpp, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> name)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionParser.html#parseString(org.xmlpull.v1.XmlPullParser, java.lang.String, java.lang.String)">parseString</a></span>(<a href="http://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html">XmlPullParser</a> xpp, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> name, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> defaultValue)</nobr>
         
   </td></tr>
 
@@ -1593,7 +1646,7 @@ From interface
 
 
 
-<A NAME="parseMediaPresentationDescription(java.io.InputStream, java.lang.String, java.lang.String)"></A>
+<A NAME="parseMediaPresentationDescription(java.io.InputStream, java.lang.String, java.lang.String, android.net.Uri)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1606,7 +1659,7 @@ From interface
         <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html">MediaPresentationDescription</a>
       </span>
       <span class="sympad">parseMediaPresentationDescription</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> inputStream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> inputStream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> baseUrl)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1631,6 +1684,10 @@ From interface
         <tr>
           <th>contentId</td>
           <td>The content id of the media.</td>
+        </tr>
+        <tr>
+          <th>baseUrl</td>
+          <td>The url that any relative urls defined within the manifest are relative to.</td>
         </tr>
       </table>
   </div>
@@ -1746,6 +1803,48 @@ From interface
 </div>
 
 
+<A NAME="parseBaseUrl(org.xmlpull.v1.XmlPullParser, android.net.Uri)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        protected 
+        static 
+         
+         
+         
+        <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a>
+      </span>
+      <span class="sympad">parseBaseUrl</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html">XmlPullParser</a> xpp, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> parentBaseUrl)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Throws</h5>
+      <table class="jd-tagtable">  
+        <tr>
+            <th><a href="http://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html">XmlPullParserException</a></td>
+            <td></td>
+        </tr>  
+        <tr>
+            <th><a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a></td>
+            <td></td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
 <A NAME="parseContentProtection(org.xmlpull.v1.XmlPullParser)"></A>
 
 <div class="jd-details api apilevel-"> 
@@ -1818,6 +1917,35 @@ From interface
 </div>
 
 
+<A NAME="parseInt(org.xmlpull.v1.XmlPullParser, java.lang.String, int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        protected 
+        static 
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">parseInt</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html">XmlPullParser</a> xpp, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> name, int defaultValue)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+
+    </div>
+</div>
+
+
 <A NAME="parseLong(org.xmlpull.v1.XmlPullParser, java.lang.String, long)"></A>
 
 <div class="jd-details api apilevel-"> 
@@ -1861,6 +1989,35 @@ From interface
       </span>
       <span class="sympad">parseLong</span>
       <span class="normal">(<a href="http://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html">XmlPullParser</a> xpp, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> name)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+
+    </div>
+</div>
+
+
+<A NAME="parseString(org.xmlpull.v1.XmlPullParser, java.lang.String, java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        protected 
+        static 
+         
+         
+         
+        <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
+      </span>
+      <span class="sympad">parseString</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html">XmlPullParser</a> xpp, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> name, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> defaultValue)</span>
     </h4>
       <div class="api-level">
         <div></div>

@@ -83,7 +83,7 @@
 <meta name="viewport" content="width=device-width" />
 
 <link rel="shortcut icon" type="image/x-icon" href="../../../../../../../favicon.ico" />
-<title>Period - ExoPlayer | Android Developers</title>
+<title>RangedUri - ExoPlayer | Android Developers</title>
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
@@ -198,8 +198,8 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html">MediaPresentationDescription</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionFetcher.html">MediaPresentationDescriptionFetcher</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionParser.html">MediaPresentationDescriptionParser</a></li>
-          <li class="selected api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a></li>
-          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.MultiSegmentRepresentation.html">Representation.MultiSegmentRepresentation</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.SingleSegmentRepresentation.html">Representation.SingleSegmentRepresentation</a></li>
@@ -295,6 +295,9 @@ Summary:
 
 
 
+  &#124; <a href="#pubmethods">Methods</a>
+  
+
 
 
   &#124; <a href="#inhmethods">Inherited Methods</a>
@@ -319,7 +322,7 @@ Summary:
     final 
     
     class
-<h1 itemprop="name">Period</h1>
+<h1 itemprop="name">RangedUri</h1>
 
 
 
@@ -352,7 +355,7 @@ Summary:
         
             <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
          	
-        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.dash.mpd.Period</td>
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.dash.mpd.RangedUri</td>
     </tr>
     
 
@@ -368,7 +371,7 @@ Summary:
 
 
 <h2>Class Overview</h2>
-<p itemprop="articleBody">Encapsulates media content components over a contiguous period of time.
+<p itemprop="articleBody">Defines a range of data located at a <code><a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a></code>.
 </p>
 
 
@@ -424,9 +427,9 @@ Summary:
           public
           
           final
-          <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a>&gt;</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#adaptationSets">adaptationSets</a></td>
-          <td class="jd-descrcol" width="100%">The adaptation sets belonging to the period.</td>
+          long</nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html#length">length</a></td>
+          <td class="jd-descrcol" width="100%">The length of the range, or -1 to indicate that the range is unbounded.</td>
       </tr>
       
     
@@ -436,30 +439,8 @@ Summary:
           
           final
           long</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#durationMs">durationMs</a></td>
-          <td class="jd-descrcol" width="100%">The duration of the period in milliseconds, or -1 if the duration is unknown.</td>
-      </tr>
-      
-    
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#id">id</a></td>
-          <td class="jd-descrcol" width="100%">The period identifier, if one exists.</td>
-      </tr>
-      
-    
-      <tr class=" api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          long</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#startMs">startMs</a></td>
-          <td class="jd-descrcol" width="100%">The start time of the period in milliseconds.</td>
+          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html#start">start</a></td>
+          <td class="jd-descrcol" width="100%">The (zero based) index of the first byte of the range.</td>
       </tr>
       
     
@@ -488,8 +469,10 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#Period(java.lang.String, long, long, java.util.List<com.google.android.exoplayer.dash.mpd.AdaptationSet>)">Period</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, long start, long duration, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a>&gt; adaptationSets)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html#RangedUri(android.net.Uri, java.lang.String, long, long)">RangedUri</a></span>(<a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> baseUri, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> stringUri, long start, long length)</nobr>
         
+        <div class="jd-descrdiv">Constructs an ranged uri.</div>
+  
   </td></tr>
 
 
@@ -499,6 +482,83 @@ Summary:
 
 
 
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
+
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html#attemptMerge(com.google.android.exoplayer.dash.mpd.RangedUri)">attemptMerge</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a> other)</nobr>
+        
+        <div class="jd-descrdiv">Attempts to merge this <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> with another.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html#equals(java.lang.Object)">equals</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> obj)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html#getUri()">getUri</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Returns the <code><a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a></code> represented by the instance.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html#hashCode()">hashCode</a></span>()</nobr>
+        
+  </td></tr>
+
+
+
+</table>
 
 
 
@@ -745,36 +805,7 @@ From class
 
 
 
-<A NAME="adaptationSets"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a>&gt;
-      </span>
-        adaptationSets
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The adaptation sets belonging to the period.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="durationMs"></A>
+<A NAME="length"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -784,7 +815,7 @@ From class
         final 
         long
       </span>
-        durationMs
+        length
     </h4>
       <div class="api-level">
         
@@ -794,7 +825,7 @@ From class
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>The duration of the period in milliseconds, or -1 if the duration is unknown.
+  <div class="jd-tagdata jd-tagdescr"><p>The length of the range, or -1 to indicate that the range is unbounded.
 </p></div>
 
     
@@ -803,36 +834,7 @@ From class
 
 
 
-<A NAME="id"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
-      </span>
-        id
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The period identifier, if one exists.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="startMs"></A>
+<A NAME="start"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -842,7 +844,7 @@ From class
         final 
         long
       </span>
-        startMs
+        start
     </h4>
       <div class="api-level">
         
@@ -852,7 +854,7 @@ From class
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>The start time of the period in milliseconds.
+  <div class="jd-tagdata jd-tagdescr"><p>The (zero based) index of the first byte of the range.
 </p></div>
 
     
@@ -870,7 +872,7 @@ From class
 
 
 
-<A NAME="Period(java.lang.String, long, long, java.util.List<com.google.android.exoplayer.dash.mpd.AdaptationSet>)"></A>
+<A NAME="RangedUri(android.net.Uri, java.lang.String, long, long)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -882,8 +884,8 @@ From class
          
         
       </span>
-      <span class="sympad">Period</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, long start, long duration, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a>&gt; adaptationSets)</span>
+      <span class="sympad">RangedUri</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> baseUri, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> stringUri, long start, long length)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -893,25 +895,33 @@ From class
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Constructs an ranged uri.
+ <p>
+ The uri is built according to the following rules:
+ <ul>
+ <li>If <code>baseUri</code> is null or if <code>stringUri</code> is absolute, then <code>baseUri</code> is
+ ignored and the url consists solely of <code>stringUri</code>.
+ <li>If <code>stringUri</code> is null, then the url consists solely of <code>baseUrl</code>.
+ <li>Otherwise, the url consists of the concatenation of <code>baseUri</code> and <code>stringUri</code>.
+ </ul></p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
         <tr>
-          <th>id</td>
-          <td>The period identifier. May be null.</td>
+          <th>baseUri</td>
+          <td>An uri that can form the base of the uri defined by the instance.</td>
+        </tr>
+        <tr>
+          <th>stringUri</td>
+          <td>A relative or absolute uri in string form.</td>
         </tr>
         <tr>
           <th>start</td>
-          <td>The start time of the period in milliseconds.</td>
+          <td>The (zero based) index of the first byte of the range.</td>
         </tr>
         <tr>
-          <th>duration</td>
-          <td>The duration of the period in milliseconds, or -1 if the duration is unknown.</td>
-        </tr>
-        <tr>
-          <th>adaptationSets</td>
-          <td>The adaptation sets belonging to the period.
+          <th>length</td>
+          <td>The length of the range, or -1 to indicate that the range is unbounded.
 </td>
         </tr>
       </table>
@@ -931,6 +941,151 @@ From class
 
 <!-- ========= METHOD DETAIL ======== -->
 <!-- Public methdos -->
+
+<h2>Public Methods</h2>
+
+
+
+<A NAME="attemptMerge(com.google.android.exoplayer.dash.mpd.RangedUri)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a>
+      </span>
+      <span class="sympad">attemptMerge</span>
+      <span class="normal">(<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a> other)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Attempts to merge this <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> with another.
+ <p>
+ A merge is successful if both instances define the same <code><a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a></code>, and if one starte the
+ byte after the other ends, forming a contiguous region with no overlap.
+ <p>
+ If <code>other</code> is null then the merge is considered unsuccessful, and null is returned.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>other</td>
+          <td>The <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> to merge.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The merged <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> if the merge was successful. Null otherwise.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="equals(java.lang.Object)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        boolean
+      </span>
+      <span class="sympad">equals</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> obj)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+
+    </div>
+</div>
+
+
+<A NAME="getUri()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a>
+      </span>
+      <span class="sympad">getUri</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the <code><a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a></code> represented by the instance.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The <code><a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a></code> represented by the instance.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="hashCode()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">hashCode</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+
+    </div>
+</div>
+
+
 
 
 

@@ -83,7 +83,7 @@
 <meta name="viewport" content="width=device-width" />
 
 <link rel="shortcut icon" type="image/x-icon" href="../../../../../../../favicon.ico" />
-<title>Period - ExoPlayer | Android Developers</title>
+<title>UrlTemplate - ExoPlayer | Android Developers</title>
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
@@ -198,7 +198,7 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html">MediaPresentationDescription</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionFetcher.html">MediaPresentationDescriptionFetcher</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionParser.html">MediaPresentationDescriptionParser</a></li>
-          <li class="selected api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.MultiSegmentRepresentation.html">Representation.MultiSegmentRepresentation</a></li>
@@ -209,7 +209,7 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTemplate.html">SegmentBase.SegmentTemplate</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTimelineElement.html">SegmentBase.SegmentTimelineElement</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SingleSegmentBase.html">SegmentBase.SingleSegmentBase</a></li>
-          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UrlTemplate.html">UrlTemplate</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UrlTemplate.html">UrlTemplate</a></li>
       </ul>
     </li>
               
@@ -285,15 +285,12 @@ Summary:
 
 
 
-  <a href="#lfields">Fields</a>
+
+
+
+
+  <a href="#pubmethods">Methods</a>
   
-
-
-
-  &#124; <a href="#pubctors">Ctors</a>
-  
-
-
 
 
 
@@ -319,7 +316,7 @@ Summary:
     final 
     
     class
-<h1 itemprop="name">Period</h1>
+<h1 itemprop="name">UrlTemplate</h1>
 
 
 
@@ -352,7 +349,7 @@ Summary:
         
             <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
          	
-        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.dash.mpd.Period</td>
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.dash.mpd.UrlTemplate</td>
     </tr>
     
 
@@ -368,7 +365,9 @@ Summary:
 
 
 <h2>Class Overview</h2>
-<p itemprop="articleBody">Encapsulates media content components over a contiguous period of time.
+<p itemprop="articleBody">A template from which URLs can be built.
+ <p>
+ URLs are built according to the substitution rules defined in ISO/IEC 23009-1:2014 5.3.9.4.4.
 </p>
 
 
@@ -414,57 +413,6 @@ Summary:
 
 
 
-<!-- =========== FIELD SUMMARY =========== -->
-<table id="lfields" class="jd-sumtable"><tr><th colspan="12">Fields</th></tr>
-
-
-    
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a>&gt;</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#adaptationSets">adaptationSets</a></td>
-          <td class="jd-descrcol" width="100%">The adaptation sets belonging to the period.</td>
-      </tr>
-      
-    
-      <tr class=" api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          long</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#durationMs">durationMs</a></td>
-          <td class="jd-descrcol" width="100%">The duration of the period in milliseconds, or -1 if the duration is unknown.</td>
-      </tr>
-      
-    
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#id">id</a></td>
-          <td class="jd-descrcol" width="100%">The period identifier, if one exists.</td>
-      </tr>
-      
-    
-      <tr class=" api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          long</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#startMs">startMs</a></td>
-          <td class="jd-descrcol" width="100%">The start time of the period in milliseconds.</td>
-      </tr>
-      
-    
-
-</table>
 
 
 
@@ -472,8 +420,10 @@ Summary:
 
 
 
-<!-- ======== CONSTRUCTOR SUMMARY ======== -->
-<table id="pubctors" class="jd-sumtable"><tr><th colspan="12">Public Constructors</th></tr>
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
 
 
 
@@ -485,20 +435,36 @@ Summary:
             
             
             
-            </nobr>
+            <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#Period(java.lang.String, long, long, java.util.List<com.google.android.exoplayer.dash.mpd.AdaptationSet>)">Period</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, long start, long duration, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a>&gt; adaptationSets)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UrlTemplate.html#buildUri(java.lang.String, int, int, long)">buildUri</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> representationId, int segmentNumber, int bandwidth, long time)</nobr>
         
+        <div class="jd-descrdiv">Constructs a Uri from the template, substituting in the provided arguments.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UrlTemplate.html">UrlTemplate</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UrlTemplate.html#compile(java.lang.String)">compile</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> template)</nobr>
+        
+        <div class="jd-descrdiv">Compile an instance from the provided template string.</div>
+  
   </td></tr>
 
 
 
 </table>
-
-
-
-
 
 
 
@@ -739,188 +705,7 @@ From class
 <!-- Fields -->
 
 
-<!-- ========= FIELD DETAIL ======== -->
-<h2>Fields</h2>
-
-
-
-
-<A NAME="adaptationSets"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a>&gt;
-      </span>
-        adaptationSets
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The adaptation sets belonging to the period.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="durationMs"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        long
-      </span>
-        durationMs
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The duration of the period in milliseconds, or -1 if the duration is unknown.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="id"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
-      </span>
-        id
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The period identifier, if one exists.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="startMs"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        long
-      </span>
-        startMs
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The start time of the period in milliseconds.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-
 <!-- Public ctors -->
-
-
-<!-- ========= CONSTRUCTOR DETAIL ======== -->
-<h2>Public Constructors</h2>
-
-
-
-<A NAME="Period(java.lang.String, long, long, java.util.List<com.google.android.exoplayer.dash.mpd.AdaptationSet>)"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-         
-         
-         
-        
-      </span>
-      <span class="sympad">Period</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, long start, long duration, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a>&gt; adaptationSets)</span>
-    </h4>
-      <div class="api-level">
-        <div></div>
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p></p></div>
-  <div class="jd-tagdata">
-      <h5 class="jd-tagtitle">Parameters</h5>
-      <table class="jd-tagtable">
-        <tr>
-          <th>id</td>
-          <td>The period identifier. May be null.</td>
-        </tr>
-        <tr>
-          <th>start</td>
-          <td>The start time of the period in milliseconds.</td>
-        </tr>
-        <tr>
-          <th>duration</td>
-          <td>The duration of the period in milliseconds, or -1 if the duration is unknown.</td>
-        </tr>
-        <tr>
-          <th>adaptationSets</td>
-          <td>The adaptation sets belonging to the period.
-</td>
-        </tr>
-      </table>
-  </div>
-
-    </div>
-</div>
-
-
 
 
 
@@ -931,6 +716,120 @@ From class
 
 <!-- ========= METHOD DETAIL ======== -->
 <!-- Public methdos -->
+
+<h2>Public Methods</h2>
+
+
+
+<A NAME="buildUri(java.lang.String, int, int, long)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
+      </span>
+      <span class="sympad">buildUri</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> representationId, int segmentNumber, int bandwidth, long time)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Constructs a Uri from the template, substituting in the provided arguments.
+ <p>
+ Arguments whose corresponding identifiers are not present in the template will be ignored.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>representationId</td>
+          <td>The representation identifier.</td>
+        </tr>
+        <tr>
+          <th>segmentNumber</td>
+          <td>The segment number.</td>
+        </tr>
+        <tr>
+          <th>bandwidth</td>
+          <td>The bandwidth.</td>
+        </tr>
+        <tr>
+          <th>time</td>
+          <td>The time as specified by the segment timeline.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The built Uri.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="compile(java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UrlTemplate.html">UrlTemplate</a>
+      </span>
+      <span class="sympad">compile</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> template)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Compile an instance from the provided template string.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>template</td>
+          <td>The template.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The compiled instance.</li></ul>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Throws</h5>
+      <table class="jd-tagtable">  
+        <tr>
+            <th><a href="http://developer.android.com/reference/java/lang/IllegalArgumentException.html">IllegalArgumentException</a></td>
+            <td>If the template string is malformed.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
 
 
 

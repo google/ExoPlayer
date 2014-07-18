@@ -638,7 +638,7 @@ android.os.AsyncTask
             <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.html">SmoothStreamingManifest</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifestFetcher.html#parse(java.io.InputStream, java.lang.String, java.lang.String)">parse</a></span>(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> stream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifestFetcher.html#parse(java.io.InputStream, java.lang.String, java.lang.String, android.net.Uri)">parse</a></span>(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> stream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> baseUrl)</nobr>
         
         <div class="jd-descrdiv">Reads the <code><a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a></code> and parses it into a manifest.</div>
   
@@ -720,7 +720,7 @@ From class
             T</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#parse(java.io.InputStream, java.lang.String, java.lang.String)">parse</a></span>(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> stream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#parse(java.io.InputStream, java.lang.String, java.lang.String, android.net.Uri)">parse</a></span>(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> stream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> baseUrl)</nobr>
         
         <div class="jd-descrdiv">Reads the <code><a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a></code> and parses it into a manifest.</div>
   
@@ -1336,7 +1336,7 @@ From class
 
 
 
-<A NAME="parse(java.io.InputStream, java.lang.String, java.lang.String)"></A>
+<A NAME="parse(java.io.InputStream, java.lang.String, java.lang.String, android.net.Uri)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1349,7 +1349,7 @@ From class
         <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.html">SmoothStreamingManifest</a>
       </span>
       <span class="sympad">parse</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> stream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> stream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> baseUrl)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1375,6 +1375,11 @@ From class
         <tr>
           <th>contentId</td>
           <td>The content id of the media.</td>
+        </tr>
+        <tr>
+          <th>baseUrl</td>
+          <td>Required where the manifest contains urls that are relative to a base url. May
+     be null where this is not the case.</td>
         </tr>
       </table>
   </div>

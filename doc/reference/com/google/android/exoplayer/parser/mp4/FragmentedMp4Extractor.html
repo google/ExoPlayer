@@ -422,29 +422,43 @@ Summary:
     
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#RESULT_NEED_SAMPLE_HOLDER">RESULT_NEED_SAMPLE_HOLDER</a></td>
+        <td class="jd-descrcol" width="100%">The next thing to be read is a sample, but a <code><a href="../../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a></code> was not supplied.</td>
+    </tr>
+    
+    
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#RESULT_READ_MOOV">RESULT_READ_MOOV</a></td>
         <td class="jd-descrcol" width="100%">A moov atom was read.</td>
     </tr>
     
     
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#RESULT_READ_SAMPLE_FULL">RESULT_READ_SAMPLE_FULL</a></td>
         <td class="jd-descrcol" width="100%">A media sample was read.</td>
     </tr>
     
     
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#RESULT_READ_SAMPLE_PARTIAL">RESULT_READ_SAMPLE_PARTIAL</a></td>
         <td class="jd-descrcol" width="100%">A media sample was partially read.</td>
     </tr>
     
     
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#RESULT_READ_SIDX">RESULT_READ_SIDX</a></td>
         <td class="jd-descrcol" width="100%">A sidx atom was read.</td>
+    </tr>
+    
+    
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME">WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME</a></td>
+        <td class="jd-descrcol" width="100%">Flag to work around an issue in some video streams where every frame is marked as a sync frame.</td>
     </tr>
     
     
@@ -494,7 +508,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#FragmentedMp4Extractor(boolean)">FragmentedMp4Extractor</a></span>(boolean enableSmoothStreamingWorkarounds)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#FragmentedMp4Extractor(int)">FragmentedMp4Extractor</a></span>(int workaroundFlags)</nobr>
         
   </td></tr>
 
@@ -981,6 +995,45 @@ From class
 
 
 
+<A NAME="RESULT_NEED_SAMPLE_HOLDER"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        RESULT_NEED_SAMPLE_HOLDER
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The next thing to be read is a sample, but a <code><a href="../../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a></code> was not supplied.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                64
+                (0x00000040)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
 <A NAME="RESULT_READ_MOOV"></A>
 
 <div class="jd-details api apilevel-"> 
@@ -1138,6 +1191,49 @@ From class
 
 
 
+<A NAME="WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Flag to work around an issue in some video streams where every frame is marked as a sync frame.
+ The workaround overrides the sync frame flags in the stream, forcing them to false except for
+ the first sample in each segment.
+ <p>
+ This flag does nothing if the stream is not a video stream.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                1
+                (0x00000001)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
 
 <!-- Fields -->
 
@@ -1179,7 +1275,7 @@ From class
 </div>
 
 
-<A NAME="FragmentedMp4Extractor(boolean)"></A>
+<A NAME="FragmentedMp4Extractor(int)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1192,7 +1288,7 @@ From class
         
       </span>
       <span class="sympad">FragmentedMp4Extractor</span>
-      <span class="normal">(boolean enableSmoothStreamingWorkarounds)</span>
+      <span class="normal">(int workaroundFlags)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1207,10 +1303,9 @@ From class
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
         <tr>
-          <th>enableSmoothStreamingWorkarounds</td>
-          <td>Set to true if this extractor will be used to parse
-     SmoothStreaming streams. This will enable workarounds for SmoothStreaming violations of
-     the ISO base media file format (ISO 14496-12). Set to false otherwise.
+          <th>workaroundFlags</td>
+          <td>Flags to allow parsing of faulty streams.
+     <code><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME">WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME</a></code> is currently the only flag defined.
 </td>
         </tr>
       </table>
@@ -1457,7 +1552,8 @@ From class
         </tr>
         <tr>
           <th>out</td>
-          <td>A <code><a href="../../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a></code> into which the sample should be read.</td>
+          <td>A <code><a href="../../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a></code> into which the next sample should be read. If null then
+     <code><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#RESULT_NEED_SAMPLE_HOLDER">RESULT_NEED_SAMPLE_HOLDER</a></code> will be returned once a sample has been reached.</td>
         </tr>
       </table>
   </div>

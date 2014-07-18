@@ -677,9 +677,9 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/WebmMediaChunk.html#read(com.google.android.exoplayer.SampleHolder)">read</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> holder)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/WebmMediaChunk.html#prepare()">prepare</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Reads the next media sample from the chunk.</div>
+        <div class="jd-descrdiv">Prepares the chunk for reading.</div>
   
   </td></tr>
 
@@ -695,9 +695,45 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/WebmMediaChunk.html#read(com.google.android.exoplayer.SampleHolder)">read</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> holder)</nobr>
+        
+        <div class="jd-descrdiv">Reads the next media sample from the chunk.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/WebmMediaChunk.html#seekTo(long, boolean)">seekTo</a></span>(long positionUs, boolean allowNoop)</nobr>
         
         <div class="jd-descrdiv">Seeks to the specified position within the chunk.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/WebmMediaChunk.html#seekToStart()">seekToStart</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Seeks to the beginning of the chunk.</div>
   
   </td></tr>
 
@@ -801,6 +837,24 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html#prepare()">prepare</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Prepares the chunk for reading.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html#read(com.google.android.exoplayer.SampleHolder)">read</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> holder)</nobr>
         
         <div class="jd-descrdiv">Reads the next media sample from the chunk.</div>
@@ -809,7 +863,7 @@ From class
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             abstract
             
@@ -827,11 +881,11 @@ From class
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
+            abstract
             
             
-            final
             
             
             void</nobr>
@@ -1545,7 +1599,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Returns the media format of the samples contained within this chunk.</p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the media format of the samples contained within this chunk.
+ <p>
+ Should only be called after the chunk has been successfully prepared.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
       <ul class="nolist"><li>The sample media format.
@@ -1579,11 +1635,50 @@ From interface
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Returns the pssh information associated with the chunk.</p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the pssh information associated with the chunk.
+ <p>
+ Should only be called after the chunk has been successfully prepared.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
       <ul class="nolist"><li>The pssh information.
 </li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="prepare()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        boolean
+      </span>
+      <span class="sympad">prepare</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Prepares the chunk for reading. Does nothing if the chunk is already prepared.
+ <p>
+ Preparation may require consuming some of the chunk. If the data is not yet available then
+ this method will return <code>false</code> rather than block. The method can be called repeatedly
+ until the return value indicates success.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>True if the chunk was prepared. False otherwise.</li></ul>
   </div>
 
     </div>
@@ -1613,7 +1708,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Reads the next media sample from the chunk.</p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Reads the next media sample from the chunk.
+ <p>
+ Should only be called after the chunk has been successfully prepared.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
@@ -1677,6 +1774,36 @@ From interface
      <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html#read(com.google.android.exoplayer.SampleHolder)">read(SampleHolder)</a></code>. False otherwise.
 </li></ul>
   </div>
+
+    </div>
+</div>
+
+
+<A NAME="seekToStart()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">seekToStart</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Seeks to the beginning of the chunk.
+</p></div>
 
     </div>
 </div>

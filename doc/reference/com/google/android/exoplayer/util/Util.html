@@ -475,6 +475,82 @@ Summary:
             
             
             static
+            &lt;T&gt;
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#binarySearchCeil(java.util.List<? extends java.lang.Comparable<? super T>>, T, boolean, boolean)">binarySearchCeil</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="http://developer.android.com/reference/java/lang/Comparable.html">Comparable</a>&lt;?&nbsp;super&nbsp;T&gt;&gt; list, T key, boolean inclusive, boolean stayInBounds)</nobr>
+        
+        <div class="jd-descrdiv">Returns the index of the smallest value in an list that is greater than (or optionally equal
+ to) a specified key.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#binarySearchCeil(long[], long, boolean, boolean)">binarySearchCeil</a></span>(long[] a, long key, boolean inclusive, boolean stayInBounds)</nobr>
+        
+        <div class="jd-descrdiv">Returns the index of the smallest value in an array that is greater than (or optionally equal
+ to) a specified key.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            &lt;T&gt;
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#binarySearchFloor(java.util.List<? extends java.lang.Comparable<? super T>>, T, boolean, boolean)">binarySearchFloor</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="http://developer.android.com/reference/java/lang/Comparable.html">Comparable</a>&lt;?&nbsp;super&nbsp;T&gt;&gt; list, T key, boolean inclusive, boolean stayInBounds)</nobr>
+        
+        <div class="jd-descrdiv">Returns the index of the largest value in an list that is less than (or optionally equal to)
+ a specified key.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#binarySearchFloor(long[], long, boolean, boolean)">binarySearchFloor</a></span>(long[] a, long key, boolean inclusive, boolean stayInBounds)</nobr>
+        
+        <div class="jd-descrdiv">Returns the index of the largest value in an array that is less than (or optionally equal to)
+ a specified key.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
             
             void</nobr>
         </td>
@@ -542,6 +618,25 @@ Summary:
 
 	 
     <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#parseBaseUri(java.lang.String)">parseBaseUri</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> uriString)</nobr>
+        
+        <div class="jd-descrdiv">Like <code><a href="http://developer.android.com/reference/android/net/Uri.html#parse(java.lang.String)">parse(String)</a></code>, but discards the part of the uri that follows the final
+ forward slash.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -901,6 +996,236 @@ From class
 </div>
 
 
+<A NAME="binarySearchCeil(java.util.List<? extends java.lang.Comparable<? super T>>, T, boolean, boolean)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">binarySearchCeil</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="http://developer.android.com/reference/java/lang/Comparable.html">Comparable</a>&lt;?&nbsp;super&nbsp;T&gt;&gt; list, T key, boolean inclusive, boolean stayInBounds)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the index of the smallest value in an list that is greater than (or optionally equal
+ to) a specified key.
+ <p>
+ The search is performed using a binary search algorithm, and so the list must be sorted.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>list</td>
+          <td>The list to search.</td>
+        </tr>
+        <tr>
+          <th>key</td>
+          <td>The key being searched for.</td>
+        </tr>
+        <tr>
+          <th>inclusive</td>
+          <td>If the key is present in the list, whether to return the corresponding index.
+     If false then the returned index corresponds to the smallest value in the list that is
+     strictly greater than the key.</td>
+        </tr>
+        <tr>
+          <th>stayInBounds</td>
+          <td>If true, then <code>(list.size() - 1)</code> will be returned in the case that
+     the key is greater than the largest value in the list. If false then <code>list.size()</code>
+     will be returned.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="binarySearchCeil(long[], long, boolean, boolean)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">binarySearchCeil</span>
+      <span class="normal">(long[] a, long key, boolean inclusive, boolean stayInBounds)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the index of the smallest value in an array that is greater than (or optionally equal
+ to) a specified key.
+ <p>
+ The search is performed using a binary search algorithm, and so the array must be sorted.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>a</td>
+          <td>The array to search.</td>
+        </tr>
+        <tr>
+          <th>key</td>
+          <td>The key being searched for.</td>
+        </tr>
+        <tr>
+          <th>inclusive</td>
+          <td>If the key is present in the array, whether to return the corresponding index.
+     If false then the returned index corresponds to the smallest value in the array that is
+     strictly greater than the key.</td>
+        </tr>
+        <tr>
+          <th>stayInBounds</td>
+          <td>If true, then <code>(a.length - 1)</code> will be returned in the case that the
+     key is greater than the largest value in the array. If false then <code>a.length</code> will be
+     returned.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="binarySearchFloor(java.util.List<? extends java.lang.Comparable<? super T>>, T, boolean, boolean)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">binarySearchFloor</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="http://developer.android.com/reference/java/lang/Comparable.html">Comparable</a>&lt;?&nbsp;super&nbsp;T&gt;&gt; list, T key, boolean inclusive, boolean stayInBounds)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the index of the largest value in an list that is less than (or optionally equal to)
+ a specified key.
+ <p>
+ The search is performed using a binary search algorithm, and so the list must be sorted.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>list</td>
+          <td>The list to search.</td>
+        </tr>
+        <tr>
+          <th>key</td>
+          <td>The key being searched for.</td>
+        </tr>
+        <tr>
+          <th>inclusive</td>
+          <td>If the key is present in the list, whether to return the corresponding index.
+     If false then the returned index corresponds to the largest value in the list that is
+     strictly less than the key.</td>
+        </tr>
+        <tr>
+          <th>stayInBounds</td>
+          <td>If true, then 0 will be returned in the case that the key is smaller than
+     the smallest value in the list. If false then -1 will be returned.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="binarySearchFloor(long[], long, boolean, boolean)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">binarySearchFloor</span>
+      <span class="normal">(long[] a, long key, boolean inclusive, boolean stayInBounds)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the index of the largest value in an array that is less than (or optionally equal to)
+ a specified key.
+ <p>
+ The search is performed using a binary search algorithm, and so the array must be sorted.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>a</td>
+          <td>The array to search.</td>
+        </tr>
+        <tr>
+          <th>key</td>
+          <td>The key being searched for.</td>
+        </tr>
+        <tr>
+          <th>inclusive</td>
+          <td>If the key is present in the array, whether to return the corresponding index.
+     If false then the returned index corresponds to the largest value in the array that is
+     strictly less than the key.</td>
+        </tr>
+        <tr>
+          <th>stayInBounds</td>
+          <td>If true, then 0 will be returned in the case that the key is smaller than
+     the smallest value in the array. If false then -1 will be returned.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
 <A NAME="closeQuietly(com.google.android.exoplayer.upstream.DataSource)"></A>
 
 <div class="jd-details api apilevel-"> 
@@ -1058,6 +1383,50 @@ From class
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
       <ul class="nolist"><li>The executor.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="parseBaseUri(java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a>
+      </span>
+      <span class="sympad">parseBaseUri</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> uriString)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Like <code><a href="http://developer.android.com/reference/android/net/Uri.html#parse(java.lang.String)">parse(String)</a></code>, but discards the part of the uri that follows the final
+ forward slash.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>uriString</td>
+          <td>An RFC 2396-compliant, encoded uri.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The parsed base uri.
 </li></ul>
   </div>
 

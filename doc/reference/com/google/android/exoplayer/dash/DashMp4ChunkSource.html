@@ -190,11 +190,17 @@ type="text/css">
             <ul>
               
               
+    <li><h2>Interfaces</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html">DashSegmentIndex</a></li>
+      </ul>
+    </li>
               
     <li><h2>Classes</h2>
       <ul>
           <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html">DashMp4ChunkSource</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWebmChunkSource.html">DashWebmChunkSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWrappingSegmentIndex.html">DashWrappingSegmentIndex</a></li>
       </ul>
     </li>
               
@@ -275,14 +281,11 @@ Summary:
 
 
 
-  <a href="#constants">Constants</a>
-  
 
 
 
 
-
-  &#124; <a href="#pubctors">Ctors</a>
+  <a href="#pubctors">Ctors</a>
   
 
 
@@ -409,22 +412,6 @@ Summary:
 
 
 
-<!-- =========== ENUM CONSTANT SUMMARY =========== -->
-<table id="constants" class="jd-sumtable"><tr><th colspan="12">Constants</th></tr>
-
-
-    
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol">int</td>
-        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html#DEFAULT_NUM_SEGMENTS_PER_CHUNK">DEFAULT_NUM_SEGMENTS_PER_CHUNK</a></td>
-        <td class="jd-descrcol" width="100%"></td>
-    </tr>
-    
-    
-
-</table>
-
-
 
 
 
@@ -452,22 +439,6 @@ Summary:
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html#DashMp4ChunkSource(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.chunk.FormatEvaluator, com.google.android.exoplayer.dash.mpd.Representation...)">DashMp4ChunkSource</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.html">FormatEvaluator</a> evaluator, <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation...</a> representations)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            
-            
-            </nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html#DashMp4ChunkSource(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.chunk.FormatEvaluator, int, com.google.android.exoplayer.dash.mpd.Representation...)">DashMp4ChunkSource</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.html">FormatEvaluator</a> evaluator, int numSegmentsPerChunk, <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation...</a> representations)</nobr>
         
   </td></tr>
 
@@ -514,7 +485,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html#disable(java.util.List<com.google.android.exoplayer.chunk.MediaChunk>)">disable</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html#disable(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>)">disable</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</nobr>
         
         <div class="jd-descrdiv">Called when the source is disabled.</div>
   
@@ -610,6 +581,25 @@ Summary:
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html#getTrackInfo()">getTrackInfo</a></span>()</nobr>
         
         <div class="jd-descrdiv">Gets information about the track for which this instance provides <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></code>s.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html#onChunkLoadError(com.google.android.exoplayer.chunk.Chunk, java.lang.Exception)">onChunkLoadError</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a> chunk, <a href="http://developer.android.com/reference/java/lang/Exception.html">Exception</a> e)</nobr>
+        
+        <div class="jd-descrdiv">Invoked when the <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a></code> encounters an error loading a chunk obtained from
+ this source.</div>
   
   </td></tr>
 
@@ -879,7 +869,7 @@ From interface
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#disable(java.util.List<com.google.android.exoplayer.chunk.MediaChunk>)">disable</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#disable(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>)">disable</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</nobr>
         
         <div class="jd-descrdiv">Called when the source is disabled.</div>
   
@@ -979,6 +969,25 @@ From interface
   </td></tr>
 
 
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#onChunkLoadError(com.google.android.exoplayer.chunk.Chunk, java.lang.Exception)">onChunkLoadError</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a> chunk, <a href="http://developer.android.com/reference/java/lang/Exception.html">Exception</a> e)</nobr>
+        
+        <div class="jd-descrdiv">Invoked when the <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a></code> encounters an error loading a chunk obtained from
+ this source.</div>
+  
+  </td></tr>
+
+
 </table>
   </div>
 </div>
@@ -1006,51 +1015,6 @@ From interface
 
 
 <!-- Constants -->
-
-
-<!-- ========= ENUM CONSTANTS DETAIL ======== -->
-<h2>Constants</h2>
-
-
-
-
-<A NAME="DEFAULT_NUM_SEGMENTS_PER_CHUNK"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-        static 
-        final 
-        int
-      </span>
-        DEFAULT_NUM_SEGMENTS_PER_CHUNK
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p></p></div>
-
-    
-        <div class="jd-tagdata">
-        <span class="jd-tagtitle">Constant Value: </span>
-        <span>
-            
-                1
-                (0x00000001)
-            
-        </span>
-        </div>
-    
-    </div>
-</div>
-
-
 
 
 <!-- Fields -->
@@ -1098,58 +1062,6 @@ From interface
         <tr>
           <th>evaluator</td>
           <td>Selects from the available formats.</td>
-        </tr>
-        <tr>
-          <th>representations</td>
-          <td>The representations to be considered by the source.
-</td>
-        </tr>
-      </table>
-  </div>
-
-    </div>
-</div>
-
-
-<A NAME="DashMp4ChunkSource(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.chunk.FormatEvaluator, int, com.google.android.exoplayer.dash.mpd.Representation...)"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-         
-         
-         
-        
-      </span>
-      <span class="sympad">DashMp4ChunkSource</span>
-      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.html">FormatEvaluator</a> evaluator, int numSegmentsPerChunk, <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation...</a> representations)</span>
-    </h4>
-      <div class="api-level">
-        <div></div>
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p></p></div>
-  <div class="jd-tagdata">
-      <h5 class="jd-tagtitle">Parameters</h5>
-      <table class="jd-tagtable">
-        <tr>
-          <th>dataSource</td>
-          <td>A <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a></code> suitable for loading the media data.</td>
-        </tr>
-        <tr>
-          <th>evaluator</td>
-          <td>Selects from the available formats.</td>
-        </tr>
-        <tr>
-          <th>numSegmentsPerChunk</td>
-          <td>The number of segments (as defined in the stream's segment index)
-     that should be grouped into a single chunk.</td>
         </tr>
         <tr>
           <th>representations</td>
@@ -1217,7 +1129,7 @@ From interface
 </div>
 
 
-<A NAME="disable(java.util.List<com.google.android.exoplayer.chunk.MediaChunk>)"></A>
+<A NAME="disable(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1230,7 +1142,7 @@ From interface
         void
       </span>
       <span class="sympad">disable</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1449,6 +1361,50 @@ From interface
       <h5 class="jd-tagtitle">Returns</h5>
       <ul class="nolist"><li>Information about the track.
 </li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="onChunkLoadError(com.google.android.exoplayer.chunk.Chunk, java.lang.Exception)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">onChunkLoadError</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a> chunk, <a href="http://developer.android.com/reference/java/lang/Exception.html">Exception</a> e)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Invoked when the <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a></code> encounters an error loading a chunk obtained from
+ this source.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>chunk</td>
+          <td>The chunk whose load encountered the error.</td>
+        </tr>
+        <tr>
+          <th>e</td>
+          <td>The error.
+</td>
+        </tr>
+      </table>
   </div>
 
     </div>

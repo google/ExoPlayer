@@ -703,6 +703,24 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html#prepare()">prepare</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Prepares the chunk for reading.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html#read(com.google.android.exoplayer.SampleHolder)">read</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> holder)</nobr>
         
         <div class="jd-descrdiv">Reads the next media sample from the chunk.</div>
@@ -711,7 +729,7 @@ Summary:
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             abstract
             
@@ -729,11 +747,11 @@ Summary:
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
+            abstract
             
             
-            final
             
             
             void</nobr>
@@ -1545,7 +1563,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Returns the media format of the samples contained within this chunk.</p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the media format of the samples contained within this chunk.
+ <p>
+ Should only be called after the chunk has been successfully prepared.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
       <ul class="nolist"><li>The sample media format.
@@ -1579,7 +1599,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Returns the pssh information associated with the chunk.</p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the pssh information associated with the chunk.
+ <p>
+ Should only be called after the chunk has been successfully prepared.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
       <ul class="nolist"><li>The pssh information.
@@ -1624,6 +1646,53 @@ From interface
 </div>
 
 
+<A NAME="prepare()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        boolean
+      </span>
+      <span class="sympad">prepare</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Prepares the chunk for reading. Does nothing if the chunk is already prepared.
+ <p>
+ Preparation may require consuming some of the chunk. If the data is not yet available then
+ this method will return <code>false</code> rather than block. The method can be called repeatedly
+ until the return value indicates success.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>True if the chunk was prepared. False otherwise.</li></ul>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Throws</h5>
+      <table class="jd-tagtable">  
+        <tr>
+            <th><a href="../../../../../../reference/com/google/android/exoplayer/ParserException.html">ParserException</a></td>
+            <td>If an error occurs parsing the media data.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
 <A NAME="read(com.google.android.exoplayer.SampleHolder)"></A>
 
 <div class="jd-details api apilevel-"> 
@@ -1647,7 +1716,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Reads the next media sample from the chunk.</p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Reads the next media sample from the chunk.
+ <p>
+ Should only be called after the chunk has been successfully prepared.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
@@ -1737,8 +1808,8 @@ From interface
       <span class="normal">
         public 
          
-        final 
          
+        abstract 
          
         void
       </span>

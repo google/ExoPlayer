@@ -1885,8 +1885,8 @@ From interface
   <div class="jd-tagdata jd-tagdescr"><p>Prepares the source.
  <p>
  Preparation may require reading from the data source (e.g. to determine the available tracks
- and formats). If insufficient data is available then the call will return rather than block.
- The method can be called repeatedly until the return value indicates success.</p></div>
+ and formats). If insufficient data is available then the call will return <code>false</code> rather
+ than block. The method can be called repeatedly until the return value indicates success.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
       <ul class="nolist"><li>True if the source was prepared successfully, false otherwise.</li></ul>

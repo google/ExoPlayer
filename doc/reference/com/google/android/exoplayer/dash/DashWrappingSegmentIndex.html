@@ -83,7 +83,7 @@
 <meta name="viewport" content="width=device-width" />
 
 <link rel="shortcut icon" type="image/x-icon" href="../../../../../../favicon.ico" />
-<title>Format - ExoPlayer | Android Developers</title>
+<title>DashWrappingSegmentIndex - ExoPlayer | Android Developers</title>
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
@@ -153,9 +153,9 @@ type="text/css">
                 
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
-    <li class="selected api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
+    <li class="selected api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
@@ -192,28 +192,15 @@ type="text/css">
               
     <li><h2>Interfaces</h2>
       <ul>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.EventListener.html">ChunkSampleSource.EventListener</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.html">FormatEvaluator</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html">DashSegmentIndex</a></li>
       </ul>
     </li>
               
     <li><h2>Classes</h2>
       <ul>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html">ChunkOperationHolder</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a></li>
-          <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.DecreasingBandwidthComparator.html">Format.DecreasingBandwidthComparator</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.AdaptiveEvaluator.html">FormatEvaluator.AdaptiveEvaluator</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.Evaluation.html">FormatEvaluator.Evaluation</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.FixedEvaluator.html">FormatEvaluator.FixedEvaluator</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.RandomEvaluator.html">FormatEvaluator.RandomEvaluator</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html">Mp4MediaChunk</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MultiTrackChunkSource.html">MultiTrackChunkSource</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/SingleSampleMediaChunk.html">SingleSampleMediaChunk</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/WebmMediaChunk.html">WebmMediaChunk</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html">DashMp4ChunkSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWebmChunkSource.html">DashWebmChunkSource</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWrappingSegmentIndex.html">DashWrappingSegmentIndex</a></li>
       </ul>
     </li>
               
@@ -278,13 +265,18 @@ type="text/css">
   
   
 
+  
+   
+  
+  
+  
+  
+
 
 <div class="sum-details-links">
 
 Summary:
 
-  <a href="#nestedclasses">Nested Classes</a>
-  
 
 
 
@@ -292,12 +284,8 @@ Summary:
 
 
 
-  &#124; <a href="#lfields">Fields</a>
-  
 
-
-
-  &#124; <a href="#pubctors">Ctors</a>
+  <a href="#pubctors">Ctors</a>
   
 
 
@@ -329,7 +317,7 @@ Summary:
      
     
     class
-<h1 itemprop="name">Format</h1>
+<h1 itemprop="name">DashWrappingSegmentIndex</h1>
 
 
 
@@ -340,6 +328,11 @@ Summary:
   
 
   
+  
+      implements 
+      
+        <a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html">DashSegmentIndex</a> 
+      
   
   
 
@@ -362,7 +355,7 @@ Summary:
         
             <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
          	
-        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.chunk.Format</td>
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.dash.DashWrappingSegmentIndex</td>
     </tr>
     
 
@@ -378,7 +371,8 @@ Summary:
 
 
 <h2>Class Overview</h2>
-<p itemprop="articleBody">A format definition for streams.
+<p itemprop="articleBody">An implementation of <code><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html">DashSegmentIndex</a></code> that wraps a <code><a href="../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html">SegmentIndex</a></code> parsed from a
+ media stream.
 </p>
 
 
@@ -409,23 +403,6 @@ Summary:
 
 
 
-<!-- ======== NESTED CLASS SUMMARY ======== -->
-<table id="nestedclasses" class="jd-sumtable"><tr><th colspan="12">Nested Classes</th></tr>
-
-
-  
-    <tr class="alt-color api apilevel-" >
-      <td class="jd-typecol"><nobr>
-        
-         
-         
-        
-        class</nobr></td>
-      <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.DecreasingBandwidthComparator.html">Format.DecreasingBandwidthComparator</a></td>
-      <td class="jd-descrcol" width="100%">Sorts <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a></code> objects in order of decreasing bandwidth.&nbsp;</td>
-    </tr>
-    
-    
 
 
 
@@ -439,109 +416,6 @@ Summary:
 
 
 
-
-
-
-
-
-<!-- =========== FIELD SUMMARY =========== -->
-<table id="lfields" class="jd-sumtable"><tr><th colspan="12">Fields</th></tr>
-
-
-    
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          int</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#audioSamplingRate">audioSamplingRate</a></td>
-          <td class="jd-descrcol" width="100%">The audio sampling rate in Hz, or -1 for non-audio formats.</td>
-      </tr>
-      
-    
-      <tr class=" api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          int</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#bandwidth">bandwidth</a></td>
-          <td class="jd-descrcol" width="100%"><em>
-      This field is deprecated.
-    Use <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#bitrate">bitrate</a></code>. However note that the units of measurement are different.
-</em></td>
-      </tr>
-      
-    
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          int</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#bitrate">bitrate</a></td>
-          <td class="jd-descrcol" width="100%">The average bandwidth in bits per second.</td>
-      </tr>
-      
-    
-      <tr class=" api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          int</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#height">height</a></td>
-          <td class="jd-descrcol" width="100%">The height of the video in pixels, or -1 for non-video formats.</td>
-      </tr>
-      
-    
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#id">id</a></td>
-          <td class="jd-descrcol" width="100%">An identifier for the format.</td>
-      </tr>
-      
-    
-      <tr class=" api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#mimeType">mimeType</a></td>
-          <td class="jd-descrcol" width="100%">The mime type of the format.</td>
-      </tr>
-      
-    
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          int</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#numChannels">numChannels</a></td>
-          <td class="jd-descrcol" width="100%">The number of audio channels, or -1 for non-audio formats.</td>
-      </tr>
-      
-    
-      <tr class=" api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          int</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#width">width</a></td>
-          <td class="jd-descrcol" width="100%">The width of the video in pixels, or -1 for non-video formats.</td>
-      </tr>
-      
-    
-
-</table>
 
 
 
@@ -565,7 +439,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#Format(java.lang.String, java.lang.String, int, int, int, int, int)">Format</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int width, int height, int numChannels, int audioSamplingRate, int bitrate)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWrappingSegmentIndex.html#DashWrappingSegmentIndex(com.google.android.exoplayer.parser.SegmentIndex, android.net.Uri, long)">DashWrappingSegmentIndex</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html">SegmentIndex</a> segmentIndex, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> uri, long indexAnchor)</nobr>
         
   </td></tr>
 
@@ -591,12 +465,12 @@ Summary:
             
             
             
-            boolean</nobr>
+            long</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#equals(java.lang.Object)">equals</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> obj)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWrappingSegmentIndex.html#getDurationUs(int)">getDurationUs</a></span>(int segmentNum)</nobr>
         
-        <div class="jd-descrdiv">Implements equality based on <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#id">id</a></code> only.</div>
+        <div class="jd-descrdiv">Returns the duration of a segment.</div>
   
   </td></tr>
 
@@ -612,8 +486,82 @@ Summary:
             int</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#hashCode()">hashCode</a></span>()</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWrappingSegmentIndex.html#getFirstSegmentNum()">getFirstSegmentNum</a></span>()</nobr>
         
+        <div class="jd-descrdiv">Returns the segment number of the first segment.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWrappingSegmentIndex.html#getLastSegmentNum()">getLastSegmentNum</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Returns the segment number of the last segment.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWrappingSegmentIndex.html#getSegmentNum(long)">getSegmentNum</a></span>(long timeUs)</nobr>
+        
+        <div class="jd-descrdiv">Returns the segment number of the segment containing a given media time.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWrappingSegmentIndex.html#getSegmentUrl(int)">getSegmentUrl</a></span>(int segmentNum)</nobr>
+        
+        <div class="jd-descrdiv">Returns a <code><a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> defining the location of a segment.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            long</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWrappingSegmentIndex.html#getTimeUs(int)">getTimeUs</a></span>(int segmentNum)</nobr>
+        
+        <div class="jd-descrdiv">Returns the start time of a segment.</div>
+  
   </td></tr>
 
 
@@ -833,6 +781,140 @@ From class
 </td></tr>
 
 
+
+<tr class="api apilevel-" >
+<td colspan="12">
+  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-com.google.android.exoplayer.dash.DashSegmentIndex" class="jd-expando-trigger closed"
+          ><img id="inherited-methods-com.google.android.exoplayer.dash.DashSegmentIndex-trigger"
+          src="../../../../../../assets/images/triangle-closed.png"
+          class="jd-expando-trigger-img" /></a>
+From interface
+
+  <a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html">com.google.android.exoplayer.dash.DashSegmentIndex</a>
+
+<div id="inherited-methods-com.google.android.exoplayer.dash.DashSegmentIndex">
+  <div id="inherited-methods-com.google.android.exoplayer.dash.DashSegmentIndex-list"
+        class="jd-inheritedlinks">
+  </div>
+  <div id="inherited-methods-com.google.android.exoplayer.dash.DashSegmentIndex-summary" style="display: none;">
+    <table class="jd-sumtable-expando">
+    
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            long</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#getDurationUs(int)">getDurationUs</a></span>(int segmentNum)</nobr>
+        
+        <div class="jd-descrdiv">Returns the duration of a segment.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#getFirstSegmentNum()">getFirstSegmentNum</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Returns the segment number of the first segment.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#getLastSegmentNum()">getLastSegmentNum</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Returns the segment number of the last segment.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#getSegmentNum(long)">getSegmentNum</a></span>(long timeUs)</nobr>
+        
+        <div class="jd-descrdiv">Returns the segment number of the segment containing a given media time.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#getSegmentUrl(int)">getSegmentUrl</a></span>(int segmentNum)</nobr>
+        
+        <div class="jd-descrdiv">Returns a <code><a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> defining the location of a segment.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            long</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#getTimeUs(int)">getTimeUs</a></span>(int segmentNum)</nobr>
+        
+        <div class="jd-descrdiv">Returns the start time of a segment.</div>
+  
+  </td></tr>
+
+
+</table>
+  </div>
+</div>
+</td></tr>
+
+
 </table>
 
 
@@ -859,249 +941,6 @@ From class
 <!-- Fields -->
 
 
-<!-- ========= FIELD DETAIL ======== -->
-<h2>Fields</h2>
-
-
-
-
-<A NAME="audioSamplingRate"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        int
-      </span>
-        audioSamplingRate
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The audio sampling rate in Hz, or -1 for non-audio formats.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="bandwidth"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        int
-      </span>
-        bandwidth
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      <p>
-  <p class="caution"><strong>
-      This field is deprecated.</strong><br/>
-    Use <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#bitrate">bitrate</a></code>. However note that the units of measurement are different.
-
-  </p>
-  <div class="jd-tagdata jd-tagdescr"><p>The average bandwidth in bytes per second.</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="bitrate"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        int
-      </span>
-        bitrate
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The average bandwidth in bits per second.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="height"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        int
-      </span>
-        height
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The height of the video in pixels, or -1 for non-video formats.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="id"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
-      </span>
-        id
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>An identifier for the format.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="mimeType"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
-      </span>
-        mimeType
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The mime type of the format.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="numChannels"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        int
-      </span>
-        numChannels
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The number of audio channels, or -1 for non-audio formats.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="width"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        int
-      </span>
-        width
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The width of the video in pixels, or -1 for non-video formats.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-
 <!-- Public ctors -->
 
 
@@ -1110,7 +949,7 @@ From class
 
 
 
-<A NAME="Format(java.lang.String, java.lang.String, int, int, int, int, int)"></A>
+<A NAME="DashWrappingSegmentIndex(com.google.android.exoplayer.parser.SegmentIndex, android.net.Uri, long)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1122,8 +961,8 @@ From class
          
         
       </span>
-      <span class="sympad">Format</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int width, int height, int numChannels, int audioSamplingRate, int bitrate)</span>
+      <span class="sympad">DashWrappingSegmentIndex</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html">SegmentIndex</a> segmentIndex, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> uri, long indexAnchor)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1138,32 +977,17 @@ From class
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
         <tr>
-          <th>id</td>
-          <td>The format identifier.</td>
+          <th>segmentIndex</td>
+          <td>The <code><a href="../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html">SegmentIndex</a></code> to wrap.</td>
         </tr>
         <tr>
-          <th>mimeType</td>
-          <td>The format mime type.</td>
+          <th>uri</td>
+          <td>The <code><a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a></code> where the data is located.</td>
         </tr>
         <tr>
-          <th>width</td>
-          <td>The width of the video in pixels, or -1 for non-video formats.</td>
-        </tr>
-        <tr>
-          <th>height</td>
-          <td>The height of the video in pixels, or -1 for non-video formats.</td>
-        </tr>
-        <tr>
-          <th>numChannels</td>
-          <td>The number of audio channels, or -1 for non-audio formats.</td>
-        </tr>
-        <tr>
-          <th>audioSamplingRate</td>
-          <td>The audio sampling rate in Hz, or -1 for non-audio formats.</td>
-        </tr>
-        <tr>
-          <th>bitrate</td>
-          <td>The average bandwidth of the format in bits per second.
+          <th>indexAnchor</td>
+          <td>The index anchor point. This value is added to the byte offsets specified
+     in the wrapped <code><a href="../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html">SegmentIndex</a></code>.
 </td>
         </tr>
       </table>
@@ -1188,7 +1012,7 @@ From class
 
 
 
-<A NAME="equals(java.lang.Object)"></A>
+<A NAME="getDurationUs(int)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1198,10 +1022,10 @@ From class
          
          
          
-        boolean
+        long
       </span>
-      <span class="sympad">equals</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> obj)</span>
+      <span class="sympad">getDurationUs</span>
+      <span class="normal">(int segmentNum)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1211,14 +1035,27 @@ From class
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Implements equality based on <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#id">id</a></code> only.
-</p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the duration of a segment.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>segmentNum</td>
+          <td>The segment number.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The duration of the segment, in microseconds.
+</li></ul>
+  </div>
 
     </div>
 </div>
 
 
-<A NAME="hashCode()"></A>
+<A NAME="getFirstSegmentNum()"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1230,7 +1067,7 @@ From class
          
         int
       </span>
-      <span class="sympad">hashCode</span>
+      <span class="sympad">getFirstSegmentNum</span>
       <span class="normal">()</span>
     </h4>
       <div class="api-level">
@@ -1241,7 +1078,175 @@ From class
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the segment number of the first segment.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The segment number of the first segment.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getLastSegmentNum()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">getLastSegmentNum</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the segment number of the last segment.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The segment number of the last segment.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getSegmentNum(long)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">getSegmentNum</span>
+      <span class="normal">(long timeUs)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the segment number of the segment containing a given media time.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>timeUs</td>
+          <td>The time in microseconds.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The segment number of the corresponding segment.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getSegmentUrl(int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a>
+      </span>
+      <span class="sympad">getSegmentUrl</span>
+      <span class="normal">(int segmentNum)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns a <code><a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> defining the location of a segment.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>segmentNum</td>
+          <td>The segment number.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The <code><a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> defining the location of the data.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getTimeUs(int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        long
+      </span>
+      <span class="sympad">getTimeUs</span>
+      <span class="normal">(int segmentNum)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the start time of a segment.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>segmentNum</td>
+          <td>The segment number.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The corresponding start time in microseconds.
+</li></ul>
+  </div>
 
     </div>
 </div>

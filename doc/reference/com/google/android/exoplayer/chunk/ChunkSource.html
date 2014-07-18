@@ -485,7 +485,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#disable(java.util.List<com.google.android.exoplayer.chunk.MediaChunk>)">disable</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#disable(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>)">disable</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</nobr>
         
         <div class="jd-descrdiv">Called when the source is disabled.</div>
   
@@ -585,6 +585,25 @@ Summary:
   </td></tr>
 
 
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#onChunkLoadError(com.google.android.exoplayer.chunk.Chunk, java.lang.Exception)">onChunkLoadError</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a> chunk, <a href="http://developer.android.com/reference/java/lang/Exception.html">Exception</a> e)</nobr>
+        
+        <div class="jd-descrdiv">Invoked when the <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a></code> encounters an error loading a chunk obtained from
+ this source.</div>
+  
+  </td></tr>
+
+
 
 </table>
 
@@ -672,7 +691,7 @@ Summary:
 </div>
 
 
-<A NAME="disable(java.util.List<com.google.android.exoplayer.chunk.MediaChunk>)"></A>
+<A NAME="disable(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -685,7 +704,7 @@ Summary:
         void
       </span>
       <span class="sympad">disable</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -904,6 +923,50 @@ Summary:
       <h5 class="jd-tagtitle">Returns</h5>
       <ul class="nolist"><li>Information about the track.
 </li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="onChunkLoadError(com.google.android.exoplayer.chunk.Chunk, java.lang.Exception)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">onChunkLoadError</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a> chunk, <a href="http://developer.android.com/reference/java/lang/Exception.html">Exception</a> e)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Invoked when the <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a></code> encounters an error loading a chunk obtained from
+ this source.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>chunk</td>
+          <td>The chunk whose load encountered the error.</td>
+        </tr>
+        <tr>
+          <th>e</td>
+          <td>The error.
+</td>
+        </tr>
+      </table>
   </div>
 
     </div>

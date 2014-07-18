@@ -566,6 +566,24 @@ Summary:
             
             
             
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#isCached(java.lang.String, long, long)">isCached</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, long length)</nobr>
+        
+        <div class="jd-descrdiv">Queries if a range is entirely available in the cache.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            synchronized
+            
+            
+            
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
@@ -578,7 +596,7 @@ Summary:
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             synchronized
@@ -596,7 +614,7 @@ Summary:
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             synchronized
@@ -614,7 +632,7 @@ Summary:
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             synchronized
@@ -632,7 +650,7 @@ Summary:
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             synchronized
@@ -651,7 +669,7 @@ Summary:
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             synchronized
@@ -1002,6 +1020,24 @@ From interface
             
             
             
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#isCached(java.lang.String, long, long)">isCached</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, long length)</nobr>
+        
+        <div class="jd-descrdiv">Queries if a range is entirely available in the cache.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
@@ -1014,7 +1050,7 @@ From interface
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             abstract
             
@@ -1032,7 +1068,7 @@ From interface
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             abstract
             
@@ -1050,7 +1086,7 @@ From interface
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             abstract
             
@@ -1068,7 +1104,7 @@ From interface
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             abstract
             
@@ -1087,7 +1123,7 @@ From interface
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             abstract
             
@@ -1401,6 +1437,57 @@ From interface
 </div>
 
 
+<A NAME="isCached(java.lang.String, long, long)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+        synchronized 
+        boolean
+      </span>
+      <span class="sympad">isCached</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, long length)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Queries if a range is entirely available in the cache.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>key</td>
+          <td>The cache key for the data.</td>
+        </tr>
+        <tr>
+          <th>position</td>
+          <td>The starting position of the data.</td>
+        </tr>
+        <tr>
+          <th>length</td>
+          <td>The length of the data.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>true if the data is available in the Cache otherwise false;
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
 <A NAME="releaseHoleSpan(com.google.android.exoplayer.upstream.cache.CacheSpan)"></A>
 
 <div class="jd-details api apilevel-"> 
@@ -1684,16 +1771,8 @@ From interface
   </div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
-      <ul class="nolist"><li>The <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code>. Or null if the cache entry is locked.</li></ul>
-  </div>
-  <div class="jd-tagdata">
-      <h5 class="jd-tagtitle">Throws</h5>
-      <table class="jd-tagtable">  
-        <tr>
-            <th><a href="http://developer.android.com/reference/java/lang/InterruptedException.html">InterruptedException</a></td>
-            <td></td>
-        </tr>
-      </table>
+      <ul class="nolist"><li>The <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code>. Or null if the cache entry is locked.
+</li></ul>
   </div>
 
     </div>
