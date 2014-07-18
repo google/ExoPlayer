@@ -74,7 +74,7 @@ public class DashMp4ChunkSource implements ChunkSource {
     this.segmentIndexes = new HashMap<String, DashSegmentIndex>();
     this.representations = new HashMap<String, Representation>();
     this.trackInfo = new TrackInfo(representations[0].format.mimeType,
-        representations[0].periodDuration * 1000);
+        representations[0].periodDurationMs * 1000);
     this.evaluation = new Evaluation();
     int maxWidth = 0;
     int maxHeight = 0;
@@ -198,7 +198,7 @@ public class DashMp4ChunkSource implements ChunkSource {
     RangedUri requestUri;
     if (initializationUri != null) {
       // It's common for initialization and index data to be stored adjacently. Attempt to merge
-      // the two requests together to request at once.
+      // the two requests together to request both at once.
       expectedExtractorResult |= FragmentedMp4Extractor.RESULT_READ_MOOV;
       requestUri = initializationUri.attemptMerge(indexUri);
       if (requestUri != null) {

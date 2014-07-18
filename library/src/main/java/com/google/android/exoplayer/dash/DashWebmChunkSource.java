@@ -70,7 +70,7 @@ public class DashWebmChunkSource implements ChunkSource {
     this.segmentIndexes = new HashMap<String, DashSegmentIndex>();
     this.representations = new HashMap<String, Representation>();
     this.trackInfo = new TrackInfo(
-        representations[0].format.mimeType, representations[0].periodDuration * 1000);
+        representations[0].format.mimeType, representations[0].periodDurationMs * 1000);
     this.evaluation = new Evaluation();
     int maxWidth = 0;
     int maxHeight = 0;

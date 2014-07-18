@@ -160,8 +160,7 @@ public class DashVodRendererBuilder implements RendererBuilder,
     }
 
     // Build the video renderer.
-    DataSource videoDataSource = new HttpDataSource(userAgent, HttpDataSource.REJECT_PAYWALL_TYPES,
-        bandwidthMeter);
+    DataSource videoDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
     ChunkSource videoChunkSource;
     String mimeType = videoRepresentations[0].format.mimeType;
     if (mimeType.equals(MimeTypes.VIDEO_MP4)) {
@@ -192,8 +191,7 @@ public class DashVodRendererBuilder implements RendererBuilder,
       audioChunkSource = null;
       audioRenderer = null;
     } else {
-      DataSource audioDataSource = new HttpDataSource(userAgent,
-          HttpDataSource.REJECT_PAYWALL_TYPES, bandwidthMeter);
+      DataSource audioDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
       audioTrackNames = new String[audioRepresentationsList.size()];
       ChunkSource[] audioChunkSources = new ChunkSource[audioRepresentationsList.size()];
       FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
