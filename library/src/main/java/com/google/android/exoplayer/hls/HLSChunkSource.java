@@ -36,7 +36,7 @@ public class HLSChunkSource implements ChunkSource {
 
     private final ArrayList<Integer> trackList;
     private final ArrayList<TrackInfo> trackInfoList;
-    private final ArrayList<ArrayList<MediaFormat>> mediaFormats;
+    private final ArrayList<MediaFormat> videoMediaFormats;
 
     public HLSChunkSource(String baseUrl, MainPlaylist mainPlaylist, DataSource dataSource, FormatEvaluator formatEvaluator) {
         this.baseUrl = baseUrl;
@@ -79,24 +79,11 @@ public class HLSChunkSource implements ChunkSource {
         }
 
         i = 0;
-        mediaFormats = new ArrayList<ArrayList<MediaFormat>>();
+        videoMediaFormats = new ArrayList<MediaFormat>();
 
         for (MainPlaylist.Entry entry : mainPlaylist.entries) {
-            ArrayList<MediaFormat> list = new ArrayList<MediaFormat>();
-            mediaFormats.add(list);
-            if (hasAudio == 1) {
-                List<byte[]> initializationData = new ArrayList<byte[]>();
-                byte[] data = new byte[2];
-                data[0] = 18;
-                data[1] = 16;
-                initializationData.add(data);
-                // XXX: can we get the sample rate ?
-                MediaFormat mediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_AAC, -1, 2, 44100, initializationData);
-                mediaFormat.setIsADTS(true);
-                list.add(mediaFormat);
-            }
             if (hasVideo == 1) {
-                list.add(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
+                videoMediaFormats.add(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
                         entry.width, entry.height, null));
             }
             i++;
@@ -178,7 +165,7 @@ public class HLSChunkSource implements ChunkSource {
         Uri uri = Uri.parse(chunkUrl);
         long offset = 0;
         DataSpec dataSpec = new DataSpec(uri, offset, -1, null);
-        Chunk mediaChunk = new TSMediaChunk(dataSource, trackList, mediaFormats.get(selectedFormat.id), dataSpec, selectedFormat,
+        Chunk mediaChunk = new TSMediaChunk(dataSource, trackList, videoMediaFormats.get(selectedFormat.id), dataSpec, selectedFormat,
                                             (long)(entry.startTime * 1000000), (long)((entry.startTime + entry.extinf) * 1000000),
                                             isLastChunk ? -1 : nextChunkIndex + 1);
         out.chunk = mediaChunk;

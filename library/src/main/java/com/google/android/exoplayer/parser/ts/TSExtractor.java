@@ -4,9 +4,11 @@ import android.media.MediaExtractor;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
+import com.google.android.exoplayer.util.MimeTypes;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -30,8 +32,9 @@ public class TSExtractor {
 
     public static final int TYPE_VIDEO = 0;
     public static final int TYPE_AUDIO = 1;
+    private final NonBlockingInputStream inputStream;
 
-    private boolean formatSent;
+    private MediaFormat audioMediaFormat;
 
     private UnsignedByteArray packet;
     int packetWriteOffset;
@@ -311,7 +314,7 @@ public class TSExtractor {
         }
     }
 
-    public TSExtractor() {
+    public TSExtractor(NonBlockingInputStream inputStream) {
         packet = new UnsignedByteArray(188);
         activePayloadHandlers = new SparseArray<PayloadHandler>(4);
         PayloadHandler payloadHandler = (PayloadHandler)new PATHandler();
@@ -320,15 +323,15 @@ public class TSExtractor {
         sampleLists = new ArrayList<LinkedList<Sample>>();
         sampleLists.add(new LinkedList<Sample>());
         sampleLists.add(new LinkedList<Sample>());
+        this.inputStream = inputStream;
     }
 
     /**
      *
-     * @param inputStream
      * @return true if it wants to ba called again
      * @throws ParserException
      */
-    private boolean readOnePacket(NonBlockingInputStream inputStream) throws ParserException
+    private boolean readOnePacket() throws ParserException
     {
         int result;
         int remaining = 188 - packetWriteOffset;
@@ -383,7 +386,26 @@ public class TSExtractor {
         return true;
     }
 
-    public int read(int type, NonBlockingInputStream inputStream, SampleHolder out)
+    private static int getSampleRate(int sampleRateIndex) {
+        switch(sampleRateIndex) {
+            case 0: return 96000;
+            case 1: return 88200;
+            case 2: return 64000;
+            case 3: return 48000;
+            case 4: return 44100;
+            case 5: return 32000;
+            case 6: return 24000;
+            case 7: return 22050;
+            case 8: return 16000;
+            case 9: return 12000;
+            case 10: return 11025;
+            case 11: return 8000;
+            case 12: return 7350;
+        }
+        return 44100;
+    }
+
+    public int read(int type, SampleHolder out)
             throws ParserException {
 
         LinkedList<Sample> list = sampleLists.get(type);
@@ -391,37 +413,51 @@ public class TSExtractor {
 
         // XXX: should I check that the otherList does not grow too much ?
         while (list.size() == 0) {
-            if (!readOnePacket(inputStream)) {
+            if (!readOnePacket()) {
                 break;
             }
         }
 
         if (list.size() > 0) {
-            Sample s = list.removeFirst();
+            Sample s = list.get(0);
+            if (type == TYPE_AUDIO && audioMediaFormat == null) {
+                UnsignedByteArray d = s.data;
+                if (d.get(0) != 0xff || ((d.get(1) & 0xf0) != 0xf0)) {
+                    Log.d(TAG, "no ADTS sync");
+                } else {
+
+                    Log.d(TAG, "version: " + ((d.get(1) & 0x08) >> 3));
+                    Log.d(TAG, "layer: " + ((d.get(1) & 0x06) >> 1));
+                    Log.d(TAG, "protection absent: " + ((d.get(1) & 0x01) >> 0));
+                    Log.d(TAG, "profile: " + ((d.get(2) & 0xc0) >> 6));
+                    int sampleRateIndex =(d.get(2) & 0x3c) >> 2;
+                    int sampleRate = getSampleRate(sampleRateIndex);
+                    Log.d(TAG, "sample rate: " + sampleRate);
+                    int channelConfigIndex = (((d.get(2) & 0x1) << 2) + ((d.get(3) & 0xc0) >> 6));
+                    Log.d(TAG, "channel config index: " + channelConfigIndex);
+                    int frameLength = (d.get(3) & 0x3) << 11;
+                    frameLength += (d.get(4) << 3);
+                    frameLength += (d.get(5) & 0xe0) >> 5;
+                    Log.d(TAG, "frame length: " + frameLength);
+
+                    List<byte[]> initializationData = new ArrayList<byte[]>();
+                    byte[] data = new byte[2];
+                    data[0] = (byte)(0x10 | ((sampleRateIndex & 0xe) >> 1));
+                    data[1] = (byte)(((sampleRateIndex & 0x1) << 7) | ((channelConfigIndex & 0xf) << 3));
+                    initializationData.add(data);
+                    audioMediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_AAC, -1, 2, sampleRate, initializationData);
+                    audioMediaFormat.setIsADTS(true);
+                }
+            }
+
             if (out.data != null) {
                 out.data.put(s.data.array(), 0, s.position);
                 out.timeUs = s.timeUs;
                 out.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
-            } else if (type == TYPE_AUDIO && !formatSent) {
-                UnsignedByteArray d = s.data;
-                if (d.get(0) != 0xff || ((d.get(1) & 0xf0) != 0xf0)) {
-                    Log.d(TAG, "no ADTS sync");
-                }
-
-                Log.d(TAG, "version: " + ((d.get(1) & 0x08) >> 3));
-                Log.d(TAG, "layer: " + ((d.get(1) & 0x06) >> 1));
-                Log.d(TAG, "protection absent: " + ((d.get(1) & 0x01) >> 0));
-                Log.d(TAG, "profile: " + ((d.get(2) & 0xc0) >> 6));
-                Log.d(TAG, "freq index: " + ((d.get(2) & 0x3c) >> 2));
-                Log.d(TAG, "channel config index: " + (((d.get(2) & 0x1) << 2) + ((d.get(3) & 0xc0) >> 6)));
-                int frameLength = (d.get(3) & 0x3) << 11;
-                frameLength += (d.get(4) << 3);
-                frameLength += (d.get(5) & 0xe0) >> 5;
-                Log.d(TAG, "frame length: " + frameLength);
-
-                formatSent = true;
+                list.removeFirst();
+                releaseSample(s);
             }
-            releaseSample(s);
+
             return RESULT_READ_SAMPLE_FULL;
         } else {
             if (endOfStream && otherList.size() == 0) {
@@ -430,5 +466,21 @@ public class TSExtractor {
                 return RESULT_NEED_MORE_DATA;
             }
         }
+    }
+
+    public MediaFormat getAudioMediaFormat() {
+        SampleHolder holder = new SampleHolder(false);
+        while(audioMediaFormat == null) {
+            try {
+                if (read(TYPE_AUDIO, holder) == RESULT_END_OF_STREAM) {
+                    return null;
+                }
+            } catch (ParserException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        return audioMediaFormat;
     }
 }

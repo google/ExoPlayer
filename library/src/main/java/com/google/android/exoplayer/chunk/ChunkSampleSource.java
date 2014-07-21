@@ -144,6 +144,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
   private final boolean frameAccurateSeeking;
   private final Handler eventHandler;
   private final EventListener eventListener;
+  private final boolean trackMediaFormatSent[];
 
   private boolean prepared;
   private boolean trackEnabled[];
@@ -180,6 +181,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
     currentLoadableHolder = new ChunkOperationHolder();
     mediaChunks = new LinkedList<MediaChunk>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
+    trackMediaFormatSent = new boolean[chunkSource.getTrackCount()];
   }
 
   /**
@@ -314,27 +316,29 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
     if (downstreamFormat == null || !downstreamFormat.equals(mediaChunk.format)) {
       notifyDownstreamFormatChanged(mediaChunk.format.id, mediaChunk.trigger,
           mediaChunk.startTimeUs);
-      MediaFormat format = mediaChunk.getMediaFormat(track);
-      chunkSource.getMaxVideoDimensions(format);
-      formatHolder.format = format;
-      formatHolder.drmInitData = mediaChunk.getPsshInfo();
-      downstreamFormat = mediaChunk.format;
+        for (int i =0; i < trackMediaFormatSent.length; i++) {
+            trackMediaFormatSent[i] = false;
+        }
+        downstreamFormat = mediaChunk.format;
     }
 
     if (!mediaChunk.prepare()) {
-      return NOTHING_READ;
+        return NOTHING_READ;
     }
 
-    MediaFormat mediaFormat = mediaChunk.getMediaFormat(track);
-    if (mediaFormat != null && !mediaFormat.equals(downstreamMediaFormat)) {
-      chunkSource.getMaxVideoDimensions(mediaFormat);
-      formatHolder.format = mediaFormat;
-      formatHolder.drmInitData = mediaChunk.getPsshInfo();
-      downstreamMediaFormat = mediaFormat;
-      return FORMAT_READ;
+    if (trackMediaFormatSent[track] == false) {
+        MediaFormat format = mediaChunk.getMediaFormat(track);
+        if (format == null) {
+            return NOTHING_READ;
+        }
+        chunkSource.getMaxVideoDimensions(format);
+        formatHolder.format = format;
+        formatHolder.drmInitData = mediaChunk.getPsshInfo();
+        trackMediaFormatSent[track] = true;
+        return FORMAT_READ;
     }
 
-    if (mediaChunk.read(track, sampleHolder)) {
+      if (mediaChunk.read(track, sampleHolder)) {
       sampleHolder.decodeOnly = frameAccurateSeeking && sampleHolder.timeUs < lastSeekPositionUs;
       onSampleRead(mediaChunk, sampleHolder);
       return SAMPLE_READ;

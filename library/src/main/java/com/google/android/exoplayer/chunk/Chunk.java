@@ -70,7 +70,7 @@ public abstract class Chunk implements Loadable {
    * @param allocator An {@link Allocator} from which the buffers needed to contain the
    *     data can be obtained.
    */
-  public final void init(Allocator allocator) {
+  public void init(Allocator allocator) {
     Assertions.checkState(dataSourceStream == null);
     dataSourceStream = new DataSourceStream(dataSource, dataSpec, allocator);
   }
