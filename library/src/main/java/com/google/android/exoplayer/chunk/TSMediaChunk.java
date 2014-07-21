@@ -72,4 +72,9 @@ public class TSMediaChunk extends MediaChunk {
     public Map<UUID, byte[]> getPsshInfo() {
         return null;
     }
+
+    public boolean isReadFinished() {
+
+        return extractor.isReadFinished();
+    }
 }

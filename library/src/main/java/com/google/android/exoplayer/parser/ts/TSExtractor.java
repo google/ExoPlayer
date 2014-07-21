@@ -40,6 +40,7 @@ public class TSExtractor {
     int packetWriteOffset;
 
     private final SparseArray<PayloadHandler> activePayloadHandlers;
+    private final ArrayList<PESHandler> activePESHandlers;
 
     private LinkedList<Sample> recycledSampleList;
     private ArrayList<LinkedList<Sample>> sampleLists;
@@ -127,6 +128,7 @@ public class TSExtractor {
                     if (length != 0 && length != currentSample.position) {
                         Log.d(TAG, "PES length " + currentSample.position + " != " + length);
                     }
+                    currentSample = null;
                 }
 
                 currentSample = getSample();
@@ -179,6 +181,12 @@ public class TSExtractor {
             }
             System.arraycopy(packet.array(), offset, currentSample.data.array(), currentSample.position, 188 - offset);
             currentSample.position += 188 - offset;
+        }
+
+        public void terminate() {
+            if (currentSample != null) {
+                list.add(currentSample);
+            }
         }
     }
 
@@ -273,6 +281,7 @@ public class TSExtractor {
                 }
                 if (handler != null) {
                     activePayloadHandlers.put(s.pid, handler);
+                    activePESHandlers.add(handler);
                 }
             }
         }
@@ -324,6 +333,7 @@ public class TSExtractor {
         sampleLists.add(new LinkedList<Sample>());
         sampleLists.add(new LinkedList<Sample>());
         this.inputStream = inputStream;
+        activePESHandlers = new ArrayList<PESHandler>();
     }
 
     /**
@@ -338,7 +348,12 @@ public class TSExtractor {
 
         result = inputStream.read(packet.array(), packetWriteOffset, remaining);
         if (result == -1) {
-            endOfStream = true;
+            if (endOfStream == false) {
+                for (PESHandler h : activePESHandlers) {
+                    h.terminate();
+                }
+                endOfStream = true;
+            }
             return false;
         }
 
@@ -405,6 +420,31 @@ public class TSExtractor {
         return 44100;
     }
 
+    static public double getDuration(Sample s, int sampleRate) {
+        int position = 0;
+        int frameCount = 0;
+        UnsignedByteArray d = s.data;
+
+        while (position < s.position) {
+            if (d.get(position + 0) != 0xff || ((d.get(position + 1) & 0xf0) != 0xf0)) {
+                Log.d(TAG, "no ADTS sync");
+            }
+
+            int frameLength = (s.data.get(position + 3) & 0x3) << 11;
+            frameLength += (s.data.get(position + 4) << 3);
+            frameLength += (s.data.get(position + 5) & 0xe0) >> 5;
+            //Log.d(TAG, "frame length: " + frameLength);
+
+            position += frameLength;
+            frameCount ++;
+        }
+        if (position != s.position) {
+            Log.d(TAG, "bad frame " + position + " != " + s.position);
+        }
+
+        return (1024 * (double)frameCount * 1000000) / sampleRate;
+    }
+
     public int read(int type, SampleHolder out)
             throws ParserException {
 
@@ -456,11 +496,14 @@ public class TSExtractor {
                 out.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
                 list.removeFirst();
                 releaseSample(s);
+                if (type == TYPE_AUDIO) {
+                    Log.d(TAG, "start: " + (double)out.timeUs/1000000 + " end: " + (double)(out.timeUs + getDuration(s, 44100))/1000000);
+                }
             }
 
             return RESULT_READ_SAMPLE_FULL;
         } else {
-            if (endOfStream && otherList.size() == 0) {
+            if (endOfStream) {
                 return RESULT_END_OF_STREAM;
             } else {
                 return RESULT_NEED_MORE_DATA;
@@ -482,5 +525,17 @@ public class TSExtractor {
         }
 
         return audioMediaFormat;
+    }
+
+    public boolean isReadFinished() {
+        if (endOfStream == false) {
+            return false;
+        }
+        for (LinkedList<Sample> list : sampleLists) {
+            if (list.size() > 0)
+                return false;
+        }
+
+        return true;
     }
 }

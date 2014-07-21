@@ -48,7 +48,7 @@ public class HLSRendererBuilder implements DemoPlayer.RendererBuilder {
                     e.printStackTrace();
 
                 }
-                if (mainPlaylist == null) {
+                if (mainPlaylist == null || mainPlaylist.entries.size() == 0) {
                     // no main playlist: we fake one
                     mainPlaylist = MainPlaylist.createVideoMainPlaylist(HLSRendererBuilder.this.url);
                 }
@@ -122,6 +122,7 @@ public class HLSRendererBuilder implements DemoPlayer.RendererBuilder {
                 ? new DebugTrackRenderer(debugTextView, videoRenderer, sampleSource)
                 : null;
         //debugRenderer = null;
+        //videoRenderer = null;
 
         TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
         renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;

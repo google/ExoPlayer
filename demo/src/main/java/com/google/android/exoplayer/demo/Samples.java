@@ -136,6 +136,8 @@ package com.google.android.exoplayer.demo;
         DemoUtil.TYPE_OTHER, false, true),
     new Sample("Tour de france - hls", "uid:misc:dailymotion", "http://www.dailymotion.com/cdn/manifest/video/x20w6of.m3u8?auth=1410854598-2560-irsxfgcg-8b70f9f192d150bfa64e1a29fca1dcd5",
         DemoUtil.TYPE_HLS, false, true),
+    new Sample("Tour de france - hls 720p", "uid:misc:dailymotion720p", "http://vid2.cf.dmcdn.net/sec(5f9ee920e654b39b6f23a376d122f202)/video/999/334/122433999_mp4_h264_aac_hd.m3u8",
+        DemoUtil.TYPE_HLS, false, true),
     new Sample("Tour de france - mp4", "uid:misc:dailmotion-mp4", "http://www.dailymotion.com/cdn/H264-1280x720/video/x20w6of.mp4?auth=1410854598-2560-z6kb2tel-c8430f2843d7230c9e6622ba1920c77d",
         DemoUtil.TYPE_OTHER, false, true),
     new Sample("Audio-only", "uid:misc:audioonly", "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear0/prog_index.m3u8",

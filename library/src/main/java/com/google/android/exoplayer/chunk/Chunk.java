@@ -100,7 +100,7 @@ public abstract class Chunk implements Loadable {
    *
    * @return True if the whole of the data has been consumed. False otherwise.
    */
-  public final boolean isReadFinished() {
+  public boolean isReadFinished() {
     return dataSourceStream.isEndOfStream();
   }
 
