@@ -25,6 +25,7 @@ import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.TraceUtil;
 
 import android.os.Handler;
 import android.os.SystemClock;
@@ -524,6 +525,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
       return;
     }
 
+    TraceUtil.beginSection("updateLoadControl");
     if (!loader.isLoading()) {
       if (currentLoadableHolder.chunk == null || now - lastPerformedBufferOperation > 1000) {
         lastPerformedBufferOperation = now;
@@ -536,6 +538,8 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
         maybeStartLoading();
       }
     }
+    TraceUtil.endSection();
+
   }
 
   /**

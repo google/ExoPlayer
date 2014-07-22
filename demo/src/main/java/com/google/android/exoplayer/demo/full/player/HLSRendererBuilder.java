@@ -112,7 +112,7 @@ public class HLSRendererBuilder implements DemoPlayer.RendererBuilder {
         // Build the video renderer.
         MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
                 null, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000,
-                mainHandler, player, 50);
+                mainHandler, player, 1);
 
         // Build the audio renderer
         MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource, null, true, mainHandler, player);

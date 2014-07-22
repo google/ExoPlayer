@@ -1,6 +1,7 @@
 package com.google.android.exoplayer.parser.ts;
 
 import android.media.MediaExtractor;
+import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -9,6 +10,7 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.TraceUtil;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -451,12 +453,20 @@ public class TSExtractor {
         LinkedList<Sample> list = sampleLists.get(type);
         LinkedList<Sample> otherList = sampleLists.get(1 - type);
 
+        TraceUtil.beginSection("TSExtractor::read");
         // XXX: should I check that the otherList does not grow too much ?
-        while (list.size() == 0) {
+        int packets = 0;
+        long start = SystemClock.uptimeMillis();
+        while (list.size() == 0 && (SystemClock.uptimeMillis() - start) < 10) {
             if (!readOnePacket()) {
                 break;
             }
+            packets++;
         }
+        String debugString = String.format("processed %4d packets in %4d ms [A %4d][V %4d]", packets, (SystemClock.uptimeMillis() - start),
+                sampleLists.get(TYPE_AUDIO).size(), sampleLists.get(TYPE_VIDEO).size());
+        Log.d(TAG, debugString);
+        TraceUtil.endSection();
 
         if (list.size() > 0) {
             Sample s = list.get(0);
@@ -494,12 +504,9 @@ public class TSExtractor {
                 out.data.put(s.data.array(), 0, s.position);
                 out.timeUs = s.timeUs;
                 out.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
-                list.removeFirst();
-                releaseSample(s);
-                if (type == TYPE_AUDIO) {
-                    Log.d(TAG, "start: " + (double)out.timeUs/1000000 + " end: " + (double)(out.timeUs + getDuration(s, 44100))/1000000);
-                }
             }
+            list.removeFirst();
+            releaseSample(s);
 
             return RESULT_READ_SAMPLE_FULL;
         } else {

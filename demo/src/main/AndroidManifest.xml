@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2014 The Android Open Source Project
+<!--
+ Copyright (C) 2014 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,43 +14,48 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.google.android.exoplayer.demo"
+    android:theme="@style/RootTheme"
     android:versionCode="1010"
-    android:versionName="1.0.10"
-    android:theme="@style/RootTheme">
+    android:versionName="1.0.10" >
 
-  <uses-permission android:name="android.permission.INTERNET"/>
-  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-  <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="19"/>
+    <uses-sdk
+        android:minSdkVersion="16"
+        android:targetSdkVersion="19" />
 
-  <application
-      android:label="@string/application_name"
-      android:allowBackup="true">
+    <application
+        android:allowBackup="true"
+        android:label="@string/application_name" >
+        <activity
+            android:name=".SampleChooserActivity"
+            android:configChanges="keyboardHidden"
+            android:label="@string/application_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-    <activity android:name="com.google.android.exoplayer.demo.SampleChooserActivity"
-        android:configChanges="keyboardHidden"
-        android:label="@string/application_name">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN"/>
-        <category android:name="android.intent.category.LAUNCHER"/>
-      </intent-filter>
-    </activity>
-
-    <activity android:name="com.google.android.exoplayer.demo.simple.SimplePlayerActivity"
-        android:configChanges="keyboardHidden|orientation|screenSize"
-        android:label="@string/application_name"
-        android:theme="@style/PlayerTheme"/>
-
-    <activity android:name="com.google.android.exoplayer.demo.full.FullPlayerActivity"
-        android:configChanges="keyboardHidden|orientation|screenSize"
-        android:label="@string/application_name"
-        android:theme="@style/PlayerTheme"/>
-
-  </application>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".simple.SimplePlayerActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/application_name"
+            android:theme="@style/PlayerTheme" />
+        <activity
+            android:name=".full.FullPlayerActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/application_name"
+            android:theme="@style/PlayerTheme" />
+        <activity
+            android:name=".tests.TestCaseActivity"
+            android:label="@string/title_activity_test_case" >
+        </activity>
+    </application>
 
 </manifest>

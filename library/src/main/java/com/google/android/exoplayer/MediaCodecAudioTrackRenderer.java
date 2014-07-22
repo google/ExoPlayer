@@ -18,6 +18,7 @@ package com.google.android.exoplayer;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.SystemClock;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
@@ -40,7 +41,9 @@ import java.nio.ByteBuffer;
 @TargetApi(16)
 public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
-  /**
+    private long lastTime;
+
+    /**
    * Interface definition for a callback to be notified of {@link MediaCodecAudioTrackRenderer}
    * events.
    */
@@ -417,7 +420,13 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected boolean isReady() {
-    return getPendingFrameCount() > 0;
+
+      if (getPendingFrameCount() > 0) {
+          return true;
+      }
+
+      Log.d("audio", "not ready, " + submittedBytes / frameSize +" < " + getPlaybackHeadPosition());
+      return false;
   }
 
   /**
@@ -565,7 +574,6 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
       }
       return true;
     }
-
     if (temporaryBufferSize == 0) {
       // This is the first time we've seen this {@code buffer}.
       // Note: presentationTimeUs corresponds to the end of the sample, not the start.
