@@ -318,7 +318,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
       notifyDownstreamFormatChanged(mediaChunk.format.id, mediaChunk.trigger,
           mediaChunk.startTimeUs);
         for (int i =0; i < trackMediaFormatSent.length; i++) {
-            //trackMediaFormatSent[i] = false;
+            trackMediaFormatSent[i] = false;
         }
         downstreamFormat = mediaChunk.format;
     }

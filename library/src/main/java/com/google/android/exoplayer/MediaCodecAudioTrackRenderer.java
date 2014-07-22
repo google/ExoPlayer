@@ -425,7 +425,6 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
           return true;
       }
 
-      Log.d("audio", "not ready, " + submittedBytes / frameSize +" < " + getPlaybackHeadPosition());
       return false;
   }
 

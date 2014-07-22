@@ -463,9 +463,9 @@ public class TSExtractor {
             }
             packets++;
         }
-        String debugString = String.format("processed %4d packets in %4d ms [A %4d][V %4d]", packets, (SystemClock.uptimeMillis() - start),
+        /*String debugString = String.format("processed %4d packets in %4d ms [A %4d][V %4d]", packets, (SystemClock.uptimeMillis() - start),
                 sampleLists.get(TYPE_AUDIO).size(), sampleLists.get(TYPE_VIDEO).size());
-        Log.d(TAG, debugString);
+        Log.d(TAG, debugString);*/
         TraceUtil.endSection();
 
         if (list.size() > 0) {
