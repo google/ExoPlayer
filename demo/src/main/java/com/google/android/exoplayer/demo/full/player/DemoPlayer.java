@@ -118,11 +118,11 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
    * A listener for debugging information.
    */
   public interface InfoListener {
-    void onVideoFormatEnabled(int formatId, int trigger, int mediaTimeMs);
-    void onAudioFormatEnabled(int formatId, int trigger, int mediaTimeMs);
+    void onVideoFormatEnabled(String formatId, int trigger, int mediaTimeMs);
+    void onAudioFormatEnabled(String formatId, int trigger, int mediaTimeMs);
     void onDroppedFrames(int count, long elapsed);
     void onBandwidthSample(int elapsedMs, long bytes, long bandwidthEstimate);
-    void onLoadStarted(int sourceId, int formatId, int trigger, boolean isInitialization,
+    void onLoadStarted(int sourceId, String formatId, int trigger, boolean isInitialization,
         int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes);
     void onLoadCompleted(int sourceId);
   }
@@ -398,7 +398,8 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   @Override
-  public void onDownstreamFormatChanged(int sourceId, int formatId, int trigger, int mediaTimeMs) {
+  public void onDownstreamFormatChanged(int sourceId, String formatId, int trigger,
+      int mediaTimeMs) {
     if (infoListener == null) {
       return;
     }
@@ -469,7 +470,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   @Override
-  public void onLoadStarted(int sourceId, int formatId, int trigger, boolean isInitialization,
+  public void onLoadStarted(int sourceId, String formatId, int trigger, boolean isInitialization,
       int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes) {
     if (infoListener != null) {
       infoListener.onLoadStarted(sourceId, formatId, trigger, isInitialization, mediaStartTimeMs,

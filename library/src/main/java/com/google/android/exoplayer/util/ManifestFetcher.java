@@ -17,6 +17,7 @@ package com.google.android.exoplayer.util;
 
 import com.google.android.exoplayer.ParserException;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 
 import java.io.IOException;
@@ -84,14 +85,15 @@ public abstract class ManifestFetcher<T> extends AsyncTask<String, Void, T> {
   protected final T doInBackground(String... data) {
     try {
       contentId = data.length > 1 ? data[1] : null;
-      URL url = new URL(data[0]);
+      String urlString = data[0];
       String inputEncoding = null;
       InputStream inputStream = null;
       try {
-        HttpURLConnection connection = configureHttpConnection(url);
+        Uri baseUrl = Util.parseBaseUri(urlString);
+        HttpURLConnection connection = configureHttpConnection(new URL(urlString));
         inputStream = connection.getInputStream();
         inputEncoding = connection.getContentEncoding();
-        return parse(inputStream, inputEncoding, contentId);
+        return parse(inputStream, inputEncoding, contentId, baseUrl);
       } finally {
         if (inputStream != null) {
           inputStream.close();
@@ -119,11 +121,13 @@ public abstract class ManifestFetcher<T> extends AsyncTask<String, Void, T> {
    * @param stream The input stream to read.
    * @param inputEncoding The encoding of the input stream.
    * @param contentId The content id of the media.
+   * @param baseUrl Required where the manifest contains urls that are relative to a base url. May
+   *     be null where this is not the case.
    * @throws IOException If an error occurred loading the data.
    * @throws ParserException If an error occurred parsing the loaded data.
    */
-  protected abstract T parse(InputStream stream, String inputEncoding, String contentId) throws
-      IOException, ParserException;
+  protected abstract T parse(InputStream stream, String inputEncoding, String contentId,
+      Uri baseUrl) throws IOException, ParserException;
 
   private HttpURLConnection configureHttpConnection(URL url) throws IOException {
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();

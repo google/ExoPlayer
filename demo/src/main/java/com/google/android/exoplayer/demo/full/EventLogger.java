@@ -91,7 +91,7 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   @Override
-  public void onLoadStarted(int sourceId, int formatId, int trigger, boolean isInitialization,
+  public void onLoadStarted(int sourceId, String formatId, int trigger, boolean isInitialization,
       int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes) {
     loadStartTimeMs[sourceId] = SystemClock.elapsedRealtime();
     if (VerboseLogUtil.isTagEnabled(TAG)) {
@@ -110,13 +110,13 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   @Override
-  public void onVideoFormatEnabled(int formatId, int trigger, int mediaTimeMs) {
+  public void onVideoFormatEnabled(String formatId, int trigger, int mediaTimeMs) {
     Log.d(TAG, "videoFormat [" + getSessionTimeString() + ", " + formatId + ", " +
         Integer.toString(trigger) + "]");
   }
 
   @Override
-  public void onAudioFormatEnabled(int formatId, int trigger, int mediaTimeMs) {
+  public void onAudioFormatEnabled(String formatId, int trigger, int mediaTimeMs) {
     Log.d(TAG, "audioFormat [" + getSessionTimeString() + ", " + formatId + ", " +
         Integer.toString(trigger) + "]");
   }

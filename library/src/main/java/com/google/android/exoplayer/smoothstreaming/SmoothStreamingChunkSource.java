@@ -63,7 +63,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private final int maxHeight;
 
   private final SparseArray<FragmentedMp4Extractor> extractors;
-  private final Format[] formats;
+  private final SmoothStreamingFormat[] formats;
 
   /**
    * @param baseUrl The base URL for the streams.
@@ -94,23 +94,24 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     }
 
     int trackCount = trackIndices != null ? trackIndices.length : streamElement.tracks.length;
-    formats = new Format[trackCount];
+    formats = new SmoothStreamingFormat[trackCount];
     extractors = new SparseArray<FragmentedMp4Extractor>();
     int maxWidth = 0;
     int maxHeight = 0;
     for (int i = 0; i < trackCount; i++) {
       int trackIndex = trackIndices != null ? trackIndices[i] : i;
       TrackElement trackElement = streamElement.tracks[trackIndex];
-      formats[i] = new Format(trackIndex, trackElement.mimeType, trackElement.maxWidth,
-          trackElement.maxHeight, trackElement.numChannels, trackElement.sampleRate,
-          trackElement.bitrate / 8);
+      formats[i] = new SmoothStreamingFormat(String.valueOf(trackIndex), trackElement.mimeType,
+          trackElement.maxWidth, trackElement.maxHeight, trackElement.numChannels,
+          trackElement.sampleRate, trackElement.bitrate, trackIndex);
       maxWidth = Math.max(maxWidth, trackElement.maxWidth);
       maxHeight = Math.max(maxHeight, trackElement.maxHeight);
 
       MediaFormat mediaFormat = getMediaFormat(streamElement, trackIndex);
       int trackType = streamElement.type == StreamElement.TYPE_VIDEO ? Track.TYPE_VIDEO
           : Track.TYPE_AUDIO;
-      FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(true);
+      FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
+          FragmentedMp4Extractor.WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME);
       extractor.setTrack(new Track(trackIndex, trackType, streamElement.timeScale, mediaFormat,
           trackEncryptionBoxes));
       if (protectionElement != null) {
@@ -141,7 +142,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   }
 
   @Override
-  public void disable(List<MediaChunk> queue) {
+  public void disable(List<? extends MediaChunk> queue) {
     // Do nothing.
   }
 
@@ -155,14 +156,14 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       long playbackPositionUs, ChunkOperationHolder out) {
     evaluation.queueSize = queue.size();
     formatEvaluator.evaluate(queue, playbackPositionUs, formats, evaluation);
-    Format selectedFormat = evaluation.format;
+    SmoothStreamingFormat selectedFormat = (SmoothStreamingFormat) evaluation.format;
     out.queueSize = evaluation.queueSize;
 
     if (selectedFormat == null) {
       out.chunk = null;
       return;
     } else if (out.queueSize == queue.size() && out.chunk != null
-        && out.chunk.format.id == evaluation.format.id) {
+        && out.chunk.format.id.equals(evaluation.format.id)) {
       // We already have a chunk, and the evaluation hasn't changed either the format or the size
       // of the queue. Do nothing.
       return;
@@ -181,11 +182,12 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     }
 
     boolean isLastChunk = nextChunkIndex == streamElement.chunkCount - 1;
-    String requestUrl = streamElement.buildRequestUrl(selectedFormat.id, nextChunkIndex);
+    String requestUrl = streamElement.buildRequestUrl(selectedFormat.trackIndex,
+        nextChunkIndex);
     Uri uri = Uri.parse(baseUrl + '/' + requestUrl);
     Chunk mediaChunk = newMediaChunk(selectedFormat, uri, null,
-        extractors.get(selectedFormat.id), dataSource, nextChunkIndex, isLastChunk,
-        streamElement.getStartTimeUs(nextChunkIndex),
+        extractors.get(Integer.parseInt(selectedFormat.id)), dataSource, nextChunkIndex,
+        isLastChunk, streamElement.getStartTimeUs(nextChunkIndex),
         isLastChunk ? -1 : streamElement.getStartTimeUs(nextChunkIndex + 1), 0);
     out.chunk = mediaChunk;
   }
@@ -193,6 +195,11 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   @Override
   public IOException getError() {
     return null;
+  }
+
+  @Override
+  public void onChunkLoadError(Chunk chunk, Exception e) {
+    // Do nothing.
   }
 
   private static MediaFormat getMediaFormat(StreamElement streamElement, int trackIndex) {
@@ -228,8 +235,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     DataSpec dataSpec = new DataSpec(uri, offset, -1, cacheKey);
     // In SmoothStreaming each chunk contains sample timestamps relative to the start of the chunk.
     // To convert them the absolute timestamps, we need to set sampleOffsetUs to -chunkStartTimeUs.
-    return new Mp4MediaChunk(dataSource, dataSpec, formatInfo, trigger, extractor,
-        chunkStartTimeUs, nextStartTimeUs, -chunkStartTimeUs, nextChunkIndex);
+    return new Mp4MediaChunk(dataSource, dataSpec, formatInfo, trigger, chunkStartTimeUs,
+        nextStartTimeUs, nextChunkIndex, extractor, false, -chunkStartTimeUs);
   }
 
   private static byte[] getKeyId(byte[] initData) {
@@ -252,6 +259,18 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     byte temp = data[firstPosition];
     data[firstPosition] = data[secondPosition];
     data[secondPosition] = temp;
+  }
+
+  private static final class SmoothStreamingFormat extends Format {
+
+    public final int trackIndex;
+
+    public SmoothStreamingFormat(String id, String mimeType, int width, int height,
+        int numChannels, int audioSamplingRate, int bitrate, int trackIndex) {
+      super(id, mimeType, width, height, numChannels, audioSamplingRate, bitrate);
+      this.trackIndex = trackIndex;
+    }
+
   }
 
 }

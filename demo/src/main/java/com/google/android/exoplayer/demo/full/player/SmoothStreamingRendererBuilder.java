@@ -150,8 +150,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     }
 
     // Build the video renderer.
-    DataSource videoDataSource = new HttpDataSource(userAgent, HttpDataSource.REJECT_PAYWALL_TYPES,
-        bandwidthMeter);
+    DataSource videoDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
     ChunkSource videoChunkSource = new SmoothStreamingChunkSource(url, manifest,
         videoStreamElementIndex, videoTrackIndices, videoDataSource,
         new AdaptiveEvaluator(bandwidthMeter));
@@ -173,8 +172,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     } else {
       audioTrackNames = new String[audioStreamElementCount];
       ChunkSource[] audioChunkSources = new ChunkSource[audioStreamElementCount];
-      DataSource audioDataSource = new HttpDataSource(userAgent,
-          HttpDataSource.REJECT_PAYWALL_TYPES, bandwidthMeter);
+      DataSource audioDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
       FormatEvaluator audioFormatEvaluator = new FormatEvaluator.FixedEvaluator();
       audioStreamElementCount = 0;
       for (int i = 0; i < manifest.streamElements.length; i++) {
@@ -204,8 +202,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     } else {
       textTrackNames = new String[textStreamElementCount];
       ChunkSource[] textChunkSources = new ChunkSource[textStreamElementCount];
-      DataSource ttmlDataSource = new HttpDataSource(userAgent, HttpDataSource.REJECT_PAYWALL_TYPES,
-          bandwidthMeter);
+      DataSource ttmlDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
       FormatEvaluator ttmlFormatEvaluator = new FormatEvaluator.FixedEvaluator();
       textStreamElementCount = 0;
       for (int i = 0; i < manifest.streamElements.length; i++) {

@@ -68,7 +68,7 @@ public class MultiTrackChunkSource implements ChunkSource, ExoPlayerComponent {
   }
 
   @Override
-  public void disable(List<MediaChunk> queue) {
+  public void disable(List<? extends MediaChunk> queue) {
     selectedSource.disable(queue);
     enabled = false;
   }
@@ -100,6 +100,11 @@ public class MultiTrackChunkSource implements ChunkSource, ExoPlayerComponent {
     if (what == MSG_SELECT_TRACK) {
       selectedSource = allSources[(Integer) msg];
     }
+  }
+
+  @Override
+  public void onChunkLoadError(Chunk chunk, Exception e) {
+    selectedSource.onChunkLoadError(chunk, e);
   }
 
 }

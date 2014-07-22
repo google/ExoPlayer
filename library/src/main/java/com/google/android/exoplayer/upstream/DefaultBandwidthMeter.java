@@ -115,8 +115,8 @@ public class DefaultBandwidthMeter implements BandwidthMeter, TransferListener {
       float bytesPerSecond = accumulator * 1000 / elapsedMs;
       slidingPercentile.addSample(computeWeight(accumulator), bytesPerSecond);
       float bandwidthEstimateFloat = slidingPercentile.getPercentile(0.5f);
-      bandwidthEstimate = bandwidthEstimateFloat == Float.NaN
-          ? NO_ESTIMATE : (long) bandwidthEstimateFloat;
+      bandwidthEstimate = Float.isNaN(bandwidthEstimateFloat) ? NO_ESTIMATE
+          : (long) bandwidthEstimateFloat;
       notifyBandwidthSample(elapsedMs, accumulator, bandwidthEstimate);
     }
     streamCount--;

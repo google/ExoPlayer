@@ -146,7 +146,7 @@ public interface FormatEvaluator {
     public void evaluate(List<? extends MediaChunk> queue, long playbackPositionUs,
         Format[] formats, Evaluation evaluation) {
       Format newFormat = formats[random.nextInt(formats.length)];
-      if (evaluation.format != null && evaluation.format.id != newFormat.id) {
+      if (evaluation.format != null && !evaluation.format.id.equals(newFormat.id)) {
         evaluation.trigger = TRIGGER_ADAPTIVE;
       }
       evaluation.format = newFormat;
@@ -236,8 +236,8 @@ public interface FormatEvaluator {
           : queue.get(queue.size() - 1).endTimeUs - playbackPositionUs;
       Format current = evaluation.format;
       Format ideal = determineIdealFormat(formats, bandwidthMeter.getEstimate());
-      boolean isHigher = ideal != null && current != null && ideal.bandwidth > current.bandwidth;
-      boolean isLower = ideal != null && current != null && ideal.bandwidth < current.bandwidth;
+      boolean isHigher = ideal != null && current != null && ideal.bitrate > current.bitrate;
+      boolean isLower = ideal != null && current != null && ideal.bitrate < current.bitrate;
       if (isHigher) {
         if (bufferedDurationUs < minDurationForQualityIncreaseUs) {
           // The ideal format is a higher quality, but we have insufficient buffer to
@@ -247,11 +247,11 @@ public interface FormatEvaluator {
           // We're switching from an SD stream to a stream of higher resolution. Consider
           // discarding already buffered media chunks. Specifically, discard media chunks starting
           // from the first one that is of lower bandwidth, lower resolution and that is not HD.
-          for (int i = 0; i < queue.size(); i++) {
+          for (int i = 1; i < queue.size(); i++) {
             MediaChunk thisChunk = queue.get(i);
             long durationBeforeThisSegmentUs = thisChunk.startTimeUs - playbackPositionUs;
             if (durationBeforeThisSegmentUs >= minDurationToRetainAfterDiscardUs
-                && thisChunk.format.bandwidth < ideal.bandwidth
+                && thisChunk.format.bitrate < ideal.bitrate
                 && thisChunk.format.height < ideal.height
                 && thisChunk.format.height < 720
                 && thisChunk.format.width < 1280) {
@@ -280,7 +280,7 @@ public interface FormatEvaluator {
       long effectiveBandwidth = computeEffectiveBandwidthEstimate(bandwidthEstimate);
       for (int i = 0; i < formats.length; i++) {
         Format format = formats[i];
-        if (format.bandwidth <= effectiveBandwidth) {
+        if ((format.bitrate / 8) <= effectiveBandwidth) {
           return format;
         }
       }

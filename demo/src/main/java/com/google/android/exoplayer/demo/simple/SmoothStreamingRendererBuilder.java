@@ -115,8 +115,7 @@ import java.util.ArrayList;
     }
 
     // Build the video renderer.
-    DataSource videoDataSource = new HttpDataSource(userAgent, HttpDataSource.REJECT_PAYWALL_TYPES,
-        bandwidthMeter);
+    DataSource videoDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
     ChunkSource videoChunkSource = new SmoothStreamingChunkSource(url, manifest,
         videoStreamElementIndex, videoTrackIndices, videoDataSource,
         new AdaptiveEvaluator(bandwidthMeter));
@@ -126,8 +125,7 @@ import java.util.ArrayList;
         MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 0, mainHandler, playerActivity, 50);
 
     // Build the audio renderer.
-    DataSource audioDataSource = new HttpDataSource(userAgent, HttpDataSource.REJECT_PAYWALL_TYPES,
-        bandwidthMeter);
+    DataSource audioDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
     ChunkSource audioChunkSource = new SmoothStreamingChunkSource(url, manifest,
         audioStreamElementIndex, new int[] {0}, audioDataSource,
         new FormatEvaluator.FixedEvaluator());

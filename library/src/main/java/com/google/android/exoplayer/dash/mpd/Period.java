@@ -23,46 +23,37 @@ import java.util.List;
  */
 public final class Period {
 
-  public final int id;
+  /**
+   * The period identifier, if one exists.
+   */
+  public final String id;
 
-  public final long start;
+  /**
+   * The start time of the period in milliseconds.
+   */
+  public final long startMs;
 
-  public final long duration;
+  /**
+   * The duration of the period in milliseconds, or -1 if the duration is unknown.
+   */
+  public final long durationMs;
 
+  /**
+   * The adaptation sets belonging to the period.
+   */
   public final List<AdaptationSet> adaptationSets;
 
-  public final List<Segment.Timeline> segmentList;
-
-  public final int segmentStartNumber;
-
-  public final int segmentTimescale;
-
-  public final long presentationTimeOffset;
-
-  public Period(int id, long start, long duration, List<AdaptationSet> adaptationSets) {
-    this(id, start, duration, adaptationSets, null, 0, 0, 0);
-  }
-
-  public Period(int id, long start, long duration, List<AdaptationSet> adaptationSets,
-      List<Segment.Timeline> segmentList, int segmentStartNumber, int segmentTimescale) {
-    this(id, start, duration, adaptationSets, segmentList, segmentStartNumber, segmentTimescale, 0);
-  }
-
-  public Period(int id, long start, long duration, List<AdaptationSet> adaptationSets,
-      List<Segment.Timeline> segmentList, int segmentStartNumber, int segmentTimescale,
-      long presentationTimeOffset) {
+  /**
+   * @param id The period identifier. May be null.
+   * @param start The start time of the period in milliseconds.
+   * @param duration The duration of the period in milliseconds, or -1 if the duration is unknown.
+   * @param adaptationSets The adaptation sets belonging to the period.
+   */
+  public Period(String id, long start, long duration, List<AdaptationSet> adaptationSets) {
     this.id = id;
-    this.start = start;
-    this.duration = duration;
+    this.startMs = start;
+    this.durationMs = duration;
     this.adaptationSets = Collections.unmodifiableList(adaptationSets);
-    if (segmentList != null) {
-      this.segmentList = Collections.unmodifiableList(segmentList);
-    } else {
-      this.segmentList = null;
-    }
-    this.segmentStartNumber = segmentStartNumber;
-    this.segmentTimescale = segmentTimescale;
-    this.presentationTimeOffset = presentationTimeOffset;
   }
 
 }

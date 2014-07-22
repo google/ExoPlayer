@@ -16,8 +16,8 @@
 package com.google.android.exoplayer.smoothstreaming;
 
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.Util;
 
-import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -195,9 +195,7 @@ public class SmoothStreamingManifest {
      * @return The index of the corresponding chunk.
      */
     public int getChunkIndex(long timeUs) {
-      long time = (timeUs * timeScale) / 1000000L;
-      int chunkIndex = Arrays.binarySearch(chunkStartTimes, time);
-      return chunkIndex < 0 ? -chunkIndex - 2 : chunkIndex;
+      return Util.binarySearchFloor(chunkStartTimes, (timeUs * timeScale) / 1000000L, true, true);
     }
 
     /**
