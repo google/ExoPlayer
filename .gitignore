@@ -1,0 +1,10 @@
+.gradle/
+.idea/
+ExoPlayer.iml
+build/
+demo/build/
+demo/demo.iml
+library/build/
+library/library.iml
+local.properties
+
