@@ -163,8 +163,7 @@ public class HLSChunkSource implements ChunkSource {
         String chunkUrl = Util.makeAbsoluteUrl(currentVariantPlaylist.url, entry.url);
         Log.d(TAG, "opening " + chunkUrl);
         Uri uri = Uri.parse(chunkUrl);
-        long offset = 0;
-        DataSpec dataSpec = new DataSpec(uri, offset, -1, null);
+        DataSpec dataSpec = new DataSpec(uri, entry.offset, entry.length, null);
         Chunk mediaChunk = new TSMediaChunk(dataSource, trackList, videoMediaFormats.get(selectedFormat.id), dataSpec, selectedFormat,
                                             (long)(entry.startTime * 1000000), (long)((entry.startTime + entry.extinf) * 1000000),
                                             isLastChunk ? -1 : nextChunkIndex + 1);

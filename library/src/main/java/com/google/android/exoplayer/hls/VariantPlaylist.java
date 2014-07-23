@@ -1,6 +1,7 @@
 package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.upstream.DataSpec;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,6 +25,12 @@ public class VariantPlaylist {
         String url;
         double extinf;
         double startTime;
+        public long offset;
+        public long length;
+
+        public Entry() {
+            length = DataSpec.LENGTH_UNBOUNDED;
+        }
     }
 
     public List<Entry> entries;
@@ -46,7 +53,6 @@ public class VariantPlaylist {
         if (!line.startsWith(M3U8Constants.EXTM3U)) {
             throw new ParserException("no EXTM3U tag");
         }
-
         Entry e = null;
         while ((line = reader.readLine()) != null) {
             if (line.startsWith(M3U8Constants.EXT_X_MEDIA_SEQUENCE + ":")) {
@@ -55,6 +61,10 @@ public class VariantPlaylist {
                 variantPlaylist.endList = true;
             } else if (line.startsWith(M3U8Constants.EXT_X_TARGETDURATION + ":")) {
                 variantPlaylist.targetDuration = Double.parseDouble(line.substring(M3U8Constants.EXT_X_TARGETDURATION.length() + 1));
+            } else if (line.startsWith(M3U8Constants.EXT_X_BYTERANGE + ":")) {
+                String parts[] = line.substring(M3U8Constants.EXT_X_BYTERANGE.length() + 1).split("@");
+                e.length = Integer.parseInt(parts[0]);
+                e.offset = Integer.parseInt(parts[1]);
             } else if (line.startsWith(M3U8Constants.EXTINF + ":")) {
                 if (e == null) {
                     e = new Entry();
