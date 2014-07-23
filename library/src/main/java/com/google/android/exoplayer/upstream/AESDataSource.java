@@ -2,17 +2,30 @@ package com.google.android.exoplayer.upstream;
 
 import android.net.Uri;
 
+import com.google.android.exoplayer.util.Assertions;
+
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.AlgorithmParameterSpec;
 
 import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import com.google.android.exoplayer.util.Util;
 
 public final class AESDataSource implements DataSource {
     private Cipher cipher;
     private DataSource underlyingDataSource;
     private String userAgent;
     private byte key[];
+    private int currentOffset;
+    private CipherInputStream cipherInputStream;
 
     public AESDataSource(String userAgent, DataSource underlyingDataSource){
         this.underlyingDataSource = underlyingDataSource;
@@ -26,15 +39,15 @@ public final class AESDataSource implements DataSource {
 
         if (dataSpec.uri.getScheme().equals("aes")) {
             try {
-                cipher = Cipher.getInstance("AES/CBC/PCKS7Padding");
+                cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             } catch (NoSuchPaddingException e) {
                 e.printStackTrace();
             }
 
-            String keyUrl = dataSpec.uri.getQueryParameter("key");
-            String dataUrl = dataSpec.uri.getQueryParameter("data");
+            String keyUrl = dataSpec.uri.getQueryParameter("keyUrl");
+            String dataUrl = dataSpec.uri.getQueryParameter("dataUrl");
             Uri keyUri = Uri.parse(keyUrl);
 
             DataSource keyDataSource;
@@ -42,7 +55,7 @@ public final class AESDataSource implements DataSource {
             if (keyUri.getScheme().equals("file")) {
                 keyDataSource = new FileDataSource();
             } else {
-                keyDataSource = new HttpDataSource(userAgent, HttpDataSource.REJECT_PAYWALL_TYPES);
+                keyDataSource = new HttpDataSource(userAgent, null);
             }
 
             DataSpec keyDataSpec = new DataSpec(keyUri, 0, DataSpec.LENGTH_UNBOUNDED, null);
@@ -54,15 +67,32 @@ public final class AESDataSource implements DataSource {
                 if (ret <= 0) {
                     throw new IOException("cannot read key");
                 }
+                bytesRead += ret;
             }
             keyDataSource.close();
 
-            underlyingDataSpec = new DataSpec(Uri.parse(dataUrl), dataSpec.absoluteStreamPosition, dataSpec.length, dataSpec.key);
-        } else {
-            underlyingDataSpec = dataSpec;
-        }
+            String ivHexa = dataSpec.uri.getQueryParameter("iv");
+            byte iv[] = Util.hexToBin(ivHexa);
+            Key cipherKey = new SecretKeySpec(key, "AES");
+            AlgorithmParameterSpec cipherIV = new IvParameterSpec(iv);
 
-        return underlyingDataSource.open(underlyingDataSpec);
+            try {
+                cipher.init(Cipher.DECRYPT_MODE, cipherKey, cipherIV);
+            } catch (InvalidKeyException e) {
+                e.printStackTrace();
+            } catch (InvalidAlgorithmParameterException e) {
+                e.printStackTrace();
+            }
+
+            underlyingDataSpec = new DataSpec(Uri.parse(dataUrl), dataSpec.absoluteStreamPosition, dataSpec.length, dataSpec.key);
+            DataSourceInputStream is = new DataSourceInputStream(underlyingDataSource, underlyingDataSpec);
+            cipherInputStream = new CipherInputStream(is, cipher);
+
+            return DataSpec.LENGTH_UNBOUNDED;
+
+        } else {
+            return underlyingDataSource.open(dataSpec);
+        }
     }
 
     @Override
@@ -72,8 +102,17 @@ public final class AESDataSource implements DataSource {
 
     @Override
     public int read(byte[] buffer, int offset, int readLength) throws IOException {
-//       cipher
+        if (cipherInputStream != null) {
+            Assertions.checkState(offset == currentOffset);
+            int ret = cipherInputStream.read(buffer, offset, readLength);
+            if (ret == -1) {
+                return -1;
+            }
+            currentOffset += ret;
 
-        return 0;
+            return ret;
+        } else {
+            return underlyingDataSource.read(buffer, offset, readLength);
+        }
     }
 }

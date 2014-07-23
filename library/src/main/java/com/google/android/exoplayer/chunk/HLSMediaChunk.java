@@ -22,6 +22,7 @@ public class HLSMediaChunk extends MediaChunk {
     private HLSExtractor extractor;
     private MediaFormat videoMediaFormat;
     private ArrayList<Integer> trackList;
+    NonBlockingInputStream inputStream;
 
     /**
      * Constructor for a chunk of media samples.
@@ -39,32 +40,54 @@ public class HLSMediaChunk extends MediaChunk {
     }
 
     @Override
-    public final void init(Allocator allocator) {
-        super.init(allocator);
-        NonBlockingInputStream inputStream = getNonBlockingInputStream();
-        Assertions.checkState(inputStream != null);
-        if (this.videoMediaFormat != null) {
-            this.extractor = new TSExtractor(inputStream);
-        } else {
-            this.extractor = new AACExtractor(inputStream);
-        }
-    }
-
-    @Override
     public boolean seekTo(long positionUs, boolean allowNoop) {
         return false;
+    }
+
+    private int checkExtractor() {
+        if (this.extractor == null) {
+            NonBlockingInputStream inputStream = getNonBlockingInputStream();
+            Assertions.checkState(inputStream != null);
+            byte firstByte[] = new byte[1];
+            int ret = inputStream.read(firstByte, 0, 1);
+            if (ret != 1) {
+                return ret;
+            }
+
+            resetReadPosition();
+            if (firstByte[0] == 0x47) {
+                this.extractor = new TSExtractor(inputStream);
+            } else {
+                this.extractor = new AACExtractor(inputStream);
+            }
+        }
+
+        return 1;
     }
 
     @Override
     public boolean read(int track, SampleHolder holder) throws ParserException {
 
-        int result = extractor.read(trackList.get(track), holder);
-        return (result == TSExtractor.RESULT_READ_SAMPLE_FULL);
+        if (checkExtractor() <= 0) {
+            return false;
+        }
+
+        return (extractor.read(trackList.get(track), holder) == TSExtractor.RESULT_READ_SAMPLE_FULL);
     }
 
     @Override
     public MediaFormat getMediaFormat(int track) {
         int type = trackList.get(track);
+
+        // XXX: not nice :-(
+        while (checkExtractor() == 0) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
         if (type == TSExtractor.TYPE_VIDEO) {
             return videoMediaFormat;
         } else {
@@ -79,6 +102,9 @@ public class HLSMediaChunk extends MediaChunk {
 
     public boolean isReadFinished() {
 
+        if (this.extractor == null) {
+            return false;
+        }
         return extractor.isReadFinished();
     }
 }

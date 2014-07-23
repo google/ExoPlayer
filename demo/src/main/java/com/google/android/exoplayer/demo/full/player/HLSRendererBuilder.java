@@ -18,6 +18,7 @@ import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilderCallback;
 import com.google.android.exoplayer.hls.HLSChunkSource;
 import com.google.android.exoplayer.hls.MainPlaylist;
+import com.google.android.exoplayer.upstream.AESDataSource;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
@@ -105,8 +106,9 @@ public class HLSRendererBuilder implements DemoPlayer.RendererBuilder {
          * do not reject text content types, https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear0/main.aac
          * is actual text
          */
-        DataSource dataSource = new HttpDataSource(userAgent, null/*HttpDataSource.REJECT_PAYWALL_TYPES*/,
+        DataSource HTTPDataSource = new HttpDataSource(userAgent, null/*HttpDataSource.REJECT_PAYWALL_TYPES*/,
                 bandwidthMeter);
+        DataSource dataSource = new AESDataSource(userAgent, HTTPDataSource);
         ChunkSource chunkSource = new HLSChunkSource(url, this.mainPlaylist, dataSource,
                 new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter));
 

@@ -21,12 +21,19 @@ public class VariantPlaylist {
     public double duration;
     public double targetDuration;
 
+    static class KeyEntry {
+        public String uri;
+        public String IV;
+    }
+
     static class Entry {
         String url;
         double extinf;
         double startTime;
         public long offset;
         public long length;
+
+        KeyEntry keyEntry;
 
         public Entry() {
             length = DataSpec.LENGTH_UNBOUNDED;
@@ -54,6 +61,7 @@ public class VariantPlaylist {
             throw new ParserException("no EXTM3U tag");
         }
         Entry e = null;
+        KeyEntry ke = null;
         while ((line = reader.readLine()) != null) {
             if (line.startsWith(M3U8Constants.EXT_X_MEDIA_SEQUENCE + ":")) {
                 variantPlaylist.mediaSequence = Integer.parseInt(line.substring(M3U8Constants.EXT_X_MEDIA_SEQUENCE.length() + 1));
@@ -76,10 +84,24 @@ public class VariantPlaylist {
                 if (e.extinf == 0.0) {
                     e.extinf = variantPlaylist.targetDuration;
                 }
+                e.keyEntry = ke;
                 e.startTime = startTime;
                 startTime += e.extinf;
                 variantPlaylist.entries.add(e);
                 e = null;
+            } else if (line.startsWith(M3U8Constants.EXT_X_KEY + ":")) {
+                HashMap<String, String> attributes = M3U8Utils.parseAtrributeList(line.substring(M3U8Constants.EXT_X_KEY.length() + 1));
+                String method = attributes.get("METHOD");
+                ke = new KeyEntry();
+                if (method.equals("AES-128")) {
+                    ke.uri = attributes.get("URI");
+                    if (attributes.containsKey("IV")) {
+                        ke.IV = attributes.get("IV");
+                        if (ke.IV.startsWith("0x")) {
+                            ke.IV = ke.IV.substring(2);
+                        }
+                    }
+                }
             }
         }
 

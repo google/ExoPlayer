@@ -19,6 +19,8 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -162,7 +164,27 @@ public class HLSChunkSource implements ChunkSource {
 
         String chunkUrl = Util.makeAbsoluteUrl(currentVariantPlaylist.url, entry.url);
         Log.d(TAG, "opening " + chunkUrl);
-        Uri uri = Uri.parse(chunkUrl);
+        Uri uri = null;
+        if (entry.keyEntry != null) {
+            String dataUrl = null;
+            String keyUrl = null;
+            try {
+                dataUrl = URLEncoder.encode(chunkUrl, "utf-8");
+                keyUrl = URLEncoder.encode(entry.keyEntry.uri, "utf-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
+            String iv = entry.keyEntry.IV;
+            if (iv == null) {
+                // XXX: is this nextChunkIndex or nextChunkIndex + 1 ?
+                iv = Integer.toHexString(nextChunkIndex);
+            }
+            uri = Uri.parse("aes://dummy?dataUrl=" + dataUrl + "&keyUrl=" + keyUrl + "&iv=" + iv);
+        } else {
+            uri = Uri.parse(chunkUrl);
+        }
+
         DataSpec dataSpec = new DataSpec(uri, entry.offset, entry.length, null);
         MediaFormat videoMediaFormat;
         if (selectedFormat.id < videoMediaFormats.size()) {

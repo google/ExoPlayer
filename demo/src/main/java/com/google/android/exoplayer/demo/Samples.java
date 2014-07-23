@@ -141,8 +141,9 @@ package com.google.android.exoplayer.demo;
     new Sample("Tour de france - mp4", "uid:misc:dailmotion-mp4", "http://www.dailymotion.com/cdn/H264-1280x720/video/x20w6of.mp4?auth=1410854598-2560-z6kb2tel-c8430f2843d7230c9e6622ba1920c77d",
         DemoUtil.TYPE_OTHER, false, true),
     new Sample("BipBop - audio only", "uid:misc:audioonly", "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear0/prog_index.m3u8",
+        DemoUtil.TYPE_HLS_AUDIO_ONLY, false, true),
+    new Sample("Audio only - AES", "uid:misc:audioonlyaes", "https://api.beatgasm.com/v1/play/4301.m3u8?type=user&type_id=2190&bitrate=64000&X-Auth-Token=d4328aa4-46e2-452f-90f5-8228dd22a54c",
         DemoUtil.TYPE_HLS_AUDIO_ONLY, false, true)
-
   };
 
   private Samples() {}
