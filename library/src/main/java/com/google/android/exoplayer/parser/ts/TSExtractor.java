@@ -14,6 +14,10 @@ import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.TraceUtil;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,6 +38,7 @@ public class TSExtractor extends HLSExtractor {
     private LinkedList<Sample> recycledSampleList;
     private ArrayList<LinkedList<Sample>> sampleLists;
     private boolean endOfStream;
+    int audioStreamType;
 
     static class Sample {
         public UnsignedByteArray data;
@@ -195,6 +200,7 @@ public class TSExtractor extends HLSExtractor {
     class PMTHandler extends SectionHandler {
         static final int STREAM_TYPE_AAC_ADTS = 0xf;
         static final int STREAM_TYPE_H264 = 0x1b;
+        static final int STREAM_TYPE_MPEG_AUDIO = 0x3;
 
         public List<Stream> streams;
 
@@ -231,9 +237,9 @@ public class TSExtractor extends HLSExtractor {
             PESHandler handler;
             for (Stream s: streams) {
                 handler = null;
-                if (audio_handler == null && s.type == STREAM_TYPE_AAC_ADTS) {
+                if (audio_handler == null && (s.type == STREAM_TYPE_AAC_ADTS || s.type == STREAM_TYPE_MPEG_AUDIO)) {
+                    audioStreamType = s.type;
                     audio_handler = new PESHandler(sampleLists.get(TYPE_AUDIO));
-                    // XXX: uncomment when audio is needed
                     handler = audio_handler;
                     Log.d(TAG, String.format("audio found on pid %04x", s.pid));
                 } else if (video_handler == null && s.type == STREAM_TYPE_H264) {
@@ -296,6 +302,7 @@ public class TSExtractor extends HLSExtractor {
         sampleLists.add(new LinkedList<Sample>());
         this.inputStream = inputStream;
         activePESHandlers = new ArrayList<PESHandler>();
+
     }
 
     /**
@@ -325,6 +332,19 @@ public class TSExtractor extends HLSExtractor {
             packetWriteOffset = 0;
             return false;
         }
+
+        /*if (f == null) {
+            try {
+                f = new FileOutputStream(new File("/sdcard/audioOnly.ts"));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            f.write(packet.array(), 0, 188);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
 
         if (packet.get(0) != 0x47) {
             packetWriteOffset = 0;
@@ -412,9 +432,13 @@ public class TSExtractor extends HLSExtractor {
         if (list.size() > 0) {
             Sample s = list.get(0);
             if (type == TYPE_AUDIO && audioMediaFormat == null) {
-                AACExtractor.ADTSHeader h = new AACExtractor.ADTSHeader();
-                h.update(s.data, 0);
-                audioMediaFormat = h.toMediaFormat();
+                if (audioStreamType == PMTHandler.STREAM_TYPE_AAC_ADTS) {
+                    AACExtractor.ADTSHeader h = new AACExtractor.ADTSHeader();
+                    h.update(s.data, 0);
+                    audioMediaFormat = h.toMediaFormat();
+                } else {
+                    audioMediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_MPEG, -1, 2, 44100, null);
+                }
             }
 
             if (out.data != null) {
