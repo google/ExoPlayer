@@ -10,6 +10,7 @@ import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
+import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSource;
@@ -100,7 +101,11 @@ public class HLSRendererBuilder implements DemoPlayer.RendererBuilder {
         LoadControl loadControl = new DefaultLoadControl(new BufferPool(BUFFER_SEGMENT_SIZE));
         DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter(mainHandler, player);
 
-        DataSource dataSource = new HttpDataSource(userAgent, HttpDataSource.REJECT_PAYWALL_TYPES,
+        /*
+         * do not reject text content types, https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear0/main.aac
+         * is actual text
+         */
+        DataSource dataSource = new HttpDataSource(userAgent, null/*HttpDataSource.REJECT_PAYWALL_TYPES*/,
                 bandwidthMeter);
         ChunkSource chunkSource = new HLSChunkSource(url, this.mainPlaylist, dataSource,
                 new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter));
@@ -109,20 +114,29 @@ public class HLSRendererBuilder implements DemoPlayer.RendererBuilder {
                 VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
                 DemoPlayer.TYPE_VIDEO);
 
-        // Build the video renderer.
-        MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
-                null, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000,
-                mainHandler, player, 1);
+        MediaCodecVideoTrackRenderer videoRenderer = null;
+        MediaCodecAudioTrackRenderer audioRenderer = null;
+        TrackRenderer debugRenderer = null;
 
-        // Build the audio renderer
-        MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource, null, true, mainHandler, player);
+        int trackCount = chunkSource.getTrackCount();
+        for (int i = 0; i < trackCount; i++) {
+            TrackInfo info = chunkSource.getTrackInfo(i);
+            if (audioRenderer == null && info.mimeType.startsWith("audio")) {
+                audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource, null, true, mainHandler, player);
+            } else if (videoRenderer == null && info.mimeType.startsWith("video")) {
+                videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
+                        null, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000,
+                        mainHandler, player, 1);
+            }
+        }
 
-        // Build the debug renderer.
-        TrackRenderer debugRenderer = debugTextView != null
-                ? new DebugTrackRenderer(debugTextView, videoRenderer, sampleSource)
-                : null;
+
         //debugRenderer = null;
         //videoRenderer = null;
+        if (videoRenderer != null && debugTextView != null) {
+            debugRenderer = new DebugTrackRenderer(debugTextView, videoRenderer, sampleSource);
+        }
+
 
         TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
         renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;

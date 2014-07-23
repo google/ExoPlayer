@@ -164,7 +164,13 @@ public class HLSChunkSource implements ChunkSource {
         Log.d(TAG, "opening " + chunkUrl);
         Uri uri = Uri.parse(chunkUrl);
         DataSpec dataSpec = new DataSpec(uri, entry.offset, entry.length, null);
-        Chunk mediaChunk = new HLSMediaChunk(dataSource, trackList, videoMediaFormats.get(selectedFormat.id), dataSpec, selectedFormat,
+        MediaFormat videoMediaFormat;
+        if (selectedFormat.id < videoMediaFormats.size()) {
+            videoMediaFormat = videoMediaFormats.get(selectedFormat.id);
+        } else {
+            videoMediaFormat = null;
+        }
+        Chunk mediaChunk = new HLSMediaChunk(dataSource, trackList, videoMediaFormat, dataSpec, selectedFormat,
                                             (long)(entry.startTime * 1000000), (long)((entry.startTime + entry.extinf) * 1000000),
                                             isLastChunk ? -1 : nextChunkIndex + 1);
         out.chunk = mediaChunk;

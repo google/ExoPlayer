@@ -21,7 +21,7 @@ public abstract class HLSExtractor {
     public static final int TYPE_VIDEO = 0;
     public static final int TYPE_AUDIO = 1;
 
-    static class UnsignedByteArray {
+    static public class UnsignedByteArray {
         byte[] array;
         public UnsignedByteArray(int length) {
             array = new byte[length];
@@ -45,6 +45,15 @@ public abstract class HLSExtractor {
         }
         public byte[] array() {
             return array;
+        }
+
+        public long getLong(int offset) {
+            long result = 0;
+            for (int i = 0; i < 8; i++) {
+                result <<= 8;
+                result |= get(offset + i);
+            }
+            return result;
         }
     }
 

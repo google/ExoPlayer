@@ -118,7 +118,7 @@ public final class Util {
   }
 
   public static String makeAbsoluteUrl(String baseUrl, String relativeUrl) {
-    if (baseUrl == ".")
+    if (baseUrl.equals("."))
         return relativeUrl;
      try {
         URL baseURL = new URL(baseUrl);

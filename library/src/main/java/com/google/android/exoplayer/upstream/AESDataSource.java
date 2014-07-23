@@ -24,7 +24,7 @@ public final class AESDataSource implements DataSource {
     public long open(DataSpec dataSpec) throws IOException {
         DataSpec underlyingDataSpec = null;
 
-        if (dataSpec.uri.getScheme() == "aes") {
+        if (dataSpec.uri.getScheme().equals("aes")) {
             try {
                 cipher = Cipher.getInstance("AES/CBC/PCKS7Padding");
             } catch (NoSuchAlgorithmException e) {
@@ -39,7 +39,7 @@ public final class AESDataSource implements DataSource {
 
             DataSource keyDataSource;
 
-            if (keyUri.getScheme() == "file") {
+            if (keyUri.getScheme().equals("file")) {
                 keyDataSource = new FileDataSource();
             } else {
                 keyDataSource = new HttpDataSource(userAgent, HttpDataSource.REJECT_PAYWALL_TYPES);

@@ -9,6 +9,7 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.chunk.HLSExtractor;
+import com.google.android.exoplayer.parser.aac.AACExtractor;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.TraceUtil;
@@ -33,33 +34,6 @@ public class TSExtractor extends HLSExtractor {
     private LinkedList<Sample> recycledSampleList;
     private ArrayList<LinkedList<Sample>> sampleLists;
     private boolean endOfStream;
-
-    static class UnsignedByteArray {
-        byte[] array;
-        public UnsignedByteArray(int length) {
-            array = new byte[length];
-        }
-
-        public void resize(int newLength) {
-            byte [] newArray = new byte[newLength];
-            System.arraycopy(array, 0, newArray, 0, array.length);
-            array = newArray;
-        }
-
-        public int length() {
-            return array.length;
-        }
-
-        public int get(int index) {
-            return (int)array[index] & 0xff;
-        }
-        public int getShort(int index) {
-            return get(index) << 8 | get(index + 1);
-        }
-        public byte[] array() {
-            return array;
-        }
-    }
 
     static class Sample {
         public UnsignedByteArray data;
@@ -389,25 +363,6 @@ public class TSExtractor extends HLSExtractor {
         return true;
     }
 
-    private static int getSampleRate(int sampleRateIndex) {
-        switch(sampleRateIndex) {
-            case 0: return 96000;
-            case 1: return 88200;
-            case 2: return 64000;
-            case 3: return 48000;
-            case 4: return 44100;
-            case 5: return 32000;
-            case 6: return 24000;
-            case 7: return 22050;
-            case 8: return 16000;
-            case 9: return 12000;
-            case 10: return 11025;
-            case 11: return 8000;
-            case 12: return 7350;
-        }
-        return 44100;
-    }
-
     static public double getDuration(Sample s, int sampleRate) {
         int position = 0;
         int frameCount = 0;
@@ -457,33 +412,9 @@ public class TSExtractor extends HLSExtractor {
         if (list.size() > 0) {
             Sample s = list.get(0);
             if (type == TYPE_AUDIO && audioMediaFormat == null) {
-                UnsignedByteArray d = s.data;
-                if (d.get(0) != 0xff || ((d.get(1) & 0xf0) != 0xf0)) {
-                    Log.d(TAG, "no ADTS sync");
-                } else {
-
-                    Log.d(TAG, "version: " + ((d.get(1) & 0x08) >> 3));
-                    Log.d(TAG, "layer: " + ((d.get(1) & 0x06) >> 1));
-                    Log.d(TAG, "protection absent: " + ((d.get(1) & 0x01) >> 0));
-                    Log.d(TAG, "profile: " + ((d.get(2) & 0xc0) >> 6));
-                    int sampleRateIndex =(d.get(2) & 0x3c) >> 2;
-                    int sampleRate = getSampleRate(sampleRateIndex);
-                    Log.d(TAG, "sample rate: " + sampleRate);
-                    int channelConfigIndex = (((d.get(2) & 0x1) << 2) + ((d.get(3) & 0xc0) >> 6));
-                    Log.d(TAG, "channel config index: " + channelConfigIndex);
-                    int frameLength = (d.get(3) & 0x3) << 11;
-                    frameLength += (d.get(4) << 3);
-                    frameLength += (d.get(5) & 0xe0) >> 5;
-                    Log.d(TAG, "frame length: " + frameLength);
-
-                    List<byte[]> initializationData = new ArrayList<byte[]>();
-                    byte[] data = new byte[2];
-                    data[0] = (byte)(0x10 | ((sampleRateIndex & 0xe) >> 1));
-                    data[1] = (byte)(((sampleRateIndex & 0x1) << 7) | ((channelConfigIndex & 0xf) << 3));
-                    initializationData.add(data);
-                    audioMediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_AAC, -1, 2, sampleRate, initializationData);
-                    audioMediaFormat.setIsADTS(true);
-                }
+                AACExtractor.ADTSHeader h = new AACExtractor.ADTSHeader();
+                h.update(s.data, 0);
+                audioMediaFormat = h.toMediaFormat();
             }
 
             if (out.data != null) {
