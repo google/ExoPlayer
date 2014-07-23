@@ -1,20 +1,8 @@
 package com.google.android.exoplayer.chunk;
 
-import android.media.MediaExtractor;
-import android.os.SystemClock;
-import android.util.Log;
-import android.util.SparseArray;
-
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.upstream.NonBlockingInputStream;
-import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.TraceUtil;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 public abstract class HLSExtractor {
     /**
