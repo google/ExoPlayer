@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
-public class TSMediaChunk extends MediaChunk {
+public class HLSMediaChunk extends MediaChunk {
 
     private TSExtractor extractor;
     private MediaFormat videoMediaFormat;
@@ -31,7 +31,7 @@ public class TSMediaChunk extends MediaChunk {
      * @param format         The format of the stream to which this chunk belongs.
      * @param nextChunkIndex The index of the next chunk, or -1 if this is the last chunk.
      */
-    public TSMediaChunk(DataSource dataSource, ArrayList<Integer> trackList, MediaFormat videoMediaFormat, DataSpec dataSpec, Format format, long startTimeUs, long endTimeUs, int nextChunkIndex) {
+    public HLSMediaChunk(DataSource dataSource, ArrayList<Integer> trackList, MediaFormat videoMediaFormat, DataSpec dataSpec, Format format, long startTimeUs, long endTimeUs, int nextChunkIndex) {
         super(dataSource, dataSpec, format, 0, startTimeUs, startTimeUs, nextChunkIndex);
         this.videoMediaFormat = videoMediaFormat;
         this.trackList = trackList;

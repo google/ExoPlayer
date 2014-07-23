@@ -11,7 +11,7 @@ import com.google.android.exoplayer.chunk.ChunkSource;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.MediaChunk;
-import com.google.android.exoplayer.chunk.TSMediaChunk;
+import com.google.android.exoplayer.chunk.HLSMediaChunk;
 import com.google.android.exoplayer.parser.ts.TSExtractor;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -164,7 +164,7 @@ public class HLSChunkSource implements ChunkSource {
         Log.d(TAG, "opening " + chunkUrl);
         Uri uri = Uri.parse(chunkUrl);
         DataSpec dataSpec = new DataSpec(uri, entry.offset, entry.length, null);
-        Chunk mediaChunk = new TSMediaChunk(dataSource, trackList, videoMediaFormats.get(selectedFormat.id), dataSpec, selectedFormat,
+        Chunk mediaChunk = new HLSMediaChunk(dataSource, trackList, videoMediaFormats.get(selectedFormat.id), dataSpec, selectedFormat,
                                             (long)(entry.startTime * 1000000), (long)((entry.startTime + entry.extinf) * 1000000),
                                             isLastChunk ? -1 : nextChunkIndex + 1);
         out.chunk = mediaChunk;
