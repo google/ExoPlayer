@@ -21,7 +21,6 @@ public class TSMediaChunk extends MediaChunk {
     private TSExtractor extractor;
     private MediaFormat videoMediaFormat;
     private ArrayList<Integer> trackList;
-    private FileOutputStream debugFile;
 
     /**
      * Constructor for a chunk of media samples.
