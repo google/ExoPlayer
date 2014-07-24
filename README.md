@@ -55,6 +55,22 @@ accompanying demo application. To get started:
 
 ## Using Gradle ##
 
-ExoPlayer can also be built using Gradle. For a complete list of tasks, run:
+ExoPlayer can also be built using Gradle. You can include it as a dependent project and build from source. e.g.
 
-./gradlew tasks
+```
+// setting.gradle
+include ':app', ':..:ExoPlayer:library'
+
+// app/build.gradle
+dependencies {
+    compile project(':..:ExoPlayer:library')
+}
+```
+
+If you want to use ExoPlayer as a jar, run:
+
+```
+./gradlew jarRelease
+```
+
+and copy library.jar to the libs-folder of your new project.
