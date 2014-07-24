@@ -39,6 +39,7 @@ public class TSExtractor extends HLSExtractor {
     private ArrayList<LinkedList<Sample>> sampleLists;
     private boolean endOfStream;
     int audioStreamType;
+    private boolean unitStartNotSignalled;
 
     static class Sample {
         public UnsignedByteArray data;
@@ -52,6 +53,11 @@ public class TSExtractor extends HLSExtractor {
 
     static abstract class PayloadHandler {
         public int cc_counter;
+        public int pid;
+
+        protected void init(int pid) {
+            this.pid = pid;
+        }
 
         /**
          *
@@ -79,14 +85,20 @@ public class TSExtractor extends HLSExtractor {
         private LinkedList<Sample> list;
         private int length;
 
-        public PESHandler(LinkedList<Sample> list) {
+        public PESHandler(int pid, LinkedList<Sample> list) {
+            super.init(pid);
             this.list = list;
         }
 
         @Override
-        public void handlePayload(UnsignedByteArray packet, int payloadStart, boolean unit_start) {
+        public void handlePayload(UnsignedByteArray packet, int payloadStart, boolean unitStart) {
             int offset = payloadStart;
-            if (unit_start) {
+            if (unitStartNotSignalled) {
+                unitStart = (packet.get(payloadStart) == 0x00
+                            && packet.get(payloadStart + 1) == 0x00
+                            && packet.get(payloadStart + 2) == 0x01);
+            }
+            if (unitStart) {
                 long pts = 0;
 
                 // output previous packet
@@ -163,7 +175,8 @@ public class TSExtractor extends HLSExtractor {
         int sectionLength;
         int sectionWriteOffset;
 
-        public SectionHandler(int tableID) {
+        public SectionHandler(int pid, int tableID) {
+            super.init(pid);
             this.tableID = tableID;
             section = new UnsignedByteArray(1024);
         }
@@ -209,8 +222,8 @@ public class TSExtractor extends HLSExtractor {
             int pid;
         }
 
-        public PMTHandler() {
-            super(2);
+        public PMTHandler(int pid) {
+            super(pid, 2);
             streams = new ArrayList<Stream>();
         }
 
@@ -239,11 +252,16 @@ public class TSExtractor extends HLSExtractor {
                 handler = null;
                 if (audio_handler == null && (s.type == STREAM_TYPE_AAC_ADTS || s.type == STREAM_TYPE_MPEG_AUDIO)) {
                     audioStreamType = s.type;
-                    audio_handler = new PESHandler(sampleLists.get(TYPE_AUDIO));
+                    audio_handler = new PESHandler(s.pid, sampleLists.get(TYPE_AUDIO));
                     handler = audio_handler;
                     Log.d(TAG, String.format("audio found on pid %04x", s.pid));
+
+                    // XXX: not nice
+                    if (audioStreamType == STREAM_TYPE_MPEG_AUDIO) {
+                        unitStartNotSignalled = true;
+                    }
                 } else if (video_handler == null && s.type == STREAM_TYPE_H264) {
-                    video_handler = new PESHandler(sampleLists.get(TYPE_VIDEO));
+                    video_handler = new PESHandler(s.pid, sampleLists.get(TYPE_VIDEO));
                     handler = video_handler;
                     Log.d(TAG, String.format("video found on pid %04x", s.pid));
                 }
@@ -252,6 +270,9 @@ public class TSExtractor extends HLSExtractor {
                     activePESHandlers.add(handler);
                 }
             }
+
+            // do not listen to future PMT updates
+            activePayloadHandlers.remove(this.pid);
         }
     }
 
@@ -263,8 +284,8 @@ public class TSExtractor extends HLSExtractor {
 
         public final List<Program> programs;
 
-        public PATHandler() {
-            super(0);
+        public PATHandler(int pid) {
+            super(pid, 0);
             programs = new ArrayList<Program>();
         }
 
@@ -285,16 +306,19 @@ public class TSExtractor extends HLSExtractor {
             if (programs.size() > 0) {
                 // use first program
                 Program program = programs.get(0);
-                PMTHandler payloadHandler = new PMTHandler();
+                PMTHandler payloadHandler = new PMTHandler(program.pmt_pid);
                 activePayloadHandlers.put(program.pmt_pid, payloadHandler);
             }
+
+            // do not listen to PAT updates
+            activePayloadHandlers.remove(this.pid);
         }
     }
 
     public TSExtractor(NonBlockingInputStream inputStream) {
         packet = new UnsignedByteArray(188);
         activePayloadHandlers = new SparseArray<PayloadHandler>(4);
-        PayloadHandler payloadHandler = (PayloadHandler)new PATHandler();
+        PayloadHandler payloadHandler = (PayloadHandler)new PATHandler(0);
         activePayloadHandlers.put(0, payloadHandler);
         recycledSampleList = new LinkedList<Sample>();
         sampleLists = new ArrayList<LinkedList<Sample>>();
@@ -332,19 +356,6 @@ public class TSExtractor extends HLSExtractor {
             packetWriteOffset = 0;
             return false;
         }
-
-        /*if (f == null) {
-            try {
-                f = new FileOutputStream(new File("/sdcard/audioOnly.ts"));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            f.write(packet.array(), 0, 188);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
 
         if (packet.get(0) != 0x47) {
             packetWriteOffset = 0;

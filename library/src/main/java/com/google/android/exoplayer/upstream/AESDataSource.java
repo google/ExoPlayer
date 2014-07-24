@@ -10,6 +10,7 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
+import java.util.HashMap;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -24,8 +25,12 @@ public final class AESDataSource implements DataSource {
     private DataSource underlyingDataSource;
     private String userAgent;
     private byte key[];
-    private int currentOffset;
     private CipherInputStream cipherInputStream;
+
+    // XXX: reuse the upstream/cache stuff ?
+    // this is not just an optimisation. Some servers use single usage tokens
+    // so we must make sure we never request the same key twice
+    static final HashMap<String, byte[]> keyCache = new HashMap<String, byte[]>();
 
     public AESDataSource(String userAgent, DataSource underlyingDataSource){
         this.underlyingDataSource = underlyingDataSource;
@@ -58,19 +63,24 @@ public final class AESDataSource implements DataSource {
                 keyDataSource = new HttpDataSource(userAgent, null);
             }
 
-            DataSpec keyDataSpec = new DataSpec(keyUri, 0, DataSpec.LENGTH_UNBOUNDED, null);
-            keyDataSource.open(keyDataSpec);
-            key = new byte[16];
-            int bytesRead = 0;
-            while (bytesRead < 16) {
-                int ret = keyDataSource.read(key, bytesRead, 16 - bytesRead);
-                if (ret <= 0) {
-                    throw new IOException("cannot read key");
+            synchronized (keyCache) {
+                key = keyCache.get(keyUrl);
+                if (key == null) {
+                    DataSpec keyDataSpec = new DataSpec(keyUri, 0, DataSpec.LENGTH_UNBOUNDED, null);
+                    keyDataSource.open(keyDataSpec);
+                    key = new byte[16];
+                    int bytesRead = 0;
+                    while (bytesRead < 16) {
+                        int ret = keyDataSource.read(key, bytesRead, 16 - bytesRead);
+                        if (ret <= 0) {
+                            throw new IOException("cannot read key");
+                        }
+                        bytesRead += ret;
+                    }
+                    keyDataSource.close();
+                    keyCache.put(keyUrl, key);
                 }
-                bytesRead += ret;
             }
-            keyDataSource.close();
-
             String ivHexa = dataSpec.uri.getQueryParameter("iv");
             byte iv[] = Util.hexToBin(ivHexa);
             Key cipherKey = new SecretKeySpec(key, "AES");
@@ -103,12 +113,10 @@ public final class AESDataSource implements DataSource {
     @Override
     public int read(byte[] buffer, int offset, int readLength) throws IOException {
         if (cipherInputStream != null) {
-            Assertions.checkState(offset == currentOffset);
             int ret = cipherInputStream.read(buffer, offset, readLength);
             if (ret == -1) {
                 return -1;
             }
-            currentOffset += ret;
 
             return ret;
         } else {
