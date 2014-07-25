@@ -84,7 +84,7 @@ public class AACExtractor extends HLSExtractor {
             }
         }
 
-        public MediaFormat toMediaFormat()
+        public static MediaFormat createMediaFormat(int sampleRateIndex, int channelConfigIndex)
         {
             MediaFormat mediaFormat;
             List<byte[]> initializationData = new ArrayList<byte[]>();
@@ -92,9 +92,14 @@ public class AACExtractor extends HLSExtractor {
             data[0] = (byte)(0x10 | ((sampleRateIndex & 0xe) >> 1));
             data[1] = (byte)(((sampleRateIndex & 0x1) << 7) | ((channelConfigIndex & 0xf) << 3));
             initializationData.add(data);
-            mediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_AAC, -1, 2, sampleRate, initializationData);
+            mediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_AAC, -1, 2, getSampleRate(sampleRateIndex), initializationData);
             mediaFormat.setIsADTS(true);
             return mediaFormat;
+        }
+
+        public MediaFormat toMediaFormat()
+        {
+            return createMediaFormat(sampleRateIndex, channelConfigIndex);
         }
     }
 

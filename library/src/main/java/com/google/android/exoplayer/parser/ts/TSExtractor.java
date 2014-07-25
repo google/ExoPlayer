@@ -425,6 +425,10 @@ public class TSExtractor extends HLSExtractor {
         LinkedList<Sample> list = sampleLists.get(type);
         LinkedList<Sample> otherList = sampleLists.get(1 - type);
 
+        if (out.data != null){
+            Log.d(TAG, "direct ? " + out.data.isDirect());
+        }
+
         TraceUtil.beginSection("TSExtractor::read");
         // XXX: should I check that the otherList does not grow too much ?
         int packets = 0;

@@ -5,6 +5,7 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.parser.aac.AACExtractor;
 import com.google.android.exoplayer.parser.ts.TSExtractor;
+import com.google.android.exoplayer.parser.ts.TSExtractorNative;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceStream;
@@ -56,7 +57,8 @@ public class HLSMediaChunk extends MediaChunk {
 
             resetReadPosition();
             if (firstByte[0] == 0x47) {
-                this.extractor = new TSExtractor(inputStream);
+                //this.extractor = new TSExtractor(inputStream);
+                this.extractor = new TSExtractorNative(inputStream);
             } else {
                 this.extractor = new AACExtractor(inputStream);
             }
