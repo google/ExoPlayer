@@ -5,7 +5,9 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.chunk.HLSExtractor;
 import com.google.android.exoplayer.parser.ts.TSExtractor;
+import com.google.android.exoplayer.parser.ts.TSExtractorNative;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceStream;
@@ -21,7 +23,7 @@ public class TSExtractorTestCase extends TestCase {
         DataSource dataSource = new FileDataSource();
         DataSourceStream inputStream = new DataSourceStream(dataSource, dataSpec, new BufferPool(64*1024));
         inputStream.load();
-        TSExtractor extractor = new TSExtractor(inputStream);
+        HLSExtractor extractor = new TSExtractor(inputStream);
         int type = TSExtractor.TYPE_AUDIO;
         int[] counter = new int[2];
 

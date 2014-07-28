@@ -452,12 +452,6 @@ public class TSExtractor extends HLSExtractor {
                 }
             }
 
-            if (type == TYPE_AUDIO) {
-                Log.d(TAG, "got AUDIO sample  " + s.position);
-            } else {
-                Log.d(TAG, "got VIDEO sample  " + s.position);
-            }
-
             if (out.data != null) {
                 out.data.put(s.data.array(), 0, s.position);
                 out.timeUs = s.timeUs;
