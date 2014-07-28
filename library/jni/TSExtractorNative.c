@@ -603,7 +603,7 @@ static void _fill_holder(JNIEnv *env, jobject holder, Sample *sample, int type)
     fid = (*env)->GetFieldID(env, cls, "data", "Ljava/nio/ByteBuffer;");
     data = (*env)->GetObjectField(env, holder, fid);
     if (!data) {
-        __android_log_print(ANDROID_LOG_ERROR, TAG, "holder has no ByteBuffer");
+        //__android_log_print(ANDROID_LOG_ERROR, TAG, "holder has no ByteBuffer");
         return;
     }
 
