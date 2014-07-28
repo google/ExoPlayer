@@ -425,10 +425,6 @@ public class TSExtractor extends HLSExtractor {
         LinkedList<Sample> list = sampleLists.get(type);
         LinkedList<Sample> otherList = sampleLists.get(1 - type);
 
-        if (out.data != null){
-            Log.d(TAG, "direct ? " + out.data.isDirect());
-        }
-
         TraceUtil.beginSection("TSExtractor::read");
         // XXX: should I check that the otherList does not grow too much ?
         int packets = 0;
@@ -454,6 +450,12 @@ public class TSExtractor extends HLSExtractor {
                 } else {
                     audioMediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_MPEG, -1, 2, 44100, null);
                 }
+            }
+
+            if (type == TYPE_AUDIO) {
+                Log.d(TAG, "got AUDIO sample  " + s.position);
+            } else {
+                Log.d(TAG, "got VIDEO sample  " + s.position);
             }
 
             if (out.data != null) {

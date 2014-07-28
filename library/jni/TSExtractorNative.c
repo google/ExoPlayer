@@ -3,6 +3,7 @@
 #include <android/log.h>
 #include <inttypes.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <stdlib.h>
 
 #define TAG "TSExtractorNativeJNI"
@@ -23,6 +24,7 @@
 typedef struct Sample Sample;
 typedef struct PayloadHandler PayloadHandler;
 typedef struct SectionHandler SectionHandler;
+typedef struct PESHandler PESHandler;
 typedef struct TSParser TSParser;
 
 struct PayloadHandler {
@@ -45,9 +47,17 @@ struct SectionHandler {
     void (*handleSection)(SectionHandler *sh, uint8_t *section, int sectionLength);
 };
 
+struct PESHandler {
+    PayloadHandler payloadHandler;
+    int type;
+    int length;
+    Sample *currentSample;
+};
+
 struct Sample {
     uint8_t *data;
-    int size;
+    int position;
+    int maxSize;
     int64_t timeUs;
     Sample *next;
 };
@@ -61,7 +71,6 @@ struct TSParser{
     Sample *sampleHead[TYPE_COUNT];
     Sample **sampleLastNext[TYPE_COUNT];
     PayloadHandler *activePayloadHandlerHead;
-    PayloadHandler **activePayloadHandlerLastNext;
 
     int audioConfigFound;
     int sampleRateIndex;
@@ -96,6 +105,55 @@ static inline void _free(void *ptr)
     free(ptr);
 }
 
+pthread_mutex_t sampleMutex = PTHREAD_MUTEX_INITIALIZER;
+Sample *recycledSamples;
+
+static int recyle = 0;
+
+static Sample *sample_create(void)
+{
+    Sample *sample;
+    pthread_mutex_lock(&sampleMutex);
+    if (recycledSamples) {
+        sample = recycledSamples;
+        recycledSamples = sample->next;
+        sample->position = 0;
+        sample->timeUs = 0;
+        sample->next = NULL;
+    } else {
+        sample = _mallocz(sizeof(*sample));
+        sample->data = _malloc(64*1024);
+        sample->maxSize = 64*1024;
+        sample->next = NULL;
+    }
+
+    pthread_mutex_unlock(&sampleMutex);
+    return sample;
+}
+
+static void sample_destroy(Sample *sample)
+{
+    pthread_mutex_lock(&sampleMutex);
+    if (recyle) {
+        sample->next = recycledSamples;
+        recycledSamples = sample;
+    } else {
+        _free(sample->data);
+        _free(sample);
+    }
+    pthread_mutex_unlock(&sampleMutex);
+}
+
+static void sample_resize(Sample *sample, int newSize)
+{
+    uint8_t *newData = _malloc(newSize);
+    memcpy(newData, sample->data, sample->maxSize);
+    _free(sample->data);
+    sample->data = newData;
+    sample->maxSize = newSize;
+}
+
+
 static void payload_handler_init(PayloadHandler *ph, TSParser *tsp, int pid)
 {
     ph->pid = pid;
@@ -117,13 +175,6 @@ static void payload_handler_exit(PayloadHandler *ph)
                 prev->next = cur->next;
             } else {
                 tsp->activePayloadHandlerHead = cur->next;
-            }
-            if (cur->next == NULL) {
-                if (prev) {
-                    tsp->activePayloadHandlerLastNext = &prev->next;
-                } else {
-                    tsp->activePayloadHandlerLastNext = &tsp->activePayloadHandlerHead;
-                }
             }
             break;
         }
@@ -183,9 +234,136 @@ static void section_handler_exit(SectionHandler*sh)
     payload_handler_exit((PayloadHandler*)sh);
 }
 
+static void pes_handler_handle_payload(PayloadHandler *ph, uint8_t *packet, int offset, int unitStart)
+{
+    PESHandler *pesh = (PESHandler*)ph;
+
+    if (unitStart) {
+        uint64_t pts = 0;
+
+        // output previous packet
+        if (pesh->currentSample != NULL) {
+            //__android_log_print(ANDROID_LOG_DEBUG, TAG, "got %s packet size %d", pesh->type == TYPE_AUDIO ? "audio" : "video", pesh->currentSample->position);
+
+            *(ph->tsp->sampleLastNext[pesh->type]) = pesh->currentSample;
+            ph->tsp->sampleLastNext[pesh->type] = &pesh->currentSample->next;
+            if (pesh->length != 0 && pesh->length != pesh->currentSample->position) {
+                __android_log_print(ANDROID_LOG_DEBUG, TAG, "PES length %d != %d", pesh->currentSample->position, pesh->length);
+            }
+            if (pesh->type == TYPE_AUDIO && !ph->tsp->audioConfigFound) {
+                uint8_t *h = pesh->currentSample->data;
+                if (h[0] != 0xff || ((h[1] & 0xf0) != 0xf0)) {
+                    __android_log_print(ANDROID_LOG_ERROR, TAG, "no ADTS sync");
+                } else {
+                    ph->tsp->sampleRateIndex =(h[2] & 0x3c) >> 2;
+                    ph->tsp->channelConfigIndex = (((h[2] & 0x1) << 2) + ((h[3] & 0xc0) >> 6));
+                    __android_log_print(ANDROID_LOG_DEBUG, TAG, "audioConfigFound");
+                    ph->tsp->audioConfigFound = 1;
+                }
+            }
+
+            pesh->currentSample = NULL;
+        }
+
+        pesh->currentSample = sample_create();
+
+        if (packet[offset] != 0 || packet[offset + 1] != 0 || packet[offset + 2] != 1 ) {
+            __android_log_print(ANDROID_LOG_DEBUG, TAG, "bad start code: 0x%02x%02x%02x", packet[offset], packet[offset+1], packet[offset+2]);
+        }
+        offset += 3;
+        // skip stream id
+        offset++;
+        pesh->length = ((int)packet[offset]<<8) | packet[offset + 1];
+        offset += 2;
+
+        // skip some stuff
+        offset++;
+        int flags = packet[offset++];
+        int headerDataLength = packet[offset++];
+        int fixedOffset = offset;
+
+        if ((flags & 0x80) == 0x80) {
+            pts = (long)(packet[offset++] & 0x0e) << 28;
+            pts |= (packet[offset++]) << 21;
+            pts |= (packet[offset++] & 0xfe) << 13;
+            pts |= (packet[offset++]) << 6;
+            pts |= (packet[offset++] & 0xfe) >> 2;
+
+        }
+        if ((flags & 0x40) == 0x40) {
+            // DTS
+            offset += 5;
+        }
+
+        pesh->currentSample->timeUs = pts  * 1000 / 45;
+        // XXX: remove
+        pesh->currentSample->timeUs -= 10 * 1000000;
+
+        offset = fixedOffset + headerDataLength;
+        if (pesh->length > 0)
+            pesh->length -= headerDataLength + 3;
+        memcpy(pesh->currentSample->data, packet + offset, 188 - offset);
+        pesh->currentSample->position = 188 - offset;
+        return;
+    }
+
+    if (pesh->currentSample->position + 188 > pesh->currentSample->maxSize) {
+        sample_resize(pesh->currentSample, 2*(pesh->currentSample->position + 188));
+    }
+    memcpy(pesh->currentSample->data + pesh->currentSample->position, packet + offset, 188 - offset);
+    pesh->currentSample->position += 188 - offset;
+}
+
+static void pes_handler_destroy(PayloadHandler *ph)
+{
+    payload_handler_exit(ph);
+}
+
+static PESHandler *pes_handler_create(TSParser *tsp, int pid, int type)
+{
+    PESHandler *pesh = _mallocz(sizeof(*pesh));
+    PayloadHandler *ph = (PayloadHandler*)pesh;
+    payload_handler_init(ph, tsp, pid);
+    pesh->type = type;
+    ph->handlePayload = pes_handler_handle_payload;
+    ph->destroy = pes_handler_destroy;
+    ph->isPES = 1;
+
+    return pesh;
+}
+
 static void pmt_handler_handle_section(SectionHandler *sh, uint8_t *data, int dataLength)
 {
+#define STREAM_TYPE_AAC_ADTS 0xf
+#define STREAM_TYPE_H264 0x1b
+    PESHandler *audio_handler = NULL;
+    PESHandler *video_handler = NULL;
+    PayloadHandler *ph = (PayloadHandler*)sh;
 
+    // start from 5 to skip transport_stream_id, version_number, current_next_indicator, etc.
+    int i = 7;
+    int program_info_length = ((data[i] & 0xf) << 8) | data[i+1];
+    i += 2 + program_info_length;
+    while (i < dataLength - 4) {
+        int streamType = data[i];
+        i++;
+        int streamPID = ((data[i] & 0x1f) << 8) | data[i+1];
+        i+=2;
+        int ES_info_length = ((data[i] & 0xf) << 8) | data[i+1];
+        i+=2;
+        i += ES_info_length;
+
+        if (audio_handler == NULL && (streamType == STREAM_TYPE_AAC_ADTS)) {
+            audio_handler = pes_handler_create(ph->tsp, streamPID, TYPE_AUDIO);
+             __android_log_print(ANDROID_LOG_DEBUG, TAG, "audio found on pid %04x", streamPID);
+        } else if (video_handler == NULL && streamType == STREAM_TYPE_H264) {
+            video_handler = pes_handler_create(ph->tsp, streamPID, TYPE_VIDEO);
+             __android_log_print(ANDROID_LOG_DEBUG, TAG, "video found on pid %04x", streamPID);
+        }
+    }
+
+    // do not listen to future PMT updates
+    ((PayloadHandler*)sh)->destroy((PayloadHandler*)sh);
 }
 
 static void pmt_handler_destroy(PayloadHandler*ph)
@@ -209,6 +387,8 @@ static void pat_handler_handle_section(SectionHandler *sh, uint8_t *data, int da
     TSParser *tsp = ((PayloadHandler*)sh)->tsp;
     // start from 5 to skip transport_stream_id, version_number, current_next_indicator, etc.
     // stop at length - 4 to skip crc
+    __android_log_print(ANDROID_LOG_DEBUG, TAG, "pat_handler_handle_section: %d bytes", dataLength);
+
     for (i = 5; i < dataLength - 4; ){
         // XXX
         //int programNumber = (data[i] << 8) - data[i+1];
@@ -216,7 +396,7 @@ static void pat_handler_handle_section(SectionHandler *sh, uint8_t *data, int da
         tsp->pmt_pid = ((data[i] & 0x1f) << 8) | data[i+1];
         i += 2;
         // we just take the first program
-        __android_log_print(ANDROID_LOG_ERROR, TAG, "found PMT pid: %04x", tsp->pmt_pid);
+        __android_log_print(ANDROID_LOG_DEBUG, TAG, "found PMT pid: 0x%04x", tsp->pmt_pid);
         pmt_handler_create(tsp, tsp->pmt_pid);
     }
 
@@ -257,7 +437,6 @@ static TSParser *tsparser_create(JNIEnv *env, jobject thiz)
         tsp->sampleLastNext[i] = &tsp->sampleHead[i];
     }
     tsp->activePayloadHandlerHead = NULL;
-    tsp->activePayloadHandlerLastNext = &tsp->activePayloadHandlerHead;
 
     tsp->inputStream = (*env)->NewGlobalRef(env, (*env)->GetObjectField(env, thiz, fid));
 
@@ -283,18 +462,34 @@ static void _refill_data(JNIEnv *env, TSParser *tsp)
         length = BUFFER_SIZE - tsp->dataIncompletePosition;
     }
 
+    //__android_log_print(ANDROID_LOG_DEBUG, TAG, "_refill_data");
+
     jclass cls = (*env)->FindClass(env,  "com/google/android/exoplayer/upstream/NonBlockingInputStream");
     jmethodID mid = (*env)->GetMethodID(env, cls, "read", "([BII)I");
 
     jint ret = (*env)->CallIntMethod(env, tsp->inputStream, mid, tsp->dataByteArray, offset, length);
+    //__android_log_print(ANDROID_LOG_DEBUG, TAG, "_refill_data: read returned %d", ret);
+
     if (ret == -1) {
-        int padding;
         tsp->inputStreamFinished = 1;
-        padding = 188 - tsp->dataSize % 188;
-        if (padding) {
-            __android_log_print(ANDROID_LOG_ERROR, TAG, "TS file is not a multiple of 188 bytes ?");
+        if (tsp->dataSize % 188) {
+            __android_log_print(ANDROID_LOG_ERROR, TAG, "TS file is not a multiple of 188 bytes (%d)?", tsp->dataSize);
+            tsp->dataSize = 188 * ((tsp->dataSize + 187) / 188);
         }
-        tsp->dataSize = 188 * ((tsp->dataSize + 187) / 188);
+        PayloadHandler *ph = tsp->activePayloadHandlerHead;
+        while (ph) {
+            // flush
+            if (ph->isPES) {
+                PESHandler *pesh = (PESHandler*)ph;
+                if (pesh->currentSample) {
+                    //__android_log_print(ANDROID_LOG_ERROR, TAG, "flush type=%d (%p)", pesh->type, pesh);
+                    *tsp->sampleLastNext[pesh->type] = pesh->currentSample;
+                    tsp->sampleLastNext[pesh->type] = &pesh->currentSample->next;
+                    pesh->currentSample = NULL;
+                }
+            }
+            ph = ph->next;
+        }
     } else {
         offset += ret;
         if (offset % 188) {
@@ -314,6 +509,8 @@ static void _refill_data(JNIEnv *env, TSParser *tsp)
 static int tsparser_parse_one_packet(JNIEnv *env, TSParser*tsp)
 {
     uint8_t *packet;
+    //__android_log_print(ANDROID_LOG_ERROR, TAG, "tsparser_parse_one_packet");
+
     if (tsp->dataPosition == tsp->dataSize || tsp->incompleteReadPosition) {
         _refill_data(env, tsp);
         if (tsp->inputStreamFinished) {
@@ -337,6 +534,7 @@ static int tsparser_parse_one_packet(JNIEnv *env, TSParser*tsp)
         if (payloadHandler->pid == pid) {
             break;
         }
+        payloadHandler = payloadHandler->next;
     }
     if (!payloadHandler) {
         return PARSE_ONE_PACKET_AGAIN;
@@ -393,7 +591,7 @@ void Java_com_google_android_exoplayer_parser_ts_TSExtractorNative_nativeInit(JN
     _set_tsp(env, thiz, tsp);
 }
 
-static void _fill_holder(JNIEnv *env, jobject holder, Sample *sample)
+static void _fill_holder(JNIEnv *env, jobject holder, Sample *sample, int type)
 {
     jfieldID fid;
     jclass cls;
@@ -416,11 +614,11 @@ static void _fill_holder(JNIEnv *env, jobject holder, Sample *sample)
     }
 
     capacity = (*env)->GetDirectBufferCapacity(env, data);
-    if (capacity < sample->size) {
+    if (capacity < sample->position) {
         memcpy(ptr, sample->data, capacity);
-        __android_log_print(ANDROID_LOG_ERROR, TAG, "ByteBuffer capacity is too small %d < %d", (int)capacity, sample->size);
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "ByteBuffer capacity is too small %d < %d (type=%d)", (int)capacity, sample->position, type);
     } else {
-        memcpy(ptr, sample->data, sample->size);
+        memcpy(ptr, sample->data, sample->position);
     }
     fid = (*env)->GetFieldID(env, cls, "timeUs", "J");
     (*env)->SetLongField(env, holder, fid, sample->timeUs);
@@ -428,13 +626,16 @@ static void _fill_holder(JNIEnv *env, jobject holder, Sample *sample)
     fid = (*env)->GetFieldID(env, cls, "flags", "I");
     (*env)->SetIntField(env, holder, fid, SAMPLE_FLAG_SYNC);
 
+    cls = (*env)->FindClass(env, "java/nio/Buffer");
+    jmethodID mid = (*env)->GetMethodID(env, cls, "position", "(I)Ljava/nio/Buffer;");
+    (*env)->CallObjectMethod(env, data, mid, sample->position);
 }
 
 jint Java_com_google_android_exoplayer_parser_ts_TSExtractorNative_nativeRead(JNIEnv* env, jobject thiz, jint type, jobject holder)
 {
     TSParser *tsp = _retrieve_tsp(env, thiz);
 
-    __android_log_print(ANDROID_LOG_DEBUG, TAG, "%s", __FUNCTION__);
+    //__android_log_print(ANDROID_LOG_DEBUG, TAG, "%s", __FUNCTION__);
 
     if (!tsp) {
         return RESULT_END_OF_STREAM;
@@ -447,10 +648,15 @@ jint Java_com_google_android_exoplayer_parser_ts_TSExtractorNative_nativeRead(JN
     }
 
     if (tsp->sampleHead[type]) {
-        _fill_holder(env, holder, tsp->sampleHead[type]);
+        Sample *sample = tsp->sampleHead[type];
+        _fill_holder(env, holder, sample, type);
 
         // remove from list
-        *tsp->sampleLastNext[type] = tsp->sampleHead[type]->next;
+        tsp->sampleHead[type] = sample->next;
+        if (sample->next == NULL) {
+           tsp->sampleLastNext[type] = &tsp->sampleHead[type];
+        }
+        sample_destroy(sample);
         return RESULT_READ_SAMPLE_FULL;
     } else {
         if (tsp->inputStreamFinished) {
@@ -504,12 +710,22 @@ jboolean Java_com_google_android_exoplayer_parser_ts_TSExtractorNative_nativeIsR
 {
     TSParser *tsp = _retrieve_tsp(env, thiz);
 
-    __android_log_print(ANDROID_LOG_DEBUG, TAG, "%s", __FUNCTION__);
+    //__android_log_print(ANDROID_LOG_DEBUG, TAG, "%s", __FUNCTION__);
 
     if (!tsp) {
         return JNI_TRUE;
     }
 
-    return JNI_FALSE;
+    if (!tsp->inputStreamFinished)
+        return JNI_FALSE;
+
+    int i;
+    for (i = 0; i < TYPE_COUNT; i++) {
+        if (tsp->sampleHead[i]) {
+            return JNI_FALSE;
+        }
+    }
+
+    return JNI_TRUE;
 }
 
