@@ -19,7 +19,7 @@
 #define SAMPLE_FLAG_SYNC 1
 
 // has to be a multiple of 188
-#define BUFFER_SIZE (100*188)
+#define BUFFER_SIZE (200*188)
 
 typedef struct Sample Sample;
 typedef struct PayloadHandler PayloadHandler;
@@ -466,6 +466,8 @@ static void _refill_data(JNIEnv *env, TSParser *tsp)
 
     jclass cls = (*env)->FindClass(env,  "com/google/android/exoplayer/upstream/NonBlockingInputStream");
     jmethodID mid = (*env)->GetMethodID(env, cls, "read", "([BII)I");
+    // make sure we don't overflow the local reference table
+    (*env)->DeleteLocalRef(env, cls);
 
     jint ret = (*env)->CallIntMethod(env, tsp->inputStream, mid, tsp->dataByteArray, offset, length);
     //__android_log_print(ANDROID_LOG_DEBUG, TAG, "_refill_data: read returned %d", ret);
