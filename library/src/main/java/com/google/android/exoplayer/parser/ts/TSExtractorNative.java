@@ -9,47 +9,47 @@ import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 
 public class TSExtractorNative extends HLSExtractor {
 
-    private NonBlockingInputStream inputStream;
-    MediaFormat audioMediaFormat;
+  private NonBlockingInputStream inputStream;
+  MediaFormat audioMediaFormat;
 
-    static {
-        System.loadLibrary("TSExtractorNative");
+  static {
+    System.loadLibrary("TSExtractorNative");
+  }
+
+  public TSExtractorNative(NonBlockingInputStream inputStream)
+  {
+    // needs to be done before the nativeInit()
+    this.inputStream = inputStream;
+    nativeInit();
+  }
+
+  @Override
+  public int read(int type, SampleHolder out) throws ParserException {
+    return nativeRead(type, out);
+  }
+
+  @Override
+  public MediaFormat getAudioMediaFormat() {
+    if (audioMediaFormat == null) {
+      int sampleRateIndex = nativeGetSampleRateIndex();
+      int channelConfigIndex = nativeGetChannelConfigIndex();
+
+      audioMediaFormat = AACExtractor.ADTSHeader.createMediaFormat(sampleRateIndex, channelConfigIndex);
     }
+    return audioMediaFormat;
+  }
 
-    public TSExtractorNative(NonBlockingInputStream inputStream)
-    {
-        // needs to be done before the nativeInit()
-        this.inputStream = inputStream;
-        nativeInit();
-    }
+  @Override
+  public boolean isReadFinished() {
+    return nativeIsReadFinished();
+  }
 
-    @Override
-    public int read(int type, SampleHolder out) throws ParserException {
-        return nativeRead(type, out);
-    }
+  // stores a pointer to the native state
+  private long nativeHandle;
 
-    @Override
-    public MediaFormat getAudioMediaFormat() {
-        if (audioMediaFormat == null) {
-            int sampleRateIndex = nativeGetSampleRateIndex();
-            int channelConfigIndex = nativeGetChannelConfigIndex();
-
-            audioMediaFormat = AACExtractor.ADTSHeader.createMediaFormat(sampleRateIndex, channelConfigIndex);
-        }
-        return audioMediaFormat;
-    }
-
-    @Override
-    public boolean isReadFinished() {
-        return nativeIsReadFinished();
-    }
-
-    // stores a pointer to the native state
-    private long nativeHandle;
-
-    private native void nativeInit();
-    private native int nativeRead(int type, SampleHolder out);
-    private native int nativeGetSampleRateIndex();
-    private native int nativeGetChannelConfigIndex();
-    private native boolean nativeIsReadFinished();
+  private native void nativeInit();
+  private native int nativeRead(int type, SampleHolder out);
+  private native int nativeGetSampleRateIndex();
+  private native int nativeGetChannelConfigIndex();
+  private native boolean nativeIsReadFinished();
 }

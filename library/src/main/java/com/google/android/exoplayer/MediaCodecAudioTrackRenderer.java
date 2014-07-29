@@ -41,9 +41,9 @@ import java.nio.ByteBuffer;
 @TargetApi(16)
 public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
-    private long lastTime;
+  private long lastTime;
 
-    /**
+  /**
    * Interface definition for a callback to be notified of {@link MediaCodecAudioTrackRenderer}
    * events.
    */
@@ -69,9 +69,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
     public final int audioTrackState;
 
     public AudioTrackInitializationException(int audioTrackState, int sampleRate,
-        int channelConfig, int bufferSize) {
+                                             int channelConfig, int bufferSize) {
       super("AudioTrack init failed: " + audioTrackState + ", Config(" + sampleRate + ", " +
-          channelConfig + ", " + bufferSize + ")");
+              channelConfig + ", " + bufferSize + ")");
       this.audioTrackState = audioTrackState;
     }
 
@@ -155,7 +155,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    */
   public MediaCodecAudioTrackRenderer(SampleSource source, DrmSessionManager drmSessionManager,
-      boolean playClearSamplesWithoutKeys) {
+                                      boolean playClearSamplesWithoutKeys) {
     this(source, drmSessionManager, playClearSamplesWithoutKeys, null, null);
   }
 
@@ -166,7 +166,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public MediaCodecAudioTrackRenderer(SampleSource source, Handler eventHandler,
-      EventListener eventListener) {
+                                      EventListener eventListener) {
     this(source, null, true, eventHandler, eventListener);
   }
 
@@ -184,9 +184,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public MediaCodecAudioTrackRenderer(SampleSource source, DrmSessionManager drmSessionManager,
-      boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener) {
+                                      boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener) {
     this(source, drmSessionManager, playClearSamplesWithoutKeys,
-        DEFAULT_MIN_BUFFER_MULTIPLICATION_FACTOR, eventHandler, eventListener);
+            DEFAULT_MIN_BUFFER_MULTIPLICATION_FACTOR, eventHandler, eventListener);
   }
 
   /**
@@ -200,7 +200,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public MediaCodecAudioTrackRenderer(SampleSource source, float minBufferMultiplicationFactor,
-      Handler eventHandler, EventListener eventListener) {
+                                      Handler eventHandler, EventListener eventListener) {
     this(source, null, true, minBufferMultiplicationFactor, eventHandler, eventListener);
   }
 
@@ -222,8 +222,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public MediaCodecAudioTrackRenderer(SampleSource source, DrmSessionManager drmSessionManager,
-      boolean playClearSamplesWithoutKeys, float minBufferMultiplicationFactor,
-      Handler eventHandler, EventListener eventListener) {
+                                      boolean playClearSamplesWithoutKeys, float minBufferMultiplicationFactor,
+                                      Handler eventHandler, EventListener eventListener) {
     super(source, drmSessionManager, playClearSamplesWithoutKeys, eventHandler, eventListener);
     Assertions.checkState(minBufferMultiplicationFactor >= 1);
     this.minBufferMultiplicationFactor = minBufferMultiplicationFactor;
@@ -269,33 +269,33 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected void onOutputFormatChanged(MediaFormat format) {
-      int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
-      int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
-      int channelConfig;
-      switch (channelCount) {
-          case 1:
-              channelConfig = AudioFormat.CHANNEL_OUT_MONO;
-              break;
-          case 2:
-              channelConfig = AudioFormat.CHANNEL_OUT_STEREO;
-              break;
-          case 6:
-              channelConfig = AudioFormat.CHANNEL_OUT_5POINT1;
-              break;
-          default:
-              throw new IllegalArgumentException("Unsupported channel count: " + channelCount);
-      }
+    int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
+    int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+    int channelConfig;
+    switch (channelCount) {
+      case 1:
+        channelConfig = AudioFormat.CHANNEL_OUT_MONO;
+        break;
+      case 2:
+        channelConfig = AudioFormat.CHANNEL_OUT_STEREO;
+        break;
+      case 6:
+        channelConfig = AudioFormat.CHANNEL_OUT_5POINT1;
+        break;
+      default:
+        throw new IllegalArgumentException("Unsupported channel count: " + channelCount);
+    }
 
     if (audioTrack != null && sampleRate == this.sampleRate && channelConfig == this.channelConfig) {
-        // nothing to do
-        return;
+      // nothing to do
+      return;
     }
 
     releaseAudioTrack();
     this.sampleRate = sampleRate;
     this.channelConfig = channelConfig;
     this.minBufferSize = AudioTrack.getMinBufferSize(sampleRate, channelConfig,
-        AudioFormat.ENCODING_PCM_16BIT);
+            AudioFormat.ENCODING_PCM_16BIT);
     this.bufferSize = (int) (minBufferMultiplicationFactor * minBufferSize);
     this.frameSize = 2 * channelCount; // 2 bytes per 16 bit sample * number of channels.
   }
@@ -309,14 +309,14 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
     audioTrackReleasingConditionVariable.block();
     if (audioSessionId == 0) {
       audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, channelConfig,
-          AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
+              AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
       checkAudioTrackInitialized();
       audioSessionId = audioTrack.getAudioSessionId();
       onAudioSessionId(audioSessionId);
     } else {
       // Re-attach to the same audio session.
       audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, channelConfig,
-          AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM, audioSessionId);
+              AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM, audioSessionId);
       checkAudioTrackInitialized();
     }
     audioTrack.setStereoVolume(volume, volume);
@@ -349,7 +349,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
     }
     // Propagate the relevant exceptions.
     AudioTrackInitializationException exception = new AudioTrackInitializationException(
-        audioTrackState, sampleRate, channelConfig, bufferSize);
+            audioTrackState, sampleRate, channelConfig, bufferSize);
     notifyAudioTrackInitializationError(exception);
     throw new ExoPlaybackException(exception);
   }
@@ -428,11 +428,11 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   @Override
   protected boolean isReady() {
 
-      if (getPendingFrameCount() > 0) {
-          return true;
-      }
+    if (getPendingFrameCount() > 0) {
+      return true;
+    }
 
-      return false;
+    return false;
   }
 
   /**
@@ -481,7 +481,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   private void maybeSampleSyncParams() {
     if (audioTrack == null || audioTrackStartMediaTimeState == START_NOT_SET
-        || getState() != STATE_STARTED) {
+            || getState() != STATE_STARTED) {
       // The AudioTrack isn't playing.
       return;
     }
@@ -508,7 +508,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
     if (systemClockUs - lastTimestampSampleTimeUs >= MIN_TIMESTAMP_SAMPLE_INTERVAL_US) {
       audioTimestampSet = audioTimestampCompat.initTimestamp(audioTrack);
       if (audioTimestampSet
-          && (audioTimestampCompat.getNanoTime() / 1000) < audioTrackResumeSystemTimeUs) {
+              && (audioTimestampCompat.getNanoTime() / 1000) < audioTrackResumeSystemTimeUs) {
         // The timestamp was set, but it corresponds to a time before the track was most recently
         // resumed.
         audioTimestampSet = false;
@@ -518,8 +518,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
           // Compute the audio track latency, excluding the latency due to the buffer (leaving
           // latency due to the mixer and audio hardware driver).
           audioTrackLatencyUs =
-              (Integer) audioTrackGetLatencyMethod.invoke(audioTrack, (Object[]) null) * 1000L -
-              framesToDurationUs(bufferSize / frameSize);
+                  (Integer) audioTrackGetLatencyMethod.invoke(audioTrack, (Object[]) null) * 1000L -
+                          framesToDurationUs(bufferSize / frameSize);
           // Sanity check that the latency is non-negative.
           audioTrackLatencyUs = Math.max(audioTrackLatencyUs, 0);
         } catch (Exception e) {
@@ -569,8 +569,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected boolean processOutputBuffer(long timeUs, MediaCodec codec, ByteBuffer buffer,
-      MediaCodec.BufferInfo bufferInfo, int bufferIndex, boolean shouldSkip)
-      throws ExoPlaybackException {
+                                        MediaCodec.BufferInfo bufferInfo, int bufferIndex, boolean shouldSkip)
+          throws ExoPlaybackException {
     if (shouldSkip) {
       codec.releaseOutputBuffer(bufferIndex, false);
       codecCounters.skippedOutputBufferCount++;
@@ -584,18 +584,18 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
       // This is the first time we've seen this {@code buffer}.
       // Note: presentationTimeUs corresponds to the end of the sample, not the start.
       long bufferStartTime = bufferInfo.presentationTimeUs -
-          framesToDurationUs(bufferInfo.size / frameSize);
+              framesToDurationUs(bufferInfo.size / frameSize);
       if (audioTrackStartMediaTimeState == START_NOT_SET) {
         audioTrackStartMediaTimeUs = Math.max(0, bufferStartTime);
         audioTrackStartMediaTimeState = START_IN_SYNC;
       } else {
         // Sanity check that bufferStartTime is consistent with the expected value.
         long expectedBufferStartTime = audioTrackStartMediaTimeUs +
-            framesToDurationUs(submittedBytes / frameSize);
+                framesToDurationUs(submittedBytes / frameSize);
         if (audioTrackStartMediaTimeState == START_IN_SYNC
-            && Math.abs(expectedBufferStartTime - bufferStartTime) > 200000) {
+                && Math.abs(expectedBufferStartTime - bufferStartTime) > 200000) {
           Log.e(TAG, "Discontinuity detected [expected " + expectedBufferStartTime + ", got " +
-              bufferStartTime + "]");
+                  bufferStartTime + "]");
           audioTrackStartMediaTimeState = START_NEED_SYNC;
         }
         if (audioTrackStartMediaTimeState == START_NEED_SYNC) {
@@ -664,7 +664,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   private int getPendingFrameCount() {
     return audioTrack == null ?
-        0 : (int) (submittedBytes / frameSize - getPlaybackHeadPosition());
+            0 : (int) (submittedBytes / frameSize - getPlaybackHeadPosition());
   }
 
   @Override

@@ -56,8 +56,8 @@ public final class Mp4MediaChunk extends MediaChunk {
    * @param sampleOffsetUs An offset to subtract from the sample timestamps parsed by the extractor.
    */
   public Mp4MediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
-      int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex,
-      FragmentedMp4Extractor extractor, boolean maybeSelfContained, long sampleOffsetUs) {
+                       int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex,
+                       FragmentedMp4Extractor extractor, boolean maybeSelfContained, long sampleOffsetUs) {
     super(dataSource, dataSpec, format, trigger, startTimeUs, endTimeUs, nextChunkIndex);
     this.extractor = extractor;
     this.maybeSelfContained = maybeSelfContained;
@@ -119,8 +119,8 @@ public final class Mp4MediaChunk extends MediaChunk {
   @Override
   public MediaFormat getMediaFormat(int track) {
 
-      Assertions.checkState(track == 0);
-      return mediaFormat;
+    Assertions.checkState(track == 0);
+    return mediaFormat;
   }
 
   @Override

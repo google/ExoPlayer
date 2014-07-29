@@ -44,8 +44,8 @@ public final class WebmMediaChunk extends MediaChunk {
    * @param nextChunkIndex The index of the next chunk, or -1 if this is the last chunk.
    */
   public WebmMediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
-      int trigger, WebmExtractor extractor, long startTimeUs, long endTimeUs,
-      int nextChunkIndex) {
+                        int trigger, WebmExtractor extractor, long startTimeUs, long endTimeUs,
+                        int nextChunkIndex) {
     super(dataSource, dataSpec, format, trigger, startTimeUs, endTimeUs, nextChunkIndex);
     this.extractor = extractor;
   }
