@@ -269,23 +269,30 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected void onOutputFormatChanged(MediaFormat format) {
-    releaseAudioTrack();
-    this.sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
-    int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
-    int channelConfig;
-    switch (channelCount) {
-      case 1:
-        channelConfig = AudioFormat.CHANNEL_OUT_MONO;
-        break;
-      case 2:
-        channelConfig = AudioFormat.CHANNEL_OUT_STEREO;
-        break;
-      case 6:
-        channelConfig = AudioFormat.CHANNEL_OUT_5POINT1;
-        break;
-      default:
-        throw new IllegalArgumentException("Unsupported channel count: " + channelCount);
+      int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
+      int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+      int channelConfig;
+      switch (channelCount) {
+          case 1:
+              channelConfig = AudioFormat.CHANNEL_OUT_MONO;
+              break;
+          case 2:
+              channelConfig = AudioFormat.CHANNEL_OUT_STEREO;
+              break;
+          case 6:
+              channelConfig = AudioFormat.CHANNEL_OUT_5POINT1;
+              break;
+          default:
+              throw new IllegalArgumentException("Unsupported channel count: " + channelCount);
+      }
+
+    if (audioTrack != null && sampleRate == this.sampleRate && channelConfig == this.channelConfig) {
+        // nothing to do
+        return;
     }
+
+    releaseAudioTrack();
+    this.sampleRate = sampleRate;
     this.channelConfig = channelConfig;
     this.minBufferSize = AudioTrack.getMinBufferSize(sampleRate, channelConfig,
         AudioFormat.ENCODING_PCM_16BIT);

@@ -42,6 +42,7 @@ import java.util.UUID;
 public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
     private static final String TAG = "MediaCodecTrackRenderer";
+    private boolean hasQueuedOneInputBuffer;
 
     /**
    * Interface definition for a callback to be notified of {@link MediaCodecTrackRenderer} events.
@@ -106,7 +107,14 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    */
   private static final int RECONFIGURATION_STATE_QUEUE_PENDING = 2;
 
-  public final CodecCounters codecCounters;
+  private static final int REINIT_STATE_0 = 0;
+  private static final int REINIT_STATE_1 = 1;
+  private static final int REINIT_STATE_2 = 2;
+  private static final int REINIT_STATE_3 = 3;
+  private static final int REINIT_STATE_4 = 4;
+
+
+    public final CodecCounters codecCounters;
 
   private final DrmSessionManager drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
@@ -130,6 +138,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private boolean openedDrmSession;
   private boolean codecReconfigured;
   private int codecReconfigurationState;
+  private int codecReinitState;
 
   private int trackIndex;
   private boolean inputStreamEnded;
@@ -265,9 +274,10 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
     codecHotswapTimeMs = getState() == TrackRenderer.STATE_STARTED ?
         SystemClock.elapsedRealtime() : -1;
-        inputIndex = -1;
-        outputIndex = -1;
-        waitingForFirstSyncFrame = true;
+    inputIndex = -1;
+    outputIndex = -1;
+    hasQueuedOneInputBuffer = false;
+    waitingForFirstSyncFrame = true;
     codecCounters.codecInitCount++;
   }
 
@@ -456,6 +466,14 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     if (inputStreamEnded) {
       return false;
     }
+
+  if (codecReinitState == REINIT_STATE_4 || (codecReinitState == REINIT_STATE_1 && !hasQueuedOneInputBuffer)) {
+      releaseCodec();
+      maybeInitCodec();
+      codecReinitState = REINIT_STATE_0;
+      return false;
+  }
+
     if (inputIndex < 0) {
       inputIndex = codec.dequeueInputBuffer(0);
       if (inputIndex < 0) {
@@ -465,6 +483,17 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       sampleHolder.data.clear();
     }
 
+    if (codecReinitState == REINIT_STATE_1 && hasQueuedOneInputBuffer) {
+        codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+        inputIndex = -1;
+        codecCounters.queuedEndOfStreamCount++;
+        codecReinitState = REINIT_STATE_2;
+        return false;
+    }
+
+    if (codecReinitState != REINIT_STATE_0) {
+        return false;
+    }
     int result;
     if (waitingForKeys) {
       // We've already read an encrypted sample into sampleHolder, and are waiting for keys.
@@ -555,6 +584,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         codec.queueInputBuffer(inputIndex, 0 , bufferSize, presentationTimeUs, 0);
       }
       codecCounters.queuedInputBufferCount++;
+      hasQueuedOneInputBuffer = true;
       if ((sampleHolder.flags & MediaExtractor.SAMPLE_FLAG_SYNC) != 0) {
         codecCounters.keyframeCount++;
       }
@@ -612,8 +642,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       codecReconfigured = true;
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
     } else {
-      releaseCodec();
-      maybeInitCodec();
+      codecReinitState = REINIT_STATE_1;
     }
   }
 
@@ -715,8 +744,13 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
 
     if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-      outputStreamEnded = true;
-      return false;
+      if (codecReinitState == REINIT_STATE_2) {
+          codecReinitState = REINIT_STATE_3;
+          outputBufferInfo.flags &= ~MediaCodec.BUFFER_FLAG_END_OF_STREAM;
+      } else {
+          outputStreamEnded = true;
+          return false;
+      }
     }
 
     boolean decodeOnly = decodeOnlyPresentationTimestamps.contains(
@@ -729,6 +763,9 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         currentPositionUs = outputBufferInfo.presentationTimeUs;
       }
       outputIndex = -1;
+      if (codecReinitState == REINIT_STATE_3) {
+          codecReinitState = REINIT_STATE_4;
+      }
       return true;
     }
 
