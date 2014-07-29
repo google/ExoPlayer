@@ -41,8 +41,18 @@ public class HLSMediaChunk extends MediaChunk {
     }
 
     @Override
+    public void seekToStart() {
+       seekTo(0, false);
+    }
+
+    @Override
     public boolean seekTo(long positionUs, boolean allowNoop) {
         return false;
+    }
+
+    @Override
+    public boolean prepare() throws ParserException {
+        return true;
     }
 
     private int checkExtractor() {

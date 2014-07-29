@@ -64,7 +64,7 @@ public class HLSChunkSource implements ChunkSource {
 
         int i = 0;
         for (MainPlaylist.Entry entry : mainPlaylist.entries) {
-            formats[i] = new Format(i, "video/mp2t", entry.width, entry.height, 2, 44100, entry.bps);
+            formats[i] = new Format(Integer.toString(i), "video/mp2t", entry.width, entry.height, 2, 44100, entry.bps);
             i++;
         }
 
@@ -118,7 +118,7 @@ public class HLSChunkSource implements ChunkSource {
     }
 
     @Override
-    public void disable(int track, List<MediaChunk> queue) {
+    public void disable(int track, List<? extends MediaChunk> queue) {
 
     }
 
@@ -146,7 +146,7 @@ public class HLSChunkSource implements ChunkSource {
 
         int nextChunkIndex;
 
-        currentVariantPlaylist = mainPlaylist.entries.get(evaluation.format.id).variantPlaylist;
+        currentVariantPlaylist = mainPlaylist.entries.get(Integer.parseInt(evaluation.format.id)).variantPlaylist;
 
         if (queue.isEmpty()) {
             nextChunkIndex = currentVariantPlaylist.mediaSequence;
@@ -187,8 +187,8 @@ public class HLSChunkSource implements ChunkSource {
 
         DataSpec dataSpec = new DataSpec(uri, entry.offset, entry.length, null);
         MediaFormat videoMediaFormat;
-        if (selectedFormat.id < videoMediaFormats.size()) {
-            videoMediaFormat = videoMediaFormats.get(selectedFormat.id);
+        if (Integer.parseInt(selectedFormat.id) < videoMediaFormats.size()) {
+            videoMediaFormat = videoMediaFormats.get(Integer.parseInt(selectedFormat.id));
         } else {
             videoMediaFormat = null;
         }
@@ -201,5 +201,10 @@ public class HLSChunkSource implements ChunkSource {
     @Override
     public IOException getError() {
         return null;
+    }
+
+    @Override
+    public void onChunkLoadError(Chunk chunk, Exception e) {
+
     }
 }
