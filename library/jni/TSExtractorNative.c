@@ -80,7 +80,6 @@ struct TSParser{
 
     jobject inputStream;
     int inputStreamFinished;
-    int incompleteReadPosition;
 };
 
 static inline void *_malloc(int size)
@@ -513,11 +512,11 @@ static int tsparser_parse_one_packet(JNIEnv *env, TSParser*tsp)
     uint8_t *packet;
     //__android_log_print(ANDROID_LOG_ERROR, TAG, "tsparser_parse_one_packet");
 
-    if (tsp->dataPosition == tsp->dataSize || tsp->incompleteReadPosition) {
+    if (tsp->dataPosition == tsp->dataSize || tsp->dataIncompletePosition) {
         _refill_data(env, tsp);
         if (tsp->inputStreamFinished) {
             return PARSE_ONE_PACKET_FINISHED;
-        } else if (tsp->dataPosition == tsp->dataSize || tsp->incompleteReadPosition) {
+        } else if (tsp->dataPosition == tsp->dataSize || tsp->dataIncompletePosition) {
             return PARSE_ONE_PACKET_WAIT;
         }
     }

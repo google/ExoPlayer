@@ -41,6 +41,10 @@ public class TSExtractor extends HLSExtractor {
   int audioStreamType;
   private boolean unitStartNotSignalled;
 
+  private int dataSize;
+  private int dataPosition;
+  private int dataIncompletePosition;
+
   static class Sample {
     public UnsignedByteArray data;
     public int position;
@@ -150,16 +154,16 @@ public class TSExtractor extends HLSExtractor {
         offset = fixedOffset + headerDataLength;
         if (length > 0)
           length -= headerDataLength + 3;
-        System.arraycopy(packet.array(), offset, currentSample.data.array(), 0, 188 - offset);
-        currentSample.position = 188 - offset;
+        System.arraycopy(packet.array(), offset, currentSample.data.array(), 0, dataPosition - offset);
+        currentSample.position = dataPosition - offset;
         return;
       }
 
       if (currentSample.position + 188 > currentSample.data.length()) {
         currentSample.data.resize(2*(currentSample.position + 188));
       }
-      System.arraycopy(packet.array(), offset, currentSample.data.array(), currentSample.position, 188 - offset);
-      currentSample.position += 188 - offset;
+      System.arraycopy(packet.array(), offset, currentSample.data.array(), currentSample.position, dataPosition - offset);
+      currentSample.position += dataPosition - offset;
     }
 
     public void terminate() {
@@ -197,7 +201,7 @@ public class TSExtractor extends HLSExtractor {
         }
         sectionWriteOffset = 0;
       }
-      int copy = Math.min(sectionLength - sectionWriteOffset, 188 - offset);
+      int copy = Math.min(sectionLength - sectionWriteOffset, dataPosition - offset);
 
       System.arraycopy(packet.array(), offset, section.array(), sectionWriteOffset, copy);
       sectionWriteOffset += copy;
@@ -316,7 +320,7 @@ public class TSExtractor extends HLSExtractor {
   }
 
   public TSExtractor(NonBlockingInputStream inputStream) {
-    packet = new UnsignedByteArray(188);
+    packet = new UnsignedByteArray(1000 * 188);
     activePayloadHandlers = new SparseArray<PayloadHandler>(4);
     PayloadHandler payloadHandler = (PayloadHandler)new PATHandler(0);
     activePayloadHandlers.put(0, payloadHandler);
@@ -329,6 +333,44 @@ public class TSExtractor extends HLSExtractor {
 
   }
 
+  private boolean fillData()
+  {
+    int offset = 0;
+    int length = packet.length();
+
+    if (dataIncompletePosition != 0) {
+      // we need multiple of 188 bytes
+      offset = dataIncompletePosition;
+      length = packet.length() - dataIncompletePosition;
+    }
+
+    int ret = inputStream.read(packet.array(), offset, length);
+    if (ret == -1) {
+      if (endOfStream == false) {
+        for (PESHandler h : activePESHandlers) {
+          h.terminate();
+        }
+        if ((dataSize % 188) != 0) {
+          Log.d(TAG, String.format("TS file is not a multiple of 188 bytes (%d)?", dataSize));
+          dataSize = 188 * ((dataSize + 187) / 188);
+        }
+        endOfStream = true;
+        return false;
+      }
+    } else {
+      offset += ret;
+      if ((offset % 188) != 0) {
+        dataIncompletePosition = offset;
+      } else {
+        dataSize = offset;
+        dataIncompletePosition = 0;
+        dataPosition = 0;
+      }
+    }
+
+    return true;
+  }
+
   /**
    *
    * @return true if it wants to ba called again
@@ -336,37 +378,28 @@ public class TSExtractor extends HLSExtractor {
    */
   private boolean readOnePacket() throws ParserException
   {
-    int result;
-    int remaining = 188 - packetWriteOffset;
-
-    result = inputStream.read(packet.array(), packetWriteOffset, remaining);
-    if (result == -1) {
-      if (endOfStream == false) {
-        for (PESHandler h : activePESHandlers) {
-          h.terminate();
-        }
-        endOfStream = true;
+    if (dataPosition == dataSize || (dataIncompletePosition != 0)) {
+      fillData();
+      if (endOfStream) {
+        return false;
+      } else if (dataPosition == dataSize || (dataIncompletePosition != 0)) {
+        return false;
       }
-      return false;
     }
 
-    packetWriteOffset += result;
+    int offset =  dataPosition;
+    dataPosition += 188;
 
-    if (result != remaining) {
+    if (packet.get(offset) != 0x47) {
       packetWriteOffset = 0;
-      return false;
+      throw new ParserException("bad sync byte: " + packet.get(offset+0));
     }
 
-    if (packet.get(0) != 0x47) {
-      packetWriteOffset = 0;
-      throw new ParserException("bad sync byte: " + packet.get(0));
-    }
+    boolean unit_start = (packet.get(offset+1) & 0x40) != 0;
+    int pid = (packet.get(offset+1) & 0x1f) << 8;
+    pid |= packet.get(offset+2);
 
-    boolean unit_start = (packet.get(1) & 0x40) != 0;
-    int pid = (packet.get(1) & 0x1f) << 8;
-    pid |= packet.get(2);
-
-    int cc_counter = packet.get(3) & 0xf;
+    int cc_counter = packet.get(offset+3) & 0xf;
 
     PayloadHandler payloadHandler = activePayloadHandlers.get(pid);
     if (payloadHandler == null) {
@@ -381,12 +414,12 @@ public class TSExtractor extends HLSExtractor {
     }
     payloadHandler.cc_counter = cc_counter;
 
-    boolean adaptation_field_exists = (packet.get(3) & 0x20) != 0;
+    boolean adaptation_field_exists = (packet.get(offset+3) & 0x20) != 0;
 
-    int payload_offset = 4;
+    int payload_offset = offset+4;
 
     if (adaptation_field_exists) {
-      payload_offset += packet.get(4) + 1;
+      payload_offset += packet.get(offset+4) + 1;
     }
 
     payloadHandler.handlePayload(packet, payload_offset, unit_start);
