@@ -44,6 +44,7 @@ public class TSExtractor extends HLSExtractor {
   private int dataSize;
   private int dataPosition;
   private int dataIncompletePosition;
+  private boolean inputStreamFinished;
 
   static class Sample {
     public UnsignedByteArray data;
@@ -320,7 +321,7 @@ public class TSExtractor extends HLSExtractor {
   }
 
   public TSExtractor(NonBlockingInputStream inputStream) {
-    packet = new UnsignedByteArray(1000 * 188);
+    packet = new UnsignedByteArray(200 * 188);
     activePayloadHandlers = new SparseArray<PayloadHandler>(4);
     PayloadHandler payloadHandler = (PayloadHandler)new PATHandler(0);
     activePayloadHandlers.put(0, payloadHandler);
@@ -346,17 +347,12 @@ public class TSExtractor extends HLSExtractor {
 
     int ret = inputStream.read(packet.array(), offset, length);
     if (ret == -1) {
-      if (endOfStream == false) {
-        for (PESHandler h : activePESHandlers) {
-          h.terminate();
-        }
-        if ((dataSize % 188) != 0) {
-          Log.d(TAG, String.format("TS file is not a multiple of 188 bytes (%d)?", dataSize));
-          dataSize = 188 * ((dataSize + 187) / 188);
-        }
-        endOfStream = true;
-        return false;
+      if ((dataSize % 188) != 0) {
+        Log.d(TAG, String.format("TS file is not a multiple of 188 bytes (%d)?", dataSize));
+        dataSize = 188 * ((dataSize + 187) / 188);
       }
+      inputStreamFinished = true;
+      return false;
     } else {
       offset += ret;
       if ((offset % 188) != 0) {
@@ -380,7 +376,14 @@ public class TSExtractor extends HLSExtractor {
   {
     if (dataPosition == dataSize || (dataIncompletePosition != 0)) {
       fillData();
-      if (endOfStream) {
+      if (inputStreamFinished) {
+        if (endOfStream == false) {
+          for (PESHandler h : activePESHandlers) {
+            h.terminate();
+          }
+          endOfStream = true;
+        }
+
         return false;
       } else if (dataPosition == dataSize || (dataIncompletePosition != 0)) {
         return false;
@@ -489,11 +492,13 @@ public class TSExtractor extends HLSExtractor {
         out.data.put(s.data.array(), 0, s.position);
         out.timeUs = s.timeUs;
         out.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
-      }
-      list.removeFirst();
-      releaseSample(s);
+        list.removeFirst();
+        releaseSample(s);
 
-      return RESULT_READ_SAMPLE_FULL;
+        return RESULT_READ_SAMPLE_FULL;
+      } else {
+        return RESULT_NEED_MORE_DATA;
+      }
     } else {
       if (endOfStream) {
         return RESULT_END_OF_STREAM;
