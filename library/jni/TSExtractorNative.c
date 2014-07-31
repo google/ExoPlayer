@@ -82,14 +82,25 @@ struct TSParser{
     int inputStreamFinished;
 };
 
+static int total_size;
+static int counter;
+
 static inline void *_malloc(int size)
 {
-    void *ptr = malloc(size);
+    void *ptr = malloc(size + sizeof(int));
     if (ptr == NULL) {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "Cannot Allocate Memory");
         exit(1);
     }
-    return ptr;
+
+    int *intptr = (int*)ptr;
+    *intptr = size;
+    total_size += size;
+    if (!(counter & 0x3f)) {
+      __android_log_print(ANDROID_LOG_DEBUG, TAG, "total_size: %d kB", total_size/1000);
+    }
+
+    return intptr + 1;
 }
 
 static inline void *_mallocz(int size)
@@ -101,13 +112,14 @@ static inline void *_mallocz(int size)
 
 static inline void _free(void *ptr)
 {
-    free(ptr);
+    int *intptr = (int*)ptr;
+    intptr--;
+    total_size -= *intptr;
+    free(intptr);
 }
 
 static pthread_mutex_t sampleMutex = PTHREAD_MUTEX_INITIALIZER;
 static Sample *recycledSamples;
-static int total_size;
-static int counter;
 static int recyle = 1;
 
 static Sample *sample_create(void)
@@ -125,12 +137,7 @@ static Sample *sample_create(void)
         sample->data = _malloc(64*1024);
         sample->maxSize = 64*1024;
         sample->next = NULL;
-        total_size += sample->maxSize;
     }
-
-    /*if (!(counter & 0xf)) {
-      __android_log_print(ANDROID_LOG_DEBUG, TAG, "total_size: %d kB", total_size/1000);
-    }*/
 
     pthread_mutex_unlock(&sampleMutex);
     return sample;
@@ -143,7 +150,6 @@ static void sample_destroy(Sample *sample)
         sample->next = recycledSamples;
         recycledSamples = sample;
     } else {
-        total_size -= sample->maxSize;
         _free(sample->data);
         _free(sample);
     }
@@ -156,9 +162,7 @@ static void sample_resize(Sample *sample, int newSize)
     memcpy(newData, sample->data, sample->maxSize);
     _free(sample->data);
     sample->data = newData;
-    total_size -= sample->maxSize;
     sample->maxSize = newSize;
-    total_size += newSize;
 }
 
 
@@ -454,9 +458,31 @@ static TSParser *tsparser_create(JNIEnv *env, jobject thiz)
 
 static void tsparser_destroy(JNIEnv *env, TSParser*tsp)
 {
+    PayloadHandler *ph;
+
+    __android_log_print(ANDROID_LOG_DEBUG, TAG, "%s", __FUNCTION__);
+
     (*env)->ReleaseByteArrayElements(env, tsp->dataByteArray, (jbyte*)tsp->data, JNI_ABORT);
     (*env)->DeleteGlobalRef(env, tsp->dataByteArray);
     (*env)->DeleteGlobalRef(env, tsp->inputStream);
+
+    ph = tsp->activePayloadHandlerHead;
+    while (ph) {
+      ph->destroy(ph);
+    }
+
+    int type;
+    for (type = 0; type < TYPE_COUNT; type++) {
+        Sample *sample = tsp->sampleHead[type];
+        while (sample) {
+            tsp->sampleHead[type] = sample->next;
+            if (sample->next == NULL) {
+                tsp->sampleLastNext[type] = &tsp->sampleHead[type];
+            }
+            sample_destroy(sample);
+            sample = tsp->sampleHead[type];
+        }
+    }
 }
 
 static void _refill_data(JNIEnv *env, TSParser *tsp)
@@ -739,3 +765,16 @@ jboolean Java_com_google_android_exoplayer_parser_ts_TSExtractorNative_nativeIsR
     return JNI_TRUE;
 }
 
+void Java_com_google_android_exoplayer_parser_ts_TSExtractorNative_nativeRelease(JNIEnv* env, jobject thiz)
+{
+    TSParser *tsp = _retrieve_tsp(env, thiz);
+
+    __android_log_print(ANDROID_LOG_DEBUG, TAG, "%s", __FUNCTION__);
+
+    if (!tsp) {
+        return;
+    }
+
+    tsparser_destroy(env, tsp);
+    _set_tsp(env, thiz, NULL);
+}
