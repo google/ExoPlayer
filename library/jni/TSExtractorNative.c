@@ -104,10 +104,11 @@ static inline void _free(void *ptr)
     free(ptr);
 }
 
-pthread_mutex_t sampleMutex = PTHREAD_MUTEX_INITIALIZER;
-Sample *recycledSamples;
-
-static int recyle = 0;
+static pthread_mutex_t sampleMutex = PTHREAD_MUTEX_INITIALIZER;
+static Sample *recycledSamples;
+static int total_size;
+static int counter;
+static int recyle = 1;
 
 static Sample *sample_create(void)
 {
@@ -124,7 +125,12 @@ static Sample *sample_create(void)
         sample->data = _malloc(64*1024);
         sample->maxSize = 64*1024;
         sample->next = NULL;
+        total_size += sample->maxSize;
     }
+
+    /*if (!(counter & 0xf)) {
+      __android_log_print(ANDROID_LOG_DEBUG, TAG, "total_size: %d kB", total_size/1000);
+    }*/
 
     pthread_mutex_unlock(&sampleMutex);
     return sample;
@@ -137,6 +143,7 @@ static void sample_destroy(Sample *sample)
         sample->next = recycledSamples;
         recycledSamples = sample;
     } else {
+        total_size -= sample->maxSize;
         _free(sample->data);
         _free(sample);
     }
@@ -149,7 +156,9 @@ static void sample_resize(Sample *sample, int newSize)
     memcpy(newData, sample->data, sample->maxSize);
     _free(sample->data);
     sample->data = newData;
+    total_size -= sample->maxSize;
     sample->maxSize = newSize;
+    total_size += newSize;
 }
 
 
