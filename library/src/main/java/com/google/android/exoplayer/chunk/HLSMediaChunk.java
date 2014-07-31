@@ -67,8 +67,11 @@ public class HLSMediaChunk extends MediaChunk {
 
       resetReadPosition();
       if (firstByte[0] == 0x47) {
-        this.extractor = new TSExtractor(inputStream);
-        //this.extractor = new TSExtractorNative(inputStream);
+        try {
+          this.extractor = new TSExtractorNative(inputStream);
+        } catch (UnsatisfiedLinkError e){
+          this.extractor = new TSExtractor(inputStream);
+        }
       } else {
         this.extractor = new AACExtractor(inputStream);
       }

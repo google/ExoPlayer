@@ -12,12 +12,14 @@ public class TSExtractorNative extends HLSExtractor {
   private NonBlockingInputStream inputStream;
   MediaFormat audioMediaFormat;
 
-  static {
-    System.loadLibrary("TSExtractorNative");
-  }
+  static boolean loaded;
 
-  public TSExtractorNative(NonBlockingInputStream inputStream)
+  public TSExtractorNative(NonBlockingInputStream inputStream) throws UnsatisfiedLinkError
   {
+    if (!loaded) {
+      System.loadLibrary("TSExtractorNative");
+    }
+
     // needs to be done before the nativeInit()
     this.inputStream = inputStream;
     nativeInit();
