@@ -80,9 +80,9 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   // DemoPlayer.InfoListener
 
   @Override
-  public void onBandwidthSample(int elapsedMs, long bytes, long bandwidthEstimate) {
+  public void onBandwidthSample(int elapsedMs, long bytes, long bitrateEstimate) {
     Log.d(TAG, "bandwidth [" + getSessionTimeString() + ", " + bytes +
-        ", " + getTimeString(elapsedMs) + ", " + bandwidthEstimate + "]");
+        ", " + getTimeString(elapsedMs) + ", " + bitrateEstimate + "]");
   }
 
   @Override

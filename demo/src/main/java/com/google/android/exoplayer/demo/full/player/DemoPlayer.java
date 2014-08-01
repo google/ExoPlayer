@@ -121,7 +121,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     void onVideoFormatEnabled(String formatId, int trigger, int mediaTimeMs);
     void onAudioFormatEnabled(String formatId, int trigger, int mediaTimeMs);
     void onDroppedFrames(int count, long elapsed);
-    void onBandwidthSample(int elapsedMs, long bytes, long bandwidthEstimate);
+    void onBandwidthSample(int elapsedMs, long bytes, long bitrateEstimate);
     void onLoadStarted(int sourceId, String formatId, int trigger, boolean isInitialization,
         int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes);
     void onLoadCompleted(int sourceId);
@@ -391,9 +391,9 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   @Override
-  public void onBandwidthSample(int elapsedMs, long bytes, long bandwidthEstimate) {
+  public void onBandwidthSample(int elapsedMs, long bytes, long bitrateEstimate) {
     if (infoListener != null) {
-      infoListener.onBandwidthSample(elapsedMs, bytes, bandwidthEstimate);
+      infoListener.onBandwidthSample(elapsedMs, bytes, bitrateEstimate);
     }
   }
 
