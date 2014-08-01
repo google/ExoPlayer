@@ -34,7 +34,7 @@ public class ExoPlayerLibraryInfo {
    * Three digits are used for each component of {@link #VERSION}. For example "1.2.3" has the
    * corresponding integer version 1002003.
    */
-  public static final int VERSION_INT = 1000010;
+  public static final int VERSION_INT = 1000011;
 
   /**
    * Whether the library was compiled with {@link com.google.android.exoplayer.util.Assertions}
