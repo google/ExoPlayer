@@ -34,10 +34,26 @@ import java.io.IOException;
  */
 public final class CacheDataSource implements DataSource {
 
+  /**
+   * Interface definition for a callback to be notified of {@link CacheDataSource} events.
+   */
+  public interface EventListener {
+
+    /**
+     * Invoked when bytes have been read from {@link #cache} since the last invocation.
+     *
+     * @param cacheSizeBytes Current cache size in bytes.
+     * @param cachedBytesRead Total bytes read from {@link #cache} since last report.
+     */
+    void onCachedBytesRead(long cacheSizeBytes, long cachedBytesRead);
+
+  }
+
   private final Cache cache;
   private final DataSource cacheReadDataSource;
   private final DataSource cacheWriteDataSource;
   private final DataSource upstreamDataSource;
+  private final EventListener eventListener;
 
   private final boolean blockOnCache;
   private final boolean ignoreCacheOnError;
@@ -49,6 +65,7 @@ public final class CacheDataSource implements DataSource {
   private long bytesRemaining;
   private CacheSpan lockedSpan;
   private boolean ignoreCache;
+  private long totalCachedBytesRead;
 
   /**
    * Constructs an instance with default {@link DataSource} and {@link DataSink} instances for
@@ -67,7 +84,7 @@ public final class CacheDataSource implements DataSource {
   public CacheDataSource(Cache cache, DataSource upstream, boolean blockOnCache,
       boolean ignoreCacheOnError, long maxCacheFileSize) {
     this(cache, upstream, new FileDataSource(), new CacheDataSink(cache, maxCacheFileSize),
-        blockOnCache, ignoreCacheOnError);
+        blockOnCache, ignoreCacheOnError, null);
   }
 
   /**
@@ -84,9 +101,11 @@ public final class CacheDataSource implements DataSource {
    * @param ignoreCacheOnError Whether the cache is bypassed following any cache related error. If
    *     true, then cache related exceptions may be thrown for one cycle of open, read and close
    *     calls. Subsequent cycles of these calls will then bypass the cache.
+   * @param eventListener An optional {@link EventListener} to receive events.
    */
   public CacheDataSource(Cache cache, DataSource upstream, DataSource cacheReadDataSource,
-      DataSink cacheWriteDataSink, boolean blockOnCache, boolean ignoreCacheOnError) {
+      DataSink cacheWriteDataSink, boolean blockOnCache, boolean ignoreCacheOnError,
+      EventListener eventListener) {
     this.cache = cache;
     this.cacheReadDataSource = cacheReadDataSource;
     this.blockOnCache = blockOnCache;
@@ -97,6 +116,7 @@ public final class CacheDataSource implements DataSource {
     } else {
       this.cacheWriteDataSource = null;
     }
+    this.eventListener = eventListener;
   }
 
   @Override
@@ -121,10 +141,13 @@ public final class CacheDataSource implements DataSource {
   @Override
   public int read(byte[] buffer, int offset, int max) throws IOException {
     try {
-      int num = currentDataSource.read(buffer, offset, max);
-      if (num >= 0) {
-        readPosition += num;
-        bytesRemaining -= num;
+      int bytesRead = currentDataSource.read(buffer, offset, max);
+      if (bytesRead >= 0) {
+        if (currentDataSource == cacheReadDataSource) {
+          totalCachedBytesRead += bytesRead;
+        }
+        readPosition += bytesRead;
+        bytesRemaining -= bytesRead;
       } else {
         closeCurrentSource();
         if (bytesRemaining > 0) {
@@ -132,7 +155,7 @@ public final class CacheDataSource implements DataSource {
           return read(buffer, offset, max);
         }
       }
-      return num;
+      return bytesRead;
     } catch (IOException e) {
       handleBeforeThrow(e);
       throw e;
@@ -141,6 +164,7 @@ public final class CacheDataSource implements DataSource {
 
   @Override
   public void close() throws IOException {
+    notifyBytesRead();
     try {
       closeCurrentSource();
     } catch (IOException e) {
@@ -212,6 +236,13 @@ public final class CacheDataSource implements DataSource {
         || exception instanceof CacheDataSinkException)) {
       // Ignore the cache from now on.
       ignoreCache = true;
+    }
+  }
+
+  private void notifyBytesRead() {
+    if (eventListener != null && totalCachedBytesRead > 0) {
+      eventListener.onCachedBytesRead(cache.getCacheSpace(), totalCachedBytesRead);
+      totalCachedBytesRead = 0;
     }
   }
 
