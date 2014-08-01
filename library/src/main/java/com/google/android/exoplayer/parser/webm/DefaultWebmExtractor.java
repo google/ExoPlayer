@@ -83,7 +83,6 @@ public final class DefaultWebmExtractor implements WebmExtractor {
   private SampleHolder tempSampleHolder;
   private boolean sampleRead;
 
-  private boolean prepared = false;
   private long segmentStartOffsetBytes = UNKNOWN;
   private long segmentEndOffsetBytes = UNKNOWN;
   private long timecodeScale = 1000000L;
@@ -105,13 +104,11 @@ public final class DefaultWebmExtractor implements WebmExtractor {
   /* package */ DefaultWebmExtractor(EbmlReader reader) {
     this.reader = reader;
     this.reader.setEventHandler(new InnerEbmlEventHandler());
-    this.cueTimesUs = new LongArray();
-    this.cueClusterPositions = new LongArray();
   }
 
   @Override
   public boolean isPrepared() {
-    return prepared;
+    return format != null && cues != null;
   }
 
   @Override
@@ -125,8 +122,9 @@ public final class DefaultWebmExtractor implements WebmExtractor {
 
   @Override
   public boolean seekTo(long seekTimeUs, boolean allowNoop) {
-    checkPrepared();
     if (allowNoop
+        && cues != null
+        && clusterTimecodeUs != UNKNOWN
         && simpleBlockTimecodeUs != UNKNOWN
         && seekTimeUs >= simpleBlockTimecodeUs) {
       int clusterIndex = Arrays.binarySearch(cues.timesUs, clusterTimecodeUs);
@@ -134,19 +132,19 @@ public final class DefaultWebmExtractor implements WebmExtractor {
         return false;
       }
     }
+    clusterTimecodeUs = UNKNOWN;
+    simpleBlockTimecodeUs = UNKNOWN;
     reader.reset();
     return true;
   }
 
   @Override
   public SegmentIndex getCues() {
-    checkPrepared();
     return cues;
   }
 
   @Override
   public MediaFormat getFormat() {
-    checkPrepared();
     return format;
   }
 
@@ -196,6 +194,8 @@ public final class DefaultWebmExtractor implements WebmExtractor {
         break;
       case ID_CUES:
         cuesSizeBytes = headerSizeBytes + contentsSizeBytes;
+        cueTimesUs = new LongArray();
+        cueClusterPositions = new LongArray();
         break;
       default:
         // pass
@@ -204,11 +204,16 @@ public final class DefaultWebmExtractor implements WebmExtractor {
   }
 
   /* package */ boolean onMasterElementEnd(int id) {
-    if (id == ID_CUES) {
-      finishPreparing();
-      return false;
+    switch (id) {
+      case ID_CUES:
+        buildCues();
+        return false;
+      case ID_VIDEO:
+        buildFormat();
+        return true;
+      default:
+        return true;
     }
-    return true;
   }
 
   /* package */ boolean onIntegerElement(int id, long value) {
@@ -330,30 +335,40 @@ public final class DefaultWebmExtractor implements WebmExtractor {
     return TimeUnit.NANOSECONDS.toMicros(unscaledTimecode * timecodeScale);
   }
 
-  private void checkPrepared() {
-    if (!prepared) {
-      throw new IllegalStateException("Parser not yet prepared");
+  /**
+   * Build a video {@link MediaFormat} containing recently gathered Video information, if needed.
+   *
+   * <p>Replaces the previous {@link #format} only if video width/height have changed.
+   * {@link #format} is guaranteed to not be null after calling this method. In
+   * the event that it can't be built, an {@link IllegalStateException} will be thrown.
+   */
+  private void buildFormat() {
+    if (pixelWidth != UNKNOWN && pixelHeight != UNKNOWN
+        && (format == null || format.width != pixelWidth || format.height != pixelHeight)) {
+      format = MediaFormat.createVideoFormat(
+          MimeTypes.VIDEO_VP9, MediaFormat.NO_VALUE, pixelWidth, pixelHeight, null);
+    } else if (format == null) {
+      throw new IllegalStateException("Unable to build format");
     }
   }
 
-  private void finishPreparing() {
-    if (prepared) {
-      throw new IllegalStateException("Already prepared");
-    } else if (segmentStartOffsetBytes == UNKNOWN) {
+  /**
+   * Build a {@link SegmentIndex} containing recently gathered Cues information.
+   *
+   * <p>{@link #cues} is guaranteed to not be null after calling this method. In
+   * the event that it can't be built, an {@link IllegalStateException} will be thrown.
+   */
+  private void buildCues() {
+    if (segmentStartOffsetBytes == UNKNOWN) {
       throw new IllegalStateException("Segment start/end offsets unknown");
     } else if (durationUs == UNKNOWN) {
       throw new IllegalStateException("Duration unknown");
-    } else if (pixelWidth == UNKNOWN || pixelHeight == UNKNOWN) {
-      throw new IllegalStateException("Pixel width/height unknown");
     } else if (cuesSizeBytes == UNKNOWN) {
       throw new IllegalStateException("Cues size unknown");
-    } else if (cueTimesUs.size() == 0 || cueTimesUs.size() != cueClusterPositions.size()) {
+    } else if (cueTimesUs == null || cueClusterPositions == null
+        || cueTimesUs.size() == 0 || cueTimesUs.size() != cueClusterPositions.size()) {
       throw new IllegalStateException("Invalid/missing cue points");
     }
-
-    format = MediaFormat.createVideoFormat(
-        MimeTypes.VIDEO_VP9, MediaFormat.NO_VALUE, pixelWidth, pixelHeight, null);
-
     int cuePointsSize = cueTimesUs.size();
     int[] sizes = new int[cuePointsSize];
     long[] offsets = new long[cuePointsSize];
@@ -372,8 +387,6 @@ public final class DefaultWebmExtractor implements WebmExtractor {
     cues = new SegmentIndex((int) cuesSizeBytes, sizes, offsets, durationsUs, timesUs);
     cueTimesUs = null;
     cueClusterPositions = null;
-
-    prepared = true;
   }
 
   /**
