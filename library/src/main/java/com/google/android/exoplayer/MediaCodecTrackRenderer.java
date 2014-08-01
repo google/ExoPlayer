@@ -128,6 +128,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private int codecReconfigurationState;
 
   private int trackIndex;
+  private boolean sourceIsReady;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
@@ -196,6 +197,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   @Override
   protected void onEnabled(long timeUs, boolean joining) {
     source.enable(trackIndex, timeUs);
+    sourceIsReady = false;
     inputStreamEnded = false;
     outputStreamEnded = false;
     waitingForKeys = false;
@@ -346,6 +348,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   protected void seekTo(long timeUs) throws ExoPlaybackException {
     currentPositionUs = timeUs;
     source.seekToUs(timeUs);
+    sourceIsReady = false;
     inputStreamEnded = false;
     outputStreamEnded = false;
     waitingForKeys = false;
@@ -364,7 +367,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   @Override
   protected void doSomeWork(long timeUs) throws ExoPlaybackException {
     try {
-      source.continueBuffering(timeUs);
+      sourceIsReady = source.continueBuffering(timeUs);
       checkForDiscontinuity();
       if (format == null) {
         readFormat();
@@ -645,10 +648,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   @Override
   protected boolean isReady() {
     return format != null && !waitingForKeys
-        && ((codec == null && !shouldInitCodec()) // We don't want the codec
-            || outputIndex >= 0 // Or we have an output buffer ready to release
-            || inputIndex < 0 // Or we don't have any input buffers to write to
-            || isWithinHotswapPeriod()); // Or the codec is being hotswapped
+        && (sourceIsReady || outputIndex >= 0 || isWithinHotswapPeriod());
   }
 
   private boolean isWithinHotswapPeriod() {

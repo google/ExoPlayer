@@ -67,7 +67,7 @@ public final class FrameworkSampleSource implements SampleSource {
       extractor = new MediaExtractor();
       extractor.setDataSource(context, uri, headers);
       trackStates = new int[extractor.getTrackCount()];
-      pendingDiscontinuities = new boolean[extractor.getTrackCount()];
+      pendingDiscontinuities = new boolean[trackStates.length];
       trackInfos = new TrackInfo[trackStates.length];
       for (int i = 0; i < trackStates.length; i++) {
         android.media.MediaFormat format = extractor.getTrackFormat(i);
@@ -84,7 +84,7 @@ public final class FrameworkSampleSource implements SampleSource {
   @Override
   public int getTrackCount() {
     Assertions.checkState(prepared);
-    return extractor.getTrackCount();
+    return trackStates.length;
   }
 
   @Override
@@ -97,17 +97,18 @@ public final class FrameworkSampleSource implements SampleSource {
   public void enable(int track, long timeUs) {
     Assertions.checkState(prepared);
     Assertions.checkState(trackStates[track] == TRACK_STATE_DISABLED);
-    boolean wasSourceEnabled = isEnabled();
     trackStates[track] = TRACK_STATE_ENABLED;
     extractor.selectTrack(track);
-    if (!wasSourceEnabled) {
-      seekToUs(timeUs);
-    }
+    seekToUs(timeUs);
   }
 
   @Override
-  public void continueBuffering(long playbackPositionUs) {
-    // Do nothing. The MediaExtractor instance is responsible for buffering.
+  public boolean continueBuffering(long playbackPositionUs) {
+    // MediaExtractor takes care of buffering and blocks until it has samples, so we can always
+    // return true here. Although note that the blocking behavior is itself as bug, as per the
+    // TODO further up this file. This method will need to return something else as part of fixing
+    // the TODO.
+    return true;
   }
 
   @Override
@@ -122,15 +123,15 @@ public final class FrameworkSampleSource implements SampleSource {
     if (onlyReadDiscontinuity) {
       return NOTHING_READ;
     }
+    if (trackStates[track] != TRACK_STATE_FORMAT_SENT) {
+      formatHolder.format = MediaFormat.createFromFrameworkMediaFormatV16(
+          extractor.getTrackFormat(track));
+      formatHolder.drmInitData = Util.SDK_INT >= 18 ? getPsshInfoV18() : null;
+      trackStates[track] = TRACK_STATE_FORMAT_SENT;
+      return FORMAT_READ;
+    }
     int extractorTrackIndex = extractor.getSampleTrackIndex();
     if (extractorTrackIndex == track) {
-      if (trackStates[track] != TRACK_STATE_FORMAT_SENT) {
-        formatHolder.format = MediaFormat.createFromFrameworkMediaFormatV16(
-            extractor.getTrackFormat(track));
-        formatHolder.drmInitData = Util.SDK_INT >= 18 ? getPsshInfoV18() : null;
-        trackStates[track] = TRACK_STATE_FORMAT_SENT;
-        return FORMAT_READ;
-      }
       if (sampleHolder.data != null) {
         int offset = sampleHolder.data.position();
         sampleHolder.size = extractor.readSampleData(sampleHolder.data, offset);
@@ -200,15 +201,6 @@ public final class FrameworkSampleSource implements SampleSource {
       extractor.release();
       extractor = null;
     }
-  }
-
-  private boolean isEnabled() {
-    for (int i = 0; i < trackStates.length; i++) {
-      if (trackStates[i] != TRACK_STATE_DISABLED) {
-        return true;
-      }
-    }
-    return false;
   }
 
 }

@@ -246,11 +246,21 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
   }
 
   @Override
-  public void continueBuffering(long playbackPositionUs) {
+  public boolean continueBuffering(long playbackPositionUs) throws IOException {
     Assertions.checkState(state == STATE_ENABLED);
     downstreamPositionUs = playbackPositionUs;
     chunkSource.continueBuffering(playbackPositionUs);
     updateLoadControl();
+    if (isPendingReset() || mediaChunks.isEmpty()) {
+      return false;
+    } else if (mediaChunks.getFirst().sampleAvailable()) {
+      // There's a sample available to be read from the current chunk.
+      return true;
+    } else {
+      // It may be the case that the current chunk has been fully read but not yet discarded and
+      // that the next chunk has an available sample. Return true if so, otherwise false.
+      return mediaChunks.size() > 1 && mediaChunks.get(1).sampleAvailable();
+    }
   }
 
   @Override

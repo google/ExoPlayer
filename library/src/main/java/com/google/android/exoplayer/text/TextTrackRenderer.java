@@ -144,7 +144,12 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
 
   @Override
   protected void doSomeWork(long timeUs) throws ExoPlaybackException {
-    source.continueBuffering(timeUs);
+    try {
+      source.continueBuffering(timeUs);
+    } catch (IOException e) {
+      throw new ExoPlaybackException(e);
+    }
+
     currentPositionUs = timeUs;
 
     // We're iterating through the events in a subtitle. Set textRendererNeedsUpdate if we advance

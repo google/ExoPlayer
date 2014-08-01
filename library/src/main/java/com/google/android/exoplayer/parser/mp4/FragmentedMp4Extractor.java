@@ -59,7 +59,7 @@ public final class FragmentedMp4Extractor {
   public static final int WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME = 1;
 
   /**
-   * An attempt to read from the input stream returned 0 bytes of data.
+   * An attempt to read from the input stream returned insufficient data.
    */
   public static final int RESULT_NEED_MORE_DATA = 1;
   /**
@@ -69,27 +69,23 @@ public final class FragmentedMp4Extractor {
   /**
    * A media sample was read.
    */
-  public static final int RESULT_READ_SAMPLE_FULL = 4;
+  public static final int RESULT_READ_SAMPLE = 4;
   /**
-   * A media sample was partially read.
+   * A moov atom was read. The parsed data can be read using {@link #getFormat()} and
+   * {@link #getPsshInfo}.
    */
-  public static final int RESULT_READ_SAMPLE_PARTIAL = 8;
+  public static final int RESULT_READ_INIT = 8;
   /**
-   * A moov atom was read. The parsed data can be read using {@link #getTrack()},
-   * {@link #getFormat()} and {@link #getPsshInfo}.
+   * A sidx atom was read. The parsed data can be read using {@link #getIndex()}.
    */
-  public static final int RESULT_READ_MOOV = 16;
-  /**
-   * A sidx atom was read. The parsed data can be read using {@link #getSegmentIndex()}.
-   */
-  public static final int RESULT_READ_SIDX = 32;
+  public static final int RESULT_READ_INDEX = 16;
   /**
    * The next thing to be read is a sample, but a {@link SampleHolder} was not supplied.
    */
-  public static final int RESULT_NEED_SAMPLE_HOLDER = 64;
+  public static final int RESULT_NEED_SAMPLE_HOLDER = 32;
 
   private static final int READ_TERMINATING_RESULTS = RESULT_NEED_MORE_DATA | RESULT_END_OF_STREAM
-      | RESULT_READ_SAMPLE_FULL | RESULT_NEED_SAMPLE_HOLDER;
+      | RESULT_READ_SAMPLE | RESULT_NEED_SAMPLE_HOLDER;
   private static final byte[] NAL_START_CODE = new byte[] {0, 0, 0, 1};
   private static final byte[] PIFF_SAMPLE_ENCRYPTION_BOX_EXTENDED_TYPE =
       new byte[] {-94, 57, 79, 82, 90, -101, 79, 20, -94, 68, 108, 66, 124, 100, -115, -12};
@@ -98,8 +94,7 @@ public final class FragmentedMp4Extractor {
   private static final int STATE_READING_ATOM_HEADER = 0;
   private static final int STATE_READING_ATOM_PAYLOAD = 1;
   private static final int STATE_READING_CENC_AUXILIARY_DATA = 2;
-  private static final int STATE_READING_SAMPLE_START = 3;
-  private static final int STATE_READING_SAMPLE_INCREMENTAL = 4;
+  private static final int STATE_READING_SAMPLE = 3;
 
   // Atom data offsets
   private static final int ATOM_HEADER_SIZE = 8;
@@ -169,7 +164,6 @@ public final class FragmentedMp4Extractor {
   private ParsableByteArray atomData;
   private ParsableByteArray cencAuxiliaryData;
   private int cencAuxiliaryBytesRead;
-  private int sampleBytesRead;
 
   private int pendingSeekTimeMs;
   private int sampleIndex;
@@ -207,7 +201,7 @@ public final class FragmentedMp4Extractor {
    *
    * @return The segment index, or null if a SIDX atom has yet to be parsed.
    */
-  public SegmentIndex getSegmentIndex() {
+  public SegmentIndex getIndex() {
     return segmentIndex;
   }
 
@@ -245,17 +239,7 @@ public final class FragmentedMp4Extractor {
   }
 
   /**
-   * Returns the track information parsed from the stream.
-   *
-   * @return The track, or null if a MOOV atom has yet to be parsed.
-   */
-  public Track getTrack() {
-    return track;
-  }
-
-  /**
-   * Sideloads track information into the extractor, so that it can be read through
-   * {@link #getTrack()}.
+   * Sideloads track information into the extractor.
    *
    * @param track The track to sideload.
    */
@@ -270,10 +254,6 @@ public final class FragmentedMp4Extractor {
    * The read terminates if the end of the input stream is reached, if an attempt to read from the
    * input stream returned 0 bytes of data, or if a sample is read. The returned flags indicate
    * both the reason for termination and data that was parsed during the read.
-   * <p>
-   * If the returned flags include {@link #RESULT_READ_SAMPLE_PARTIAL} then the sample has been
-   * partially read into {@code out}. Hence the same {@link SampleHolder} instance must be passed
-   * in subsequent calls until the whole sample has been read.
    *
    * @param inputStream The input stream from which data should be read.
    * @param out A {@link SampleHolder} into which the next sample should be read. If null then
@@ -353,9 +333,6 @@ public final class FragmentedMp4Extractor {
       case STATE_READING_CENC_AUXILIARY_DATA:
         cencAuxiliaryBytesRead = 0;
         break;
-      case STATE_READING_SAMPLE_START:
-        sampleBytesRead = 0;
-        break;
     }
     parserState = state;
   }
@@ -383,7 +360,7 @@ public final class FragmentedMp4Extractor {
         enterState(STATE_READING_CENC_AUXILIARY_DATA);
       } else {
         cencAuxiliaryData = null;
-        enterState(STATE_READING_SAMPLE_START);
+        enterState(STATE_READING_SAMPLE);
       }
       return 0;
     }
@@ -442,7 +419,7 @@ public final class FragmentedMp4Extractor {
       containerAtoms.peek().add(leaf);
     } else if (leaf.type == Atom.TYPE_sidx) {
       segmentIndex = parseSidx(leaf.getData());
-      return RESULT_READ_SIDX;
+      return RESULT_READ_INDEX;
     }
     return 0;
   }
@@ -450,7 +427,7 @@ public final class FragmentedMp4Extractor {
   private int onContainerAtomRead(ContainerAtom container) {
     if (container.type == Atom.TYPE_moov) {
       onMoovContainerAtomRead(container);
-      return RESULT_READ_MOOV;
+      return RESULT_READ_INIT;
     } else if (container.type == Atom.TYPE_moof) {
       onMoofContainerAtomRead(container);
     } else if (!containerAtoms.isEmpty()) {
@@ -1078,7 +1055,7 @@ public final class FragmentedMp4Extractor {
     if (cencAuxiliaryBytesRead < length) {
       return RESULT_NEED_MORE_DATA;
     }
-    enterState(STATE_READING_SAMPLE_START);
+    enterState(STATE_READING_SAMPLE);
     return 0;
   }
 
@@ -1105,89 +1082,68 @@ public final class FragmentedMp4Extractor {
       enterState(STATE_READING_ATOM_HEADER);
       return 0;
     }
-    if (sampleIndex < pendingSeekSyncSampleIndex) {
-      return skipSample(inputStream);
+    int sampleSize = fragmentRun.sampleSizeTable[sampleIndex];
+    if (inputStream.getAvailableByteCount() < sampleSize) {
+      return RESULT_NEED_MORE_DATA;
     }
-    return readSample(inputStream, out);
+    if (sampleIndex < pendingSeekSyncSampleIndex) {
+      return skipSample(inputStream, sampleSize);
+    }
+    return readSample(inputStream, sampleSize, out);
   }
 
-  private int skipSample(NonBlockingInputStream inputStream) {
-    if (parserState == STATE_READING_SAMPLE_START) {
-      ParsableByteArray sampleEncryptionData = cencAuxiliaryData != null ? cencAuxiliaryData
-          : fragmentRun.smoothStreamingSampleEncryptionData;
-      if (sampleEncryptionData != null) {
-        TrackEncryptionBox encryptionBox =
-            track.sampleDescriptionEncryptionBoxes[fragmentRun.sampleDescriptionIndex];
-        int vectorSize = encryptionBox.initializationVectorSize;
-        boolean subsampleEncryption = cencAuxiliaryData != null
-            ? fragmentRun.auxiliarySampleInfoSizeTable[sampleIndex] > vectorSize
-                : fragmentRun.smoothStreamingUsesSubsampleEncryption;
-        sampleEncryptionData.skip(vectorSize);
-        int subsampleCount = subsampleEncryption ? sampleEncryptionData.readUnsignedShort() : 1;
-        if (subsampleEncryption) {
-          sampleEncryptionData.skip((2 + 4) * subsampleCount);
-        }
+  private int skipSample(NonBlockingInputStream inputStream, int sampleSize) {
+    ParsableByteArray sampleEncryptionData = cencAuxiliaryData != null ? cencAuxiliaryData
+        : fragmentRun.smoothStreamingSampleEncryptionData;
+    if (sampleEncryptionData != null) {
+      TrackEncryptionBox encryptionBox =
+          track.sampleDescriptionEncryptionBoxes[fragmentRun.sampleDescriptionIndex];
+      int vectorSize = encryptionBox.initializationVectorSize;
+      boolean subsampleEncryption = cencAuxiliaryData != null
+          ? fragmentRun.auxiliarySampleInfoSizeTable[sampleIndex] > vectorSize
+              : fragmentRun.smoothStreamingUsesSubsampleEncryption;
+      sampleEncryptionData.skip(vectorSize);
+      int subsampleCount = subsampleEncryption ? sampleEncryptionData.readUnsignedShort() : 1;
+      if (subsampleEncryption) {
+        sampleEncryptionData.skip((2 + 4) * subsampleCount);
       }
     }
 
-    int sampleSize = fragmentRun.sampleSizeTable[sampleIndex];
-    int bytesRead = inputStream.skip(sampleSize - sampleBytesRead);
-    if (bytesRead == -1) {
-      return RESULT_END_OF_STREAM;
-    }
-    sampleBytesRead += bytesRead;
-    if (sampleSize != sampleBytesRead) {
-      enterState(STATE_READING_SAMPLE_INCREMENTAL);
-      return RESULT_NEED_MORE_DATA;
-    }
+    inputStream.skip(sampleSize);
+
     sampleIndex++;
-    enterState(STATE_READING_SAMPLE_START);
+    enterState(STATE_READING_SAMPLE);
     return 0;
   }
 
   @SuppressLint("InlinedApi")
-  private int readSample(NonBlockingInputStream inputStream, SampleHolder out) {
+  private int readSample(NonBlockingInputStream inputStream, int sampleSize, SampleHolder out) {
     if (out == null) {
       return RESULT_NEED_SAMPLE_HOLDER;
     }
-    int sampleSize = fragmentRun.sampleSizeTable[sampleIndex];
     ByteBuffer outputData = out.data;
-    if (parserState == STATE_READING_SAMPLE_START) {
-      out.timeUs = fragmentRun.getSamplePresentationTime(sampleIndex) * 1000L;
-      out.flags = 0;
-      if (fragmentRun.sampleIsSyncFrameTable[sampleIndex]) {
-        out.flags |= MediaExtractor.SAMPLE_FLAG_SYNC;
-        lastSyncSampleIndex = sampleIndex;
-      }
-      if (out.allowDataBufferReplacement
-          && (out.data == null || out.data.capacity() < sampleSize)) {
-        outputData = ByteBuffer.allocate(sampleSize);
-        out.data = outputData;
-      }
-      ParsableByteArray sampleEncryptionData = cencAuxiliaryData != null ? cencAuxiliaryData
-          : fragmentRun.smoothStreamingSampleEncryptionData;
-      if (sampleEncryptionData != null) {
-        readSampleEncryptionData(sampleEncryptionData, out);
-      }
+    out.timeUs = fragmentRun.getSamplePresentationTime(sampleIndex) * 1000L;
+    out.flags = 0;
+    if (fragmentRun.sampleIsSyncFrameTable[sampleIndex]) {
+      out.flags |= MediaExtractor.SAMPLE_FLAG_SYNC;
+      lastSyncSampleIndex = sampleIndex;
+    }
+    if (out.allowDataBufferReplacement
+        && (out.data == null || out.data.capacity() < sampleSize)) {
+      outputData = ByteBuffer.allocate(sampleSize);
+      out.data = outputData;
+    }
+    ParsableByteArray sampleEncryptionData = cencAuxiliaryData != null ? cencAuxiliaryData
+        : fragmentRun.smoothStreamingSampleEncryptionData;
+    if (sampleEncryptionData != null) {
+      readSampleEncryptionData(sampleEncryptionData, out);
     }
 
-    int bytesRead;
     if (outputData == null) {
-      bytesRead = inputStream.skip(sampleSize - sampleBytesRead);
+      inputStream.skip(sampleSize);
+      out.size = 0;
     } else {
-      bytesRead = inputStream.read(outputData, sampleSize - sampleBytesRead);
-    }
-    if (bytesRead == -1) {
-      return RESULT_END_OF_STREAM;
-    }
-    sampleBytesRead += bytesRead;
-
-    if (sampleSize != sampleBytesRead) {
-      enterState(STATE_READING_SAMPLE_INCREMENTAL);
-      return RESULT_NEED_MORE_DATA | RESULT_READ_SAMPLE_PARTIAL;
-    }
-
-    if (outputData != null) {
+      inputStream.read(outputData, sampleSize);
       if (track.type == Track.TYPE_VIDEO) {
         // The mp4 file contains length-prefixed NAL units, but the decoder wants start code
         // delimited content. Replace length prefixes with start codes.
@@ -1203,13 +1159,11 @@ public final class FragmentedMp4Extractor {
         outputData.position(sampleOffset + sampleSize);
       }
       out.size = sampleSize;
-    } else {
-      out.size = 0;
     }
 
     sampleIndex++;
-    enterState(STATE_READING_SAMPLE_START);
-    return RESULT_READ_SAMPLE_FULL;
+    enterState(STATE_READING_SAMPLE);
+    return RESULT_READ_SAMPLE;
   }
 
   @SuppressLint("InlinedApi")

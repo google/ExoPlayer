@@ -46,9 +46,8 @@ import java.nio.ByteBuffer;
    * @param elementOffsetBytes The byte offset where this element starts
    * @param headerSizeBytes The byte length of this element's ID and size header
    * @param contentsSizeBytes The byte length of this element's children
-   * @return {@code false} if parsing should stop right away
    */
-  public boolean onMasterElementStart(
+  public void onMasterElementStart(
       int id, long elementOffsetBytes, int headerSizeBytes, long contentsSizeBytes);
 
   /**
@@ -56,44 +55,42 @@ import java.nio.ByteBuffer;
    * {@link NonBlockingInputStream}.
    *
    * @param id The integer ID of this element
-   * @return {@code false} if parsing should stop right away
    */
-  public boolean onMasterElementEnd(int id);
+  public void onMasterElementEnd(int id);
 
   /**
    * Called when an integer element is encountered in the {@link NonBlockingInputStream}.
    *
    * @param id The integer ID of this element
    * @param value The integer value this element contains
-   * @return {@code false} if parsing should stop right away
    */
-  public boolean onIntegerElement(int id, long value);
+  public void onIntegerElement(int id, long value);
 
   /**
    * Called when a float element is encountered in the {@link NonBlockingInputStream}.
    *
    * @param id The integer ID of this element
    * @param value The float value this element contains
-   * @return {@code false} if parsing should stop right away
    */
-  public boolean onFloatElement(int id, double value);
+  public void onFloatElement(int id, double value);
 
   /**
    * Called when a string element is encountered in the {@link NonBlockingInputStream}.
    *
    * @param id The integer ID of this element
    * @param value The string value this element contains
-   * @return {@code false} if parsing should stop right away
    */
-  public boolean onStringElement(int id, String value);
+  public void onStringElement(int id, String value);
 
   /**
    * Called when a binary element is encountered in the {@link NonBlockingInputStream}.
    *
    * <p>The element header (containing element ID and content size) will already have been read.
-   * Subclasses must exactly read the entire contents of the element, which is
-   * {@code contentsSizeBytes} in length. It's guaranteed that the full element contents will be
-   * immediately available from {@code inputStream}.
+   * Subclasses must either read nothing and return {@code false}, or exactly read the entire
+   * contents of the element, which is {@code contentsSizeBytes} in length, and return {@code true}.
+   *
+   * <p>It's guaranteed that the full element contents will be immediately available from
+   * {@code inputStream}.
    *
    * <p>Several methods in {@link EbmlReader} are available for reading the contents of a
    * binary element:
@@ -111,7 +108,7 @@ import java.nio.ByteBuffer;
    * @param contentsSizeBytes The byte length of this element's contents
    * @param inputStream The {@link NonBlockingInputStream} from which this
    *        element's contents should be read
-   * @return {@code false} if parsing should stop right away
+   * @return True if the element was read. False otherwise.
    */
   public boolean onBinaryElement(
       int id, long elementOffsetBytes, int headerSizeBytes, int contentsSizeBytes,
