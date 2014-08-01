@@ -280,14 +280,20 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
   @Override
   protected void onDisabled() {
-    releaseCodec();
     format = null;
     drmInitData = null;
-    if (openedDrmSession) {
-      drmSessionManager.close();
-      openedDrmSession = false;
+    try {
+      releaseCodec();
+    } finally {
+      try {
+        if (openedDrmSession) {
+          drmSessionManager.close();
+          openedDrmSession = false;
+        }
+      } finally {
+        source.disable(trackIndex);
+      }
     }
-    source.disable(trackIndex);
   }
 
   protected void releaseCodec() {
