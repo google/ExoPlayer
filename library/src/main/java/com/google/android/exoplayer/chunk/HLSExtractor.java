@@ -4,27 +4,65 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 
-public abstract class HLSExtractor {
-  /**
-   * An attempt to read from the input stream returned 0 bytes of data.
-   */
-  public static final int RESULT_NEED_MORE_DATA = 1;
-  /**
-   * The end of the input stream was reached.
-   */
-  public static final int RESULT_END_OF_STREAM = 2;
-  /**
-   * A media sample was read.
-   */
-  public static final int RESULT_READ_SAMPLE_FULL = 3;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
+public abstract class HLSExtractor {
   public static final int TYPE_VIDEO = 0;
   public static final int TYPE_AUDIO = 1;
+
+  public static class Sample {
+    public Sample(int type) {
+      this.type = type;
+      this.data = ByteBuffer.allocateDirect(2*1024);
+    }
+    public long timeUs;
+    public ByteBuffer data;
+    public int type;
+  }
+
+  private static final ArrayList<LinkedList<Sample>> recycledSampleList;
+
+  static {
+    recycledSampleList = new ArrayList<LinkedList<Sample>>(2);
+    recycledSampleList.add(new LinkedList<Sample>());
+    recycledSampleList.add(new LinkedList<Sample>());
+  }
+
+  static public synchronized Sample getSample(int type) {
+    LinkedList<Sample> list = recycledSampleList.get(type);
+    if (list.size() > 0) {
+      Sample s = list.removeFirst();
+      s.data.position(0);
+      s.data.limit(s.data.capacity());
+      return s;
+    } else {
+      return new Sample(type);
+    }
+  }
+
+  static public synchronized void releaseSample(Sample s) {
+    LinkedList<Sample> list = recycledSampleList.get(s.type);
+    list.add(s);
+  }
+
+  static public synchronized void resizeSample(Sample s, int newSize) {
+    ByteBuffer newData = ByteBuffer.allocateDirect(newSize);
+    s.data.limit(s.data.position());
+    s.data.position(0);
+    newData.put(s.data);
+    s.data = newData;
+  }
 
   static public class UnsignedByteArray {
     byte[] array;
     public UnsignedByteArray(int length) {
       array = new byte[length];
+    }
+
+    public UnsignedByteArray(byte[] array) {
+      this.array = array;
     }
 
     public void resize(int newLength) {
@@ -57,10 +95,11 @@ public abstract class HLSExtractor {
     }
   }
 
-  abstract public int read(int type, SampleHolder out)
+  /*
+   * return null if end of stream
+   */
+  abstract public Sample read()
           throws ParserException;
 
-  abstract public MediaFormat getAudioMediaFormat();
-
-  abstract public boolean isReadFinished();
+  public void release() {};
 }

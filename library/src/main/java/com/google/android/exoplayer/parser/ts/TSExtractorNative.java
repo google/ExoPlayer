@@ -5,53 +5,46 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.chunk.HLSExtractor;
 import com.google.android.exoplayer.parser.aac.AACExtractor;
+import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
+
+import java.io.InputStream;
 
 public class TSExtractorNative extends HLSExtractor {
 
-  private NonBlockingInputStream inputStream;
+  private DataSource dataSource;
   MediaFormat audioMediaFormat;
 
   static boolean loaded;
 
-  public TSExtractorNative(NonBlockingInputStream inputStream) throws UnsatisfiedLinkError
+  public TSExtractorNative(DataSource dataSource) throws UnsatisfiedLinkError
   {
     if (!loaded) {
       System.loadLibrary("TSExtractorNative");
     }
 
     // needs to be done before the nativeInit()
-    this.inputStream = inputStream;
+    this.dataSource = dataSource;
     nativeInit();
   }
 
   @Override
-  public int read(int type, SampleHolder out) throws ParserException {
-    return nativeRead(type, out);
+  public Sample read() throws ParserException {
+
+    return nativeRead();
   }
 
-  @Override
-  public MediaFormat getAudioMediaFormat() {
-    if (audioMediaFormat == null) {
-      int sampleRateIndex = nativeGetSampleRateIndex();
-      int channelConfigIndex = nativeGetChannelConfigIndex();
-
-      audioMediaFormat = AACExtractor.ADTSHeader.createMediaFormat(sampleRateIndex, channelConfigIndex);
-    }
-    return audioMediaFormat;
-  }
-
-  @Override
-  public boolean isReadFinished() {
-    return nativeIsReadFinished();
+  public void release() {
+    nativeRelease();
   }
 
   // stores a pointer to the native state
   private long nativeHandle;
 
   private native void nativeInit();
-  private native int nativeRead(int type, SampleHolder out);
+  private native Sample nativeRead();
   private native int nativeGetSampleRateIndex();
   private native int nativeGetChannelConfigIndex();
   private native boolean nativeIsReadFinished();
+  public native void nativeRelease();
 }

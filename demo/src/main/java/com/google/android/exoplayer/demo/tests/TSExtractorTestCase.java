@@ -23,19 +23,18 @@ public class TSExtractorTestCase extends TestCase {
     DataSource dataSource = new FileDataSource();
     DataSourceStream inputStream = new DataSourceStream(dataSource, dataSpec, new BufferPool(64*1024));
     inputStream.load();
-    HLSExtractor extractor = new TSExtractor(inputStream);
+    HLSExtractor extractor = new TSExtractor(dataSource);
     int type = TSExtractor.TYPE_AUDIO;
     int[] counter = new int[2];
 
     SampleHolder sampleHolder = new SampleHolder(false);
     long start = SystemClock.uptimeMillis();
-    while (extractor.isReadFinished() == false) {
-      int ret = extractor.read(type, sampleHolder);
-      if (ret != TSExtractor.RESULT_READ_SAMPLE_FULL) {
-        type = 1 - type;
-      } else {
-        counter[type]++;
+    while (true) {
+      HLSExtractor.Sample s = extractor.read();
+      if (s == null) {
+        break;
       }
+      counter[s.type]++;
     }
     Log.d("TSExtractorTestCase", String.format("processed %d audio frames and %d video frames in %d ms", counter[TSExtractor.TYPE_AUDIO],
             counter[TSExtractor.TYPE_VIDEO], SystemClock.uptimeMillis() - start));

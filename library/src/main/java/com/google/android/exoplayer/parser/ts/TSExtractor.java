@@ -5,18 +5,14 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.chunk.HLSExtractor;
 import com.google.android.exoplayer.parser.aac.AACExtractor;
-import com.google.android.exoplayer.upstream.NonBlockingInputStream;
+import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.TraceUtil;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -25,9 +21,7 @@ import java.util.List;
 public class TSExtractor extends HLSExtractor {
   private static final String TAG = "TSExtractor";
 
-  private final NonBlockingInputStream inputStream;
-
-  private MediaFormat audioMediaFormat;
+  private final DataSource dataSource;
 
   private UnsignedByteArray packet;
   int packetWriteOffset;
@@ -35,8 +29,6 @@ public class TSExtractor extends HLSExtractor {
   private final SparseArray<PayloadHandler> activePayloadHandlers;
   private final ArrayList<PESHandler> activePESHandlers;
 
-  private LinkedList<Sample> recycledSampleList;
-  private ArrayList<LinkedList<Sample>> sampleLists;
   private boolean endOfStream;
   int audioStreamType;
   private boolean unitStartNotSignalled;
@@ -44,17 +36,9 @@ public class TSExtractor extends HLSExtractor {
   private int dataSize;
   private int dataPosition;
   private int dataIncompletePosition;
-  private boolean inputStreamFinished;
+  private boolean dataSourceFinished;
 
-  static class Sample {
-    public UnsignedByteArray data;
-    public int position;
-    public long timeUs;
-
-    public Sample() {
-      data = new UnsignedByteArray(2*1024);
-    }
-  }
+  private Sample outSample;
 
   static abstract class PayloadHandler {
     public int cc_counter;
@@ -73,26 +57,14 @@ public class TSExtractor extends HLSExtractor {
     abstract public void handlePayload(UnsignedByteArray packet, int payloadStart, boolean unit_start);
   }
 
-  Sample getSample() {
-    if (recycledSampleList.size() > 0) {
-      return recycledSampleList.removeFirst();
-    } else {
-      return new Sample();
-    }
-  }
-
-  void releaseSample(Sample s) {
-    recycledSampleList.add(s);
-  }
-
   class PESHandler extends PayloadHandler {
     private Sample currentSample;
-    private LinkedList<Sample> list;
     private int length;
+    private int type;
 
-    public PESHandler(int pid, LinkedList<Sample> list) {
+    public PESHandler(int pid, int type) {
       super.init(pid);
-      this.list = list;
+      this.type = type;
     }
 
     @Override
@@ -108,14 +80,14 @@ public class TSExtractor extends HLSExtractor {
 
         // output previous packet
         if (currentSample != null) {
-          list.add(currentSample);
-          if (length != 0 && length != currentSample.position) {
-            Log.d(TAG, "PES length " + currentSample.position + " != " + length);
+          outSample = currentSample;
+          if (length != 0 && length != currentSample.data.position()) {
+            Log.d(TAG, "PES length " + currentSample.data.position() + " != " + length);
           }
           currentSample = null;
         }
 
-        currentSample = getSample();
+        currentSample = getSample(type);
 
         int[] prefix = new int[3];
         prefix[0] = packet.get(offset++);
@@ -155,22 +127,14 @@ public class TSExtractor extends HLSExtractor {
         offset = fixedOffset + headerDataLength;
         if (length > 0)
           length -= headerDataLength + 3;
-        System.arraycopy(packet.array(), offset, currentSample.data.array(), 0, dataPosition - offset);
-        currentSample.position = dataPosition - offset;
+        currentSample.data.put(packet.array(), offset, dataPosition - offset);
         return;
       }
 
-      if (currentSample.position + 188 > currentSample.data.length()) {
-        currentSample.data.resize(2*(currentSample.position + 188));
+      if (currentSample.data.position() + 188 > currentSample.data.capacity()) {
+        resizeSample(currentSample, 2*(currentSample.data.capacity() + 188));
       }
-      System.arraycopy(packet.array(), offset, currentSample.data.array(), currentSample.position, dataPosition - offset);
-      currentSample.position += dataPosition - offset;
-    }
-
-    public void terminate() {
-      if (currentSample != null) {
-        list.add(currentSample);
-      }
+      currentSample.data.put(packet.array(), offset, dataPosition - offset);
     }
   }
 
@@ -257,7 +221,7 @@ public class TSExtractor extends HLSExtractor {
         handler = null;
         if (audio_handler == null && (s.type == STREAM_TYPE_AAC_ADTS || s.type == STREAM_TYPE_MPEG_AUDIO)) {
           audioStreamType = s.type;
-          audio_handler = new PESHandler(s.pid, sampleLists.get(TYPE_AUDIO));
+          audio_handler = new PESHandler(s.pid, TYPE_AUDIO);
           handler = audio_handler;
           Log.d(TAG, String.format("audio found on pid %04x", s.pid));
 
@@ -266,7 +230,7 @@ public class TSExtractor extends HLSExtractor {
             unitStartNotSignalled = true;
           }
         } else if (video_handler == null && s.type == STREAM_TYPE_H264) {
-          video_handler = new PESHandler(s.pid, sampleLists.get(TYPE_VIDEO));
+          video_handler = new PESHandler(s.pid, TYPE_VIDEO);
           handler = video_handler;
           Log.d(TAG, String.format("video found on pid %04x", s.pid));
         }
@@ -320,22 +284,17 @@ public class TSExtractor extends HLSExtractor {
     }
   }
 
-  public TSExtractor(NonBlockingInputStream inputStream) {
+  public TSExtractor(DataSource dataSource) {
     packet = new UnsignedByteArray(200 * 188);
     activePayloadHandlers = new SparseArray<PayloadHandler>(4);
     PayloadHandler payloadHandler = (PayloadHandler)new PATHandler(0);
     activePayloadHandlers.put(0, payloadHandler);
-    recycledSampleList = new LinkedList<Sample>();
-    sampleLists = new ArrayList<LinkedList<Sample>>();
-    sampleLists.add(new LinkedList<Sample>());
-    sampleLists.add(new LinkedList<Sample>());
-    this.inputStream = inputStream;
+    this.dataSource = dataSource;
     activePESHandlers = new ArrayList<PESHandler>();
 
   }
 
-  private boolean fillData()
-  {
+  private boolean fillData() throws ParserException {
     int offset = 0;
     int length = packet.length();
 
@@ -345,13 +304,19 @@ public class TSExtractor extends HLSExtractor {
       length = packet.length() - dataIncompletePosition;
     }
 
-    int ret = inputStream.read(packet.array(), offset, length);
+    int ret = 0;
+    try {
+      ret = dataSource.read(packet.array(), offset, length);
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new ParserException("IOException");
+    }
     if (ret == -1) {
       if ((dataSize % 188) != 0) {
         Log.d(TAG, String.format("TS file is not a multiple of 188 bytes (%d)?", dataSize));
         dataSize = 188 * ((dataSize + 187) / 188);
       }
-      inputStreamFinished = true;
+      dataSourceFinished = true;
       return false;
     } else {
       offset += ret;
@@ -372,21 +337,17 @@ public class TSExtractor extends HLSExtractor {
    * @return true if it wants to ba called again
    * @throws ParserException
    */
-  private boolean readOnePacket() throws ParserException
+  private void readOnePacket() throws ParserException
   {
     if (dataPosition == dataSize || (dataIncompletePosition != 0)) {
       fillData();
-      if (inputStreamFinished) {
+      if (dataSourceFinished) {
         if (endOfStream == false) {
-          for (PESHandler h : activePESHandlers) {
-            h.terminate();
-          }
           endOfStream = true;
         }
-
-        return false;
+        return;
       } else if (dataPosition == dataSize || (dataIncompletePosition != 0)) {
-        return false;
+        return;
       }
     }
 
@@ -408,7 +369,7 @@ public class TSExtractor extends HLSExtractor {
     if (payloadHandler == null) {
       // skip packet
       packetWriteOffset = 0;
-      return true;
+      return;
     }
 
     int expected_cc_counter = (payloadHandler.cc_counter + 1) & 0xf;
@@ -427,112 +388,29 @@ public class TSExtractor extends HLSExtractor {
 
     payloadHandler.handlePayload(packet, payload_offset, unit_start);
     packetWriteOffset = 0;
-    return true;
   }
 
-  static public double getDuration(Sample s, int sampleRate) {
-    int position = 0;
-    int frameCount = 0;
-    UnsignedByteArray d = s.data;
-
-    while (position < s.position) {
-      if (d.get(position + 0) != 0xff || ((d.get(position + 1) & 0xf0) != 0xf0)) {
-        Log.d(TAG, "no ADTS sync");
-      }
-
-      int frameLength = (s.data.get(position + 3) & 0x3) << 11;
-      frameLength += (s.data.get(position + 4) << 3);
-      frameLength += (s.data.get(position + 5) & 0xe0) >> 5;
-      //Log.d(TAG, "frame length: " + frameLength);
-
-      position += frameLength;
-      frameCount ++;
-    }
-    if (position != s.position) {
-      Log.d(TAG, "bad frame " + position + " != " + s.position);
-    }
-
-    return (1024 * (double)frameCount * 1000000) / sampleRate;
-  }
-
-  public int read(int type, SampleHolder out)
+  public Sample read()
           throws ParserException {
 
-    LinkedList<Sample> list = sampleLists.get(type);
-    LinkedList<Sample> otherList = sampleLists.get(1 - type);
-
     TraceUtil.beginSection("TSExtractor::read");
-    // XXX: should I check that the otherList does not grow too much ?
-    int packets = 0;
-    long start = SystemClock.uptimeMillis();
-    while (list.size() == 0 && (SystemClock.uptimeMillis() - start) < 10) {
-      if (!readOnePacket()) {
-        break;
-      }
-      packets++;
-    }
-        /*String debugString = String.format("processed %4d packets in %4d ms [A %4d][V %4d]", packets, (SystemClock.uptimeMillis() - start),
-                sampleLists.get(TYPE_AUDIO).size(), sampleLists.get(TYPE_VIDEO).size());
-        Log.d(TAG, debugString);*/
-    TraceUtil.endSection();
-
-    if (list.size() > 0) {
-      Sample s = list.get(0);
-      if (type == TYPE_AUDIO && audioMediaFormat == null) {
-        if (audioStreamType == PMTHandler.STREAM_TYPE_AAC_ADTS) {
-          AACExtractor.ADTSHeader h = new AACExtractor.ADTSHeader();
-          h.update(s.data, 0);
-          audioMediaFormat = h.toMediaFormat();
-        } else {
-          audioMediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_MPEG, -1, 2, 44100, null);
-        }
-      }
-
-      if (out.data != null) {
-        out.data.put(s.data.array(), 0, s.position);
-        out.timeUs = s.timeUs;
-        out.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
-        list.removeFirst();
-        releaseSample(s);
-
-        return RESULT_READ_SAMPLE_FULL;
+    while (outSample == null) {
+      if (!endOfStream) {
+        readOnePacket();
       } else {
-        return RESULT_NEED_MORE_DATA;
-      }
-    } else {
-      if (endOfStream) {
-        return RESULT_END_OF_STREAM;
-      } else {
-        return RESULT_NEED_MORE_DATA;
-      }
-    }
-  }
-
-  public MediaFormat getAudioMediaFormat() {
-    SampleHolder holder = new SampleHolder(false);
-    while(audioMediaFormat == null) {
-      try {
-        if (read(TYPE_AUDIO, holder) == RESULT_END_OF_STREAM) {
-          return null;
+        for (PESHandler pesh : activePESHandlers) {
+          if (pesh.currentSample != null) {
+            Sample s = pesh.currentSample;
+            pesh.currentSample = null;
+            return s;
+          }
         }
-      } catch (ParserException e) {
-        e.printStackTrace();
         return null;
       }
     }
 
-    return audioMediaFormat;
-  }
-
-  public boolean isReadFinished() {
-    if (endOfStream == false) {
-      return false;
-    }
-    for (LinkedList<Sample> list : sampleLists) {
-      if (list.size() > 0)
-        return false;
-    }
-
-    return true;
+    Sample s = outSample;
+    outSample = null;
+    return s;
   }
 }

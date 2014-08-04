@@ -213,8 +213,6 @@ public final class Util {
   }
 
   public static String makeAbsoluteUrl(String baseUrl, String relativeUrl) {
-    if (baseUrl.equals("."))
-      return relativeUrl;
     try {
       URL baseURL = new URL(baseUrl);
       URL absoluteURL = new URL(baseURL , relativeUrl);

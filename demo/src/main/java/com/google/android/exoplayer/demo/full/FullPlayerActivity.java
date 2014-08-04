@@ -165,11 +165,7 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
         return new DashVodRendererBuilder(userAgent, contentUri.toString(), contentId,
             new WidevineTestMediaDrmCallback(contentId), debugTextView);
         case DemoUtil.TYPE_HLS:
-            return new HLSRendererBuilder(userAgent, contentUri.toString(),
-             debugTextView);
-        case DemoUtil.TYPE_HLS_AUDIO_ONLY:
-            return new HLSRendererBuilder(userAgent, contentUri.toString(),
-                    debugTextView, MainPlaylist.createAudioMainPlaylist(contentUri.toString()));
+            return new HLSRendererBuilder(userAgent, contentUri.toString());
       default:
         return new DefaultRendererBuilder(this, contentUri, debugTextView);
     }

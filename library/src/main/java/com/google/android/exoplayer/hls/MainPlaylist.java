@@ -17,19 +17,49 @@ import java.util.List;
 public class MainPlaylist {
   public static class Entry implements Comparable<Entry> {
     public String url;
+    public String absoluteUrl;
     public int bps;
     public int width;
     public int height;
     public ArrayList<String> codecs;
-    public VariantPlaylist variantPlaylist;
+    private VariantPlaylist variantPlaylist;
 
-    Entry() {
+    public Entry() {
       codecs = new ArrayList<String>();
+    }
+    public Entry(String baseUrl, String url) {
+      this();
+      this.url = url;
+      if (baseUrl != null) {
+        this.absoluteUrl = Util.makeAbsoluteUrl(baseUrl, url);
+      } else {
+        this.absoluteUrl = url;
+      }
     }
 
     @Override
     public int compareTo(Entry another) {
       return bps - another.bps;
+    }
+
+    public VariantPlaylist getVariantPlaylist() {
+      if (variantPlaylist == null) {
+        try {
+          URL variantURL = new URL(absoluteUrl);
+
+          InputStream inputStream = getInputStream(variantURL);
+          try {
+            variantPlaylist = VariantPlaylist.parse(variantURL.toString(), inputStream);
+          } finally {
+            if (inputStream != null) {
+              inputStream.close();
+            }
+          }
+        } catch (Exception e) {
+
+        }
+      }
+      return variantPlaylist;
     }
   }
 
@@ -51,9 +81,8 @@ public class MainPlaylist {
 
   public static MainPlaylist createSimpleMainPlaylist(String url, boolean audioOnly) {
     MainPlaylist mainPlaylist = new MainPlaylist();
-    Entry e = new Entry();
+    Entry e = new Entry(null, url);
     e.bps = 424242;
-    e.url = url;
     e.codecs.add("mp4a");
     if (!audioOnly) {
       e.codecs.add("avc1");
@@ -123,6 +152,7 @@ public class MainPlaylist {
         }
       } else if (e != null && !line.startsWith("#")) {
         e.url = line;
+        e.absoluteUrl = Util.makeAbsoluteUrl(url, line);
         mainPlaylist.entries.add(e);
         e = null;
       }
@@ -131,21 +161,5 @@ public class MainPlaylist {
     Collections.sort(mainPlaylist.entries);
     stream.close();
     return mainPlaylist;
-  }
-
-  public void parseVariants() throws IOException{
-    for (int i = 0; i < entries.size(); i++) {
-      URL variantURL = new URL(Util.makeAbsoluteUrl(url, entries.get(i).url));
-
-      InputStream inputStream = getInputStream(variantURL);
-      try {
-        entries.get(i).variantPlaylist = VariantPlaylist.parse(variantURL.toString(), inputStream);
-      } finally {
-        if (inputStream != null) {
-          inputStream.close();
-        }
-      }
-
-    }
   }
 }
