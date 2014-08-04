@@ -32,6 +32,19 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    // Remove the created jar file.
+    task cleanJar(type: Delete) {
+        delete 'build/libs/exoplayer.jar'
+    }
+
+    // Create a jar file of the library. Put it into build/libs/exoplayer.jar.
+    task makeJar(type: Copy) {
+        from('build/intermediates/bundles/release/')
+        into('build/libs/')
+        include('classes.jar')
+        rename ('classes.jar', 'exoplayer.jar')
+    }
 }
 
 dependencies {
