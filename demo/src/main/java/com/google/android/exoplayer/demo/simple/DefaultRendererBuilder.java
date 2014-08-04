@@ -28,7 +28,7 @@ import android.net.Uri;
  * A {@link RendererBuilder} for streams that can be read using
  * {@link android.media.MediaExtractor}.
  */
-/* package */ class  DefaultRendererBuilder implements RendererBuilder {
+/* package */ class DefaultRendererBuilder implements RendererBuilder {
 
   private final SimplePlayerActivity playerActivity;
   private final Uri uri;

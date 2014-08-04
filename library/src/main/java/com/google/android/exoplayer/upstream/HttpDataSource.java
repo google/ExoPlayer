@@ -46,8 +46,8 @@ public class HttpDataSource implements DataSource {
     public boolean evaluate(String contentType) {
       contentType = Util.toLowerInvariant(contentType);
       return !TextUtils.isEmpty(contentType)
-              && (!contentType.contains("text") || contentType.contains("text/vtt"))
-              && !contentType.contains("html") && !contentType.contains("xml");
+          && (!contentType.contains("text") || contentType.contains("text/vtt"))
+          && !contentType.contains("html") && !contentType.contains("xml");
     }
 
   };
@@ -114,7 +114,7 @@ public class HttpDataSource implements DataSource {
     public final Map<String, List<String>> headerFields;
 
     public InvalidResponseCodeException(int responseCode, Map<String, List<String>> headerFields,
-                                        DataSpec dataSpec) {
+        DataSpec dataSpec) {
       super("Response code: " + responseCode, dataSpec);
       this.responseCode = responseCode;
       this.headerFields = headerFields;
@@ -127,7 +127,7 @@ public class HttpDataSource implements DataSource {
 
   private static final String TAG = "HttpDataSource";
   private static final Pattern CONTENT_RANGE_HEADER =
-          Pattern.compile("^bytes (\\d+)-(\\d+)/(\\d+)$");
+      Pattern.compile("^bytes (\\d+)-(\\d+)/(\\d+)$");
 
   private final int connectTimeoutMillis;
   private final int readTimeoutMillis;
@@ -162,9 +162,9 @@ public class HttpDataSource implements DataSource {
    * @param listener An optional listener.
    */
   public HttpDataSource(String userAgent, Predicate<String> contentTypePredicate,
-                        TransferListener listener) {
+      TransferListener listener) {
     this(userAgent, contentTypePredicate, listener, DEFAULT_CONNECT_TIMEOUT_MILLIS,
-            DEFAULT_READ_TIMEOUT_MILLIS);
+        DEFAULT_READ_TIMEOUT_MILLIS);
   }
 
   /**
@@ -179,7 +179,7 @@ public class HttpDataSource implements DataSource {
    *     as an infinite timeout.
    */
   public HttpDataSource(String userAgent, Predicate<String> contentTypePredicate,
-                        TransferListener listener, int connectTimeoutMillis, int readTimeoutMillis) {
+      TransferListener listener, int connectTimeoutMillis, int readTimeoutMillis) {
     this.userAgent = Assertions.checkNotEmpty(userAgent);
     this.contentTypePredicate = contentTypePredicate;
     this.listener = listener;
@@ -233,7 +233,7 @@ public class HttpDataSource implements DataSource {
       connection = makeConnection(dataSpec);
     } catch (IOException e) {
       throw new HttpDataSourceException("Unable to connect to " + dataSpec.uri.toString(), e,
-              dataSpec);
+          dataSpec);
     }
 
     // Check for a valid response code.
@@ -242,7 +242,7 @@ public class HttpDataSource implements DataSource {
       responseCode = connection.getResponseCode();
     } catch (IOException e) {
       throw new HttpDataSourceException("Unable to connect to " + dataSpec.uri.toString(), e,
-              dataSpec);
+          dataSpec);
     }
     if (responseCode < 200 || responseCode > 299) {
       Map<String, List<String>> headers = connection.getHeaderFields();
@@ -268,12 +268,12 @@ public class HttpDataSource implements DataSource {
     }
 
     if (dataSpec.length != DataSpec.LENGTH_UNBOUNDED && contentLength != DataSpec.LENGTH_UNBOUNDED
-            && contentLength != dataSpec.length) {
+        && contentLength != dataSpec.length) {
       // The DataSpec specified a length and we resolved a length from the response headers, but
       // the two lengths do not match.
       closeConnection();
       throw new HttpDataSourceException(
-              new UnexpectedLengthException(dataSpec.length, contentLength), dataSpec);
+          new UnexpectedLengthException(dataSpec.length, contentLength), dataSpec);
     }
 
     try {
@@ -309,7 +309,7 @@ public class HttpDataSource implements DataSource {
       // Check for cases where the server closed the connection having not sent the correct amount
       // of data.
       throw new HttpDataSourceException(new UnexpectedLengthException(dataLength, bytesRead),
-              dataSpec);
+          dataSpec);
     }
 
     return read;
@@ -405,7 +405,7 @@ public class HttpDataSource implements DataSource {
       if (matcher.find()) {
         try {
           long contentLengthFromRange =
-                  Long.parseLong(matcher.group(2)) - Long.parseLong(matcher.group(1)) + 1;
+              Long.parseLong(matcher.group(2)) - Long.parseLong(matcher.group(1)) + 1;
           if (contentLength < 0) {
             // Some proxy servers strip the Content-Length header. Fall back to the length
             // calculated here in this case.
@@ -416,7 +416,7 @@ public class HttpDataSource implements DataSource {
             // change one of them to reduce the size of a request, but it is unlikely anybody would
             // increase it.
             Log.w(TAG, "Inconsistent headers [" + contentLengthHeader + "] [" + contentRangeHeader +
-                    "]");
+                "]");
             contentLength = Math.max(contentLength, contentLengthFromRange);
           }
         } catch (NumberFormatException e) {
@@ -426,7 +426,7 @@ public class HttpDataSource implements DataSource {
     }
     if (contentLength == DataSpec.LENGTH_UNBOUNDED) {
       Log.w(TAG, "Unable to parse content length [" + contentLengthHeader + "] [" +
-              contentRangeHeader + "]");
+          contentRangeHeader + "]");
     }
     return contentLength;
   }

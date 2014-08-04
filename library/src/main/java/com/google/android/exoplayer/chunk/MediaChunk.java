@@ -83,7 +83,7 @@ public abstract class MediaChunk extends Chunk {
    *     seeking to a key frame. Always pass false if it is required that the next sample be a key
    *     frame.
    * @return True if the seek results in a discontinuity in the sequence of samples returned by
-   *     {@link #read(int, com.google.android.exoplayer.SampleHolder)}. False otherwise.
+   *     {@link #read(SampleHolder)}. False otherwise.
    */
   public abstract boolean seekTo(long positionUs, boolean allowNoop);
 
@@ -104,14 +104,12 @@ public abstract class MediaChunk extends Chunk {
    * <p>
    * Should only be called after the chunk has been successfully prepared.
    *
-   *
-   * @param track
    * @param holder A holder to store the read sample.
    * @return True if a sample was read. False if more data is still required.
    * @throws ParserException If an error occurs parsing the media data.
    * @throws IllegalStateException If called before {@link #init}, or after {@link #release}
    */
-  public abstract boolean read(int track, SampleHolder holder) throws ParserException;
+  public abstract boolean read(SampleHolder holder) throws ParserException;
 
   /**
    * Returns the media format of the samples contained within this chunk.
@@ -119,9 +117,8 @@ public abstract class MediaChunk extends Chunk {
    * Should only be called after the chunk has been successfully prepared.
    *
    * @return The sample media format.
-   * @param track
    */
-  public abstract MediaFormat getMediaFormat(int track);
+  public abstract MediaFormat getMediaFormat();
 
   /**
    * Returns the pssh information associated with the chunk.

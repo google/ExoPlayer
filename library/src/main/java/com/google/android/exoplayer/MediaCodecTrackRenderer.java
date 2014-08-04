@@ -383,21 +383,10 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         if (codec == null && shouldInitCodec()) {
           maybeInitCodec();
         }
-        TraceUtil.beginSection("MediaCodecRender::doSomeWork");
         if (codec != null) {
           while (drainOutputBuffer(timeUs)) {}
-          while (true) {
-              TraceUtil.beginSection("MediaCodecRender::feedInputBuffer");
-
-              if(feedInputBuffer() == false) {
-                  TraceUtil.endSection();
-                  break;
-              }
-
-              TraceUtil.endSection();
-          }
+          while (feedInputBuffer()) {}
         }
-        TraceUtil.endSection();
       }
     } catch (IOException e) {
       throw new ExoPlaybackException(e);
@@ -508,9 +497,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         }
         codecReconfigurationState = RECONFIGURATION_STATE_QUEUE_PENDING;
       }
-      TraceUtil.beginSection("readData");
       result = source.readData(trackIndex, currentPositionUs, formatHolder, sampleHolder, false);
-      TraceUtil.endSection();
     }
 
     if (result == SampleSource.NOTHING_READ) {
@@ -685,33 +672,11 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
   @Override
   protected boolean isReady() {
-    if (format == null)
-        return false;
-    if (waitingForKeys) {
-        return false;
-    }
-
-    if ((codec == null && !shouldInitCodec())) {
-        // We don't want the codec
-        return true;
-    }
-    if (outputIndex >= 0) {
-        // Or we have an output buffer ready to release
-        return true;
-    }
-
-    if (inputIndex < 0) {
-        // Or we don't have any input buffers to write to
-        return true;
-    }
-
-    if (isWithinHotswapPeriod()) {
-        // Or the codec is being hotswapped
-        return true;
-    }
-
-    Log.d("video", "not ready");
-    return false;
+    return format != null && !waitingForKeys
+        && ((codec == null && !shouldInitCodec()) // We don't want the codec
+            || outputIndex >= 0 // Or we have an output buffer ready to release
+            || inputIndex < 0 // Or we don't have any input buffers to write to
+            || isWithinHotswapPeriod()); // Or the codec is being hotswapped
   }
 
   private boolean isWithinHotswapPeriod() {

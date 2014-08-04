@@ -184,7 +184,7 @@ public final class Util {
    *     the smallest value in the list. If false then -1 will be returned.
    */
   public static<T> int binarySearchFloor(List<? extends Comparable<? super T>> list, T key,
-                                         boolean inclusive, boolean stayInBounds) {
+      boolean inclusive, boolean stayInBounds) {
     int index = Collections.binarySearch(list, key);
     index = index < 0 ? -(index + 2) : (inclusive ? index : (index - 1));
     return stayInBounds ? Math.max(0, index) : index;
@@ -206,7 +206,7 @@ public final class Util {
    *     will be returned.
    */
   public static<T> int binarySearchCeil(List<? extends Comparable<? super T>> list, T key,
-                                        boolean inclusive, boolean stayInBounds) {
+      boolean inclusive, boolean stayInBounds) {
     int index = Collections.binarySearch(list, key);
     index = index < 0 ? ~index : (inclusive ? index : (index + 1));
     return stayInBounds ? Math.min(list.size() - 1, index) : index;

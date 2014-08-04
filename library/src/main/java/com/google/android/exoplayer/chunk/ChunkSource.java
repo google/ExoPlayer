@@ -31,21 +31,14 @@ import java.util.List;
  */
 public interface ChunkSource {
 
-   /**
-    * Returns the number of tracks exposed by the ChunkSource.
-    *
-    * @return The number of tracks.
-    */
-  int getTrackCount();
-
-   /**
+  /**
    * Gets information about the track for which this instance provides {@link Chunk}s.
    * <p>
    * May be called when the source is disabled or enabled.
    *
    * @return Information about the track.
    */
-  TrackInfo getTrackInfo(int track);
+  TrackInfo getTrackInfo();
 
   /**
    * Adaptive video {@link ChunkSource} implementations must set the maximum video dimensions on
@@ -59,15 +52,14 @@ public interface ChunkSource {
    * Called when the source is enabled.
    * @param track
    */
-  void enable(int track);
+  void enable();
 
   /**
    * Called when the source is disabled.
    *
-   * @param track
-   * @param queue A representation of the currently buffered {@link com.google.android.exoplayer.chunk.MediaChunk}s.
+   * @param queue A representation of the currently buffered {@link MediaChunk}s.
    */
-  void disable(int track, List<? extends MediaChunk> queue);
+  void disable(List<? extends MediaChunk> queue);
 
   /**
    * Indicates to the source that it should still be checking for updates to the stream.

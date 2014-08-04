@@ -33,7 +33,6 @@ import com.google.android.exoplayer.parser.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
-import com.google.android.exoplayer.util.Assertions;
 
 import android.net.Uri;
 
@@ -95,12 +94,7 @@ public class DashMp4ChunkSource implements ChunkSource {
     Arrays.sort(formats, new DecreasingBandwidthComparator());
   }
 
-    @Override
-    public int getTrackCount() {
-        return 1;
-    }
-
-    @Override
+  @Override
   public final void getMaxVideoDimensions(MediaFormat out) {
     if (trackInfo.mimeType.startsWith("video")) {
       out.setMaxVideoDimensions(maxWidth, maxHeight);
@@ -108,19 +102,17 @@ public class DashMp4ChunkSource implements ChunkSource {
   }
 
   @Override
-  public final TrackInfo getTrackInfo(int track)
-  {
-      Assertions.checkState(track == 0);
-      return trackInfo;
+  public final TrackInfo getTrackInfo() {
+    return trackInfo;
   }
 
   @Override
-  public void enable(int track) {
+  public void enable() {
     evaluator.enable();
   }
 
   @Override
-  public void disable(int track, List<? extends MediaChunk> queue) {
+  public void disable(List<? extends MediaChunk> queue) {
     evaluator.disable();
   }
 

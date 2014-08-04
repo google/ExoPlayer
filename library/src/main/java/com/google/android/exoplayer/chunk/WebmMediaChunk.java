@@ -44,8 +44,8 @@ public final class WebmMediaChunk extends MediaChunk {
    * @param nextChunkIndex The index of the next chunk, or -1 if this is the last chunk.
    */
   public WebmMediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
-                        int trigger, WebmExtractor extractor, long startTimeUs, long endTimeUs,
-                        int nextChunkIndex) {
+      int trigger, WebmExtractor extractor, long startTimeUs, long endTimeUs,
+      int nextChunkIndex) {
     super(dataSource, dataSpec, format, trigger, startTimeUs, endTimeUs, nextChunkIndex);
     this.extractor = extractor;
   }
@@ -70,14 +70,14 @@ public final class WebmMediaChunk extends MediaChunk {
   }
 
   @Override
-  public boolean read(int track, SampleHolder holder) {
+  public boolean read(SampleHolder holder) {
     NonBlockingInputStream inputStream = getNonBlockingInputStream();
     Assertions.checkState(inputStream != null);
     return extractor.read(inputStream, holder);
   }
 
   @Override
-  public MediaFormat getMediaFormat(int track) {
+  public MediaFormat getMediaFormat() {
     return extractor.getFormat();
   }
 

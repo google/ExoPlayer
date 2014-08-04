@@ -35,7 +35,6 @@ import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.Stre
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
-import com.google.android.exoplayer.util.Assertions;
 
 import android.net.Uri;
 import android.util.Base64;
@@ -125,12 +124,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     Arrays.sort(formats, new DecreasingBandwidthComparator());
   }
 
-    @Override
-    public int getTrackCount() {
-        return 1;
-    }
-
-    @Override
+  @Override
   public final void getMaxVideoDimensions(MediaFormat out) {
     if (trackInfo.mimeType.startsWith("video")) {
       out.setMaxVideoDimensions(maxWidth, maxHeight);
@@ -138,19 +132,17 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   }
 
   @Override
-  public final TrackInfo getTrackInfo(int track)
-  {
-      Assertions.checkState(track == 0);
-      return trackInfo;
+  public final TrackInfo getTrackInfo() {
+    return trackInfo;
   }
 
   @Override
-  public void enable(int track) {
+  public void enable() {
     // Do nothing.
   }
 
   @Override
-  public void disable(int track, List<? extends MediaChunk> queue) {
+  public void disable(List<? extends MediaChunk> queue) {
     // Do nothing.
   }
 

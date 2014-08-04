@@ -38,7 +38,7 @@ public class SmoothStreamingManifest {
   private final long duration;
 
   public SmoothStreamingManifest(int majorVersion, int minorVersion, long timeScale, long duration,
-                                 int lookAheadCount, ProtectionElement protectionElement, StreamElement[] streamElements) {
+      int lookAheadCount, ProtectionElement protectionElement, StreamElement[] streamElements) {
     this.majorVersion = majorVersion;
     this.minorVersion = minorVersion;
     this.timeScale = timeScale;
@@ -51,7 +51,7 @@ public class SmoothStreamingManifest {
   /**
    * Gets the duration of the media.
    *
-   *
+     *
    * @return The duration of the media, in microseconds.
    */
   public long getDurationUs() {
@@ -106,8 +106,8 @@ public class SmoothStreamingManifest {
     public final String content;
 
     public TrackElement(int index, int bitrate, String fourCC, byte[][] csd, int profile, int level,
-                        int maxWidth, int maxHeight, int sampleRate, int channels, int packetSize, int audioTag,
-                        int bitPerSample, int nalUnitLengthField, String content) {
+        int maxWidth, int maxHeight, int sampleRate, int channels, int packetSize, int audioTag,
+        int bitPerSample, int nalUnitLengthField, String content) {
       this.index = index;
       this.bitrate = bitrate;
       this.fourCC = fourCC;
@@ -128,7 +128,7 @@ public class SmoothStreamingManifest {
 
     private static String fourCCToMimeType(String fourCC) {
       if (fourCC.equalsIgnoreCase("H264") || fourCC.equalsIgnoreCase("AVC1")
-              || fourCC.equalsIgnoreCase("DAVC")) {
+          || fourCC.equalsIgnoreCase("DAVC")) {
         return MimeTypes.VIDEO_H264;
       } else if (fourCC.equalsIgnoreCase("AACL") || fourCC.equalsIgnoreCase("AACH")) {
         return MimeTypes.AUDIO_AAC;
@@ -170,8 +170,8 @@ public class SmoothStreamingManifest {
     private final long[] chunkStartTimes;
 
     public StreamElement(int type, String subType, long timeScale, String name,
-                         int qualityLevels, String url, int maxWidth, int maxHeight, int displayWidth,
-                         int displayHeight, String language, TrackElement[] tracks, long[] chunkStartTimes) {
+        int qualityLevels, String url, int maxWidth, int maxHeight, int displayWidth,
+        int displayHeight, String language, TrackElement[] tracks, long[] chunkStartTimes) {
       this.type = type;
       this.subType = subType;
       this.timeScale = timeScale;
@@ -220,7 +220,7 @@ public class SmoothStreamingManifest {
       assert (chunkStartTimes != null);
       assert (chunkIndex < chunkStartTimes.length);
       return url.replace(URL_PLACEHOLDER_BITRATE, Integer.toString(tracks[track].bitrate))
-              .replace(URL_PLACEHOLDER_START_TIME, Long.toString(chunkStartTimes[chunkIndex]));
+          .replace(URL_PLACEHOLDER_START_TIME, Long.toString(chunkStartTimes[chunkIndex]));
     }
 
   }

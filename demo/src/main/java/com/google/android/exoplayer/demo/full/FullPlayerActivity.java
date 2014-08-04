@@ -25,7 +25,6 @@ import com.google.android.exoplayer.demo.full.player.DemoPlayer;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.full.player.HLSRendererBuilder;
 import com.google.android.exoplayer.demo.full.player.SmoothStreamingRendererBuilder;
-import com.google.android.exoplayer.hls.MainPlaylist;
 import com.google.android.exoplayer.util.VerboseLogUtil;
 
 import android.app.Activity;
