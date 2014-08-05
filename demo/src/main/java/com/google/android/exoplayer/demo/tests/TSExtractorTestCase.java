@@ -5,7 +5,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.chunk.HLSExtractor;
+import com.google.android.exoplayer.hls.HLSExtractor;
 import com.google.android.exoplayer.parser.ts.TSExtractor;
 import com.google.android.exoplayer.parser.ts.TSExtractorNative;
 import com.google.android.exoplayer.upstream.BufferPool;

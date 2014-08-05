@@ -1,21 +1,15 @@
 package com.google.android.exoplayer.parser.ts;
 
-import android.media.MediaExtractor;
-import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
 
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.chunk.HLSExtractor;
-import com.google.android.exoplayer.parser.aac.AACExtractor;
+import com.google.android.exoplayer.hls.HLSExtractor;
 import com.google.android.exoplayer.upstream.DataSource;
-import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.TraceUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class TSExtractor extends HLSExtractor {

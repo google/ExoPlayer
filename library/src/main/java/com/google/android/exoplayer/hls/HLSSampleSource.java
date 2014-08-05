@@ -11,13 +11,10 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackInfo;
-import com.google.android.exoplayer.chunk.HLSExtractor;
 import com.google.android.exoplayer.parser.aac.AACExtractor;
 import com.google.android.exoplayer.parser.ts.TSExtractor;
 import com.google.android.exoplayer.parser.ts.TSExtractorNative;
-import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
-import com.google.android.exoplayer.upstream.DataSourceInputStream;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.upstream.HttpDataSource;
@@ -25,7 +22,6 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -351,14 +347,12 @@ public class HLSSampleSource implements SampleSource {
       }
 
       HLSExtractor extractor = null;
-      /*try {
+      try {
         extractor = new TSExtractorNative(dataSource);
       } catch (Exception e) {
         Log.e(TAG, "cannot load TSExtractorNative");
         extractor = new TSExtractor(dataSource);
-      }*/
-
-      extractor = new TSExtractor(dataSource);
+      }
 
       HLSExtractor.Sample sample;
       while (aborted == false) {

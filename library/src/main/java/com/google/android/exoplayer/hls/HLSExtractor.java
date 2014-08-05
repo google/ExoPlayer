@@ -1,4 +1,4 @@
-package com.google.android.exoplayer.chunk;
+package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
@@ -20,6 +20,7 @@ public abstract class HLSExtractor {
     public long timeUs;
     public ByteBuffer data;
     public int type;
+    public ByteBuffer rototo;
   }
 
   private static final ArrayList<LinkedList<Sample>> recycledSampleList;
