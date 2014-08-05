@@ -63,6 +63,8 @@ public class HLSSampleSource implements SampleSource {
   private String userAgent;
   private long ptsOffsetUs;
 
+  private boolean endOfStream;
+
   static class HLSTrack {
     public int type;
     public TrackInfo trackInfo;
@@ -189,7 +191,7 @@ public class HLSSampleSource implements SampleSource {
     long start = System.currentTimeMillis();
     while (start - System.currentTimeMillis() < 1000) {
       boolean found = false;
-      synchronized (this) {
+      synchronized (list) {
         for (LinkedList<Object> l : list) {
           for (Object o : l) {
             if (o instanceof HLSExtractor.Sample) {
@@ -199,8 +201,6 @@ public class HLSSampleSource implements SampleSource {
                 Log.d(TAG, "found ptsOffsetUs=" + ptsOffsetUs);
                 found = true;
               }
-              // adjust all times...
-              sample.timeUs -= ptsOffsetUs;
             }
           }
         }
@@ -249,16 +249,15 @@ public class HLSSampleSource implements SampleSource {
       return;
     }
 
+    if (endOfStream) {
+      return;
+    }
+
     estimatedBps = (int)bandwidthMeter.getEstimate() * 8;
     bufferMsec = (int)(bufferedPositionUs.get() - playbackPositionUs);
 
     currentEntry = evaluateNextEntry();
-
     VariantPlaylist variantPlaylist = currentEntry.getVariantPlaylist();
-    if (sequence == variantPlaylist.mediaSequence + variantPlaylist.entries.size()) {
-      return;
-    }
-
     VariantPlaylist.Entry variantEntry = variantPlaylist.entries.get(sequence - variantPlaylist.mediaSequence);
 
     Chunk chunk = new Chunk();
@@ -297,10 +296,15 @@ public class HLSSampleSource implements SampleSource {
           sampleHolder.timeUs = sample.timeUs - ptsOffsetUs;
           sampleHolder.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
           bufferSize -= sampleHolder.size;
+          //Log.d(TAG, (sample.type == HLSExtractor.TYPE_AUDIO ? "AUDIO" : "VIDEO") + " timeUS=" + (sampleHolder.timeUs/1000));
           return SAMPLE_READ;
         }
       } catch (NoSuchElementException e) {
-        return NOTHING_READ;
+        if (endOfStream == true) {
+          return END_OF_STREAM;
+        } else {
+          return NOTHING_READ;
+        }
       }
     }
   }
@@ -335,6 +339,8 @@ public class HLSSampleSource implements SampleSource {
     for (HLSTrack t : trackList) {
       t.discontinuity = true;
     }
+
+    endOfStream = false;
   }
 
   @Override
@@ -425,6 +431,7 @@ public class HLSSampleSource implements SampleSource {
         try {
           sample = extractor.read();
         } catch (ParserException e) {
+          Log.e(TAG, "extractor read error");
           e.printStackTrace();
           break;
         }
@@ -474,6 +481,12 @@ public class HLSSampleSource implements SampleSource {
       if (exception == null) {
         source.sequence++;
       }
+
+      VariantPlaylist variantPlaylist = currentEntry.getVariantPlaylist();
+      if (sequence == variantPlaylist.mediaSequence + variantPlaylist.entries.size()) {
+        endOfStream = true;
+      }
+
       source.chunkTask = null;
     }
   }
