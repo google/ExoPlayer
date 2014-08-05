@@ -217,7 +217,7 @@ public class TSExtractor extends HLSExtractor {
           audioStreamType = s.type;
           audio_handler = new PESHandler(s.pid, TYPE_AUDIO);
           handler = audio_handler;
-          Log.d(TAG, String.format("audio found on pid %04x", s.pid));
+          //Log.d(TAG, String.format("audio found on pid %04x", s.pid));
 
           // XXX: not nice
           if (audioStreamType == STREAM_TYPE_MPEG_AUDIO) {
@@ -226,7 +226,7 @@ public class TSExtractor extends HLSExtractor {
         } else if (video_handler == null && s.type == STREAM_TYPE_H264) {
           video_handler = new PESHandler(s.pid, TYPE_VIDEO);
           handler = video_handler;
-          Log.d(TAG, String.format("video found on pid %04x", s.pid));
+          //Log.d(TAG, String.format("video found on pid %04x", s.pid));
         }
         if (handler != null) {
           activePayloadHandlers.put(s.pid, handler);
@@ -262,7 +262,7 @@ public class TSExtractor extends HLSExtractor {
         i += 2;
         program.pmt_pid = ((data.get(i)& 0x1f) << 8) | data.get(i+1);
         i += 2;
-        Log.d(TAG, String.format("found PMT pid: %04x", program.pmt_pid));
+        //Log.d(TAG, String.format("found PMT pid: %04x", program.pmt_pid));
         programs.add(program);
       }
 
@@ -285,7 +285,6 @@ public class TSExtractor extends HLSExtractor {
     activePayloadHandlers.put(0, payloadHandler);
     this.dataSource = dataSource;
     activePESHandlers = new ArrayList<PESHandler>();
-
   }
 
   private boolean fillData() throws ParserException {
@@ -368,7 +367,7 @@ public class TSExtractor extends HLSExtractor {
 
     int expected_cc_counter = (payloadHandler.cc_counter + 1) & 0xf;
     if (expected_cc_counter != cc_counter) {
-      Log.d(TAG, "cc_error: " + payloadHandler.cc_counter + " -> " + cc_counter);
+      //Log.d(TAG, "cc_error: " + payloadHandler.cc_counter + " -> " + cc_counter);
     }
     payloadHandler.cc_counter = cc_counter;
 
