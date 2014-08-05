@@ -659,7 +659,8 @@ jobject Java_com_google_android_exoplayer_parser_ts_TSExtractorNative_nativeRead
           PESHandler *pesh = (PESHandler*)ph;
           if (pesh->sample) {
             set_position(env, pesh);
-            out = pesh->sample;
+            out = (*env)->NewLocalRef(env, pesh->sample);
+            (*env)->DeleteGlobalRef(env, pesh->sample);
             pesh->sample = NULL;
             return out;
           }
@@ -667,10 +668,8 @@ jobject Java_com_google_android_exoplayer_parser_ts_TSExtractorNative_nativeRead
         }
       }
     } else {
-      out = tsp->outSample;
-      //__android_log_print(ANDROID_LOG_DEBUG, TAG, "output %x", tsp->outSample);
-      // not needed
-      // (*env)->DeleteGlobalRef(env, tsp->outSample);
+      out = (*env)->NewLocalRef(env, tsp->outSample);
+      (*env)->DeleteGlobalRef(env, tsp->outSample);
       tsp->outSample = NULL;
     }
 
