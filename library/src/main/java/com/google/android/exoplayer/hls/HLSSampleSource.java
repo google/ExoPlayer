@@ -421,7 +421,7 @@ public class HLSSampleSource implements SampleSource {
       HLSExtractor extractor = null;
       try {
         extractor = new TSExtractorNative(dataSource);
-      } catch (Exception e) {
+      } catch (UnsatisfiedLinkError e) {
         Log.e(TAG, "cannot load TSExtractorNative");
         extractor = new TSExtractor(dataSource);
       }

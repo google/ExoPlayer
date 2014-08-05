@@ -13,6 +13,7 @@ public class TSExtractorNative extends HLSExtractor {
   {
     if (!loaded) {
       System.loadLibrary("TSExtractorNative");
+      loaded = true;
     }
 
     // needs to be done before the nativeInit()
