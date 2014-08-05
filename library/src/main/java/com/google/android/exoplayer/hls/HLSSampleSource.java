@@ -61,10 +61,12 @@ public class HLSSampleSource implements SampleSource {
   private int sequence;
   private ChunkTask chunkTask;
   private String userAgent;
+  private long ptsOffsetUs;
 
   static class HLSTrack {
     public int type;
     public TrackInfo trackInfo;
+    public boolean discontinuity;
   }
 
   public HLSSampleSource(String url) {
@@ -180,6 +182,38 @@ public class HLSSampleSource implements SampleSource {
     }
 
     prepared = true;
+
+    continueBuffering(0);
+
+    // see if there is a pts offset
+    long start = System.currentTimeMillis();
+    while (start - System.currentTimeMillis() < 1000) {
+      boolean found = false;
+      synchronized (this) {
+        for (LinkedList<Object> l : list) {
+          for (Object o : l) {
+            if (o instanceof HLSExtractor.Sample) {
+              HLSExtractor.Sample sample =  (HLSExtractor.Sample)o;
+              if (found == false) {
+                ptsOffsetUs = sample.timeUs;
+                Log.d(TAG, "found ptsOffsetUs=" + ptsOffsetUs);
+                found = true;
+              }
+              // adjust all times...
+              sample.timeUs -= ptsOffsetUs;
+            }
+          }
+        }
+      }
+      if (found) {
+        break;
+      }
+      try {
+        Thread.sleep(100);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
     return true;
   }
 
@@ -239,7 +273,12 @@ public class HLSSampleSource implements SampleSource {
   @Override
   public int readData(int track, long playbackPositionUs, FormatHolder formatHolder, SampleHolder sampleHolder, boolean onlyReadDiscontinuity) throws IOException {
     if (onlyReadDiscontinuity) {
-      return NOTHING_READ;
+      if (trackList.get(track).discontinuity) {
+        trackList.get(track).discontinuity = false;
+        return DISCONTINUITY_READ;
+      } else {
+        return NOTHING_READ;
+      }
     }
 
     synchronized(list) {
@@ -255,7 +294,7 @@ public class HLSSampleSource implements SampleSource {
           sample.data.position(0);
           sampleHolder.data.put(sample.data);
           sampleHolder.size = sample.data.limit();
-          sampleHolder.timeUs = sample.timeUs;
+          sampleHolder.timeUs = sample.timeUs - ptsOffsetUs;
           sampleHolder.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
           bufferSize -= sampleHolder.size;
           return SAMPLE_READ;
@@ -268,7 +307,34 @@ public class HLSSampleSource implements SampleSource {
 
   @Override
   public void seekToUs(long timeUs) {
+    if (chunkTask != null) {
+      chunkTask.abort();
+    }
+    synchronized(list) {
+      for (LinkedList<Object> l : list) {
+        l.clear();
+      }
+      bufferSize = 0;
+      bufferMsec = 0;
+      bufferedPositionUs.set(timeUs);
+    }
 
+    VariantPlaylist variantPlaylist = currentEntry.getVariantPlaylist();
+    long acc = 0;
+    sequence = variantPlaylist.mediaSequence;
+    for (VariantPlaylist.Entry e : variantPlaylist.entries) {
+      acc += (long)(e.extinf * 1000000);
+      if (acc > timeUs) {
+        break;
+      }
+      sequence++;
+    }
+
+    Log.d(TAG, "seekTo " + timeUs/1000 + " => " + sequence);
+
+    for (HLSTrack t : trackList) {
+      t.discontinuity = true;
+    }
   }
 
   @Override
@@ -398,6 +464,7 @@ public class HLSSampleSource implements SampleSource {
     public void abort()  {
       synchronized (HLSSampleSource.this.list) {
         aborted = true;
+        exception = new Exception("aborted");
       }
     }
 
