@@ -3,6 +3,7 @@ package com.google.android.exoplayer.hls;
 import android.media.MediaExtractor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Log;
 
 import com.google.android.exoplayer.FormatHolder;
@@ -64,6 +65,18 @@ public class HLSSampleSource implements SampleSource {
   private long ptsOffsetUs;
 
   private boolean endOfStream;
+  private Handler eventHandler;
+  private EventListener eventListener;
+
+  public static class Quality {
+      public int width;
+      public int height;
+      public int bps;
+  }
+
+  public interface EventListener {
+    void onQualitiesParsed(Quality qualities[]);
+  }
 
   static class HLSTrack {
     public int type;
@@ -71,7 +84,7 @@ public class HLSSampleSource implements SampleSource {
     public boolean discontinuity;
   }
 
-  public HLSSampleSource(String url) {
+  public HLSSampleSource(String url, Handler eventHandler, EventListener listener) {
     this.url = url;
     maxBufferSize = 30 * 1024 * 1024;
     bpsFraction = 0.75;
@@ -83,6 +96,12 @@ public class HLSSampleSource implements SampleSource {
     list.add(new LinkedList<Object>());
     userAgent = "HLS Player";
     bufferedPositionUs = new AtomicLong();
+    this.eventHandler = eventHandler;
+    this.eventListener = listener;
+  }
+
+  public HLSSampleSource(String url) {
+      this(url, null, null);
   }
 
   public void setForcedBps(int bps) {
@@ -186,6 +205,24 @@ public class HLSSampleSource implements SampleSource {
     prepared = true;
 
     continueBuffering(0);
+
+    if (eventListener != null && eventHandler != null) {
+        final Quality qualities[] = new Quality[mainPlaylist.entries.size()];
+        i = 0;
+        for (MainPlaylist.Entry e : mainPlaylist.entries) {
+            qualities[i] = new Quality();
+            qualities[i].width = e.width;
+            qualities[i].height = e.height;
+            qualities[i].bps = e.bps;
+            i++;
+        }
+        eventHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                eventListener.onQualitiesParsed(qualities);
+            }
+        });
+    }
 
     // see if there is a pts offset
     long start = System.currentTimeMillis();
