@@ -57,7 +57,7 @@ public class HLSSampleSource implements SampleSource {
   private int bufferMsec;
 
   private final DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-  private AtomicLong bufferedPositionUs;
+  private AtomicLong bufferedPts;
 
   private int sequence;
   private ChunkTask chunkTask;
@@ -101,14 +101,15 @@ public class HLSSampleSource implements SampleSource {
     this.url = url;
     maxBufferSize = 30 * 1024 * 1024;
     bpsFraction = 0.75;
-    initialBps = 0;
-    forcedBps = 0;
+    initialBps = -1;
+    maxBps = -1;
+    forcedBps = -1;
     lowThresholdMsec = 10000;
     list = new ArrayList<LinkedList<Object>>();
     list.add(new LinkedList<Object>());
     list.add(new LinkedList<Object>());
     userAgent = "HLS Player";
-    bufferedPositionUs = new AtomicLong();
+    bufferedPts = new AtomicLong();
     this.eventHandler = eventHandler;
     this.eventListener = listener;
   }
@@ -319,7 +320,7 @@ public class HLSSampleSource implements SampleSource {
     }
 
     estimatedBps = (int)bandwidthMeter.getEstimate() * 8;
-    bufferMsec = (int)(bufferedPositionUs.get() - playbackPositionUs);
+    bufferMsec = (int)(getBufferedPositionUs() - playbackPositionUs);
 
     currentEntry = evaluateNextEntry();
     if (eventListener != null) {
@@ -405,7 +406,7 @@ public class HLSSampleSource implements SampleSource {
       }
       bufferSize = 0;
       bufferMsec = 0;
-      bufferedPositionUs.set(timeUs);
+      bufferedPts.set(timeUs * 45 / 1000 + ptsOffset);
       // XXX: try to find the appropriate wrapOffset
       for (HLSTrack t : trackList) {
         t.lastPts = 0;
@@ -435,7 +436,8 @@ public class HLSSampleSource implements SampleSource {
 
   @Override
   public long getBufferedPositionUs() {
-    return bufferedPositionUs.get();
+    // XXX: does not work if pts wrap
+    return (bufferedPts.get() - ptsOffset) * 1000 / 45;
   }
 
   @Override
@@ -568,7 +570,7 @@ public class HLSSampleSource implements SampleSource {
           }
           bufferSize += sample.data.limit();
         }
-        source.bufferedPositionUs.set(sample.pts);
+        source.bufferedPts.set(sample.pts);
       }
 
       extractor.release();
