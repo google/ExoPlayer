@@ -133,10 +133,10 @@ public class HLSSampleSource implements SampleSource {
     this.initialBps = bps;
   }
 
-  private MainPlaylist.Entry getEntryBelow(int bps) {
+  private MainPlaylist.Entry getEntryBelowOrEqual(int bps) {
     for (int i = mainPlaylist.entries.size() - 1; i >= 0; i--) {
       MainPlaylist.Entry entry = mainPlaylist.entries.get(i);
-      if (entry.bps < bps) {
+      if (entry.bps <= bps) {
         return entry;
       }
     }
@@ -147,13 +147,13 @@ public class HLSSampleSource implements SampleSource {
   private MainPlaylist.Entry evaluateNextEntry() {
     if (forcedBps >= 0) {
       // manually set
-      return getEntryBelow(forcedBps);
+      return getEntryBelowOrEqual(forcedBps);
     }
     if (estimatedBps <= 0) {
       // first time
-      return getEntryBelow(initialBps);
+      return getEntryBelowOrEqual(initialBps);
     }
-    MainPlaylist.Entry idealEntry = getEntryBelow((int)((double)estimatedBps * bpsFraction));
+    MainPlaylist.Entry idealEntry = getEntryBelowOrEqual((int)((double)estimatedBps * bpsFraction));
 
     if (idealEntry.bps > currentEntry.bps) {
       if (bufferMsec < hightThresholdMsec) {
@@ -170,7 +170,7 @@ public class HLSSampleSource implements SampleSource {
     }
 
     if(maxBps >= 0 && idealEntry.bps > maxBps) {
-      idealEntry = getEntryBelow(maxBps);
+      idealEntry = getEntryBelowOrEqual(maxBps);
     }
 
     return idealEntry;
@@ -327,7 +327,7 @@ public class HLSSampleSource implements SampleSource {
       Quality quality = new Quality();
       quality.width = currentEntry.width;
       quality.height = currentEntry.height;
-      quality.bps = currentEntry.height;
+      quality.bps = currentEntry.bps;
       eventListener.onChunkStart(quality);
     }
     VariantPlaylist variantPlaylist = currentEntry.getVariantPlaylist();
