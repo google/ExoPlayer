@@ -262,6 +262,7 @@ public class HLSSampleSource implements SampleSource {
       return false;
     }
 
+    i = 0;
     if (audioStreamType != HLSExtractor.STREAM_TYPE_NONE) {
       HLSTrack track = new HLSTrack();
       track.type = HLSExtractor.TYPE_AUDIO;
