@@ -70,6 +70,7 @@ public class HLSSampleSource implements SampleSource {
   private int videoStreamType;
   private int audioStreamType;
   private boolean gotStreamTypes;
+  private int maxBps;
 
   public static class Quality {
       public int width;
@@ -79,6 +80,7 @@ public class HLSSampleSource implements SampleSource {
 
   public interface EventListener {
     void onQualitiesParsed(Quality qualities[]);
+    void onChunkStart(Quality quality);
   }
 
   static class ChunkSentinel {
@@ -116,11 +118,18 @@ public class HLSSampleSource implements SampleSource {
   }
 
   public void setForcedBps(int bps) {
+
     this.forcedBps = bps;
   }
 
-  public void setInitialBps(int initialBps) {
-    this.initialBps = initialBps;
+  public void setMaxBps(int bps) {
+
+    this.maxBps = bps;
+  }
+
+  public void setInitialBps(int bps) {
+
+    this.initialBps = bps;
   }
 
   private MainPlaylist.Entry getEntryBelow(int bps) {
@@ -135,7 +144,7 @@ public class HLSSampleSource implements SampleSource {
   }
 
   private MainPlaylist.Entry evaluateNextEntry() {
-    if (forcedBps > 0) {
+    if (forcedBps >= 0) {
       // manually set
       return getEntryBelow(forcedBps);
     }
@@ -157,6 +166,10 @@ public class HLSSampleSource implements SampleSource {
       if (bufferMsec > lowThresholdMsec) {
         idealEntry = currentEntry;
       }
+    }
+
+    if(maxBps >= 0 && idealEntry.bps > maxBps) {
+      idealEntry = getEntryBelow(maxBps);
     }
 
     return idealEntry;
@@ -308,6 +321,13 @@ public class HLSSampleSource implements SampleSource {
     bufferMsec = (int)(bufferedPositionUs.get() - playbackPositionUs);
 
     currentEntry = evaluateNextEntry();
+    if (eventListener != null) {
+      Quality quality = new Quality();
+      quality.width = currentEntry.width;
+      quality.height = currentEntry.height;
+      quality.bps = currentEntry.height;
+      eventListener.onChunkStart(quality);
+    }
     VariantPlaylist variantPlaylist = currentEntry.getVariantPlaylist();
     VariantPlaylist.Entry variantEntry = variantPlaylist.entries.get(sequence - variantPlaylist.mediaSequence);
 
