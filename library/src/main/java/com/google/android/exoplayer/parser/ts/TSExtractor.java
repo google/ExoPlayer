@@ -71,6 +71,7 @@ public class TSExtractor extends HLSExtractor {
                 && packet.get(payloadStart + 2) == 0x01);
         if (unitStart && currentSample != null && length != 0 && length != currentSample.data.position()) {
           Log.d(TAG, "PES length " + currentSample.data.position() + " != " + length + " , ignore unitStart detection");
+          unitStart = false;
         }
       }
 
@@ -119,7 +120,7 @@ public class TSExtractor extends HLSExtractor {
           offset += 5;
         }
 
-        currentSample.timeUs = pts  * 1000 / 45;
+        currentSample.pts = pts;
 
         offset = fixedOffset + headerDataLength;
         if (length > 0)

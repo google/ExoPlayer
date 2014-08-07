@@ -14,7 +14,6 @@ import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.parser.aac.AACExtractor;
 import com.google.android.exoplayer.parser.ts.TSExtractor;
-import com.google.android.exoplayer.parser.ts.TSExtractorNative;
 import com.google.android.exoplayer.upstream.AESDataSource;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -23,15 +22,12 @@ import com.google.android.exoplayer.upstream.HttpDataSource;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
-import org.apache.http.protocol.HTTP;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -66,7 +62,7 @@ public class HLSSampleSource implements SampleSource {
   private int sequence;
   private ChunkTask chunkTask;
   private String userAgent;
-  private long ptsOffsetUs;
+  private long ptsOffset;
 
   private boolean endOfStream;
   private Handler eventHandler;
@@ -94,7 +90,9 @@ public class HLSSampleSource implements SampleSource {
     public int type;
     public TrackInfo trackInfo;
     public boolean discontinuity;
-    private MainPlaylist.Entry readEntry;
+    public MainPlaylist.Entry readEntry;
+    public long wrapOffset;
+    public long lastPts;
   }
 
   public HLSSampleSource(String url, Handler eventHandler, EventListener listener) {
@@ -222,8 +220,8 @@ public class HLSSampleSource implements SampleSource {
             if (o instanceof HLSExtractor.Sample) {
               HLSExtractor.Sample sample =  (HLSExtractor.Sample)o;
               if (found == false) {
-                ptsOffsetUs = sample.timeUs;
-                Log.d(TAG, "found ptsOffsetUs=" + ptsOffsetUs);
+                ptsOffset = sample.pts;
+                Log.d(TAG, "found ptsOffset=" + ptsOffset);
                 found = true;
               }
             }
@@ -336,13 +334,14 @@ public class HLSSampleSource implements SampleSource {
 
     synchronized(list) {
       Object o;
+      HLSTrack hlsTrack = trackList.get(track);
       try {
         o = list.get(track2type[track]).removeFirst();
         if (o instanceof ChunkSentinel) {
           ChunkSentinel sentinel = (ChunkSentinel)o;
           if (sentinel.entry != trackList.get(track).readEntry) {
             formatHolder.format = sentinel.mediaFormat;
-            trackList.get(track).readEntry = sentinel.entry;
+            hlsTrack.readEntry = sentinel.entry;
             return FORMAT_READ;
           } else {
             return NOTHING_READ;
@@ -353,10 +352,15 @@ public class HLSSampleSource implements SampleSource {
           sample.data.position(0);
           sampleHolder.data.put(sample.data);
           sampleHolder.size = sample.data.limit();
-          sampleHolder.timeUs = sample.timeUs - ptsOffsetUs;
+          if (sample.pts < hlsTrack.lastPts && (hlsTrack.lastPts - sample.pts) > Math.pow(2,31)) {
+            Log.d(TAG, "wrap detected");
+            hlsTrack.wrapOffset += Math.pow(2,32);
+          }
+          hlsTrack.lastPts = sample.pts;
+          sampleHolder.timeUs = (sample.pts - ptsOffset + hlsTrack.wrapOffset) * 1000 / 45;
           sampleHolder.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
           bufferSize -= sampleHolder.size;
-          //Log.d(TAG, (sample.type == HLSExtractor.TYPE_AUDIO ? "AUDIO" : "VIDEO") + " timeUS=" + (sampleHolder.timeUs/1000));
+          //Log.d(TAG, (sample.type == HLSExtractor.TYPE_AUDIO ? "AUDIO" : "VIDEO") + " timeUS=" + (sampleHolder.pts/1000));
           return SAMPLE_READ;
         }
       } catch (NoSuchElementException e) {
@@ -381,6 +385,11 @@ public class HLSSampleSource implements SampleSource {
       bufferSize = 0;
       bufferMsec = 0;
       bufferedPositionUs.set(timeUs);
+      // XXX: try to find the appropriate wrapOffset
+      for (HLSTrack t : trackList) {
+        t.lastPts = 0;
+        t.wrapOffset = 0;
+      }
     }
 
     VariantPlaylist variantPlaylist = currentEntry.getVariantPlaylist();
@@ -538,7 +547,7 @@ public class HLSSampleSource implements SampleSource {
           }
           bufferSize += sample.data.limit();
         }
-        source.bufferedPositionUs.set(sample.timeUs);
+        source.bufferedPositionUs.set(sample.pts);
       }
 
       extractor.release();

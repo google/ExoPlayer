@@ -79,7 +79,7 @@ public class MainPlaylist {
     return connection.getInputStream();
   }
 
-  public static MainPlaylist createFakeMainPlaylist(String url, boolean audioOnly) {
+  public static MainPlaylist createFakeMainPlaylist(String url) {
     MainPlaylist mainPlaylist = new MainPlaylist();
     Entry e = new Entry(null, url);
     e.bps = 424242;

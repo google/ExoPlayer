@@ -22,7 +22,7 @@ public abstract class HLSExtractor {
       this.type = type;
       this.data = ByteBuffer.allocateDirect(2*1024);
     }
-    public long timeUs;
+    public long pts;
     public ByteBuffer data;
     public int type;
   }

@@ -33,8 +33,6 @@ public class HLSRendererBuilder implements DemoPlayer.RendererBuilder {
 
     HLSSampleSource sampleSource = new HLSSampleSource(this.url);
 
-    sampleSource.setAudioOnly(this.audioOnly);
-
     TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
     renderers[DemoPlayer.TYPE_VIDEO] = new MediaCodecVideoTrackRenderer(sampleSource,
             null, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000,

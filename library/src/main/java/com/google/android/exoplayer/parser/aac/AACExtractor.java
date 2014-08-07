@@ -1,19 +1,14 @@
 package com.google.android.exoplayer.parser.aac;
 
-import android.media.MediaExtractor;
 import android.util.Log;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.hls.HLSExtractor;
-import com.google.android.exoplayer.hls.HLSExtractor;
 import com.google.android.exoplayer.upstream.DataSource;
-import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
-
-import junit.framework.Assert;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -212,7 +207,7 @@ public class AACExtractor extends HLSExtractor {
           mADTSHeader.update(data, 0);
           Sample sample = getSample(TYPE_AUDIO);
           sample.data.put(data.array(), 0, mADTSHeader.frameLength);
-          sample.timeUs = timeUs;
+          sample.pts = timeUs;
           position = 0;
           state = STATE_ADTS_HEADER;
           neededSize = 7;
