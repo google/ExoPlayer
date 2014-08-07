@@ -221,6 +221,15 @@ public class AACExtractor extends HLSExtractor {
     }
   }
 
+  @Override
+  public int getStreamType(int type) {
+    if (type == TYPE_AUDIO) {
+      return STREAM_TYPE_AAC_ADTS;
+    } else {
+      return STREAM_TYPE_NONE;
+    }
+  }
+
   private static int getSynchSafeInteger(UnsignedByteArray data, int offset) {
     return (data.get(offset) << 21) | (data.get(offset + 1) << 14) | (data.get(offset + 2) << 7) | (data.get(offset + 3));
   }

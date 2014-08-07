@@ -13,12 +13,18 @@ public class HLSRendererBuilder implements DemoPlayer.RendererBuilder {
   private static final String TAG = "HLSRendererBuilder";
 
   private final String userAgent;
+  private final boolean audioOnly;
 
   private String url;
 
   public HLSRendererBuilder(String userAgent, String url) {
+    this(userAgent, url, false);
+  }
+
+  public HLSRendererBuilder(String userAgent, String url, boolean audioOnly) {
     this.url = url;
     this.userAgent = userAgent;
+    this.audioOnly = audioOnly;
   }
 
   public void buildRenderers(DemoPlayer player, RendererBuilderCallback callback) {
@@ -26,6 +32,8 @@ public class HLSRendererBuilder implements DemoPlayer.RendererBuilder {
     Handler mainHandler = player.getMainHandler();
 
     HLSSampleSource sampleSource = new HLSSampleSource(this.url);
+
+    sampleSource.setAudioOnly(this.audioOnly);
 
     TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
     renderers[DemoPlayer.TYPE_VIDEO] = new MediaCodecVideoTrackRenderer(sampleSource,

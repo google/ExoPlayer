@@ -15,6 +15,7 @@ import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.parser.aac.AACExtractor;
 import com.google.android.exoplayer.parser.ts.TSExtractor;
 import com.google.android.exoplayer.parser.ts.TSExtractorNative;
+import com.google.android.exoplayer.upstream.AESDataSource;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
@@ -22,12 +23,15 @@ import com.google.android.exoplayer.upstream.HttpDataSource;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
+import org.apache.http.protocol.HTTP;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -67,6 +71,9 @@ public class HLSSampleSource implements SampleSource {
   private boolean endOfStream;
   private Handler eventHandler;
   private EventListener eventListener;
+  private int videoStreamType;
+  private int audioStreamType;
+  private boolean gotStreamTypes;
 
   public static class Quality {
       public int width;
@@ -78,10 +85,16 @@ public class HLSSampleSource implements SampleSource {
     void onQualitiesParsed(Quality qualities[]);
   }
 
+  static class ChunkSentinel {
+    MediaFormat mediaFormat;
+    MainPlaylist.Entry entry;
+  };
+
   static class HLSTrack {
     public int type;
     public TrackInfo trackInfo;
     public boolean discontinuity;
+    private MainPlaylist.Entry readEntry;
   }
 
   public HLSSampleSource(String url, Handler eventHandler, EventListener listener) {
@@ -153,6 +166,7 @@ public class HLSSampleSource implements SampleSource {
 
   @Override
   public boolean prepare() throws IOException {
+    int i = 0;
     if (prepared)
       return true;
     try {
@@ -164,7 +178,7 @@ public class HLSSampleSource implements SampleSource {
     }
     if (mainPlaylist == null || mainPlaylist.entries.size() == 0) {
       // no main playlist: we fake one
-      mainPlaylist = MainPlaylist.createVideoMainPlaylist(this.url);
+      mainPlaylist = MainPlaylist.createFakeMainPlaylist(this.url);
     }
 
     // compute durationSec
@@ -174,36 +188,9 @@ public class HLSSampleSource implements SampleSource {
 
     sequence = variantPlaylist.mediaSequence;
 
-    boolean hasVideo = false;
-    boolean hasAudio = false;
-
-    for (MainPlaylist.Entry entry: mainPlaylist.entries) {
-      if (entry.codecs.contains("mp4a")) {
-        hasAudio = true;
-      }
-      if (entry.codecs.contains("avc1")) {
-        hasVideo = true;
-      }
-    }
-
-    int i = 0;
-    if (hasAudio) {
-      HLSTrack track = new HLSTrack();
-      track.type = HLSExtractor.TYPE_AUDIO;
-      track.trackInfo = new TrackInfo(MimeTypes.AUDIO_AAC, durationUs);
-      trackList.add(track);
-      track2type[i++] = HLSExtractor.TYPE_AUDIO;
-    }
-    if (hasVideo) {
-      HLSTrack track = new HLSTrack();
-      track.type = HLSExtractor.TYPE_VIDEO;
-      track.trackInfo = new TrackInfo(MimeTypes.VIDEO_H264, durationUs);
-      trackList.add(track);
-      track2type[i++] = HLSExtractor.TYPE_VIDEO;
-    }
-
     prepared = true;
 
+    // start downloading, we need to get some information from the first chunks
     continueBuffering(0);
 
     if (eventListener != null && eventHandler != null) {
@@ -224,10 +211,11 @@ public class HLSSampleSource implements SampleSource {
         });
     }
 
+    boolean found = false;
+
     // see if there is a pts offset
-    long start = System.currentTimeMillis();
-    while (start - System.currentTimeMillis() < 1000) {
-      boolean found = false;
+    while (true) {
+      boolean empty = true;
       synchronized (list) {
         for (LinkedList<Object> l : list) {
           for (Object o : l) {
@@ -240,7 +228,14 @@ public class HLSSampleSource implements SampleSource {
               }
             }
           }
+          if (!l.isEmpty()) {
+            empty = false;
+          }
         }
+      }
+
+      if (empty && chunkTask == null) {
+        break;
       }
       if (found) {
         break;
@@ -251,6 +246,27 @@ public class HLSSampleSource implements SampleSource {
         e.printStackTrace();
       }
     }
+
+    if (!found) {
+      return false;
+    }
+
+    if (audioStreamType != HLSExtractor.STREAM_TYPE_NONE) {
+      HLSTrack track = new HLSTrack();
+      track.type = HLSExtractor.TYPE_AUDIO;
+      String mime = (audioStreamType == HLSExtractor.STREAM_TYPE_AAC_ADTS) ? MimeTypes.AUDIO_AAC : MimeTypes.AUDIO_MPEG;
+      track.trackInfo = new TrackInfo(mime, durationUs);
+      trackList.add(track);
+      track2type[i++] = HLSExtractor.TYPE_AUDIO;
+    }
+    if (videoStreamType != HLSExtractor.STREAM_TYPE_NONE) {
+      HLSTrack track = new HLSTrack();
+      track.type = HLSExtractor.TYPE_VIDEO;
+      track.trackInfo = new TrackInfo(MimeTypes.VIDEO_H264, durationUs);
+      trackList.add(track);
+      track2type[i++] = HLSExtractor.TYPE_VIDEO;
+    }
+
     return true;
   }
 
@@ -299,6 +315,7 @@ public class HLSSampleSource implements SampleSource {
 
     Chunk chunk = new Chunk();
     chunk.variantEntry = variantEntry;
+    chunk.mainEntry = currentEntry;
     chunk.variantPlaylist = variantPlaylist;
     chunk.videoMediaFormat = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
                     currentEntry.width, currentEntry.height, null);
@@ -321,9 +338,15 @@ public class HLSSampleSource implements SampleSource {
       Object o;
       try {
         o = list.get(track2type[track]).removeFirst();
-        if (o instanceof MediaFormat) {
-          formatHolder.format = (MediaFormat)o;
-          return FORMAT_READ;
+        if (o instanceof ChunkSentinel) {
+          ChunkSentinel sentinel = (ChunkSentinel)o;
+          if (sentinel.entry != trackList.get(track).readEntry) {
+            formatHolder.format = sentinel.mediaFormat;
+            trackList.get(track).readEntry = sentinel.entry;
+            return FORMAT_READ;
+          } else {
+            return NOTHING_READ;
+          }
         } else {
           HLSExtractor.Sample sample = (HLSExtractor.Sample)o;
           sample.data.limit(sample.data.position());
@@ -400,6 +423,7 @@ public class HLSSampleSource implements SampleSource {
     VariantPlaylist variantPlaylist;
     VariantPlaylist.Entry variantEntry;
     MediaFormat videoMediaFormat;
+    MainPlaylist.Entry mainEntry;
   }
 
   class ChunkTask extends AsyncTask<Void, Void, Void>  {
@@ -442,11 +466,15 @@ public class HLSSampleSource implements SampleSource {
       }
 
       synchronized (source.list) {
-        list.get(HLSExtractor.TYPE_VIDEO).add(chunk.videoMediaFormat);
+        ChunkSentinel sentinel = new ChunkSentinel();
+        sentinel.mediaFormat = chunk.videoMediaFormat;
+        sentinel.entry = chunk.mainEntry;
+        list.get(HLSExtractor.TYPE_VIDEO).add(sentinel);
       }
 
       DataSpec dataSpec = new DataSpec(uri, variantEntry.offset, variantEntry.length, null);
-      DataSource dataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
+      DataSource HTTPDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
+      DataSource dataSource = new AESDataSource(userAgent, HTTPDataSource);
       try {
         dataSource.open(dataSpec);
       } catch (IOException e) {
@@ -456,10 +484,14 @@ public class HLSSampleSource implements SampleSource {
       }
 
       HLSExtractor extractor = null;
-      try {
-        extractor = new TSExtractorNative(dataSource);
-      } catch (UnsatisfiedLinkError e) {
-        Log.e(TAG, "cannot load TSExtractorNative");
+      /*
+        try {
+          extractor = new TSExtractorNative(dataSource);
+        } catch (UnsatisfiedLinkError e) {
+          Log.e(TAG, "cannot load TSExtractorNative");
+        }
+      }*/
+      if (extractor == null) {
         extractor = new TSExtractor(dataSource);
       }
 
@@ -477,16 +509,30 @@ public class HLSSampleSource implements SampleSource {
         }
         synchronized (source.list) {
           if (!aborted) {
+            if (!gotStreamTypes) {
+              audioStreamType = extractor.getStreamType(HLSExtractor.TYPE_AUDIO);
+              videoStreamType = extractor.getStreamType(HLSExtractor.TYPE_VIDEO);
+              gotStreamTypes = true;
+            }
             if (audioMediaFormat == null && sample.type == HLSExtractor.TYPE_AUDIO) {
-              AACExtractor.ADTSHeader h = new AACExtractor.ADTSHeader();
-              byte header[] = new byte[7];
-              int oldPosition = sample.data.position();
-              sample.data.position(0);
-              sample.data.get(header, 0, 7);
-              sample.data.position(oldPosition);
-              h.update(new HLSExtractor.UnsignedByteArray(header), 0);
-              audioMediaFormat = h.toMediaFormat();
-              list.get(sample.type).add(audioMediaFormat);
+              if (audioStreamType == HLSExtractor.STREAM_TYPE_AAC_ADTS) {
+                AACExtractor.ADTSHeader h = new AACExtractor.ADTSHeader();
+                byte header[] = new byte[7];
+                int oldPosition = sample.data.position();
+                sample.data.position(0);
+                sample.data.get(header, 0, 7);
+                sample.data.position(oldPosition);
+                h.update(new HLSExtractor.UnsignedByteArray(header), 0);
+                audioMediaFormat = h.toMediaFormat();
+              } else {
+                // XX: do not hardcode
+                audioMediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_MPEG, -1, 2, 44100, null);
+              }
+              ChunkSentinel sentinel = new ChunkSentinel();
+              sentinel.mediaFormat = audioMediaFormat;
+              sentinel.entry = chunk.mainEntry;
+
+              list.get(sample.type).add(sentinel);
             }
             list.get(sample.type).add(sample);
           }

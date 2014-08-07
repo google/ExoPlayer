@@ -24,7 +24,8 @@ public class TSExtractor extends HLSExtractor {
   private final ArrayList<PESHandler> activePESHandlers;
 
   private boolean endOfStream;
-  int audioStreamType;
+  private int audioStreamType;
+  private int videoStreamType;
   private boolean unitStartNotSignalled;
 
   private int dataSize;
@@ -68,7 +69,11 @@ public class TSExtractor extends HLSExtractor {
         unitStart = (packet.get(payloadStart) == 0x00
                 && packet.get(payloadStart + 1) == 0x00
                 && packet.get(payloadStart + 2) == 0x01);
+        if (unitStart && currentSample != null && length != 0 && length != currentSample.data.position()) {
+          Log.d(TAG, "PES length " + currentSample.data.position() + " != " + length + " , ignore unitStart detection");
+        }
       }
+
       if (unitStart) {
         long pts = 0;
 
@@ -115,8 +120,6 @@ public class TSExtractor extends HLSExtractor {
         }
 
         currentSample.timeUs = pts  * 1000 / 45;
-        // XXX: remove
-        currentSample.timeUs -= 10 * 1000000;
 
         offset = fixedOffset + headerDataLength;
         if (length > 0)
@@ -174,9 +177,6 @@ public class TSExtractor extends HLSExtractor {
   }
 
   class PMTHandler extends SectionHandler {
-    static final int STREAM_TYPE_AAC_ADTS = 0xf;
-    static final int STREAM_TYPE_H264 = 0x1b;
-    static final int STREAM_TYPE_MPEG_AUDIO = 0x3;
 
     public List<Stream> streams;
 
@@ -224,6 +224,7 @@ public class TSExtractor extends HLSExtractor {
             unitStartNotSignalled = true;
           }
         } else if (video_handler == null && s.type == STREAM_TYPE_H264) {
+          videoStreamType = s.type;
           video_handler = new PESHandler(s.pid, TYPE_VIDEO);
           handler = video_handler;
           //Log.d(TAG, String.format("video found on pid %04x", s.pid));
@@ -285,6 +286,9 @@ public class TSExtractor extends HLSExtractor {
     activePayloadHandlers.put(0, payloadHandler);
     this.dataSource = dataSource;
     activePESHandlers = new ArrayList<PESHandler>();
+
+    audioStreamType = STREAM_TYPE_NONE;
+    videoStreamType = STREAM_TYPE_NONE;
   }
 
   private boolean fillData() throws ParserException {
@@ -405,5 +409,13 @@ public class TSExtractor extends HLSExtractor {
     Sample s = outSample;
     outSample = null;
     return s;
+  }
+
+  public int getStreamType(int type) {
+    if (type == TYPE_AUDIO) {
+      return audioStreamType;
+    } else {
+      return videoStreamType;
+    }
   }
 }

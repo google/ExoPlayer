@@ -31,6 +31,10 @@ public class TSExtractorNative extends HLSExtractor {
     nativeRelease();
   }
 
+  public int getStreamType(int type) {
+    return STREAM_TYPE_NONE;
+  }
+
   // stores a pointer to the native state
   private long nativeHandle;
 

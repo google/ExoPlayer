@@ -79,36 +79,18 @@ public class MainPlaylist {
     return connection.getInputStream();
   }
 
-  public static MainPlaylist createSimpleMainPlaylist(String url, boolean audioOnly) {
+  public static MainPlaylist createFakeMainPlaylist(String url, boolean audioOnly) {
     MainPlaylist mainPlaylist = new MainPlaylist();
     Entry e = new Entry(null, url);
     e.bps = 424242;
-    e.codecs.add("mp4a");
+    /*e.codecs.add("mp4a");
     if (!audioOnly) {
       e.codecs.add("avc1");
-    }
+    }*/
     mainPlaylist.entries.add(e);
     mainPlaylist.url = ".";
     return mainPlaylist;
 
-  }
-
-  /**
-   * creates a simple mainPlaylist with just one entry
-   * @param url
-   * @return
-   */
-  public static MainPlaylist createVideoMainPlaylist(String url) {
-    return createSimpleMainPlaylist(url, false);
-  }
-
-  /**
-   * creates a simple mainPlaylist with just one entry
-   * @param url
-   * @return
-   */
-  public static MainPlaylist createAudioMainPlaylist(String url) {
-    return createSimpleMainPlaylist(url, true);
   }
 
   public static MainPlaylist parse(String url) throws IOException {

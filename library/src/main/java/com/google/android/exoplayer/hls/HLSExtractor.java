@@ -12,6 +12,11 @@ public abstract class HLSExtractor {
   public static final int TYPE_VIDEO = 0;
   public static final int TYPE_AUDIO = 1;
 
+  public static final int STREAM_TYPE_NONE = -1;
+  public static final int STREAM_TYPE_AAC_ADTS = 0xf;
+  public static final int STREAM_TYPE_H264 = 0x1b;
+  public static final int STREAM_TYPE_MPEG_AUDIO = 0x3;
+
   public static class Sample {
     public Sample(int type) {
       this.type = type;
@@ -20,7 +25,6 @@ public abstract class HLSExtractor {
     public long timeUs;
     public ByteBuffer data;
     public int type;
-    public ByteBuffer rototo;
   }
 
   private static final ArrayList<LinkedList<Sample>> recycledSampleList;
@@ -101,6 +105,8 @@ public abstract class HLSExtractor {
    */
   abstract public Sample read()
           throws ParserException;
+
+  abstract public int getStreamType(int type);
 
   public void release() {};
 }
