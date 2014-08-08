@@ -498,10 +498,12 @@ public class HLSSampleSource implements SampleSource {
       }
 
       synchronized (source.list) {
-        ChunkSentinel sentinel = new ChunkSentinel();
-        sentinel.mediaFormat = chunk.videoMediaFormat;
-        sentinel.entry = chunk.mainEntry;
-        list.get(HLSExtractor.TYPE_VIDEO).add(sentinel);
+        if (!aborted) {
+            ChunkSentinel sentinel = new ChunkSentinel();
+            sentinel.mediaFormat = chunk.videoMediaFormat;
+            sentinel.entry = chunk.mainEntry;
+            list.get(HLSExtractor.TYPE_VIDEO).add(sentinel);
+        }
       }
 
       DataSpec dataSpec = new DataSpec(uri, variantEntry.offset, variantEntry.length, null);
