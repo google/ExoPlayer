@@ -27,12 +27,10 @@ package com.google.android.exoplayer.parser.mp4;
   public int[] sampleDecodingTimeTable;
   public int[] sampleCompositionTimeOffsetTable;
   public boolean[] sampleIsSyncFrameTable;
+  public boolean[] sampleHasSubsampleEncryptionTable;
 
-  public int auxiliarySampleInfoTotalSize;
-  public int[] auxiliarySampleInfoSizeTable;
-
-  public boolean smoothStreamingUsesSubsampleEncryption;
-  public ParsableByteArray smoothStreamingSampleEncryptionData;
+  public ParsableByteArray sampleEncryptionData;
+  public boolean sampleEncryptionDataNeedsFill;
 
   public void setSampleDescriptionIndex(int sampleDescriptionIndex) {
     this.sampleDescriptionIndex = sampleDescriptionIndex;
@@ -47,16 +45,11 @@ package com.google.android.exoplayer.parser.mp4;
     this.length = sampleSizeTable.length;
   }
 
-  public void setAuxiliarySampleInfoTables(int totalAuxiliarySampleInfoSize,
-      int[] auxiliarySampleInfoSizeTable) {
-    this.auxiliarySampleInfoTotalSize = totalAuxiliarySampleInfoSize;
-    this.auxiliarySampleInfoSizeTable = auxiliarySampleInfoSizeTable;
-  }
-
-  public void setSmoothStreamingSampleEncryptionData(ParsableByteArray data,
-      boolean usesSubsampleEncryption) {
-    this.smoothStreamingSampleEncryptionData = data;
-    this.smoothStreamingUsesSubsampleEncryption = usesSubsampleEncryption;
+  public void setSampleEncryptionData(boolean[] sampleHasSubsampleEncryptionTable,
+      ParsableByteArray sampleEncryptionData, boolean sampleEncryptionDataNeedsFill) {
+    this.sampleHasSubsampleEncryptionTable = sampleHasSubsampleEncryptionTable;
+    this.sampleEncryptionData = sampleEncryptionData;
+    this.sampleEncryptionDataNeedsFill = sampleEncryptionDataNeedsFill;
   }
 
   public int getSamplePresentationTime(int index) {

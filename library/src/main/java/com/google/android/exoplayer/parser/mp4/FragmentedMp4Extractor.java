@@ -93,7 +93,7 @@ public final class FragmentedMp4Extractor {
   // Parser states
   private static final int STATE_READING_ATOM_HEADER = 0;
   private static final int STATE_READING_ATOM_PAYLOAD = 1;
-  private static final int STATE_READING_CENC_AUXILIARY_DATA = 2;
+  private static final int STATE_READING_ENCRYPTION_DATA = 2;
   private static final int STATE_READING_SAMPLE = 3;
 
   // Atom data offsets
@@ -130,6 +130,7 @@ public final class FragmentedMp4Extractor {
     parsedAtoms.add(Atom.TYPE_pssh);
     parsedAtoms.add(Atom.TYPE_saiz);
     parsedAtoms.add(Atom.TYPE_uuid);
+    parsedAtoms.add(Atom.TYPE_senc);
     PARSED_ATOMS = Collections.unmodifiableSet(parsedAtoms);
   }
 
@@ -162,8 +163,6 @@ public final class FragmentedMp4Extractor {
   private int atomType;
   private int atomSize;
   private ParsableByteArray atomData;
-  private ParsableByteArray cencAuxiliaryData;
-  private int cencAuxiliaryBytesRead;
 
   private int pendingSeekTimeMs;
   private int sampleIndex;
@@ -273,8 +272,8 @@ public final class FragmentedMp4Extractor {
           case STATE_READING_ATOM_PAYLOAD:
             results |= readAtomPayload(inputStream);
             break;
-          case STATE_READING_CENC_AUXILIARY_DATA:
-            results |= readCencAuxiliaryData(inputStream);
+          case STATE_READING_ENCRYPTION_DATA:
+            results |= readEncryptionData(inputStream);
             break;
           default:
               results |= readOrSkipSample(inputStream, out);
@@ -330,9 +329,6 @@ public final class FragmentedMp4Extractor {
           rootAtomBytesRead = 0;
         }
         break;
-      case STATE_READING_CENC_AUXILIARY_DATA:
-        cencAuxiliaryBytesRead = 0;
-        break;
     }
     parserState = state;
   }
@@ -354,12 +350,9 @@ public final class FragmentedMp4Extractor {
     atomType = atomHeader.readInt();
 
     if (atomType == Atom.TYPE_mdat) {
-      int cencAuxSize = fragmentRun.auxiliarySampleInfoTotalSize;
-      if (cencAuxSize > 0) {
-        cencAuxiliaryData = new ParsableByteArray(cencAuxSize);
-        enterState(STATE_READING_CENC_AUXILIARY_DATA);
+      if (fragmentRun.sampleEncryptionDataNeedsFill) {
+        enterState(STATE_READING_ENCRYPTION_DATA);
       } else {
-        cencAuxiliaryData = null;
         enterState(STATE_READING_SAMPLE);
       }
       return 0;
@@ -631,7 +624,7 @@ public final class FragmentedMp4Extractor {
       if (childAtomType == Atom.TYPE_esds) {
         initializationData = parseEsdsFromParent(parent, childStartPosition);
         // TODO: Do we really need to do this? See [redacted]
-        // Update sampleRate and sampleRate from the AudioSpecificConfig initialization data.
+        // Update sampleRate and channelCount from the AudioSpecificConfig initialization data.
         Pair<Integer, Integer> audioSpecificConfig =
             CodecSpecificDataUtil.parseAudioSpecificConfig(initializationData);
         sampleRate = audioSpecificConfig.first;
@@ -752,7 +745,7 @@ public final class FragmentedMp4Extractor {
     parent.skip(13);
 
     // Start of AudioSpecificConfig (defined in 14496-3)
-    parent.skip(1);  // AudioSpecificConfig tag
+    parent.skip(1); // AudioSpecificConfig tag
     varIntByte = parent.readUnsignedByte();
     int varInt = varIntByte & 0x7F;
     while (varIntByte > 127) {
@@ -789,26 +782,38 @@ public final class FragmentedMp4Extractor {
    */
   private static void parseTraf(Track track, DefaultSampleValues extendsDefaults,
       ContainerAtom traf, TrackFragment out, int workaroundFlags) {
-    LeafAtom saiz = traf.getLeafAtomOfType(Atom.TYPE_saiz);
-    if (saiz != null) {
-      parseSaiz(saiz.getData(), out);
-    }
     LeafAtom tfdtAtom = traf.getLeafAtomOfType(Atom.TYPE_tfdt);
     long decodeTime = tfdtAtom == null ? 0
         : parseTfdt(traf.getLeafAtomOfType(Atom.TYPE_tfdt).getData());
+
     LeafAtom tfhd = traf.getLeafAtomOfType(Atom.TYPE_tfhd);
     DefaultSampleValues fragmentHeader = parseTfhd(extendsDefaults, tfhd.getData());
     out.setSampleDescriptionIndex(fragmentHeader.sampleDescriptionIndex);
 
     LeafAtom trun = traf.getLeafAtomOfType(Atom.TYPE_trun);
     parseTrun(track, fragmentHeader, decodeTime, workaroundFlags, trun.getData(), out);
+
+    TrackEncryptionBox trackEncryptionBox =
+        track.sampleDescriptionEncryptionBoxes[fragmentHeader.sampleDescriptionIndex];
+    LeafAtom saiz = traf.getLeafAtomOfType(Atom.TYPE_saiz);
+    if (saiz != null) {
+      parseSaiz(trackEncryptionBox, saiz.getData(), out);
+    }
+
+    LeafAtom senc = traf.getLeafAtomOfType(Atom.TYPE_senc);
+    if (senc != null) {
+      parseSenc(senc.getData(), out);
+    }
+
     LeafAtom uuid = traf.getLeafAtomOfType(Atom.TYPE_uuid);
     if (uuid != null) {
       parseUuid(uuid.getData(), out);
     }
   }
 
-  private static void parseSaiz(ParsableByteArray saiz, TrackFragment out) {
+  private static void parseSaiz(TrackEncryptionBox encryptionBox, ParsableByteArray saiz,
+      TrackFragment out) {
+    int vectorSize = encryptionBox.initializationVectorSize;
     saiz.setPosition(ATOM_HEADER_SIZE);
     int fullAtom = saiz.readInt();
     int flags = parseFullAtomFlags(fullAtom);
@@ -818,19 +823,20 @@ public final class FragmentedMp4Extractor {
     int defaultSampleInfoSize = saiz.readUnsignedByte();
     int sampleCount = saiz.readUnsignedIntToInt();
     int totalSize = 0;
-    int[] sampleInfoSizes = new int[sampleCount];
+    boolean[] sampleHasSubsampleEncryptionTable = new boolean[sampleCount];
     if (defaultSampleInfoSize == 0) {
       for (int i = 0; i < sampleCount; i++) {
-        sampleInfoSizes[i] = saiz.readUnsignedByte();
-        totalSize += sampleInfoSizes[i];
+        int sampleInfoSize = saiz.readUnsignedByte();
+        totalSize += sampleInfoSize;
+        sampleHasSubsampleEncryptionTable[i] = sampleInfoSize > vectorSize;
       }
     } else {
-      for (int i = 0; i < sampleCount; i++) {
-        sampleInfoSizes[i] = defaultSampleInfoSize;
-        totalSize += defaultSampleInfoSize;
-      }
+      boolean subsampleEncryption = defaultSampleInfoSize > vectorSize;
+      totalSize += defaultSampleInfoSize * sampleCount;
+      Arrays.fill(sampleHasSubsampleEncryptionTable, subsampleEncryption);
     }
-    out.setAuxiliarySampleInfoTables(totalSize, sampleInfoSizes);
+    out.setSampleEncryptionData(sampleHasSubsampleEncryptionTable,
+        new ParsableByteArray(totalSize), true);
   }
 
   /**
@@ -942,13 +948,8 @@ public final class FragmentedMp4Extractor {
       }
       sampleDecodingTimeTable[i] = (int) ((cumulativeTime * 1000) / timescale);
       sampleSizeTable[i] = sampleSize;
-      boolean isSync = ((sampleFlags >> 16) & 0x1) == 0;
-      if (workaroundEveryVideoFrameIsSyncFrame && i != 0) {
-        isSync = false;
-      }
-      if (isSync) {
-        sampleIsSyncFrameTable[i] = true;
-      }
+      sampleIsSyncFrameTable[i] = ((sampleFlags >> 16) & 0x1) == 0
+          && (!workaroundEveryVideoFrameIsSyncFrame || i == 0);
       cumulativeTime += sampleDuration;
     }
 
@@ -966,9 +967,19 @@ public final class FragmentedMp4Extractor {
       return;
     }
 
-    // See "Portable encoding of audio-video objects: The Protected Interoperable File Format
-    // (PIFF), John A. Bocharov et al, Section 5.3.2.1."
-    int fullAtom = uuid.readInt();
+    // Except for the extended type, this box is identical to a SENC box. See "Portable encoding of
+    // audio-video objects: The Protected Interoperable File Format (PIFF), John A. Bocharov et al,
+    // Section 5.3.2.1."
+    parseSenc(uuid, 16, out);
+  }
+
+  private static void parseSenc(ParsableByteArray senc, TrackFragment out) {
+    parseSenc(senc, 0, out);
+  }
+
+  private static void parseSenc(ParsableByteArray senc, int offset, TrackFragment out) {
+    senc.setPosition(ATOM_HEADER_SIZE + offset);
+    int fullAtom = senc.readInt();
     int flags = parseFullAtomFlags(fullAtom);
 
     if ((flags & 0x01 /* override_track_encryption_box_parameters */) != 0) {
@@ -977,15 +988,19 @@ public final class FragmentedMp4Extractor {
     }
 
     boolean subsampleEncryption = (flags & 0x02 /* use_subsample_encryption */) != 0;
-    int numberOfEntries = uuid.readUnsignedIntToInt();
-    if (numberOfEntries != out.length) {
-      throw new IllegalStateException("Length mismatch: " + numberOfEntries + ", " + out.length);
+    int sampleCount = senc.readUnsignedIntToInt();
+    if (sampleCount != out.length) {
+      throw new IllegalStateException("Length mismatch: " + sampleCount + ", " + out.length);
     }
 
-    int sampleEncryptionDataLength = uuid.length() - uuid.getPosition();
+    boolean[] sampleHasSubsampleEncryptionTable = new boolean[sampleCount];
+    Arrays.fill(sampleHasSubsampleEncryptionTable, subsampleEncryption);
+
+    int sampleEncryptionDataLength = senc.length() - senc.getPosition();
     ParsableByteArray sampleEncryptionData = new ParsableByteArray(sampleEncryptionDataLength);
-    uuid.readBytes(sampleEncryptionData.getData(), 0, sampleEncryptionData.length());
-    out.setSmoothStreamingSampleEncryptionData(sampleEncryptionData, subsampleEncryption);
+    senc.readBytes(sampleEncryptionData.getData(), 0, sampleEncryptionDataLength);
+
+    out.setSampleEncryptionData(sampleHasSubsampleEncryptionTable, sampleEncryptionData, false);
   }
 
   /**
@@ -1044,17 +1059,14 @@ public final class FragmentedMp4Extractor {
     return new SegmentIndex(atom.length(), sizes, offsets, durationsUs, timesUs);
   }
 
-  private int readCencAuxiliaryData(NonBlockingInputStream inputStream) {
-    int length = cencAuxiliaryData.length();
-    int bytesRead = inputStream.read(cencAuxiliaryData.getData(), cencAuxiliaryBytesRead,
-        length - cencAuxiliaryBytesRead);
-    if (bytesRead == -1) {
-      return RESULT_END_OF_STREAM;
-    }
-    cencAuxiliaryBytesRead += bytesRead;
-    if (cencAuxiliaryBytesRead < length) {
+  private int readEncryptionData(NonBlockingInputStream inputStream) {
+    ParsableByteArray sampleEncryptionData = fragmentRun.sampleEncryptionData;
+    int sampleEncryptionDataLength = sampleEncryptionData.length();
+    if (inputStream.getAvailableByteCount() < sampleEncryptionDataLength) {
       return RESULT_NEED_MORE_DATA;
     }
+    inputStream.read(sampleEncryptionData.getData(), 0, sampleEncryptionDataLength);
+    fragmentRun.sampleEncryptionDataNeedsFill = false;
     enterState(STATE_READING_SAMPLE);
     return 0;
   }
@@ -1093,15 +1105,12 @@ public final class FragmentedMp4Extractor {
   }
 
   private int skipSample(NonBlockingInputStream inputStream, int sampleSize) {
-    ParsableByteArray sampleEncryptionData = cencAuxiliaryData != null ? cencAuxiliaryData
-        : fragmentRun.smoothStreamingSampleEncryptionData;
+    ParsableByteArray sampleEncryptionData = fragmentRun.sampleEncryptionData;
     if (sampleEncryptionData != null) {
       TrackEncryptionBox encryptionBox =
           track.sampleDescriptionEncryptionBoxes[fragmentRun.sampleDescriptionIndex];
       int vectorSize = encryptionBox.initializationVectorSize;
-      boolean subsampleEncryption = cencAuxiliaryData != null
-          ? fragmentRun.auxiliarySampleInfoSizeTable[sampleIndex] > vectorSize
-              : fragmentRun.smoothStreamingUsesSubsampleEncryption;
+      boolean subsampleEncryption = fragmentRun.sampleHasSubsampleEncryptionTable[sampleIndex];
       sampleEncryptionData.skip(vectorSize);
       int subsampleCount = subsampleEncryption ? sampleEncryptionData.readUnsignedShort() : 1;
       if (subsampleEncryption) {
@@ -1128,13 +1137,11 @@ public final class FragmentedMp4Extractor {
       out.flags |= MediaExtractor.SAMPLE_FLAG_SYNC;
       lastSyncSampleIndex = sampleIndex;
     }
-    if (out.allowDataBufferReplacement
-        && (out.data == null || out.data.capacity() < sampleSize)) {
+    if (out.allowDataBufferReplacement && (out.data == null || out.data.capacity() < sampleSize)) {
       outputData = ByteBuffer.allocate(sampleSize);
       out.data = outputData;
     }
-    ParsableByteArray sampleEncryptionData = cencAuxiliaryData != null ? cencAuxiliaryData
-        : fragmentRun.smoothStreamingSampleEncryptionData;
+    ParsableByteArray sampleEncryptionData = fragmentRun.sampleEncryptionData;
     if (sampleEncryptionData != null) {
       readSampleEncryptionData(sampleEncryptionData, out);
     }
@@ -1173,9 +1180,7 @@ public final class FragmentedMp4Extractor {
     byte[] keyId = encryptionBox.keyId;
     boolean isEncrypted = encryptionBox.isEncrypted;
     int vectorSize = encryptionBox.initializationVectorSize;
-    boolean subsampleEncryption = cencAuxiliaryData != null
-        ? fragmentRun.auxiliarySampleInfoSizeTable[sampleIndex] > vectorSize
-            : fragmentRun.smoothStreamingUsesSubsampleEncryption;
+    boolean subsampleEncryption = fragmentRun.sampleHasSubsampleEncryptionTable[sampleIndex];
 
     byte[] vector = out.cryptoInfo.iv;
     if (vector == null || vector.length != 16) {

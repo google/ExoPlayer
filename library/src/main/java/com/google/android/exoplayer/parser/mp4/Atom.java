@@ -54,6 +54,7 @@ import java.util.List;
   public static final int TYPE_frma = 0x66726D61;
   public static final int TYPE_saiz = 0x7361697A;
   public static final int TYPE_uuid = 0x75756964;
+  public static final int TYPE_senc = 0x73656E63;
 
   public final int type;
 
