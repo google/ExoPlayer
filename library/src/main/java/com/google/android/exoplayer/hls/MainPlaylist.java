@@ -1,5 +1,7 @@
 package com.google.android.exoplayer.hls;
 
+import android.util.Log;
+
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.util.Util;
 
@@ -12,17 +14,20 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class MainPlaylist {
-  public static class Entry implements Comparable<Entry> {
+
+    private static final String TAG = "MainPlaylist";
+
+    public static class Entry implements Comparable<Entry> {
     public String url;
     public String absoluteUrl;
     public int bps;
     public int width;
     public int height;
     public ArrayList<String> codecs;
-    private VariantPlaylist variantPlaylist;
 
     public Entry() {
       codecs = new ArrayList<String>();
@@ -42,9 +47,9 @@ public class MainPlaylist {
       return bps - another.bps;
     }
 
-    public VariantPlaylist getVariantPlaylist() {
-      if (variantPlaylist == null) {
-        try {
+    public VariantPlaylist downloadVariantPlaylist() {
+      VariantPlaylist variantPlaylist;
+      try {
           URL variantURL = new URL(absoluteUrl);
 
           InputStream inputStream = getInputStream(variantURL);
@@ -56,10 +61,9 @@ public class MainPlaylist {
             }
           }
         } catch (Exception e) {
-
+            return null;
         }
-      }
-      return variantPlaylist;
+        return variantPlaylist;
     }
   }
 
@@ -79,7 +83,35 @@ public class MainPlaylist {
     return connection.getInputStream();
   }
 
-  public static MainPlaylist createFakeMainPlaylist(String url) {
+    public void removeIncompleteQualities() {
+        int codecCount[] = new int[entries.size()];
+        int max = -1;
+        int i = 0;
+        for (Entry entry : entries) {
+            codecCount[i] = entry.codecs.size();
+            if (codecCount[i] > max) {
+                max = codecCount[i];
+            }
+            i++;
+        }
+
+        if (max == 0) {
+            // m3u8 did not specify codecs
+            return;
+        }
+
+        i = 0;
+        for (Iterator<Entry> it = entries.iterator(); it.hasNext(); ) {
+            Entry entry = it.next();
+            if (codecCount[i] < max) {
+                Log.d(TAG, "removing playlist " + entry.url);
+                it.remove();
+            }
+            i++;
+        }
+    }
+
+    public static MainPlaylist createFakeMainPlaylist(String url) {
     MainPlaylist mainPlaylist = new MainPlaylist();
     Entry e = new Entry(null, url);
     e.bps = 424242;

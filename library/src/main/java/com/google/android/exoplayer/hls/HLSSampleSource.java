@@ -4,6 +4,7 @@ import android.media.MediaExtractor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 
 import com.google.android.exoplayer.FormatHolder;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicLong;
@@ -71,6 +73,15 @@ public class HLSSampleSource implements SampleSource {
   private int audioStreamType;
   private boolean gotStreamTypes;
   private int maxBps;
+
+  private HashMap<MainPlaylist.Entry, VariantPlaylistSlot> variantPlaylistsMap = new HashMap<MainPlaylist.Entry, VariantPlaylistSlot>();
+  private VariantPlaylistTask variantPlaylistTask;
+  private long targetDuration;
+
+  public static class VariantPlaylistSlot {
+    VariantPlaylist playlist;
+    long lastUptime;
+  }
 
   public static class Quality {
       public int width;
@@ -193,10 +204,19 @@ public class HLSSampleSource implements SampleSource {
       mainPlaylist = MainPlaylist.createFakeMainPlaylist(this.url);
     }
 
+    mainPlaylist.removeIncompleteQualities();
+
+    for (MainPlaylist.Entry entry: mainPlaylist.entries) {
+      variantPlaylistsMap.put(entry, new VariantPlaylistSlot());
+    }
+
     // compute durationSec
     currentEntry = evaluateNextEntry();
-    VariantPlaylist variantPlaylist = currentEntry.getVariantPlaylist();
+    VariantPlaylist variantPlaylist = currentEntry.downloadVariantPlaylist();
+    variantPlaylistsMap.get(currentEntry).playlist = variantPlaylist;
+
     long durationUs = (long)variantPlaylist.duration * 1000 * 1000;
+    targetDuration = (long)variantPlaylist.entries.get(0).extinf;
 
     sequence = variantPlaylist.mediaSequence;
 
@@ -315,14 +335,29 @@ public class HLSSampleSource implements SampleSource {
       return;
     }
 
-    if (endOfStream) {
-      return;
-    }
-
     estimatedBps = (int)bandwidthMeter.getEstimate() * 8;
     bufferMsec = (int)(getBufferedPositionUs() - playbackPositionUs);
 
     currentEntry = evaluateNextEntry();
+    VariantPlaylist variantPlaylist = variantPlaylistsMap.get(currentEntry).playlist;
+    if (variantPlaylist == null) {
+      kickVariantPlaylistTask();
+      // wait for the task to complete
+      return;
+    }
+
+    if (sequence == variantPlaylist.mediaSequence + variantPlaylist.entries.size()) {
+      if (variantPlaylist.endList) {
+        endOfStream = true;
+      } else {
+        kickVariantPlaylistTask();
+        // wait for the task to complete
+        return;
+      }
+      // return in all cases
+      return;
+    }
+
     if (eventListener != null) {
       Quality quality = new Quality();
       quality.width = currentEntry.width;
@@ -330,7 +365,7 @@ public class HLSSampleSource implements SampleSource {
       quality.bps = currentEntry.bps;
       eventListener.onChunkStart(quality);
     }
-    VariantPlaylist variantPlaylist = currentEntry.getVariantPlaylist();
+
     VariantPlaylist.Entry variantEntry = variantPlaylist.entries.get(sequence - variantPlaylist.mediaSequence);
 
     Chunk chunk = new Chunk();
@@ -341,6 +376,16 @@ public class HLSSampleSource implements SampleSource {
                     currentEntry.width, currentEntry.height, null);
     chunkTask = new ChunkTask(chunk);
     chunkTask.execute();
+  }
+
+  private void kickVariantPlaylistTask() {
+    VariantPlaylistSlot slot = variantPlaylistsMap.get(currentEntry);
+    long now = SystemClock.uptimeMillis();
+    if (variantPlaylistTask == null && (now - slot.lastUptime > targetDuration / 2)) {
+      variantPlaylistTask = new VariantPlaylistTask(currentEntry);
+      variantPlaylistTask.execute();
+      slot.lastUptime = now;
+    }
   }
 
   @Override
@@ -414,7 +459,18 @@ public class HLSSampleSource implements SampleSource {
       }
     }
 
-    VariantPlaylist variantPlaylist = currentEntry.getVariantPlaylist();
+    VariantPlaylist variantPlaylist = variantPlaylistsMap.get(currentEntry).playlist;
+    if (variantPlaylist == null) {
+      // might be null in rare cases where we switch the quality just before seeking.
+      // in that case, we still have a valid variantPlaylist somewhere
+      for (MainPlaylist.Entry entry:variantPlaylistsMap.keySet()) {
+        variantPlaylist = variantPlaylistsMap.get(entry).playlist;
+        if (variantPlaylist != null) {
+          break;
+        }
+      }
+    }
+
     long acc = 0;
     sequence = variantPlaylist.mediaSequence;
     for (VariantPlaylist.Entry e : variantPlaylist.entries) {
@@ -599,12 +655,38 @@ public class HLSSampleSource implements SampleSource {
         source.sequence++;
       }
 
-      VariantPlaylist variantPlaylist = currentEntry.getVariantPlaylist();
-      if (sequence == variantPlaylist.mediaSequence + variantPlaylist.entries.size()) {
-        endOfStream = true;
+      source.chunkTask = null;
+    }
+  }
+
+  class VariantPlaylistTask extends AsyncTask<Void, Void, Void>  {
+    private final MainPlaylist.Entry mainEntry;
+    private Exception exception;
+    private VariantPlaylist variantPlaylist;
+
+    public VariantPlaylistTask(MainPlaylist.Entry mainEntry) {
+      this.mainEntry = mainEntry;
+    }
+
+    @Override
+    protected Void doInBackground(Void... params) {
+      try {
+        this.variantPlaylist = mainEntry.downloadVariantPlaylist();
+      } catch (Exception e) {
+        this.exception = e;
       }
 
-      source.chunkTask = null;
+      return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void dummy) {
+      HLSSampleSource source = HLSSampleSource.this;
+      if (exception == null) {
+        source.variantPlaylistsMap.get(currentEntry).playlist = this.variantPlaylist;
+      }
+
+      source.variantPlaylistTask = null;
     }
   }
 }
