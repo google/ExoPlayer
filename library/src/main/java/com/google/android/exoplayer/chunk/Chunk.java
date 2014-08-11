@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.chunk;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.upstream.Allocation;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -89,8 +90,8 @@ public abstract class Chunk implements Loadable {
   /**
    * Gets the length of the chunk in bytes.
    *
-   * @return The length of the chunk in bytes, or {@value DataSpec#LENGTH_UNBOUNDED} if the length
-   *     has yet to be determined.
+   * @return The length of the chunk in bytes, or {@link C#LENGTH_UNBOUNDED} if the length has yet
+   *     to be determined.
    */
   public final long getLength() {
     return dataSourceStream.getLength();

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.upstream;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Predicate;
 import com.google.android.exoplayer.util.Util;
@@ -258,16 +259,16 @@ public class HttpDataSource implements DataSource {
     }
 
     long contentLength = getContentLength(connection);
-    dataLength = dataSpec.length == DataSpec.LENGTH_UNBOUNDED ? contentLength : dataSpec.length;
-    if (dataLength == DataSpec.LENGTH_UNBOUNDED) {
+    dataLength = dataSpec.length == C.LENGTH_UNBOUNDED ? contentLength : dataSpec.length;
+    if (dataLength == C.LENGTH_UNBOUNDED) {
       // The DataSpec specified unbounded length and we failed to resolve a length from the
       // response headers.
       throw new HttpDataSourceException(
-          new UnexpectedLengthException(DataSpec.LENGTH_UNBOUNDED, DataSpec.LENGTH_UNBOUNDED),
+          new UnexpectedLengthException(C.LENGTH_UNBOUNDED, C.LENGTH_UNBOUNDED),
           dataSpec);
     }
 
-    if (dataSpec.length != DataSpec.LENGTH_UNBOUNDED && contentLength != DataSpec.LENGTH_UNBOUNDED
+    if (dataSpec.length != C.LENGTH_UNBOUNDED && contentLength != C.LENGTH_UNBOUNDED
         && contentLength != dataSpec.length) {
       // The DataSpec specified a length and we resolved a length from the response headers, but
       // the two lengths do not match.
@@ -394,14 +395,14 @@ public class HttpDataSource implements DataSource {
 
   private String buildRangeHeader(DataSpec dataSpec) {
     String rangeRequest = "bytes=" + dataSpec.position + "-";
-    if (dataSpec.length != DataSpec.LENGTH_UNBOUNDED) {
+    if (dataSpec.length != C.LENGTH_UNBOUNDED) {
       rangeRequest += (dataSpec.position + dataSpec.length - 1);
     }
     return rangeRequest;
   }
 
   private long getContentLength(HttpURLConnection connection) {
-    long contentLength = DataSpec.LENGTH_UNBOUNDED;
+    long contentLength = C.LENGTH_UNBOUNDED;
     String contentLengthHeader = connection.getHeaderField("Content-Length");
     if (!TextUtils.isEmpty(contentLengthHeader)) {
       try {
@@ -435,7 +436,7 @@ public class HttpDataSource implements DataSource {
         }
       }
     }
-    if (contentLength == DataSpec.LENGTH_UNBOUNDED) {
+    if (contentLength == C.LENGTH_UNBOUNDED) {
       Log.w(TAG, "Unable to parse content length [" + contentLengthHeader + "] [" +
           contentRangeHeader + "]");
     }

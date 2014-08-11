@@ -340,7 +340,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   @Override
   protected long getBufferedPositionUs() {
     long sourceBufferedPosition = source.getBufferedPositionUs();
-    return sourceBufferedPosition == UNKNOWN_TIME || sourceBufferedPosition == END_OF_TRACK
+    return sourceBufferedPosition == UNKNOWN_TIME_US || sourceBufferedPosition == END_OF_TRACK_US
         ? sourceBufferedPosition : Math.max(sourceBufferedPosition, getCurrentPositionUs());
   }
 

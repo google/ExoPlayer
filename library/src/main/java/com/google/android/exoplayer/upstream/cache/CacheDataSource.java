@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.upstream.cache;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.upstream.DataSink;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -124,7 +125,7 @@ public final class CacheDataSource implements DataSource {
     Assertions.checkState(dataSpec.uriIsFullStream);
     // TODO: Support caching for unbounded requests. This requires storing the source length
     // into the cache (the simplest approach is to incorporate it into each cache file's name).
-    Assertions.checkState(dataSpec.length != DataSpec.LENGTH_UNBOUNDED);
+    Assertions.checkState(dataSpec.length != C.LENGTH_UNBOUNDED);
     try {
       uri = dataSpec.uri;
       key = dataSpec.key;

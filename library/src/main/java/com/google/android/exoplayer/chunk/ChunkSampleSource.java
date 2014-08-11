@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.chunk;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaFormat;
@@ -22,7 +23,6 @@ import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
-import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.util.Assertions;
 
@@ -383,14 +383,14 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
     if (currentLoadable != null && mediaChunk == currentLoadable) {
       // Linearly interpolate partially-fetched chunk times.
       long chunkLength = mediaChunk.getLength();
-      if (chunkLength != DataSpec.LENGTH_UNBOUNDED) {
+      if (chunkLength != C.LENGTH_UNBOUNDED) {
         return mediaChunk.startTimeUs + ((mediaChunk.endTimeUs - mediaChunk.startTimeUs) *
             mediaChunk.bytesLoaded()) / chunkLength;
       } else {
         return mediaChunk.startTimeUs;
       }
     } else if (mediaChunk.isLastChunk()) {
-      return TrackRenderer.END_OF_TRACK;
+      return TrackRenderer.END_OF_TRACK_US;
     } else {
       return mediaChunk.endTimeUs;
     }

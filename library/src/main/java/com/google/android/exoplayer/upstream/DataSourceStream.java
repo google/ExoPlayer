@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.upstream;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
@@ -67,7 +68,7 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
     this.dataSource = dataSource;
     this.dataSpec = dataSpec;
     this.allocator = allocator;
-    resolvedLength = DataSpec.LENGTH_UNBOUNDED;
+    resolvedLength = C.LENGTH_UNBOUNDED;
     readHead = new ReadHead();
   }
 
@@ -99,11 +100,11 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
   /**
    * Returns the length of the streamin bytes.
    *
-   * @return The length of the stream in bytes, or {@value DataSpec#LENGTH_UNBOUNDED} if the length
-   *     has yet to be determined.
+   * @return The length of the stream in bytes, or {@value C#LENGTH_UNBOUNDED} if the length has
+   *     yet to be determined.
    */
   public long getLength() {
-    return resolvedLength != DataSpec.LENGTH_UNBOUNDED ? resolvedLength : dataSpec.length;
+    return resolvedLength != C.LENGTH_UNBOUNDED ? resolvedLength : dataSpec.length;
   }
 
   /**
@@ -112,7 +113,7 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
    * @return True if the stream has finished loading. False otherwise.
    */
   public boolean isLoadFinished() {
-    return resolvedLength != DataSpec.LENGTH_UNBOUNDED && loadPosition == resolvedLength;
+    return resolvedLength != C.LENGTH_UNBOUNDED && loadPosition == resolvedLength;
   }
 
   /**
@@ -144,7 +145,7 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
 
   @Override
   public boolean isEndOfStream() {
-    return resolvedLength != DataSpec.LENGTH_UNBOUNDED && readHead.position == resolvedLength;
+    return resolvedLength != C.LENGTH_UNBOUNDED && readHead.position == resolvedLength;
   }
 
   @Override
@@ -233,7 +234,7 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
     }
     try {
       DataSpec loadDataSpec;
-      if (resolvedLength == DataSpec.LENGTH_UNBOUNDED) {
+      if (resolvedLength == C.LENGTH_UNBOUNDED) {
         loadDataSpec = dataSpec;
         resolvedLength = dataSource.open(loadDataSpec);
         if (resolvedLength > Integer.MAX_VALUE) {

@@ -230,7 +230,7 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   @Override
   protected long getBufferedPositionUs() {
     // Don't block playback whilst subtitles are loading.
-    return END_OF_TRACK;
+    return END_OF_TRACK_US;
   }
 
   @Override

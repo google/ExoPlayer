@@ -147,8 +147,8 @@ public interface SampleSource {
    * This method should not be called until after the source has been successfully prepared.
    *
    * @return An estimate of the absolute position in micro-seconds up to which data is buffered,
-   *     or {@link TrackRenderer#END_OF_TRACK} if data is buffered to the end of the stream, or
-   *     {@link TrackRenderer#UNKNOWN_TIME} if no estimate is available.
+   *     or {@link TrackRenderer#END_OF_TRACK_US} if data is buffered to the end of the stream, or
+   *     {@link TrackRenderer#UNKNOWN_TIME_US} if no estimate is available.
    */
   public long getBufferedPositionUs();
 

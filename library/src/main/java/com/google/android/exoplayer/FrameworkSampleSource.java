@@ -72,7 +72,7 @@ public final class FrameworkSampleSource implements SampleSource {
       for (int i = 0; i < trackStates.length; i++) {
         android.media.MediaFormat format = extractor.getTrackFormat(i);
         long duration = format.containsKey(android.media.MediaFormat.KEY_DURATION) ?
-            format.getLong(android.media.MediaFormat.KEY_DURATION) : TrackRenderer.UNKNOWN_TIME;
+            format.getLong(android.media.MediaFormat.KEY_DURATION) : TrackRenderer.UNKNOWN_TIME_US;
         String mime = format.getString(android.media.MediaFormat.KEY_MIME);
         trackInfos[i] = new TrackInfo(mime, duration);
       }
@@ -188,7 +188,7 @@ public final class FrameworkSampleSource implements SampleSource {
     Assertions.checkState(prepared);
     long bufferedDurationUs = extractor.getCachedDuration();
     if (bufferedDurationUs == -1) {
-      return TrackRenderer.UNKNOWN_TIME;
+      return TrackRenderer.UNKNOWN_TIME_US;
     } else {
       return extractor.getSampleTime() + bufferedDurationUs;
     }
