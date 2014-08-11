@@ -382,6 +382,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
           while (feedInputBuffer()) {}
         }
       }
+      codecCounters.ensureUpdated();
     } catch (IOException e) {
       throw new ExoPlaybackException(e);
     }
@@ -403,7 +404,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         if (!sampleHolder.decodeOnly) {
           currentPositionUs = sampleHolder.timeUs;
         }
-        codecCounters.discardedSamplesCount++;
       } else if (result == SampleSource.FORMAT_READ) {
         onInputFormatChanged(formatHolder);
       }
@@ -476,7 +476,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
 
     if (result == SampleSource.NOTHING_READ) {
-      codecCounters.inputBufferWaitingForSampleCount++;
       return false;
     }
     if (result == SampleSource.DISCONTINUITY_READ) {
@@ -505,7 +504,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       try {
         codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
         inputIndex = -1;
-        codecCounters.queuedEndOfStreamCount++;
       } catch (CryptoException e) {
         notifyCryptoError(e);
         throw new ExoPlaybackException(e);
@@ -544,10 +542,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         codec.queueSecureInputBuffer(inputIndex, 0, cryptoInfo, presentationTimeUs, 0);
       } else {
         codec.queueInputBuffer(inputIndex, 0 , bufferSize, presentationTimeUs, 0);
-      }
-      codecCounters.queuedInputBufferCount++;
-      if ((sampleHolder.flags & MediaExtractor.SAMPLE_FLAG_SYNC) != 0) {
-        codecCounters.keyframeCount++;
       }
       inputIndex = -1;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;

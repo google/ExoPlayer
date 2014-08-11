@@ -60,7 +60,7 @@ import java.util.List;
   private static final int IDLE_INTERVAL_MS = 1000;
 
   private final Handler handler;
-  private final HandlerThread internalPlayerThread;
+  private final HandlerThread internalPlaybackThread;
   private final Handler eventHandler;
   private final MediaClock mediaClock;
   private final boolean[] rendererEnabledFlags;
@@ -100,7 +100,7 @@ import java.util.List;
 
     mediaClock = new MediaClock();
     enabledRenderers = new ArrayList<TrackRenderer>(rendererEnabledFlags.length);
-    internalPlayerThread = new HandlerThread(getClass().getSimpleName() + ":Handler") {
+    internalPlaybackThread = new HandlerThread(getClass().getSimpleName() + ":Handler") {
       @Override
       public void run() {
         // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
@@ -109,12 +109,12 @@ import java.util.List;
         super.run();
       }
     };
-    internalPlayerThread.start();
-    handler = new Handler(internalPlayerThread.getLooper(), this);
+    internalPlaybackThread.start();
+    handler = new Handler(internalPlaybackThread.getLooper(), this);
   }
 
   public Looper getPlaybackLooper() {
-    return internalPlayerThread.getLooper();
+    return internalPlaybackThread.getLooper();
   }
 
   public int getCurrentPosition() {
@@ -179,7 +179,7 @@ import java.util.List;
           Thread.currentThread().interrupt();
         }
       }
-      internalPlayerThread.quit();
+      internalPlaybackThread.quit();
     }
   }
 
