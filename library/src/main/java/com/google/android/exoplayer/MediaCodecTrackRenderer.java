@@ -187,7 +187,12 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     return TrackRenderer.STATE_IGNORE;
   }
 
-  @SuppressWarnings("unused")
+  /**
+   * Determines whether a mime type is handled by the renderer.
+   *
+   * @param mimeType The mime type to test.
+   * @return True if the renderer can handle the mime type. False otherwise.
+   */
   protected boolean handlesMimeType(String mimeType) {
     return true;
     // TODO: Uncomment once the TODO above is fixed.
@@ -628,7 +633,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    * @param newFormat The new format.
    * @return True if the existing instance can be reconfigured. False otherwise.
    */
-  @SuppressWarnings("unused")
   protected boolean canReconfigureCodec(MediaCodec codec, boolean codecIsAdaptive,
       MediaFormat oldFormat, MediaFormat newFormat) {
     return false;

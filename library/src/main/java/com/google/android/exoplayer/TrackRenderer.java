@@ -110,7 +110,6 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    *
    * @return The current state (one of the STATE_* constants), for convenience.
    */
-  @SuppressWarnings("unused")
   /* package */ final int prepare() throws ExoPlaybackException {
     Assertions.checkState(state == TrackRenderer.STATE_UNPREPARED);
     state = doPrepare();
