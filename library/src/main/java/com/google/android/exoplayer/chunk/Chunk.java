@@ -52,7 +52,7 @@ public abstract class Chunk implements Loadable {
   /**
    * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded. {@code dataSpec.length} must not exceed
-   *     {@link Integer#MAX_VALUE}. If {@code dataSpec.length == DataSpec.LENGTH_UNBOUNDED} then
+   *     {@link Integer#MAX_VALUE}. If {@code dataSpec.length == C.LENGTH_UNBOUNDED} then
    *     the length resolved by {@code dataSource.open(dataSpec)} must not exceed
    *     {@link Integer#MAX_VALUE}.
    * @param format See {@link #format}.

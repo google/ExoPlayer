@@ -18,7 +18,7 @@ package com.google.android.exoplayer.parser.mp4;
 /**
  * Encapsulates information parsed from a track encryption (tenc) box in an MP4 stream.
  */
-public class TrackEncryptionBox {
+public final class TrackEncryptionBox {
 
   /**
    * Indicates the encryption state of the samples in the sample group.
