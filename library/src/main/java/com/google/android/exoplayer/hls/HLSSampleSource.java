@@ -427,6 +427,7 @@ public class HLSSampleSource implements SampleSource {
           sampleHolder.timeUs = (sample.pts - ptsOffset + hlsTrack.wrapOffset) * 1000 / 45;
           sampleHolder.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
           bufferSize -= sampleHolder.size;
+          //Log.d(TAG, String.format("del %6d => %6d", sampleHolder.size, bufferSize));
           //Log.d(TAG, (sample.type == HLSExtractor.TYPE_AUDIO ? "AUDIO" : "VIDEO") + " timeUS=" + (sampleHolder.pts/1000));
           return SAMPLE_READ;
         }
@@ -625,8 +626,10 @@ public class HLSSampleSource implements SampleSource {
               list.get(sample.type).add(sentinel);
             }
             list.get(sample.type).add(sample);
+
+            bufferSize += sample.data.position();
+            //Log.d(TAG, String.format("add %6d => %6d", sample.data.limit(), bufferSize));
           }
-          bufferSize += sample.data.limit();
         }
         source.bufferedPts.set(sample.pts);
       }
