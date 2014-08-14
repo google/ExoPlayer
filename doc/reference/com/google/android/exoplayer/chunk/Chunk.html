@@ -1268,7 +1268,7 @@ From interface
         <tr>
           <th>dataSpec</td>
           <td>Defines the data to be loaded. <code>dataSpec.length</code> must not exceed
-     <code><a href="http://developer.android.com/reference/java/lang/Integer.html#MAX_VALUE">MAX_VALUE</a></code>. If <code>dataSpec.length == DataSpec.LENGTH_UNBOUNDED</code> then
+     <code><a href="http://developer.android.com/reference/java/lang/Integer.html#MAX_VALUE">MAX_VALUE</a></code>. If <code>dataSpec.length == C.LENGTH_UNBOUNDED</code> then
      the length resolved by <code>dataSource.open(dataSpec)</code> must not exceed
      <code><a href="http://developer.android.com/reference/java/lang/Integer.html#MAX_VALUE">MAX_VALUE</a></code>.</td>
         </tr>
@@ -1432,8 +1432,8 @@ From interface
   <div class="jd-tagdata jd-tagdescr"><p>Gets the length of the chunk in bytes.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
-      <ul class="nolist"><li>The length of the chunk in bytes, or <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#LENGTH_UNBOUNDED">DataSpec.LENGTH_UNBOUNDED</a></code> if the length
-     has yet to be determined.
+      <ul class="nolist"><li>The length of the chunk in bytes, or <code><a href="../../../../../../reference/com/google/android/exoplayer/C.html#LENGTH_UNBOUNDED">LENGTH_UNBOUNDED</a></code> if the length has yet
+     to be determined.
 </li></ul>
   </div>
 

@@ -417,7 +417,7 @@ type="text/css">
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DefaultBandwidthMeter.EventListener.html#onBandwidthSample(int, long, long)">onBandwidthSample</a></span>(int elapsedMs, long bytes, long bandwidthEstimate)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DefaultBandwidthMeter.EventListener.html#onBandwidthSample(int, long, long)">onBandwidthSample</a></span>(int elapsedMs, long bytes, long bitrate)</nobr>
         
         <div class="jd-descrdiv">Invoked periodically to indicate that bytes have been transferred.</div>
   
@@ -485,7 +485,7 @@ type="text/css">
         void
       </span>
       <span class="sympad">onBandwidthSample</span>
-      <span class="normal">(int elapsedMs, long bytes, long bandwidthEstimate)</span>
+      <span class="normal">(int elapsedMs, long bytes, long bitrate)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -508,10 +508,10 @@ type="text/css">
           <td>The number of bytes transferred.</td>
         </tr>
         <tr>
-          <th>bandwidthEstimate</td>
-          <td>The estimated bandwidth in bytes/sec, or <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html#NO_ESTIMATE">NO_ESTIMATE</a></code> if no
-     estimate is available. Note that this estimate is typically derived from more information
-     than <code>bytes</code> and <code>elapsedMs</code>.
+          <th>bitrate</td>
+          <td>The estimated bitrate in bits/sec, or <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html#NO_ESTIMATE">NO_ESTIMATE</a></code> if no estimate
+     is available. Note that this estimate is typically derived from more information than
+     <code>bytes</code> and <code>elapsedMs</code>.
 </td>
         </tr>
       </table>

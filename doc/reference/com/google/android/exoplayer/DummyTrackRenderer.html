@@ -206,6 +206,7 @@ type="text/css">
               
     <li><h2>Classes</h2>
       <ul>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/C.html">C</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html">CodecCounters</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/CryptoInfo.html">CryptoInfo</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DecoderInfo.html">DecoderInfo</a></li>
@@ -496,14 +497,14 @@ Summary:
     
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">long</td>
-        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#END_OF_TRACK">END_OF_TRACK</a></td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#END_OF_TRACK_US">END_OF_TRACK_US</a></td>
         <td class="jd-descrcol" width="100%">Represents the time of the end of the track.</td>
     </tr>
     
     
     <tr class=" api apilevel-" >
         <td class="jd-typecol">long</td>
-        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#MATCH_LONGEST">MATCH_LONGEST</a></td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#MATCH_LONGEST_US">MATCH_LONGEST_US</a></td>
         <td class="jd-descrcol" width="100%">Represents a time or duration that should match the duration of the longest track whose
  duration is known.</td>
     </tr>
@@ -553,7 +554,7 @@ Summary:
     
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">long</td>
-        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#UNKNOWN_TIME">UNKNOWN_TIME</a></td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#UNKNOWN_TIME_US">UNKNOWN_TIME_US</a></td>
         <td class="jd-descrcol" width="100%">Represents an unknown time or duration.</td>
     </tr>
     
@@ -1544,8 +1545,8 @@ From interface
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
       <ul class="nolist"><li>An estimate of the absolute position in micro-seconds up to which data is buffered,
-     or <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#END_OF_TRACK">END_OF_TRACK</a></code> if the track is fully buffered, or <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#UNKNOWN_TIME">UNKNOWN_TIME</a></code> if no
-     estimate is available.
+     or <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#END_OF_TRACK_US">END_OF_TRACK_US</a></code> if the track is fully buffered, or <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#UNKNOWN_TIME_US">UNKNOWN_TIME_US</a></code> if
+     no estimate is available.
 </li></ul>
   </div>
 
@@ -1619,9 +1620,9 @@ From interface
  <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_PREPARED">STATE_PREPARED</a></code>, <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_ENABLED">STATE_ENABLED</a></code>, <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_STARTED">STATE_STARTED</a></code></p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
-      <ul class="nolist"><li>The duration of the track in micro-seconds, or <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#MATCH_LONGEST">MATCH_LONGEST</a></code> if
+      <ul class="nolist"><li>The duration of the track in micro-seconds, or <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#MATCH_LONGEST_US">MATCH_LONGEST_US</a></code> if
      the track's duration should match that of the longest track whose duration is known, or
-     or <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#UNKNOWN_TIME">UNKNOWN_TIME</a></code> if the duration is not known.
+     or <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#UNKNOWN_TIME_US">UNKNOWN_TIME_US</a></code> if the duration is not known.
 </li></ul>
   </div>
 

@@ -416,7 +416,7 @@ type="text/css">
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.EventListener.html#onDownstreamDiscarded(int, int, int, long)">onDownstreamDiscarded</a></span>(int sourceId, int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.EventListener.html#onDownstreamDiscarded(int, int, int, long)">onDownstreamDiscarded</a></span>(int sourceId, int mediaStartTimeMs, int mediaEndTimeMs, long bytesDiscarded)</nobr>
         
         <div class="jd-descrdiv">Invoked when data is removed from the front of the buffer, typically due to a seek or
  because the data has been consumed.</div>
@@ -453,7 +453,7 @@ type="text/css">
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.EventListener.html#onLoadCanceled(int)">onLoadCanceled</a></span>(int sourceId)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.EventListener.html#onLoadCanceled(int, long)">onLoadCanceled</a></span>(int sourceId, long bytesLoaded)</nobr>
         
         <div class="jd-descrdiv">Invoked when the current upstream load operation is canceled.</div>
   
@@ -471,7 +471,7 @@ type="text/css">
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.EventListener.html#onLoadCompleted(int)">onLoadCompleted</a></span>(int sourceId)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.EventListener.html#onLoadCompleted(int, long)">onLoadCompleted</a></span>(int sourceId, long bytesLoaded)</nobr>
         
         <div class="jd-descrdiv">Invoked when the current load operation completes.</div>
   
@@ -489,7 +489,7 @@ type="text/css">
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.EventListener.html#onLoadStarted(int, java.lang.String, int, boolean, int, int, long)">onLoadStarted</a></span>(int sourceId, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> formatId, int trigger, boolean isInitialization, int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.EventListener.html#onLoadStarted(int, java.lang.String, int, boolean, int, int, long)">onLoadStarted</a></span>(int sourceId, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> formatId, int trigger, boolean isInitialization, int mediaStartTimeMs, int mediaEndTimeMs, long length)</nobr>
         
         <div class="jd-descrdiv">Invoked when an upstream load is started.</div>
   
@@ -507,7 +507,7 @@ type="text/css">
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.EventListener.html#onUpstreamDiscarded(int, int, int, long)">onUpstreamDiscarded</a></span>(int sourceId, int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.EventListener.html#onUpstreamDiscarded(int, int, int, long)">onUpstreamDiscarded</a></span>(int sourceId, int mediaStartTimeMs, int mediaEndTimeMs, long bytesDiscarded)</nobr>
         
         <div class="jd-descrdiv">Invoked when data is removed from the back of the buffer, typically so that it can be
  re-buffered using a different representation.</div>
@@ -637,7 +637,7 @@ type="text/css">
         void
       </span>
       <span class="sympad">onDownstreamDiscarded</span>
-      <span class="normal">(int sourceId, int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes)</span>
+      <span class="normal">(int sourceId, int mediaStartTimeMs, int mediaEndTimeMs, long bytesDiscarded)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -665,7 +665,7 @@ type="text/css">
           <td>The media time of the end of the discarded data.</td>
         </tr>
         <tr>
-          <th>totalBytes</td>
+          <th>bytesDiscarded</td>
           <td>The length of the data being discarded in bytes.
 </td>
         </tr>
@@ -729,7 +729,7 @@ type="text/css">
 </div>
 
 
-<A NAME="onLoadCanceled(int)"></A>
+<A NAME="onLoadCanceled(int, long)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -742,7 +742,7 @@ type="text/css">
         void
       </span>
       <span class="sympad">onLoadCanceled</span>
-      <span class="normal">(int sourceId)</span>
+      <span class="normal">(int sourceId, long bytesLoaded)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -758,7 +758,11 @@ type="text/css">
       <table class="jd-tagtable">
         <tr>
           <th>sourceId</td>
-          <td>The id of the reporting <code><a href="../../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a></code>.
+          <td>The id of the reporting <code><a href="../../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a></code>.</td>
+        </tr>
+        <tr>
+          <th>bytesLoaded</td>
+          <td>The number of bytes that were loaded prior to the cancellation.
 </td>
         </tr>
       </table>
@@ -768,7 +772,7 @@ type="text/css">
 </div>
 
 
-<A NAME="onLoadCompleted(int)"></A>
+<A NAME="onLoadCompleted(int, long)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -781,7 +785,7 @@ type="text/css">
         void
       </span>
       <span class="sympad">onLoadCompleted</span>
-      <span class="normal">(int sourceId)</span>
+      <span class="normal">(int sourceId, long bytesLoaded)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -797,7 +801,11 @@ type="text/css">
       <table class="jd-tagtable">
         <tr>
           <th>sourceId</td>
-          <td>The id of the reporting <code><a href="../../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a></code>.
+          <td>The id of the reporting <code><a href="../../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a></code>.</td>
+        </tr>
+        <tr>
+          <th>bytesLoaded</td>
+          <td>The number of bytes that were loaded.
 </td>
         </tr>
       </table>
@@ -820,7 +828,7 @@ type="text/css">
         void
       </span>
       <span class="sympad">onLoadStarted</span>
-      <span class="normal">(int sourceId, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> formatId, int trigger, boolean isInitialization, int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes)</span>
+      <span class="normal">(int sourceId, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> formatId, int trigger, boolean isInitialization, int mediaStartTimeMs, int mediaEndTimeMs, long length)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -861,8 +869,9 @@ type="text/css">
      load is for initialization data.</td>
         </tr>
         <tr>
-          <th>totalBytes</td>
-          <td>The length of the data being loaded in bytes.
+          <th>length</td>
+          <td>The length of the data being loaded in bytes, or <code><a href="../../../../../../reference/com/google/android/exoplayer/C.html#LENGTH_UNBOUNDED">LENGTH_UNBOUNDED</a></code> if
+     the length of the data has not yet been determined.
 </td>
         </tr>
       </table>
@@ -885,7 +894,7 @@ type="text/css">
         void
       </span>
       <span class="sympad">onUpstreamDiscarded</span>
-      <span class="normal">(int sourceId, int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes)</span>
+      <span class="normal">(int sourceId, int mediaStartTimeMs, int mediaEndTimeMs, long bytesDiscarded)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -913,7 +922,7 @@ type="text/css">
           <td>The media time of the end of the discarded data.</td>
         </tr>
         <tr>
-          <th>totalBytes</td>
+          <th>bytesDiscarded</td>
           <td>The length of the data being discarded in bytes.
 </td>
         </tr>

@@ -265,13 +265,16 @@ Summary:
 
 
 
+  <a href="#constants">Constants</a>
+  
 
 
 
 
 
 
-  <a href="#pubmethods">Methods</a>
+
+  &#124; <a href="#pubmethods">Methods</a>
   
 
 
@@ -407,6 +410,57 @@ Summary:
 
 
 
+<!-- =========== ENUM CONSTANT SUMMARY =========== -->
+<table id="constants" class="jd-sumtable"><tr><th colspan="12">Constants</th></tr>
+
+
+    
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/webm/WebmExtractor.html#RESULT_END_OF_STREAM">RESULT_END_OF_STREAM</a></td>
+        <td class="jd-descrcol" width="100%">The end of the input stream was reached.</td>
+    </tr>
+    
+    
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/webm/WebmExtractor.html#RESULT_NEED_MORE_DATA">RESULT_NEED_MORE_DATA</a></td>
+        <td class="jd-descrcol" width="100%">An attempt to read from the input stream returned insufficient data.</td>
+    </tr>
+    
+    
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/webm/WebmExtractor.html#RESULT_NEED_SAMPLE_HOLDER">RESULT_NEED_SAMPLE_HOLDER</a></td>
+        <td class="jd-descrcol" width="100%">The next thing to be read is a sample, but a <code><a href="../../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a></code> was not supplied.</td>
+    </tr>
+    
+    
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/webm/WebmExtractor.html#RESULT_READ_INDEX">RESULT_READ_INDEX</a></td>
+        <td class="jd-descrcol" width="100%">A sidx atom was read.</td>
+    </tr>
+    
+    
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/webm/WebmExtractor.html#RESULT_READ_INIT">RESULT_READ_INIT</a></td>
+        <td class="jd-descrcol" width="100%">Initialization data was read.</td>
+    </tr>
+    
+    
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/webm/WebmExtractor.html#RESULT_READ_SAMPLE">RESULT_READ_SAMPLE</a></td>
+        <td class="jd-descrcol" width="100%">A media sample was read.</td>
+    </tr>
+    
+    
+
+</table>
+
+
 
 
 
@@ -434,24 +488,6 @@ Summary:
             
             
             
-            <a href="../../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html">SegmentIndex</a></nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/webm/WebmExtractor.html#getCues()">getCues</a></span>()</nobr>
-        
-        <div class="jd-descrdiv">Returns the cues for the media stream.</div>
-  
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            abstract
-            
-            
-            
-            
             <a href="../../../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
@@ -463,24 +499,6 @@ Summary:
 
 
 	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            abstract
-            
-            
-            
-            
-            boolean</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/webm/WebmExtractor.html#isPrepared()">isPrepared</a></span>()</nobr>
-        
-        <div class="jd-descrdiv">Whether the has parsed the cues and sample format from the stream.</div>
-  
-  </td></tr>
-
-
-	 
     <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             abstract
@@ -488,7 +506,25 @@ Summary:
             
             
             
-            boolean</nobr>
+            <a href="../../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html">SegmentIndex</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/webm/WebmExtractor.html#getIndex()">getIndex</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Returns the cues for the media stream.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            int</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/webm/WebmExtractor.html#read(com.google.android.exoplayer.upstream.NonBlockingInputStream, com.google.android.exoplayer.SampleHolder)">read</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/NonBlockingInputStream.html">NonBlockingInputStream</a> inputStream, <a href="../../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> sampleHolder)</nobr>
@@ -499,7 +535,7 @@ Summary:
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             abstract
             
@@ -545,6 +581,247 @@ Summary:
 <!-- Constants -->
 
 
+<!-- ========= ENUM CONSTANTS DETAIL ======== -->
+<h2>Constants</h2>
+
+
+
+
+<A NAME="RESULT_END_OF_STREAM"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        RESULT_END_OF_STREAM
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The end of the input stream was reached.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                2
+                (0x00000002)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
+<A NAME="RESULT_NEED_MORE_DATA"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        RESULT_NEED_MORE_DATA
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>An attempt to read from the input stream returned insufficient data.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                1
+                (0x00000001)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
+<A NAME="RESULT_NEED_SAMPLE_HOLDER"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        RESULT_NEED_SAMPLE_HOLDER
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The next thing to be read is a sample, but a <code><a href="../../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a></code> was not supplied.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                32
+                (0x00000020)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
+<A NAME="RESULT_READ_INDEX"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        RESULT_READ_INDEX
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>A sidx atom was read. The parsed data can be read using <code><a href="../../../../../../../reference/com/google/android/exoplayer/parser/webm/WebmExtractor.html#getIndex()">getIndex()</a></code>.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                16
+                (0x00000010)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
+<A NAME="RESULT_READ_INIT"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        RESULT_READ_INIT
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Initialization data was read. The parsed data can be read using <code><a href="../../../../../../../reference/com/google/android/exoplayer/parser/webm/WebmExtractor.html#getFormat()">getFormat()</a></code>.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                8
+                (0x00000008)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
+<A NAME="RESULT_READ_SAMPLE"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        RESULT_READ_SAMPLE
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>A media sample was read.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                4
+                (0x00000004)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
+
 <!-- Fields -->
 
 
@@ -562,41 +839,6 @@ Summary:
 
 <h2>Public Methods</h2>
 
-
-
-<A NAME="getCues()"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-         
-        abstract 
-         
-        <a href="../../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html">SegmentIndex</a>
-      </span>
-      <span class="sympad">getCues</span>
-      <span class="normal">()</span>
-    </h4>
-      <div class="api-level">
-        <div></div>
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>Returns the cues for the media stream.</p></div>
-  <div class="jd-tagdata">
-      <h5 class="jd-tagtitle">Returns</h5>
-      <ul class="nolist"><li>The cues in the form of a <code><a href="../../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html">SegmentIndex</a></code>, or null if the extractor is not yet
-     prepared
-</li></ul>
-  </div>
-
-    </div>
-</div>
 
 
 <A NAME="getFormat()"></A>
@@ -633,7 +875,7 @@ Summary:
 </div>
 
 
-<A NAME="isPrepared()"></A>
+<A NAME="getIndex()"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -643,9 +885,9 @@ Summary:
          
         abstract 
          
-        boolean
+        <a href="../../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html">SegmentIndex</a>
       </span>
-      <span class="sympad">isPrepared</span>
+      <span class="sympad">getIndex</span>
       <span class="normal">()</span>
     </h4>
       <div class="api-level">
@@ -656,10 +898,11 @@ Summary:
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Whether the has parsed the cues and sample format from the stream.</p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the cues for the media stream.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
-      <ul class="nolist"><li>True if the extractor is prepared. False otherwise
+      <ul class="nolist"><li>The cues in the form of a <code><a href="../../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html">SegmentIndex</a></code>, or null if the extractor is not yet
+     prepared
 </li></ul>
   </div>
 
@@ -677,7 +920,7 @@ Summary:
          
         abstract 
          
-        boolean
+        int
       </span>
       <span class="sympad">read</span>
       <span class="normal">(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/NonBlockingInputStream.html">NonBlockingInputStream</a> inputStream, <a href="../../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> sampleHolder)</span>
@@ -690,11 +933,7 @@ Summary:
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Consumes data from a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/NonBlockingInputStream.html">NonBlockingInputStream</a></code>.
-
- <p>If the return value is <code>false</code>, then a sample may have been partially read into
- <code>sampleHolder</code>. Hence the same <code><a href="../../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a></code> instance must be passed
- in subsequent calls until the whole sample has been read.</p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Consumes data from a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/NonBlockingInputStream.html">NonBlockingInputStream</a></code>.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
@@ -710,7 +949,7 @@ Summary:
   </div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
-      <ul class="nolist"><li><code>true</code> if a sample has been read into the sample holder
+      <ul class="nolist"><li>One or more of the <code>RESULT_*</code> flags defined in this class.
 </li></ul>
   </div>
 

@@ -418,6 +418,42 @@ type="text/css">
             
             
             
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Allocation.html#capacity()">capacity</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Gets the capacity of the allocation, in bytes.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Allocation.html#ensureCapacity(int)">ensureCapacity</a></span>(int size)</nobr>
+        
+        <div class="jd-descrdiv">Ensures the allocation has a capacity greater than or equal to the specified size in bytes.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
             byte[][]</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
@@ -528,6 +564,87 @@ type="text/css">
 
 <h2>Public Methods</h2>
 
+
+
+<A NAME="capacity()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        int
+      </span>
+      <span class="sympad">capacity</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Gets the capacity of the allocation, in bytes.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The capacity of the allocation, in bytes.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="ensureCapacity(int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">ensureCapacity</span>
+      <span class="normal">(int size)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Ensures the allocation has a capacity greater than or equal to the specified size in bytes.
+ <p>
+ If <code>size</code> is greater than the current capacity of the allocation, then it will grow
+ to have a capacity of at least <code>size</code>. The allocation is grown by adding new fragments.
+ Existing fragments remain unchanged, and any data that has been written to them will be
+ preserved.
+ <p>
+ If <code>size</code> is less than or equal to the capacity of the allocation, then the call is a
+ no-op.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>size</td>
+          <td>The minimum required capacity, in bytes.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
 
 
 <A NAME="getBuffers()"></A>

@@ -462,7 +462,7 @@ Summary:
     
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
-        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.AdaptiveEvaluator.html#DEFAULT_MAX_INITIAL_BYTE_RATE">DEFAULT_MAX_INITIAL_BYTE_RATE</a></td>
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.AdaptiveEvaluator.html#DEFAULT_MAX_INITIAL_BITRATE">DEFAULT_MAX_INITIAL_BITRATE</a></td>
         <td class="jd-descrcol" width="100%"></td>
     </tr>
     
@@ -589,7 +589,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.AdaptiveEvaluator.html#FormatEvaluator.AdaptiveEvaluator(com.google.android.exoplayer.upstream.BandwidthMeter, int, int, int, int, float)">FormatEvaluator.AdaptiveEvaluator</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html">BandwidthMeter</a> bandwidthMeter, int maxInitialByteRate, int minDurationForQualityIncreaseMs, int maxDurationForQualityDecreaseMs, int minDurationToRetainAfterDiscardMs, float bandwidthFraction)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.AdaptiveEvaluator.html#FormatEvaluator.AdaptiveEvaluator(com.google.android.exoplayer.upstream.BandwidthMeter, int, int, int, int, float)">FormatEvaluator.AdaptiveEvaluator</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html">BandwidthMeter</a> bandwidthMeter, int maxInitialBitrate, int minDurationForQualityIncreaseMs, int maxDurationForQualityDecreaseMs, int minDurationToRetainAfterDiscardMs, float bandwidthFraction)</nobr>
         
   </td></tr>
 
@@ -683,7 +683,7 @@ Summary:
             long</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.AdaptiveEvaluator.html#computeEffectiveBandwidthEstimate(long)">computeEffectiveBandwidthEstimate</a></span>(long bandwidthEstimate)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.AdaptiveEvaluator.html#computeEffectiveBitrateEstimate(long)">computeEffectiveBitrateEstimate</a></span>(long bitrateEstimate)</nobr>
         
         <div class="jd-descrdiv">Apply overhead factor, or default value in absence of estimate.</div>
   
@@ -701,7 +701,7 @@ Summary:
             <a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.AdaptiveEvaluator.html#determineIdealFormat(com.google.android.exoplayer.chunk.Format[], long)">determineIdealFormat</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format[]</a> formats, long bandwidthEstimate)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.AdaptiveEvaluator.html#determineIdealFormat(com.google.android.exoplayer.chunk.Format[], long)">determineIdealFormat</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format[]</a> formats, long bitrateEstimate)</nobr>
         
         <div class="jd-descrdiv">Compute the ideal format ignoring buffer health.</div>
   
@@ -1106,7 +1106,7 @@ From interface
 
 
 
-<A NAME="DEFAULT_MAX_INITIAL_BYTE_RATE"></A>
+<A NAME="DEFAULT_MAX_INITIAL_BITRATE"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1116,7 +1116,7 @@ From interface
         final 
         int
       </span>
-        DEFAULT_MAX_INITIAL_BYTE_RATE
+        DEFAULT_MAX_INITIAL_BITRATE
     </h4>
       <div class="api-level">
         
@@ -1133,8 +1133,8 @@ From interface
         <span class="jd-tagtitle">Constant Value: </span>
         <span>
             
-                100000
-                (0x000186a0)
+                800000
+                (0x000c3500)
             
         </span>
         </div>
@@ -1284,7 +1284,7 @@ From interface
         
       </span>
       <span class="sympad">FormatEvaluator.AdaptiveEvaluator</span>
-      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html">BandwidthMeter</a> bandwidthMeter, int maxInitialByteRate, int minDurationForQualityIncreaseMs, int maxDurationForQualityDecreaseMs, int minDurationToRetainAfterDiscardMs, float bandwidthFraction)</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html">BandwidthMeter</a> bandwidthMeter, int maxInitialBitrate, int minDurationForQualityIncreaseMs, int maxDurationForQualityDecreaseMs, int minDurationToRetainAfterDiscardMs, float bandwidthFraction)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1303,8 +1303,8 @@ From interface
           <td>Provides an estimate of the currently available bandwidth.</td>
         </tr>
         <tr>
-          <th>maxInitialByteRate</td>
-          <td>The maximum bandwidth in bytes per second that should be assumed
+          <th>maxInitialBitrate</td>
+          <td>The maximum bitrate in bits per second that should be assumed
      when bandwidthMeter cannot provide an estimate due to playback having only just started.</td>
         </tr>
         <tr>
@@ -1481,7 +1481,7 @@ From interface
 
 
 
-<A NAME="computeEffectiveBandwidthEstimate(long)"></A>
+<A NAME="computeEffectiveBitrateEstimate(long)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1493,8 +1493,8 @@ From interface
          
         long
       </span>
-      <span class="sympad">computeEffectiveBandwidthEstimate</span>
-      <span class="normal">(long bandwidthEstimate)</span>
+      <span class="sympad">computeEffectiveBitrateEstimate</span>
+      <span class="normal">(long bitrateEstimate)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1524,7 +1524,7 @@ From interface
         <a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a>
       </span>
       <span class="sympad">determineIdealFormat</span>
-      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format[]</a> formats, long bandwidthEstimate)</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format[]</a> formats, long bitrateEstimate)</span>
     </h4>
       <div class="api-level">
         <div></div>

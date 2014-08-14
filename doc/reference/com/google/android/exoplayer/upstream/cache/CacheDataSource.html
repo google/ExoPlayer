@@ -194,6 +194,7 @@ type="text/css">
       <ul>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.EventListener.html">CacheDataSource.EventListener</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheEvictor.html">CacheEvictor</a></li>
       </ul>
     </li>
@@ -287,6 +288,8 @@ type="text/css">
 
 Summary:
 
+  <a href="#nestedclasses">Nested Classes</a>
+  
 
 
 
@@ -295,7 +298,8 @@ Summary:
 
 
 
-  <a href="#pubctors">Ctors</a>
+
+  &#124; <a href="#pubctors">Ctors</a>
   
 
 
@@ -414,6 +418,26 @@ Summary:
 
 
 
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<table id="nestedclasses" class="jd-sumtable"><tr><th colspan="12">Nested Classes</th></tr>
+
+
+  
+    <tr class="alt-color api apilevel-" >
+      <td class="jd-typecol"><nobr>
+        
+         
+         
+        
+        interface</nobr></td>
+      <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.EventListener.html">CacheDataSource.EventListener</a></td>
+      <td class="jd-descrcol" width="100%">Interface definition for a callback to be notified of <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.html">CacheDataSource</a></code> events.&nbsp;</td>
+    </tr>
+    
+    
+
+
+
 
 
 
@@ -488,7 +512,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.html#CacheDataSource(com.google.android.exoplayer.upstream.cache.Cache, com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSink, boolean, boolean)">CacheDataSource</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a> cache, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> upstream, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> cacheReadDataSource, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSink.html">DataSink</a> cacheWriteDataSink, boolean blockOnCache, boolean ignoreCacheOnError)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.html#CacheDataSource(com.google.android.exoplayer.upstream.cache.Cache, com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSink, boolean, boolean, com.google.android.exoplayer.upstream.cache.CacheDataSource.EventListener)">CacheDataSource</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a> cache, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> upstream, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> cacheReadDataSource, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSink.html">DataSink</a> cacheWriteDataSink, boolean blockOnCache, boolean ignoreCacheOnError, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.EventListener.html">CacheDataSource.EventListener</a> eventListener)</nobr>
         
         <div class="jd-descrdiv">Constructs an instance with arbitrary <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a></code> and <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSink.html">DataSink</a></code> instances for
  reading and writing the cache.</div>
@@ -958,7 +982,7 @@ From interface
 </div>
 
 
-<A NAME="CacheDataSource(com.google.android.exoplayer.upstream.cache.Cache, com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSink, boolean, boolean)"></A>
+<A NAME="CacheDataSource(com.google.android.exoplayer.upstream.cache.Cache, com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSink, boolean, boolean, com.google.android.exoplayer.upstream.cache.CacheDataSource.EventListener)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -971,7 +995,7 @@ From interface
         
       </span>
       <span class="sympad">CacheDataSource</span>
-      <span class="normal">(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a> cache, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> upstream, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> cacheReadDataSource, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSink.html">DataSink</a> cacheWriteDataSink, boolean blockOnCache, boolean ignoreCacheOnError)</span>
+      <span class="normal">(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a> cache, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> upstream, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> cacheReadDataSource, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSink.html">DataSink</a> cacheWriteDataSink, boolean blockOnCache, boolean ignoreCacheOnError, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.EventListener.html">CacheDataSource.EventListener</a> eventListener)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1012,7 +1036,11 @@ From interface
           <th>ignoreCacheOnError</td>
           <td>Whether the cache is bypassed following any cache related error. If
      true, then cache related exceptions may be thrown for one cycle of open, read and close
-     calls. Subsequent cycles of these calls will then bypass the cache.
+     calls. Subsequent cycles of these calls will then bypass the cache.</td>
+        </tr>
+        <tr>
+          <th>eventListener</td>
+          <td>An optional <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.EventListener.html">CacheDataSource.EventListener</a></code> to receive events.
 </td>
         </tr>
       </table>
@@ -1120,9 +1148,10 @@ From interface
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
       <ul class="nolist"><li>The number of bytes that can be read from the opened source. For unbounded requests
-     (i.e. requests where <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#length">length</a></code> equals <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#LENGTH_UNBOUNDED">LENGTH_UNBOUNDED</a></code>)
-     this value is the resolved length of the request. For all other requests, the value
-     returned will be equal to the request's <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#length">length</a></code>.
+     (i.e. requests where <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#length">length</a></code> equals <code><a href="../../../../../../../reference/com/google/android/exoplayer/C.html#LENGTH_UNBOUNDED">LENGTH_UNBOUNDED</a></code>) this value
+     is the resolved length of the request, or <code><a href="../../../../../../../reference/com/google/android/exoplayer/C.html#LENGTH_UNBOUNDED">LENGTH_UNBOUNDED</a></code> if the length is still
+     unresolved. For all other requests, the value returned will be equal to the request's
+     <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#length">length</a></code>.
 </li></ul>
   </div>
   <div class="jd-tagdata">

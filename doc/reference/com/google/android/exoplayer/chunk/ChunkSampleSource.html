@@ -605,7 +605,7 @@ Summary:
             
             
             
-            void</nobr>
+            boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html#continueBuffering(long)">continueBuffering</a></span>(long playbackPositionUs)</nobr>
@@ -1136,7 +1136,7 @@ From interface
             
             
             
-            void</nobr>
+            boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/SampleSource.html#continueBuffering(long)">continueBuffering</a></span>(long playbackPositionUs)</nobr>
@@ -1511,7 +1511,7 @@ From interface
          
          
          
-        void
+        boolean
       </span>
       <span class="sympad">continueBuffering</span>
       <span class="normal">(long playbackPositionUs)</span>
@@ -1530,8 +1530,21 @@ From interface
       <table class="jd-tagtable">
         <tr>
           <th>playbackPositionUs</td>
-          <td>The current playback position.
-</td>
+          <td>The current playback position.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>True if the source has available samples, or if the end of the stream has been reached.
+     False if more data needs to be buffered for samples to become available.</li></ul>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Throws</h5>
+      <table class="jd-tagtable">  
+        <tr>
+            <th><a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a></td>
+            <td></td>
         </tr>
       </table>
   </div>
@@ -1656,8 +1669,8 @@ From interface
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
       <ul class="nolist"><li>An estimate of the absolute position in micro-seconds up to which data is buffered,
-     or <code><a href="../../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#END_OF_TRACK">END_OF_TRACK</a></code> if data is buffered to the end of the stream, or
-     <code><a href="../../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#UNKNOWN_TIME">UNKNOWN_TIME</a></code> if no estimate is available.
+     or <code><a href="../../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#END_OF_TRACK_US">END_OF_TRACK_US</a></code> if data is buffered to the end of the stream, or
+     <code><a href="../../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#UNKNOWN_TIME_US">UNKNOWN_TIME_US</a></code> if no estimate is available.
 </li></ul>
   </div>
 

@@ -83,7 +83,7 @@
 <meta name="viewport" content="width=device-width" />
 
 <link rel="shortcut icon" type="image/x-icon" href="../../../../../../../favicon.ico" />
-<title>com.google.android.exoplayer.upstream.cache - ExoPlayer | Android Developers</title>
+<title>CacheDataSource.EventListener - ExoPlayer | Android Developers</title>
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
@@ -125,9 +125,8 @@ type="text/css">
   })();
 </script>
 </head>
-
 <body class="gc-documentation 
-  develop">
+  develop" itemscope itemtype="http://schema.org/Article">
   <div id="doc-api-level" class="" style="display:none"></div>
   <a name="top"></a>
 
@@ -193,28 +192,28 @@ type="text/css">
               
     <li><h2>Interfaces</h2>
       <ul>
-        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a></li>
-        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a></li>
-        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.EventListener.html">CacheDataSource.EventListener</a></li>
-        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheEvictor.html">CacheEvictor</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.EventListener.html">CacheDataSource.EventListener</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheEvictor.html">CacheEvictor</a></li>
       </ul>
     </li>
               
     <li><h2>Classes</h2>
       <ul>
-        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSink.html">CacheDataSink</a></li>
-        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.html">CacheDataSource</a></li>
-        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></li>
-        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/LeastRecentlyUsedCacheEvictor.html">LeastRecentlyUsedCacheEvictor</a></li>
-        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/NoOpCacheEvictor.html">NoOpCacheEvictor</a></li>
-        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html">SimpleCache</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSink.html">CacheDataSink</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.html">CacheDataSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/LeastRecentlyUsedCacheEvictor.html">LeastRecentlyUsedCacheEvictor</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/NoOpCacheEvictor.html">NoOpCacheEvictor</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html">SimpleCache</a></li>
       </ul>
     </li>
               
               
     <li><h2>Exceptions</h2>
       <ul>
-        <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSink.CacheDataSinkException.html">CacheDataSink.CacheDataSinkException</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSink.CacheDataSinkException.html">CacheDataSink.CacheDataSinkException</a></li>
       </ul>
     </li>
               
@@ -264,113 +263,246 @@ type="text/css">
 
 
 
-<div class="col-12" id="doc-col">
+<div class="col-12"  id="doc-col">
 
 <div id="api-info-block">
+
+
+
+
+<div class="sum-details-links">
+
+</div><!-- end sum-details-links -->
 <div class="api-level">
   
   
   
 
 </div>
-</div>
+</div><!-- end api-info-block -->
+
+
+<!-- ======== START OF CLASS DATA ======== -->
 
 <div id="jd-header">
-  package
-  <h1>com.google.android.exoplayer.upstream.cache</h1>
+    public
+    static 
+     
+    
+    interface
+<h1 itemprop="name">CacheDataSource.EventListener</h1>
+
+
+
+  
+  
+  
+
+
 </div><!-- end header -->
 
 <div id="naMessage"></div>
 
 <div id="jd-content" class="api apilevel-">
+<table class="jd-inheritance-table">
 
 
-
-
-
-
-  
-
-
-  
-    <h2>Interfaces</h2>
-    <div class="jd-sumtable">
+    <tr>
+         	
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.upstream.cache.CacheDataSource.EventListener</td>
+    </tr>
     
-  <table class="jd-sumtable-expando">
-        <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a></td>
-              <td class="jd-descrcol" width="100%">An interface for cache.&nbsp;</td>
-          </tr>
-        <tr class=" api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a></td>
-              <td class="jd-descrcol" width="100%">Interface definition for a callback to be notified of <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a></code> events.&nbsp;</td>
-          </tr>
-        <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.EventListener.html">CacheDataSource.EventListener</a></td>
-              <td class="jd-descrcol" width="100%">Interface definition for a callback to be notified of <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.html">CacheDataSource</a></code> events.&nbsp;</td>
-          </tr>
-        <tr class=" api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheEvictor.html">CacheEvictor</a></td>
-              <td class="jd-descrcol" width="100%">Evicts data from a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a></code>.&nbsp;</td>
-          </tr>
-  </table>
+
+</table>
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Class Overview</h2>
+<p itemprop="articleBody">Interface definition for a callback to be notified of <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.html">CacheDataSource</a></code> events.
+</p>
+
+
+
+
+
+</div><!-- jd-descr -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Summary</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
+
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.EventListener.html#onCachedBytesRead(long, long)">onCachedBytesRead</a></span>(long cacheSizeBytes, long cachedBytesRead)</nobr>
+        
+        <div class="jd-descrdiv">Invoked when bytes have been read from the cache.</div>
+  
+  </td></tr>
+
+
+
+</table>
+
+
+
+
+
+
+
+</div><!-- jd-descr (summary) -->
+
+<!-- Details -->
+
+
+
+
+
+
+
+
+<!-- XML Attributes -->
+
+
+<!-- Enum Values -->
+
+
+<!-- Constants -->
+
+
+<!-- Fields -->
+
+
+<!-- Public ctors -->
+
+
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<!-- Protected ctors -->
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+<!-- Public methdos -->
+
+<h2>Public Methods</h2>
+
+
+
+<A NAME="onCachedBytesRead(long, long)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">onCachedBytesRead</span>
+      <span class="normal">(long cacheSizeBytes, long cachedBytesRead)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Invoked when bytes have been read from the cache.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>cacheSizeBytes</td>
+          <td>Current cache size in bytes.</td>
+        </tr>
+        <tr>
+          <th>cachedBytesRead</td>
+          <td>Total bytes read from the cache since last report.
+</td>
+        </tr>
+      </table>
+  </div>
+
     </div>
-  
+</div>
 
 
-  
-    <h2>Classes</h2>
-    <div class="jd-sumtable">
-    
-  <table class="jd-sumtable-expando">
-        <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSink.html">CacheDataSink</a></td>
-              <td class="jd-descrcol" width="100%">Writes data into a cache.&nbsp;</td>
-          </tr>
-        <tr class=" api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSource.html">CacheDataSource</a></td>
-              <td class="jd-descrcol" width="100%">A <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a></code> that reads and writes a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a></code>.&nbsp;</td>
-          </tr>
-        <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></td>
-              <td class="jd-descrcol" width="100%">Defines a span of data that may or may not be cached (as indicated by <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html#isCached">isCached</a></code>).&nbsp;</td>
-          </tr>
-        <tr class=" api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/LeastRecentlyUsedCacheEvictor.html">LeastRecentlyUsedCacheEvictor</a></td>
-              <td class="jd-descrcol" width="100%">Evicts least recently used cache files first.&nbsp;</td>
-          </tr>
-        <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/NoOpCacheEvictor.html">NoOpCacheEvictor</a></td>
-              <td class="jd-descrcol" width="100%">Evictor that doesn't ever evict cache files.&nbsp;</td>
-          </tr>
-        <tr class=" api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html">SimpleCache</a></td>
-              <td class="jd-descrcol" width="100%">A <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a></code> implementation that maintains an in-memory representation.&nbsp;</td>
-          </tr>
-  </table>
-    </div>
-  
 
 
-  
+
+<!-- ========= METHOD DETAIL ======== -->
 
 
-  
-    <h2>Exceptions</h2>
-    <div class="jd-sumtable">
-    
-  <table class="jd-sumtable-expando">
-        <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheDataSink.CacheDataSinkException.html">CacheDataSink.CacheDataSinkException</a></td>
-              <td class="jd-descrcol" width="100%">Thrown when IOException is encountered when writing data into sink.&nbsp;</td>
-          </tr>
-  </table>
-    </div>
-  
 
-
-  
-
+<!-- ========= END OF CLASS DATA ========= -->
+<A NAME="navbar_top"></A>
 
 <div id="footer" class="wrap" >
         
@@ -382,8 +514,9 @@ type="text/css">
 
 </div> <!-- end footer -->
 
-</div><!-- end jd-content -->
-</div><!-- doc-content -->
+</div> <!-- jd-content -->
+
+</div><!-- end doc-content -->
 
 </div> <!-- end body-content --> 
 

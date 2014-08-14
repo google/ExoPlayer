@@ -206,6 +206,7 @@ type="text/css">
               
     <li><h2>Classes</h2>
       <ul>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/C.html">C</a></li>
           <li class="selected api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html">CodecCounters</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/CryptoInfo.html">CryptoInfo</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DecoderInfo.html">DecoderInfo</a></li>
@@ -394,6 +395,10 @@ Summary:
 
 <h2>Class Overview</h2>
 <p itemprop="articleBody">Maintains codec event counts, for debugging purposes only.
+ <p>
+ Counters should be written from the playback thread only. Counters may be read from any thread.
+ To ensure that the counter values are correctly reflected between threads, users of this class
+ should invoke <code><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html#ensureUpdated()">ensureUpdated()</a></code> prior to reading and after writing.
 </p>
 
 
@@ -449,7 +454,7 @@ Summary:
           public
           
           
-          long</nobr></td>
+          int</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html#codecInitCount">codecInitCount</a></td>
           <td class="jd-descrcol" width="100%"></td>
       </tr>
@@ -460,7 +465,7 @@ Summary:
           public
           
           
-          long</nobr></td>
+          int</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html#codecReleaseCount">codecReleaseCount</a></td>
           <td class="jd-descrcol" width="100%"></td>
       </tr>
@@ -471,106 +476,51 @@ Summary:
           public
           
           
-          long</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html#discardedSamplesCount">discardedSamplesCount</a></td>
-          <td class="jd-descrcol" width="100%"></td>
-      </tr>
-      
-    
-      <tr class=" api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          
-          long</nobr></td>
+          int</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html#droppedOutputBufferCount">droppedOutputBufferCount</a></td>
           <td class="jd-descrcol" width="100%"></td>
       </tr>
       
     
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          
-          long</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html#inputBufferWaitingForSampleCount">inputBufferWaitingForSampleCount</a></td>
-          <td class="jd-descrcol" width="100%"></td>
-      </tr>
-      
-    
       <tr class=" api apilevel-" >
           <td class="jd-typecol"><nobr>
           public
           
           
-          long</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html#keyframeCount">keyframeCount</a></td>
-          <td class="jd-descrcol" width="100%"></td>
-      </tr>
-      
-    
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          
-          long</nobr></td>
+          int</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html#outputBuffersChangedCount">outputBuffersChangedCount</a></td>
           <td class="jd-descrcol" width="100%"></td>
       </tr>
       
     
-      <tr class=" api apilevel-" >
+      <tr class="alt-color api apilevel-" >
           <td class="jd-typecol"><nobr>
           public
           
           
-          long</nobr></td>
+          int</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html#outputFormatChangedCount">outputFormatChangedCount</a></td>
           <td class="jd-descrcol" width="100%"></td>
       </tr>
       
     
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          
-          long</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html#queuedEndOfStreamCount">queuedEndOfStreamCount</a></td>
-          <td class="jd-descrcol" width="100%"></td>
-      </tr>
-      
-    
       <tr class=" api apilevel-" >
           <td class="jd-typecol"><nobr>
           public
           
           
-          long</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html#queuedInputBufferCount">queuedInputBufferCount</a></td>
-          <td class="jd-descrcol" width="100%"></td>
-      </tr>
-      
-    
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          
-          long</nobr></td>
+          int</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html#renderedOutputBufferCount">renderedOutputBufferCount</a></td>
           <td class="jd-descrcol" width="100%"></td>
       </tr>
       
     
-      <tr class=" api apilevel-" >
+      <tr class="alt-color api apilevel-" >
           <td class="jd-typecol"><nobr>
           public
           
           
-          long</nobr></td>
+          int</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html#skippedOutputBufferCount">skippedOutputBufferCount</a></td>
           <td class="jd-descrcol" width="100%"></td>
       </tr>
@@ -623,15 +573,17 @@ Summary:
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
+            synchronized
             
             
             
-            
-            <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr>
+            void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html#getDebugString()">getDebugString</a></span>()</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html#ensureUpdated()">ensureUpdated</a></span>()</nobr>
         
+        <div class="jd-descrdiv">Should be invoked from the playback thread after the counters have been updated.</div>
+  
   </td></tr>
 
 
@@ -643,13 +595,11 @@ Summary:
             
             
             
-            void</nobr>
+            <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html#zeroAllCounts()">zeroAllCounts</a></span>()</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html#getDebugString()">getDebugString</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Resets all counts to zero.</div>
-  
   </td></tr>
 
 
@@ -909,7 +859,7 @@ From class
         public 
          
          
-        long
+        int
       </span>
         codecInitCount
     </h4>
@@ -937,37 +887,9 @@ From class
         public 
          
          
-        long
+        int
       </span>
         codecReleaseCount
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p></p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="discardedSamplesCount"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-         
-        long
-      </span>
-        discardedSamplesCount
     </h4>
       <div class="api-level">
         
@@ -993,65 +915,9 @@ From class
         public 
          
          
-        long
+        int
       </span>
         droppedOutputBufferCount
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p></p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="inputBufferWaitingForSampleCount"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-         
-        long
-      </span>
-        inputBufferWaitingForSampleCount
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p></p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="keyframeCount"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-         
-        long
-      </span>
-        keyframeCount
     </h4>
       <div class="api-level">
         
@@ -1077,7 +943,7 @@ From class
         public 
          
          
-        long
+        int
       </span>
         outputBuffersChangedCount
     </h4>
@@ -1105,65 +971,9 @@ From class
         public 
          
          
-        long
+        int
       </span>
         outputFormatChangedCount
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p></p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="queuedEndOfStreamCount"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-         
-        long
-      </span>
-        queuedEndOfStreamCount
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p></p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="queuedInputBufferCount"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-         
-        long
-      </span>
-        queuedInputBufferCount
     </h4>
       <div class="api-level">
         
@@ -1189,7 +999,7 @@ From class
         public 
          
          
-        long
+        int
       </span>
         renderedOutputBufferCount
     </h4>
@@ -1217,7 +1027,7 @@ From class
         public 
          
          
-        long
+        int
       </span>
         skippedOutputBufferCount
     </h4>
@@ -1290,6 +1100,38 @@ From class
 
 
 
+<A NAME="ensureUpdated()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+        synchronized 
+        void
+      </span>
+      <span class="sympad">ensureUpdated</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Should be invoked from the playback thread after the counters have been updated. Should also
+ be invoked from any other thread that wishes to read the counters, before reading. These calls
+ ensure that counter updates are made visible to the reading threads.
+</p></div>
+
+    </div>
+</div>
+
+
 <A NAME="getDebugString()"></A>
 
 <div class="jd-details api apilevel-"> 
@@ -1314,36 +1156,6 @@ From class
     <div class="jd-details-descr">
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
-
-    </div>
-</div>
-
-
-<A NAME="zeroAllCounts()"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-         
-         
-         
-        void
-      </span>
-      <span class="sympad">zeroAllCounts</span>
-      <span class="normal">()</span>
-    </h4>
-      <div class="api-level">
-        <div></div>
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>Resets all counts to zero.
-</p></div>
 
     </div>
 </div>

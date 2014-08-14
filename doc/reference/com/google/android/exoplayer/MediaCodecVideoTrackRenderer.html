@@ -206,6 +206,7 @@ type="text/css">
               
     <li><h2>Classes</h2>
       <ul>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/C.html">C</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html">CodecCounters</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/CryptoInfo.html">CryptoInfo</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DecoderInfo.html">DecoderInfo</a></li>
@@ -569,14 +570,14 @@ Summary:
     
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">long</td>
-        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#END_OF_TRACK">END_OF_TRACK</a></td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#END_OF_TRACK_US">END_OF_TRACK_US</a></td>
         <td class="jd-descrcol" width="100%">Represents the time of the end of the track.</td>
     </tr>
     
     
     <tr class=" api apilevel-" >
         <td class="jd-typecol">long</td>
-        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#MATCH_LONGEST">MATCH_LONGEST</a></td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#MATCH_LONGEST_US">MATCH_LONGEST_US</a></td>
         <td class="jd-descrcol" width="100%">Represents a time or duration that should match the duration of the longest track whose
  duration is known.</td>
     </tr>
@@ -626,7 +627,7 @@ Summary:
     
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">long</td>
-        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#UNKNOWN_TIME">UNKNOWN_TIME</a></td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#UNKNOWN_TIME_US">UNKNOWN_TIME_US</a></td>
         <td class="jd-descrcol" width="100%">Represents an unknown time or duration.</td>
     </tr>
     
@@ -922,6 +923,8 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecVideoTrackRenderer.html#handlesMimeType(java.lang.String)">handlesMimeType</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</nobr>
         
+        <div class="jd-descrdiv">Determines whether a mime type is handled by the renderer.</div>
+  
   </td></tr>
 
 
@@ -1256,6 +1259,8 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#handlesMimeType(java.lang.String)">handlesMimeType</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</nobr>
         
+        <div class="jd-descrdiv">Determines whether a mime type is handled by the renderer.</div>
+  
   </td></tr>
 
 
@@ -2727,7 +2732,21 @@ From interface
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Determines whether a mime type is handled by the renderer.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>mimeType</td>
+          <td>The mime type to test.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>True if the renderer can handle the mime type. False otherwise.
+</li></ul>
+  </div>
 
     </div>
 </div>

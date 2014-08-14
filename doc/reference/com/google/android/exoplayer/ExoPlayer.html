@@ -206,6 +206,7 @@ type="text/css">
               
     <li><h2>Classes</h2>
       <ul>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/C.html">C</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html">CodecCounters</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/CryptoInfo.html">CryptoInfo</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DecoderInfo.html">DecoderInfo</a></li>
@@ -1919,14 +1920,16 @@ type="text/css">
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Stops playback.
+  <div class="jd-tagdata jd-tagdescr"><p>Stops playback. Use <code>setPlayWhenReady(false)</code> rather than this method if the intention
+ is to pause playback.
  <p>
  Calling this method will cause the playback state to transition to
- <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#STATE_IDLE">STATE_IDLE</a></code>. Note that the player instance can still be used, and that
- <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#release()">release()</a></code> must still be called on the player should it no longer be required.
+ <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#STATE_IDLE">STATE_IDLE</a></code>. The player instance can still be used, and
+ <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#release()">release()</a></code> must still be called on the player if it's no longer required.
  <p>
- Use <code>setPlayWhenReady(false)</code> rather than this method if the intention is to pause
- playback.
+ Calling this method does not reset the playback position. If this player instance will be used
+ to play another video from its start, then <code>seekTo(0)</code> should be called after stopping
+ the player and before preparing it for the next video.
 </p></div>
 
     </div>

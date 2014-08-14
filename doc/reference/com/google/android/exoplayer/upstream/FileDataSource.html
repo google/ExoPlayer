@@ -1024,9 +1024,10 @@ From interface
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
       <ul class="nolist"><li>The number of bytes that can be read from the opened source. For unbounded requests
-     (i.e. requests where <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#length">length</a></code> equals <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#LENGTH_UNBOUNDED">LENGTH_UNBOUNDED</a></code>)
-     this value is the resolved length of the request. For all other requests, the value
-     returned will be equal to the request's <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#length">length</a></code>.
+     (i.e. requests where <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#length">length</a></code> equals <code><a href="../../../../../../reference/com/google/android/exoplayer/C.html#LENGTH_UNBOUNDED">LENGTH_UNBOUNDED</a></code>) this value
+     is the resolved length of the request, or <code><a href="../../../../../../reference/com/google/android/exoplayer/C.html#LENGTH_UNBOUNDED">LENGTH_UNBOUNDED</a></code> if the length is still
+     unresolved. For all other requests, the value returned will be equal to the request's
+     <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#length">length</a></code>.
 </li></ul>
   </div>
   <div class="jd-tagdata">

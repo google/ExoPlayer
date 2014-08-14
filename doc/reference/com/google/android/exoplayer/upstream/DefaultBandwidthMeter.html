@@ -644,9 +644,9 @@ Summary:
             long</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DefaultBandwidthMeter.html#getEstimate()">getEstimate</a></span>()</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DefaultBandwidthMeter.html#getBitrateEstimate()">getBitrateEstimate</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Gets the estimated bandwidth.</div>
+        <div class="jd-descrdiv">Gets the estimated bandwidth, in bits/sec.</div>
   
   </td></tr>
 
@@ -952,9 +952,9 @@ From interface
             long</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html#getEstimate()">getEstimate</a></span>()</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html#getBitrateEstimate()">getBitrateEstimate</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Gets the estimated bandwidth.</div>
+        <div class="jd-descrdiv">Gets the estimated bandwidth, in bits/sec.</div>
   
   </td></tr>
 
@@ -1239,7 +1239,7 @@ From interface
 
 
 
-<A NAME="getEstimate()"></A>
+<A NAME="getBitrateEstimate()"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1251,7 +1251,7 @@ From interface
         synchronized 
         long
       </span>
-      <span class="sympad">getEstimate</span>
+      <span class="sympad">getBitrateEstimate</span>
       <span class="normal">()</span>
     </h4>
       <div class="api-level">
@@ -1262,10 +1262,10 @@ From interface
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Gets the estimated bandwidth.</p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Gets the estimated bandwidth, in bits/sec.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
-      <ul class="nolist"><li>Estimated bandwidth in bytes/sec, or <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html#NO_ESTIMATE">NO_ESTIMATE</a></code> if no estimate is available.
+      <ul class="nolist"><li>Estimated bandwidth in bits/sec, or <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html#NO_ESTIMATE">NO_ESTIMATE</a></code> if no estimate is available.
 </li></ul>
   </div>
 

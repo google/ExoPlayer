@@ -513,12 +513,23 @@ Summary:
           
           final
           <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#language">language</a></td>
+          <td class="jd-descrcol" width="100%">The language of the format.</td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+          <td class="jd-typecol"><nobr>
+          public
+          
+          final
+          <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#mimeType">mimeType</a></td>
           <td class="jd-descrcol" width="100%">The mime type of the format.</td>
       </tr>
       
     
-      <tr class="alt-color api apilevel-" >
+      <tr class=" api apilevel-" >
           <td class="jd-typecol"><nobr>
           public
           
@@ -529,7 +540,7 @@ Summary:
       </tr>
       
     
-      <tr class=" api apilevel-" >
+      <tr class="alt-color api apilevel-" >
           <td class="jd-typecol"><nobr>
           public
           
@@ -566,6 +577,22 @@ Summary:
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#Format(java.lang.String, java.lang.String, int, int, int, int, int)">Format</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int width, int height, int numChannels, int audioSamplingRate, int bitrate)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            </nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#Format(java.lang.String, java.lang.String, int, int, int, int, int, java.lang.String)">Format</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int width, int height, int numChannels, int audioSamplingRate, int bitrate, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> language)</nobr>
         
   </td></tr>
 
@@ -1014,6 +1041,38 @@ From class
 
 
 
+<A NAME="language"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+        final 
+        <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
+      </span>
+        language
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The language of the format. Can be null if unknown.
+ <p>
+ The language codes are two-letter lowercase ISO language codes (such as "en") as defined by
+ ISO 639-1.
+</p></div>
+
+    
+    </div>
+</div>
+
+
+
 <A NAME="mimeType"></A>
 
 <div class="jd-details api apilevel-"> 
@@ -1164,6 +1223,73 @@ From class
         <tr>
           <th>bitrate</td>
           <td>The average bandwidth of the format in bits per second.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="Format(java.lang.String, java.lang.String, int, int, int, int, int, java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        
+      </span>
+      <span class="sympad">Format</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int width, int height, int numChannels, int audioSamplingRate, int bitrate, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> language)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>id</td>
+          <td>The format identifier.</td>
+        </tr>
+        <tr>
+          <th>mimeType</td>
+          <td>The format mime type.</td>
+        </tr>
+        <tr>
+          <th>width</td>
+          <td>The width of the video in pixels, or -1 for non-video formats.</td>
+        </tr>
+        <tr>
+          <th>height</td>
+          <td>The height of the video in pixels, or -1 for non-video formats.</td>
+        </tr>
+        <tr>
+          <th>numChannels</td>
+          <td>The number of audio channels, or -1 for non-audio formats.</td>
+        </tr>
+        <tr>
+          <th>audioSamplingRate</td>
+          <td>The audio sampling rate in Hz, or -1 for non-audio formats.</td>
+        </tr>
+        <tr>
+          <th>bitrate</td>
+          <td>The average bandwidth of the format in bits per second.</td>
+        </tr>
+        <tr>
+          <th>language</td>
+          <td>The language of the format.
 </td>
         </tr>
       </table>

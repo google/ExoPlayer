@@ -83,7 +83,7 @@
 <meta name="viewport" content="width=device-width" />
 
 <link rel="shortcut icon" type="image/x-icon" href="../../../../../favicon.ico" />
-<title>ExoPlayer.Factory - ExoPlayer | Android Developers</title>
+<title>C - ExoPlayer | Android Developers</title>
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
@@ -206,13 +206,13 @@ type="text/css">
               
     <li><h2>Classes</h2>
       <ul>
-          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/C.html">C</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/C.html">C</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html">CodecCounters</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/CryptoInfo.html">CryptoInfo</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DecoderInfo.html">DecoderInfo</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.html">DefaultLoadControl</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DummyTrackRenderer.html">DummyTrackRenderer</a></li>
-          <li class="selected api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html">ExoPlayer.Factory</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html">ExoPlayer.Factory</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayerLibraryInfo.html">ExoPlayerLibraryInfo</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/FormatHolder.html">FormatHolder</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/FrameworkSampleSource.html">FrameworkSampleSource</a></li>
@@ -315,9 +315,6 @@ Summary:
 
 
 
-  &#124; <a href="#pubmethods">Methods</a>
-  
-
 
 
   &#124; <a href="#inhmethods">Inherited Methods</a>
@@ -338,11 +335,11 @@ Summary:
 
 <div id="jd-header">
     public
-    static 
+     
     final 
     
     class
-<h1 itemprop="name">ExoPlayer.Factory</h1>
+<h1 itemprop="name">C</h1>
 
 
 
@@ -375,7 +372,7 @@ Summary:
         
             <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
          	
-        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.ExoPlayer.Factory</td>
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.C</td>
     </tr>
     
 
@@ -391,7 +388,7 @@ Summary:
 
 
 <h2>Class Overview</h2>
-<p itemprop="articleBody">A factory for instantiating ExoPlayer instances.
+<p itemprop="articleBody">Defines constants that are generally useful throughout the library.
 </p>
 
 
@@ -439,17 +436,8 @@ Summary:
     
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
-        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html#DEFAULT_MIN_BUFFER_MS">DEFAULT_MIN_BUFFER_MS</a></td>
-        <td class="jd-descrcol" width="100%">The default minimum duration of data that must be buffered for playback to start or resume
- following a user action such as a seek.</td>
-    </tr>
-    
-    
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol">int</td>
-        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html#DEFAULT_MIN_REBUFFER_MS">DEFAULT_MIN_REBUFFER_MS</a></td>
-        <td class="jd-descrcol" width="100%">The default minimum duration of data that must be buffered for playback to resume
- after a player invoked rebuffer (i.e.</td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/C.html#LENGTH_UNBOUNDED">LENGTH_UNBOUNDED</a></td>
+        <td class="jd-descrcol" width="100%">Represents an unbounded length of data.</td>
     </tr>
     
     
@@ -469,72 +457,6 @@ Summary:
 
 
 
-
-
-<!-- ========== METHOD SUMMARY =========== -->
-<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
-
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            static
-            
-            <a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html#newInstance(int)">newInstance</a></span>(int rendererCount)</nobr>
-        
-        <div class="jd-descrdiv">Obtains an <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> instance.</div>
-  
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            static
-            
-            <a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html#newInstance(int, int, int)">newInstance</a></span>(int rendererCount, int minBufferMs, int minRebufferMs)</nobr>
-        
-        <div class="jd-descrdiv">Obtains an <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> instance.</div>
-  
-  </td></tr>
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            static
-            
-            <a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html#newInstance(int, int)">newInstance</a></span>(int rendererCount, int minRebufferMs)</nobr>
-        
-        <div class="jd-descrdiv"><em>
-      This method is deprecated.
-    Please use <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html#newInstance(int, int, int)">newInstance(int, int, int)</a></code>.
-</em></div>
-  
-  </td></tr>
-
-
-
-</table>
 
 
 
@@ -778,7 +700,7 @@ From class
 
 
 
-<A NAME="DEFAULT_MIN_BUFFER_MS"></A>
+<A NAME="LENGTH_UNBOUNDED"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -788,7 +710,7 @@ From class
         final 
         int
       </span>
-        DEFAULT_MIN_BUFFER_MS
+        LENGTH_UNBOUNDED
     </h4>
       <div class="api-level">
         
@@ -798,8 +720,7 @@ From class
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>The default minimum duration of data that must be buffered for playback to start or resume
- following a user action such as a seek.
+  <div class="jd-tagdata jd-tagdescr"><p>Represents an unbounded length of data.
 </p></div>
 
     
@@ -807,49 +728,8 @@ From class
         <span class="jd-tagtitle">Constant Value: </span>
         <span>
             
-                500
-                (0x000001f4)
-            
-        </span>
-        </div>
-    
-    </div>
-</div>
-
-
-
-<A NAME="DEFAULT_MIN_REBUFFER_MS"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-        static 
-        final 
-        int
-      </span>
-        DEFAULT_MIN_REBUFFER_MS
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The default minimum duration of data that must be buffered for playback to resume
- after a player invoked rebuffer (i.e. a rebuffer that occurs due to buffer depletion, and
- not due to a user action such as starting playback or seeking).
-</p></div>
-
-    
-        <div class="jd-tagdata">
-        <span class="jd-tagtitle">Constant Value: </span>
-        <span>
-            
-                5000
-                (0x00001388)
+                -1
+                (0xffffffff)
             
         </span>
         </div>
@@ -874,140 +754,6 @@ From class
 
 <!-- ========= METHOD DETAIL ======== -->
 <!-- Public methdos -->
-
-<h2>Public Methods</h2>
-
-
-
-<A NAME="newInstance(int)"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-        static 
-         
-         
-         
-        <a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a>
-      </span>
-      <span class="sympad">newInstance</span>
-      <span class="normal">(int rendererCount)</span>
-    </h4>
-      <div class="api-level">
-        <div></div>
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>Obtains an <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> instance.
- <p>
- Must be invoked from a thread that has an associated <code><a href="http://developer.android.com/reference/android/os/Looper.html">Looper</a></code>.</p></div>
-  <div class="jd-tagdata">
-      <h5 class="jd-tagtitle">Parameters</h5>
-      <table class="jd-tagtable">
-        <tr>
-          <th>rendererCount</td>
-          <td>The number of <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></code>s that will be passed to
-     <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#prepare(com.google.android.exoplayer.TrackRenderer...)">prepare(TrackRenderer[])</a></code>.
-</td>
-        </tr>
-      </table>
-  </div>
-
-    </div>
-</div>
-
-
-<A NAME="newInstance(int, int, int)"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-        static 
-         
-         
-         
-        <a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a>
-      </span>
-      <span class="sympad">newInstance</span>
-      <span class="normal">(int rendererCount, int minBufferMs, int minRebufferMs)</span>
-    </h4>
-      <div class="api-level">
-        <div></div>
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>Obtains an <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> instance.
- <p>
- Must be invoked from a thread that has an associated <code><a href="http://developer.android.com/reference/android/os/Looper.html">Looper</a></code>.</p></div>
-  <div class="jd-tagdata">
-      <h5 class="jd-tagtitle">Parameters</h5>
-      <table class="jd-tagtable">
-        <tr>
-          <th>rendererCount</td>
-          <td>The number of <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></code>s that will be passed to
-     <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#prepare(com.google.android.exoplayer.TrackRenderer...)">prepare(TrackRenderer[])</a></code>.</td>
-        </tr>
-        <tr>
-          <th>minBufferMs</td>
-          <td>A minimum duration of data that must be buffered for playback to start
-     or resume following a user action such as a seek.</td>
-        </tr>
-        <tr>
-          <th>minRebufferMs</td>
-          <td>A minimum duration of data that must be buffered for playback to resume
-     after a player invoked rebuffer (i.e. a rebuffer that occurs due to buffer depletion, and
-     not due to a user action such as starting playback or seeking).
-</td>
-        </tr>
-      </table>
-  </div>
-
-    </div>
-</div>
-
-
-<A NAME="newInstance(int, int)"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-        static 
-         
-         
-         
-        <a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a>
-      </span>
-      <span class="sympad">newInstance</span>
-      <span class="normal">(int rendererCount, int minRebufferMs)</span>
-    </h4>
-      <div class="api-level">
-        <div></div>
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      <p>
-  <p class="caution"><strong>
-      This method is deprecated.</strong><br/>
-    Please use <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html#newInstance(int, int, int)">newInstance(int, int, int)</a></code>.
-
-  </p>
-  <div class="jd-tagdata jd-tagdescr"><p></p></div>
-
-    </div>
-</div>
-
-
 
 
 
