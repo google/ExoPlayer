@@ -123,8 +123,8 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     void onDroppedFrames(int count, long elapsed);
     void onBandwidthSample(int elapsedMs, long bytes, long bitrateEstimate);
     void onLoadStarted(int sourceId, String formatId, int trigger, boolean isInitialization,
-        int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes);
-    void onLoadCompleted(int sourceId);
+        int mediaStartTimeMs, int mediaEndTimeMs, long length);
+    void onLoadCompleted(int sourceId, long bytesLoaded);
   }
 
   /**
@@ -471,34 +471,34 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
 
   @Override
   public void onLoadStarted(int sourceId, String formatId, int trigger, boolean isInitialization,
-      int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes) {
+      int mediaStartTimeMs, int mediaEndTimeMs, long length) {
     if (infoListener != null) {
       infoListener.onLoadStarted(sourceId, formatId, trigger, isInitialization, mediaStartTimeMs,
-          mediaEndTimeMs, totalBytes);
+          mediaEndTimeMs, length);
     }
   }
 
   @Override
-  public void onLoadCompleted(int sourceId) {
+  public void onLoadCompleted(int sourceId, long bytesLoaded) {
     if (infoListener != null) {
-      infoListener.onLoadCompleted(sourceId);
+      infoListener.onLoadCompleted(sourceId, bytesLoaded);
     }
   }
 
   @Override
-  public void onLoadCanceled(int sourceId) {
+  public void onLoadCanceled(int sourceId, long bytesLoaded) {
     // Do nothing.
   }
 
   @Override
   public void onUpstreamDiscarded(int sourceId, int mediaStartTimeMs, int mediaEndTimeMs,
-      long totalBytes) {
+      long bytesDiscarded) {
     // Do nothing.
   }
 
   @Override
   public void onDownstreamDiscarded(int sourceId, int mediaStartTimeMs, int mediaEndTimeMs,
-      long totalBytes) {
+      long bytesDiscarded) {
     // Do nothing.
   }
 
