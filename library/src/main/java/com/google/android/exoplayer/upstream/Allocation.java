@@ -25,6 +25,28 @@ package com.google.android.exoplayer.upstream;
 public interface Allocation {
 
   /**
+   * Ensures the allocation has a capacity greater than or equal to the specified size in bytes.
+   * <p>
+   * If {@code size} is greater than the current capacity of the allocation, then it will grow
+   * to have a capacity of at least {@code size}. The allocation is grown by adding new fragments.
+   * Existing fragments remain unchanged, and any data that has been written to them will be
+   * preserved.
+   * <p>
+   * If {@code size} is less than or equal to the capacity of the allocation, then the call is a
+   * no-op.
+   *
+   * @param size The minimum required capacity, in bytes.
+   */
+  public void ensureCapacity(int size);
+
+  /**
+   * Gets the capacity of the allocation, in bytes.
+   *
+   * @return The capacity of the allocation, in bytes.
+   */
+  public int capacity();
+
+  /**
    * Gets the buffers in which the fragments are allocated.
    *
    * @return The buffers in which the fragments are allocated.

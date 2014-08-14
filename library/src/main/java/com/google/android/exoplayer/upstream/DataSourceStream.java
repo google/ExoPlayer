@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.upstream;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
@@ -39,6 +40,8 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
 
   }
 
+  private static final int CHUNKED_ALLOCATION_INCREMENT = 256 * 1024;
+
   private final DataSource dataSource;
   private final DataSpec dataSpec;
   private final Allocator allocator;
@@ -57,7 +60,7 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
   /**
    * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded. {@code dataSpec.length} must not exceed
-   *     {@link Integer#MAX_VALUE}. If {@code dataSpec.length == DataSpec.LENGTH_UNBOUNDED} then
+   *     {@link Integer#MAX_VALUE}. If {@code dataSpec.length == C.LENGTH_UNBOUNDED} then
    *     the length resolved by {@code dataSource.open(dataSpec)} must not exceed
    *     {@link Integer#MAX_VALUE}.
    * @param allocator Used to obtain an {@link Allocation} for holding the data.
@@ -67,7 +70,7 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
     this.dataSource = dataSource;
     this.dataSpec = dataSpec;
     this.allocator = allocator;
-    resolvedLength = DataSpec.LENGTH_UNBOUNDED;
+    resolvedLength = C.LENGTH_UNBOUNDED;
     readHead = new ReadHead();
   }
 
@@ -97,13 +100,14 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
   }
 
   /**
-   * Returns the length of the streamin bytes.
+   * Returns the length of the stream in bytes, or {@value C#LENGTH_UNBOUNDED} if the length has
+   * yet to be determined.
    *
-   * @return The length of the stream in bytes, or {@value DataSpec#LENGTH_UNBOUNDED} if the length
-   *     has yet to be determined.
+   * @return The length of the stream in bytes, or {@value C#LENGTH_UNBOUNDED} if the length has
+   *     yet to be determined.
    */
   public long getLength() {
-    return resolvedLength != DataSpec.LENGTH_UNBOUNDED ? resolvedLength : dataSpec.length;
+    return resolvedLength != C.LENGTH_UNBOUNDED ? resolvedLength : dataSpec.length;
   }
 
   /**
@@ -112,7 +116,7 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
    * @return True if the stream has finished loading. False otherwise.
    */
   public boolean isLoadFinished() {
-    return resolvedLength != DataSpec.LENGTH_UNBOUNDED && loadPosition == resolvedLength;
+    return resolvedLength != C.LENGTH_UNBOUNDED && loadPosition == resolvedLength;
   }
 
   /**
@@ -123,7 +127,7 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
    * Note: The read methods provide a more efficient way of consuming the loaded data. Use this
    * method only when a freshly allocated byte[] containing all of the loaded data is required.
    *
-   * @return The loaded data or null.
+   * @return The loaded data, or null.
    */
   public final byte[] getLoadedData() {
     if (loadPosition == 0) {
@@ -144,7 +148,7 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
 
   @Override
   public boolean isEndOfStream() {
-    return resolvedLength != DataSpec.LENGTH_UNBOUNDED && readHead.position == resolvedLength;
+    return resolvedLength != C.LENGTH_UNBOUNDED && readHead.position == resolvedLength;
   }
 
   @Override
@@ -191,6 +195,11 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
     int bytesRead = 0;
     byte[][] buffers = allocation.getBuffers();
     while (bytesRead < bytesToRead) {
+      if (readHead.fragmentRemaining == 0) {
+        readHead.fragmentIndex++;
+        readHead.fragmentOffset = allocation.getFragmentOffset(readHead.fragmentIndex);
+        readHead.fragmentRemaining = allocation.getFragmentLength(readHead.fragmentIndex);
+      }
       int bufferReadLength = Math.min(readHead.fragmentRemaining, bytesToRead - bytesRead);
       if (target != null) {
         target.put(buffers[readHead.fragmentIndex], readHead.fragmentOffset, bufferReadLength);
@@ -203,11 +212,6 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
       bytesRead += bufferReadLength;
       readHead.fragmentOffset += bufferReadLength;
       readHead.fragmentRemaining -= bufferReadLength;
-      if (readHead.fragmentRemaining == 0 && readHead.position < resolvedLength) {
-        readHead.fragmentIndex++;
-        readHead.fragmentOffset = allocation.getFragmentOffset(readHead.fragmentIndex);
-        readHead.fragmentRemaining = allocation.getFragmentLength(readHead.fragmentIndex);
-      }
     }
 
     return bytesRead;
@@ -231,23 +235,32 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
       // The load was canceled, or is already complete.
       return;
     }
+
     try {
       DataSpec loadDataSpec;
-      if (resolvedLength == DataSpec.LENGTH_UNBOUNDED) {
+      if (loadPosition == 0 && resolvedLength == C.LENGTH_UNBOUNDED) {
         loadDataSpec = dataSpec;
-        resolvedLength = dataSource.open(loadDataSpec);
+        long resolvedLength = dataSource.open(loadDataSpec);
         if (resolvedLength > Integer.MAX_VALUE) {
           throw new DataSourceStreamLoadException(
               new UnexpectedLengthException(dataSpec.length, resolvedLength));
         }
+        this.resolvedLength = resolvedLength;
       } else {
+        long remainingLength = resolvedLength != C.LENGTH_UNBOUNDED
+            ? resolvedLength - loadPosition : C.LENGTH_UNBOUNDED;
         loadDataSpec = new DataSpec(dataSpec.uri, dataSpec.position + loadPosition,
-            resolvedLength - loadPosition, dataSpec.key);
+            remainingLength, dataSpec.key);
         dataSource.open(loadDataSpec);
       }
+
       if (allocation == null) {
-        allocation = allocator.allocate((int) resolvedLength);
+        int initialAllocationSize = resolvedLength != C.LENGTH_UNBOUNDED
+            ? (int) resolvedLength : CHUNKED_ALLOCATION_INCREMENT;
+        allocation = allocator.allocate(initialAllocationSize);
       }
+      int allocationCapacity = allocation.capacity();
+
       if (loadPosition == 0) {
         writeFragmentIndex = 0;
         writeFragmentOffset = allocation.getFragmentOffset(0);
@@ -256,22 +269,28 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
 
       int read = Integer.MAX_VALUE;
       byte[][] buffers = allocation.getBuffers();
-      while (!loadCanceled && loadPosition < resolvedLength && read > 0) {
+      while (!loadCanceled && read > 0 && maybeMoreToLoad()) {
         if (Thread.interrupted()) {
           throw new InterruptedException();
         }
-        int writeLength = (int) Math.min(writeFragmentRemainingLength,
-            resolvedLength - loadPosition);
-        read = dataSource.read(buffers[writeFragmentIndex], writeFragmentOffset, writeLength);
+        read = dataSource.read(buffers[writeFragmentIndex], writeFragmentOffset,
+            writeFragmentRemainingLength);
         if (read > 0) {
           loadPosition += read;
           writeFragmentOffset += read;
           writeFragmentRemainingLength -= read;
-          if (writeFragmentRemainingLength == 0 && loadPosition < resolvedLength) {
+          if (writeFragmentRemainingLength == 0 && maybeMoreToLoad()) {
             writeFragmentIndex++;
+            if (loadPosition == allocationCapacity) {
+              allocation.ensureCapacity(allocationCapacity + CHUNKED_ALLOCATION_INCREMENT);
+              allocationCapacity = allocation.capacity();
+              buffers = allocation.getBuffers();
+            }
             writeFragmentOffset = allocation.getFragmentOffset(writeFragmentIndex);
             writeFragmentRemainingLength = allocation.getFragmentLength(writeFragmentIndex);
           }
+        } else if (resolvedLength == C.LENGTH_UNBOUNDED) {
+          resolvedLength = loadPosition;
         } else if (resolvedLength != loadPosition) {
           throw new DataSourceStreamLoadException(
               new UnexpectedLengthException(resolvedLength, loadPosition));
@@ -280,6 +299,10 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
     } finally {
       Util.closeQuietly(dataSource);
     }
+  }
+
+  private boolean maybeMoreToLoad() {
+    return resolvedLength == C.LENGTH_UNBOUNDED || loadPosition < resolvedLength;
   }
 
   private static class ReadHead {

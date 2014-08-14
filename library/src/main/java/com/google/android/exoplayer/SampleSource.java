@@ -102,8 +102,11 @@ public interface SampleSource {
    * Indicates to the source that it should still be buffering data.
    *
    * @param playbackPositionUs The current playback position.
+   * @return True if the source has available samples, or if the end of the stream has been reached.
+   *     False if more data needs to be buffered for samples to become available.
+   * @throws IOException If an error occurred reading from the source.
    */
-  public void continueBuffering(long playbackPositionUs);
+  public boolean continueBuffering(long playbackPositionUs) throws IOException;
 
   /**
    * Attempts to read either a sample, a new format or or a discontinuity from the source.
@@ -144,8 +147,8 @@ public interface SampleSource {
    * This method should not be called until after the source has been successfully prepared.
    *
    * @return An estimate of the absolute position in micro-seconds up to which data is buffered,
-   *     or {@link TrackRenderer#END_OF_TRACK} if data is buffered to the end of the stream, or
-   *     {@link TrackRenderer#UNKNOWN_TIME} if no estimate is available.
+   *     or {@link TrackRenderer#END_OF_TRACK_US} if data is buffered to the end of the stream, or
+   *     {@link TrackRenderer#UNKNOWN_TIME_US} if no estimate is available.
    */
   public long getBufferedPositionUs();
 

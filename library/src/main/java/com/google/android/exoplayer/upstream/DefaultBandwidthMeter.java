@@ -38,11 +38,11 @@ public class DefaultBandwidthMeter implements BandwidthMeter, TransferListener {
      *
      * @param elapsedMs The time taken to transfer the bytes, in milliseconds.
      * @param bytes The number of bytes transferred.
-     * @param bandwidthEstimate The estimated bandwidth in bytes/sec, or {@link #NO_ESTIMATE} if no
-     *     estimate is available. Note that this estimate is typically derived from more information
-     *     than {@code bytes} and {@code elapsedMs}.
+     * @param bitrate The estimated bitrate in bits/sec, or {@link #NO_ESTIMATE} if no estimate
+     *     is available. Note that this estimate is typically derived from more information than
+     *     {@code bytes} and {@code elapsedMs}.
      */
-    void onBandwidthSample(int elapsedMs, long bytes, long bandwidthEstimate);
+    void onBandwidthSample(int elapsedMs, long bytes, long bitrate);
 
   }
 
@@ -53,9 +53,9 @@ public class DefaultBandwidthMeter implements BandwidthMeter, TransferListener {
   private final Clock clock;
   private final SlidingPercentile slidingPercentile;
 
-  private long accumulator;
+  private long bytesAccumulator;
   private long startTimeMs;
-  private long bandwidthEstimate;
+  private long bitrateEstimate;
   private int streamCount;
 
   public DefaultBandwidthMeter() {
@@ -80,17 +80,12 @@ public class DefaultBandwidthMeter implements BandwidthMeter, TransferListener {
     this.eventListener = eventListener;
     this.clock = clock;
     this.slidingPercentile = new SlidingPercentile(maxWeight);
-    bandwidthEstimate = NO_ESTIMATE;
+    bitrateEstimate = NO_ESTIMATE;
   }
 
-  /**
-   * Gets the estimated bandwidth.
-   *
-   * @return Estimated bandwidth in bytes/sec, or {@link #NO_ESTIMATE} if no estimate is available.
-   */
   @Override
-  public synchronized long getEstimate() {
-    return bandwidthEstimate;
+  public synchronized long getBitrateEstimate() {
+    return bitrateEstimate;
   }
 
   @Override
@@ -103,7 +98,7 @@ public class DefaultBandwidthMeter implements BandwidthMeter, TransferListener {
 
   @Override
   public synchronized void onBytesTransferred(int bytes) {
-    accumulator += bytes;
+    bytesAccumulator += bytes;
   }
 
   @Override
@@ -112,32 +107,26 @@ public class DefaultBandwidthMeter implements BandwidthMeter, TransferListener {
     long nowMs = clock.elapsedRealtime();
     int elapsedMs = (int) (nowMs - startTimeMs);
     if (elapsedMs > 0) {
-      float bytesPerSecond = accumulator * 1000 / elapsedMs;
-      slidingPercentile.addSample(computeWeight(accumulator), bytesPerSecond);
+      float bitsPerSecond = (bytesAccumulator * 8000) / elapsedMs;
+      slidingPercentile.addSample((int) Math.sqrt(bytesAccumulator), bitsPerSecond);
       float bandwidthEstimateFloat = slidingPercentile.getPercentile(0.5f);
-      bandwidthEstimate = Float.isNaN(bandwidthEstimateFloat) ? NO_ESTIMATE
+      bitrateEstimate = Float.isNaN(bandwidthEstimateFloat) ? NO_ESTIMATE
           : (long) bandwidthEstimateFloat;
-      notifyBandwidthSample(elapsedMs, accumulator, bandwidthEstimate);
+      notifyBandwidthSample(elapsedMs, bytesAccumulator, bitrateEstimate);
     }
     streamCount--;
     if (streamCount > 0) {
       startTimeMs = nowMs;
     }
-    accumulator = 0;
+    bytesAccumulator = 0;
   }
 
-  // TODO: Use media time (bytes / mediaRate) as weight.
-  private int computeWeight(long mediaBytes) {
-    return (int) Math.sqrt(mediaBytes);
-  }
-
-  private void notifyBandwidthSample(final int elapsedMs, final long bytes,
-      final long bandwidthEstimate) {
+  private void notifyBandwidthSample(final int elapsedMs, final long bytes, final long bitrate) {
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable()  {
         @Override
         public void run() {
-          eventListener.onBandwidthSample(elapsedMs, bytes, bandwidthEstimate);
+          eventListener.onBandwidthSample(elapsedMs, bytes, bitrate);
         }
       });
     }

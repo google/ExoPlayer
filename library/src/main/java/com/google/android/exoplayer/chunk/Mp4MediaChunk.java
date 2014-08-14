@@ -104,11 +104,18 @@ public final class Mp4MediaChunk extends MediaChunk {
   }
 
   @Override
+  public boolean sampleAvailable() throws ParserException {
+    NonBlockingInputStream inputStream = getNonBlockingInputStream();
+    int result = extractor.read(inputStream, null);
+    return (result & FragmentedMp4Extractor.RESULT_NEED_SAMPLE_HOLDER) != 0;
+  }
+
+  @Override
   public boolean read(SampleHolder holder) throws ParserException {
     NonBlockingInputStream inputStream = getNonBlockingInputStream();
     Assertions.checkState(inputStream != null);
     int result = extractor.read(inputStream, holder);
-    boolean sampleRead = (result & FragmentedMp4Extractor.RESULT_READ_SAMPLE_FULL) != 0;
+    boolean sampleRead = (result & FragmentedMp4Extractor.RESULT_READ_SAMPLE) != 0;
     if (sampleRead) {
       holder.timeUs -= sampleOffsetUs;
     }
