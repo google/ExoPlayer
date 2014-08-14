@@ -61,7 +61,9 @@ public class MainPlaylist {
             }
           }
         } catch (Exception e) {
-            return null;
+          Log.d(TAG,"cannot download variant playlist");
+          e.printStackTrace();
+          return null;
         }
         return variantPlaylist;
     }
