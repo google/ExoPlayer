@@ -23,15 +23,12 @@ import java.nio.ByteBuffer;
  */
 /* package */ final class ParsableByteArray {
 
-  private final byte[] data;
+  public byte[] data;
+
   private int position;
 
   public ParsableByteArray(int length) {
     this.data = new byte[length];
-  }
-
-  public byte[] getData() {
-    return data;
   }
 
   public int length() {

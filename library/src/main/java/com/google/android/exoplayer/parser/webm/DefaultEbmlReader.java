@@ -138,9 +138,8 @@ import java.util.Stack;
     while (true) {
       while (!masterElementsStack.isEmpty()
           && bytesRead >= masterElementsStack.peek().elementEndOffsetBytes) {
-        if (!eventHandler.onMasterElementEnd(masterElementsStack.pop().elementId)) {
-          return READ_RESULT_CONTINUE;
-        }
+        eventHandler.onMasterElementEnd(masterElementsStack.pop().elementId);
+        return READ_RESULT_CONTINUE;
       }
 
       if (state == STATE_BEGIN_READING) {
@@ -161,12 +160,10 @@ import java.util.Stack;
         case TYPE_MASTER:
           int masterHeaderSize = (int) (bytesRead - elementOffset); // Header size is 12 bytes max.
           masterElementsStack.add(new MasterElement(elementId, bytesRead + elementContentSize));
-          if (!eventHandler.onMasterElementStart(
-              elementId, elementOffset, masterHeaderSize, elementContentSize)) {
-            prepareForNextElement();
-            return READ_RESULT_CONTINUE;
-          }
-          break;
+          eventHandler.onMasterElementStart(elementId, elementOffset, masterHeaderSize,
+              elementContentSize);
+          prepareForNextElement();
+          return READ_RESULT_CONTINUE;
         case TYPE_UNSIGNED_INT:
           if (elementContentSize > MAX_INTEGER_ELEMENT_SIZE_BYTES) {
             throw new IllegalStateException("Invalid integer size " + elementContentSize);
@@ -177,11 +174,9 @@ import java.util.Stack;
             return intResult;
           }
           long intValue = getTempByteArrayValue((int) elementContentSize, false);
-          if (!eventHandler.onIntegerElement(elementId, intValue)) {
-            prepareForNextElement();
-            return READ_RESULT_CONTINUE;
-          }
-          break;
+          eventHandler.onIntegerElement(elementId, intValue);
+          prepareForNextElement();
+          return READ_RESULT_CONTINUE;
         case TYPE_FLOAT:
           if (elementContentSize != VALID_FLOAT32_ELEMENT_SIZE_BYTES
               && elementContentSize != VALID_FLOAT64_ELEMENT_SIZE_BYTES) {
@@ -199,11 +194,9 @@ import java.util.Stack;
           } else {
             floatValue = Double.longBitsToDouble(valueBits);
           }
-          if (!eventHandler.onFloatElement(elementId, floatValue)) {
-            prepareForNextElement();
-            return READ_RESULT_CONTINUE;
-          }
-          break;
+          eventHandler.onFloatElement(elementId, floatValue);
+          prepareForNextElement();
+          return READ_RESULT_CONTINUE;
         case TYPE_STRING:
           if (elementContentSize > Integer.MAX_VALUE) {
             throw new IllegalStateException(
@@ -219,11 +212,9 @@ import java.util.Stack;
           }
           String stringValue = new String(stringBytes, Charset.forName("UTF-8"));
           stringBytes = null;
-          if (!eventHandler.onStringElement(elementId, stringValue)) {
-            prepareForNextElement();
-            return READ_RESULT_CONTINUE;
-          }
-          break;
+          eventHandler.onStringElement(elementId, stringValue);
+          prepareForNextElement();
+          return READ_RESULT_CONTINUE;
         case TYPE_BINARY:
           if (elementContentSize > Integer.MAX_VALUE) {
             throw new IllegalStateException(
@@ -233,18 +224,17 @@ import java.util.Stack;
             return READ_RESULT_NEED_MORE_DATA;
           }
           int binaryHeaderSize = (int) (bytesRead - elementOffset); // Header size is 12 bytes max.
-          boolean keepGoing = eventHandler.onBinaryElement(
+          boolean consumed = eventHandler.onBinaryElement(
               elementId, elementOffset, binaryHeaderSize, (int) elementContentSize, inputStream);
-          long expectedBytesRead = elementOffset + binaryHeaderSize + elementContentSize;
-          if (expectedBytesRead != bytesRead) {
-            throw new IllegalStateException("Incorrect total bytes read. Expected "
-                + expectedBytesRead + " but actually " + bytesRead);
-          }
-          if (!keepGoing) {
+          if (consumed) {
+            long expectedBytesRead = elementOffset + binaryHeaderSize + elementContentSize;
+            if (expectedBytesRead != bytesRead) {
+              throw new IllegalStateException("Incorrect total bytes read. Expected "
+                  + expectedBytesRead + " but actually " + bytesRead);
+            }
             prepareForNextElement();
-            return READ_RESULT_CONTINUE;
           }
-          break;
+          return READ_RESULT_CONTINUE;
         case TYPE_UNKNOWN:
           if (elementContentSize > Integer.MAX_VALUE) {
             throw new IllegalStateException(
@@ -254,11 +244,11 @@ import java.util.Stack;
           if (skipResult != READ_RESULT_CONTINUE) {
             return skipResult;
           }
+          prepareForNextElement();
           break;
         default:
           throw new IllegalStateException("Invalid element type " + type);
       }
-      prepareForNextElement();
     }
   }
 
@@ -508,7 +498,7 @@ import java.util.Stack;
    */
   private int updateBytesState(int additionalBytesRead, int totalBytes) {
     if (additionalBytesRead == -1) {
-      return READ_RESULT_END_OF_FILE;
+      return READ_RESULT_END_OF_STREAM;
     }
     bytesState += additionalBytesRead;
     bytesRead += additionalBytesRead;

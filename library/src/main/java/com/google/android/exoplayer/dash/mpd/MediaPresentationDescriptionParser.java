@@ -140,6 +140,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
       throws XmlPullParserException, IOException {
 
     String mimeType = xpp.getAttributeValue(null, "mimeType");
+    String language = xpp.getAttributeValue(null, "lang");
     int contentType = parseAdaptationSetTypeFromMimeType(mimeType);
 
     int id = -1;
@@ -160,7 +161,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
             parseAdaptationSetType(xpp.getAttributeValue(null, "contentType")));
       } else if (isStartTag(xpp, "Representation")) {
         Representation representation = parseRepresentation(xpp, contentId, baseUrl, periodStartMs,
-            periodDurationMs, mimeType, segmentBase);
+            periodDurationMs, mimeType, language, segmentBase);
         contentType = checkAdaptationSetTypeConsistency(contentType,
             parseAdaptationSetTypeFromMimeType(representation.format.mimeType));
         representations.add(representation);
@@ -230,8 +231,8 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
   // Representation parsing.
 
   private Representation parseRepresentation(XmlPullParser xpp, String contentId, Uri baseUrl,
-      long periodStartMs, long periodDurationMs, String mimeType, SegmentBase segmentBase)
-      throws XmlPullParserException, IOException {
+      long periodStartMs, long periodDurationMs, String mimeType, String language,
+      SegmentBase segmentBase) throws XmlPullParserException, IOException {
     String id = xpp.getAttributeValue(null, "id");
     int bandwidth = parseInt(xpp, "bandwidth");
     int audioSamplingRate = parseInt(xpp, "audioSamplingRate");
@@ -257,7 +258,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
     } while (!isEndTag(xpp, "Representation"));
 
     Format format = new Format(id, mimeType, width, height, numChannels, audioSamplingRate,
-        bandwidth);
+        bandwidth, language);
     return Representation.newInstance(periodStartMs, periodDurationMs, contentId, -1, format,
         segmentBase);
   }

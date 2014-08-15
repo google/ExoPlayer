@@ -316,14 +316,16 @@ public interface ExoPlayer {
   public void seekTo(int positionMs);
 
   /**
-   * Stops playback.
+   * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention
+   * is to pause playback.
    * <p>
    * Calling this method will cause the playback state to transition to
-   * {@link ExoPlayer#STATE_IDLE}. Note that the player instance can still be used, and that
-   * {@link ExoPlayer#release()} must still be called on the player should it no longer be required.
+   * {@link ExoPlayer#STATE_IDLE}. The player instance can still be used, and
+   * {@link ExoPlayer#release()} must still be called on the player if it's no longer required.
    * <p>
-   * Use {@code setPlayWhenReady(false)} rather than this method if the intention is to pause
-   * playback.
+   * Calling this method does not reset the playback position. If this player instance will be used
+   * to play another video from its start, then {@code seekTo(0)} should be called after stopping
+   * the player and before preparing it for the next video.
    */
   public void stop();
 

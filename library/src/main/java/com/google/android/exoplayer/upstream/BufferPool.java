@@ -67,15 +67,39 @@ public final class BufferPool implements Allocator {
 
   @Override
   public synchronized Allocation allocate(int size) {
+    return new AllocationImpl(allocate(size, null));
+  }
+
+  /**
+   * Allocates byte arrays whose combined length is at least {@code size}.
+   * <p>
+   * An existing array of byte arrays may be provided to form the start of the allocation.
+   *
+   * @param size The total size required, in bytes.
+   * @param existing Existing byte arrays to use as the start of the allocation. May be null.
+   * @return The allocated byte arrays.
+   */
+  /* package */ synchronized byte[][] allocate(int size, byte[][] existing) {
     int requiredBufferCount = requiredBufferCount(size);
-    allocatedBufferCount += requiredBufferCount;
+    if (existing != null && requiredBufferCount <= existing.length) {
+      // The existing buffers are sufficient.
+      return existing;
+    }
+    // We need to allocate additional buffers.
     byte[][] buffers = new byte[requiredBufferCount][];
-    for (int i = 0; i < requiredBufferCount; i++) {
+    int firstNewBufferIndex = 0;
+    if (existing != null) {
+      firstNewBufferIndex = existing.length;
+      System.arraycopy(existing, 0, buffers, 0, firstNewBufferIndex);
+    }
+    // Allocate the new buffers
+    allocatedBufferCount += requiredBufferCount - firstNewBufferIndex;
+    for (int i = firstNewBufferIndex; i < requiredBufferCount; i++) {
       // Use a recycled buffer if one is available. Else instantiate a new one.
       buffers[i] = recycledBufferCount > 0 ? recycledBuffers[--recycledBufferCount] :
           new byte[bufferLength];
     }
-    return new AllocationImpl(buffers);
+    return buffers;
   }
 
   /**
@@ -110,6 +134,16 @@ public final class BufferPool implements Allocator {
 
     public AllocationImpl(byte[][] buffers) {
       this.buffers = buffers;
+    }
+
+    @Override
+    public void ensureCapacity(int size) {
+      buffers = allocate(size, buffers);
+    }
+
+    @Override
+    public int capacity() {
+      return bufferLength * buffers.length;
     }
 
     @Override

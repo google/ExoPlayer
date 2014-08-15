@@ -100,6 +100,14 @@ public abstract class MediaChunk extends Chunk {
   public abstract boolean prepare() throws ParserException;
 
   /**
+   * Returns whether the next sample is available.
+   *
+   * @return True if the next sample is available for reading. False otherwise.
+   * @throws ParserException
+   */
+  public abstract boolean sampleAvailable() throws ParserException;
+
+  /**
    * Reads the next media sample from the chunk.
    * <p>
    * Should only be called after the chunk has been successfully prepared.

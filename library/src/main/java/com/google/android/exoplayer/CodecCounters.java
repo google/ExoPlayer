@@ -17,54 +17,41 @@ package com.google.android.exoplayer;
 
 /**
  * Maintains codec event counts, for debugging purposes only.
+ * <p>
+ * Counters should be written from the playback thread only. Counters may be read from any thread.
+ * To ensure that the counter values are correctly reflected between threads, users of this class
+ * should invoke {@link #ensureUpdated()} prior to reading and after writing.
  */
 public final class CodecCounters {
 
-  public volatile long codecInitCount;
-  public volatile long codecReleaseCount;
-  public volatile long outputFormatChangedCount;
-  public volatile long outputBuffersChangedCount;
-  public volatile long queuedInputBufferCount;
-  public volatile long inputBufferWaitingForSampleCount;
-  public volatile long keyframeCount;
-  public volatile long queuedEndOfStreamCount;
-  public volatile long renderedOutputBufferCount;
-  public volatile long skippedOutputBufferCount;
-  public volatile long droppedOutputBufferCount;
-  public volatile long discardedSamplesCount;
+  public int codecInitCount;
+  public int codecReleaseCount;
+  public int outputFormatChangedCount;
+  public int outputBuffersChangedCount;
+  public int renderedOutputBufferCount;
+  public int skippedOutputBufferCount;
+  public int droppedOutputBufferCount;
 
   /**
-   * Resets all counts to zero.
+   * Should be invoked from the playback thread after the counters have been updated. Should also
+   * be invoked from any other thread that wishes to read the counters, before reading. These calls
+   * ensure that counter updates are made visible to the reading threads.
    */
-  public void zeroAllCounts() {
-    codecInitCount = 0;
-    codecReleaseCount = 0;
-    outputFormatChangedCount = 0;
-    outputBuffersChangedCount = 0;
-    queuedInputBufferCount = 0;
-    inputBufferWaitingForSampleCount = 0;
-    keyframeCount = 0;
-    queuedEndOfStreamCount = 0;
-    renderedOutputBufferCount = 0;
-    skippedOutputBufferCount = 0;
-    droppedOutputBufferCount = 0;
-    discardedSamplesCount = 0;
+  public synchronized void ensureUpdated() {
+    // Do nothing. The use of synchronized ensures a memory barrier should another thread also
+    // call this method.
   }
 
   public String getDebugString() {
+    ensureUpdated();
     StringBuilder builder = new StringBuilder();
     builder.append("cic(").append(codecInitCount).append(")");
     builder.append("crc(").append(codecReleaseCount).append(")");
     builder.append("ofc(").append(outputFormatChangedCount).append(")");
     builder.append("obc(").append(outputBuffersChangedCount).append(")");
-    builder.append("qib(").append(queuedInputBufferCount).append(")");
-    builder.append("wib(").append(inputBufferWaitingForSampleCount).append(")");
-    builder.append("kfc(").append(keyframeCount).append(")");
-    builder.append("qes(").append(queuedEndOfStreamCount).append(")");
     builder.append("ren(").append(renderedOutputBufferCount).append(")");
     builder.append("sob(").append(skippedOutputBufferCount).append(")");
     builder.append("dob(").append(droppedOutputBufferCount).append(")");
-    builder.append("dsc(").append(discardedSamplesCount).append(")");
     return builder.toString();
   }
 

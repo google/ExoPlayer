@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.upstream.cache;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.upstream.DataSink;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.Assertions;
@@ -63,6 +64,9 @@ public class CacheDataSink implements DataSink {
 
   @Override
   public DataSink open(DataSpec dataSpec) throws CacheDataSinkException {
+    // TODO: Support caching for unbounded requests. See TODO in {@link CacheDataSource} for
+    // more details.
+    Assertions.checkState(dataSpec.length != C.LENGTH_UNBOUNDED);
     try {
       this.dataSpec = dataSpec;
       dataSpecBytesWritten = 0;

@@ -98,12 +98,12 @@ import android.widget.TextView;
 
   @Override
   protected long getDurationUs() {
-    return TrackRenderer.MATCH_LONGEST;
+    return TrackRenderer.MATCH_LONGEST_US;
   }
 
   @Override
   protected long getBufferedPositionUs() {
-    return TrackRenderer.END_OF_TRACK;
+    return TrackRenderer.END_OF_TRACK_US;
   }
 
   @Override
