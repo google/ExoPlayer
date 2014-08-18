@@ -48,7 +48,7 @@ public class HLSSampleSource implements SampleSource {
   private int forcedBps;
   private double bpsFraction;
   private int lowThresholdMsec;
-  private int hightThresholdMsec;
+  private int highThresholdMsec;
   private MainPlaylist.Entry currentEntry;
 
   private ArrayList<LinkedList<Object>> list;
@@ -65,7 +65,10 @@ public class HLSSampleSource implements SampleSource {
   private int lastKnownSequence;
   private ChunkTask chunkTask;
   private String userAgent;
+  /* Amount we need to substract to get timestamps starting at 0 */
   private long ptsOffset;
+  /* used to keep track of wrapping from the thread */
+  private WrapInfo wrapInfo[] = new WrapInfo[2];
 
   private boolean endOfStream;
   private Handler eventHandler;
@@ -78,6 +81,11 @@ public class HLSSampleSource implements SampleSource {
   private HashMap<MainPlaylist.Entry, VariantPlaylistSlot> variantPlaylistsMap = new HashMap<MainPlaylist.Entry, VariantPlaylistSlot>();
   private VariantPlaylistTask variantPlaylistTask;
   private long targetDuration;
+
+  public static class WrapInfo {
+    long lastPts;
+    long offset;
+  }
 
   public static class VariantPlaylistSlot {
     VariantPlaylist playlist;
@@ -105,8 +113,6 @@ public class HLSSampleSource implements SampleSource {
     public TrackInfo trackInfo;
     public boolean discontinuity;
     public MainPlaylist.Entry readEntry;
-    public long wrapOffset;
-    public long lastPts;
   }
 
   public HLSSampleSource(String url, Handler eventHandler, EventListener listener) {
@@ -120,6 +126,8 @@ public class HLSSampleSource implements SampleSource {
     list = new ArrayList<LinkedList<Object>>();
     list.add(new LinkedList<Object>());
     list.add(new LinkedList<Object>());
+    wrapInfo[HLSExtractor.TYPE_AUDIO] = new WrapInfo();
+    wrapInfo[HLSExtractor.TYPE_VIDEO] = new WrapInfo();
     userAgent = "HLS Player";
     bufferedPts = new AtomicLong();
     this.eventHandler = eventHandler;
@@ -168,7 +176,7 @@ public class HLSSampleSource implements SampleSource {
     MainPlaylist.Entry idealEntry = getEntryBelowOrEqual((int)((double)estimatedBps * bpsFraction));
 
     if (idealEntry.bps > currentEntry.bps) {
-      if (bufferMsec < hightThresholdMsec) {
+      if (bufferMsec < highThresholdMsec) {
         // The ideal format is a higher quality, but we have insufficient buffer to
         // safely switch up. Defer switching up for now.
         idealEntry = currentEntry;
@@ -421,12 +429,7 @@ public class HLSSampleSource implements SampleSource {
           sample.data.position(0);
           sampleHolder.data.put(sample.data);
           sampleHolder.size = sample.data.limit();
-          if (sample.pts < hlsTrack.lastPts && (hlsTrack.lastPts - sample.pts) > Math.pow(2,31)) {
-            Log.d(TAG, "wrap detected");
-            hlsTrack.wrapOffset += Math.pow(2,32);
-          }
-          hlsTrack.lastPts = sample.pts;
-          sampleHolder.timeUs = (sample.pts - ptsOffset + hlsTrack.wrapOffset) * 1000 / 45;
+          sampleHolder.timeUs = (sample.pts - ptsOffset) * 1000 / 45;
           sampleHolder.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
           bufferSize -= sampleHolder.size;
           //Log.d(TAG, String.format("del %6d => %6d", sampleHolder.size, bufferSize));
@@ -455,10 +458,10 @@ public class HLSSampleSource implements SampleSource {
       bufferSize = 0;
       bufferMsec = 0;
       bufferedPts.set(timeUs * 45 / 1000 + ptsOffset);
-      // XXX: try to find the appropriate wrapOffset
-      for (HLSTrack t : trackList) {
-        t.lastPts = 0;
-        t.wrapOffset = 0;
+      for (int i = 0; i < wrapInfo.length; i++) {
+        // XXX: try to find the appropriate wrapOffset
+        wrapInfo[i].lastPts = 0;
+        wrapInfo[i].offset = 0;
       }
     }
 
@@ -495,7 +498,6 @@ public class HLSSampleSource implements SampleSource {
 
   @Override
   public long getBufferedPositionUs() {
-    // XXX: does not work if pts wrap
     return (bufferedPts.get() - ptsOffset) * 1000 / 45;
   }
 
@@ -602,7 +604,16 @@ public class HLSSampleSource implements SampleSource {
         }
         synchronized (source.list) {
           if (!aborted) {
-            if (!gotStreamTypes) {
+
+          WrapInfo wrapInfo = source.wrapInfo[sample.type];
+          if (sample.pts < wrapInfo.lastPts && (wrapInfo.lastPts - sample.pts) > Math.pow(2,31)) {
+            Log.d(TAG, "wrap detected");
+            wrapInfo.offset += Math.pow(2,32);
+          }
+          wrapInfo.lastPts = sample.pts;
+          sample.pts += wrapInfo.offset;
+
+          if (!gotStreamTypes) {
               audioStreamType = extractor.getStreamType(HLSExtractor.TYPE_AUDIO);
               videoStreamType = extractor.getStreamType(HLSExtractor.TYPE_VIDEO);
               gotStreamTypes = true;
@@ -632,8 +643,8 @@ public class HLSSampleSource implements SampleSource {
             bufferSize += sample.data.position();
             //Log.d(TAG, String.format("add %6d => %6d", sample.data.limit(), bufferSize));
           }
+          source.bufferedPts.set(sample.pts);
         }
-        source.bufferedPts.set(sample.pts);
       }
 
       extractor.release();
