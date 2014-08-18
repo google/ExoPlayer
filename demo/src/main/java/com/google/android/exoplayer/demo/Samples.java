@@ -142,7 +142,10 @@ package com.google.android.exoplayer.demo;
         DemoUtil.TYPE_OTHER, false, true),
     new Sample("Audio-only - HLS/mp3", "uid:misc:mpeg-audio", "https://api.beatgasm.com/v1/play/121.m3u8?type=user&type_id=2407&X-Auth-Token=1e800bce-5da2-410e-86fd-cf3471aa4795",
             DemoUtil.TYPE_HLS_AUDIO_ONLY, false, true),
-
+    new Sample("Audio-only2 - HLS/mp3", "uid:misc:mpeg-audio2", "https://api.beatgasm.com/v2/play/song/7758.m3u8?type=user&type_id=3032&X-Auth-Token=748be789-2116-4763-a4db-ea2a5725c69d",
+            DemoUtil.TYPE_HLS_AUDIO_ONLY, false, true),
+    new Sample("MilleniumTV - HLS/live", "uid:misc:milleniumtv", "http://stream-06.vty.dmcdn.net/04/dm/1/xmehe4/live.isml/live.m3u8?e=1408524072&st=YTAp6BMa5cqa1gYYInSsRA#cell=livev2&comment=",
+            DemoUtil.TYPE_HLS, false, true),
   };
 
   private Samples() {}

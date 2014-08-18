@@ -62,6 +62,7 @@ public class HLSSampleSource implements SampleSource {
   private AtomicLong bufferedPts;
 
   private int sequence;
+  private int lastKnownSequence;
   private ChunkTask chunkTask;
   private String userAgent;
   private long ptsOffset;
@@ -219,6 +220,7 @@ public class HLSSampleSource implements SampleSource {
     targetDuration = (long)variantPlaylist.entries.get(0).extinf;
 
     sequence = variantPlaylist.mediaSequence;
+    lastKnownSequence = variantPlaylist.mediaSequence + variantPlaylist.entries.size() - 1;
 
     prepared = true;
 
@@ -687,6 +689,16 @@ public class HLSSampleSource implements SampleSource {
       HLSSampleSource source = HLSSampleSource.this;
       if (exception == null) {
         source.variantPlaylistsMap.get(currentEntry).playlist = this.variantPlaylist;
+        long durationUs = trackList.get(0).trackInfo.durationUs;
+        for (int i = 0; i < this.variantPlaylist.entries.size(); i++) {
+          if (this.variantPlaylist.mediaSequence + i > source.lastKnownSequence) {
+            durationUs += 1000000 * this.variantPlaylist.entries.get(i).extinf;
+            source.lastKnownSequence = this.variantPlaylist.mediaSequence + i;
+          }
+        }
+        for (HLSTrack hlsTrack: trackList) {
+          hlsTrack.trackInfo.durationUs = durationUs;
+        }
       }
 
       source.variantPlaylistTask = null;

@@ -259,6 +259,30 @@ import java.util.List;
     handler.sendEmptyMessage(MSG_INCREMENTAL_PREPARE);
   }
 
+  private void updateDuration() {
+    long durationUs = 0;
+    for (int i = 0; i < renderers.length; i++) {
+      TrackRenderer renderer = renderers[i];
+      if (renderer.getState() != TrackRenderer.STATE_PREPARED && renderer.getState() != TrackRenderer.STATE_STARTED) {
+        continue;
+      }
+      if (durationUs == TrackRenderer.UNKNOWN_TIME) {
+        // We've already encountered a track for which the duration is unknown, so the media
+        // duration is unknown regardless of the duration of this track.
+      } else {
+        long trackDurationUs = renderer.getDurationUs();
+        if (trackDurationUs == TrackRenderer.UNKNOWN_TIME) {
+          durationUs = TrackRenderer.UNKNOWN_TIME;
+        } else if (trackDurationUs == TrackRenderer.MATCH_LONGEST) {
+          // Do nothing.
+        } else {
+          durationUs = Math.max(durationUs, trackDurationUs);
+        }
+      }
+      this.durationUs = durationUs;
+    }
+  }
+
   private void incrementalPrepareInternal() throws ExoPlaybackException {
     long operationStartTimeMs = SystemClock.elapsedRealtime();
     boolean prepared = true;
@@ -277,7 +301,6 @@ import java.util.List;
       return;
     }
 
-    long durationUs = 0;
     boolean isEnded = true;
     boolean allRenderersReadyOrEnded = true;
     for (int i = 0; i < renderers.length; i++) {
@@ -287,22 +310,9 @@ import java.util.List;
         enabledRenderers.add(renderer);
         isEnded = isEnded && renderer.isEnded();
         allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded(renderer);
-        if (durationUs == TrackRenderer.UNKNOWN_TIME) {
-          // We've already encountered a track for which the duration is unknown, so the media
-          // duration is unknown regardless of the duration of this track.
-        } else {
-          long trackDurationUs = renderer.getDurationUs();
-          if (trackDurationUs == TrackRenderer.UNKNOWN_TIME) {
-            durationUs = TrackRenderer.UNKNOWN_TIME;
-          } else if (trackDurationUs == TrackRenderer.MATCH_LONGEST) {
-            // Do nothing.
-          } else {
-            durationUs = Math.max(durationUs, trackDurationUs);
-          }
-        }
       }
     }
-    this.durationUs = durationUs;
+    updateDuration();
 
     if (isEnded) {
       // We don't expect this case, but handle it anyway.
@@ -417,6 +427,7 @@ import java.util.List;
       }
     }
     this.bufferedPositionUs = bufferedPositionUs;
+    updateDuration();
 
     if (isEnded) {
       setState(ExoPlayer.STATE_ENDED);
