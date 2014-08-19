@@ -144,7 +144,9 @@ package com.google.android.exoplayer.demo;
             DemoUtil.TYPE_HLS_AUDIO_ONLY, false, true),
     new Sample("Audio-only2 - HLS/mp3", "uid:misc:mpeg-audio2", "https://api.beatgasm.com/v2/play/song/7758.m3u8?type=user&type_id=3032&X-Auth-Token=748be789-2116-4763-a4db-ea2a5725c69d",
             DemoUtil.TYPE_HLS_AUDIO_ONLY, false, true),
-    new Sample("MilleniumTV - HLS/live", "uid:misc:milleniumtv", "http://stream-06.vty.dmcdn.net/04/dm/1/xmehe4/live.isml/live.m3u8?e=1408524072&st=YTAp6BMa5cqa1gYYInSsRA#cell=livev2&comment=",
+    new Sample("Audio-only3 - HLS/mp3", "uid:misc:mpeg-audio3", "https://api.beatgasm.com/v2/play/song/7484.m3u8?type=user&type_id=3032&X-Auth-Token=748be789-2116-4763-a4db-ea2a5725c69d",
+            DemoUtil.TYPE_HLS, false, true),
+    new Sample("Apple-bipbop - HLS", "uid:misc:bipbop", "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8",
             DemoUtil.TYPE_HLS, false, true),
   };
 

@@ -5,7 +5,8 @@ import android.util.Log;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.hls.HLSExtractor;
+import com.google.android.exoplayer.hls.Extractor;
+import com.google.android.exoplayer.hls.Packet;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -15,11 +16,11 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AACExtractor extends HLSExtractor {
+public class AACExtractor extends Extractor {
   private static final String TAG = "AACExtractor";
   private int neededSize;
   private DataSource dataSource;
-  private UnsignedByteArray data;
+  private Packet.UnsignedByteArray data;
   private int state;
   private int position;
   private ID3Header mID3Header = new ID3Header();
@@ -41,7 +42,7 @@ public class AACExtractor extends HLSExtractor {
     private int sampleRateIndex;
     private int channelConfigIndex;
 
-    private static int getSampleRate(int sampleRateIndex) {
+    public static int getSampleRate(int sampleRateIndex) {
       switch(sampleRateIndex) {
         case 0: return 96000;
         case 1: return 88200;
@@ -60,9 +61,9 @@ public class AACExtractor extends HLSExtractor {
       return 44100;
     }
 
-    public void update(UnsignedByteArray data, int offset)
+    public void update(Packet.UnsignedByteArray data, int offset)
     {
-      UnsignedByteArray d = data;
+      Packet.UnsignedByteArray d = data;
       if (d.get(0) != 0xff || ((d.get(1) & 0xf0) != 0xf0)) {
         Log.d(TAG, "no ADTS sync");
       } else {
@@ -110,14 +111,14 @@ public class AACExtractor extends HLSExtractor {
   public AACExtractor(DataSource dataSource) {
     super();
     this.dataSource = dataSource;
-    data = new UnsignedByteArray(32*1024);
+    data = new Packet.UnsignedByteArray(32*1024);
     temporaryHolder = new SampleHolder(false);
     temporaryHolder.data = ByteBuffer.allocate(32*1024);
     neededSize = 10;
   }
 
   @Override
-  public Sample read() throws ParserException {
+  public Packet read() throws ParserException {
     int ret;
 
     while (true) {
@@ -205,7 +206,7 @@ public class AACExtractor extends HLSExtractor {
           break;
         case STATE_AAC_DATA:
           mADTSHeader.update(data, 0);
-          Sample sample = getSample(TYPE_AUDIO);
+          Packet sample = Packet.getPacket(Packet.TYPE_AUDIO);
           sample.data.put(data.array(), 0, mADTSHeader.frameLength);
           sample.pts = timeUs;
           position = 0;
@@ -218,14 +219,14 @@ public class AACExtractor extends HLSExtractor {
 
   @Override
   public int getStreamType(int type) {
-    if (type == TYPE_AUDIO) {
+    if (type == Packet.TYPE_AUDIO) {
       return STREAM_TYPE_AAC_ADTS;
     } else {
       return STREAM_TYPE_NONE;
     }
   }
 
-  private static int getSynchSafeInteger(UnsignedByteArray data, int offset) {
+  private static int getSynchSafeInteger(Packet.UnsignedByteArray data, int offset) {
     return (data.get(offset) << 21) | (data.get(offset + 1) << 14) | (data.get(offset + 2) << 7) | (data.get(offset + 3));
   }
 }

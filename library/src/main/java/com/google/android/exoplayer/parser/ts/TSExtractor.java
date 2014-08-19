@@ -4,7 +4,8 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.hls.HLSExtractor;
+import com.google.android.exoplayer.hls.Extractor;
+import com.google.android.exoplayer.hls.Packet;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.TraceUtil;
 
@@ -12,12 +13,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TSExtractor extends HLSExtractor {
+public class TSExtractor extends Extractor {
   private static final String TAG = "TSExtractor";
 
   private final DataSource dataSource;
 
-  private UnsignedByteArray packet;
+  private Packet.UnsignedByteArray packet;
   int packetWriteOffset;
 
   private final SparseArray<PayloadHandler> activePayloadHandlers;
@@ -33,7 +34,8 @@ public class TSExtractor extends HLSExtractor {
   private int dataIncompletePosition;
   private boolean dataSourceFinished;
 
-  private Sample outSample;
+  private Packet outSample;
+  private boolean hasPMT;
 
   static abstract class PayloadHandler {
     public int cc_counter;
@@ -49,11 +51,11 @@ public class TSExtractor extends HLSExtractor {
      * @param payloadStart
      * @param unit_start
      */
-    abstract public void handlePayload(UnsignedByteArray packet, int payloadStart, boolean unit_start);
+    abstract public void handlePayload(Packet.UnsignedByteArray packet, int payloadStart, boolean unit_start);
   }
 
   class PESHandler extends PayloadHandler {
-    private Sample currentSample;
+    private Packet currentSample;
     private int length;
     private int type;
 
@@ -63,7 +65,7 @@ public class TSExtractor extends HLSExtractor {
     }
 
     @Override
-    public void handlePayload(UnsignedByteArray packet, int payloadStart, boolean unitStart) {
+    public void handlePayload(Packet.UnsignedByteArray packet, int payloadStart, boolean unitStart) {
       int offset = payloadStart;
       if (unitStartNotSignalled) {
         unitStart = (packet.get(payloadStart) == 0x00
@@ -87,7 +89,7 @@ public class TSExtractor extends HLSExtractor {
           currentSample = null;
         }
 
-        currentSample = getSample(type);
+        currentSample = Packet.getPacket(type);
 
         int[] prefix = new int[3];
         prefix[0] = packet.get(offset++);
@@ -130,7 +132,7 @@ public class TSExtractor extends HLSExtractor {
       }
 
       if (currentSample.data.position() + 188 > currentSample.data.capacity()) {
-        resizeSample(currentSample, 2*(currentSample.data.capacity() + 188));
+        Packet.resizeSample(currentSample, 2 * (currentSample.data.capacity() + 188));
       }
       currentSample.data.put(packet.array(), offset, dataPosition - offset);
     }
@@ -138,18 +140,18 @@ public class TSExtractor extends HLSExtractor {
 
   abstract class SectionHandler extends PayloadHandler {
     protected int tableID;
-    protected UnsignedByteArray section;
+    protected Packet.UnsignedByteArray section;
     int sectionLength;
     int sectionWriteOffset;
 
     public SectionHandler(int pid, int tableID) {
       super.init(pid);
       this.tableID = tableID;
-      section = new UnsignedByteArray(1024);
+      section = new Packet.UnsignedByteArray(1024);
     }
 
     @Override
-    public void handlePayload(UnsignedByteArray packet, int payloadStart, boolean unit_start) {
+    public void handlePayload(Packet.UnsignedByteArray packet, int payloadStart, boolean unit_start) {
       int offset = payloadStart;
       if (sectionLength == 0) {
         // pointer_field (what if pointer_field is != 0 ?)
@@ -174,7 +176,7 @@ public class TSExtractor extends HLSExtractor {
       }
     }
 
-    abstract protected void handleSection(UnsignedByteArray data, int dataLength);
+    abstract protected void handleSection(Packet.UnsignedByteArray data, int dataLength);
   }
 
   class PMTHandler extends SectionHandler {
@@ -192,7 +194,7 @@ public class TSExtractor extends HLSExtractor {
     }
 
     @Override
-    protected void handleSection(UnsignedByteArray data, int dataLength) {
+    protected void handleSection(Packet.UnsignedByteArray data, int dataLength) {
       // start from 5 to skip transport_stream_id, version_number, current_next_indicator, etc.
       int i = 7;
       int program_info_length = ((data.get(i) & 0xf) << 8) | data.get(i+1);
@@ -216,7 +218,7 @@ public class TSExtractor extends HLSExtractor {
         handler = null;
         if (audio_handler == null && (s.type == STREAM_TYPE_AAC_ADTS || s.type == STREAM_TYPE_MPEG_AUDIO)) {
           audioStreamType = s.type;
-          audio_handler = new PESHandler(s.pid, TYPE_AUDIO);
+          audio_handler = new PESHandler(s.pid, Packet.TYPE_AUDIO);
           handler = audio_handler;
           //Log.d(TAG, String.format("audio found on pid %04x", s.pid));
 
@@ -226,7 +228,7 @@ public class TSExtractor extends HLSExtractor {
           }
         } else if (video_handler == null && s.type == STREAM_TYPE_H264) {
           videoStreamType = s.type;
-          video_handler = new PESHandler(s.pid, TYPE_VIDEO);
+          video_handler = new PESHandler(s.pid, Packet.TYPE_VIDEO);
           handler = video_handler;
           //Log.d(TAG, String.format("video found on pid %04x", s.pid));
         }
@@ -236,6 +238,7 @@ public class TSExtractor extends HLSExtractor {
         }
       }
 
+      hasPMT = true;
       // do not listen to future PMT updates
       activePayloadHandlers.remove(this.pid);
     }
@@ -255,7 +258,7 @@ public class TSExtractor extends HLSExtractor {
     }
 
     @Override
-    public void handleSection(UnsignedByteArray data, int dataLength) {
+    public void handleSection(Packet.UnsignedByteArray data, int dataLength) {
       // start from 5 to skip transport_stream_id, version_number, current_next_indicator, etc.
       // stop at length - 4 to skip crc
       for (int i = 5; i < dataLength - 4; ){
@@ -280,8 +283,8 @@ public class TSExtractor extends HLSExtractor {
     }
   }
 
-  public TSExtractor(DataSource dataSource) {
-    packet = new UnsignedByteArray(200 * 188);
+  public TSExtractor(DataSource dataSource) throws ParserException {
+    packet = new Packet.UnsignedByteArray(200 * 188);
     activePayloadHandlers = new SparseArray<PayloadHandler>(4);
     PayloadHandler payloadHandler = (PayloadHandler)new PATHandler(0);
     activePayloadHandlers.put(0, payloadHandler);
@@ -290,6 +293,9 @@ public class TSExtractor extends HLSExtractor {
 
     audioStreamType = STREAM_TYPE_NONE;
     videoStreamType = STREAM_TYPE_NONE;
+    while(!hasPMT) {
+      readOnePacket();
+    }
   }
 
   private boolean fillData() throws ParserException {
@@ -388,7 +394,7 @@ public class TSExtractor extends HLSExtractor {
     packetWriteOffset = 0;
   }
 
-  public Sample read()
+  public Packet read()
           throws ParserException {
 
     TraceUtil.beginSection("TSExtractor::read");
@@ -398,7 +404,7 @@ public class TSExtractor extends HLSExtractor {
       } else {
         for (PESHandler pesh : activePESHandlers) {
           if (pesh.currentSample != null) {
-            Sample s = pesh.currentSample;
+            Packet s = pesh.currentSample;
             pesh.currentSample = null;
             return s;
           }
@@ -407,13 +413,13 @@ public class TSExtractor extends HLSExtractor {
       }
     }
 
-    Sample s = outSample;
+    Packet s = outSample;
     outSample = null;
     return s;
   }
 
   public int getStreamType(int type) {
-    if (type == TYPE_AUDIO) {
+    if (type == Packet.TYPE_AUDIO) {
       return audioStreamType;
     } else {
       return videoStreamType;

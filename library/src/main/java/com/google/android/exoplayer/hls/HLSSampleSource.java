@@ -15,6 +15,7 @@ import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.parser.aac.AACExtractor;
 import com.google.android.exoplayer.parser.ts.TSExtractor;
+import com.google.android.exoplayer.parser.ts.TSExtractorWithParsers;
 import com.google.android.exoplayer.upstream.AESDataSource;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -126,8 +127,8 @@ public class HLSSampleSource implements SampleSource {
     list = new ArrayList<LinkedList<Object>>();
     list.add(new LinkedList<Object>());
     list.add(new LinkedList<Object>());
-    wrapInfo[HLSExtractor.TYPE_AUDIO] = new WrapInfo();
-    wrapInfo[HLSExtractor.TYPE_VIDEO] = new WrapInfo();
+    wrapInfo[Packet.TYPE_AUDIO] = new WrapInfo();
+    wrapInfo[Packet.TYPE_VIDEO] = new WrapInfo();
     userAgent = "HLS Player";
     bufferedPts = new AtomicLong();
     this.eventHandler = eventHandler;
@@ -261,8 +262,8 @@ public class HLSSampleSource implements SampleSource {
       synchronized (list) {
         for (LinkedList<Object> l : list) {
           for (Object o : l) {
-            if (o instanceof HLSExtractor.Sample) {
-              HLSExtractor.Sample sample =  (HLSExtractor.Sample)o;
+            if (o instanceof Packet) {
+              Packet sample =  (Packet)o;
               if (found == false) {
                 ptsOffset = sample.pts;
                 Log.d(TAG, "found ptsOffset=" + ptsOffset);
@@ -294,20 +295,20 @@ public class HLSSampleSource implements SampleSource {
     }
 
     i = 0;
-    if (audioStreamType != HLSExtractor.STREAM_TYPE_NONE) {
+    if (audioStreamType != Extractor.STREAM_TYPE_NONE) {
       HLSTrack track = new HLSTrack();
-      track.type = HLSExtractor.TYPE_AUDIO;
-      String mime = (audioStreamType == HLSExtractor.STREAM_TYPE_AAC_ADTS) ? MimeTypes.AUDIO_AAC : MimeTypes.AUDIO_MPEG;
+      track.type = Packet.TYPE_AUDIO;
+      String mime = (audioStreamType == Extractor.STREAM_TYPE_AAC_ADTS) ? MimeTypes.AUDIO_AAC : MimeTypes.AUDIO_MPEG;
       track.trackInfo = new TrackInfo(mime, durationUs);
       trackList.add(track);
-      track2type[i++] = HLSExtractor.TYPE_AUDIO;
+      track2type[i++] = Packet.TYPE_AUDIO;
     }
-    if (videoStreamType != HLSExtractor.STREAM_TYPE_NONE) {
+    if (videoStreamType != Extractor.STREAM_TYPE_NONE) {
       HLSTrack track = new HLSTrack();
-      track.type = HLSExtractor.TYPE_VIDEO;
+      track.type = Packet.TYPE_VIDEO;
       track.trackInfo = new TrackInfo(MimeTypes.VIDEO_H264, durationUs);
       trackList.add(track);
-      track2type[i++] = HLSExtractor.TYPE_VIDEO;
+      track2type[i++] = Packet.TYPE_VIDEO;
     }
 
     return true;
@@ -424,7 +425,7 @@ public class HLSSampleSource implements SampleSource {
             return NOTHING_READ;
           }
         } else {
-          HLSExtractor.Sample sample = (HLSExtractor.Sample)o;
+          Packet sample = (Packet)o;
           sample.data.limit(sample.data.position());
           sample.data.position(0);
           sampleHolder.data.put(sample.data);
@@ -563,7 +564,7 @@ public class HLSSampleSource implements SampleSource {
             ChunkSentinel sentinel = new ChunkSentinel();
             sentinel.mediaFormat = chunk.videoMediaFormat;
             sentinel.entry = chunk.mainEntry;
-            list.get(HLSExtractor.TYPE_VIDEO).add(sentinel);
+            list.get(Packet.TYPE_VIDEO).add(sentinel);
         }
       }
 
@@ -578,7 +579,7 @@ public class HLSSampleSource implements SampleSource {
         return null;
       }
 
-      HLSExtractor extractor = null;
+      Extractor extractor = null;
       /*
         try {
           extractor = new TSExtractorNative(dataSource);
@@ -587,10 +588,15 @@ public class HLSSampleSource implements SampleSource {
         }
       }*/
       if (extractor == null) {
-        extractor = new TSExtractor(dataSource);
+        try {
+          extractor = new TSExtractorWithParsers(dataSource);
+        } catch (ParserException e) {
+          e.printStackTrace();
+          exception = e;
+        }
       }
 
-      HLSExtractor.Sample sample;
+      Packet sample;
       while (aborted == false) {
         try {
           sample = extractor.read();
@@ -614,19 +620,19 @@ public class HLSSampleSource implements SampleSource {
           sample.pts += wrapInfo.offset;
 
           if (!gotStreamTypes) {
-              audioStreamType = extractor.getStreamType(HLSExtractor.TYPE_AUDIO);
-              videoStreamType = extractor.getStreamType(HLSExtractor.TYPE_VIDEO);
+              audioStreamType = extractor.getStreamType(Packet.TYPE_AUDIO);
+              videoStreamType = extractor.getStreamType(Packet.TYPE_VIDEO);
               gotStreamTypes = true;
             }
-            if (audioMediaFormat == null && sample.type == HLSExtractor.TYPE_AUDIO) {
-              if (audioStreamType == HLSExtractor.STREAM_TYPE_AAC_ADTS) {
+            if (audioMediaFormat == null && sample.type == Packet.TYPE_AUDIO) {
+              if (audioStreamType == Extractor.STREAM_TYPE_AAC_ADTS) {
                 AACExtractor.ADTSHeader h = new AACExtractor.ADTSHeader();
                 byte header[] = new byte[7];
                 int oldPosition = sample.data.position();
                 sample.data.position(0);
                 sample.data.get(header, 0, 7);
                 sample.data.position(oldPosition);
-                h.update(new HLSExtractor.UnsignedByteArray(header), 0);
+                h.update(new Packet.UnsignedByteArray(header), 0);
                 audioMediaFormat = h.toMediaFormat();
               } else {
                 // XX: do not hardcode
@@ -638,6 +644,7 @@ public class HLSSampleSource implements SampleSource {
 
               list.get(sample.type).add(sentinel);
             }
+
             list.get(sample.type).add(sample);
 
             bufferSize += sample.data.position();

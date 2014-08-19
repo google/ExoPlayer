@@ -5,15 +5,14 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.hls.HLSExtractor;
+import com.google.android.exoplayer.hls.Extractor;
+import com.google.android.exoplayer.hls.Packet;
 import com.google.android.exoplayer.parser.ts.TSExtractor;
-import com.google.android.exoplayer.parser.ts.TSExtractorNative;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceStream;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.FileDataSource;
-import com.google.android.exoplayer.upstream.HttpDataSource;
 
 public class TSExtractorTestCase extends TestCase {
   @Override
@@ -23,21 +22,21 @@ public class TSExtractorTestCase extends TestCase {
     DataSource dataSource = new FileDataSource();
     DataSourceStream inputStream = new DataSourceStream(dataSource, dataSpec, new BufferPool(64*1024));
     inputStream.load();
-    HLSExtractor extractor = new TSExtractor(dataSource);
-    int type = TSExtractor.TYPE_AUDIO;
+    Extractor extractor = new TSExtractor(dataSource);
+    int type = Packet.TYPE_AUDIO;
     int[] counter = new int[2];
 
     SampleHolder sampleHolder = new SampleHolder(false);
     long start = SystemClock.uptimeMillis();
     while (true) {
-      HLSExtractor.Sample s = extractor.read();
+      Packet s = extractor.read();
       if (s == null) {
         break;
       }
       counter[s.type]++;
     }
-    Log.d("TSExtractorTestCase", String.format("processed %d audio frames and %d video frames in %d ms", counter[TSExtractor.TYPE_AUDIO],
-            counter[TSExtractor.TYPE_VIDEO], SystemClock.uptimeMillis() - start));
+    Log.d("TSExtractorTestCase", String.format("processed %d audio frames and %d video frames in %d ms", counter[Packet.TYPE_AUDIO],
+            counter[Packet.TYPE_VIDEO], SystemClock.uptimeMillis() - start));
 
   }
 }

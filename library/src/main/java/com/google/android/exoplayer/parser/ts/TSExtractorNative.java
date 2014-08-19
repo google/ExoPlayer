@@ -1,10 +1,11 @@
 package com.google.android.exoplayer.parser.ts;
 
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.hls.HLSExtractor;
+import com.google.android.exoplayer.hls.Extractor;
+import com.google.android.exoplayer.hls.Packet;
 import com.google.android.exoplayer.upstream.DataSource;
 
-public class TSExtractorNative extends HLSExtractor {
+public class TSExtractorNative extends Extractor {
 
   private DataSource dataSource;
   static boolean loaded;
@@ -22,7 +23,7 @@ public class TSExtractorNative extends HLSExtractor {
   }
 
   @Override
-  public Sample read() throws ParserException {
+  public Packet read() throws ParserException {
 
     return nativeRead();
   }
@@ -39,6 +40,6 @@ public class TSExtractorNative extends HLSExtractor {
   private long nativeHandle;
 
   private native void nativeInit();
-  private native Sample nativeRead();
+  private native Packet nativeRead();
   public native void nativeRelease();
 }
