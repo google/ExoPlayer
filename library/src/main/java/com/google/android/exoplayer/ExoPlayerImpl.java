@@ -141,7 +141,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void release() {
-      //ensure that player not release at ui thread to avoid ANR in some rom
+    //ensure that player not release at ui thread to avoid ANR in some rom
     if(Looper.myLooper()==Looper.getMainLooper()){
         new Thread(){
             @Override
