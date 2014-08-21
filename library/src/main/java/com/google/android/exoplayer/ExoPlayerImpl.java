@@ -141,7 +141,19 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void release() {
-    internalPlayer.release();
+    //ensure that player do not release at ui thread to avoid ANR in some rom
+    if(Looper.myLooper()==Looper.getMainLooper()){
+        new Thread(){
+            @Override
+            public void run() {
+                if(internalPlayer!=null) {
+                    internalPlayer.release();
+                }
+            }
+        }.start();
+    }else {
+        internalPlayer.release();
+    }
     eventHandler.removeCallbacksAndMessages(null);
   }
 
