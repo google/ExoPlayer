@@ -207,6 +207,8 @@ public class HLSSampleSource implements SampleSource {
     int i = 0;
     if (prepared)
       return true;
+
+    Log.d(TAG, "prepare: " + this.url);
     try {
       mainPlaylist = MainPlaylist.parse(this.url);
     } catch (Exception e) {
@@ -242,9 +244,10 @@ public class HLSSampleSource implements SampleSource {
 
     isLive = !variantPlaylist.endList;
     if (isLive) {
-      sequence = variantPlaylist.mediaSequence;
-    } else {
+      // if we are live, start as close as possible from the realtime position
       sequence = variantPlaylist.mediaSequence + variantPlaylist.entries.size() - 1;
+    } else {
+      sequence = variantPlaylist.mediaSequence;
     }
 
     prepared = true;
