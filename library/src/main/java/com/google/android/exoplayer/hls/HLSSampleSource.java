@@ -14,7 +14,6 @@ import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.parser.aac.AACExtractor;
-import com.google.android.exoplayer.parser.ts.TSExtractor;
 import com.google.android.exoplayer.parser.ts.TSExtractorWithParsers;
 import com.google.android.exoplayer.upstream.AESDataSource;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -78,10 +77,14 @@ public class HLSSampleSource implements SampleSource {
   private int audioStreamType;
   private boolean gotStreamTypes;
   private int maxBps;
+  private int firstMediaSequence;
+  private ArrayList<Double> rememberedExtinf;
 
   private HashMap<MainPlaylist.Entry, VariantPlaylistSlot> variantPlaylistsMap = new HashMap<MainPlaylist.Entry, VariantPlaylistSlot>();
   private VariantPlaylistTask variantPlaylistTask;
-  private long targetDuration;
+  private double targetDuration;
+  private long durationUs;
+  private boolean isLive;
 
   public static class WrapInfo {
     long lastPts;
@@ -123,7 +126,8 @@ public class HLSSampleSource implements SampleSource {
     initialBps = -1;
     maxBps = -1;
     forcedBps = -1;
-    lowThresholdMsec = 10000;
+    lowThresholdMsec = 5000;
+    highThresholdMsec = 8000;
     list = new ArrayList<LinkedList<Object>>();
     list.add(new LinkedList<Object>());
     list.add(new LinkedList<Object>());
@@ -133,6 +137,7 @@ public class HLSSampleSource implements SampleSource {
     bufferedPts = new AtomicLong();
     this.eventHandler = eventHandler;
     this.eventListener = listener;
+    rememberedExtinf = new ArrayList<Double>();
   }
 
   public HLSSampleSource(String url) {
@@ -225,11 +230,22 @@ public class HLSSampleSource implements SampleSource {
     VariantPlaylist variantPlaylist = currentEntry.downloadVariantPlaylist();
     variantPlaylistsMap.get(currentEntry).playlist = variantPlaylist;
 
-    long durationUs = (long)variantPlaylist.duration * 1000 * 1000;
     targetDuration = (long)variantPlaylist.entries.get(0).extinf;
 
-    sequence = variantPlaylist.mediaSequence;
-    lastKnownSequence = variantPlaylist.mediaSequence + variantPlaylist.entries.size() - 1;
+    firstMediaSequence = variantPlaylist.mediaSequence;
+    targetDuration = variantPlaylist.targetDuration;
+    if (targetDuration <= 0) {
+      targetDuration = variantPlaylist.entries.get(0).extinf;
+    }
+    lastKnownSequence = variantPlaylist.mediaSequence - 1;
+    rememberVariantPlaylist(variantPlaylist);
+
+    isLive = !variantPlaylist.endList;
+    if (isLive) {
+      sequence = variantPlaylist.mediaSequence;
+    } else {
+      sequence = variantPlaylist.mediaSequence + variantPlaylist.entries.size() - 1;
+    }
 
     prepared = true;
 
@@ -357,16 +373,21 @@ public class HLSSampleSource implements SampleSource {
       return;
     }
 
-    if (sequence == variantPlaylist.mediaSequence + variantPlaylist.entries.size()) {
+    if (sequence >= variantPlaylist.mediaSequence + variantPlaylist.entries.size()) {
       if (variantPlaylist.endList) {
         endOfStream = true;
+        return;
       } else {
         kickVariantPlaylistTask();
-        // wait for the task to complete
         return;
       }
-      // return in all cases
-      return;
+    } else if (sequence < variantPlaylist.mediaSequence) {
+      int newSequence = variantPlaylist.mediaSequence + 1;
+      if (variantPlaylist.entries.size() == 0) {
+        newSequence = variantPlaylist.mediaSequence;
+      }
+      Log.d(TAG, "we are behind, skip sequence " + sequence + " ( " + variantPlaylist.mediaSequence + " - " + newSequence + ")");
+      sequence = newSequence;
     }
 
     if (eventListener != null) {
@@ -392,7 +413,7 @@ public class HLSSampleSource implements SampleSource {
   private void kickVariantPlaylistTask() {
     VariantPlaylistSlot slot = variantPlaylistsMap.get(currentEntry);
     long now = SystemClock.uptimeMillis();
-    if (variantPlaylistTask == null && (now - slot.lastUptime > targetDuration / 2)) {
+    if (variantPlaylistTask == null && (now - slot.lastUptime > 1000 * targetDuration / 2)) {
       variantPlaylistTask = new VariantPlaylistTask(currentEntry);
       variantPlaylistTask.execute();
       slot.lastUptime = now;
@@ -466,29 +487,18 @@ public class HLSSampleSource implements SampleSource {
       }
     }
 
-    VariantPlaylist variantPlaylist = variantPlaylistsMap.get(currentEntry).playlist;
-    if (variantPlaylist == null) {
-      // might be null in rare cases where we switch the quality just before seeking.
-      // in that case, we still have a valid variantPlaylist somewhere
-      for (MainPlaylist.Entry entry:variantPlaylistsMap.keySet()) {
-        variantPlaylist = variantPlaylistsMap.get(entry).playlist;
-        if (variantPlaylist != null) {
-          break;
-        }
-      }
-    }
-
     long acc = 0;
-    sequence = variantPlaylist.mediaSequence;
-    for (VariantPlaylist.Entry e : variantPlaylist.entries) {
-      acc += (long)(e.extinf * 1000000);
+
+    sequence = firstMediaSequence;
+    for (Double extinf : rememberedExtinf) {
+      acc += (long)(extinf * 1000000);
       if (acc > timeUs) {
         break;
       }
       sequence++;
     }
 
-    Log.d(TAG, "seekTo " + timeUs/1000 + " => " + sequence);
+    Log.d(TAG, "seekTo " + timeUs/1000 + " => " + sequence + " firstMediaSequence=" + firstMediaSequence);
 
     for (HLSTrack t : trackList) {
       t.discontinuity = true;
@@ -511,6 +521,31 @@ public class HLSSampleSource implements SampleSource {
       l.clear();
     }
     list.clear();
+  }
+
+  private void rememberVariantPlaylist(VariantPlaylist variantPlaylist) {
+    Log.d(TAG, "remember variantPlaylist (" + variantPlaylist.mediaSequence + " - " + (variantPlaylist.mediaSequence
+            + variantPlaylist.entries.size() - 1) + ") lastKnownSequence=" + lastKnownSequence);
+    if (variantPlaylist.mediaSequence > lastKnownSequence + 1) {
+      Log.e(TAG, "we missed some sequence numbers " + lastKnownSequence + " -> " + variantPlaylist.mediaSequence);
+      // try to guess the durations of the missing chunks
+      for (int i = lastKnownSequence + 1; i < variantPlaylist.mediaSequence; i++) {
+        rememberedExtinf.add(targetDuration);
+        durationUs += (long)targetDuration * 1000000;
+        lastKnownSequence++;
+      }
+    }
+
+    for (int i = lastKnownSequence + 1 - variantPlaylist.mediaSequence; i < variantPlaylist.entries.size(); i++) {
+      double extinf = variantPlaylist.entries.get(i).extinf;
+      rememberedExtinf.add(extinf);
+      durationUs += (long)extinf * 1000000;
+      lastKnownSequence++;
+    }
+
+    for (HLSTrack hlsTrack: trackList) {
+      hlsTrack.trackInfo.durationUs = durationUs;
+    }
   }
 
   static class Chunk {
@@ -707,16 +742,7 @@ public class HLSSampleSource implements SampleSource {
       HLSSampleSource source = HLSSampleSource.this;
       if (exception == null) {
         source.variantPlaylistsMap.get(currentEntry).playlist = this.variantPlaylist;
-        long durationUs = trackList.get(0).trackInfo.durationUs;
-        for (int i = 0; i < this.variantPlaylist.entries.size(); i++) {
-          if (this.variantPlaylist.mediaSequence + i > source.lastKnownSequence) {
-            durationUs += 1000000 * this.variantPlaylist.entries.get(i).extinf;
-            source.lastKnownSequence = this.variantPlaylist.mediaSequence + i;
-          }
-        }
-        for (HLSTrack hlsTrack: trackList) {
-          hlsTrack.trackInfo.durationUs = durationUs;
-        }
+        rememberVariantPlaylist(this.variantPlaylist);
       }
 
       source.variantPlaylistTask = null;
