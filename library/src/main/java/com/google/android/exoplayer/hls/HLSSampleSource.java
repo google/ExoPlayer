@@ -14,6 +14,7 @@ import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.parser.aac.AACExtractor;
+import com.google.android.exoplayer.parser.h264.H264Utils;
 import com.google.android.exoplayer.parser.ts.TSExtractorWithParsers;
 import com.google.android.exoplayer.upstream.AESDataSource;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -26,11 +27,14 @@ import com.google.android.exoplayer.util.Util;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicLong;
+import com.google.android.exoplayer.parser.h264.H264Utils.SPS;
 
 /**
  * Created by martin on 31/07/14.
@@ -458,7 +462,6 @@ public class HLSSampleSource implements SampleSource {
           sampleHolder.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
           bufferSize -= sampleHolder.size;
           //Log.d(TAG, String.format("del %6d => %6d", sampleHolder.size, bufferSize));
-          //Log.d(TAG, (sample.type == HLSExtractor.TYPE_AUDIO ? "AUDIO" : "VIDEO") + " timeUS=" + (sampleHolder.pts/1000));
           return SAMPLE_READ;
         }
       } catch (NoSuchElementException e) {
@@ -576,6 +579,7 @@ public class HLSSampleSource implements SampleSource {
       Log.d(TAG, "opening " + chunkUrl);
       Uri uri = null;
       MediaFormat audioMediaFormat = null;
+      MediaFormat videoMediaFormat = null;
 
       if (variantEntry.keyEntry != null) {
         String dataUrl = null;
@@ -595,15 +599,6 @@ public class HLSSampleSource implements SampleSource {
         uri = Uri.parse("aes://dummy?dataUrl=" + dataUrl + "&keyUrl=" + keyUrl + "&iv=" + iv);
       } else {
         uri = Uri.parse(chunkUrl);
-      }
-
-      synchronized (source.list) {
-        if (!aborted) {
-            ChunkSentinel sentinel = new ChunkSentinel();
-            sentinel.mediaFormat = chunk.videoMediaFormat;
-            sentinel.entry = chunk.mainEntry;
-            list.get(Packet.TYPE_VIDEO).add(sentinel);
-        }
       }
 
       DataSpec dataSpec = new DataSpec(uri, variantEntry.offset, variantEntry.length, null);
@@ -662,6 +657,7 @@ public class HLSSampleSource implements SampleSource {
               videoStreamType = extractor.getStreamType(Packet.TYPE_VIDEO);
               gotStreamTypes = true;
             }
+
             if (audioMediaFormat == null && sample.type == Packet.TYPE_AUDIO) {
               if (audioStreamType == Extractor.STREAM_TYPE_AAC_ADTS) {
                 AACExtractor.ADTSHeader h = new AACExtractor.ADTSHeader();
@@ -681,12 +677,26 @@ public class HLSSampleSource implements SampleSource {
               sentinel.entry = chunk.mainEntry;
 
               list.get(sample.type).add(sentinel);
+            } else if (videoMediaFormat == null && sample.type == Packet.TYPE_VIDEO) {
+              ChunkSentinel sentinel = new ChunkSentinel();
+              List<byte[]> csd = new ArrayList<byte []>();
+              SPS sps = H264Utils.extractSPS_PPS(sample.data, csd);
+              if (sps != null) {
+                // some decoders need the Codec Specific Data
+                sentinel.mediaFormat = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
+                        sps.width, sps.height, csd);
+              } else {
+                sentinel.mediaFormat = chunk.videoMediaFormat;
+              }
+              videoMediaFormat = sentinel.mediaFormat;
+              sentinel.entry = chunk.mainEntry;
+              list.get(Packet.TYPE_VIDEO).add(sentinel);
             }
 
             list.get(sample.type).add(sample);
 
             bufferSize += sample.data.position();
-            //Log.d(TAG, String.format("add %6d => %6d", sample.data.limit(), bufferSize));
+            //Log.d(TAG, (sample.type == Packet.TYPE_AUDIO ? "AUDIO" : "VIDEO") + " timeUS=" + (sample.pts/45) + " size=" + sample.data.position());
           }
           source.bufferedPts.set(sample.pts);
         }
