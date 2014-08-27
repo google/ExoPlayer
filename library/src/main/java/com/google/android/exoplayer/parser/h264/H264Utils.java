@@ -131,7 +131,7 @@ public class H264Utils {
     while (i < limit - 4) {
       if (data.get(i) == 0 && data.get(i+1) == 0 && data.get(i+2) == 1) {
         int type = (int)(data.get(i+3))&0x1f;
-        Log.d("NAL", String.format("H264NAL(@%8d): %2d -> %s", i, type, getNALName(type)));
+        //Log.d("NAL", String.format("H264NAL(@%8d): %2d -> %s", i, type, getNALName(type)));
       }
       i++;
     }
@@ -192,7 +192,7 @@ public class H264Utils {
           data.position(oldPosition);
           csd.add(spsData);
         }
-        Log.d("NAL", String.format("H264NAL(@%8d): %2d -> %s", i, type, getNALName(type)));
+        //Log.d("NAL", String.format("H264NAL(@%8d): %2d -> %s", i, type, getNALName(type)));
 
         if (spsData != null && ppsData != null) {
           break;

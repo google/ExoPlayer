@@ -530,8 +530,8 @@ public class HLSSampleSource implements SampleSource {
   }
 
   private void rememberVariantPlaylist(VariantPlaylist variantPlaylist) {
-    Log.d(TAG, "remember variantPlaylist (" + variantPlaylist.mediaSequence + " - " + (variantPlaylist.mediaSequence
-            + variantPlaylist.entries.size() - 1) + ") lastKnownSequence=" + lastKnownSequence);
+    /*Log.d(TAG, "remember variantPlaylist (" + variantPlaylist.mediaSequence + " - " + (variantPlaylist.mediaSequence
+            + variantPlaylist.entries.size() - 1) + ") lastKnownSequence=" + lastKnownSequence);*/
     if (variantPlaylist.mediaSequence > lastKnownSequence + 1) {
       Log.e(TAG, "we missed some sequence numbers " + lastKnownSequence + " -> " + variantPlaylist.mediaSequence);
       // try to guess the durations of the missing chunks
