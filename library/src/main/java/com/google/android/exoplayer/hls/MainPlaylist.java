@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,25 +48,20 @@ public class MainPlaylist {
       return bps - another.bps;
     }
 
-    public VariantPlaylist downloadVariantPlaylist() {
+    public VariantPlaylist downloadVariantPlaylist() throws IOException {
       VariantPlaylist variantPlaylist;
-      try {
-          URL variantURL = new URL(absoluteUrl);
+      URL variantURL = new URL(absoluteUrl);
 
-          InputStream inputStream = getInputStream(variantURL);
-          try {
-            variantPlaylist = VariantPlaylist.parse(variantURL.toString(), inputStream);
-          } finally {
-            if (inputStream != null) {
-              inputStream.close();
-            }
-          }
-        } catch (Exception e) {
-          Log.d(TAG,"cannot download variant playlist");
-          e.printStackTrace();
-          return null;
+      InputStream inputStream = getInputStream(variantURL);
+      try {
+        variantPlaylist = VariantPlaylist.parse(variantURL.toString(), inputStream);
+      } finally {
+        if (inputStream != null) {
+          inputStream.close();
         }
-        return variantPlaylist;
+      }
+
+      return variantPlaylist;
     }
   }
 
