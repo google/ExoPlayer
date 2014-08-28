@@ -83,11 +83,14 @@ public class H264Utils {
 
     BitReader reader = new BitReader(data, i);
     sps.seq_parameter_set_id = reader.readUnsignedExpGolomb();
+
+    // XXX: some profile insert stuff here
+
     sps.log2_max_frame_num_minus4 = reader.readUnsignedExpGolomb();
     sps.pic_order_cnt_type = reader.readUnsignedExpGolomb();
     if (sps.pic_order_cnt_type == 0) {
       sps.log2_max_pic_order_cnt_lsb_minus4 = reader.readUnsignedExpGolomb();
-    } else if (sps.pic_order_cnt_type == 0) {
+    } else if (sps.pic_order_cnt_type == 1) {
       reader.read(1);
       // these should read signed exp golombs but since I don't care about
       // the value, I just use the unsigned version
@@ -154,7 +157,7 @@ public class H264Utils {
     }
   }
 
-  public static SPS extractSPS_PPS(ByteBuffer data, List<byte[]> csd) {
+  public static boolean extractSPS_PPS(ByteBuffer data, List<byte[]> csd) {
     int i = 0;
     int size = data.position();
     byte ppsData[] = null;
@@ -202,9 +205,9 @@ public class H264Utils {
     }
 
     if (ppsData != null) {
-      return parseSPS(ByteBuffer.wrap(spsData), 4);
+      return true;
     } else {
-      return null;
+      return false;
     }
   }
 }

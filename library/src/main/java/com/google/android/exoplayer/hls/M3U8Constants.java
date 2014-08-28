@@ -9,4 +9,5 @@ public class M3U8Constants {
   public static final String EXT_X_TARGETDURATION = "#EXT-X-TARGETDURATION";
   public static final String EXT_X_BYTERANGE = "#EXT-X-BYTERANGE";
   public static final String EXT_X_KEY = "#EXT-X-KEY";
+  public static final String EXT_X_PLAYLIST_TYPE = "#EXT-X-PLAYLIST-TYPE";
 }

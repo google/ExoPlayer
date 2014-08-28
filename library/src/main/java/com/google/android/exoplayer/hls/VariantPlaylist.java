@@ -15,11 +15,17 @@ import java.util.HashMap;
 import java.util.List;
 
 public class VariantPlaylist {
+  public static final int TYPE_UNKNOWN = 0;
+  public static final int TYPE_EVENT = 1;
+  public static final int TYPE_VOD = 2;
+
+
   public String url;
   public int mediaSequence;
   public boolean endList;
   public double duration;
   public double targetDuration;
+  public int type;
 
   static class KeyEntry {
     public String uri;
@@ -45,6 +51,7 @@ public class VariantPlaylist {
   public VariantPlaylist() {
     entries = new ArrayList<Entry>();
     endList = false;
+    type = TYPE_UNKNOWN;
   }
 
   public static VariantPlaylist parse(String url, InputStream stream) throws IOException {
@@ -101,6 +108,13 @@ public class VariantPlaylist {
               ke.IV = ke.IV.substring(2);
             }
           }
+        }
+      } else if (line.startsWith(M3U8Constants.EXT_X_PLAYLIST_TYPE + ":")) {
+        String t = line.substring(M3U8Constants.EXT_X_PLAYLIST_TYPE.length() + 1);
+        if (t.equals("VOD")) {
+          variantPlaylist.type = TYPE_VOD;
+        } else if (t.equals("EVENT")) {
+          variantPlaylist.type = TYPE_EVENT;
         }
       }
     }

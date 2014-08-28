@@ -27,7 +27,6 @@ import com.google.android.exoplayer.util.Util;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -81,7 +80,7 @@ public class HLSSampleSource implements SampleSource {
   private int audioStreamType;
   private boolean gotStreamTypes;
   private int maxBps;
-  private int firstMediaSequence;
+  private int firstRememberedMediaSequence;
   private ArrayList<Double> rememberedExtinf;
 
   private HashMap<MainPlaylist.Entry, VariantPlaylistSlot> variantPlaylistsMap = new HashMap<MainPlaylist.Entry, VariantPlaylistSlot>();
@@ -238,22 +237,27 @@ public class HLSSampleSource implements SampleSource {
 
     targetDuration = (long)variantPlaylist.entries.get(0).extinf;
 
-    firstMediaSequence = variantPlaylist.mediaSequence;
+    isLive = !variantPlaylist.endList;
+    if (isLive) {
+      if (variantPlaylist.type == VariantPlaylist.TYPE_EVENT) {
+        // the server will only append files, start from the beginning
+        firstRememberedMediaSequence = variantPlaylist.mediaSequence;
+      } else {
+        // we are live, start as close as possible from the realtime position
+        firstRememberedMediaSequence = variantPlaylist.mediaSequence + variantPlaylist.entries.size() - 1;
+      }
+    } else {
+      firstRememberedMediaSequence = variantPlaylist.mediaSequence;
+    }
+
     targetDuration = variantPlaylist.targetDuration;
     if (targetDuration <= 0) {
       targetDuration = variantPlaylist.entries.get(0).extinf;
     }
-    lastKnownSequence = variantPlaylist.mediaSequence - 1;
+    lastKnownSequence = firstRememberedMediaSequence - 1;
     rememberVariantPlaylist(variantPlaylist);
 
-    isLive = !variantPlaylist.endList;
-    if (isLive) {
-      // if we are live, start as close as possible from the realtime position
-      sequence = variantPlaylist.mediaSequence + variantPlaylist.entries.size() - 1;
-    } else {
-      sequence = variantPlaylist.mediaSequence;
-    }
-
+    sequence = firstRememberedMediaSequence;
     prepared = true;
 
     // start downloading, we need to get some information from the first chunks
@@ -393,7 +397,9 @@ public class HLSSampleSource implements SampleSource {
       if (variantPlaylist.entries.size() == 0) {
         newSequence = variantPlaylist.mediaSequence;
       }
-      Log.d(TAG, "we are behind, skip sequence " + sequence + " ( " + variantPlaylist.mediaSequence + " - " + newSequence + ")");
+      Log.d(TAG, String.format("we are behind, skip sequence %d -> %d (%d - %d)",
+              sequence, newSequence, variantPlaylist.mediaSequence,
+              variantPlaylist.mediaSequence + variantPlaylist.entries.size() - 1));
       sequence = newSequence;
     }
 
@@ -461,7 +467,9 @@ public class HLSSampleSource implements SampleSource {
           sampleHolder.timeUs = (sample.pts - ptsOffset) * 1000 / 45;
           sampleHolder.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
           bufferSize -= sampleHolder.size;
-          //Log.d(TAG, String.format("del %6d => %6d", sampleHolder.size, bufferSize));
+          /*Log.d(TAG, String.format("%s: read %6d time=%8d (bufferSize=%6d)",
+                  sample.type == Packet.TYPE_AUDIO ? "AUDIO":"VIDEO",
+                  sampleHolder.size, sampleHolder.timeUs/1000, bufferSize));*/
           return SAMPLE_READ;
         }
       } catch (NoSuchElementException e) {
@@ -495,7 +503,7 @@ public class HLSSampleSource implements SampleSource {
 
     long acc = 0;
 
-    sequence = firstMediaSequence;
+    sequence = firstRememberedMediaSequence;
     for (Double extinf : rememberedExtinf) {
       acc += (long)(extinf * 1000000);
       if (acc > timeUs) {
@@ -504,7 +512,7 @@ public class HLSSampleSource implements SampleSource {
       sequence++;
     }
 
-    Log.d(TAG, "seekTo " + timeUs/1000 + " => " + sequence + " firstMediaSequence=" + firstMediaSequence);
+    Log.d(TAG, "seekTo " + timeUs/1000 + " => " + sequence + " firstRememberedMediaSequence=" + firstRememberedMediaSequence);
 
     for (HLSTrack t : trackList) {
       t.discontinuity = true;
@@ -530,8 +538,8 @@ public class HLSSampleSource implements SampleSource {
   }
 
   private void rememberVariantPlaylist(VariantPlaylist variantPlaylist) {
-    /*Log.d(TAG, "remember variantPlaylist (" + variantPlaylist.mediaSequence + " - " + (variantPlaylist.mediaSequence
-            + variantPlaylist.entries.size() - 1) + ") lastKnownSequence=" + lastKnownSequence);*/
+    Log.d(TAG, "remember variantPlaylist (" + variantPlaylist.mediaSequence + " - " + (variantPlaylist.mediaSequence
+            + variantPlaylist.entries.size() - 1) + ") lastKnownSequence=" + lastKnownSequence);
     if (variantPlaylist.mediaSequence > lastKnownSequence + 1) {
       Log.e(TAG, "we missed some sequence numbers " + lastKnownSequence + " -> " + variantPlaylist.mediaSequence);
       // try to guess the durations of the missing chunks
@@ -576,7 +584,7 @@ public class HLSSampleSource implements SampleSource {
       String variantPlaylistUrl = chunk.variantPlaylist.url;
       VariantPlaylist.Entry variantEntry = chunk.variantEntry;
       String chunkUrl = Util.makeAbsoluteUrl(variantPlaylistUrl, variantEntry.url);
-      Log.d(TAG, "opening " + chunkUrl);
+      Log.d(TAG, sequence + " continueBuffering " + chunkUrl);
       Uri uri = null;
       MediaFormat audioMediaFormat = null;
       MediaFormat videoMediaFormat = null;
@@ -680,11 +688,16 @@ public class HLSSampleSource implements SampleSource {
             } else if (videoMediaFormat == null && sample.type == Packet.TYPE_VIDEO) {
               ChunkSentinel sentinel = new ChunkSentinel();
               List<byte[]> csd = new ArrayList<byte []>();
-              SPS sps = H264Utils.extractSPS_PPS(sample.data, csd);
-              if (sps != null) {
-                // some decoders need the Codec Specific Data
+              if (H264Utils.extractSPS_PPS(sample.data, csd)) {
+                /*
+                 * Some decoders might need the Codec Specific data at initialisation so I extract it.
+                 * For width/height, I could parse the pps unfortunately, the code currently has a bug
+                 * for some profiles (at least 100). So I take the value from the playlist (if they exist)
+                 */
+                /*sentinel.mediaFormat = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
+                        sps.width, sps.height, csd);*/
                 sentinel.mediaFormat = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
-                        sps.width, sps.height, csd);
+                        chunk.videoMediaFormat.width, chunk.videoMediaFormat.height, csd);
               } else {
                 sentinel.mediaFormat = chunk.videoMediaFormat;
               }
@@ -696,7 +709,7 @@ public class HLSSampleSource implements SampleSource {
             list.get(sample.type).add(sample);
 
             bufferSize += sample.data.position();
-            //Log.d(TAG, (sample.type == Packet.TYPE_AUDIO ? "AUDIO" : "VIDEO") + " timeUS=" + (sample.pts/45) + " size=" + sample.data.position());
+            //Log.d(TAG, (sample.type == Packet.TYPE_AUDIO ? "AUDIO" : "VIDEO") + " time=" + (sample.pts/45) + " size=" + sample.data.position());
           }
           source.bufferedPts.set(sample.pts);
         }
