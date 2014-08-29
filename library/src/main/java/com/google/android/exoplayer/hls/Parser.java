@@ -7,4 +7,6 @@ public abstract class Parser {
   // returns null if no more packet can be output
   public abstract Packet read();
   public abstract void pushPacket(Packet packet);
+
+  public abstract void release();
 }

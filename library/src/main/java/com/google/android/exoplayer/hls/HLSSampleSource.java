@@ -29,6 +29,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -88,6 +89,7 @@ public class HLSSampleSource implements SampleSource {
   private double targetDuration;
   private long durationUs;
   private boolean isLive;
+  private HashMap<Object, Object> allocatorsMap = new HashMap<Object, Object>();
 
   public static class WrapInfo {
     long lastPts;
@@ -482,15 +484,25 @@ public class HLSSampleSource implements SampleSource {
     }
   }
 
+  private void clearSamples() {
+    for (LinkedList<Object> l : list) {
+      Iterator<Object> it = l.iterator();
+      while (it.hasNext()) {
+        Object o = it.next();
+        /*if (o instanceof Packet) {
+          ((Packet) o).release();
+        }*/
+        it.remove();
+      }
+    }
+  }
   @Override
   public void seekToUs(long timeUs) {
     if (chunkTask != null) {
       chunkTask.abort();
     }
     synchronized(list) {
-      for (LinkedList<Object> l : list) {
-        l.clear();
-      }
+      clearSamples();
       bufferSize = 0;
       bufferMsec = 0;
       bufferedPts.set(timeUs * 45 / 1000 + ptsOffset);
@@ -531,9 +543,8 @@ public class HLSSampleSource implements SampleSource {
     if (chunkTask != null) {
       chunkTask.abort();
     }
-    for (LinkedList<Object> l : list) {
-      l.clear();
-    }
+    clearSamples();
+
     list.clear();
   }
 
@@ -584,7 +595,7 @@ public class HLSSampleSource implements SampleSource {
       String variantPlaylistUrl = chunk.variantPlaylist.url;
       VariantPlaylist.Entry variantEntry = chunk.variantEntry;
       String chunkUrl = Util.makeAbsoluteUrl(variantPlaylistUrl, variantEntry.url);
-      Log.d(TAG, sequence + " continueBuffering " + chunkUrl);
+      Log.d(TAG, sequence + ": chunkTask (" + String.format("%8d", bufferSize) + ") " + chunkUrl);
       Uri uri = null;
       MediaFormat audioMediaFormat = null;
       MediaFormat videoMediaFormat = null;
@@ -630,7 +641,7 @@ public class HLSSampleSource implements SampleSource {
       }*/
       if (extractor == null) {
         try {
-          extractor = new TSExtractorWithParsers(dataSource);
+          extractor = new TSExtractorWithParsers(dataSource, allocatorsMap);
         } catch (ParserException e) {
           e.printStackTrace();
           exception = e;

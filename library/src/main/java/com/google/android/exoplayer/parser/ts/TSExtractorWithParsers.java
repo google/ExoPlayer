@@ -7,6 +7,8 @@ import com.google.android.exoplayer.hls.Parser;
 import com.google.android.exoplayer.parser.aac.ADTSParser;
 import com.google.android.exoplayer.upstream.DataSource;
 
+import java.util.HashMap;
+
 /**
  * Created by martin on 18/08/14.
  */
@@ -15,8 +17,8 @@ public class TSExtractorWithParsers extends Extractor {
   private TSExtractor extractor;
   private Parser currentParser;
 
-  public TSExtractorWithParsers(DataSource dataSource) throws ParserException {
-    extractor = new TSExtractor(dataSource);
+  public TSExtractorWithParsers(DataSource dataSource, HashMap<Object, Object> allocatorsMap) throws ParserException {
+    extractor = new TSExtractor(dataSource, allocatorsMap);
     int audioStreamType = extractor.getStreamType(Packet.TYPE_AUDIO);
     if (audioStreamType == STREAM_TYPE_AAC_ADTS) {
       parser[Packet.TYPE_AUDIO] = new ADTSParser();
@@ -51,5 +53,13 @@ public class TSExtractorWithParsers extends Extractor {
   @Override
   public int getStreamType(int type) {
     return extractor.getStreamType(type);
+  }
+
+  public void release() {
+    for (int i = 0; i < 2; i++) {
+      if (parser[i] != null) {
+        parser[i].release();
+      }
+    }
   }
 }

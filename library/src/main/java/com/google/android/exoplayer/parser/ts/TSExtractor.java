@@ -4,19 +4,23 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.hls.DefaultPacketAllocator;
 import com.google.android.exoplayer.hls.Extractor;
 import com.google.android.exoplayer.hls.Packet;
+import com.google.android.exoplayer.hls.TSPacketAllocator;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.TraceUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class TSExtractor extends Extractor {
   private static final String TAG = "TSExtractor";
 
   private final DataSource dataSource;
+  private final TSPacketAllocator[] allocators;
 
   private Packet.UnsignedByteArray packet;
   int packetWriteOffset;
@@ -58,10 +62,12 @@ public class TSExtractor extends Extractor {
     private Packet currentSample;
     private int length;
     private int type;
+    private TSPacketAllocator allocator;
 
     public PESHandler(int pid, int type) {
       super.init(pid);
       this.type = type;
+      allocator = allocators[type];
     }
 
     @Override
@@ -89,7 +95,7 @@ public class TSExtractor extends Extractor {
           currentSample = null;
         }
 
-        currentSample = Packet.getPacket(type);
+        currentSample = allocator.allocatePacket(type);
 
         int[] prefix = new int[3];
         prefix[0] = packet.get(offset++);
@@ -127,12 +133,16 @@ public class TSExtractor extends Extractor {
         offset = fixedOffset + headerDataLength;
         if (length > 0)
           length -= headerDataLength + 3;
+
+        if (currentSample.data.remaining() < 188) {
+          currentSample = allocator.allocateBiggerPacket(currentSample);
+        }
         currentSample.data.put(packet.array(), offset, dataPosition - offset);
         return;
       }
 
-      if (currentSample.data.position() + 188 > currentSample.data.capacity()) {
-        Packet.resizeSample(currentSample, 2 * (currentSample.data.capacity() + 188));
+      if (currentSample.data.remaining() < 188) {
+        currentSample = allocator.allocateBiggerPacket(currentSample);
       }
       currentSample.data.put(packet.array(), offset, dataPosition - offset);
     }
@@ -283,13 +293,23 @@ public class TSExtractor extends Extractor {
     }
   }
 
-  public TSExtractor(DataSource dataSource) throws ParserException {
+  public TSExtractor(DataSource dataSource, HashMap<Object, Object> allocatorsMap) throws ParserException {
     packet = new Packet.UnsignedByteArray(200 * 188);
     activePayloadHandlers = new SparseArray<PayloadHandler>(4);
     PayloadHandler payloadHandler = (PayloadHandler)new PATHandler(0);
     activePayloadHandlers.put(0, payloadHandler);
     this.dataSource = dataSource;
     activePESHandlers = new ArrayList<PESHandler>();
+
+    TSPacketAllocator[] allocators = (TSPacketAllocator[])allocatorsMap.get(getClass());
+    if (allocators == null) {
+      allocators = new TSPacketAllocator[2];
+      allocators[Packet.TYPE_AUDIO] = new TSPacketAllocator(100*1024);
+      allocators[Packet.TYPE_VIDEO] = new TSPacketAllocator(500*1024);
+      // remember them for later
+      allocatorsMap.put(getClass(), allocators);
+    }
+    this.allocators = allocators;
 
     audioStreamType = STREAM_TYPE_NONE;
     videoStreamType = STREAM_TYPE_NONE;

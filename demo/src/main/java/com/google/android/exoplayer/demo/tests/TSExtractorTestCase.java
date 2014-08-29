@@ -22,7 +22,7 @@ public class TSExtractorTestCase extends TestCase {
     DataSource dataSource = new FileDataSource();
     DataSourceStream inputStream = new DataSourceStream(dataSource, dataSpec, new BufferPool(64*1024));
     inputStream.load();
-    Extractor extractor = new TSExtractor(dataSource);
+    Extractor extractor = new TSExtractor(dataSource, null);
     int type = Packet.TYPE_AUDIO;
     int[] counter = new int[2];
 

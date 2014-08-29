@@ -7,49 +7,13 @@ import java.util.LinkedList;
 /**
 * Created by martin on 18/08/14.
 */
-public class Packet {
+public abstract class Packet {
   public static final int TYPE_VIDEO = 0;
   public static final int TYPE_AUDIO = 1;
-  static final ArrayList<LinkedList<Packet>> recycledSampleList;
 
-  static {
-    recycledSampleList = new ArrayList<LinkedList<Packet>>(2);
-    recycledSampleList.add(new LinkedList<Packet>());
-    recycledSampleList.add(new LinkedList<Packet>());
-  }
-
-  public Packet(int type) {
-    this.type = type;
-    this.data = ByteBuffer.allocateDirect(2 * 1024);
-  }
   public long pts;
   public ByteBuffer data;
   public int type;
-
-  static public synchronized Packet getPacket(int type) {
-    LinkedList<Packet> list = recycledSampleList.get(type);
-    if (list.size() > 0) {
-      Packet s = list.removeFirst();
-      s.data.position(0);
-      s.data.limit(s.data.capacity());
-      return s;
-    } else {
-      return new Packet(type);
-    }
-  }
-
-  static public synchronized void releaseSample(Packet s) {
-    LinkedList<Packet> list = recycledSampleList.get(s.type);
-    list.add(s);
-  }
-
-  static public synchronized void resizeSample(Packet s, int newSize) {
-    ByteBuffer newData = ByteBuffer.allocateDirect(newSize);
-    s.data.limit(s.data.position());
-    s.data.position(0);
-    newData.put(s.data);
-    s.data = newData;
-  }
 
   static public class UnsignedByteArray {
     byte[] array;

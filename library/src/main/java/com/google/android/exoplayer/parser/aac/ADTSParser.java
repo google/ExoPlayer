@@ -1,5 +1,6 @@
 package com.google.android.exoplayer.parser.aac;
 
+import com.google.android.exoplayer.hls.DefaultPacketAllocator;
 import com.google.android.exoplayer.hls.Packet;
 import com.google.android.exoplayer.hls.Parser;
 
@@ -50,7 +51,7 @@ public class ADTSParser extends Parser{
 
             int newLimit = splitPacket.data.position() + frameLength - 7;
             if (newLimit > splitPacket.data.capacity()) {
-              Packet.resizeSample(splitPacket, 2 * newLimit);
+              DefaultPacketAllocator.resizePacket(splitPacket, 2 * newLimit);
             }
 
             splitPacket.data.limit(newLimit);
@@ -61,7 +62,7 @@ public class ADTSParser extends Parser{
           if (splitPacket.data.remaining() == 0) {
             if (outputPacket || currentPacket.data.position() == currentPacket.data.limit()) {
               Packet packet = splitPacket;
-              splitPacket = Packet.getPacket(currentPacket.type);
+              splitPacket = DefaultPacketAllocator.getPacket(currentPacket.type);
               splitPacket.pts = currentPacket.pts;
               splitPacket.data.limit(7);
               outputPacket = false;
@@ -71,7 +72,7 @@ public class ADTSParser extends Parser{
 
               int newLimit = splitPacket.data.position() + 7;
               if (newLimit > splitPacket.data.capacity()) {
-                Packet.resizeSample(splitPacket, 2 * newLimit);
+                DefaultPacketAllocator.resizePacket(splitPacket, 2 * newLimit);
               }
 
               splitPacket.data.limit(newLimit);
@@ -84,6 +85,7 @@ public class ADTSParser extends Parser{
       }
 
       if (currentPacket.data.position() == currentPacket.data.limit()) {
+        //currentPacket.release();
         return null;
       }
     }
@@ -96,10 +98,17 @@ public class ADTSParser extends Parser{
     currentPacket = packet;
     outputPacket = true;
     if (splitPacket == null) {
-      splitPacket = Packet.getPacket(Packet.TYPE_AUDIO);
+      splitPacket = DefaultPacketAllocator.getPacket(Packet.TYPE_AUDIO);
       splitPacket.pts = currentPacket.pts;
       splitPacket.data.limit(7);
       state = STATE_HEADER;
     }
+  }
+
+  @Override
+  public void release() {
+    /*if (currentPacket != null) {
+      currentPacket.release();
+    }*/
   }
 }

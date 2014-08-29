@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.hls.DefaultPacketAllocator;
 import com.google.android.exoplayer.hls.Extractor;
 import com.google.android.exoplayer.hls.Packet;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -206,7 +207,7 @@ public class AACExtractor extends Extractor {
           break;
         case STATE_AAC_DATA:
           mADTSHeader.update(data, 0);
-          Packet sample = Packet.getPacket(Packet.TYPE_AUDIO);
+          Packet sample = DefaultPacketAllocator.getPacket(Packet.TYPE_AUDIO);
           sample.data.put(data.array(), 0, mADTSHeader.frameLength);
           sample.pts = timeUs;
           position = 0;
