@@ -4,6 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class M3U8Utils {
+  static private String strip(String str) {
+    return str.replaceAll("^\\s+", "").replaceAll("\\s+$", "");
+  }
+
   static HashMap<String,String> parseAtrributeList(String s){
     String name = "";
     String value = "";
@@ -16,6 +20,7 @@ public class M3U8Utils {
       char c = s.charAt(i);
       if (in_name) {
         if (c == '=') {
+          name = strip(name);
           in_name = false;
         } else {
           name += c;
