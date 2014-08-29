@@ -134,7 +134,7 @@ package com.google.android.exoplayer.demo;
   public static final Sample[] MISC = new Sample[] {
     new Sample("Dizzy", "uid:misc:dizzy", "http://html5demos.com/assets/dizzy.mp4",
         DemoUtil.TYPE_OTHER, false, true),
-    new Sample("L'ecole du pouboir - hls 720p", "uid:misc:dailymotion_long", "http://vid2.cf.dmcdn.net/sec(a17e8c0f2d5a0a7c0c5d5363bf024568)/video/600/257/128752006_mp4_h264_aac_hq.m3u8",
+    new Sample("L'ecole du pouvoir - hls 720p", "uid:misc:dailymotion_long", "http://vid2.cf.dmcdn.net/sec(a17e8c0f2d5a0a7c0c5d5363bf024568)/video/600/257/128752006_mp4_h264_aac_hq.m3u8",
             DemoUtil.TYPE_HLS, false, true),
     new Sample("Tour de france - hls adaptive", "uid:misc:dailymotion", "http://www.dailymotion.com/cdn/manifest/video/x20w6of.m3u8?auth=1410854598-2560-irsxfgcg-8b70f9f192d150bfa64e1a29fca1dcd5",
         DemoUtil.TYPE_HLS, false, true),

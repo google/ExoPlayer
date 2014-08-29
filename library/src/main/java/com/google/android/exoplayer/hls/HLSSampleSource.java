@@ -126,7 +126,22 @@ public class HLSSampleSource implements SampleSource {
 
   public HLSSampleSource(String url, Handler eventHandler, EventListener listener) {
     this.url = url;
-    maxBufferSize = 30 * 1024 * 1024;
+    Runtime rt = Runtime.getRuntime();
+    int maxMemoryMB = (int)(rt.maxMemory()/(1024*1024));
+
+    if (maxMemoryMB <= 16) {
+      maxBufferSize = 1 * 1024 * 1024;
+    } else if (maxMemoryMB <= 24) {
+      maxBufferSize = 4 * 1024 * 1024;
+    } else if (maxMemoryMB <= 32) {
+      maxBufferSize = 8 * 1024 * 1024;
+    } else if (maxMemoryMB <= 64) {
+      maxBufferSize = 16 * 1024 * 1024;
+    } else {
+      maxBufferSize = 24 * 1024 * 1024;
+    }
+    Log.v(TAG, "maxMemoryMB= " + maxMemoryMB + ", maxBufferSize=" + maxBufferSize);
+
     bpsFraction = 0.75;
     initialBps = -1;
     maxBps = -1;
@@ -147,6 +162,10 @@ public class HLSSampleSource implements SampleSource {
 
   public HLSSampleSource(String url) {
       this(url, null, null);
+  }
+
+  public void setMaxBufferSize(int maxBufferSize) {
+    this.maxBufferSize = maxBufferSize;
   }
 
   public void setForcedBps(int bps) {
