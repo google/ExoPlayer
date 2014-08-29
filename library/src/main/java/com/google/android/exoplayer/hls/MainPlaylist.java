@@ -32,8 +32,8 @@ public class MainPlaylist {
 
     public Entry() {
       codecs = new ArrayList<String>();
-      width = -1;
-      height = -1;
+      width = 0;
+      height = 0;
     }
     public Entry(String baseUrl, String url) {
       this();
