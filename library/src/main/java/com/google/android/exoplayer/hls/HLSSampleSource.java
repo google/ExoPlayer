@@ -102,9 +102,10 @@ public class HLSSampleSource implements SampleSource {
   }
 
   public static class Quality {
-      public int width;
-      public int height;
-      public int bps;
+    public int width;
+    public int height;
+    public int bps;
+    public String name;
   }
 
   public interface EventListener {
@@ -285,21 +286,22 @@ public class HLSSampleSource implements SampleSource {
     continueBuffering(0);
 
     if (eventListener != null && eventHandler != null) {
-        final Quality qualities[] = new Quality[mainPlaylist.entries.size()];
-        i = 0;
-        for (MainPlaylist.Entry e : mainPlaylist.entries) {
-            qualities[i] = new Quality();
-            qualities[i].width = e.width;
-            qualities[i].height = e.height;
-            qualities[i].bps = e.bps;
-            i++;
+      final Quality qualities[] = new Quality[mainPlaylist.entries.size()];
+      i = 0;
+      for (MainPlaylist.Entry e : mainPlaylist.entries) {
+        qualities[i] = new Quality();
+        qualities[i].width = e.width;
+        qualities[i].height = e.height;
+        qualities[i].bps = e.bps;
+        qualities[i].name = e.name;
+        i++;
+      }
+      eventHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          eventListener.onQualitiesParsed(qualities);
         }
-        eventHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                eventListener.onQualitiesParsed(qualities);
-            }
-        });
+      });
     }
 
     boolean found = false;

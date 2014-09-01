@@ -29,6 +29,7 @@ public class MainPlaylist {
     public int width;
     public int height;
     public ArrayList<String> codecs;
+    public String name;
 
     public Entry() {
       codecs = new ArrayList<String>();
@@ -158,6 +159,9 @@ public class MainPlaylist {
             String [] parts = codec.split("\\.");
             e.codecs.add(parts[0]);
           }
+        }
+        if (attributes.containsKey("NAME")) {
+          e.name = attributes.get("NAME");
         }
         if (e.codecs.size() == 0) {
           // by default, assume chunks contain aac + h264
