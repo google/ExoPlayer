@@ -555,11 +555,13 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void seekTo(long timeUs) throws ExoPlaybackException {
-    super.seekTo(timeUs);
+  protected long seekTo(long timeUs) throws ExoPlaybackException {
+    long seekTimeUs = super.seekTo(timeUs);
     // TODO: Try and re-use the same AudioTrack instance once [redacted] is fixed.
     releaseAudioTrack();
     lastReportedCurrentPositionUs = 0;
+
+    return seekTimeUs;
   }
 
   @Override

@@ -336,9 +336,10 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * {@link #STATE_ENABLED}
    *
    * @param timeUs The desired time in micro-seconds.
+   * @return The actual time where the seek was performed
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected abstract void seekTo(long timeUs) throws ExoPlaybackException;
+  protected abstract long seekTo(long timeUs) throws ExoPlaybackException;
 
   @Override
   public void handleMessage(int what, Object object) throws ExoPlaybackException {

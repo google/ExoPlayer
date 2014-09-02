@@ -352,12 +352,15 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected void seekTo(long timeUs) throws ExoPlaybackException {
-    currentPositionUs = timeUs;
-    source.seekToUs(timeUs);
+  protected long seekTo(long timeUs) throws ExoPlaybackException {
+    long seekTimeUs;
+    seekTimeUs = source.seekToUs(timeUs);
+    currentPositionUs = seekTimeUs;
     inputStreamEnded = false;
     outputStreamEnded = false;
     waitingForKeys = false;
+
+    return seekTimeUs;
   }
 
   @Override
@@ -444,6 +447,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       // avoid this issue by sending reconfiguration data following every flush.
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
     }
+
+    codecReinitState = REINIT_STATE_0;
   }
 
   /**

@@ -134,9 +134,11 @@ public interface SampleSource {
    * <p>
    * This method should not be called until after the source has been successfully prepared.
    *
+   * @return The actual time where the seek was performed
+   *
    * @param timeUs The seek position in microseconds.
    */
-  public void seekToUs(long timeUs);
+  public long seekToUs(long timeUs);
 
   /**
    * Returns an estimate of the position up to which data is buffered.

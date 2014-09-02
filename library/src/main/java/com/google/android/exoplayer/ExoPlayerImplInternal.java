@@ -466,17 +466,23 @@ import java.util.List;
 
   private void seekToInternal(int positionMs) throws ExoPlaybackException {
     rebuffering = false;
-    positionUs = positionMs * 1000L;
     mediaClock.stop();
-    mediaClock.setTimeUs(positionUs);
     if (state == ExoPlayer.STATE_IDLE || state == ExoPlayer.STATE_PREPARING) {
       return;
     }
+
+    long seekTimeUs = Long.MAX_VALUE;
     for (int i = 0; i < enabledRenderers.size(); i++) {
       TrackRenderer renderer = enabledRenderers.get(i);
       ensureStopped(renderer);
-      renderer.seekTo(positionUs);
+      seekTimeUs = Math.min(renderer.seekTo(positionMs*1000L), seekTimeUs);
     }
+    if (seekTimeUs == Long.MAX_VALUE) {
+      seekTimeUs = positionMs * 1000L;
+    }
+    positionUs = seekTimeUs;
+    mediaClock.setTimeUs(seekTimeUs);
+
     setState(ExoPlayer.STATE_BUFFERING);
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }

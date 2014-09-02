@@ -397,7 +397,7 @@ public class HLSSampleSource implements SampleSource {
     }
 
     estimatedBps = (int)bandwidthMeter.getEstimate() * 8;
-    bufferMsec = (int)(getBufferedPositionUs() - playbackPositionUs);
+    bufferMsec = (int)((getBufferedPositionUs() - playbackPositionUs)/1000);
 
     currentEntry = evaluateNextEntry();
     VariantPlaylist variantPlaylist = variantPlaylistsMap.get(currentEntry).playlist;
@@ -518,7 +518,8 @@ public class HLSSampleSource implements SampleSource {
     }
   }
   @Override
-  public void seekToUs(long timeUs) {
+  public long seekToUs(long timeUs) {
+    long seekTimeUs = 0;
     if (chunkTask != null) {
       chunkTask.abort();
     }
@@ -542,6 +543,7 @@ public class HLSSampleSource implements SampleSource {
       if (acc > timeUs) {
         break;
       }
+      seekTimeUs += (long)(extinf * 1000000);
       sequence++;
     }
 
@@ -552,6 +554,7 @@ public class HLSSampleSource implements SampleSource {
     }
 
     endOfStream = false;
+    return seekTimeUs;
   }
 
   @Override

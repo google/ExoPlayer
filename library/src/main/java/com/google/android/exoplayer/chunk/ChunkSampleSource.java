@@ -329,12 +329,12 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
   }
 
   @Override
-  public void seekToUs(long timeUs) {
+  public long seekToUs(long timeUs) {
     Assertions.checkState(state == STATE_ENABLED);
     downstreamPositionUs = timeUs;
     lastSeekPositionUs = timeUs;
     if (pendingResetTime == timeUs) {
-      return;
+      return timeUs;
     }
 
     MediaChunk mediaChunk = getMediaChunk(timeUs);
@@ -346,6 +346,8 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
       discardDownstreamMediaChunks(mediaChunk);
       updateLoadControl();
     }
+
+    return timeUs;
   }
 
   private MediaChunk getMediaChunk(long timeUs) {

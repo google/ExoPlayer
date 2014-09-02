@@ -167,7 +167,7 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public void seekToUs(long timeUs) {
+  public long seekToUs(long timeUs) {
     Assertions.checkState(prepared);
     if (seekTimeUs != timeUs) {
       // Avoid duplicate calls to the underlying extractor's seek method in the case that there
@@ -180,6 +180,8 @@ public final class FrameworkSampleSource implements SampleSource {
         }
       }
     }
+
+    return timeUs;
   }
 
   @Override
