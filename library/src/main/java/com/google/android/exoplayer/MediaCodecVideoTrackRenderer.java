@@ -347,7 +347,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     }
 
     long earlyUs = bufferInfo.presentationTimeUs - timeUs;
-    Log.d("toto", "timeUs=" + timeUs + ", presentationTimeUs=" + bufferInfo.presentationTimeUs);
+    //Log.d(TAG, "timeUs=" + timeUs + ", presentationTimeUs=" + bufferInfo.presentationTimeUs);
     if (earlyUs < -30000) {
       // We're more than 30ms late rendering the frame.
       dropOutputBuffer(codec, bufferIndex);
