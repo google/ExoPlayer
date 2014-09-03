@@ -722,17 +722,14 @@ public class HLSSampleSource implements SampleSource {
               list.get(sample.type).add(sentinel);
             } else if (videoMediaFormat == null && sample.type == Packet.TYPE_VIDEO) {
               ChunkSentinel sentinel = new ChunkSentinel();
+              
+              SPS sps = new SPS();
               List<byte[]> csd = new ArrayList<byte []>();
-              if (H264Utils.extractSPS_PPS(sample.data, csd)) {
-                /*
-                 * Some decoders might need the Codec Specific data at initialisation so I extract it.
-                 * For width/height, I could parse the pps unfortunately, the code currently has a bug
-                 * for some profiles (at least 100). So I take the value from the playlist (if they exist)
-                 */
-                /*sentinel.mediaFormat = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
-                        sps.width, sps.height, csd);*/
+              if (H264Utils.extractSPS_PPS(sample.data, sps, csd)) {
                 sentinel.mediaFormat = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
-                        chunk.videoMediaFormat.width, chunk.videoMediaFormat.height, csd);
+                        sps.width, sps.height, csd);
+//                sentinel.mediaFormat = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
+//                        chunk.videoMediaFormat.width, chunk.videoMediaFormat.height, csd);
               } else {
                 sentinel.mediaFormat = chunk.videoMediaFormat;
               }
