@@ -728,8 +728,6 @@ public class HLSSampleSource implements SampleSource {
               if (H264Utils.extractSPS_PPS(sample.data, sps, csd)) {
                 sentinel.mediaFormat = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
                         sps.width, sps.height, csd);
-//                sentinel.mediaFormat = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
-//                        chunk.videoMediaFormat.width, chunk.videoMediaFormat.height, csd);
               } else {
                 sentinel.mediaFormat = chunk.videoMediaFormat;
               }

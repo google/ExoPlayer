@@ -54,11 +54,6 @@ public class H264Utils {
 
   public final static int NAL_SPS = 7;
   public final static int NAL_PPS = 8;
-  
-  /**
-   * Indicates an SPS NALU.
-   */
-  public final static byte TYPE_SPS = 0x67;
 
   static class BitReader {
     private int offset;
@@ -113,13 +108,6 @@ public class H264Utils {
   public static boolean parseSPS(ByteBuffer data, int offset, SPS sps) {
     int i = offset;
     
-    // Seek to TYPE field
-    while( data.get(i++) != TYPE_SPS ) {
-      if( !data.hasRemaining() ) {
-        Log.e("SPS", "Error parsing SPS -- Failed to locate header start point.");
-        return false;
-      }
-    }
     BitReader reader = new BitReader(data, i);
     
     sps.profile_idc = reader.read(8);
@@ -265,7 +253,7 @@ public class H264Utils {
           data.position(start);
           data.get(spsData, 0, i - start);
           
-          if( !parseSPS(data, 0, spsOut) )
+          if( !parseSPS(data, start + 4, spsOut) )
           {
             Log.e("NAL", "Failed to parse SPS.");
             return false;
