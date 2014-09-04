@@ -8,6 +8,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.google.android.exoplayer.FormatHolder;
+import com.google.android.exoplayer.MediaCodecUtil;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
@@ -90,6 +91,7 @@ public class HLSSampleSource implements SampleSource {
   private long durationUs;
   private boolean isLive;
   private HashMap<Object, Object> allocatorsMap = new HashMap<Object, Object>();
+  private int maxFrameSize;
 
   public static class WrapInfo {
     long lastPts;
@@ -247,6 +249,21 @@ public class HLSSampleSource implements SampleSource {
     }
 
     mainPlaylist.removeIncompleteQualities();
+
+    maxFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
+
+    Log.d(TAG, "maxFrameSize:" + maxFrameSize);
+
+    // remove audio-only qualities
+    mainPlaylist.removeIncompleteQualities();
+    // remove qualities that are too big
+    for (Iterator<MainPlaylist.Entry> it = mainPlaylist.entries.iterator(); it.hasNext(); ) {
+      MainPlaylist.Entry entry = it.next();
+      if (entry.width > 0  && entry.height > 0 && entry.width * entry.height > maxFrameSize) {
+        Log.d(TAG, "removing quality " + entry.width + "x" + entry.height);
+        it.remove();
+      }
+    }
 
     for (MainPlaylist.Entry entry: mainPlaylist.entries) {
       variantPlaylistsMap.put(entry, new VariantPlaylistSlot());
