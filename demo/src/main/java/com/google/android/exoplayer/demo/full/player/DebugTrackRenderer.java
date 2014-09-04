@@ -107,8 +107,9 @@ import android.widget.TextView;
   }
 
   @Override
-  protected void seekTo(long timeUs) {
+  protected long seekTo(long timeUs) {
     currentPositionUs = timeUs;
+    return timeUs;
   }
 
   private void maybeFail() throws ExoPlaybackException {
