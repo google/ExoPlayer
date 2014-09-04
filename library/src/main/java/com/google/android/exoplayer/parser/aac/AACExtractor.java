@@ -39,6 +39,7 @@ public class AACExtractor extends Extractor {
   public static class ADTSHeader {
     public int frameLength;
     public int sampleRate;
+    public int audioObjectType;
 
     private int sampleRateIndex;
     private int channelConfigIndex;
@@ -68,7 +69,8 @@ public class AACExtractor extends Extractor {
       if (d.get(0) != 0xff || ((d.get(1) & 0xf0) != 0xf0)) {
         Log.d(TAG, "no ADTS sync");
       } else {
-        sampleRateIndex =(d.get(2) & 0x3c) >> 2;
+        audioObjectType = ((d.get(2) & 0xc0) >> 6) + 1;
+        sampleRateIndex = (d.get(2) & 0x3c) >> 2;
         sampleRate = getSampleRate(sampleRateIndex);
         channelConfigIndex = (((d.get(2) & 0x1) << 2) + ((d.get(3) & 0xc0) >> 6));
         frameLength = (d.get(3) & 0x3) << 11;
@@ -77,19 +79,18 @@ public class AACExtractor extends Extractor {
                 /*Log.d(TAG, "version: " + ((d.get(1) & 0x08) >> 3));
                 Log.d(TAG, "layer: " + ((d.get(1) & 0x06) >> 1));
                 Log.d(TAG, "protection absent: " + ((d.get(1) & 0x01) >> 0));
-                Log.d(TAG, "profile: " + ((d.get(2) & 0xc0) >> 6));
                 Log.d(TAG, "sample rate: " + sampleRate);
                 Log.d(TAG, "channel config index: " + channelConfigIndex);
                 Log.d(TAG, "frame length: " + frameLength);*/
       }
     }
 
-    public static MediaFormat createMediaFormat(int sampleRateIndex, int channelConfigIndex)
+    public static MediaFormat createMediaFormat(int audioObjectType, int sampleRateIndex, int channelConfigIndex)
     {
       MediaFormat mediaFormat;
       List<byte[]> initializationData = new ArrayList<byte[]>();
       byte[] data = new byte[2];
-      data[0] = (byte)(0x10 | ((sampleRateIndex & 0xe) >> 1));
+      data[0] = (byte)(((audioObjectType & 0x1f) << 3) | ((sampleRateIndex & 0xe) >> 1));
       data[1] = (byte)(((sampleRateIndex & 0x1) << 7) | ((channelConfigIndex & 0xf) << 3));
       initializationData.add(data);
       mediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_AAC, -1, 2, getSampleRate(sampleRateIndex), initializationData);
@@ -99,7 +100,7 @@ public class AACExtractor extends Extractor {
 
     public MediaFormat toMediaFormat()
     {
-      return createMediaFormat(sampleRateIndex, channelConfigIndex);
+      return createMediaFormat(audioObjectType, sampleRateIndex, channelConfigIndex);
     }
   }
 
