@@ -83,7 +83,7 @@ public class HLSSampleSource implements SampleSource {
   private boolean gotStreamTypes;
   private int maxBps;
   private int firstRememberedMediaSequence;
-  private int forcedPlaylistType;
+  private int fallbackPlaylistType;
   private ArrayList<Double> rememberedExtinf;
 
   private HashMap<MainPlaylist.Entry, VariantPlaylistSlot> variantPlaylistsMap = new HashMap<MainPlaylist.Entry, VariantPlaylistSlot>();
@@ -162,7 +162,7 @@ public class HLSSampleSource implements SampleSource {
     this.eventHandler = eventHandler;
     this.eventListener = listener;
     rememberedExtinf = new ArrayList<Double>();
-    forcedPlaylistType = VariantPlaylist.TYPE_UNKNOWN;
+    fallbackPlaylistType = VariantPlaylist.TYPE_UNKNOWN;
   }
 
   public HLSSampleSource(String url) {
@@ -188,8 +188,13 @@ public class HLSSampleSource implements SampleSource {
     this.initialBps = bps;
   }
 
-  public void setForcedPlaylistType(int playlistType) {
-    this.forcedPlaylistType = playlistType;
+  /**
+   * Tells what do use as a playlist type if the downloaded playlist do not specify it.
+   *
+   * @param playlistType one of TYPE_EVENT or TYPE_VOD
+   */
+  public void setFallbackPlaylistType(int playlistType) {
+    this.fallbackPlaylistType = playlistType;
   }
 
   private MainPlaylist.Entry getEntryBelowOrEqual(int bps) {
@@ -285,7 +290,7 @@ public class HLSSampleSource implements SampleSource {
     isLive = !variantPlaylist.endList;
     int type = variantPlaylist.type;
     if (type == VariantPlaylist.TYPE_UNKNOWN) {
-      type = forcedPlaylistType;
+      type = fallbackPlaylistType;
     }
     if (isLive) {
       switch(type) {
