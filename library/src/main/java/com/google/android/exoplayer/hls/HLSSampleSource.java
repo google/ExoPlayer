@@ -83,6 +83,7 @@ public class HLSSampleSource implements SampleSource {
   private boolean gotStreamTypes;
   private int maxBps;
   private int firstRememberedMediaSequence;
+  private int forcedPlaylistType;
   private ArrayList<Double> rememberedExtinf;
 
   private HashMap<MainPlaylist.Entry, VariantPlaylistSlot> variantPlaylistsMap = new HashMap<MainPlaylist.Entry, VariantPlaylistSlot>();
@@ -161,6 +162,7 @@ public class HLSSampleSource implements SampleSource {
     this.eventHandler = eventHandler;
     this.eventListener = listener;
     rememberedExtinf = new ArrayList<Double>();
+    forcedPlaylistType = VariantPlaylist.TYPE_UNKNOWN;
   }
 
   public HLSSampleSource(String url) {
@@ -184,6 +186,10 @@ public class HLSSampleSource implements SampleSource {
   public void setInitialBps(int bps) {
 
     this.initialBps = bps;
+  }
+
+  public void setForcedPlaylistType(int playlistType) {
+    this.forcedPlaylistType = playlistType;
   }
 
   private MainPlaylist.Entry getEntryBelowOrEqual(int bps) {
@@ -277,13 +283,24 @@ public class HLSSampleSource implements SampleSource {
     targetDuration = (long)variantPlaylist.entries.get(0).extinf;
 
     isLive = !variantPlaylist.endList;
+    int type = variantPlaylist.type;
+    if (type == VariantPlaylist.TYPE_UNKNOWN) {
+      type = forcedPlaylistType;
+    }
     if (isLive) {
-      if (variantPlaylist.type == VariantPlaylist.TYPE_EVENT) {
-        // the server will only append files, start from the beginning
-        firstRememberedMediaSequence = variantPlaylist.mediaSequence;
-      } else {
-        // we are live, start as close as possible from the realtime position
-        firstRememberedMediaSequence = variantPlaylist.mediaSequence + variantPlaylist.entries.size() - 1;
+      switch(type) {
+        case VariantPlaylist.TYPE_EVENT:
+          // the server will only append files, start from the beginning
+          firstRememberedMediaSequence = variantPlaylist.mediaSequence;
+          break;
+        case VariantPlaylist.TYPE_VOD:
+          Log.e(TAG, "it is an error to have a playlist of type VOD with no ENDLIST tag, assume no VOD");
+          /* fallthrough */
+        case VariantPlaylist.TYPE_UNKNOWN:
+        default:
+          // we are live, start as close as possible from the realtime position
+          firstRememberedMediaSequence = variantPlaylist.mediaSequence + variantPlaylist.entries.size() - 1;
+          break;
       }
     } else {
       firstRememberedMediaSequence = variantPlaylist.mediaSequence;
