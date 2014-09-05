@@ -266,8 +266,6 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected void onOutputFormatChanged(MediaFormat format) {
-    releaseAudioTrack();
-    this.sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
     int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
     int channelConfig;
     switch (channelCount) {
@@ -283,6 +281,16 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
       default:
         throw new IllegalArgumentException("Unsupported channel count: " + channelCount);
     }
+
+    int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
+    if (audioTrack != null && this.sampleRate == sampleRate
+        && this.channelConfig == channelConfig) {
+      // We already have an existing audio track with the correct sample rate and channel config.
+      return;
+    }
+
+    releaseAudioTrack();
+    this.sampleRate = sampleRate;
     this.channelConfig = channelConfig;
     this.minBufferSize = AudioTrack.getMinBufferSize(sampleRate, channelConfig,
         AudioFormat.ENCODING_PCM_16BIT);
@@ -417,7 +425,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected boolean isReady() {
-    return getPendingFrameCount() > 0;
+    return super.isReady() || getPendingFrameCount() > 0;
   }
 
   /**

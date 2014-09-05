@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Provides static utility methods for manipulating various types of codec specific data.
  */
-public class CodecSpecificDataUtil {
+public final class CodecSpecificDataUtil {
 
   private static final byte[] NAL_START_CODE = new byte[] {0, 0, 0, 1};
 

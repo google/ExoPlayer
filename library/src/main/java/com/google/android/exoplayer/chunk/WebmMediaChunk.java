@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.parser.webm.WebmExtractor;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -70,10 +71,18 @@ public final class WebmMediaChunk extends MediaChunk {
   }
 
   @Override
+  public boolean sampleAvailable() throws ParserException {
+    NonBlockingInputStream inputStream = getNonBlockingInputStream();
+    int result = extractor.read(inputStream, null);
+    return (result & WebmExtractor.RESULT_NEED_SAMPLE_HOLDER) != 0;
+  }
+
+  @Override
   public boolean read(SampleHolder holder) {
     NonBlockingInputStream inputStream = getNonBlockingInputStream();
     Assertions.checkState(inputStream != null);
-    return extractor.read(inputStream, holder);
+    int result = extractor.read(inputStream, holder);
+    return (result & WebmExtractor.RESULT_READ_SAMPLE) != 0;
   }
 
   @Override

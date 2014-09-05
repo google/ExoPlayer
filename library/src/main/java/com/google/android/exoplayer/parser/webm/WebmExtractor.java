@@ -30,24 +30,38 @@ import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 public interface WebmExtractor {
 
   /**
-   * Whether the has parsed the cues and sample format from the stream.
-   *
-   * @return True if the extractor is prepared. False otherwise
+   * An attempt to read from the input stream returned insufficient data.
    */
-  public boolean isPrepared();
+  public static final int RESULT_NEED_MORE_DATA = 1;
+  /**
+   * The end of the input stream was reached.
+   */
+  public static final int RESULT_END_OF_STREAM = 2;
+  /**
+   * A media sample was read.
+   */
+  public static final int RESULT_READ_SAMPLE = 4;
+  /**
+   * Initialization data was read. The parsed data can be read using {@link #getFormat()}.
+   */
+  public static final int RESULT_READ_INIT = 8;
+  /**
+   * A sidx atom was read. The parsed data can be read using {@link #getIndex()}.
+   */
+  public static final int RESULT_READ_INDEX = 16;
+  /**
+   * The next thing to be read is a sample, but a {@link SampleHolder} was not supplied.
+   */
+  public static final int RESULT_NEED_SAMPLE_HOLDER = 32;
 
   /**
    * Consumes data from a {@link NonBlockingInputStream}.
    *
-   * <p>If the return value is {@code false}, then a sample may have been partially read into
-   * {@code sampleHolder}. Hence the same {@link SampleHolder} instance must be passed
-   * in subsequent calls until the whole sample has been read.
-   *
    * @param inputStream The input stream from which data should be read
    * @param sampleHolder A {@link SampleHolder} into which the sample should be read
-   * @return {@code true} if a sample has been read into the sample holder
+   * @return One or more of the {@code RESULT_*} flags defined in this class.
    */
-  public boolean read(NonBlockingInputStream inputStream, SampleHolder sampleHolder);
+  public int read(NonBlockingInputStream inputStream, SampleHolder sampleHolder);
 
   /**
    * Seeks to a position before or equal to the requested time.
@@ -66,7 +80,7 @@ public interface WebmExtractor {
    * @return The cues in the form of a {@link SegmentIndex}, or null if the extractor is not yet
    *     prepared
    */
-  public SegmentIndex getCues();
+  public SegmentIndex getIndex();
 
   /**
    * Returns the format of the samples contained within the media stream.

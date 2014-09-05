@@ -44,12 +44,12 @@ import java.nio.ByteBuffer;
   // Return values for reading methods.
   public static final int READ_RESULT_CONTINUE = 0;
   public static final int READ_RESULT_NEED_MORE_DATA = 1;
-  public static final int READ_RESULT_END_OF_FILE = 2;
+  public static final int READ_RESULT_END_OF_STREAM = 2;
 
   public void setEventHandler(EbmlEventHandler eventHandler);
 
   /**
-   * Reads from a {@link NonBlockingInputStream} and calls event callbacks as needed.
+   * Reads from a {@link NonBlockingInputStream}, invoking an event callback if possible.
    *
    * @param inputStream The input stream from which data should be read
    * @return One of the {@code RESULT_*} flags defined in this interface

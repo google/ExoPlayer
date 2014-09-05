@@ -13,23 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.upstream;
+package com.google.android.exoplayer;
 
 /**
- * Provides estimates of the currently available bandwidth.
+ * Defines constants that are generally useful throughout the library.
  */
-public interface BandwidthMeter {
+public final class C {
 
   /**
-   * Indicates no bandwidth estimate is available.
+   * Represents an unbounded length of data.
    */
-  final long NO_ESTIMATE = -1;
+  public static final int LENGTH_UNBOUNDED = -1;
 
-  /**
-   * Gets the estimated bandwidth, in bits/sec.
-   *
-   * @return Estimated bandwidth in bits/sec, or {@link #NO_ESTIMATE} if no estimate is available.
-   */
-  long getBitrateEstimate();
+  private C() {}
 
 }

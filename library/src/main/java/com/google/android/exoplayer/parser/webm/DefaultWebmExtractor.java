@@ -25,6 +25,7 @@ import com.google.android.exoplayer.util.MimeTypes;
 import android.annotation.TargetApi;
 import android.media.MediaExtractor;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
@@ -77,13 +78,15 @@ public final class DefaultWebmExtractor implements WebmExtractor {
   private static final int LACING_FIXED = 2;
   private static final int LACING_EBML = 3;
 
+  private static final int READ_TERMINATING_RESULTS = RESULT_NEED_MORE_DATA | RESULT_END_OF_STREAM
+      | RESULT_READ_SAMPLE | RESULT_NEED_SAMPLE_HOLDER;
+
   private final EbmlReader reader;
   private final byte[] simpleBlockTimecodeAndFlags = new byte[3];
 
-  private SampleHolder tempSampleHolder;
-  private boolean sampleRead;
+  private SampleHolder sampleHolder;
+  private int readResults;
 
-  private boolean prepared = false;
   private long segmentStartOffsetBytes = UNKNOWN;
   private long segmentEndOffsetBytes = UNKNOWN;
   private long timecodeScale = 1000000L;
@@ -105,28 +108,29 @@ public final class DefaultWebmExtractor implements WebmExtractor {
   /* package */ DefaultWebmExtractor(EbmlReader reader) {
     this.reader = reader;
     this.reader.setEventHandler(new InnerEbmlEventHandler());
-    this.cueTimesUs = new LongArray();
-    this.cueClusterPositions = new LongArray();
   }
 
   @Override
-  public boolean isPrepared() {
-    return prepared;
-  }
-
-  @Override
-  public boolean read(NonBlockingInputStream inputStream, SampleHolder sampleHolder) {
-    tempSampleHolder = sampleHolder;
-    sampleRead = false;
-    reader.read(inputStream);
-    tempSampleHolder = null;
-    return sampleRead;
+  public int read(NonBlockingInputStream inputStream, SampleHolder sampleHolder) {
+    this.sampleHolder = sampleHolder;
+    this.readResults = 0;
+    while ((readResults & READ_TERMINATING_RESULTS) == 0) {
+      int ebmlReadResult = reader.read(inputStream);
+      if (ebmlReadResult == EbmlReader.READ_RESULT_NEED_MORE_DATA) {
+        readResults |= WebmExtractor.RESULT_NEED_MORE_DATA;
+      } else if (ebmlReadResult == EbmlReader.READ_RESULT_END_OF_STREAM) {
+        readResults |= WebmExtractor.RESULT_END_OF_STREAM;
+      }
+    }
+    this.sampleHolder = null;
+    return readResults;
   }
 
   @Override
   public boolean seekTo(long seekTimeUs, boolean allowNoop) {
-    checkPrepared();
     if (allowNoop
+        && cues != null
+        && clusterTimecodeUs != UNKNOWN
         && simpleBlockTimecodeUs != UNKNOWN
         && seekTimeUs >= simpleBlockTimecodeUs) {
       int clusterIndex = Arrays.binarySearch(cues.timesUs, clusterTimecodeUs);
@@ -134,19 +138,19 @@ public final class DefaultWebmExtractor implements WebmExtractor {
         return false;
       }
     }
+    clusterTimecodeUs = UNKNOWN;
+    simpleBlockTimecodeUs = UNKNOWN;
     reader.reset();
     return true;
   }
 
   @Override
-  public SegmentIndex getCues() {
-    checkPrepared();
+  public SegmentIndex getIndex() {
     return cues;
   }
 
   @Override
   public MediaFormat getFormat() {
-    checkPrepared();
     return format;
   }
 
@@ -196,6 +200,8 @@ public final class DefaultWebmExtractor implements WebmExtractor {
         break;
       case ID_CUES:
         cuesSizeBytes = headerSizeBytes + contentsSizeBytes;
+        cueTimesUs = new LongArray();
+        cueClusterPositions = new LongArray();
         break;
       default:
         // pass
@@ -204,11 +210,16 @@ public final class DefaultWebmExtractor implements WebmExtractor {
   }
 
   /* package */ boolean onMasterElementEnd(int id) {
-    if (id == ID_CUES) {
-      finishPreparing();
-      return false;
+    switch (id) {
+      case ID_CUES:
+        buildCues();
+        return false;
+      case ID_VIDEO:
+        buildFormat();
+        return true;
+      default:
+        return true;
     }
-    return true;
   }
 
   /* package */ boolean onIntegerElement(int id, long value) {
@@ -283,6 +294,12 @@ public final class DefaultWebmExtractor implements WebmExtractor {
       // Please refer to http://www.matroska.org/technical/specs/index.html#simpleblock_structure
       // for info about how data is organized in a SimpleBlock element.
 
+      // If we don't have a sample holder then don't consume the data.
+      if (sampleHolder == null) {
+        readResults |= RESULT_NEED_SAMPLE_HOLDER;
+        return false;
+      }
+
       // Value of trackNumber is not used but needs to be read.
       reader.readVarint(inputStream);
 
@@ -304,10 +321,10 @@ public final class DefaultWebmExtractor implements WebmExtractor {
         case LACING_NONE:
           long elementEndOffsetBytes = elementOffsetBytes + headerSizeBytes + contentsSizeBytes;
           simpleBlockTimecodeUs = clusterTimecodeUs + timecodeUs;
-          tempSampleHolder.flags = keyframe ? MediaExtractor.SAMPLE_FLAG_SYNC : 0;
-          tempSampleHolder.decodeOnly = invisible;
-          tempSampleHolder.timeUs = clusterTimecodeUs + timecodeUs;
-          tempSampleHolder.size = (int) (elementEndOffsetBytes - reader.getBytesRead());
+          sampleHolder.flags = keyframe ? MediaExtractor.SAMPLE_FLAG_SYNC : 0;
+          sampleHolder.decodeOnly = invisible;
+          sampleHolder.timeUs = clusterTimecodeUs + timecodeUs;
+          sampleHolder.size = (int) (elementEndOffsetBytes - reader.getBytesRead());
           break;
         case LACING_EBML:
         case LACING_FIXED:
@@ -316,44 +333,63 @@ public final class DefaultWebmExtractor implements WebmExtractor {
           throw new IllegalStateException("Lacing mode " + lacing + " not supported");
       }
 
-      // Read video data into sample holder.
-      reader.readBytes(inputStream, tempSampleHolder.data, tempSampleHolder.size);
-      sampleRead = true;
-      return false;
-    } else {
-      reader.skipBytes(inputStream, contentsSizeBytes);
-      return true;
+      ByteBuffer outputData = sampleHolder.data;
+      if (sampleHolder.allowDataBufferReplacement
+          && (sampleHolder.data == null || sampleHolder.data.capacity() < sampleHolder.size)) {
+        outputData = ByteBuffer.allocate(sampleHolder.size);
+        sampleHolder.data = outputData;
+      }
+
+      if (outputData == null) {
+        reader.skipBytes(inputStream, sampleHolder.size);
+        sampleHolder.size = 0;
+      } else {
+        reader.readBytes(inputStream, outputData, sampleHolder.size);
+      }
+      readResults |= RESULT_READ_SAMPLE;
     }
+    return true;
   }
 
   private long scaleTimecodeToUs(long unscaledTimecode) {
     return TimeUnit.NANOSECONDS.toMicros(unscaledTimecode * timecodeScale);
   }
 
-  private void checkPrepared() {
-    if (!prepared) {
-      throw new IllegalStateException("Parser not yet prepared");
+  /**
+   * Build a video {@link MediaFormat} containing recently gathered Video information, if needed.
+   *
+   * <p>Replaces the previous {@link #format} only if video width/height have changed.
+   * {@link #format} is guaranteed to not be null after calling this method. In
+   * the event that it can't be built, an {@link IllegalStateException} will be thrown.
+   */
+  private void buildFormat() {
+    if (pixelWidth != UNKNOWN && pixelHeight != UNKNOWN
+        && (format == null || format.width != pixelWidth || format.height != pixelHeight)) {
+      format = MediaFormat.createVideoFormat(
+          MimeTypes.VIDEO_VP9, MediaFormat.NO_VALUE, pixelWidth, pixelHeight, null);
+      readResults |= RESULT_READ_INIT;
+    } else if (format == null) {
+      throw new IllegalStateException("Unable to build format");
     }
   }
 
-  private void finishPreparing() {
-    if (prepared) {
-      throw new IllegalStateException("Already prepared");
-    } else if (segmentStartOffsetBytes == UNKNOWN) {
+  /**
+   * Build a {@link SegmentIndex} containing recently gathered Cues information.
+   *
+   * <p>{@link #cues} is guaranteed to not be null after calling this method. In
+   * the event that it can't be built, an {@link IllegalStateException} will be thrown.
+   */
+  private void buildCues() {
+    if (segmentStartOffsetBytes == UNKNOWN) {
       throw new IllegalStateException("Segment start/end offsets unknown");
     } else if (durationUs == UNKNOWN) {
       throw new IllegalStateException("Duration unknown");
-    } else if (pixelWidth == UNKNOWN || pixelHeight == UNKNOWN) {
-      throw new IllegalStateException("Pixel width/height unknown");
     } else if (cuesSizeBytes == UNKNOWN) {
       throw new IllegalStateException("Cues size unknown");
-    } else if (cueTimesUs.size() == 0 || cueTimesUs.size() != cueClusterPositions.size()) {
+    } else if (cueTimesUs == null || cueClusterPositions == null
+        || cueTimesUs.size() == 0 || cueTimesUs.size() != cueClusterPositions.size()) {
       throw new IllegalStateException("Invalid/missing cue points");
     }
-
-    format = MediaFormat.createVideoFormat(
-        MimeTypes.VIDEO_VP9, MediaFormat.NO_VALUE, pixelWidth, pixelHeight, null);
-
     int cuePointsSize = cueTimesUs.size();
     int[] sizes = new int[cuePointsSize];
     long[] offsets = new long[cuePointsSize];
@@ -372,8 +408,7 @@ public final class DefaultWebmExtractor implements WebmExtractor {
     cues = new SegmentIndex((int) cuesSizeBytes, sizes, offsets, durationsUs, timesUs);
     cueTimesUs = null;
     cueClusterPositions = null;
-
-    prepared = true;
+    readResults |= RESULT_READ_INDEX;
   }
 
   /**
@@ -388,30 +423,30 @@ public final class DefaultWebmExtractor implements WebmExtractor {
     }
 
     @Override
-    public boolean onMasterElementStart(
+    public void onMasterElementStart(
         int id, long elementOffsetBytes, int headerSizeBytes, long contentsSizeBytes) {
-      return DefaultWebmExtractor.this.onMasterElementStart(
+      DefaultWebmExtractor.this.onMasterElementStart(
           id, elementOffsetBytes, headerSizeBytes, contentsSizeBytes);
     }
 
     @Override
-    public boolean onMasterElementEnd(int id) {
-      return DefaultWebmExtractor.this.onMasterElementEnd(id);
+    public void onMasterElementEnd(int id) {
+      DefaultWebmExtractor.this.onMasterElementEnd(id);
     }
 
     @Override
-    public boolean onIntegerElement(int id, long value) {
-      return DefaultWebmExtractor.this.onIntegerElement(id, value);
+    public void onIntegerElement(int id, long value) {
+      DefaultWebmExtractor.this.onIntegerElement(id, value);
     }
 
     @Override
-    public boolean onFloatElement(int id, double value) {
-      return DefaultWebmExtractor.this.onFloatElement(id, value);
+    public void onFloatElement(int id, double value) {
+      DefaultWebmExtractor.this.onFloatElement(id, value);
     }
 
     @Override
-    public boolean onStringElement(int id, String value) {
-      return DefaultWebmExtractor.this.onStringElement(id, value);
+    public void onStringElement(int id, String value) {
+      DefaultWebmExtractor.this.onStringElement(id, value);
     }
 
     @Override
