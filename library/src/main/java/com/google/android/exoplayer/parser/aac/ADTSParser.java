@@ -1,5 +1,7 @@
 package com.google.android.exoplayer.parser.aac;
 
+import android.util.Log;
+
 import com.google.android.exoplayer.hls.DefaultPacketAllocator;
 import com.google.android.exoplayer.hls.Packet;
 import com.google.android.exoplayer.hls.Parser;
@@ -16,8 +18,10 @@ public class ADTSParser extends Parser{
   private final int STATE_HEADER = 0;
   private final int STATE_DATA = 1;
   long pts;
-  private boolean outputPacket;
+  private boolean newPacket;
   private int frameLength;
+  private long ptsOffset;
+  private int sampleRate;
 
   public ADTSParser() {
   }
@@ -49,6 +53,9 @@ public class ADTSParser extends Parser{
             frameLength += (getByte(splitPacket.data, position + 4) << 3);
             frameLength += (getByte(splitPacket.data, position + 5) & 0xe0) >> 5;
 
+            if (sampleRate == 0) {
+              sampleRate = AACExtractor.ADTSHeader.getSampleRate((getByte(splitPacket.data, position + 2) & 0x3c) >> 2);
+            }
             int newLimit = splitPacket.data.position() + frameLength - 7;
             if (newLimit > splitPacket.data.capacity()) {
               DefaultPacketAllocator.resizePacket(splitPacket, 2 * newLimit);
@@ -60,12 +67,21 @@ public class ADTSParser extends Parser{
           break;
         case STATE_DATA:
           if (splitPacket.data.remaining() == 0) {
-            if (outputPacket || currentPacket.data.position() == currentPacket.data.limit()) {
+            // new Packet || currentPacket.data.position() == currentPacket.data.limit()
+            if (true) {
               Packet packet = splitPacket;
               splitPacket = DefaultPacketAllocator.getPacket(currentPacket.type);
-              splitPacket.pts = currentPacket.pts;
+              if (newPacket) {
+                splitPacket.pts = currentPacket.pts;
+                ptsOffset = 0;
+                newPacket = false;
+                //Log.d("ADTS", "newPacket " + splitPacket.pts);
+              } else {
+                ptsOffset += 1024*1000*45/sampleRate;
+                splitPacket.pts = currentPacket.pts + ptsOffset;
+                //Log.d("ADTS", "redPacket " + splitPacket.pts);
+              }
               splitPacket.data.limit(7);
-              outputPacket = false;
               state = STATE_HEADER;
               return packet;
             } else {
@@ -96,7 +112,7 @@ public class ADTSParser extends Parser{
     packet.data.limit(packet.data.position());
     packet.data.position(0);
     currentPacket = packet;
-    outputPacket = true;
+    newPacket = true;
     if (splitPacket == null) {
       splitPacket = DefaultPacketAllocator.getPacket(Packet.TYPE_AUDIO);
       splitPacket.pts = currentPacket.pts;

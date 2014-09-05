@@ -518,9 +518,13 @@ public class HLSSampleSource implements SampleSource {
         } else {
           Packet sample = (Packet)o;
           sample.data.limit(sample.data.position());
-          sample.data.position(0);
+          if (sample.type == Packet.TYPE_AUDIO) {
+            sample.data.position(7);
+          } else {
+            sample.data.position(0);
+          }
           sampleHolder.data.put(sample.data);
-          sampleHolder.size = sample.data.limit();
+          sampleHolder.size = sampleHolder.data.position();
           sampleHolder.timeUs = (sample.pts - ptsOffset) * 1000 / 45;
           sampleHolder.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
           bufferSize -= sampleHolder.size;

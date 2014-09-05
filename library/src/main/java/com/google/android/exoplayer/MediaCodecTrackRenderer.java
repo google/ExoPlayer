@@ -31,6 +31,8 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
@@ -451,6 +453,17 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     codecReinitState = REINIT_STATE_0;
   }
 
+  final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+  public static String bytesToHex(byte[] bytes) {
+    char[] hexChars = new char[bytes.length * 2];
+    for ( int j = 0; j < bytes.length; j++ ) {
+      int v = bytes[j] & 0xFF;
+      hexChars[j * 2] = hexArray[v >>> 4];
+      hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+    }
+    return new String(hexChars);
+  }
+
   /**
    * @return True if it may be possible to feed more input data. False otherwise.
    * @throws IOException If an error occurs reading data from the upstream source.
@@ -568,6 +581,25 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       if (sampleHolder.decodeOnly) {
         decodeOnlyPresentationTimestamps.add(presentationTimeUs);
       }
+      /*if (this instanceof MediaCodecAudioTrackRenderer) {
+        sampleHolder.data.position(0);
+        int oldlimit = sampleHolder.data.limit();
+        sampleHolder.data.limit(bufferSize);
+        ByteBuffer debugBuffer = ByteBuffer.allocateDirect(bufferSize);
+        debugBuffer.put(sampleHolder.data);
+        try {
+          MessageDigest digest = MessageDigest.getInstance("MD5");
+          debugBuffer.position(0);
+          digest.update(debugBuffer);
+          String md5 = bytesToHex(digest.digest());
+          Log.d("toto", "send buffer: " + md5 + " - " + bufferSize);
+
+        } catch (NoSuchAlgorithmException e) {
+          e.printStackTrace();
+        }
+
+        sampleHolder.data.limit(oldlimit);
+      }*/
       if (sampleEncrypted) {
         MediaCodec.CryptoInfo cryptoInfo = getFrameworkCryptoInfo(sampleHolder,
             adaptiveReconfigurationBytes);

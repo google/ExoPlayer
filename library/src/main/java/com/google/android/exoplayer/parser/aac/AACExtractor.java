@@ -93,8 +93,9 @@ public class AACExtractor extends Extractor {
       data[0] = (byte)(((audioObjectType & 0x1f) << 3) | ((sampleRateIndex & 0xe) >> 1));
       data[1] = (byte)(((sampleRateIndex & 0x1) << 7) | ((channelConfigIndex & 0xf) << 3));
       initializationData.add(data);
-      mediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_AAC, -1, 2, getSampleRate(sampleRateIndex), initializationData);
-      mediaFormat.setIsADTS(true);
+      // XXX: some codec want a maximum input buffer size. Not sure if 1024 will be enough
+      mediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_AAC, 1024, 2, getSampleRate(sampleRateIndex), initializationData);
+      //mediaFormat.setIsADTS(true);
       return mediaFormat;
     }
 
