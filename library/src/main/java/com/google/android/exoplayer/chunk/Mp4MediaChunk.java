@@ -18,7 +18,7 @@ package com.google.android.exoplayer.chunk;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.parser.mp4.FragmentedMp4Extractor;
+import com.google.android.exoplayer.parser.Extractor;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
@@ -32,7 +32,7 @@ import java.util.UUID;
  */
 public final class Mp4MediaChunk extends MediaChunk {
 
-  private final FragmentedMp4Extractor extractor;
+  private final Extractor extractor;
   private final boolean maybeSelfContained;
   private final long sampleOffsetUs;
 
@@ -57,7 +57,7 @@ public final class Mp4MediaChunk extends MediaChunk {
    */
   public Mp4MediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
       int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex,
-      FragmentedMp4Extractor extractor, boolean maybeSelfContained, long sampleOffsetUs) {
+      Extractor extractor, boolean maybeSelfContained, long sampleOffsetUs) {
     super(dataSource, dataSpec, format, trigger, startTimeUs, endTimeUs, nextChunkIndex);
     this.extractor = extractor;
     this.maybeSelfContained = maybeSelfContained;
@@ -89,7 +89,7 @@ public final class Mp4MediaChunk extends MediaChunk {
         NonBlockingInputStream inputStream = getNonBlockingInputStream();
         Assertions.checkState(inputStream != null);
         int result = extractor.read(inputStream, null);
-        prepared = (result & FragmentedMp4Extractor.RESULT_NEED_SAMPLE_HOLDER) != 0;
+        prepared = (result & Extractor.RESULT_NEED_SAMPLE_HOLDER) != 0;
       } else {
         // We know there isn't a moov atom. The extractor must have parsed one from a separate
         // initialization chunk.
@@ -107,7 +107,7 @@ public final class Mp4MediaChunk extends MediaChunk {
   public boolean sampleAvailable() throws ParserException {
     NonBlockingInputStream inputStream = getNonBlockingInputStream();
     int result = extractor.read(inputStream, null);
-    return (result & FragmentedMp4Extractor.RESULT_NEED_SAMPLE_HOLDER) != 0;
+    return (result & Extractor.RESULT_NEED_SAMPLE_HOLDER) != 0;
   }
 
   @Override
@@ -115,7 +115,7 @@ public final class Mp4MediaChunk extends MediaChunk {
     NonBlockingInputStream inputStream = getNonBlockingInputStream();
     Assertions.checkState(inputStream != null);
     int result = extractor.read(inputStream, holder);
-    boolean sampleRead = (result & FragmentedMp4Extractor.RESULT_READ_SAMPLE) != 0;
+    boolean sampleRead = (result & Extractor.RESULT_READ_SAMPLE) != 0;
     if (sampleRead) {
       holder.timeUs -= sampleOffsetUs;
     }

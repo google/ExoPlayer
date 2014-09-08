@@ -29,10 +29,13 @@ import com.google.android.exoplayer.chunk.MediaChunk;
 import com.google.android.exoplayer.chunk.Mp4MediaChunk;
 import com.google.android.exoplayer.dash.mpd.RangedUri;
 import com.google.android.exoplayer.dash.mpd.Representation;
+import com.google.android.exoplayer.parser.Extractor;
 import com.google.android.exoplayer.parser.mp4.FragmentedMp4Extractor;
+import com.google.android.exoplayer.parser.webm.WebmExtractor;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
+import com.google.android.exoplayer.util.MimeTypes;
 
 import android.net.Uri;
 
@@ -42,9 +45,11 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * An {@link ChunkSource} for Mp4 DASH streams.
+ * An {@link ChunkSource} for DASH streams.
+ * <p>
+ * This implementation currently supports fMP4 and webm.
  */
-public class DashMp4ChunkSource implements ChunkSource {
+public class DashChunkSource implements ChunkSource {
 
   private final TrackInfo trackInfo;
   private final DataSource dataSource;
@@ -55,7 +60,7 @@ public class DashMp4ChunkSource implements ChunkSource {
 
   private final Format[] formats;
   private final HashMap<String, Representation> representations;
-  private final HashMap<String, FragmentedMp4Extractor> extractors;
+  private final HashMap<String, Extractor> extractors;
   private final HashMap<String, DashSegmentIndex> segmentIndexes;
 
   private boolean lastChunkWasInitialization;
@@ -65,12 +70,12 @@ public class DashMp4ChunkSource implements ChunkSource {
    * @param evaluator Selects from the available formats.
    * @param representations The representations to be considered by the source.
    */
-  public DashMp4ChunkSource(DataSource dataSource, FormatEvaluator evaluator,
+  public DashChunkSource(DataSource dataSource, FormatEvaluator evaluator,
       Representation... representations) {
     this.dataSource = dataSource;
     this.evaluator = evaluator;
     this.formats = new Format[representations.length];
-    this.extractors = new HashMap<String, FragmentedMp4Extractor>();
+    this.extractors = new HashMap<String, Extractor>();
     this.segmentIndexes = new HashMap<String, DashSegmentIndex>();
     this.representations = new HashMap<String, Representation>();
     this.trackInfo = new TrackInfo(representations[0].format.mimeType,
@@ -82,7 +87,9 @@ public class DashMp4ChunkSource implements ChunkSource {
       formats[i] = representations[i].format;
       maxWidth = Math.max(formats[i].width, maxWidth);
       maxHeight = Math.max(formats[i].height, maxHeight);
-      extractors.put(formats[i].id, new FragmentedMp4Extractor());
+      Extractor extractor = formats[i].mimeType.startsWith(MimeTypes.VIDEO_WEBM)
+          ? new WebmExtractor() : new FragmentedMp4Extractor();
+      extractors.put(formats[i].id, extractor);
       this.representations.put(formats[i].id, representations[i]);
       DashSegmentIndex segmentIndex = representations[i].getIndex();
       if (segmentIndex != null) {
@@ -142,7 +149,7 @@ public class DashMp4ChunkSource implements ChunkSource {
     }
 
     Representation selectedRepresentation = representations.get(selectedFormat.id);
-    FragmentedMp4Extractor extractor = extractors.get(selectedRepresentation.format.id);
+    Extractor extractor = extractors.get(selectedRepresentation.format.id);
 
     RangedUri pendingInitializationUri = null;
     RangedUri pendingIndexUri = null;
@@ -191,35 +198,39 @@ public class DashMp4ChunkSource implements ChunkSource {
   }
 
   private Chunk newInitializationChunk(RangedUri initializationUri, RangedUri indexUri,
-      Representation representation, FragmentedMp4Extractor extractor, DataSource dataSource,
+      Representation representation, Extractor extractor, DataSource dataSource,
       int trigger) {
-    int expectedExtractorResult = FragmentedMp4Extractor.RESULT_END_OF_STREAM;
+    int expectedExtractorResult = Extractor.RESULT_END_OF_STREAM;
     long indexAnchor = 0;
     RangedUri requestUri;
     if (initializationUri != null) {
       // It's common for initialization and index data to be stored adjacently. Attempt to merge
       // the two requests together to request both at once.
-      expectedExtractorResult |= FragmentedMp4Extractor.RESULT_READ_INIT;
+      expectedExtractorResult |= Extractor.RESULT_READ_INIT;
       requestUri = initializationUri.attemptMerge(indexUri);
       if (requestUri != null) {
-        expectedExtractorResult |= FragmentedMp4Extractor.RESULT_READ_INDEX;
-        indexAnchor = indexUri.start + indexUri.length;
+        expectedExtractorResult |= Extractor.RESULT_READ_INDEX;
+        if (extractor.hasRelativeIndexOffsets()) {
+          indexAnchor = indexUri.start + indexUri.length;
+        }
       } else {
         requestUri = initializationUri;
       }
     } else {
       requestUri = indexUri;
-      indexAnchor = indexUri.start + indexUri.length;
-      expectedExtractorResult |= FragmentedMp4Extractor.RESULT_READ_INDEX;
+      if (extractor.hasRelativeIndexOffsets()) {
+        indexAnchor = indexUri.start + indexUri.length;
+      }
+      expectedExtractorResult |= Extractor.RESULT_READ_INDEX;
     }
     DataSpec dataSpec = new DataSpec(requestUri.getUri(), requestUri.start, requestUri.length,
         representation.getCacheKey());
-    return new InitializationMp4Loadable(dataSource, dataSpec, trigger, representation.format,
+    return new InitializationLoadable(dataSource, dataSpec, trigger, representation.format,
         extractor, expectedExtractorResult, indexAnchor);
   }
 
   private Chunk newMediaChunk(Representation representation, DashSegmentIndex segmentIndex,
-      FragmentedMp4Extractor extractor, DataSource dataSource, int segmentNum, int trigger) {
+      Extractor extractor, DataSource dataSource, int segmentNum, int trigger) {
     int lastSegmentNum = segmentIndex.getLastSegmentNum();
     int nextSegmentNum = segmentNum == lastSegmentNum ? -1 : segmentNum + 1;
     long startTimeUs = segmentIndex.getTimeUs(segmentNum);
@@ -232,15 +243,15 @@ public class DashMp4ChunkSource implements ChunkSource {
         endTimeUs, nextSegmentNum, extractor, false, 0);
   }
 
-  private class InitializationMp4Loadable extends Chunk {
+  private class InitializationLoadable extends Chunk {
 
-    private final FragmentedMp4Extractor extractor;
+    private final Extractor extractor;
     private final int expectedExtractorResult;
     private final long indexAnchor;
     private final Uri uri;
 
-    public InitializationMp4Loadable(DataSource dataSource, DataSpec dataSpec, int trigger,
-        Format format, FragmentedMp4Extractor extractor, int expectedExtractorResult,
+    public InitializationLoadable(DataSource dataSource, DataSpec dataSpec, int trigger,
+        Format format, Extractor extractor, int expectedExtractorResult,
         long indexAnchor) {
       super(dataSource, dataSpec, format, trigger);
       this.extractor = extractor;
@@ -256,7 +267,7 @@ public class DashMp4ChunkSource implements ChunkSource {
         throw new ParserException("Invalid extractor result. Expected "
             + expectedExtractorResult + ", got " + result);
       }
-      if ((result & FragmentedMp4Extractor.RESULT_READ_INDEX) != 0) {
+      if ((result & Extractor.RESULT_READ_INDEX) != 0) {
         segmentIndexes.put(format.id,
             new DashWrappingSegmentIndex(extractor.getIndex(), uri, indexAnchor));
       }

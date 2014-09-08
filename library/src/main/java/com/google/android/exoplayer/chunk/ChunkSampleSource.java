@@ -16,9 +16,9 @@
 package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackInfo;
@@ -267,7 +267,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
   }
 
   @Override
-  public int readData(int track, long playbackPositionUs, FormatHolder formatHolder,
+  public int readData(int track, long playbackPositionUs, MediaFormatHolder formatHolder,
       SampleHolder sampleHolder, boolean onlyReadDiscontinuity) throws IOException {
     Assertions.checkState(state == STATE_ENABLED);
     Assertions.checkState(track == 0);
@@ -318,6 +318,9 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
     }
 
     if (!mediaChunk.prepare()) {
+      if (currentLoadableException != null) {
+        throw currentLoadableException;
+      }
       return NOTHING_READ;
     }
 

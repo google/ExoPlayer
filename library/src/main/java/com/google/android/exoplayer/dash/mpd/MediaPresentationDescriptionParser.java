@@ -34,8 +34,13 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,6 +52,11 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
   // Note: Does not support the date part of ISO 8601
   private static final Pattern DURATION =
       Pattern.compile("^PT(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?$");
+
+  private static final Pattern DATE_TIME_PATTERN =
+      Pattern.compile("(\\d\\d\\d\\d)\\-(\\d\\d)\\-(\\d\\d)[Tt]"
+          + "(\\d\\d):(\\d\\d):(\\d\\d)(\\.(\\d+))?"
+          + "([Zz]|((\\+|\\-)(\\d\\d):(\\d\\d)))?");
 
   private final XmlPullParserFactory xmlParserFactory;
 
@@ -69,42 +79,57 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
    * @param baseUrl The url that any relative urls defined within the manifest are relative to.
    * @return The parsed manifest.
    * @throws IOException If a problem occurred reading from the stream.
-   * @throws XmlPullParserException If a problem occurred parsing the stream as xml.
    * @throws ParserException If a problem occurred parsing the xml as a DASH mpd.
    */
   public MediaPresentationDescription parseMediaPresentationDescription(InputStream inputStream,
-      String inputEncoding, String contentId, Uri baseUrl) throws XmlPullParserException,
-      IOException, ParserException {
-    XmlPullParser xpp = xmlParserFactory.newPullParser();
-    xpp.setInput(inputStream, inputEncoding);
-    int eventType = xpp.next();
-    if (eventType != XmlPullParser.START_TAG || !"MPD".equals(xpp.getName())) {
-      throw new ParserException(
-          "inputStream does not contain a valid media presentation description");
+      String inputEncoding, String contentId, Uri baseUrl) throws IOException, ParserException {
+    try {
+      XmlPullParser xpp = xmlParserFactory.newPullParser();
+      xpp.setInput(inputStream, inputEncoding);
+      int eventType = xpp.next();
+      if (eventType != XmlPullParser.START_TAG || !"MPD".equals(xpp.getName())) {
+        throw new ParserException(
+            "inputStream does not contain a valid media presentation description");
+      }
+      return parseMediaPresentationDescription(xpp, contentId, baseUrl);
+    } catch (XmlPullParserException e) {
+      throw new ParserException(e);
+    } catch (ParseException e) {
+      throw new ParserException(e);
     }
-    return parseMediaPresentationDescription(xpp, contentId, baseUrl);
   }
 
   private MediaPresentationDescription parseMediaPresentationDescription(XmlPullParser xpp,
-      String contentId, Uri baseUrl) throws XmlPullParserException, IOException {
+      String contentId, Uri baseUrl) throws XmlPullParserException, IOException, ParseException {
+    long availabilityStartTime = parseDateTime(xpp, "availabilityStartTime", -1);
     long durationMs = parseDurationMs(xpp, "mediaPresentationDuration");
     long minBufferTimeMs = parseDurationMs(xpp, "minBufferTime");
     String typeString = xpp.getAttributeValue(null, "type");
     boolean dynamic = (typeString != null) ? typeString.equals("dynamic") : false;
     long minUpdateTimeMs = (dynamic) ? parseDurationMs(xpp, "minimumUpdatePeriod", -1) : -1;
+    long timeShiftBufferDepthMs = (dynamic) ? parseDurationMs(xpp, "timeShiftBufferDepth", -1) : -1;
+    UtcTimingElement utcTiming = null;
 
     List<Period> periods = new ArrayList<Period>();
     do {
       xpp.next();
       if (isStartTag(xpp, "BaseURL")) {
         baseUrl = parseBaseUrl(xpp, baseUrl);
+      } else if (isStartTag(xpp, "UTCTiming")) {
+        utcTiming = parseUtcTiming(xpp);
       } else if (isStartTag(xpp, "Period")) {
         periods.add(parsePeriod(xpp, contentId, baseUrl, durationMs));
       }
     } while (!isEndTag(xpp, "MPD"));
 
-    return new MediaPresentationDescription(durationMs, minBufferTimeMs, dynamic, minUpdateTimeMs,
-        periods);
+    return new MediaPresentationDescription(availabilityStartTime, durationMs, minBufferTimeMs,
+        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, utcTiming, periods);
+  }
+
+  private UtcTimingElement parseUtcTiming(XmlPullParser xpp) {
+    String schemeIdUri = xpp.getAttributeValue(null, "schemeIdUri");
+    String value = xpp.getAttributeValue(null, "value");
+    return new UtcTimingElement(schemeIdUri, value);
   }
 
   private Period parsePeriod(XmlPullParser xpp, String contentId, Uri baseUrl, long mpdDurationMs)
@@ -427,6 +452,62 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
 
   private static long parseDurationMs(XmlPullParser xpp, String name) {
     return parseDurationMs(xpp, name, -1);
+  }
+
+  private static long parseDateTime(XmlPullParser xpp, String name, long defaultValue)
+      throws ParseException {
+    String value = xpp.getAttributeValue(null, name);
+
+    if (value == null) {
+      return defaultValue;
+    } else {
+      return parseDateTime(value);
+    }
+  }
+
+  // VisibleForTesting
+  static long parseDateTime(String value) throws ParseException {
+    Matcher matcher = DATE_TIME_PATTERN.matcher(value);
+    if (!matcher.matches()) {
+      throw new ParseException("Invalid date/time format: " + value, 0);
+    }
+
+    int timezoneShift;
+    if (matcher.group(9) == null) {
+      // No time zone specified.
+      timezoneShift = 0;
+    } else if (matcher.group(9).equalsIgnoreCase("Z")) {
+      timezoneShift = 0;
+    } else {
+      timezoneShift = ((Integer.valueOf(matcher.group(12)) * 60
+          + Integer.valueOf(matcher.group(13))));
+      if (matcher.group(11).equals("-")) {
+        timezoneShift *= -1;
+      }
+    }
+
+    Calendar dateTime = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+
+    dateTime.clear();
+    // Note: The month value is 0-based, hence the -1 on group(2)
+    dateTime.set(Integer.valueOf(matcher.group(1)),
+                 Integer.valueOf(matcher.group(2)) - 1,
+                 Integer.valueOf(matcher.group(3)),
+                 Integer.valueOf(matcher.group(4)),
+                 Integer.valueOf(matcher.group(5)),
+                 Integer.valueOf(matcher.group(6)));
+    if (!TextUtils.isEmpty(matcher.group(8))) {
+      final BigDecimal bd = new BigDecimal("0." + matcher.group(8));
+      // we care only for milliseconds, so movePointRight(3)
+      dateTime.set(Calendar.MILLISECOND, bd.movePointRight(3).intValue());
+    }
+
+    long time = dateTime.getTimeInMillis();
+    if (timezoneShift != 0) {
+      time -= timezoneShift * 60000;
+    }
+
+    return time;
   }
 
   private static long parseDurationMs(XmlPullParser xpp, String name, long defaultValue) {
