@@ -26,6 +26,7 @@ import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer.chunk.MediaChunk;
 import com.google.android.exoplayer.chunk.Mp4MediaChunk;
+import com.google.android.exoplayer.parser.Extractor;
 import com.google.android.exoplayer.parser.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer.parser.mp4.Track;
 import com.google.android.exoplayer.parser.mp4.TrackEncryptionBox;
@@ -227,7 +228,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   }
 
   private static MediaChunk newMediaChunk(Format formatInfo, Uri uri, String cacheKey,
-      FragmentedMp4Extractor extractor, DataSource dataSource, int chunkIndex,
+      Extractor extractor, DataSource dataSource, int chunkIndex,
       boolean isLast, long chunkStartTimeUs, long nextChunkStartTimeUs, int trigger) {
     int nextChunkIndex = isLast ? -1 : chunkIndex + 1;
     long nextStartTimeUs = isLast ? -1 : nextChunkStartTimeUs;

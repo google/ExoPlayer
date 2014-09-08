@@ -18,6 +18,7 @@ package com.google.android.exoplayer.parser.mp4;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.parser.Extractor;
 import com.google.android.exoplayer.parser.SegmentIndex;
 import com.google.android.exoplayer.parser.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer.parser.mp4.Atom.LeafAtom;
@@ -48,7 +49,7 @@ import java.util.UUID;
  * <p>
  * This implementation only supports de-muxed (i.e. single track) streams.
  */
-public final class FragmentedMp4Extractor {
+public final class FragmentedMp4Extractor implements Extractor {
 
   /**
    * Flag to work around an issue in some video streams where every frame is marked as a sync frame.
@@ -58,32 +59,6 @@ public final class FragmentedMp4Extractor {
    * This flag does nothing if the stream is not a video stream.
    */
   public static final int WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME = 1;
-
-  /**
-   * An attempt to read from the input stream returned insufficient data.
-   */
-  public static final int RESULT_NEED_MORE_DATA = 1;
-  /**
-   * The end of the input stream was reached.
-   */
-  public static final int RESULT_END_OF_STREAM = 2;
-  /**
-   * A media sample was read.
-   */
-  public static final int RESULT_READ_SAMPLE = 4;
-  /**
-   * A moov atom was read. The parsed data can be read using {@link #getFormat()} and
-   * {@link #getPsshInfo}.
-   */
-  public static final int RESULT_READ_INIT = 8;
-  /**
-   * A sidx atom was read. The parsed data can be read using {@link #getIndex()}.
-   */
-  public static final int RESULT_READ_INDEX = 16;
-  /**
-   * The next thing to be read is a sample, but a {@link SampleHolder} was not supplied.
-   */
-  public static final int RESULT_NEED_SAMPLE_HOLDER = 32;
 
   private static final int READ_TERMINATING_RESULTS = RESULT_NEED_MORE_DATA | RESULT_END_OF_STREAM
       | RESULT_READ_SAMPLE | RESULT_NEED_SAMPLE_HOLDER;
@@ -197,22 +172,13 @@ public final class FragmentedMp4Extractor {
   }
 
   /**
-   * Returns the segment index parsed from the stream.
+   * Sideloads track information into the extractor.
    *
-   * @return The segment index, or null if a SIDX atom has yet to be parsed.
+   * @param track The track to sideload.
    */
-  public SegmentIndex getIndex() {
-    return segmentIndex;
-  }
-
-  /**
-   * Returns the pssh information parsed from the stream.
-   *
-   * @return The pssh information. May be null if the MOOV atom has yet to be parsed of if it did
-   *     not contain any pssh information.
-   */
-  public Map<UUID, byte[]> getPsshInfo() {
-    return psshData.isEmpty() ? null : psshData;
+  public void setTrack(Track track) {
+    this.extendsDefaults = new DefaultSampleValues(0, 0, 0, 0);
+    this.track = track;
   }
 
   /**
@@ -229,38 +195,27 @@ public final class FragmentedMp4Extractor {
     psshData.put(uuid, data);
   }
 
-  /**
-   * Returns the format of the samples contained within the media stream.
-   *
-   * @return The sample media format, or null if a MOOV atom has yet to be parsed.
-   */
+  @Override
+  public Map<UUID, byte[]> getPsshInfo() {
+    return psshData.isEmpty() ? null : psshData;
+  }
+
+  @Override
+  public SegmentIndex getIndex() {
+    return segmentIndex;
+  }
+
+  @Override
+  public boolean hasRelativeIndexOffsets() {
+    return true;
+  }
+
+  @Override
   public MediaFormat getFormat() {
     return track == null ? null : track.mediaFormat;
   }
 
-  /**
-   * Sideloads track information into the extractor.
-   *
-   * @param track The track to sideload.
-   */
-  public void setTrack(Track track) {
-    this.extendsDefaults = new DefaultSampleValues(0, 0, 0, 0);
-    this.track = track;
-  }
-
-  /**
-   * Consumes data from a {@link NonBlockingInputStream}.
-   * <p>
-   * The read terminates if the end of the input stream is reached, if an attempt to read from the
-   * input stream returned 0 bytes of data, or if a sample is read. The returned flags indicate
-   * both the reason for termination and data that was parsed during the read.
-   *
-   * @param inputStream The input stream from which data should be read.
-   * @param out A {@link SampleHolder} into which the next sample should be read. If null then
-   *     {@link #RESULT_NEED_SAMPLE_HOLDER} will be returned once a sample has been reached.
-   * @return One or more of the {@code RESULT_*} flags defined in this class.
-   * @throws ParserException If an error occurs parsing the media data.
-   */
+  @Override
   public int read(NonBlockingInputStream inputStream, SampleHolder out)
       throws ParserException {
     try {
@@ -287,15 +242,7 @@ public final class FragmentedMp4Extractor {
     }
   }
 
-  /**
-   * Seeks to a position before or equal to the requested time.
-   *
-   * @param seekTimeUs The desired seek time in microseconds.
-   * @param allowNoop Allow the seek operation to do nothing if the seek time is in the current
-   *     fragment run, is equal to or greater than the time of the current sample, and if there
-   *     does not exist a sync frame between these two times.
-   * @return True if the operation resulted in a change of state. False if it was a no-op.
-   */
+  @Override
   public boolean seekTo(long seekTimeUs, boolean allowNoop) {
     pendingSeekTimeMs = (int) (seekTimeUs / 1000);
     if (allowNoop && fragmentRun != null
