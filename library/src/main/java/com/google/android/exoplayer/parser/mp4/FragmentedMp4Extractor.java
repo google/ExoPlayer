@@ -781,10 +781,10 @@ public final class FragmentedMp4Extractor {
     LeafAtom trun = traf.getLeafAtomOfType(Atom.TYPE_trun);
     parseTrun(track, fragmentHeader, decodeTime, workaroundFlags, trun.data, out);
 
-    TrackEncryptionBox trackEncryptionBox =
-        track.sampleDescriptionEncryptionBoxes[fragmentHeader.sampleDescriptionIndex];
     LeafAtom saiz = traf.getLeafAtomOfType(Atom.TYPE_saiz);
     if (saiz != null) {
+      TrackEncryptionBox trackEncryptionBox =
+          track.sampleDescriptionEncryptionBoxes[fragmentHeader.sampleDescriptionIndex];
       parseSaiz(trackEncryptionBox, saiz.data, out);
     }
 
