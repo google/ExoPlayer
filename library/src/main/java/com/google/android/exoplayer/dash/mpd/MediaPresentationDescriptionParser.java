@@ -34,11 +34,13 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Locale;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,6 +52,11 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
   // Note: Does not support the date part of ISO 8601
   private static final Pattern DURATION =
       Pattern.compile("^PT(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?$");
+
+  private static final Pattern DATE_TIME_PATTERN =
+      Pattern.compile("(\\d\\d\\d\\d)\\-(\\d\\d)\\-(\\d\\d)[Tt]"
+          + "(\\d\\d):(\\d\\d):(\\d\\d)(\\.(\\d+))?"
+          + "([Zz]|((\\+|\\-)(\\d\\d):(\\d\\d)))?");
 
   private final XmlPullParserFactory xmlParserFactory;
 
@@ -450,11 +457,57 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
   private static long parseDateTime(XmlPullParser xpp, String name, long defaultValue)
       throws ParseException {
     String value = xpp.getAttributeValue(null, name);
-    if (value != null) {
-      SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ss'Z'", Locale.US);
-      return parser.parse(value).getTime();
+
+    if (value == null) {
+      return defaultValue;
+    } else {
+      return parseDateTime(value);
     }
-    return defaultValue;
+  }
+
+  // VisibleForTesting
+  static long parseDateTime(String value) throws ParseException {
+    Matcher matcher = DATE_TIME_PATTERN.matcher(value);
+    if (!matcher.matches()) {
+      throw new ParseException("Invalid date/time format: " + value, 0);
+    }
+
+    int timezoneShift;
+    if (matcher.group(9) == null) {
+      // No time zone specified.
+      timezoneShift = 0;
+    } else if (matcher.group(9).equalsIgnoreCase("Z")) {
+      timezoneShift = 0;
+    } else {
+      timezoneShift = ((Integer.valueOf(matcher.group(12)) * 60
+          + Integer.valueOf(matcher.group(13))));
+      if (matcher.group(11).equals("-")) {
+        timezoneShift *= -1;
+      }
+    }
+
+    Calendar dateTime = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+
+    dateTime.clear();
+    // Note: The month value is 0-based, hence the -1 on group(2)
+    dateTime.set(Integer.valueOf(matcher.group(1)),
+                 Integer.valueOf(matcher.group(2)) - 1,
+                 Integer.valueOf(matcher.group(3)),
+                 Integer.valueOf(matcher.group(4)),
+                 Integer.valueOf(matcher.group(5)),
+                 Integer.valueOf(matcher.group(6)));
+    if (!TextUtils.isEmpty(matcher.group(8))) {
+      final BigDecimal bd = new BigDecimal("0." + matcher.group(8));
+      // we care only for milliseconds, so movePointRight(3)
+      dateTime.set(Calendar.MILLISECOND, bd.movePointRight(3).intValue());
+    }
+
+    long time = dateTime.getTimeInMillis();
+    if (timezoneShift != 0) {
+      time -= timezoneShift * 60000;
+    }
+
+    return time;
   }
 
   private static long parseDurationMs(XmlPullParser xpp, String name, long defaultValue) {
