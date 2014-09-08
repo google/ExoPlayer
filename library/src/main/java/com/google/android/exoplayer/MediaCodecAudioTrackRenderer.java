@@ -27,6 +27,7 @@ import android.media.AudioTimestamp;
 import android.media.AudioTrack;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
+import android.media.audiofx.Virtualizer;
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.util.Log;
@@ -358,9 +359,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
    * subsequently re-enabled.
    * <p>
    * The default implementation is a no-op. One reason for overriding this method would be to
-   * instantiate and enable a {@link android.media.audiofx.Virtualizer} in order to spatialize the
-   * audio channels. For this use case, any {@link android.media.audiofx.Virtualizer} instances
-   * should be released in {@link #onDisabled()} (if not before).
+   * instantiate and enable a {@link Virtualizer} in order to spatialize the audio channels. For
+   * this use case, any {@link Virtualizer} instances should be released in {@link #onDisabled()}
+   * (if not before).
    *
    * @param audioSessionId The audio session id.
    */
