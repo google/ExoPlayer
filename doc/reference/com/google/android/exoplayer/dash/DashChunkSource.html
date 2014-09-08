@@ -83,7 +83,7 @@
 <meta name="viewport" content="width=device-width" />
 
 <link rel="shortcut icon" type="image/x-icon" href="../../../../../../favicon.ico" />
-<title>DashMp4ChunkSource - ExoPlayer | Android Developers</title>
+<title>DashChunkSource - ExoPlayer | Android Developers</title>
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
@@ -198,8 +198,7 @@ type="text/css">
               
     <li><h2>Classes</h2>
       <ul>
-          <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html">DashMp4ChunkSource</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWebmChunkSource.html">DashWebmChunkSource</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashChunkSource.html">DashChunkSource</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWrappingSegmentIndex.html">DashWrappingSegmentIndex</a></li>
       </ul>
     </li>
@@ -317,7 +316,7 @@ Summary:
      
     
     class
-<h1 itemprop="name">DashMp4ChunkSource</h1>
+<h1 itemprop="name">DashChunkSource</h1>
 
 
 
@@ -355,7 +354,7 @@ Summary:
         
             <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
          	
-        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.dash.DashMp4ChunkSource</td>
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.dash.DashChunkSource</td>
     </tr>
     
 
@@ -371,7 +370,9 @@ Summary:
 
 
 <h2>Class Overview</h2>
-<p itemprop="articleBody">An <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></code> for Mp4 DASH streams.
+<p itemprop="articleBody">An <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></code> for DASH streams.
+ <p>
+ This implementation currently supports fMP4 and webm.
 </p>
 
 
@@ -438,7 +439,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html#DashMp4ChunkSource(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.chunk.FormatEvaluator, com.google.android.exoplayer.dash.mpd.Representation...)">DashMp4ChunkSource</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.html">FormatEvaluator</a> evaluator, <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation...</a> representations)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashChunkSource.html#DashChunkSource(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.chunk.FormatEvaluator, com.google.android.exoplayer.dash.mpd.Representation...)">DashChunkSource</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.html">FormatEvaluator</a> evaluator, <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation...</a> representations)</nobr>
         
   </td></tr>
 
@@ -467,7 +468,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html#continueBuffering(long)">continueBuffering</a></span>(long playbackPositionUs)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashChunkSource.html#continueBuffering(long)">continueBuffering</a></span>(long playbackPositionUs)</nobr>
         
         <div class="jd-descrdiv">Indicates to the source that it should still be checking for updates to the stream.</div>
   
@@ -485,7 +486,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html#disable(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>)">disable</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashChunkSource.html#disable(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>)">disable</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</nobr>
         
         <div class="jd-descrdiv">Called when the source is disabled.</div>
   
@@ -503,7 +504,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html#enable()">enable</a></span>()</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashChunkSource.html#enable()">enable</a></span>()</nobr>
         
         <div class="jd-descrdiv">Called when the source is enabled.</div>
   
@@ -521,7 +522,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html#getChunkOperation(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>, long, long, com.google.android.exoplayer.chunk.ChunkOperationHolder)">getChunkOperation</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue, long seekPositionUs, long playbackPositionUs, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html">ChunkOperationHolder</a> out)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashChunkSource.html#getChunkOperation(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>, long, long, com.google.android.exoplayer.chunk.ChunkOperationHolder)">getChunkOperation</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue, long seekPositionUs, long playbackPositionUs, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html">ChunkOperationHolder</a> out)</nobr>
         
         <div class="jd-descrdiv">Updates the provided <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html">ChunkOperationHolder</a></code> to contain the next operation that should
  be performed by the calling <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a></code>.</div>
@@ -540,7 +541,7 @@ Summary:
             <a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html#getError()">getError</a></span>()</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashChunkSource.html#getError()">getError</a></span>()</nobr>
         
         <div class="jd-descrdiv">If the <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></code> is currently unable to provide chunks through
  <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#getChunkOperation(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>, long, long, com.google.android.exoplayer.chunk.ChunkOperationHolder)">getChunkOperation(List<? extends MediaChunk>, long, long, ChunkOperationHolder)</a></code>, then this method returns the underlying cause.</div>
@@ -559,7 +560,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html#getMaxVideoDimensions(com.google.android.exoplayer.MediaFormat)">getMaxVideoDimensions</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> out)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashChunkSource.html#getMaxVideoDimensions(com.google.android.exoplayer.MediaFormat)">getMaxVideoDimensions</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> out)</nobr>
         
         <div class="jd-descrdiv">Adaptive video <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></code> implementations must set the maximum video dimensions on
  the supplied <code><a href="../../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a></code>.</div>
@@ -578,7 +579,7 @@ Summary:
             <a href="../../../../../../reference/com/google/android/exoplayer/TrackInfo.html">TrackInfo</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html#getTrackInfo()">getTrackInfo</a></span>()</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashChunkSource.html#getTrackInfo()">getTrackInfo</a></span>()</nobr>
         
         <div class="jd-descrdiv">Gets information about the track for which this instance provides <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></code>s.</div>
   
@@ -596,7 +597,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashMp4ChunkSource.html#onChunkLoadError(com.google.android.exoplayer.chunk.Chunk, java.lang.Exception)">onChunkLoadError</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a> chunk, <a href="http://developer.android.com/reference/java/lang/Exception.html">Exception</a> e)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashChunkSource.html#onChunkLoadError(com.google.android.exoplayer.chunk.Chunk, java.lang.Exception)">onChunkLoadError</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a> chunk, <a href="http://developer.android.com/reference/java/lang/Exception.html">Exception</a> e)</nobr>
         
         <div class="jd-descrdiv">Invoked when the <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a></code> encounters an error loading a chunk obtained from
  this source.</div>
@@ -1028,7 +1029,7 @@ From interface
 
 
 
-<A NAME="DashMp4ChunkSource(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.chunk.FormatEvaluator, com.google.android.exoplayer.dash.mpd.Representation...)"></A>
+<A NAME="DashChunkSource(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.chunk.FormatEvaluator, com.google.android.exoplayer.dash.mpd.Representation...)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1040,7 +1041,7 @@ From interface
          
         
       </span>
-      <span class="sympad">DashMp4ChunkSource</span>
+      <span class="sympad">DashChunkSource</span>
       <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.html">FormatEvaluator</a> evaluator, <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation...</a> representations)</span>
     </h4>
       <div class="api-level">

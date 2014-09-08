@@ -214,13 +214,13 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DummyTrackRenderer.html">DummyTrackRenderer</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html">ExoPlayer.Factory</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayerLibraryInfo.html">ExoPlayerLibraryInfo</a></li>
-          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/FormatHolder.html">FormatHolder</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/FrameworkSampleSource.html">FrameworkSampleSource</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecAudioTrackRenderer.html">MediaCodecAudioTrackRenderer</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html">MediaCodecTrackRenderer</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecUtil.html">MediaCodecUtil</a></li>
           <li class="selected api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecVideoTrackRenderer.html">MediaCodecVideoTrackRenderer</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormatHolder.html">MediaFormatHolder</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/TrackInfo.html">TrackInfo</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></li>
@@ -293,6 +293,8 @@ type="text/css">
   
    
   
+  
+   
   
   
    
@@ -548,6 +550,50 @@ Summary:
   <a href="#" class="toggle-all" onclick="return toggleAllInherited(this, null)">[Expand]</a>
   <div style="clear:left;">Inherited Constants</div></th></tr>
 
+
+<tr class="api apilevel-" >
+<td colspan="12">
+
+  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-constants-com.google.android.exoplayer.MediaCodecTrackRenderer" class="jd-expando-trigger closed"
+          ><img id="inherited-constants-com.google.android.exoplayer.MediaCodecTrackRenderer-trigger"
+          src="../../../../../assets/images/triangle-closed.png"
+          class="jd-expando-trigger-img" /></a>From class
+<a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html">com.google.android.exoplayer.MediaCodecTrackRenderer</a>
+<div id="inherited-constants-com.google.android.exoplayer.MediaCodecTrackRenderer">
+  <div id="inherited-constants-com.google.android.exoplayer.MediaCodecTrackRenderer-list"
+        class="jd-inheritedlinks">
+  </div>
+  <div id="inherited-constants-com.google.android.exoplayer.MediaCodecTrackRenderer-summary" style="display: none;">
+    <table class="jd-sumtable-expando">
+    
+
+    
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#SOURCE_STATE_NOT_READY">SOURCE_STATE_NOT_READY</a></td>
+        <td class="jd-descrcol" width="100%">Value of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is not ready.</td>
+    </tr>
+    
+    
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#SOURCE_STATE_READY">SOURCE_STATE_READY</a></td>
+        <td class="jd-descrcol" width="100%">Value of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is ready and we're able to read from it.</td>
+    </tr>
+    
+    
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#SOURCE_STATE_READY_READ_MAY_FAIL">SOURCE_STATE_READY_READ_MAY_FAIL</a></td>
+        <td class="jd-descrcol" width="100%">Value of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is ready but we might not be able to read from
+ it.</td>
+    </tr>
+    
+    
+</table>
+  </div>
+</div>
+</td></tr>
 
 
 
@@ -1251,6 +1297,24 @@ From class
         <td class="jd-typecol"><nobr>
             
             
+            final
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Gets the source state.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
             
             
             
@@ -1265,7 +1329,7 @@ From class
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1281,7 +1345,7 @@ From class
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1300,7 +1364,7 @@ From class
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1318,7 +1382,7 @@ From class
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1334,7 +1398,7 @@ From class
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1352,7 +1416,7 @@ From class
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1370,7 +1434,7 @@ From class
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1388,7 +1452,7 @@ From class
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1406,7 +1470,7 @@ From class
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1424,7 +1488,7 @@ From class
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1442,7 +1506,7 @@ From class
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             abstract
             
@@ -1460,7 +1524,7 @@ From class
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1476,7 +1540,7 @@ From class
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1494,7 +1558,7 @@ From class
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             

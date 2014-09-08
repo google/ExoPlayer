@@ -214,13 +214,13 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DummyTrackRenderer.html">DummyTrackRenderer</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html">ExoPlayer.Factory</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayerLibraryInfo.html">ExoPlayerLibraryInfo</a></li>
-          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/FormatHolder.html">FormatHolder</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/FrameworkSampleSource.html">FrameworkSampleSource</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecAudioTrackRenderer.html">MediaCodecAudioTrackRenderer</a></li>
           <li class="selected api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html">MediaCodecTrackRenderer</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecUtil.html">MediaCodecUtil</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecVideoTrackRenderer.html">MediaCodecVideoTrackRenderer</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormatHolder.html">MediaFormatHolder</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/TrackInfo.html">TrackInfo</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></li>
@@ -324,6 +324,9 @@ Summary:
 
 
 
+
+  &#124; <a href="#constants">Constants</a>
+  
 
 
   &#124; <a href="#inhconstants">Inherited Constants</a>
@@ -538,6 +541,37 @@ Summary:
 
 
 
+
+
+<!-- =========== ENUM CONSTANT SUMMARY =========== -->
+<table id="constants" class="jd-sumtable"><tr><th colspan="12">Constants</th></tr>
+
+
+    
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#SOURCE_STATE_NOT_READY">SOURCE_STATE_NOT_READY</a></td>
+        <td class="jd-descrcol" width="100%">Value of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is not ready.</td>
+    </tr>
+    
+    
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#SOURCE_STATE_READY">SOURCE_STATE_READY</a></td>
+        <td class="jd-descrcol" width="100%">Value of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is ready and we're able to read from it.</td>
+    </tr>
+    
+    
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#SOURCE_STATE_READY_READ_MAY_FAIL">SOURCE_STATE_READY_READ_MAY_FAIL</a></td>
+        <td class="jd-descrcol" width="100%">Value of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is ready but we might not be able to read from
+ it.</td>
+    </tr>
+    
+    
+
+</table>
 
 
 
@@ -866,6 +900,24 @@ Summary:
         <td class="jd-typecol"><nobr>
             
             
+            final
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Gets the source state.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
             
             
             
@@ -880,7 +932,7 @@ Summary:
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -896,7 +948,7 @@ Summary:
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -915,7 +967,7 @@ Summary:
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -933,7 +985,7 @@ Summary:
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -949,7 +1001,7 @@ Summary:
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -967,7 +1019,7 @@ Summary:
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -985,7 +1037,7 @@ Summary:
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1003,7 +1055,7 @@ Summary:
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1021,7 +1073,7 @@ Summary:
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1039,7 +1091,7 @@ Summary:
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1057,7 +1109,7 @@ Summary:
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             abstract
             
@@ -1075,7 +1127,7 @@ Summary:
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1091,7 +1143,7 @@ Summary:
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1109,7 +1161,7 @@ Summary:
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1721,6 +1773,133 @@ From interface
 <!-- Constants -->
 
 
+<!-- ========= ENUM CONSTANTS DETAIL ======== -->
+<h2>Constants</h2>
+
+
+
+
+<A NAME="SOURCE_STATE_NOT_READY"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        protected 
+        static 
+        final 
+        int
+      </span>
+        SOURCE_STATE_NOT_READY
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Value of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is not ready.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                0
+                (0x00000000)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
+<A NAME="SOURCE_STATE_READY"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        protected 
+        static 
+        final 
+        int
+      </span>
+        SOURCE_STATE_READY
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Value of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is ready and we're able to read from it.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                1
+                (0x00000001)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
+<A NAME="SOURCE_STATE_READY_READ_MAY_FAIL"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        protected 
+        static 
+        final 
+        int
+      </span>
+        SOURCE_STATE_READY_READ_MAY_FAIL
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Value of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is ready but we might not be able to read from
+ it. We transition to this state when an attempt to read a sample fails despite the source
+ reporting that samples are available. This can occur when the next sample to be provided by
+ the source is for another renderer.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                2
+                (0x00000002)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
+
 <!-- Fields -->
 
 
@@ -2212,6 +2391,41 @@ From interface
       <ul class="nolist"><li>The duration of the track in micro-seconds, or <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#MATCH_LONGEST_US">MATCH_LONGEST_US</a></code> if
      the track's duration should match that of the longest track whose duration is known, or
      or <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#UNKNOWN_TIME_US">UNKNOWN_TIME_US</a></code> if the duration is not known.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getSourceState()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        protected 
+         
+        final 
+         
+         
+        int
+      </span>
+      <span class="sympad">getSourceState</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Gets the source state.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>One of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#SOURCE_STATE_NOT_READY">SOURCE_STATE_NOT_READY</a></code>, <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#SOURCE_STATE_READY">SOURCE_STATE_READY</a></code> and
+     <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#SOURCE_STATE_READY_READ_MAY_FAIL">SOURCE_STATE_READY_READ_MAY_FAIL</a></code>.
 </li></ul>
   </div>
 

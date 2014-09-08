@@ -210,6 +210,7 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SegmentTimelineElement.html">SegmentBase.SegmentTimelineElement</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SingleSegmentBase.html">SegmentBase.SingleSegmentBase</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UrlTemplate.html">UrlTemplate</a></li>
+          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UtcTimingElement.html">UtcTimingElement</a></li>
       </ul>
     </li>
               
@@ -425,12 +426,23 @@ Summary:
           
           final
           long</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html#duration">duration</a></td>
+          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html#availabilityStartTime">availabilityStartTime</a></td>
           <td class="jd-descrcol" width="100%"></td>
       </tr>
       
     
       <tr class=" api apilevel-" >
+          <td class="jd-typecol"><nobr>
+          public
+          
+          final
+          long</nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html#duration">duration</a></td>
+          <td class="jd-descrcol" width="100%"></td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
           <td class="jd-typecol"><nobr>
           public
           
@@ -441,7 +453,7 @@ Summary:
       </tr>
       
     
-      <tr class="alt-color api apilevel-" >
+      <tr class=" api apilevel-" >
           <td class="jd-typecol"><nobr>
           public
           
@@ -452,7 +464,7 @@ Summary:
       </tr>
       
     
-      <tr class=" api apilevel-" >
+      <tr class="alt-color api apilevel-" >
           <td class="jd-typecol"><nobr>
           public
           
@@ -463,13 +475,35 @@ Summary:
       </tr>
       
     
-      <tr class="alt-color api apilevel-" >
+      <tr class=" api apilevel-" >
           <td class="jd-typecol"><nobr>
           public
           
           final
           <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a>&gt;</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html#periods">periods</a></td>
+          <td class="jd-descrcol" width="100%"></td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+          <td class="jd-typecol"><nobr>
+          public
+          
+          final
+          long</nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html#timeShiftBufferDepth">timeShiftBufferDepth</a></td>
+          <td class="jd-descrcol" width="100%"></td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+          <td class="jd-typecol"><nobr>
+          public
+          
+          final
+          <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UtcTimingElement.html">UtcTimingElement</a></nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html#utcTiming">utcTiming</a></td>
           <td class="jd-descrcol" width="100%"></td>
       </tr>
       
@@ -499,7 +533,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html#MediaPresentationDescription(long, long, boolean, long, java.util.List<com.google.android.exoplayer.dash.mpd.Period>)">MediaPresentationDescription</a></span>(long duration, long minBufferTime, boolean dynamic, long minUpdatePeriod, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a>&gt; periods)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html#MediaPresentationDescription(long, long, long, boolean, long, long, com.google.android.exoplayer.dash.mpd.UtcTimingElement, java.util.List<com.google.android.exoplayer.dash.mpd.Period>)">MediaPresentationDescription</a></span>(long availabilityStartTime, long duration, long minBufferTime, boolean dynamic, long minUpdatePeriod, long timeShiftBufferDepth, <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UtcTimingElement.html">UtcTimingElement</a> utcTiming, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a>&gt; periods)</nobr>
         
   </td></tr>
 
@@ -756,6 +790,34 @@ From class
 
 
 
+<A NAME="availabilityStartTime"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+        final 
+        long
+      </span>
+        availabilityStartTime
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+
+    
+    </div>
+</div>
+
+
+
 <A NAME="duration"></A>
 
 <div class="jd-details api apilevel-"> 
@@ -896,6 +958,62 @@ From class
 
 
 
+<A NAME="timeShiftBufferDepth"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+        final 
+        long
+      </span>
+        timeShiftBufferDepth
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+
+    
+    </div>
+</div>
+
+
+
+<A NAME="utcTiming"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+        final 
+        <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UtcTimingElement.html">UtcTimingElement</a>
+      </span>
+        utcTiming
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+
+    
+    </div>
+</div>
+
+
+
 
 <!-- Public ctors -->
 
@@ -905,7 +1023,7 @@ From class
 
 
 
-<A NAME="MediaPresentationDescription(long, long, boolean, long, java.util.List<com.google.android.exoplayer.dash.mpd.Period>)"></A>
+<A NAME="MediaPresentationDescription(long, long, long, boolean, long, long, com.google.android.exoplayer.dash.mpd.UtcTimingElement, java.util.List<com.google.android.exoplayer.dash.mpd.Period>)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -918,7 +1036,7 @@ From class
         
       </span>
       <span class="sympad">MediaPresentationDescription</span>
-      <span class="normal">(long duration, long minBufferTime, boolean dynamic, long minUpdatePeriod, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a>&gt; periods)</span>
+      <span class="normal">(long availabilityStartTime, long duration, long minBufferTime, boolean dynamic, long minUpdatePeriod, long timeShiftBufferDepth, <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/UtcTimingElement.html">UtcTimingElement</a> utcTiming, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a>&gt; periods)</span>
     </h4>
       <div class="api-level">
         <div></div>

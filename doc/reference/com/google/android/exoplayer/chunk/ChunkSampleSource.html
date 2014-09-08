@@ -213,7 +213,6 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html">Mp4MediaChunk</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MultiTrackChunkSource.html">MultiTrackChunkSource</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/SingleSampleMediaChunk.html">SingleSampleMediaChunk</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/WebmMediaChunk.html">WebmMediaChunk</a></li>
       </ul>
     </li>
               
@@ -806,7 +805,7 @@ Summary:
             int</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html#readData(int, long, com.google.android.exoplayer.FormatHolder, com.google.android.exoplayer.SampleHolder, boolean)">readData</a></span>(int track, long playbackPositionUs, <a href="../../../../../../reference/com/google/android/exoplayer/FormatHolder.html">FormatHolder</a> formatHolder, <a href="../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> sampleHolder, boolean onlyReadDiscontinuity)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html#readData(int, long, com.google.android.exoplayer.MediaFormatHolder, com.google.android.exoplayer.SampleHolder, boolean)">readData</a></span>(int track, long playbackPositionUs, <a href="../../../../../../reference/com/google/android/exoplayer/MediaFormatHolder.html">MediaFormatHolder</a> formatHolder, <a href="../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> sampleHolder, boolean onlyReadDiscontinuity)</nobr>
         
         <div class="jd-descrdiv">Attempts to read either a sample, a new format or or a discontinuity from the source.</div>
   
@@ -1265,7 +1264,7 @@ From interface
             int</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/SampleSource.html#readData(int, long, com.google.android.exoplayer.FormatHolder, com.google.android.exoplayer.SampleHolder, boolean)">readData</a></span>(int track, long playbackPositionUs, <a href="../../../../../../reference/com/google/android/exoplayer/FormatHolder.html">FormatHolder</a> formatHolder, <a href="../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> sampleHolder, boolean onlyReadDiscontinuity)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/SampleSource.html#readData(int, long, com.google.android.exoplayer.MediaFormatHolder, com.google.android.exoplayer.SampleHolder, boolean)">readData</a></span>(int track, long playbackPositionUs, <a href="../../../../../../reference/com/google/android/exoplayer/MediaFormatHolder.html">MediaFormatHolder</a> formatHolder, <a href="../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> sampleHolder, boolean onlyReadDiscontinuity)</nobr>
         
         <div class="jd-descrdiv">Attempts to read either a sample, a new format or or a discontinuity from the source.</div>
   
@@ -1618,7 +1617,7 @@ From interface
     <div class="jd-details-descr">
       
   <div class="jd-tagdata jd-tagdescr"><p>Enable the specified track. This allows the track's format and samples to be read from
- <code><a href="../../../../../../reference/com/google/android/exoplayer/SampleSource.html#readData(int, long, com.google.android.exoplayer.FormatHolder, com.google.android.exoplayer.SampleHolder, boolean)">readData(int, long, FormatHolder, SampleHolder, boolean)</a></code>.
+ <code><a href="../../../../../../reference/com/google/android/exoplayer/SampleSource.html#readData(int, long, com.google.android.exoplayer.MediaFormatHolder, com.google.android.exoplayer.SampleHolder, boolean)">readData(int, long, MediaFormatHolder, SampleHolder, boolean)</a></code>.
  <p>
  This method should not be called until after the source has been successfully prepared.</p></div>
   <div class="jd-tagdata">
@@ -1909,7 +1908,7 @@ From interface
 </div>
 
 
-<A NAME="readData(int, long, com.google.android.exoplayer.FormatHolder, com.google.android.exoplayer.SampleHolder, boolean)"></A>
+<A NAME="readData(int, long, com.google.android.exoplayer.MediaFormatHolder, com.google.android.exoplayer.SampleHolder, boolean)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1922,7 +1921,7 @@ From interface
         int
       </span>
       <span class="sympad">readData</span>
-      <span class="normal">(int track, long playbackPositionUs, <a href="../../../../../../reference/com/google/android/exoplayer/FormatHolder.html">FormatHolder</a> formatHolder, <a href="../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> sampleHolder, boolean onlyReadDiscontinuity)</span>
+      <span class="normal">(int track, long playbackPositionUs, <a href="../../../../../../reference/com/google/android/exoplayer/MediaFormatHolder.html">MediaFormatHolder</a> formatHolder, <a href="../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> sampleHolder, boolean onlyReadDiscontinuity)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1952,7 +1951,7 @@ From interface
         </tr>
         <tr>
           <th>formatHolder</td>
-          <td>A <code><a href="../../../../../../reference/com/google/android/exoplayer/FormatHolder.html">FormatHolder</a></code> object to populate in the case of a new format.</td>
+          <td>A <code><a href="../../../../../../reference/com/google/android/exoplayer/MediaFormatHolder.html">MediaFormatHolder</a></code> object to populate in the case of a new format.</td>
         </tr>
         <tr>
           <th>sampleHolder</td>
