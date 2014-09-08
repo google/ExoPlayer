@@ -283,9 +283,9 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
     codecHotswapTimeMs = getState() == TrackRenderer.STATE_STARTED ?
         SystemClock.elapsedRealtime() : -1;
-        inputIndex = -1;
-        outputIndex = -1;
-        waitingForFirstSyncFrame = true;
+    inputIndex = -1;
+    outputIndex = -1;
+    waitingForFirstSyncFrame = true;
     codecCounters.codecInitCount++;
   }
 
@@ -449,6 +449,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     codecHotswapTimeMs = -1;
     inputIndex = -1;
     outputIndex = -1;
+    waitingForFirstSyncFrame = true;
     decodeOnlyPresentationTimestamps.clear();
     // Workaround for framework bugs.
     // See [redacted], [redacted], [redacted].
