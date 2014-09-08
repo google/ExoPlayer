@@ -28,8 +28,7 @@ import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
-import com.google.android.exoplayer.dash.DashMp4ChunkSource;
-import com.google.android.exoplayer.dash.DashWebmChunkSource;
+import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescriptionFetcher;
@@ -163,14 +162,8 @@ public class DashVodRendererBuilder implements RendererBuilder,
     DataSource videoDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
     ChunkSource videoChunkSource;
     String mimeType = videoRepresentations[0].format.mimeType;
-    if (mimeType.equals(MimeTypes.VIDEO_MP4)) {
-      videoChunkSource = new DashMp4ChunkSource(videoDataSource,
-          new AdaptiveEvaluator(bandwidthMeter), videoRepresentations);
-    } else if (mimeType.equals(MimeTypes.VIDEO_WEBM)) {
-      // TODO: Figure out how to query supported vpX resolutions. For now, restrict to standard
-      // definition streams.
-      videoRepresentations = getSdRepresentations(videoRepresentations);
-      videoChunkSource = new DashWebmChunkSource(videoDataSource,
+    if (mimeType.equals(MimeTypes.VIDEO_MP4) || mimeType.equals(MimeTypes.VIDEO_WEBM)) {
+      videoChunkSource = new DashChunkSource(videoDataSource,
           new AdaptiveEvaluator(bandwidthMeter), videoRepresentations);
     } else {
       throw new IllegalStateException("Unexpected mime type: " + mimeType);
@@ -200,7 +193,7 @@ public class DashVodRendererBuilder implements RendererBuilder,
         Format format = representation.format;
         audioTrackNames[i] = format.id + " (" + format.numChannels + "ch, " +
             format.audioSamplingRate + "Hz)";
-        audioChunkSources[i] = new DashMp4ChunkSource(audioDataSource,
+        audioChunkSources[i] = new DashChunkSource(audioDataSource,
             audioEvaluator, representation);
       }
       audioChunkSource = new MultiTrackChunkSource(audioChunkSources);

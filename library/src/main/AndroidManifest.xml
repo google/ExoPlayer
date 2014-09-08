@@ -21,6 +21,12 @@
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+  <!--
+    Important: ExoPlayerLib specifies a minSdkVersion of 9 because various components provided by
+    the library may be of use on older devices. However, please note that the core video playback
+    functionality provided by the library requires API level 16 or greater.
+  -->
   <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="19"/>
 
 </manifest>

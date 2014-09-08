@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.parser.mp4;
-
-import com.google.android.exoplayer.util.Assertions;
+package com.google.android.exoplayer.util;
 
 import android.annotation.SuppressLint;
 import android.media.MediaCodecInfo.CodecProfileLevel;
@@ -35,6 +33,10 @@ public final class CodecSpecificDataUtil {
     96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350
   };
 
+  private static final int[] AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE = new int[] {
+    0, 1, 2, 3, 4, 5, 6, 8
+  };
+
   private static final int SPS_NAL_UNIT_TYPE = 7;
 
   private CodecSpecificDataUtil() {}
@@ -42,7 +44,7 @@ public final class CodecSpecificDataUtil {
   /**
    * Parses an AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1
    *
-   * @param audioSpecificConfig
+   * @param audioSpecificConfig The AudioSpecificConfig to parse.
    * @return A pair consisting of the sample rate in Hz and the channel count.
    */
   public static Pair<Integer, Integer> parseAudioSpecificConfig(byte[] audioSpecificConfig) {
@@ -57,10 +59,26 @@ public final class CodecSpecificDataUtil {
   }
 
   /**
+   * Builds a simple AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1
+   *
+   * @param audioObjectType The audio object type.
+   * @param sampleRateIndex The sample rate index.
+   * @param channelConfig The channel configuration.
+   * @return The AudioSpecificConfig.
+   */
+  public static byte[] buildAudioSpecificConfig(int audioObjectType, int sampleRateIndex,
+      int channelConfig) {
+    byte[] audioSpecificConfig = new byte[2];
+    audioSpecificConfig[0] = (byte) ((audioObjectType << 3) & 0xF8 | (sampleRateIndex >> 1) & 0x07);
+    audioSpecificConfig[1] = (byte) ((sampleRateIndex << 7) & 0x80 | (channelConfig << 3) & 0x78);
+    return audioSpecificConfig;
+  }
+
+  /**
    * Builds a simple HE-AAC LC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1
    *
    * @param sampleRate The sample rate in Hz.
-   * @param numChannels The number of channels
+   * @param numChannels The number of channels.
    * @return The AudioSpecificConfig.
    */
   public static byte[] buildAudioSpecificConfig(int sampleRate, int numChannels) {
@@ -70,10 +88,16 @@ public final class CodecSpecificDataUtil {
         sampleRateIndex = i;
       }
     }
+    int channelConfig = -1;
+    for (int i = 0; i < AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE.length; ++i) {
+      if (numChannels == AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE[i]) {
+        channelConfig = i;
+      }
+    }
     // The full specification for AudioSpecificConfig is stated in ISO 14496-3 Section 1.6.2.1
     byte[] csd = new byte[2];
     csd[0] = (byte) ((2 /* AAC LC */ << 3) | (sampleRateIndex >> 1));
-    csd[1] = (byte) (((sampleRateIndex & 0x1) << 7) | (numChannels << 3));
+    csd[1] = (byte) (((sampleRateIndex & 0x1) << 7) | (channelConfig << 3));
     return csd;
   }
 

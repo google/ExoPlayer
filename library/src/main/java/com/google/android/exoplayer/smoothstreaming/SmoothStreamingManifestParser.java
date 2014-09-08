@@ -16,11 +16,11 @@
 package com.google.android.exoplayer.smoothstreaming;
 
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.parser.mp4.CodecSpecificDataUtil;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 
 import android.util.Base64;
 import android.util.Pair;
@@ -60,15 +60,18 @@ public class SmoothStreamingManifestParser {
    * @param inputEncoding The encoding of the input.
    * @return The parsed manifest.
    * @throws IOException If a problem occurred reading from the stream.
-   * @throws XmlPullParserException If a problem occurred parsing the stream as xml.
    * @throws ParserException If a problem occurred parsing the xml as a smooth streaming manifest.
    */
   public SmoothStreamingManifest parse(InputStream inputStream, String inputEncoding) throws
-      XmlPullParserException, IOException, ParserException {
-    XmlPullParser xmlParser = xmlParserFactory.newPullParser();
-    xmlParser.setInput(inputStream, inputEncoding);
-    SmoothStreamMediaParser smoothStreamMediaParser = new SmoothStreamMediaParser(null);
-    return (SmoothStreamingManifest) smoothStreamMediaParser.parse(xmlParser);
+  IOException, ParserException {
+    try {
+      XmlPullParser xmlParser = xmlParserFactory.newPullParser();
+      xmlParser.setInput(inputStream, inputEncoding);
+      SmoothStreamMediaParser smoothStreamMediaParser = new SmoothStreamMediaParser(null);
+      return (SmoothStreamingManifest) smoothStreamMediaParser.parse(xmlParser);
+    } catch (XmlPullParserException e) {
+      throw new ParserException(e);
+    }
   }
 
   /**
@@ -102,6 +105,7 @@ public class SmoothStreamingManifestParser {
         ParserException {
       String tagName;
       boolean foundStartTag = false;
+      int skippingElementDepth = 0;
       while (true) {
         int eventType = xmlParser.getEventType();
         switch (eventType) {
@@ -111,24 +115,35 @@ public class SmoothStreamingManifestParser {
               foundStartTag = true;
               parseStartTag(xmlParser);
             } else if (foundStartTag) {
-              if (handleChildInline(tagName)) {
+              if (skippingElementDepth > 0) {
+                skippingElementDepth++;
+              } else if (handleChildInline(tagName)) {
                 parseStartTag(xmlParser);
               } else {
-                addChild(newChildParser(this, tagName).parse(xmlParser));
+                ElementParser childElementParser = newChildParser(this, tagName);
+                if (childElementParser == null) {
+                  skippingElementDepth = 1;
+                } else {
+                  addChild(childElementParser.parse(xmlParser));
+                }
               }
             }
             break;
           case XmlPullParser.TEXT:
-            if (foundStartTag) {
+            if (foundStartTag && skippingElementDepth == 0) {
               parseText(xmlParser);
             }
             break;
           case XmlPullParser.END_TAG:
             if (foundStartTag) {
-              tagName = xmlParser.getName();
-              parseEndTag(xmlParser);
-              if (!handleChildInline(tagName)) {
-                return build();
+              if (skippingElementDepth > 0) {
+                skippingElementDepth--;
+              } else {
+                tagName = xmlParser.getName();
+                parseEndTag(xmlParser);
+                if (!handleChildInline(tagName)) {
+                  return build();
+                }
               }
             }
             break;
@@ -357,6 +372,7 @@ public class SmoothStreamingManifestParser {
 
     public static final String KEY_SYSTEM_ID = "SystemID";
 
+    private boolean inProtectionHeader;
     private UUID uuid;
     private byte[] initData;
 
@@ -371,16 +387,25 @@ public class SmoothStreamingManifestParser {
 
     @Override
     public void parseStartTag(XmlPullParser parser) {
-      if (!TAG_PROTECTION_HEADER.equals(parser.getName())) {
-        return;
+      if (TAG_PROTECTION_HEADER.equals(parser.getName())) {
+        inProtectionHeader = true;
+        String uuidString = parser.getAttributeValue(null, KEY_SYSTEM_ID);
+        uuid = UUID.fromString(uuidString);
       }
-      String uuidString = parser.getAttributeValue(null, KEY_SYSTEM_ID);
-      uuid = UUID.fromString(uuidString);
     }
 
     @Override
     public void parseText(XmlPullParser parser) {
-      initData = Base64.decode(parser.getText(), Base64.DEFAULT);
+      if (inProtectionHeader) {
+        initData = Base64.decode(parser.getText(), Base64.DEFAULT);
+      }
+    }
+
+    @Override
+    public void parseEndTag(XmlPullParser parser) {
+      if (TAG_PROTECTION_HEADER.equals(parser.getName())) {
+        inProtectionHeader = false;
+      }
     }
 
     @Override
@@ -579,9 +604,11 @@ public class SmoothStreamingManifestParser {
       if (type == StreamElement.TYPE_VIDEO) {
         maxHeight = parseRequiredInt(parser, KEY_MAX_HEIGHT);
         maxWidth = parseRequiredInt(parser, KEY_MAX_WIDTH);
+        fourCC = parseRequiredString(parser, KEY_FOUR_CC);
       } else {
         maxHeight = -1;
         maxWidth = -1;
+        fourCC = parser.getAttributeValue(null, KEY_FOUR_CC);
       }
 
       if (type == StreamElement.TYPE_AUDIO) {
@@ -590,14 +617,12 @@ public class SmoothStreamingManifestParser {
         bitPerSample = parseRequiredInt(parser, KEY_BITS_PER_SAMPLE);
         packetSize = parseRequiredInt(parser, KEY_PACKET_SIZE);
         audioTag = parseRequiredInt(parser, KEY_AUDIO_TAG);
-        fourCC = parseRequiredString(parser, KEY_FOUR_CC);
       } else {
         samplingRate = -1;
         channels = -1;
         bitPerSample = -1;
         packetSize = -1;
         audioTag = -1;
-        fourCC = parser.getAttributeValue(null, KEY_FOUR_CC);
       }
 
       value = parser.getAttributeValue(null, KEY_CODEC_PRIVATE_DATA);
