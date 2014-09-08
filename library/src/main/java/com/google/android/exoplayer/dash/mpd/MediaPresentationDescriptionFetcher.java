@@ -20,8 +20,6 @@ import com.google.android.exoplayer.util.ManifestFetcher;
 
 import android.net.Uri;
 
-import org.xmlpull.v1.XmlPullParserException;
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -60,11 +58,7 @@ public final class MediaPresentationDescriptionFetcher extends
   @Override
   protected MediaPresentationDescription parse(InputStream stream, String inputEncoding,
       String contentId, Uri baseUrl) throws IOException, ParserException {
-    try {
-      return parser.parseMediaPresentationDescription(stream, inputEncoding, contentId, baseUrl);
-    } catch (XmlPullParserException e) {
-      throw new ParserException(e);
-    }
+    return parser.parseMediaPresentationDescription(stream, inputEncoding, contentId, baseUrl);
   }
 
 }

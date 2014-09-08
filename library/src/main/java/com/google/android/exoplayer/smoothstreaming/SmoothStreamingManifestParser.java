@@ -60,15 +60,18 @@ public class SmoothStreamingManifestParser {
    * @param inputEncoding The encoding of the input.
    * @return The parsed manifest.
    * @throws IOException If a problem occurred reading from the stream.
-   * @throws XmlPullParserException If a problem occurred parsing the stream as xml.
    * @throws ParserException If a problem occurred parsing the xml as a smooth streaming manifest.
    */
   public SmoothStreamingManifest parse(InputStream inputStream, String inputEncoding) throws
-      XmlPullParserException, IOException, ParserException {
-    XmlPullParser xmlParser = xmlParserFactory.newPullParser();
-    xmlParser.setInput(inputStream, inputEncoding);
-    SmoothStreamMediaParser smoothStreamMediaParser = new SmoothStreamMediaParser(null);
-    return (SmoothStreamingManifest) smoothStreamMediaParser.parse(xmlParser);
+  IOException, ParserException {
+    try {
+      XmlPullParser xmlParser = xmlParserFactory.newPullParser();
+      xmlParser.setInput(inputStream, inputEncoding);
+      SmoothStreamMediaParser smoothStreamMediaParser = new SmoothStreamMediaParser(null);
+      return (SmoothStreamingManifest) smoothStreamMediaParser.parse(xmlParser);
+    } catch (XmlPullParserException e) {
+      throw new ParserException(e);
+    }
   }
 
   /**
