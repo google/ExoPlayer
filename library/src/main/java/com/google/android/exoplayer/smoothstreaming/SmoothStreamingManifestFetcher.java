@@ -20,8 +20,6 @@ import com.google.android.exoplayer.util.ManifestFetcher;
 
 import android.net.Uri;
 
-import org.xmlpull.v1.XmlPullParserException;
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -59,11 +57,7 @@ public final class SmoothStreamingManifestFetcher extends ManifestFetcher<Smooth
   @Override
   protected SmoothStreamingManifest parse(InputStream stream, String inputEncoding,
       String contentId, Uri baseUrl) throws IOException, ParserException {
-    try {
-      return parser.parse(stream, inputEncoding);
-    } catch (XmlPullParserException e) {
-      throw new ParserException(e);
-    }
+    return parser.parse(stream, inputEncoding);
   }
 
 }

@@ -34,8 +34,11 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,42 +72,57 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
    * @param baseUrl The url that any relative urls defined within the manifest are relative to.
    * @return The parsed manifest.
    * @throws IOException If a problem occurred reading from the stream.
-   * @throws XmlPullParserException If a problem occurred parsing the stream as xml.
    * @throws ParserException If a problem occurred parsing the xml as a DASH mpd.
    */
   public MediaPresentationDescription parseMediaPresentationDescription(InputStream inputStream,
-      String inputEncoding, String contentId, Uri baseUrl) throws XmlPullParserException,
-      IOException, ParserException {
-    XmlPullParser xpp = xmlParserFactory.newPullParser();
-    xpp.setInput(inputStream, inputEncoding);
-    int eventType = xpp.next();
-    if (eventType != XmlPullParser.START_TAG || !"MPD".equals(xpp.getName())) {
-      throw new ParserException(
-          "inputStream does not contain a valid media presentation description");
+      String inputEncoding, String contentId, Uri baseUrl) throws IOException, ParserException {
+    try {
+      XmlPullParser xpp = xmlParserFactory.newPullParser();
+      xpp.setInput(inputStream, inputEncoding);
+      int eventType = xpp.next();
+      if (eventType != XmlPullParser.START_TAG || !"MPD".equals(xpp.getName())) {
+        throw new ParserException(
+            "inputStream does not contain a valid media presentation description");
+      }
+      return parseMediaPresentationDescription(xpp, contentId, baseUrl);
+    } catch (XmlPullParserException e) {
+      throw new ParserException(e);
+    } catch (ParseException e) {
+      throw new ParserException(e);
     }
-    return parseMediaPresentationDescription(xpp, contentId, baseUrl);
   }
 
   private MediaPresentationDescription parseMediaPresentationDescription(XmlPullParser xpp,
-      String contentId, Uri baseUrl) throws XmlPullParserException, IOException {
+      String contentId, Uri baseUrl) throws XmlPullParserException, IOException, ParseException {
+    long availabilityStartTime = parseDateTime(xpp, "availabilityStartTime", -1);
     long durationMs = parseDurationMs(xpp, "mediaPresentationDuration");
     long minBufferTimeMs = parseDurationMs(xpp, "minBufferTime");
     String typeString = xpp.getAttributeValue(null, "type");
     boolean dynamic = (typeString != null) ? typeString.equals("dynamic") : false;
     long minUpdateTimeMs = (dynamic) ? parseDurationMs(xpp, "minimumUpdatePeriod", -1) : -1;
+    long timeShiftBufferDepthMs = (dynamic) ? parseDurationMs(xpp, "timeShiftBufferDepth", -1) : -1;
+    UtcTimingElement utcTiming = null;
 
     List<Period> periods = new ArrayList<Period>();
     do {
       xpp.next();
       if (isStartTag(xpp, "BaseURL")) {
         baseUrl = parseBaseUrl(xpp, baseUrl);
+      } else if (isStartTag(xpp, "UTCTiming")) {
+        utcTiming = parseUtcTiming(xpp);
       } else if (isStartTag(xpp, "Period")) {
         periods.add(parsePeriod(xpp, contentId, baseUrl, durationMs));
       }
     } while (!isEndTag(xpp, "MPD"));
 
-    return new MediaPresentationDescription(durationMs, minBufferTimeMs, dynamic, minUpdateTimeMs,
-        periods);
+    return new MediaPresentationDescription(availabilityStartTime, durationMs, minBufferTimeMs,
+        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, utcTiming, periods);
+  }
+
+  private UtcTimingElement parseUtcTiming(XmlPullParser xpp) {
+    String schemeIdUri = xpp.getAttributeValue(null, "schemeIdUri");
+    String value = xpp.getAttributeValue(null, "value");
+    return new UtcTimingElement(schemeIdUri, value);
   }
 
   private Period parsePeriod(XmlPullParser xpp, String contentId, Uri baseUrl, long mpdDurationMs)
@@ -427,6 +445,16 @@ public class MediaPresentationDescriptionParser extends DefaultHandler {
 
   private static long parseDurationMs(XmlPullParser xpp, String name) {
     return parseDurationMs(xpp, name, -1);
+  }
+
+  private static long parseDateTime(XmlPullParser xpp, String name, long defaultValue)
+      throws ParseException {
+    String value = xpp.getAttributeValue(null, name);
+    if (value != null) {
+      SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ss'Z'", Locale.US);
+      return parser.parse(value).getTime();
+    }
+    return defaultValue;
   }
 
   private static long parseDurationMs(XmlPullParser xpp, String name, long defaultValue) {
