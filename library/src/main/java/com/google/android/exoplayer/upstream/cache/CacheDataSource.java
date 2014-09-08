@@ -41,10 +41,10 @@ public final class CacheDataSource implements DataSource {
   public interface EventListener {
 
     /**
-     * Invoked when bytes have been read from {@link #cache} since the last invocation.
+     * Invoked when bytes have been read from the cache.
      *
      * @param cacheSizeBytes Current cache size in bytes.
-     * @param cachedBytesRead Total bytes read from {@link #cache} since last report.
+     * @param cachedBytesRead Total bytes read from the cache since this method was last invoked.
      */
     void onCachedBytesRead(long cacheSizeBytes, long cachedBytesRead);
 
