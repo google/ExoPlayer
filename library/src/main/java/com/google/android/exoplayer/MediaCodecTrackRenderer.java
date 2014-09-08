@@ -124,7 +124,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private final boolean playClearSamplesWithoutKeys;
   private final SampleSource source;
   private final SampleHolder sampleHolder;
-  private final FormatHolder formatHolder;
+  private final MediaFormatHolder formatHolder;
   private final HashSet<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
   private final EventListener eventListener;
@@ -174,7 +174,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     this.eventListener = eventListener;
     codecCounters = new CodecCounters();
     sampleHolder = new SampleHolder(false);
-    formatHolder = new FormatHolder();
+    formatHolder = new MediaFormatHolder();
     decodeOnlyPresentationTimestamps = new HashSet<Long>();
     outputBufferInfo = new MediaCodec.BufferInfo();
   }
@@ -619,7 +619,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    * @param formatHolder Holds the new format.
    * @throws ExoPlaybackException If an error occurs reinitializing the {@link MediaCodec}.
    */
-  private void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
+  private void onInputFormatChanged(MediaFormatHolder formatHolder) throws ExoPlaybackException {
     MediaFormat oldFormat = format;
     format = formatHolder.format;
     drmInitData = formatHolder.drmInitData;

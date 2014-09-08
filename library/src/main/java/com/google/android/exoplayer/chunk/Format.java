@@ -20,7 +20,7 @@ import com.google.android.exoplayer.util.Assertions;
 import java.util.Comparator;
 
 /**
- * A format definition for streams.
+ * Defines the high level format of a media stream.
  */
 public class Format {
 

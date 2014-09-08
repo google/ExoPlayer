@@ -21,7 +21,7 @@ import java.util.UUID;
 /**
  * Holds a {@link MediaFormat} and corresponding drm scheme initialization data.
  */
-public final class FormatHolder {
+public final class MediaFormatHolder {
 
   /**
    * The format of the media.

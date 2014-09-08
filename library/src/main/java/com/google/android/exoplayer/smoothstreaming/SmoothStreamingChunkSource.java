@@ -26,7 +26,6 @@ import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer.chunk.MediaChunk;
 import com.google.android.exoplayer.chunk.Mp4MediaChunk;
-import com.google.android.exoplayer.parser.mp4.CodecSpecificDataUtil;
 import com.google.android.exoplayer.parser.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer.parser.mp4.Track;
 import com.google.android.exoplayer.parser.mp4.TrackEncryptionBox;
@@ -35,6 +34,7 @@ import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.Stre
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
+import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 
 import android.net.Uri;
 import android.util.Base64;

@@ -80,7 +80,7 @@ public interface SampleSource {
 
   /**
    * Enable the specified track. This allows the track's format and samples to be read from
-   * {@link #readData(int, long, FormatHolder, SampleHolder, boolean)}.
+   * {@link #readData(int, long, MediaFormatHolder, SampleHolder, boolean)}.
    * <p>
    * This method should not be called until after the source has been successfully prepared.
    *
@@ -119,7 +119,7 @@ public interface SampleSource {
    *
    * @param track The track from which to read.
    * @param playbackPositionUs The current playback position.
-   * @param formatHolder A {@link FormatHolder} object to populate in the case of a new format.
+   * @param formatHolder A {@link MediaFormatHolder} object to populate in the case of a new format.
    * @param sampleHolder A {@link SampleHolder} object to populate in the case of a new sample. If
    *     the caller requires the sample data then it must ensure that {@link SampleHolder#data}
    *     references a valid output buffer.
@@ -129,7 +129,7 @@ public interface SampleSource {
    *     {@link #DISCONTINUITY_READ}, {@link #NOTHING_READ} or {@link #END_OF_STREAM}.
    * @throws IOException If an error occurred reading from the source.
    */
-  public int readData(int track, long playbackPositionUs, FormatHolder formatHolder,
+  public int readData(int track, long playbackPositionUs, MediaFormatHolder formatHolder,
       SampleHolder sampleHolder, boolean onlyReadDiscontinuity) throws IOException;
 
   /**
