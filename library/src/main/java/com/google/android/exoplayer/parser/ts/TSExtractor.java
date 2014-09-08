@@ -141,6 +141,10 @@ public class TSExtractor extends Extractor {
         return;
       }
 
+      if (currentSample == null) {
+        // we are still waiting for a new PES packet, skip
+        return;
+      }
       if (currentSample.data.remaining() < 188) {
         currentSample = allocator.allocateBiggerPacket(currentSample);
       }
