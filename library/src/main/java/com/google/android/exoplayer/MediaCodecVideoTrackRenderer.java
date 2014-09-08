@@ -235,7 +235,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected boolean isReady() {
-    if (super.isReady()) {
+    if (super.isReady() && (renderedFirstFrame || !codecInitialized()
+        || getSourceState() == SOURCE_STATE_READY_READ_MAY_FAIL)) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
       joiningDeadlineUs = -1;
       return true;

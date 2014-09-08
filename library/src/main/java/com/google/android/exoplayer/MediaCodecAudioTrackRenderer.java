@@ -426,7 +426,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected boolean isReady() {
-    return super.isReady() || getPendingFrameCount() > 0;
+    return getPendingFrameCount() > 0
+        || (super.isReady() && getSourceState() == SOURCE_STATE_READY_READ_MAY_FAIL);
   }
 
   /**
