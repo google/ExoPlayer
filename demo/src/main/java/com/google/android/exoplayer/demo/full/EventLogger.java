@@ -80,9 +80,9 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   // DemoPlayer.InfoListener
 
   @Override
-  public void onBandwidthSample(int elapsedMs, long bytes, long bandwidthEstimate) {
+  public void onBandwidthSample(int elapsedMs, long bytes, long bitrateEstimate) {
     Log.d(TAG, "bandwidth [" + getSessionTimeString() + ", " + bytes +
-        ", " + getTimeString(elapsedMs) + ", " + bandwidthEstimate + "]");
+        ", " + getTimeString(elapsedMs) + ", " + bitrateEstimate + "]");
   }
 
   @Override
@@ -92,7 +92,7 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
 
   @Override
   public void onLoadStarted(int sourceId, String formatId, int trigger, boolean isInitialization,
-      int mediaStartTimeMs, int mediaEndTimeMs, long totalBytes) {
+      int mediaStartTimeMs, int mediaEndTimeMs, long length) {
     loadStartTimeMs[sourceId] = SystemClock.elapsedRealtime();
     if (VerboseLogUtil.isTagEnabled(TAG)) {
       Log.v(TAG, "loadStart [" + getSessionTimeString() + ", " + sourceId
@@ -101,7 +101,7 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   @Override
-  public void onLoadCompleted(int sourceId) {
+  public void onLoadCompleted(int sourceId, long bytesLoaded) {
     if (VerboseLogUtil.isTagEnabled(TAG)) {
       long downloadTime = SystemClock.elapsedRealtime() - loadStartTimeMs[sourceId];
       Log.v(TAG, "loadEnd [" + getSessionTimeString() + ", " + sourceId + ", " +

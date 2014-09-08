@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.upstream;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 
 import java.io.ByteArrayOutputStream;
@@ -29,7 +30,7 @@ public class ByteArrayDataSink implements DataSink {
 
   @Override
   public DataSink open(DataSpec dataSpec) throws IOException {
-    if (dataSpec.length == DataSpec.LENGTH_UNBOUNDED) {
+    if (dataSpec.length == C.LENGTH_UNBOUNDED) {
       stream = new ByteArrayOutputStream();
     } else {
       Assertions.checkArgument(dataSpec.length <= Integer.MAX_VALUE);

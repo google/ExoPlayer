@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.upstream;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 
 import java.io.IOException;
@@ -36,14 +37,14 @@ public class ByteArrayDataSource implements DataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws IOException {
-    if (dataSpec.length == DataSpec.LENGTH_UNBOUNDED) {
+    if (dataSpec.length == C.LENGTH_UNBOUNDED) {
       Assertions.checkArgument(dataSpec.position < data.length);
     } else {
       Assertions.checkArgument(dataSpec.position + dataSpec.length <= data.length);
     }
     readPosition = (int) dataSpec.position;
-    return (dataSpec.length == DataSpec.LENGTH_UNBOUNDED)
-        ? (data.length - dataSpec.position) : dataSpec.length;
+    return (dataSpec.length == C.LENGTH_UNBOUNDED) ? (data.length - dataSpec.position)
+        : dataSpec.length;
   }
 
   @Override

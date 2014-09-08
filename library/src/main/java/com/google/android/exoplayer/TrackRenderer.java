@@ -67,16 +67,16 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   /**
    * Represents an unknown time or duration.
    */
-  public static final long UNKNOWN_TIME = -1;
+  public static final long UNKNOWN_TIME_US = -1;
   /**
    * Represents a time or duration that should match the duration of the longest track whose
    * duration is known.
    */
-  public static final long MATCH_LONGEST = -2;
+  public static final long MATCH_LONGEST_US = -2;
   /**
    * Represents the time of the end of the track.
    */
-  public static final long END_OF_TRACK = -3;
+  public static final long END_OF_TRACK_US = -3;
 
   private int state;
 
@@ -110,7 +110,6 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    *
    * @return The current state (one of the STATE_* constants), for convenience.
    */
-  @SuppressWarnings("unused")
   /* package */ final int prepare() throws ExoPlaybackException {
     Assertions.checkState(state == TrackRenderer.STATE_UNPREPARED);
     state = doPrepare();
@@ -301,9 +300,9 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * This method may be called when the renderer is in the following states:
    * {@link #STATE_PREPARED}, {@link #STATE_ENABLED}, {@link #STATE_STARTED}
    *
-   * @return The duration of the track in micro-seconds, or {@link #MATCH_LONGEST} if
+   * @return The duration of the track in micro-seconds, or {@link #MATCH_LONGEST_US} if
    *     the track's duration should match that of the longest track whose duration is known, or
-   *     or {@link #UNKNOWN_TIME} if the duration is not known.
+   *     or {@link #UNKNOWN_TIME_US} if the duration is not known.
    */
   protected abstract long getDurationUs();
 
@@ -324,8 +323,8 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * {@link #STATE_ENABLED}, {@link #STATE_STARTED}
    *
    * @return An estimate of the absolute position in micro-seconds up to which data is buffered,
-   *     or {@link #END_OF_TRACK} if the track is fully buffered, or {@link #UNKNOWN_TIME} if no
-   *     estimate is available.
+   *     or {@link #END_OF_TRACK_US} if the track is fully buffered, or {@link #UNKNOWN_TIME_US} if
+   *     no estimate is available.
    */
   protected abstract long getBufferedPositionUs();
 

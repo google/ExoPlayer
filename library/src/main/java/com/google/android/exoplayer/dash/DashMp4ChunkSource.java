@@ -146,7 +146,7 @@ public class DashMp4ChunkSource implements ChunkSource {
 
     RangedUri pendingInitializationUri = null;
     RangedUri pendingIndexUri = null;
-    if (extractor.getTrack() == null) {
+    if (extractor.getFormat() == null) {
       pendingInitializationUri = selectedRepresentation.getInitializationUri();
     }
     if (!segmentIndexes.containsKey(selectedRepresentation.format.id)) {
@@ -199,10 +199,10 @@ public class DashMp4ChunkSource implements ChunkSource {
     if (initializationUri != null) {
       // It's common for initialization and index data to be stored adjacently. Attempt to merge
       // the two requests together to request both at once.
-      expectedExtractorResult |= FragmentedMp4Extractor.RESULT_READ_MOOV;
+      expectedExtractorResult |= FragmentedMp4Extractor.RESULT_READ_INIT;
       requestUri = initializationUri.attemptMerge(indexUri);
       if (requestUri != null) {
-        expectedExtractorResult |= FragmentedMp4Extractor.RESULT_READ_SIDX;
+        expectedExtractorResult |= FragmentedMp4Extractor.RESULT_READ_INDEX;
         indexAnchor = indexUri.start + indexUri.length;
       } else {
         requestUri = initializationUri;
@@ -210,7 +210,7 @@ public class DashMp4ChunkSource implements ChunkSource {
     } else {
       requestUri = indexUri;
       indexAnchor = indexUri.start + indexUri.length;
-      expectedExtractorResult |= FragmentedMp4Extractor.RESULT_READ_SIDX;
+      expectedExtractorResult |= FragmentedMp4Extractor.RESULT_READ_INDEX;
     }
     DataSpec dataSpec = new DataSpec(requestUri.getUri(), requestUri.start, requestUri.length,
         representation.getCacheKey());
@@ -256,9 +256,9 @@ public class DashMp4ChunkSource implements ChunkSource {
         throw new ParserException("Invalid extractor result. Expected "
             + expectedExtractorResult + ", got " + result);
       }
-      if ((result & FragmentedMp4Extractor.RESULT_READ_SIDX) != 0) {
+      if ((result & FragmentedMp4Extractor.RESULT_READ_INDEX) != 0) {
         segmentIndexes.put(format.id,
-            new DashWrappingSegmentIndex(extractor.getSegmentIndex(), uri, indexAnchor));
+            new DashWrappingSegmentIndex(extractor.getIndex(), uri, indexAnchor));
       }
     }
 

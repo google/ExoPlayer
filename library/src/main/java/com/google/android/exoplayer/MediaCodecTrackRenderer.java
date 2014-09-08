@@ -128,6 +128,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private int codecReconfigurationState;
 
   private int trackIndex;
+  private boolean sourceIsReady;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
@@ -186,7 +187,12 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     return TrackRenderer.STATE_IGNORE;
   }
 
-  @SuppressWarnings("unused")
+  /**
+   * Determines whether a mime type is handled by the renderer.
+   *
+   * @param mimeType The mime type to test.
+   * @return True if the renderer can handle the mime type. False otherwise.
+   */
   protected boolean handlesMimeType(String mimeType) {
     return true;
     // TODO: Uncomment once the TODO above is fixed.
@@ -196,6 +202,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   @Override
   protected void onEnabled(long timeUs, boolean joining) {
     source.enable(trackIndex, timeUs);
+    sourceIsReady = false;
     inputStreamEnded = false;
     outputStreamEnded = false;
     waitingForKeys = false;
@@ -280,14 +287,20 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
   @Override
   protected void onDisabled() {
-    releaseCodec();
     format = null;
     drmInitData = null;
-    if (openedDrmSession) {
-      drmSessionManager.close();
-      openedDrmSession = false;
+    try {
+      releaseCodec();
+    } finally {
+      try {
+        if (openedDrmSession) {
+          drmSessionManager.close();
+          openedDrmSession = false;
+        }
+      } finally {
+        source.disable(trackIndex);
+      }
     }
-    source.disable(trackIndex);
   }
 
   protected void releaseCodec() {
@@ -332,7 +345,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   @Override
   protected long getBufferedPositionUs() {
     long sourceBufferedPosition = source.getBufferedPositionUs();
-    return sourceBufferedPosition == UNKNOWN_TIME || sourceBufferedPosition == END_OF_TRACK
+    return sourceBufferedPosition == UNKNOWN_TIME_US || sourceBufferedPosition == END_OF_TRACK_US
         ? sourceBufferedPosition : Math.max(sourceBufferedPosition, getCurrentPositionUs());
   }
 
@@ -340,6 +353,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   protected void seekTo(long timeUs) throws ExoPlaybackException {
     currentPositionUs = timeUs;
     source.seekToUs(timeUs);
+    sourceIsReady = false;
     inputStreamEnded = false;
     outputStreamEnded = false;
     waitingForKeys = false;
@@ -358,7 +372,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   @Override
   protected void doSomeWork(long timeUs) throws ExoPlaybackException {
     try {
-      source.continueBuffering(timeUs);
+      sourceIsReady = source.continueBuffering(timeUs);
       checkForDiscontinuity();
       if (format == null) {
         readFormat();
@@ -373,6 +387,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
           while (feedInputBuffer()) {}
         }
       }
+      codecCounters.ensureUpdated();
     } catch (IOException e) {
       throw new ExoPlaybackException(e);
     }
@@ -394,7 +409,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         if (!sampleHolder.decodeOnly) {
           currentPositionUs = sampleHolder.timeUs;
         }
-        codecCounters.discardedSamplesCount++;
       } else if (result == SampleSource.FORMAT_READ) {
         onInputFormatChanged(formatHolder);
       }
@@ -467,7 +481,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
 
     if (result == SampleSource.NOTHING_READ) {
-      codecCounters.inputBufferWaitingForSampleCount++;
       return false;
     }
     if (result == SampleSource.DISCONTINUITY_READ) {
@@ -496,7 +509,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       try {
         codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
         inputIndex = -1;
-        codecCounters.queuedEndOfStreamCount++;
       } catch (CryptoException e) {
         notifyCryptoError(e);
         throw new ExoPlaybackException(e);
@@ -535,10 +547,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         codec.queueSecureInputBuffer(inputIndex, 0, cryptoInfo, presentationTimeUs, 0);
       } else {
         codec.queueInputBuffer(inputIndex, 0 , bufferSize, presentationTimeUs, 0);
-      }
-      codecCounters.queuedInputBufferCount++;
-      if ((sampleHolder.flags & MediaExtractor.SAMPLE_FLAG_SYNC) != 0) {
-        codecCounters.keyframeCount++;
       }
       inputIndex = -1;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
@@ -625,7 +633,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    * @param newFormat The new format.
    * @return True if the existing instance can be reconfigured. False otherwise.
    */
-  @SuppressWarnings("unused")
   protected boolean canReconfigureCodec(MediaCodec codec, boolean codecIsAdaptive,
       MediaFormat oldFormat, MediaFormat newFormat) {
     return false;
@@ -639,10 +646,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   @Override
   protected boolean isReady() {
     return format != null && !waitingForKeys
-        && ((codec == null && !shouldInitCodec()) // We don't want the codec
-            || outputIndex >= 0 // Or we have an output buffer ready to release
-            || inputIndex < 0 // Or we don't have any input buffers to write to
-            || isWithinHotswapPeriod()); // Or the codec is being hotswapped
+        && (sourceIsReady || outputIndex >= 0 || isWithinHotswapPeriod());
   }
 
   private boolean isWithinHotswapPeriod() {

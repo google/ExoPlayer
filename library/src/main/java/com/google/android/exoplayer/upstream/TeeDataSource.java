@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.upstream;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 
 import java.io.IOException;
@@ -39,7 +40,7 @@ public final class TeeDataSource implements DataSource {
   @Override
   public long open(DataSpec dataSpec) throws IOException {
     long dataLength = upstream.open(dataSpec);
-    if (dataSpec.length == DataSpec.LENGTH_UNBOUNDED) {
+    if (dataSpec.length == C.LENGTH_UNBOUNDED && dataLength != C.LENGTH_UNBOUNDED) {
       // Reconstruct dataSpec in order to provide the resolved length to the sink.
       dataSpec = new DataSpec(dataSpec.uri, dataSpec.absoluteStreamPosition, dataLength,
           dataSpec.key, dataSpec.position, dataSpec.uriIsFullStream);

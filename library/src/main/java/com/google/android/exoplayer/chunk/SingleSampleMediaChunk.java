@@ -83,10 +83,15 @@ public class SingleSampleMediaChunk extends MediaChunk {
   }
 
   @Override
+  public boolean sampleAvailable() {
+    return isLoadFinished() && !isReadFinished();
+  }
+
+  @Override
   public boolean read(SampleHolder holder) {
     NonBlockingInputStream inputStream = getNonBlockingInputStream();
     Assertions.checkState(inputStream != null);
-    if (!isLoadFinished()) {
+    if (!sampleAvailable()) {
       return false;
     }
     int bytesLoaded = (int) bytesLoaded();
