@@ -112,7 +112,7 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public int readData(int track, long playbackPositionUs, FormatHolder formatHolder,
+  public int readData(int track, long playbackPositionUs, MediaFormatHolder formatHolder,
       SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
     Assertions.checkState(prepared);
     Assertions.checkState(trackStates[track] != TRACK_STATE_DISABLED);

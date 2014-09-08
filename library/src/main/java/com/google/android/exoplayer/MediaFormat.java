@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Encapsulates the information describing the format of media data, be it audio or video.
+ * Defines the format of an elementary media stream.
  */
 public class MediaFormat {
 
