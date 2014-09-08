@@ -92,6 +92,13 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   private static final long MICROS_PER_SECOND = 1000000L;
 
+  /**
+   * AudioTrack timestamps are deemed spurious if they are offset from the system clock by more
+   * than this amount. This is a fail safe that should not be required on correctly functioning
+   * devices.
+   */
+  private static final long MAX_AUDIO_TIMSTAMP_OFFSET_US = 10 * MICROS_PER_SECOND;
+
   private static final int MAX_PLAYHEAD_OFFSET_COUNT = 10;
   private static final int MIN_PLAYHEAD_OFFSET_SAMPLE_INTERVAL_US = 30000;
   private static final int MIN_TIMESTAMP_SAMPLE_INTERVAL_US = 500000;
@@ -502,11 +509,18 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
     if (systemClockUs - lastTimestampSampleTimeUs >= MIN_TIMESTAMP_SAMPLE_INTERVAL_US) {
       audioTimestampSet = audioTimestampCompat.initTimestamp(audioTrack);
-      if (audioTimestampSet
-          && (audioTimestampCompat.getNanoTime() / 1000) < audioTrackResumeSystemTimeUs) {
-        // The timestamp was set, but it corresponds to a time before the track was most recently
-        // resumed.
-        audioTimestampSet = false;
+      if (audioTimestampSet) {
+        // Perform sanity checks on the timestamp.
+        long audioTimestampUs = audioTimestampCompat.getNanoTime() / 1000;
+        if (audioTimestampUs < audioTrackResumeSystemTimeUs) {
+          // The timestamp corresponds to a time before the track was most recently resumed.
+          audioTimestampSet = false;
+        } else if (Math.abs(audioTimestampUs - systemClockUs) > MAX_AUDIO_TIMSTAMP_OFFSET_US) {
+          // The timestamp time base is probably wrong.
+          audioTimestampSet = false;
+          Log.w(TAG, "Spurious audio timestamp: " + audioTimestampCompat.getFramePosition() + ", "
+              + audioTimestampUs + ", " + systemClockUs);
+        }
       }
       if (audioTrackGetLatencyMethod != null) {
         try {
