@@ -134,6 +134,8 @@ package com.google.android.exoplayer.demo;
   public static final Sample[] MISC = new Sample[] {
     new Sample("Dizzy", "uid:misc:dizzy", "http://html5demos.com/assets/dizzy.mp4",
         DemoUtil.TYPE_OTHER, false, true),
+    new Sample("Dizzy (https->http redirect)", "uid:misc:dizzy2", "https://goo.gl/MtUDEj",
+        DemoUtil.TYPE_OTHER, false, true),
   };
 
   private Samples() {}
