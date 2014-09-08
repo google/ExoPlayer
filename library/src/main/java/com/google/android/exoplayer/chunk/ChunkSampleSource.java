@@ -318,6 +318,9 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
     }
 
     if (!mediaChunk.prepare()) {
+      if (currentLoadableException != null) {
+        throw currentLoadableException;
+      }
       return NOTHING_READ;
     }
 
