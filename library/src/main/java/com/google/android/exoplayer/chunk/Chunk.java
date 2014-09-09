@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.upstream.Allocation;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSourceStream;
@@ -69,16 +68,16 @@ public abstract class Chunk implements Loadable {
   /**
    * Initializes the {@link Chunk}.
    *
-   * @param allocator An {@link Allocator} from which the {@link Allocation} needed to contain the
+   * @param allocator An {@link Allocator} from which the buffers needed to contain the
    *     data can be obtained.
    */
-  public final void init(Allocator allocator) {
+  public void init(Allocator allocator) {
     Assertions.checkState(dataSourceStream == null);
     dataSourceStream = new DataSourceStream(dataSource, dataSpec, allocator);
   }
 
   /**
-   * Releases the {@link Chunk}, releasing any backing {@link Allocation}s.
+   * Releases the {@link Chunk}, releasing any backing buffers.
    */
   public final void release() {
     if (dataSourceStream != null) {

@@ -37,6 +37,8 @@ public class MimeTypes {
 
   public static final String APPLICATION_TTML = BASE_TYPE_APPLICATION + "/ttml+xml";
 
+  public static final String AUDIO_MPEG = "audio/mpeg";
+
   private MimeTypes() {}
 
   /**

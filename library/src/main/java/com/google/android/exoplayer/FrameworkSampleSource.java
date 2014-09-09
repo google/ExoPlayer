@@ -15,13 +15,13 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.Util;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaExtractor;
 import android.net.Uri;
+
+import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
 import java.util.Map;
@@ -72,7 +72,7 @@ public final class FrameworkSampleSource implements SampleSource {
       for (int i = 0; i < trackStates.length; i++) {
         android.media.MediaFormat format = extractor.getTrackFormat(i);
         long duration = format.containsKey(android.media.MediaFormat.KEY_DURATION) ?
-            format.getLong(android.media.MediaFormat.KEY_DURATION) : TrackRenderer.UNKNOWN_TIME_US;
+            format.getLong(android.media.MediaFormat.KEY_DURATION) : TrackRenderer.UNKNOWN_TIME;
         String mime = format.getString(android.media.MediaFormat.KEY_MIME);
         trackInfos[i] = new TrackInfo(mime, duration);
       }
@@ -168,7 +168,7 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public void seekToUs(long timeUs) {
+  public long seekToUs(long timeUs) {
     Assertions.checkState(prepared);
     if (seekTimeUs != timeUs) {
       // Avoid duplicate calls to the underlying extractor's seek method in the case that there
@@ -181,6 +181,8 @@ public final class FrameworkSampleSource implements SampleSource {
         }
       }
     }
+
+    return timeUs;
   }
 
   @Override
@@ -188,7 +190,7 @@ public final class FrameworkSampleSource implements SampleSource {
     Assertions.checkState(prepared);
     long bufferedDurationUs = extractor.getCachedDuration();
     if (bufferedDurationUs == -1) {
-      return TrackRenderer.UNKNOWN_TIME_US;
+      return TrackRenderer.UNKNOWN_TIME;
     } else {
       return extractor.getSampleTime() + bufferedDurationUs;
     }

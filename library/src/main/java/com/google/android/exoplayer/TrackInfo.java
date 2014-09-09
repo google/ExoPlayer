@@ -21,7 +21,7 @@ package com.google.android.exoplayer;
 public final class TrackInfo {
 
   public final String mimeType;
-  public final long durationUs;
+  public long durationUs;
 
   public TrackInfo(String mimeType, long durationUs) {
     this.mimeType = mimeType;

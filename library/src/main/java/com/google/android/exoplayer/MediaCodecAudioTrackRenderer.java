@@ -18,6 +18,7 @@ package com.google.android.exoplayer;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.SystemClock;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
@@ -40,6 +41,8 @@ import java.nio.ByteBuffer;
  */
 @TargetApi(16)
 public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
+
+  private long lastTime;
 
   /**
    * Interface definition for a callback to be notified of {@link MediaCodecAudioTrackRenderer}
@@ -274,6 +277,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected void onOutputFormatChanged(MediaFormat format) {
+
+    int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
+
     int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
     int channelConfig;
     switch (channelCount) {
@@ -290,10 +296,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
         throw new IllegalArgumentException("Unsupported channel count: " + channelCount);
     }
 
-    int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
-    if (audioTrack != null && this.sampleRate == sampleRate
-        && this.channelConfig == channelConfig) {
-      // We already have an existing audio track with the correct sample rate and channel config.
+    if (audioTrack != null && sampleRate == this.sampleRate && channelConfig == this.channelConfig) {
+      // nothing to do
+
       return;
     }
 
@@ -569,11 +574,13 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void seekTo(long timeUs) throws ExoPlaybackException {
-    super.seekTo(timeUs);
+  protected long seekTo(long timeUs) throws ExoPlaybackException {
+    long seekTimeUs = super.seekTo(timeUs);
     // TODO: Try and re-use the same AudioTrack instance once [redacted] is fixed.
     releaseAudioTrack();
     lastReportedCurrentPositionUs = 0;
+
+    return seekTimeUs;
   }
 
   @Override
@@ -589,7 +596,6 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
       }
       return true;
     }
-
     if (temporaryBufferSize == 0) {
       // This is the first time we've seen this {@code buffer}.
       // Note: presentationTimeUs corresponds to the end of the sample, not the start.

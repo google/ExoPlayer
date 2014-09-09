@@ -40,7 +40,7 @@ public class DummyTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected void seekTo(long timeUs) {
+  protected long seekTo(long timeUs) {
     throw new IllegalStateException();
   }
 

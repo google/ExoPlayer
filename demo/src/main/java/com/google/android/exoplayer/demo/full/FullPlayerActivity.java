@@ -23,6 +23,7 @@ import com.google.android.exoplayer.demo.full.player.DashVodRendererBuilder;
 import com.google.android.exoplayer.demo.full.player.DefaultRendererBuilder;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilder;
+import com.google.android.exoplayer.demo.full.player.HLSRendererBuilder;
 import com.google.android.exoplayer.demo.full.player.SmoothStreamingRendererBuilder;
 import com.google.android.exoplayer.util.VerboseLogUtil;
 
@@ -162,6 +163,10 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
       case DemoUtil.TYPE_DASH_VOD:
         return new DashVodRendererBuilder(userAgent, contentUri.toString(), contentId,
             new WidevineTestMediaDrmCallback(contentId), debugTextView);
+      case DemoUtil.TYPE_HLS:
+        return new HLSRendererBuilder(userAgent, contentUri.toString());
+      case DemoUtil.TYPE_HLS_AUDIO_ONLY:
+        return new HLSRendererBuilder(userAgent, contentUri.toString(), true);
       default:
         return new DefaultRendererBuilder(this, contentUri, debugTextView);
     }

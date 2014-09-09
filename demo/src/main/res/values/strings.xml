@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2014 The Android Open Source Project
+<!--
+ Copyright (C) 2014 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,34 +14,25 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-  <!-- The user visible name of the application. [CHAR LIMIT=20] -->
-  <string name="application_name">ExoPlayer Demo</string>
-
-  <string name="enable_background_audio">Play in background</string>
-
-  <string name="video">Video</string>
-
-  <string name="audio">Audio</string>
-
-  <string name="text">Text</string>
-
-  <string name="logging">Logging</string>
-
-  <string name="logging_normal">Normal</string>
-
-  <string name="logging_verbose">Verbose</string>
-
-  <string name="retry">Retry</string>
-
-  <string name="off">[off]</string>
-
-  <string name="on">[on]</string>
-
-  <string name="drm_not_supported">Protected content not supported on API levels below 18</string>
-
-  <string name="failed">Playback failed</string>
+    <!-- The user visible name of the application. [CHAR LIMIT=20] -->
+    <string name="application_name">ExoPlayer Demo</string>
+    <string name="enable_background_audio">Play in background</string>
+    <string name="video">Video</string>
+    <string name="audio">Audio</string>
+    <string name="text">Text</string>
+    <string name="logging">Logging</string>
+    <string name="logging_normal">Normal</string>
+    <string name="logging_verbose">Verbose</string>
+    <string name="retry">Retry</string>
+    <string name="off">[off]</string>
+    <string name="on">[on]</string>
+    <string name="drm_not_supported">Protected content not supported on API levels below 18</string>
+    <string name="failed">Playback failed</string>
+    <string name="title_activity_test_case">TestCaseActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="test_running">Test Running...</string>
 
 </resources>

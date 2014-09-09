@@ -18,6 +18,8 @@ package com.google.android.exoplayer.demo;
 import com.google.android.exoplayer.demo.Samples.Sample;
 import com.google.android.exoplayer.demo.full.FullPlayerActivity;
 import com.google.android.exoplayer.demo.simple.SimplePlayerActivity;
+import com.google.android.exoplayer.demo.tests.TestCase;
+import com.google.android.exoplayer.demo.tests.TestCaseActivity;
 import com.google.android.exoplayer.util.Util;
 
 import android.app.Activity;
@@ -62,6 +64,10 @@ public class SampleChooserActivity extends Activity {
       sampleAdapter.add(new Header("YouTube WebM DASH (Experimental)"));
       sampleAdapter.addAll((Object[]) Samples.YOUTUBE_DASH_WEBM);
     }
+    if (DemoUtil.EXPOSE_TEST_CASES) {
+        sampleAdapter.add(new Header("TestCases"));
+        sampleAdapter.addAll((Object[]) TestCase.allTests);
+    }
 
     sampleList.setAdapter(sampleAdapter);
     sampleList.setOnItemClickListener(new OnItemClickListener() {
@@ -70,9 +76,17 @@ public class SampleChooserActivity extends Activity {
         Object item = sampleAdapter.getItem(position);
         if (item instanceof Sample) {
           onSampleSelected((Sample) item);
+        } else if (item instanceof String) {
+          onTestCaseSelected((String) item);
         }
       }
     });
+  }
+
+  private void onTestCaseSelected(String testCaseName) {
+      Intent intent = new Intent(this, TestCaseActivity.class);
+      intent.putExtra(TestCaseActivity.TEST_CASE_CLASS, testCaseName);
+      startActivity(intent);
   }
 
   private void onSampleSelected(Sample sample) {
@@ -110,6 +124,9 @@ public class SampleChooserActivity extends Activity {
         name = ((Sample) item).name;
       } else if (item instanceof Header) {
         name = ((Header) item).name;
+      } else if (item instanceof String) {
+        String parts[] = ((String) item).split("\\.");
+        name = parts[parts.length - 1];
       }
       ((TextView) view).setText(name);
       return view;
@@ -117,7 +134,7 @@ public class SampleChooserActivity extends Activity {
 
     @Override
     public int getItemViewType(int position) {
-      return (getItem(position) instanceof Sample) ? 1 : 0;
+      return (getItem(position) instanceof Header) ? 0 : 1;
     }
 
     @Override

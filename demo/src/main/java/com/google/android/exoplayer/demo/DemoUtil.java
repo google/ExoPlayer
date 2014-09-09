@@ -46,11 +46,14 @@ public class DemoUtil {
 
   public static final int TYPE_DASH_VOD = 0;
   public static final int TYPE_SS_VOD = 1;
-  public static final int TYPE_OTHER = 2;
+  public static final int TYPE_HLS = 2;
+  public static final int TYPE_HLS_AUDIO_ONLY = 3;
+  public static final int TYPE_OTHER = 4;
 
   public static final boolean EXPOSE_EXPERIMENTAL_FEATURES = false;
+  public static final boolean EXPOSE_TEST_CASES = true;
 
-  public static String getUserAgent(Context context) {
+    public static String getUserAgent(Context context) {
     String versionName;
     try {
       String packageName = context.getPackageName();
