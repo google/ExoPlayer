@@ -330,11 +330,9 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   @Override
   protected boolean canReconfigureCodec(MediaCodec codec, boolean codecIsAdaptive,
       MediaFormat oldFormat, MediaFormat newFormat) {
-    // TODO: Relax this check to also allow non-H264 adaptive decoders.
-    return newFormat.mimeType.equals(MimeTypes.VIDEO_H264)
-        && oldFormat.mimeType.equals(MimeTypes.VIDEO_H264)
-        && codecIsAdaptive
-            || (oldFormat.width == newFormat.width && oldFormat.height == newFormat.height);
+    return newFormat.mimeType.equals(oldFormat.mimeType)
+        && (codecIsAdaptive
+            || (oldFormat.width == newFormat.width && oldFormat.height == newFormat.height));
   }
 
   @Override
