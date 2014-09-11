@@ -231,8 +231,9 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
   // MediaCodecVideoTrackRenderer.Listener
 
   @Override
-  public void onVideoSizeChanged(int width, int height) {
-    surfaceView.setVideoWidthHeightRatio(height == 0 ? 1 : (float) width / height);
+  public void onVideoSizeChanged(int width, int height, float pixelWidthHeightRatio) {
+    surfaceView.setVideoWidthHeightRatio(
+        height == 0 ? 1 : (pixelWidthHeightRatio * width) / height);
   }
 
   @Override

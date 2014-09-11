@@ -58,8 +58,11 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
      *
      * @param width The video width in pixels.
      * @param height The video height in pixels.
+     * @param pixelWidthHeightRatio The width to height ratio of each pixel. For the normal case
+     *     of square pixels this will be equal to 1.0. Different values are indicative of anamorphic
+     *     content.
      */
-    void onVideoSizeChanged(int width, int height);
+    void onVideoSizeChanged(int width, int height, float pixelWidthHeightRatio);
 
     /**
      * Invoked when a frame is rendered to a surface for the first time following that surface
@@ -98,8 +101,10 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   private int currentWidth;
   private int currentHeight;
+  private float currentPixelWidthHeightRatio;
   private int lastReportedWidth;
   private int lastReportedHeight;
+  private float lastReportedPixelWidthHeightRatio;
 
   /**
    * @param source The upstream source from which the renderer obtains samples.
@@ -208,8 +213,10 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     joiningDeadlineUs = -1;
     currentWidth = -1;
     currentHeight = -1;
+    currentPixelWidthHeightRatio = -1;
     lastReportedWidth = -1;
     lastReportedHeight = -1;
+    lastReportedPixelWidthHeightRatio = -1;
   }
 
   @Override
@@ -272,8 +279,10 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     super.onDisabled();
     currentWidth = -1;
     currentHeight = -1;
+    currentPixelWidthHeightRatio = -1;
     lastReportedWidth = -1;
     lastReportedHeight = -1;
+    lastReportedPixelWidthHeightRatio = -1;
   }
 
   @Override
@@ -313,6 +322,14 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       MediaCrypto crypto) {
     codec.configure(format, surface, crypto, 0);
     codec.setVideoScalingMode(videoScalingMode);
+  }
+
+  @Override
+  protected void onInputFormatChanged(MediaFormatHolder holder) throws ExoPlaybackException {
+    super.onInputFormatChanged(holder);
+    // TODO: Ideally this would be read in onOutputFormatChanged, but there doesn't seem
+    // to be a way to pass a custom key/value pair value through to the output format.
+    currentPixelWidthHeightRatio = holder.format.pixelWidthHeightRatio;
   }
 
   @Override
@@ -394,10 +411,12 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   private void renderOutputBuffer(MediaCodec codec, int bufferIndex) {
-    if (lastReportedWidth != currentWidth || lastReportedHeight != currentHeight) {
+    if (lastReportedWidth != currentWidth || lastReportedHeight != currentHeight
+        || lastReportedPixelWidthHeightRatio != currentPixelWidthHeightRatio) {
       lastReportedWidth = currentWidth;
       lastReportedHeight = currentHeight;
-      notifyVideoSizeChanged(currentWidth, currentHeight);
+      lastReportedPixelWidthHeightRatio = currentPixelWidthHeightRatio;
+      notifyVideoSizeChanged(currentWidth, currentHeight, currentPixelWidthHeightRatio);
     }
     TraceUtil.beginSection("renderVideoBuffer");
     codec.releaseOutputBuffer(bufferIndex, true);
@@ -409,12 +428,13 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     }
   }
 
-  private void notifyVideoSizeChanged(final int width, final int height) {
+  private void notifyVideoSizeChanged(final int width, final int height,
+      final float pixelWidthHeightRatio) {
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable()  {
         @Override
         public void run() {
-          eventListener.onVideoSizeChanged(width, height);
+          eventListener.onVideoSizeChanged(width, height, pixelWidthHeightRatio);
         }
       });
     }

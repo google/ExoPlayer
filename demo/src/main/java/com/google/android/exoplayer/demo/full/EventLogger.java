@@ -73,8 +73,8 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   @Override
-  public void onVideoSizeChanged(int width, int height) {
-    Log.d(TAG, "videoSizeChanged [" + width + ", " + height + "]");
+  public void onVideoSizeChanged(int width, int height, float pixelWidthHeightRatio) {
+    Log.d(TAG, "videoSizeChanged [" + width + ", " + height + ", " + pixelWidthHeightRatio + "]");
   }
 
   // DemoPlayer.InfoListener

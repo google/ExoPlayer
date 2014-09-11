@@ -79,18 +79,19 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   /**
-   * Value of {@link #sourceState} when the source is not ready.
+   * Value returned by {@link #getSourceState()} when the source is not ready.
    */
   protected static final int SOURCE_STATE_NOT_READY = 0;
   /**
-   * Value of {@link #sourceState} when the source is ready and we're able to read from it.
+   * Value returned by {@link #getSourceState()} when the source is ready and we're able to read
+   * from it.
    */
   protected static final int SOURCE_STATE_READY = 1;
   /**
-   * Value of {@link #sourceState} when the source is ready but we might not be able to read from
-   * it. We transition to this state when an attempt to read a sample fails despite the source
-   * reporting that samples are available. This can occur when the next sample to be provided by
-   * the source is for another renderer.
+   * Value returned by {@link #getSourceState()} when the source is ready but we might not be able
+   * to read from it. We transition to this state when an attempt to read a sample fails despite the
+   * source reporting that samples are available. This can occur when the next sample to be provided
+   * by the source is for another renderer.
    */
   protected static final int SOURCE_STATE_READY_READ_MAY_FAIL = 2;
 
@@ -620,7 +621,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    * @param formatHolder Holds the new format.
    * @throws ExoPlaybackException If an error occurs reinitializing the {@link MediaCodec}.
    */
-  private void onInputFormatChanged(MediaFormatHolder formatHolder) throws ExoPlaybackException {
+  protected void onInputFormatChanged(MediaFormatHolder formatHolder) throws ExoPlaybackException {
     MediaFormat oldFormat = format;
     format = formatHolder.format;
     drmInitData = formatHolder.drmInitData;

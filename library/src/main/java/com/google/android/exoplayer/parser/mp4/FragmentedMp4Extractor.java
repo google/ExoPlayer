@@ -106,6 +106,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     parsedAtoms.add(Atom.TYPE_saiz);
     parsedAtoms.add(Atom.TYPE_uuid);
     parsedAtoms.add(Atom.TYPE_senc);
+    parsedAtoms.add(Atom.TYPE_pasp);
     PARSED_ATOMS = Collections.unmodifiableSet(parsedAtoms);
   }
 
@@ -529,6 +530,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     parent.skip(24);
     int width = parent.readUnsignedShort();
     int height = parent.readUnsignedShort();
+    float pixelWidthHeightRatio = 1;
     parent.skip(50);
 
     List<byte[]> initializationData = null;
@@ -543,12 +545,14 @@ public final class FragmentedMp4Extractor implements Extractor {
         initializationData = parseAvcCFromParent(parent, childStartPosition);
       } else if (childAtomType == Atom.TYPE_sinf) {
         trackEncryptionBox = parseSinfFromParent(parent, childStartPosition, childAtomSize);
+      } else if (childAtomType == Atom.TYPE_pasp) {
+        pixelWidthHeightRatio = parsePaspFromParent(parent, childStartPosition);
       }
       childPosition += childAtomSize;
     }
 
     MediaFormat format = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
-        width, height, initializationData);
+        width, height, pixelWidthHeightRatio, initializationData);
     return Pair.create(format, trackEncryptionBox);
   }
 
@@ -641,6 +645,13 @@ public final class FragmentedMp4Extractor implements Extractor {
     }
 
     return trackEncryptionBox;
+  }
+
+  private static float parsePaspFromParent(ParsableByteArray parent, int position) {
+    parent.setPosition(position + ATOM_HEADER_SIZE);
+    int hSpacing = parent.readUnsignedIntToInt();
+    int vSpacing = parent.readUnsignedIntToInt();
+    return (float) hSpacing / vSpacing;
   }
 
   private static TrackEncryptionBox parseSchiFromParent(ParsableByteArray parent, int position,

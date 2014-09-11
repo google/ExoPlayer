@@ -260,9 +260,10 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
   }
 
   @Override
-  public void onVideoSizeChanged(int width, int height) {
+  public void onVideoSizeChanged(int width, int height, float pixelWidthAspectRatio) {
     shutterView.setVisibility(View.GONE);
-    surfaceView.setVideoWidthHeightRatio(height == 0 ? 1 : (float) width / height);
+    surfaceView.setVideoWidthHeightRatio(
+        height == 0 ? 1 : (width * pixelWidthAspectRatio) / height);
   }
 
   // User controls
