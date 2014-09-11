@@ -97,9 +97,6 @@ public class ManifestFetcher<T> extends AsyncTask<String, Void, T> {
         HttpURLConnection connection = configureHttpConnection(new URL(urlString));
         inputStream = connection.getInputStream();
         inputEncoding = connection.getContentEncoding();
-        if (inputEncoding == null) {
-          inputEncoding = C.UTF8_NAME;
-        }
         return parser.parse(inputStream, inputEncoding, contentId, baseUri);
       } finally {
         if (inputStream != null) {

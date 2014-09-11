@@ -329,7 +329,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     super.onInputFormatChanged(holder);
     // TODO: Ideally this would be read in onOutputFormatChanged, but there doesn't seem
     // to be a way to pass a custom key/value pair value through to the output format.
-    currentPixelWidthHeightRatio = holder.format.pixelWidthHeightRatio;
+    currentPixelWidthHeightRatio = holder.format.pixelWidthHeightRatio == MediaFormat.NO_VALUE ? 1
+        : holder.format.pixelWidthHeightRatio;
   }
 
   @Override
