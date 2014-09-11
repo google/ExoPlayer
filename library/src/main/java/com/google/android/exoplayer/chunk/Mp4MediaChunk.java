@@ -96,7 +96,7 @@ public final class Mp4MediaChunk extends MediaChunk {
         prepared = true;
       }
       if (prepared) {
-        mediaFormat = Assertions.checkNotNull(extractor.getFormat());
+        mediaFormat = extractor.getFormat();
         psshInfo = extractor.getPsshInfo();
       }
     }
