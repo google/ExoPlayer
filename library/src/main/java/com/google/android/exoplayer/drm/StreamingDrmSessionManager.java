@@ -71,6 +71,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   private Handler postRequestHandler;
 
   private int openCount;
+  private boolean provisioningInProgress;
   private int state;
   private MediaCrypto mediaCrypto;
   private Exception lastException;
@@ -179,6 +180,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
       return;
     }
     state = STATE_CLOSED;
+    provisioningInProgress = false;
     mediaDrmHandler.removeCallbacksAndMessages(null);
     postResponseHandler.removeCallbacksAndMessages(null);
     postRequestHandler.removeCallbacksAndMessages(null);
@@ -212,11 +214,16 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   private void postProvisionRequest() {
+    if (provisioningInProgress) {
+      return;
+    }
+    provisioningInProgress = true;
     ProvisionRequest request = mediaDrm.getProvisionRequest();
     postRequestHandler.obtainMessage(MSG_PROVISION, request).sendToTarget();
   }
 
   private void onProvisionResponse(Object response) {
+    provisioningInProgress = false;
     if (state != STATE_OPENING && state != STATE_OPENED && state != STATE_OPENED_WITH_KEYS) {
       // This event is stale.
       return;
