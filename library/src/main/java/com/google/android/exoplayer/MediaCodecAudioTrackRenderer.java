@@ -263,7 +263,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   @Override
   protected void onEnabled(long timeUs, boolean joining) {
     super.onEnabled(timeUs, joining);
-    lastReportedCurrentPositionUs = 0;
+    lastReportedCurrentPositionUs = Long.MIN_VALUE;
   }
 
   @Override
@@ -573,7 +573,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
     super.seekTo(timeUs);
     // TODO: Try and re-use the same AudioTrack instance once [redacted] is fixed.
     releaseAudioTrack();
-    lastReportedCurrentPositionUs = 0;
+    lastReportedCurrentPositionUs = Long.MIN_VALUE;
   }
 
   @Override
@@ -613,7 +613,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
           // time and the number of bytes submitted. Also reset lastReportedCurrentPositionUs to
           // allow time to jump backwards if it really wants to.
           audioTrackStartMediaTimeUs += (bufferStartTime - expectedBufferStartTime);
-          lastReportedCurrentPositionUs = 0;
+          lastReportedCurrentPositionUs = Long.MIN_VALUE;
         }
       }
 
