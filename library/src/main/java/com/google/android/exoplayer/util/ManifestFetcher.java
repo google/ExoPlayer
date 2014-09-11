@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.util;
 
-import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.C;
 
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -30,7 +30,7 @@ import java.net.URL;
  *
  * @param <T> The type of the manifest being parsed.
  */
-public abstract class ManifestFetcher<T> extends AsyncTask<String, Void, T> {
+public class ManifestFetcher<T> extends AsyncTask<String, Void, T> {
 
   /**
    * Invoked with the result of a manifest fetch.
@@ -59,6 +59,7 @@ public abstract class ManifestFetcher<T> extends AsyncTask<String, Void, T> {
 
   public static final int DEFAULT_HTTP_TIMEOUT_MILLIS = 8000;
 
+  private final ManifestParser<T> parser;
   private final ManifestCallback<T> callback;
   private final int timeoutMillis;
 
@@ -68,15 +69,18 @@ public abstract class ManifestFetcher<T> extends AsyncTask<String, Void, T> {
   /**
    * @param callback The callback to provide with the parsed manifest (or error).
    */
-  public ManifestFetcher(ManifestCallback<T> callback) {
-    this(callback, DEFAULT_HTTP_TIMEOUT_MILLIS);
+  public ManifestFetcher(ManifestParser<T> parser, ManifestCallback<T> callback) {
+    this(parser, callback, DEFAULT_HTTP_TIMEOUT_MILLIS);
   }
 
   /**
+   * @param parser Parses the manifest from the loaded data.
    * @param callback The callback to provide with the parsed manifest (or error).
    * @param timeoutMillis The timeout in milliseconds for the connection used to load the data.
    */
-  public ManifestFetcher(ManifestCallback<T> callback, int timeoutMillis) {
+  public ManifestFetcher(ManifestParser<T> parser, ManifestCallback<T> callback,
+      int timeoutMillis) {
+    this.parser = parser;
     this.callback = callback;
     this.timeoutMillis = timeoutMillis;
   }
@@ -89,11 +93,14 @@ public abstract class ManifestFetcher<T> extends AsyncTask<String, Void, T> {
       String inputEncoding = null;
       InputStream inputStream = null;
       try {
-        Uri baseUrl = Util.parseBaseUri(urlString);
+        Uri baseUri = Util.parseBaseUri(urlString);
         HttpURLConnection connection = configureHttpConnection(new URL(urlString));
         inputStream = connection.getInputStream();
         inputEncoding = connection.getContentEncoding();
-        return parse(inputStream, inputEncoding, contentId, baseUrl);
+        if (inputEncoding == null) {
+          inputEncoding = C.UTF8_NAME;
+        }
+        return parser.parse(inputStream, inputEncoding, contentId, baseUri);
       } finally {
         if (inputStream != null) {
           inputStream.close();
@@ -113,21 +120,6 @@ public abstract class ManifestFetcher<T> extends AsyncTask<String, Void, T> {
       callback.onManifest(contentId, manifest);
     }
   }
-
-  /**
-   * Reads the {@link InputStream} and parses it into a manifest. Invoked from the
-   * {@link AsyncTask}'s background thread.
-   *
-   * @param stream The input stream to read.
-   * @param inputEncoding The encoding of the input stream.
-   * @param contentId The content id of the media.
-   * @param baseUrl Required where the manifest contains urls that are relative to a base url. May
-   *     be null where this is not the case.
-   * @throws IOException If an error occurred loading the data.
-   * @throws ParserException If an error occurred parsing the loaded data.
-   */
-  protected abstract T parse(InputStream stream, String inputEncoding, String contentId,
-      Uri baseUrl) throws IOException, ParserException;
 
   private HttpURLConnection configureHttpConnection(URL url) throws IOException {
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();

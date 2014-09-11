@@ -35,13 +35,14 @@ import com.google.android.exoplayer.smoothstreaming.SmoothStreamingChunkSource;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
-import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifestFetcher;
+import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifestParser;
 import com.google.android.exoplayer.text.TextTrackRenderer;
 import com.google.android.exoplayer.text.ttml.TtmlParser;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.upstream.HttpDataSource;
+import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
 import com.google.android.exoplayer.util.Util;
 
@@ -87,8 +88,11 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
   public void buildRenderers(DemoPlayer player, RendererBuilderCallback callback) {
     this.player = player;
     this.callback = callback;
-    SmoothStreamingManifestFetcher mpdFetcher = new SmoothStreamingManifestFetcher(this);
-    mpdFetcher.execute(url + "/Manifest", contentId);
+
+    SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
+    ManifestFetcher<SmoothStreamingManifest> manifestFetcher =
+        new ManifestFetcher<SmoothStreamingManifest>(parser, this);
+    manifestFetcher.execute(url + "/Manifest", contentId);
   }
 
   @Override
@@ -151,7 +155,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
 
     // Build the video renderer.
     DataSource videoDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
-    ChunkSource videoChunkSource = new SmoothStreamingChunkSource(url, manifest,
+    ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifest,
         videoStreamElementIndex, videoTrackIndices, videoDataSource,
         new AdaptiveEvaluator(bandwidthMeter));
     ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
@@ -178,7 +182,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
       for (int i = 0; i < manifest.streamElements.length; i++) {
         if (manifest.streamElements[i].type == StreamElement.TYPE_AUDIO) {
           audioTrackNames[audioStreamElementCount] = manifest.streamElements[i].name;
-          audioChunkSources[audioStreamElementCount] = new SmoothStreamingChunkSource(url, manifest,
+          audioChunkSources[audioStreamElementCount] = new SmoothStreamingChunkSource(manifest,
               i, new int[] {0}, audioDataSource, audioFormatEvaluator);
           audioStreamElementCount++;
         }
@@ -208,7 +212,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
       for (int i = 0; i < manifest.streamElements.length; i++) {
         if (manifest.streamElements[i].type == StreamElement.TYPE_TEXT) {
           textTrackNames[textStreamElementCount] = manifest.streamElements[i].language;
-          textChunkSources[textStreamElementCount] = new SmoothStreamingChunkSource(url, manifest,
+          textChunkSources[textStreamElementCount] = new SmoothStreamingChunkSource(manifest,
               i, new int[] {0}, ttmlDataSource, ttmlFormatEvaluator);
           textStreamElementCount++;
         }

@@ -31,11 +31,12 @@ import com.google.android.exoplayer.smoothstreaming.SmoothStreamingChunkSource;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
-import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifestFetcher;
+import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifestParser;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.upstream.HttpDataSource;
+import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
 
 import android.media.MediaCodec;
@@ -71,8 +72,10 @@ import java.util.ArrayList;
   @Override
   public void buildRenderers(RendererBuilderCallback callback) {
     this.callback = callback;
-    SmoothStreamingManifestFetcher mpdFetcher = new SmoothStreamingManifestFetcher(this);
-    mpdFetcher.execute(url + "/Manifest", contentId);
+    SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
+    ManifestFetcher<SmoothStreamingManifest> manifestFetcher =
+        new ManifestFetcher<SmoothStreamingManifest>(parser, this);
+    manifestFetcher.execute(url + "/Manifest", contentId);
   }
 
   @Override
@@ -116,9 +119,8 @@ import java.util.ArrayList;
 
     // Build the video renderer.
     DataSource videoDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
-    ChunkSource videoChunkSource = new SmoothStreamingChunkSource(url, manifest,
-        videoStreamElementIndex, videoTrackIndices, videoDataSource,
-        new AdaptiveEvaluator(bandwidthMeter));
+    ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifest, videoStreamElementIndex,
+        videoTrackIndices, videoDataSource, new AdaptiveEvaluator(bandwidthMeter));
     ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
         VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource,
@@ -126,9 +128,8 @@ import java.util.ArrayList;
 
     // Build the audio renderer.
     DataSource audioDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
-    ChunkSource audioChunkSource = new SmoothStreamingChunkSource(url, manifest,
-        audioStreamElementIndex, new int[] {0}, audioDataSource,
-        new FormatEvaluator.FixedEvaluator());
+    ChunkSource audioChunkSource = new SmoothStreamingChunkSource(manifest, audioStreamElementIndex,
+        new int[] {0}, audioDataSource, new FormatEvaluator.FixedEvaluator());
     SampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
         AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(

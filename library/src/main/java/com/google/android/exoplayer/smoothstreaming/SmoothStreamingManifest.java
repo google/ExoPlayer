@@ -15,9 +15,13 @@
  */
 package com.google.android.exoplayer.smoothstreaming;
 
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
+import android.net.Uri;
+
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -30,32 +34,48 @@ public class SmoothStreamingManifest {
 
   public final int majorVersion;
   public final int minorVersion;
-  public final long timeScale;
+  public final long timescale;
   public final int lookAheadCount;
+  public final boolean isLive;
   public final ProtectionElement protectionElement;
   public final StreamElement[] streamElements;
 
   private final long duration;
+  private final long dvrWindowLength;
 
-  public SmoothStreamingManifest(int majorVersion, int minorVersion, long timeScale, long duration,
-      int lookAheadCount, ProtectionElement protectionElement, StreamElement[] streamElements) {
+  public SmoothStreamingManifest(int majorVersion, int minorVersion, long timescale, long duration,
+      long dvrWindowLength, int lookAheadCount, boolean isLive, ProtectionElement protectionElement,
+      StreamElement[] streamElements) {
     this.majorVersion = majorVersion;
     this.minorVersion = minorVersion;
-    this.timeScale = timeScale;
+    this.timescale = timescale;
     this.duration = duration;
+    this.dvrWindowLength = dvrWindowLength;
     this.lookAheadCount = lookAheadCount;
+    this.isLive = isLive;
     this.protectionElement = protectionElement;
     this.streamElements = streamElements;
   }
 
   /**
    * Gets the duration of the media.
+   * <p>
+   * For a live presentation the duration may be an approximation of the eventual final duration,
+   * or 0 if an approximate duration is not known.
    *
-     *
-   * @return The duration of the media, in microseconds.
+   * @return The duration of the media in microseconds.
    */
   public long getDurationUs() {
-    return (duration * 1000000L) / timeScale;
+    return (duration * 1000000L) / timescale;
+  }
+
+  /**
+   * Gets the DVR window length, or 0 if no window length was specified.
+   *
+   * @return The duration of the DVR window in microseconds, or 0 if no window length was specified.
+   */
+  public long getDvrWindowLengthUs() {
+    return (dvrWindowLength * 1000000L) / timescale;
   }
 
   /**
@@ -155,10 +175,9 @@ public class SmoothStreamingManifest {
 
     public final int type;
     public final String subType;
-    public final long timeScale;
+    public final long timescale;
     public final String name;
     public final int qualityLevels;
-    public final String url;
     public final int maxWidth;
     public final int maxHeight;
     public final int displayWidth;
@@ -167,24 +186,29 @@ public class SmoothStreamingManifest {
     public final TrackElement[] tracks;
     public final int chunkCount;
 
-    private final long[] chunkStartTimes;
+    private final Uri baseUri;
+    private final String chunkTemplate;
 
-    public StreamElement(int type, String subType, long timeScale, String name,
-        int qualityLevels, String url, int maxWidth, int maxHeight, int displayWidth,
-        int displayHeight, String language, TrackElement[] tracks, long[] chunkStartTimes) {
+    private final List<Long> chunkStartTimes;
+
+    public StreamElement(Uri baseUri, String chunkTemplate, int type, String subType,
+        long timescale, String name, int qualityLevels, int maxWidth, int maxHeight,
+        int displayWidth, int displayHeight, String language, TrackElement[] tracks,
+        List<Long> chunkStartTimes) {
+      this.baseUri = baseUri;
+      this.chunkTemplate = chunkTemplate;
       this.type = type;
       this.subType = subType;
-      this.timeScale = timeScale;
+      this.timescale = timescale;
       this.name = name;
       this.qualityLevels = qualityLevels;
-      this.url = url;
       this.maxWidth = maxWidth;
       this.maxHeight = maxHeight;
       this.displayWidth = displayWidth;
       this.displayHeight = displayHeight;
       this.language = language;
       this.tracks = tracks;
-      this.chunkCount = chunkStartTimes.length;
+      this.chunkCount = chunkStartTimes.size();
       this.chunkStartTimes = chunkStartTimes;
     }
 
@@ -195,7 +219,7 @@ public class SmoothStreamingManifest {
      * @return The index of the corresponding chunk.
      */
     public int getChunkIndex(long timeUs) {
-      return Util.binarySearchFloor(chunkStartTimes, (timeUs * timeScale) / 1000000L, true, true);
+      return Util.binarySearchFloor(chunkStartTimes, (timeUs * timescale) / 1000000L, true, true);
     }
 
     /**
@@ -205,22 +229,24 @@ public class SmoothStreamingManifest {
      * @return The start time of the chunk, in microseconds.
      */
     public long getStartTimeUs(int chunkIndex) {
-      return (chunkStartTimes[chunkIndex] * 1000000L) / timeScale;
+      return (chunkStartTimes.get(chunkIndex) * 1000000L) / timescale;
     }
 
     /**
-     * Builds a URL for requesting the specified chunk of the specified track.
+     * Builds a uri for requesting the specified chunk of the specified track.
      *
      * @param track The index of the track for which to build the URL.
      * @param chunkIndex The index of the chunk for which to build the URL.
-     * @return The request URL.
+     * @return The request uri.
      */
-    public String buildRequestUrl(int track, int chunkIndex) {
-      assert (tracks != null);
-      assert (chunkStartTimes != null);
-      assert (chunkIndex < chunkStartTimes.length);
-      return url.replace(URL_PLACEHOLDER_BITRATE, Integer.toString(tracks[track].bitrate))
-          .replace(URL_PLACEHOLDER_START_TIME, Long.toString(chunkStartTimes[chunkIndex]));
+    public Uri buildRequestUri(int track, int chunkIndex) {
+      Assertions.checkState(tracks != null);
+      Assertions.checkState(chunkStartTimes != null);
+      Assertions.checkState(chunkIndex < chunkStartTimes.size());
+      String chunkUrl = chunkTemplate
+          .replace(URL_PLACEHOLDER_BITRATE, Integer.toString(tracks[track].bitrate))
+          .replace(URL_PLACEHOLDER_START_TIME, Long.toString(chunkStartTimes.get(chunkIndex)));
+      return baseUri.buildUpon().appendEncodedPath(chunkUrl).build();
     }
 
   }

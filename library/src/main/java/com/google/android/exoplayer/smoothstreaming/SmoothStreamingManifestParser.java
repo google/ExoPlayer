@@ -21,7 +21,9 @@ import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.Stre
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
+import com.google.android.exoplayer.util.ManifestParser;
 
+import android.net.Uri;
 import android.util.Base64;
 import android.util.Pair;
 
@@ -31,6 +33,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -41,7 +44,7 @@ import java.util.UUID;
  * @see <a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">
  * IIS Smooth Streaming Client Manifest Format</a>
  */
-public class SmoothStreamingManifestParser {
+public class SmoothStreamingManifestParser implements ManifestParser<SmoothStreamingManifest> {
 
   private final XmlPullParserFactory xmlParserFactory;
 
@@ -53,21 +56,13 @@ public class SmoothStreamingManifestParser {
     }
   }
 
-  /**
-   * Parses a manifest from the provided {@link InputStream}.
-   *
-   * @param inputStream The stream from which to parse the manifest.
-   * @param inputEncoding The encoding of the input.
-   * @return The parsed manifest.
-   * @throws IOException If a problem occurred reading from the stream.
-   * @throws ParserException If a problem occurred parsing the xml as a smooth streaming manifest.
-   */
-  public SmoothStreamingManifest parse(InputStream inputStream, String inputEncoding) throws
-  IOException, ParserException {
+  @Override
+  public SmoothStreamingManifest parse(InputStream inputStream, String inputEncoding,
+      String contentId, Uri baseUri) throws IOException, ParserException {
     try {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
       xmlParser.setInput(inputStream, inputEncoding);
-      SmoothStreamMediaParser smoothStreamMediaParser = new SmoothStreamMediaParser(null);
+      SmoothStreamMediaParser smoothStreamMediaParser = new SmoothStreamMediaParser(null, baseUri);
       return (SmoothStreamingManifest) smoothStreamMediaParser.parse(xmlParser);
     } catch (XmlPullParserException e) {
       throw new ParserException(e);
@@ -90,14 +85,16 @@ public class SmoothStreamingManifestParser {
    */
   private static abstract class ElementParser {
 
+    private final Uri baseUri;
     private final String tag;
 
     private final ElementParser parent;
     private final List<Pair<String, Object>> normalizedAttributes;
 
-    public ElementParser(String tag, ElementParser parent) {
-      this.tag = tag;
+    public ElementParser(ElementParser parent, Uri baseUri, String tag) {
       this.parent = parent;
+      this.baseUri = baseUri;
+      this.tag = tag;
       this.normalizedAttributes = new LinkedList<Pair<String, Object>>();
     }
 
@@ -120,7 +117,7 @@ public class SmoothStreamingManifestParser {
               } else if (handleChildInline(tagName)) {
                 parseStartTag(xmlParser);
               } else {
-                ElementParser childElementParser = newChildParser(this, tagName);
+                ElementParser childElementParser = newChildParser(this, tagName, baseUri);
                 if (childElementParser == null) {
                   skippingElementDepth = 1;
                 } else {
@@ -157,13 +154,13 @@ public class SmoothStreamingManifestParser {
       }
     }
 
-    private ElementParser newChildParser(ElementParser parent, String name) {
+    private ElementParser newChildParser(ElementParser parent, String name, Uri baseUri) {
       if (TrackElementParser.TAG.equals(name)) {
-        return new TrackElementParser(parent);
+        return new TrackElementParser(parent, baseUri);
       } else if (ProtectionElementParser.TAG.equals(name)) {
-        return new ProtectionElementParser(parent);
+        return new ProtectionElementParser(parent, baseUri);
       } else if (StreamElementParser.TAG.equals(name)) {
-        return new StreamElementParser(parent);
+        return new StreamElementParser(parent, baseUri);
       }
       return null;
     }
@@ -308,6 +305,15 @@ public class SmoothStreamingManifestParser {
       }
     }
 
+    protected final boolean parseBoolean(XmlPullParser parser, String key, boolean defaultValue) {
+      String value = parser.getAttributeValue(null, key);
+      if (value != null) {
+        return Boolean.parseBoolean(value);
+      } else {
+        return defaultValue;
+      }
+    }
+
   }
 
   private static class SmoothStreamMediaParser extends ElementParser {
@@ -317,19 +323,23 @@ public class SmoothStreamingManifestParser {
     private static final String KEY_MAJOR_VERSION = "MajorVersion";
     private static final String KEY_MINOR_VERSION = "MinorVersion";
     private static final String KEY_TIME_SCALE = "TimeScale";
+    private static final String KEY_DVR_WINDOW_LENGTH = "DVRWindowLength";
     private static final String KEY_DURATION = "Duration";
     private static final String KEY_LOOKAHEAD_COUNT = "LookaheadCount";
+    private static final String KEY_IS_LIVE = "IsLive";
 
     private int majorVersion;
     private int minorVersion;
-    private long timeScale;
+    private long timescale;
     private long duration;
+    private long dvrWindowLength;
     private int lookAheadCount;
+    private boolean isLive;
     private ProtectionElement protectionElement;
     private List<StreamElement> streamElements;
 
-    public SmoothStreamMediaParser(ElementParser parent) {
-      super(TAG, parent);
+    public SmoothStreamMediaParser(ElementParser parent, Uri baseUri) {
+      super(parent, baseUri, TAG);
       lookAheadCount = -1;
       protectionElement = null;
       streamElements = new LinkedList<StreamElement>();
@@ -339,10 +349,12 @@ public class SmoothStreamingManifestParser {
     public void parseStartTag(XmlPullParser parser) throws ParserException {
       majorVersion = parseRequiredInt(parser, KEY_MAJOR_VERSION);
       minorVersion = parseRequiredInt(parser, KEY_MINOR_VERSION);
-      timeScale = parseLong(parser, KEY_TIME_SCALE, 10000000L);
+      timescale = parseLong(parser, KEY_TIME_SCALE, 10000000L);
       duration = parseRequiredLong(parser, KEY_DURATION);
+      dvrWindowLength = parseLong(parser, KEY_DVR_WINDOW_LENGTH, 0);
       lookAheadCount = parseInt(parser, KEY_LOOKAHEAD_COUNT, -1);
-      putNormalizedAttribute(KEY_TIME_SCALE, timeScale);
+      isLive = parseBoolean(parser, KEY_IS_LIVE, false);
+      putNormalizedAttribute(KEY_TIME_SCALE, timescale);
     }
 
     @Override
@@ -359,8 +371,8 @@ public class SmoothStreamingManifestParser {
     public Object build() {
       StreamElement[] streamElementArray = new StreamElement[streamElements.size()];
       streamElements.toArray(streamElementArray);
-      return new SmoothStreamingManifest(majorVersion, minorVersion, timeScale, duration,
-          lookAheadCount, protectionElement, streamElementArray);
+      return new SmoothStreamingManifest(majorVersion, minorVersion, timescale, duration,
+          dvrWindowLength, lookAheadCount, isLive, protectionElement, streamElementArray);
     }
 
   }
@@ -376,8 +388,8 @@ public class SmoothStreamingManifestParser {
     private UUID uuid;
     private byte[] initData;
 
-    public ProtectionElementParser(ElementParser parent) {
-      super(TAG, parent);
+    public ProtectionElementParser(ElementParser parent, Uri baseUri) {
+      super(parent, baseUri, TAG);
     }
 
     @Override
@@ -426,7 +438,6 @@ public class SmoothStreamingManifestParser {
     private static final String KEY_TYPE_TEXT = "text";
     private static final String KEY_SUB_TYPE = "Subtype";
     private static final String KEY_NAME = "Name";
-    private static final String KEY_CHUNKS = "Chunks";
     private static final String KEY_QUALITY_LEVELS = "QualityLevels";
     private static final String KEY_URL = "Url";
     private static final String KEY_MAX_WIDTH = "MaxWidth";
@@ -439,11 +450,12 @@ public class SmoothStreamingManifestParser {
     private static final String KEY_FRAGMENT_DURATION = "d";
     private static final String KEY_FRAGMENT_START_TIME = "t";
 
+    private final Uri baseUri;
     private final List<TrackElement> tracks;
 
     private int type;
     private String subType;
-    private long timeScale;
+    private long timescale;
     private String name;
     private int qualityLevels;
     private String url;
@@ -452,13 +464,13 @@ public class SmoothStreamingManifestParser {
     private int displayWidth;
     private int displayHeight;
     private String language;
-    private long[] startTimes;
+    private ArrayList<Long> startTimes;
 
-    private int chunkIndex;
     private long previousChunkDuration;
 
-    public StreamElementParser(ElementParser parent) {
-      super(TAG, parent);
+    public StreamElementParser(ElementParser parent, Uri baseUri) {
+      super(parent, baseUri, TAG);
+      this.baseUri = baseUri;
       tracks = new LinkedList<TrackElement>();
     }
 
@@ -477,19 +489,21 @@ public class SmoothStreamingManifestParser {
     }
 
     private void parseStreamFragmentStartTag(XmlPullParser parser) throws ParserException {
-      startTimes[chunkIndex] = parseLong(parser, KEY_FRAGMENT_START_TIME, -1L);
-      if (startTimes[chunkIndex] == -1L) {
+      int chunkIndex = startTimes.size();
+      long startTime = parseLong(parser, KEY_FRAGMENT_START_TIME, -1L);
+      if (startTime == -1L) {
         if (chunkIndex == 0) {
           // Assume the track starts at t = 0.
-          startTimes[chunkIndex] = 0;
+          startTime = 0;
         } else if (previousChunkDuration != -1L) {
           // Infer the start time from the previous chunk's start time and duration.
-          startTimes[chunkIndex] = startTimes[chunkIndex - 1] + previousChunkDuration;
+          startTime = startTimes.get(chunkIndex - 1) + previousChunkDuration;
         } else {
           // We don't have the start time, and we're unable to infer it.
           throw new ParserException("Unable to infer start time");
         }
       }
+      startTimes.add(startTime);
       previousChunkDuration = parseLong(parser, KEY_FRAGMENT_DURATION, -1L);
       chunkIndex++;
     }
@@ -510,11 +524,11 @@ public class SmoothStreamingManifestParser {
       displayWidth = parseInt(parser, KEY_DISPLAY_WIDTH, -1);
       displayHeight = parseInt(parser, KEY_DISPLAY_HEIGHT, -1);
       language = parser.getAttributeValue(null, KEY_LANGUAGE);
-      timeScale = parseInt(parser, KEY_TIME_SCALE, -1);
-      if (timeScale == -1) {
-        timeScale = (Long) getNormalizedAttribute(KEY_TIME_SCALE);
+      timescale = parseInt(parser, KEY_TIME_SCALE, -1);
+      if (timescale == -1) {
+        timescale = (Long) getNormalizedAttribute(KEY_TIME_SCALE);
       }
-      startTimes = new long[parseRequiredInt(parser, KEY_CHUNKS)];
+      startTimes = new ArrayList<Long>();
     }
 
     private int parseType(XmlPullParser parser) throws ParserException {
@@ -544,8 +558,8 @@ public class SmoothStreamingManifestParser {
     public Object build() {
       TrackElement[] trackElements = new TrackElement[tracks.size()];
       tracks.toArray(trackElements);
-      return new StreamElement(type, subType, timeScale, name, qualityLevels, url, maxWidth,
-          maxHeight, displayWidth, displayHeight, language, trackElements, startTimes);
+      return new StreamElement(baseUri, url, type, subType, timescale, name, qualityLevels,
+          maxWidth, maxHeight, displayWidth, displayHeight, language, trackElements, startTimes);
     }
 
   }
@@ -586,8 +600,8 @@ public class SmoothStreamingManifestParser {
     private int nalUnitLengthField;
     private String content;
 
-    public TrackElementParser(ElementParser parent) {
-      super(TAG, parent);
+    public TrackElementParser(ElementParser parent, Uri baseUri) {
+      super(parent, baseUri, TAG);
       this.csd = new LinkedList<byte[]>();
     }
 

@@ -53,7 +53,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
   private static final int INITIALIZATION_VECTOR_SIZE = 8;
 
-  private final String baseUrl;
   private final StreamElement streamElement;
   private final TrackInfo trackInfo;
   private final DataSource dataSource;
@@ -67,7 +66,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private final SmoothStreamingFormat[] formats;
 
   /**
-   * @param baseUrl The base URL for the streams.
    * @param manifest The manifest parsed from {@code baseUrl + "/Manifest"}.
    * @param streamElementIndex The index of the stream element in the manifest to be provided by
    *     the source.
@@ -76,10 +74,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param formatEvaluator Selects from the available formats.
    */
-  public SmoothStreamingChunkSource(String baseUrl, SmoothStreamingManifest manifest,
-      int streamElementIndex, int[] trackIndices, DataSource dataSource,
-      FormatEvaluator formatEvaluator) {
-    this.baseUrl = baseUrl;
+  public SmoothStreamingChunkSource(SmoothStreamingManifest manifest, int streamElementIndex,
+      int[] trackIndices, DataSource dataSource, FormatEvaluator formatEvaluator) {
     this.streamElement = manifest.streamElements[streamElementIndex];
     this.trackInfo = new TrackInfo(streamElement.tracks[0].mimeType, manifest.getDurationUs());
     this.dataSource = dataSource;
@@ -113,7 +109,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
           : Track.TYPE_AUDIO;
       FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
           FragmentedMp4Extractor.WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME);
-      extractor.setTrack(new Track(trackIndex, trackType, streamElement.timeScale, mediaFormat,
+      extractor.setTrack(new Track(trackIndex, trackType, streamElement.timescale, mediaFormat,
           trackEncryptionBoxes));
       if (protectionElement != null) {
         extractor.putPsshInfo(protectionElement.uuid, protectionElement.data);
@@ -183,9 +179,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     }
 
     boolean isLastChunk = nextChunkIndex == streamElement.chunkCount - 1;
-    String requestUrl = streamElement.buildRequestUrl(selectedFormat.trackIndex,
-        nextChunkIndex);
-    Uri uri = Uri.parse(baseUrl + '/' + requestUrl);
+    Uri uri = streamElement.buildRequestUri(selectedFormat.trackIndex, nextChunkIndex);
     Chunk mediaChunk = newMediaChunk(selectedFormat, uri, null,
         extractors.get(Integer.parseInt(selectedFormat.id)), dataSource, nextChunkIndex,
         isLastChunk, streamElement.getStartTimeUs(nextChunkIndex),

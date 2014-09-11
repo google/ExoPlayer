@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.dash.mpd;
 
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
 
@@ -47,15 +48,10 @@ public final class RangedUri {
   /**
    * Constructs an ranged uri.
    * <p>
-   * The uri is built according to the following rules:
-   * <ul>
-   * <li>If {@code baseUri} is null or if {@code stringUri} is absolute, then {@code baseUri} is
-   * ignored and the url consists solely of {@code stringUri}.
-   * <li>If {@code stringUri} is null, then the url consists solely of {@code baseUrl}.
-   * <li>Otherwise, the url consists of the concatenation of {@code baseUri} and {@code stringUri}.
-   * </ul>
+   * See {@link Util#getMergedUri(Uri, String)} for a description of how {@code baseUri} and
+   * {@code stringUri} are merged.
    *
-   * @param baseUri An uri that can form the base of the uri defined by the instance.
+   * @param baseUri A uri that can form the base of the uri defined by the instance.
    * @param stringUri A relative or absolute uri in string form.
    * @param start The (zero based) index of the first byte of the range.
    * @param length The length of the range, or -1 to indicate that the range is unbounded.
@@ -74,14 +70,7 @@ public final class RangedUri {
    * @return The {@link Uri} represented by the instance.
    */
   public Uri getUri() {
-    if (stringUri == null) {
-      return baseUri;
-    }
-    Uri uri = Uri.parse(stringUri);
-    if (!uri.isAbsolute() && baseUri != null) {
-      uri = Uri.withAppendedPath(baseUri, stringUri);
-    }
-    return uri;
+    return Util.getMergedUri(baseUri, stringUri);
   }
 
   /**
