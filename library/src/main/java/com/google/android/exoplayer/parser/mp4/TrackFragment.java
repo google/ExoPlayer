@@ -95,8 +95,8 @@ import com.google.android.exoplayer.upstream.NonBlockingInputStream;
       // likely. The choice of 25% is relatively arbitrary.
       int tableSize = (sampleCount * 125) / 100;
       sampleSizeTable = new int[tableSize];
-      sampleDecodingTimeTable = new int[tableSize];
       sampleCompositionTimeOffsetTable = new int[tableSize];
+      sampleDecodingTimeTable = new long[tableSize];
       sampleIsSyncFrameTable = new boolean[tableSize];
       sampleHasSubsampleEncryptionTable = new boolean[tableSize];
     }
@@ -147,7 +147,7 @@ import com.google.android.exoplayer.upstream.NonBlockingInputStream;
     return true;
   }
 
-  public int getSamplePresentationTime(int index) {
+  public long getSamplePresentationTime(int index) {
     return sampleDecodingTimeTable[index] + sampleCompositionTimeOffsetTable[index];
   }
 

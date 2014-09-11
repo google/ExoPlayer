@@ -24,13 +24,20 @@ import com.google.android.exoplayer.demo.full.player.DefaultRendererBuilder;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.full.player.SmoothStreamingRendererBuilder;
+import com.google.android.exoplayer.text.CaptionStyleCompat;
+import com.google.android.exoplayer.text.SubtitleView;
+import com.google.android.exoplayer.util.Util;
 import com.google.android.exoplayer.util.VerboseLogUtil;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -38,6 +45,8 @@ import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.WindowManager;
+import android.view.accessibility.CaptioningManager;
 import android.widget.Button;
 import android.widget.MediaController;
 import android.widget.PopupMenu;
@@ -50,6 +59,7 @@ import android.widget.TextView;
 public class FullPlayerActivity extends Activity implements SurfaceHolder.Callback, OnClickListener,
     DemoPlayer.Listener, DemoPlayer.TextListener {
 
+  private static final float CAPTION_LINE_HEIGHT_RATIO = 0.0533f;
   private static final int MENU_GROUP_TRACKS = 1;
   private static final int ID_OFFSET = 2;
 
@@ -60,7 +70,7 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
   private VideoSurfaceView surfaceView;
   private TextView debugTextView;
   private TextView playerStateTextView;
-  private TextView subtitlesTextView;
+  private SubtitleView subtitleView;
   private Button videoButton;
   private Button audioButton;
   private Button textButton;
@@ -108,7 +118,7 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
     debugTextView = (TextView) findViewById(R.id.debug_text_view);
 
     playerStateTextView = (TextView) findViewById(R.id.player_state_view);
-    subtitlesTextView = (TextView) findViewById(R.id.subtitles);
+    subtitleView = (SubtitleView) findViewById(R.id.subtitles);
 
     mediaController = new MediaController(this);
     mediaController.setAnchorView(root);
@@ -122,6 +132,7 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
   @Override
   public void onResume() {
     super.onResume();
+    configureSubtitleView();
     preparePlayer();
   }
 
@@ -380,10 +391,10 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
   @Override
   public void onText(String text) {
     if (TextUtils.isEmpty(text)) {
-      subtitlesTextView.setVisibility(View.INVISIBLE);
+      subtitleView.setVisibility(View.INVISIBLE);
     } else {
-      subtitlesTextView.setVisibility(View.VISIBLE);
-      subtitlesTextView.setText(text);
+      subtitleView.setVisibility(View.VISIBLE);
+      subtitleView.setText(text);
     }
   }
 
@@ -407,6 +418,42 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
     if (player != null) {
       player.blockingClearSurface();
     }
+  }
+
+  private void configureSubtitleView() {
+    CaptionStyleCompat captionStyle;
+    float captionTextSize = getCaptionFontSize();
+    if (Util.SDK_INT >= 19) {
+      captionStyle = getUserCaptionStyleV19();
+      captionTextSize *= getUserCaptionFontScaleV19();
+    } else {
+      captionStyle = CaptionStyleCompat.DEFAULT;
+    }
+    subtitleView.setStyle(captionStyle);
+    subtitleView.setTextSize(captionTextSize);
+  }
+
+  private float getCaptionFontSize() {
+    Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE))
+        .getDefaultDisplay();
+    Point displaySize = new Point();
+    display.getSize(displaySize);
+    return Math.max(getResources().getDimension(R.dimen.subtitle_minimum_font_size),
+        CAPTION_LINE_HEIGHT_RATIO * Math.min(displaySize.x, displaySize.y));
+  }
+
+  @TargetApi(19)
+  private float getUserCaptionFontScaleV19() {
+    CaptioningManager captioningManager =
+        (CaptioningManager) getSystemService(Context.CAPTIONING_SERVICE);
+    return captioningManager.getFontScale();
+  }
+
+  @TargetApi(19)
+  private CaptionStyleCompat getUserCaptionStyleV19() {
+    CaptioningManager captioningManager =
+        (CaptioningManager) getSystemService(Context.CAPTIONING_SERVICE);
+    return CaptionStyleCompat.createFromCaptionStyle(captioningManager.getUserStyle());
   }
 
 }
