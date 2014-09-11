@@ -70,7 +70,7 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
   private boolean playerNeedsPrepare;
 
   private boolean autoPlay = true;
-  private int playerPosition;
+  private long playerPosition;
   private boolean enableBackgroundAudio = false;
 
   private Uri contentUri;

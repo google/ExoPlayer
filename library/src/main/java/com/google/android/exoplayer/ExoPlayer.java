@@ -229,7 +229,7 @@ public interface ExoPlayer {
   /**
    * Represents an unknown time or duration.
    */
-  public static final int UNKNOWN_TIME = -1;
+  public static final long UNKNOWN_TIME = -1;
 
   /**
    * Gets the {@link Looper} associated with the playback thread.
@@ -313,7 +313,7 @@ public interface ExoPlayer {
    *
    * @param positionMs The seek position.
    */
-  public void seekTo(int positionMs);
+  public void seekTo(long positionMs);
 
   /**
    * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention
@@ -363,14 +363,14 @@ public interface ExoPlayer {
    * @return The duration of the track in milliseconds, or {@link ExoPlayer#UNKNOWN_TIME} if the
    *     duration is not known.
    */
-  public int getDuration();
+  public long getDuration();
 
   /**
    * Gets the current playback position in milliseconds.
    *
    * @return The current playback position in milliseconds.
    */
-  public int getCurrentPosition();
+  public long getCurrentPosition();
 
   /**
    * Gets an estimate of the absolute position in milliseconds up to which data is buffered.
@@ -378,7 +378,7 @@ public interface ExoPlayer {
    * @return An estimate of the absolute position in milliseconds up to which data is buffered,
    *     or {@link ExoPlayer#UNKNOWN_TIME} if no estimate is available.
    */
-  public int getBufferedPosition();
+  public long getBufferedPosition();
 
   /**
    * Gets an estimate of the percentage into the media up to which data is buffered.

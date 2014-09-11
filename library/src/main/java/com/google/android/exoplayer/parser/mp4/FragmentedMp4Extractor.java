@@ -855,8 +855,8 @@ public final class FragmentedMp4Extractor implements Extractor {
 
     out.initTables(sampleCount);
     int[] sampleSizeTable = out.sampleSizeTable;
-    int[] sampleDecodingTimeTable = out.sampleDecodingTimeTable;
     int[] sampleCompositionTimeOffsetTable = out.sampleCompositionTimeOffsetTable;
+    long[] sampleDecodingTimeTable = out.sampleDecodingTimeTable;
     boolean[] sampleIsSyncFrameTable = out.sampleIsSyncFrameTable;
 
     long timescale = track.timescale;
@@ -882,7 +882,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       } else {
         sampleCompositionTimeOffsetTable[i] = 0;
       }
-      sampleDecodingTimeTable[i] = (int) ((cumulativeTime * 1000) / timescale);
+      sampleDecodingTimeTable[i] = (cumulativeTime * 1000) / timescale;
       sampleSizeTable[i] = sampleSize;
       sampleIsSyncFrameTable[i] = ((sampleFlags >> 16) & 0x1) == 0
           && (!workaroundEveryVideoFrameIsSyncFrame || i == 0);

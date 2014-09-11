@@ -70,12 +70,12 @@ public class PlayerControl implements MediaPlayerControl {
 
   @Override
   public int getCurrentPosition() {
-    return exoPlayer.getCurrentPosition();
+    return (int) exoPlayer.getCurrentPosition();
   }
 
   @Override
   public int getDuration() {
-    return exoPlayer.getDuration();
+    return (int) exoPlayer.getDuration();
   }
 
   @Override

@@ -117,18 +117,18 @@ import java.util.List;
     return internalPlaybackThread.getLooper();
   }
 
-  public int getCurrentPosition() {
-    return (int) (positionUs / 1000);
+  public long getCurrentPosition() {
+    return positionUs / 1000;
   }
 
-  public int getBufferedPosition() {
+  public long getBufferedPosition() {
     return bufferedPositionUs == TrackRenderer.UNKNOWN_TIME_US ? ExoPlayer.UNKNOWN_TIME
-        : (int) (bufferedPositionUs / 1000);
+        : bufferedPositionUs / 1000;
   }
 
-  public int getDuration() {
+  public long getDuration() {
     return durationUs == TrackRenderer.UNKNOWN_TIME_US ? ExoPlayer.UNKNOWN_TIME
-        : (int) (durationUs / 1000);
+        : durationUs / 1000;
   }
 
   public void prepare(TrackRenderer... renderers) {
@@ -139,8 +139,8 @@ import java.util.List;
     handler.obtainMessage(MSG_SET_PLAY_WHEN_READY, playWhenReady ? 1 : 0, 0).sendToTarget();
   }
 
-  public void seekTo(int positionMs) {
-    handler.obtainMessage(MSG_SEEK_TO, positionMs, 0).sendToTarget();
+  public void seekTo(long positionMs) {
+    handler.obtainMessage(MSG_SEEK_TO, positionMs).sendToTarget();
   }
 
   public void stop() {
@@ -204,7 +204,7 @@ import java.util.List;
           return true;
         }
         case MSG_SEEK_TO: {
-          seekToInternal(msg.arg1);
+          seekToInternal((Long) msg.obj);
           return true;
         }
         case MSG_STOP: {
@@ -453,7 +453,7 @@ import java.util.List;
     }
   }
 
-  private void seekToInternal(int positionMs) throws ExoPlaybackException {
+  private void seekToInternal(long positionMs) throws ExoPlaybackException {
     rebuffering = false;
     positionUs = positionMs * 1000L;
     mediaClock.stop();

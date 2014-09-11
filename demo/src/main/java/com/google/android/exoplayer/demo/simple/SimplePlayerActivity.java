@@ -76,7 +76,7 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
   private MediaCodecVideoTrackRenderer videoRenderer;
 
   private boolean autoPlay = true;
-  private int playerPosition;
+  private long playerPosition;
 
   private Uri contentUri;
   private int contentType;

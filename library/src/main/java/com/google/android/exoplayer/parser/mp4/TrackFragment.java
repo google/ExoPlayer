@@ -33,13 +33,13 @@ import com.google.android.exoplayer.upstream.NonBlockingInputStream;
    */
   public int[] sampleSizeTable;
   /**
-   * The decoding time of each sample in the run.
-   */
-  public int[] sampleDecodingTimeTable;
-  /**
    * The composition time offset of each sample in the run.
    */
   public int[] sampleCompositionTimeOffsetTable;
+  /**
+   * The decoding time of each sample in the run.
+   */
+  public long[] sampleDecodingTimeTable;
   /**
    * Indicates which samples are sync frames.
    */

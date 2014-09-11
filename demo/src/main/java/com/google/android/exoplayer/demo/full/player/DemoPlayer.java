@@ -310,7 +310,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     player.setPlayWhenReady(playWhenReady);
   }
 
-  public void seekTo(int positionMs) {
+  public void seekTo(long positionMs) {
     player.seekTo(positionMs);
   }
 
@@ -339,11 +339,11 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     return playerState;
   }
 
-  public int getCurrentPosition() {
+  public long getCurrentPosition() {
     return player.getCurrentPosition();
   }
 
-  public int getDuration() {
+  public long getDuration() {
     return player.getDuration();
   }
 
