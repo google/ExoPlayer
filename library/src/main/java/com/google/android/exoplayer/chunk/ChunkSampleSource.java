@@ -25,6 +25,7 @@ import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.TraceUtil;
 
 import android.os.Handler;
 import android.os.SystemClock;
@@ -57,11 +58,13 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
      *     load is for initialization data.
      * @param mediaEndTimeMs The media time of the end of the data being loaded, or -1 if this
      *     load is for initialization data.
+
      * @param length The length of the data being loaded in bytes, or {@link C#LENGTH_UNBOUNDED} if
      *     the length of the data has not yet been determined.
      */
     void onLoadStarted(int sourceId, String formatId, int trigger, boolean isInitialization,
         int mediaStartTimeMs, int mediaEndTimeMs, long length);
+
 
     /**
      * Invoked when the current load operation completes.
@@ -346,12 +349,12 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
   }
 
   @Override
-  public void seekToUs(long timeUs) {
+  public long seekToUs(long timeUs) {
     Assertions.checkState(state == STATE_ENABLED);
     downstreamPositionUs = timeUs;
     lastSeekPositionUs = timeUs;
     if (pendingResetTime == timeUs) {
-      return;
+      return timeUs;
     }
 
     MediaChunk mediaChunk = getMediaChunk(timeUs);
@@ -363,6 +366,8 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
       discardDownstreamMediaChunks(mediaChunk);
       updateLoadControl();
     }
+
+    return timeUs;
   }
 
   private MediaChunk getMediaChunk(long timeUs) {
@@ -521,6 +526,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
       return;
     }
 
+    TraceUtil.beginSection("updateLoadControl");
     if (!loader.isLoading()) {
       if (currentLoadableHolder.chunk == null || now - lastPerformedBufferOperation > 1000) {
         lastPerformedBufferOperation = now;
@@ -533,6 +539,8 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
         maybeStartLoading();
       }
     }
+    TraceUtil.endSection();
+
   }
 
   /**
@@ -690,6 +698,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
         public void run() {
           eventListener.onLoadStarted(eventSourceId, formatId, trigger, isInitialization,
               usToMs(mediaStartTimeUs), usToMs(mediaEndTimeUs), length);
+
         }
       });
     }

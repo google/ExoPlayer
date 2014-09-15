@@ -67,12 +67,12 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   /**
    * Represents an unknown time or duration.
    */
-  public static final long UNKNOWN_TIME_US = -1;
+  public static final long UNKNOWN_TIME = -1;
   /**
    * Represents a time or duration that should match the duration of the longest track whose
    * duration is known.
    */
-  public static final long MATCH_LONGEST_US = -2;
+  public static final long MATCH_LONGEST = -2;
   /**
    * Represents the time of the end of the track.
    */
@@ -302,7 +302,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    *
    * @return The duration of the track in micro-seconds, or {@link #MATCH_LONGEST_US} if
    *     the track's duration should match that of the longest track whose duration is known, or
-   *     or {@link #UNKNOWN_TIME_US} if the duration is not known.
+   *     or {@link #UNKNOWN_TIME} if the duration is not known.
    */
   protected abstract long getDurationUs();
 
@@ -323,7 +323,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * {@link #STATE_ENABLED}, {@link #STATE_STARTED}
    *
    * @return An estimate of the absolute position in micro-seconds up to which data is buffered,
-   *     or {@link #END_OF_TRACK_US} if the track is fully buffered, or {@link #UNKNOWN_TIME_US} if
+   *     or {@link #END_OF_TRACK_US} if the track is fully buffered, or {@link #UNKNOWN_TIME} if
    *     no estimate is available.
    */
   protected abstract long getBufferedPositionUs();
@@ -335,9 +335,10 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * {@link #STATE_ENABLED}
    *
    * @param timeUs The desired time in micro-seconds.
+   * @return The actual time where the seek was performed
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected abstract void seekTo(long timeUs) throws ExoPlaybackException;
+  protected abstract long seekTo(long timeUs) throws ExoPlaybackException;
 
   @Override
   public void handleMessage(int what, Object object) throws ExoPlaybackException {

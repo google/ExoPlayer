@@ -95,8 +95,8 @@ import java.util.List;
     }
 
     this.state = ExoPlayer.STATE_IDLE;
-    this.durationUs = TrackRenderer.UNKNOWN_TIME_US;
-    this.bufferedPositionUs = TrackRenderer.UNKNOWN_TIME_US;
+    this.durationUs = TrackRenderer.UNKNOWN_TIME;
+    this.bufferedPositionUs = TrackRenderer.UNKNOWN_TIME;
 
     mediaClock = new MediaClock();
     enabledRenderers = new ArrayList<TrackRenderer>(rendererEnabledFlags.length);
@@ -122,12 +122,12 @@ import java.util.List;
   }
 
   public int getBufferedPosition() {
-    return bufferedPositionUs == TrackRenderer.UNKNOWN_TIME_US ? ExoPlayer.UNKNOWN_TIME
+    return bufferedPositionUs == TrackRenderer.UNKNOWN_TIME ? ExoPlayer.UNKNOWN_TIME
         : (int) (bufferedPositionUs / 1000);
   }
 
   public int getDuration() {
-    return durationUs == TrackRenderer.UNKNOWN_TIME_US ? ExoPlayer.UNKNOWN_TIME
+    return durationUs == TrackRenderer.UNKNOWN_TIME ? ExoPlayer.UNKNOWN_TIME
         : (int) (durationUs / 1000);
   }
 
@@ -259,6 +259,30 @@ import java.util.List;
     handler.sendEmptyMessage(MSG_INCREMENTAL_PREPARE);
   }
 
+  private void updateDuration() {
+    long durationUs = 0;
+    for (int i = 0; i < renderers.length; i++) {
+      TrackRenderer renderer = renderers[i];
+      if (renderer.getState() != TrackRenderer.STATE_PREPARED && renderer.getState() != TrackRenderer.STATE_STARTED) {
+        continue;
+      }
+      if (durationUs == TrackRenderer.UNKNOWN_TIME) {
+        // We've already encountered a track for which the duration is unknown, so the media
+        // duration is unknown regardless of the duration of this track.
+      } else {
+        long trackDurationUs = renderer.getDurationUs();
+        if (trackDurationUs == TrackRenderer.UNKNOWN_TIME) {
+          durationUs = TrackRenderer.UNKNOWN_TIME;
+        } else if (trackDurationUs == TrackRenderer.MATCH_LONGEST) {
+          // Do nothing.
+        } else {
+          durationUs = Math.max(durationUs, trackDurationUs);
+        }
+      }
+      this.durationUs = durationUs;
+    }
+  }
+
   private void incrementalPrepareInternal() throws ExoPlaybackException {
     long operationStartTimeMs = SystemClock.elapsedRealtime();
     boolean prepared = true;
@@ -277,7 +301,6 @@ import java.util.List;
       return;
     }
 
-    long durationUs = 0;
     boolean isEnded = true;
     boolean allRenderersReadyOrEnded = true;
     for (int i = 0; i < renderers.length; i++) {
@@ -287,22 +310,9 @@ import java.util.List;
         enabledRenderers.add(renderer);
         isEnded = isEnded && renderer.isEnded();
         allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded(renderer);
-        if (durationUs == TrackRenderer.UNKNOWN_TIME_US) {
-          // We've already encountered a track for which the duration is unknown, so the media
-          // duration is unknown regardless of the duration of this track.
-        } else {
-          long trackDurationUs = renderer.getDurationUs();
-          if (trackDurationUs == TrackRenderer.UNKNOWN_TIME_US) {
-            durationUs = TrackRenderer.UNKNOWN_TIME_US;
-          } else if (trackDurationUs == TrackRenderer.MATCH_LONGEST_US) {
-            // Do nothing.
-          } else {
-            durationUs = Math.max(durationUs, trackDurationUs);
-          }
-        }
       }
     }
-    this.durationUs = durationUs;
+    updateDuration();
 
     if (isEnded) {
       // We don't expect this case, but handle it anyway.
@@ -331,11 +341,11 @@ import java.util.List;
     long rendererBufferedPositionUs = renderer.getBufferedPositionUs();
     long minBufferDurationUs = rebuffering ? minRebufferUs : minBufferUs;
     return minBufferDurationUs <= 0
-        || rendererBufferedPositionUs == TrackRenderer.UNKNOWN_TIME_US
+        || rendererBufferedPositionUs == TrackRenderer.UNKNOWN_TIME
         || rendererBufferedPositionUs == TrackRenderer.END_OF_TRACK_US
         || rendererBufferedPositionUs >= positionUs + minBufferDurationUs
-        || (rendererDurationUs != TrackRenderer.UNKNOWN_TIME_US
-            && rendererDurationUs != TrackRenderer.MATCH_LONGEST_US
+        || (rendererDurationUs != TrackRenderer.UNKNOWN_TIME
+            && rendererDurationUs != TrackRenderer.MATCH_LONGEST
             && rendererBufferedPositionUs >= rendererDurationUs);
   }
 
@@ -384,7 +394,7 @@ import java.util.List;
   private void doSomeWork() throws ExoPlaybackException {
     TraceUtil.beginSection("doSomeWork");
     long operationStartTimeMs = SystemClock.elapsedRealtime();
-    long bufferedPositionUs = durationUs != TrackRenderer.UNKNOWN_TIME_US ? durationUs
+    long bufferedPositionUs = durationUs != TrackRenderer.UNKNOWN_TIME ? durationUs
         : Long.MAX_VALUE;
     boolean isEnded = true;
     boolean allRenderersReadyOrEnded = true;
@@ -398,17 +408,17 @@ import java.util.List;
       isEnded = isEnded && renderer.isEnded();
       allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded(renderer);
 
-      if (bufferedPositionUs == TrackRenderer.UNKNOWN_TIME_US) {
+      if (bufferedPositionUs == TrackRenderer.UNKNOWN_TIME) {
         // We've already encountered a track for which the buffered position is unknown. Hence the
         // media buffer position unknown regardless of the buffered position of this track.
       } else {
         long rendererDurationUs = renderer.getDurationUs();
         long rendererBufferedPositionUs = renderer.getBufferedPositionUs();
-        if (rendererBufferedPositionUs == TrackRenderer.UNKNOWN_TIME_US) {
-          bufferedPositionUs = TrackRenderer.UNKNOWN_TIME_US;
+        if (rendererBufferedPositionUs == TrackRenderer.UNKNOWN_TIME) {
+          bufferedPositionUs = TrackRenderer.UNKNOWN_TIME;
         } else if (rendererBufferedPositionUs == TrackRenderer.END_OF_TRACK_US
-            || (rendererDurationUs != TrackRenderer.UNKNOWN_TIME_US
-                && rendererDurationUs != TrackRenderer.MATCH_LONGEST_US
+            || (rendererDurationUs != TrackRenderer.UNKNOWN_TIME
+                && rendererDurationUs != TrackRenderer.MATCH_LONGEST
                 && rendererBufferedPositionUs >= rendererDurationUs)) {
           // This track is fully buffered.
         } else {
@@ -417,6 +427,7 @@ import java.util.List;
       }
     }
     this.bufferedPositionUs = bufferedPositionUs;
+    updateDuration();
 
     if (isEnded) {
       setState(ExoPlayer.STATE_ENDED);
@@ -455,17 +466,23 @@ import java.util.List;
 
   private void seekToInternal(int positionMs) throws ExoPlaybackException {
     rebuffering = false;
-    positionUs = positionMs * 1000L;
     mediaClock.stop();
-    mediaClock.setTimeUs(positionUs);
     if (state == ExoPlayer.STATE_IDLE || state == ExoPlayer.STATE_PREPARING) {
       return;
     }
+
+    long seekTimeUs = Long.MAX_VALUE;
     for (int i = 0; i < enabledRenderers.size(); i++) {
       TrackRenderer renderer = enabledRenderers.get(i);
       ensureStopped(renderer);
-      renderer.seekTo(positionUs);
+      seekTimeUs = Math.min(renderer.seekTo(positionMs*1000L), seekTimeUs);
     }
+    if (seekTimeUs == Long.MAX_VALUE) {
+      seekTimeUs = positionMs * 1000L;
+    }
+    positionUs = seekTimeUs;
+    mediaClock.setTimeUs(seekTimeUs);
+
     setState(ExoPlayer.STATE_BUFFERING);
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }

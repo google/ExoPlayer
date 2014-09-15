@@ -22,8 +22,8 @@ import java.util.Arrays;
 /**
  * An {@link Allocator} that maintains a pool of fixed length byte arrays (buffers).
  * <p>
- * An {@link Allocation} obtained from a {@link BufferPool} consists of the whole number of these
- * buffers. When an {@link Allocation} is released, the underlying buffers are returned to the pool
+ * An buffer obtained from a {@link BufferPool} consists of the whole number of these
+ * buffers. When an buffer is released, the underlying buffers are returned to the pool
  * for re-use.
  */
 public final class BufferPool implements Allocator {
@@ -66,52 +66,22 @@ public final class BufferPool implements Allocator {
   }
 
   @Override
-  public synchronized Allocation allocate(int size) {
-    return new AllocationImpl(allocate(size, null));
-  }
 
-  /**
-   * Allocates byte arrays whose combined length is at least {@code size}.
-   * <p>
-   * An existing array of byte arrays may be provided to form the start of the allocation.
-   *
-   * @param size The total size required, in bytes.
-   * @param existing Existing byte arrays to use as the start of the allocation. May be null.
-   * @return The allocated byte arrays.
-   */
-  /* package */ synchronized byte[][] allocate(int size, byte[][] existing) {
-    int requiredBufferCount = requiredBufferCount(size);
-    if (existing != null && requiredBufferCount <= existing.length) {
-      // The existing buffers are sufficient.
-      return existing;
-    }
-    // We need to allocate additional buffers.
-    byte[][] buffers = new byte[requiredBufferCount][];
-    int firstNewBufferIndex = 0;
-    if (existing != null) {
-      firstNewBufferIndex = existing.length;
-      System.arraycopy(existing, 0, buffers, 0, firstNewBufferIndex);
-    }
-    // Allocate the new buffers
-    allocatedBufferCount += requiredBufferCount - firstNewBufferIndex;
-    for (int i = firstNewBufferIndex; i < requiredBufferCount; i++) {
-      // Use a recycled buffer if one is available. Else instantiate a new one.
-      buffers[i] = recycledBufferCount > 0 ? recycledBuffers[--recycledBufferCount] :
-          new byte[bufferLength];
-    }
-    return buffers;
+  public synchronized byte[] allocateBuffer() {
+    return recycledBufferCount > 0 ? recycledBuffers[--recycledBufferCount] :
+            new byte[bufferLength];
+
   }
 
   /**
    * Returns the buffers belonging to an allocation to the pool.
    *
-   * @param allocation The allocation to return.
+   * @param buffer The buffer to release.
    */
-  /* package */ synchronized void release(AllocationImpl allocation) {
-    byte[][] buffers = allocation.getBuffers();
-    allocatedBufferCount -= buffers.length;
+  public synchronized void releaseBuffer(byte[] buffer) {
+    allocatedBufferCount --;
 
-    int newRecycledBufferCount = recycledBufferCount + buffers.length;
+    int newRecycledBufferCount = recycledBufferCount + 1;
     if (recycledBuffers.length < newRecycledBufferCount) {
       // Expand the capacity of the recycled buffers array.
       byte[][] newRecycledBuffers = new byte[newRecycledBufferCount * 2][];
@@ -120,55 +90,8 @@ public final class BufferPool implements Allocator {
       }
       recycledBuffers = newRecycledBuffers;
     }
-    System.arraycopy(buffers, 0, recycledBuffers, recycledBufferCount, buffers.length);
+    recycledBuffers[recycledBufferCount] = buffer;
     recycledBufferCount = newRecycledBufferCount;
-  }
-
-  private int requiredBufferCount(long size) {
-    return (int) ((size + bufferLength - 1) / bufferLength);
-  }
-
-  private class AllocationImpl implements Allocation {
-
-    private byte[][] buffers;
-
-    public AllocationImpl(byte[][] buffers) {
-      this.buffers = buffers;
-    }
-
-    @Override
-    public void ensureCapacity(int size) {
-      buffers = allocate(size, buffers);
-    }
-
-    @Override
-    public int capacity() {
-      return bufferLength * buffers.length;
-    }
-
-    @Override
-    public byte[][] getBuffers() {
-      return buffers;
-    }
-
-    @Override
-    public int getFragmentOffset(int index) {
-      return 0;
-    }
-
-    @Override
-    public int getFragmentLength(int index) {
-      return bufferLength;
-    }
-
-    @Override
-    public void release() {
-      if (buffers != null) {
-        BufferPool.this.release(this);
-        buffers = null;
-      }
-    }
-
   }
 
 }

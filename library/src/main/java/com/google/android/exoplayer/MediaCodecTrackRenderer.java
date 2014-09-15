@@ -17,6 +17,7 @@ package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.TraceUtil;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
@@ -26,9 +27,12 @@ import android.media.MediaCrypto;
 import android.media.MediaExtractor;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
@@ -39,7 +43,10 @@ import java.util.UUID;
 @TargetApi(16)
 public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
-  /**
+    private static final String TAG = "MediaCodecTrackRenderer";
+    private boolean hasQueuedOneInputBuffer;
+
+    /**
    * Interface definition for a callback to be notified of {@link MediaCodecTrackRenderer} events.
    */
   public interface EventListener {
@@ -118,7 +125,14 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    */
   private static final int RECONFIGURATION_STATE_QUEUE_PENDING = 2;
 
-  public final CodecCounters codecCounters;
+  private static final int REINIT_STATE_0 = 0;
+  private static final int REINIT_STATE_1 = 1;
+  private static final int REINIT_STATE_2 = 2;
+  private static final int REINIT_STATE_3 = 3;
+  private static final int REINIT_STATE_4 = 4;
+
+
+    public final CodecCounters codecCounters;
 
   private final DrmSessionManager drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
@@ -142,6 +156,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private boolean openedDrmSession;
   private boolean codecReconfigured;
   private int codecReconfigurationState;
+  private int codecReinitState;
 
   private int trackIndex;
   private int sourceState;
@@ -271,7 +286,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     codecIsAdaptive = selectedDecoderInfo.adaptive;
     try {
       codec = MediaCodec.createByCodecName(selectedDecoderName);
-      configureCodec(codec, format.getFrameworkMediaFormatV16(), mediaCrypto);
+      android.media.MediaFormat infoV16 = format.getFrameworkMediaFormatV16();
+      configureCodec(codec, infoV16, mediaCrypto);
       codec.start();
       inputBuffers = codec.getInputBuffers();
       outputBuffers = codec.getOutputBuffers();
@@ -285,6 +301,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         SystemClock.elapsedRealtime() : -1;
     inputIndex = -1;
     outputIndex = -1;
+    hasQueuedOneInputBuffer = false;
     waitingForFirstSyncFrame = true;
     codecCounters.codecInitCount++;
   }
@@ -361,18 +378,20 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   @Override
   protected long getBufferedPositionUs() {
     long sourceBufferedPosition = source.getBufferedPositionUs();
-    return sourceBufferedPosition == UNKNOWN_TIME_US || sourceBufferedPosition == END_OF_TRACK_US
+    return sourceBufferedPosition == UNKNOWN_TIME || sourceBufferedPosition == END_OF_TRACK_US
         ? sourceBufferedPosition : Math.max(sourceBufferedPosition, getCurrentPositionUs());
   }
 
   @Override
-  protected void seekTo(long timeUs) throws ExoPlaybackException {
-    currentPositionUs = timeUs;
-    source.seekToUs(timeUs);
-    sourceState = SOURCE_STATE_NOT_READY;
+  protected long seekTo(long timeUs) throws ExoPlaybackException {
+    long seekTimeUs;
+    seekTimeUs = source.seekToUs(timeUs);
+    currentPositionUs = seekTimeUs;
     inputStreamEnded = false;
     outputStreamEnded = false;
     waitingForKeys = false;
+
+    return seekTimeUs;
   }
 
   @Override
@@ -407,7 +426,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
           }
         }
       }
-      codecCounters.ensureUpdated();
     } catch (IOException e) {
       throw new ExoPlaybackException(e);
     }
@@ -464,6 +482,19 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       // avoid this issue by sending reconfiguration data following every flush.
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
     }
+
+    codecReinitState = REINIT_STATE_0;
+  }
+
+  final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+  public static String bytesToHex(byte[] bytes) {
+    char[] hexChars = new char[bytes.length * 2];
+    for ( int j = 0; j < bytes.length; j++ ) {
+      int v = bytes[j] & 0xFF;
+      hexChars[j * 2] = hexArray[v >>> 4];
+      hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+    }
+    return new String(hexChars);
   }
 
   /**
@@ -477,6 +508,14 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     if (inputStreamEnded) {
       return false;
     }
+
+  if (codecReinitState == REINIT_STATE_4 || (codecReinitState == REINIT_STATE_1 && !hasQueuedOneInputBuffer)) {
+      releaseCodec();
+      maybeInitCodec();
+      codecReinitState = REINIT_STATE_0;
+      return false;
+  }
+
     if (inputIndex < 0) {
       inputIndex = codec.dequeueInputBuffer(0);
       if (inputIndex < 0) {
@@ -486,6 +525,17 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       sampleHolder.data.clear();
     }
 
+    if (codecReinitState == REINIT_STATE_1 && hasQueuedOneInputBuffer) {
+        codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+        inputIndex = -1;
+        codecCounters.queuedEndOfStreamCount++;
+        codecReinitState = REINIT_STATE_2;
+        return false;
+    }
+
+    if (codecReinitState != REINIT_STATE_0) {
+        return false;
+    }
     int result;
     if (waitingForKeys) {
       // We've already read an encrypted sample into sampleHolder, and are waiting for keys.
@@ -567,12 +617,37 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       if (sampleHolder.decodeOnly) {
         decodeOnlyPresentationTimestamps.add(presentationTimeUs);
       }
+      /*if (this instanceof MediaCodecAudioTrackRenderer) {
+        sampleHolder.data.position(0);
+        int oldlimit = sampleHolder.data.limit();
+        sampleHolder.data.limit(bufferSize);
+        ByteBuffer debugBuffer = ByteBuffer.allocateDirect(bufferSize);
+        debugBuffer.put(sampleHolder.data);
+        try {
+          MessageDigest digest = MessageDigest.getInstance("MD5");
+          debugBuffer.position(0);
+          digest.update(debugBuffer);
+          String md5 = bytesToHex(digest.digest());
+          Log.d("toto", "send buffer: " + md5 + " - " + bufferSize);
+
+        } catch (NoSuchAlgorithmException e) {
+          e.printStackTrace();
+        }
+
+        sampleHolder.data.limit(oldlimit);
+      }*/
       if (sampleEncrypted) {
         MediaCodec.CryptoInfo cryptoInfo = getFrameworkCryptoInfo(sampleHolder,
             adaptiveReconfigurationBytes);
         codec.queueSecureInputBuffer(inputIndex, 0, cryptoInfo, presentationTimeUs, 0);
       } else {
         codec.queueInputBuffer(inputIndex, 0 , bufferSize, presentationTimeUs, 0);
+      }
+
+      codecCounters.queuedInputBufferCount++;
+      hasQueuedOneInputBuffer = true;
+      if ((sampleHolder.flags & MediaExtractor.SAMPLE_FLAG_SYNC) != 0) {
+        codecCounters.keyframeCount++;
       }
       inputIndex = -1;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
@@ -628,8 +703,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       codecReconfigured = true;
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
     } else {
-      releaseCodec();
-      maybeInitCodec();
+      codecReinitState = REINIT_STATE_1;
     }
   }
 
@@ -715,8 +789,13 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
 
     if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-      outputStreamEnded = true;
-      return false;
+      if (codecReinitState == REINIT_STATE_2) {
+          codecReinitState = REINIT_STATE_3;
+          outputBufferInfo.flags &= ~MediaCodec.BUFFER_FLAG_END_OF_STREAM;
+      } else {
+          outputStreamEnded = true;
+          return false;
+      }
     }
 
     boolean decodeOnly = decodeOnlyPresentationTimestamps.contains(
@@ -729,6 +808,9 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         currentPositionUs = outputBufferInfo.presentationTimeUs;
       }
       outputIndex = -1;
+      if (codecReinitState == REINIT_STATE_3) {
+          codecReinitState = REINIT_STATE_4;
+      }
       return true;
     }
 

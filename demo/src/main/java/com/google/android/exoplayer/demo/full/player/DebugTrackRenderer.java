@@ -15,13 +15,13 @@
  */
 package com.google.android.exoplayer.demo.full.player;
 
+import android.widget.TextView;
+
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaCodecTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.Format;
-
-import android.widget.TextView;
 
 /**
  * A {@link TrackRenderer} that periodically updates debugging information displayed by a
@@ -98,7 +98,7 @@ import android.widget.TextView;
 
   @Override
   protected long getDurationUs() {
-    return TrackRenderer.MATCH_LONGEST_US;
+    return TrackRenderer.MATCH_LONGEST;
   }
 
   @Override
@@ -107,8 +107,9 @@ import android.widget.TextView;
   }
 
   @Override
-  protected void seekTo(long timeUs) {
+  protected long seekTo(long timeUs) {
     currentPositionUs = timeUs;
+    return timeUs;
   }
 
   private void maybeFail() throws ExoPlaybackException {

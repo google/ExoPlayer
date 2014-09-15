@@ -123,9 +123,10 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   }
 
   @Override
-  protected void seekTo(long timeUs) {
-    source.seekToUs(timeUs);
+  protected long seekTo(long timeUs) {
+    long seekTimeUs = source.seekToUs(timeUs);
     seekToInternal(timeUs);
+    return seekTimeUs;
   }
 
   private void seekToInternal(long timeUs) {

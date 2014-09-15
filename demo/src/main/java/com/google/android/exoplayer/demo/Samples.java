@@ -134,8 +134,32 @@ package com.google.android.exoplayer.demo;
   public static final Sample[] MISC = new Sample[] {
     new Sample("Dizzy", "uid:misc:dizzy", "http://html5demos.com/assets/dizzy.mp4",
         DemoUtil.TYPE_OTHER, false, true),
+
     new Sample("Dizzy (https->http redirect)", "uid:misc:dizzy2", "https://goo.gl/MtUDEj",
         DemoUtil.TYPE_OTHER, false, true),
+
+    new Sample("L'ecole du pouvoir - hls 720p", "uid:misc:dailymotion_long", "http://vid2.cf.dmcdn.net/sec(a17e8c0f2d5a0a7c0c5d5363bf024568)/video/600/257/128752006_mp4_h264_aac_hq.m3u8",
+            DemoUtil.TYPE_HLS, false, true),
+    new Sample("Tour de france - hls adaptive", "uid:misc:dailymotion", "http://www.dailymotion.com/cdn/manifest/video/x20w6of.m3u8?auth=1410854598-2560-irsxfgcg-8b70f9f192d150bfa64e1a29fca1dcd5",
+        DemoUtil.TYPE_HLS, false, true),
+    new Sample("Tour de france - hls 184p", "uid:misc:dailymotionhls184p", "http://vid2.cf.dmcdn.net/sec(e83834383dc2d0cbfa8b28a7bf9498fd)/video/999/334/122433999_mp4_h264_aac_ld.m3u8",
+            DemoUtil.TYPE_HLS, false, true),
+    new Sample("Tour de france - hls 720p", "uid:misc:dailymotionhls720p", "http://vid2.cf.dmcdn.net/sec(5f9ee920e654b39b6f23a376d122f202)/video/999/334/122433999_mp4_h264_aac_hd.m3u8",
+        DemoUtil.TYPE_HLS, false, true),
+    new Sample("Tour de france - mp4 184p 2", "uid:misc:dailmotion-mp4184p", "http://192.168.48.171/184p_2.mp4",
+            DemoUtil.TYPE_OTHER, false, true),
+    new Sample("Tour de france - mp4 184p", "uid:misc:dailmotion-mp4184p", "http://192.168.48.171/184p.mp4",
+        DemoUtil.TYPE_OTHER, false, true),
+    new Sample("Tour de france - mp4 720p", "uid:misc:dailmotion-mp4720p", "http://www.dailymotion.com/cdn/H264-1280x720/video/x20w6of.mp4?auth=1410854598-2560-z6kb2tel-c8430f2843d7230c9e6622ba1920c77d",
+        DemoUtil.TYPE_OTHER, false, true),
+    new Sample("Audio-only - HLS/mp3", "uid:misc:mpeg-audio", "https://api.beatgasm.com/v1/play/121.m3u8?type=user&type_id=2407&X-Auth-Token=1e800bce-5da2-410e-86fd-cf3471aa4795",
+            DemoUtil.TYPE_HLS_AUDIO_ONLY, false, true),
+    new Sample("Audio-only2 - HLS/mp3", "uid:misc:mpeg-audio2", "https://api.beatgasm.com/v2/play/song/7758.m3u8?type=user&type_id=3032&X-Auth-Token=748be789-2116-4763-a4db-ea2a5725c69d",
+            DemoUtil.TYPE_HLS_AUDIO_ONLY, false, true),
+    new Sample("Audio-only3 - HLS/mp3", "uid:misc:mpeg-audio3", "https://api.beatgasm.com/v2/play/song/7484.m3u8?type=user&type_id=3032&X-Auth-Token=748be789-2116-4763-a4db-ea2a5725c69d",
+            DemoUtil.TYPE_HLS, false, true),
+    new Sample("Apple-bipbop - HLS", "uid:misc:bipbop", "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8",
+            DemoUtil.TYPE_HLS, false, true),
   };
 
   private Samples() {}

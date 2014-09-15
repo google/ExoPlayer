@@ -24,6 +24,7 @@ import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.Surface;
 
 import java.nio.ByteBuffer;
@@ -227,10 +228,11 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void seekTo(long timeUs) throws ExoPlaybackException {
-    super.seekTo(timeUs);
+  protected long seekTo(long timeUs) throws ExoPlaybackException {
+    long seekTimeUs = super.seekTo(timeUs);
     renderedFirstFrame = false;
     joiningDeadlineUs = -1;
+    return seekTimeUs;
   }
 
   @Override
@@ -346,6 +348,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     }
 
     long earlyUs = bufferInfo.presentationTimeUs - timeUs;
+    //Log.d(TAG, "timeUs=" + timeUs + ", presentationTimeUs=" + bufferInfo.presentationTimeUs);
     if (earlyUs < -30000) {
       // We're more than 30ms late rendering the frame.
       dropOutputBuffer(codec, bufferIndex);
