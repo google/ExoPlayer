@@ -467,7 +467,7 @@ public class SmoothStreamingManifestParser implements ManifestParser<SmoothStrea
     private String language;
     private ArrayList<Long> startTimes;
 
-    private long previousChunkDuration;
+    private long lastChunkDuration;
 
     public StreamElementParser(ElementParser parent, Uri baseUri) {
       super(parent, baseUri, TAG);
@@ -496,16 +496,16 @@ public class SmoothStreamingManifestParser implements ManifestParser<SmoothStrea
         if (chunkIndex == 0) {
           // Assume the track starts at t = 0.
           startTime = 0;
-        } else if (previousChunkDuration != -1L) {
+        } else if (lastChunkDuration != -1L) {
           // Infer the start time from the previous chunk's start time and duration.
-          startTime = startTimes.get(chunkIndex - 1) + previousChunkDuration;
+          startTime = startTimes.get(chunkIndex - 1) + lastChunkDuration;
         } else {
           // We don't have the start time, and we're unable to infer it.
           throw new ParserException("Unable to infer start time");
         }
       }
       startTimes.add(startTime);
-      previousChunkDuration = parseLong(parser, KEY_FRAGMENT_DURATION, -1L);
+      lastChunkDuration = parseLong(parser, KEY_FRAGMENT_DURATION, -1L);
       chunkIndex++;
     }
 
@@ -560,7 +560,8 @@ public class SmoothStreamingManifestParser implements ManifestParser<SmoothStrea
       TrackElement[] trackElements = new TrackElement[tracks.size()];
       tracks.toArray(trackElements);
       return new StreamElement(baseUri, url, type, subType, timescale, name, qualityLevels,
-          maxWidth, maxHeight, displayWidth, displayHeight, language, trackElements, startTimes);
+          maxWidth, maxHeight, displayWidth, displayHeight, language, trackElements, startTimes,
+          lastChunkDuration);
     }
 
   }

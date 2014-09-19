@@ -173,11 +173,12 @@ public class SmoothStreamingManifest {
     private final String chunkTemplate;
 
     private final List<Long> chunkStartTimes;
+    private final long lastChunkDuration;
 
     public StreamElement(Uri baseUri, String chunkTemplate, int type, String subType,
         long timescale, String name, int qualityLevels, int maxWidth, int maxHeight,
         int displayWidth, int displayHeight, String language, TrackElement[] tracks,
-        List<Long> chunkStartTimes) {
+        List<Long> chunkStartTimes, long lastChunkDuration) {
       this.baseUri = baseUri;
       this.chunkTemplate = chunkTemplate;
       this.type = type;
@@ -193,6 +194,7 @@ public class SmoothStreamingManifest {
       this.tracks = tracks;
       this.chunkCount = chunkStartTimes.size();
       this.chunkStartTimes = chunkStartTimes;
+      this.lastChunkDuration = lastChunkDuration;
     }
 
     /**
@@ -213,6 +215,18 @@ public class SmoothStreamingManifest {
      */
     public long getStartTimeUs(int chunkIndex) {
       return (chunkStartTimes.get(chunkIndex) * 1000000L) / timescale;
+    }
+
+    /**
+     * Gets the duration of the specified chunk.
+     *
+     * @param chunkIndex The index of the chunk.
+     * @return The duration of the chunk, in microseconds.
+     */
+    public long getChunkDurationUs(int chunkIndex) {
+      long chunkDuration = (chunkIndex == chunkCount - 1) ? lastChunkDuration
+          : chunkStartTimes.get(chunkIndex + 1) - chunkStartTimes.get(chunkIndex);
+      return chunkDuration / timescale;
     }
 
     /**
