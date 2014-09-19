@@ -163,11 +163,21 @@ public final class Util {
     if (stringUri == null) {
       return baseUri;
     }
-    Uri uri = Uri.parse(stringUri);
-    if (!uri.isAbsolute() && baseUri != null) {
-      uri = Uri.withAppendedPath(baseUri, stringUri);
+    if (baseUri == null) {
+      return Uri.parse(stringUri);
     }
-    return uri;
+    if (stringUri.startsWith("/")) {
+      return new Uri.Builder()
+          .scheme(baseUri.getScheme())
+          .authority(baseUri.getAuthority())
+          .appendEncodedPath(stringUri)
+          .build();
+    }
+    Uri uri = Uri.parse(stringUri);
+    if (uri.isAbsolute()) {
+      return uri;
+    }
+    return Uri.withAppendedPath(baseUri, stringUri);
   }
 
   /**
