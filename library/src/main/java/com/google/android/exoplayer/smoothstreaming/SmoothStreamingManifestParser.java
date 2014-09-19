@@ -22,6 +22,7 @@ import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.Trac
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.ManifestParser;
+import com.google.android.exoplayer.util.MimeTypes;
 
 import android.net.Uri;
 import android.util.Base64;
@@ -586,7 +587,7 @@ public class SmoothStreamingManifestParser implements ManifestParser<SmoothStrea
 
     private int index;
     private int bitrate;
-    private String fourCC;
+    private String mimeType;
     private int profile;
     private int level;
     private int maxWidth;
@@ -618,11 +619,14 @@ public class SmoothStreamingManifestParser implements ManifestParser<SmoothStrea
       if (type == StreamElement.TYPE_VIDEO) {
         maxHeight = parseRequiredInt(parser, KEY_MAX_HEIGHT);
         maxWidth = parseRequiredInt(parser, KEY_MAX_WIDTH);
-        fourCC = parseRequiredString(parser, KEY_FOUR_CC);
+        mimeType = fourCCToMimeType(parseRequiredString(parser, KEY_FOUR_CC));
       } else {
         maxHeight = -1;
         maxWidth = -1;
-        fourCC = parser.getAttributeValue(null, KEY_FOUR_CC);
+        String fourCC = parser.getAttributeValue(null, KEY_FOUR_CC);
+        // If fourCC is missing and the stream type is audio, we assume AAC.
+        mimeType = fourCC != null ? fourCCToMimeType(fourCC)
+            : type == StreamElement.TYPE_AUDIO ? MimeTypes.AUDIO_AAC : null;
       }
 
       if (type == StreamElement.TYPE_AUDIO) {
@@ -658,17 +662,6 @@ public class SmoothStreamingManifestParser implements ManifestParser<SmoothStrea
       }
     }
 
-    private byte[] hexStringToByteArray(String hexString) {
-      int length = hexString.length();
-      byte[] data = new byte[length / 2];
-      for (int i = 0; i < data.length; i++) {
-        int stringOffset = i * 2;
-        data[i] = (byte) ((Character.digit(hexString.charAt(stringOffset), 16) << 4)
-            + Character.digit(hexString.charAt(stringOffset + 1), 16));
-      }
-      return data;
-    }
-
     @Override
     public void parseText(XmlPullParser parser) {
       content = parser.getText();
@@ -681,8 +674,33 @@ public class SmoothStreamingManifestParser implements ManifestParser<SmoothStrea
         csdArray = new byte[csd.size()][];
         csd.toArray(csdArray);
       }
-      return new TrackElement(index, bitrate, fourCC, csdArray, profile, level, maxWidth, maxHeight,
-          samplingRate, channels, packetSize, audioTag, bitPerSample, nalUnitLengthField, content);
+      return new TrackElement(index, bitrate, mimeType, csdArray, profile, level, maxWidth,
+          maxHeight, samplingRate, channels, packetSize, audioTag, bitPerSample, nalUnitLengthField,
+          content);
+    }
+
+    private static String fourCCToMimeType(String fourCC) {
+      if (fourCC.equalsIgnoreCase("H264") || fourCC.equalsIgnoreCase("X264")
+          || fourCC.equalsIgnoreCase("AVC1") || fourCC.equalsIgnoreCase("DAVC")) {
+        return MimeTypes.VIDEO_H264;
+      } else if (fourCC.equalsIgnoreCase("AAC") || fourCC.equalsIgnoreCase("AACL")
+          || fourCC.equalsIgnoreCase("AACH") || fourCC.equalsIgnoreCase("AACP")) {
+        return MimeTypes.AUDIO_AAC;
+      } else if (fourCC.equalsIgnoreCase("TTML")) {
+        return MimeTypes.APPLICATION_TTML;
+      }
+      return null;
+    }
+
+    private static byte[] hexStringToByteArray(String hexString) {
+      int length = hexString.length();
+      byte[] data = new byte[length / 2];
+      for (int i = 0; i < data.length; i++) {
+        int stringOffset = i * 2;
+        data[i] = (byte) ((Character.digit(hexString.charAt(stringOffset), 16) << 4)
+            + Character.digit(hexString.charAt(stringOffset + 1), 16));
+      }
+      return data;
     }
 
   }

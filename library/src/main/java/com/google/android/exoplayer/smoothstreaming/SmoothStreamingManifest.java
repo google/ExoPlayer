@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.smoothstreaming;
 
 import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -103,12 +102,9 @@ public class SmoothStreamingManifest {
     public final int bitrate;
 
     // Audio-video
-    public final String fourCC;
     public final byte[][] csd;
     public final int profile;
     public final int level;
-
-    // Audio-video (derived)
     public final String mimeType;
 
     // Video-only
@@ -125,12 +121,12 @@ public class SmoothStreamingManifest {
     public final int nalUnitLengthField;
     public final String content;
 
-    public TrackElement(int index, int bitrate, String fourCC, byte[][] csd, int profile, int level,
-        int maxWidth, int maxHeight, int sampleRate, int channels, int packetSize, int audioTag,
-        int bitPerSample, int nalUnitLengthField, String content) {
+    public TrackElement(int index, int bitrate, String mimeType, byte[][] csd, int profile,
+        int level, int maxWidth, int maxHeight, int sampleRate, int channels, int packetSize,
+        int audioTag, int bitPerSample, int nalUnitLengthField, String content) {
       this.index = index;
       this.bitrate = bitrate;
-      this.fourCC = fourCC;
+      this.mimeType = mimeType;
       this.csd = csd;
       this.profile = profile;
       this.level = level;
@@ -143,19 +139,6 @@ public class SmoothStreamingManifest {
       this.bitPerSample = bitPerSample;
       this.nalUnitLengthField = nalUnitLengthField;
       this.content = content;
-      this.mimeType = fourCCToMimeType(fourCC);
-    }
-
-    private static String fourCCToMimeType(String fourCC) {
-      if (fourCC.equalsIgnoreCase("H264") || fourCC.equalsIgnoreCase("AVC1")
-          || fourCC.equalsIgnoreCase("DAVC")) {
-        return MimeTypes.VIDEO_H264;
-      } else if (fourCC.equalsIgnoreCase("AACL") || fourCC.equalsIgnoreCase("AACH")) {
-        return MimeTypes.AUDIO_AAC;
-      } else if (fourCC.equalsIgnoreCase("TTML")) {
-        return MimeTypes.APPLICATION_TTML;
-      }
-      return null;
     }
 
   }
