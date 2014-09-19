@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.text;
 
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
@@ -178,7 +177,7 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
           resetSampleHolder = true;
           InputStream subtitleInputStream =
               new ByteArrayInputStream(sampleHolder.data.array(), 0, sampleHolder.size);
-          subtitle = subtitleParser.parse(subtitleInputStream, C.UTF8_NAME, sampleHolder.timeUs);
+          subtitle = subtitleParser.parse(subtitleInputStream, null, sampleHolder.timeUs);
           syncNextEventIndex(timeUs);
           textRendererNeedsUpdate = true;
         } else if (result == SampleSource.END_OF_STREAM) {
