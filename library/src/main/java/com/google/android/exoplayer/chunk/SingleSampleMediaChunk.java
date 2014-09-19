@@ -64,10 +64,8 @@ public class SingleSampleMediaChunk extends MediaChunk {
    * @param nextChunkIndex The index of the next chunk, or -1 if this is the last chunk.
    * @param sampleFormat The format of the media contained by the chunk.
    * @param headerData Custom header data for the sample. May be null. If set, the header data is
-   *     prepended to the sample data returned when {@link #read(SampleHolder)} is called. It is
-   *     however not considered part of the loaded data, and so is not prepended to the data
-   *     returned by {@link #getLoadedData()}. It is also not reflected in the values returned by
-   *     {@link #bytesLoaded()} and {@link #getLength()}.
+   *     prepended to the sample data returned when {@link #read(SampleHolder)} is called. It is not
+   *     reflected in the values returned by {@link #bytesLoaded()} and {@link #getLength()}.
    */
   public SingleSampleMediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
       int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex, MediaFormat sampleFormat,
