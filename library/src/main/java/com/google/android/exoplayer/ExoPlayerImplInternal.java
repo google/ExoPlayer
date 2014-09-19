@@ -491,26 +491,41 @@ import java.util.List;
       return;
     }
     for (int i = 0; i < renderers.length; i++) {
-      try {
-        TrackRenderer renderer = renderers[i];
-        ensureStopped(renderer);
-        if (renderer.getState() == TrackRenderer.STATE_ENABLED) {
-          renderer.disable();
-        }
-        renderer.release();
-      } catch (ExoPlaybackException e) {
-        // There's nothing we can do. Catch the exception here so that other renderers still have
-        // a chance of being cleaned up correctly.
-        Log.e(TAG, "Stop failed.", e);
-      } catch (RuntimeException e) {
-        // Ditto.
-        Log.e(TAG, "Stop failed.", e);
-      }
+      TrackRenderer renderer = renderers[i];
+      stopAndDisable(renderer);
+      release(renderer);
     }
     renderers = null;
     timeSourceTrackRenderer = null;
     enabledRenderers.clear();
     setState(ExoPlayer.STATE_IDLE);
+  }
+
+  private void stopAndDisable(TrackRenderer renderer) {
+    try {
+      ensureStopped(renderer);
+      if (renderer.getState() == TrackRenderer.STATE_ENABLED) {
+        renderer.disable();
+      }
+    } catch (ExoPlaybackException e) {
+      // There's nothing we can do.
+      Log.e(TAG, "Stop failed.", e);
+    } catch (RuntimeException e) {
+      // Ditto.
+      Log.e(TAG, "Stop failed.", e);
+    }
+  }
+
+  private void release(TrackRenderer renderer) {
+    try {
+      renderer.release();
+    } catch (ExoPlaybackException e) {
+      // There's nothing we can do.
+      Log.e(TAG, "Release failed.", e);
+    } catch (RuntimeException e) {
+      // Ditto.
+      Log.e(TAG, "Release failed.", e);
+    }
   }
 
   private <T> void sendMessageInternal(int what, Object obj)
