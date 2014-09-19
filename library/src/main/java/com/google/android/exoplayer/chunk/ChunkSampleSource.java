@@ -24,6 +24,7 @@ import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.upstream.Loader;
+import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
 
 import android.os.Handler;
@@ -39,7 +40,7 @@ import java.util.List;
  * A {@link SampleSource} that loads media in {@link Chunk}s, which are themselves obtained from a
  * {@link ChunkSource}.
  */
-public class ChunkSampleSource implements SampleSource, Loader.Listener {
+public class ChunkSampleSource implements SampleSource, Loader.Callback {
 
   /**
    * Interface definition for a callback to be notified of {@link ChunkSampleSource} events.
@@ -199,7 +200,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
   @Override
   public boolean prepare() {
     Assertions.checkState(state == STATE_UNPREPARED);
-    loader = new Loader("Loader:" + chunkSource.getTrackInfo().mimeType, this);
+    loader = new Loader("Loader:" + chunkSource.getTrackInfo().mimeType);
     state = STATE_PREPARED;
     return true;
   }
@@ -413,7 +414,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
   }
 
   @Override
-  public void onLoaded() {
+  public void onLoadCompleted(Loadable loadable) {
     Chunk currentLoadable = currentLoadableHolder.chunk;
     notifyLoadCompleted(currentLoadable.bytesLoaded());
     try {
@@ -436,7 +437,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
   }
 
   @Override
-  public void onCanceled() {
+  public void onLoadCanceled(Loadable loadable) {
     Chunk currentLoadable = currentLoadableHolder.chunk;
     notifyLoadCanceled(currentLoadable.bytesLoaded());
     if (!isMediaChunk(currentLoadable)) {
@@ -452,7 +453,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
   }
 
   @Override
-  public void onError(IOException e) {
+  public void onLoadError(Loadable loadable, IOException e) {
     currentLoadableException = e;
     currentLoadableExceptionCount++;
     currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
@@ -553,7 +554,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
       discardUpstreamMediaChunks(currentLoadableHolder.queueSize);
       if (currentLoadableHolder.chunk == backedOffChunk) {
         // Chunk was unchanged. Resume loading.
-        loader.startLoading(backedOffChunk);
+        loader.startLoading(backedOffChunk, this);
       } else {
         backedOffChunk.release();
         maybeStartLoading();
@@ -564,7 +565,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
     if (backedOffChunk == mediaChunks.getFirst()) {
       // We're not able to clear the first media chunk, so we have no choice but to continue
       // loading it.
-      loader.startLoading(backedOffChunk);
+      loader.startLoading(backedOffChunk, this);
       return;
     }
 
@@ -579,7 +580,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
 
     if (currentLoadableHolder.chunk == backedOffChunk) {
       // Chunk was unchanged. Resume loading.
-      loader.startLoading(backedOffChunk);
+      loader.startLoading(backedOffChunk, this);
     } else {
       // This call will remove and release at least one chunk from the end of mediaChunks. Since
       // the current loadable is the last media chunk, it is guaranteed to be removed.
@@ -609,7 +610,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Listener {
       notifyLoadStarted(currentLoadable.format.id, currentLoadable.trigger, true, -1, -1,
           currentLoadable.getLength());
     }
-    loader.startLoading(currentLoadable);
+    loader.startLoading(currentLoadable, this);
   }
 
   /**

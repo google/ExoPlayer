@@ -20,6 +20,7 @@ import com.google.android.exoplayer.util.Util;
 
 import android.annotation.SuppressLint;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
@@ -72,22 +73,28 @@ public final class Loader {
   /**
    * Interface definition for a callback to be notified of {@link Loader} events.
    */
-  public interface Listener {
+  public interface Callback {
 
     /**
      * Invoked when loading has been canceled.
+     *
+     * @param loadable The loadable whose load has been canceled.
      */
-    void onCanceled();
+    void onLoadCanceled(Loadable loadable);
 
     /**
      * Invoked when the data source has been fully loaded.
+     *
+     * @param loadable The loadable whose load has completed.
      */
-    void onLoaded();
+    void onLoadCompleted(Loadable loadable);
 
     /**
      * Invoked when the data source is stopped due to an error.
+     *
+     * @param loadable The loadable whose load has failed.
      */
-    void onError(IOException exception);
+    void onLoadError(Loadable loadable, IOException exception);
 
   }
 
@@ -95,18 +102,29 @@ public final class Loader {
   private static final int MSG_ERROR = 1;
 
   private final ExecutorService downloadExecutorService;
-  private final Listener listener;
 
   private LoadTask currentTask;
   private boolean loading;
 
   /**
    * @param threadName A name for the loader's thread.
-   * @param listener A listener to invoke when state changes occur.
    */
-  public Loader(String threadName, Listener listener) {
+  public Loader(String threadName) {
     this.downloadExecutorService = Util.newSingleThreadExecutor(threadName);
-    this.listener = listener;
+  }
+
+  /**
+   * Invokes {@link #startLoading(Looper, Loadable, Callback)}, using the {@link Looper}
+   * associated with the calling thread.
+   *
+   * @param loadable The {@link Loadable} to load.
+   * @param callback A callback to invoke when the load ends.
+   * @throws IllegalStateException If the calling thread does not have an associated {@link Looper}.
+   */
+  public void startLoading(Loadable loadable, Callback callback) {
+    Looper myLooper = Looper.myLooper();
+    Assertions.checkState(myLooper != null);
+    startLoading(myLooper, loadable, callback);
   }
 
   /**
@@ -115,12 +133,14 @@ public final class Loader {
    * A {@link Loader} instance can only load one {@link Loadable} at a time, and so this method
    * must not be called when another load is in progress.
    *
+   * @param looper The looper of the thread on which the callback should be invoked.
    * @param loadable The {@link Loadable} to load.
+   * @param callback A callback to invoke when the load ends.
    */
-  public void startLoading(Loadable loadable) {
+  public void startLoading(Looper looper, Loadable loadable, Callback callback) {
     Assertions.checkState(!loading);
     loading = true;
-    currentTask = new LoadTask(loadable);
+    currentTask = new LoadTask(looper, loadable, callback);
     downloadExecutorService.submit(currentTask);
   }
 
@@ -161,11 +181,14 @@ public final class Loader {
     private static final String TAG = "LoadTask";
 
     private final Loadable loadable;
+    private final Loader.Callback callback;
 
     private volatile Thread executorThread;
 
-    public LoadTask(Loadable loadable) {
+    public LoadTask(Looper looper, Loadable loadable, Loader.Callback callback) {
+      super(looper);
       this.loadable = loadable;
+      this.callback = callback;
     }
 
     public void quit() {
@@ -200,15 +223,15 @@ public final class Loader {
     public void handleMessage(Message msg) {
       onFinished();
       if (loadable.isLoadCanceled()) {
-        listener.onCanceled();
+        callback.onLoadCanceled(loadable);
         return;
       }
       switch (msg.what) {
         case MSG_END_OF_SOURCE:
-          listener.onLoaded();
+          callback.onLoadCompleted(loadable);
           break;
         case MSG_ERROR:
-          listener.onError((IOException) msg.obj);
+          callback.onLoadError(loadable, (IOException) msg.obj);
           break;
       }
     }
