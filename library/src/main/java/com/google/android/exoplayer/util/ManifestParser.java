@@ -33,7 +33,8 @@ public interface ManifestParser<T> {
    * Parses a manifest from an {@link InputStream}.
    *
    * @param inputStream The input stream to consume.
-   * @param inputEncoding The encoding of the input stream.
+   * @param inputEncoding The encoding of the input stream. May be null if the input encoding is
+   *     unknown.
    * @param contentId The content id to which the manifest corresponds. May be null.
    * @param baseUri If the manifest contains relative uris, this is the uri they are relative to.
    *     May be null.

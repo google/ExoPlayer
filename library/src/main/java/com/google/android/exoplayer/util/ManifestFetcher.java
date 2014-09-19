@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.util;
 
-import com.google.android.exoplayer.C;
-
 import android.net.Uri;
 import android.os.AsyncTask;
 
