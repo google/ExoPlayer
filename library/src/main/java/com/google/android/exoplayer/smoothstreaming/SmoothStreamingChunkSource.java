@@ -77,7 +77,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   public SmoothStreamingChunkSource(SmoothStreamingManifest manifest, int streamElementIndex,
       int[] trackIndices, DataSource dataSource, FormatEvaluator formatEvaluator) {
     this.streamElement = manifest.streamElements[streamElementIndex];
-    this.trackInfo = new TrackInfo(streamElement.tracks[0].mimeType, manifest.getDurationUs());
+    this.trackInfo = new TrackInfo(streamElement.tracks[0].mimeType, manifest.durationUs);
     this.dataSource = dataSource;
     this.formatEvaluator = formatEvaluator;
     this.evaluation = new Evaluation();

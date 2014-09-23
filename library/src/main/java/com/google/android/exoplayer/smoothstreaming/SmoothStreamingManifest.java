@@ -31,6 +31,8 @@ import java.util.UUID;
  */
 public class SmoothStreamingManifest {
 
+  private static final long MICROS_PER_SECOND = 1000000L;
+
   public final int majorVersion;
   public final int minorVersion;
   public final long timescale;
@@ -38,9 +40,8 @@ public class SmoothStreamingManifest {
   public final boolean isLive;
   public final ProtectionElement protectionElement;
   public final StreamElement[] streamElements;
-
-  private final long duration;
-  private final long dvrWindowLength;
+  public final long durationUs;
+  public final long dvrWindowLengthUs;
 
   public SmoothStreamingManifest(int majorVersion, int minorVersion, long timescale, long duration,
       long dvrWindowLength, int lookAheadCount, boolean isLive, ProtectionElement protectionElement,
@@ -48,33 +49,23 @@ public class SmoothStreamingManifest {
     this.majorVersion = majorVersion;
     this.minorVersion = minorVersion;
     this.timescale = timescale;
-    this.duration = duration;
-    this.dvrWindowLength = dvrWindowLength;
     this.lookAheadCount = lookAheadCount;
     this.isLive = isLive;
     this.protectionElement = protectionElement;
     this.streamElements = streamElements;
-  }
-
-  /**
-   * Gets the duration of the media.
-   * <p>
-   * For a live presentation the duration may be an approximation of the eventual final duration,
-   * or 0 if an approximate duration is not known.
-   *
-   * @return The duration of the media in microseconds.
-   */
-  public long getDurationUs() {
-    return (duration * 1000000L) / timescale;
-  }
-
-  /**
-   * Gets the DVR window length, or 0 if no window length was specified.
-   *
-   * @return The duration of the DVR window in microseconds, or 0 if no window length was specified.
-   */
-  public long getDvrWindowLengthUs() {
-    return (dvrWindowLength * 1000000L) / timescale;
+    if (timescale >= MICROS_PER_SECOND && (timescale % MICROS_PER_SECOND) == 0) {
+      long divisionFactor = timescale / MICROS_PER_SECOND;
+      dvrWindowLengthUs = dvrWindowLength / divisionFactor;
+      durationUs = duration / divisionFactor;
+    } else if (timescale < MICROS_PER_SECOND && (MICROS_PER_SECOND % timescale) == 0) {
+      long multiplicationFactor = MICROS_PER_SECOND / timescale;
+      dvrWindowLengthUs = dvrWindowLength * multiplicationFactor;
+      durationUs = duration * multiplicationFactor;
+    } else {
+      double multiplicationFactor = (double) MICROS_PER_SECOND / timescale;
+      dvrWindowLengthUs = (long) (dvrWindowLength * multiplicationFactor);
+      durationUs = (long) (duration * multiplicationFactor);
+    }
   }
 
   /**
@@ -173,7 +164,8 @@ public class SmoothStreamingManifest {
     private final String chunkTemplate;
 
     private final List<Long> chunkStartTimes;
-    private final long lastChunkDuration;
+    private final long[] chunkStartTimesUs;
+    private final long lastChunkDurationUs;
 
     public StreamElement(Uri baseUri, String chunkTemplate, int type, String subType,
         long timescale, String name, int qualityLevels, int maxWidth, int maxHeight,
@@ -194,7 +186,26 @@ public class SmoothStreamingManifest {
       this.tracks = tracks;
       this.chunkCount = chunkStartTimes.size();
       this.chunkStartTimes = chunkStartTimes;
-      this.lastChunkDuration = lastChunkDuration;
+      chunkStartTimesUs = new long[chunkStartTimes.size()];
+      if (timescale >= MICROS_PER_SECOND && (timescale % MICROS_PER_SECOND) == 0) {
+        long divisionFactor = timescale / MICROS_PER_SECOND;
+        for (int i = 0; i < chunkStartTimesUs.length; i++) {
+          chunkStartTimesUs[i] = chunkStartTimes.get(i) / divisionFactor;
+        }
+        lastChunkDurationUs = lastChunkDuration / divisionFactor;
+      } else if (timescale < MICROS_PER_SECOND && (MICROS_PER_SECOND % timescale) == 0) {
+        long multiplicationFactor = MICROS_PER_SECOND / timescale;
+        for (int i = 0; i < chunkStartTimesUs.length; i++) {
+          chunkStartTimesUs[i] = chunkStartTimes.get(i) * multiplicationFactor;
+        }
+        lastChunkDurationUs = lastChunkDuration * multiplicationFactor;
+      } else {
+        double multiplicationFactor = (double) MICROS_PER_SECOND / timescale;
+        for (int i = 0; i < chunkStartTimesUs.length; i++) {
+          chunkStartTimesUs[i] = (long) (chunkStartTimes.get(i) * multiplicationFactor);
+        }
+        lastChunkDurationUs = (long) (lastChunkDuration * multiplicationFactor);
+      }
     }
 
     /**
@@ -204,7 +215,7 @@ public class SmoothStreamingManifest {
      * @return The index of the corresponding chunk.
      */
     public int getChunkIndex(long timeUs) {
-      return Util.binarySearchFloor(chunkStartTimes, (timeUs * timescale) / 1000000L, true, true);
+      return Util.binarySearchFloor(chunkStartTimesUs, timeUs, true, true);
     }
 
     /**
@@ -214,7 +225,7 @@ public class SmoothStreamingManifest {
      * @return The start time of the chunk, in microseconds.
      */
     public long getStartTimeUs(int chunkIndex) {
-      return (chunkStartTimes.get(chunkIndex) * 1000000L) / timescale;
+      return chunkStartTimesUs[chunkIndex];
     }
 
     /**
@@ -224,9 +235,8 @@ public class SmoothStreamingManifest {
      * @return The duration of the chunk, in microseconds.
      */
     public long getChunkDurationUs(int chunkIndex) {
-      long chunkDuration = (chunkIndex == chunkCount - 1) ? lastChunkDuration
-          : chunkStartTimes.get(chunkIndex + 1) - chunkStartTimes.get(chunkIndex);
-      return chunkDuration / timescale;
+      return (chunkIndex == chunkCount - 1) ? lastChunkDurationUs
+          : chunkStartTimesUs[chunkIndex + 1] - chunkStartTimesUs[chunkIndex];
     }
 
     /**
