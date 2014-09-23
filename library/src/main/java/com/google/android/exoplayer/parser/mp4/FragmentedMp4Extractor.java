@@ -246,7 +246,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   @Override
   public boolean seekTo(long seekTimeUs, boolean allowNoop) {
     pendingSeekTimeMs = (int) (seekTimeUs / 1000);
-    if (allowNoop && fragmentRun != null
+    if (allowNoop && fragmentRun != null && fragmentRun.length > 0
         && pendingSeekTimeMs >= fragmentRun.getSamplePresentationTime(0)
         && pendingSeekTimeMs <= fragmentRun.getSamplePresentationTime(fragmentRun.length - 1)) {
       int sampleIndexFound = 0;
