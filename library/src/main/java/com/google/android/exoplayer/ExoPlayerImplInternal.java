@@ -158,6 +158,10 @@ import java.util.List;
 
   public synchronized void blockingSendMessage(ExoPlayerComponent target, int messageType,
       Object message) {
+    if (released) {
+      Log.w(TAG, "Sent message(" + messageType + ") after release. Message ignored.");
+      return;
+    }
     int messageNumber = customMessagesSent++;
     handler.obtainMessage(MSG_CUSTOM, messageType, 0, Pair.create(target, message)).sendToTarget();
     while (customMessagesProcessed <= messageNumber) {
@@ -170,17 +174,18 @@ import java.util.List;
   }
 
   public synchronized void release() {
-    if (!released) {
-      handler.sendEmptyMessage(MSG_RELEASE);
-      while (!released) {
-        try {
-          wait();
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-        }
-      }
-      internalPlaybackThread.quit();
+    if (released) {
+      return;
     }
+    handler.sendEmptyMessage(MSG_RELEASE);
+    while (!released) {
+      try {
+        wait();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+    }
+    internalPlaybackThread.quit();
   }
 
   @Override
