@@ -15,114 +15,297 @@
  */
 package com.google.android.exoplayer.util;
 
-import android.net.Uri;
-import android.os.AsyncTask;
+import com.google.android.exoplayer.upstream.Loader;
+import com.google.android.exoplayer.upstream.Loader.Loadable;
+
+import android.os.Looper;
+import android.os.SystemClock;
+import android.util.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.CancellationException;
 
 /**
- * An {@link AsyncTask} for loading and parsing media manifests.
+ * Performs both single and repeated loads of media manfifests.
  *
- * @param <T> The type of the manifest being parsed.
+ * @param <T> The type of manifest.
  */
-public class ManifestFetcher<T> extends AsyncTask<String, Void, T> {
+public class ManifestFetcher<T> implements Loader.Callback {
 
   /**
-   * Invoked with the result of a manifest fetch.
+   * Callback for the result of a single load.
    *
-   * @param <T> The type of the manifest being parsed.
+   * @param <T> The type of manifest.
    */
   public interface ManifestCallback<T> {
 
     /**
-     * Invoked from {@link #onPostExecute(Object)} with the parsed manifest.
+     * Invoked when the load has successfully completed.
      *
      * @param contentId The content id of the media.
-     * @param manifest The parsed manifest.
+     * @param manifest The loaded manifest.
      */
     void onManifest(String contentId, T manifest);
 
     /**
-     * Invoked from {@link #onPostExecute(Object)} if an error occurred.
+     * Invoked when the load has failed.
      *
      * @param contentId The content id of the media.
-     * @param e The error.
+     * @param e The cause of the failure.
      */
-    void onManifestError(String contentId, Exception e);
+    void onManifestError(String contentId, IOException e);
 
   }
 
-  public static final int DEFAULT_HTTP_TIMEOUT_MILLIS = 8000;
+  /* package */ final ManifestParser<T> parser;
+  /* package */ final String manifestUrl;
+  /* package */ final String contentId;
 
-  private final ManifestParser<T> parser;
-  private final ManifestCallback<T> callback;
-  private final int timeoutMillis;
+  private int enabledCount;
+  private Loader loader;
+  private ManifestLoadable currentLoadable;
 
-  private volatile String contentId;
-  private volatile Exception exception;
+  private int loadExceptionCount;
+  private long loadExceptionTimestamp;
+  private IOException loadException;
+
+  private volatile T manifest;
+  private volatile long manifestLoadTimestamp;
 
   /**
-   * @param callback The callback to provide with the parsed manifest (or error).
+   * @param parser A parser to parse the loaded manifest data.
+   * @param contentId The content id of the content being loaded. May be null.
+   * @param manifestUrl The manifest location.
    */
-  public ManifestFetcher(ManifestParser<T> parser, ManifestCallback<T> callback) {
-    this(parser, callback, DEFAULT_HTTP_TIMEOUT_MILLIS);
-  }
-
-  /**
-   * @param parser Parses the manifest from the loaded data.
-   * @param callback The callback to provide with the parsed manifest (or error).
-   * @param timeoutMillis The timeout in milliseconds for the connection used to load the data.
-   */
-  public ManifestFetcher(ManifestParser<T> parser, ManifestCallback<T> callback,
-      int timeoutMillis) {
+  public ManifestFetcher(ManifestParser<T> parser, String contentId, String manifestUrl) {
     this.parser = parser;
-    this.callback = callback;
-    this.timeoutMillis = timeoutMillis;
+    this.contentId = contentId;
+    this.manifestUrl = manifestUrl;
+  }
+
+  /**
+   * Performs a single manifest load.
+   *
+   * @param callbackLooper The looper associated with the thread on which the callback should be
+   *     invoked.
+   * @param callback The callback to receive the result.
+   */
+  public void singleLoad(Looper callbackLooper, final ManifestCallback<T> callback) {
+    SingleFetchHelper fetchHelper = new SingleFetchHelper(callbackLooper, callback);
+    fetchHelper.startLoading();
+  }
+
+  /**
+   * Gets a {@link Pair} containing the most recently loaded manifest together with the timestamp
+   * at which the load completed.
+   *
+   * @return The most recently loaded manifest and the timestamp at which the load completed, or
+   *     null if no manifest has loaded.
+   */
+  public T getManifest() {
+    return manifest;
+  }
+
+  /**
+   * Gets the value of {@link SystemClock#elapsedRealtime()} when the last load completed.
+   *
+   * @return The value of {@link SystemClock#elapsedRealtime()} when the last load completed.
+   */
+  public long getManifestLoadTimestamp() {
+    return manifestLoadTimestamp;
+  }
+
+  /**
+   * Gets the error that affected the most recent attempt to load the manifest, or null if the
+   * most recent attempt was successful.
+   *
+   * @return The error, or null if the most recent attempt was successful.
+   */
+  public IOException getError() {
+    if (loadExceptionCount <= 1) {
+      // Don't report an exception until at least 1 retry attempt has been made.
+      return null;
+    }
+    return loadException;
+  }
+
+  /**
+   * Enables refresh functionality.
+   */
+  public void enable() {
+    if (enabledCount++ == 0) {
+      loadExceptionCount = 0;
+      loadException = null;
+    }
+  }
+
+  /**
+   * Disables refresh functionality.
+   */
+  public void disable() {
+    if (--enabledCount == 0) {
+      if (loader != null) {
+        loader.release();
+        loader = null;
+      }
+    }
+  }
+
+  /**
+   * Should be invoked repeatedly by callers who require an updated manifest.
+   */
+  public void requestRefresh() {
+    if (loadException != null && SystemClock.elapsedRealtime()
+        < (loadExceptionTimestamp + getRetryDelayMillis(loadExceptionCount))) {
+      // The previous load failed, and it's too soon to try again.
+      return;
+    }
+    if (loader == null) {
+      loader = new Loader("manifestLoader");
+    }
+    if (!loader.isLoading()) {
+      currentLoadable = new ManifestLoadable();
+      loader.startLoading(currentLoadable, this);
+    }
   }
 
   @Override
-  protected final T doInBackground(String... data) {
-    try {
-      contentId = data.length > 1 ? data[1] : null;
-      String urlString = data[0];
+  public void onLoadCompleted(Loadable loadable) {
+    if (currentLoadable != loadable) {
+      // Stale event.
+      return;
+    }
+
+    manifest = currentLoadable.result;
+    manifestLoadTimestamp = SystemClock.elapsedRealtime();
+    loadExceptionCount = 0;
+    loadException = null;
+  }
+
+  @Override
+  public void onLoadCanceled(Loadable loadable) {
+    // Do nothing.
+  }
+
+  @Override
+  public void onLoadError(Loadable loadable, IOException exception) {
+    if (currentLoadable != loadable) {
+      // Stale event.
+      return;
+    }
+
+    loadExceptionCount++;
+    loadExceptionTimestamp = SystemClock.elapsedRealtime();
+    loadException = new IOException(exception);
+  }
+
+  private long getRetryDelayMillis(long errorCount) {
+    return Math.min((errorCount - 1) * 1000, 5000);
+  }
+
+  private class SingleFetchHelper implements Loader.Callback {
+
+    private final Looper callbackLooper;
+    private final ManifestCallback<T> wrappedCallback;
+    private final Loader singleUseLoader;
+    private final ManifestLoadable singleUseLoadable;
+
+    public SingleFetchHelper(Looper callbackLooper, ManifestCallback<T> wrappedCallback) {
+      this.callbackLooper = callbackLooper;
+      this.wrappedCallback = wrappedCallback;
+      singleUseLoader = new Loader("manifestLoader:single");
+      singleUseLoadable = new ManifestLoadable();
+    }
+
+    public void startLoading() {
+      singleUseLoader.startLoading(callbackLooper, singleUseLoadable, this);
+    }
+
+    @Override
+    public void onLoadCompleted(Loadable loadable) {
+      try {
+        manifest = singleUseLoadable.result;
+        manifestLoadTimestamp = SystemClock.elapsedRealtime();
+        wrappedCallback.onManifest(contentId, singleUseLoadable.result);
+      } finally {
+        releaseLoader();
+      }
+    }
+
+    @Override
+    public void onLoadCanceled(Loadable loadable) {
+      // This shouldn't ever happen, but handle it anyway.
+      try {
+        IOException exception = new IOException("Load cancelled", new CancellationException());
+        wrappedCallback.onManifestError(contentId, exception);
+      } finally {
+        releaseLoader();
+      }
+    }
+
+    @Override
+    public void onLoadError(Loadable loadable, IOException exception) {
+      try {
+        wrappedCallback.onManifestError(contentId, exception);
+      } finally {
+        releaseLoader();
+      }
+    }
+
+    private void releaseLoader() {
+      singleUseLoader.release();
+    }
+
+  }
+
+  private class ManifestLoadable implements Loadable {
+
+    private static final int TIMEOUT_MILLIS = 10000;
+
+    /* package */ volatile T result;
+    private volatile boolean isCanceled;
+
+    @Override
+    public void cancelLoad() {
+      // We don't actually cancel anything, but we need to record the cancellation so that
+      // isLoadCanceled can return the correct value.
+      isCanceled = true;
+    }
+
+    @Override
+    public boolean isLoadCanceled() {
+      return isCanceled;
+    }
+
+    @Override
+    public void load() throws IOException, InterruptedException {
       String inputEncoding = null;
       InputStream inputStream = null;
       try {
-        Uri baseUri = Util.parseBaseUri(urlString);
-        HttpURLConnection connection = configureHttpConnection(new URL(urlString));
+        HttpURLConnection connection = configureHttpConnection(new URL(manifestUrl));
         inputStream = connection.getInputStream();
         inputEncoding = connection.getContentEncoding();
-        return parser.parse(inputStream, inputEncoding, contentId, baseUri);
+        result = parser.parse(inputStream, inputEncoding, contentId,
+            Util.parseBaseUri(manifestUrl));
       } finally {
         if (inputStream != null) {
           inputStream.close();
         }
       }
-    } catch (Exception e) {
-      exception = e;
-      return null;
     }
-  }
 
-  @Override
-  protected final void onPostExecute(T manifest) {
-    if (exception != null) {
-      callback.onManifestError(contentId, exception);
-    } else {
-      callback.onManifest(contentId, manifest);
+    private HttpURLConnection configureHttpConnection(URL url) throws IOException {
+      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+      connection.setConnectTimeout(TIMEOUT_MILLIS);
+      connection.setReadTimeout(TIMEOUT_MILLIS);
+      connection.setDoOutput(false);
+      connection.connect();
+      return connection;
     }
-  }
 
-  private HttpURLConnection configureHttpConnection(URL url) throws IOException {
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-    connection.setConnectTimeout(timeoutMillis);
-    connection.setReadTimeout(timeoutMillis);
-    connection.setDoOutput(false);
-    connection.connect();
-    return connection;
   }
 
 }

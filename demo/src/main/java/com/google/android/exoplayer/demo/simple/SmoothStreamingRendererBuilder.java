@@ -42,6 +42,7 @@ import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
 import android.media.MediaCodec;
 import android.os.Handler;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -74,12 +75,12 @@ import java.util.ArrayList;
     this.callback = callback;
     SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
     ManifestFetcher<SmoothStreamingManifest> manifestFetcher =
-        new ManifestFetcher<SmoothStreamingManifest>(parser, this);
-    manifestFetcher.execute(url + "/Manifest", contentId);
+        new ManifestFetcher<SmoothStreamingManifest>(parser, contentId, url + "/Manifest");
+    manifestFetcher.singleLoad(playerActivity.getMainLooper(), this);
   }
 
   @Override
-  public void onManifestError(String contentId, Exception e) {
+  public void onManifestError(String contentId, IOException e) {
     callback.onRenderersError(e);
   }
 

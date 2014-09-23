@@ -52,11 +52,11 @@ import com.google.android.exoplayer.util.Util;
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
 import android.media.UnsupportedSchemeException;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Pair;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -96,13 +96,13 @@ public class DashVodRendererBuilder implements RendererBuilder,
     this.player = player;
     this.callback = callback;
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
-    ManifestFetcher<MediaPresentationDescription> mpdFetcher =
-        new ManifestFetcher<MediaPresentationDescription>(parser, this);
-    mpdFetcher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url, contentId);
+    ManifestFetcher<MediaPresentationDescription> manifestFetcher =
+        new ManifestFetcher<MediaPresentationDescription>(parser, contentId, url);
+    manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 
   @Override
-  public void onManifestError(String contentId, Exception e) {
+  public void onManifestError(String contentId, IOException e) {
     callback.onRenderersError(e);
   }
 

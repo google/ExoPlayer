@@ -42,9 +42,9 @@ import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
 
 import android.media.MediaCodec;
-import android.os.AsyncTask;
 import android.os.Handler;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -76,13 +76,13 @@ import java.util.ArrayList;
   public void buildRenderers(RendererBuilderCallback callback) {
     this.callback = callback;
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
-    ManifestFetcher<MediaPresentationDescription> mpdFetcher =
-        new ManifestFetcher<MediaPresentationDescription>(parser, this);
-    mpdFetcher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url, contentId);
+    ManifestFetcher<MediaPresentationDescription> manifestFetcher =
+        new ManifestFetcher<MediaPresentationDescription>(parser, contentId, url);
+    manifestFetcher.singleLoad(playerActivity.getMainLooper(), this);
   }
 
   @Override
-  public void onManifestError(String contentId, Exception e) {
+  public void onManifestError(String contentId, IOException e) {
     callback.onRenderersError(e);
   }
 

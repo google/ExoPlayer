@@ -43,7 +43,6 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.upstream.HttpDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
-import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
@@ -52,6 +51,7 @@ import android.media.UnsupportedSchemeException;
 import android.os.Handler;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -59,7 +59,7 @@ import java.util.UUID;
  * A {@link RendererBuilder} for SmoothStreaming.
  */
 public class SmoothStreamingRendererBuilder implements RendererBuilder,
-    ManifestCallback<SmoothStreamingManifest> {
+    ManifestFetcher.ManifestCallback<SmoothStreamingManifest> {
 
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
   private static final int VIDEO_BUFFER_SEGMENTS = 200;
@@ -88,16 +88,15 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
   public void buildRenderers(DemoPlayer player, RendererBuilderCallback callback) {
     this.player = player;
     this.callback = callback;
-
     SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
     ManifestFetcher<SmoothStreamingManifest> manifestFetcher =
-        new ManifestFetcher<SmoothStreamingManifest>(parser, this);
-    manifestFetcher.execute(url + "/Manifest", contentId);
+        new ManifestFetcher<SmoothStreamingManifest>(parser, contentId, url + "/Manifest");
+    manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 
   @Override
-  public void onManifestError(String contentId, Exception e) {
-    callback.onRenderersError(e);
+  public void onManifestError(String contentId, IOException exception) {
+    callback.onRenderersError(exception);
   }
 
   @Override
