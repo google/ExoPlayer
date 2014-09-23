@@ -233,22 +233,22 @@ public class TtmlParser implements SubtitleParser {
     matcher = OFFSET_TIME.matcher(time);
     if (matcher.matches()) {
       String timeValue = matcher.group(1);
-      double value = Double.parseDouble(timeValue);
+      double offsetSeconds = Double.parseDouble(timeValue);
       String unit = matcher.group(2);
       if (unit.equals("h")) {
-        value *= 3600L * 1000000L;
+        offsetSeconds *= 3600;
       } else if (unit.equals("m")) {
-        value *= 60 * 1000000;
+        offsetSeconds *= 60;
       } else if (unit.equals("s")) {
-        value *= 1000000;
+        // Do nothing.
       } else if (unit.equals("ms")) {
-        value *= 1000;
+        offsetSeconds /= 1000;
       } else if (unit.equals("f")) {
-        value = value / frameRate * 1000000;
+        offsetSeconds /= frameRate;
       } else if (unit.equals("t")) {
-        value = value / tickRate * 1000000;
+        offsetSeconds /= tickRate;
       }
-      return (long) value;
+      return (long) (offsetSeconds * 1000000);
     }
     throw new NumberFormatException("Malformed time expression: " + time);
   }
