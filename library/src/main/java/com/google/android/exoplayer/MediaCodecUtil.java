@@ -81,8 +81,14 @@ public class MediaCodecUtil {
         for (int j = 0; j < supportedTypes.length; j++) {
           String supportedType = supportedTypes[j];
           if (supportedType.equalsIgnoreCase(mimeType)) {
-            result = Pair.create(info, info.getCapabilitiesForType(supportedType));
-            codecs.put(mimeType, result);
+            try {
+              result = Pair.create(info, info.getCapabilitiesForType(supportedType));
+              codecs.put(mimeType, result);
+            } catch (IllegalArgumentException e) {
+              //Certain devices can report a codec in the supported list but don't really support it.
+              //getCapabilitiesForType will return IllegalArgument and we shouldn't add it to the list.
+              continue;
+            }
             return result;
           }
         }
