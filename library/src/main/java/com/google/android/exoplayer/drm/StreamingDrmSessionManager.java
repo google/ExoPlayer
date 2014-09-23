@@ -284,13 +284,13 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
     }
   }
 
-  private void onError(Exception e) {
+  private void onError(final Exception e) {
     lastException = e;
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable() {
         @Override
         public void run() {
-          eventListener.onDrmSessionManagerError(lastException);
+          eventListener.onDrmSessionManagerError(e);
         }
       });
     }
