@@ -238,14 +238,17 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     Assertions.checkState(track == 0);
     pendingDiscontinuity = false;
     state = STATE_PREPARED;
-    loadControl.unregister(this);
-    chunkSource.disable(mediaChunks);
-    if (loader.isLoading()) {
-      loader.cancelLoading();
-    } else {
-      clearMediaChunks();
-      clearCurrentLoadable();
-      loadControl.trimAllocator();
+    try {
+      chunkSource.disable(mediaChunks);
+    } finally {
+      loadControl.unregister(this);
+      if (loader.isLoading()) {
+        loader.cancelLoading();
+      } else {
+        clearMediaChunks();
+        clearCurrentLoadable();
+        loadControl.trimAllocator();
+      }
     }
   }
 

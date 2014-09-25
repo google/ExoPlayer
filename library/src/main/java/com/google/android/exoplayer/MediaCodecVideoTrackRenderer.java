@@ -269,20 +269,20 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected void onStopped() {
-    super.onStopped();
     joiningDeadlineUs = -1;
     notifyAndResetDroppedFrameCount();
+    super.onStopped();
   }
 
   @Override
   public void onDisabled() {
-    super.onDisabled();
     currentWidth = -1;
     currentHeight = -1;
     currentPixelWidthHeightRatio = -1;
     lastReportedWidth = -1;
     lastReportedHeight = -1;
     lastReportedPixelWidthHeightRatio = -1;
+    super.onDisabled();
   }
 
   @Override

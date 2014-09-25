@@ -417,11 +417,11 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected void onStopped() {
-    super.onStopped();
     if (audioTrack != null) {
       resetSyncParams();
       audioTrack.pause();
     }
+    super.onStopped();
   }
 
   @Override
@@ -563,9 +563,12 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected void onDisabled() {
-    super.onDisabled();
-    releaseAudioTrack();
     audioSessionId = 0;
+    try {
+      releaseAudioTrack();
+    } finally {
+      super.onDisabled();
+    }
   }
 
   @Override
