@@ -563,12 +563,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected void onDisabled() {
+    super.onDisabled();
+    releaseAudioTrack();
     audioSessionId = 0;
-    try {
-      releaseAudioTrack();
-    } finally {
-      super.onDisabled();
-    }
   }
 
   @Override
@@ -620,40 +617,50 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
         }
       }
 
-      // Copy {@code buffer} into {@code temporaryBuffer}.
-      // TODO: Bypass this copy step on versions of Android where [redacted] is implemented.
-      if (temporaryBuffer == null || temporaryBuffer.length < bufferInfo.size) {
-        temporaryBuffer = new byte[bufferInfo.size];
-      }
-      buffer.position(bufferInfo.offset);
-      buffer.get(temporaryBuffer, 0, bufferInfo.size);
-      temporaryBufferOffset = 0;
       temporaryBufferSize = bufferInfo.size;
+      buffer.position(bufferInfo.offset);
+      if (Util.SDK_INT < 21) {
+        // Copy {@code buffer} into {@code temporaryBuffer}.
+        if (temporaryBuffer == null || temporaryBuffer.length < bufferInfo.size) {
+          temporaryBuffer = new byte[bufferInfo.size];
+        }
+        buffer.get(temporaryBuffer, 0, bufferInfo.size);
+        temporaryBufferOffset = 0;
+      }
     }
 
     if (audioTrack == null) {
       initAudioTrack();
     }
 
-    // TODO: Don't bother doing this once [redacted] is fixed.
-    // Work out how many bytes we can write without the risk of blocking.
-    int bytesPending = (int) (submittedBytes - getPlaybackHeadPosition() * frameSize);
-    int bytesToWrite = bufferSize - bytesPending;
-
-    if (bytesToWrite > 0) {
-      bytesToWrite = Math.min(temporaryBufferSize, bytesToWrite);
-      audioTrack.write(temporaryBuffer, temporaryBufferOffset, bytesToWrite);
-      temporaryBufferOffset += bytesToWrite;
-      temporaryBufferSize -= bytesToWrite;
-      submittedBytes += bytesToWrite;
-      if (temporaryBufferSize == 0) {
-        codec.releaseOutputBuffer(bufferIndex, false);
-        codecCounters.renderedOutputBufferCount++;
-        return true;
+    int bytesWritten = 0;
+    if (Util.SDK_INT < 21) {
+      // Work out how many bytes we can write without the risk of blocking.
+      int bytesPending = (int) (submittedBytes - getPlaybackHeadPosition() * frameSize);
+      int bytesToWrite = bufferSize - bytesPending;
+      if (bytesToWrite > 0) {
+        bytesToWrite = Math.min(temporaryBufferSize, bytesToWrite);
+        bytesWritten = audioTrack.write(temporaryBuffer, temporaryBufferOffset, bytesToWrite);
+        temporaryBufferOffset += bytesWritten;
       }
+    } else {
+      bytesWritten = writeNonBlockingV21(audioTrack, buffer, temporaryBufferSize);
+    }
+
+    temporaryBufferSize -= bytesWritten;
+    submittedBytes += bytesWritten;
+    if (temporaryBufferSize == 0) {
+      codec.releaseOutputBuffer(bufferIndex, false);
+      codecCounters.renderedOutputBufferCount++;
+      return true;
     }
 
     return false;
+  }
+
+  @TargetApi(21)
+  private int writeNonBlockingV21(AudioTrack audioTrack, ByteBuffer buffer, int size) {
+    return audioTrack.write(buffer, size, AudioTrack.WRITE_NON_BLOCKING);
   }
 
   /**

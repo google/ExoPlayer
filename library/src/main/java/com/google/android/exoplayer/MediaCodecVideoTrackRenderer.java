@@ -18,6 +18,7 @@ package com.google.android.exoplayer;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.TraceUtil;
+import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
@@ -93,7 +94,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   private final int maxDroppedFrameCountToNotify;
 
   private Surface surface;
-  private boolean drawnToSurface;
+  private boolean reportedDrawnToSurface;
   private boolean renderedFirstFrame;
   private long joiningDeadlineUs;
   private long droppedFrameAccumulationStartTimeMs;
@@ -270,7 +271,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   @Override
   protected void onStopped() {
     joiningDeadlineUs = -1;
-    notifyAndResetDroppedFrameCount();
+    maybeNotifyDroppedFrameCount();
     super.onStopped();
   }
 
@@ -303,7 +304,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       return;
     }
     this.surface = surface;
-    this.drawnToSurface = false;
+    this.reportedDrawnToSurface = false;
     int state = getState();
     if (state == TrackRenderer.STATE_ENABLED || state == TrackRenderer.STATE_STARTED) {
       releaseCodec();
@@ -369,24 +370,37 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     }
 
     if (!renderedFirstFrame) {
-      renderOutputBuffer(codec, bufferIndex);
+      renderOutputBufferImmediate(codec, bufferIndex);
       renderedFirstFrame = true;
       return true;
     }
 
     if (getState() == TrackRenderer.STATE_STARTED && earlyUs < 30000) {
-      if (earlyUs > 11000) {
-        // We're a little too early to render the frame. Sleep until the frame can be rendered.
-        // Note: The 11ms threshold was chosen fairly arbitrarily.
-        try {
-          // Subtracting 10000 rather than 11000 ensures that the sleep time will be at least 1ms.
-          Thread.sleep((earlyUs - 10000) / 1000);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
+      if (Util.SDK_INT >= 21) {
+        // Let the underlying framework time the release.
+        if (earlyUs < 50000) {
+          renderOutputBufferTimedV21(codec, bufferIndex, System.nanoTime() + (earlyUs * 1000L));
+          return true;
         }
+        return false;
+      } else {
+        // We need to time the release ourselves.
+        if (earlyUs < 30000) {
+          if (earlyUs > 11000) {
+            // We're a little too early to render the frame. Sleep until the frame can be rendered.
+            // Note: The 11ms threshold was chosen fairly arbitrarily.
+            try {
+              // Subtracting 10000 rather than 11000 ensures the sleep time will be at least 1ms.
+              Thread.sleep((earlyUs - 10000) / 1000);
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+            }
+          }
+          renderOutputBufferImmediate(codec, bufferIndex);
+          return true;
+        }
+        return false;
       }
-      renderOutputBuffer(codec, bufferIndex);
-      return true;
     }
 
     // We're either not playing, or it's not time to render the frame yet.
@@ -407,65 +421,84 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     codecCounters.droppedOutputBufferCount++;
     droppedFrameCount++;
     if (droppedFrameCount == maxDroppedFrameCountToNotify) {
-      notifyAndResetDroppedFrameCount();
+      maybeNotifyDroppedFrameCount();
     }
   }
 
-  private void renderOutputBuffer(MediaCodec codec, int bufferIndex) {
-    if (lastReportedWidth != currentWidth || lastReportedHeight != currentHeight
-        || lastReportedPixelWidthHeightRatio != currentPixelWidthHeightRatio) {
-      lastReportedWidth = currentWidth;
-      lastReportedHeight = currentHeight;
-      lastReportedPixelWidthHeightRatio = currentPixelWidthHeightRatio;
-      notifyVideoSizeChanged(currentWidth, currentHeight, currentPixelWidthHeightRatio);
-    }
-    TraceUtil.beginSection("renderVideoBuffer");
+  private void renderOutputBufferImmediate(MediaCodec codec, int bufferIndex) {
+    maybeNotifyVideoSizeChanged();
+    TraceUtil.beginSection("renderVideoBufferImmediate");
     codec.releaseOutputBuffer(bufferIndex, true);
     TraceUtil.endSection();
     codecCounters.renderedOutputBufferCount++;
-    if (!drawnToSurface) {
-      drawnToSurface = true;
-      notifyDrawnToSurface(surface);
-    }
+    maybeNotifyDrawnToSurface();
   }
 
-  private void notifyVideoSizeChanged(final int width, final int height,
-      final float pixelWidthHeightRatio) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onVideoSizeChanged(width, height, pixelWidthHeightRatio);
-        }
-      });
-    }
+  @TargetApi(21)
+  private void renderOutputBufferTimedV21(MediaCodec codec, int bufferIndex, long nanoTime) {
+    maybeNotifyVideoSizeChanged();
+    TraceUtil.beginSection("releaseOutputBufferTimed");
+    codec.releaseOutputBuffer(bufferIndex, nanoTime);
+    TraceUtil.endSection();
+    codecCounters.renderedOutputBufferCount++;
+    maybeNotifyDrawnToSurface();
   }
 
-  private void notifyDrawnToSurface(final Surface surface) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onDrawnToSurface(surface);
-        }
-      });
+  private void maybeNotifyVideoSizeChanged() {
+    if (eventHandler == null || eventListener == null
+        || (lastReportedWidth == currentWidth && lastReportedHeight == currentHeight
+        && lastReportedPixelWidthHeightRatio == currentPixelWidthHeightRatio)) {
+      return;
     }
+    // Make final copies to ensure the runnable reports the correct values.
+    final int currentWidth = this.currentWidth;
+    final int currentHeight = this.currentHeight;
+    final float currentPixelWidthHeightRatio = this.currentPixelWidthHeightRatio;
+    eventHandler.post(new Runnable()  {
+      @Override
+      public void run() {
+        eventListener.onVideoSizeChanged(currentWidth, currentHeight, currentPixelWidthHeightRatio);
+      }
+    });
+    // Update the last reported values.
+    lastReportedWidth = currentWidth;
+    lastReportedHeight = currentHeight;
+    lastReportedPixelWidthHeightRatio = currentPixelWidthHeightRatio;
   }
 
-  private void notifyAndResetDroppedFrameCount() {
-    if (eventHandler != null && eventListener != null && droppedFrameCount > 0) {
-      long now = SystemClock.elapsedRealtime();
-      final int countToNotify = droppedFrameCount;
-      final long elapsedToNotify = now - droppedFrameAccumulationStartTimeMs;
-      droppedFrameCount = 0;
-      droppedFrameAccumulationStartTimeMs = now;
-      eventHandler.post(new Runnable()  {
-        @Override
-        public void run() {
-          eventListener.onDroppedFrames(countToNotify, elapsedToNotify);
-        }
-      });
+  private void maybeNotifyDrawnToSurface() {
+    if (eventHandler == null || eventListener == null || reportedDrawnToSurface) {
+      return;
     }
+    // Make a final copy to ensure the runnable reports the correct surface.
+    final Surface surface = this.surface;
+    eventHandler.post(new Runnable()  {
+      @Override
+      public void run() {
+        eventListener.onDrawnToSurface(surface);
+      }
+    });
+    // Record that we have reported that the surface has been drawn to.
+    reportedDrawnToSurface = true;
+  }
+
+  private void maybeNotifyDroppedFrameCount() {
+    if (eventHandler == null || eventListener == null || droppedFrameCount == 0) {
+      return;
+    }
+    long now = SystemClock.elapsedRealtime();
+    // Make final copies to ensure the runnable reports the correct values.
+    final int countToNotify = droppedFrameCount;
+    final long elapsedToNotify = now - droppedFrameAccumulationStartTimeMs;
+    eventHandler.post(new Runnable()  {
+      @Override
+      public void run() {
+        eventListener.onDroppedFrames(countToNotify, elapsedToNotify);
+      }
+    });
+    // Reset the dropped frame tracking.
+    droppedFrameCount = 0;
+    droppedFrameAccumulationStartTimeMs = now;
   }
 
 }
