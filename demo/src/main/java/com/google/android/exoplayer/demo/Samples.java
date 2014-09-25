@@ -56,7 +56,7 @@ package com.google.android.exoplayer.demo;
         false),
     new Sample("Super speed (SmoothStreaming)", "uid:ss:superspeed",
         "http://playready.directtaps.net/smoothstreaming/SSWSS720H264/SuperSpeedway_720.ism",
-        DemoUtil.TYPE_SS_VOD, false, false),
+        DemoUtil.TYPE_SS, false, false),
     new Sample("Dizzy (Misc)", "uid:misc:dizzy",
         "http://html5demos.com/assets/dizzy.mp4", DemoUtil.TYPE_OTHER, false, false),
   };
@@ -92,10 +92,10 @@ package com.google.android.exoplayer.demo;
   public static final Sample[] SMOOTHSTREAMING = new Sample[] {
     new Sample("Super speed", "uid:ss:superspeed",
         "http://playready.directtaps.net/smoothstreaming/SSWSS720H264/SuperSpeedway_720.ism",
-        DemoUtil.TYPE_SS_VOD, false, true),
+        DemoUtil.TYPE_SS, false, true),
     new Sample("Super speed (PlayReady)", "uid:ss:pr:superspeed",
         "http://playready.directtaps.net/smoothstreaming/SSWSS720H264PR/SuperSpeedway_720.ism",
-        DemoUtil.TYPE_SS_VOD, true, true),
+        DemoUtil.TYPE_SS, true, true),
   };
 
   public static final Sample[] WIDEVINE_GTS = new Sample[] {

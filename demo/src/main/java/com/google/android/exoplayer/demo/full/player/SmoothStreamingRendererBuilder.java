@@ -65,6 +65,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
   private static final int VIDEO_BUFFER_SEGMENTS = 200;
   private static final int AUDIO_BUFFER_SEGMENTS = 60;
   private static final int TTML_BUFFER_SEGMENTS = 2;
+  private static final int LIVE_EDGE_LATENCY_MS = 30000;
 
   private final String userAgent;
   private final String url;
@@ -74,6 +75,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
 
   private DemoPlayer player;
   private RendererBuilderCallback callback;
+  private ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
 
   public SmoothStreamingRendererBuilder(String userAgent, String url, String contentId,
       MediaDrmCallback drmCallback, TextView debugTextView) {
@@ -89,8 +91,8 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     this.player = player;
     this.callback = callback;
     SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
-    ManifestFetcher<SmoothStreamingManifest> manifestFetcher =
-        new ManifestFetcher<SmoothStreamingManifest>(parser, contentId, url + "/Manifest");
+    manifestFetcher = new ManifestFetcher<SmoothStreamingManifest>(parser, contentId,
+        url + "/Manifest");
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 
@@ -154,9 +156,9 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
 
     // Build the video renderer.
     DataSource videoDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
-    ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifest,
+    ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
         videoStreamElementIndex, videoTrackIndices, videoDataSource,
-        new AdaptiveEvaluator(bandwidthMeter));
+        new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
     ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
         VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
         DemoPlayer.TYPE_VIDEO);
@@ -181,8 +183,9 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
       for (int i = 0; i < manifest.streamElements.length; i++) {
         if (manifest.streamElements[i].type == StreamElement.TYPE_AUDIO) {
           audioTrackNames[audioStreamElementCount] = manifest.streamElements[i].name;
-          audioChunkSources[audioStreamElementCount] = new SmoothStreamingChunkSource(manifest,
-              i, new int[] {0}, audioDataSource, audioFormatEvaluator);
+          audioChunkSources[audioStreamElementCount] = new SmoothStreamingChunkSource(
+              manifestFetcher, i, new int[] {0}, audioDataSource, audioFormatEvaluator,
+              LIVE_EDGE_LATENCY_MS);
           audioStreamElementCount++;
         }
       }
@@ -211,8 +214,8 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
       for (int i = 0; i < manifest.streamElements.length; i++) {
         if (manifest.streamElements[i].type == StreamElement.TYPE_TEXT) {
           textTrackNames[textStreamElementCount] = manifest.streamElements[i].language;
-          textChunkSources[textStreamElementCount] = new SmoothStreamingChunkSource(manifest,
-              i, new int[] {0}, ttmlDataSource, ttmlFormatEvaluator);
+          textChunkSources[textStreamElementCount] = new SmoothStreamingChunkSource(manifestFetcher,
+              i, new int[] {0}, ttmlDataSource, ttmlFormatEvaluator, LIVE_EDGE_LATENCY_MS);
           textStreamElementCount++;
         }
       }

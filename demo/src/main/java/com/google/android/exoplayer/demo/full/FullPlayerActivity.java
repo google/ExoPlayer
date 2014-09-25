@@ -167,7 +167,7 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
   private RendererBuilder getRendererBuilder() {
     String userAgent = DemoUtil.getUserAgent(this);
     switch (contentType) {
-      case DemoUtil.TYPE_SS_VOD:
+      case DemoUtil.TYPE_SS:
         return new SmoothStreamingRendererBuilder(userAgent, contentUri.toString(), contentId,
             new SmoothStreamingTestMediaDrmCallback(), debugTextView);
       case DemoUtil.TYPE_DASH_VOD:

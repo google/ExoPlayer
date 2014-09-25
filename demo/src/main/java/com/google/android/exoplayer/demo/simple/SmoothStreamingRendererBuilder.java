@@ -54,6 +54,7 @@ import java.util.ArrayList;
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
   private static final int VIDEO_BUFFER_SEGMENTS = 200;
   private static final int AUDIO_BUFFER_SEGMENTS = 60;
+  private static final int LIVE_EDGE_LATENCY_MS = 30000;
 
   private final SimplePlayerActivity playerActivity;
   private final String userAgent;
@@ -61,6 +62,7 @@ import java.util.ArrayList;
   private final String contentId;
 
   private RendererBuilderCallback callback;
+  private ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
 
   public SmoothStreamingRendererBuilder(SimplePlayerActivity playerActivity, String userAgent,
       String url, String contentId) {
@@ -74,8 +76,8 @@ import java.util.ArrayList;
   public void buildRenderers(RendererBuilderCallback callback) {
     this.callback = callback;
     SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
-    ManifestFetcher<SmoothStreamingManifest> manifestFetcher =
-        new ManifestFetcher<SmoothStreamingManifest>(parser, contentId, url + "/Manifest");
+    manifestFetcher = new ManifestFetcher<SmoothStreamingManifest>(parser, contentId,
+        url + "/Manifest");
     manifestFetcher.singleLoad(playerActivity.getMainLooper(), this);
   }
 
@@ -120,8 +122,9 @@ import java.util.ArrayList;
 
     // Build the video renderer.
     DataSource videoDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
-    ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifest, videoStreamElementIndex,
-        videoTrackIndices, videoDataSource, new AdaptiveEvaluator(bandwidthMeter));
+    ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
+        videoStreamElementIndex, videoTrackIndices, videoDataSource,
+        new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
     ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
         VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource,
@@ -129,8 +132,9 @@ import java.util.ArrayList;
 
     // Build the audio renderer.
     DataSource audioDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
-    ChunkSource audioChunkSource = new SmoothStreamingChunkSource(manifest, audioStreamElementIndex,
-        new int[] {0}, audioDataSource, new FormatEvaluator.FixedEvaluator());
+    ChunkSource audioChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
+        audioStreamElementIndex, new int[] {0}, audioDataSource,
+        new FormatEvaluator.FixedEvaluator(), LIVE_EDGE_LATENCY_MS);
     SampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
         AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(
