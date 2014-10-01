@@ -79,15 +79,21 @@ public class WebvttSubtitle implements Subtitle {
 
   @Override
   public String getText(long timeUs) {
-    StringBuilder subtitleStringBuilder = new StringBuilder();
+    StringBuilder stringBuilder = new StringBuilder();
 
     for (int i = 0; i < cueTimesUs.length; i += 2) {
       if ((cueTimesUs[i] <= timeUs) && (timeUs < cueTimesUs[i + 1])) {
-        subtitleStringBuilder.append(cueText[i / 2]);
+        stringBuilder.append(cueText[i / 2]);
       }
     }
 
-    return (subtitleStringBuilder.length() > 0) ? subtitleStringBuilder.toString() : null;
+    int stringLength = stringBuilder.length();
+    if (stringLength > 0 && stringBuilder.charAt(stringLength - 1) == '\n') {
+      // Adjust the length to remove the trailing newline character.
+      stringLength -= 1;
+    }
+
+    return stringLength == 0 ? null : stringBuilder.substring(0, stringLength);
   }
 
 }
