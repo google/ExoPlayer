@@ -131,6 +131,15 @@ package com.google.android.exoplayer.demo;
         + "22727BB612D24AA4FACE4EF62726F9461A9BF57A&key=ik0", DemoUtil.TYPE_DASH_VOD, true, true),
   };
 
+  public static final Sample[] HLS = new Sample[] {
+    new Sample("Apple master playlist", "uid:hls:applemaster",
+        "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/"
+        + "bipbop_4x3_variant.m3u8", DemoUtil.TYPE_HLS_MASTER, false, true),
+    new Sample("Apple single media playlist", "uid:hls:applesinglemedia",
+        "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/"
+        + "prog_index.m3u8", DemoUtil.TYPE_HLS_MEDIA, false, true),
+  };
+
   public static final Sample[] MISC = new Sample[] {
     new Sample("Dizzy", "uid:misc:dizzy", "http://html5demos.com/assets/dizzy.mp4",
         DemoUtil.TYPE_OTHER, false, true),
