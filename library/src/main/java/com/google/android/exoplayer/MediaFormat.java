@@ -208,8 +208,12 @@ public class MediaFormat {
   @SuppressLint("InlinedApi")
   @TargetApi(16)
   private final void maybeSetMaxDimensionsV16(android.media.MediaFormat format) {
-    maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_WIDTH, maxWidth);
-    maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_HEIGHT, maxHeight);
+    if (maxWidth != NO_VALUE) {
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_WIDTH, maxWidth);
+    }
+    if (maxHeight != NO_VALUE) {
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_HEIGHT, maxHeight);
+    }
   }
 
   @TargetApi(16)
