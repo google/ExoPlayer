@@ -20,20 +20,18 @@ import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackRenderer;
-import com.google.android.exoplayer.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.VerboseLogUtil;
 
 import android.annotation.TargetApi;
 import android.os.Handler;
 import android.os.Handler.Callback;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * A {@link TrackRenderer} for textual subtitles. The actual rendering of each line of text to a
@@ -63,7 +61,6 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   private final Handler textRendererHandler;
   private final TextRenderer textRenderer;
   private final SampleSource source;
-  private final SampleHolder sampleHolder;
   private final MediaFormatHolder formatHolder;
   private final SubtitleParser subtitleParser;
 
@@ -73,6 +70,8 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   private boolean inputStreamEnded;
 
   private Subtitle subtitle;
+  private SubtitleParserHelper parserHelper;
+  private HandlerThread parserThread;
   private int nextSubtitleEventIndex;
   private boolean textRendererNeedsUpdate;
 
@@ -94,7 +93,6 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
     this.textRendererHandler = textRendererLooper == null ? null : new Handler(textRendererLooper,
         this);
     formatHolder = new MediaFormatHolder();
-    sampleHolder = new SampleHolder(true);
   }
 
   @Override
@@ -119,6 +117,9 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   @Override
   protected void onEnabled(long timeUs, boolean joining) {
     source.enable(trackIndex, timeUs);
+    parserThread = new HandlerThread("textParser");
+    parserThread.start();
+    parserHelper = new SubtitleParserHelper(parserThread.getLooper(), subtitleParser);
     seekToInternal(timeUs);
   }
 
@@ -136,7 +137,7 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
         || subtitle.getLastEventTime() <= timeUs)) {
       subtitle = null;
     }
-    resetSampleData();
+    parserHelper.flush();
     clearTextRenderer();
     syncNextEventIndex(timeUs);
     textRendererNeedsUpdate = subtitle != null;
@@ -152,9 +153,27 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
 
     currentPositionUs = timeUs;
 
-    // We're iterating through the events in a subtitle. Set textRendererNeedsUpdate if we advance
-    // to the next event.
-    if (subtitle != null) {
+    if (parserHelper.isParsing()) {
+      return;
+    }
+
+    Subtitle dequeuedSubtitle = null;
+    if (subtitle == null) {
+      try {
+        dequeuedSubtitle = parserHelper.getAndClearResult();
+      } catch (IOException e) {
+        throw new ExoPlaybackException(e);
+      }
+    }
+
+    if (subtitle == null && dequeuedSubtitle != null) {
+      // We've dequeued a new subtitle. Sync the event index and update the subtitle.
+      subtitle = dequeuedSubtitle;
+      syncNextEventIndex(timeUs);
+      textRendererNeedsUpdate = true;
+    } else if (subtitle != null) {
+      // We're iterating through the events in a subtitle. Set textRendererNeedsUpdate if we
+      // advance to the next event.
       long nextEventTimeUs = getNextEventTime();
       while (nextEventTimeUs <= timeUs) {
         nextSubtitleEventIndex++;
@@ -170,26 +189,16 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
     // We don't have a subtitle. Try and read the next one from the source, and if we succeed then
     // sync and set textRendererNeedsUpdate.
     if (subtitle == null) {
-      boolean resetSampleHolder = false;
       try {
+        SampleHolder sampleHolder = parserHelper.getSampleHolder();
         int result = source.readData(trackIndex, timeUs, formatHolder, sampleHolder, false);
         if (result == SampleSource.SAMPLE_READ) {
-          resetSampleHolder = true;
-          InputStream subtitleInputStream =
-              new ByteArrayInputStream(sampleHolder.data.array(), 0, sampleHolder.size);
-          subtitle = subtitleParser.parse(subtitleInputStream, null, sampleHolder.timeUs);
-          syncNextEventIndex(timeUs);
-          textRendererNeedsUpdate = true;
+          parserHelper.startParseOperation();
         } else if (result == SampleSource.END_OF_STREAM) {
           inputStreamEnded = true;
         }
       } catch (IOException e) {
-        resetSampleHolder = true;
         throw new ExoPlaybackException(e);
-      } finally {
-        if (resetSampleHolder) {
-          resetSampleData();
-        }
       }
     }
 
@@ -208,7 +217,9 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   protected void onDisabled() {
     source.disable(trackIndex);
     subtitle = null;
-    resetSampleData();
+    parserThread.quit();
+    parserThread = null;
+    parserHelper = null;
     clearTextRenderer();
   }
 
@@ -255,12 +266,6 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
         : (subtitle.getEventTime(nextSubtitleEventIndex));
   }
 
-  private void resetSampleData() {
-    if (sampleHolder.data != null) {
-      sampleHolder.data.position(0);
-    }
-  }
-
   private void updateTextRenderer(long timeUs) {
     String text = subtitle.getText(timeUs);
     log("updateTextRenderer; text=: " + text);
@@ -296,7 +301,7 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
 
   private void log(String logMessage) {
     if (VerboseLogUtil.isTagEnabled(TAG)) {
-      Log.v(TAG, "type=" + AdaptationSet.TYPE_TEXT + ", " + logMessage);
+      Log.v(TAG, logMessage);
     }
   }
 
