@@ -375,31 +375,31 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       return true;
     }
 
-    if (getState() == TrackRenderer.STATE_STARTED && earlyUs < 30000) {
-      if (Util.SDK_INT >= 21) {
-        // Let the underlying framework time the release.
-        if (earlyUs < 50000) {
-          renderOutputBufferTimedV21(codec, bufferIndex, System.nanoTime() + (earlyUs * 1000L));
-          return true;
-        }
-        return false;
-      } else {
-        // We need to time the release ourselves.
-        if (earlyUs < 30000) {
-          if (earlyUs > 11000) {
-            // We're a little too early to render the frame. Sleep until the frame can be rendered.
-            // Note: The 11ms threshold was chosen fairly arbitrarily.
-            try {
-              // Subtracting 10000 rather than 11000 ensures the sleep time will be at least 1ms.
-              Thread.sleep((earlyUs - 10000) / 1000);
-            } catch (InterruptedException e) {
-              Thread.currentThread().interrupt();
-            }
+    if (getState() != TrackRenderer.STATE_STARTED) {
+      return false;
+    }
+
+    if (Util.SDK_INT >= 21) {
+      // Let the underlying framework time the release.
+      if (earlyUs < 50000) {
+        renderOutputBufferTimedV21(codec, bufferIndex, System.nanoTime() + (earlyUs * 1000L));
+        return true;
+      }
+    } else {
+      // We need to time the release ourselves.
+      if (earlyUs < 30000) {
+        if (earlyUs > 11000) {
+          // We're a little too early to render the frame. Sleep until the frame can be rendered.
+          // Note: The 11ms threshold was chosen fairly arbitrarily.
+          try {
+            // Subtracting 10000 rather than 11000 ensures the sleep time will be at least 1ms.
+            Thread.sleep((earlyUs - 10000) / 1000);
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
           }
-          renderOutputBufferImmediate(codec, bufferIndex);
-          return true;
         }
-        return false;
+        renderOutputBufferImmediate(codec, bufferIndex);
+        return true;
       }
     }
 
