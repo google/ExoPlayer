@@ -77,6 +77,7 @@ import java.util.List;
   private int state;
   private int customMessagesSent = 0;
   private int customMessagesProcessed = 0;
+  private long elapsedRealtimeUs;
 
   private volatile long durationUs;
   private volatile long positionUs;
@@ -383,7 +384,8 @@ import java.util.List;
     positionUs = timeSourceTrackRenderer != null &&
         enabledRenderers.contains(timeSourceTrackRenderer) ?
         timeSourceTrackRenderer.getCurrentPositionUs() :
-        mediaClock.getTimeUs();
+        mediaClock.getPositionUs();
+    elapsedRealtimeUs = SystemClock.elapsedRealtime() * 1000;
   }
 
   private void doSomeWork() throws ExoPlaybackException {
@@ -399,7 +401,7 @@ import java.util.List;
       // TODO: Each renderer should return the maximum delay before which it wishes to be
       // invoked again. The minimum of these values should then be used as the delay before the next
       // invocation of this method.
-      renderer.doSomeWork(positionUs);
+      renderer.doSomeWork(positionUs, elapsedRealtimeUs);
       isEnded = isEnded && renderer.isEnded();
       allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded(renderer);
 
@@ -462,7 +464,7 @@ import java.util.List;
     rebuffering = false;
     positionUs = positionMs * 1000L;
     mediaClock.stop();
-    mediaClock.setTimeUs(positionUs);
+    mediaClock.setPositionUs(positionUs);
     if (state == ExoPlayer.STATE_IDLE || state == ExoPlayer.STATE_PREPARING) {
       return;
     }
@@ -582,7 +584,7 @@ import java.util.List;
       if (renderer == timeSourceTrackRenderer) {
         // We've been using timeSourceTrackRenderer to advance the current position, but it's
         // being disabled. Sync mediaClock so that it can take over timing responsibilities.
-        mediaClock.setTimeUs(renderer.getCurrentPositionUs());
+        mediaClock.setPositionUs(renderer.getCurrentPositionUs());
       }
       ensureStopped(renderer);
       enabledRenderers.remove(renderer);

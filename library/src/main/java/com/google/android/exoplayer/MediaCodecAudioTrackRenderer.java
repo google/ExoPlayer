@@ -269,14 +269,14 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void onEnabled(long timeUs, boolean joining) {
-    super.onEnabled(timeUs, joining);
+  protected void onEnabled(long positionUs, boolean joining) {
+    super.onEnabled(positionUs, joining);
     lastReportedCurrentPositionUs = Long.MIN_VALUE;
   }
 
   @Override
-  protected void doSomeWork(long timeUs) throws ExoPlaybackException {
-    super.doSomeWork(timeUs);
+  protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+    super.doSomeWork(positionUs, elapsedRealtimeUs);
     maybeSampleSyncParams();
   }
 
@@ -585,16 +585,16 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void seekTo(long timeUs) throws ExoPlaybackException {
-    super.seekTo(timeUs);
+  protected void seekTo(long positionUs) throws ExoPlaybackException {
+    super.seekTo(positionUs);
     // TODO: Try and re-use the same AudioTrack instance once [redacted] is fixed.
     releaseAudioTrack();
     lastReportedCurrentPositionUs = Long.MIN_VALUE;
   }
 
   @Override
-  protected boolean processOutputBuffer(long timeUs, MediaCodec codec, ByteBuffer buffer,
-      MediaCodec.BufferInfo bufferInfo, int bufferIndex, boolean shouldSkip)
+  protected boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs, MediaCodec codec,
+      ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo, int bufferIndex, boolean shouldSkip)
       throws ExoPlaybackException {
     if (shouldSkip) {
       codec.releaseOutputBuffer(bufferIndex, false);
