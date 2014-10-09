@@ -499,23 +499,40 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   }
 
   private void updateLoadControl() {
-    long loadPositionUs;
-    if (isPendingReset()) {
-      loadPositionUs = pendingResetPositionUs;
-    } else {
-      MediaChunk lastMediaChunk = mediaChunks.getLast();
-      loadPositionUs = lastMediaChunk.nextChunkIndex == -1 ? -1 : lastMediaChunk.endTimeUs;
-    }
-
-    boolean isBackedOff = currentLoadableException != null && !currentLoadableExceptionFatal;
-    boolean nextLoader = loadControl.update(this, downstreamPositionUs, loadPositionUs,
-        isBackedOff || loader.isLoading(), currentLoadableExceptionFatal);
-
     if (currentLoadableExceptionFatal) {
+      // We've failed, but we still need to update the control with our current state.
+      loadControl.update(this, downstreamPositionUs, -1, false, true);
       return;
     }
 
     long now = SystemClock.elapsedRealtime();
+    long nextLoadPositionUs = getNextLoadPositionUs();
+    boolean isBackedOff = currentLoadableException != null;
+    boolean loadingOrBackedOff = loader.isLoading() || isBackedOff;
+
+    // If we're not loading or backed off, evaluate the operation if (a) we don't have the next
+    // chunk yet and we're not finished, or (b) if the last evaluation was over 2000ms ago.
+    if (!loadingOrBackedOff && ((currentLoadableHolder.chunk == null && nextLoadPositionUs != -1)
+        || (now - lastPerformedBufferOperation > 2000))) {
+      // Perform the evaluation.
+      lastPerformedBufferOperation = now;
+      currentLoadableHolder.queueSize = readOnlyMediaChunks.size();
+      chunkSource.getChunkOperation(readOnlyMediaChunks, pendingResetPositionUs,
+          downstreamPositionUs, currentLoadableHolder);
+      boolean chunksDiscarded = discardUpstreamMediaChunks(currentLoadableHolder.queueSize);
+      // Update the next load position as appropriate.
+      if (currentLoadableHolder.chunk == null) {
+        // Set loadPosition to -1 to indicate that we don't have anything to load.
+        nextLoadPositionUs = -1;
+      } else if (chunksDiscarded) {
+        // Chunks were discarded, so we need to re-evaluate the load position.
+        nextLoadPositionUs = getNextLoadPositionUs();
+      }
+    }
+
+    // Update the control with our current state, and determine whether we're the next loader.
+    boolean nextLoader = loadControl.update(this, downstreamPositionUs, nextLoadPositionUs,
+        loadingOrBackedOff, false);
 
     if (isBackedOff) {
       long elapsedMillis = now - currentLoadableExceptionTimestamp;
@@ -525,17 +542,21 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
       return;
     }
 
-    if (!loader.isLoading()) {
-      if (currentLoadableHolder.chunk == null || now - lastPerformedBufferOperation > 1000) {
-        lastPerformedBufferOperation = now;
-        currentLoadableHolder.queueSize = readOnlyMediaChunks.size();
-        chunkSource.getChunkOperation(readOnlyMediaChunks, pendingResetPositionUs,
-            downstreamPositionUs, currentLoadableHolder);
-        discardUpstreamMediaChunks(currentLoadableHolder.queueSize);
-      }
-      if (nextLoader) {
-        maybeStartLoading();
-      }
+    if (!loader.isLoading() && nextLoader) {
+      maybeStartLoading();
+    }
+  }
+
+  /**
+   * Gets the next load time, assuming that the next load starts where the previous chunk ended (or
+   * from the pending reset time, if there is one).
+   */
+  private long getNextLoadPositionUs() {
+    if (isPendingReset()) {
+      return pendingResetPositionUs;
+    } else {
+      MediaChunk lastMediaChunk = mediaChunks.getLast();
+      return lastMediaChunk.nextChunkIndex == -1 ? -1 : lastMediaChunk.endTimeUs;
     }
   }
 
@@ -652,10 +673,11 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
    * Discard upstream media chunks until the queue length is equal to the length specified.
    *
    * @param queueLength The desired length of the queue.
+   * @return True if chunks were discarded. False otherwise.
    */
-  private void discardUpstreamMediaChunks(int queueLength) {
+  private boolean discardUpstreamMediaChunks(int queueLength) {
     if (mediaChunks.size() <= queueLength) {
-      return;
+      return false;
     }
     long totalBytes = 0;
     long startTimeUs = 0;
@@ -667,6 +689,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
       removed.release();
     }
     notifyUpstreamDiscarded(startTimeUs, endTimeUs, totalBytes);
+    return true;
   }
 
   private boolean isMediaChunk(Chunk chunk) {
