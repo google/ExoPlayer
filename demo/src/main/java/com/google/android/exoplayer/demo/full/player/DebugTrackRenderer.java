@@ -68,10 +68,10 @@ import android.widget.TextView;
   }
 
   @Override
-  protected void doSomeWork(long timeUs) throws ExoPlaybackException {
+  protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     maybeFail();
-    if (timeUs < currentPositionUs || timeUs > currentPositionUs + 1000000) {
-      currentPositionUs = timeUs;
+    if (positionUs < currentPositionUs || positionUs > currentPositionUs + 1000000) {
+      currentPositionUs = positionUs;
       textView.post(this);
     }
   }

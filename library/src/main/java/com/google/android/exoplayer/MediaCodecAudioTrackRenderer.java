@@ -94,10 +94,18 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   /**
    * AudioTrack timestamps are deemed spurious if they are offset from the system clock by more
-   * than this amount. This is a fail safe that should not be required on correctly functioning
-   * devices.
+   * than this amount.
+   * <p>
+   * This is a fail safe that should not be required on correctly functioning devices.
    */
-  private static final long MAX_AUDIO_TIMSTAMP_OFFSET_US = 10 * MICROS_PER_SECOND;
+  private static final long MAX_AUDIO_TIMESTAMP_OFFSET_US = 10 * MICROS_PER_SECOND;
+
+  /**
+   * AudioTrack latencies are deemed impossibly large if they are greater than this amount.
+   * <p>
+   * This is a fail safe that should not be required on correctly functioning devices.
+   */
+  private static final long MAX_AUDIO_TRACK_LATENCY_US = 10 * MICROS_PER_SECOND;
 
   private static final int MAX_PLAYHEAD_OFFSET_COUNT = 10;
   private static final int MIN_PLAYHEAD_OFFSET_SAMPLE_INTERVAL_US = 30000;
@@ -261,14 +269,14 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void onEnabled(long timeUs, boolean joining) {
-    super.onEnabled(timeUs, joining);
+  protected void onEnabled(long positionUs, boolean joining) {
+    super.onEnabled(positionUs, joining);
     lastReportedCurrentPositionUs = Long.MIN_VALUE;
   }
 
   @Override
-  protected void doSomeWork(long timeUs) throws ExoPlaybackException {
-    super.doSomeWork(timeUs);
+  protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+    super.doSomeWork(positionUs, elapsedRealtimeUs);
     maybeSampleSyncParams();
   }
 
@@ -515,7 +523,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
         if (audioTimestampUs < audioTrackResumeSystemTimeUs) {
           // The timestamp corresponds to a time before the track was most recently resumed.
           audioTimestampSet = false;
-        } else if (Math.abs(audioTimestampUs - systemClockUs) > MAX_AUDIO_TIMSTAMP_OFFSET_US) {
+        } else if (Math.abs(audioTimestampUs - systemClockUs) > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
           // The timestamp time base is probably wrong.
           audioTimestampSet = false;
           Log.w(TAG, "Spurious audio timestamp: " + audioTimestampCompat.getFramePosition() + ", "
@@ -531,6 +539,11 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
               framesToDurationUs(bufferSize / frameSize);
           // Sanity check that the latency is non-negative.
           audioTrackLatencyUs = Math.max(audioTrackLatencyUs, 0);
+          // Sanity check that the latency isn't too large.
+          if (audioTrackLatencyUs > MAX_AUDIO_TRACK_LATENCY_US) {
+            Log.w(TAG, "Ignoring impossibly large audio latency: " + audioTrackLatencyUs);
+            audioTrackLatencyUs = 0;
+          }
         } catch (Exception e) {
           // The method existed, but doesn't work. Don't try again.
           audioTrackGetLatencyMethod = null;
@@ -569,16 +582,16 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void seekTo(long timeUs) throws ExoPlaybackException {
-    super.seekTo(timeUs);
+  protected void seekTo(long positionUs) throws ExoPlaybackException {
+    super.seekTo(positionUs);
     // TODO: Try and re-use the same AudioTrack instance once [redacted] is fixed.
     releaseAudioTrack();
     lastReportedCurrentPositionUs = Long.MIN_VALUE;
   }
 
   @Override
-  protected boolean processOutputBuffer(long timeUs, MediaCodec codec, ByteBuffer buffer,
-      MediaCodec.BufferInfo bufferInfo, int bufferIndex, boolean shouldSkip)
+  protected boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs, MediaCodec codec,
+      ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo, int bufferIndex, boolean shouldSkip)
       throws ExoPlaybackException {
     if (shouldSkip) {
       codec.releaseOutputBuffer(bufferIndex, false);
@@ -613,6 +626,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
           // time and the number of bytes submitted. Also reset lastReportedCurrentPositionUs to
           // allow time to jump backwards if it really wants to.
           audioTrackStartMediaTimeUs += (bufferStartTime - expectedBufferStartTime);
+          audioTrackStartMediaTimeState = START_IN_SYNC;
           lastReportedCurrentPositionUs = Long.MIN_VALUE;
         }
       }

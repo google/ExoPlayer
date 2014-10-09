@@ -217,13 +217,13 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected void onEnabled(long timeUs, boolean joining) {
-    source.enable(trackIndex, timeUs);
+  protected void onEnabled(long positionUs, boolean joining) {
+    source.enable(trackIndex, positionUs);
     sourceState = SOURCE_STATE_NOT_READY;
     inputStreamEnded = false;
     outputStreamEnded = false;
     waitingForKeys = false;
-    currentPositionUs = timeUs;
+    currentPositionUs = positionUs;
   }
 
   /**
@@ -367,9 +367,9 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected void seekTo(long timeUs) throws ExoPlaybackException {
-    currentPositionUs = timeUs;
-    source.seekToUs(timeUs);
+  protected void seekTo(long positionUs) throws ExoPlaybackException {
+    currentPositionUs = positionUs;
+    source.seekToUs(positionUs);
     sourceState = SOURCE_STATE_NOT_READY;
     inputStreamEnded = false;
     outputStreamEnded = false;
@@ -387,22 +387,22 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected void doSomeWork(long timeUs) throws ExoPlaybackException {
+  protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     try {
-      sourceState = source.continueBuffering(timeUs)
+      sourceState = source.continueBuffering(positionUs)
           ? (sourceState == SOURCE_STATE_NOT_READY ? SOURCE_STATE_READY : sourceState)
           : SOURCE_STATE_NOT_READY;
       checkForDiscontinuity();
       if (format == null) {
         readFormat();
       } else if (codec == null && !shouldInitCodec() && getState() == TrackRenderer.STATE_STARTED) {
-        discardSamples(timeUs);
+        discardSamples(positionUs);
       } else {
         if (codec == null && shouldInitCodec()) {
           maybeInitCodec();
         }
         if (codec != null) {
-          while (drainOutputBuffer(timeUs)) {}
+          while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
           if (feedInputBuffer(true)) {
             while (feedInputBuffer(false)) {}
           }
@@ -421,10 +421,10 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
   }
 
-  private void discardSamples(long timeUs) throws IOException, ExoPlaybackException {
+  private void discardSamples(long positionUs) throws IOException, ExoPlaybackException {
     sampleHolder.data = null;
     int result = SampleSource.SAMPLE_READ;
-    while (result == SampleSource.SAMPLE_READ && currentPositionUs <= timeUs) {
+    while (result == SampleSource.SAMPLE_READ && currentPositionUs <= positionUs) {
       result = source.readData(trackIndex, currentPositionUs, formatHolder, sampleHolder, false);
       if (result == SampleSource.SAMPLE_READ) {
         if (!sampleHolder.decodeOnly) {
@@ -469,7 +469,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
   /**
    * @param firstFeed True if this is the first call to this method from the current invocation of
-   *     {@link #doSomeWork(long)}. False otherwise.
+   *     {@link #doSomeWork(long, long)}. False otherwise.
    * @return True if it may be possible to feed more input data. False otherwise.
    * @throws IOException If an error occurs reading data from the upstream source.
    * @throws ExoPlaybackException If an error occurs feeding the input buffer.
@@ -694,7 +694,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    * @return True if it may be possible to drain more output data. False otherwise.
    * @throws ExoPlaybackException If an error occurs draining the output buffer.
    */
-  private boolean drainOutputBuffer(long timeUs) throws ExoPlaybackException {
+  private boolean drainOutputBuffer(long positionUs, long elapsedRealtimeUs)
+      throws ExoPlaybackException {
     if (outputStreamEnded) {
       return false;
     }
@@ -722,8 +723,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
     boolean decodeOnly = decodeOnlyPresentationTimestamps.contains(
         outputBufferInfo.presentationTimeUs);
-    if (processOutputBuffer(timeUs, codec, outputBuffers[outputIndex], outputBufferInfo,
-        outputIndex, decodeOnly)) {
+    if (processOutputBuffer(positionUs, elapsedRealtimeUs, codec, outputBuffers[outputIndex],
+        outputBufferInfo, outputIndex, decodeOnly)) {
       if (decodeOnly) {
         decodeOnlyPresentationTimestamps.remove(outputBufferInfo.presentationTimeUs);
       } else {
@@ -743,9 +744,9 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    *     longer required. False otherwise.
    * @throws ExoPlaybackException If an error occurs processing the output buffer.
    */
-  protected abstract boolean processOutputBuffer(long timeUs, MediaCodec codec, ByteBuffer buffer,
-      MediaCodec.BufferInfo bufferInfo, int bufferIndex, boolean shouldSkip)
-      throws ExoPlaybackException;
+  protected abstract boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs,
+      MediaCodec codec, ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo, int bufferIndex,
+      boolean shouldSkip) throws ExoPlaybackException;
 
   /**
    * Returns the name of the secure variant of a given decoder.

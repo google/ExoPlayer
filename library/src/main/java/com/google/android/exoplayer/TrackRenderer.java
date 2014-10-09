@@ -18,6 +18,8 @@ package com.google.android.exoplayer;
 import com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent;
 import com.google.android.exoplayer.util.Assertions;
 
+import android.os.SystemClock;
+
 /**
  * Renders a single component of media.
  *
@@ -59,7 +61,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    */
   protected static final int STATE_ENABLED = 2;
   /**
-   * The renderer is started. Calls to {@link #doSomeWork(long)} should cause the media to be
+   * The renderer is started. Calls to {@link #doSomeWork(long, long)} should cause the media to be
    * rendered.
    */
   protected static final int STATE_STARTED = 3;
@@ -83,9 +85,9 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   /**
    * A time source renderer is a renderer that, when started, advances its own playback position.
    * This means that {@link #getCurrentPositionUs()} will return increasing positions independently
-   * to increasing values being passed to {@link #doSomeWork(long)}. A player may have at most one
-   * time source renderer. If provided, the player will use such a renderer as its source of time
-   * during playback.
+   * to increasing values being passed to {@link #doSomeWork(long, long)}. A player may have at most
+   * one time source renderer. If provided, the player will use such a renderer as its source of
+   * time during playback.
    * <p>
    * This method may be called when the renderer is in any state.
    *
@@ -136,15 +138,15 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   /**
    * Enable the renderer.
    *
-   * @param timeUs The player's current position.
+   * @param positionUs The player's current position.
    * @param joining Whether this renderer is being enabled to join an ongoing playback. If true
    *     then {@link #start} must be called immediately after this method returns (unless a
    *     {@link ExoPlaybackException} is thrown).
    */
-  /* package */ final void enable(long timeUs, boolean joining) throws ExoPlaybackException {
+  /* package */ final void enable(long positionUs, boolean joining) throws ExoPlaybackException {
     Assertions.checkState(state == TrackRenderer.STATE_PREPARED);
     state = TrackRenderer.STATE_ENABLED;
-    onEnabled(timeUs, joining);
+    onEnabled(positionUs, joining);
   }
 
   /**
@@ -152,18 +154,18 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * <p>
    * The default implementation is a no-op.
    *
-   * @param timeUs The player's current position.
+   * @param positionUs The player's current position.
    * @param joining Whether this renderer is being enabled to join an ongoing playback. If true
    *     then {@link #onStarted} is guaranteed to be called immediately after this method returns
    *     (unless a {@link ExoPlaybackException} is thrown).
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onEnabled(long timeUs, boolean joining) throws ExoPlaybackException {
+  protected void onEnabled(long positionUs, boolean joining) throws ExoPlaybackException {
     // Do nothing.
   }
 
   /**
-   * Starts the renderer, meaning that calls to {@link #doSomeWork(long)} will cause the
+   * Starts the renderer, meaning that calls to {@link #doSomeWork(long, long)} will cause the
    * track to be rendered.
    */
   /* package */ final void start() throws ExoPlaybackException {
@@ -289,10 +291,14 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * This method may be called when the renderer is in the following states:
    * {@link #STATE_ENABLED}, {@link #STATE_STARTED}
    *
-   * @param timeUs The current playback time.
+   * @param positionUs The current media time in microseconds, measured at the start of the
+   *     current iteration of the rendering loop.
+   * @param elapsedRealtimeUs {@link SystemClock#elapsedRealtime()} in microseconds, measured at
+   *     the start of the current iteration of the rendering loop.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected abstract void doSomeWork(long timeUs) throws ExoPlaybackException;
+  protected abstract void doSomeWork(long positionUs, long elapsedRealtimeUs)
+      throws ExoPlaybackException;
 
   /**
    * Returns the duration of the media being rendered.
@@ -300,7 +306,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * This method may be called when the renderer is in the following states:
    * {@link #STATE_PREPARED}, {@link #STATE_ENABLED}, {@link #STATE_STARTED}
    *
-   * @return The duration of the track in micro-seconds, or {@link #MATCH_LONGEST_US} if
+   * @return The duration of the track in microseconds, or {@link #MATCH_LONGEST_US} if
    *     the track's duration should match that of the longest track whose duration is known, or
    *     or {@link #UNKNOWN_TIME_US} if the duration is not known.
    */
@@ -312,17 +318,17 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * This method may be called when the renderer is in the following states:
    * {@link #STATE_ENABLED}, {@link #STATE_STARTED}
    *
-   * @return The current playback position in micro-seconds.
+   * @return The current playback position in microseconds.
    */
   protected abstract long getCurrentPositionUs();
 
   /**
-   * Returns an estimate of the absolute position in micro-seconds up to which data is buffered.
+   * Returns an estimate of the absolute position in microseconds up to which data is buffered.
    * <p>
    * This method may be called when the renderer is in the following states:
    * {@link #STATE_ENABLED}, {@link #STATE_STARTED}
    *
-   * @return An estimate of the absolute position in micro-seconds up to which data is buffered,
+   * @return An estimate of the absolute position in microseconds up to which data is buffered,
    *     or {@link #END_OF_TRACK_US} if the track is fully buffered, or {@link #UNKNOWN_TIME_US} if
    *     no estimate is available.
    */
@@ -334,10 +340,10 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * This method may be called when the renderer is in the following states:
    * {@link #STATE_ENABLED}
    *
-   * @param timeUs The desired time in micro-seconds.
+   * @param positionUs The desired playback position in microseconds.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected abstract void seekTo(long timeUs) throws ExoPlaybackException;
+  protected abstract void seekTo(long positionUs) throws ExoPlaybackException;
 
   @Override
   public void handleMessage(int what, Object object) throws ExoPlaybackException {
