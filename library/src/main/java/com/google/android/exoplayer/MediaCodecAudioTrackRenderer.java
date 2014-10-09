@@ -616,6 +616,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
           // time and the number of bytes submitted. Also reset lastReportedCurrentPositionUs to
           // allow time to jump backwards if it really wants to.
           audioTrackStartMediaTimeUs += (bufferStartTime - expectedBufferStartTime);
+          audioTrackStartMediaTimeState = START_IN_SYNC;
           lastReportedCurrentPositionUs = Long.MIN_VALUE;
         }
       }
