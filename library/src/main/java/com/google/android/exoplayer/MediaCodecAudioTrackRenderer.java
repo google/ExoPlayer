@@ -333,7 +333,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
           AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM, audioSessionId);
       checkAudioTrackInitialized();
     }
-    audioTrack.setStereoVolume(volume, volume);
+    setVolume(volume);
     if (getState() == TrackRenderer.STATE_STARTED) {
       audioTrackResumeSystemTimeUs = System.nanoTime() / 1000;
       audioTrack.play();
@@ -516,7 +516,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
     }
 
     if (systemClockUs - lastTimestampSampleTimeUs >= MIN_TIMESTAMP_SAMPLE_INTERVAL_US) {
-      audioTimestampSet = audioTimestampCompat.initTimestamp(audioTrack);
+      audioTimestampSet = audioTimestampCompat.update(audioTrack);
       if (audioTimestampSet) {
         // Perform sanity checks on the timestamp.
         long audioTimestampUs = audioTimestampCompat.getNanoTime() / 1000;
@@ -713,8 +713,22 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   private void setVolume(float volume) {
     this.volume = volume;
     if (audioTrack != null) {
-      audioTrack.setStereoVolume(volume, volume);
+      if (Util.SDK_INT >= 21) {
+        setVolumeV21(audioTrack, volume);
+      } else {
+        setVolumeV3(audioTrack, volume);
+      }
     }
+  }
+
+  @TargetApi(21)
+  private static void setVolumeV21(AudioTrack audioTrack, float volume) {
+    audioTrack.setVolume(volume);
+  }
+
+  @SuppressWarnings("deprecation")
+  private static void setVolumeV3(AudioTrack audioTrack, float volume) {
+    audioTrack.setStereoVolume(volume, volume);
   }
 
   private void notifyAudioTrackInitializationError(final AudioTrackInitializationException e) {
@@ -736,7 +750,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
     /**
      * Returns true if the audioTimestamp was retrieved from the audioTrack.
      */
-    boolean initTimestamp(AudioTrack audioTrack);
+    boolean update(AudioTrack audioTrack);
 
     long getNanoTime();
 
@@ -750,7 +764,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   private static final class NoopAudioTimestampCompat implements AudioTimestampCompat {
 
     @Override
-    public boolean initTimestamp(AudioTrack audioTrack) {
+    public boolean update(AudioTrack audioTrack) {
       return false;
     }
 
@@ -782,7 +796,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
     }
 
     @Override
-    public boolean initTimestamp(AudioTrack audioTrack) {
+    public boolean update(AudioTrack audioTrack) {
       return audioTrack.getTimestamp(audioTimestamp);
     }
 
