@@ -576,9 +576,12 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected void onDisabled() {
-    super.onDisabled();
-    releaseAudioTrack();
     audioSessionId = 0;
+    try {
+      releaseAudioTrack();
+    } finally {
+      super.onDisabled();
+    }
   }
 
   @Override
