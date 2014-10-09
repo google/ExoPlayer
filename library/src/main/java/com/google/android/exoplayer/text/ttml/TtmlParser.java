@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.Subtitle;
 import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -135,7 +136,7 @@ public class TtmlParser implements SubtitleParser {
     return MimeTypes.APPLICATION_TTML.equals(mimeType);
   }
 
-  private TtmlNode parseNode(XmlPullParser parser, TtmlNode parent) {
+  private TtmlNode parseNode(XmlPullParser parser, TtmlNode parent) throws ParserException {
     long duration = 0;
     long startTime = TtmlNode.UNDEFINED_TIME;
     long endTime = TtmlNode.UNDEFINED_TIME;
@@ -209,10 +210,10 @@ public class TtmlParser implements SubtitleParser {
    * @param subframeRate The sub-framerate of the stream
    * @param tickRate The tick rate of the stream.
    * @return The parsed timestamp in microseconds.
-   * @throws NumberFormatException If the given string does not contain a valid time expression.
+   * @throws ParserException If the given string does not contain a valid time expression.
    */
   private static long parseTimeExpression(String time, int frameRate, int subframeRate,
-      int tickRate) {
+      int tickRate) throws ParserException {
     Matcher matcher = CLOCK_TIME.matcher(time);
     if (matcher.matches()) {
       String hours = matcher.group(1);
@@ -250,7 +251,7 @@ public class TtmlParser implements SubtitleParser {
       }
       return (long) (offsetSeconds * 1000000);
     }
-    throw new NumberFormatException("Malformed time expression: " + time);
+    throw new ParserException("Malformed time expression: " + time);
   }
 
 }
