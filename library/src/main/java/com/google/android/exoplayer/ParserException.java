@@ -26,8 +26,12 @@ public class ParserException extends IOException {
     super(message);
   }
 
-  public ParserException(Exception cause) {
+  public ParserException(Throwable cause) {
     super(cause);
+  }
+
+  public ParserException(String message, Throwable cause) {
+    super(message, cause);
   }
 
 }

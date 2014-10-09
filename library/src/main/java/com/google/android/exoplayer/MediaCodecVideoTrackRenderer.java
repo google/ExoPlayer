@@ -225,8 +225,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void onEnabled(long startTimeUs, boolean joining) {
-    super.onEnabled(startTimeUs, joining);
+  protected void onEnabled(long positionUs, boolean joining) {
+    super.onEnabled(positionUs, joining);
     renderedFirstFrame = false;
     if (joining && allowedJoiningTimeUs > 0) {
       joiningDeadlineUs = SystemClock.elapsedRealtime() * 1000L + allowedJoiningTimeUs;
@@ -234,8 +234,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void seekTo(long timeUs) throws ExoPlaybackException {
-    super.seekTo(timeUs);
+  protected void seekTo(long positionUs) throws ExoPlaybackException {
+    super.seekTo(positionUs);
     renderedFirstFrame = false;
     joiningDeadlineUs = -1;
   }
@@ -354,14 +354,15 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected boolean processOutputBuffer(long timeUs, MediaCodec codec, ByteBuffer buffer,
-      MediaCodec.BufferInfo bufferInfo, int bufferIndex, boolean shouldSkip) {
+  protected boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs, MediaCodec codec,
+      ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo, int bufferIndex, boolean shouldSkip) {
     if (shouldSkip) {
       skipOutputBuffer(codec, bufferIndex);
       return true;
     }
 
-    long earlyUs = bufferInfo.presentationTimeUs - timeUs;
+    long elapsedSinceStartOfLoop = SystemClock.elapsedRealtime() * 1000 - elapsedRealtimeUs;
+    long earlyUs = bufferInfo.presentationTimeUs - positionUs - elapsedSinceStartOfLoop;
     if (earlyUs < -30000) {
       // We're more than 30ms late rendering the frame.
       dropOutputBuffer(codec, bufferIndex);

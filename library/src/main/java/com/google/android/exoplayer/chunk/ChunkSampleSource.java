@@ -154,7 +154,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   private int state;
   private long downstreamPositionUs;
   private long lastSeekPositionUs;
-  private long pendingResetTime;
+  private long pendingResetPositionUs;
   private long lastPerformedBufferOperation;
   private boolean pendingDiscontinuity;
 
@@ -219,7 +219,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   }
 
   @Override
-  public void enable(int track, long timeUs) {
+  public void enable(int track, long positionUs) {
     Assertions.checkState(state == STATE_PREPARED);
     Assertions.checkState(track == 0);
     state = STATE_ENABLED;
@@ -227,9 +227,9 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     loadControl.register(this, bufferSizeContribution);
     downstreamFormat = null;
     downstreamMediaFormat = null;
-    downstreamPositionUs = timeUs;
-    lastSeekPositionUs = timeUs;
-    restartFrom(timeUs);
+    downstreamPositionUs = positionUs;
+    lastSeekPositionUs = positionUs;
+    restartFrom(positionUs);
   }
 
   @Override
@@ -253,10 +253,10 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   }
 
   @Override
-  public boolean continueBuffering(long playbackPositionUs) throws IOException {
+  public boolean continueBuffering(long positionUs) throws IOException {
     Assertions.checkState(state == STATE_ENABLED);
-    downstreamPositionUs = playbackPositionUs;
-    chunkSource.continueBuffering(playbackPositionUs);
+    downstreamPositionUs = positionUs;
+    chunkSource.continueBuffering(positionUs);
     updateLoadControl();
     if (isPendingReset() || mediaChunks.isEmpty()) {
       return false;
@@ -271,7 +271,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   }
 
   @Override
-  public int readData(int track, long playbackPositionUs, MediaFormatHolder formatHolder,
+  public int readData(int track, long positionUs, MediaFormatHolder formatHolder,
       SampleHolder sampleHolder, boolean onlyReadDiscontinuity) throws IOException {
     Assertions.checkState(state == STATE_ENABLED);
     Assertions.checkState(track == 0);
@@ -285,7 +285,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
       return NOTHING_READ;
     }
 
-    downstreamPositionUs = playbackPositionUs;
+    downstreamPositionUs = positionUs;
     if (isPendingReset()) {
       if (currentLoadableException != null) {
         throw currentLoadableException;
@@ -304,7 +304,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
         discardDownstreamMediaChunk();
         mediaChunk = mediaChunks.getFirst();
         mediaChunk.seekToStart();
-        return readData(track, playbackPositionUs, formatHolder, sampleHolder, false);
+        return readData(track, positionUs, formatHolder, sampleHolder, false);
       } else if (mediaChunk.isLastChunk()) {
         return END_OF_STREAM;
       }
@@ -350,32 +350,32 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   }
 
   @Override
-  public void seekToUs(long timeUs) {
+  public void seekToUs(long positionUs) {
     Assertions.checkState(state == STATE_ENABLED);
-    downstreamPositionUs = timeUs;
-    lastSeekPositionUs = timeUs;
-    if (pendingResetTime == timeUs) {
+    downstreamPositionUs = positionUs;
+    lastSeekPositionUs = positionUs;
+    if (pendingResetPositionUs == positionUs) {
       return;
     }
 
-    MediaChunk mediaChunk = getMediaChunk(timeUs);
+    MediaChunk mediaChunk = getMediaChunk(positionUs);
     if (mediaChunk == null) {
-      restartFrom(timeUs);
+      restartFrom(positionUs);
       pendingDiscontinuity = true;
     } else {
-      pendingDiscontinuity |= mediaChunk.seekTo(timeUs, mediaChunk == mediaChunks.getFirst());
+      pendingDiscontinuity |= mediaChunk.seekTo(positionUs, mediaChunk == mediaChunks.getFirst());
       discardDownstreamMediaChunks(mediaChunk);
       updateLoadControl();
     }
   }
 
-  private MediaChunk getMediaChunk(long timeUs) {
+  private MediaChunk getMediaChunk(long positionUs) {
     Iterator<MediaChunk> mediaChunkIterator = mediaChunks.iterator();
     while (mediaChunkIterator.hasNext()) {
       MediaChunk mediaChunk = mediaChunkIterator.next();
-      if (timeUs < mediaChunk.startTimeUs) {
+      if (positionUs < mediaChunk.startTimeUs) {
         return null;
-      } else if (mediaChunk.isLastChunk() || timeUs < mediaChunk.endTimeUs) {
+      } else if (mediaChunk.isLastChunk() || positionUs < mediaChunk.endTimeUs) {
         return mediaChunk;
       }
     }
@@ -386,7 +386,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   public long getBufferedPositionUs() {
     Assertions.checkState(state == STATE_ENABLED);
     if (isPendingReset()) {
-      return pendingResetTime;
+      return pendingResetPositionUs;
     }
     MediaChunk mediaChunk = mediaChunks.getLast();
     Chunk currentLoadable = currentLoadableHolder.chunk;
@@ -448,7 +448,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     }
     clearCurrentLoadable();
     if (state == STATE_ENABLED) {
-      restartFrom(pendingResetTime);
+      restartFrom(pendingResetPositionUs);
     } else {
       clearMediaChunks();
       loadControl.trimAllocator();
@@ -476,8 +476,8 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     // no-op
   }
 
-  private void restartFrom(long timeUs) {
-    pendingResetTime = timeUs;
+  private void restartFrom(long positionUs) {
+    pendingResetPositionUs = positionUs;
     if (loader.isLoading()) {
       loader.cancelLoading();
     } else {
@@ -499,23 +499,40 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   }
 
   private void updateLoadControl() {
-    long loadPositionUs;
-    if (isPendingReset()) {
-      loadPositionUs = pendingResetTime;
-    } else {
-      MediaChunk lastMediaChunk = mediaChunks.getLast();
-      loadPositionUs = lastMediaChunk.nextChunkIndex == -1 ? -1 : lastMediaChunk.endTimeUs;
-    }
-
-    boolean isBackedOff = currentLoadableException != null && !currentLoadableExceptionFatal;
-    boolean nextLoader = loadControl.update(this, downstreamPositionUs, loadPositionUs,
-        isBackedOff || loader.isLoading(), currentLoadableExceptionFatal);
-
     if (currentLoadableExceptionFatal) {
+      // We've failed, but we still need to update the control with our current state.
+      loadControl.update(this, downstreamPositionUs, -1, false, true);
       return;
     }
 
     long now = SystemClock.elapsedRealtime();
+    long nextLoadPositionUs = getNextLoadPositionUs();
+    boolean isBackedOff = currentLoadableException != null;
+    boolean loadingOrBackedOff = loader.isLoading() || isBackedOff;
+
+    // If we're not loading or backed off, evaluate the operation if (a) we don't have the next
+    // chunk yet and we're not finished, or (b) if the last evaluation was over 2000ms ago.
+    if (!loadingOrBackedOff && ((currentLoadableHolder.chunk == null && nextLoadPositionUs != -1)
+        || (now - lastPerformedBufferOperation > 2000))) {
+      // Perform the evaluation.
+      lastPerformedBufferOperation = now;
+      currentLoadableHolder.queueSize = readOnlyMediaChunks.size();
+      chunkSource.getChunkOperation(readOnlyMediaChunks, pendingResetPositionUs,
+          downstreamPositionUs, currentLoadableHolder);
+      boolean chunksDiscarded = discardUpstreamMediaChunks(currentLoadableHolder.queueSize);
+      // Update the next load position as appropriate.
+      if (currentLoadableHolder.chunk == null) {
+        // Set loadPosition to -1 to indicate that we don't have anything to load.
+        nextLoadPositionUs = -1;
+      } else if (chunksDiscarded) {
+        // Chunks were discarded, so we need to re-evaluate the load position.
+        nextLoadPositionUs = getNextLoadPositionUs();
+      }
+    }
+
+    // Update the control with our current state, and determine whether we're the next loader.
+    boolean nextLoader = loadControl.update(this, downstreamPositionUs, nextLoadPositionUs,
+        loadingOrBackedOff, false);
 
     if (isBackedOff) {
       long elapsedMillis = now - currentLoadableExceptionTimestamp;
@@ -525,17 +542,21 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
       return;
     }
 
-    if (!loader.isLoading()) {
-      if (currentLoadableHolder.chunk == null || now - lastPerformedBufferOperation > 1000) {
-        lastPerformedBufferOperation = now;
-        currentLoadableHolder.queueSize = readOnlyMediaChunks.size();
-        chunkSource.getChunkOperation(readOnlyMediaChunks, pendingResetTime, downstreamPositionUs,
-            currentLoadableHolder);
-        discardUpstreamMediaChunks(currentLoadableHolder.queueSize);
-      }
-      if (nextLoader) {
-        maybeStartLoading();
-      }
+    if (!loader.isLoading() && nextLoader) {
+      maybeStartLoading();
+    }
+  }
+
+  /**
+   * Gets the next load time, assuming that the next load starts where the previous chunk ended (or
+   * from the pending reset time, if there is one).
+   */
+  private long getNextLoadPositionUs() {
+    if (isPendingReset()) {
+      return pendingResetPositionUs;
+    } else {
+      MediaChunk lastMediaChunk = mediaChunks.getLast();
+      return lastMediaChunk.nextChunkIndex == -1 ? -1 : lastMediaChunk.endTimeUs;
     }
   }
 
@@ -552,8 +573,8 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     Chunk backedOffChunk = currentLoadableHolder.chunk;
     if (!isMediaChunk(backedOffChunk)) {
       currentLoadableHolder.queueSize = readOnlyMediaChunks.size();
-      chunkSource.getChunkOperation(readOnlyMediaChunks, pendingResetTime, downstreamPositionUs,
-          currentLoadableHolder);
+      chunkSource.getChunkOperation(readOnlyMediaChunks, pendingResetPositionUs,
+          downstreamPositionUs, currentLoadableHolder);
       discardUpstreamMediaChunks(currentLoadableHolder.queueSize);
       if (currentLoadableHolder.chunk == backedOffChunk) {
         // Chunk was unchanged. Resume loading.
@@ -577,7 +598,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     MediaChunk removedChunk = mediaChunks.removeLast();
     Assertions.checkState(backedOffChunk == removedChunk);
     currentLoadableHolder.queueSize = readOnlyMediaChunks.size();
-    chunkSource.getChunkOperation(readOnlyMediaChunks, pendingResetTime, downstreamPositionUs,
+    chunkSource.getChunkOperation(readOnlyMediaChunks, pendingResetPositionUs, downstreamPositionUs,
         currentLoadableHolder);
     mediaChunks.add(removedChunk);
 
@@ -603,8 +624,8 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     if (isMediaChunk(currentLoadable)) {
       MediaChunk mediaChunk = (MediaChunk) currentLoadable;
       if (isPendingReset()) {
-        mediaChunk.seekTo(pendingResetTime, false);
-        pendingResetTime = NO_RESET_PENDING;
+        mediaChunk.seekTo(pendingResetPositionUs, false);
+        pendingResetPositionUs = NO_RESET_PENDING;
       }
       mediaChunks.add(mediaChunk);
       notifyLoadStarted(mediaChunk.format.id, mediaChunk.trigger, false,
@@ -652,10 +673,11 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
    * Discard upstream media chunks until the queue length is equal to the length specified.
    *
    * @param queueLength The desired length of the queue.
+   * @return True if chunks were discarded. False otherwise.
    */
-  private void discardUpstreamMediaChunks(int queueLength) {
+  private boolean discardUpstreamMediaChunks(int queueLength) {
     if (mediaChunks.size() <= queueLength) {
-      return;
+      return false;
     }
     long totalBytes = 0;
     long startTimeUs = 0;
@@ -667,6 +689,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
       removed.release();
     }
     notifyUpstreamDiscarded(startTimeUs, endTimeUs, totalBytes);
+    return true;
   }
 
   private boolean isMediaChunk(Chunk chunk) {
@@ -674,7 +697,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   }
 
   private boolean isPendingReset() {
-    return pendingResetTime != NO_RESET_PENDING;
+    return pendingResetPositionUs != NO_RESET_PENDING;
   }
 
   private long getRetryDelayMillis(long errorCount) {
@@ -757,13 +780,13 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   }
 
   private void notifyDownstreamFormatChanged(final String formatId, final int trigger,
-      final long mediaTimeUs) {
+      final long positionUs) {
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable()  {
         @Override
         public void run() {
           eventListener.onDownstreamFormatChanged(eventSourceId, formatId, trigger,
-              usToMs(mediaTimeUs));
+              usToMs(positionUs));
         }
       });
     }

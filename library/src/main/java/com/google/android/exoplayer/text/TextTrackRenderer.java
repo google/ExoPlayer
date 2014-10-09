@@ -115,43 +115,43 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   }
 
   @Override
-  protected void onEnabled(long timeUs, boolean joining) {
-    source.enable(trackIndex, timeUs);
+  protected void onEnabled(long positionUs, boolean joining) {
+    source.enable(trackIndex, positionUs);
     parserThread = new HandlerThread("textParser");
     parserThread.start();
     parserHelper = new SubtitleParserHelper(parserThread.getLooper(), subtitleParser);
-    seekToInternal(timeUs);
+    seekToInternal(positionUs);
   }
 
   @Override
-  protected void seekTo(long timeUs) {
-    source.seekToUs(timeUs);
-    seekToInternal(timeUs);
+  protected void seekTo(long positionUs) {
+    source.seekToUs(positionUs);
+    seekToInternal(positionUs);
   }
 
-  private void seekToInternal(long timeUs) {
+  private void seekToInternal(long positionUs) {
     inputStreamEnded = false;
-    currentPositionUs = timeUs;
-    source.seekToUs(timeUs);
-    if (subtitle != null && (timeUs < subtitle.getStartTime()
-        || subtitle.getLastEventTime() <= timeUs)) {
+    currentPositionUs = positionUs;
+    source.seekToUs(positionUs);
+    if (subtitle != null && (positionUs < subtitle.getStartTime()
+        || subtitle.getLastEventTime() <= positionUs)) {
       subtitle = null;
     }
     parserHelper.flush();
     clearTextRenderer();
-    syncNextEventIndex(timeUs);
+    syncNextEventIndex(positionUs);
     textRendererNeedsUpdate = subtitle != null;
   }
 
   @Override
-  protected void doSomeWork(long timeUs) throws ExoPlaybackException {
+  protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     try {
-      source.continueBuffering(timeUs);
+      source.continueBuffering(positionUs);
     } catch (IOException e) {
       throw new ExoPlaybackException(e);
     }
 
-    currentPositionUs = timeUs;
+    currentPositionUs = positionUs;
 
     if (parserHelper.isParsing()) {
       return;
@@ -169,13 +169,13 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
     if (subtitle == null && dequeuedSubtitle != null) {
       // We've dequeued a new subtitle. Sync the event index and update the subtitle.
       subtitle = dequeuedSubtitle;
-      syncNextEventIndex(timeUs);
+      syncNextEventIndex(positionUs);
       textRendererNeedsUpdate = true;
     } else if (subtitle != null) {
       // We're iterating through the events in a subtitle. Set textRendererNeedsUpdate if we
       // advance to the next event.
       long nextEventTimeUs = getNextEventTime();
-      while (nextEventTimeUs <= timeUs) {
+      while (nextEventTimeUs <= positionUs) {
         nextSubtitleEventIndex++;
         nextEventTimeUs = getNextEventTime();
         textRendererNeedsUpdate = true;
@@ -191,7 +191,7 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
     if (subtitle == null) {
       try {
         SampleHolder sampleHolder = parserHelper.getSampleHolder();
-        int result = source.readData(trackIndex, timeUs, formatHolder, sampleHolder, false);
+        int result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
         if (result == SampleSource.SAMPLE_READ) {
           parserHelper.startParseOperation();
         } else if (result == SampleSource.END_OF_STREAM) {
@@ -208,7 +208,7 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
       if (subtitle == null) {
         clearTextRenderer();
       } else {
-        updateTextRenderer(timeUs);
+        updateTextRenderer(positionUs);
       }
     }
   }
@@ -256,8 +256,8 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
     return true;
   }
 
-  private void syncNextEventIndex(long timeUs) {
-    nextSubtitleEventIndex = subtitle == null ? -1 : subtitle.getNextEventTimeIndex(timeUs);
+  private void syncNextEventIndex(long positionUs) {
+    nextSubtitleEventIndex = subtitle == null ? -1 : subtitle.getNextEventTimeIndex(positionUs);
   }
 
   private long getNextEventTime() {
@@ -266,8 +266,8 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
         : (subtitle.getEventTime(nextSubtitleEventIndex));
   }
 
-  private void updateTextRenderer(long timeUs) {
-    String text = subtitle.getText(timeUs);
+  private void updateTextRenderer(long positionUs) {
+    String text = subtitle.getText(positionUs);
     log("updateTextRenderer; text=: " + text);
     if (textRendererHandler != null) {
       textRendererHandler.obtainMessage(MSG_UPDATE_OVERLAY, text).sendToTarget();

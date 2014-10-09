@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.Subtitle;
 import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -72,8 +73,23 @@ public class TtmlParser implements SubtitleParser {
   private static final int DEFAULT_TICKRATE = 1;
 
   private final XmlPullParserFactory xmlParserFactory;
+  private final boolean strictParsing;
 
+  /**
+   * Equivalent to {@code TtmlParser(true)}.
+   */
   public TtmlParser() {
+    this(true);
+  }
+
+  /**
+   * @param strictParsing If true, {@link #parse(InputStream, String, long)} will throw a
+   *     {@link ParserException} if the stream contains invalid ttml. If false, the parser will
+   *     make a best effort to ignore minor errors in the stream. Note however that a
+   *     {@link ParserException} will still be thrown when this is not possible.
+   */
+  public TtmlParser(boolean strictParsing) {
+    this.strictParsing = strictParsing;
     try {
       xmlParserFactory = XmlPullParserFactory.newInstance();
     } catch (XmlPullParserException e) {
@@ -89,21 +105,31 @@ public class TtmlParser implements SubtitleParser {
       xmlParser.setInput(inputStream, inputEncoding);
       TtmlSubtitle ttmlSubtitle = null;
       LinkedList<TtmlNode> nodeStack = new LinkedList<TtmlNode>();
-      int unsupportedTagDepth = 0;
+      int unsupportedNodeDepth = 0;
       int eventType = xmlParser.getEventType();
       while (eventType != XmlPullParser.END_DOCUMENT) {
         TtmlNode parent = nodeStack.peekLast();
-        if (unsupportedTagDepth == 0) {
+        if (unsupportedNodeDepth == 0) {
           String name = xmlParser.getName();
           if (eventType == XmlPullParser.START_TAG) {
             if (!isSupportedTag(name)) {
-              Log.w(TAG, "Ignoring unsupported tag: " + xmlParser.getName());
-              unsupportedTagDepth++;
+              Log.i(TAG, "Ignoring unsupported tag: " + xmlParser.getName());
+              unsupportedNodeDepth++;
             } else {
-              TtmlNode node = parseNode(xmlParser, parent);
-              nodeStack.addLast(node);
-              if (parent != null) {
-                parent.addChild(node);
+              try {
+                TtmlNode node = parseNode(xmlParser, parent);
+                nodeStack.addLast(node);
+                if (parent != null) {
+                  parent.addChild(node);
+                }
+              } catch (ParserException e) {
+                if (strictParsing) {
+                  throw e;
+                } else {
+                  Log.e(TAG, "Suppressing parser error", e);
+                  // Treat the node (and by extension, all of its children) as unsupported.
+                  unsupportedNodeDepth++;
+                }
               }
             }
           } else if (eventType == XmlPullParser.TEXT) {
@@ -116,9 +142,9 @@ public class TtmlParser implements SubtitleParser {
           }
         } else {
           if (eventType == XmlPullParser.START_TAG) {
-            unsupportedTagDepth++;
+            unsupportedNodeDepth++;
           } else if (eventType == XmlPullParser.END_TAG) {
-            unsupportedTagDepth--;
+            unsupportedNodeDepth--;
           }
         }
         xmlParser.next();
@@ -126,7 +152,7 @@ public class TtmlParser implements SubtitleParser {
       }
       return ttmlSubtitle;
     } catch (XmlPullParserException xppe) {
-      throw new IOException("Unable to parse source", xppe);
+      throw new ParserException("Unable to parse source", xppe);
     }
   }
 
@@ -135,7 +161,7 @@ public class TtmlParser implements SubtitleParser {
     return MimeTypes.APPLICATION_TTML.equals(mimeType);
   }
 
-  private TtmlNode parseNode(XmlPullParser parser, TtmlNode parent) {
+  private TtmlNode parseNode(XmlPullParser parser, TtmlNode parent) throws ParserException {
     long duration = 0;
     long startTime = TtmlNode.UNDEFINED_TIME;
     long endTime = TtmlNode.UNDEFINED_TIME;
@@ -209,10 +235,10 @@ public class TtmlParser implements SubtitleParser {
    * @param subframeRate The sub-framerate of the stream
    * @param tickRate The tick rate of the stream.
    * @return The parsed timestamp in microseconds.
-   * @throws NumberFormatException If the given string does not contain a valid time expression.
+   * @throws ParserException If the given string does not contain a valid time expression.
    */
   private static long parseTimeExpression(String time, int frameRate, int subframeRate,
-      int tickRate) {
+      int tickRate) throws ParserException {
     Matcher matcher = CLOCK_TIME.matcher(time);
     if (matcher.matches()) {
       String hours = matcher.group(1);
@@ -250,7 +276,7 @@ public class TtmlParser implements SubtitleParser {
       }
       return (long) (offsetSeconds * 1000000);
     }
-    throw new NumberFormatException("Malformed time expression: " + time);
+    throw new ParserException("Malformed time expression: " + time);
   }
 
 }
