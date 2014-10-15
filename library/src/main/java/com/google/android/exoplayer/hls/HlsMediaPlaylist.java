@@ -42,7 +42,7 @@ public final class HlsMediaPlaylist {
 
     @Override
     public int compareTo(Long startTimeUs) {
-      return (int) (this.startTimeUs - startTimeUs);
+      return this.startTimeUs > startTimeUs ? 1 : (this.startTimeUs < startTimeUs ? -1 : 0);
     }
   }
 
