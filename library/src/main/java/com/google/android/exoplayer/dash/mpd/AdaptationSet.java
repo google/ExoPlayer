@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Represents a set of interchangeable encoded versions of a media content component.
  */
-public final class AdaptationSet {
+public class AdaptationSet {
 
   public static final int TYPE_UNKNOWN = -1;
   public static final int TYPE_VIDEO = 0;

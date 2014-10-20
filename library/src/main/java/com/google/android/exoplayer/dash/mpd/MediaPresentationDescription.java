@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Represents a DASH media presentation description (mpd).
  */
-public final class MediaPresentationDescription {
+public class MediaPresentationDescription {
 
   public final long availabilityStartTime;
 
