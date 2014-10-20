@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Encapsulates media content components over a contiguous period of time.
  */
-public final class Period {
+public class Period {
 
   /**
    * The period identifier, if one exists.

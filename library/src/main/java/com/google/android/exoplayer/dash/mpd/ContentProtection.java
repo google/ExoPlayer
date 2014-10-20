@@ -15,36 +15,21 @@
  */
 package com.google.android.exoplayer.dash.mpd;
 
-import java.util.Collections;
-import java.util.Map;
-
 /**
- * Represents a ContentProtection tag in an AdaptationSet. Holds arbitrary data for various DRM
- * schemes.
+ * Represents a ContentProtection tag in an AdaptationSet.
  */
-public final class ContentProtection {
+public class ContentProtection {
 
   /**
    * Identifies the content protection scheme.
    */
   public final String schemeUriId;
-  /**
-   * Protection scheme specific data.
-   */
-  public final Map<String, String> keyedData;
 
   /**
    * @param schemeUriId Identifies the content protection scheme.
-   * @param keyedData Data specific to the scheme.
    */
-  public ContentProtection(String schemeUriId, Map<String, String> keyedData) {
+  public ContentProtection(String schemeUriId) {
     this.schemeUriId = schemeUriId;
-    if (keyedData != null) {
-      this.keyedData = Collections.unmodifiableMap(keyedData);
-    } else {
-      this.keyedData = Collections.emptyMap();
-    }
-
   }
 
 }

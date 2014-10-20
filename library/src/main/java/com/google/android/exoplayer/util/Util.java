@@ -167,6 +167,7 @@ public final class Util {
       return Uri.parse(stringUri);
     }
     if (stringUri.startsWith("/")) {
+      stringUri = stringUri.substring(1);
       return new Uri.Builder()
           .scheme(baseUri.getScheme())
           .authority(baseUri.getAuthority())
