@@ -64,7 +64,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
 
   private long downstreamPositionUs;
   private long lastSeekPositionUs;
-  private long pendingResetTime;
+  private long pendingResetPositionUs;
   private long lastPerformedBufferOperation;
 
   private Loader loader;
@@ -89,7 +89,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   @Override
-  public boolean prepare() {
+  public boolean prepare() throws IOException {
     if (prepared) {
       return true;
     }
@@ -116,6 +116,9 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       prepared = true;
     }
 
+    if (!prepared && currentLoadableException != null) {
+      throw currentLoadableException;
+    }
     return prepared;
   }
 
@@ -132,16 +135,16 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   @Override
-  public void enable(int track, long timeUs) {
+  public void enable(int track, long positionUs) {
     Assertions.checkState(prepared);
     Assertions.checkState(!trackEnabledStates[track]);
     enabledTrackCount++;
     trackEnabledStates[track] = true;
     downstreamMediaFormats[track] = null;
     if (enabledTrackCount == 1) {
-      downstreamPositionUs = timeUs;
-      lastSeekPositionUs = timeUs;
-      restartFrom(timeUs);
+      downstreamPositionUs = positionUs;
+      lastSeekPositionUs = positionUs;
+      restartFrom(positionUs);
     }
   }
 
@@ -257,21 +260,21 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   @Override
-  public void seekToUs(long timeUs) {
+  public void seekToUs(long positionUs) {
     Assertions.checkState(prepared);
     Assertions.checkState(enabledTrackCount > 0);
-    downstreamPositionUs = timeUs;
-    lastSeekPositionUs = timeUs;
-    if (pendingResetTime == timeUs) {
+    downstreamPositionUs = positionUs;
+    lastSeekPositionUs = positionUs;
+    if (pendingResetPositionUs == positionUs) {
       return;
     }
 
     for (int i = 0; i < pendingDiscontinuities.length; i++) {
       pendingDiscontinuities[i] = true;
     }
-    TsChunk mediaChunk = getHlsChunk(timeUs);
+    TsChunk mediaChunk = getHlsChunk(positionUs);
     if (mediaChunk == null) {
-      restartFrom(timeUs);
+      restartFrom(positionUs);
     } else {
       pendingTimestampOffsetUpdate = true;
       mediaChunk.reset();
@@ -280,13 +283,13 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     }
   }
 
-  private TsChunk getHlsChunk(long timeUs) {
+  private TsChunk getHlsChunk(long positionUs) {
     Iterator<TsChunk> mediaChunkIterator = mediaChunks.iterator();
     while (mediaChunkIterator.hasNext()) {
       TsChunk mediaChunk = mediaChunkIterator.next();
-      if (timeUs < mediaChunk.startTimeUs) {
+      if (positionUs < mediaChunk.startTimeUs) {
         return null;
-      } else if (mediaChunk.isLastChunk() || timeUs < mediaChunk.endTimeUs) {
+      } else if (mediaChunk.isLastChunk() || positionUs < mediaChunk.endTimeUs) {
         return mediaChunk;
       }
     }
@@ -298,7 +301,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     Assertions.checkState(prepared);
     Assertions.checkState(enabledTrackCount > 0);
     if (isPendingReset()) {
-      return pendingResetTime;
+      return pendingResetPositionUs;
     }
     TsChunk mediaChunk = mediaChunks.getLast();
     HlsChunk currentLoadable = currentLoadableHolder.chunk;
@@ -357,7 +360,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     }
     clearCurrentLoadable();
     if (enabledTrackCount > 0) {
-      restartFrom(pendingResetTime);
+      restartFrom(pendingResetPositionUs);
     } else {
       clearHlsChunks();
       loadControl.trimAllocator();
@@ -372,8 +375,8 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     updateLoadControl();
   }
 
-  private void restartFrom(long timeUs) {
-    pendingResetTime = timeUs;
+  private void restartFrom(long positionUs) {
+    pendingResetPositionUs = positionUs;
     if (loader.isLoading()) {
       loader.cancelLoading();
     } else {
@@ -395,21 +398,23 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   private void updateLoadControl() {
+    if (currentLoadableExceptionFatal) {
+      // We've failed, but we still need to update the control with our current state.
+      loadControl.update(this, downstreamPositionUs, -1, false, true);
+      return;
+    }
+
     long loadPositionUs;
     if (isPendingReset()) {
-      loadPositionUs = pendingResetTime;
+      loadPositionUs = pendingResetPositionUs;
     } else {
       TsChunk lastHlsChunk = mediaChunks.getLast();
       loadPositionUs = lastHlsChunk.nextChunkIndex == -1 ? -1 : lastHlsChunk.endTimeUs;
     }
 
-    boolean isBackedOff = currentLoadableException != null && !currentLoadableExceptionFatal;
+    boolean isBackedOff = currentLoadableException != null;
     boolean nextLoader = loadControl.update(this, downstreamPositionUs, loadPositionUs,
-        isBackedOff || loader.isLoading(), currentLoadableExceptionFatal);
-
-    if (currentLoadableExceptionFatal) {
-      return;
-    }
+        isBackedOff || loader.isLoading(), false);
 
     long now = SystemClock.elapsedRealtime();
 
@@ -425,8 +430,8 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       if (currentLoadableHolder.chunk == null || now - lastPerformedBufferOperation > 1000) {
         lastPerformedBufferOperation = now;
         currentLoadableHolder.queueSize = readOnlyHlsChunks.size();
-        chunkSource.getChunkOperation(readOnlyHlsChunks, pendingResetTime, downstreamPositionUs,
-            currentLoadableHolder);
+        chunkSource.getChunkOperation(readOnlyHlsChunks, pendingResetPositionUs,
+            downstreamPositionUs, currentLoadableHolder);
         discardUpstreamHlsChunks(currentLoadableHolder.queueSize);
       }
       if (nextLoader) {
@@ -448,7 +453,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     HlsChunk backedOffChunk = currentLoadableHolder.chunk;
     if (!isTsChunk(backedOffChunk)) {
       currentLoadableHolder.queueSize = readOnlyHlsChunks.size();
-      chunkSource.getChunkOperation(readOnlyHlsChunks, pendingResetTime, downstreamPositionUs,
+      chunkSource.getChunkOperation(readOnlyHlsChunks, pendingResetPositionUs, downstreamPositionUs,
           currentLoadableHolder);
       discardUpstreamHlsChunks(currentLoadableHolder.queueSize);
       if (currentLoadableHolder.chunk == backedOffChunk) {
@@ -473,7 +478,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     TsChunk removedChunk = mediaChunks.removeLast();
     Assertions.checkState(backedOffChunk == removedChunk);
     currentLoadableHolder.queueSize = readOnlyHlsChunks.size();
-    chunkSource.getChunkOperation(readOnlyHlsChunks, pendingResetTime, downstreamPositionUs,
+    chunkSource.getChunkOperation(readOnlyHlsChunks, pendingResetPositionUs, downstreamPositionUs,
         currentLoadableHolder);
     mediaChunks.add(removedChunk);
 
@@ -501,7 +506,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       if (isPendingReset()) {
         pendingTimestampOffsetUpdate = true;
         mediaChunk.reset();
-        pendingResetTime = NO_RESET_PENDING;
+        pendingResetPositionUs = NO_RESET_PENDING;
       }
       mediaChunks.add(mediaChunk);
     }
@@ -546,7 +551,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   private boolean isPendingReset() {
-    return pendingResetTime != NO_RESET_PENDING;
+    return pendingResetPositionUs != NO_RESET_PENDING;
   }
 
   private long getRetryDelayMillis(long errorCount) {
