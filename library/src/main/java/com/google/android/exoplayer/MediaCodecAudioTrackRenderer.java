@@ -294,6 +294,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
       case 6:
         channelConfig = AudioFormat.CHANNEL_OUT_5POINT1;
         break;
+      case 8:
+        channelConfig = AudioFormat.CHANNEL_OUT_7POINT1;
+        break;
       default:
         throw new IllegalArgumentException("Unsupported channel count: " + channelCount);
     }
