@@ -24,8 +24,8 @@ import android.util.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.concurrent.CancellationException;
 
 /**
@@ -282,10 +282,10 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
     @Override
     public void load() throws IOException, InterruptedException {
-      String inputEncoding = null;
+      String inputEncoding;
       InputStream inputStream = null;
       try {
-        HttpURLConnection connection = configureHttpConnection(new URL(manifestUrl));
+        URLConnection connection = configureConnection(new URL(manifestUrl));
         inputStream = connection.getInputStream();
         inputEncoding = connection.getContentEncoding();
         result = parser.parse(inputStream, inputEncoding, contentId,
@@ -297,8 +297,8 @@ public class ManifestFetcher<T> implements Loader.Callback {
       }
     }
 
-    private HttpURLConnection configureHttpConnection(URL url) throws IOException {
-      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    private URLConnection configureConnection(URL url) throws IOException {
+      URLConnection connection = url.openConnection();
       connection.setConnectTimeout(TIMEOUT_MILLIS);
       connection.setReadTimeout(TIMEOUT_MILLIS);
       connection.setDoOutput(false);

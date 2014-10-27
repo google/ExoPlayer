@@ -23,10 +23,19 @@ import java.nio.ByteBuffer;
 public final class SampleHolder {
 
   /**
-   * Whether a {@link SampleSource} is permitted to replace {@link #data} if its current value is
-   * null or of insufficient size to hold the sample.
+   * Disallows buffer replacement.
    */
-  public final boolean allowDataBufferReplacement;
+  public static final int BUFFER_REPLACEMENT_MODE_DISABLED = 0;
+
+  /**
+   * Allows buffer replacement using {@link ByteBuffer#allocate(int)}.
+   */
+  public static final int BUFFER_REPLACEMENT_MODE_NORMAL = 1;
+
+  /**
+   * Allows buffer replacement using {@link ByteBuffer#allocateDirect(int)}.
+   */
+  public static final int BUFFER_REPLACEMENT_MODE_DIRECT = 2;
 
   public final CryptoInfo cryptoInfo;
 
@@ -57,12 +66,34 @@ public final class SampleHolder {
    */
   public boolean decodeOnly;
 
+  private final int bufferReplacementMode;
+
   /**
-   * @param allowDataBufferReplacement See {@link #allowDataBufferReplacement}.
+   * @param bufferReplacementMode Determines the behavior of {@link #replaceBuffer(int)}. One of
+   *     {@link #BUFFER_REPLACEMENT_MODE_DISABLED}, {@link #BUFFER_REPLACEMENT_MODE_NORMAL} and
+   *     {@link #BUFFER_REPLACEMENT_MODE_DIRECT}.
    */
-  public SampleHolder(boolean allowDataBufferReplacement) {
+  public SampleHolder(int bufferReplacementMode) {
     this.cryptoInfo = new CryptoInfo();
-    this.allowDataBufferReplacement = allowDataBufferReplacement;
+    this.bufferReplacementMode = bufferReplacementMode;
+  }
+
+  /**
+   * Attempts to replace {@link #data} with a {@link ByteBuffer} of the specified capacity.
+   *
+   * @param capacity The capacity of the replacement buffer, in bytes.
+   * @return True if the buffer was replaced. False otherwise.
+   */
+  public boolean replaceBuffer(int capacity) {
+    switch (bufferReplacementMode) {
+      case BUFFER_REPLACEMENT_MODE_NORMAL:
+        data = ByteBuffer.allocate(capacity);
+        return true;
+      case BUFFER_REPLACEMENT_MODE_DIRECT:
+        data = ByteBuffer.allocateDirect(capacity);
+        return true;
+    }
+    return false;
   }
 
 }

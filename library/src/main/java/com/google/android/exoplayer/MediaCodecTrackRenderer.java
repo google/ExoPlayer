@@ -174,7 +174,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     codecCounters = new CodecCounters();
-    sampleHolder = new SampleHolder(false);
+    sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_DISABLED);
     formatHolder = new MediaFormatHolder();
     decodeOnlyPresentationTimestamps = new HashSet<Long>();
     outputBufferInfo = new MediaCodec.BufferInfo();

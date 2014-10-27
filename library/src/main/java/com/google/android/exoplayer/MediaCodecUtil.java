@@ -76,7 +76,7 @@ public class MediaCodecUtil {
     for (int i = 0; i < numberOfCodecs; i++) {
       MediaCodecInfo info = MediaCodecList.getCodecInfoAt(i);
       String codecName = info.getName();
-      if (!info.isEncoder() && isOmxCodec(codecName)) {
+      if (!info.isEncoder() && codecName.startsWith("OMX.") && !codecName.endsWith(".secure")) {
         String[] supportedTypes = info.getSupportedTypes();
         for (int j = 0; j < supportedTypes.length; j++) {
           String supportedType = supportedTypes[j];
@@ -89,10 +89,6 @@ public class MediaCodecUtil {
       }
     }
     return null;
-  }
-
-  private static boolean isOmxCodec(String name) {
-    return name.startsWith("OMX.");
   }
 
   private static boolean isAdaptive(CodecCapabilities capabilities) {
