@@ -55,7 +55,7 @@ public class SubtitleParserHelper implements Handler.Callback {
    * Flushes the helper, canceling the current parsing operation, if there is one.
    */
   public synchronized void flush() {
-    sampleHolder = new SampleHolder(true);
+    sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
     parsing = false;
     result = null;
     error = null;

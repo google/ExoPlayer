@@ -21,7 +21,6 @@ import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.VerboseLogUtil;
 
 import android.annotation.TargetApi;
 import android.os.Handler;
@@ -29,7 +28,6 @@ import android.os.Handler.Callback;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
 import java.io.IOException;
 
@@ -53,8 +51,6 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
     void onText(String text);
 
   }
-
-  private static final String TAG = "TextTrackRenderer";
 
   private static final int MSG_UPDATE_OVERLAY = 0;
 
@@ -145,13 +141,12 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
 
   @Override
   protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+    currentPositionUs = positionUs;
     try {
       source.continueBuffering(positionUs);
     } catch (IOException e) {
       throw new ExoPlaybackException(e);
     }
-
-    currentPositionUs = positionUs;
 
     if (parserHelper.isParsing()) {
       return;
@@ -188,7 +183,7 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
 
     // We don't have a subtitle. Try and read the next one from the source, and if we succeed then
     // sync and set textRendererNeedsUpdate.
-    if (subtitle == null) {
+    if (!inputStreamEnded && subtitle == null) {
       try {
         SampleHolder sampleHolder = parserHelper.getSampleHolder();
         int result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
@@ -215,12 +210,12 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
 
   @Override
   protected void onDisabled() {
-    source.disable(trackIndex);
     subtitle = null;
     parserThread.quit();
     parserThread = null;
     parserHelper = null;
     clearTextRenderer();
+    source.disable(trackIndex);
   }
 
   @Override
@@ -268,20 +263,18 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
 
   private void updateTextRenderer(long positionUs) {
     String text = subtitle.getText(positionUs);
-    log("updateTextRenderer; text=: " + text);
     if (textRendererHandler != null) {
       textRendererHandler.obtainMessage(MSG_UPDATE_OVERLAY, text).sendToTarget();
     } else {
-      invokeTextRenderer(text);
+      invokeRendererInternal(text);
     }
   }
 
   private void clearTextRenderer() {
-    log("clearTextRenderer");
     if (textRendererHandler != null) {
       textRendererHandler.obtainMessage(MSG_UPDATE_OVERLAY, null).sendToTarget();
     } else {
-      invokeTextRenderer(null);
+      invokeRendererInternal(null);
     }
   }
 
@@ -289,20 +282,14 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   public boolean handleMessage(Message msg) {
     switch (msg.what) {
       case MSG_UPDATE_OVERLAY:
-        invokeTextRenderer((String) msg.obj);
+        invokeRendererInternal((String) msg.obj);
         return true;
     }
     return false;
   }
 
-  private void invokeTextRenderer(String text) {
+  private void invokeRendererInternal(String text) {
     textRenderer.onText(text);
-  }
-
-  private void log(String logMessage) {
-    if (VerboseLogUtil.isTagEnabled(TAG)) {
-      Log.v(TAG, logMessage);
-    }
   }
 
 }

@@ -751,9 +751,12 @@ public final class FragmentedMp4Extractor implements Extractor {
       parseSenc(senc.data, out);
     }
 
-    LeafAtom uuid = traf.getLeafAtomOfType(Atom.TYPE_uuid);
-    if (uuid != null) {
-      parseUuid(uuid.data, out, extendedTypeScratch);
+    int childrenSize = traf.children.size();
+    for (int i = 0; i < childrenSize; i++) {
+      Atom atom = traf.children.get(i);
+      if (atom.type == Atom.TYPE_uuid) {
+        parseUuid(((LeafAtom) atom).data, out, extendedTypeScratch);
+      }
     }
   }
 
@@ -1066,21 +1069,20 @@ public final class FragmentedMp4Extractor implements Extractor {
     if (out == null) {
       return RESULT_NEED_SAMPLE_HOLDER;
     }
-    ByteBuffer outputData = out.data;
     out.timeUs = fragmentRun.getSamplePresentationTime(sampleIndex) * 1000L;
     out.flags = 0;
     if (fragmentRun.sampleIsSyncFrameTable[sampleIndex]) {
       out.flags |= MediaExtractor.SAMPLE_FLAG_SYNC;
       lastSyncSampleIndex = sampleIndex;
     }
-    if (out.allowDataBufferReplacement && (out.data == null || out.data.capacity() < sampleSize)) {
-      outputData = ByteBuffer.allocate(sampleSize);
-      out.data = outputData;
+    if (out.data == null || out.data.capacity() < sampleSize) {
+      out.replaceBuffer(sampleSize);
     }
     if (fragmentRun.definesEncryptionData) {
       readSampleEncryptionData(fragmentRun.sampleEncryptionData, out);
     }
 
+    ByteBuffer outputData = out.data;
     if (outputData == null) {
       inputStream.skip(sampleSize);
       out.size = 0;
