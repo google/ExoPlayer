@@ -22,7 +22,6 @@ import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.Assertions;
 
-import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.UUID;
 
@@ -97,9 +96,8 @@ public class SingleSampleMediaChunk extends MediaChunk {
     if (headerData != null) {
       sampleSize += headerData.length;
     }
-    if (holder.allowDataBufferReplacement &&
-        (holder.data == null || holder.data.capacity() < sampleSize)) {
-      holder.data = ByteBuffer.allocate(sampleSize);
+    if (holder.data == null || holder.data.capacity() < sampleSize) {
+      holder.replaceBuffer(sampleSize);
     }
     int bytesRead;
     if (holder.data != null) {

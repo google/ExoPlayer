@@ -347,13 +347,11 @@ public final class WebmExtractor implements Extractor {
           throw new IllegalStateException("Lacing mode " + lacing + " not supported");
       }
 
-      ByteBuffer outputData = sampleHolder.data;
-      if (sampleHolder.allowDataBufferReplacement
-          && (sampleHolder.data == null || sampleHolder.data.capacity() < sampleHolder.size)) {
-        outputData = ByteBuffer.allocate(sampleHolder.size);
-        sampleHolder.data = outputData;
+      if (sampleHolder.data == null || sampleHolder.data.capacity() < sampleHolder.size) {
+        sampleHolder.replaceBuffer(sampleHolder.size);
       }
 
+      ByteBuffer outputData = sampleHolder.data;
       if (outputData == null) {
         reader.skipBytes(inputStream, sampleHolder.size);
         sampleHolder.size = 0;
