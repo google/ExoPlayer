@@ -751,9 +751,12 @@ public final class FragmentedMp4Extractor implements Extractor {
       parseSenc(senc.data, out);
     }
 
-    LeafAtom uuid = traf.getLeafAtomOfType(Atom.TYPE_uuid);
-    if (uuid != null) {
-      parseUuid(uuid.data, out, extendedTypeScratch);
+    int childrenSize = traf.children.size();
+    for (int i = 0; i < childrenSize; i++) {
+      Atom atom = traf.children.get(i);
+      if (atom.type == Atom.TYPE_uuid) {
+        parseUuid(((LeafAtom) atom).data, out, extendedTypeScratch);
+      }
     }
   }
 
