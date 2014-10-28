@@ -28,7 +28,6 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 
-import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -237,13 +236,11 @@ public final class TsExtractor {
 
   private void convert(Sample in, SampleHolder out) {
     if (out.data == null || out.data.capacity() < in.size) {
-      if (out.allowDataBufferReplacement) {
-        out.data = ByteBuffer.allocate(in.size);
-      } else {
-        throw new IndexOutOfBoundsException("Buffer too small, and replacement not enabled");
-      }
+      out.replaceBuffer(in.size);
     }
-    out.data.put(in.data, 0, in.size);
+    if (out.data != null) {
+      out.data.put(in.data, 0, in.size);
+    }
     out.size = in.size;
     out.flags = in.flags;
     out.timeUs = in.timeUs;
