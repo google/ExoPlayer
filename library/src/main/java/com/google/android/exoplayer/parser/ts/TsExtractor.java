@@ -37,19 +37,6 @@ import java.util.Queue;
  */
 public final class TsExtractor {
 
-  /**
-   * An attempt to read from the input stream returned insufficient data.
-   */
-  public static final int RESULT_NEED_MORE_DATA = 1;
-  /**
-   * A media sample was read.
-   */
-  public static final int RESULT_READ_SAMPLE = 2;
-  /**
-   * The next thing to be read is a sample, but a {@link SampleHolder} was not supplied.
-   */
-  public static final int RESULT_NEED_SAMPLE_HOLDER = 4;
-
   private static final String TAG = "TsExtractor";
 
   private static final int TS_PACKET_SIZE = 188;
@@ -69,12 +56,18 @@ public final class TsExtractor {
 
   private boolean prepared;
 
+  private boolean pendingTimestampOffsetUpdate;
+  private long pendingTimestampOffsetUs;
+  private long sampleTimestampOffsetUs;
+  private long largestParsedTimestampUs;
+
   public TsExtractor() {
     tsPacketBuffer = new BitsArray();
     pesPayloadReaders = new SparseArray<PesPayloadReader>();
     tsPayloadReaders = new SparseArray<TsPayloadReader>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
     samplesPool = new LinkedList<Sample>();
+    largestParsedTimestampUs = Long.MIN_VALUE;
   }
 
   /**
@@ -103,9 +96,18 @@ public final class TsExtractor {
   }
 
   /**
+   * Whether the extractor is prepared.
+   *
+   * @return True if the extractor is prepared. False otherwise.
+   */
+  public boolean isPrepared() {
+    return prepared;
+  }
+
+  /**
    * Resets the extractor's internal state.
    */
-  public void reset() {
+  public void reset(long nextSampleTimestampUs) {
     prepared = false;
     tsPacketBuffer.reset();
     tsPayloadReaders.clear();
@@ -115,25 +117,65 @@ public final class TsExtractor {
       pesPayloadReaders.valueAt(i).clear();
     }
     pesPayloadReaders.clear();
+    // Configure for subsequent read operations.
+    pendingTimestampOffsetUpdate = true;
+    pendingTimestampOffsetUs = nextSampleTimestampUs;
+    largestParsedTimestampUs = Long.MIN_VALUE;
   }
 
   /**
-   * Attempts to prepare the extractor. The extractor is prepared once it has read sufficient data
-   * to have established the available tracks and their corresponding media formats.
+   * Consumes data from a {@link NonBlockingInputStream}.
    * <p>
-   * Calling this method is a no-op if the extractor is already prepared.
+   * The read terminates if the end of the input stream is reached, if insufficient data is
+   * available to read a sample, or if the extractor has consumed up to the specified target
+   * timestamp.
    *
-   * @param inputStream The input stream from which data can be read.
-   * @return True if the extractor was prepared. False if more data is required.
+   * @param inputStream The input stream from which data should be read.
+   * @param targetTimestampUs A target timestamp to consume up to.
+   * @return True if the target timestamp was reached. False otherwise.
    */
-  public boolean prepare(NonBlockingInputStream inputStream) {
-    while (!prepared) {
-      if (readTSPacket(inputStream) == -1) {
-        return false;
-      }
+  public boolean consumeUntil(NonBlockingInputStream inputStream, long targetTimestampUs) {
+    while (largestParsedTimestampUs < targetTimestampUs && readTSPacket(inputStream) != -1) {
+      // Carry on.
+    }
+    if (!prepared) {
       prepared = checkPrepared();
     }
+    return largestParsedTimestampUs >= targetTimestampUs;
+  }
+
+  /**
+   * Gets the next sample for the specified track.
+   *
+   * @param track The track from which to read.
+   * @param out A {@link SampleHolder} into which the next sample should be read.
+   * @return True if a sample was read. False otherwise.
+   */
+  public boolean getSample(int track, SampleHolder out) {
+    Assertions.checkState(prepared);
+    Queue<Sample> queue = pesPayloadReaders.valueAt(track).samplesQueue;
+    if (queue.isEmpty()) {
+      return false;
+    }
+    Sample sample = queue.remove();
+    convert(sample, out);
+    recycleSample(sample);
     return true;
+  }
+
+  /**
+   * Whether samples are available for reading from {@link #getSample(int, SampleHolder)}.
+   *
+   * @return True if samples are available for reading from {@link #getSample(int, SampleHolder)}.
+   *     False otherwise.
+   */
+  public boolean hasSamples() {
+    for (int i = 0; i < pesPayloadReaders.size(); i++) {
+      if (!pesPayloadReaders.valueAt(i).samplesQueue.isEmpty()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private boolean checkPrepared() {
@@ -147,40 +189,6 @@ public final class TsExtractor {
       }
     }
     return true;
-  }
-
-  /**
-   * Consumes data from a {@link NonBlockingInputStream}.
-   * <p>
-   * The read terminates if the end of the input stream is reached, if insufficient data is
-   * available to read a sample, or if a sample is read. The returned flags indicate
-   * both the reason for termination and data that was parsed during the read.
-   *
-   * @param inputStream The input stream from which data should be read.
-   * @param track The track from which to read.
-   * @param out A {@link SampleHolder} into which the next sample should be read. If null then
-   *     {@link #RESULT_NEED_SAMPLE_HOLDER} will be returned once a sample has been reached.
-   * @return One or more of the {@code RESULT_*} flags defined in this class.
-   */
-  public int read(NonBlockingInputStream inputStream, int track, SampleHolder out) {
-    Assertions.checkState(prepared);
-    Queue<Sample> queue = pesPayloadReaders.valueAt(track).samplesQueue;
-
-    // Keep reading if the buffer is empty.
-    while (queue.isEmpty()) {
-      if (readTSPacket(inputStream) == -1) {
-        return RESULT_NEED_MORE_DATA;
-      }
-    }
-
-    if (!queue.isEmpty() && out == null) {
-      return RESULT_NEED_SAMPLE_HOLDER;
-    }
-
-    Sample sample = queue.remove();
-    convert(sample, out);
-    recycleSample(sample);
-    return RESULT_READ_SAMPLE;
   }
 
   /**
@@ -506,6 +514,12 @@ public final class TsExtractor {
       addToSample(sample, buffer, sampleSize);
       sample.flags = flags;
       sample.timeUs = sampleTimeUs;
+      addSample(sample);
+    }
+
+    protected void addSample(Sample sample) {
+      adjustTimestamp(sample);
+      largestParsedTimestampUs = Math.max(largestParsedTimestampUs, sample.timeUs);
       samplesQueue.add(sample);
     }
 
@@ -515,6 +529,14 @@ public final class TsExtractor {
       }
       buffer.readBytes(sample.data, sample.size, size);
       sample.size += size;
+    }
+
+    private void adjustTimestamp(Sample sample) {
+      if (pendingTimestampOffsetUpdate) {
+        sampleTimestampOffsetUs = pendingTimestampOffsetUs - sample.timeUs;
+        pendingTimestampOffsetUpdate = false;
+      }
+      sample.timeUs += sampleTimestampOffsetUs;
     }
 
   }
@@ -549,7 +571,7 @@ public final class TsExtractor {
 
       // Single PES packet should contain only one new H.264 frame.
       if (currentSample != null) {
-        samplesQueue.add(currentSample);
+        addSample(currentSample);
       }
       currentSample = getSample();
       pesPayloadSize -= readOneH264Frame(pesBuffer, false);

@@ -18,7 +18,6 @@ package com.google.android.exoplayer.hls;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.TrackRenderer;
-import com.google.android.exoplayer.parser.ts.TsExtractor;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
@@ -40,10 +39,10 @@ import java.util.List;
 public class HlsChunkSource {
 
   private final DataSource dataSource;
-  private final TsExtractor extractor;
   private final HlsMasterPlaylist masterPlaylist;
   private final HlsMediaPlaylistParser mediaPlaylistParser;
 
+  private long liveStartTimeUs;
   /* package */ HlsMediaPlaylist mediaPlaylist;
   /* package */ boolean mediaPlaylistWasLive;
   /* package */ long lastMediaPlaylistLoadTimeMs;
@@ -52,7 +51,6 @@ public class HlsChunkSource {
   public HlsChunkSource(DataSource dataSource, HlsMasterPlaylist masterPlaylist) {
     this.dataSource = dataSource;
     this.masterPlaylist = masterPlaylist;
-    extractor = new TsExtractor();
     mediaPlaylistParser = new HlsMediaPlaylistParser();
   }
 
@@ -120,6 +118,7 @@ public class HlsChunkSource {
         }
       }
     } else {
+      // Not live.
       if (queue.isEmpty()) {
         chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, seekPositionUs, true,
             true) + mediaPlaylist.mediaSequence;
@@ -151,14 +150,26 @@ public class HlsChunkSource {
 
     long startTimeUs = segment.startTimeUs;
     long endTimeUs = startTimeUs + (long) (segment.durationSecs * 1000000);
-
     int nextChunkMediaSequence = chunkMediaSequence + 1;
-    if (!mediaPlaylist.live && chunkIndex == mediaPlaylist.segments.size() - 1) {
-      nextChunkMediaSequence = -1;
+
+    if (mediaPlaylistWasLive) {
+      if (queue.isEmpty()) {
+        liveStartTimeUs = startTimeUs;
+        startTimeUs = 0;
+        endTimeUs -= liveStartTimeUs;
+      } else {
+        startTimeUs -= liveStartTimeUs;
+        endTimeUs -= liveStartTimeUs;
+      }
+    } else {
+      // Not live.
+      if (chunkIndex == mediaPlaylist.segments.size() - 1) {
+        nextChunkMediaSequence = -1;
+      }
     }
 
-    out.chunk = new TsChunk(dataSource, dataSpec, 0, extractor, startTimeUs, endTimeUs,
-        nextChunkMediaSequence, segment.discontinuity);
+    out.chunk = new TsChunk(dataSource, dataSpec, 0, startTimeUs, endTimeUs, nextChunkMediaSequence,
+        segment.discontinuity);
   }
 
   private boolean shouldRerequestMediaPlaylist() {
