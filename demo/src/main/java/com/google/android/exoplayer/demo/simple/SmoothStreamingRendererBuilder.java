@@ -35,7 +35,7 @@ import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifestParse
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer.upstream.HttpDataSource;
+import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
 
@@ -121,7 +121,7 @@ import java.util.ArrayList;
     }
 
     // Build the video renderer.
-    DataSource videoDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
+    DataSource videoDataSource = new UriDataSource(userAgent, bandwidthMeter);
     ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
         videoStreamElementIndex, videoTrackIndices, videoDataSource,
         new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
@@ -131,7 +131,7 @@ import java.util.ArrayList;
         MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 0, mainHandler, playerActivity, 50);
 
     // Build the audio renderer.
-    DataSource audioDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
+    DataSource audioDataSource = new UriDataSource(userAgent, bandwidthMeter);
     ChunkSource audioChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
         audioStreamElementIndex, new int[] {0}, audioDataSource,
         new FormatEvaluator.FixedEvaluator(), LIVE_EDGE_LATENCY_MS);

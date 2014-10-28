@@ -131,7 +131,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
    * A listener for receiving notifications of timed text.
    */
   public interface TextListener {
-    public abstract void onText(String text);
+    void onText(String text);
   }
 
   // Constants pulled into this class for convenience.
@@ -287,7 +287,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     this.trackNames = trackNames;
     this.multiTrackSources = multiTrackSources;
     rendererBuildingState = RENDERER_BUILDING_STATE_BUILT;
-    maybeReportPlayerState();
     pushSurfaceAndVideoTrack(false);
     pushTrackSelection(TYPE_AUDIO, true);
     pushTrackSelection(TYPE_TEXT, true);
