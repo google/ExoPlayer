@@ -37,6 +37,7 @@ public class MimeTypes {
 
   public static final String TEXT_VTT = BASE_TYPE_TEXT + "/vtt";
 
+  public static final String APPLICATION_ID3 = BASE_TYPE_APPLICATION + "/id3";
   public static final String APPLICATION_TTML = BASE_TYPE_APPLICATION + "/ttml+xml";
 
   private MimeTypes() {}

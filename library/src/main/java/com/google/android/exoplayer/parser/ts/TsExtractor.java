@@ -58,6 +58,7 @@ public final class TsExtractor {
 
   private static final int TS_STREAM_TYPE_AAC = 0x0F;
   private static final int TS_STREAM_TYPE_H264 = 0x1B;
+  private static final int TS_STREAM_TYPE_ID3 = 0x15;
 
   private static final int DEFAULT_BUFFER_SEGMENT_SIZE = 64 * 1024;
 
@@ -344,6 +345,9 @@ public final class TsExtractor {
             break;
           case TS_STREAM_TYPE_H264:
             pesPayloadReader = new H264Reader();
+            break;
+          case TS_STREAM_TYPE_ID3:
+            pesPayloadReader = new Id3Reader();
             break;
         }
 
@@ -689,8 +693,25 @@ public final class TsExtractor {
   }
 
   /**
-   * Simplified version of SampleHolder for internal buffering.
+   * Parses ID3 data and extracts individual text information frames.
    */
+  private class Id3Reader extends PesPayloadReader {
+
+    public Id3Reader() {
+      setMediaFormat(MediaFormat.createId3Format());
+    }
+
+    @SuppressLint("InlinedApi")
+    @Override
+    public void read(BitsArray pesBuffer, int pesPayloadSize, long pesTimeUs) {
+      addSample(pesBuffer, pesPayloadSize, pesTimeUs, MediaExtractor.SAMPLE_FLAG_SYNC);
+    }
+
+  }
+
+  /**
+  * Simplified version of SampleHolder for internal buffering.
+  */
   private static class Sample {
 
     public byte[] data;

@@ -33,6 +33,14 @@ public final class BitsArray {
   private int byteOffset;
   private int bitOffset;
 
+  public BitsArray() {
+  }
+
+  public BitsArray(byte[] data, int limit) {
+    this.data = data;
+    this.limit = limit;
+  }
+
   /**
    * Resets the state.
    */
@@ -238,6 +246,22 @@ public final class BitsArray {
    */
   public boolean isEmpty() {
     return limit == 0;
+  }
+
+  /**
+   * Reads a Synchsafe integer.
+   * Synchsafe integers are integers that keep the highest bit of every byte zeroed.
+   * A 32 bit synchsafe integer can store 28 bits of information.
+   *
+   * @return The value of the parsed Synchsafe integer.
+   */
+  public int readSynchSafeInt() {
+    int b1 = readUnsignedByte();
+    int b2 = readUnsignedByte();
+    int b3 = readUnsignedByte();
+    int b4 = readUnsignedByte();
+
+    return (b1 << 21) | (b2 << 14) | (b3 << 7) | b4;
   }
 
   // TODO: Find a better place for this method.

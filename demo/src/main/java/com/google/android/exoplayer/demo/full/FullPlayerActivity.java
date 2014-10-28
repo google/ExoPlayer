@@ -25,6 +25,7 @@ import com.google.android.exoplayer.demo.full.player.DemoPlayer;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.full.player.HlsRendererBuilder;
 import com.google.android.exoplayer.demo.full.player.SmoothStreamingRendererBuilder;
+import com.google.android.exoplayer.metadata.Metadata;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.SubtitleView;
 import com.google.android.exoplayer.util.Util;
@@ -38,6 +39,7 @@ import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -54,11 +56,15 @@ import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 
+import java.util.List;
+
 /**
  * An activity that plays media using {@link DemoPlayer}.
  */
 public class FullPlayerActivity extends Activity implements SurfaceHolder.Callback, OnClickListener,
-    DemoPlayer.Listener, DemoPlayer.TextListener {
+    DemoPlayer.Listener, DemoPlayer.TextListener, DemoPlayer.MetadataListener {
+
+  private static final String TAG = "FullPlayerActivity";
 
   private static final float CAPTION_LINE_HEIGHT_RATIO = 0.0533f;
   private static final int MENU_GROUP_TRACKS = 1;
@@ -187,6 +193,7 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
       player = new DemoPlayer(getRendererBuilder());
       player.addListener(this);
       player.setTextListener(this);
+      player.setMetadataListener(this);
       player.seekTo(playerPosition);
       playerNeedsPrepare = true;
       mediaController.setMediaPlayer(player.getPlayerControl());
@@ -400,6 +407,16 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
     } else {
       subtitleView.setVisibility(View.VISIBLE);
       subtitleView.setText(text);
+    }
+  }
+
+  // DemoPlayer.MetadataListener implementation
+
+  @Override
+  public void onMetadata(List<Metadata> metadata) {
+    for (int i = 0; i < metadata.size(); i++) {
+      Metadata next = metadata.get(i);
+      Log.i(TAG, "ID3 TimedMetadata: key=" + next.key + ", value=" + next.value);
     }
   }
 

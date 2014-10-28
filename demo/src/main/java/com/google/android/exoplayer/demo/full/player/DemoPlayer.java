@@ -26,6 +26,8 @@ import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
+import com.google.android.exoplayer.metadata.Metadata;
+import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
 import com.google.android.exoplayer.text.TextTrackRenderer;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.util.PlayerControl;
@@ -36,6 +38,7 @@ import android.os.Looper;
 import android.view.Surface;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -46,7 +49,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventListener,
     DefaultBandwidthMeter.EventListener, MediaCodecVideoTrackRenderer.EventListener,
     MediaCodecAudioTrackRenderer.EventListener, TextTrackRenderer.TextRenderer,
-    StreamingDrmSessionManager.EventListener {
+    MetadataTrackRenderer.MetadataRenderer, StreamingDrmSessionManager.EventListener {
 
   /**
    * Builds renderers for the player.
@@ -134,6 +137,13 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     void onText(String text);
   }
 
+  /**
+   * A listener for receiving metadata parsed from the media stream.
+   */
+  public interface MetadataListener {
+    void onMetadata(List<Metadata> metadata);
+  }
+
   // Constants pulled into this class for convenience.
   public static final int STATE_IDLE = ExoPlayer.STATE_IDLE;
   public static final int STATE_PREPARING = ExoPlayer.STATE_PREPARING;
@@ -144,11 +154,12 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   public static final int DISABLED_TRACK = -1;
   public static final int PRIMARY_TRACK = 0;
 
-  public static final int RENDERER_COUNT = 4;
+  public static final int RENDERER_COUNT = 5;
   public static final int TYPE_VIDEO = 0;
   public static final int TYPE_AUDIO = 1;
   public static final int TYPE_TEXT = 2;
-  public static final int TYPE_DEBUG = 3;
+  public static final int TYPE_TIMED_METADATA = 3;
+  public static final int TYPE_DEBUG = 4;
 
   private static final int RENDERER_BUILDING_STATE_IDLE = 1;
   private static final int RENDERER_BUILDING_STATE_BUILDING = 2;
@@ -173,6 +184,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   private int[] selectedTracks;
 
   private TextListener textListener;
+  private MetadataListener metadataListener;
   private InternalErrorListener internalErrorListener;
   private InfoListener infoListener;
 
@@ -212,6 +224,10 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
 
   public void setTextListener(TextListener listener) {
     textListener = listener;
+  }
+
+  public void setMetadataListener(MetadataListener listener) {
+    metadataListener = listener;
   }
 
   public void setSurface(Surface surface) {
@@ -455,6 +471,13 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   public void onText(String text) {
     if (textListener != null) {
       textListener.onText(text);
+    }
+  }
+
+  @Override
+  public void onMetadata(List<Metadata> metadata) {
+    if (metadataListener != null) {
+      metadataListener.onMetadata(metadata);
     }
   }
 

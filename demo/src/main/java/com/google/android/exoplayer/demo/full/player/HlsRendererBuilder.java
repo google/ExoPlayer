@@ -28,6 +28,8 @@ import com.google.android.exoplayer.hls.HlsMasterPlaylist;
 import com.google.android.exoplayer.hls.HlsMasterPlaylist.Variant;
 import com.google.android.exoplayer.hls.HlsMasterPlaylistParser;
 import com.google.android.exoplayer.hls.HlsSampleSource;
+import com.google.android.exoplayer.metadata.Id3Parser;
+import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.UriDataSource;
@@ -97,9 +99,13 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
         MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 0, player.getMainHandler(), player, 50);
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
 
+    MetadataTrackRenderer metadataRenderer = new MetadataTrackRenderer(sampleSource,
+        new Id3Parser(), player, player.getMainHandler().getLooper());
+
     TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
     renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
     renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
+    renderers[DemoPlayer.TYPE_TIMED_METADATA] = metadataRenderer;
     callback.onRenderers(null, null, renderers);
   }
 
