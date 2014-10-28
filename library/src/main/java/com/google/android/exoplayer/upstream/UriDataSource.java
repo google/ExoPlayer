@@ -62,24 +62,21 @@ public final class UriDataSource implements DataSource {
   @Override
   public long open(DataSpec dataSpec) throws IOException {
     Assertions.checkState(dataSource == null);
-
-    dataSource = dataSpec.uri.getScheme().equals(FILE_URI_SCHEME) ? fileDataSource : httpDataSource;
+    dataSource = FILE_URI_SCHEME.equals(dataSpec.uri.getScheme()) ? fileDataSource : httpDataSource;
     return dataSource.open(dataSpec);
   }
 
   @Override
-  public void close() throws IOException {
-    Assertions.checkNotNull(dataSource);
-
-    dataSource.close();
-    dataSource = null;
+  public int read(byte[] buffer, int offset, int readLength) throws IOException {
+    return dataSource.read(buffer, offset, readLength);
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) throws IOException {
-    Assertions.checkNotNull(dataSource);
-
-    return dataSource.read(buffer, offset, readLength);
+  public void close() throws IOException {
+    if (dataSource != null) {
+      dataSource.close();
+      dataSource = null;
+    }
   }
 
 }
