@@ -137,6 +137,14 @@ public final class BitsArray {
     return b & 0xFF;
   }
 
+  /**
+   * Reads a single bit.
+   *
+   * @return True if the bit is set. False otherwise.
+   */
+  public boolean readBit() {
+    return readBits(1) == 1;
+  }
 
   /**
    * Reads up to 32 bits.

@@ -56,10 +56,10 @@ public final class TsExtractor {
 
   private boolean prepared;
 
-  private boolean pendingTimestampOffsetUpdate;
-  private long pendingTimestampOffsetUs;
-  private long sampleTimestampOffsetUs;
-  private long largestParsedTimestampUs;
+  /* package */ boolean pendingTimestampOffsetUpdate;
+  /* package */ long pendingTimestampOffsetUs;
+  /* package */ long sampleTimestampOffsetUs;
+  /* package */ long largestParsedTimestampUs;
 
   public TsExtractor() {
     tsPacketBuffer = new BitsArray();
@@ -201,11 +201,7 @@ public final class TsExtractor {
     }
 
     tsPacketBuffer.reset();
-
-    int bytesRead = tsPacketBuffer.append(inputStream, TS_PACKET_SIZE);
-    if (bytesRead != TS_PACKET_SIZE) {
-      return -1;
-    }
+    tsPacketBuffer.append(inputStream, TS_PACKET_SIZE);
 
     // Parse TS header.
     // Check sync byte.
@@ -215,25 +211,25 @@ public final class TsExtractor {
     }
     // Skip transportErrorIndicator.
     tsPacketBuffer.skipBits(1);
-    int payloadUnitStartIndicator = tsPacketBuffer.readBits(1);
+    boolean payloadUnitStartIndicator = tsPacketBuffer.readBit();
     // Skip transportPriority.
     tsPacketBuffer.skipBits(1);
     int pid = tsPacketBuffer.readBits(13);
     // Skip transport_scrambling_control.
     tsPacketBuffer.skipBits(2);
-    int adaptationFieldExist = tsPacketBuffer.readBits(1);
-    int payloadExist = tsPacketBuffer.readBits(1);
+    boolean adaptationFieldExists = tsPacketBuffer.readBit();
+    boolean payloadExists = tsPacketBuffer.readBit();
     // Skip continuityCounter.
     tsPacketBuffer.skipBits(4);
 
-    // Read Adaptation Field.
-    if (adaptationFieldExist == 1) {
-      int afLength = tsPacketBuffer.readBits(8);
-      tsPacketBuffer.skipBytes(afLength);
+    // Read the adaptation field.
+    if (adaptationFieldExists) {
+      int adaptationFieldLength = tsPacketBuffer.readBits(8);
+      tsPacketBuffer.skipBytes(adaptationFieldLength);
     }
 
     // Read Payload.
-    if (payloadExist == 1) {
+    if (payloadExists) {
       TsPayloadReader payloadReader = tsPayloadReaders.get(pid);
       if (payloadReader == null) {
         return 0;
@@ -255,14 +251,14 @@ public final class TsExtractor {
     out.timeUs = in.timeUs;
   }
 
-  private Sample getSample() {
+  /* package */ Sample getSample() {
     if (samplesPool.isEmpty()) {
       return new Sample(DEFAULT_BUFFER_SEGMENT_SIZE);
     }
     return samplesPool.remove();
   }
 
-  private void recycleSample(Sample sample) {
+  /* package */ void recycleSample(Sample sample) {
     sample.reset();
     samplesPool.add(sample);
   }
@@ -271,7 +267,7 @@ public final class TsExtractor {
    * Parses payload data.
    */
   private abstract static class TsPayloadReader {
-    public abstract void read(BitsArray tsBuffer, int payloadUnitStartIndicator);
+    public abstract void read(BitsArray tsBuffer, boolean payloadUnitStartIndicator);
   }
 
   /**
@@ -280,9 +276,9 @@ public final class TsExtractor {
   private class PatReader extends TsPayloadReader {
 
     @Override
-    public void read(BitsArray tsBuffer, int payloadUnitStartIndicator) {
+    public void read(BitsArray tsBuffer, boolean payloadUnitStartIndicator) {
       // Skip pointer.
-      if (payloadUnitStartIndicator == 1) {
+      if (payloadUnitStartIndicator) {
         int pointerField = tsBuffer.readBits(8);
         tsBuffer.skipBytes(pointerField);
       }
@@ -313,9 +309,9 @@ public final class TsExtractor {
   private class PmtReader extends TsPayloadReader {
 
     @Override
-    public void read(BitsArray tsBuffer, int payloadUnitStartIndicator) {
+    public void read(BitsArray tsBuffer, boolean payloadUnitStartIndicator) {
       // Skip pointer.
-      if (payloadUnitStartIndicator == 1) {
+      if (payloadUnitStartIndicator) {
         int pointerField = tsBuffer.readBits(8);
         tsBuffer.skipBytes(pointerField);
       }
@@ -399,8 +395,8 @@ public final class TsExtractor {
     }
 
     @Override
-    public void read(BitsArray tsBuffer, int payloadUnitStartIndicator) {
-      if (payloadUnitStartIndicator == 1 && !pesBuffer.isEmpty()) {
+    public void read(BitsArray tsBuffer, boolean payloadUnitStartIndicator) {
+      if (payloadUnitStartIndicator && !pesBuffer.isEmpty()) {
         readPES();
       }
       pesBuffer.append(tsBuffer, tsBuffer.bytesLeft());
@@ -414,6 +410,7 @@ public final class TsExtractor {
       if (packetStartCodePrefix != 0x000001) {
         // Error.
       }
+
       // TODO: Read and use stream_id.
       // Skip stream_id.
       pesBuffer.skipBits(8);
@@ -422,7 +419,7 @@ public final class TsExtractor {
       // Skip some fields/flags.
       // TODO: might need to use data_alignment_indicator.
       pesBuffer.skipBits(8); // 2+2+1+1+1+1
-      int ptsFlag = pesBuffer.readBits(1);
+      boolean ptsFlag = pesBuffer.readBit();
       // Skip DTS flag.
       pesBuffer.skipBits(1);
       // Skip some fields/flags.
@@ -434,8 +431,7 @@ public final class TsExtractor {
       }
 
       long timeUs = 0;
-
-      if (ptsFlag == 1) {
+      if (ptsFlag) {
         // Skip prefix.
         pesBuffer.skipBits(4);
         long pts = pesBuffer.readBitsLong(3) << 30;
@@ -444,9 +440,7 @@ public final class TsExtractor {
         pesBuffer.skipBits(1);
         pts |= pesBuffer.readBitsLong(15);
         pesBuffer.skipBits(1);
-
         timeUs = pts * 1000000 / 90000;
-
         // Skip the rest of the header.
         pesBuffer.skipBytes(pesHeaderDataLength - 5);
       } else {
@@ -463,7 +457,6 @@ public final class TsExtractor {
       }
 
       pesPayloadReader.read(pesBuffer, payloadSize, timeUs);
-
       pesBuffer.reset();
     }
 
@@ -662,7 +655,7 @@ public final class TsExtractor {
       }
 
       adtsBuffer.skipBits(15);
-      int hasCRC = adtsBuffer.readBits(1);
+      boolean hasCRC = !adtsBuffer.readBit();
 
       if (!hasMediaFormat()) {
         int audioObjectType = adtsBuffer.readBits(2) + 1;
@@ -688,7 +681,7 @@ public final class TsExtractor {
       adtsBuffer.skipBits(13);
 
       // Decrement frame size by ADTS header size and CRC.
-      if (hasCRC == 0) {
+      if (hasCRC) {
         // Skip CRC.
         adtsBuffer.skipBytes(2);
         frameSize -= 9;
