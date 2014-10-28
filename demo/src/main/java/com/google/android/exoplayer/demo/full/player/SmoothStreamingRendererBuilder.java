@@ -41,7 +41,7 @@ import com.google.android.exoplayer.text.ttml.TtmlParser;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer.upstream.HttpDataSource;
+import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.Util;
 
@@ -155,7 +155,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     }
 
     // Build the video renderer.
-    DataSource videoDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
+    DataSource videoDataSource = new UriDataSource(userAgent, bandwidthMeter);
     ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
         videoStreamElementIndex, videoTrackIndices, videoDataSource,
         new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
@@ -177,7 +177,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     } else {
       audioTrackNames = new String[audioStreamElementCount];
       ChunkSource[] audioChunkSources = new ChunkSource[audioStreamElementCount];
-      DataSource audioDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
+      DataSource audioDataSource = new UriDataSource(userAgent, bandwidthMeter);
       FormatEvaluator audioFormatEvaluator = new FormatEvaluator.FixedEvaluator();
       audioStreamElementCount = 0;
       for (int i = 0; i < manifest.streamElements.length; i++) {
@@ -208,7 +208,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     } else {
       textTrackNames = new String[textStreamElementCount];
       ChunkSource[] textChunkSources = new ChunkSource[textStreamElementCount];
-      DataSource ttmlDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
+      DataSource ttmlDataSource = new UriDataSource(userAgent, bandwidthMeter);
       FormatEvaluator ttmlFormatEvaluator = new FormatEvaluator.FixedEvaluator();
       textStreamElementCount = 0;
       for (int i = 0; i < manifest.streamElements.length; i++) {

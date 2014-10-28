@@ -43,7 +43,7 @@ import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer.upstream.HttpDataSource;
+import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -162,7 +162,7 @@ public class DashVodRendererBuilder implements RendererBuilder,
     }
 
     // Build the video renderer.
-    DataSource videoDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
+    DataSource videoDataSource = new UriDataSource(userAgent, bandwidthMeter);
     ChunkSource videoChunkSource;
     String mimeType = videoRepresentations[0].format.mimeType;
     if (mimeType.equals(MimeTypes.VIDEO_MP4) || mimeType.equals(MimeTypes.VIDEO_WEBM)) {
@@ -187,7 +187,7 @@ public class DashVodRendererBuilder implements RendererBuilder,
       audioChunkSource = null;
       audioRenderer = null;
     } else {
-      DataSource audioDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
+      DataSource audioDataSource = new UriDataSource(userAgent, bandwidthMeter);
       audioTrackNames = new String[audioRepresentationsList.size()];
       ChunkSource[] audioChunkSources = new ChunkSource[audioRepresentationsList.size()];
       FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
