@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.demo.full.player;
+package com.google.android.exoplayer.demo.simple;
 
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
@@ -21,8 +21,9 @@ import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.demo.DemoUtil;
-import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilder;
-import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilderCallback;
+import com.google.android.exoplayer.demo.full.player.DemoPlayer;
+import com.google.android.exoplayer.demo.simple.SimplePlayerActivity.RendererBuilder;
+import com.google.android.exoplayer.demo.simple.SimplePlayerActivity.RendererBuilderCallback;
 import com.google.android.exoplayer.hls.HlsChunkSource;
 import com.google.android.exoplayer.hls.HlsMasterPlaylist;
 import com.google.android.exoplayer.hls.HlsMasterPlaylist.Variant;
@@ -43,36 +44,38 @@ import java.util.Collections;
 /**
  * A {@link RendererBuilder} for HLS.
  */
-public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<HlsMasterPlaylist> {
+/* package */ class HlsRendererBuilder implements RendererBuilder,
+    ManifestCallback<HlsMasterPlaylist> {
 
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
   private static final int VIDEO_BUFFER_SEGMENTS = 200;
 
+  private final SimplePlayerActivity playerActivity;
   private final String userAgent;
   private final String url;
   private final String contentId;
-  private final int contentType;
+  private final int playlistType;
 
-  private DemoPlayer player;
   private RendererBuilderCallback callback;
 
-  public HlsRendererBuilder(String userAgent, String url, String contentId, int contentType) {
+  public HlsRendererBuilder(SimplePlayerActivity playerActivity, String userAgent, String url,
+      String contentId, int playlistType) {
+    this.playerActivity = playerActivity;
     this.userAgent = userAgent;
     this.url = url;
     this.contentId = contentId;
-    this.contentType = contentType;
+    this.playlistType = playlistType;
   }
 
   @Override
-  public void buildRenderers(DemoPlayer player, RendererBuilderCallback callback) {
-    this.player = player;
+  public void buildRenderers(RendererBuilderCallback callback) {
     this.callback = callback;
-    switch (contentType) {
+    switch (playlistType) {
       case DemoUtil.TYPE_HLS_MASTER:
         HlsMasterPlaylistParser parser = new HlsMasterPlaylistParser();
         ManifestFetcher<HlsMasterPlaylist> mediaPlaylistFetcher =
             new ManifestFetcher<HlsMasterPlaylist>(parser, contentId, url);
-        mediaPlaylistFetcher.singleLoad(player.getMainHandler().getLooper(), this);
+        mediaPlaylistFetcher.singleLoad(playerActivity.getMainLooper(), this);
         break;
       case DemoUtil.TYPE_HLS_MEDIA:
         onManifest(contentId, newSimpleMasterPlaylist(url));
@@ -94,13 +97,14 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
     HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, loadControl,
         VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, 2);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
-        MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 0, player.getMainHandler(), player, 50);
+        MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 0, playerActivity.getMainHandler(),
+        playerActivity, 50);
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
 
     TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
     renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
     renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
-    callback.onRenderers(null, null, renderers);
+    callback.onRenderers(videoRenderer, audioRenderer);
   }
 
   private HlsMasterPlaylist newSimpleMasterPlaylist(String mediaPlaylistUrl) {

@@ -61,10 +61,6 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
 
   private static final String TAG = "PlayerActivity";
 
-  public static final int TYPE_DASH_VOD = 0;
-  public static final int TYPE_SS_VOD = 1;
-  public static final int TYPE_OTHER = 2;
-
   private MediaController mediaController;
   private Handler mainHandler;
   private View shutterView;
@@ -90,7 +86,7 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
 
     Intent intent = getIntent();
     contentUri = intent.getData();
-    contentType = intent.getIntExtra(DemoUtil.CONTENT_TYPE_EXTRA, TYPE_OTHER);
+    contentType = intent.getIntExtra(DemoUtil.CONTENT_TYPE_EXTRA, DemoUtil.TYPE_OTHER);
     contentId = intent.getStringExtra(DemoUtil.CONTENT_ID_EXTRA);
 
     mainHandler = new Handler(getMainLooper());
@@ -163,11 +159,15 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
   private RendererBuilder getRendererBuilder() {
     String userAgent = DemoUtil.getUserAgent(this);
     switch (contentType) {
-      case TYPE_SS_VOD:
+      case DemoUtil.TYPE_SS:
         return new SmoothStreamingRendererBuilder(this, userAgent, contentUri.toString(),
             contentId);
-      case TYPE_DASH_VOD:
+      case DemoUtil.TYPE_DASH_VOD:
         return new DashVodRendererBuilder(this, userAgent, contentUri.toString(), contentId);
+      case DemoUtil.TYPE_HLS_MASTER:
+      case DemoUtil.TYPE_HLS_MEDIA:
+        return new HlsRendererBuilder(this, userAgent, contentUri.toString(), contentId,
+            contentType);
       default:
         return new DefaultRendererBuilder(this, contentUri);
     }

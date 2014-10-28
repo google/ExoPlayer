@@ -57,6 +57,9 @@ package com.google.android.exoplayer.demo;
     new Sample("Super speed (SmoothStreaming)", "uid:ss:superspeed",
         "http://playready.directtaps.net/smoothstreaming/SSWSS720H264/SuperSpeedway_720.ism",
         DemoUtil.TYPE_SS, false, false),
+    new Sample("Apple master playlist (HLS)", "uid:hls:applemaster",
+        "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/"
+        + "bipbop_4x3_variant.m3u8", DemoUtil.TYPE_HLS_MASTER, false, false),
     new Sample("Dizzy (Misc)", "uid:misc:dizzy",
         "http://html5demos.com/assets/dizzy.mp4", DemoUtil.TYPE_OTHER, false, false),
   };
