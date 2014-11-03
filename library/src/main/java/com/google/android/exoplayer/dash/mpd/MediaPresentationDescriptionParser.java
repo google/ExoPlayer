@@ -362,7 +362,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
         parent != null ? parent.presentationTimeOffset : 0);
     long duration = parseLong(xpp, "duration", parent != null ? parent.duration : -1);
-    int startNumber = parseInt(xpp, "startNumber", parent != null ? parent.startNumber : 0);
+    int startNumber = parseInt(xpp, "startNumber", parent != null ? parent.startNumber : 1);
 
     RangedUri initialization = null;
     List<SegmentTimelineElement> timeline = null;
@@ -406,7 +406,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
         parent != null ? parent.presentationTimeOffset : 0);
     long duration = parseLong(xpp, "duration", parent != null ? parent.duration : -1);
-    int startNumber = parseInt(xpp, "startNumber", parent != null ? parent.startNumber : 0);
+    int startNumber = parseInt(xpp, "startNumber", parent != null ? parent.startNumber : 1);
     UrlTemplate mediaTemplate = parseUrlTemplate(xpp, "media",
         parent != null ? parent.mediaTemplate : null);
     UrlTemplate initializationTemplate = parseUrlTemplate(xpp, "initialization",
