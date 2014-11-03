@@ -136,6 +136,9 @@ package com.google.android.exoplayer.demo;
         DemoUtil.TYPE_OTHER, false, true),
     new Sample("Dizzy (https->http redirect)", "uid:misc:dizzy2", "https://goo.gl/MtUDEj",
         DemoUtil.TYPE_OTHER, false, true),
+    new Sample("Apple AAC 10s", "uid:misc:appleaacseg", "https://devimages.apple.com.edgekey.net/"
+        + "streaming/examples/bipbop_4x3/gear0/fileSequence0.aac",
+        DemoUtil.TYPE_OTHER, false, true),
   };
 
   private Samples() {}
