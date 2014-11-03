@@ -4,7 +4,7 @@
 
 ExoPlayer is an application level media player for Android. It provides an
 alternative to Android’s MediaPlayer API for playing audio and video both
-locally and over the internet. ExoPlayer supports features not currently
+locally and over the Internet. ExoPlayer supports features not currently
 supported by Android’s MediaPlayer API (as of KitKat), including DASH and
 SmoothStreaming adaptive playbacks, persistent caching and custom renderers.
 Unlike the MediaPlayer API, ExoPlayer is easy to customize and extend, and
