@@ -29,7 +29,8 @@
 
   <application
       android:label="@string/application_name"
-      android:allowBackup="true">
+      android:largeHeap="true"
+      android:allowBackup="false">
 
     <activity android:name="com.google.android.exoplayer.demo.SampleChooserActivity"
         android:configChanges="keyboardHidden"
