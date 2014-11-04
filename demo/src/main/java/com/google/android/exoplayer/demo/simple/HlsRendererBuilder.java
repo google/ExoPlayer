@@ -74,7 +74,7 @@ import java.util.Collections;
       case DemoUtil.TYPE_HLS_MASTER:
         HlsMasterPlaylistParser parser = new HlsMasterPlaylistParser();
         ManifestFetcher<HlsMasterPlaylist> mediaPlaylistFetcher =
-            new ManifestFetcher<HlsMasterPlaylist>(parser, contentId, url);
+            new ManifestFetcher<HlsMasterPlaylist>(parser, contentId, url, userAgent);
         mediaPlaylistFetcher.singleLoad(playerActivity.getMainLooper(), this);
         break;
       case DemoUtil.TYPE_HLS_MEDIA:

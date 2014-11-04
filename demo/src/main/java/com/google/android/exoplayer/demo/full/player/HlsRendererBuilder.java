@@ -73,7 +73,7 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
       case DemoUtil.TYPE_HLS_MASTER:
         HlsMasterPlaylistParser parser = new HlsMasterPlaylistParser();
         ManifestFetcher<HlsMasterPlaylist> mediaPlaylistFetcher =
-            new ManifestFetcher<HlsMasterPlaylist>(parser, contentId, url);
+            new ManifestFetcher<HlsMasterPlaylist>(parser, contentId, url, userAgent);
         mediaPlaylistFetcher.singleLoad(player.getMainHandler().getLooper(), this);
         break;
       case DemoUtil.TYPE_HLS_MEDIA:
