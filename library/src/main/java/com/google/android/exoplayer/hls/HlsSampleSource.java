@@ -184,10 +184,14 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
         haveSufficientSamples = true;
       } else {
         extractor.reset(mediaChunk.startTimeUs);
-        for (int i = 0; i < pendingDiscontinuities.length; i++) {
-          pendingDiscontinuities[i] = true;
-        }
         mediaChunk.clearPendingDiscontinuity();
+        if (pendingDiscontinuities == null) {
+          // We're not prepared yet.
+        } else {
+          for (int i = 0; i < pendingDiscontinuities.length; i++) {
+            pendingDiscontinuities[i] = true;
+          }
+        }
       }
     }
 

@@ -18,6 +18,7 @@ package com.google.android.exoplayer.hls;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.upstream.Aes128DataSource;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
@@ -28,7 +29,9 @@ import android.os.SystemClock;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A temporary test source of HLS chunks.
@@ -38,7 +41,7 @@ import java.util.List;
  */
 public class HlsChunkSource {
 
-  private final DataSource dataSource;
+  private final DataSource upstreamDataSource;
   private final HlsMasterPlaylist masterPlaylist;
   private final HlsMediaPlaylistParser mediaPlaylistParser;
 
@@ -47,9 +50,12 @@ public class HlsChunkSource {
   /* package */ boolean mediaPlaylistWasLive;
   /* package */ long lastMediaPlaylistLoadTimeMs;
 
+  private DataSource encryptedDataSource;
+  private String encryptionKeyUri;
+
   // TODO: Once proper m3u8 parsing is in place, actually use the url!
   public HlsChunkSource(DataSource dataSource, HlsMasterPlaylist masterPlaylist) {
-    this.dataSource = dataSource;
+    this.upstreamDataSource = dataSource;
     this.masterPlaylist = masterPlaylist;
     mediaPlaylistParser = new HlsMediaPlaylistParser();
   }
@@ -144,8 +150,22 @@ public class HlsChunkSource {
     }
 
     HlsMediaPlaylist.Segment segment = mediaPlaylist.segments.get(chunkIndex);
-
     Uri chunkUri = Util.getMergedUri(mediaPlaylist.baseUri, segment.url);
+
+    // Check if encryption is specified.
+    if (HlsMediaPlaylist.ENCRYPTION_METHOD_AES_128.equals(segment.encryptionMethod)) {
+      if (!segment.encryptionKeyUri.equals(encryptionKeyUri)) {
+        // Encryption is specified and the key has changed.
+        Uri keyUri = Util.getMergedUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
+        out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV);
+        encryptionKeyUri = segment.encryptionKeyUri;
+        return;
+      }
+    } else {
+      encryptedDataSource = null;
+      encryptionKeyUri = null;
+    }
+
     DataSpec dataSpec = new DataSpec(chunkUri, 0, C.LENGTH_UNBOUNDED, null);
 
     long startTimeUs = segment.startTimeUs;
@@ -168,8 +188,15 @@ public class HlsChunkSource {
       }
     }
 
-    out.chunk = new TsChunk(dataSource, dataSpec, 0, startTimeUs, endTimeUs, nextChunkMediaSequence,
-        segment.discontinuity);
+    DataSource dataSource;
+    if (encryptedDataSource != null) {
+      dataSource = encryptedDataSource;
+    } else {
+      dataSource = upstreamDataSource;
+    }
+
+    out.chunk = new TsChunk(dataSource, dataSpec, 0, startTimeUs, endTimeUs,
+        nextChunkMediaSequence, segment.discontinuity);
   }
 
   private boolean shouldRerequestMediaPlaylist() {
@@ -190,7 +217,12 @@ public class HlsChunkSource {
         masterPlaylist.variants.get(0).url);
     DataSpec dataSpec = new DataSpec(mediaPlaylistUri, 0, C.LENGTH_UNBOUNDED, null);
     Uri mediaPlaylistBaseUri = Util.parseBaseUri(mediaPlaylistUri.toString());
-    return new MediaPlaylistChunk(dataSource, dataSpec, 0, mediaPlaylistBaseUri);
+    return new MediaPlaylistChunk(upstreamDataSource, dataSpec, 0, mediaPlaylistBaseUri);
+  }
+
+  private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv) {
+    DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNBOUNDED, null);
+    return new EncryptionKeyChunk(upstreamDataSource, dataSpec, 0, iv);
   }
 
   private class MediaPlaylistChunk extends HlsChunk {
@@ -210,6 +242,37 @@ public class HlsChunkSource {
       mediaPlaylist = mediaPlaylistParser.parse(
           new ByteArrayInputStream(data), null, null, baseUri);
       mediaPlaylistWasLive |= mediaPlaylist.live;
+    }
+
+  }
+
+  private class EncryptionKeyChunk extends HlsChunk {
+
+    private final String iv;
+
+    public EncryptionKeyChunk(DataSource dataSource, DataSpec dataSpec, int trigger, String iv) {
+      super(dataSource, dataSpec, trigger);
+      if (iv.toLowerCase(Locale.getDefault()).startsWith("0x")) {
+        this.iv = iv.substring(2);
+      } else {
+        this.iv = iv;
+      }
+    }
+
+    @Override
+    protected void consumeStream(NonBlockingInputStream stream) throws IOException {
+      byte[] keyData = new byte[(int) stream.getAvailableByteCount()];
+      stream.read(keyData, 0, keyData.length);
+
+      int ivParsed = Integer.parseInt(iv, 16);
+      String iv = String.format("%032X", ivParsed);
+
+      byte[] ivData = new BigInteger(iv, 16).toByteArray();
+      byte[] ivDataWithPadding = new byte[iv.length() / 2];
+      System.arraycopy(ivData, 0, ivDataWithPadding, ivDataWithPadding.length - ivData.length,
+          ivData.length);
+
+      encryptedDataSource = new Aes128DataSource(keyData, ivDataWithPadding, upstreamDataSource);
     }
 
   }

@@ -109,7 +109,7 @@ import java.util.Collections;
 
   private HlsMasterPlaylist newSimpleMasterPlaylist(String mediaPlaylistUrl) {
     return new HlsMasterPlaylist(Uri.parse(""),
-        Collections.singletonList(new Variant(mediaPlaylistUrl, 0)));
+        Collections.singletonList(new Variant(mediaPlaylistUrl, 0, null, -1, -1)));
   }
 
 }

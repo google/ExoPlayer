@@ -36,9 +36,15 @@ public final class HlsMasterPlaylistParser implements ManifestParser<HlsMasterPl
 
   private static final String STREAM_INF_TAG = "#EXT-X-STREAM-INF";
   private static final String BANDWIDTH_ATTR = "BANDWIDTH";
+  private static final String CODECS_ATTR = "CODECS";
+  private static final String RESOLUTION_ATTR = "RESOLUTION";
 
   private static final Pattern BANDWIDTH_ATTR_REGEX =
       Pattern.compile(BANDWIDTH_ATTR + "=(\\d+)\\b");
+  private static final Pattern CODECS_ATTR_REGEX =
+      Pattern.compile(CODECS_ATTR + "=\"(.+)\"");
+  private static final Pattern RESOLUTION_ATTR_REGEX =
+      Pattern.compile(RESOLUTION_ATTR + "=(\\d+x\\d+)");
 
   @Override
   public HlsMasterPlaylist parse(InputStream inputStream, String inputEncoding,
@@ -52,6 +58,10 @@ public final class HlsMasterPlaylistParser implements ManifestParser<HlsMasterPl
         ? new InputStreamReader(inputStream) : new InputStreamReader(inputStream, inputEncoding));
     List<Variant> variants = new ArrayList<Variant>();
     int bandwidth = 0;
+    String[] codecs = null;
+    int width = -1;
+    int height = -1;
+
     String line;
     while ((line = reader.readLine()) != null) {
       line = line.trim();
@@ -60,9 +70,29 @@ public final class HlsMasterPlaylistParser implements ManifestParser<HlsMasterPl
       }
       if (line.startsWith(STREAM_INF_TAG)) {
         bandwidth = HlsParserUtil.parseIntAttr(line, BANDWIDTH_ATTR_REGEX, BANDWIDTH_ATTR);
+        String codecsString = HlsParserUtil.parseOptionalStringAttr(line, CODECS_ATTR_REGEX,
+            CODECS_ATTR);
+        if (codecsString != null) {
+          codecs = codecsString.split(",");
+        } else {
+          codecs = null;
+        }
+        String resolutionString = HlsParserUtil.parseOptionalStringAttr(line, RESOLUTION_ATTR_REGEX,
+            RESOLUTION_ATTR);
+        if (resolutionString != null) {
+          String[] widthAndHeight = resolutionString.split("x");
+          width = Integer.parseInt(widthAndHeight[0]);
+          height = Integer.parseInt(widthAndHeight[1]);
+        } else {
+          width = -1;
+          height = -1;
+        }
       } else if (!line.startsWith("#")) {
-        variants.add(new Variant(line, bandwidth));
+        variants.add(new Variant(line, bandwidth, codecs, width, height));
         bandwidth = 0;
+        codecs = null;
+        width = -1;
+        height = -1;
       }
     }
     return new HlsMasterPlaylist(baseUri, Collections.unmodifiableList(variants));

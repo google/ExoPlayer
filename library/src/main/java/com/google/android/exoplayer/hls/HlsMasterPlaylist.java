@@ -30,10 +30,16 @@ public final class HlsMasterPlaylist {
   public static final class Variant {
     public final int bandwidth;
     public final String url;
+    public final String[] codecs;
+    public final int width;
+    public final int height;
 
-    public Variant(String url, int bandwidth) {
+    public Variant(String url, int bandwidth, String[] codecs, int width, int height) {
       this.bandwidth = bandwidth;
       this.url = url;
+      this.codecs = codecs;
+      this.width = width;
+      this.height = height;
     }
   }
 

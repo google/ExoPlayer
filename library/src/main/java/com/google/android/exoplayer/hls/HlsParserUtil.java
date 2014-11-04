@@ -36,6 +36,14 @@ import java.util.regex.Pattern;
     throw new ParserException(String.format("Couldn't match %s tag in %s", tag, line));
   }
 
+  public static String parseOptionalStringAttr(String line, Pattern pattern, String tag) {
+    Matcher matcher = pattern.matcher(line);
+    if (matcher.find() && matcher.groupCount() == 1) {
+      return matcher.group(1);
+    }
+    return null;
+  }
+
   public static int parseIntAttr(String line, Pattern pattern, String tag)
       throws ParserException {
     return Integer.parseInt(parseStringAttr(line, pattern, tag));

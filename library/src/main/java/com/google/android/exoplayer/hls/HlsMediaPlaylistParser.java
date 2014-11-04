@@ -40,6 +40,11 @@ public final class HlsMediaPlaylistParser implements ManifestParser<HlsMediaPlay
   private static final String TARGET_DURATION_TAG = "#EXT-X-TARGETDURATION";
   private static final String VERSION_TAG = "#EXT-X-VERSION";
   private static final String ENDLIST_TAG = "#EXT-X-ENDLIST";
+  private static final String KEY_TAG = "#EXT-X-KEY";
+
+  private static final String METHOD_ATTR = "METHOD";
+  private static final String URI_ATTR = "URI";
+  private static final String IV_ATTR = "IV";
 
   private static final Pattern MEDIA_DURATION_REGEX =
       Pattern.compile(MEDIA_DURATION_TAG + ":([\\d.]+),");
@@ -49,6 +54,13 @@ public final class HlsMediaPlaylistParser implements ManifestParser<HlsMediaPlay
       Pattern.compile(TARGET_DURATION_TAG + ":(\\d+)\\b");
   private static final Pattern VERSION_REGEX =
       Pattern.compile(VERSION_TAG + ":(\\d+)\\b");
+
+  private static final Pattern METHOD_ATTR_REGEX =
+      Pattern.compile(METHOD_ATTR + "=([^,.*]+)");
+  private static final Pattern URI_ATTR_REGEX =
+      Pattern.compile(URI_ATTR + "=\"(.+)\"");
+  private static final Pattern IV_ATTR_REGEX =
+      Pattern.compile(IV_ATTR + "=([^,.*]+)");
 
   @Override
   public HlsMediaPlaylist parse(InputStream inputStream, String inputEncoding,
@@ -70,6 +82,11 @@ public final class HlsMediaPlaylistParser implements ManifestParser<HlsMediaPlay
     double segmentDurationSecs = 0.0;
     boolean segmentDiscontinuity = false;
     long segmentStartTimeUs = 0;
+    String segmentEncryptionMethod = null;
+    String segmentEncryptionKeyUri = null;
+    String segmentEncryptionIV = null;
+
+    int segmentMediaSequence = 0;
 
     String line;
     while ((line = reader.readLine()) != null) {
@@ -82,16 +99,34 @@ public final class HlsMediaPlaylistParser implements ManifestParser<HlsMediaPlay
             TARGET_DURATION_TAG);
       } else if (line.startsWith(MEDIA_SEQUENCE_TAG)) {
         mediaSequence = HlsParserUtil.parseIntAttr(line, MEDIA_SEQUENCE_REGEX, MEDIA_SEQUENCE_TAG);
+        segmentMediaSequence = mediaSequence;
       } else if (line.startsWith(VERSION_TAG)) {
         version = HlsParserUtil.parseIntAttr(line, VERSION_REGEX, VERSION_TAG);
       } else if (line.startsWith(MEDIA_DURATION_TAG)) {
         segmentDurationSecs = HlsParserUtil.parseDoubleAttr(line, MEDIA_DURATION_REGEX,
             MEDIA_DURATION_TAG);
+      } else if (line.startsWith(KEY_TAG)) {
+        segmentEncryptionMethod = HlsParserUtil.parseStringAttr(line, METHOD_ATTR_REGEX,
+            METHOD_ATTR);
+        if (segmentEncryptionMethod.equals(HlsMediaPlaylist.ENCRYPTION_METHOD_NONE)) {
+          segmentEncryptionKeyUri = null;
+          segmentEncryptionIV = null;
+        } else {
+          segmentEncryptionKeyUri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX,
+              URI_ATTR);
+          segmentEncryptionIV = HlsParserUtil.parseOptionalStringAttr(line, IV_ATTR_REGEX,
+              IV_ATTR);
+          if (segmentEncryptionIV == null) {
+            segmentEncryptionIV = Integer.toHexString(segmentMediaSequence);
+          }
+        }
       } else if (line.equals(DISCONTINUITY_TAG)) {
         segmentDiscontinuity = true;
       } else if (!line.startsWith("#")) {
+        segmentMediaSequence++;
         segments.add(new Segment(line, segmentDurationSecs, segmentDiscontinuity,
-            segmentStartTimeUs));
+            segmentStartTimeUs, segmentEncryptionMethod, segmentEncryptionKeyUri,
+            segmentEncryptionIV));
         segmentStartTimeUs += (long) (segmentDurationSecs * 1000000);
         segmentDiscontinuity = false;
         segmentDurationSecs = 0.0;
