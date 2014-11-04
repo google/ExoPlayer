@@ -28,6 +28,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -51,6 +54,13 @@ public class DemoUtil {
   public static final int TYPE_HLS_MEDIA = 4;
 
   public static final boolean EXPOSE_EXPERIMENTAL_FEATURES = false;
+
+  private static final CookieManager defaultCookieManager;
+
+  static {
+    defaultCookieManager = new CookieManager();
+    defaultCookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
+  }
 
   public static String getUserAgent(Context context) {
     String versionName;
@@ -105,6 +115,13 @@ public class DemoUtil {
     inputStream.close();
     bytes = bos.toByteArray();
     return bytes;
+  }
+
+  public static void setDefaultCookieManager() {
+    CookieHandler currentHandler = CookieHandler.getDefault();
+    if (currentHandler != defaultCookieManager) {
+      CookieHandler.setDefault(defaultCookieManager);
+    }
   }
 
 }

@@ -77,7 +77,7 @@ import java.util.ArrayList;
     this.callback = callback;
     SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
     manifestFetcher = new ManifestFetcher<SmoothStreamingManifest>(parser, contentId,
-        url + "/Manifest");
+        url + "/Manifest", userAgent);
     manifestFetcher.singleLoad(playerActivity.getMainLooper(), this);
   }
 
