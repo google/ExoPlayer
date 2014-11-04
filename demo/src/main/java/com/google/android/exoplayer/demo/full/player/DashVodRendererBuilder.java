@@ -97,7 +97,7 @@ public class DashVodRendererBuilder implements RendererBuilder,
     this.callback = callback;
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
     ManifestFetcher<MediaPresentationDescription> manifestFetcher =
-        new ManifestFetcher<MediaPresentationDescription>(parser, contentId, url);
+        new ManifestFetcher<MediaPresentationDescription>(parser, contentId, url, userAgent);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 

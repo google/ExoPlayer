@@ -63,6 +63,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
   /* package */ final ManifestParser<T> parser;
   /* package */ final String manifestUrl;
   /* package */ final String contentId;
+  /* package */ final String userAgent;
 
   private int enabledCount;
   private Loader loader;
@@ -79,11 +80,14 @@ public class ManifestFetcher<T> implements Loader.Callback {
    * @param parser A parser to parse the loaded manifest data.
    * @param contentId The content id of the content being loaded. May be null.
    * @param manifestUrl The manifest location.
+   * @param userAgent The User-Agent string that should be used.
    */
-  public ManifestFetcher(ManifestParser<T> parser, String contentId, String manifestUrl) {
+  public ManifestFetcher(ManifestParser<T> parser, String contentId, String manifestUrl,
+      String userAgent) {
     this.parser = parser;
     this.contentId = contentId;
     this.manifestUrl = manifestUrl;
+    this.userAgent = userAgent;
   }
 
   /**
@@ -167,7 +171,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       loader = new Loader("manifestLoader");
     }
     if (!loader.isLoading()) {
-      currentLoadable = new ManifestLoadable();
+      currentLoadable = new ManifestLoadable(userAgent);
       loader.startLoading(currentLoadable, this);
     }
   }
@@ -217,7 +221,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       this.callbackLooper = callbackLooper;
       this.wrappedCallback = wrappedCallback;
       singleUseLoader = new Loader("manifestLoader:single");
-      singleUseLoadable = new ManifestLoadable();
+      singleUseLoadable = new ManifestLoadable(userAgent);
     }
 
     public void startLoading() {
@@ -265,8 +269,14 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
     private static final int TIMEOUT_MILLIS = 10000;
 
+    private final String userAgent;
+
     /* package */ volatile T result;
     private volatile boolean isCanceled;
+
+    public ManifestLoadable(String userAgent) {
+      this.userAgent = userAgent;
+    }
 
     @Override
     public void cancelLoad() {
@@ -302,6 +312,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       connection.setConnectTimeout(TIMEOUT_MILLIS);
       connection.setReadTimeout(TIMEOUT_MILLIS);
       connection.setDoOutput(false);
+      connection.setRequestProperty("User-Agent", userAgent);
       connection.connect();
       return connection;
     }

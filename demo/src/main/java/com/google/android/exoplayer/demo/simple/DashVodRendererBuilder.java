@@ -77,7 +77,7 @@ import java.util.ArrayList;
     this.callback = callback;
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
     ManifestFetcher<MediaPresentationDescription> manifestFetcher =
-        new ManifestFetcher<MediaPresentationDescription>(parser, contentId, url);
+        new ManifestFetcher<MediaPresentationDescription>(parser, contentId, url, userAgent);
     manifestFetcher.singleLoad(playerActivity.getMainLooper(), this);
   }
 
