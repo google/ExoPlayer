@@ -28,7 +28,7 @@ import android.os.Looper;
 import android.os.Message;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link TrackRenderer} for metadata embedded in a media stream.
@@ -45,7 +45,7 @@ public class MetadataTrackRenderer extends TrackRenderer implements Callback {
      *
      * @param metadata The metadata to process.
      */
-    void onMetadata(List<Metadata> metadata);
+    void onMetadata(Map<String, Object> metadata);
 
   }
 
@@ -63,7 +63,7 @@ public class MetadataTrackRenderer extends TrackRenderer implements Callback {
   private boolean inputStreamEnded;
 
   private long pendingMetadataTimestamp;
-  private List<Metadata> pendingMetadata;
+  private Map<String, Object> pendingMetadata;
 
   /**
    * @param source A source from which samples containing metadata can be read.
@@ -185,7 +185,7 @@ public class MetadataTrackRenderer extends TrackRenderer implements Callback {
     return true;
   }
 
-  private void invokeRenderer(List<Metadata> metadata) {
+  private void invokeRenderer(Map<String, Object> metadata) {
     if (metadataHandler != null) {
       metadataHandler.obtainMessage(MSG_INVOKE_RENDERER, metadata).sendToTarget();
     } else {
@@ -198,13 +198,13 @@ public class MetadataTrackRenderer extends TrackRenderer implements Callback {
   public boolean handleMessage(Message msg) {
     switch (msg.what) {
       case MSG_INVOKE_RENDERER:
-        invokeRendererInternal((List<Metadata>) msg.obj);
+        invokeRendererInternal((Map<String, Object>) msg.obj);
         return true;
     }
     return false;
   }
 
-  private void invokeRendererInternal(List<Metadata> metadata) {
+  private void invokeRendererInternal(Map<String, Object> metadata) {
     metadataRenderer.onMetadata(metadata);
   }
 

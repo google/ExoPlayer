@@ -26,7 +26,6 @@ import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
-import com.google.android.exoplayer.metadata.Metadata;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
 import com.google.android.exoplayer.text.TextTrackRenderer;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
@@ -38,7 +37,7 @@ import android.os.Looper;
 import android.view.Surface;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -141,7 +140,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
    * A listener for receiving metadata parsed from the media stream.
    */
   public interface MetadataListener {
-    void onMetadata(List<Metadata> metadata);
+    void onMetadata(Map<String, Object> metadata);
   }
 
   // Constants pulled into this class for convenience.
@@ -475,7 +474,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   @Override
-  public void onMetadata(List<Metadata> metadata) {
+  public void onMetadata(Map<String, Object> metadata) {
     if (metadataListener != null) {
       metadataListener.onMetadata(metadata);
     }

@@ -20,9 +20,9 @@ import com.google.android.exoplayer.parser.ts.BitsArray;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Extracts individual TXXX text frames from raw ID3 data.
@@ -35,12 +35,12 @@ public class Id3Parser implements MetadataParser {
   }
 
   @Override
-  public List<Metadata> parse(byte[] data, int size)
+  public Map<String, Object> parse(byte[] data, int size)
       throws UnsupportedEncodingException, ParserException {
     BitsArray id3Buffer = new BitsArray(data, size);
     int id3Size = parseId3Header(id3Buffer);
 
-    List<Metadata> metadata = new ArrayList<Metadata>();
+    Map<String, Object> metadata = new HashMap<String, Object>();
 
     while (id3Size > 0) {
       int frameId0 = id3Buffer.readUnsignedByte();
@@ -63,20 +63,23 @@ public class Id3Parser implements MetadataParser {
         id3Buffer.readBytes(frame, 0, frameSize - 1);
 
         int firstZeroIndex = indexOf(frame, 0, (byte) 0);
-        String key = new String(frame, 0, firstZeroIndex, charset);
+        String description = new String(frame, 0, firstZeroIndex, charset);
         int valueStartIndex = indexOfNot(frame, firstZeroIndex, (byte) 0);
         int valueEndIndex = indexOf(frame, valueStartIndex, (byte) 0);
         String value = new String(frame, valueStartIndex, valueEndIndex - valueStartIndex,
             charset);
-        metadata.add(new Metadata(key, value));
+        metadata.put(TxxxMetadata.TYPE, new TxxxMetadata(description, value));
       } else {
-        id3Buffer.skipBytes(frameSize);
+        String type = String.format("%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
+        byte[] frame = new byte[frameSize];
+        id3Buffer.readBytes(frame, 0, frameSize);
+        metadata.put(type, frame);
       }
 
       id3Size -= frameSize + 10 /* header size */;
     }
 
-    return Collections.unmodifiableList(metadata);
+    return Collections.unmodifiableMap(metadata);
   }
 
   private static int indexOf(byte[] data, int fromIndex, byte key) {

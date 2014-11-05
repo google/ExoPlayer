@@ -25,7 +25,7 @@ import com.google.android.exoplayer.demo.full.player.DemoPlayer;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.full.player.HlsRendererBuilder;
 import com.google.android.exoplayer.demo.full.player.SmoothStreamingRendererBuilder;
-import com.google.android.exoplayer.metadata.Metadata;
+import com.google.android.exoplayer.metadata.TxxxMetadata;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.SubtitleView;
 import com.google.android.exoplayer.util.Util;
@@ -56,7 +56,7 @@ import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * An activity that plays media using {@link DemoPlayer}.
@@ -415,10 +415,13 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
   // DemoPlayer.MetadataListener implementation
 
   @Override
-  public void onMetadata(List<Metadata> metadata) {
+  public void onMetadata(Map<String, Object> metadata) {
     for (int i = 0; i < metadata.size(); i++) {
-      Metadata next = metadata.get(i);
-      Log.i(TAG, "ID3 TimedMetadata: key=" + next.key + ", value=" + next.value);
+      if (metadata.containsKey(TxxxMetadata.TYPE)) {
+        TxxxMetadata txxxMetadata = (TxxxMetadata) metadata.get(TxxxMetadata.TYPE);
+        Log.i(TAG, String.format("ID3 TimedMetadata: description=%s, value=%s",
+            txxxMetadata.description, txxxMetadata.value));
+      }
     }
   }
 
