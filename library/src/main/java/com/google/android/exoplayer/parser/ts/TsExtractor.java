@@ -267,7 +267,9 @@ public final class TsExtractor {
    * Parses payload data.
    */
   private abstract static class TsPayloadReader {
+
     public abstract void read(BitsArray tsBuffer, boolean payloadUnitStartIndicator);
+
   }
 
   /**
@@ -389,33 +391,47 @@ public final class TsExtractor {
     // Parses PES payload and extracts individual samples.
     private final PesPayloadReader pesPayloadReader;
 
+    private int packetLength;
+
     public PesReader(PesPayloadReader pesPayloadReader) {
       this.pesPayloadReader = pesPayloadReader;
+      this.packetLength = -1;
       pesBuffer = new BitsArray();
     }
 
     @Override
     public void read(BitsArray tsBuffer, boolean payloadUnitStartIndicator) {
       if (payloadUnitStartIndicator && !pesBuffer.isEmpty()) {
-        readPES();
+        // We've encountered the start of the next packet, but haven't yet read the body. Read it.
+        // Note that this should only happen if the packet length was unspecified.
+        Assertions.checkState(packetLength == 0);
+        readPacketBody();
       }
+
       pesBuffer.append(tsBuffer, tsBuffer.bytesLeft());
+
+      if (packetLength == -1 && pesBuffer.bytesLeft() >= 6) {
+        // We haven't read the start of the packet, but have enough data to do so.
+        readPacketStart();
+      }
+      if (packetLength > 0 && pesBuffer.bytesLeft() >= packetLength) {
+        // The packet length was specified and we now have the whole packet. Read it.
+        readPacketBody();
+      }
     }
 
-    /**
-     * Parses completed PES data.
-     */
-    private void readPES() {
-      int packetStartCodePrefix = pesBuffer.readBits(24);
-      if (packetStartCodePrefix != 0x000001) {
+    private void readPacketStart() {
+      int startCodePrefix = pesBuffer.readBits(24);
+      if (startCodePrefix != 0x000001) {
         // Error.
       }
-
       // TODO: Read and use stream_id.
       // Skip stream_id.
       pesBuffer.skipBits(8);
-      int pesPacketLength = pesBuffer.readBits(16);
+      packetLength = pesBuffer.readBits(16);
+    }
 
+    private void readPacketBody() {
       // Skip some fields/flags.
       // TODO: might need to use data_alignment_indicator.
       pesBuffer.skipBits(8); // 2+2+1+1+1+1
@@ -425,9 +441,9 @@ public final class TsExtractor {
       // Skip some fields/flags.
       pesBuffer.skipBits(6); // 1+1+1+1+1+1
 
-      int pesHeaderDataLength = pesBuffer.readBits(8);
-      if (pesHeaderDataLength == 0) {
-        pesHeaderDataLength = pesBuffer.bytesLeft();
+      int headerDataLength = pesBuffer.readBits(8);
+      if (headerDataLength == 0) {
+        headerDataLength = pesBuffer.bytesLeft();
       }
 
       long timeUs = 0;
@@ -442,22 +458,23 @@ public final class TsExtractor {
         pesBuffer.skipBits(1);
         timeUs = pts * 1000000 / 90000;
         // Skip the rest of the header.
-        pesBuffer.skipBytes(pesHeaderDataLength - 5);
+        pesBuffer.skipBytes(headerDataLength - 5);
       } else {
         // Skip the rest of the header.
-        pesBuffer.skipBytes(pesHeaderDataLength);
+        pesBuffer.skipBytes(headerDataLength);
       }
 
       int payloadSize;
-      if (pesPacketLength == 0) {
+      if (packetLength == 0) {
         // If pesPacketLength is not specified read all available data.
         payloadSize = pesBuffer.bytesLeft();
       } else {
-        payloadSize = pesPacketLength - pesHeaderDataLength - 3;
+        payloadSize = packetLength - headerDataLength - 3;
       }
 
       pesPayloadReader.read(pesBuffer, payloadSize, timeUs);
       pesBuffer.reset();
+      packetLength = -1;
     }
 
   }
