@@ -92,7 +92,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     this.callback = callback;
     SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
     manifestFetcher = new ManifestFetcher<SmoothStreamingManifest>(parser, contentId,
-        url + "/Manifest");
+        url + "/Manifest", userAgent);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 

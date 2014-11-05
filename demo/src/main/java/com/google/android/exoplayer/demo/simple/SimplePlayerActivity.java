@@ -113,6 +113,8 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
     shutterView = findViewById(R.id.shutter);
     surfaceView = (VideoSurfaceView) findViewById(R.id.surface_view);
     surfaceView.getHolder().addCallback(this);
+
+    DemoUtil.setDefaultCookieManager();
   }
 
   @Override

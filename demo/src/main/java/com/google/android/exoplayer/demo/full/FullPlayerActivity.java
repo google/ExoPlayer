@@ -127,6 +127,8 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
     videoButton = (Button) findViewById(R.id.video_controls);
     audioButton = (Button) findViewById(R.id.audio_controls);
     textButton = (Button) findViewById(R.id.text_controls);
+
+    DemoUtil.setDefaultCookieManager();
   }
 
   @Override
