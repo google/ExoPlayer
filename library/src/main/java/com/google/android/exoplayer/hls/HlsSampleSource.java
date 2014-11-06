@@ -48,10 +48,11 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   private static final long MAX_SAMPLE_INTERLEAVING_OFFSET_US = 5000000;
   private static final int NO_RESET_PENDING = -1;
 
-  private final TsExtractor extractor;
+  private final TsExtractor.SamplePool samplePool;
   private final LoadControl loadControl;
   private final HlsChunkSource chunkSource;
   private final HlsChunkOperationHolder currentLoadableHolder;
+  private final LinkedList<TsExtractor> extractors;
   private final LinkedList<TsChunk> mediaChunks;
   private final List<TsChunk> readOnlyHlsChunks;
   private final int bufferSizeContribution;
@@ -84,7 +85,8 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     this.bufferSizeContribution = bufferSizeContribution;
     this.frameAccurateSeeking = frameAccurateSeeking;
     this.remainingReleaseCount = downstreamRendererCount;
-    extractor = new TsExtractor();
+    samplePool = new TsExtractor.SamplePool();
+    extractors = new LinkedList<TsExtractor>();
     currentLoadableHolder = new HlsChunkOperationHolder();
     mediaChunks = new LinkedList<TsChunk>();
     readOnlyHlsChunks = Collections.unmodifiableList(mediaChunks);
@@ -100,6 +102,10 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       loadControl.register(this, bufferSizeContribution);
     }
     continueBufferingInternal();
+    if (extractors.isEmpty()) {
+      return false;
+    }
+    TsExtractor extractor = extractors.get(0);
     if (extractor.isPrepared()) {
       trackCount = extractor.getTrackCount();
       trackEnabledStates = new boolean[trackCount];
@@ -171,39 +177,38 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     }
 
     TsChunk mediaChunk = mediaChunks.getFirst();
+    int currentVariant = mediaChunk.variantIndex;
+
+    TsExtractor extractor;
+    if (extractors.isEmpty()) {
+      extractor = new TsExtractor(mediaChunk.startTimeUs, samplePool);
+      extractors.addLast(extractor);
+      if (mediaChunk.discardFromFirstKeyframes) {
+        extractor.discardFromNextKeyframes();
+      }
+    } else {
+      extractor = extractors.getLast();
+    }
+
     if (mediaChunk.isReadFinished() && mediaChunks.size() > 1) {
       discardDownstreamHlsChunk();
       mediaChunk = mediaChunks.getFirst();
-    }
-
-    boolean haveSufficientSamples = false;
-    if (mediaChunk.hasPendingDiscontinuity()) {
-      if (extractor.hasSamples()) {
-        // There are samples from before the discontinuity yet to be read from the extractor, so
-        // we don't want to reset the extractor yet.
-        haveSufficientSamples = true;
-      } else {
-        extractor.reset(mediaChunk.startTimeUs);
-        mediaChunk.clearPendingDiscontinuity();
-        if (pendingDiscontinuities == null) {
-          // We're not prepared yet.
-        } else {
-          for (int i = 0; i < pendingDiscontinuities.length; i++) {
-            pendingDiscontinuities[i] = true;
-          }
-        }
+      if (mediaChunk.discontinuity || mediaChunk.variantIndex != currentVariant) {
+        extractor = new TsExtractor(mediaChunk.startTimeUs, samplePool);
+        extractors.addLast(extractor);
+      }
+      if (mediaChunk.discardFromFirstKeyframes) {
+        extractor.discardFromNextKeyframes();
       }
     }
 
-    if (!mediaChunk.hasPendingDiscontinuity()) {
-      // Allow the extractor to consume from the current chunk.
-      NonBlockingInputStream inputStream = mediaChunk.getNonBlockingInputStream();
-      haveSufficientSamples = extractor.consumeUntil(inputStream,
-          downstreamPositionUs + MAX_SAMPLE_INTERLEAVING_OFFSET_US);
+    // Allow the extractor to consume from the current chunk.
+    NonBlockingInputStream inputStream = mediaChunk.getNonBlockingInputStream();
+    boolean haveSufficientSamples = extractor.consumeUntil(inputStream,
+        downstreamPositionUs + MAX_SAMPLE_INTERLEAVING_OFFSET_US);
+    if (!haveSufficientSamples) {
       // If we can't read any more, then we always say we have sufficient samples.
-      if (!haveSufficientSamples) {
-        haveSufficientSamples = mediaChunk.isLastChunk() && mediaChunk.isReadFinished();
-      }
+      haveSufficientSamples = mediaChunk.isLastChunk() && mediaChunk.isReadFinished();
     }
 
     if (!haveSufficientSamples && currentLoadableException != null) {
@@ -223,7 +228,28 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       return DISCONTINUITY_READ;
     }
 
-    if (onlyReadDiscontinuity || isPendingReset() || !extractor.isPrepared()) {
+    if (onlyReadDiscontinuity || isPendingReset()) {
+      return NOTHING_READ;
+    }
+
+    if (extractors.isEmpty()) {
+      return NOTHING_READ;
+    }
+
+    TsExtractor extractor = extractors.getFirst();
+    while (extractors.size() > 1 && !extractor.hasSamples()) {
+      // We're finished reading from the extractor for all tracks, and so can discard it.
+      extractors.removeFirst().clear();
+      extractor = extractors.getFirst();
+    }
+    int extractorIndex = 0;
+    while (extractors.size() > extractorIndex + 1 && !extractor.hasSamples(track)) {
+      // We're finished reading from the extractor for this particular track, so advance to the
+      // next one for the current read.
+      extractor = extractors.get(++extractorIndex);
+    }
+
+    if (!extractor.isPrepared()) {
       return NOTHING_READ;
     }
 
@@ -265,9 +291,9 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     if (mediaChunk == null) {
       restartFrom(positionUs);
     } else {
+      discardExtractors();
       discardDownstreamHlsChunks(mediaChunk);
-      mediaChunk.reset();
-      extractor.reset(mediaChunk.startTimeUs);
+      mediaChunk.resetReadPosition();
       updateLoadControl();
     }
   }
@@ -494,11 +520,18 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       TsChunk mediaChunk = (TsChunk) currentLoadable;
       mediaChunks.add(mediaChunk);
       if (isPendingReset()) {
-        extractor.reset(mediaChunk.startTimeUs);
+        discardExtractors();
         pendingResetPositionUs = NO_RESET_PENDING;
       }
     }
     loader.startLoading(currentLoadable, this);
+  }
+
+  private void discardExtractors() {
+    for (int i = 0; i < extractors.size(); i++) {
+      extractors.get(i).clear();
+    }
+    extractors.clear();
   }
 
   /**

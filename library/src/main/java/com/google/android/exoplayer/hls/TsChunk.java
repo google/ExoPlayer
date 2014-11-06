@@ -24,6 +24,10 @@ import com.google.android.exoplayer.upstream.DataSpec;
 public final class TsChunk extends HlsChunk {
 
   /**
+   * The index of the variant in the master playlist.
+   */
+  public final int variantIndex;
+  /**
    * The start time of the media contained by the chunk.
    */
   public final long startTimeUs;
@@ -38,44 +42,38 @@ public final class TsChunk extends HlsChunk {
   /**
    * The encoding discontinuity indicator.
    */
-  private final boolean discontinuity;
-
-  private boolean pendingDiscontinuity;
+  public final boolean discontinuity;
+  /**
+   * For each track, whether samples from the first keyframe (inclusive) should be discarded.
+   */
+  public final boolean discardFromFirstKeyframes;
 
   /**
    * @param dataSource A {@link DataSource} for loading the data.
    * @param dataSpec Defines the data to be loaded.
    * @param trigger The reason for this chunk being selected.
+   * @param variantIndex The index of the variant in the master playlist.
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param nextChunkIndex The index of the next chunk, or -1 if this is the last chunk.
    * @param discontinuity The encoding discontinuity indicator.
+   * @param discardFromFirstKeyframes For each contained media stream, whether samples from the
+   *     first keyframe (inclusive) should be discarded.
    */
-  public TsChunk(DataSource dataSource, DataSpec dataSpec, int trigger, long startTimeUs,
-      long endTimeUs, int nextChunkIndex, boolean discontinuity) {
+  public TsChunk(DataSource dataSource, DataSpec dataSpec, int trigger, int variantIndex,
+      long startTimeUs, long endTimeUs, int nextChunkIndex, boolean discontinuity,
+      boolean discardFromFirstKeyframes) {
     super(dataSource, dataSpec, trigger);
+    this.variantIndex = variantIndex;
     this.startTimeUs = startTimeUs;
     this.endTimeUs = endTimeUs;
     this.nextChunkIndex = nextChunkIndex;
     this.discontinuity = discontinuity;
-    this.pendingDiscontinuity = discontinuity;
+    this.discardFromFirstKeyframes = discardFromFirstKeyframes;
   }
 
   public boolean isLastChunk() {
     return nextChunkIndex == -1;
-  }
-
-  public void reset() {
-    resetReadPosition();
-    pendingDiscontinuity = discontinuity;
-  }
-
-  public boolean hasPendingDiscontinuity() {
-    return pendingDiscontinuity;
-  }
-
-  public void clearPendingDiscontinuity() {
-    pendingDiscontinuity = false;
   }
 
 }

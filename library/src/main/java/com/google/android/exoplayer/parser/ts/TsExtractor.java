@@ -23,11 +23,13 @@ import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.annotation.SuppressLint;
+import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -47,26 +49,27 @@ public final class TsExtractor {
   private static final int TS_STREAM_TYPE_H264 = 0x1B;
   private static final int TS_STREAM_TYPE_ID3 = 0x15;
 
-  private static final int DEFAULT_BUFFER_SEGMENT_SIZE = 64 * 1024;
-
   private final BitsArray tsPacketBuffer;
   private final SparseArray<PesPayloadReader> pesPayloadReaders; // Indexed by streamType
   private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
-  private final Queue<Sample> samplesPool;
+  private final SamplePool samplePool;
 
   private boolean prepared;
 
-  /* package */ boolean pendingTimestampOffsetUpdate;
-  /* package */ long pendingTimestampOffsetUs;
+  /* package */ boolean pendingFirstSampleTimestampAdjustment;
+  /* package */ long firstSampleTimestamp;
   /* package */ long sampleTimestampOffsetUs;
   /* package */ long largestParsedTimestampUs;
+  /* package */ boolean discardFromNextKeyframes;
 
-  public TsExtractor() {
+  public TsExtractor(long firstSampleTimestamp, SamplePool samplePool) {
+    this.firstSampleTimestamp = firstSampleTimestamp;
+    this.samplePool = samplePool;
+    pendingFirstSampleTimestampAdjustment = true;
     tsPacketBuffer = new BitsArray();
     pesPayloadReaders = new SparseArray<PesPayloadReader>();
     tsPayloadReaders = new SparseArray<TsPayloadReader>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
-    samplesPool = new LinkedList<Sample>();
     largestParsedTimestampUs = Long.MIN_VALUE;
   }
 
@@ -105,22 +108,19 @@ public final class TsExtractor {
   }
 
   /**
-   * Resets the extractor's internal state.
+   * Flushes any pending or incomplete samples, returning them to the sample pool.
    */
-  public void reset(long nextSampleTimestampUs) {
-    prepared = false;
-    tsPacketBuffer.reset();
-    tsPayloadReaders.clear();
-    tsPayloadReaders.put(TS_PAT_PID, new PatReader());
-    // Clear each reader before discarding it, so as to recycle any queued Sample objects.
+  public void clear() {
     for (int i = 0; i < pesPayloadReaders.size(); i++) {
       pesPayloadReaders.valueAt(i).clear();
     }
-    pesPayloadReaders.clear();
-    // Configure for subsequent read operations.
-    pendingTimestampOffsetUpdate = true;
-    pendingTimestampOffsetUs = nextSampleTimestampUs;
-    largestParsedTimestampUs = Long.MIN_VALUE;
+  }
+
+  /**
+   * For each track, whether to discard samples from the next keyframe (inclusive).
+   */
+  public void discardFromNextKeyframes() {
+    discardFromNextKeyframes = true;
   }
 
   /**
@@ -153,29 +153,41 @@ public final class TsExtractor {
    */
   public boolean getSample(int track, SampleHolder out) {
     Assertions.checkState(prepared);
-    Queue<Sample> queue = pesPayloadReaders.valueAt(track).samplesQueue;
+    Queue<Sample> queue = pesPayloadReaders.valueAt(track).sampleQueue;
     if (queue.isEmpty()) {
       return false;
     }
     Sample sample = queue.remove();
     convert(sample, out);
-    recycleSample(sample);
+    samplePool.recycle(sample);
     return true;
   }
 
   /**
-   * Whether samples are available for reading from {@link #getSample(int, SampleHolder)}.
+   * Whether samples are available for reading from {@link #getSample(int, SampleHolder)} for any
+   * track.
    *
-   * @return True if samples are available for reading from {@link #getSample(int, SampleHolder)}.
-   *     False otherwise.
+   * @return True if samples are available for reading from {@link #getSample(int, SampleHolder)}
+   *     for any track. False otherwise.
    */
   public boolean hasSamples() {
     for (int i = 0; i < pesPayloadReaders.size(); i++) {
-      if (!pesPayloadReaders.valueAt(i).samplesQueue.isEmpty()) {
+      if (hasSamples(i)) {
         return true;
       }
     }
     return false;
+  }
+
+  /**
+   * Whether samples are available for reading from {@link #getSample(int, SampleHolder)} for the
+   * specified track.
+   *
+   * @return True if samples are available for reading from {@link #getSample(int, SampleHolder)}
+   *     for the specified track. False otherwise.
+   */
+  public boolean hasSamples(int track) {
+    return !pesPayloadReaders.valueAt(track).sampleQueue.isEmpty();
   }
 
   private boolean checkPrepared() {
@@ -249,18 +261,6 @@ public final class TsExtractor {
     out.size = in.size;
     out.flags = in.flags;
     out.timeUs = in.timeUs;
-  }
-
-  /* package */ Sample getSample() {
-    if (samplesPool.isEmpty()) {
-      return new Sample(DEFAULT_BUFFER_SEGMENT_SIZE);
-    }
-    return samplesPool.remove();
-  }
-
-  /* package */ void recycleSample(Sample sample) {
-    sample.reset();
-    samplesPool.add(sample);
   }
 
   /**
@@ -484,12 +484,14 @@ public final class TsExtractor {
    */
   private abstract class PesPayloadReader {
 
-    public final Queue<Sample> samplesQueue;
+    public final Queue<Sample> sampleQueue;
 
     private MediaFormat mediaFormat;
+    private boolean foundFirstKeyframe;
+    private boolean foundLastKeyframe;
 
     protected PesPayloadReader() {
-      this.samplesQueue = new LinkedList<Sample>();
+      this.sampleQueue = new LinkedList<Sample>();
     }
 
     public boolean hasMediaFormat() {
@@ -507,8 +509,8 @@ public final class TsExtractor {
     public abstract void read(BitsArray pesBuffer, int pesPayloadSize, long pesTimeUs);
 
     public void clear() {
-      while (!samplesQueue.isEmpty()) {
-        recycleSample(samplesQueue.remove());
+      while (!sampleQueue.isEmpty()) {
+        samplePool.recycle(sampleQueue.remove());
       }
     }
 
@@ -520,17 +522,31 @@ public final class TsExtractor {
      * @param sampleTimeUs The sample time stamp.
      */
     protected void addSample(BitsArray buffer, int sampleSize, long sampleTimeUs, int flags) {
-      Sample sample = getSample();
+      Sample sample = samplePool.get();
       addToSample(sample, buffer, sampleSize);
       sample.flags = flags;
       sample.timeUs = sampleTimeUs;
       addSample(sample);
     }
 
+    @SuppressLint("InlinedApi")
     protected void addSample(Sample sample) {
+      boolean isKeyframe = (sample.flags & MediaCodec.BUFFER_FLAG_SYNC_FRAME) != 0;
+      if (isKeyframe) {
+        if (!foundFirstKeyframe) {
+          foundFirstKeyframe = true;
+        }
+        if (discardFromNextKeyframes) {
+          foundLastKeyframe = true;
+        }
+      }
       adjustTimestamp(sample);
-      largestParsedTimestampUs = Math.max(largestParsedTimestampUs, sample.timeUs);
-      samplesQueue.add(sample);
+      if (foundFirstKeyframe && !foundLastKeyframe) {
+        largestParsedTimestampUs = Math.max(largestParsedTimestampUs, sample.timeUs);
+        sampleQueue.add(sample);
+      } else {
+        samplePool.recycle(sample);
+      }
     }
 
     protected void addToSample(Sample sample, BitsArray buffer, int size) {
@@ -542,9 +558,9 @@ public final class TsExtractor {
     }
 
     private void adjustTimestamp(Sample sample) {
-      if (pendingTimestampOffsetUpdate) {
-        sampleTimestampOffsetUs = pendingTimestampOffsetUs - sample.timeUs;
-        pendingTimestampOffsetUpdate = false;
+      if (pendingFirstSampleTimestampAdjustment) {
+        sampleTimestampOffsetUs = firstSampleTimestamp - sample.timeUs;
+        pendingFirstSampleTimestampAdjustment = false;
       }
       sample.timeUs += sampleTimestampOffsetUs;
     }
@@ -583,7 +599,7 @@ public final class TsExtractor {
       if (currentSample != null) {
         addSample(currentSample);
       }
-      currentSample = getSample();
+      currentSample = samplePool.get();
       pesPayloadSize -= readOneH264Frame(pesBuffer, false);
       currentSample.timeUs = pesTimeUs;
 
@@ -615,7 +631,7 @@ public final class TsExtractor {
     public void clear() {
       super.clear();
       if (currentSample != null) {
-        recycleSample(currentSample);
+        samplePool.recycle(currentSample);
         currentSample = null;
       }
     }
@@ -742,8 +758,35 @@ public final class TsExtractor {
   }
 
   /**
-  * Simplified version of SampleHolder for internal buffering.
-  */
+   * A pool from which the extractor can obtain sample objects for internal use.
+   */
+  public static class SamplePool {
+
+    private static final int DEFAULT_BUFFER_SEGMENT_SIZE = 64 * 1024;
+
+    private final ArrayList<Sample> samples;
+
+    public SamplePool() {
+      samples = new ArrayList<Sample>();
+    }
+
+    /* package */ Sample get() {
+      if (samples.isEmpty()) {
+        return new Sample(DEFAULT_BUFFER_SEGMENT_SIZE);
+      }
+      return samples.remove(samples.size() - 1);
+    }
+
+    /* package */ void recycle(Sample sample) {
+      sample.reset();
+      samples.add(sample);
+    }
+
+  }
+
+  /**
+   * Simplified version of SampleHolder for internal buffering.
+   */
   private static class Sample {
 
     public byte[] data;

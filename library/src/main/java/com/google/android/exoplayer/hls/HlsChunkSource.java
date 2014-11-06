@@ -45,7 +45,6 @@ public class HlsChunkSource {
   private final HlsMasterPlaylist masterPlaylist;
   private final HlsMediaPlaylistParser mediaPlaylistParser;
 
-  private long liveStartTimeUs;
   /* package */ HlsMediaPlaylist mediaPlaylist;
   /* package */ boolean mediaPlaylistWasLive;
   /* package */ long lastMediaPlaylistLoadTimeMs;
@@ -168,25 +167,22 @@ public class HlsChunkSource {
 
     DataSpec dataSpec = new DataSpec(chunkUri, 0, C.LENGTH_UNBOUNDED, null);
 
-    long startTimeUs = segment.startTimeUs;
-    long endTimeUs = startTimeUs + (long) (segment.durationSecs * 1000000);
+    long startTimeUs;
     int nextChunkMediaSequence = chunkMediaSequence + 1;
-
     if (mediaPlaylistWasLive) {
       if (queue.isEmpty()) {
-        liveStartTimeUs = startTimeUs;
         startTimeUs = 0;
-        endTimeUs -= liveStartTimeUs;
       } else {
-        startTimeUs -= liveStartTimeUs;
-        endTimeUs -= liveStartTimeUs;
+        startTimeUs = queue.get(queue.size() - 1).endTimeUs;
       }
     } else {
       // Not live.
+      startTimeUs = segment.startTimeUs;
       if (chunkIndex == mediaPlaylist.segments.size() - 1) {
         nextChunkMediaSequence = -1;
       }
     }
+    long endTimeUs = startTimeUs + (long) (segment.durationSecs * 1000000);
 
     DataSource dataSource;
     if (encryptedDataSource != null) {
@@ -194,9 +190,8 @@ public class HlsChunkSource {
     } else {
       dataSource = upstreamDataSource;
     }
-
-    out.chunk = new TsChunk(dataSource, dataSpec, 0, startTimeUs, endTimeUs,
-        nextChunkMediaSequence, segment.discontinuity);
+    out.chunk = new TsChunk(dataSource, dataSpec, 0, 0, startTimeUs, endTimeUs,
+        nextChunkMediaSequence, segment.discontinuity, false);
   }
 
   private boolean shouldRerequestMediaPlaylist() {
