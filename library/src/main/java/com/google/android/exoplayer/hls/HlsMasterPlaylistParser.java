@@ -73,7 +73,7 @@ public final class HlsMasterPlaylistParser implements ManifestParser<HlsMasterPl
         String codecsString = HlsParserUtil.parseOptionalStringAttr(line, CODECS_ATTR_REGEX,
             CODECS_ATTR);
         if (codecsString != null) {
-          codecs = codecsString.split(",");
+          codecs = codecsString.split("(\\s*,\\s*)|(\\s*$)");
         } else {
           codecs = null;
         }
