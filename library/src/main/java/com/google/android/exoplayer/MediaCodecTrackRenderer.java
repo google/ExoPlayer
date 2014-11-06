@@ -673,7 +673,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   @Override
   protected boolean isReady() {
     return format != null && !waitingForKeys
-        && sourceState != SOURCE_STATE_NOT_READY || outputIndex >= 0 || isWithinHotswapPeriod();
+        && (sourceState != SOURCE_STATE_NOT_READY || outputIndex >= 0 || isWithinHotswapPeriod());
   }
 
   /**

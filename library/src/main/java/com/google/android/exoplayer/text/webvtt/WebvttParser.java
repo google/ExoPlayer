@@ -53,8 +53,13 @@ public class WebvttParser implements SubtitleParser {
 
   private static final long SAMPLING_RATE = 90;
 
+  private static final String WEBVTT_METADATA_HEADER_STRING = "\\S*[:=]\\S*";
+  private static final Pattern WEBVTT_METADATA_HEADER =
+      Pattern.compile(WEBVTT_METADATA_HEADER_STRING);
+
   private static final String WEBVTT_TIMESTAMP_STRING = "(\\d+:)?[0-5]\\d:[0-5]\\d\\.\\d{3}";
   private static final Pattern WEBVTT_TIMESTAMP = Pattern.compile(WEBVTT_TIMESTAMP_STRING);
+
   private static final Pattern MEDIA_TIMESTAMP_OFFSET = Pattern.compile(OFFSET + "\\d+");
   private static final Pattern MEDIA_TIMESTAMP = Pattern.compile("MPEGTS:\\d+");
 
@@ -90,30 +95,33 @@ public class WebvttParser implements SubtitleParser {
       throw new ParserException("Expected WEBVTT. Got " + line);
     }
 
-    // after "WEBVTT" there should be either an empty line or an "X-TIMESTAMP-MAP" line and then
-    // and empty line
-    line = webvttData.readLine();
-    if (!line.isEmpty()) {
-      if (!line.startsWith("X-TIMESTAMP-MAP")) {
-        throw new ParserException("Expected an empty line or X-TIMESTAMP-MAP. Got " + line);
-      }
-
-      // parse the media timestamp
-      Matcher matcher = MEDIA_TIMESTAMP.matcher(line);
-      if (!matcher.find()) {
-        throw new ParserException("X-TIMESTAMP-MAP doesn't contain media timestmap: " + line);
-      } else {
-        mediaTimestampUs = (Long.parseLong(matcher.group().substring(7)) * 1000) / SAMPLING_RATE
-            - mediaTimestampOffsetUs;
-      }
-      mediaTimestampUs = getAdjustedStartTime(mediaTimestampUs);
-
-      // read in the next line (which should be an empty line)
+    // parse the remainder of the header
+    while (true) {
       line = webvttData.readLine();
-    }
-    if (!line.isEmpty()) {
-      throw new ParserException("Expected an empty line after WEBVTT or X-TIMESTAMP-MAP. Got "
-          + line);
+      if (line == null) {
+        // we reached EOF before finishing the header
+        throw new ParserException("Expected an empty line after webvtt header");
+      } else if (line.isEmpty()) {
+        // we've read the newline that separates the header from the body
+        break;
+      }
+
+      Matcher matcher = WEBVTT_METADATA_HEADER.matcher(line);
+      if (!matcher.find()) {
+        throw new ParserException("Expected webvtt metadata header; got: " + line);
+      }
+
+      if (line.startsWith("X-TIMESTAMP-MAP")) {
+        // parse the media timestamp
+        Matcher timestampMatcher = MEDIA_TIMESTAMP.matcher(line);
+        if (!timestampMatcher.find()) {
+          throw new ParserException("X-TIMESTAMP-MAP doesn't contain media timestamp: " + line);
+        } else {
+          mediaTimestampUs = (Long.parseLong(timestampMatcher.group().substring(7)) * 1000)
+              / SAMPLING_RATE - mediaTimestampOffsetUs;
+        }
+        mediaTimestampUs = getAdjustedStartTime(mediaTimestampUs);
+      }
     }
 
     // process the cues and text

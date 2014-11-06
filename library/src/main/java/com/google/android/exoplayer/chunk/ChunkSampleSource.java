@@ -140,6 +140,8 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
 
   private static final int NO_RESET_PENDING = -1;
 
+  private static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 1;
+
   private final int eventSourceId;
   private final LoadControl loadControl;
   private final ChunkSource chunkSource;
@@ -150,6 +152,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   private final boolean frameAccurateSeeking;
   private final Handler eventHandler;
   private final EventListener eventListener;
+  private final int minLoadableRetryCount;
 
   private int state;
   private long downstreamPositionUs;
@@ -175,6 +178,13 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   public ChunkSampleSource(ChunkSource chunkSource, LoadControl loadControl,
       int bufferSizeContribution, boolean frameAccurateSeeking, Handler eventHandler,
       EventListener eventListener, int eventSourceId) {
+    this(chunkSource, loadControl, bufferSizeContribution, frameAccurateSeeking, eventHandler,
+        eventListener, eventSourceId, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
+  }
+
+  public ChunkSampleSource(ChunkSource chunkSource, LoadControl loadControl,
+      int bufferSizeContribution, boolean frameAccurateSeeking, Handler eventHandler,
+      EventListener eventListener, int eventSourceId, int minLoadableRetryCount) {
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
     this.bufferSizeContribution = bufferSizeContribution;
@@ -182,6 +192,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
+    this.minLoadableRetryCount = minLoadableRetryCount;
     currentLoadableHolder = new ChunkOperationHolder();
     mediaChunks = new LinkedList<MediaChunk>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
@@ -287,9 +298,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
 
     downstreamPositionUs = positionUs;
     if (isPendingReset()) {
-      if (currentLoadableException != null) {
-        throw currentLoadableException;
-      }
+      maybeThrowLoadableException();
       IOException chunkSourceException = chunkSource.getError();
       if (chunkSourceException != null) {
         throw chunkSourceException;
@@ -342,9 +351,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
       onSampleRead(mediaChunk, sampleHolder);
       return SAMPLE_READ;
     } else {
-      if (currentLoadableException != null) {
-        throw currentLoadableException;
-      }
+      maybeThrowLoadableException();
       return NOTHING_READ;
     }
   }
@@ -366,6 +373,12 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
       pendingDiscontinuity |= mediaChunk.seekTo(positionUs, mediaChunk == mediaChunks.getFirst());
       discardDownstreamMediaChunks(mediaChunk);
       updateLoadControl();
+    }
+  }
+
+  private void maybeThrowLoadableException() throws IOException {
+    if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
+      throw currentLoadableException;
     }
   }
 
