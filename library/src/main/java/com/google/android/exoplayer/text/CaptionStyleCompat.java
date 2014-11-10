@@ -104,14 +104,19 @@ public final class CaptionStyleCompat {
   /**
    * Creates a {@link CaptionStyleCompat} equivalent to a provided {@link CaptionStyle}.
    *
-   * @param style A {@link CaptionStyle}.
+   * @param captionStyle A {@link CaptionStyle}.
    * @return The equivalent {@link CaptionStyleCompat}.
    */
   @TargetApi(19)
-  public static CaptionStyleCompat createFromCaptionStyle(CaptionStyle style) {
-    int windowColor = Util.SDK_INT >= 21 ? getWindowColorV21(style) : Color.TRANSPARENT;
-    return new CaptionStyleCompat(style.foregroundColor, style.backgroundColor, windowColor,
-        style.edgeType, style.edgeColor, style.getTypeface());
+  public static CaptionStyleCompat createFromCaptionStyle(
+      CaptioningManager.CaptionStyle captionStyle) {
+    if (Util.SDK_INT >= 21) {
+      return createFromCaptionStyleV21(captionStyle);
+    } else {
+      // Note - Any caller must be on at least API level 19 of greater (because CaptionStyle did
+      // not exist in earlier API levels).
+      return createFromCaptionStyleV19(captionStyle);
+    }
   }
 
   /**
@@ -132,11 +137,24 @@ public final class CaptionStyleCompat {
     this.typeface = typeface;
   }
 
-  @SuppressWarnings("unused")
+  @TargetApi(19)
+  private static CaptionStyleCompat createFromCaptionStyleV19(
+      CaptioningManager.CaptionStyle captionStyle) {
+    return new CaptionStyleCompat(
+        captionStyle.foregroundColor, captionStyle.backgroundColor, Color.TRANSPARENT,
+        captionStyle.edgeType, captionStyle.edgeColor, captionStyle.getTypeface());
+  }
+
   @TargetApi(21)
-  private static int getWindowColorV21(CaptioningManager.CaptionStyle captionStyle) {
-    // TODO: Uncomment when building against API level 21.
-    return Color.TRANSPARENT; //captionStyle.windowColor;
+  private static CaptionStyleCompat createFromCaptionStyleV21(
+      CaptioningManager.CaptionStyle captionStyle) {
+    return new CaptionStyleCompat(
+        captionStyle.hasForegroundColor() ? captionStyle.foregroundColor : DEFAULT.foregroundColor,
+        captionStyle.hasBackgroundColor() ? captionStyle.backgroundColor : DEFAULT.backgroundColor,
+        captionStyle.hasWindowColor() ? captionStyle.windowColor : DEFAULT.windowColor,
+        captionStyle.hasEdgeType() ? captionStyle.edgeType : DEFAULT.edgeType,
+        captionStyle.hasEdgeColor() ? captionStyle.edgeColor : DEFAULT.edgeColor,
+        captionStyle.getTypeface());
   }
 
 }
