@@ -175,13 +175,13 @@ public class DashVodRendererBuilder implements RendererBuilder,
         VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
         DemoPlayer.TYPE_VIDEO);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource,
-        drmSessionManager, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000,
-        null, mainHandler, player, 50);
+        drmSessionManager, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null,
+        mainHandler, player, 50);
 
     // Build the audio renderer.
     final String[] audioTrackNames;
     final MultiTrackChunkSource audioChunkSource;
-    final MediaCodecAudioTrackRenderer audioRenderer;
+    final TrackRenderer audioRenderer;
     if (audioRepresentationsList.isEmpty()) {
       audioTrackNames = null;
       audioChunkSource = null;
