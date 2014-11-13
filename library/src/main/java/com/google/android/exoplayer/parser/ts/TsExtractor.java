@@ -375,7 +375,8 @@ public final class TsExtractor {
           // Skip entire descriptor data.
           tsBuffer.skipBytes(descriptorsLength);
         }
-        descriptorsSize -= descriptorsSize + 2;
+        descriptorsSize -= descriptorsLength + 2; //        descriptorsSize -= descriptorsSize + 2; if you subtract it with descriptor size you will only skip the first descriptor.
+
       }
     }
 
