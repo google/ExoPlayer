@@ -171,7 +171,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       loader = new Loader("manifestLoader");
     }
     if (!loader.isLoading()) {
-      currentLoadable = new ManifestLoadable(userAgent);
+      currentLoadable = new ManifestLoadable();
       loader.startLoading(currentLoadable, this);
     }
   }
@@ -221,7 +221,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       this.callbackLooper = callbackLooper;
       this.wrappedCallback = wrappedCallback;
       singleUseLoader = new Loader("manifestLoader:single");
-      singleUseLoadable = new ManifestLoadable(userAgent);
+      singleUseLoadable = new ManifestLoadable();
     }
 
     public void startLoading() {
@@ -269,14 +269,8 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
     private static final int TIMEOUT_MILLIS = 10000;
 
-    private final String userAgent;
-
     /* package */ volatile T result;
     private volatile boolean isCanceled;
-
-    public ManifestLoadable(String userAgent) {
-      this.userAgent = userAgent;
-    }
 
     @Override
     public void cancelLoad() {
