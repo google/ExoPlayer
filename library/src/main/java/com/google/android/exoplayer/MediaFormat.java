@@ -89,7 +89,7 @@ public class MediaFormat {
 
   public static MediaFormat createId3Format() {
     return new MediaFormat(MimeTypes.APPLICATION_ID3, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, null);
+        NO_VALUE, NO_VALUE, NO_VALUE, null);
   }
 
   @TargetApi(16)
