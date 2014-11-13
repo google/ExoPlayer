@@ -64,7 +64,10 @@ public class MediaCodecUtil {
   /**
    * Returns the best decoder and its capabilities for the given mimeType. If there's no decoder
    * returns null.
+   *
+   * TODO: We need to use the new object based MediaCodecList API.
    */
+  @SuppressWarnings("deprecation")
   private static synchronized Pair<MediaCodecInfo, CodecCapabilities> getMediaCodecInfo(
       String mimeType) {
     Pair<MediaCodecInfo, CodecCapabilities> result = codecs.get(mimeType);
