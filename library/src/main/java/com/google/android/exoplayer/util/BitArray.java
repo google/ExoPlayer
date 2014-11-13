@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.parser.ts;
+package com.google.android.exoplayer.util;
 
-import com.google.android.exoplayer.upstream.NonBlockingInputStream;
-import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.upstream.DataSource;
+
+import java.io.IOException;
 
 /**
  * Wraps a byte array, providing methods that allow it to be read as a bitstream.
  */
-public final class BitsArray {
+public final class BitArray {
 
   private byte[] data;
 
@@ -33,21 +34,43 @@ public final class BitsArray {
   private int byteOffset;
   private int bitOffset;
 
-  public BitsArray() {
+  public BitArray() {
   }
 
-  public BitsArray(byte[] data, int limit) {
+  public BitArray(byte[] data, int limit) {
     this.data = data;
     this.limit = limit;
   }
 
   /**
-   * Resets the state.
+   * Clears all data, setting the offset and limit to zero.
    */
   public void reset() {
     byteOffset = 0;
     bitOffset = 0;
     limit = 0;
+  }
+
+  /**
+   * Resets to wrap the specified data, setting the offset to zero.
+   *
+   * @param data The data to wrap.
+   * @param limit The limit to set.
+   */
+  public void reset(byte[] data, int limit) {
+    this.data = data;
+    this.limit = limit;
+    byteOffset = 0;
+    bitOffset = 0;
+  }
+
+  /**
+   * Gets the backing byte array.
+   *
+   * @return The backing byte array.
+   */
+  public byte[] getData() {
+    return data;
   }
 
   /**
@@ -69,16 +92,16 @@ public final class BitsArray {
   }
 
   /**
-   * Appends data from a {@link NonBlockingInputStream}.
+   * Appends data from a {@link DataSource}.
    *
-   * @param inputStream The {@link NonBlockingInputStream} whose data should be appended.
+   * @param dataSource The {@link DataSource} from which to read.
    * @param length The maximum number of bytes to read and append.
-   * @return The number of bytes that were read and appended. May be 0 if no data was available
-   *     from the stream. -1 is returned if the end of the stream has been reached.
+   * @return The number of bytes that were read and appended, or -1 if no more data is available.
+   * @throws IOException If an error occurs reading from the source.
    */
-  public int append(NonBlockingInputStream inputStream, int length) {
+  public int append(DataSource dataSource, int length) throws IOException {
     expand(length);
-    int bytesRead = inputStream.read(data, limit, length);
+    int bytesRead = dataSource.read(data, limit, length);
     if (bytesRead == -1) {
       return -1;
     }
@@ -87,12 +110,12 @@ public final class BitsArray {
   }
 
   /**
-   * Appends data from another {@link BitsArray}.
+   * Appends data from another {@link BitArray}.
    *
-   * @param bitsArray The {@link BitsArray} whose data should be appended.
+   * @param bitsArray The {@link BitArray} whose data should be appended.
    * @param length The number of bytes to read and append.
    */
-  public void append(BitsArray bitsArray, int length) {
+  public void append(BitArray bitsArray, int length) {
     expand(length);
     bitsArray.readBytes(data, limit, length);
     limit += length;
@@ -257,6 +280,19 @@ public final class BitsArray {
   }
 
   /**
+   * Reads an Exp-Golomb-coded format integer.
+   *
+   * @return The value of the parsed Exp-Golomb-coded integer.
+   */
+  public int readExpGolombCodedInt() {
+    int leadingZeros = 0;
+    while (!readBit()) {
+      leadingZeros++;
+    }
+    return (1 << leadingZeros) - 1 + (leadingZeros > 0 ? readBits(leadingZeros) : 0);
+  }
+
+  /**
    * Reads a Synchsafe integer.
    * Synchsafe integers are integers that keep the highest bit of every byte zeroed.
    * A 32 bit synchsafe integer can store 28 bits of information.
@@ -293,7 +329,7 @@ public final class BitsArray {
   /**
    * Finds the next NAL unit.
    *
-   * @param nalUnitType The type of the NAL unit to search for.
+   * @param nalUnitType The type of the NAL unit to search for, or -1 for any NAL unit.
    * @param offset The additional offset in the data to start the search from.
    * @return The offset from the current position to the start of the NAL unit. If a NAL unit is
    *     not found, then the offset to the end of the data is returned.
@@ -302,7 +338,7 @@ public final class BitsArray {
     for (int i = byteOffset + offset; i < limit - 3; i++) {
       // Check for NAL unit start code prefix == 0x000001.
       if ((data[i] == 0 && data[i + 1] == 0 && data[i + 2] == 1)
-          && (nalUnitType == (data[i + 3] & 0x1F))) {
+          && (nalUnitType == -1 || (nalUnitType == (data[i + 3] & 0x1F)))) {
         return i - byteOffset;
       }
     }

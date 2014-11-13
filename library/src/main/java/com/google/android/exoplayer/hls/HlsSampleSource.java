@@ -15,47 +15,31 @@
  */
 package com.google.android.exoplayer.hls;
 
-import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
-import com.google.android.exoplayer.parser.ts.TsExtractor;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
-import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.Assertions;
 
 import android.os.SystemClock;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * A {@link SampleSource} for HLS streams.
- * <p>
- * TODO: Figure out whether this should merge with the chunk package, or whether the hls
- * implementation is going to naturally diverge.
  */
 public class HlsSampleSource implements SampleSource, Loader.Callback {
 
-  private static final long MAX_SAMPLE_INTERLEAVING_OFFSET_US = 5000000;
+  private static final long BUFFER_DURATION_US = 20000000;
   private static final int NO_RESET_PENDING = -1;
 
-  private final TsExtractor.SamplePool samplePool;
-  private final LoadControl loadControl;
   private final HlsChunkSource chunkSource;
-  private final HlsChunkOperationHolder currentLoadableHolder;
   private final LinkedList<TsExtractor> extractors;
-  private final LinkedList<TsChunk> mediaChunks;
-  private final List<TsChunk> readOnlyHlsChunks;
-  private final int bufferSizeContribution;
   private final boolean frameAccurateSeeking;
 
   private int remainingReleaseCount;
@@ -70,7 +54,10 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   private long downstreamPositionUs;
   private long lastSeekPositionUs;
   private long pendingResetPositionUs;
-  private long lastPerformedBufferOperation;
+
+  private TsChunk previousTsLoadable;
+  private HlsChunk currentLoadable;
+  private boolean loadingFinished;
 
   private Loader loader;
   private IOException currentLoadableException;
@@ -78,18 +65,12 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   private int currentLoadableExceptionCount;
   private long currentLoadableExceptionTimestamp;
 
-  public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, boolean frameAccurateSeeking, int downstreamRendererCount) {
+  public HlsSampleSource(HlsChunkSource chunkSource,
+      boolean frameAccurateSeeking, int downstreamRendererCount) {
     this.chunkSource = chunkSource;
-    this.loadControl = loadControl;
-    this.bufferSizeContribution = bufferSizeContribution;
     this.frameAccurateSeeking = frameAccurateSeeking;
     this.remainingReleaseCount = downstreamRendererCount;
-    samplePool = new TsExtractor.SamplePool();
     extractors = new LinkedList<TsExtractor>();
-    currentLoadableHolder = new HlsChunkOperationHolder();
-    mediaChunks = new LinkedList<TsChunk>();
-    readOnlyHlsChunks = Collections.unmodifiableList(mediaChunks);
   }
 
   @Override
@@ -99,13 +80,12 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     }
     if (loader == null) {
       loader = new Loader("Loader:HLS");
-      loadControl.register(this, bufferSizeContribution);
     }
     continueBufferingInternal();
     if (extractors.isEmpty()) {
       return false;
     }
-    TsExtractor extractor = extractors.get(0);
+    TsExtractor extractor = extractors.getFirst();
     if (extractor.isPrepared()) {
       trackCount = extractor.getTrackCount();
       trackEnabledStates = new boolean[trackCount];
@@ -156,8 +136,9 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       if (loader.isLoading()) {
         loader.cancelLoading();
       } else {
-        clearHlsChunks();
+        discardExtractors();
         clearCurrentLoadable();
+        previousTsLoadable = null;
       }
     }
   }
@@ -171,50 +152,15 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   private boolean continueBufferingInternal() throws IOException {
-    updateLoadControl();
-    if (isPendingReset()) {
+    maybeStartLoading();
+    if (isPendingReset() || extractors.isEmpty()) {
       return false;
     }
-
-    TsChunk mediaChunk = mediaChunks.getFirst();
-    int currentVariant = mediaChunk.variantIndex;
-
-    TsExtractor extractor;
-    if (extractors.isEmpty()) {
-      extractor = new TsExtractor(mediaChunk.startTimeUs, samplePool);
-      extractors.addLast(extractor);
-      if (mediaChunk.discardFromFirstKeyframes) {
-        extractor.discardFromNextKeyframes();
-      }
-    } else {
-      extractor = extractors.getLast();
-    }
-
-    if (mediaChunk.isReadFinished() && mediaChunks.size() > 1) {
-      discardDownstreamHlsChunk();
-      mediaChunk = mediaChunks.getFirst();
-      if (mediaChunk.discontinuity || mediaChunk.variantIndex != currentVariant) {
-        extractor = new TsExtractor(mediaChunk.startTimeUs, samplePool);
-        extractors.addLast(extractor);
-      }
-      if (mediaChunk.discardFromFirstKeyframes) {
-        extractor.discardFromNextKeyframes();
-      }
-    }
-
-    // Allow the extractor to consume from the current chunk.
-    NonBlockingInputStream inputStream = mediaChunk.getNonBlockingInputStream();
-    boolean haveSufficientSamples = extractor.consumeUntil(inputStream,
-        downstreamPositionUs + MAX_SAMPLE_INTERLEAVING_OFFSET_US);
-    if (!haveSufficientSamples) {
-      // If we can't read any more, then we always say we have sufficient samples.
-      haveSufficientSamples = mediaChunk.isLastChunk() && mediaChunk.isReadFinished();
-    }
-
-    if (!haveSufficientSamples && currentLoadableException != null) {
+    boolean haveSamples = extractors.getFirst().hasSamples();
+    if (!haveSamples && currentLoadableException != null) {
       throw currentLoadableException;
     }
-    return haveSufficientSamples;
+    return haveSamples;
   }
 
   @Override
@@ -228,11 +174,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       return DISCONTINUITY_READ;
     }
 
-    if (onlyReadDiscontinuity || isPendingReset()) {
-      return NOTHING_READ;
-    }
-
-    if (extractors.isEmpty()) {
+    if (onlyReadDiscontinuity || isPendingReset() || extractors.isEmpty()) {
       return NOTHING_READ;
     }
 
@@ -266,12 +208,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       return SAMPLE_READ;
     }
 
-    TsChunk mediaChunk = mediaChunks.getFirst();
-    if (mediaChunk.isLastChunk() && mediaChunk.isReadFinished()) {
-      return END_OF_STREAM;
-    }
-
-    return NOTHING_READ;
+    return loadingFinished ? END_OF_STREAM : NOTHING_READ;
   }
 
   @Override
@@ -283,32 +220,10 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     if (pendingResetPositionUs == positionUs) {
       return;
     }
-
     for (int i = 0; i < pendingDiscontinuities.length; i++) {
       pendingDiscontinuities[i] = true;
     }
-    TsChunk mediaChunk = getHlsChunk(positionUs);
-    if (mediaChunk == null) {
-      restartFrom(positionUs);
-    } else {
-      discardExtractors();
-      discardDownstreamHlsChunks(mediaChunk);
-      mediaChunk.resetReadPosition();
-      updateLoadControl();
-    }
-  }
-
-  private TsChunk getHlsChunk(long positionUs) {
-    Iterator<TsChunk> mediaChunkIterator = mediaChunks.iterator();
-    while (mediaChunkIterator.hasNext()) {
-      TsChunk mediaChunk = mediaChunkIterator.next();
-      if (positionUs < mediaChunk.startTimeUs) {
-        return null;
-      } else if (mediaChunk.isLastChunk() || positionUs < mediaChunk.endTimeUs) {
-        return mediaChunk;
-      }
-    }
-    return null;
+    restartFrom(positionUs);
   }
 
   @Override
@@ -317,22 +232,10 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     Assertions.checkState(enabledTrackCount > 0);
     if (isPendingReset()) {
       return pendingResetPositionUs;
-    }
-    TsChunk mediaChunk = mediaChunks.getLast();
-    HlsChunk currentLoadable = currentLoadableHolder.chunk;
-    if (currentLoadable != null && mediaChunk == currentLoadable) {
-      // Linearly interpolate partially-fetched chunk times.
-      long chunkLength = mediaChunk.getLength();
-      if (chunkLength != C.LENGTH_UNBOUNDED) {
-        return mediaChunk.startTimeUs + ((mediaChunk.endTimeUs - mediaChunk.startTimeUs)
-            * mediaChunk.bytesLoaded()) / chunkLength;
-      } else {
-        return mediaChunk.startTimeUs;
-      }
-    } else if (mediaChunk.isLastChunk()) {
+    } else if (loadingFinished) {
       return TrackRenderer.END_OF_TRACK_US;
     } else {
-      return mediaChunk.endTimeUs;
+      return extractors.getLast().getLargestSampleTimestamp();
     }
   }
 
@@ -340,7 +243,6 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   public void release() {
     Assertions.checkState(remainingReleaseCount > 0);
     if (--remainingReleaseCount == 0 && loader != null) {
-      loadControl.unregister(this);
       loader.release();
       loader = null;
     }
@@ -348,7 +250,6 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public void onLoadCompleted(Loadable loadable) {
-    HlsChunk currentLoadable = currentLoadableHolder.chunk;
     try {
       currentLoadable.consume();
     } catch (IOException e) {
@@ -357,28 +258,24 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
       currentLoadableExceptionFatal = true;
     } finally {
-      if (!isTsChunk(currentLoadable)) {
-        currentLoadable.release();
+      if (isTsChunk(currentLoadable)) {
+        TsChunk tsChunk = (TsChunk) loadable;
+        loadingFinished = tsChunk.isLastChunk();
       }
       if (!currentLoadableExceptionFatal) {
         clearCurrentLoadable();
       }
-      updateLoadControl();
+      maybeStartLoading();
     }
   }
 
   @Override
   public void onLoadCanceled(Loadable loadable) {
-    HlsChunk currentLoadable = currentLoadableHolder.chunk;
-    if (!isTsChunk(currentLoadable)) {
-      currentLoadable.release();
-    }
     clearCurrentLoadable();
     if (enabledTrackCount > 0) {
       restartFrom(pendingResetPositionUs);
     } else {
-      clearHlsChunks();
-      loadControl.trimAllocator();
+      previousTsLoadable = null;
     }
   }
 
@@ -387,141 +284,64 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     currentLoadableException = e;
     currentLoadableExceptionCount++;
     currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
-    updateLoadControl();
+    maybeStartLoading();
   }
 
   private void restartFrom(long positionUs) {
     pendingResetPositionUs = positionUs;
+    previousTsLoadable = null;
+    loadingFinished = false;
+    discardExtractors();
     if (loader.isLoading()) {
       loader.cancelLoading();
     } else {
-      clearHlsChunks();
-      clearCurrentLoadable();
-      updateLoadControl();
-    }
-  }
-
-  private void clearHlsChunks() {
-    discardDownstreamHlsChunks(null);
-  }
-
-  private void clearCurrentLoadable() {
-    currentLoadableHolder.chunk = null;
-    currentLoadableException = null;
-    currentLoadableExceptionCount = 0;
-    currentLoadableExceptionFatal = false;
-  }
-
-  private void updateLoadControl() {
-    if (currentLoadableExceptionFatal) {
-      // We've failed, but we still need to update the control with our current state.
-      loadControl.update(this, downstreamPositionUs, -1, false, true);
-      return;
-    }
-
-    long loadPositionUs;
-    if (isPendingReset()) {
-      loadPositionUs = pendingResetPositionUs;
-    } else {
-      TsChunk lastHlsChunk = mediaChunks.getLast();
-      loadPositionUs = lastHlsChunk.nextChunkIndex == -1 ? -1 : lastHlsChunk.endTimeUs;
-    }
-
-    boolean isBackedOff = currentLoadableException != null;
-    boolean nextLoader = loadControl.update(this, downstreamPositionUs, loadPositionUs,
-        isBackedOff || loader.isLoading(), false);
-
-    long now = SystemClock.elapsedRealtime();
-
-    if (isBackedOff) {
-      long elapsedMillis = now - currentLoadableExceptionTimestamp;
-      if (elapsedMillis >= getRetryDelayMillis(currentLoadableExceptionCount)) {
-        resumeFromBackOff();
-      }
-      return;
-    }
-
-    if (!loader.isLoading()) {
-      if (currentLoadableHolder.chunk == null || now - lastPerformedBufferOperation > 1000) {
-        lastPerformedBufferOperation = now;
-        currentLoadableHolder.queueSize = readOnlyHlsChunks.size();
-        chunkSource.getChunkOperation(readOnlyHlsChunks, pendingResetPositionUs,
-            downstreamPositionUs, currentLoadableHolder);
-        discardUpstreamHlsChunks(currentLoadableHolder.queueSize);
-      }
-      if (nextLoader) {
-        maybeStartLoading();
-      }
-    }
-  }
-
-  /**
-   * Resumes loading.
-   * <p>
-   * If the {@link HlsChunkSource} returns a chunk equivalent to the backed off chunk B, then the
-   * loading of B will be resumed. In all other cases B will be discarded and the new chunk will
-   * be loaded.
-   */
-  private void resumeFromBackOff() {
-    currentLoadableException = null;
-
-    HlsChunk backedOffChunk = currentLoadableHolder.chunk;
-    if (!isTsChunk(backedOffChunk)) {
-      currentLoadableHolder.queueSize = readOnlyHlsChunks.size();
-      chunkSource.getChunkOperation(readOnlyHlsChunks, pendingResetPositionUs, downstreamPositionUs,
-          currentLoadableHolder);
-      discardUpstreamHlsChunks(currentLoadableHolder.queueSize);
-      if (currentLoadableHolder.chunk == backedOffChunk) {
-        // HlsChunk was unchanged. Resume loading.
-        loader.startLoading(backedOffChunk, this);
-      } else {
-        backedOffChunk.release();
-        maybeStartLoading();
-      }
-      return;
-    }
-
-    if (backedOffChunk == mediaChunks.getFirst()) {
-      // We're not able to clear the first media chunk, so we have no choice but to continue
-      // loading it.
-      loader.startLoading(backedOffChunk, this);
-      return;
-    }
-
-    // The current loadable is the last media chunk. Remove it before we invoke the chunk source,
-    // and add it back again afterwards.
-    TsChunk removedChunk = mediaChunks.removeLast();
-    Assertions.checkState(backedOffChunk == removedChunk);
-    currentLoadableHolder.queueSize = readOnlyHlsChunks.size();
-    chunkSource.getChunkOperation(readOnlyHlsChunks, pendingResetPositionUs, downstreamPositionUs,
-        currentLoadableHolder);
-    mediaChunks.add(removedChunk);
-
-    if (currentLoadableHolder.chunk == backedOffChunk) {
-      // HlsChunk was unchanged. Resume loading.
-      loader.startLoading(backedOffChunk, this);
-    } else {
-      // This call will remove and release at least one chunk from the end of mediaChunks. Since
-      // the current loadable is the last media chunk, it is guaranteed to be removed.
-      discardUpstreamHlsChunks(currentLoadableHolder.queueSize);
       clearCurrentLoadable();
       maybeStartLoading();
     }
   }
 
+  private void clearCurrentLoadable() {
+    currentLoadable = null;
+    currentLoadableException = null;
+    currentLoadableExceptionCount = 0;
+    currentLoadableExceptionFatal = false;
+  }
+
   private void maybeStartLoading() {
-    HlsChunk currentLoadable = currentLoadableHolder.chunk;
-    if (currentLoadable == null) {
-      // Nothing to load.
+    if (currentLoadableExceptionFatal || loadingFinished) {
       return;
     }
-    currentLoadable.init(loadControl.getAllocator());
+
+    boolean isBackedOff = currentLoadableException != null;
+    if (isBackedOff) {
+      long elapsedMillis = SystemClock.elapsedRealtime() - currentLoadableExceptionTimestamp;
+      if (elapsedMillis >= getRetryDelayMillis(currentLoadableExceptionCount)) {
+        currentLoadableException = null;
+        loader.startLoading(currentLoadable, this);
+      }
+      return;
+    }
+
+    boolean bufferFull = !extractors.isEmpty() && (extractors.getLast().getLargestSampleTimestamp()
+        - downstreamPositionUs) >= BUFFER_DURATION_US;
+    if (loader.isLoading() || bufferFull) {
+      return;
+    }
+
+    HlsChunk nextLoadable = chunkSource.getChunkOperation(previousTsLoadable,
+        pendingResetPositionUs, downstreamPositionUs);
+    if (nextLoadable == null) {
+      return;
+    }
+
+    currentLoadable = nextLoadable;
     if (isTsChunk(currentLoadable)) {
-      TsChunk mediaChunk = (TsChunk) currentLoadable;
-      mediaChunks.add(mediaChunk);
+      previousTsLoadable = (TsChunk) currentLoadable;
       if (isPendingReset()) {
-        discardExtractors();
         pendingResetPositionUs = NO_RESET_PENDING;
+      }
+      if (extractors.isEmpty() || extractors.getLast() != previousTsLoadable.extractor) {
+        extractors.addLast(previousTsLoadable.extractor);
       }
     }
     loader.startLoading(currentLoadable, this);
@@ -532,39 +352,6 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       extractors.get(i).clear();
     }
     extractors.clear();
-  }
-
-  /**
-   * Discards downstream media chunks until {@code untilChunk} if found. {@code untilChunk} is not
-   * itself discarded. Null can be passed to discard all media chunks.
-   *
-   * @param untilChunk The first media chunk to keep, or null to discard all media chunks.
-   */
-  private void discardDownstreamHlsChunks(TsChunk untilChunk) {
-    if (mediaChunks.isEmpty() || untilChunk == mediaChunks.getFirst()) {
-      return;
-    }
-    while (!mediaChunks.isEmpty() && untilChunk != mediaChunks.getFirst()) {
-      mediaChunks.removeFirst().release();
-    }
-  }
-
-  /**
-   * Discards the first downstream media chunk.
-   */
-  private void discardDownstreamHlsChunk() {
-    mediaChunks.removeFirst().release();
-  }
-
-  /**
-   * Discard upstream media chunks until the queue length is equal to the length specified.
-   *
-   * @param queueLength The desired length of the queue.
-   */
-  private void discardUpstreamHlsChunks(int queueLength) {
-    while (mediaChunks.size() > queueLength) {
-      mediaChunks.removeLast().release();
-    }
   }
 
   private boolean isTsChunk(HlsChunk chunk) {

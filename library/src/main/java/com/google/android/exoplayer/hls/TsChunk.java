@@ -15,8 +15,11 @@
  */
 package com.google.android.exoplayer.hls;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
+
+import java.io.IOException;
 
 /**
  * A MPEG2TS chunk.
@@ -40,40 +43,87 @@ public final class TsChunk extends HlsChunk {
    */
   public final int nextChunkIndex;
   /**
-   * The encoding discontinuity indicator.
+   * True if this is the final chunk being loaded for the current variant, as we splice to another
+   * one. False otherwise.
    */
-  public final boolean discontinuity;
+  public final boolean splicingOut;
   /**
-   * For each track, whether samples from the first keyframe (inclusive) should be discarded.
+   * The extractor into which this chunk is being consumed.
    */
-  public final boolean discardFromFirstKeyframes;
+  public final TsExtractor extractor;
+
+  private volatile int loadPosition;
+  private volatile boolean loadFinished;
+  private volatile boolean loadCanceled;
 
   /**
    * @param dataSource A {@link DataSource} for loading the data.
    * @param dataSpec Defines the data to be loaded.
-   * @param trigger The reason for this chunk being selected.
    * @param variantIndex The index of the variant in the master playlist.
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param nextChunkIndex The index of the next chunk, or -1 if this is the last chunk.
-   * @param discontinuity The encoding discontinuity indicator.
-   * @param discardFromFirstKeyframes For each contained media stream, whether samples from the
-   *     first keyframe (inclusive) should be discarded.
+   * @param splicingOut True if this is the final chunk being loaded for the current variant, as we
+   *     splice to another one. False otherwise.
    */
-  public TsChunk(DataSource dataSource, DataSpec dataSpec, int trigger, int variantIndex,
-      long startTimeUs, long endTimeUs, int nextChunkIndex, boolean discontinuity,
-      boolean discardFromFirstKeyframes) {
-    super(dataSource, dataSpec, trigger);
+  public TsChunk(DataSource dataSource, DataSpec dataSpec, TsExtractor tsExtractor,
+      int variantIndex, long startTimeUs, long endTimeUs, int nextChunkIndex, boolean splicingOut) {
+    super(dataSource, dataSpec);
+    this.extractor = tsExtractor;
     this.variantIndex = variantIndex;
     this.startTimeUs = startTimeUs;
     this.endTimeUs = endTimeUs;
     this.nextChunkIndex = nextChunkIndex;
-    this.discontinuity = discontinuity;
-    this.discardFromFirstKeyframes = discardFromFirstKeyframes;
+    this.splicingOut = splicingOut;
+  }
+
+  @Override
+  public void consume() throws IOException {
+    // Do nothing.
   }
 
   public boolean isLastChunk() {
     return nextChunkIndex == -1;
+  }
+
+  @Override
+  public boolean isLoadFinished() {
+    return loadFinished;
+  }
+
+  // Loadable implementation
+
+  @Override
+  public void cancelLoad() {
+    loadCanceled = true;
+  }
+
+  @Override
+  public boolean isLoadCanceled() {
+    return loadCanceled;
+  }
+
+  @Override
+  public void load() throws IOException, InterruptedException {
+    DataSpec loadDataSpec;
+    if (loadPosition == 0) {
+      loadDataSpec = dataSpec;
+    } else {
+      long remainingLength = dataSpec.length != C.LENGTH_UNBOUNDED
+          ? dataSpec.length - loadPosition : C.LENGTH_UNBOUNDED;
+      loadDataSpec = new DataSpec(dataSpec.uri, dataSpec.position + loadPosition,
+          remainingLength, dataSpec.key);
+    }
+    try {
+      dataSource.open(loadDataSpec);
+      int bytesRead = 0;
+      while (bytesRead != -1 && !loadCanceled) {
+        bytesRead = extractor.read(dataSource);
+      }
+      loadFinished = !loadCanceled;
+    } finally {
+      dataSource.close();
+    }
   }
 
 }

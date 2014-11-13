@@ -13,25 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.parser.ts;
+package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.upstream.NonBlockingInputStream;
+import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.BitArray;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.annotation.SuppressLint;
-import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 /**
@@ -49,15 +51,15 @@ public final class TsExtractor {
   private static final int TS_STREAM_TYPE_H264 = 0x1B;
   private static final int TS_STREAM_TYPE_ID3 = 0x15;
 
-  private final BitsArray tsPacketBuffer;
+  private final BitArray tsPacketBuffer;
   private final SparseArray<PesPayloadReader> pesPayloadReaders; // Indexed by streamType
   private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
   private final SamplePool samplePool;
+  /* package */ final long firstSampleTimestamp;
 
   private boolean prepared;
 
   /* package */ boolean pendingFirstSampleTimestampAdjustment;
-  /* package */ long firstSampleTimestamp;
   /* package */ long sampleTimestampOffsetUs;
   /* package */ long largestParsedTimestampUs;
   /* package */ boolean discardFromNextKeyframes;
@@ -66,7 +68,7 @@ public final class TsExtractor {
     this.firstSampleTimestamp = firstSampleTimestamp;
     this.samplePool = samplePool;
     pendingFirstSampleTimestampAdjustment = true;
-    tsPacketBuffer = new BitsArray();
+    tsPacketBuffer = new BitArray();
     pesPayloadReaders = new SparseArray<PesPayloadReader>();
     tsPayloadReaders = new SparseArray<TsPayloadReader>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
@@ -117,31 +119,19 @@ public final class TsExtractor {
   }
 
   /**
-   * For each track, whether to discard samples from the next keyframe (inclusive).
+   * For each track, discards samples from the next keyframe (inclusive).
    */
   public void discardFromNextKeyframes() {
     discardFromNextKeyframes = true;
   }
 
   /**
-   * Consumes data from a {@link NonBlockingInputStream}.
-   * <p>
-   * The read terminates if the end of the input stream is reached, if insufficient data is
-   * available to read a sample, or if the extractor has consumed up to the specified target
-   * timestamp.
+   * Gets the largest timestamp of any sample parsed by the extractor.
    *
-   * @param inputStream The input stream from which data should be read.
-   * @param targetTimestampUs A target timestamp to consume up to.
-   * @return True if the target timestamp was reached. False otherwise.
+   * @return The largest timestamp, or {@link Long#MIN_VALUE} if no samples have been parsed.
    */
-  public boolean consumeUntil(NonBlockingInputStream inputStream, long targetTimestampUs) {
-    while (largestParsedTimestampUs < targetTimestampUs && readTSPacket(inputStream) != -1) {
-      // Carry on.
-    }
-    if (!prepared) {
-      prepared = checkPrepared();
-    }
-    return largestParsedTimestampUs >= targetTimestampUs;
+  public long getLargestSampleTimestamp() {
+    return largestParsedTimestampUs;
   }
 
   /**
@@ -204,23 +194,29 @@ public final class TsExtractor {
   }
 
   /**
-   * Read a single TS packet.
+   * Reads up to a single TS packet.
+   *
+   * @param dataSource The {@link DataSource} from which to read.
+   * @throws IOException If an error occurred reading from the source.
+   * @return The number of bytes read from the source.
    */
-  private int readTSPacket(NonBlockingInputStream inputStream) {
-    // Read entire single TS packet.
-    if (inputStream.getAvailableByteCount() < TS_PACKET_SIZE) {
+  public int read(DataSource dataSource) throws IOException {
+    int read = tsPacketBuffer.append(dataSource, TS_PACKET_SIZE - tsPacketBuffer.bytesLeft());
+    if (read == -1) {
       return -1;
     }
 
-    tsPacketBuffer.reset();
-    tsPacketBuffer.append(inputStream, TS_PACKET_SIZE);
+    if (tsPacketBuffer.bytesLeft() != TS_PACKET_SIZE) {
+      return read;
+    }
 
     // Parse TS header.
     // Check sync byte.
     int syncByte = tsPacketBuffer.readUnsignedByte();
     if (syncByte != TS_SYNC_BYTE) {
-      return 0;
+      return read;
     }
+
     // Skip transportErrorIndicator.
     tsPacketBuffer.skipBits(1);
     boolean payloadUnitStartIndicator = tsPacketBuffer.readBit();
@@ -243,12 +239,17 @@ public final class TsExtractor {
     // Read Payload.
     if (payloadExists) {
       TsPayloadReader payloadReader = tsPayloadReaders.get(pid);
-      if (payloadReader == null) {
-        return 0;
+      if (payloadReader != null) {
+        payloadReader.read(tsPacketBuffer, payloadUnitStartIndicator);
       }
-      payloadReader.read(tsPacketBuffer, payloadUnitStartIndicator);
     }
-    return 0;
+
+    if (!prepared) {
+      prepared = checkPrepared();
+    }
+
+    tsPacketBuffer.reset();
+    return read;
   }
 
   private void convert(Sample in, SampleHolder out) {
@@ -268,7 +269,7 @@ public final class TsExtractor {
    */
   private abstract static class TsPayloadReader {
 
-    public abstract void read(BitsArray tsBuffer, boolean payloadUnitStartIndicator);
+    public abstract void read(BitArray tsBuffer, boolean payloadUnitStartIndicator);
 
   }
 
@@ -278,7 +279,7 @@ public final class TsExtractor {
   private class PatReader extends TsPayloadReader {
 
     @Override
-    public void read(BitsArray tsBuffer, boolean payloadUnitStartIndicator) {
+    public void read(BitArray tsBuffer, boolean payloadUnitStartIndicator) {
       // Skip pointer.
       if (payloadUnitStartIndicator) {
         int pointerField = tsBuffer.readBits(8);
@@ -311,7 +312,7 @@ public final class TsExtractor {
   private class PmtReader extends TsPayloadReader {
 
     @Override
-    public void read(BitsArray tsBuffer, boolean payloadUnitStartIndicator) {
+    public void read(BitArray tsBuffer, boolean payloadUnitStartIndicator) {
       // Skip pointer.
       if (payloadUnitStartIndicator) {
         int pointerField = tsBuffer.readBits(8);
@@ -323,10 +324,10 @@ public final class TsExtractor {
       int sectionLength = tsBuffer.readBits(12);
       // Skip the rest of the PMT header.
       tsBuffer.skipBits(60); // 16+2+5+1+8+8+3+13+4
-      int programInfoLength = tsBuffer.readBits(12);
 
-      // Read descriptors.
-      readDescriptors(tsBuffer, programInfoLength);
+      int programInfoLength = tsBuffer.readBits(12);
+      // Skip the descriptors.
+      tsBuffer.skipBytes(programInfoLength);
 
       int entriesSize = sectionLength - 9 /* size of the rest of the fields before descriptors */
           - programInfoLength - 4 /* CRC size */;
@@ -335,9 +336,10 @@ public final class TsExtractor {
         tsBuffer.skipBits(3);
         int elementaryPid = tsBuffer.readBits(13);
         tsBuffer.skipBits(4);
-        int esInfoLength = tsBuffer.readBits(12);
 
-        readDescriptors(tsBuffer, esInfoLength);
+        int esInfoLength = tsBuffer.readBits(12);
+        // Skip the descriptors.
+        tsBuffer.skipBytes(esInfoLength);
         entriesSize -= esInfoLength + 5;
 
         if (pesPayloadReaders.get(streamType) != null) {
@@ -366,19 +368,6 @@ public final class TsExtractor {
       // Skip CRC_32.
     }
 
-    private void readDescriptors(BitsArray tsBuffer, int descriptorsSize) {
-      while (descriptorsSize > 0) {
-        // Skip tag.
-        tsBuffer.skipBits(8);
-        int descriptorsLength = tsBuffer.readBits(8);
-        if (descriptorsLength > 0) {
-          // Skip entire descriptor data.
-          tsBuffer.skipBytes(descriptorsLength);
-        }
-        descriptorsSize -= descriptorsSize + 2;
-      }
-    }
-
   }
 
   /**
@@ -387,7 +376,7 @@ public final class TsExtractor {
   private class PesReader extends TsPayloadReader {
 
     // Reusable buffer for incomplete PES data.
-    private final BitsArray pesBuffer;
+    private final BitArray pesBuffer;
     // Parses PES payload and extracts individual samples.
     private final PesPayloadReader pesPayloadReader;
 
@@ -396,11 +385,11 @@ public final class TsExtractor {
     public PesReader(PesPayloadReader pesPayloadReader) {
       this.pesPayloadReader = pesPayloadReader;
       this.packetLength = -1;
-      pesBuffer = new BitsArray();
+      pesBuffer = new BitArray();
     }
 
     @Override
-    public void read(BitsArray tsBuffer, boolean payloadUnitStartIndicator) {
+    public void read(BitArray tsBuffer, boolean payloadUnitStartIndicator) {
       if (payloadUnitStartIndicator && !pesBuffer.isEmpty()) {
         // We've encountered the start of the next packet, but haven't yet read the body. Read it.
         // Note that this should only happen if the packet length was unspecified.
@@ -484,7 +473,7 @@ public final class TsExtractor {
    */
   private abstract class PesPayloadReader {
 
-    public final Queue<Sample> sampleQueue;
+    public final LinkedList<Sample> sampleQueue;
 
     private MediaFormat mediaFormat;
     private boolean foundFirstKeyframe;
@@ -506,7 +495,7 @@ public final class TsExtractor {
       this.mediaFormat = mediaFormat;
     }
 
-    public abstract void read(BitsArray pesBuffer, int pesPayloadSize, long pesTimeUs);
+    public abstract void read(BitArray pesBuffer, int pesPayloadSize, long pesTimeUs);
 
     public void clear() {
       while (!sampleQueue.isEmpty()) {
@@ -521,7 +510,7 @@ public final class TsExtractor {
      * @param sampleSize The size of the sample data.
      * @param sampleTimeUs The sample time stamp.
      */
-    protected void addSample(BitsArray buffer, int sampleSize, long sampleTimeUs, int flags) {
+    protected void addSample(BitArray buffer, int sampleSize, long sampleTimeUs, int flags) {
       Sample sample = samplePool.get();
       addToSample(sample, buffer, sampleSize);
       sample.flags = flags;
@@ -531,7 +520,7 @@ public final class TsExtractor {
 
     @SuppressLint("InlinedApi")
     protected void addSample(Sample sample) {
-      boolean isKeyframe = (sample.flags & MediaCodec.BUFFER_FLAG_SYNC_FRAME) != 0;
+      boolean isKeyframe = (sample.flags & MediaExtractor.SAMPLE_FLAG_SYNC) != 0;
       if (isKeyframe) {
         if (!foundFirstKeyframe) {
           foundFirstKeyframe = true;
@@ -549,7 +538,7 @@ public final class TsExtractor {
       }
     }
 
-    protected void addToSample(Sample sample, BitsArray buffer, int size) {
+    protected void addToSample(Sample sample, BitArray buffer, int size) {
       if (sample.data.length - sample.size < size) {
         sample.expand(size - sample.data.length + sample.size);
       }
@@ -572,22 +561,24 @@ public final class TsExtractor {
    */
   private class H264Reader extends PesPayloadReader {
 
-    // IDR picture.
     private static final int NAL_UNIT_TYPE_IDR = 5;
-    // Access unit delimiter.
     private static final int NAL_UNIT_TYPE_AUD = 9;
+    private static final int NAL_UNIT_TYPE_SPS = 7;
 
     // Used to store uncompleted sample data.
     private Sample currentSample;
 
-    public H264Reader() {
-      // TODO: Parse the format from the stream.
-      setMediaFormat(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
-          1920, 1080, null));
+    @Override
+    public void clear() {
+      super.clear();
+      if (currentSample != null) {
+        samplePool.recycle(currentSample);
+        currentSample = null;
+      }
     }
 
     @Override
-    public void read(BitsArray pesBuffer, int pesPayloadSize, long pesTimeUs) {
+    public void read(BitArray pesBuffer, int pesPayloadSize, long pesTimeUs) {
       // Read leftover frame data from previous PES packet.
       pesPayloadSize -= readOneH264Frame(pesBuffer, true);
 
@@ -597,6 +588,9 @@ public final class TsExtractor {
 
       // Single PES packet should contain only one new H.264 frame.
       if (currentSample != null) {
+        if (!hasMediaFormat() && (currentSample.flags & MediaExtractor.SAMPLE_FLAG_SYNC) != 0) {
+          parseMediaFormat(currentSample);
+        }
         addSample(currentSample);
       }
       currentSample = samplePool.get();
@@ -609,32 +603,120 @@ public final class TsExtractor {
     }
 
     @SuppressLint("InlinedApi")
-    private int readOneH264Frame(BitsArray pesBuffer, boolean remainderOnly) {
+    private int readOneH264Frame(BitArray pesBuffer, boolean remainderOnly) {
       int offset = remainderOnly ? 0 : 3;
       int audStart = pesBuffer.findNextNalUnit(NAL_UNIT_TYPE_AUD, offset);
-      int idrStart = pesBuffer.findNextNalUnit(NAL_UNIT_TYPE_IDR, offset);
-      if (audStart > 0) {
-        if (currentSample != null) {
-          addToSample(currentSample, pesBuffer, audStart);
-          if (idrStart < audStart) {
-            currentSample.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
-          }
-        } else {
-          pesBuffer.skipBytes(audStart);
+      if (currentSample != null) {
+        int idrStart = pesBuffer.findNextNalUnit(NAL_UNIT_TYPE_IDR, offset);
+        if (idrStart < audStart) {
+          currentSample.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
         }
-        return audStart;
+        addToSample(currentSample, pesBuffer, audStart);
+      } else {
+        pesBuffer.skipBytes(audStart);
       }
-      return 0;
+      return audStart;
     }
 
-    @Override
-    public void clear() {
-      super.clear();
-      if (currentSample != null) {
-        samplePool.recycle(currentSample);
-        currentSample = null;
+    private void parseMediaFormat(Sample sample) {
+      BitArray bitArray = new BitArray(sample.data, sample.size);
+      // Locate the SPS unit.
+      int spsOffset = bitArray.findNextNalUnit(NAL_UNIT_TYPE_SPS, 0);
+      if (spsOffset == bitArray.bytesLeft()) {
+        return;
       }
+      int nextNalOffset = bitArray.findNextNalUnit(-1, spsOffset + 3);
+
+      // Unescape the SPS unit.
+      byte[] unescapedSps = unescapeStream(bitArray.getData(), spsOffset, nextNalOffset);
+      bitArray.reset(unescapedSps, unescapedSps.length);
+
+      // Parse the SPS unit
+      // Skip the NAL header.
+      bitArray.skipBytes(4);
+      // TODO: Handle different profiles properly.
+      bitArray.skipBytes(1);
+      // Skip 6 constraint bits, 2 reserved bits and level_idc.
+      bitArray.skipBytes(2);
+      // Skip seq_parameter_set_id.
+      bitArray.readExpGolombCodedInt();
+      // Skip log2_max_frame_num_minus4
+      bitArray.readExpGolombCodedInt();
+      long picOrderCntType = bitArray.readExpGolombCodedInt();
+      if (picOrderCntType == 0) {
+        // Skip log2_max_pic_order_cnt_lsb_minus4
+        bitArray.readExpGolombCodedInt();
+      } else if (picOrderCntType == 1) {
+        // Skip delta_pic_order_always_zero_flag
+        bitArray.skipBits(1);
+        // Skip offset_for_non_ref_pic (actually a signed value, but for skipping we can read it
+        // as though it were unsigned).
+        bitArray.readExpGolombCodedInt();
+        // Skip offset_for_top_to_bottom_field (actually a signed value, but for skipping we can
+        // read it as though it were unsigned).
+        bitArray.readExpGolombCodedInt();
+        long numRefFramesInPicOrderCntCycle = bitArray.readExpGolombCodedInt();
+        for (int i = 0; i < numRefFramesInPicOrderCntCycle; i++) {
+          // Skip offset_for_ref_frame[i]
+          bitArray.readExpGolombCodedInt();
+        }
+      }
+      // Skip max_num_ref_frames
+      bitArray.readExpGolombCodedInt();
+      // Skip gaps_in_frame_num_value_allowed_flag
+      bitArray.skipBits(1);
+      int picWidthInMbs = bitArray.readExpGolombCodedInt() + 1;
+      int picHeightInMapUnits = bitArray.readExpGolombCodedInt() + 1;
+      boolean frameMbsOnlyFlag = bitArray.readBit();
+      int frameHeightInMbs = (2 - (frameMbsOnlyFlag ? 1 : 0)) * picHeightInMapUnits;
+
+      // Set the format.
+      setMediaFormat(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
+          picWidthInMbs * 16, frameHeightInMbs * 16, null));
     }
+
+    /**
+     * Replaces occurrences of [0, 0, 3] with [0, 0].
+     * <p>
+     * See ISO/IEC 14496-10:2005(E) page 36 for more information.
+     */
+    private byte[] unescapeStream(byte[] data, int offset, int limit) {
+      int position = offset;
+      List<Integer> escapePositions = new ArrayList<Integer>();
+      while (position < limit) {
+        position = findNextUnescapeIndex(data, position, limit);
+        if (position < limit) {
+          escapePositions.add(position);
+          position += 3;
+        }
+      }
+
+      int escapeCount = escapePositions.size();
+      int escapedPosition = offset; // The position being read from.
+      int unescapedPosition = 0; // The position being written to.
+      byte[] unescapedData = new byte[limit - offset - escapeCount];
+      for (int i = 0; i < escapeCount; i++) {
+        int nextEscapePosition = escapePositions.get(i);
+        int copyLength = nextEscapePosition - escapedPosition;
+        System.arraycopy(data, escapedPosition, unescapedData, unescapedPosition, copyLength);
+        escapedPosition += copyLength + 3;
+        unescapedPosition += copyLength + 2;
+      }
+
+      int remainingLength = unescapedData.length - unescapedPosition;
+      System.arraycopy(data, escapedPosition, unescapedData, unescapedPosition, remainingLength);
+      return unescapedData;
+    }
+
+    private int findNextUnescapeIndex(byte[] bytes, int offset, int limit) {
+      for (int i = offset; i < limit - 2; i++) {
+        if (bytes[i] == 0x00 && bytes[i + 1] == 0x00 && bytes[i + 2] == 0x03) {
+          return i;
+        }
+      }
+      return limit;
+    }
+
   }
 
   /**
@@ -642,15 +724,15 @@ public final class TsExtractor {
    */
   private class AdtsReader extends PesPayloadReader {
 
-    private final BitsArray adtsBuffer;
+    private final BitArray adtsBuffer;
     private long timeUs;
 
     public AdtsReader() {
-      adtsBuffer = new BitsArray();
+      adtsBuffer = new BitArray();
     }
 
     @Override
-    public void read(BitsArray pesBuffer, int pesPayloadSize, long pesTimeUs) {
+    public void read(BitArray pesBuffer, int pesPayloadSize, long pesTimeUs) {
       boolean needToProcessLeftOvers = !adtsBuffer.isEmpty();
       adtsBuffer.append(pesBuffer, pesPayloadSize);
       // If there are leftovers from previous PES packet, process it with last calculated timeUs.
@@ -751,7 +833,7 @@ public final class TsExtractor {
 
     @SuppressLint("InlinedApi")
     @Override
-    public void read(BitsArray pesBuffer, int pesPayloadSize, long pesTimeUs) {
+    public void read(BitArray pesBuffer, int pesPayloadSize, long pesTimeUs) {
       addSample(pesBuffer, pesPayloadSize, pesTimeUs, MediaExtractor.SAMPLE_FLAG_SYNC);
     }
 
@@ -764,30 +846,32 @@ public final class TsExtractor {
 
     private static final int DEFAULT_BUFFER_SEGMENT_SIZE = 64 * 1024;
 
-    private final ArrayList<Sample> samples;
+    private Sample firstInPool;
 
-    public SamplePool() {
-      samples = new ArrayList<Sample>();
-    }
-
-    /* package */ Sample get() {
-      if (samples.isEmpty()) {
+    /* package */ synchronized Sample get() {
+      if (firstInPool == null) {
         return new Sample(DEFAULT_BUFFER_SEGMENT_SIZE);
       }
-      return samples.remove(samples.size() - 1);
+      Sample sample = firstInPool;
+      firstInPool = sample.nextInPool;
+      sample.nextInPool = null;
+      return sample;
     }
 
-    /* package */ void recycle(Sample sample) {
+    /* package */ synchronized void recycle(Sample sample) {
       sample.reset();
-      samples.add(sample);
+      sample.nextInPool = firstInPool;
+      firstInPool = sample;
     }
 
   }
 
   /**
-   * Simplified version of SampleHolder for internal buffering.
+   * An internal variant of {@link SampleHolder} for internal pooling and buffering.
    */
   private static class Sample {
+
+    public Sample nextInPool;
 
     public byte[] data;
     public int flags;

@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * Parses {@link Metadata}s from binary data.
+ * Parses metadata objects from binary data.
  */
 public interface MetadataParser {
 

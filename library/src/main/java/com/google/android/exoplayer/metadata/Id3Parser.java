@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.metadata;
 
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.parser.ts.BitsArray;
+import com.google.android.exoplayer.util.BitArray;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import java.io.UnsupportedEncodingException;
@@ -37,7 +37,7 @@ public class Id3Parser implements MetadataParser {
   @Override
   public Map<String, Object> parse(byte[] data, int size)
       throws UnsupportedEncodingException, ParserException {
-    BitsArray id3Buffer = new BitsArray(data, size);
+    BitArray id3Buffer = new BitArray(data, size);
     int id3Size = parseId3Header(id3Buffer);
 
     Map<String, Object> metadata = new HashMap<String, Object>();
@@ -102,11 +102,11 @@ public class Id3Parser implements MetadataParser {
 
   /**
    * Parses ID3 header.
-   * @param id3Buffer A {@link BitsArray} with raw ID3 data.
+   * @param id3Buffer A {@link BitArray} with raw ID3 data.
    * @return The size of data that contains ID3 frames without header and footer.
    * @throws ParserException If ID3 file identifier != "ID3".
    */
-  private static int parseId3Header(BitsArray id3Buffer) throws ParserException {
+  private static int parseId3Header(BitArray id3Buffer) throws ParserException {
     int id1 = id3Buffer.readUnsignedByte();
     int id2 = id3Buffer.readUnsignedByte();
     int id3 = id3Buffer.readUnsignedByte();

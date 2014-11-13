@@ -18,10 +18,12 @@ package com.google.android.exoplayer.hls;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.hls.TsExtractor.SamplePool;
 import com.google.android.exoplayer.upstream.Aes128DataSource;
+import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
-import com.google.android.exoplayer.upstream.NonBlockingInputStream;
+import com.google.android.exoplayer.util.BitArray;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -30,6 +32,8 @@ import android.os.SystemClock;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -41,26 +45,66 @@ import java.util.Locale;
  */
 public class HlsChunkSource {
 
+  private static final float BANDWIDTH_FRACTION = 0.8f;
+  private static final long MIN_BUFFER_TO_SWITCH_UP_US = 5000000;
+  private static final long MAX_BUFFER_TO_SWITCH_DOWN_US = 15000000;
+
+  private final SamplePool samplePool = new TsExtractor.SamplePool();
   private final DataSource upstreamDataSource;
-  private final HlsMasterPlaylist masterPlaylist;
   private final HlsMediaPlaylistParser mediaPlaylistParser;
+  private final Variant[] enabledVariants;
+  private final BandwidthMeter bandwidthMeter;
+  private final BitArray bitArray;
+  private final boolean enableAdaptive;
+  private final Uri baseUri;
+  private final int maxWidth;
+  private final int maxHeight;
 
-  /* package */ HlsMediaPlaylist mediaPlaylist;
-  /* package */ boolean mediaPlaylistWasLive;
-  /* package */ long lastMediaPlaylistLoadTimeMs;
+  /* package */ final HlsMediaPlaylist[] mediaPlaylists;
+  /* package */ final long[] lastMediaPlaylistLoadTimesMs;
+  /* package */ boolean live;
+  /* package */ long durationUs;
 
+  private int variantIndex;
   private DataSource encryptedDataSource;
   private String encryptionKeyUri;
 
-  // TODO: Once proper m3u8 parsing is in place, actually use the url!
-  public HlsChunkSource(DataSource dataSource, HlsMasterPlaylist masterPlaylist) {
+  /**
+   * @param dataSource A {@link DataSource} suitable for loading the media data.
+   * @param masterPlaylist The master playlist.
+   * @param variantIndices A subset of variant indices to consider, or null to consider all of the
+   *     variants in the master playlist.
+   */
+  public HlsChunkSource(DataSource dataSource, HlsMasterPlaylist masterPlaylist,
+      BandwidthMeter bandwidthMeter, int[] variantIndices, boolean enableAdaptive) {
     this.upstreamDataSource = dataSource;
-    this.masterPlaylist = masterPlaylist;
+    this.bandwidthMeter = bandwidthMeter;
+    this.enableAdaptive = enableAdaptive;
+    baseUri = masterPlaylist.baseUri;
+    bitArray = new BitArray();
     mediaPlaylistParser = new HlsMediaPlaylistParser();
+    enabledVariants = filterVariants(masterPlaylist, variantIndices);
+    lastMediaPlaylistLoadTimesMs = new long[enabledVariants.length];
+    mediaPlaylists = new HlsMediaPlaylist[enabledVariants.length];
+    int maxWidth = -1;
+    int maxHeight = -1;
+    // Select the first variant from the master playlist that's enabled.
+    long minOriginalVariantIndex = Integer.MAX_VALUE;
+    for (int i = 0; i < enabledVariants.length; i++) {
+      if (enabledVariants[i].index < minOriginalVariantIndex) {
+        minOriginalVariantIndex = enabledVariants[i].index;
+        variantIndex = i;
+      }
+      maxWidth = Math.max(enabledVariants[i].width, maxWidth);
+      maxHeight = Math.max(enabledVariants[i].width, maxHeight);
+    }
+    // TODO: We should allow the default values to be passed through the constructor.
+    this.maxWidth = maxWidth > 0 ? maxWidth : 1920;
+    this.maxHeight = maxHeight > 0 ? maxHeight : 1080;
   }
 
   public long getDurationUs() {
-    return mediaPlaylistWasLive ? TrackRenderer.UNKNOWN_TIME_US : mediaPlaylist.durationUs;
+    return live ? TrackRenderer.UNKNOWN_TIME_US : durationUs;
   }
 
   /**
@@ -72,49 +116,33 @@ public class HlsChunkSource {
    * @param out The {@link MediaFormat} on which the maximum video dimensions should be set.
    */
   public void getMaxVideoDimensions(MediaFormat out) {
-    // TODO: Implement this.
+    out.setMaxVideoDimensions(maxWidth, maxHeight);
   }
 
   /**
-   * Updates the provided {@link HlsChunkOperationHolder} to contain the next operation that should
-   * be performed by the calling {@link HlsSampleSource}.
-   * <p>
-   * The next operation comprises of a possibly shortened queue length (shortened if the
-   * implementation wishes for the caller to discard {@link TsChunk}s from the queue), together
-   * with the next {@link HlsChunk} to load. The next chunk may be a {@link TsChunk} to be added to
-   * the queue, or another {@link HlsChunk} type (e.g. to load initialization data), or null if the
-   * source is not able to provide a chunk in its current state.
+   * Returns the next {@link HlsChunk} that should be loaded.
    *
-   * @param queue A representation of the currently buffered {@link TsChunk}s.
-   * @param seekPositionUs If the queue is empty, this parameter must specify the seek position. If
-   *     the queue is non-empty then this parameter is ignored.
+   * @param previousTsChunk The previously loaded chunk that the next chunk should follow.
+   * @param seekPositionUs If there is no previous chunk, this parameter must specify the seek
+   *     position. If there is a previous chunk then this parameter is ignored.
    * @param playbackPositionUs The current playback position.
-   * @param out A holder for the next operation, whose {@link HlsChunkOperationHolder#queueSize} is
-   *     initially equal to the length of the queue, and whose {@linkHls ChunkOperationHolder#chunk}
-   *     is initially equal to null or a {@link TsChunk} previously supplied by the
-   *     {@link HlsChunkSource} that the caller has not yet finished loading. In the latter case the
-   *     chunk can either be replaced or left unchanged. Note that leaving the chunk unchanged is
-   *     both preferred and more efficient than replacing it with a new but identical chunk.
+   * @return The next chunk to load.
    */
-  public void getChunkOperation(List<TsChunk> queue, long seekPositionUs, long playbackPositionUs,
-      HlsChunkOperationHolder out) {
-    if (out.chunk != null) {
-      // We already have a chunk. Keep it.
-      return;
-    }
+  public HlsChunk getChunkOperation(TsChunk previousTsChunk, long seekPositionUs,
+      long playbackPositionUs) {
 
+    HlsMediaPlaylist mediaPlaylist = mediaPlaylists[variantIndex];
     if (mediaPlaylist == null) {
-      out.chunk = newMediaPlaylistChunk();
-      return;
+      return newMediaPlaylistChunk();
     }
 
     int chunkMediaSequence = 0;
-    if (mediaPlaylistWasLive) {
-      if (queue.isEmpty()) {
+    if (live) {
+      if (previousTsChunk == null) {
         chunkMediaSequence = getLiveStartChunkMediaSequence();
       } else {
         // For live nextChunkIndex contains chunk media sequence number.
-        chunkMediaSequence = queue.get(queue.size() - 1).nextChunkIndex;
+        chunkMediaSequence = previousTsChunk.nextChunkIndex;
         // If the updated playlist is far ahead and doesn't even have the last chunk from the
         // queue, then try to catch up, skip a few chunks and start as if it was a new playlist.
         if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
@@ -124,28 +152,26 @@ public class HlsChunkSource {
       }
     } else {
       // Not live.
-      if (queue.isEmpty()) {
+      if (previousTsChunk == null) {
         chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, seekPositionUs, true,
             true) + mediaPlaylist.mediaSequence;
       } else {
-        chunkMediaSequence = queue.get(queue.size() - 1).nextChunkIndex;
+        chunkMediaSequence = previousTsChunk.nextChunkIndex;
       }
     }
 
     if (chunkMediaSequence == -1) {
-      out.chunk = null;
-      return;
+      // We've reached the end of the stream.
+      return null;
     }
 
     int chunkIndex = chunkMediaSequence - mediaPlaylist.mediaSequence;
-    // If the end of the playlist is reached.
     if (chunkIndex >= mediaPlaylist.segments.size()) {
       if (mediaPlaylist.live && shouldRerequestMediaPlaylist()) {
-        out.chunk = newMediaPlaylistChunk();
+        return newMediaPlaylistChunk();
       } else {
-        out.chunk = null;
+        return null;
       }
-      return;
     }
 
     HlsMediaPlaylist.Segment segment = mediaPlaylist.segments.get(chunkIndex);
@@ -156,97 +182,204 @@ public class HlsChunkSource {
       if (!segment.encryptionKeyUri.equals(encryptionKeyUri)) {
         // Encryption is specified and the key has changed.
         Uri keyUri = Util.getMergedUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
-        out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV);
+        HlsChunk toReturn = newEncryptionKeyChunk(keyUri, segment.encryptionIV);
         encryptionKeyUri = segment.encryptionKeyUri;
-        return;
+        return toReturn;
       }
     } else {
       encryptedDataSource = null;
       encryptionKeyUri = null;
     }
 
-    DataSpec dataSpec = new DataSpec(chunkUri, 0, C.LENGTH_UNBOUNDED, null);
-
     long startTimeUs;
+    boolean splicingIn = previousTsChunk != null && previousTsChunk.splicingOut;
     int nextChunkMediaSequence = chunkMediaSequence + 1;
-    if (mediaPlaylistWasLive) {
-      if (queue.isEmpty()) {
+    if (live) {
+      if (previousTsChunk == null) {
         startTimeUs = 0;
+      } else if (splicingIn) {
+        startTimeUs = previousTsChunk.startTimeUs;
       } else {
-        startTimeUs = queue.get(queue.size() - 1).endTimeUs;
+        startTimeUs = previousTsChunk.endTimeUs;
       }
     } else {
       // Not live.
       startTimeUs = segment.startTimeUs;
-      if (chunkIndex == mediaPlaylist.segments.size() - 1) {
-        nextChunkMediaSequence = -1;
-      }
     }
+    if (!mediaPlaylist.live && chunkIndex == mediaPlaylist.segments.size() - 1) {
+      nextChunkMediaSequence = -1;
+    }
+
     long endTimeUs = startTimeUs + (long) (segment.durationSecs * 1000000);
 
+    int currentVariantIndex = variantIndex;
+    boolean splicingOut = false;
+    if (splicingIn) {
+      // Do nothing.
+    } else if (enableAdaptive && nextChunkMediaSequence != -1) {
+      int idealVariantIndex = getVariantIndexForBandwdith(
+          (int) (bandwidthMeter.getBitrateEstimate() * BANDWIDTH_FRACTION));
+      long bufferedUs = startTimeUs - playbackPositionUs;
+      if ((idealVariantIndex > currentVariantIndex && bufferedUs < MAX_BUFFER_TO_SWITCH_DOWN_US)
+          || (idealVariantIndex < currentVariantIndex && bufferedUs > MIN_BUFFER_TO_SWITCH_UP_US)) {
+        variantIndex = idealVariantIndex;
+      }
+      splicingOut = variantIndex != currentVariantIndex;
+      if (splicingOut) {
+        // If we're splicing out, we want to load the same chunk again next time, but for a
+        // different variant.
+        nextChunkMediaSequence = chunkMediaSequence;
+      }
+    }
+
+    // Configure the datasource for loading the chunk.
     DataSource dataSource;
     if (encryptedDataSource != null) {
       dataSource = encryptedDataSource;
     } else {
       dataSource = upstreamDataSource;
     }
-    out.chunk = new TsChunk(dataSource, dataSpec, 0, 0, startTimeUs, endTimeUs,
-        nextChunkMediaSequence, segment.discontinuity, false);
+    DataSpec dataSpec = new DataSpec(chunkUri, 0, C.LENGTH_UNBOUNDED, null);
+
+    // Configure the extractor that will read the chunk.
+    TsExtractor extractor;
+    if (previousTsChunk == null || splicingIn || segment.discontinuity) {
+      extractor = new TsExtractor(startTimeUs, samplePool);
+    } else {
+      extractor = previousTsChunk.extractor;
+    }
+    if (splicingOut) {
+      extractor.discardFromNextKeyframes();
+    }
+
+    return new TsChunk(dataSource, dataSpec, extractor, enabledVariants[currentVariantIndex].index,
+        startTimeUs, endTimeUs, nextChunkMediaSequence, splicingOut);
+  }
+
+  private int getVariantIndexForBandwdith(int bandwidth) {
+    for (int i = 0; i < enabledVariants.length - 1; i++) {
+      if (enabledVariants[i].bandwidth <= bandwidth) {
+        return i;
+      }
+    }
+    return enabledVariants.length - 1;
   }
 
   private boolean shouldRerequestMediaPlaylist() {
     // Don't re-request media playlist more often than one-half of the target duration.
+    HlsMediaPlaylist mediaPlaylist = mediaPlaylists[variantIndex];
     long timeSinceLastMediaPlaylistLoadMs =
-        SystemClock.elapsedRealtime() - lastMediaPlaylistLoadTimeMs;
+        SystemClock.elapsedRealtime() - lastMediaPlaylistLoadTimesMs[variantIndex];
     return timeSinceLastMediaPlaylistLoadMs >= (mediaPlaylist.targetDurationSecs * 1000) / 2;
   }
 
   private int getLiveStartChunkMediaSequence() {
     // For live start playback from the third chunk from the end.
+    HlsMediaPlaylist mediaPlaylist = mediaPlaylists[variantIndex];
     int chunkIndex = mediaPlaylist.segments.size() > 3 ? mediaPlaylist.segments.size() - 3 : 0;
     return chunkIndex + mediaPlaylist.mediaSequence;
   }
 
   private MediaPlaylistChunk newMediaPlaylistChunk() {
-    Uri mediaPlaylistUri = Util.getMergedUri(masterPlaylist.baseUri,
-        masterPlaylist.variants.get(0).url);
+    Uri mediaPlaylistUri = Util.getMergedUri(baseUri, enabledVariants[variantIndex].url);
     DataSpec dataSpec = new DataSpec(mediaPlaylistUri, 0, C.LENGTH_UNBOUNDED, null);
-    Uri mediaPlaylistBaseUri = Util.parseBaseUri(mediaPlaylistUri.toString());
-    return new MediaPlaylistChunk(upstreamDataSource, dataSpec, 0, mediaPlaylistBaseUri);
+    Uri baseUri = Util.parseBaseUri(mediaPlaylistUri.toString());
+    return new MediaPlaylistChunk(variantIndex, upstreamDataSource, dataSpec, baseUri);
   }
 
   private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv) {
     DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNBOUNDED, null);
-    return new EncryptionKeyChunk(upstreamDataSource, dataSpec, 0, iv);
+    return new EncryptionKeyChunk(upstreamDataSource, dataSpec, iv);
   }
 
-  private class MediaPlaylistChunk extends HlsChunk {
+  private static Variant[] filterVariants(HlsMasterPlaylist masterPlaylist, int[] variantIndices) {
+    List<Variant> masterVariants = masterPlaylist.variants;
+    ArrayList<Variant> enabledVariants = new ArrayList<Variant>();
+    if (variantIndices != null) {
+      for (int i = 0; i < variantIndices.length; i++) {
+        enabledVariants.add(masterVariants.get(variantIndices[i]));
+      }
+    } else {
+      // If variantIndices is null then all variants are initially considered.
+      enabledVariants.addAll(masterVariants);
+    }
 
-    private final Uri baseUri;
+    ArrayList<Variant> definiteVideoVariants = new ArrayList<Variant>();
+    ArrayList<Variant> definiteAudioOnlyVariants = new ArrayList<Variant>();
+    for (int i = 0; i < enabledVariants.size(); i++) {
+      Variant variant = enabledVariants.get(i);
+      if (variant.height > 0 || variantHasExplicitCodecWithPrefix(variant, "avc")) {
+        definiteVideoVariants.add(variant);
+      } else if (variantHasExplicitCodecWithPrefix(variant, "mp4a")) {
+        definiteAudioOnlyVariants.add(variant);
+      }
+    }
 
-    public MediaPlaylistChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Uri baseUri) {
-      super(dataSource, dataSpec, trigger);
-      this.baseUri = baseUri;
+    if (!definiteVideoVariants.isEmpty()) {
+      // We've identified some variants as definitely containing video. Assume variants within the
+      // master playlist are marked consistently, and hence that we have the full set. Filter out
+      // any other variants, which are likely to be audio only.
+      enabledVariants = definiteVideoVariants;
+    } else if (definiteAudioOnlyVariants.size() < enabledVariants.size()) {
+      // We've identified some variants, but not all, as being audio only. Filter them out to leave
+      // the remaining variants, which are likely to contain video.
+      enabledVariants.removeAll(definiteAudioOnlyVariants);
+    } else {
+      // Leave the enabled variants unchanged. They're likely either all video or all audio.
+    }
+
+    Collections.sort(enabledVariants, new Variant.DecreasingBandwidthComparator());
+
+    Variant[] enabledVariantsArray = new Variant[enabledVariants.size()];
+    enabledVariants.toArray(enabledVariantsArray);
+    return enabledVariantsArray;
+  }
+
+  private static boolean variantHasExplicitCodecWithPrefix(Variant variant, String prefix) {
+    String[] codecs = variant.codecs;
+    if (codecs == null) {
+      return false;
+    }
+    for (int i = 0; i < codecs.length; i++) {
+      if (codecs[i].startsWith(prefix)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private class MediaPlaylistChunk extends BitArrayChunk {
+
+    @SuppressWarnings("hiding")
+    private final int variantIndex;
+    private final Uri playlistBaseUri;
+
+    public MediaPlaylistChunk(int variantIndex, DataSource dataSource, DataSpec dataSpec,
+        Uri playlistBaseUri) {
+      super(dataSource, dataSpec, bitArray);
+      this.variantIndex = variantIndex;
+      this.playlistBaseUri = playlistBaseUri;
     }
 
     @Override
-    protected void consumeStream(NonBlockingInputStream stream) throws IOException {
-      byte[] data = new byte[(int) stream.getAvailableByteCount()];
-      stream.read(data, 0, data.length);
-      lastMediaPlaylistLoadTimeMs = SystemClock.elapsedRealtime();
-      mediaPlaylist = mediaPlaylistParser.parse(
-          new ByteArrayInputStream(data), null, null, baseUri);
-      mediaPlaylistWasLive |= mediaPlaylist.live;
+    protected void consume(BitArray data) throws IOException {
+      HlsMediaPlaylist mediaPlaylist = mediaPlaylistParser.parse(
+          new ByteArrayInputStream(data.getData(), 0, data.bytesLeft()), null, null,
+          playlistBaseUri);
+      mediaPlaylists[variantIndex] = mediaPlaylist;
+      lastMediaPlaylistLoadTimesMs[variantIndex] = SystemClock.elapsedRealtime();
+      live |= mediaPlaylist.live;
+      durationUs = mediaPlaylist.durationUs;
     }
 
   }
 
-  private class EncryptionKeyChunk extends HlsChunk {
+  private class EncryptionKeyChunk extends BitArrayChunk {
 
     private final String iv;
 
-    public EncryptionKeyChunk(DataSource dataSource, DataSpec dataSpec, int trigger, String iv) {
-      super(dataSource, dataSpec, trigger);
+    public EncryptionKeyChunk(DataSource dataSource, DataSpec dataSpec, String iv) {
+      super(dataSource, dataSpec, bitArray);
       if (iv.toLowerCase(Locale.getDefault()).startsWith("0x")) {
         this.iv = iv.substring(2);
       } else {
@@ -255,9 +388,9 @@ public class HlsChunkSource {
     }
 
     @Override
-    protected void consumeStream(NonBlockingInputStream stream) throws IOException {
-      byte[] keyData = new byte[(int) stream.getAvailableByteCount()];
-      stream.read(keyData, 0, keyData.length);
+    protected void consume(BitArray data) throws IOException {
+      byte[] secretKey = new byte[data.bytesLeft()];
+      data.readBytes(secretKey, 0, secretKey.length);
 
       int ivParsed = Integer.parseInt(iv, 16);
       String iv = String.format("%032X", ivParsed);
@@ -267,7 +400,7 @@ public class HlsChunkSource {
       System.arraycopy(ivData, 0, ivDataWithPadding, ivDataWithPadding.length - ivData.length,
           ivData.length);
 
-      encryptedDataSource = new Aes128DataSource(keyData, ivDataWithPadding, upstreamDataSource);
+      encryptedDataSource = new Aes128DataSource(secretKey, ivDataWithPadding, upstreamDataSource);
     }
 
   }

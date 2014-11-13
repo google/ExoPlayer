@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.hls;
 
-import com.google.android.exoplayer.hls.HlsMasterPlaylist.Variant;
 import com.google.android.exoplayer.util.ManifestParser;
 
 import android.net.Uri;
@@ -61,6 +60,7 @@ public final class HlsMasterPlaylistParser implements ManifestParser<HlsMasterPl
     String[] codecs = null;
     int width = -1;
     int height = -1;
+    int variantIndex = 0;
 
     String line;
     while ((line = reader.readLine()) != null) {
@@ -70,15 +70,14 @@ public final class HlsMasterPlaylistParser implements ManifestParser<HlsMasterPl
       }
       if (line.startsWith(STREAM_INF_TAG)) {
         bandwidth = HlsParserUtil.parseIntAttr(line, BANDWIDTH_ATTR_REGEX, BANDWIDTH_ATTR);
-        String codecsString = HlsParserUtil.parseOptionalStringAttr(line, CODECS_ATTR_REGEX,
-            CODECS_ATTR);
+        String codecsString = HlsParserUtil.parseOptionalStringAttr(line, CODECS_ATTR_REGEX);
         if (codecsString != null) {
           codecs = codecsString.split("(\\s*,\\s*)|(\\s*$)");
         } else {
           codecs = null;
         }
-        String resolutionString = HlsParserUtil.parseOptionalStringAttr(line, RESOLUTION_ATTR_REGEX,
-            RESOLUTION_ATTR);
+        String resolutionString = HlsParserUtil.parseOptionalStringAttr(line,
+            RESOLUTION_ATTR_REGEX);
         if (resolutionString != null) {
           String[] widthAndHeight = resolutionString.split("x");
           width = Integer.parseInt(widthAndHeight[0]);
@@ -88,7 +87,7 @@ public final class HlsMasterPlaylistParser implements ManifestParser<HlsMasterPl
           height = -1;
         }
       } else if (!line.startsWith("#")) {
-        variants.add(new Variant(line, bandwidth, codecs, width, height));
+        variants.add(new Variant(variantIndex++, line, bandwidth, codecs, width, height));
         bandwidth = 0;
         codecs = null;
         width = -1;

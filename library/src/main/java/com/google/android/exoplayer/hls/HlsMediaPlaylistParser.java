@@ -114,8 +114,7 @@ public final class HlsMediaPlaylistParser implements ManifestParser<HlsMediaPlay
         } else {
           segmentEncryptionKeyUri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX,
               URI_ATTR);
-          segmentEncryptionIV = HlsParserUtil.parseOptionalStringAttr(line, IV_ATTR_REGEX,
-              IV_ATTR);
+          segmentEncryptionIV = HlsParserUtil.parseOptionalStringAttr(line, IV_ATTR_REGEX);
           if (segmentEncryptionIV == null) {
             segmentEncryptionIV = Integer.toHexString(segmentMediaSequence);
           }
