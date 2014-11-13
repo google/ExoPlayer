@@ -75,6 +75,34 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   }
 
+  /**
+   * An interface for fine-grained adjustment of frame release times.
+   */
+  public interface FrameReleaseTimeHelper {
+
+    /**
+     * Enables the helper.
+     */
+    void enable();
+
+    /**
+     * Disables the helper.
+     */
+    void disable();
+
+    /**
+     * Called to make a fine-grained adjustment to a frame release time.
+     *
+     * @param framePresentationTimeUs The frame's media presentation time, in microseconds.
+     * @param unadjustedReleaseTimeNs The frame's unadjusted release time, in nanoseconds and in
+     *     the same time base as {@link System#nanoTime()}.
+     * @return An adjusted release time for the frame, in nanoseconds and in the same time base as
+     *     {@link System#nanoTime()}.
+     */
+    public long adjustReleaseTime(long framePresentationTimeUs, long unadjustedReleaseTimeNs);
+
+  }
+
   // TODO: Use MediaFormat constants if these get exposed through the API. See [redacted].
   private static final String KEY_CROP_LEFT = "crop-left";
   private static final String KEY_CROP_RIGHT = "crop-right";
@@ -88,6 +116,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    */
   public static final int MSG_SET_SURFACE = 1;
 
+  private final FrameReleaseTimeHelper frameReleaseTimeHelper;
   private final EventListener eventListener;
   private final long allowedJoiningTimeUs;
   private final int videoScalingMode;
@@ -162,7 +191,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   public MediaCodecVideoTrackRenderer(SampleSource source, DrmSessionManager drmSessionManager,
       boolean playClearSamplesWithoutKeys, int videoScalingMode, long allowedJoiningTimeMs) {
     this(source, drmSessionManager, playClearSamplesWithoutKeys, videoScalingMode,
-        allowedJoiningTimeMs, null, null, -1);
+        allowedJoiningTimeMs, null, null, null, -1);
   }
 
   /**
@@ -180,8 +209,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   public MediaCodecVideoTrackRenderer(SampleSource source, int videoScalingMode,
       long allowedJoiningTimeMs, Handler eventHandler, EventListener eventListener,
       int maxDroppedFrameCountToNotify) {
-    this(source, null, true, videoScalingMode, allowedJoiningTimeMs, eventHandler, eventListener,
-        maxDroppedFrameCountToNotify);
+    this(source, null, true, videoScalingMode, allowedJoiningTimeMs, null, eventHandler,
+        eventListener, maxDroppedFrameCountToNotify);
   }
 
   /**
@@ -197,6 +226,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    *     {@link MediaCodec#setVideoScalingMode(int)}.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
+   * @param frameReleaseTimeHelper An optional helper to make fine-grained adjustments to frame
+   *     release times. May be null.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
@@ -205,10 +236,12 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    */
   public MediaCodecVideoTrackRenderer(SampleSource source, DrmSessionManager drmSessionManager,
       boolean playClearSamplesWithoutKeys, int videoScalingMode, long allowedJoiningTimeMs,
-      Handler eventHandler, EventListener eventListener, int maxDroppedFrameCountToNotify) {
+      FrameReleaseTimeHelper frameReleaseTimeHelper, Handler eventHandler,
+      EventListener eventListener, int maxDroppedFrameCountToNotify) {
     super(source, drmSessionManager, playClearSamplesWithoutKeys, eventHandler, eventListener);
     this.videoScalingMode = videoScalingMode;
     this.allowedJoiningTimeUs = allowedJoiningTimeMs * 1000;
+    this.frameReleaseTimeHelper = frameReleaseTimeHelper;
     this.eventListener = eventListener;
     this.maxDroppedFrameCountToNotify = maxDroppedFrameCountToNotify;
     joiningDeadlineUs = -1;
@@ -231,6 +264,9 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     renderedFirstFrame = false;
     if (joining && allowedJoiningTimeUs > 0) {
       joiningDeadlineUs = SystemClock.elapsedRealtime() * 1000L + allowedJoiningTimeUs;
+    }
+    if (frameReleaseTimeHelper != null) {
+      frameReleaseTimeHelper.enable();
     }
   }
 
@@ -283,6 +319,9 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     lastReportedWidth = -1;
     lastReportedHeight = -1;
     lastReportedPixelWidthHeightRatio = -1;
+    if (frameReleaseTimeHelper != null) {
+      frameReleaseTimeHelper.disable();
+    }
     super.onDisabled();
   }
 
@@ -362,8 +401,24 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       return true;
     }
 
-    long elapsedSinceStartOfLoop = SystemClock.elapsedRealtime() * 1000 - elapsedRealtimeUs;
-    long earlyUs = bufferInfo.presentationTimeUs - positionUs - elapsedSinceStartOfLoop;
+    // Compute how many microseconds it is until the buffer's presentation time.
+    long elapsedSinceStartOfLoopUs = (SystemClock.elapsedRealtime() * 1000) - elapsedRealtimeUs;
+    long earlyUs = bufferInfo.presentationTimeUs - positionUs - elapsedSinceStartOfLoopUs;
+
+    // Compute the buffer's desired release time in nanoseconds.
+    long systemTimeNs = System.nanoTime();
+    long unadjustedFrameReleaseTimeNs = systemTimeNs + (earlyUs * 1000);
+
+    // Apply a timestamp adjustment, if there is one.
+    long adjustedReleaseTimeNs;
+    if (frameReleaseTimeHelper != null) {
+      adjustedReleaseTimeNs = frameReleaseTimeHelper.adjustReleaseTime(
+          bufferInfo.presentationTimeUs, unadjustedFrameReleaseTimeNs);
+      earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
+    } else {
+      adjustedReleaseTimeNs = unadjustedFrameReleaseTimeNs;
+    }
+
     if (earlyUs < -30000) {
       // We're more than 30ms late rendering the frame.
       dropOutputBuffer(codec, bufferIndex);
@@ -383,7 +438,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     if (Util.SDK_INT >= 21) {
       // Let the underlying framework time the release.
       if (earlyUs < 50000) {
-        renderOutputBufferTimedV21(codec, bufferIndex, System.nanoTime() + (earlyUs * 1000L));
+        renderOutputBufferTimedV21(codec, bufferIndex, adjustedReleaseTimeNs);
         return true;
       }
     } else {
@@ -436,10 +491,10 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @TargetApi(21)
-  private void renderOutputBufferTimedV21(MediaCodec codec, int bufferIndex, long nanoTime) {
+  private void renderOutputBufferTimedV21(MediaCodec codec, int bufferIndex, long releaseTimeNs) {
     maybeNotifyVideoSizeChanged();
     TraceUtil.beginSection("releaseOutputBufferTimed");
-    codec.releaseOutputBuffer(bufferIndex, nanoTime);
+    codec.releaseOutputBuffer(bufferIndex, releaseTimeNs);
     TraceUtil.endSection();
     codecCounters.renderedOutputBufferCount++;
     maybeNotifyDrawnToSurface();

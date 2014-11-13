@@ -47,6 +47,8 @@ public class MediaFormat {
   public final int channelCount;
   public final int sampleRate;
 
+  public final int bitrate;
+
   private int maxWidth;
   private int maxHeight;
 
@@ -70,13 +72,19 @@ public class MediaFormat {
   public static MediaFormat createVideoFormat(String mimeType, int maxInputSize, int width,
       int height, float pixelWidthHeightRatio, List<byte[]> initializationData) {
     return new MediaFormat(mimeType, maxInputSize, width, height, pixelWidthHeightRatio, NO_VALUE,
-        NO_VALUE, initializationData);
+        NO_VALUE, NO_VALUE, initializationData);
   }
 
   public static MediaFormat createAudioFormat(String mimeType, int maxInputSize, int channelCount,
       int sampleRate, List<byte[]> initializationData) {
     return new MediaFormat(mimeType, maxInputSize, NO_VALUE, NO_VALUE, NO_VALUE, channelCount,
-        sampleRate, initializationData);
+        sampleRate, NO_VALUE, initializationData);
+  }
+
+  public static MediaFormat createAudioFormat(String mimeType, int maxInputSize, int channelCount,
+      int sampleRate, int bitrate, List<byte[]> initializationData) {
+    return new MediaFormat(mimeType, maxInputSize, NO_VALUE, NO_VALUE, NO_VALUE, channelCount,
+        sampleRate, bitrate, initializationData);
   }
 
   public static MediaFormat createId3Format() {
@@ -93,6 +101,7 @@ public class MediaFormat {
     height = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_HEIGHT);
     channelCount = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_CHANNEL_COUNT);
     sampleRate = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_SAMPLE_RATE);
+    bitrate = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_BIT_RATE);
     pixelWidthHeightRatio = getOptionalFloatV16(format, KEY_PIXEL_WIDTH_HEIGHT_RATIO);
     initializationData = new ArrayList<byte[]>();
     for (int i = 0; format.containsKey("csd-" + i); i++) {
@@ -107,7 +116,7 @@ public class MediaFormat {
   }
 
   private MediaFormat(String mimeType, int maxInputSize, int width, int height,
-      float pixelWidthHeightRatio, int channelCount, int sampleRate,
+      float pixelWidthHeightRatio, int channelCount, int sampleRate, int bitrate,
       List<byte[]> initializationData) {
     this.mimeType = mimeType;
     this.maxInputSize = maxInputSize;
@@ -116,6 +125,7 @@ public class MediaFormat {
     this.pixelWidthHeightRatio = pixelWidthHeightRatio;
     this.channelCount = channelCount;
     this.sampleRate = sampleRate;
+    this.bitrate = bitrate;
     this.initializationData = initializationData == null ? Collections.<byte[]>emptyList()
         : initializationData;
     maxWidth = NO_VALUE;
@@ -151,6 +161,7 @@ public class MediaFormat {
       result = 31 * result + maxHeight;
       result = 31 * result + channelCount;
       result = 31 * result + sampleRate;
+      result = 31 * result + bitrate;
       for (int i = 0; i < initializationData.size(); i++) {
         result = 31 * result + Arrays.hashCode(initializationData.get(i));
       }
@@ -186,6 +197,7 @@ public class MediaFormat {
         || (!ignoreMaxDimensions && (maxWidth != other.maxWidth || maxHeight != other.maxHeight))
         || channelCount != other.channelCount || sampleRate != other.sampleRate
         || !Util.areEqual(mimeType, other.mimeType)
+        || bitrate != other.bitrate
         || initializationData.size() != other.initializationData.size()) {
       return false;
     }
@@ -200,8 +212,8 @@ public class MediaFormat {
   @Override
   public String toString() {
     return "MediaFormat(" + mimeType + ", " + maxInputSize + ", " + width + ", " + height + ", "
-        + pixelWidthHeightRatio + ", " + channelCount + ", " + sampleRate + ", " + maxWidth + ", "
-        + maxHeight + ")";
+        + pixelWidthHeightRatio + ", " + channelCount + ", " + sampleRate + ", " + bitrate + ", "
+        + maxWidth + ", " + maxHeight + ")";
   }
 
   /**
@@ -217,6 +229,7 @@ public class MediaFormat {
       maybeSetIntegerV16(format, android.media.MediaFormat.KEY_HEIGHT, height);
       maybeSetIntegerV16(format, android.media.MediaFormat.KEY_CHANNEL_COUNT, channelCount);
       maybeSetIntegerV16(format, android.media.MediaFormat.KEY_SAMPLE_RATE, sampleRate);
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_BIT_RATE, bitrate);
       maybeSetFloatV16(format, KEY_PIXEL_WIDTH_HEIGHT_RATIO, pixelWidthHeightRatio);
       for (int i = 0; i < initializationData.size(); i++) {
         format.setByteBuffer("csd-" + i, ByteBuffer.wrap(initializationData.get(i)));

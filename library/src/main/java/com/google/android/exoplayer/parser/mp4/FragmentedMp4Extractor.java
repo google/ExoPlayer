@@ -65,6 +65,11 @@ public final class FragmentedMp4Extractor implements Extractor {
   private static final byte[] NAL_START_CODE = new byte[] {0, 0, 0, 1};
   private static final byte[] PIFF_SAMPLE_ENCRYPTION_BOX_EXTENDED_TYPE =
       new byte[] {-94, 57, 79, 82, 90, -101, 79, 20, -94, 68, 108, 66, 124, 100, -115, -12};
+  /** Channel counts for AC-3 audio, indexed by acmod. (See ETSI TS 102 366.) */
+  private static final int[] AC3_CHANNEL_COUNTS = new int[] {2, 1, 2, 3, 3, 4, 4, 5};
+  /** Nominal bit-rates for AC-3 audio in kbps, indexed by bit_rate_code. (See ETSI TS 102 366.) */
+  private static final int[] AC3_BIT_RATES = new int[] {32, 40, 48, 56, 64, 80, 96, 112, 128, 160,
+      192, 224, 256, 320, 384, 448, 512, 576, 640};
 
   // Parser states
   private static final int STATE_READING_ATOM_HEADER = 0;
@@ -512,11 +517,12 @@ public final class FragmentedMp4Extractor implements Extractor {
             parseAvcFromParent(stsd, childStartPosition, childAtomSize);
         mediaFormat = avc.first;
         trackEncryptionBoxes[i] = avc.second;
-      } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca) {
-        Pair<MediaFormat, TrackEncryptionBox> mp4a =
-            parseMp4aFromParent(stsd, childStartPosition, childAtomSize);
-        mediaFormat = mp4a.first;
-        trackEncryptionBoxes[i] = mp4a.second;
+      } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca
+          || childAtomType == Atom.TYPE_ac_3) {
+        Pair<MediaFormat, TrackEncryptionBox> audioSampleEntry =
+            parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize);
+        mediaFormat = audioSampleEntry.first;
+        trackEncryptionBoxes[i] = audioSampleEntry.second;
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
@@ -556,15 +562,15 @@ public final class FragmentedMp4Extractor implements Extractor {
     return Pair.create(format, trackEncryptionBox);
   }
 
-  private static Pair<MediaFormat, TrackEncryptionBox> parseMp4aFromParent(ParsableByteArray parent,
-      int position, int size) {
+  private static Pair<MediaFormat, TrackEncryptionBox> parseAudioSampleEntry(
+      ParsableByteArray parent, int atomType, int position, int size) {
     parent.setPosition(position + ATOM_HEADER_SIZE);
-    // Start of the mp4a atom (defined in 14496-14)
     parent.skip(16);
     int channelCount = parent.readUnsignedShort();
     int sampleSize = parent.readUnsignedShort();
     parent.skip(4);
     int sampleRate = parent.readUnsignedFixedPoint1616();
+    int bitrate = MediaFormat.NO_VALUE;
 
     byte[] initializationData = null;
     TrackEncryptionBox trackEncryptionBox = null;
@@ -574,23 +580,95 @@ public final class FragmentedMp4Extractor implements Extractor {
       int childStartPosition = parent.getPosition();
       int childAtomSize = parent.readInt();
       int childAtomType = parent.readInt();
-      if (childAtomType == Atom.TYPE_esds) {
-        initializationData = parseEsdsFromParent(parent, childStartPosition);
-        // TODO: Do we really need to do this? See [redacted]
-        // Update sampleRate and channelCount from the AudioSpecificConfig initialization data.
-        Pair<Integer, Integer> audioSpecificConfig =
-            CodecSpecificDataUtil.parseAudioSpecificConfig(initializationData);
-        sampleRate = audioSpecificConfig.first;
-        channelCount = audioSpecificConfig.second;
-      } else if (childAtomType == Atom.TYPE_sinf) {
-        trackEncryptionBox = parseSinfFromParent(parent, childStartPosition, childAtomSize);
+      if (atomType == Atom.TYPE_mp4a || atomType == Atom.TYPE_enca) {
+        if (childAtomType == Atom.TYPE_esds) {
+          initializationData = parseEsdsFromParent(parent, childStartPosition);
+          // TODO: Do we really need to do this? See [redacted]
+          // Update sampleRate and channelCount from the AudioSpecificConfig initialization data.
+          Pair<Integer, Integer> audioSpecificConfig =
+              CodecSpecificDataUtil.parseAudioSpecificConfig(initializationData);
+          sampleRate = audioSpecificConfig.first;
+          channelCount = audioSpecificConfig.second;
+        } else if (childAtomType == Atom.TYPE_sinf) {
+          trackEncryptionBox = parseSinfFromParent(parent, childStartPosition, childAtomSize);
+        }
+      } else if (atomType == Atom.TYPE_ac_3 && childAtomType == Atom.TYPE_dac3) {
+        // TODO: Choose the right AC-3 track based on the contents of dac3/dec3.
+        Ac3Format ac3Format =
+            parseAc3SpecificBoxFromParent(parent, childStartPosition);
+        if (ac3Format != null) {
+          sampleRate = ac3Format.sampleRate;
+          channelCount = ac3Format.channelCount;
+          bitrate = ac3Format.bitrate;
+        }
+
+        // TODO: Add support for encrypted AC-3.
+        trackEncryptionBox = null;
+      } else if (atomType == Atom.TYPE_ec_3 && childAtomType == Atom.TYPE_dec3) {
+        sampleRate = parseEc3SpecificBoxFromParent(parent, childStartPosition);
+        trackEncryptionBox = null;
       }
       childPosition += childAtomSize;
     }
 
-    MediaFormat format = MediaFormat.createAudioFormat("audio/mp4a-latm", sampleSize, channelCount,
-        sampleRate, Collections.singletonList(initializationData));
+    String mimeType;
+    if (atomType == Atom.TYPE_ac_3) {
+      mimeType = MimeTypes.AUDIO_AC3;
+    } else if (atomType == Atom.TYPE_ec_3) {
+      mimeType = MimeTypes.AUDIO_EC3;
+    } else {
+      mimeType = MimeTypes.AUDIO_AAC;
+    }
+
+    MediaFormat format = MediaFormat.createAudioFormat(
+        mimeType, sampleSize, channelCount, sampleRate, bitrate,
+        initializationData == null ? null : Collections.singletonList(initializationData));
     return Pair.create(format, trackEncryptionBox);
+  }
+
+  private static Ac3Format parseAc3SpecificBoxFromParent(ParsableByteArray parent, int position) {
+    // Start of the dac3 atom (defined in ETSI TS 102 366)
+    parent.setPosition(position + ATOM_HEADER_SIZE);
+
+    // fscod (sample rate code)
+    int fscod = (parent.readUnsignedByte() & 0xC0) >> 6;
+    int sampleRate;
+    switch (fscod) {
+      case 0:
+        sampleRate = 48000;
+        break;
+      case 1:
+        sampleRate = 44100;
+        break;
+      case 2:
+        sampleRate = 32000;
+        break;
+      default:
+        // TODO: The decoder should not use this stream.
+        return null;
+    }
+
+    int nextByte = parent.readUnsignedByte();
+
+    // Map acmod (audio coding mode) onto a channel count.
+    int channelCount = AC3_CHANNEL_COUNTS[(nextByte & 0x38) >> 3];
+
+    // lfeon (low frequency effects on)
+    if ((nextByte & 0x04) != 0) {
+      channelCount++;
+    }
+
+    // Map bit_rate_code onto a bit-rate in kbit/s.
+    int bitrate = AC3_BIT_RATES[((nextByte & 0x03) << 3) + (parent.readUnsignedByte() >> 5)];
+
+    return new Ac3Format(channelCount, sampleRate, bitrate);
+  }
+
+  private static int parseEc3SpecificBoxFromParent(ParsableByteArray parent, int position) {
+    // Start of the dec3 atom (defined in ETSI TS 102 366)
+    parent.setPosition(position + ATOM_HEADER_SIZE);
+    // TODO: Implement parsing for enhanced AC-3 with multiple sub-streams.
+    return 0;
   }
 
   private static List<byte[]> parseAvcCFromParent(ParsableByteArray parent, int position) {
@@ -1180,6 +1258,21 @@ public final class FragmentedMp4Extractor implements Extractor {
       throw new IllegalArgumentException("Top bit not zero: " + result);
     }
     return result;
+  }
+
+  /** Represents the format for AC-3 audio. */
+  private static final class Ac3Format {
+
+    public final int channelCount;
+    public final int sampleRate;
+    public final int bitrate;
+
+    public Ac3Format(int channelCount, int sampleRate, int bitrate) {
+      this.channelCount = channelCount;
+      this.sampleRate = sampleRate;
+      this.bitrate = bitrate;
+    }
+
   }
 
 }

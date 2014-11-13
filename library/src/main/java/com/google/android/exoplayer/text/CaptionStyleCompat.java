@@ -113,7 +113,7 @@ public final class CaptionStyleCompat {
     if (Util.SDK_INT >= 21) {
       return createFromCaptionStyleV21(captionStyle);
     } else {
-      // Note - Any caller must be on at least API level 19 of greater (because CaptionStyle did
+      // Note - Any caller must be on at least API level 19 or greater (because CaptionStyle did
       // not exist in earlier API levels).
       return createFromCaptionStyleV19(captionStyle);
     }

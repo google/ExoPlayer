@@ -68,8 +68,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
     public AudioTrackInitializationException(int audioTrackState, int sampleRate,
         int channelConfig, int bufferSize) {
-      super("AudioTrack init failed: " + audioTrackState + ", Config(" + sampleRate + ", " +
-          channelConfig + ", " + bufferSize + ")");
+      super("AudioTrack init failed: " + audioTrackState + ", Config(" + sampleRate + ", "
+          + channelConfig + ", " + bufferSize + ")");
       this.audioTrackState = audioTrackState;
     }
 
@@ -538,8 +538,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
           // Compute the audio track latency, excluding the latency due to the buffer (leaving
           // latency due to the mixer and audio hardware driver).
           audioTrackLatencyUs =
-              (Integer) audioTrackGetLatencyMethod.invoke(audioTrack, (Object[]) null) * 1000L -
-              framesToDurationUs(bufferSize / frameSize);
+              (Integer) audioTrackGetLatencyMethod.invoke(audioTrack, (Object[]) null) * 1000L
+              - framesToDurationUs(bufferSize / frameSize);
           // Sanity check that the latency is non-negative.
           audioTrackLatencyUs = Math.max(audioTrackLatencyUs, 0);
           // Sanity check that the latency isn't too large.
@@ -612,19 +612,19 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
     if (temporaryBufferSize == 0) {
       // This is the first time we've seen this {@code buffer}.
       // Note: presentationTimeUs corresponds to the end of the sample, not the start.
-      long bufferStartTime = bufferInfo.presentationTimeUs -
-          framesToDurationUs(bufferInfo.size / frameSize);
+      long bufferStartTime = bufferInfo.presentationTimeUs
+          - framesToDurationUs(bufferInfo.size / frameSize);
       if (audioTrackStartMediaTimeState == START_NOT_SET) {
         audioTrackStartMediaTimeUs = Math.max(0, bufferStartTime);
         audioTrackStartMediaTimeState = START_IN_SYNC;
       } else {
         // Sanity check that bufferStartTime is consistent with the expected value.
-        long expectedBufferStartTime = audioTrackStartMediaTimeUs +
-            framesToDurationUs(submittedBytes / frameSize);
+        long expectedBufferStartTime = audioTrackStartMediaTimeUs
+            + framesToDurationUs(submittedBytes / frameSize);
         if (audioTrackStartMediaTimeState == START_IN_SYNC
             && Math.abs(expectedBufferStartTime - bufferStartTime) > 200000) {
-          Log.e(TAG, "Discontinuity detected [expected " + expectedBufferStartTime + ", got " +
-              bufferStartTime + "]");
+          Log.e(TAG, "Discontinuity detected [expected " + expectedBufferStartTime + ", got "
+              + bufferStartTime + "]");
           audioTrackStartMediaTimeState = START_NEED_SYNC;
         }
         if (audioTrackStartMediaTimeState == START_NEED_SYNC) {
@@ -679,7 +679,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @TargetApi(21)
-  private int writeNonBlockingV21(AudioTrack audioTrack, ByteBuffer buffer, int size) {
+  private static int writeNonBlockingV21(AudioTrack audioTrack, ByteBuffer buffer, int size) {
     return audioTrack.write(buffer, size, AudioTrack.WRITE_NON_BLOCKING);
   }
 
@@ -703,8 +703,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   private int getPendingFrameCount() {
-    return audioTrack == null ?
-        0 : (int) (submittedBytes / frameSize - getPlaybackHeadPosition());
+    return audioTrack == null
+        ? 0 : (int) (submittedBytes / frameSize - getPlaybackHeadPosition());
   }
 
   @Override
