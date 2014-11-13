@@ -21,6 +21,7 @@ import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
+import android.media.MediaCodec.CodecException;
 import android.media.MediaCodec.CryptoException;
 import android.media.MediaCrypto;
 import android.media.MediaExtractor;
@@ -70,10 +71,24 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
      */
     public final String decoderName;
 
+    /**
+     * An optional developer-readable diagnostic information string. May be null.
+     */
+    public final String diagnosticInfo;
+
     public DecoderInitializationException(String decoderName, MediaFormat mediaFormat,
-        Exception cause) {
+        Throwable cause) {
       super("Decoder init failed: " + decoderName + ", " + mediaFormat, cause);
       this.decoderName = decoderName;
+      this.diagnosticInfo = Util.SDK_INT >= 21 ? getDiagnosticInfoV21(cause) : null;
+    }
+
+    @TargetApi(21)
+    private static String getDiagnosticInfoV21(Throwable cause) {
+      if (cause instanceof CodecException) {
+        return ((CodecException) cause).getDiagnosticInfo();
+      }
+      return null;
     }
 
   }
@@ -235,6 +250,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     codec.configure(x, null, crypto, 0);
   }
 
+  @SuppressWarnings("deprecation")
   protected final void maybeInitCodec() throws ExoPlaybackException {
     if (!shouldInitCodec()) {
       return;
@@ -694,6 +710,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    * @return True if it may be possible to drain more output data. False otherwise.
    * @throws ExoPlaybackException If an error occurs draining the output buffer.
    */
+  @SuppressWarnings("deprecation")
   private boolean drainOutputBuffer(long positionUs, long elapsedRealtimeUs)
       throws ExoPlaybackException {
     if (outputStreamEnded) {
