@@ -176,7 +176,7 @@ public class DashVodRendererBuilder implements RendererBuilder,
         DemoPlayer.TYPE_VIDEO);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource,
         drmSessionManager, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000,
-        mainHandler, player, 50);
+        null, mainHandler, player, 50);
 
     // Build the audio renderer.
     final String[] audioTrackNames;
