@@ -165,7 +165,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public int readData(int track, long playbackPositionUs, MediaFormatHolder formatHolder,
-      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
+      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) throws IOException {
     Assertions.checkState(prepared);
     downstreamPositionUs = playbackPositionUs;
 
@@ -175,6 +175,9 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     }
 
     if (onlyReadDiscontinuity || isPendingReset() || extractors.isEmpty()) {
+      if (currentLoadableException != null) {
+        throw currentLoadableException;
+      }
       return NOTHING_READ;
     }
 
@@ -192,6 +195,9 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     }
 
     if (!extractor.isPrepared()) {
+      if (currentLoadableException != null) {
+        throw currentLoadableException;
+      }
       return NOTHING_READ;
     }
 
@@ -208,7 +214,14 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       return SAMPLE_READ;
     }
 
-    return loadingFinished ? END_OF_STREAM : NOTHING_READ;
+    if (loadingFinished) {
+      return END_OF_STREAM;
+    }
+
+    if (currentLoadableException != null) {
+      throw currentLoadableException;
+    }
+    return NOTHING_READ;
   }
 
   @Override
