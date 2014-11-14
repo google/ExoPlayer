@@ -228,11 +228,12 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   public void seekToUs(long positionUs) {
     Assertions.checkState(prepared);
     Assertions.checkState(enabledTrackCount > 0);
-    downstreamPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
-    if (pendingResetPositionUs == positionUs) {
+    if (pendingResetPositionUs == positionUs || downstreamPositionUs == positionUs) {
+      downstreamPositionUs = positionUs;
       return;
     }
+    downstreamPositionUs = positionUs;
     for (int i = 0; i < pendingDiscontinuities.length; i++) {
       pendingDiscontinuities[i] = true;
     }
