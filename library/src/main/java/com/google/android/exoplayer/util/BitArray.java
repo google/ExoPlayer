@@ -280,11 +280,25 @@ public final class BitArray {
   }
 
   /**
-   * Reads an Exp-Golomb-coded format integer.
+   * Reads an unsigned Exp-Golomb-coded format integer.
    *
    * @return The value of the parsed Exp-Golomb-coded integer.
    */
-  public int readExpGolombCodedInt() {
+  public int readUnsignedExpGolombCodedInt() {
+    return readExpGolombCodeNum();
+  }
+
+  /**
+   * Reads an signed Exp-Golomb-coded format integer.
+   *
+   * @return The value of the parsed Exp-Golomb-coded integer.
+   */
+  public int readSignedExpGolombCodedInt() {
+    int codeNum = readExpGolombCodeNum();
+    return ((codeNum % 2) == 0 ? -1 : 1) * ((codeNum + 1) / 2);
+  }
+
+  private int readExpGolombCodeNum() {
     int leadingZeros = 0;
     while (!readBit()) {
       leadingZeros++;

@@ -634,45 +634,80 @@ public final class TsExtractor {
       // Parse the SPS unit
       // Skip the NAL header.
       bitArray.skipBytes(4);
-      // TODO: Handle different profiles properly.
-      bitArray.skipBytes(1);
+      int profileIdc = bitArray.readBits(8);
       // Skip 6 constraint bits, 2 reserved bits and level_idc.
       bitArray.skipBytes(2);
       // Skip seq_parameter_set_id.
-      bitArray.readExpGolombCodedInt();
+      bitArray.readUnsignedExpGolombCodedInt();
+
+      if (profileIdc == 100 || profileIdc == 110 || profileIdc == 122 || profileIdc == 244
+          || profileIdc == 44 || profileIdc == 83 || profileIdc == 86 || profileIdc == 118
+          || profileIdc == 128 || profileIdc == 138) {
+        int chromaFormatIdc = bitArray.readUnsignedExpGolombCodedInt();
+        if (chromaFormatIdc == 3) {
+          // Skip separate_colour_plane_flag
+          bitArray.skipBits(1);
+        }
+        // Skip bit_depth_luma_minus8
+        bitArray.readUnsignedExpGolombCodedInt();
+        // Skip bit_depth_chroma_minus8
+        bitArray.readUnsignedExpGolombCodedInt();
+        // Skip qpprime_y_zero_transform_bypass_flag
+        bitArray.skipBits(1);
+        boolean seqScalingMatrixPresentFlag = bitArray.readBit();
+        if (seqScalingMatrixPresentFlag) {
+          int limit = (chromaFormatIdc != 3) ? 8 : 12;
+          for (int i = 0; i < limit; i++) {
+            boolean seqScalingListPresentFlag = bitArray.readBit();
+            if (seqScalingListPresentFlag) {
+              skipScalingList(bitArray, i < 6 ? 16 : 64);
+            }
+          }
+        }
+      }
       // Skip log2_max_frame_num_minus4
-      bitArray.readExpGolombCodedInt();
-      long picOrderCntType = bitArray.readExpGolombCodedInt();
+      bitArray.readUnsignedExpGolombCodedInt();
+      long picOrderCntType = bitArray.readUnsignedExpGolombCodedInt();
       if (picOrderCntType == 0) {
         // Skip log2_max_pic_order_cnt_lsb_minus4
-        bitArray.readExpGolombCodedInt();
+        bitArray.readUnsignedExpGolombCodedInt();
       } else if (picOrderCntType == 1) {
         // Skip delta_pic_order_always_zero_flag
         bitArray.skipBits(1);
-        // Skip offset_for_non_ref_pic (actually a signed value, but for skipping we can read it
-        // as though it were unsigned).
-        bitArray.readExpGolombCodedInt();
-        // Skip offset_for_top_to_bottom_field (actually a signed value, but for skipping we can
-        // read it as though it were unsigned).
-        bitArray.readExpGolombCodedInt();
-        long numRefFramesInPicOrderCntCycle = bitArray.readExpGolombCodedInt();
+        // Skip offset_for_non_ref_pic
+        bitArray.readSignedExpGolombCodedInt();
+        // Skip offset_for_top_to_bottom_field
+        bitArray.readSignedExpGolombCodedInt();
+        long numRefFramesInPicOrderCntCycle = bitArray.readUnsignedExpGolombCodedInt();
         for (int i = 0; i < numRefFramesInPicOrderCntCycle; i++) {
           // Skip offset_for_ref_frame[i]
-          bitArray.readExpGolombCodedInt();
+          bitArray.readUnsignedExpGolombCodedInt();
         }
       }
       // Skip max_num_ref_frames
-      bitArray.readExpGolombCodedInt();
+      bitArray.readUnsignedExpGolombCodedInt();
       // Skip gaps_in_frame_num_value_allowed_flag
       bitArray.skipBits(1);
-      int picWidthInMbs = bitArray.readExpGolombCodedInt() + 1;
-      int picHeightInMapUnits = bitArray.readExpGolombCodedInt() + 1;
+      int picWidthInMbs = bitArray.readUnsignedExpGolombCodedInt() + 1;
+      int picHeightInMapUnits = bitArray.readUnsignedExpGolombCodedInt() + 1;
       boolean frameMbsOnlyFlag = bitArray.readBit();
       int frameHeightInMbs = (2 - (frameMbsOnlyFlag ? 1 : 0)) * picHeightInMapUnits;
 
       // Set the format.
       setMediaFormat(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
           picWidthInMbs * 16, frameHeightInMbs * 16, null));
+    }
+
+    private void skipScalingList(BitArray bitArray, int size) {
+      int lastScale = 8;
+      int nextScale = 8;
+      for (int i = 0; i < size; i++) {
+        if (nextScale != 0) {
+          int deltaScale = bitArray.readSignedExpGolombCodedInt();
+          nextScale = (lastScale + deltaScale + 256) % 256;
+        }
+        lastScale = (nextScale == 0) ? lastScale : nextScale;
+      }
     }
 
     /**
