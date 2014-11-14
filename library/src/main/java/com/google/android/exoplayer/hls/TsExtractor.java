@@ -32,9 +32,9 @@ import android.util.SparseArray;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Facilitates the extraction of data from the MPEG-2 TS container format.
@@ -144,10 +144,10 @@ public final class TsExtractor {
   public boolean getSample(int track, SampleHolder out) {
     Assertions.checkState(prepared);
     Queue<Sample> queue = pesPayloadReaders.valueAt(track).sampleQueue;
-    if (queue.isEmpty()) {
+    Sample sample = queue.poll();
+    if (sample == null) {
       return false;
     }
-    Sample sample = queue.remove();
     convert(sample, out);
     samplePool.recycle(sample);
     return true;
@@ -473,14 +473,14 @@ public final class TsExtractor {
    */
   private abstract class PesPayloadReader {
 
-    public final LinkedList<Sample> sampleQueue;
+    public final ConcurrentLinkedQueue<Sample> sampleQueue;
 
     private MediaFormat mediaFormat;
     private boolean foundFirstKeyframe;
     private boolean foundLastKeyframe;
 
     protected PesPayloadReader() {
-      this.sampleQueue = new LinkedList<Sample>();
+      this.sampleQueue = new ConcurrentLinkedQueue<Sample>();
     }
 
     public boolean hasMediaFormat() {
@@ -498,8 +498,10 @@ public final class TsExtractor {
     public abstract void read(BitArray pesBuffer, int pesPayloadSize, long pesTimeUs);
 
     public void clear() {
-      while (!sampleQueue.isEmpty()) {
-        samplePool.recycle(sampleQueue.remove());
+      Sample toRecycle = sampleQueue.poll();
+      while (toRecycle != null) {
+        samplePool.recycle(toRecycle);
+        toRecycle = sampleQueue.poll();
       }
     }
 
