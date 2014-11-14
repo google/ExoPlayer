@@ -642,10 +642,11 @@ public final class TsExtractor {
       // Skip seq_parameter_set_id.
       bitArray.readUnsignedExpGolombCodedInt();
 
+      int chromaFormatIdc = 1; // Default is 4:2:0
       if (profileIdc == 100 || profileIdc == 110 || profileIdc == 122 || profileIdc == 244
           || profileIdc == 44 || profileIdc == 83 || profileIdc == 86 || profileIdc == 118
           || profileIdc == 128 || profileIdc == 138) {
-        int chromaFormatIdc = bitArray.readUnsignedExpGolombCodedInt();
+        chromaFormatIdc = bitArray.readUnsignedExpGolombCodedInt();
         if (chromaFormatIdc == 3) {
           // Skip separate_colour_plane_flag
           bitArray.skipBits(1);
@@ -694,10 +695,37 @@ public final class TsExtractor {
       int picHeightInMapUnits = bitArray.readUnsignedExpGolombCodedInt() + 1;
       boolean frameMbsOnlyFlag = bitArray.readBit();
       int frameHeightInMbs = (2 - (frameMbsOnlyFlag ? 1 : 0)) * picHeightInMapUnits;
+      if (!frameMbsOnlyFlag) {
+        // Skip mb_adaptive_frame_field_flag
+        bitArray.skipBits(1);
+      }
+      // Skip direct_8x8_inference_flag
+      bitArray.skipBits(1);
+      int frameWidth = picWidthInMbs * 16;
+      int frameHeight = frameHeightInMbs * 16;
+      boolean frameCroppingFlag = bitArray.readBit();
+      if (frameCroppingFlag) {
+        int frameCropLeftOffset = bitArray.readUnsignedExpGolombCodedInt();
+        int frameCropRightOffset = bitArray.readUnsignedExpGolombCodedInt();
+        int frameCropTopOffset = bitArray.readUnsignedExpGolombCodedInt();
+        int frameCropBottomOffset = bitArray.readUnsignedExpGolombCodedInt();
+        int cropUnitX, cropUnitY;
+        if (chromaFormatIdc == 0) {
+          cropUnitX = 1;
+          cropUnitY = 2 - (frameMbsOnlyFlag ? 1 : 0);
+        } else {
+          int subWidthC = (chromaFormatIdc == 3) ? 1 : 2;
+          int subHeightC = (chromaFormatIdc == 1) ? 2 : 1;
+          cropUnitX = subWidthC;
+          cropUnitY = subHeightC * (2 - (frameMbsOnlyFlag ? 1 : 0));
+        }
+        frameWidth  -= (frameCropLeftOffset + frameCropRightOffset) * cropUnitX;
+        frameHeight -= (frameCropTopOffset + frameCropBottomOffset) * cropUnitY;
+      }
 
       // Set the format.
       setMediaFormat(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
-          picWidthInMbs * 16, frameHeightInMbs * 16, null));
+          frameWidth, frameHeight, null));
     }
 
     private void skipScalingList(BitArray bitArray, int size) {
