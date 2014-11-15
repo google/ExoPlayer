@@ -30,7 +30,8 @@ import android.os.SystemClock;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -141,7 +142,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private final SampleSource source;
   private final SampleHolder sampleHolder;
   private final MediaFormatHolder formatHolder;
-  private final HashSet<Long> decodeOnlyPresentationTimestamps;
+  private final List<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
   private final EventListener eventListener;
   protected final Handler eventHandler;
@@ -191,7 +192,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     codecCounters = new CodecCounters();
     sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_DISABLED);
     formatHolder = new MediaFormatHolder();
-    decodeOnlyPresentationTimestamps = new HashSet<Long>();
+    decodeOnlyPresentationTimestamps = new ArrayList<Long>();
     outputBufferInfo = new MediaCodec.BufferInfo();
   }
 
@@ -738,12 +739,11 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       return false;
     }
 
-    boolean decodeOnly = decodeOnlyPresentationTimestamps.contains(
-        outputBufferInfo.presentationTimeUs);
+    int decodeOnlyIdx = getDecodeOnlyIndex(outputBufferInfo.presentationTimeUs);
     if (processOutputBuffer(positionUs, elapsedRealtimeUs, codec, outputBuffers[outputIndex],
-        outputBufferInfo, outputIndex, decodeOnly)) {
-      if (decodeOnly) {
-        decodeOnlyPresentationTimestamps.remove(outputBufferInfo.presentationTimeUs);
+        outputBufferInfo, outputIndex, decodeOnlyIdx >= 0)) {
+      if (decodeOnlyIdx >= 0) {
+        decodeOnlyPresentationTimestamps.remove(decodeOnlyIdx);
       } else {
         currentPositionUs = outputBufferInfo.presentationTimeUs;
       }
@@ -794,4 +794,13 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
   }
 
+  private int getDecodeOnlyIndex(long presentationTimeUs) {
+    final int size = decodeOnlyPresentationTimestamps.size();
+    for (int i = 0; i < size; i++) {
+      if (decodeOnlyPresentationTimestamps.get(i).longValue() == presentationTimeUs) {
+        return i;
+      }
+    }
+    return -1;
+  }
 }
