@@ -138,6 +138,9 @@ package com.google.android.exoplayer.demo;
     new Sample("Apple master playlist", "uid:hls:applemaster",
         "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/"
         + "bipbop_4x3_variant.m3u8", DemoUtil.TYPE_HLS_MASTER, false, true),
+    new Sample("Apple master playlist advanced", "uid:hls:applemasteradvanced",
+        "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/"
+        + "bipbop_16x9_variant.m3u8", DemoUtil.TYPE_HLS_MASTER, false, true),
     new Sample("Apple single media playlist", "uid:hls:applesinglemedia",
         "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/"
         + "prog_index.m3u8", DemoUtil.TYPE_HLS_MEDIA, false, true),

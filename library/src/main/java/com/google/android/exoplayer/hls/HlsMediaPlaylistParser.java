@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.hls;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.hls.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer.util.ManifestParser;
 
@@ -41,6 +42,7 @@ public final class HlsMediaPlaylistParser implements ManifestParser<HlsMediaPlay
   private static final String VERSION_TAG = "#EXT-X-VERSION";
   private static final String ENDLIST_TAG = "#EXT-X-ENDLIST";
   private static final String KEY_TAG = "#EXT-X-KEY";
+  private static final String BYTERANGE_TAG = "#EXT-X-BYTERANGE";
 
   private static final String METHOD_ATTR = "METHOD";
   private static final String URI_ATTR = "URI";
@@ -54,6 +56,8 @@ public final class HlsMediaPlaylistParser implements ManifestParser<HlsMediaPlay
       Pattern.compile(TARGET_DURATION_TAG + ":(\\d+)\\b");
   private static final Pattern VERSION_REGEX =
       Pattern.compile(VERSION_TAG + ":(\\d+)\\b");
+  private static final Pattern BYTERANGE_REGEX =
+      Pattern.compile(BYTERANGE_TAG + ":(\\d+(?:@\\d+)?)\\b");
 
   private static final Pattern METHOD_ATTR_REGEX =
       Pattern.compile(METHOD_ATTR + "=([^,.*]+)");
@@ -85,6 +89,8 @@ public final class HlsMediaPlaylistParser implements ManifestParser<HlsMediaPlay
     String segmentEncryptionMethod = null;
     String segmentEncryptionKeyUri = null;
     String segmentEncryptionIV = null;
+    int segmentByterangeOffset = 0;
+    int segmentByterangeLength = C.LENGTH_UNBOUNDED;
 
     int segmentMediaSequence = 0;
 
@@ -119,16 +125,30 @@ public final class HlsMediaPlaylistParser implements ManifestParser<HlsMediaPlay
             segmentEncryptionIV = Integer.toHexString(segmentMediaSequence);
           }
         }
+      } else if (line.startsWith(BYTERANGE_TAG)) {
+        String byteRange = HlsParserUtil.parseStringAttr(line, BYTERANGE_REGEX, BYTERANGE_TAG);
+        String[] splitByteRange = byteRange.split("@");
+        segmentByterangeLength = Integer.parseInt(splitByteRange[0]);
+        if (splitByteRange.length > 1) {
+          segmentByterangeOffset = Integer.parseInt(splitByteRange[1]);
+        }
       } else if (line.equals(DISCONTINUITY_TAG)) {
         segmentDiscontinuity = true;
       } else if (!line.startsWith("#")) {
         segmentMediaSequence++;
+        if (segmentByterangeLength == C.LENGTH_UNBOUNDED) {
+          segmentByterangeOffset = 0;
+        }
         segments.add(new Segment(line, segmentDurationSecs, segmentDiscontinuity,
             segmentStartTimeUs, segmentEncryptionMethod, segmentEncryptionKeyUri,
-            segmentEncryptionIV));
+            segmentEncryptionIV, segmentByterangeOffset, segmentByterangeLength));
         segmentStartTimeUs += (long) (segmentDurationSecs * 1000000);
         segmentDiscontinuity = false;
         segmentDurationSecs = 0.0;
+        if (segmentByterangeLength != C.LENGTH_UNBOUNDED) {
+          segmentByterangeOffset += segmentByterangeLength;
+        }
+        segmentByterangeLength = C.LENGTH_UNBOUNDED;
       } else if (line.equals(ENDLIST_TAG)) {
         live = false;
         break;

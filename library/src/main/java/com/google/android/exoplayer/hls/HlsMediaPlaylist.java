@@ -35,9 +35,12 @@ public final class HlsMediaPlaylist {
     public final String encryptionMethod;
     public final String encryptionKeyUri;
     public final String encryptionIV;
+    public final int byterangeOffset;
+    public final int byterangeLength;
 
     public Segment(String uri, double durationSecs, boolean discontinuity, long startTimeUs,
-        String encryptionMethod, String encryptionKeyUri, String encryptionIV) {
+        String encryptionMethod, String encryptionKeyUri, String encryptionIV,
+        int byterangeOffset, int byterangeLength) {
       this.url = uri;
       this.durationSecs = durationSecs;
       this.discontinuity = discontinuity;
@@ -45,6 +48,8 @@ public final class HlsMediaPlaylist {
       this.encryptionMethod = encryptionMethod;
       this.encryptionKeyUri = encryptionKeyUri;
       this.encryptionIV = encryptionIV;
+      this.byterangeOffset = byterangeOffset;
+      this.byterangeLength = byterangeLength;
     }
 
     @Override

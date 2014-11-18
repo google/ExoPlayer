@@ -239,7 +239,8 @@ public class HlsChunkSource {
     } else {
       dataSource = upstreamDataSource;
     }
-    DataSpec dataSpec = new DataSpec(chunkUri, 0, C.LENGTH_UNBOUNDED, null);
+    DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
+        null);
 
     // Configure the extractor that will read the chunk.
     TsExtractor extractor;
