@@ -16,30 +16,30 @@
 package com.google.android.exoplayer.metadata;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
- * Parses metadata objects from binary data.
+ * Parses objects of type <T> from binary data.
+ *
+ * @param <T> The type of the metadata.
  */
-public interface MetadataParser {
+public interface MetadataParser<T> {
 
   /**
    * Checks whether the parser supports a given mime type.
    *
-   * @param mimeType A subtitle mime type.
+   * @param mimeType A metadata mime type.
    * @return Whether the mime type is supported.
    */
   public boolean canParse(String mimeType);
 
   /**
-   * Parses a map of metadata type to metadata objects from the provided binary data.
+   * Parses metadata objects of type <T> from the provided binary data.
    *
    * @param data The raw binary data from which to parse the metadata.
    * @param size The size of the input data.
-   * @return A parsed {@link Map} of metadata type to metadata objects.
+   * @return @return A parsed metadata object of type <T>.
    * @throws IOException If a problem occurred parsing the data.
    */
-  public Map<String, Object> parse(byte[] data, int size)
-      throws IOException;
+  public T parse(byte[] data, int size) throws IOException;
 
 }

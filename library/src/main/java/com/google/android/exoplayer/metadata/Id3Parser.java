@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * Extracts individual TXXX text frames from raw ID3 data.
  */
-public class Id3Parser implements MetadataParser {
+public class Id3Parser implements MetadataParser<Map<String, Object>> {
 
   @Override
   public boolean canParse(String mimeType) {

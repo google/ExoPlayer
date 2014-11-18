@@ -26,6 +26,7 @@ import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
+import com.google.android.exoplayer.metadata.ClosedCaption;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
 import com.google.android.exoplayer.text.TextTrackRenderer;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
@@ -37,6 +38,7 @@ import android.os.Looper;
 import android.view.Surface;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -48,7 +50,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventListener,
     DefaultBandwidthMeter.EventListener, MediaCodecVideoTrackRenderer.EventListener,
     MediaCodecAudioTrackRenderer.EventListener, TextTrackRenderer.TextRenderer,
-    MetadataTrackRenderer.MetadataRenderer, StreamingDrmSessionManager.EventListener {
+    StreamingDrmSessionManager.EventListener {
 
   /**
    * Builds renderers for the player.
@@ -137,10 +139,17 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   /**
-   * A listener for receiving metadata parsed from the media stream.
+   * A listener for receiving ID3 metadata parsed from the media stream.
    */
-  public interface MetadataListener {
-    void onMetadata(Map<String, Object> metadata);
+  public interface Id3MetadataListener {
+    void onId3Metadata(Map<String, Object> metadata);
+  }
+
+  /**
+   * A listener for receiving closed captions parsed from the media stream.
+   */
+  public interface ClosedCaptionListener {
+    void onClosedCaption(List<ClosedCaption> closedCaptions);
   }
 
   // Constants pulled into this class for convenience.
@@ -158,7 +167,8 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   public static final int TYPE_AUDIO = 1;
   public static final int TYPE_TEXT = 2;
   public static final int TYPE_TIMED_METADATA = 3;
-  public static final int TYPE_DEBUG = 4;
+  public static final int TYPE_CLOSED_CAPTIONS = 4;
+  public static final int TYPE_DEBUG = 5;
 
   private static final int RENDERER_BUILDING_STATE_IDLE = 1;
   private static final int RENDERER_BUILDING_STATE_BUILDING = 2;
@@ -183,7 +193,8 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   private int[] selectedTracks;
 
   private TextListener textListener;
-  private MetadataListener metadataListener;
+  private Id3MetadataListener id3MetadataListener;
+  private ClosedCaptionListener closedCaptionListener;
   private InternalErrorListener internalErrorListener;
   private InfoListener infoListener;
 
@@ -225,8 +236,12 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     textListener = listener;
   }
 
-  public void setMetadataListener(MetadataListener listener) {
-    metadataListener = listener;
+  public void setMetadataListener(Id3MetadataListener listener) {
+    id3MetadataListener = listener;
+  }
+
+  public void setClosedCaptionListener(ClosedCaptionListener listener) {
+    closedCaptionListener = listener;
   }
 
   public void setSurface(Surface surface) {
@@ -473,11 +488,32 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     }
   }
 
-  @Override
-  public void onMetadata(Map<String, Object> metadata) {
-    if (metadataListener != null) {
-      metadataListener.onMetadata(metadata);
-    }
+  /* package */ MetadataTrackRenderer.MetadataRenderer<Map<String, Object>>
+      getId3MetadataRenderer() {
+    return new MetadataTrackRenderer.MetadataRenderer<Map<String, Object>>() {
+
+      @Override
+      public void onMetadata(Map<String, Object> metadata) {
+        if (id3MetadataListener != null) {
+          id3MetadataListener.onId3Metadata(metadata);
+        }
+      }
+
+    };
+  }
+
+  /* package */ MetadataTrackRenderer.MetadataRenderer<List<ClosedCaption>>
+      getClosedCaptionMetadataRenderer() {
+    return new MetadataTrackRenderer.MetadataRenderer<List<ClosedCaption>>() {
+
+      @Override
+      public void onMetadata(List<ClosedCaption> metadata) {
+        if (closedCaptionListener != null) {
+          closedCaptionListener.onClosedCaption(metadata);
+        }
+      }
+
+    };
   }
 
   @Override

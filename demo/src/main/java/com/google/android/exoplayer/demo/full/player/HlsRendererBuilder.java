@@ -26,6 +26,8 @@ import com.google.android.exoplayer.hls.HlsMasterPlaylist;
 import com.google.android.exoplayer.hls.HlsMasterPlaylistParser;
 import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.hls.Variant;
+import com.google.android.exoplayer.metadata.ClosedCaption;
+import com.google.android.exoplayer.metadata.Eia608Parser;
 import com.google.android.exoplayer.metadata.Id3Parser;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -39,6 +41,8 @@ import android.net.Uri;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link RendererBuilder} for HLS.
@@ -94,13 +98,19 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
         MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 0, player.getMainHandler(), player, 50);
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
 
-    MetadataTrackRenderer metadataRenderer = new MetadataTrackRenderer(sampleSource,
-        new Id3Parser(), player, player.getMainHandler().getLooper());
+    MetadataTrackRenderer<Map<String, Object>> id3Renderer =
+        new MetadataTrackRenderer<Map<String, Object>>(sampleSource, new Id3Parser(),
+            player.getId3MetadataRenderer(), player.getMainHandler().getLooper());
+
+    MetadataTrackRenderer<List<ClosedCaption>> closedCaptionRenderer =
+        new MetadataTrackRenderer<List<ClosedCaption>>(sampleSource, new Eia608Parser(),
+            player.getClosedCaptionMetadataRenderer(), player.getMainHandler().getLooper());
 
     TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
     renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
     renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
-    renderers[DemoPlayer.TYPE_TIMED_METADATA] = metadataRenderer;
+    renderers[DemoPlayer.TYPE_TIMED_METADATA] = id3Renderer;
+    renderers[DemoPlayer.TYPE_CLOSED_CAPTIONS] = closedCaptionRenderer;
     callback.onRenderers(null, null, renderers);
   }
 

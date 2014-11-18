@@ -17,6 +17,7 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.metadata.Eia608Parser;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.BitArray;
@@ -33,7 +34,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -50,9 +50,10 @@ public final class TsExtractor {
   private static final int TS_STREAM_TYPE_AAC = 0x0F;
   private static final int TS_STREAM_TYPE_H264 = 0x1B;
   private static final int TS_STREAM_TYPE_ID3 = 0x15;
+  private static final int TS_STREAM_TYPE_EIA608 = 0x100; // 0xFF + 1
 
   private final BitArray tsPacketBuffer;
-  private final SparseArray<PesPayloadReader> pesPayloadReaders; // Indexed by streamType
+  private final SparseArray<SampleQueue> sampleQueues; // Indexed by streamType
   private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
   private final SamplePool samplePool;
   /* package */ final long firstSampleTimestamp;
@@ -69,7 +70,7 @@ public final class TsExtractor {
     this.samplePool = samplePool;
     pendingFirstSampleTimestampAdjustment = true;
     tsPacketBuffer = new BitArray();
-    pesPayloadReaders = new SparseArray<PesPayloadReader>();
+    sampleQueues = new SparseArray<SampleQueue>();
     tsPayloadReaders = new SparseArray<TsPayloadReader>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
     largestParsedTimestampUs = Long.MIN_VALUE;
@@ -84,7 +85,7 @@ public final class TsExtractor {
    */
   public int getTrackCount() {
     Assertions.checkState(prepared);
-    return pesPayloadReaders.size();
+    return sampleQueues.size();
   }
 
   /**
@@ -97,7 +98,7 @@ public final class TsExtractor {
    */
   public MediaFormat getFormat(int track) {
     Assertions.checkState(prepared);
-    return pesPayloadReaders.valueAt(track).getMediaFormat();
+    return sampleQueues.valueAt(track).getMediaFormat();
   }
 
   /**
@@ -113,13 +114,13 @@ public final class TsExtractor {
    * Flushes any pending or incomplete samples, returning them to the sample pool.
    */
   public void clear() {
-    for (int i = 0; i < pesPayloadReaders.size(); i++) {
-      pesPayloadReaders.valueAt(i).clear();
+    for (int i = 0; i < sampleQueues.size(); i++) {
+      sampleQueues.valueAt(i).clear();
     }
   }
 
   /**
-   * For each track, discards samples from the next keyframe (inclusive).
+   * For each track, discards samples from the next key frame (inclusive).
    */
   public void discardFromNextKeyframes() {
     discardFromNextKeyframes = true;
@@ -143,8 +144,7 @@ public final class TsExtractor {
    */
   public boolean getSample(int track, SampleHolder out) {
     Assertions.checkState(prepared);
-    Queue<Sample> queue = pesPayloadReaders.valueAt(track).sampleQueue;
-    Sample sample = queue.poll();
+    Sample sample = sampleQueues.valueAt(track).poll();
     if (sample == null) {
       return false;
     }
@@ -161,7 +161,7 @@ public final class TsExtractor {
    *     for any track. False otherwise.
    */
   public boolean hasSamples() {
-    for (int i = 0; i < pesPayloadReaders.size(); i++) {
+    for (int i = 0; i < sampleQueues.size(); i++) {
       if (hasSamples(i)) {
         return true;
       }
@@ -177,16 +177,16 @@ public final class TsExtractor {
    *     for the specified track. False otherwise.
    */
   public boolean hasSamples(int track) {
-    return !pesPayloadReaders.valueAt(track).sampleQueue.isEmpty();
+    return !sampleQueues.valueAt(track).isEmpty();
   }
 
   private boolean checkPrepared() {
-    int pesPayloadReaderCount = pesPayloadReaders.size();
+    int pesPayloadReaderCount = sampleQueues.size();
     if (pesPayloadReaderCount == 0) {
       return false;
     }
     for (int i = 0; i < pesPayloadReaderCount; i++) {
-      if (!pesPayloadReaders.valueAt(i).hasMediaFormat()) {
+      if (!sampleQueues.valueAt(i).hasMediaFormat()) {
         return false;
       }
     }
@@ -342,7 +342,7 @@ public final class TsExtractor {
         tsBuffer.skipBytes(esInfoLength);
         entriesSize -= esInfoLength + 5;
 
-        if (pesPayloadReaders.get(streamType) != null) {
+        if (sampleQueues.get(streamType) != null) {
           continue;
         }
 
@@ -352,7 +352,9 @@ public final class TsExtractor {
             pesPayloadReader = new AdtsReader();
             break;
           case TS_STREAM_TYPE_H264:
-            pesPayloadReader = new H264Reader();
+            SeiReader seiReader = new SeiReader();
+            sampleQueues.put(TS_STREAM_TYPE_EIA608, seiReader);
+            pesPayloadReader = new H264Reader(seiReader);
             break;
           case TS_STREAM_TYPE_ID3:
             pesPayloadReader = new Id3Reader();
@@ -360,7 +362,7 @@ public final class TsExtractor {
         }
 
         if (pesPayloadReader != null) {
-          pesPayloadReaders.put(streamType, pesPayloadReader);
+          sampleQueues.put(streamType, pesPayloadReader);
           tsPayloadReaders.put(elementaryPid, new PesReader(pesPayloadReader));
         }
       }
@@ -469,18 +471,18 @@ public final class TsExtractor {
   }
 
   /**
-   * Extracts individual samples from continuous byte stream.
+   * A collection of extracted samples.
    */
-  private abstract class PesPayloadReader {
+  private abstract class SampleQueue {
 
-    public final ConcurrentLinkedQueue<Sample> sampleQueue;
+    private final ConcurrentLinkedQueue<Sample> queue;
 
     private MediaFormat mediaFormat;
     private boolean foundFirstKeyframe;
     private boolean foundLastKeyframe;
 
-    protected PesPayloadReader() {
-      this.sampleQueue = new ConcurrentLinkedQueue<Sample>();
+    protected SampleQueue() {
+      this.queue = new ConcurrentLinkedQueue<Sample>();
     }
 
     public boolean hasMediaFormat() {
@@ -495,14 +497,20 @@ public final class TsExtractor {
       this.mediaFormat = mediaFormat;
     }
 
-    public abstract void read(BitArray pesBuffer, int pesPayloadSize, long pesTimeUs);
-
     public void clear() {
-      Sample toRecycle = sampleQueue.poll();
+      Sample toRecycle = queue.poll();
       while (toRecycle != null) {
         samplePool.recycle(toRecycle);
-        toRecycle = sampleQueue.poll();
+        toRecycle = queue.poll();
       }
+    }
+
+    public Sample poll() {
+      return queue.poll();
+    }
+
+    public boolean isEmpty() {
+      return queue.isEmpty();
     }
 
     /**
@@ -534,7 +542,7 @@ public final class TsExtractor {
       adjustTimestamp(sample);
       if (foundFirstKeyframe && !foundLastKeyframe) {
         largestParsedTimestampUs = Math.max(largestParsedTimestampUs, sample.timeUs);
-        sampleQueue.add(sample);
+        queue.add(sample);
       } else {
         samplePool.recycle(sample);
       }
@@ -559,6 +567,15 @@ public final class TsExtractor {
   }
 
   /**
+   * Extracts individual samples from continuous byte stream.
+   */
+  private abstract class PesPayloadReader extends SampleQueue {
+
+    public abstract void read(BitArray pesBuffer, int pesPayloadSize, long pesTimeUs);
+
+  }
+
+  /**
    * Parses a continuous H264 byte stream and extracts individual frames.
    */
   private class H264Reader extends PesPayloadReader {
@@ -567,8 +584,14 @@ public final class TsExtractor {
     private static final int NAL_UNIT_TYPE_AUD = 9;
     private static final int NAL_UNIT_TYPE_SPS = 7;
 
+    public final SeiReader seiReader;
+
     // Used to store uncompleted sample data.
     private Sample currentSample;
+
+    public H264Reader(SeiReader seiReader) {
+      this.seiReader = seiReader;
+    }
 
     @Override
     public void clear() {
@@ -593,6 +616,7 @@ public final class TsExtractor {
         if (!hasMediaFormat() && (currentSample.flags & MediaExtractor.SAMPLE_FLAG_SYNC) != 0) {
           parseMediaFormat(currentSample);
         }
+        seiReader.read(currentSample.data, currentSample.size, pesTimeUs);
         addSample(currentSample);
       }
       currentSample = samplePool.get();
@@ -752,6 +776,39 @@ public final class TsExtractor {
         }
       }
       return limit;
+    }
+
+  }
+
+  /**
+   * Parses a SEI data from H.264 frames and extracts samples with closed captions data.
+   */
+  private class SeiReader extends SampleQueue {
+
+    // SEI data, used for Closed Captions.
+    private static final int NAL_UNIT_TYPE_SEI = 6;
+
+    private final BitArray seiBuffer;
+
+    public SeiReader() {
+      setMediaFormat(MediaFormat.createEia608Format());
+      seiBuffer = new BitArray();
+    }
+
+    @SuppressLint("InlinedApi")
+    public void read(byte[] data, int size, long pesTimeUs) {
+      seiBuffer.reset(data, size);
+      while (seiBuffer.bytesLeft() > 0) {
+        int seiStart = seiBuffer.findNextNalUnit(NAL_UNIT_TYPE_SEI, 0);
+        if (seiStart == seiBuffer.bytesLeft()) {
+          return;
+        }
+        seiBuffer.skipBytes(seiStart + 4);
+        int ccDataSize = Eia608Parser.parseHeader(seiBuffer);
+        if (ccDataSize > 0) {
+          addSample(seiBuffer, ccDataSize, pesTimeUs, MediaExtractor.SAMPLE_FLAG_SYNC);
+        }
+      }
     }
 
   }

@@ -92,6 +92,11 @@ public class MediaFormat {
         NO_VALUE, NO_VALUE, NO_VALUE, null);
   }
 
+  public static MediaFormat createEia608Format() {
+    return new MediaFormat(MimeTypes.APPLICATION_EIA608, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
+        NO_VALUE, NO_VALUE, NO_VALUE, null);
+  }
+
   @TargetApi(16)
   private MediaFormat(android.media.MediaFormat format) {
     this.frameworkMediaFormat = format;

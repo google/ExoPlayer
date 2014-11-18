@@ -28,32 +28,35 @@ import android.os.Looper;
 import android.os.Message;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * A {@link TrackRenderer} for metadata embedded in a media stream.
+ *
+ * @param <T> The type of the metadata.
  */
-public class MetadataTrackRenderer extends TrackRenderer implements Callback {
+public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback {
 
   /**
    * An interface for components that process metadata.
+   *
+   * @param <T> The type of the metadata.
    */
-  public interface MetadataRenderer {
+  public interface MetadataRenderer<T> {
 
     /**
      * Invoked each time there is a metadata associated with current playback time.
      *
      * @param metadata The metadata to process.
      */
-    void onMetadata(Map<String, Object> metadata);
+    void onMetadata(T metadata);
 
   }
 
   private static final int MSG_INVOKE_RENDERER = 0;
 
   private final SampleSource source;
-  private final MetadataParser metadataParser;
-  private final MetadataRenderer metadataRenderer;
+  private final MetadataParser<T> metadataParser;
+  private final MetadataRenderer<T> metadataRenderer;
   private final Handler metadataHandler;
   private final MediaFormatHolder formatHolder;
   private final SampleHolder sampleHolder;
@@ -63,7 +66,7 @@ public class MetadataTrackRenderer extends TrackRenderer implements Callback {
   private boolean inputStreamEnded;
 
   private long pendingMetadataTimestamp;
-  private Map<String, Object> pendingMetadata;
+  private T pendingMetadata;
 
   /**
    * @param source A source from which samples containing metadata can be read.
@@ -75,8 +78,8 @@ public class MetadataTrackRenderer extends TrackRenderer implements Callback {
    *     obtained using {@link android.app.Activity#getMainLooper()}. Null may be passed if the
    *     renderer should be invoked directly on the player's internal rendering thread.
    */
-  public MetadataTrackRenderer(SampleSource source, MetadataParser metadataParser,
-      MetadataRenderer metadataRenderer, Looper metadataRendererLooper) {
+  public MetadataTrackRenderer(SampleSource source, MetadataParser<T> metadataParser,
+      MetadataRenderer<T> metadataRenderer, Looper metadataRendererLooper) {
     this.source = Assertions.checkNotNull(source);
     this.metadataParser = Assertions.checkNotNull(metadataParser);
     this.metadataRenderer = Assertions.checkNotNull(metadataRenderer);
@@ -185,7 +188,7 @@ public class MetadataTrackRenderer extends TrackRenderer implements Callback {
     return true;
   }
 
-  private void invokeRenderer(Map<String, Object> metadata) {
+  private void invokeRenderer(T metadata) {
     if (metadataHandler != null) {
       metadataHandler.obtainMessage(MSG_INVOKE_RENDERER, metadata).sendToTarget();
     } else {
@@ -198,13 +201,13 @@ public class MetadataTrackRenderer extends TrackRenderer implements Callback {
   public boolean handleMessage(Message msg) {
     switch (msg.what) {
       case MSG_INVOKE_RENDERER:
-        invokeRendererInternal((Map<String, Object>) msg.obj);
+        invokeRendererInternal((T) msg.obj);
         return true;
     }
     return false;
   }
 
-  private void invokeRendererInternal(Map<String, Object> metadata) {
+  private void invokeRendererInternal(T metadata) {
     metadataRenderer.onMetadata(metadata);
   }
 
