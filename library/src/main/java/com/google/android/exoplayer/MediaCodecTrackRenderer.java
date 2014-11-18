@@ -280,11 +280,9 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       }
     }
 
-    DecoderInfo selectedDecoderInfo = MediaCodecUtil.getDecoderInfo(mimeType);
+    DecoderInfo selectedDecoderInfo = MediaCodecUtil.getDecoderInfo(mimeType,
+        requiresSecureDecoder);
     String selectedDecoderName = selectedDecoderInfo.name;
-    if (requiresSecureDecoder) {
-      selectedDecoderName = getSecureDecoderName(selectedDecoderName);
-    }
     codecIsAdaptive = selectedDecoderInfo.adaptive;
     try {
       codec = MediaCodec.createByCodecName(selectedDecoderName);
@@ -764,13 +762,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   protected abstract boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs,
       MediaCodec codec, ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo, int bufferIndex,
       boolean shouldSkip) throws ExoPlaybackException;
-
-  /**
-   * Returns the name of the secure variant of a given decoder.
-   */
-  private static String getSecureDecoderName(String rawDecoderName) {
-    return rawDecoderName + ".secure";
-  }
 
   private void notifyDecoderInitializationError(final DecoderInitializationException e) {
     if (eventHandler != null && eventListener != null) {
