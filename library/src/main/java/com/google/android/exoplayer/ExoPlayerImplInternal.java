@@ -17,9 +17,9 @@ package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.PriorityHandlerThread;
 import com.google.android.exoplayer.util.TraceUtil;
 
-import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -83,7 +83,6 @@ import java.util.List;
   private volatile long positionUs;
   private volatile long bufferedPositionUs;
 
-  @SuppressLint("HandlerLeak")
   public ExoPlayerImplInternal(Handler eventHandler, boolean playWhenReady,
       boolean[] rendererEnabledFlags, int minBufferMs, int minRebufferMs) {
     this.eventHandler = eventHandler;
@@ -101,15 +100,10 @@ import java.util.List;
 
     mediaClock = new MediaClock();
     enabledRenderers = new ArrayList<TrackRenderer>(rendererEnabledFlags.length);
-    internalPlaybackThread = new HandlerThread(getClass().getSimpleName() + ":Handler") {
-      @Override
-      public void run() {
-        // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
-        // not normally change to this priority" is incorrect.
-        Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
-        super.run();
-      }
-    };
+    // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
+    // not normally change to this priority" is incorrect.
+    internalPlaybackThread = new PriorityHandlerThread(getClass().getSimpleName() + ":Handler",
+        Process.THREAD_PRIORITY_AUDIO);
     internalPlaybackThread.start();
     handler = new Handler(internalPlaybackThread.getLooper(), this);
   }
