@@ -19,10 +19,10 @@ import com.google.android.exoplayer.DummyTrackRenderer;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
-import com.google.android.exoplayer.MediaCodecAudioTrackRenderer.AudioTrackInitializationException;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
@@ -110,7 +110,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
    */
   public interface InternalErrorListener {
     void onRendererInitializationError(Exception e);
-    void onAudioTrackInitializationError(AudioTrackInitializationException e);
+    void onAudioTrackInitializationError(AudioTrack.InitializationException e);
     void onDecoderInitializationError(DecoderInitializationException e);
     void onCryptoError(CryptoException e);
     void onUpstreamError(int sourceId, IOException e);
@@ -454,7 +454,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   @Override
-  public void onAudioTrackInitializationError(AudioTrackInitializationException e) {
+  public void onAudioTrackInitializationError(AudioTrack.InitializationException e) {
     if (internalErrorListener != null) {
       internalErrorListener.onAudioTrackInitializationError(e);
     }

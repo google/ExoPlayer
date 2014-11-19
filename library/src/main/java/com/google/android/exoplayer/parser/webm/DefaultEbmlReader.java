@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.parser.webm;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.Assertions;
 
@@ -134,7 +135,7 @@ import java.util.Stack;
   }
 
   @Override
-  public int read(NonBlockingInputStream inputStream) {
+  public int read(NonBlockingInputStream inputStream) throws ParserException {
     Assertions.checkState(eventHandler != null);
     while (true) {
       while (!masterElementsStack.isEmpty()

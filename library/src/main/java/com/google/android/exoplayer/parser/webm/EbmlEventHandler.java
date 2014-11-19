@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.parser.webm;
 
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 
 import java.nio.ByteBuffer;
@@ -46,41 +47,47 @@ import java.nio.ByteBuffer;
    * @param elementOffsetBytes The byte offset where this element starts
    * @param headerSizeBytes The byte length of this element's ID and size header
    * @param contentsSizeBytes The byte length of this element's children
+   * @throws ParserException If a parsing error occurs.
    */
   public void onMasterElementStart(
-      int id, long elementOffsetBytes, int headerSizeBytes, long contentsSizeBytes);
+      int id, long elementOffsetBytes, int headerSizeBytes,
+      long contentsSizeBytes) throws ParserException;
 
   /**
    * Called when a master element has finished reading in all of its children from the
    * {@link NonBlockingInputStream}.
    *
    * @param id The integer ID of this element
+   * @throws ParserException If a parsing error occurs.
    */
-  public void onMasterElementEnd(int id);
+  public void onMasterElementEnd(int id) throws ParserException;
 
   /**
    * Called when an integer element is encountered in the {@link NonBlockingInputStream}.
    *
    * @param id The integer ID of this element
    * @param value The integer value this element contains
+   * @throws ParserException If a parsing error occurs.
    */
-  public void onIntegerElement(int id, long value);
+  public void onIntegerElement(int id, long value) throws ParserException;
 
   /**
    * Called when a float element is encountered in the {@link NonBlockingInputStream}.
    *
    * @param id The integer ID of this element
    * @param value The float value this element contains
+   * @throws ParserException If a parsing error occurs.
    */
-  public void onFloatElement(int id, double value);
+  public void onFloatElement(int id, double value) throws ParserException;
 
   /**
    * Called when a string element is encountered in the {@link NonBlockingInputStream}.
    *
    * @param id The integer ID of this element
    * @param value The string value this element contains
+   * @throws ParserException If a parsing error occurs.
    */
-  public void onStringElement(int id, String value);
+  public void onStringElement(int id, String value) throws ParserException;
 
   /**
    * Called when a binary element is encountered in the {@link NonBlockingInputStream}.
@@ -109,9 +116,10 @@ import java.nio.ByteBuffer;
    * @param inputStream The {@link NonBlockingInputStream} from which this
    *        element's contents should be read
    * @return True if the element was read. False otherwise.
+   * @throws ParserException If a parsing error occurs.
    */
   public boolean onBinaryElement(
       int id, long elementOffsetBytes, int headerSizeBytes, int contentsSizeBytes,
-      NonBlockingInputStream inputStream);
+      NonBlockingInputStream inputStream) throws ParserException;
 
 }

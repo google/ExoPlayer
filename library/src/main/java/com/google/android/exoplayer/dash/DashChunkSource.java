@@ -87,7 +87,7 @@ public class DashChunkSource implements ChunkSource {
       formats[i] = representations[i].format;
       maxWidth = Math.max(formats[i].width, maxWidth);
       maxHeight = Math.max(formats[i].height, maxHeight);
-      Extractor extractor = formats[i].mimeType.startsWith(MimeTypes.VIDEO_WEBM)
+      Extractor extractor = mimeTypeIsWebm(formats[i].mimeType)
           ? new WebmExtractor() : new FragmentedMp4Extractor();
       extractors.put(formats[i].id, extractor);
       this.representations.put(formats[i].id, representations[i]);
@@ -195,6 +195,10 @@ public class DashChunkSource implements ChunkSource {
   @Override
   public void onChunkLoadError(Chunk chunk, Exception e) {
     // Do nothing.
+  }
+
+  private boolean mimeTypeIsWebm(String mimeType) {
+    return mimeType.startsWith(MimeTypes.VIDEO_WEBM) || mimeType.startsWith(MimeTypes.AUDIO_WEBM);
   }
 
   private Chunk newInitializationChunk(RangedUri initializationUri, RangedUri indexUri,
