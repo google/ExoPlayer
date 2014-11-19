@@ -583,7 +583,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       if (atomType == Atom.TYPE_mp4a || atomType == Atom.TYPE_enca) {
         if (childAtomType == Atom.TYPE_esds) {
           initializationData = parseEsdsFromParent(parent, childStartPosition);
-          // TODO: Do we really need to do this? See [redacted]
+          // TODO: Do we really need to do this? See [Internal: b/10903778]
           // Update sampleRate and channelCount from the AudioSpecificConfig initialization data.
           Pair<Integer, Integer> audioSpecificConfig =
               CodecSpecificDataUtil.parseAudioSpecificConfig(initializationData);

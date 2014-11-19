@@ -467,7 +467,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     waitingForFirstSyncFrame = true;
     decodeOnlyPresentationTimestamps.clear();
     // Workaround for framework bugs.
-    // See [redacted], [redacted], [redacted].
+    // See [Internal: b/8347958], [Internal: b/8578467], [Internal: b/8543366].
     if (Util.SDK_INT >= 18) {
       codec.flush();
     } else {

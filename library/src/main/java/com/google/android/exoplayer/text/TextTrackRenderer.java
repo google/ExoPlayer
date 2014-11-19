@@ -247,7 +247,7 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   @Override
   protected boolean isReady() {
     // Don't block playback whilst subtitles are loading.
-    // Note: To change this behavior, it will be necessary to consider [redacted].
+    // Note: To change this behavior, it will be necessary to consider [Internal: b/12949941].
     return true;
   }
 

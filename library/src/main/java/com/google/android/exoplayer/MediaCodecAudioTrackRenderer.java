@@ -268,7 +268,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   @Override
   protected void seekTo(long positionUs) throws ExoPlaybackException {
     super.seekTo(positionUs);
-    // TODO: Try and re-use the same AudioTrack instance once [redacted] is fixed.
+    // TODO: Try and re-use the same AudioTrack instance once [Internal: b/7941810] is fixed.
     audioTrack.reset();
     currentPositionUs = Long.MIN_VALUE;
   }
