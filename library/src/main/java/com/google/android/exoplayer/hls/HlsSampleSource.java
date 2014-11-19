@@ -187,6 +187,13 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       extractors.removeFirst().clear();
       extractor = extractors.getFirst();
     }
+
+    if (extractors.size() > 1) {
+      // If there's more than one extractor, attempt to configure a seamless splice from the
+      // current one to the next one.
+      extractor.configureSpliceTo(extractors.get(1));
+    }
+
     int extractorIndex = 0;
     while (extractors.size() > extractorIndex + 1 && !extractor.hasSamples(track)) {
       // We're finished reading from the extractor for this particular track, so advance to the

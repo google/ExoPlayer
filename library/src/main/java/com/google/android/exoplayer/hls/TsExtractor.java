@@ -59,11 +59,11 @@ public final class TsExtractor {
   /* package */ final long firstSampleTimestamp;
 
   private boolean prepared;
+  private boolean spliceConfigured;
 
   /* package */ boolean pendingFirstSampleTimestampAdjustment;
   /* package */ long sampleTimestampOffsetUs;
   /* package */ long largestParsedTimestampUs;
-  /* package */ boolean discardFromNextKeyframes;
 
   public TsExtractor(long firstSampleTimestamp, SamplePool samplePool) {
     this.firstSampleTimestamp = firstSampleTimestamp;
@@ -120,10 +120,33 @@ public final class TsExtractor {
   }
 
   /**
-   * For each track, discards samples from the next key frame (inclusive).
+   * Attempts to configure a splice from this extractor to the next.
+   * <p>
+   * The splice is performed such that for each track the samples read from the next extractor
+   * start with a keyframe, and continue from where the samples read from this extractor finish.
+   * A successful splice may discard samples from either or both extractors.
+   * <p>
+   * Splice configuration may fail if the next extractor is not yet in a state that allows the
+   * splice to be performed. Calling this method is a noop if the splice has already been
+   * configured. Hence this method should be called repeatedly during the window within which a
+   * splice can be performed.
+   *
+   * @param nextExtractor The extractor being spliced to.
    */
-  public void discardFromNextKeyframes() {
-    discardFromNextKeyframes = true;
+  public void configureSpliceTo(TsExtractor nextExtractor) {
+    Assertions.checkState(prepared);
+    if (spliceConfigured || !nextExtractor.isPrepared()) {
+      // The splice is already configured or the next extractor isn't ready to be spliced in.
+      // Already configured, or too early to splice.
+      return;
+    }
+    boolean spliceConfigured = true;
+    for (int i = 0; i < sampleQueues.size(); i++) {
+      spliceConfigured &= sampleQueues.valueAt(i).configureSpliceTo(
+          nextExtractor.sampleQueues.valueAt(i));
+    }
+    this.spliceConfigured = spliceConfigured;
+    return;
   }
 
   /**
@@ -144,12 +167,13 @@ public final class TsExtractor {
    */
   public boolean getSample(int track, SampleHolder out) {
     Assertions.checkState(prepared);
-    Sample sample = sampleQueues.valueAt(track).poll();
+    SampleQueue sampleQueue = sampleQueues.valueAt(track);
+    Sample sample = sampleQueue.poll();
     if (sample == null) {
       return false;
     }
     convert(sample, out);
-    samplePool.recycle(sample);
+    sampleQueue.recycle(sample);
     return true;
   }
 
@@ -177,7 +201,7 @@ public final class TsExtractor {
    *     for the specified track. False otherwise.
    */
   public boolean hasSamples(int track) {
-    return !sampleQueues.valueAt(track).isEmpty();
+    return sampleQueues.valueAt(track).peek() != null;
   }
 
   private boolean checkPrepared() {
@@ -252,6 +276,7 @@ public final class TsExtractor {
     return read;
   }
 
+  @SuppressLint("InlinedApi")
   private void convert(Sample in, SampleHolder out) {
     if (out.data == null || out.data.capacity() < in.size) {
       out.replaceBuffer(in.size);
@@ -260,7 +285,7 @@ public final class TsExtractor {
       out.data.put(in.data, 0, in.size);
     }
     out.size = in.size;
-    out.flags = in.flags;
+    out.flags = in.isKeyframe ? MediaExtractor.SAMPLE_FLAG_SYNC : 0;
     out.timeUs = in.timeUs;
   }
 
@@ -349,15 +374,15 @@ public final class TsExtractor {
         PesPayloadReader pesPayloadReader = null;
         switch (streamType) {
           case TS_STREAM_TYPE_AAC:
-            pesPayloadReader = new AdtsReader();
+            pesPayloadReader = new AdtsReader(samplePool);
             break;
           case TS_STREAM_TYPE_H264:
-            SeiReader seiReader = new SeiReader();
+            SeiReader seiReader = new SeiReader(samplePool);
             sampleQueues.put(TS_STREAM_TYPE_EIA608, seiReader);
-            pesPayloadReader = new H264Reader(seiReader);
+            pesPayloadReader = new H264Reader(samplePool, seiReader);
             break;
           case TS_STREAM_TYPE_ID3:
-            pesPayloadReader = new Id3Reader();
+            pesPayloadReader = new Id3Reader(samplePool);
             break;
         }
 
@@ -471,18 +496,24 @@ public final class TsExtractor {
   }
 
   /**
-   * A collection of extracted samples.
+   * A queue of extracted samples together with their corresponding {@link MediaFormat}.
    */
   private abstract class SampleQueue {
 
-    private final ConcurrentLinkedQueue<Sample> queue;
+    @SuppressWarnings("hiding")
+    private final SamplePool samplePool;
+    private final ConcurrentLinkedQueue<Sample> internalQueue;
 
     private MediaFormat mediaFormat;
-    private boolean foundFirstKeyframe;
-    private boolean foundLastKeyframe;
+    private long spliceOutTimeUs;
+    private long lastParsedTimestampUs;
+    private boolean readFirstFrame;
 
-    protected SampleQueue() {
-      this.queue = new ConcurrentLinkedQueue<Sample>();
+    protected SampleQueue(SamplePool samplePool) {
+      this.samplePool = samplePool;
+      internalQueue = new ConcurrentLinkedQueue<Sample>();
+      spliceOutTimeUs = Long.MIN_VALUE;
+      lastParsedTimestampUs = Long.MIN_VALUE;
     }
 
     public boolean hasMediaFormat() {
@@ -497,20 +528,113 @@ public final class TsExtractor {
       this.mediaFormat = mediaFormat;
     }
 
+    /**
+     * Removes and returns the next sample from the queue.
+     * <p>
+     * The first sample returned is guaranteed to be a keyframe, since any non-keyframe samples
+     * queued prior to the first keyframe are discarded.
+     *
+     * @return The next sample from the queue, or null if a sample isn't available.
+     */
+    public Sample poll() {
+      Sample head = peek();
+      if (head != null) {
+        internalQueue.remove();
+        readFirstFrame = true;
+      }
+      return head;
+    }
+
+    /**
+     * Like {@link #poll()}, except the returned sample is not removed from the queue.
+     *
+     * @return The next sample from the queue, or null if a sample isn't available.
+     */
+    public Sample peek() {
+      Sample head = internalQueue.peek();
+      if (!readFirstFrame) {
+        // Peeking discard of samples until we find a keyframe or run out of available samples.
+        while (head != null && !head.isKeyframe) {
+          recycle(head);
+          internalQueue.remove();
+          head = internalQueue.peek();
+        }
+      }
+      if (head == null) {
+        return null;
+      }
+      if (spliceOutTimeUs != Long.MIN_VALUE && head.timeUs >= spliceOutTimeUs) {
+        // The sample is later than the time this queue is spliced out.
+        recycle(head);
+        internalQueue.remove();
+        return null;
+      }
+      return head;
+    }
+
+    /**
+     * Clears the queue.
+     */
     public void clear() {
-      Sample toRecycle = queue.poll();
+      Sample toRecycle = internalQueue.poll();
       while (toRecycle != null) {
-        samplePool.recycle(toRecycle);
-        toRecycle = queue.poll();
+        recycle(toRecycle);
+        toRecycle = internalQueue.poll();
       }
     }
 
-    public Sample poll() {
-      return queue.poll();
+    /**
+     * Recycles a sample.
+     *
+     * @param sample The sample to recycle.
+     */
+    public void recycle(Sample sample) {
+      samplePool.recycle(sample);
     }
 
-    public boolean isEmpty() {
-      return queue.isEmpty();
+    /**
+     * Attempts to configure a splice from this queue to the next.
+     *
+     * @param nextQueue The queue being spliced to.
+     * @return Whether the splice was configured successfully.
+     */
+    public boolean configureSpliceTo(SampleQueue nextQueue) {
+      if (spliceOutTimeUs != Long.MIN_VALUE) {
+        // We've already configured the splice.
+        return true;
+      }
+      long firstPossibleSpliceTime;
+      Sample nextSample = internalQueue.peek();
+      if (nextSample != null) {
+        firstPossibleSpliceTime = nextSample.timeUs;
+      } else {
+        firstPossibleSpliceTime = lastParsedTimestampUs + 1;
+      }
+      ConcurrentLinkedQueue<Sample> nextInternalQueue = nextQueue.internalQueue;
+      Sample nextQueueSample = nextInternalQueue.peek();
+      while (nextQueueSample != null
+          && (nextQueueSample.timeUs < firstPossibleSpliceTime || !nextQueueSample.isKeyframe)) {
+        // Discard samples from the next queue for as long as they are before the earliest possible
+        // splice time, or not keyframes.
+        nextQueue.internalQueue.remove();
+        nextQueueSample = nextQueue.internalQueue.peek();
+      }
+      if (nextQueueSample != null) {
+        // We've found a keyframe in the next queue that can serve as the splice point. Set the
+        // splice point now.
+        spliceOutTimeUs = nextQueueSample.timeUs;
+        return true;
+      }
+      return false;
+    }
+
+    /**
+     * Obtains a Sample object to use.
+     *
+     * @return The sample.
+     */
+    protected Sample getSample() {
+      return samplePool.get();
     }
 
     /**
@@ -519,33 +643,22 @@ public final class TsExtractor {
      * @param buffer The buffer to read sample data.
      * @param sampleSize The size of the sample data.
      * @param sampleTimeUs The sample time stamp.
+     * @param isKeyframe True if the sample is a keyframe. False otherwise.
      */
-    protected void addSample(BitArray buffer, int sampleSize, long sampleTimeUs, int flags) {
-      Sample sample = samplePool.get();
+    protected void addSample(BitArray buffer, int sampleSize, long sampleTimeUs,
+        boolean isKeyframe) {
+      Sample sample = getSample();
       addToSample(sample, buffer, sampleSize);
-      sample.flags = flags;
+      sample.isKeyframe = isKeyframe;
       sample.timeUs = sampleTimeUs;
       addSample(sample);
     }
 
-    @SuppressLint("InlinedApi")
     protected void addSample(Sample sample) {
-      boolean isKeyframe = (sample.flags & MediaExtractor.SAMPLE_FLAG_SYNC) != 0;
-      if (isKeyframe) {
-        if (!foundFirstKeyframe) {
-          foundFirstKeyframe = true;
-        }
-        if (discardFromNextKeyframes) {
-          foundLastKeyframe = true;
-        }
-      }
       adjustTimestamp(sample);
-      if (foundFirstKeyframe && !foundLastKeyframe) {
-        largestParsedTimestampUs = Math.max(largestParsedTimestampUs, sample.timeUs);
-        queue.add(sample);
-      } else {
-        samplePool.recycle(sample);
-      }
+      lastParsedTimestampUs = sample.timeUs;
+      largestParsedTimestampUs = Math.max(largestParsedTimestampUs, sample.timeUs);
+      internalQueue.add(sample);
     }
 
     protected void addToSample(Sample sample, BitArray buffer, int size) {
@@ -571,6 +684,10 @@ public final class TsExtractor {
    */
   private abstract class PesPayloadReader extends SampleQueue {
 
+    protected PesPayloadReader(SamplePool samplePool) {
+      super(samplePool);
+    }
+
     public abstract void read(BitArray pesBuffer, int pesPayloadSize, long pesTimeUs);
 
   }
@@ -589,7 +706,8 @@ public final class TsExtractor {
     // Used to store uncompleted sample data.
     private Sample currentSample;
 
-    public H264Reader(SeiReader seiReader) {
+    public H264Reader(SamplePool samplePool, SeiReader seiReader) {
+      super(samplePool);
       this.seiReader = seiReader;
     }
 
@@ -597,7 +715,7 @@ public final class TsExtractor {
     public void clear() {
       super.clear();
       if (currentSample != null) {
-        samplePool.recycle(currentSample);
+        recycle(currentSample);
         currentSample = null;
       }
     }
@@ -613,13 +731,13 @@ public final class TsExtractor {
 
       // Single PES packet should contain only one new H.264 frame.
       if (currentSample != null) {
-        if (!hasMediaFormat() && (currentSample.flags & MediaExtractor.SAMPLE_FLAG_SYNC) != 0) {
+        if (!hasMediaFormat() && currentSample.isKeyframe) {
           parseMediaFormat(currentSample);
         }
         seiReader.read(currentSample.data, currentSample.size, pesTimeUs);
         addSample(currentSample);
       }
-      currentSample = samplePool.get();
+      currentSample = getSample();
       pesPayloadSize -= readOneH264Frame(pesBuffer, false);
       currentSample.timeUs = pesTimeUs;
 
@@ -635,7 +753,7 @@ public final class TsExtractor {
       if (currentSample != null) {
         int idrStart = pesBuffer.findNextNalUnit(NAL_UNIT_TYPE_IDR, offset);
         if (idrStart < audStart) {
-          currentSample.flags = MediaExtractor.SAMPLE_FLAG_SYNC;
+          currentSample.isKeyframe = true;
         }
         addToSample(currentSample, pesBuffer, audStart);
       } else {
@@ -790,7 +908,8 @@ public final class TsExtractor {
 
     private final BitArray seiBuffer;
 
-    public SeiReader() {
+    public SeiReader(SamplePool samplePool) {
+      super(samplePool);
       setMediaFormat(MediaFormat.createEia608Format());
       seiBuffer = new BitArray();
     }
@@ -806,7 +925,7 @@ public final class TsExtractor {
         seiBuffer.skipBytes(seiStart + 4);
         int ccDataSize = Eia608Parser.parseHeader(seiBuffer);
         if (ccDataSize > 0) {
-          addSample(seiBuffer, ccDataSize, pesTimeUs, MediaExtractor.SAMPLE_FLAG_SYNC);
+          addSample(seiBuffer, ccDataSize, pesTimeUs, true);
         }
       }
     }
@@ -821,7 +940,8 @@ public final class TsExtractor {
     private final BitArray adtsBuffer;
     private long timeUs;
 
-    public AdtsReader() {
+    public AdtsReader(SamplePool samplePool) {
+      super(samplePool);
       adtsBuffer = new BitArray();
     }
 
@@ -904,7 +1024,7 @@ public final class TsExtractor {
         return false;
       }
 
-      addSample(adtsBuffer, frameSize, timeUs, MediaExtractor.SAMPLE_FLAG_SYNC);
+      addSample(adtsBuffer, frameSize, timeUs, true);
       return true;
     }
 
@@ -921,14 +1041,15 @@ public final class TsExtractor {
    */
   private class Id3Reader extends PesPayloadReader {
 
-    public Id3Reader() {
+    public Id3Reader(SamplePool samplePool) {
+      super(samplePool);
       setMediaFormat(MediaFormat.createId3Format());
     }
 
     @SuppressLint("InlinedApi")
     @Override
     public void read(BitArray pesBuffer, int pesPayloadSize, long pesTimeUs) {
-      addSample(pesBuffer, pesPayloadSize, pesTimeUs, MediaExtractor.SAMPLE_FLAG_SYNC);
+      addSample(pesBuffer, pesPayloadSize, pesTimeUs, true);
     }
 
   }
@@ -968,7 +1089,7 @@ public final class TsExtractor {
     public Sample nextInPool;
 
     public byte[] data;
-    public int flags;
+    public boolean isKeyframe;
     public int size;
     public long timeUs;
 
@@ -983,7 +1104,7 @@ public final class TsExtractor {
     }
 
     public void reset() {
-      flags = 0;
+      isKeyframe = false;
       size = 0;
       timeUs = 0;
     }
