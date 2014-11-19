@@ -103,7 +103,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   }
 
-  // TODO: Use MediaFormat constants if these get exposed through the API. See [redacted].
+  // TODO: Use MediaFormat constants if these get exposed through the API. See [Internal: b/14127601].
   private static final String KEY_CROP_LEFT = "crop-left";
   private static final String KEY_CROP_RIGHT = "crop-right";
   private static final String KEY_CROP_BOTTOM = "crop-bottom";
