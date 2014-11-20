@@ -58,12 +58,16 @@ public final class TsExtractor {
   private final SamplePool samplePool;
   /* package */ final long firstSampleTimestamp;
 
-  private boolean prepared;
+  // Accessed only by the consuming thread.
   private boolean spliceConfigured;
 
+  // Accessed only by the loading thread.
   /* package */ boolean pendingFirstSampleTimestampAdjustment;
   /* package */ long sampleTimestampOffsetUs;
-  /* package */ long largestParsedTimestampUs;
+
+  // Accessed by both the loading and consuming threads.
+  private volatile boolean prepared;
+  /* package */ volatile long largestParsedTimestampUs;
 
   public TsExtractor(long firstSampleTimestamp, SamplePool samplePool) {
     this.firstSampleTimestamp = firstSampleTimestamp;
@@ -111,11 +115,13 @@ public final class TsExtractor {
   }
 
   /**
-   * Flushes any pending or incomplete samples, returning them to the sample pool.
+   * Releases the extractor, recycling any pending or incomplete samples to the sample pool.
+   * <p>
+   * This method should not be called whilst {@link #read(DataSource)} is also being invoked.
    */
-  public void clear() {
+  public void release() {
     for (int i = 0; i < sampleQueues.size(); i++) {
-      sampleQueues.valueAt(i).clear();
+      sampleQueues.valueAt(i).release();
     }
   }
 
@@ -504,16 +510,19 @@ public final class TsExtractor {
     private final SamplePool samplePool;
     private final ConcurrentLinkedQueue<Sample> internalQueue;
 
-    private MediaFormat mediaFormat;
-    private long spliceOutTimeUs;
-    private long lastParsedTimestampUs;
+    // Accessed only by the consuming thread.
     private boolean readFirstFrame;
+    private long lastReadTimeUs;
+    private long spliceOutTimeUs;
+
+    // Accessed by both the loading and consuming threads.
+    private volatile MediaFormat mediaFormat;
 
     protected SampleQueue(SamplePool samplePool) {
       this.samplePool = samplePool;
       internalQueue = new ConcurrentLinkedQueue<Sample>();
       spliceOutTimeUs = Long.MIN_VALUE;
-      lastParsedTimestampUs = Long.MIN_VALUE;
+      lastReadTimeUs = Long.MIN_VALUE;
     }
 
     public boolean hasMediaFormat() {
@@ -541,6 +550,7 @@ public final class TsExtractor {
       if (head != null) {
         internalQueue.remove();
         readFirstFrame = true;
+        lastReadTimeUs = head.timeUs;
       }
       return head;
     }
@@ -575,7 +585,7 @@ public final class TsExtractor {
     /**
      * Clears the queue.
      */
-    public void clear() {
+    public void release() {
       Sample toRecycle = internalQueue.poll();
       while (toRecycle != null) {
         recycle(toRecycle);
@@ -608,7 +618,7 @@ public final class TsExtractor {
       if (nextSample != null) {
         firstPossibleSpliceTime = nextSample.timeUs;
       } else {
-        firstPossibleSpliceTime = lastParsedTimestampUs + 1;
+        firstPossibleSpliceTime = lastReadTimeUs + 1;
       }
       ConcurrentLinkedQueue<Sample> nextInternalQueue = nextQueue.internalQueue;
       Sample nextQueueSample = nextInternalQueue.peek();
@@ -656,7 +666,6 @@ public final class TsExtractor {
 
     protected void addSample(Sample sample) {
       adjustTimestamp(sample);
-      lastParsedTimestampUs = sample.timeUs;
       largestParsedTimestampUs = Math.max(largestParsedTimestampUs, sample.timeUs);
       internalQueue.add(sample);
     }
@@ -712,8 +721,8 @@ public final class TsExtractor {
     }
 
     @Override
-    public void clear() {
-      super.clear();
+    public void release() {
+      super.release();
       if (currentSample != null) {
         recycle(currentSample);
         currentSample = null;
@@ -861,7 +870,7 @@ public final class TsExtractor {
           cropUnitX = subWidthC;
           cropUnitY = subHeightC * (2 - (frameMbsOnlyFlag ? 1 : 0));
         }
-        frameWidth  -= (frameCropLeftOffset + frameCropRightOffset) * cropUnitX;
+        frameWidth -= (frameCropLeftOffset + frameCropRightOffset) * cropUnitX;
         frameHeight -= (frameCropTopOffset + frameCropBottomOffset) * cropUnitY;
       }
 
@@ -1057,8 +1066,8 @@ public final class TsExtractor {
     }
 
     @Override
-    public void clear() {
-      super.clear();
+    public void release() {
+      super.release();
       adtsBuffer.reset();
     }
 

@@ -138,9 +138,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       if (loader.isLoading()) {
         loader.cancelLoading();
       } else {
-        discardExtractors();
-        clearCurrentLoadable();
-        previousTsLoadable = null;
+        clearState();
       }
     }
   }
@@ -186,7 +184,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     TsExtractor extractor = extractors.getFirst();
     while (extractors.size() > 1 && !extractor.hasSamples()) {
       // We're finished reading from the extractor for all tracks, and so can discard it.
-      extractors.removeFirst().clear();
+      extractors.removeFirst().release();
       extractor = extractors.getFirst();
     }
 
@@ -294,11 +292,10 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public void onLoadCanceled(Loadable loadable) {
-    clearCurrentLoadable();
     if (enabledTrackCount > 0) {
       restartFrom(pendingResetPositionUs);
     } else {
-      previousTsLoadable = null;
+      clearState();
     }
   }
 
@@ -312,15 +309,22 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
 
   private void restartFrom(long positionUs) {
     pendingResetPositionUs = positionUs;
-    previousTsLoadable = null;
     loadingFinished = false;
-    discardExtractors();
     if (loader.isLoading()) {
       loader.cancelLoading();
     } else {
-      clearCurrentLoadable();
+      clearState();
       maybeStartLoading();
     }
+  }
+
+  private void clearState() {
+    for (int i = 0; i < extractors.size(); i++) {
+      extractors.get(i).release();
+    }
+    extractors.clear();
+    clearCurrentLoadable();
+    previousTsLoadable = null;
   }
 
   private void clearCurrentLoadable() {
@@ -368,13 +372,6 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       }
     }
     loader.startLoading(currentLoadable, this);
-  }
-
-  private void discardExtractors() {
-    for (int i = 0; i < extractors.size(); i++) {
-      extractors.get(i).clear();
-    }
-    extractors.clear();
   }
 
   private boolean isTsChunk(HlsChunk chunk) {
