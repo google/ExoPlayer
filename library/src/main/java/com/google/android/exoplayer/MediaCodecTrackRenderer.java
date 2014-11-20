@@ -737,11 +737,11 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       return false;
     }
 
-    int decodeOnlyIdx = getDecodeOnlyIndex(outputBufferInfo.presentationTimeUs);
+    int decodeOnlyIndex = getDecodeOnlyIndex(outputBufferInfo.presentationTimeUs);
     if (processOutputBuffer(positionUs, elapsedRealtimeUs, codec, outputBuffers[outputIndex],
-        outputBufferInfo, outputIndex, decodeOnlyIdx >= 0)) {
-      if (decodeOnlyIdx >= 0) {
-        decodeOnlyPresentationTimestamps.remove(decodeOnlyIdx);
+        outputBufferInfo, outputIndex, decodeOnlyIndex != -1)) {
+      if (decodeOnlyIndex != -1) {
+        decodeOnlyPresentationTimestamps.remove(decodeOnlyIndex);
       } else {
         currentPositionUs = outputBufferInfo.presentationTimeUs;
       }
@@ -794,4 +794,5 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
     return -1;
   }
+
 }
