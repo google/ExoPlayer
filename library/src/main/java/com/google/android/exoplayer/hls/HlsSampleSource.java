@@ -82,21 +82,23 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       loader = new Loader("Loader:HLS");
     }
     continueBufferingInternal();
-    if (extractors.isEmpty()) {
-      return false;
-    }
-    TsExtractor extractor = extractors.getFirst();
-    if (extractor.isPrepared()) {
-      trackCount = extractor.getTrackCount();
-      trackEnabledStates = new boolean[trackCount];
-      pendingDiscontinuities = new boolean[trackCount];
-      downstreamMediaFormats = new MediaFormat[trackCount];
-      trackInfos = new TrackInfo[trackCount];
-      for (int i = 0; i < trackCount; i++) {
-        MediaFormat format = extractor.getFormat(i);
-        trackInfos[i] = new TrackInfo(format.mimeType, chunkSource.getDurationUs());
+    if (!extractors.isEmpty()) {
+      TsExtractor extractor = extractors.getFirst();
+      if (extractor.isPrepared()) {
+        trackCount = extractor.getTrackCount();
+        trackEnabledStates = new boolean[trackCount];
+        pendingDiscontinuities = new boolean[trackCount];
+        downstreamMediaFormats = new MediaFormat[trackCount];
+        trackInfos = new TrackInfo[trackCount];
+        for (int i = 0; i < trackCount; i++) {
+          MediaFormat format = extractor.getFormat(i);
+          trackInfos[i] = new TrackInfo(format.mimeType, chunkSource.getDurationUs());
+        }
+        prepared = true;
       }
-      prepared = true;
+    }
+    if (!prepared && currentLoadableException != null) {
+      throw currentLoadableException;
     }
     return prepared;
   }
