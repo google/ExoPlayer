@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.audio;
 
-import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
@@ -192,9 +191,12 @@ public final class AudioTrack {
       return CURRENT_POSITION_NOT_SET;
     }
 
+    if (audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PLAYING) {
+      maybeSampleSyncParams();
+    }
+
     long systemClockUs = System.nanoTime() / 1000;
     long currentPositionUs;
-    maybeSampleSyncParams();
     if (audioTimestampSet) {
       // How long ago in the past the audio timestamp is (negative if it's in the future).
       long presentationDiff = systemClockUs - (audioTimestampCompat.getNanoTime() / 1000);
@@ -508,10 +510,6 @@ public final class AudioTrack {
 
   /** Updates the audio track latency and playback position parameters. */
   private void maybeSampleSyncParams() {
-    if (!hasCurrentPositionUs()) {
-      return;
-    }
-
     long playbackPositionUs = getPlaybackPositionUs();
     if (playbackPositionUs == 0) {
       // The AudioTrack hasn't output anything yet.
@@ -574,7 +572,7 @@ public final class AudioTrack {
    * method is a no-op. If it hasn't then {@link #audioTrack} is released and set to null, and an
    * exception is thrown.
    *
-   * @throws ExoPlaybackException If {@link #audioTrack} has not been successfully initialized.
+   * @throws InitializationException If {@link #audioTrack} has not been successfully initialized.
    */
   private void checkAudioTrackInitialized() throws InitializationException {
     int state = audioTrack.getState();
