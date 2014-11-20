@@ -67,7 +67,9 @@ public class HlsChunkSource {
 
   private int variantIndex;
   private DataSource encryptedDataSource;
-  private String encryptionKeyUri;
+  private Uri encryptionKeyUri;
+  private String encryptedDataSourceIv;
+  private byte[] encryptedDataSourceSecretKey;
 
   /**
    * @param dataSource A {@link DataSource} suitable for loading the media data.
@@ -179,16 +181,17 @@ public class HlsChunkSource {
 
     // Check if encryption is specified.
     if (HlsMediaPlaylist.ENCRYPTION_METHOD_AES_128.equals(segment.encryptionMethod)) {
-      if (!segment.encryptionKeyUri.equals(encryptionKeyUri)) {
+      Uri keyUri = Util.getMergedUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
+      if (!keyUri.equals(encryptionKeyUri)) {
         // Encryption is specified and the key has changed.
-        Uri keyUri = Util.getMergedUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
         HlsChunk toReturn = newEncryptionKeyChunk(keyUri, segment.encryptionIV);
-        encryptionKeyUri = segment.encryptionKeyUri;
         return toReturn;
       }
+      if (!Util.areEqual(segment.encryptionIV, encryptedDataSourceIv)) {
+        initEncryptedDataSource(keyUri, segment.encryptionIV, encryptedDataSourceSecretKey);
+      }
     } else {
-      encryptedDataSource = null;
-      encryptionKeyUri = null;
+      clearEncryptedDataSource();
     }
 
     long startTimeUs;
@@ -290,6 +293,33 @@ public class HlsChunkSource {
     return new EncryptionKeyChunk(upstreamDataSource, dataSpec, iv);
   }
 
+  /* package */ void initEncryptedDataSource(Uri keyUri, String iv, byte[] secretKey) {
+    String trimmedIv;
+    if (iv.toLowerCase(Locale.getDefault()).startsWith("0x")) {
+      trimmedIv = iv.substring(2);
+    } else {
+      trimmedIv = iv;
+    }
+
+    byte[] ivData = new BigInteger(trimmedIv, 16).toByteArray();
+    byte[] ivDataWithPadding = new byte[16];
+    int offset = ivData.length > 16 ? ivData.length - 16 : 0;
+    System.arraycopy(ivData, offset, ivDataWithPadding, ivDataWithPadding.length - ivData.length
+        + offset, ivData.length - offset);
+
+    encryptedDataSource = new Aes128DataSource(secretKey, ivDataWithPadding, upstreamDataSource);
+    encryptionKeyUri = keyUri;
+    encryptedDataSourceIv = iv;
+    encryptedDataSourceSecretKey = secretKey;
+  }
+
+  private void clearEncryptedDataSource() {
+    encryptionKeyUri = null;
+    encryptedDataSource = null;
+    encryptedDataSourceIv = null;
+    encryptedDataSourceSecretKey = null;
+  }
+
   private static Variant[] filterVariants(HlsMasterPlaylist masterPlaylist, int[] variantIndices) {
     List<Variant> masterVariants = masterPlaylist.variants;
     ArrayList<Variant> enabledVariants = new ArrayList<Variant>();
@@ -378,25 +408,14 @@ public class HlsChunkSource {
 
     public EncryptionKeyChunk(DataSource dataSource, DataSpec dataSpec, String iv) {
       super(dataSource, dataSpec, bitArray);
-      if (iv.toLowerCase(Locale.getDefault()).startsWith("0x")) {
-        this.iv = iv.substring(2);
-      } else {
-        this.iv = iv;
-      }
+      this.iv = iv;
     }
 
     @Override
     protected void consume(BitArray data) throws IOException {
       byte[] secretKey = new byte[data.bytesLeft()];
       data.readBytes(secretKey, 0, secretKey.length);
-
-      byte[] ivData = new BigInteger(iv, 16).toByteArray();
-      byte[] ivDataWithPadding = new byte[16];
-      int offset = ivData.length > 16 ? ivData.length - 16 : 0;
-      System.arraycopy(ivData, offset, ivDataWithPadding, ivDataWithPadding.length - ivData.length
-          + offset, ivData.length - offset);
-
-      encryptedDataSource = new Aes128DataSource(secretKey, ivDataWithPadding, upstreamDataSource);
+      initEncryptedDataSource(dataSpec.uri, iv, secretKey);
     }
 
   }

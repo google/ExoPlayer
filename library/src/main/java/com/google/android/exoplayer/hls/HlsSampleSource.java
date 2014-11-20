@@ -256,7 +256,9 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     } else if (loadingFinished) {
       return TrackRenderer.END_OF_TRACK_US;
     } else {
-      return extractors.getLast().getLargestSampleTimestamp();
+      long largestSampleTimestamp = extractors.getLast().getLargestSampleTimestamp();
+      return largestSampleTimestamp == Long.MIN_VALUE ? downstreamPositionUs
+          : largestSampleTimestamp;
     }
   }
 
@@ -349,8 +351,13 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       return;
     }
 
-    boolean bufferFull = !extractors.isEmpty() && (extractors.getLast().getLargestSampleTimestamp()
-        - downstreamPositionUs) >= BUFFER_DURATION_US;
+    boolean bufferFull = false;
+    if (!extractors.isEmpty()) {
+      long largestSampleTimestamp = extractors.getLast().getLargestSampleTimestamp();
+      bufferFull = largestSampleTimestamp != Long.MIN_VALUE
+          && (largestSampleTimestamp - downstreamPositionUs) >= BUFFER_DURATION_US;
+    }
+
     if (loader.isLoading() || bufferFull) {
       return;
     }
