@@ -293,7 +293,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
         inputStream = connection.getInputStream();
         inputEncoding = connection.getContentEncoding();
         result = parser.parse(inputStream, inputEncoding, contentId,
-            Util.parseBaseUri(manifestUrl));
+            Util.parseBaseUri(connection.getURL().toString()));
       } finally {
         if (inputStream != null) {
           inputStream.close();
