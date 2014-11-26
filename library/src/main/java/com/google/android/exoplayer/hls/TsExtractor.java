@@ -56,6 +56,7 @@ public final class TsExtractor {
   private final SparseArray<SampleQueue> sampleQueues; // Indexed by streamType
   private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
   private final SamplePool samplePool;
+  private final boolean shouldSpliceIn;
   /* package */ final long firstSampleTimestamp;
 
   // Accessed only by the consuming thread.
@@ -69,9 +70,10 @@ public final class TsExtractor {
   private volatile boolean prepared;
   /* package */ volatile long largestParsedTimestampUs;
 
-  public TsExtractor(long firstSampleTimestamp, SamplePool samplePool) {
+  public TsExtractor(long firstSampleTimestamp, SamplePool samplePool, boolean shouldSpliceIn) {
     this.firstSampleTimestamp = firstSampleTimestamp;
     this.samplePool = samplePool;
+    this.shouldSpliceIn = shouldSpliceIn;
     pendingFirstSampleTimestampAdjustment = true;
     tsPacketBuffer = new BitArray();
     sampleQueues = new SparseArray<SampleQueue>();
@@ -141,9 +143,9 @@ public final class TsExtractor {
    */
   public void configureSpliceTo(TsExtractor nextExtractor) {
     Assertions.checkState(prepared);
-    if (spliceConfigured || !nextExtractor.isPrepared()) {
-      // The splice is already configured or the next extractor isn't ready to be spliced in.
-      // Already configured, or too early to splice.
+    if (spliceConfigured || !nextExtractor.shouldSpliceIn || !nextExtractor.isPrepared()) {
+      // The splice is already configured, or the next extractor doesn't want to be spliced in, or
+      // the next extractor isn't ready to be spliced in.
       return;
     }
     boolean spliceConfigured = true;

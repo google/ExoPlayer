@@ -46,6 +46,40 @@ import java.util.Locale;
  */
 public class HlsChunkSource {
 
+  /**
+   * Adaptive switching is disabled.
+   * <p>
+   * The initially selected variant will be used throughout playback.
+   */
+  public static final int ADAPTIVE_MODE_NONE = 0;
+
+  /**
+   * Adaptive switches splice overlapping segments of the old and new variants.
+   * <p>
+   * When performing a switch from one variant to another, overlapping segments will be requested
+   * from both the old and new variants. These segments will then be spliced together, allowing
+   * a seamless switch from one variant to another even if keyframes are misaligned or if keyframes
+   * are not positioned at the start of each segment.
+   * <p>
+   * Note that where it can be guaranteed that the source content has keyframes positioned at the
+   * start of each segment, {@link #ADAPTIVE_MODE_ABRUPT} should always be used in preference to
+   * this mode.
+   */
+  public static final int ADAPTIVE_MODE_SPLICE = 1;
+
+  /**
+   * Adaptive switches are performed at segment boundaries.
+   * <p>
+   * For this mode to perform seamless switches, the source content is required to have keyframes
+   * positioned at the start of each segment. If this is not the case a visual discontinuity may
+   * be experienced when switching from one variant to another.
+   * <p>
+   * Note that where it can be guaranteed that the source content does have keyframes positioned at
+   * the start of each segment, this mode should always be used in preference to
+   * {@link #ADAPTIVE_MODE_SPLICE} because it requires fetching less data.
+   */
+  public static final int ADAPTIVE_MODE_ABRUPT = 3;
+
   private static final float BANDWIDTH_FRACTION = 0.8f;
   private static final long MIN_BUFFER_TO_SWITCH_UP_US = 5000000;
   private static final long MAX_BUFFER_TO_SWITCH_DOWN_US = 15000000;
@@ -56,7 +90,7 @@ public class HlsChunkSource {
   private final Variant[] enabledVariants;
   private final BandwidthMeter bandwidthMeter;
   private final BitArray bitArray;
-  private final boolean enableAdaptive;
+  private final int adaptiveMode;
   private final Uri baseUri;
   private final int maxWidth;
   private final int maxHeight;
@@ -79,26 +113,30 @@ public class HlsChunkSource {
    * @param bandwidthMeter provides an estimate of the currently available bandwidth.
    * @param variantIndices A subset of variant indices to consider, or null to consider all of the
    *     variants in the master playlist.
+   * @param adaptiveMode The mode for switching from one variant to another. One of
+   *     {@link #ADAPTIVE_MODE_NONE}, {@link #ADAPTIVE_MODE_ABRUPT} and
+   *     {@link #ADAPTIVE_MODE_SPLICE}.
    */
   public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
-      BandwidthMeter bandwidthMeter, int[] variantIndices, boolean enableAdaptive) {
+      BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode) {
     this.upstreamDataSource = dataSource;
     this.bandwidthMeter = bandwidthMeter;
-    this.enableAdaptive = enableAdaptive;
+    this.adaptiveMode = adaptiveMode;
     baseUri = playlist.baseUri;
     bitArray = new BitArray();
     playlistParser = new HlsPlaylistParser();
 
     if (playlist.type == HlsPlaylist.TYPE_MEDIA) {
       enabledVariants = new Variant[] {new Variant(0, playlistUrl, 0, null, -1, -1)};
-      mediaPlaylists = new HlsMediaPlaylist[] {(HlsMediaPlaylist) playlist};
+      mediaPlaylists = new HlsMediaPlaylist[1];
+      lastMediaPlaylistLoadTimesMs = new long[1];
+      setMediaPlaylist(0, (HlsMediaPlaylist) playlist);
     } else {
       Assertions.checkState(playlist.type == HlsPlaylist.TYPE_MASTER);
       enabledVariants = filterVariants((HlsMasterPlaylist) playlist, variantIndices);
       mediaPlaylists = new HlsMediaPlaylist[enabledVariants.length];
+      lastMediaPlaylistLoadTimesMs = new long[enabledVariants.length];
     }
-
-    lastMediaPlaylistLoadTimesMs = new long[enabledVariants.length];
 
     int maxWidth = -1;
     int maxHeight = -1;
@@ -144,24 +182,41 @@ public class HlsChunkSource {
    */
   public HlsChunk getChunkOperation(TsChunk previousTsChunk, long seekPositionUs,
       long playbackPositionUs) {
-
-    HlsMediaPlaylist mediaPlaylist = mediaPlaylists[variantIndex];
-    if (mediaPlaylist == null) {
-      return newMediaPlaylistChunk();
+    if (previousTsChunk != null && previousTsChunk.isLastChunk) {
+      // We're already finished.
+      return null;
     }
 
+    int nextVariantIndex = variantIndex;
+    boolean switchingVariant = false;
+    boolean switchingVariantSpliced = false;
+    if (adaptiveMode == ADAPTIVE_MODE_NONE) {
+      // Do nothing.
+    } else {
+      nextVariantIndex = getNextVariantIndex(previousTsChunk, playbackPositionUs);
+      switchingVariant = nextVariantIndex != variantIndex;
+      switchingVariantSpliced = switchingVariant && adaptiveMode == ADAPTIVE_MODE_SPLICE;
+    }
+
+    HlsMediaPlaylist mediaPlaylist = mediaPlaylists[nextVariantIndex];
+    if (mediaPlaylist == null) {
+      // We don't have the media playlist for the next variant. Request it now.
+      return newMediaPlaylistChunk(nextVariantIndex);
+    }
+
+    variantIndex = nextVariantIndex;
     int chunkMediaSequence = 0;
+    boolean liveDiscontinuity = false;
     if (live) {
       if (previousTsChunk == null) {
-        chunkMediaSequence = getLiveStartChunkMediaSequence();
+        chunkMediaSequence = getLiveStartChunkMediaSequence(variantIndex);
       } else {
-        // For live nextChunkIndex contains chunk media sequence number.
-        chunkMediaSequence = previousTsChunk.nextChunkIndex;
-        // If the updated playlist is far ahead and doesn't even have the last chunk from the
-        // queue, then try to catch up, skip a few chunks and start as if it was a new playlist.
+        chunkMediaSequence = switchingVariantSpliced
+            ? previousTsChunk.chunkIndex : previousTsChunk.chunkIndex + 1;
         if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
-          // TODO: Trigger discontinuity in this case.
-          chunkMediaSequence = getLiveStartChunkMediaSequence();
+          // If the chunk is no longer in the playlist. Skip ahead and start again.
+          chunkMediaSequence = getLiveStartChunkMediaSequence(variantIndex);
+          liveDiscontinuity = true;
         }
       }
     } else {
@@ -170,19 +225,15 @@ public class HlsChunkSource {
         chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, seekPositionUs, true,
             true) + mediaPlaylist.mediaSequence;
       } else {
-        chunkMediaSequence = previousTsChunk.nextChunkIndex;
+        chunkMediaSequence = switchingVariantSpliced
+            ? previousTsChunk.chunkIndex : previousTsChunk.chunkIndex + 1;
       }
-    }
-
-    if (chunkMediaSequence == -1) {
-      // We've reached the end of the stream.
-      return null;
     }
 
     int chunkIndex = chunkMediaSequence - mediaPlaylist.mediaSequence;
     if (chunkIndex >= mediaPlaylist.segments.size()) {
-      if (mediaPlaylist.live && shouldRerequestMediaPlaylist()) {
-        return newMediaPlaylistChunk();
+      if (mediaPlaylist.live && shouldRerequestMediaPlaylist(variantIndex)) {
+        return newMediaPlaylistChunk(variantIndex);
       } else {
         return null;
       }
@@ -206,67 +257,59 @@ public class HlsChunkSource {
       clearEncryptedDataSource();
     }
 
+    // Configure the data source and spec for the chunk.
+    DataSource dataSource = encryptedDataSource != null ? encryptedDataSource : upstreamDataSource;
+    DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
+        null);
+
+    // Compute start and end times, and the sequence number of the next chunk.
     long startTimeUs;
-    boolean splicingIn = previousTsChunk != null && previousTsChunk.splicingOut;
-    int nextChunkMediaSequence = chunkMediaSequence + 1;
     if (live) {
       if (previousTsChunk == null) {
         startTimeUs = 0;
-      } else if (splicingIn) {
+      } else if (switchingVariantSpliced) {
         startTimeUs = previousTsChunk.startTimeUs;
       } else {
         startTimeUs = previousTsChunk.endTimeUs;
       }
-    } else {
-      // Not live.
+    } else /* Not live */ {
       startTimeUs = segment.startTimeUs;
     }
-    if (!mediaPlaylist.live && chunkIndex == mediaPlaylist.segments.size() - 1) {
-      nextChunkMediaSequence = -1;
-    }
-
     long endTimeUs = startTimeUs + (long) (segment.durationSecs * 1000000);
-
-    int currentVariantIndex = variantIndex;
-    boolean splicingOut = false;
-    if (splicingIn) {
-      // Do nothing.
-    } else if (enableAdaptive && nextChunkMediaSequence != -1) {
-      int idealVariantIndex = getVariantIndexForBandwdith(
-          (int) (bandwidthMeter.getBitrateEstimate() * BANDWIDTH_FRACTION));
-      long bufferedUs = startTimeUs - playbackPositionUs;
-      if ((idealVariantIndex > currentVariantIndex && bufferedUs < MAX_BUFFER_TO_SWITCH_DOWN_US)
-          || (idealVariantIndex < currentVariantIndex && bufferedUs > MIN_BUFFER_TO_SWITCH_UP_US)) {
-        variantIndex = idealVariantIndex;
-      }
-      splicingOut = variantIndex != currentVariantIndex;
-      if (splicingOut) {
-        // If we're splicing out, we want to load the same chunk again next time, but for a
-        // different variant.
-        nextChunkMediaSequence = chunkMediaSequence;
-      }
-    }
-
-    // Configure the datasource for loading the chunk.
-    DataSource dataSource;
-    if (encryptedDataSource != null) {
-      dataSource = encryptedDataSource;
-    } else {
-      dataSource = upstreamDataSource;
-    }
-    DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
-        null);
+    boolean isLastChunk = !mediaPlaylist.live && chunkIndex == mediaPlaylist.segments.size() - 1;
 
     // Configure the extractor that will read the chunk.
     TsExtractor extractor;
-    if (previousTsChunk == null || splicingIn || segment.discontinuity) {
-      extractor = new TsExtractor(startTimeUs, samplePool);
+    if (previousTsChunk == null || segment.discontinuity || switchingVariant || liveDiscontinuity) {
+      extractor = new TsExtractor(startTimeUs, samplePool, switchingVariantSpliced);
     } else {
       extractor = previousTsChunk.extractor;
     }
 
-    return new TsChunk(dataSource, dataSpec, extractor, enabledVariants[currentVariantIndex].index,
-        startTimeUs, endTimeUs, nextChunkMediaSequence, splicingOut);
+    return new TsChunk(dataSource, dataSpec, extractor, enabledVariants[variantIndex].index,
+        startTimeUs, endTimeUs, chunkMediaSequence, isLastChunk);
+  }
+
+  private int getNextVariantIndex(TsChunk previousTsChunk, long playbackPositionUs) {
+    int idealVariantIndex = getVariantIndexForBandwdith(
+        (int) (bandwidthMeter.getBitrateEstimate() * BANDWIDTH_FRACTION));
+    if (idealVariantIndex == variantIndex) {
+      // We're already using the ideal variant.
+      return variantIndex;
+    }
+    // We're not using the ideal variant for the available bandwidth, but only switch if the
+    // conditions are appropriate.
+    long bufferedPositionUs = previousTsChunk == null ? playbackPositionUs
+        : adaptiveMode == ADAPTIVE_MODE_SPLICE ? previousTsChunk.startTimeUs
+        : previousTsChunk.endTimeUs;
+    long bufferedUs = bufferedPositionUs - playbackPositionUs;
+    if ((idealVariantIndex > variantIndex && bufferedUs < MAX_BUFFER_TO_SWITCH_DOWN_US)
+        || (idealVariantIndex < variantIndex && bufferedUs > MIN_BUFFER_TO_SWITCH_UP_US)) {
+      // Switch variant.
+      return idealVariantIndex;
+    }
+    // Stick with the current variant for now.
+    return variantIndex;
   }
 
   private int getVariantIndexForBandwdith(int bandwidth) {
@@ -278,7 +321,7 @@ public class HlsChunkSource {
     return enabledVariants.length - 1;
   }
 
-  private boolean shouldRerequestMediaPlaylist() {
+  private boolean shouldRerequestMediaPlaylist(int variantIndex) {
     // Don't re-request media playlist more often than one-half of the target duration.
     HlsMediaPlaylist mediaPlaylist = mediaPlaylists[variantIndex];
     long timeSinceLastMediaPlaylistLoadMs =
@@ -286,14 +329,14 @@ public class HlsChunkSource {
     return timeSinceLastMediaPlaylistLoadMs >= (mediaPlaylist.targetDurationSecs * 1000) / 2;
   }
 
-  private int getLiveStartChunkMediaSequence() {
+  private int getLiveStartChunkMediaSequence(int variantIndex) {
     // For live start playback from the third chunk from the end.
     HlsMediaPlaylist mediaPlaylist = mediaPlaylists[variantIndex];
     int chunkIndex = mediaPlaylist.segments.size() > 3 ? mediaPlaylist.segments.size() - 3 : 0;
     return chunkIndex + mediaPlaylist.mediaSequence;
   }
 
-  private MediaPlaylistChunk newMediaPlaylistChunk() {
+  private MediaPlaylistChunk newMediaPlaylistChunk(int variantIndex) {
     Uri mediaPlaylistUri = Util.getMergedUri(baseUri, enabledVariants[variantIndex].url);
     DataSpec dataSpec = new DataSpec(mediaPlaylistUri, 0, C.LENGTH_UNBOUNDED, null);
     Uri baseUri = Util.parseBaseUri(mediaPlaylistUri.toString());
@@ -330,6 +373,13 @@ public class HlsChunkSource {
     encryptedDataSource = null;
     encryptedDataSourceIv = null;
     encryptedDataSourceSecretKey = null;
+  }
+
+  /* package */ void setMediaPlaylist(int variantIndex, HlsMediaPlaylist mediaPlaylist) {
+    lastMediaPlaylistLoadTimesMs[variantIndex] = SystemClock.elapsedRealtime();
+    mediaPlaylists[variantIndex] = mediaPlaylist;
+    live |= mediaPlaylist.live;
+    durationUs = mediaPlaylist.durationUs;
   }
 
   private static Variant[] filterVariants(HlsMasterPlaylist masterPlaylist, int[] variantIndices) {
@@ -408,10 +458,7 @@ public class HlsChunkSource {
           playlistBaseUri);
       Assertions.checkState(playlist.type == HlsPlaylist.TYPE_MEDIA);
       HlsMediaPlaylist mediaPlaylist = (HlsMediaPlaylist) playlist;
-      mediaPlaylists[variantIndex] = mediaPlaylist;
-      lastMediaPlaylistLoadTimesMs[variantIndex] = SystemClock.elapsedRealtime();
-      live |= mediaPlaylist.live;
-      durationUs = mediaPlaylist.durationUs;
+      setMediaPlaylist(variantIndex, mediaPlaylist);
     }
 
   }

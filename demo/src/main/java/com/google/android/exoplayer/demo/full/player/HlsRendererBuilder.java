@@ -80,8 +80,9 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 
     DataSource dataSource = new UriDataSource(userAgent, bandwidthMeter);
+    boolean adaptiveDecoder = MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_H264, false).adaptive;
     HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter, null,
-        MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_H264, false).adaptive);
+        adaptiveDecoder ? HlsChunkSource.ADAPTIVE_MODE_SPLICE : HlsChunkSource.ADAPTIVE_MODE_NONE);
     HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, true, 3);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
         MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 0, player.getMainHandler(), player, 50);

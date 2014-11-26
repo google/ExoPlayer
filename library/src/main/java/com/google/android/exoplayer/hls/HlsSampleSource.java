@@ -35,12 +35,18 @@ import java.util.LinkedList;
  */
 public class HlsSampleSource implements SampleSource, Loader.Callback {
 
+  /**
+   * The default minimum number of times to retry loading data prior to failing.
+   */
+  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 1;
+
   private static final long BUFFER_DURATION_US = 20000000;
   private static final int NO_RESET_PENDING = -1;
 
   private final HlsChunkSource chunkSource;
   private final LinkedList<TsExtractor> extractors;
   private final boolean frameAccurateSeeking;
+  private final int minLoadableRetryCount;
 
   private int remainingReleaseCount;
   private boolean prepared;
@@ -65,11 +71,18 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   private int currentLoadableExceptionCount;
   private long currentLoadableExceptionTimestamp;
 
-  public HlsSampleSource(HlsChunkSource chunkSource,
-      boolean frameAccurateSeeking, int downstreamRendererCount) {
+  public HlsSampleSource(HlsChunkSource chunkSource, boolean frameAccurateSeeking,
+      int downstreamRendererCount) {
+    this(chunkSource, frameAccurateSeeking, downstreamRendererCount,
+        DEFAULT_MIN_LOADABLE_RETRY_COUNT);
+  }
+
+  public HlsSampleSource(HlsChunkSource chunkSource, boolean frameAccurateSeeking,
+      int downstreamRendererCount, int minLoadableRetryCount) {
     this.chunkSource = chunkSource;
     this.frameAccurateSeeking = frameAccurateSeeking;
     this.remainingReleaseCount = downstreamRendererCount;
+    this.minLoadableRetryCount = minLoadableRetryCount;
     extractors = new LinkedList<TsExtractor>();
   }
 
@@ -97,8 +110,8 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
         prepared = true;
       }
     }
-    if (!prepared && currentLoadableException != null) {
-      throw currentLoadableException;
+    if (!prepared) {
+      maybeThrowLoadableException();
     }
     return prepared;
   }
@@ -157,8 +170,8 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       return false;
     }
     boolean haveSamples = extractors.getFirst().hasSamples();
-    if (!haveSamples && currentLoadableException != null) {
-      throw currentLoadableException;
+    if (!haveSamples) {
+      maybeThrowLoadableException();
     }
     return haveSamples;
   }
@@ -175,9 +188,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     }
 
     if (onlyReadDiscontinuity || isPendingReset() || extractors.isEmpty()) {
-      if (currentLoadableException != null) {
-        throw currentLoadableException;
-      }
+      maybeThrowLoadableException();
       return NOTHING_READ;
     }
 
@@ -202,9 +213,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     }
 
     if (!extractor.isPrepared()) {
-      if (currentLoadableException != null) {
-        throw currentLoadableException;
-      }
+      maybeThrowLoadableException();
       return NOTHING_READ;
     }
 
@@ -225,9 +234,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       return END_OF_STREAM;
     }
 
-    if (currentLoadableException != null) {
-      throw currentLoadableException;
-    }
+    maybeThrowLoadableException();
     return NOTHING_READ;
   }
 
@@ -283,7 +290,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     } finally {
       if (isTsChunk(currentLoadable)) {
         TsChunk tsChunk = (TsChunk) loadable;
-        loadingFinished = tsChunk.isLastChunk();
+        loadingFinished = tsChunk.isLastChunk;
       }
       if (!currentLoadableExceptionFatal) {
         clearCurrentLoadable();
@@ -307,6 +314,12 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     currentLoadableExceptionCount++;
     currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
     maybeStartLoading();
+  }
+
+  private void maybeThrowLoadableException() throws IOException {
+    if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
+      throw currentLoadableException;
+    }
   }
 
   private void restartFrom(long positionUs) {

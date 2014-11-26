@@ -39,14 +39,13 @@ public final class TsChunk extends HlsChunk {
    */
   public final long endTimeUs;
   /**
-   * The index of the next media chunk, or -1 if this is the last media chunk in the stream.
+   * The chunk index.
    */
-  public final int nextChunkIndex;
+  public final int chunkIndex;
   /**
-   * True if this is the final chunk being loaded for the current variant, as we splice to another
-   * one. False otherwise.
+   * True if this is the last chunk in the media. False otherwise.
    */
-  public final boolean splicingOut;
+  public final boolean isLastChunk;
   /**
    * The extractor into which this chunk is being consumed.
    */
@@ -62,28 +61,23 @@ public final class TsChunk extends HlsChunk {
    * @param variantIndex The index of the variant in the master playlist.
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
-   * @param nextChunkIndex The index of the next chunk, or -1 if this is the last chunk.
-   * @param splicingOut True if this is the final chunk being loaded for the current variant, as we
-   *     splice to another one. False otherwise.
+   * @param chunkIndex The index of the chunk.
+   * @param isLastChunk True if this is the last chunk in the media. False otherwise.
    */
   public TsChunk(DataSource dataSource, DataSpec dataSpec, TsExtractor tsExtractor,
-      int variantIndex, long startTimeUs, long endTimeUs, int nextChunkIndex, boolean splicingOut) {
+      int variantIndex, long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk) {
     super(dataSource, dataSpec);
     this.extractor = tsExtractor;
     this.variantIndex = variantIndex;
     this.startTimeUs = startTimeUs;
     this.endTimeUs = endTimeUs;
-    this.nextChunkIndex = nextChunkIndex;
-    this.splicingOut = splicingOut;
+    this.chunkIndex = chunkIndex;
+    this.isLastChunk = isLastChunk;
   }
 
   @Override
   public void consume() throws IOException {
     // Do nothing.
-  }
-
-  public boolean isLastChunk() {
-    return nextChunkIndex == -1;
   }
 
   @Override
