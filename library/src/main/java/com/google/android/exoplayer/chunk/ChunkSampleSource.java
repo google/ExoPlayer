@@ -134,13 +134,16 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
 
   }
 
+  /**
+   * The default minimum number of times to retry loading data prior to failing.
+   */
+  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 1;
+
   private static final int STATE_UNPREPARED = 0;
   private static final int STATE_PREPARED = 1;
   private static final int STATE_ENABLED = 2;
 
   private static final int NO_RESET_PENDING = -1;
-
-  private static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 1;
 
   private final int eventSourceId;
   private final LoadControl loadControl;

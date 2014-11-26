@@ -63,6 +63,16 @@ public class WebvttParser implements SubtitleParser {
   private static final Pattern MEDIA_TIMESTAMP_OFFSET = Pattern.compile(OFFSET + "\\d+");
   private static final Pattern MEDIA_TIMESTAMP = Pattern.compile("MPEGTS:\\d+");
 
+  private final boolean strictParsing;
+
+  public WebvttParser() {
+    this(true);
+  }
+
+  public WebvttParser(boolean strictParsing) {
+    this.strictParsing = strictParsing;
+  }
+
   @Override
   public WebvttSubtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
       throws IOException {
@@ -108,7 +118,7 @@ public class WebvttParser implements SubtitleParser {
 
       Matcher matcher = WEBVTT_METADATA_HEADER.matcher(line);
       if (!matcher.find()) {
-        throw new ParserException("Expected webvtt metadata header; got: " + line);
+        handleNoncompliantLine(line);
       }
 
       if (line.startsWith("X-TIMESTAMP-MAP")) {
@@ -180,6 +190,12 @@ public class WebvttParser implements SubtitleParser {
 
   protected long getAdjustedStartTime(long startTimeUs) {
     return startTimeUs;
+  }
+
+  protected void handleNoncompliantLine(String line) throws ParserException {
+    if (strictParsing) {
+      throw new ParserException("Unexpected line: " + line);
+    }
   }
 
   private static long parseTimestampUs(String s) throws NumberFormatException {
