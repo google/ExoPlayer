@@ -23,6 +23,7 @@ import com.google.android.exoplayer.upstream.Aes128DataSource;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.BitArray;
 import com.google.android.exoplayer.util.Util;
 
@@ -51,7 +52,7 @@ public class HlsChunkSource {
 
   private final SamplePool samplePool = new TsExtractor.SamplePool();
   private final DataSource upstreamDataSource;
-  private final HlsMediaPlaylistParser mediaPlaylistParser;
+  private final HlsPlaylistParser playlistParser;
   private final Variant[] enabledVariants;
   private final BandwidthMeter bandwidthMeter;
   private final BitArray bitArray;
@@ -73,21 +74,32 @@ public class HlsChunkSource {
 
   /**
    * @param dataSource A {@link DataSource} suitable for loading the media data.
-   * @param masterPlaylist The master playlist.
+   * @param playlistUrl The playlist URL.
+   * @param playlist The hls playlist.
+   * @param bandwidthMeter provides an estimate of the currently available bandwidth.
    * @param variantIndices A subset of variant indices to consider, or null to consider all of the
    *     variants in the master playlist.
    */
-  public HlsChunkSource(DataSource dataSource, HlsMasterPlaylist masterPlaylist,
+  public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
       BandwidthMeter bandwidthMeter, int[] variantIndices, boolean enableAdaptive) {
     this.upstreamDataSource = dataSource;
     this.bandwidthMeter = bandwidthMeter;
     this.enableAdaptive = enableAdaptive;
-    baseUri = masterPlaylist.baseUri;
+    baseUri = playlist.baseUri;
     bitArray = new BitArray();
-    mediaPlaylistParser = new HlsMediaPlaylistParser();
-    enabledVariants = filterVariants(masterPlaylist, variantIndices);
+    playlistParser = new HlsPlaylistParser();
+
+    if (playlist.type == HlsPlaylist.TYPE_MEDIA) {
+      enabledVariants = new Variant[] {new Variant(0, playlistUrl, 0, null, -1, -1)};
+      mediaPlaylists = new HlsMediaPlaylist[] {(HlsMediaPlaylist) playlist};
+    } else {
+      Assertions.checkState(playlist.type == HlsPlaylist.TYPE_MASTER);
+      enabledVariants = filterVariants((HlsMasterPlaylist) playlist, variantIndices);
+      mediaPlaylists = new HlsMediaPlaylist[enabledVariants.length];
+    }
+
     lastMediaPlaylistLoadTimesMs = new long[enabledVariants.length];
-    mediaPlaylists = new HlsMediaPlaylist[enabledVariants.length];
+
     int maxWidth = -1;
     int maxHeight = -1;
     // Select the first variant from the master playlist that's enabled.
@@ -391,9 +403,11 @@ public class HlsChunkSource {
 
     @Override
     protected void consume(BitArray data) throws IOException {
-      HlsMediaPlaylist mediaPlaylist = mediaPlaylistParser.parse(
+      HlsPlaylist playlist = playlistParser.parse(
           new ByteArrayInputStream(data.getData(), 0, data.bytesLeft()), null, null,
           playlistBaseUri);
+      Assertions.checkState(playlist.type == HlsPlaylist.TYPE_MEDIA);
+      HlsMediaPlaylist mediaPlaylist = (HlsMediaPlaylist) playlist;
       mediaPlaylists[variantIndex] = mediaPlaylist;
       lastMediaPlaylistLoadTimesMs[variantIndex] = SystemClock.elapsedRealtime();
       live |= mediaPlaylist.live;

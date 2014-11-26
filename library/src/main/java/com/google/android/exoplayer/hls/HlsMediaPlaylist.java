@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Represents an HLS media playlist.
  */
-public final class HlsMediaPlaylist {
+public final class HlsMediaPlaylist extends HlsPlaylist {
 
   /**
    * Media segment reference.
@@ -61,7 +61,6 @@ public final class HlsMediaPlaylist {
   public static final String ENCRYPTION_METHOD_NONE = "NONE";
   public static final String ENCRYPTION_METHOD_AES_128 = "AES-128";
 
-  public final Uri baseUri;
   public final int mediaSequence;
   public final int targetDurationSecs;
   public final int version;
@@ -71,7 +70,7 @@ public final class HlsMediaPlaylist {
 
   public HlsMediaPlaylist(Uri baseUri, int mediaSequence, int targetDurationSecs, int version,
       boolean live, List<Segment> segments) {
-    this.baseUri = baseUri;
+    super(baseUri, HlsPlaylist.TYPE_MEDIA);
     this.mediaSequence = mediaSequence;
     this.targetDurationSecs = targetDurationSecs;
     this.version = version;

@@ -166,10 +166,8 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
             contentId);
       case DemoUtil.TYPE_DASH_VOD:
         return new DashVodRendererBuilder(this, userAgent, contentUri.toString(), contentId);
-      case DemoUtil.TYPE_HLS_MASTER:
-      case DemoUtil.TYPE_HLS_MEDIA:
-        return new HlsRendererBuilder(this, userAgent, contentUri.toString(), contentId,
-            contentType);
+      case DemoUtil.TYPE_HLS:
+        return new HlsRendererBuilder(this, userAgent, contentUri.toString(), contentId);
       default:
         return new DefaultRendererBuilder(this, contentUri);
     }

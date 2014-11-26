@@ -17,18 +17,20 @@ package com.google.android.exoplayer.hls;
 
 import android.net.Uri;
 
-import java.util.List;
-
 /**
- * Represents an HLS master playlist.
+ * Represents an HLS playlist.
  */
-public final class HlsMasterPlaylist extends HlsPlaylist {
+public abstract class HlsPlaylist {
 
-  public final List<Variant> variants;
+  public final static int TYPE_MASTER = 0;
+  public final static int TYPE_MEDIA = 1;
 
-  public HlsMasterPlaylist(Uri baseUri, List<Variant> variants) {
-    super(baseUri, HlsPlaylist.TYPE_MASTER);
-    this.variants = variants;
+  public final Uri baseUri;
+  public final int type;
+
+  protected HlsPlaylist(Uri baseUri, int type) {
+    this.baseUri = baseUri;
+    this.type = type;
   }
 
 }

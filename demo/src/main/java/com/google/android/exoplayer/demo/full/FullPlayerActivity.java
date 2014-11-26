@@ -185,9 +185,8 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
       case DemoUtil.TYPE_DASH_VOD:
         return new DashVodRendererBuilder(userAgent, contentUri.toString(), contentId,
             new WidevineTestMediaDrmCallback(contentId), debugTextView);
-      case DemoUtil.TYPE_HLS_MASTER:
-      case DemoUtil.TYPE_HLS_MEDIA:
-        return new HlsRendererBuilder(userAgent, contentUri.toString(), contentId, contentType);
+      case DemoUtil.TYPE_HLS:
+        return new HlsRendererBuilder(userAgent, contentUri.toString(), contentId);
       default:
         return new DefaultRendererBuilder(this, contentUri, debugTextView);
     }
@@ -429,7 +428,7 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
     }
   }
 
-  //DemoPlayer.ClosedCaptioListener implementation
+  // DemoPlayer.ClosedCaptioListener implementation
 
   @Override
   public void onClosedCaption(List<ClosedCaption> closedCaptions) {
