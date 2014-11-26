@@ -80,9 +80,24 @@ public class HlsChunkSource {
    */
   public static final int ADAPTIVE_MODE_ABRUPT = 3;
 
+  /**
+   * The default target buffer duration in milliseconds.
+   */
+  public static final long DEFAULT_TARGET_BUFFER_DURATION_MS = 40000;
+
+  /**
+   * The default minimum duration of media that needs to be buffered for a switch to a higher
+   * quality variant to be considered.
+   */
+  public static final long DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS = 5000;
+
+  /**
+   * The default maximum duration of media that needs to be buffered for a switch to a lower
+   * quality variant to be considered.
+   */
+  public static final long DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS = 20000;
+
   private static final float BANDWIDTH_FRACTION = 0.8f;
-  private static final long MIN_BUFFER_TO_SWITCH_UP_US = 5000000;
-  private static final long MAX_BUFFER_TO_SWITCH_DOWN_US = 15000000;
 
   private final SamplePool samplePool = new TsExtractor.SamplePool();
   private final DataSource upstreamDataSource;
@@ -94,6 +109,9 @@ public class HlsChunkSource {
   private final Uri baseUri;
   private final int maxWidth;
   private final int maxHeight;
+  private final long targetBufferDurationUs;
+  private final long minBufferDurationToSwitchUpUs;
+  private final long maxBufferDurationToSwitchDownUs;
 
   /* package */ final HlsMediaPlaylist[] mediaPlaylists;
   /* package */ final long[] lastMediaPlaylistLoadTimesMs;
@@ -106,6 +124,13 @@ public class HlsChunkSource {
   private String encryptedDataSourceIv;
   private byte[] encryptedDataSourceSecretKey;
 
+  public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
+      BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode) {
+    this(dataSource, playlistUrl, playlist, bandwidthMeter, variantIndices, adaptiveMode,
+        DEFAULT_TARGET_BUFFER_DURATION_MS, DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS,
+        DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS);
+  }
+
   /**
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param playlistUrl The playlist URL.
@@ -116,12 +141,24 @@ public class HlsChunkSource {
    * @param adaptiveMode The mode for switching from one variant to another. One of
    *     {@link #ADAPTIVE_MODE_NONE}, {@link #ADAPTIVE_MODE_ABRUPT} and
    *     {@link #ADAPTIVE_MODE_SPLICE}.
+   * @param targetBufferDurationMs The targeted duration of media to buffer ahead of the current
+   *     playback position. Note that the greater this value, the greater the amount of memory
+   *     that will be consumed.
+   * @param minBufferDurationToSwitchUpMs The minimum duration of media that needs to be buffered
+   *     for a switch to a higher quality variant to be considered.
+   * @param maxBufferDurationToSwitchDownMs The maximum duration of media that needs to be buffered
+   *     for a switch to a lower quality variant to be considered.
    */
   public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
-      BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode) {
+      BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode,
+      long targetBufferDurationMs, long minBufferDurationToSwitchUpMs,
+      long maxBufferDurationToSwitchDownMs) {
     this.upstreamDataSource = dataSource;
     this.bandwidthMeter = bandwidthMeter;
     this.adaptiveMode = adaptiveMode;
+    targetBufferDurationUs = targetBufferDurationMs * 1000;
+    minBufferDurationToSwitchUpUs = minBufferDurationToSwitchUpMs * 1000;
+    maxBufferDurationToSwitchDownUs = maxBufferDurationToSwitchDownMs * 1000;
     baseUri = playlist.baseUri;
     bitArray = new BitArray();
     playlistParser = new HlsPlaylistParser();
@@ -182,8 +219,9 @@ public class HlsChunkSource {
    */
   public HlsChunk getChunkOperation(TsChunk previousTsChunk, long seekPositionUs,
       long playbackPositionUs) {
-    if (previousTsChunk != null && previousTsChunk.isLastChunk) {
-      // We're already finished.
+    if (previousTsChunk != null && (previousTsChunk.isLastChunk
+        || previousTsChunk.endTimeUs - playbackPositionUs >= targetBufferDurationUs)) {
+      // We're either finished, or we have the target amount of data buffered.
       return null;
     }
 
@@ -303,8 +341,8 @@ public class HlsChunkSource {
         : adaptiveMode == ADAPTIVE_MODE_SPLICE ? previousTsChunk.startTimeUs
         : previousTsChunk.endTimeUs;
     long bufferedUs = bufferedPositionUs - playbackPositionUs;
-    if ((idealVariantIndex > variantIndex && bufferedUs < MAX_BUFFER_TO_SWITCH_DOWN_US)
-        || (idealVariantIndex < variantIndex && bufferedUs > MIN_BUFFER_TO_SWITCH_UP_US)) {
+    if ((idealVariantIndex > variantIndex && bufferedUs < maxBufferDurationToSwitchDownUs)
+        || (idealVariantIndex < variantIndex && bufferedUs > minBufferDurationToSwitchUpUs)) {
       // Switch variant.
       return idealVariantIndex;
     }

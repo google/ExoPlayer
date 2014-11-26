@@ -25,7 +25,6 @@ import com.google.android.exoplayer.demo.full.player.DemoPlayer;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.full.player.HlsRendererBuilder;
 import com.google.android.exoplayer.demo.full.player.SmoothStreamingRendererBuilder;
-import com.google.android.exoplayer.metadata.ClosedCaption;
 import com.google.android.exoplayer.metadata.TxxxMetadata;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.SubtitleView;
@@ -57,15 +56,13 @@ import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 
-import java.util.List;
 import java.util.Map;
 
 /**
  * An activity that plays media using {@link DemoPlayer}.
  */
 public class FullPlayerActivity extends Activity implements SurfaceHolder.Callback, OnClickListener,
-    DemoPlayer.Listener, DemoPlayer.TextListener, DemoPlayer.Id3MetadataListener,
-    DemoPlayer.ClosedCaptionListener {
+    DemoPlayer.Listener, DemoPlayer.TextListener, DemoPlayer.Id3MetadataListener {
 
   private static final String TAG = "FullPlayerActivity";
 
@@ -198,7 +195,6 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
       player.addListener(this);
       player.setTextListener(this);
       player.setMetadataListener(this);
-      player.setClosedCaptionListener(this);
       player.seekTo(playerPosition);
       playerNeedsPrepare = true;
       mediaController.setMediaPlayer(player.getPlayerControl());
@@ -425,31 +421,6 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
         Log.i(TAG, String.format("ID3 TimedMetadata: description=%s, value=%s",
             txxxMetadata.description, txxxMetadata.value));
       }
-    }
-  }
-
-  // DemoPlayer.ClosedCaptioListener implementation
-
-  @Override
-  public void onClosedCaption(List<ClosedCaption> closedCaptions) {
-    StringBuilder stringBuilder = new StringBuilder();
-    for (ClosedCaption caption : closedCaptions) {
-      // Ignore control characters and just insert a new line in between words.
-      if (caption.type == ClosedCaption.TYPE_CTRL) {
-        if (stringBuilder.length() > 0
-            && stringBuilder.charAt(stringBuilder.length() - 1) != '\n') {
-          stringBuilder.append('\n');
-        }
-      } else if (caption.type == ClosedCaption.TYPE_TEXT) {
-        stringBuilder.append(caption.text);
-      }
-    }
-    if (stringBuilder.length() > 0 && stringBuilder.charAt(stringBuilder.length() - 1) == '\n') {
-      stringBuilder.deleteCharAt(stringBuilder.length() - 1);
-    }
-    if (stringBuilder.length() > 0) {
-      subtitleView.setVisibility(View.VISIBLE);
-      subtitleView.setText(stringBuilder.toString());
     }
   }
 

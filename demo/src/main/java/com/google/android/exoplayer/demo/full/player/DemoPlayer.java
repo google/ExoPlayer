@@ -145,13 +145,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     void onId3Metadata(Map<String, Object> metadata);
   }
 
-  /**
-   * A listener for receiving closed captions parsed from the media stream.
-   */
-  public interface ClosedCaptionListener {
-    void onClosedCaption(List<ClosedCaption> closedCaptions);
-  }
-
   // Constants pulled into this class for convenience.
   public static final int STATE_IDLE = ExoPlayer.STATE_IDLE;
   public static final int STATE_PREPARING = ExoPlayer.STATE_PREPARING;
@@ -162,13 +155,12 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   public static final int DISABLED_TRACK = -1;
   public static final int PRIMARY_TRACK = 0;
 
-  public static final int RENDERER_COUNT = 6;
+  public static final int RENDERER_COUNT = 5;
   public static final int TYPE_VIDEO = 0;
   public static final int TYPE_AUDIO = 1;
   public static final int TYPE_TEXT = 2;
   public static final int TYPE_TIMED_METADATA = 3;
-  public static final int TYPE_CLOSED_CAPTIONS = 4;
-  public static final int TYPE_DEBUG = 5;
+  public static final int TYPE_DEBUG = 4;
 
   private static final int RENDERER_BUILDING_STATE_IDLE = 1;
   private static final int RENDERER_BUILDING_STATE_BUILDING = 2;
@@ -179,6 +171,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   private final PlayerControl playerControl;
   private final Handler mainHandler;
   private final CopyOnWriteArrayList<Listener> listeners;
+  private final StringBuilder closedCaptionStringBuilder;
 
   private int rendererBuildingState;
   private int lastReportedPlaybackState;
@@ -194,7 +187,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
 
   private TextListener textListener;
   private Id3MetadataListener id3MetadataListener;
-  private ClosedCaptionListener closedCaptionListener;
   private InternalErrorListener internalErrorListener;
   private InfoListener infoListener;
 
@@ -210,6 +202,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     selectedTracks = new int[RENDERER_COUNT];
     // Disable text initially.
     selectedTracks[TYPE_TEXT] = DISABLED_TRACK;
+    closedCaptionStringBuilder = new StringBuilder();
   }
 
   public PlayerControl getPlayerControl() {
@@ -238,10 +231,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
 
   public void setMetadataListener(Id3MetadataListener listener) {
     id3MetadataListener = listener;
-  }
-
-  public void setClosedCaptionListener(ClosedCaptionListener listener) {
-    closedCaptionListener = listener;
   }
 
   public void setSurface(Surface surface) {
@@ -275,6 +264,9 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
       pushSurfaceAndVideoTrack(false);
     } else {
       pushTrackSelection(type, true);
+      if (type == TYPE_TEXT && index == DISABLED_TRACK && textListener != null) {
+        textListener.onText(null);
+      }
     }
   }
 
@@ -483,36 +475,28 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
 
   @Override
   public void onText(String text) {
-    if (textListener != null) {
-      textListener.onText(text);
-    }
+    processText(text);
   }
 
   /* package */ MetadataTrackRenderer.MetadataRenderer<Map<String, Object>>
       getId3MetadataRenderer() {
     return new MetadataTrackRenderer.MetadataRenderer<Map<String, Object>>() {
-
       @Override
       public void onMetadata(Map<String, Object> metadata) {
         if (id3MetadataListener != null) {
           id3MetadataListener.onId3Metadata(metadata);
         }
       }
-
     };
   }
 
   /* package */ MetadataTrackRenderer.MetadataRenderer<List<ClosedCaption>>
       getClosedCaptionMetadataRenderer() {
     return new MetadataTrackRenderer.MetadataRenderer<List<ClosedCaption>>() {
-
       @Override
       public void onMetadata(List<ClosedCaption> metadata) {
-        if (closedCaptionListener != null) {
-          closedCaptionListener.onClosedCaption(metadata);
-        }
+        processClosedCaption(metadata);
       }
-
     };
   }
 
@@ -605,6 +589,36 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
       player.setRendererEnabled(type, allowRendererEnable);
       player.setPlayWhenReady(playWhenReady);
     }
+  }
+
+  /* package */ void processText(String text) {
+    if (textListener == null || selectedTracks[TYPE_TEXT] == DISABLED_TRACK) {
+      return;
+    }
+    textListener.onText(text);
+  }
+
+  /* package */ void processClosedCaption(List<ClosedCaption> metadata) {
+    if (textListener == null || selectedTracks[TYPE_TEXT] == DISABLED_TRACK) {
+      return;
+    }
+    closedCaptionStringBuilder.setLength(0);
+    for (ClosedCaption caption : metadata) {
+      // Ignore control characters and just insert a new line in between words.
+      if (caption.type == ClosedCaption.TYPE_CTRL) {
+        if (closedCaptionStringBuilder.length() > 0
+            && closedCaptionStringBuilder.charAt(closedCaptionStringBuilder.length() - 1) != '\n') {
+          closedCaptionStringBuilder.append('\n');
+        }
+      } else if (caption.type == ClosedCaption.TYPE_TEXT) {
+        closedCaptionStringBuilder.append(caption.text);
+      }
+    }
+    if (closedCaptionStringBuilder.length() > 0
+        && closedCaptionStringBuilder.charAt(closedCaptionStringBuilder.length() - 1) == '\n') {
+      closedCaptionStringBuilder.deleteCharAt(closedCaptionStringBuilder.length() - 1);
+    }
+    textListener.onText(closedCaptionStringBuilder.toString());
   }
 
   private class InternalRendererBuilderCallback implements RendererBuilderCallback {

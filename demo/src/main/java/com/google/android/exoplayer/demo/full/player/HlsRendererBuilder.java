@@ -100,7 +100,7 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
     renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
     renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
     renderers[DemoPlayer.TYPE_TIMED_METADATA] = id3Renderer;
-    renderers[DemoPlayer.TYPE_CLOSED_CAPTIONS] = closedCaptionRenderer;
+    renderers[DemoPlayer.TYPE_TEXT] = closedCaptionRenderer;
     callback.onRenderers(null, null, renderers);
   }
 

@@ -40,7 +40,6 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 1;
 
-  private static final long BUFFER_DURATION_US = 20000000;
   private static final int NO_RESET_PENDING = -1;
 
   private final HlsChunkSource chunkSource;
@@ -350,7 +349,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   private void maybeStartLoading() {
-    if (currentLoadableExceptionFatal || loadingFinished) {
+    if (currentLoadableExceptionFatal || loadingFinished || loader.isLoading()) {
       return;
     }
 
@@ -361,17 +360,6 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
         currentLoadableException = null;
         loader.startLoading(currentLoadable, this);
       }
-      return;
-    }
-
-    boolean bufferFull = false;
-    if (!extractors.isEmpty()) {
-      long largestSampleTimestamp = extractors.getLast().getLargestSampleTimestamp();
-      bufferFull = largestSampleTimestamp != Long.MIN_VALUE
-          && (largestSampleTimestamp - downstreamPositionUs) >= BUFFER_DURATION_US;
-    }
-
-    if (loader.isLoading() || bufferFull) {
       return;
     }
 
