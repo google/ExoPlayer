@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.dash.mpd;
 
+import com.google.android.exoplayer.util.Util;
+
 import android.net.Uri;
 
 import java.util.List;
@@ -155,7 +157,7 @@ public abstract class SegmentBase {
       } else {
         unscaledSegmentTime = (sequenceNumber - startNumber) * duration;
       }
-      return (unscaledSegmentTime * 1000000) / timescale;
+      return Util.scaleLargeTimestamp(unscaledSegmentTime, 1000000, timescale);
     }
 
     public abstract RangedUri getSegmentUrl(Representation representation, int index);

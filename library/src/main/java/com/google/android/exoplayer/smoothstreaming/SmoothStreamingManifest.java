@@ -53,19 +53,8 @@ public class SmoothStreamingManifest {
     this.isLive = isLive;
     this.protectionElement = protectionElement;
     this.streamElements = streamElements;
-    if (timescale >= MICROS_PER_SECOND && (timescale % MICROS_PER_SECOND) == 0) {
-      long divisionFactor = timescale / MICROS_PER_SECOND;
-      dvrWindowLengthUs = dvrWindowLength / divisionFactor;
-      durationUs = duration / divisionFactor;
-    } else if (timescale < MICROS_PER_SECOND && (MICROS_PER_SECOND % timescale) == 0) {
-      long multiplicationFactor = MICROS_PER_SECOND / timescale;
-      dvrWindowLengthUs = dvrWindowLength * multiplicationFactor;
-      durationUs = duration * multiplicationFactor;
-    } else {
-      double multiplicationFactor = (double) MICROS_PER_SECOND / timescale;
-      dvrWindowLengthUs = (long) (dvrWindowLength * multiplicationFactor);
-      durationUs = (long) (duration * multiplicationFactor);
-    }
+    dvrWindowLengthUs = Util.scaleLargeTimestamp(dvrWindowLength, MICROS_PER_SECOND, timescale);
+    durationUs = Util.scaleLargeTimestamp(duration, MICROS_PER_SECOND, timescale);
   }
 
   /**
@@ -186,26 +175,10 @@ public class SmoothStreamingManifest {
       this.tracks = tracks;
       this.chunkCount = chunkStartTimes.size();
       this.chunkStartTimes = chunkStartTimes;
-      chunkStartTimesUs = new long[chunkStartTimes.size()];
-      if (timescale >= MICROS_PER_SECOND && (timescale % MICROS_PER_SECOND) == 0) {
-        long divisionFactor = timescale / MICROS_PER_SECOND;
-        for (int i = 0; i < chunkStartTimesUs.length; i++) {
-          chunkStartTimesUs[i] = chunkStartTimes.get(i) / divisionFactor;
-        }
-        lastChunkDurationUs = lastChunkDuration / divisionFactor;
-      } else if (timescale < MICROS_PER_SECOND && (MICROS_PER_SECOND % timescale) == 0) {
-        long multiplicationFactor = MICROS_PER_SECOND / timescale;
-        for (int i = 0; i < chunkStartTimesUs.length; i++) {
-          chunkStartTimesUs[i] = chunkStartTimes.get(i) * multiplicationFactor;
-        }
-        lastChunkDurationUs = lastChunkDuration * multiplicationFactor;
-      } else {
-        double multiplicationFactor = (double) MICROS_PER_SECOND / timescale;
-        for (int i = 0; i < chunkStartTimesUs.length; i++) {
-          chunkStartTimesUs[i] = (long) (chunkStartTimes.get(i) * multiplicationFactor);
-        }
-        lastChunkDurationUs = (long) (lastChunkDuration * multiplicationFactor);
-      }
+      lastChunkDurationUs =
+          Util.scaleLargeTimestamp(lastChunkDuration, MICROS_PER_SECOND, timescale);
+      chunkStartTimesUs =
+          Util.scaleLargeTimestamps(chunkStartTimes, MICROS_PER_SECOND, timescale);
     }
 
     /**

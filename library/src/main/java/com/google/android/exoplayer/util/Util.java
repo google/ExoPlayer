@@ -55,7 +55,8 @@ public final class Util {
       + "([Zz]|((\\+|\\-)(\\d\\d):(\\d\\d)))?");
 
   private static final Pattern XS_DURATION_PATTERN =
-      Pattern.compile("^PT(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?$");
+      Pattern.compile("^P(([0-9]*)Y)?(([0-9]*)M)?(([0-9]*)D)?"
+          + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
 
   private Util() {}
 
@@ -274,11 +275,19 @@ public final class Util {
   public static long parseXsDuration(String value) {
     Matcher matcher = XS_DURATION_PATTERN.matcher(value);
     if (matcher.matches()) {
-      String hours = matcher.group(2);
-      double durationSeconds = (hours != null) ? Double.parseDouble(hours) * 3600 : 0;
-      String minutes = matcher.group(4);
+      // Durations containing years and months aren't completely defined. We assume there are
+      // 30.4368 days in a month, and 365.242 days in a year.
+      String years = matcher.group(2);
+      double durationSeconds = (years != null) ? Double.parseDouble(years) * 31556908 : 0;
+      String months = matcher.group(4);
+      durationSeconds += (months != null) ? Double.parseDouble(months) * 2629739 : 0;
+      String days = matcher.group(6);
+      durationSeconds += (days != null) ? Double.parseDouble(days) * 86400 : 0;
+      String hours = matcher.group(9);
+      durationSeconds += (hours != null) ? Double.parseDouble(hours) * 3600 : 0;
+      String minutes = matcher.group(11);
       durationSeconds += (minutes != null) ? Double.parseDouble(minutes) * 60 : 0;
-      String seconds = matcher.group(6);
+      String seconds = matcher.group(13);
       durationSeconds += (seconds != null) ? Double.parseDouble(seconds) : 0;
       return (long) (durationSeconds * 1000);
     } else {
@@ -335,6 +344,59 @@ public final class Util {
     }
 
     return time;
+  }
+
+  /**
+   * Scales a large timestamp.
+   * <p>
+   * Logically, scaling consists of a multiplication followed by a division. The actual operations
+   * performed are designed to minimize the probability of overflow.
+   *
+   * @param timestamp The timestamp to scale.
+   * @param multiplier The multiplier.
+   * @param divisor The divisor.
+   * @return The scaled timestamp.
+   */
+  public static long scaleLargeTimestamp(long timestamp, long multiplier, long divisor) {
+    if (divisor >= multiplier && (divisor % multiplier) == 0) {
+      long divisionFactor = divisor / multiplier;
+      return timestamp / divisionFactor;
+    } else if (divisor < multiplier && (multiplier % divisor) == 0) {
+      long multiplicationFactor = multiplier / divisor;
+      return timestamp * multiplicationFactor;
+    } else {
+      double multiplicationFactor = (double) multiplier / divisor;
+      return (long) (timestamp * multiplicationFactor);
+    }
+  }
+
+  /**
+   * Applies {@link #scaleLargeTimestamp(long, long, long)} to a list of unscaled timestamps.
+   *
+   * @param timestamps The timestamps to scale.
+   * @param multiplier The multiplier.
+   * @param divisor The divisor.
+   * @return The scaled timestamps.
+   */
+  public static long[] scaleLargeTimestamps(List<Long> timestamps, long multiplier, long divisor) {
+    long[] scaledTimestamps = new long[timestamps.size()];
+    if (divisor >= multiplier && (divisor % multiplier) == 0) {
+      long divisionFactor = divisor / multiplier;
+      for (int i = 0; i < scaledTimestamps.length; i++) {
+        scaledTimestamps[i] = timestamps.get(i) / divisionFactor;
+      }
+    } else if (divisor < multiplier && (multiplier % divisor) == 0) {
+      long multiplicationFactor = multiplier / divisor;
+      for (int i = 0; i < scaledTimestamps.length; i++) {
+        scaledTimestamps[i] = timestamps.get(i) * multiplicationFactor;
+      }
+    } else {
+      double multiplicationFactor = (double) multiplier / divisor;
+      for (int i = 0; i < scaledTimestamps.length; i++) {
+        scaledTimestamps[i] = (long) (timestamps.get(i) * multiplicationFactor);
+      }
+    }
+    return scaledTimestamps;
   }
 
 }
