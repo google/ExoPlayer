@@ -55,7 +55,8 @@ public final class Util {
       + "([Zz]|((\\+|\\-)(\\d\\d):(\\d\\d)))?");
 
   private static final Pattern XS_DURATION_PATTERN =
-      Pattern.compile("^PT(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?$");
+      Pattern.compile("^P(([0-9]*)Y)?(([0-9]*)M)?(([0-9]*)D)?"
+          + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
 
   private Util() {}
 
@@ -274,11 +275,19 @@ public final class Util {
   public static long parseXsDuration(String value) {
     Matcher matcher = XS_DURATION_PATTERN.matcher(value);
     if (matcher.matches()) {
-      String hours = matcher.group(2);
-      double durationSeconds = (hours != null) ? Double.parseDouble(hours) * 3600 : 0;
-      String minutes = matcher.group(4);
+      // Durations containing years and months aren't completely defined. We assume there are
+      // 30.4368 days in a month, and 365.242 days in a year.
+      String years = matcher.group(2);
+      double durationSeconds = (years != null) ? Double.parseDouble(years) * 31556908 : 0;
+      String months = matcher.group(4);
+      durationSeconds += (months != null) ? Double.parseDouble(months) * 2629739 : 0;
+      String days = matcher.group(6);
+      durationSeconds += (days != null) ? Double.parseDouble(days) * 86400 : 0;
+      String hours = matcher.group(9);
+      durationSeconds += (hours != null) ? Double.parseDouble(hours) * 3600 : 0;
+      String minutes = matcher.group(11);
       durationSeconds += (minutes != null) ? Double.parseDouble(minutes) * 60 : 0;
-      String seconds = matcher.group(6);
+      String seconds = matcher.group(13);
       durationSeconds += (seconds != null) ? Double.parseDouble(seconds) : 0;
       return (long) (durationSeconds * 1000);
     } else {
