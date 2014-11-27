@@ -450,6 +450,7 @@ public class SmoothStreamingManifestParser implements ManifestParser<SmoothStrea
 
     private static final String KEY_FRAGMENT_DURATION = "d";
     private static final String KEY_FRAGMENT_START_TIME = "t";
+    private static final String KEY_FRAGMENT_REPEAT_COUNT = "r";
 
     private final Uri baseUri;
     private final List<TrackElement> tracks;
@@ -504,9 +505,18 @@ public class SmoothStreamingManifestParser implements ManifestParser<SmoothStrea
           throw new ParserException("Unable to infer start time");
         }
       }
+      chunkIndex++;
       startTimes.add(startTime);
       lastChunkDuration = parseLong(parser, KEY_FRAGMENT_DURATION, -1L);
-      chunkIndex++;
+      // Handle repeated chunks.
+      long repeatCount = parseLong(parser, KEY_FRAGMENT_REPEAT_COUNT, 1L);
+      if (repeatCount > 1 && lastChunkDuration == -1L) {
+        throw new ParserException("Repeated chunk with unspecified duration");
+      }
+      for (int i = 1; i < repeatCount; i++) {
+        chunkIndex++;
+        startTimes.add(startTime + (lastChunkDuration * i));
+      }
     }
 
     private void parseStreamElementStartTag(XmlPullParser parser) throws ParserException {
