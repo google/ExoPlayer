@@ -643,23 +643,25 @@ public final class TsExtractor {
     /**
      * Obtains a Sample object to use.
      *
+     * @param type The type of the sample.
      * @return The sample.
      */
-    protected Sample getSample() {
-      return samplePool.get();
+    protected Sample getSample(int type) {
+      return samplePool.get(type);
     }
 
     /**
      * Creates a new Sample and adds it to the queue.
      *
+     * @param type The type of the sample.
      * @param buffer The buffer to read sample data.
      * @param sampleSize The size of the sample data.
      * @param sampleTimeUs The sample time stamp.
      * @param isKeyframe True if the sample is a keyframe. False otherwise.
      */
-    protected void addSample(BitArray buffer, int sampleSize, long sampleTimeUs,
+    protected void addSample(int type, BitArray buffer, int sampleSize, long sampleTimeUs,
         boolean isKeyframe) {
-      Sample sample = getSample();
+      Sample sample = getSample(type);
       addToSample(sample, buffer, sampleSize);
       sample.isKeyframe = isKeyframe;
       sample.timeUs = sampleTimeUs;
@@ -748,7 +750,7 @@ public final class TsExtractor {
         seiReader.read(currentSample.data, currentSample.size, pesTimeUs);
         addSample(currentSample);
       }
-      currentSample = getSample();
+      currentSample = getSample(Sample.TYPE_VIDEO);
       pesPayloadSize -= readOneH264Frame(pesBuffer, false);
       currentSample.timeUs = pesTimeUs;
 
@@ -964,7 +966,7 @@ public final class TsExtractor {
         seiBuffer.skipBytes(seiStart + 4);
         int ccDataSize = Eia608Parser.parseHeader(seiBuffer);
         if (ccDataSize > 0) {
-          addSample(seiBuffer, ccDataSize, pesTimeUs, true);
+          addSample(Sample.TYPE_MISC, seiBuffer, ccDataSize, pesTimeUs, true);
         }
       }
     }
@@ -978,6 +980,7 @@ public final class TsExtractor {
 
     private final BitArray adtsBuffer;
     private long timeUs;
+    private long frameDurationUs;
 
     public AdtsReader(SamplePool samplePool) {
       super(samplePool);
@@ -994,14 +997,7 @@ public final class TsExtractor {
       }
       int frameIndex = 0;
       do {
-        long frameDuration = 0;
-        // If frameIndex > 0, audioMediaFormat should be already parsed.
-        // If frameIndex == 0, timeUs = pesTimeUs anyway.
-        if (hasMediaFormat()) {
-          frameDuration = 1000000L * 1024L / getMediaFormat().sampleRate;
-        }
-        timeUs = pesTimeUs + frameIndex * frameDuration;
-        frameIndex++;
+        timeUs = pesTimeUs + (frameDurationUs * frameIndex++);
       } while(readOneAacFrame(timeUs));
     }
 
@@ -1039,6 +1035,7 @@ public final class TsExtractor {
         MediaFormat mediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_AAC,
             MediaFormat.NO_VALUE, audioParams.second, audioParams.first,
             Collections.singletonList(audioSpecificConfig));
+        frameDurationUs = (1000000 * 1024L) / mediaFormat.sampleRate;
         setMediaFormat(mediaFormat);
       } else {
         adtsBuffer.skipBits(10);
@@ -1063,7 +1060,7 @@ public final class TsExtractor {
         return false;
       }
 
-      addSample(adtsBuffer, frameSize, timeUs, true);
+      addSample(Sample.TYPE_AUDIO, adtsBuffer, frameSize, timeUs, true);
       return true;
     }
 
@@ -1088,34 +1085,49 @@ public final class TsExtractor {
     @SuppressLint("InlinedApi")
     @Override
     public void read(BitArray pesBuffer, int pesPayloadSize, long pesTimeUs) {
-      addSample(pesBuffer, pesPayloadSize, pesTimeUs, true);
+      addSample(Sample.TYPE_MISC, pesBuffer, pesPayloadSize, pesTimeUs, true);
     }
 
   }
 
   /**
    * A pool from which the extractor can obtain sample objects for internal use.
+   *
+   * TODO: Over time the average size of a sample in the video pool will become larger, as the
+   * proportion of samples in the pool that have at some point held a keyframe grows. Currently
+   * this leads to inefficient memory usage, since samples large enough to hold keyframes end up
+   * being used to hold non-keyframes. We need to fix this.
    */
   public static class SamplePool {
 
-    private static final int DEFAULT_BUFFER_SEGMENT_SIZE = 64 * 1024;
+    private static final int[] DEFAULT_SAMPLE_SIZES;
+    static {
+      DEFAULT_SAMPLE_SIZES = new int[Sample.TYPE_COUNT];
+      DEFAULT_SAMPLE_SIZES[Sample.TYPE_VIDEO] = 10 * 1024;
+      DEFAULT_SAMPLE_SIZES[Sample.TYPE_AUDIO] = 512;
+      DEFAULT_SAMPLE_SIZES[Sample.TYPE_MISC] = 512;
+    }
 
-    private Sample firstInPool;
+    private final Sample[] pools;
 
-    /* package */ synchronized Sample get() {
-      if (firstInPool == null) {
-        return new Sample(DEFAULT_BUFFER_SEGMENT_SIZE);
+    public SamplePool() {
+      pools = new Sample[Sample.TYPE_COUNT];
+    }
+
+    /* package */ synchronized Sample get(int type) {
+      if (pools[type] == null) {
+        return new Sample(type, DEFAULT_SAMPLE_SIZES[type]);
       }
-      Sample sample = firstInPool;
-      firstInPool = sample.nextInPool;
+      Sample sample = pools[type];
+      pools[type] = sample.nextInPool;
       sample.nextInPool = null;
       return sample;
     }
 
     /* package */ synchronized void recycle(Sample sample) {
       sample.reset();
-      sample.nextInPool = firstInPool;
-      firstInPool = sample;
+      sample.nextInPool = pools[sample.type];
+      pools[sample.type] = sample;
     }
 
   }
@@ -1125,6 +1137,12 @@ public final class TsExtractor {
    */
   private static class Sample {
 
+    public static final int TYPE_VIDEO = 0;
+    public static final int TYPE_AUDIO = 1;
+    public static final int TYPE_MISC = 2;
+    public static final int TYPE_COUNT = 3;
+
+    public final int type;
     public Sample nextInPool;
 
     public byte[] data;
@@ -1132,7 +1150,8 @@ public final class TsExtractor {
     public int size;
     public long timeUs;
 
-    public Sample(int length) {
+    public Sample(int type, int length) {
+      this.type = type;
       data = new byte[length];
     }
 
