@@ -21,6 +21,11 @@ package com.google.android.exoplayer;
 public final class C {
 
   /**
+   * Represents an unknown microsecond time or duration.
+   */
+  public static final long UNKNOWN_TIME_US = -1;
+
+  /**
    * Represents an unbounded length of data.
    */
   public static final int LENGTH_UNBOUNDED = -1;

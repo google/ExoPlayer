@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.smoothstreaming;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
@@ -33,28 +34,77 @@ public class SmoothStreamingManifest {
 
   private static final long MICROS_PER_SECOND = 1000000L;
 
+  /**
+   * The client manifest major version.
+   */
   public final int majorVersion;
+
+  /**
+   * The client manifest minor version.
+   */
   public final int minorVersion;
-  public final long timescale;
+
+  /**
+   * The number of fragments in a lookahead, or -1 if the lookahead is unspecified.
+   */
   public final int lookAheadCount;
+
+  /**
+   * True if the manifest describes a live presentation still in progress. False otherwise.
+   */
   public final boolean isLive;
+
+  /**
+   * Content protection information, or null if the content is not protected.
+   */
   public final ProtectionElement protectionElement;
+
+  /**
+   * The contained stream elements.
+   */
   public final StreamElement[] streamElements;
+
+  /**
+   * The overall presentation duration of the media in microseconds, or {@link C#UNKNOWN_TIME_US}
+   * if the duration is unknown.
+   */
   public final long durationUs;
+
+  /**
+   * The length of the trailing window for a live broadcast in microseconds, or
+   * {@link C#UNKNOWN_TIME_US} if the stream is not live or if the window length is unspecified.
+   */
   public final long dvrWindowLengthUs;
 
+  /**
+   * @param majorVersion The client manifest major version.
+   * @param minorVersion The client manifest minor version.
+   * @param timescale The timescale of the media as the number of units that pass in one second.
+   * @param duration The overall presentation duration in units of the timescale attribute, or 0
+   *     if the duration is unknown.
+   * @param dvrWindowLength The length of the trailing window in units of the timescale attribute,
+   *     or 0 if this attribute is unspecified or not applicable.
+   * @param lookAheadCount The number of fragments in a lookahead, or -1 if this attribute is
+   *     unspecified or not applicable.
+   * @param isLive True if the manifest describes a live presentation still in progress. False
+   *     otherwise.
+   * @param protectionElement Content protection information, or null if the content is not
+   *     protected.
+   * @param streamElements The contained stream elements.
+   */
   public SmoothStreamingManifest(int majorVersion, int minorVersion, long timescale, long duration,
       long dvrWindowLength, int lookAheadCount, boolean isLive, ProtectionElement protectionElement,
       StreamElement[] streamElements) {
     this.majorVersion = majorVersion;
     this.minorVersion = minorVersion;
-    this.timescale = timescale;
     this.lookAheadCount = lookAheadCount;
     this.isLive = isLive;
     this.protectionElement = protectionElement;
     this.streamElements = streamElements;
-    dvrWindowLengthUs = Util.scaleLargeTimestamp(dvrWindowLength, MICROS_PER_SECOND, timescale);
-    durationUs = Util.scaleLargeTimestamp(duration, MICROS_PER_SECOND, timescale);
+    dvrWindowLengthUs = dvrWindowLength == 0 ? C.UNKNOWN_TIME_US
+        : Util.scaleLargeTimestamp(dvrWindowLength, MICROS_PER_SECOND, timescale);
+    durationUs = duration == 0 ? C.UNKNOWN_TIME_US
+        : Util.scaleLargeTimestamp(duration, MICROS_PER_SECOND, timescale);
   }
 
   /**

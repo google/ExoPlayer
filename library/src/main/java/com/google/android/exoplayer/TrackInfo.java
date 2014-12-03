@@ -20,9 +20,21 @@ package com.google.android.exoplayer;
  */
 public final class TrackInfo {
 
+  /**
+   * The mime type.
+   */
   public final String mimeType;
+
+  /**
+   * The duration in microseconds, or {@link C#UNKNOWN_TIME_US} if the duration is unknown.
+   */
   public final long durationUs;
 
+  /**
+   * @param mimeType The mime type.
+   * @param durationUs The duration in microseconds, or {@link C#UNKNOWN_TIME_US} if the duration
+   *     is unknown.
+   */
   public TrackInfo(String mimeType, long durationUs) {
     this.mimeType = mimeType;
     this.durationUs = durationUs;

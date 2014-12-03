@@ -67,9 +67,9 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   protected static final int STATE_STARTED = 3;
 
   /**
-   * Represents an unknown time or duration.
+   * Represents an unknown time or duration. Equal to {@link C#UNKNOWN_TIME_US}.
    */
-  public static final long UNKNOWN_TIME_US = -1;
+  public static final long UNKNOWN_TIME_US = C.UNKNOWN_TIME_US; // -1
   /**
    * Represents a time or duration that should match the duration of the longest track whose
    * duration is known.
