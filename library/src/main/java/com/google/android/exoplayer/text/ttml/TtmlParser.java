@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.Subtitle;
 import com.google.android.exoplayer.text.SubtitleParser;
@@ -254,7 +255,7 @@ public class TtmlParser implements SubtitleParser {
       String subframes = matcher.group(6);
       durationSeconds += (subframes != null) ?
           ((double) Long.parseLong(subframes)) / subframeRate / frameRate : 0;
-      return (long) (durationSeconds * 1000000);
+      return (long) (durationSeconds * C.MICROS_PER_SECOND);
     }
     matcher = OFFSET_TIME.matcher(time);
     if (matcher.matches()) {
@@ -274,7 +275,7 @@ public class TtmlParser implements SubtitleParser {
       } else if (unit.equals("t")) {
         offsetSeconds /= tickRate;
       }
-      return (long) (offsetSeconds * 1000000);
+      return (long) (offsetSeconds * C.MICROS_PER_SECOND);
     }
     throw new ParserException("Malformed time expression: " + time);
   }

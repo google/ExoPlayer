@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.audio;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
@@ -80,22 +81,20 @@ public final class AudioTrack {
 
   private static final String TAG = "AudioTrack";
 
-  private static final long MICROS_PER_SECOND = 1000000L;
-
   /**
    * AudioTrack timestamps are deemed spurious if they are offset from the system clock by more
    * than this amount.
    *
    * <p>This is a fail safe that should not be required on correctly functioning devices.
    */
-  private static final long MAX_AUDIO_TIMESTAMP_OFFSET_US = 10 * MICROS_PER_SECOND;
+  private static final long MAX_AUDIO_TIMESTAMP_OFFSET_US = 10 * C.MICROS_PER_SECOND;
 
   /**
    * AudioTrack latencies are deemed impossibly large if they are greater than this amount.
    *
    * <p>This is a fail safe that should not be required on correctly functioning devices.
    */
-  private static final long MAX_LATENCY_US = 10 * MICROS_PER_SECOND;
+  private static final long MAX_LATENCY_US = 10 * C.MICROS_PER_SECOND;
 
   private static final int START_NOT_SET = 0;
   private static final int START_IN_SYNC = 1;
@@ -624,11 +623,11 @@ public final class AudioTrack {
   }
 
   private long framesToDurationUs(long frameCount) {
-    return (frameCount * MICROS_PER_SECOND) / sampleRate;
+    return (frameCount * C.MICROS_PER_SECOND) / sampleRate;
   }
 
   private long durationUsToFrames(long durationUs) {
-    return (durationUs * sampleRate) / MICROS_PER_SECOND;
+    return (durationUs * sampleRate) / C.MICROS_PER_SECOND;
   }
 
   private void resetSyncParams() {

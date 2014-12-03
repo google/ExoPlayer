@@ -23,7 +23,12 @@ public final class C {
   /**
    * Represents an unknown microsecond time or duration.
    */
-  public static final long UNKNOWN_TIME_US = -1;
+  public static final long UNKNOWN_TIME_US = -1L;
+
+  /**
+   * The number of microseconds in one second.
+   */
+  public static final long MICROS_PER_SECOND = 1000000L;
 
   /**
    * Represents an unbounded length of data.

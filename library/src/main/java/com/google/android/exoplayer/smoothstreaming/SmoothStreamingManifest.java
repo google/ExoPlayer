@@ -32,8 +32,6 @@ import java.util.UUID;
  */
 public class SmoothStreamingManifest {
 
-  private static final long MICROS_PER_SECOND = 1000000L;
-
   /**
    * The client manifest major version.
    */
@@ -102,9 +100,9 @@ public class SmoothStreamingManifest {
     this.protectionElement = protectionElement;
     this.streamElements = streamElements;
     dvrWindowLengthUs = dvrWindowLength == 0 ? C.UNKNOWN_TIME_US
-        : Util.scaleLargeTimestamp(dvrWindowLength, MICROS_PER_SECOND, timescale);
+        : Util.scaleLargeTimestamp(dvrWindowLength, C.MICROS_PER_SECOND, timescale);
     durationUs = duration == 0 ? C.UNKNOWN_TIME_US
-        : Util.scaleLargeTimestamp(duration, MICROS_PER_SECOND, timescale);
+        : Util.scaleLargeTimestamp(duration, C.MICROS_PER_SECOND, timescale);
   }
 
   /**
@@ -226,9 +224,9 @@ public class SmoothStreamingManifest {
       this.chunkCount = chunkStartTimes.size();
       this.chunkStartTimes = chunkStartTimes;
       lastChunkDurationUs =
-          Util.scaleLargeTimestamp(lastChunkDuration, MICROS_PER_SECOND, timescale);
+          Util.scaleLargeTimestamp(lastChunkDuration, C.MICROS_PER_SECOND, timescale);
       chunkStartTimesUs =
-          Util.scaleLargeTimestamps(chunkStartTimes, MICROS_PER_SECOND, timescale);
+          Util.scaleLargeTimestamps(chunkStartTimes, C.MICROS_PER_SECOND, timescale);
     }
 
     /**
