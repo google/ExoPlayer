@@ -164,8 +164,8 @@ public class SimplePlayerActivity extends Activity implements SurfaceHolder.Call
       case DemoUtil.TYPE_SS:
         return new SmoothStreamingRendererBuilder(this, userAgent, contentUri.toString(),
             contentId);
-      case DemoUtil.TYPE_DASH_VOD:
-        return new DashVodRendererBuilder(this, userAgent, contentUri.toString(), contentId);
+      case DemoUtil.TYPE_DASH:
+        return new DashRendererBuilder(this, userAgent, contentUri.toString(), contentId);
       case DemoUtil.TYPE_HLS:
         return new HlsRendererBuilder(this, userAgent, contentUri.toString(), contentId);
       default:

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.chunk;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -42,7 +43,8 @@ public class SingleSampleChunkSource implements ChunkSource {
    * @param dataSource A {@link DataSource} suitable for loading the sample data.
    * @param dataSpec Defines the location of the sample.
    * @param format The format of the sample.
-   * @param durationUs The duration of the sample in microseconds.
+   * @param durationUs The duration of the sample in microseconds, or {@link C#UNKNOWN_TIME_US} if
+   *     the duration is unknown.
    * @param mediaFormat The sample media format. May be null.
    */
   public SingleSampleChunkSource(DataSource dataSource, DataSpec dataSpec, Format format,

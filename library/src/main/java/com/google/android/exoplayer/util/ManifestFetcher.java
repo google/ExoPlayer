@@ -18,6 +18,7 @@ package com.google.android.exoplayer.util;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 
+import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Pair;
@@ -29,11 +30,24 @@ import java.net.URLConnection;
 import java.util.concurrent.CancellationException;
 
 /**
- * Performs both single and repeated loads of media manfifests.
+ * Performs both single and repeated loads of media manifests.
  *
  * @param <T> The type of manifest.
  */
 public class ManifestFetcher<T> implements Loader.Callback {
+
+  /**
+   * Interface definition for a callback to be notified of {@link ManifestFetcher} events.
+   */
+  public interface EventListener {
+
+    public void onManifestRefreshStarted();
+
+    public void onManifestRefreshed();
+
+    public void onManifestError(IOException e);
+
+  }
 
   /**
    * Callback for the result of a single load.
@@ -61,9 +75,12 @@ public class ManifestFetcher<T> implements Loader.Callback {
   }
 
   /* package */ final ManifestParser<T> parser;
-  /* package */ final String manifestUrl;
   /* package */ final String contentId;
   /* package */ final String userAgent;
+  private final Handler eventHandler;
+  private final EventListener eventListener;
+
+  /* package */ volatile String manifestUrl;
 
   private int enabledCount;
   private Loader loader;
@@ -76,6 +93,11 @@ public class ManifestFetcher<T> implements Loader.Callback {
   private volatile T manifest;
   private volatile long manifestLoadTimestamp;
 
+  public ManifestFetcher(ManifestParser<T> parser, String contentId, String manifestUrl,
+      String userAgent) {
+    this(parser, contentId, manifestUrl, userAgent, null, null);
+  }
+
   /**
    * @param parser A parser to parse the loaded manifest data.
    * @param contentId The content id of the content being loaded. May be null.
@@ -83,11 +105,22 @@ public class ManifestFetcher<T> implements Loader.Callback {
    * @param userAgent The User-Agent string that should be used.
    */
   public ManifestFetcher(ManifestParser<T> parser, String contentId, String manifestUrl,
-      String userAgent) {
+      String userAgent, Handler eventHandler, EventListener eventListener) {
     this.parser = parser;
     this.contentId = contentId;
     this.manifestUrl = manifestUrl;
     this.userAgent = userAgent;
+    this.eventHandler = eventHandler;
+    this.eventListener = eventListener;
+  }
+
+  /**
+   * Updates the manifest location.
+   *
+   * @param manifestUrl The manifest location.
+   */
+  public void updateManifestUrl(String manifestUrl) {
+    this.manifestUrl = manifestUrl;
   }
 
   /**
@@ -173,6 +206,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
     if (!loader.isLoading()) {
       currentLoadable = new ManifestLoadable();
       loader.startLoading(currentLoadable, this);
+      notifyManifestRefreshStarted();
     }
   }
 
@@ -187,6 +221,8 @@ public class ManifestFetcher<T> implements Loader.Callback {
     manifestLoadTimestamp = SystemClock.elapsedRealtime();
     loadExceptionCount = 0;
     loadException = null;
+
+    notifyManifestRefreshed();
   }
 
   @Override
@@ -204,10 +240,45 @@ public class ManifestFetcher<T> implements Loader.Callback {
     loadExceptionCount++;
     loadExceptionTimestamp = SystemClock.elapsedRealtime();
     loadException = new IOException(exception);
+
+    notifyManifestError(loadException);
   }
 
   private long getRetryDelayMillis(long errorCount) {
     return Math.min((errorCount - 1) * 1000, 5000);
+  }
+
+  private void notifyManifestRefreshStarted() {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable()  {
+        @Override
+        public void run() {
+          eventListener.onManifestRefreshStarted();
+        }
+      });
+    }
+  }
+
+  private void notifyManifestRefreshed() {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable()  {
+        @Override
+        public void run() {
+          eventListener.onManifestRefreshed();
+        }
+      });
+    }
+  }
+
+  private void notifyManifestError(final IOException e) {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable()  {
+        @Override
+        public void run() {
+          eventListener.onManifestError(e);
+        }
+      });
+    }
   }
 
   private class SingleFetchHelper implements Loader.Callback {

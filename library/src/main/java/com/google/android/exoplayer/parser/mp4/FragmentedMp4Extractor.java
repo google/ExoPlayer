@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.parser.mp4;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
@@ -26,6 +27,7 @@ import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.Util;
 
 import android.annotation.SuppressLint;
 import android.media.MediaCodec;
@@ -1053,6 +1055,7 @@ public final class FragmentedMp4Extractor implements Extractor {
 
     long offset = firstOffset;
     long time = earliestPresentationTime;
+    long timeUs = Util.scaleLargeTimestamp(time, C.MICROS_PER_SECOND, timescale);
     for (int i = 0; i < referenceCount; i++) {
       int firstInt = atom.readInt();
 
@@ -1067,10 +1070,10 @@ public final class FragmentedMp4Extractor implements Extractor {
 
       // Calculate time and duration values such that any rounding errors are consistent. i.e. That
       // timesUs[i] + durationsUs[i] == timesUs[i + 1].
-      timesUs[i] = (time * 1000000L) / timescale;
-      long nextTimeUs = ((time + referenceDuration) * 1000000L) / timescale;
-      durationsUs[i] = nextTimeUs - timesUs[i];
+      timesUs[i] = timeUs;
       time += referenceDuration;
+      timeUs = Util.scaleLargeTimestamp(time, C.MICROS_PER_SECOND, timescale);
+      durationsUs[i] = timeUs - timesUs[i];
 
       atom.skip(4);
       offset += sizes[i];

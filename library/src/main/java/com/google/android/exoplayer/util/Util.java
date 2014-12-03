@@ -399,4 +399,22 @@ public final class Util {
     return scaledTimestamps;
   }
 
+  /**
+   * Converts a list of integers to a primitive array.
+   *
+   * @param list A list of integers.
+   * @return The list in array form, or null if the input list was null.
+   */
+  public static int[] toArray(List<Integer> list) {
+    if (list == null) {
+      return null;
+    }
+    int length = list.size();
+    int[] intArray = new int[length];
+    for (int i = 0; i < length; i++) {
+      intArray[i] = list.get(i);
+    }
+    return intArray;
+  }
+
 }

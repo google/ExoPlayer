@@ -46,13 +46,13 @@ package com.google.android.exoplayer.demo;
         "http://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?"
         + "as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,as&ip=0.0.0.0&"
         + "ipbits=0&expire=19000000000&signature=255F6B3C07C753C88708C07EA31B7A1A10703C8D."
-        + "2D6A28B21F921D0B245CDCF36F7EB54A2B5ABFC2&key=ik0", DemoUtil.TYPE_DASH_VOD, false,
+        + "2D6A28B21F921D0B245CDCF36F7EB54A2B5ABFC2&key=ik0", DemoUtil.TYPE_DASH, false,
         false),
     new Sample("Google Play (DASH)", "3aa39fa2cc27967f",
         "http://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?"
         + "as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0&"
         + "expire=19000000000&signature=7181C59D0252B285D593E1B61D985D5B7C98DE2A."
-        + "5B445837F55A40E0F28AACAA047982E372D177E2&key=ik0", DemoUtil.TYPE_DASH_VOD, false,
+        + "5B445837F55A40E0F28AACAA047982E372D177E2&key=ik0", DemoUtil.TYPE_DASH, false,
         false),
     new Sample("Super speed (SmoothStreaming)", "uid:ss:superspeed",
         "http://playready.directtaps.net/smoothstreaming/SSWSS720H264/SuperSpeedway_720.ism",
@@ -69,13 +69,13 @@ package com.google.android.exoplayer.demo;
         "http://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?"
         + "as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,as&ip=0.0.0.0&"
         + "ipbits=0&expire=19000000000&signature=255F6B3C07C753C88708C07EA31B7A1A10703C8D."
-        + "2D6A28B21F921D0B245CDCF36F7EB54A2B5ABFC2&key=ik0", DemoUtil.TYPE_DASH_VOD, false,
+        + "2D6A28B21F921D0B245CDCF36F7EB54A2B5ABFC2&key=ik0", DemoUtil.TYPE_DASH, false,
         true),
     new Sample("Google Play", "3aa39fa2cc27967f",
         "http://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?"
         + "as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0&"
         + "expire=19000000000&signature=7181C59D0252B285D593E1B61D985D5B7C98DE2A."
-        + "5B445837F55A40E0F28AACAA047982E372D177E2&key=ik0", DemoUtil.TYPE_DASH_VOD, false,
+        + "5B445837F55A40E0F28AACAA047982E372D177E2&key=ik0", DemoUtil.TYPE_DASH, false,
         true),
   };
 
@@ -84,12 +84,12 @@ package com.google.android.exoplayer.demo;
         "http://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?"
         + "as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0&"
         + "expire=19000000000&signature=A3EC7EE53ABE601B357F7CAB8B54AD0702CA85A7."
-        + "446E9C38E47E3EDAF39E0163C390FF83A7944918&key=ik0", DemoUtil.TYPE_DASH_VOD, false, true),
+        + "446E9C38E47E3EDAF39E0163C390FF83A7944918&key=ik0", DemoUtil.TYPE_DASH, false, true),
     new Sample("Google Play", "3aa39fa2cc27967f",
         "http://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?"
         + "as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0&"
         + "expire=19000000000&signature=B752B262C6D7262EC4E4EB67901E5D8F7058A81D."
-        + "C0358CE1E335417D9A8D88FF192F0D5D8F6DA1B6&key=ik0", DemoUtil.TYPE_DASH_VOD, false, true),
+        + "C0358CE1E335417D9A8D88FF192F0D5D8F6DA1B6&key=ik0", DemoUtil.TYPE_DASH, false, true),
   };
 
   public static final Sample[] SMOOTHSTREAMING = new Sample[] {
@@ -106,32 +106,32 @@ package com.google.android.exoplayer.demo;
         "http://www.youtube.com/api/manifest/dash/id/d286538032258a1c/source/youtube?"
         + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
         + "&expire=19000000000&signature=41EA40A027A125A16292E0A5E3277A3B5FA9B938."
-        + "0BB075C396FFDDC97E526E8F77DC26FF9667D0D6&key=ik0", DemoUtil.TYPE_DASH_VOD, true, true),
+        + "0BB075C396FFDDC97E526E8F77DC26FF9667D0D6&key=ik0", DemoUtil.TYPE_DASH, true, true),
     new Sample("WV: HDCP not required", "48fcc369939ac96c",
         "http://www.youtube.com/api/manifest/dash/id/48fcc369939ac96c/source/youtube?"
         + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
         + "&expire=19000000000&signature=315911BDCEED0FB0C763455BDCC97449DAAFA9E8."
-        + "5B41E2EB411F797097A359D6671D2CDE26272373&key=ik0", DemoUtil.TYPE_DASH_VOD, true, true),
+        + "5B41E2EB411F797097A359D6671D2CDE26272373&key=ik0", DemoUtil.TYPE_DASH, true, true),
     new Sample("WV: HDCP required", "e06c39f1151da3df",
         "http://www.youtube.com/api/manifest/dash/id/e06c39f1151da3df/source/youtube?"
         + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
         + "&expire=19000000000&signature=A47A1E13E7243BD567601A75F79B34644D0DC592."
-        + "B09589A34FA23527EFC1552907754BB8033870BD&key=ik0", DemoUtil.TYPE_DASH_VOD, true, true),
+        + "B09589A34FA23527EFC1552907754BB8033870BD&key=ik0", DemoUtil.TYPE_DASH, true, true),
     new Sample("WV: Secure video path required", "0894c7c8719b28a0",
         "http://www.youtube.com/api/manifest/dash/id/0894c7c8719b28a0/source/youtube?"
         + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
         + "&expire=19000000000&signature=2847EE498970F6B45176766CD2802FEB4D4CB7B2."
-        + "A1CA51EC40A1C1039BA800C41500DD448C03EEDA&key=ik0", DemoUtil.TYPE_DASH_VOD, true, true),
+        + "A1CA51EC40A1C1039BA800C41500DD448C03EEDA&key=ik0", DemoUtil.TYPE_DASH, true, true),
     new Sample("WV: HDCP + secure video path required", "efd045b1eb61888a",
         "http://www.youtube.com/api/manifest/dash/id/efd045b1eb61888a/source/youtube?"
         + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
         + "&expire=19000000000&signature=61611F115EEEC7BADE5536827343FFFE2D83D14F."
-        + "2FDF4BFA502FB5865C5C86401314BDDEA4799BD0&key=ik0", DemoUtil.TYPE_DASH_VOD, true, true),
+        + "2FDF4BFA502FB5865C5C86401314BDDEA4799BD0&key=ik0", DemoUtil.TYPE_DASH, true, true),
     new Sample("WV: 30s license duration", "f9a34cab7b05881a",
         "http://www.youtube.com/api/manifest/dash/id/f9a34cab7b05881a/source/youtube?"
         + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
         + "&expire=19000000000&signature=88DC53943385CED8CF9F37ADD9E9843E3BF621E6."
-        + "22727BB612D24AA4FACE4EF62726F9461A9BF57A&key=ik0", DemoUtil.TYPE_DASH_VOD, true, true),
+        + "22727BB612D24AA4FACE4EF62726F9461A9BF57A&key=ik0", DemoUtil.TYPE_DASH, true, true),
   };
 
   public static final Sample[] HLS = new Sample[] {

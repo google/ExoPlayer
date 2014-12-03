@@ -40,6 +40,8 @@ import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilderC
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.drm.MediaDrmCallback;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
+import com.google.android.exoplayer.text.TextTrackRenderer;
+import com.google.android.exoplayer.text.webvtt.WebvttParser;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
@@ -58,16 +60,19 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
- * A {@link RendererBuilder} for DASH VOD.
+ * A {@link RendererBuilder} for DASH.
  */
-public class DashVodRendererBuilder implements RendererBuilder,
+public class DashRendererBuilder implements RendererBuilder,
     ManifestCallback<MediaPresentationDescription> {
 
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
   private static final int VIDEO_BUFFER_SEGMENTS = 200;
   private static final int AUDIO_BUFFER_SEGMENTS = 60;
+  private static final int TEXT_BUFFER_SEGMENTS = 2;
+  private static final int LIVE_EDGE_LATENCY_MS = 30000;
 
   private static final int SECURITY_LEVEL_UNKNOWN = -1;
   private static final int SECURITY_LEVEL_1 = 1;
@@ -81,8 +86,9 @@ public class DashVodRendererBuilder implements RendererBuilder,
 
   private DemoPlayer player;
   private RendererBuilderCallback callback;
+  private ManifestFetcher<MediaPresentationDescription> manifestFetcher;
 
-  public DashVodRendererBuilder(String userAgent, String url, String contentId,
+  public DashRendererBuilder(String userAgent, String url, String contentId,
       MediaDrmCallback drmCallback, TextView debugTextView) {
     this.userAgent = userAgent;
     this.url = url;
@@ -96,8 +102,8 @@ public class DashVodRendererBuilder implements RendererBuilder,
     this.player = player;
     this.callback = callback;
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
-    ManifestFetcher<MediaPresentationDescription> manifestFetcher =
-        new ManifestFetcher<MediaPresentationDescription>(parser, contentId, url, userAgent);
+    manifestFetcher = new ManifestFetcher<MediaPresentationDescription>(parser, contentId, url,
+        userAgent);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 
@@ -108,38 +114,17 @@ public class DashVodRendererBuilder implements RendererBuilder,
 
   @Override
   public void onManifest(String contentId, MediaPresentationDescription manifest) {
+    Period period = manifest.periods.get(0);
     Handler mainHandler = player.getMainHandler();
     LoadControl loadControl = new DefaultLoadControl(new BufferPool(BUFFER_SEGMENT_SIZE));
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter(mainHandler, player);
 
-    // Obtain Representations for playback.
-    int maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
-    ArrayList<Representation> audioRepresentationsList = new ArrayList<Representation>();
-    ArrayList<Representation> videoRepresentationsList = new ArrayList<Representation>();
-    Period period = manifest.periods.get(0);
-    boolean hasContentProtection = false;
-    for (int i = 0; i < period.adaptationSets.size(); i++) {
-      AdaptationSet adaptationSet = period.adaptationSets.get(i);
-      hasContentProtection |= adaptationSet.hasContentProtection();
-      int adaptationSetType = adaptationSet.type;
-      for (int j = 0; j < adaptationSet.representations.size(); j++) {
-        Representation representation = adaptationSet.representations.get(j);
-        if (adaptationSetType == AdaptationSet.TYPE_AUDIO) {
-          audioRepresentationsList.add(representation);
-        } else if (adaptationSetType == AdaptationSet.TYPE_VIDEO) {
-          Format format = representation.format;
-          if (format.width * format.height <= maxDecodableFrameSize) {
-            videoRepresentationsList.add(representation);
-          } else {
-            // The device isn't capable of playing this stream.
-          }
-        }
-      }
-    }
-    Representation[] videoRepresentations = new Representation[videoRepresentationsList.size()];
-    videoRepresentationsList.toArray(videoRepresentations);
+    int videoAdaptationSetIndex = period.getAdaptationSetIndex(AdaptationSet.TYPE_VIDEO);
+    AdaptationSet videoAdaptationSet = period.adaptationSets.get(videoAdaptationSetIndex);
 
     // Check drm support if necessary.
+    boolean hasContentProtection = videoAdaptationSet.hasContentProtection();
+    boolean filterHdContent = false;
     DrmSessionManager drmSessionManager = null;
     if (hasContentProtection) {
       if (Util.SDK_INT < 18) {
@@ -151,55 +136,81 @@ public class DashVodRendererBuilder implements RendererBuilder,
         Pair<DrmSessionManager, Boolean> drmSessionManagerData =
             V18Compat.getDrmSessionManagerData(player, drmCallback);
         drmSessionManager = drmSessionManagerData.first;
-        if (!drmSessionManagerData.second) {
-          // HD streams require L1 security.
-          videoRepresentations = getSdRepresentations(videoRepresentations);
-        }
+        // HD streams require L1 security.
+        filterHdContent = !drmSessionManagerData.second;
       } catch (Exception e) {
         callback.onRenderersError(e);
         return;
       }
     }
 
-    // Build the video renderer.
-    DataSource videoDataSource = new UriDataSource(userAgent, bandwidthMeter);
-    ChunkSource videoChunkSource;
-    String mimeType = videoRepresentations[0].format.mimeType;
-    if (mimeType.equals(MimeTypes.VIDEO_MP4) || mimeType.equals(MimeTypes.VIDEO_WEBM)) {
-      videoChunkSource = new DashChunkSource(videoDataSource,
-          new AdaptiveEvaluator(bandwidthMeter), videoRepresentations);
-    } else {
-      throw new IllegalStateException("Unexpected mime type: " + mimeType);
+    // Determine which video representations we should use for playback.
+    int maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
+    List<Representation> videoRepresentations = videoAdaptationSet.representations;
+    ArrayList<Integer> videoRepresentationIndexList = new ArrayList<Integer>();
+    for (int i = 0; i < videoRepresentations.size(); i++) {
+      Format format = videoRepresentations.get(i).format;
+      if (filterHdContent && (format.width >= 1280 || format.height >= 720)) {
+        // Filtering HD content
+      } else if (format.width * format.height > maxDecodableFrameSize) {
+        // Filtering stream that device cannot play
+      } else if (!format.mimeType.equals(MimeTypes.VIDEO_MP4)
+          && !format.mimeType.equals(MimeTypes.VIDEO_WEBM)) {
+        // Filtering unsupported mime type
+      } else {
+        videoRepresentationIndexList.add(i);
+      }
     }
-    ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
-        VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
-        DemoPlayer.TYPE_VIDEO);
-    MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource,
-        drmSessionManager, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null,
-        mainHandler, player, 50);
+
+    // Build the video renderer.
+    final MediaCodecVideoTrackRenderer videoRenderer;
+    final TrackRenderer debugRenderer;
+    if (videoRepresentationIndexList.isEmpty()) {
+      videoRenderer = null;
+      debugRenderer = null;
+    } else {
+      int[] videoRepresentationIndices = Util.toArray(videoRepresentationIndexList);
+      DataSource videoDataSource = new UriDataSource(userAgent, bandwidthMeter);
+      ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher, videoAdaptationSetIndex,
+          videoRepresentationIndices, videoDataSource, new AdaptiveEvaluator(bandwidthMeter),
+          LIVE_EDGE_LATENCY_MS);
+      ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
+          VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
+          DemoPlayer.TYPE_VIDEO);
+      videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource, drmSessionManager, true,
+          MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, mainHandler, player, 50);
+      debugRenderer = debugTextView != null
+          ? new DebugTrackRenderer(debugTextView, videoRenderer, videoSampleSource) : null;
+    }
+
+    // Build the audio chunk sources.
+    int audioAdaptationSetIndex = period.getAdaptationSetIndex(AdaptationSet.TYPE_AUDIO);
+    AdaptationSet audioAdaptationSet = period.adaptationSets.get(audioAdaptationSetIndex);
+    DataSource audioDataSource = new UriDataSource(userAgent, bandwidthMeter);
+    FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
+    List<ChunkSource> audioChunkSourceList = new ArrayList<ChunkSource>();
+    List<String> audioTrackNameList = new ArrayList<String>();
+    List<Representation> audioRepresentations = audioAdaptationSet.representations;
+    for (int i = 0; i < audioRepresentations.size(); i++) {
+      Format format = audioRepresentations.get(i).format;
+      audioTrackNameList.add(format.id + " (" + format.numChannels + "ch, " +
+          format.audioSamplingRate + "Hz)");
+      audioChunkSourceList.add(new DashChunkSource(manifestFetcher, audioAdaptationSetIndex,
+          new int[] {i}, audioDataSource, audioEvaluator, LIVE_EDGE_LATENCY_MS));
+    }
 
     // Build the audio renderer.
     final String[] audioTrackNames;
     final MultiTrackChunkSource audioChunkSource;
     final TrackRenderer audioRenderer;
-    if (audioRepresentationsList.isEmpty()) {
+    if (audioChunkSourceList.isEmpty()) {
       audioTrackNames = null;
       audioChunkSource = null;
       audioRenderer = null;
     } else {
-      DataSource audioDataSource = new UriDataSource(userAgent, bandwidthMeter);
-      audioTrackNames = new String[audioRepresentationsList.size()];
-      ChunkSource[] audioChunkSources = new ChunkSource[audioRepresentationsList.size()];
-      FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
-      for (int i = 0; i < audioRepresentationsList.size(); i++) {
-        Representation representation = audioRepresentationsList.get(i);
-        Format format = representation.format;
-        audioTrackNames[i] = format.id + " (" + format.numChannels + "ch, " +
-            format.audioSamplingRate + "Hz)";
-        audioChunkSources[i] = new DashChunkSource(audioDataSource,
-            audioEvaluator, representation);
-      }
-      audioChunkSource = new MultiTrackChunkSource(audioChunkSources);
+      audioTrackNames = new String[audioTrackNameList.size()];
+      audioTrackNameList.toArray(audioTrackNames);
+      audioChunkSource = new MultiTrackChunkSource(audioChunkSourceList);
       SampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
           AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
           DemoPlayer.TYPE_AUDIO);
@@ -207,35 +218,59 @@ public class DashVodRendererBuilder implements RendererBuilder,
           mainHandler, player);
     }
 
-    // Build the debug renderer.
-    TrackRenderer debugRenderer = debugTextView != null
-        ? new DebugTrackRenderer(debugTextView, videoRenderer, videoSampleSource) : null;
+    // Build the text chunk sources.
+    DataSource textDataSource = new UriDataSource(userAgent, bandwidthMeter);
+    FormatEvaluator textEvaluator = new FormatEvaluator.FixedEvaluator();
+    List<ChunkSource> textChunkSourceList = new ArrayList<ChunkSource>();
+    List<String> textTrackNameList = new ArrayList<String>();
+    for (int i = 0; i < period.adaptationSets.size(); i++) {
+      AdaptationSet adaptationSet = period.adaptationSets.get(i);
+      if (adaptationSet.type == AdaptationSet.TYPE_TEXT) {
+        List<Representation> representations = adaptationSet.representations;
+        for (int j = 0; j < representations.size(); j++) {
+          Representation representation = representations.get(j);
+          textTrackNameList.add(representation.format.id);
+          textChunkSourceList.add(new DashChunkSource(manifestFetcher, i, new int[] {j},
+              textDataSource, textEvaluator, LIVE_EDGE_LATENCY_MS));
+        }
+      }
+    }
+
+    // Build the text renderers
+    final String[] textTrackNames;
+    final MultiTrackChunkSource textChunkSource;
+    final TrackRenderer textRenderer;
+    if (textChunkSourceList.isEmpty()) {
+      textTrackNames = null;
+      textChunkSource = null;
+      textRenderer = null;
+    } else {
+      textTrackNames = new String[textTrackNameList.size()];
+      textTrackNameList.toArray(textTrackNames);
+      textChunkSource = new MultiTrackChunkSource(textChunkSourceList);
+      SampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
+          TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
+          DemoPlayer.TYPE_TEXT);
+      textRenderer = new TextTrackRenderer(textSampleSource, new WebvttParser(), player,
+          mainHandler.getLooper());
+    }
 
     // Invoke the callback.
     String[][] trackNames = new String[DemoPlayer.RENDERER_COUNT][];
     trackNames[DemoPlayer.TYPE_AUDIO] = audioTrackNames;
+    trackNames[DemoPlayer.TYPE_TEXT] = textTrackNames;
 
     MultiTrackChunkSource[] multiTrackChunkSources =
         new MultiTrackChunkSource[DemoPlayer.RENDERER_COUNT];
     multiTrackChunkSources[DemoPlayer.TYPE_AUDIO] = audioChunkSource;
+    multiTrackChunkSources[DemoPlayer.TYPE_TEXT] = textChunkSource;
 
     TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
     renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
     renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
+    renderers[DemoPlayer.TYPE_TEXT] = textRenderer;
     renderers[DemoPlayer.TYPE_DEBUG] = debugRenderer;
     callback.onRenderers(trackNames, multiTrackChunkSources, renderers);
-  }
-
-  private Representation[] getSdRepresentations(Representation[] representations) {
-    ArrayList<Representation> sdRepresentations = new ArrayList<Representation>();
-    for (int i = 0; i < representations.length; i++) {
-      if (representations[i].format.height < 720 && representations[i].format.width < 1280) {
-        sdRepresentations.add(representations[i]);
-      }
-    }
-    Representation[] sdRepresentationArray = new Representation[sdRepresentations.size()];
-    sdRepresentations.toArray(sdRepresentationArray);
-    return sdRepresentationArray;
   }
 
   @TargetApi(18)

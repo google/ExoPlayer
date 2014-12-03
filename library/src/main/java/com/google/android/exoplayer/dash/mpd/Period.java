@@ -56,4 +56,21 @@ public class Period {
     this.adaptationSets = Collections.unmodifiableList(adaptationSets);
   }
 
+  /**
+   * Returns the index of the first adaptation set of a given type, or -1 if no adaptation set of
+   * the specified type exists.
+   *
+   * @param type An adaptation set type.
+   * @return The index of the first adaptation set of the specified type, or -1.
+   */
+  public int getAdaptationSetIndex(int type) {
+    int adaptationCount = adaptationSets.size();
+    for (int i = 0; i < adaptationCount; i++) {
+      if (adaptationSets.get(i).type == type) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
 }
