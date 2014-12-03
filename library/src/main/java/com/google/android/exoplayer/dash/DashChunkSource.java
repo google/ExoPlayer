@@ -72,14 +72,16 @@ public class DashChunkSource implements ChunkSource {
    */
   public DashChunkSource(DataSource dataSource, FormatEvaluator evaluator,
       Representation... representations) {
+    long periodDurationUs = (representations[0].periodDurationMs == -1)
+        ? -1 : representations[0].periodDurationMs * 1000;
+
     this.dataSource = dataSource;
     this.evaluator = evaluator;
     this.formats = new Format[representations.length];
     this.extractors = new HashMap<String, Extractor>();
     this.segmentIndexes = new HashMap<String, DashSegmentIndex>();
     this.representations = new HashMap<String, Representation>();
-    this.trackInfo = new TrackInfo(representations[0].format.mimeType,
-        representations[0].periodDurationMs * 1000);
+    this.trackInfo = new TrackInfo(representations[0].format.mimeType, periodDurationUs);
     this.evaluation = new Evaluation();
     int maxWidth = 0;
     int maxHeight = 0;
