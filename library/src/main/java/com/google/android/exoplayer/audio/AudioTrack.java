@@ -19,6 +19,7 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -96,6 +97,9 @@ public final class AudioTrack {
    */
   private static final long MAX_LATENCY_US = 10 * C.MICROS_PER_SECOND;
 
+  /** Value for ac3Bitrate before the bitrate has been calculated. */
+  private static final int UNKNOWN_AC3_BITRATE = 0;
+
   private static final int START_NOT_SET = 0;
   private static final int START_IN_SYNC = 1;
   private static final int START_NEED_SYNC = 2;
@@ -137,6 +141,11 @@ public final class AudioTrack {
   private byte[] temporaryBuffer;
   private int temporaryBufferOffset;
   private int temporaryBufferSize;
+
+  private boolean isAc3;
+
+  /** Bitrate measured in kilobits per second, if {@link #isAc3} is true. */
+  private int ac3Bitrate;
 
   /** Constructs an audio track using the default minimum buffer size multiplier. */
   public AudioTrack() {
@@ -276,6 +285,7 @@ public final class AudioTrack {
    * @param bufferSize The total size of the playback buffer in bytes. Specify 0 to use a buffer
    *     size based on the minimum for format.
    */
+  @SuppressLint("InlinedApi")
   public void reconfigure(MediaFormat format, int encoding, int bufferSize) {
     int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
     int channelConfig;
@@ -299,8 +309,9 @@ public final class AudioTrack {
     int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
 
     // TODO: Does channelConfig determine channelCount?
+    boolean isAc3 = encoding == AudioFormat.ENCODING_AC3 || encoding == AudioFormat.ENCODING_E_AC3;
     if (audioTrack != null && this.sampleRate == sampleRate
-        && this.channelConfig == channelConfig) {
+        && this.channelConfig == channelConfig && !this.isAc3 && !isAc3) {
       // We already have an existing audio track with the correct sample rate and channel config.
       return;
     }
@@ -314,7 +325,8 @@ public final class AudioTrack {
         bufferSize == 0 ? (int) (minBufferMultiplicationFactor * minBufferSize) : bufferSize;
     this.sampleRate = sampleRate;
     this.channelConfig = channelConfig;
-
+    this.isAc3 = isAc3;
+    ac3Bitrate = UNKNOWN_AC3_BITRATE; // Calculated on receiving the first buffer if isAc3 is true.
     frameSize = 2 * channelCount; // 2 bytes per 16 bit sample * number of channels.
   }
 
@@ -352,6 +364,14 @@ public final class AudioTrack {
     int result = 0;
 
     if (temporaryBufferSize == 0 && size != 0) {
+      if (isAc3 && ac3Bitrate == UNKNOWN_AC3_BITRATE) {
+        // Each AC-3 buffer contains 1536 frames of audio, so the AudioTrack playback position
+        // advances by 1536 per buffer (32 ms at 48 kHz). Calculate the bitrate in kbit/s.
+        int unscaledAc3Bitrate = size * 8 * sampleRate;
+        int divisor = 1000 * 1536;
+        ac3Bitrate = (unscaledAc3Bitrate + divisor / 2) / divisor;
+      }
+
       // This is the first time we've seen this {@code buffer}.
       // Note: presentationTimeUs corresponds to the end of the sample, not the start.
       long bufferStartTime = presentationTimeUs - framesToDurationUs(bytesToFrames(size));
@@ -615,11 +635,16 @@ public final class AudioTrack {
   }
 
   private long framesToBytes(long frameCount) {
+    // This method is unused on SDK >= 21.
     return frameCount * frameSize;
   }
 
   private long bytesToFrames(long byteCount) {
-    return byteCount / frameSize;
+    if (isAc3) {
+      return byteCount * 8 * sampleRate / (1000 * ac3Bitrate);
+    } else {
+      return byteCount / frameSize;
+    }
   }
 
   private long framesToDurationUs(long frameCount) {

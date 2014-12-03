@@ -40,7 +40,7 @@ public final class AudioCapabilitiesReceiver {
 
   }
 
-  /** Default to stereo PCM on SDK <= 21 and when HDMI is unplugged. */
+  /** Default to stereo PCM on SDK < 21 and when HDMI is unplugged. */
   private static final AudioCapabilities DEFAULT_AUDIO_CAPABILITIES =
       new AudioCapabilities(new int[] {AudioFormat.ENCODING_PCM_16BIT}, 2);
 
