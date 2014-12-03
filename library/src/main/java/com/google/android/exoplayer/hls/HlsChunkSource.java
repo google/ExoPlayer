@@ -17,7 +17,6 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.hls.TsExtractor.SamplePool;
 import com.google.android.exoplayer.upstream.Aes128DataSource;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
@@ -193,7 +192,7 @@ public class HlsChunkSource {
   }
 
   public long getDurationUs() {
-    return live ? TrackRenderer.UNKNOWN_TIME_US : durationUs;
+    return live ? C.UNKNOWN_TIME_US : durationUs;
   }
 
   /**
@@ -313,7 +312,7 @@ public class HlsChunkSource {
     } else /* Not live */ {
       startTimeUs = segment.startTimeUs;
     }
-    long endTimeUs = startTimeUs + (long) (segment.durationSecs * 1000000);
+    long endTimeUs = startTimeUs + (long) (segment.durationSecs * C.MICROS_PER_SECOND);
     boolean isLastChunk = !mediaPlaylist.live && chunkIndex == mediaPlaylist.segments.size() - 1;
 
     // Configure the extractor that will read the chunk.

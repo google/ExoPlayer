@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.hls;
 
+import com.google.android.exoplayer.C;
+
 import android.net.Uri;
 
 import java.util.List;
@@ -77,11 +79,11 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     this.live = live;
     this.segments = segments;
 
-    if (this.segments.size() > 0) {
-      Segment lastSegment = segments.get(this.segments.size() - 1);
-      this.durationUs = lastSegment.startTimeUs + (long) (lastSegment.durationSecs * 1000000);
+    if (!segments.isEmpty()) {
+      Segment last = segments.get(segments.size() - 1);
+      durationUs = last.startTimeUs + (long) (last.durationSecs * C.MICROS_PER_SECOND);
     } else {
-      this.durationUs = 0;
+      durationUs = 0;
     }
   }
 

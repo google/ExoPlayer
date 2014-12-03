@@ -223,7 +223,7 @@ public final class HlsPlaylistParser implements ManifestParser<HlsPlaylist> {
         segments.add(new Segment(line, segmentDurationSecs, segmentDiscontinuity,
             segmentStartTimeUs, segmentEncryptionMethod, segmentEncryptionKeyUri,
             segmentEncryptionIV, segmentByterangeOffset, segmentByterangeLength));
-        segmentStartTimeUs += (long) (segmentDurationSecs * 1000000);
+        segmentStartTimeUs += (long) (segmentDurationSecs * C.MICROS_PER_SECOND);
         segmentDiscontinuity = false;
         segmentDurationSecs = 0.0;
         if (segmentByterangeLength != C.LENGTH_UNBOUNDED) {

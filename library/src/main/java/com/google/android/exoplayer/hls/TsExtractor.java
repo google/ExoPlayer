@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.hls;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.metadata.Eia608Parser;
@@ -480,7 +481,7 @@ public final class TsExtractor {
         pesBuffer.skipBits(1);
         pts |= pesBuffer.readBitsLong(15);
         pesBuffer.skipBits(1);
-        timeUs = pts * 1000000 / 90000;
+        timeUs = (pts * C.MICROS_PER_SECOND) / 90000;
         // Skip the rest of the header.
         pesBuffer.skipBytes(headerDataLength - 5);
       } else {
@@ -1035,7 +1036,7 @@ public final class TsExtractor {
         MediaFormat mediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_AAC,
             MediaFormat.NO_VALUE, audioParams.second, audioParams.first,
             Collections.singletonList(audioSpecificConfig));
-        frameDurationUs = (1000000 * 1024L) / mediaFormat.sampleRate;
+        frameDurationUs = (C.MICROS_PER_SECOND * 1024L) / mediaFormat.sampleRate;
         setMediaFormat(mediaFormat);
       } else {
         adtsBuffer.skipBits(10);
