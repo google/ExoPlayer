@@ -47,7 +47,7 @@ public class DemoUtil {
   public static final String CONTENT_TYPE_EXTRA = "content_type";
   public static final String CONTENT_ID_EXTRA = "content_id";
 
-  public static final int TYPE_DASH_VOD = 0;
+  public static final int TYPE_DASH = 0;
   public static final int TYPE_SS = 1;
   public static final int TYPE_OTHER = 2;
 

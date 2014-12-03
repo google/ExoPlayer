@@ -38,6 +38,7 @@ import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
+import com.google.android.exoplayer.util.Util;
 
 import android.media.MediaCodec;
 import android.os.Handler;
@@ -115,10 +116,7 @@ import java.util.ArrayList;
         }
       }
     }
-    int[] videoTrackIndices = new int[videoTrackIndexList.size()];
-    for (int i = 0; i < videoTrackIndexList.size(); i++) {
-      videoTrackIndices[i] = videoTrackIndexList.get(i);
-    }
+    int[] videoTrackIndices = Util.toArray(videoTrackIndexList);
 
     // Build the video renderer.
     DataSource videoDataSource = new UriDataSource(userAgent, bandwidthMeter);

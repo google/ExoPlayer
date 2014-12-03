@@ -64,7 +64,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
   private static final int VIDEO_BUFFER_SEGMENTS = 200;
   private static final int AUDIO_BUFFER_SEGMENTS = 60;
-  private static final int TTML_BUFFER_SEGMENTS = 2;
+  private static final int TEXT_BUFFER_SEGMENTS = 2;
   private static final int LIVE_EDGE_LATENCY_MS = 30000;
 
   private final String userAgent;
@@ -149,10 +149,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
         }
       }
     }
-    int[] videoTrackIndices = new int[videoTrackIndexList.size()];
-    for (int i = 0; i < videoTrackIndexList.size(); i++) {
-      videoTrackIndices[i] = videoTrackIndexList.get(i);
-    }
+    int[] videoTrackIndices = Util.toArray(videoTrackIndexList);
 
     // Build the video renderer.
     DataSource videoDataSource = new UriDataSource(userAgent, bandwidthMeter);
@@ -221,7 +218,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
       }
       textChunkSource = new MultiTrackChunkSource(textChunkSources);
       ChunkSampleSource ttmlSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
-          TTML_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
+          TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
           DemoPlayer.TYPE_TEXT);
       textRenderer = new TextTrackRenderer(ttmlSampleSource, new TtmlParser(), player,
           mainHandler.getLooper());
