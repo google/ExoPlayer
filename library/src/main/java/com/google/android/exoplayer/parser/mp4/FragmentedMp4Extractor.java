@@ -462,7 +462,8 @@ public final class FragmentedMp4Extractor implements Extractor {
   /**
    * Parses a tkhd atom (defined in 14496-12).
    *
-   * @return A {@link Pair} consisting of the track id and duration.
+   * @return A {@link Pair} consisting of the track id and duration (in the timescale indicated in
+   *     the movie header box). The duration is set to -1 if the duration is unspecified.
    */
   private static Pair<Integer, Long> parseTkhd(ParsableByteArray tkhd) {
     tkhd.setPosition(ATOM_HEADER_SIZE);
@@ -473,7 +474,23 @@ public final class FragmentedMp4Extractor implements Extractor {
 
     int trackId = tkhd.readInt();
     tkhd.skip(4);
-    long duration = version == 0 ? tkhd.readUnsignedInt() : tkhd.readUnsignedLongToLong();
+
+    boolean durationUnknown = true;
+    int durationPosition = tkhd.getPosition();
+    int durationByteCount = version == 0 ? 4 : 8;
+    for (int i = 0; i < durationByteCount; i++) {
+      if (tkhd.data[durationPosition + i] != -1) {
+        durationUnknown = false;
+        break;
+      }
+    }
+    long duration;
+    if (durationUnknown) {
+      tkhd.skip(durationByteCount);
+      duration = -1;
+    } else {
+      duration = version == 0 ? tkhd.readUnsignedInt() : tkhd.readUnsignedLongToLong();
+    }
 
     return Pair.create(trackId, duration);
   }
