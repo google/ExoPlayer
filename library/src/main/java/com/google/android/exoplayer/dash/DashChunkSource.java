@@ -438,7 +438,7 @@ public class DashChunkSource implements ChunkSource {
           startTimeUs, endTimeUs, nextAbsoluteSegmentNum, null, representationHolder.vttHeader);
     } else {
       return new Mp4MediaChunk(dataSource, dataSpec, representation.format, trigger, startTimeUs,
-          endTimeUs, nextAbsoluteSegmentNum, representationHolder.extractor, false,
+          endTimeUs, nextAbsoluteSegmentNum, representationHolder.extractor, null, false,
           presentationTimeOffsetUs);
     }
   }
