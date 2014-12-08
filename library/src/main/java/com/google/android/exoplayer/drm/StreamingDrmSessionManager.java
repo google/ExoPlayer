@@ -30,6 +30,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -61,6 +62,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   private final Handler eventHandler;
   private final EventListener eventListener;
   private final MediaDrm mediaDrm;
+  private final HashMap<String, String> optionalKeyRequestParameters;
 
   /* package */ final MediaDrmHandler mediaDrmHandler;
   /* package */ final MediaDrmCallback callback;
@@ -80,19 +82,32 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   private byte[] sessionId;
 
   /**
+   * @deprecated Use the other constructor, passing null as {@code optionalKeyRequestParameters}.
+   */
+  @Deprecated
+  public StreamingDrmSessionManager(UUID uuid, Looper playbackLooper, MediaDrmCallback callback,
+      Handler eventHandler, EventListener eventListener) throws UnsupportedSchemeException {
+    this(uuid, playbackLooper, callback, null, eventHandler, eventListener);
+  }
+
+  /**
    * @param uuid The UUID of the drm scheme.
    * @param playbackLooper The looper associated with the media playback thread. Should usually be
    *     obtained using {@link com.google.android.exoplayer.ExoPlayer#getPlaybackLooper()}.
    * @param callback Performs key and provisioning requests.
+   * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
+   *     to {@link MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @throws UnsupportedSchemeException If the specified DRM scheme is not supported.
    */
   public StreamingDrmSessionManager(UUID uuid, Looper playbackLooper, MediaDrmCallback callback,
-      Handler eventHandler, EventListener eventListener) throws UnsupportedSchemeException {
+      HashMap<String, String> optionalKeyRequestParameters, Handler eventHandler,
+      EventListener eventListener) throws UnsupportedSchemeException {
     this.uuid = uuid;
     this.callback = callback;
+    this.optionalKeyRequestParameters = optionalKeyRequestParameters;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     mediaDrm = new MediaDrm(uuid);
@@ -250,7 +265,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
     KeyRequest keyRequest;
     try {
       keyRequest = mediaDrm.getKeyRequest(sessionId, schemePsshData, mimeType,
-          MediaDrm.KEY_TYPE_STREAMING, null);
+          MediaDrm.KEY_TYPE_STREAMING, optionalKeyRequestParameters);
       postRequestHandler.obtainMessage(MSG_KEYS, keyRequest).sendToTarget();
     } catch (NotProvisionedException e) {
       onKeysError(e);

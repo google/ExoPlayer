@@ -189,20 +189,6 @@ public final class FragmentedMp4Extractor implements Extractor {
     this.track = track;
   }
 
-  /**
-   * Sideloads pssh information into the extractor, so that it can be read through
-   * {@link #getPsshInfo()}.
-   *
-   * @param uuid The UUID of the scheme for which information is being sideloaded.
-   * @param data The corresponding data.
-   */
-  public void putPsshInfo(UUID uuid, byte[] data) {
-    // TODO: This is for SmoothStreaming. Consider using something other than
-    // FragmentedMp4Extractor.getPsshInfo to obtain the pssh data for that use case, so that we can
-    // remove this method.
-    psshData.put(uuid, data);
-  }
-
   @Override
   public Map<UUID, byte[]> getPsshInfo() {
     return psshData.isEmpty() ? null : psshData;

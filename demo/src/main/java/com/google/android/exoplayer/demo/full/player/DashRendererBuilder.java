@@ -279,8 +279,8 @@ public class DashRendererBuilder implements RendererBuilder,
     public static Pair<DrmSessionManager, Boolean> getDrmSessionManagerData(DemoPlayer player,
         MediaDrmCallback drmCallback) throws UnsupportedSchemeException {
       StreamingDrmSessionManager streamingDrmSessionManager = new StreamingDrmSessionManager(
-          DemoUtil.WIDEVINE_UUID, player.getPlaybackLooper(), drmCallback, player.getMainHandler(),
-          player);
+          DemoUtil.WIDEVINE_UUID, player.getPlaybackLooper(), drmCallback, null,
+          player.getMainHandler(), player);
       return Pair.create((DrmSessionManager) streamingDrmSessionManager,
           getWidevineSecurityLevel(streamingDrmSessionManager) == SECURITY_LEVEL_1);
     }

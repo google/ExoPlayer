@@ -257,7 +257,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   }
 
   protected ContentProtection buildContentProtection(String schemeIdUri) {
-    return new ContentProtection(schemeIdUri);
+    return new ContentProtection(schemeIdUri, null, null);
   }
 
   /**

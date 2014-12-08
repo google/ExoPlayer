@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.dash.mpd;
 
+import java.util.UUID;
+
 /**
  * Represents a ContentProtection tag in an AdaptationSet.
  */
@@ -26,10 +28,24 @@ public class ContentProtection {
   public final String schemeUriId;
 
   /**
-   * @param schemeUriId Identifies the content protection scheme.
+   * The UUID of the protection scheme. May be null.
    */
-  public ContentProtection(String schemeUriId) {
+  public final UUID uuid;
+
+  /**
+   * Protection scheme specific data. May be null.
+   */
+  public final byte[] data;
+
+  /**
+   * @param schemeUriId Identifies the content protection scheme.
+   * @param uuid The UUID of the protection scheme, if known. May be null.
+   * @param data Protection scheme specific initialization data. May be null.
+   */
+  public ContentProtection(String schemeUriId, UUID uuid, byte[] data) {
     this.schemeUriId = schemeUriId;
+    this.uuid = uuid;
+    this.data = data;
   }
 
 }

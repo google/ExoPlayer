@@ -41,6 +41,17 @@ public final class Mp4MediaChunk extends MediaChunk {
   private Map<UUID, byte[]> psshInfo;
 
   /**
+   * @deprecated Use the other constructor, passing null as {@code psshInfo}.
+   */
+  @Deprecated
+  public Mp4MediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
+      int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex,
+      Extractor extractor, boolean maybeSelfContained, long sampleOffsetUs) {
+    this(dataSource, dataSpec, format, trigger, startTimeUs, endTimeUs, nextChunkIndex,
+        extractor, null, maybeSelfContained, sampleOffsetUs);
+  }
+
+  /**
    * @param dataSource A {@link DataSource} for loading the data.
    * @param dataSpec Defines the data to be loaded.
    * @param format The format of the stream to which this chunk belongs.
@@ -49,6 +60,8 @@ public final class Mp4MediaChunk extends MediaChunk {
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param nextChunkIndex The index of the next chunk, or -1 if this is the last chunk.
    * @param extractor The extractor that will be used to extract the samples.
+   * @param psshInfo Pssh data. May be null if pssh data is present within the stream, meaning it
+   *     can be obtained directly from {@code extractor}, or if no pssh data is required.
    * @param maybeSelfContained Set to true if this chunk might be self contained, meaning it might
    *     contain a moov atom defining the media format of the chunk. This parameter can always be
    *     safely set to true. Setting to false where the chunk is known to not be self contained may
@@ -56,12 +69,13 @@ public final class Mp4MediaChunk extends MediaChunk {
    * @param sampleOffsetUs An offset to subtract from the sample timestamps parsed by the extractor.
    */
   public Mp4MediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
-      int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex,
-      Extractor extractor, boolean maybeSelfContained, long sampleOffsetUs) {
+      int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex, Extractor extractor,
+      Map<UUID, byte[]> psshInfo, boolean maybeSelfContained, long sampleOffsetUs) {
     super(dataSource, dataSpec, format, trigger, startTimeUs, endTimeUs, nextChunkIndex);
     this.extractor = extractor;
     this.maybeSelfContained = maybeSelfContained;
     this.sampleOffsetUs = sampleOffsetUs;
+    this.psshInfo = psshInfo;
   }
 
   @Override
@@ -97,7 +111,10 @@ public final class Mp4MediaChunk extends MediaChunk {
       }
       if (prepared) {
         mediaFormat = extractor.getFormat();
-        psshInfo = extractor.getPsshInfo();
+        Map<UUID, byte[]> extractorPsshInfo = extractor.getPsshInfo();
+        if (extractorPsshInfo != null) {
+          psshInfo = extractorPsshInfo;
+        }
       }
     }
     return prepared;
