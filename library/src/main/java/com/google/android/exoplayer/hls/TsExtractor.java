@@ -712,8 +712,9 @@ public final class TsExtractor {
   private class H264Reader extends PesPayloadReader {
 
     private static final int NAL_UNIT_TYPE_IDR = 5;
-    private static final int NAL_UNIT_TYPE_AUD = 9;
     private static final int NAL_UNIT_TYPE_SPS = 7;
+    private static final int NAL_UNIT_TYPE_PPS = 8;
+    private static final int NAL_UNIT_TYPE_AUD = 9;
 
     public final SeiReader seiReader;
 
@@ -778,15 +779,26 @@ public final class TsExtractor {
 
     private void parseMediaFormat(Sample sample) {
       BitArray bitArray = new BitArray(sample.data, sample.size);
-      // Locate the SPS unit.
+      // Locate the SPS and PPS units.
       int spsOffset = bitArray.findNextNalUnit(NAL_UNIT_TYPE_SPS, 0);
-      if (spsOffset == bitArray.bytesLeft()) {
+      int ppsOffset = bitArray.findNextNalUnit(NAL_UNIT_TYPE_PPS, 0);
+      if (spsOffset == bitArray.bytesLeft() || ppsOffset == bitArray.bytesLeft()) {
         return;
       }
-      int nextNalOffset = bitArray.findNextNalUnit(-1, spsOffset + 3);
+      int spsLength = bitArray.findNextNalUnit(-1, spsOffset + 3) - spsOffset;
+      int ppsLength = bitArray.findNextNalUnit(-1, ppsOffset + 3) - ppsOffset;
+
+      byte[] spsData = new byte[spsLength];
+      byte[] ppsData = new byte[ppsLength];
+      System.arraycopy(bitArray.getData(), spsOffset, spsData, 0, spsLength);
+      System.arraycopy(bitArray.getData(), ppsOffset, ppsData, 0, ppsLength);
+
+      List<byte[]> initializationData = new ArrayList<byte[]>();
+      initializationData.add(spsData);
+      initializationData.add(ppsData);
 
       // Unescape the SPS unit.
-      byte[] unescapedSps = unescapeStream(bitArray.getData(), spsOffset, nextNalOffset);
+      byte[] unescapedSps = unescapeData(spsData, 0, spsLength);
       bitArray.reset(unescapedSps, unescapedSps.length);
 
       // Parse the SPS unit
@@ -881,7 +893,7 @@ public final class TsExtractor {
 
       // Set the format.
       setMediaFormat(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
-          frameWidth, frameHeight, null));
+          frameWidth, frameHeight, initializationData));
     }
 
     private void skipScalingList(BitArray bitArray, int size) {
@@ -901,7 +913,7 @@ public final class TsExtractor {
      * <p>
      * See ISO/IEC 14496-10:2005(E) page 36 for more information.
      */
-    private byte[] unescapeStream(byte[] data, int offset, int limit) {
+    private byte[] unescapeData(byte[] data, int offset, int limit) {
       int position = offset;
       List<Integer> escapePositions = new ArrayList<Integer>();
       while (position < limit) {
