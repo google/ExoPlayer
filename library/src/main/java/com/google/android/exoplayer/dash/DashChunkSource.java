@@ -31,6 +31,7 @@ import com.google.android.exoplayer.chunk.MediaChunk;
 import com.google.android.exoplayer.chunk.Mp4MediaChunk;
 import com.google.android.exoplayer.chunk.SingleSampleMediaChunk;
 import com.google.android.exoplayer.dash.mpd.AdaptationSet;
+import com.google.android.exoplayer.dash.mpd.ContentProtection;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.RangedUri;
@@ -53,6 +54,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * An {@link ChunkSource} for DASH streams.
@@ -92,6 +95,7 @@ public class DashChunkSource implements ChunkSource {
   private final ManifestFetcher<MediaPresentationDescription> manifestFetcher;
   private final int adaptationSetIndex;
   private final int[] representationIndices;
+  private final Map<UUID, byte[]> psshInfo;
 
   private MediaPresentationDescription currentManifest;
   private boolean finishedCurrentManifest;
@@ -180,6 +184,7 @@ public class DashChunkSource implements ChunkSource {
     this.evaluation = new Evaluation();
     this.headerBuilder = new StringBuilder();
 
+    psshInfo = getPsshInfo(currentManifest, adaptationSetIndex);
     Representation[] representations = getFilteredRepresentations(currentManifest,
         adaptationSetIndex, representationIndices);
     long periodDurationUs = (representations[0].periodDurationMs == TrackRenderer.UNKNOWN_TIME_US)
@@ -438,7 +443,7 @@ public class DashChunkSource implements ChunkSource {
           startTimeUs, endTimeUs, nextAbsoluteSegmentNum, null, representationHolder.vttHeader);
     } else {
       return new Mp4MediaChunk(dataSource, dataSpec, representation.format, trigger, startTimeUs,
-          endTimeUs, nextAbsoluteSegmentNum, representationHolder.extractor, null, false,
+          endTimeUs, nextAbsoluteSegmentNum, representationHolder.extractor, psshInfo, false,
           presentationTimeOffsetUs);
     }
   }
@@ -463,8 +468,8 @@ public class DashChunkSource implements ChunkSource {
 
   private static Representation[] getFilteredRepresentations(MediaPresentationDescription manifest,
       int adaptationSetIndex, int[] representationIndices) {
-    List<Representation> representations =
-        manifest.periods.get(0).adaptationSets.get(adaptationSetIndex).representations;
+    AdaptationSet adaptationSet = manifest.periods.get(0).adaptationSets.get(adaptationSetIndex);
+    List<Representation> representations = adaptationSet.representations;
     if (representationIndices == null) {
       Representation[] filteredRepresentations = new Representation[representations.size()];
       representations.toArray(filteredRepresentations);
@@ -475,6 +480,22 @@ public class DashChunkSource implements ChunkSource {
         filteredRepresentations[i] = representations.get(representationIndices[i]);
       }
       return filteredRepresentations;
+    }
+  }
+
+  private static Map<UUID, byte[]> getPsshInfo(MediaPresentationDescription manifest,
+      int adaptationSetIndex) {
+    AdaptationSet adaptationSet = manifest.periods.get(0).adaptationSets.get(adaptationSetIndex);
+    if (adaptationSet.contentProtections.isEmpty()) {
+      return null;
+    } else {
+      Map<UUID, byte[]> psshInfo = new HashMap<UUID, byte[]>();
+      for (ContentProtection contentProtection : adaptationSet.contentProtections) {
+        if (contentProtection.uuid != null && contentProtection.data != null) {
+          psshInfo.put(contentProtection.uuid, contentProtection.data);
+        }
+      }
+      return psshInfo.isEmpty() ? null : psshInfo;
     }
   }
 
