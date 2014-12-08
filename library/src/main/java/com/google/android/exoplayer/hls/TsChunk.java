@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.hls;
 
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 
@@ -25,6 +24,8 @@ import java.io.IOException;
  * A MPEG2TS chunk.
  */
 public final class TsChunk extends HlsChunk {
+
+  private static final byte[] SCRATCH_SPACE = new byte[4096];
 
   /**
    * The index of the variant in the master playlist.
@@ -51,7 +52,7 @@ public final class TsChunk extends HlsChunk {
    */
   public final TsExtractor extractor;
 
-  private volatile int loadPosition;
+  private int loadPosition;
   private volatile boolean loadFinished;
   private volatile boolean loadCanceled;
 
@@ -99,20 +100,28 @@ public final class TsChunk extends HlsChunk {
 
   @Override
   public void load() throws IOException, InterruptedException {
-    DataSpec loadDataSpec;
-    if (loadPosition == 0) {
-      loadDataSpec = dataSpec;
-    } else {
-      long remainingLength = dataSpec.length != C.LENGTH_UNBOUNDED
-          ? dataSpec.length - loadPosition : C.LENGTH_UNBOUNDED;
-      loadDataSpec = new DataSpec(dataSpec.uri, dataSpec.position + loadPosition,
-          remainingLength, dataSpec.key);
-    }
     try {
-      dataSource.open(loadDataSpec);
+      dataSource.open(dataSpec);
       int bytesRead = 0;
+      int bytesSkipped = 0;
+      // If we previously fed part of this chunk to the extractor, skip it this time.
+      // TODO: Ideally we'd construct a dataSpec that only loads the remainder of the data here,
+      // rather than loading the whole chunk again and then skipping data we previously loaded. To
+      // do this is straightforward for non-encrypted content, but more complicated for content
+      // encrypted with AES, for which we'll need to modify the way that decryption is performed.
+      while (bytesRead != -1 && !loadCanceled && bytesSkipped < loadPosition) {
+        int skipLength = Math.min(loadPosition - bytesSkipped, SCRATCH_SPACE.length);
+        bytesRead = dataSource.read(SCRATCH_SPACE, 0, skipLength);
+        if (bytesRead != -1) {
+          bytesSkipped += bytesRead;
+        }
+      }
+      // Feed the remaining data into the extractor.
       while (bytesRead != -1 && !loadCanceled) {
         bytesRead = extractor.read(dataSource);
+        if (bytesRead != -1) {
+          loadPosition += bytesRead;
+        }
       }
       loadFinished = !loadCanceled;
     } finally {
