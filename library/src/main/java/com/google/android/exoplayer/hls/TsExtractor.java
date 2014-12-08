@@ -787,18 +787,16 @@ public final class TsExtractor {
       }
       int spsLength = bitArray.findNextNalUnit(-1, spsOffset + 3) - spsOffset;
       int ppsLength = bitArray.findNextNalUnit(-1, ppsOffset + 3) - ppsOffset;
-
       byte[] spsData = new byte[spsLength];
       byte[] ppsData = new byte[ppsLength];
       System.arraycopy(bitArray.getData(), spsOffset, spsData, 0, spsLength);
       System.arraycopy(bitArray.getData(), ppsOffset, ppsData, 0, ppsLength);
-
       List<byte[]> initializationData = new ArrayList<byte[]>();
       initializationData.add(spsData);
       initializationData.add(ppsData);
 
       // Unescape the SPS unit.
-      byte[] unescapedSps = unescapeData(spsData, 0, spsLength);
+      byte[] unescapedSps = unescapeStream(spsData, 0, spsLength);
       bitArray.reset(unescapedSps, unescapedSps.length);
 
       // Parse the SPS unit
@@ -913,7 +911,7 @@ public final class TsExtractor {
      * <p>
      * See ISO/IEC 14496-10:2005(E) page 36 for more information.
      */
-    private byte[] unescapeData(byte[] data, int offset, int limit) {
+    private byte[] unescapeStream(byte[] data, int offset, int limit) {
       int position = offset;
       List<Integer> escapePositions = new ArrayList<Integer>();
       while (position < limit) {
