@@ -252,7 +252,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
 
     public static DrmSessionManager getDrmSessionManager(UUID uuid, DemoPlayer player,
         MediaDrmCallback drmCallback) throws UnsupportedSchemeException {
-      return new StreamingDrmSessionManager(uuid, player.getPlaybackLooper(), drmCallback,
+      return new StreamingDrmSessionManager(uuid, player.getPlaybackLooper(), drmCallback, null,
           player.getMainHandler(), player);
     }
 
