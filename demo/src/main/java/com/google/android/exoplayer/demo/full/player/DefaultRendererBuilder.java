@@ -48,8 +48,8 @@ public class DefaultRendererBuilder implements RendererBuilder {
     // Build the video and audio renderers.
     FrameworkSampleSource sampleSource = new FrameworkSampleSource(context, uri, null, 2);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
-        null, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000,
-        player.getMainHandler(), player, 50);
+        null, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, player.getMainHandler(),
+        player, 50);
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource,
         null, true, player.getMainHandler(), player);
 

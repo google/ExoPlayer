@@ -17,9 +17,9 @@ package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.PriorityHandlerThread;
 import com.google.android.exoplayer.util.TraceUtil;
 
-import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -77,12 +77,12 @@ import java.util.List;
   private int state;
   private int customMessagesSent = 0;
   private int customMessagesProcessed = 0;
+  private long elapsedRealtimeUs;
 
   private volatile long durationUs;
   private volatile long positionUs;
   private volatile long bufferedPositionUs;
 
-  @SuppressLint("HandlerLeak")
   public ExoPlayerImplInternal(Handler eventHandler, boolean playWhenReady,
       boolean[] rendererEnabledFlags, int minBufferMs, int minRebufferMs) {
     this.eventHandler = eventHandler;
@@ -100,15 +100,10 @@ import java.util.List;
 
     mediaClock = new MediaClock();
     enabledRenderers = new ArrayList<TrackRenderer>(rendererEnabledFlags.length);
-    internalPlaybackThread = new HandlerThread(getClass().getSimpleName() + ":Handler") {
-      @Override
-      public void run() {
-        // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
-        // not normally change to this priority" is incorrect.
-        Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
-        super.run();
-      }
-    };
+    // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
+    // not normally change to this priority" is incorrect.
+    internalPlaybackThread = new PriorityHandlerThread(getClass().getSimpleName() + ":Handler",
+        Process.THREAD_PRIORITY_AUDIO);
     internalPlaybackThread.start();
     handler = new Handler(internalPlaybackThread.getLooper(), this);
   }
@@ -117,18 +112,18 @@ import java.util.List;
     return internalPlaybackThread.getLooper();
   }
 
-  public int getCurrentPosition() {
-    return (int) (positionUs / 1000);
+  public long getCurrentPosition() {
+    return positionUs / 1000;
   }
 
-  public int getBufferedPosition() {
+  public long getBufferedPosition() {
     return bufferedPositionUs == TrackRenderer.UNKNOWN_TIME_US ? ExoPlayer.UNKNOWN_TIME
-        : (int) (bufferedPositionUs / 1000);
+        : bufferedPositionUs / 1000;
   }
 
-  public int getDuration() {
+  public long getDuration() {
     return durationUs == TrackRenderer.UNKNOWN_TIME_US ? ExoPlayer.UNKNOWN_TIME
-        : (int) (durationUs / 1000);
+        : durationUs / 1000;
   }
 
   public void prepare(TrackRenderer... renderers) {
@@ -139,8 +134,8 @@ import java.util.List;
     handler.obtainMessage(MSG_SET_PLAY_WHEN_READY, playWhenReady ? 1 : 0, 0).sendToTarget();
   }
 
-  public void seekTo(int positionMs) {
-    handler.obtainMessage(MSG_SEEK_TO, positionMs, 0).sendToTarget();
+  public void seekTo(long positionMs) {
+    handler.obtainMessage(MSG_SEEK_TO, positionMs).sendToTarget();
   }
 
   public void stop() {
@@ -158,6 +153,10 @@ import java.util.List;
 
   public synchronized void blockingSendMessage(ExoPlayerComponent target, int messageType,
       Object message) {
+    if (released) {
+      Log.w(TAG, "Sent message(" + messageType + ") after release. Message ignored.");
+      return;
+    }
     int messageNumber = customMessagesSent++;
     handler.obtainMessage(MSG_CUSTOM, messageType, 0, Pair.create(target, message)).sendToTarget();
     while (customMessagesProcessed <= messageNumber) {
@@ -170,17 +169,18 @@ import java.util.List;
   }
 
   public synchronized void release() {
-    if (!released) {
-      handler.sendEmptyMessage(MSG_RELEASE);
-      while (!released) {
-        try {
-          wait();
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-        }
-      }
-      internalPlaybackThread.quit();
+    if (released) {
+      return;
     }
+    handler.sendEmptyMessage(MSG_RELEASE);
+    while (!released) {
+      try {
+        wait();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+    }
+    internalPlaybackThread.quit();
   }
 
   @Override
@@ -204,7 +204,7 @@ import java.util.List;
           return true;
         }
         case MSG_SEEK_TO: {
-          seekToInternal(msg.arg1);
+          seekToInternal((Long) msg.obj);
           return true;
         }
         case MSG_STOP: {
@@ -378,7 +378,8 @@ import java.util.List;
     positionUs = timeSourceTrackRenderer != null &&
         enabledRenderers.contains(timeSourceTrackRenderer) ?
         timeSourceTrackRenderer.getCurrentPositionUs() :
-        mediaClock.getTimeUs();
+        mediaClock.getPositionUs();
+    elapsedRealtimeUs = SystemClock.elapsedRealtime() * 1000;
   }
 
   private void doSomeWork() throws ExoPlaybackException {
@@ -394,7 +395,7 @@ import java.util.List;
       // TODO: Each renderer should return the maximum delay before which it wishes to be
       // invoked again. The minimum of these values should then be used as the delay before the next
       // invocation of this method.
-      renderer.doSomeWork(positionUs);
+      renderer.doSomeWork(positionUs, elapsedRealtimeUs);
       isEnded = isEnded && renderer.isEnded();
       allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded(renderer);
 
@@ -453,11 +454,11 @@ import java.util.List;
     }
   }
 
-  private void seekToInternal(int positionMs) throws ExoPlaybackException {
+  private void seekToInternal(long positionMs) throws ExoPlaybackException {
     rebuffering = false;
     positionUs = positionMs * 1000L;
     mediaClock.stop();
-    mediaClock.setTimeUs(positionUs);
+    mediaClock.setPositionUs(positionUs);
     if (state == ExoPlayer.STATE_IDLE || state == ExoPlayer.STATE_PREPARING) {
       return;
     }
@@ -491,26 +492,41 @@ import java.util.List;
       return;
     }
     for (int i = 0; i < renderers.length; i++) {
-      try {
-        TrackRenderer renderer = renderers[i];
-        ensureStopped(renderer);
-        if (renderer.getState() == TrackRenderer.STATE_ENABLED) {
-          renderer.disable();
-        }
-        renderer.release();
-      } catch (ExoPlaybackException e) {
-        // There's nothing we can do. Catch the exception here so that other renderers still have
-        // a chance of being cleaned up correctly.
-        Log.e(TAG, "Stop failed.", e);
-      } catch (RuntimeException e) {
-        // Ditto.
-        Log.e(TAG, "Stop failed.", e);
-      }
+      TrackRenderer renderer = renderers[i];
+      stopAndDisable(renderer);
+      release(renderer);
     }
     renderers = null;
     timeSourceTrackRenderer = null;
     enabledRenderers.clear();
     setState(ExoPlayer.STATE_IDLE);
+  }
+
+  private void stopAndDisable(TrackRenderer renderer) {
+    try {
+      ensureStopped(renderer);
+      if (renderer.getState() == TrackRenderer.STATE_ENABLED) {
+        renderer.disable();
+      }
+    } catch (ExoPlaybackException e) {
+      // There's nothing we can do.
+      Log.e(TAG, "Stop failed.", e);
+    } catch (RuntimeException e) {
+      // Ditto.
+      Log.e(TAG, "Stop failed.", e);
+    }
+  }
+
+  private void release(TrackRenderer renderer) {
+    try {
+      renderer.release();
+    } catch (ExoPlaybackException e) {
+      // There's nothing we can do.
+      Log.e(TAG, "Release failed.", e);
+    } catch (RuntimeException e) {
+      // Ditto.
+      Log.e(TAG, "Release failed.", e);
+    }
   }
 
   private <T> void sendMessageInternal(int what, Object obj)
@@ -562,7 +578,7 @@ import java.util.List;
       if (renderer == timeSourceTrackRenderer) {
         // We've been using timeSourceTrackRenderer to advance the current position, but it's
         // being disabled. Sync mediaClock so that it can take over timing responsibilities.
-        mediaClock.setTimeUs(renderer.getCurrentPositionUs());
+        mediaClock.setPositionUs(renderer.getCurrentPositionUs());
       }
       ensureStopped(renderer);
       enabledRenderers.remove(renderer);

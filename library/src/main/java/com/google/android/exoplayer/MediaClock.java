@@ -29,10 +29,10 @@ import android.os.SystemClock;
   /**
    * The media time when the clock was last set or stopped.
    */
-  private long timeUs;
+  private long positionUs;
 
   /**
-   * The difference between {@link SystemClock#elapsedRealtime()} and {@link #timeUs}
+   * The difference between {@link SystemClock#elapsedRealtime()} and {@link #positionUs}
    * when the clock was last set or started.
    */
   private long deltaUs;
@@ -43,7 +43,7 @@ import android.os.SystemClock;
   public void start() {
     if (!started) {
       started = true;
-      deltaUs = elapsedRealtimeMinus(timeUs);
+      deltaUs = elapsedRealtimeMinus(positionUs);
     }
   }
 
@@ -52,28 +52,28 @@ import android.os.SystemClock;
    */
   public void stop() {
     if (started) {
-      timeUs = elapsedRealtimeMinus(deltaUs);
+      positionUs = elapsedRealtimeMinus(deltaUs);
       started = false;
     }
   }
 
   /**
-   * @param timeUs The time to set in microseconds.
+   * @param timeUs The position to set in microseconds.
    */
-  public void setTimeUs(long timeUs) {
-    this.timeUs = timeUs;
+  public void setPositionUs(long timeUs) {
+    this.positionUs = timeUs;
     deltaUs = elapsedRealtimeMinus(timeUs);
   }
 
   /**
-   * @return The current time in microseconds.
+   * @return The current position in microseconds.
    */
-  public long getTimeUs() {
-    return started ? elapsedRealtimeMinus(deltaUs) : timeUs;
+  public long getPositionUs() {
+    return started ? elapsedRealtimeMinus(deltaUs) : positionUs;
   }
 
-  private long elapsedRealtimeMinus(long microSeconds) {
-    return SystemClock.elapsedRealtime() * 1000 - microSeconds;
+  private long elapsedRealtimeMinus(long toSubtractUs) {
+    return SystemClock.elapsedRealtime() * 1000 - toSubtractUs;
   }
 
 }

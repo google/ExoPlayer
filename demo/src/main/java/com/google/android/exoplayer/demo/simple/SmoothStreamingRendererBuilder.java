@@ -31,16 +31,19 @@ import com.google.android.exoplayer.smoothstreaming.SmoothStreamingChunkSource;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
-import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifestFetcher;
+import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifestParser;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer.upstream.HttpDataSource;
+import com.google.android.exoplayer.upstream.UriDataSource;
+import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
+import com.google.android.exoplayer.util.Util;
 
 import android.media.MediaCodec;
 import android.os.Handler;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -52,6 +55,7 @@ import java.util.ArrayList;
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
   private static final int VIDEO_BUFFER_SEGMENTS = 200;
   private static final int AUDIO_BUFFER_SEGMENTS = 60;
+  private static final int LIVE_EDGE_LATENCY_MS = 30000;
 
   private final SimplePlayerActivity playerActivity;
   private final String userAgent;
@@ -59,6 +63,7 @@ import java.util.ArrayList;
   private final String contentId;
 
   private RendererBuilderCallback callback;
+  private ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
 
   public SmoothStreamingRendererBuilder(SimplePlayerActivity playerActivity, String userAgent,
       String url, String contentId) {
@@ -71,12 +76,14 @@ import java.util.ArrayList;
   @Override
   public void buildRenderers(RendererBuilderCallback callback) {
     this.callback = callback;
-    SmoothStreamingManifestFetcher mpdFetcher = new SmoothStreamingManifestFetcher(this);
-    mpdFetcher.execute(url + "/Manifest", contentId);
+    SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
+    manifestFetcher = new ManifestFetcher<SmoothStreamingManifest>(parser, contentId,
+        url + "/Manifest", userAgent);
+    manifestFetcher.singleLoad(playerActivity.getMainLooper(), this);
   }
 
   @Override
-  public void onManifestError(String contentId, Exception e) {
+  public void onManifestError(String contentId, IOException e) {
     callback.onRenderersError(e);
   }
 
@@ -109,26 +116,23 @@ import java.util.ArrayList;
         }
       }
     }
-    int[] videoTrackIndices = new int[videoTrackIndexList.size()];
-    for (int i = 0; i < videoTrackIndexList.size(); i++) {
-      videoTrackIndices[i] = videoTrackIndexList.get(i);
-    }
+    int[] videoTrackIndices = Util.toArray(videoTrackIndexList);
 
     // Build the video renderer.
-    DataSource videoDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
-    ChunkSource videoChunkSource = new SmoothStreamingChunkSource(url, manifest,
+    DataSource videoDataSource = new UriDataSource(userAgent, bandwidthMeter);
+    ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
         videoStreamElementIndex, videoTrackIndices, videoDataSource,
-        new AdaptiveEvaluator(bandwidthMeter));
+        new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
     ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
         VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource,
         MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 0, mainHandler, playerActivity, 50);
 
     // Build the audio renderer.
-    DataSource audioDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
-    ChunkSource audioChunkSource = new SmoothStreamingChunkSource(url, manifest,
+    DataSource audioDataSource = new UriDataSource(userAgent, bandwidthMeter);
+    ChunkSource audioChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
         audioStreamElementIndex, new int[] {0}, audioDataSource,
-        new FormatEvaluator.FixedEvaluator());
+        new FormatEvaluator.FixedEvaluator(), LIVE_EDGE_LATENCY_MS);
     SampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
         AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(

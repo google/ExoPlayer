@@ -35,14 +35,14 @@ import com.google.android.exoplayer.smoothstreaming.SmoothStreamingChunkSource;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
-import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifestFetcher;
+import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifestParser;
 import com.google.android.exoplayer.text.TextTrackRenderer;
 import com.google.android.exoplayer.text.ttml.TtmlParser;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer.upstream.HttpDataSource;
-import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
+import com.google.android.exoplayer.upstream.UriDataSource;
+import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
@@ -51,6 +51,7 @@ import android.media.UnsupportedSchemeException;
 import android.os.Handler;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -58,12 +59,13 @@ import java.util.UUID;
  * A {@link RendererBuilder} for SmoothStreaming.
  */
 public class SmoothStreamingRendererBuilder implements RendererBuilder,
-    ManifestCallback<SmoothStreamingManifest> {
+    ManifestFetcher.ManifestCallback<SmoothStreamingManifest> {
 
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
   private static final int VIDEO_BUFFER_SEGMENTS = 200;
   private static final int AUDIO_BUFFER_SEGMENTS = 60;
-  private static final int TTML_BUFFER_SEGMENTS = 2;
+  private static final int TEXT_BUFFER_SEGMENTS = 2;
+  private static final int LIVE_EDGE_LATENCY_MS = 30000;
 
   private final String userAgent;
   private final String url;
@@ -73,6 +75,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
 
   private DemoPlayer player;
   private RendererBuilderCallback callback;
+  private ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
 
   public SmoothStreamingRendererBuilder(String userAgent, String url, String contentId,
       MediaDrmCallback drmCallback, TextView debugTextView) {
@@ -87,13 +90,15 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
   public void buildRenderers(DemoPlayer player, RendererBuilderCallback callback) {
     this.player = player;
     this.callback = callback;
-    SmoothStreamingManifestFetcher mpdFetcher = new SmoothStreamingManifestFetcher(this);
-    mpdFetcher.execute(url + "/Manifest", contentId);
+    SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
+    manifestFetcher = new ManifestFetcher<SmoothStreamingManifest>(parser, contentId,
+        url + "/Manifest", userAgent);
+    manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 
   @Override
-  public void onManifestError(String contentId, Exception e) {
-    callback.onRenderersError(e);
+  public void onManifestError(String contentId, IOException exception) {
+    callback.onRenderersError(exception);
   }
 
   @Override
@@ -144,21 +149,18 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
         }
       }
     }
-    int[] videoTrackIndices = new int[videoTrackIndexList.size()];
-    for (int i = 0; i < videoTrackIndexList.size(); i++) {
-      videoTrackIndices[i] = videoTrackIndexList.get(i);
-    }
+    int[] videoTrackIndices = Util.toArray(videoTrackIndexList);
 
     // Build the video renderer.
-    DataSource videoDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
-    ChunkSource videoChunkSource = new SmoothStreamingChunkSource(url, manifest,
+    DataSource videoDataSource = new UriDataSource(userAgent, bandwidthMeter);
+    ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
         videoStreamElementIndex, videoTrackIndices, videoDataSource,
-        new AdaptiveEvaluator(bandwidthMeter));
+        new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
     ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
         VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
         DemoPlayer.TYPE_VIDEO);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource,
-        drmSessionManager, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000,
+        drmSessionManager, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null,
         mainHandler, player, 50);
 
     // Build the audio renderer.
@@ -172,14 +174,15 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     } else {
       audioTrackNames = new String[audioStreamElementCount];
       ChunkSource[] audioChunkSources = new ChunkSource[audioStreamElementCount];
-      DataSource audioDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
+      DataSource audioDataSource = new UriDataSource(userAgent, bandwidthMeter);
       FormatEvaluator audioFormatEvaluator = new FormatEvaluator.FixedEvaluator();
       audioStreamElementCount = 0;
       for (int i = 0; i < manifest.streamElements.length; i++) {
         if (manifest.streamElements[i].type == StreamElement.TYPE_AUDIO) {
           audioTrackNames[audioStreamElementCount] = manifest.streamElements[i].name;
-          audioChunkSources[audioStreamElementCount] = new SmoothStreamingChunkSource(url, manifest,
-              i, new int[] {0}, audioDataSource, audioFormatEvaluator);
+          audioChunkSources[audioStreamElementCount] = new SmoothStreamingChunkSource(
+              manifestFetcher, i, new int[] {0}, audioDataSource, audioFormatEvaluator,
+              LIVE_EDGE_LATENCY_MS);
           audioStreamElementCount++;
         }
       }
@@ -202,20 +205,20 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     } else {
       textTrackNames = new String[textStreamElementCount];
       ChunkSource[] textChunkSources = new ChunkSource[textStreamElementCount];
-      DataSource ttmlDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
+      DataSource ttmlDataSource = new UriDataSource(userAgent, bandwidthMeter);
       FormatEvaluator ttmlFormatEvaluator = new FormatEvaluator.FixedEvaluator();
       textStreamElementCount = 0;
       for (int i = 0; i < manifest.streamElements.length; i++) {
         if (manifest.streamElements[i].type == StreamElement.TYPE_TEXT) {
           textTrackNames[textStreamElementCount] = manifest.streamElements[i].language;
-          textChunkSources[textStreamElementCount] = new SmoothStreamingChunkSource(url, manifest,
-              i, new int[] {0}, ttmlDataSource, ttmlFormatEvaluator);
+          textChunkSources[textStreamElementCount] = new SmoothStreamingChunkSource(manifestFetcher,
+              i, new int[] {0}, ttmlDataSource, ttmlFormatEvaluator, LIVE_EDGE_LATENCY_MS);
           textStreamElementCount++;
         }
       }
       textChunkSource = new MultiTrackChunkSource(textChunkSources);
       ChunkSampleSource ttmlSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
-          TTML_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
+          TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
           DemoPlayer.TYPE_TEXT);
       textRenderer = new TextTrackRenderer(ttmlSampleSource, new TtmlParser(), player,
           mainHandler.getLooper());
@@ -249,7 +252,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
 
     public static DrmSessionManager getDrmSessionManager(UUID uuid, DemoPlayer player,
         MediaDrmCallback drmCallback) throws UnsupportedSchemeException {
-      return new StreamingDrmSessionManager(uuid, player.getPlaybackLooper(), drmCallback,
+      return new StreamingDrmSessionManager(uuid, player.getPlaybackLooper(), drmCallback, null,
           player.getMainHandler(), player);
     }
 

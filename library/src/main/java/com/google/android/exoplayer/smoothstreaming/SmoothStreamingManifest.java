@@ -15,9 +15,13 @@
  */
 package com.google.android.exoplayer.smoothstreaming;
 
-import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
+import android.net.Uri;
+
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -28,34 +32,77 @@ import java.util.UUID;
  */
 public class SmoothStreamingManifest {
 
+  /**
+   * The client manifest major version.
+   */
   public final int majorVersion;
-  public final int minorVersion;
-  public final long timeScale;
-  public final int lookAheadCount;
-  public final ProtectionElement protectionElement;
-  public final StreamElement[] streamElements;
-
-  private final long duration;
-
-  public SmoothStreamingManifest(int majorVersion, int minorVersion, long timeScale, long duration,
-      int lookAheadCount, ProtectionElement protectionElement, StreamElement[] streamElements) {
-    this.majorVersion = majorVersion;
-    this.minorVersion = minorVersion;
-    this.timeScale = timeScale;
-    this.duration = duration;
-    this.lookAheadCount = lookAheadCount;
-    this.protectionElement = protectionElement;
-    this.streamElements = streamElements;
-  }
 
   /**
-   * Gets the duration of the media.
-   *
-     *
-   * @return The duration of the media, in microseconds.
+   * The client manifest minor version.
    */
-  public long getDurationUs() {
-    return (duration * 1000000L) / timeScale;
+  public final int minorVersion;
+
+  /**
+   * The number of fragments in a lookahead, or -1 if the lookahead is unspecified.
+   */
+  public final int lookAheadCount;
+
+  /**
+   * True if the manifest describes a live presentation still in progress. False otherwise.
+   */
+  public final boolean isLive;
+
+  /**
+   * Content protection information, or null if the content is not protected.
+   */
+  public final ProtectionElement protectionElement;
+
+  /**
+   * The contained stream elements.
+   */
+  public final StreamElement[] streamElements;
+
+  /**
+   * The overall presentation duration of the media in microseconds, or {@link C#UNKNOWN_TIME_US}
+   * if the duration is unknown.
+   */
+  public final long durationUs;
+
+  /**
+   * The length of the trailing window for a live broadcast in microseconds, or
+   * {@link C#UNKNOWN_TIME_US} if the stream is not live or if the window length is unspecified.
+   */
+  public final long dvrWindowLengthUs;
+
+  /**
+   * @param majorVersion The client manifest major version.
+   * @param minorVersion The client manifest minor version.
+   * @param timescale The timescale of the media as the number of units that pass in one second.
+   * @param duration The overall presentation duration in units of the timescale attribute, or 0
+   *     if the duration is unknown.
+   * @param dvrWindowLength The length of the trailing window in units of the timescale attribute,
+   *     or 0 if this attribute is unspecified or not applicable.
+   * @param lookAheadCount The number of fragments in a lookahead, or -1 if this attribute is
+   *     unspecified or not applicable.
+   * @param isLive True if the manifest describes a live presentation still in progress. False
+   *     otherwise.
+   * @param protectionElement Content protection information, or null if the content is not
+   *     protected.
+   * @param streamElements The contained stream elements.
+   */
+  public SmoothStreamingManifest(int majorVersion, int minorVersion, long timescale, long duration,
+      long dvrWindowLength, int lookAheadCount, boolean isLive, ProtectionElement protectionElement,
+      StreamElement[] streamElements) {
+    this.majorVersion = majorVersion;
+    this.minorVersion = minorVersion;
+    this.lookAheadCount = lookAheadCount;
+    this.isLive = isLive;
+    this.protectionElement = protectionElement;
+    this.streamElements = streamElements;
+    dvrWindowLengthUs = dvrWindowLength == 0 ? C.UNKNOWN_TIME_US
+        : Util.scaleLargeTimestamp(dvrWindowLength, C.MICROS_PER_SECOND, timescale);
+    durationUs = duration == 0 ? C.UNKNOWN_TIME_US
+        : Util.scaleLargeTimestamp(duration, C.MICROS_PER_SECOND, timescale);
   }
 
   /**
@@ -83,12 +130,9 @@ public class SmoothStreamingManifest {
     public final int bitrate;
 
     // Audio-video
-    public final String fourCC;
     public final byte[][] csd;
     public final int profile;
     public final int level;
-
-    // Audio-video (derived)
     public final String mimeType;
 
     // Video-only
@@ -105,12 +149,12 @@ public class SmoothStreamingManifest {
     public final int nalUnitLengthField;
     public final String content;
 
-    public TrackElement(int index, int bitrate, String fourCC, byte[][] csd, int profile, int level,
-        int maxWidth, int maxHeight, int sampleRate, int channels, int packetSize, int audioTag,
-        int bitPerSample, int nalUnitLengthField, String content) {
+    public TrackElement(int index, int bitrate, String mimeType, byte[][] csd, int profile,
+        int level, int maxWidth, int maxHeight, int sampleRate, int channels, int packetSize,
+        int audioTag, int bitPerSample, int nalUnitLengthField, String content) {
       this.index = index;
       this.bitrate = bitrate;
-      this.fourCC = fourCC;
+      this.mimeType = mimeType;
       this.csd = csd;
       this.profile = profile;
       this.level = level;
@@ -123,19 +167,6 @@ public class SmoothStreamingManifest {
       this.bitPerSample = bitPerSample;
       this.nalUnitLengthField = nalUnitLengthField;
       this.content = content;
-      this.mimeType = fourCCToMimeType(fourCC);
-    }
-
-    private static String fourCCToMimeType(String fourCC) {
-      if (fourCC.equalsIgnoreCase("H264") || fourCC.equalsIgnoreCase("AVC1")
-          || fourCC.equalsIgnoreCase("DAVC")) {
-        return MimeTypes.VIDEO_H264;
-      } else if (fourCC.equalsIgnoreCase("AACL") || fourCC.equalsIgnoreCase("AACH")) {
-        return MimeTypes.AUDIO_AAC;
-      } else if (fourCC.equalsIgnoreCase("TTML")) {
-        return MimeTypes.APPLICATION_TTML;
-      }
-      return null;
     }
 
   }
@@ -155,10 +186,9 @@ public class SmoothStreamingManifest {
 
     public final int type;
     public final String subType;
-    public final long timeScale;
+    public final long timescale;
     public final String name;
     public final int qualityLevels;
-    public final String url;
     public final int maxWidth;
     public final int maxHeight;
     public final int displayWidth;
@@ -167,25 +197,36 @@ public class SmoothStreamingManifest {
     public final TrackElement[] tracks;
     public final int chunkCount;
 
-    private final long[] chunkStartTimes;
+    private final Uri baseUri;
+    private final String chunkTemplate;
 
-    public StreamElement(int type, String subType, long timeScale, String name,
-        int qualityLevels, String url, int maxWidth, int maxHeight, int displayWidth,
-        int displayHeight, String language, TrackElement[] tracks, long[] chunkStartTimes) {
+    private final List<Long> chunkStartTimes;
+    private final long[] chunkStartTimesUs;
+    private final long lastChunkDurationUs;
+
+    public StreamElement(Uri baseUri, String chunkTemplate, int type, String subType,
+        long timescale, String name, int qualityLevels, int maxWidth, int maxHeight,
+        int displayWidth, int displayHeight, String language, TrackElement[] tracks,
+        List<Long> chunkStartTimes, long lastChunkDuration) {
+      this.baseUri = baseUri;
+      this.chunkTemplate = chunkTemplate;
       this.type = type;
       this.subType = subType;
-      this.timeScale = timeScale;
+      this.timescale = timescale;
       this.name = name;
       this.qualityLevels = qualityLevels;
-      this.url = url;
       this.maxWidth = maxWidth;
       this.maxHeight = maxHeight;
       this.displayWidth = displayWidth;
       this.displayHeight = displayHeight;
       this.language = language;
       this.tracks = tracks;
-      this.chunkCount = chunkStartTimes.length;
+      this.chunkCount = chunkStartTimes.size();
       this.chunkStartTimes = chunkStartTimes;
+      lastChunkDurationUs =
+          Util.scaleLargeTimestamp(lastChunkDuration, C.MICROS_PER_SECOND, timescale);
+      chunkStartTimesUs =
+          Util.scaleLargeTimestamps(chunkStartTimes, C.MICROS_PER_SECOND, timescale);
     }
 
     /**
@@ -195,7 +236,7 @@ public class SmoothStreamingManifest {
      * @return The index of the corresponding chunk.
      */
     public int getChunkIndex(long timeUs) {
-      return Util.binarySearchFloor(chunkStartTimes, (timeUs * timeScale) / 1000000L, true, true);
+      return Util.binarySearchFloor(chunkStartTimesUs, timeUs, true, true);
     }
 
     /**
@@ -205,22 +246,35 @@ public class SmoothStreamingManifest {
      * @return The start time of the chunk, in microseconds.
      */
     public long getStartTimeUs(int chunkIndex) {
-      return (chunkStartTimes[chunkIndex] * 1000000L) / timeScale;
+      return chunkStartTimesUs[chunkIndex];
     }
 
     /**
-     * Builds a URL for requesting the specified chunk of the specified track.
+     * Gets the duration of the specified chunk.
+     *
+     * @param chunkIndex The index of the chunk.
+     * @return The duration of the chunk, in microseconds.
+     */
+    public long getChunkDurationUs(int chunkIndex) {
+      return (chunkIndex == chunkCount - 1) ? lastChunkDurationUs
+          : chunkStartTimesUs[chunkIndex + 1] - chunkStartTimesUs[chunkIndex];
+    }
+
+    /**
+     * Builds a uri for requesting the specified chunk of the specified track.
      *
      * @param track The index of the track for which to build the URL.
      * @param chunkIndex The index of the chunk for which to build the URL.
-     * @return The request URL.
+     * @return The request uri.
      */
-    public String buildRequestUrl(int track, int chunkIndex) {
-      assert (tracks != null);
-      assert (chunkStartTimes != null);
-      assert (chunkIndex < chunkStartTimes.length);
-      return url.replace(URL_PLACEHOLDER_BITRATE, Integer.toString(tracks[track].bitrate))
-          .replace(URL_PLACEHOLDER_START_TIME, Long.toString(chunkStartTimes[chunkIndex]));
+    public Uri buildRequestUri(int track, int chunkIndex) {
+      Assertions.checkState(tracks != null);
+      Assertions.checkState(chunkStartTimes != null);
+      Assertions.checkState(chunkIndex < chunkStartTimes.size());
+      String chunkUrl = chunkTemplate
+          .replace(URL_PLACEHOLDER_BITRATE, Integer.toString(tracks[track].bitrate))
+          .replace(URL_PLACEHOLDER_START_TIME, Long.toString(chunkStartTimes.get(chunkIndex)));
+      return Util.getMergedUri(baseUri, chunkUrl);
     }
 
   }

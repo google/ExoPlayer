@@ -29,7 +29,7 @@ import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
-import com.google.android.exoplayer.dash.mpd.MediaPresentationDescriptionFetcher;
+import com.google.android.exoplayer.dash.mpd.MediaPresentationDescriptionParser;
 import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.Representation;
 import com.google.android.exoplayer.demo.simple.SimplePlayerActivity.RendererBuilder;
@@ -37,24 +37,29 @@ import com.google.android.exoplayer.demo.simple.SimplePlayerActivity.RendererBui
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer.upstream.HttpDataSource;
+import com.google.android.exoplayer.upstream.UriDataSource;
+import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
+import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.Util;
 
 import android.media.MediaCodec;
-import android.os.AsyncTask;
 import android.os.Handler;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
- * A {@link RendererBuilder} for DASH VOD.
+ * A {@link RendererBuilder} for DASH.
  */
-/* package */ class DashVodRendererBuilder implements RendererBuilder,
+/* package */ class DashRendererBuilder implements RendererBuilder,
     ManifestCallback<MediaPresentationDescription> {
 
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
   private static final int VIDEO_BUFFER_SEGMENTS = 200;
   private static final int AUDIO_BUFFER_SEGMENTS = 60;
+  private static final int LIVE_EDGE_LATENCY_MS = 30000;
 
   private final SimplePlayerActivity playerActivity;
   private final String userAgent;
@@ -62,8 +67,9 @@ import java.util.ArrayList;
   private final String contentId;
 
   private RendererBuilderCallback callback;
+  private ManifestFetcher<MediaPresentationDescription> manifestFetcher;
 
-  public DashVodRendererBuilder(SimplePlayerActivity playerActivity, String userAgent, String url,
+  public DashRendererBuilder(SimplePlayerActivity playerActivity, String userAgent, String url,
       String contentId) {
     this.playerActivity = playerActivity;
     this.userAgent = userAgent;
@@ -74,59 +80,63 @@ import java.util.ArrayList;
   @Override
   public void buildRenderers(RendererBuilderCallback callback) {
     this.callback = callback;
-    MediaPresentationDescriptionFetcher mpdFetcher = new MediaPresentationDescriptionFetcher(this);
-    mpdFetcher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url, contentId);
+    MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
+    manifestFetcher = new ManifestFetcher<MediaPresentationDescription>(parser, contentId, url,
+        userAgent);
+    manifestFetcher.singleLoad(playerActivity.getMainLooper(), this);
   }
 
   @Override
-  public void onManifestError(String contentId, Exception e) {
+  public void onManifestError(String contentId, IOException e) {
     callback.onRenderersError(e);
   }
 
   @Override
   public void onManifest(String contentId, MediaPresentationDescription manifest) {
+    Period period = manifest.periods.get(0);
     Handler mainHandler = playerActivity.getMainHandler();
     LoadControl loadControl = new DefaultLoadControl(new BufferPool(BUFFER_SEGMENT_SIZE));
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 
-    // Obtain Representations for playback.
+    // Determine which video representations we should use for playback.
     int maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
-    Representation audioRepresentation = null;
-    ArrayList<Representation> videoRepresentationsList = new ArrayList<Representation>();
-    Period period = manifest.periods.get(0);
-    for (int i = 0; i < period.adaptationSets.size(); i++) {
-      AdaptationSet adaptationSet = period.adaptationSets.get(i);
-      int adaptationSetType = adaptationSet.type;
-      for (int j = 0; j < adaptationSet.representations.size(); j++) {
-        Representation representation = adaptationSet.representations.get(j);
-        if (audioRepresentation == null && adaptationSetType == AdaptationSet.TYPE_AUDIO) {
-          audioRepresentation = representation;
-        } else if (adaptationSetType == AdaptationSet.TYPE_VIDEO) {
-          Format format = representation.format;
-          if (format.width * format.height <= maxDecodableFrameSize) {
-            videoRepresentationsList.add(representation);
-          } else {
-            // The device isn't capable of playing this stream.
-          }
-        }
+    int videoAdaptationSetIndex = period.getAdaptationSetIndex(AdaptationSet.TYPE_VIDEO);
+    List<Representation> videoRepresentations =
+        period.adaptationSets.get(videoAdaptationSetIndex).representations;
+    ArrayList<Integer> videoRepresentationIndexList = new ArrayList<Integer>();
+    for (int i = 0; i < videoRepresentations.size(); i++) {
+      Format format = videoRepresentations.get(i).format;
+      if (format.width * format.height > maxDecodableFrameSize) {
+        // Filtering stream that device cannot play
+      } else if (!format.mimeType.equals(MimeTypes.VIDEO_MP4)
+          && !format.mimeType.equals(MimeTypes.VIDEO_WEBM)) {
+        // Filtering unsupported mime type
+      } else {
+        videoRepresentationIndexList.add(i);
       }
     }
-    Representation[] videoRepresentations = new Representation[videoRepresentationsList.size()];
-    videoRepresentationsList.toArray(videoRepresentations);
 
     // Build the video renderer.
-    DataSource videoDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
-    ChunkSource videoChunkSource = new DashChunkSource(videoDataSource,
-        new AdaptiveEvaluator(bandwidthMeter), videoRepresentations);
-    ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
-        VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
-    MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource,
-        MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 0, mainHandler, playerActivity, 50);
+    final MediaCodecVideoTrackRenderer videoRenderer;
+    if (videoRepresentationIndexList.isEmpty()) {
+      videoRenderer = null;
+    } else {
+      int[] videoRepresentationIndices = Util.toArray(videoRepresentationIndexList);
+      DataSource videoDataSource = new UriDataSource(userAgent, bandwidthMeter);
+      ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher, videoAdaptationSetIndex,
+          videoRepresentationIndices, videoDataSource, new AdaptiveEvaluator(bandwidthMeter),
+          LIVE_EDGE_LATENCY_MS);
+      ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
+          VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
+      videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource,
+          MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 0, mainHandler, playerActivity, 50);
+    }
 
     // Build the audio renderer.
-    DataSource audioDataSource = new HttpDataSource(userAgent, null, bandwidthMeter);
-    ChunkSource audioChunkSource = new DashChunkSource(audioDataSource,
-        new FormatEvaluator.FixedEvaluator(), audioRepresentation);
+    int audioAdaptationSetIndex = period.getAdaptationSetIndex(AdaptationSet.TYPE_AUDIO);
+    DataSource audioDataSource = new UriDataSource(userAgent, bandwidthMeter);
+    ChunkSource audioChunkSource = new DashChunkSource(manifestFetcher, audioAdaptationSetIndex,
+        new int[] {0}, audioDataSource, new FormatEvaluator.FixedEvaluator(), LIVE_EDGE_LATENCY_MS);
     SampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
         AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(

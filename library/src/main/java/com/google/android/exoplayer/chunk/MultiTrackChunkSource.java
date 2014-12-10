@@ -46,6 +46,10 @@ public class MultiTrackChunkSource implements ChunkSource, ExoPlayerComponent {
     this.selectedSource = sources[0];
   }
 
+  public MultiTrackChunkSource(List<ChunkSource> sources) {
+    this(toChunkSourceArray(sources));
+  }
+
   /**
    * Gets the number of tracks that this source can switch between. May be called safely from any
    * thread.
@@ -105,6 +109,12 @@ public class MultiTrackChunkSource implements ChunkSource, ExoPlayerComponent {
   @Override
   public void onChunkLoadError(Chunk chunk, Exception e) {
     selectedSource.onChunkLoadError(chunk, e);
+  }
+
+  private static ChunkSource[] toChunkSourceArray(List<ChunkSource> sources) {
+    ChunkSource[] chunkSourceArray = new ChunkSource[sources.size()];
+    sources.toArray(chunkSourceArray);
+    return chunkSourceArray;
   }
 
 }

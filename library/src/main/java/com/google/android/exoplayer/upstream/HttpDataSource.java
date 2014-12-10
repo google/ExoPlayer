@@ -376,7 +376,7 @@ public class HttpDataSource implements DataSource {
     connection.setReadTimeout(readTimeoutMillis);
     connection.setDoOutput(false);
     synchronized (requestProperties) {
-      for (HashMap.Entry<String, String> property : requestProperties.entrySet()) {
+      for (Map.Entry<String, String> property : requestProperties.entrySet()) {
         connection.setRequestProperty(property.getKey(), property.getValue());
       }
     }

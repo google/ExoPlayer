@@ -30,6 +30,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -61,6 +62,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   private final Handler eventHandler;
   private final EventListener eventListener;
   private final MediaDrm mediaDrm;
+  private final HashMap<String, String> optionalKeyRequestParameters;
 
   /* package */ final MediaDrmHandler mediaDrmHandler;
   /* package */ final MediaDrmCallback callback;
@@ -71,6 +73,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   private Handler postRequestHandler;
 
   private int openCount;
+  private boolean provisioningInProgress;
   private int state;
   private MediaCrypto mediaCrypto;
   private Exception lastException;
@@ -79,19 +82,32 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   private byte[] sessionId;
 
   /**
+   * @deprecated Use the other constructor, passing null as {@code optionalKeyRequestParameters}.
+   */
+  @Deprecated
+  public StreamingDrmSessionManager(UUID uuid, Looper playbackLooper, MediaDrmCallback callback,
+      Handler eventHandler, EventListener eventListener) throws UnsupportedSchemeException {
+    this(uuid, playbackLooper, callback, null, eventHandler, eventListener);
+  }
+
+  /**
    * @param uuid The UUID of the drm scheme.
    * @param playbackLooper The looper associated with the media playback thread. Should usually be
    *     obtained using {@link com.google.android.exoplayer.ExoPlayer#getPlaybackLooper()}.
    * @param callback Performs key and provisioning requests.
+   * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
+   *     to {@link MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @throws UnsupportedSchemeException If the specified DRM scheme is not supported.
    */
   public StreamingDrmSessionManager(UUID uuid, Looper playbackLooper, MediaDrmCallback callback,
-      Handler eventHandler, EventListener eventListener) throws UnsupportedSchemeException {
+      HashMap<String, String> optionalKeyRequestParameters, Handler eventHandler,
+      EventListener eventListener) throws UnsupportedSchemeException {
     this.uuid = uuid;
     this.callback = callback;
+    this.optionalKeyRequestParameters = optionalKeyRequestParameters;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     mediaDrm = new MediaDrm(uuid);
@@ -179,6 +195,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
       return;
     }
     state = STATE_CLOSED;
+    provisioningInProgress = false;
     mediaDrmHandler.removeCallbacksAndMessages(null);
     postResponseHandler.removeCallbacksAndMessages(null);
     postRequestHandler.removeCallbacksAndMessages(null);
@@ -212,11 +229,16 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   private void postProvisionRequest() {
+    if (provisioningInProgress) {
+      return;
+    }
+    provisioningInProgress = true;
     ProvisionRequest request = mediaDrm.getProvisionRequest();
     postRequestHandler.obtainMessage(MSG_PROVISION, request).sendToTarget();
   }
 
   private void onProvisionResponse(Object response) {
+    provisioningInProgress = false;
     if (state != STATE_OPENING && state != STATE_OPENED && state != STATE_OPENED_WITH_KEYS) {
       // This event is stale.
       return;
@@ -243,7 +265,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
     KeyRequest keyRequest;
     try {
       keyRequest = mediaDrm.getKeyRequest(sessionId, schemePsshData, mimeType,
-          MediaDrm.KEY_TYPE_STREAMING, null);
+          MediaDrm.KEY_TYPE_STREAMING, optionalKeyRequestParameters);
       postRequestHandler.obtainMessage(MSG_KEYS, keyRequest).sendToTarget();
     } catch (NotProvisionedException e) {
       onKeysError(e);
@@ -277,13 +299,13 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
     }
   }
 
-  private void onError(Exception e) {
+  private void onError(final Exception e) {
     lastException = e;
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable() {
         @Override
         public void run() {
-          eventListener.onDrmSessionManagerError(lastException);
+          eventListener.onDrmSessionManagerError(e);
         }
       });
     }

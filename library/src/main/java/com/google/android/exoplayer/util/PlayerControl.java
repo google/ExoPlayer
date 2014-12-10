@@ -70,12 +70,14 @@ public class PlayerControl implements MediaPlayerControl {
 
   @Override
   public int getCurrentPosition() {
-    return exoPlayer.getCurrentPosition();
+    return exoPlayer.getDuration() == ExoPlayer.UNKNOWN_TIME ? 0
+        : (int) exoPlayer.getCurrentPosition();
   }
 
   @Override
   public int getDuration() {
-    return exoPlayer.getDuration();
+    return exoPlayer.getDuration() == ExoPlayer.UNKNOWN_TIME ? 0
+        : (int) exoPlayer.getDuration();
   }
 
   @Override
@@ -95,8 +97,9 @@ public class PlayerControl implements MediaPlayerControl {
 
   @Override
   public void seekTo(int timeMillis) {
-    // MediaController arrow keys generate unbounded values.
-    exoPlayer.seekTo(Math.min(Math.max(0, timeMillis), getDuration()));
+    long seekPosition = exoPlayer.getDuration() == ExoPlayer.UNKNOWN_TIME ? 0
+        : Math.min(Math.max(0, timeMillis), getDuration());
+    exoPlayer.seekTo(seekPosition);
   }
 
 }

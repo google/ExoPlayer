@@ -135,18 +135,6 @@ public abstract class Chunk implements Loadable {
   }
 
   /**
-   * Returns a byte array containing the loaded data. If the chunk is partially loaded, this
-   * method returns the data that has been loaded so far. If nothing has been loaded, null is
-   * returned.
-   *
-   * @return The loaded data or null.
-   */
-  public final byte[] getLoadedData() {
-    Assertions.checkState(dataSourceStream != null);
-    return dataSourceStream.getLoadedData();
-  }
-
-  /**
    * Invoked by {@link #consume()}. Implementations may override this method if they wish to
    * consume the loaded data at this point.
    * <p>
