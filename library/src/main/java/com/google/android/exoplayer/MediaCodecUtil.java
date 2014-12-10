@@ -24,6 +24,7 @@ import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecList;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Pair;
 
 import java.util.HashMap;
@@ -33,6 +34,8 @@ import java.util.HashMap;
  */
 @TargetApi(16)
 public class MediaCodecUtil {
+
+  private static final String TAG = "MediaCodecUtil";
 
   private static final HashMap<CodecKey, Pair<String, CodecCapabilities>> codecs =
       new HashMap<CodecKey, Pair<String, CodecCapabilities>>();
@@ -77,6 +80,23 @@ public class MediaCodecUtil {
     }
     MediaCodecListCompat mediaCodecList = Util.SDK_INT >= 21
         ? new MediaCodecListCompatV21(secure) : new MediaCodecListCompatV16();
+    Pair<String, CodecCapabilities> codecInfo = getMediaCodecInfo(key, mediaCodecList);
+    // TODO: Verify this cannot occur on v22, and change >= to == [Internal: b/18678462].
+    if (secure && codecInfo == null && Util.SDK_INT >= 21) {
+      // Some devices don't list secure decoders on API level 21. Try the legacy path.
+      mediaCodecList = new MediaCodecListCompatV16();
+      codecInfo = getMediaCodecInfo(key, mediaCodecList);
+      if (codecInfo != null) {
+        Log.w(TAG, "MediaCodecList API didn't list secure decoder for: " + mimeType
+            + ". Assuming: " + codecInfo.first);
+      }
+    }
+    return codecInfo;
+  }
+
+  private static Pair<String, CodecCapabilities> getMediaCodecInfo(CodecKey key,
+      MediaCodecListCompat mediaCodecList) {
+    String mimeType = key.mimeType;
     int numberOfCodecs = mediaCodecList.getCodecCount();
     boolean secureDecodersExplicit = mediaCodecList.secureDecodersExplicit();
     // Note: MediaCodecList is sorted by the framework such that the best decoders come first.
@@ -90,18 +110,19 @@ public class MediaCodecUtil {
           String supportedType = supportedTypes[j];
           if (supportedType.equalsIgnoreCase(mimeType)) {
             CodecCapabilities capabilities = info.getCapabilitiesForType(supportedType);
+            boolean secure = mediaCodecList.isSecurePlaybackSupported(key.mimeType, capabilities);
             if (!secureDecodersExplicit) {
-              // Cache variants for secure and insecure playback. Note that the secure decoder is
-              // inferred, and may not actually exist.
+              // Cache variants for both insecure and (if we think it's supported) secure playback.
               codecs.put(key.secure ? new CodecKey(mimeType, false) : key,
                   Pair.create(codecName, capabilities));
-              codecs.put(key.secure ? key : new CodecKey(mimeType, true),
-                  Pair.create(codecName + ".secure", capabilities));
+              if (secure) {
+                codecs.put(key.secure ? key : new CodecKey(mimeType, true),
+                    Pair.create(codecName + ".secure", capabilities));
+              }
             } else {
-              // We can only cache this variant. The other should be listed explicitly.
-              boolean codecSecure = mediaCodecList.isSecurePlaybackSupported(
-                  info.getCapabilitiesForType(supportedType));
-              codecs.put(key.secure == codecSecure ? key : new CodecKey(mimeType, codecSecure),
+              // Only cache this variant. If both insecure and secure decoders are available, they
+              // should both be listed separately.
+              codecs.put(key.secure == secure ? key : new CodecKey(mimeType, secure),
                   Pair.create(codecName, capabilities));
             }
             if (codecs.containsKey(key)) {
@@ -219,10 +240,8 @@ public class MediaCodecUtil {
     /**
      * Whether secure playback is supported for the given {@link CodecCapabilities}, which should
      * have been obtained from a {@link MediaCodecInfo} obtained from this list.
-     * <p>
-     * May only be called if {@link #secureDecodersExplicit()} returns true.
      */
-    public boolean isSecurePlaybackSupported(CodecCapabilities capabilities);
+    public boolean isSecurePlaybackSupported(String mimeType, CodecCapabilities capabilities);
 
   }
 
@@ -252,7 +271,7 @@ public class MediaCodecUtil {
     }
 
     @Override
-    public boolean isSecurePlaybackSupported(CodecCapabilities capabilities) {
+    public boolean isSecurePlaybackSupported(String mimeType, CodecCapabilities capabilities) {
       return capabilities.isFeatureSupported(CodecCapabilities.FEATURE_SecurePlayback);
     }
 
@@ -277,8 +296,10 @@ public class MediaCodecUtil {
     }
 
     @Override
-    public boolean isSecurePlaybackSupported(CodecCapabilities capabilities) {
-      throw new UnsupportedOperationException();
+    public boolean isSecurePlaybackSupported(String mimeType, CodecCapabilities capabilities) {
+      // Secure decoders weren't explicitly listed prior to API level 21. We assume that a secure
+      // H264 decoder exists.
+      return MimeTypes.VIDEO_H264.equals(mimeType);
     }
 
   }
