@@ -75,6 +75,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <html>
 <head>
 
@@ -87,8 +103,10 @@
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
-href="http://fonts.googleapis.com/css?family=Roboto:regular,medium,thin,italic,mediumitalic,bold" title="roboto">
-<link href="../../../../../../../assets/css/default.css" rel="stylesheet" type="text/css">
+href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
+  title="roboto">
+<link href="../../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -104,29 +122,26 @@ type="text/css">
   var metaTags = [];
   var devsite = false;
 </script>
-<script src="../../../../../../../assets/js/docs.js" type="text/javascript"></script>
+<script src="../../../../../../../assets/js/docs.js?v=3" type="text/javascript"></script>
 
-<!-- RESOURCES LIBRARY -->
-<script src="http://androiddevdocs-staging.appspot.com/ytblogger_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../../jd_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../../assets/js/jd_tag_helpers.js" type="text/javascript"></script>
-<link href="../../../../../../../assets/css/resourcecards.css"  rel="stylesheet" type="text/css" />
-<script src="../../../../../../../assets/js/resourcecards.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-5831155-1']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-5831155-1', 'android.com');
+  ga('create', 'UA-49880327-2', 'android.com', {'name': 'universal'});  // New tracker);
+  ga('send', 'pageview');
+  ga('universal.send', 'pageview'); // Send page view for new tracker.
 </script>
+
 </head>
+
 <body class="gc-documentation 
-  develop" itemscope itemtype="http://schema.org/Article">
+  develop reference" itemscope itemtype="http://schema.org/Article">
   <div id="doc-api-level" class="" style="display:none"></div>
   <a name="top"></a>
 
@@ -154,6 +169,8 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
@@ -173,6 +190,8 @@ type="text/css">
   <a href="../../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/text/webvtt/package-summary.html">com.google.android.exoplayer.text.webvtt</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
     <li class="api apilevel-">
@@ -196,7 +215,6 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/ContentProtection.html">ContentProtection</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html">MediaPresentationDescription</a></li>
-          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionFetcher.html">MediaPresentationDescriptionFetcher</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionParser.html">MediaPresentationDescriptionParser</a></li>
           <li class="selected api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></li>
@@ -296,6 +314,9 @@ Summary:
 
 
 
+  &#124; <a href="#pubmethods">Methods</a>
+  
+
 
 
   &#124; <a href="#inhmethods">Inherited Methods</a>
@@ -317,7 +338,7 @@ Summary:
 <div id="jd-header">
     public
      
-    final 
+     
     
     class
 <h1 itemprop="name">Period</h1>
@@ -333,6 +354,9 @@ Summary:
   
   
   
+
+
+    
 
 
 </div><!-- end header -->
@@ -427,7 +451,12 @@ Summary:
           final
           <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a>&gt;</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#adaptationSets">adaptationSets</a></td>
-          <td class="jd-descrcol" width="100%">The adaptation sets belonging to the period.</td>
+          <td class="jd-descrcol" width="100%">
+            The adaptation sets belonging to the period.
+            
+    
+
+          </td>
       </tr>
       
     
@@ -438,7 +467,12 @@ Summary:
           final
           long</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#durationMs">durationMs</a></td>
-          <td class="jd-descrcol" width="100%">The duration of the period in milliseconds, or -1 if the duration is unknown.</td>
+          <td class="jd-descrcol" width="100%">
+            The duration of the period in milliseconds, or -1 if the duration is unknown.
+            
+    
+
+          </td>
       </tr>
       
     
@@ -449,7 +483,12 @@ Summary:
           final
           <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#id">id</a></td>
-          <td class="jd-descrcol" width="100%">The period identifier, if one exists.</td>
+          <td class="jd-descrcol" width="100%">
+            The period identifier, if one exists.
+            
+    
+
+          </td>
       </tr>
       
     
@@ -460,7 +499,12 @@ Summary:
           final
           long</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#startMs">startMs</a></td>
-          <td class="jd-descrcol" width="100%">The start time of the period in milliseconds.</td>
+          <td class="jd-descrcol" width="100%">
+            The start time of the period in milliseconds.
+            
+    
+
+          </td>
       </tr>
       
     
@@ -489,7 +533,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#Period(java.lang.String, long, long, java.util.List<com.google.android.exoplayer.dash.mpd.AdaptationSet>)">Period</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, long start, long duration, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a>&gt; adaptationSets)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#Period(java.lang.String, long, long, java.util.List<com.google.android.exoplayer.dash.mpd.AdaptationSet>)">Period</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> id, long start, long duration, <a href="http://developer.android.com/reference/java/util/List.html"><?csvar:type.label ?></a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a>&gt; adaptationSets)</nobr>
         
   </td></tr>
 
@@ -500,6 +544,39 @@ Summary:
 
 
 
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
+
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html#getAdaptationSetIndex(int)">getAdaptationSetIndex</a></span>(int type)</nobr>
+        
+        <div class="jd-descrdiv">
+          Returns the index of the first adaptation set of a given type, or -1 if no adaptation set of
+ the specified type exists.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+
+</table>
 
 
 
@@ -559,7 +636,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
         
   </td></tr>
 
@@ -766,6 +843,9 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>The adaptation sets belonging to the period.
 </p></div>
 
@@ -794,6 +874,9 @@ From class
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>The duration of the period in milliseconds, or -1 if the duration is unknown.
 </p></div>
@@ -824,6 +907,9 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>The period identifier, if one exists.
 </p></div>
 
@@ -852,6 +938,9 @@ From class
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>The start time of the period in milliseconds.
 </p></div>
@@ -884,7 +973,7 @@ From class
         
       </span>
       <span class="sympad">Period</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, long start, long duration, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a>&gt; adaptationSets)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> id, long start, long duration, <a href="http://developer.android.com/reference/java/util/List.html"><?csvar:type.label ?></a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a>&gt; adaptationSets)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -893,6 +982,9 @@ From class
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
   <div class="jd-tagdata">
@@ -932,6 +1024,58 @@ From class
 
 <!-- ========= METHOD DETAIL ======== -->
 <!-- Public methdos -->
+
+<h2>Public Methods</h2>
+
+
+
+<A NAME="getAdaptationSetIndex(int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">getAdaptationSetIndex</span>
+      <span class="normal">(int type)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the index of the first adaptation set of a given type, or -1 if no adaptation set of
+ the specified type exists.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>type</td>
+          <td>An adaptation set type.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The index of the first adaptation set of the specified type, or -1.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
 
 
 

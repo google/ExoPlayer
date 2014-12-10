@@ -75,6 +75,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <html>
 <head>
 
@@ -87,8 +103,10 @@
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
-href="http://fonts.googleapis.com/css?family=Roboto:regular,medium,thin,italic,mediumitalic,bold" title="roboto">
-<link href="../../../../../../../assets/css/default.css" rel="stylesheet" type="text/css">
+href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
+  title="roboto">
+<link href="../../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -104,29 +122,26 @@ type="text/css">
   var metaTags = [];
   var devsite = false;
 </script>
-<script src="../../../../../../../assets/js/docs.js" type="text/javascript"></script>
+<script src="../../../../../../../assets/js/docs.js?v=3" type="text/javascript"></script>
 
-<!-- RESOURCES LIBRARY -->
-<script src="http://androiddevdocs-staging.appspot.com/ytblogger_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../../jd_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../../assets/js/jd_tag_helpers.js" type="text/javascript"></script>
-<link href="../../../../../../../assets/css/resourcecards.css"  rel="stylesheet" type="text/css" />
-<script src="../../../../../../../assets/js/resourcecards.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-5831155-1']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-5831155-1', 'android.com');
+  ga('create', 'UA-49880327-2', 'android.com', {'name': 'universal'});  // New tracker);
+  ga('send', 'pageview');
+  ga('universal.send', 'pageview'); // Send page view for new tracker.
 </script>
+
 </head>
+
 <body class="gc-documentation 
-  develop" itemscope itemtype="http://schema.org/Article">
+  develop reference" itemscope itemtype="http://schema.org/Article">
   <div id="doc-api-level" class="" style="display:none"></div>
   <a name="top"></a>
 
@@ -154,6 +169,8 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
@@ -173,6 +190,8 @@ type="text/css">
   <a href="../../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/text/webvtt/package-summary.html">com.google.android.exoplayer.text.webvtt</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
     <li class="api apilevel-">
@@ -196,7 +215,6 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/ContentProtection.html">ContentProtection</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html">MediaPresentationDescription</a></li>
-          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionFetcher.html">MediaPresentationDescriptionFetcher</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionParser.html">MediaPresentationDescriptionParser</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></li>
@@ -349,6 +367,9 @@ Summary:
   
 
 
+    
+
+
 </div><!-- end header -->
 
 <div id="naMessage"></div>
@@ -451,7 +472,12 @@ Summary:
           final
           <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a></nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SingleSegmentBase.html#uri">uri</a></td>
-          <td class="jd-descrcol" width="100%">The uri of the segment.</td>
+          <td class="jd-descrcol" width="100%">
+            The uri of the segment.
+            
+    
+
+          </td>
       </tr>
       
     
@@ -480,7 +506,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SingleSegmentBase.html#SegmentBase.SingleSegmentBase(com.google.android.exoplayer.dash.mpd.RangedUri, long, long, android.net.Uri, long, long)">SegmentBase.SingleSegmentBase</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a> initialization, long timescale, long presentationTimeOffset, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> uri, long indexStart, long indexLength)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.SingleSegmentBase.html#SegmentBase.SingleSegmentBase(com.google.android.exoplayer.dash.mpd.RangedUri, long, long, android.net.Uri, long, long)">SegmentBase.SingleSegmentBase</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a> initialization, long timescale, long presentationTimeOffset, <a href="http://developer.android.com/reference/android/net/Uri.html"><?csvar:type.label ?></a> uri, long indexStart, long indexLength)</nobr>
         
   </td></tr>
 
@@ -561,8 +587,13 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.html#getInitialization(com.google.android.exoplayer.dash.mpd.Representation)">getInitialization</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation</a> representation)</nobr>
         
-        <div class="jd-descrdiv">Gets the <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> defining the location of initialization data for a given
- representation.</div>
+        <div class="jd-descrdiv">
+          Gets the <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> defining the location of initialization data for a given
+ representation.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -620,7 +651,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
         
   </td></tr>
 
@@ -827,6 +858,9 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>The uri of the segment.
 </p></div>
 
@@ -858,7 +892,7 @@ From class
         
       </span>
       <span class="sympad">SegmentBase.SingleSegmentBase</span>
-      <span class="normal">(<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a> initialization, long timescale, long presentationTimeOffset, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> uri, long indexStart, long indexLength)</span>
+      <span class="normal">(<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a> initialization, long timescale, long presentationTimeOffset, <a href="http://developer.android.com/reference/android/net/Uri.html"><?csvar:type.label ?></a> uri, long indexStart, long indexLength)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -867,6 +901,9 @@ From class
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
   <div class="jd-tagdata">
@@ -943,6 +980,9 @@ From class
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 

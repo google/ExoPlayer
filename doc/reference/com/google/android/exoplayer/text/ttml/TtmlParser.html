@@ -75,6 +75,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <html>
 <head>
 
@@ -87,8 +103,10 @@
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
-href="http://fonts.googleapis.com/css?family=Roboto:regular,medium,thin,italic,mediumitalic,bold" title="roboto">
-<link href="../../../../../../../assets/css/default.css" rel="stylesheet" type="text/css">
+href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
+  title="roboto">
+<link href="../../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -104,29 +122,26 @@ type="text/css">
   var metaTags = [];
   var devsite = false;
 </script>
-<script src="../../../../../../../assets/js/docs.js" type="text/javascript"></script>
+<script src="../../../../../../../assets/js/docs.js?v=3" type="text/javascript"></script>
 
-<!-- RESOURCES LIBRARY -->
-<script src="http://androiddevdocs-staging.appspot.com/ytblogger_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../../jd_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../../assets/js/jd_tag_helpers.js" type="text/javascript"></script>
-<link href="../../../../../../../assets/css/resourcecards.css"  rel="stylesheet" type="text/css" />
-<script src="../../../../../../../assets/js/resourcecards.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-5831155-1']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-5831155-1', 'android.com');
+  ga('create', 'UA-49880327-2', 'android.com', {'name': 'universal'});  // New tracker);
+  ga('send', 'pageview');
+  ga('universal.send', 'pageview'); // Send page view for new tracker.
 </script>
+
 </head>
+
 <body class="gc-documentation 
-  develop" itemscope itemtype="http://schema.org/Article">
+  develop reference" itemscope itemtype="http://schema.org/Article">
   <div id="doc-api-level" class="" style="display:none"></div>
   <a name="top"></a>
 
@@ -154,6 +169,8 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
@@ -173,6 +190,8 @@ type="text/css">
   <a href="../../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
     <li class="selected api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/text/webvtt/package-summary.html">com.google.android.exoplayer.text.webvtt</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
     <li class="api apilevel-">
@@ -331,6 +350,9 @@ Summary:
   
 
 
+    
+
+
 </div><!-- end header -->
 
 <div id="naMessage"></div>
@@ -455,6 +477,29 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/ttml/TtmlParser.html#TtmlParser()">TtmlParser</a></span>()</nobr>
         
+        <div class="jd-descrdiv">
+          Equivalent to <code>TtmlParser(true)</code>.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            </nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/ttml/TtmlParser.html#TtmlParser(boolean)">TtmlParser</a></span>(boolean strictParsing)</nobr>
+        
   </td></tr>
 
 
@@ -482,9 +527,14 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/ttml/TtmlParser.html#canParse(java.lang.String)">canParse</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/ttml/TtmlParser.html#canParse(java.lang.String)">canParse</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</nobr>
         
-        <div class="jd-descrdiv">Checks whether the parser supports a given subtitle mime type.</div>
+        <div class="jd-descrdiv">
+          Checks whether the parser supports a given subtitle mime type.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -500,9 +550,14 @@ Summary:
             <a href="../../../../../../../reference/com/google/android/exoplayer/text/Subtitle.html">Subtitle</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/ttml/TtmlParser.html#parse(java.io.InputStream, java.lang.String, long)">parse</a></span>(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> inputStream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, long startTimeUs)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/ttml/TtmlParser.html#parse(java.io.InputStream, java.lang.String, long)">parse</a></span>(<a href="http://developer.android.com/reference/java/io/InputStream.html"><?csvar:type.label ?></a> inputStream, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> inputEncoding, long startTimeUs)</nobr>
         
-        <div class="jd-descrdiv">Parses a <code><a href="../../../../../../../reference/com/google/android/exoplayer/text/Subtitle.html">Subtitle</a></code> from the provided <code><a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a></code>.</div>
+        <div class="jd-descrdiv">
+          Parses a <code><a href="../../../../../../../reference/com/google/android/exoplayer/text/Subtitle.html">Subtitle</a></code> from the provided <code><a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a></code>.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -568,7 +623,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
         
   </td></tr>
 
@@ -754,9 +809,14 @@ From interface
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/SubtitleParser.html#canParse(java.lang.String)">canParse</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/SubtitleParser.html#canParse(java.lang.String)">canParse</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</nobr>
         
-        <div class="jd-descrdiv">Checks whether the parser supports a given subtitle mime type.</div>
+        <div class="jd-descrdiv">
+          Checks whether the parser supports a given subtitle mime type.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -772,9 +832,14 @@ From interface
             <a href="../../../../../../../reference/com/google/android/exoplayer/text/Subtitle.html">Subtitle</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/SubtitleParser.html#parse(java.io.InputStream, java.lang.String, long)">parse</a></span>(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> inputStream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, long startTimeUs)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/SubtitleParser.html#parse(java.io.InputStream, java.lang.String, long)">parse</a></span>(<a href="http://developer.android.com/reference/java/io/InputStream.html"><?csvar:type.label ?></a> inputStream, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> inputEncoding, long startTimeUs)</nobr>
         
-        <div class="jd-descrdiv">Parses a <code><a href="../../../../../../../reference/com/google/android/exoplayer/text/Subtitle.html">Subtitle</a></code> from the provided <code><a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a></code>.</div>
+        <div class="jd-descrdiv">
+          Parses a <code><a href="../../../../../../../reference/com/google/android/exoplayer/text/Subtitle.html">Subtitle</a></code> from the provided <code><a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a></code>.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -842,7 +907,56 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Equivalent to <code>TtmlParser(true)</code>.
+</p></div>
+
+    </div>
+</div>
+
+
+<A NAME="TtmlParser(boolean)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        
+      </span>
+      <span class="sympad">TtmlParser</span>
+      <span class="normal">(boolean strictParsing)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>strictParsing</td>
+          <td>If true, <code><a href="../../../../../../../reference/com/google/android/exoplayer/text/ttml/TtmlParser.html#parse(java.io.InputStream, java.lang.String, long)">parse(InputStream, String, long)</a></code> will throw a
+     <code><a href="../../../../../../../reference/com/google/android/exoplayer/ParserException.html">ParserException</a></code> if the stream contains invalid ttml. If false, the parser will
+     make a best effort to ignore minor errors in the stream. Note however that a
+     <code><a href="../../../../../../../reference/com/google/android/exoplayer/ParserException.html">ParserException</a></code> will still be thrown when this is not possible.
+</td>
+        </tr>
+      </table>
+  </div>
 
     </div>
 </div>
@@ -876,7 +990,7 @@ From interface
         boolean
       </span>
       <span class="sympad">canParse</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -885,6 +999,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Checks whether the parser supports a given subtitle mime type.</p></div>
   <div class="jd-tagdata">
@@ -919,7 +1036,7 @@ From interface
         <a href="../../../../../../../reference/com/google/android/exoplayer/text/Subtitle.html">Subtitle</a>
       </span>
       <span class="sympad">parse</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> inputStream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, long startTimeUs)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/io/InputStream.html"><?csvar:type.label ?></a> inputStream, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> inputEncoding, long startTimeUs)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -928,6 +1045,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Parses a <code><a href="../../../../../../../reference/com/google/android/exoplayer/text/Subtitle.html">Subtitle</a></code> from the provided <code><a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a></code>.</p></div>
   <div class="jd-tagdata">

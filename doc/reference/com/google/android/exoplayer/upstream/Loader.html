@@ -75,6 +75,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <html>
 <head>
 
@@ -87,8 +103,10 @@
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
-href="http://fonts.googleapis.com/css?family=Roboto:regular,medium,thin,italic,mediumitalic,bold" title="roboto">
-<link href="../../../../../../assets/css/default.css" rel="stylesheet" type="text/css">
+href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
+  title="roboto">
+<link href="../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -104,29 +122,26 @@ type="text/css">
   var metaTags = [];
   var devsite = false;
 </script>
-<script src="../../../../../../assets/js/docs.js" type="text/javascript"></script>
+<script src="../../../../../../assets/js/docs.js?v=3" type="text/javascript"></script>
 
-<!-- RESOURCES LIBRARY -->
-<script src="http://androiddevdocs-staging.appspot.com/ytblogger_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../jd_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../assets/js/jd_tag_helpers.js" type="text/javascript"></script>
-<link href="../../../../../../assets/css/resourcecards.css"  rel="stylesheet" type="text/css" />
-<script src="../../../../../../assets/js/resourcecards.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-5831155-1']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-5831155-1', 'android.com');
+  ga('create', 'UA-49880327-2', 'android.com', {'name': 'universal'});  // New tracker);
+  ga('send', 'pageview');
+  ga('universal.send', 'pageview'); // Send page view for new tracker.
 </script>
+
 </head>
+
 <body class="gc-documentation 
-  develop" itemscope itemtype="http://schema.org/Article">
+  develop reference" itemscope itemtype="http://schema.org/Article">
   <div id="doc-api-level" class="" style="display:none"></div>
   <a name="top"></a>
 
@@ -154,6 +169,8 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
@@ -173,6 +190,8 @@ type="text/css">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/webvtt/package-summary.html">com.google.android.exoplayer.text.webvtt</a></li>
     <li class="selected api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
     <li class="api apilevel-">
@@ -198,7 +217,7 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSink.html">DataSink</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DefaultBandwidthMeter.EventListener.html">DefaultBandwidthMeter.EventListener</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Listener.html">Loader.Listener</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Callback.html">Loader.Callback</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/NonBlockingInputStream.html">NonBlockingInputStream</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/TransferListener.html">TransferListener</a></li>
@@ -221,6 +240,7 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/NetworkLock.html">NetworkLock</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/PriorityDataSource.html">PriorityDataSource</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/TeeDataSource.html">TeeDataSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/UriDataSource.html">UriDataSource</a></li>
       </ul>
     </li>
               
@@ -360,6 +380,9 @@ Summary:
   
 
 
+    
+
+
 </div><!-- end header -->
 
 <div id="naMessage"></div>
@@ -437,8 +460,13 @@ Summary:
          
         
         interface</nobr></td>
-      <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Listener.html">Loader.Listener</a></td>
-      <td class="jd-descrcol" width="100%">Interface definition for a callback to be notified of <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html">Loader</a></code> events.&nbsp;</td>
+      <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Callback.html">Loader.Callback</a></td>
+      <td class="jd-descrcol" width="100%">
+        Interface definition for a callback to be notified of <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html">Loader</a></code> events.&nbsp;
+        
+    
+
+      </td>
     </tr>
     
     
@@ -450,7 +478,12 @@ Summary:
         
         interface</nobr></td>
       <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a></td>
-      <td class="jd-descrcol" width="100%">Interface definition of an object that can be loaded using a <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html">Loader</a></code>.&nbsp;</td>
+      <td class="jd-descrcol" width="100%">
+        Interface definition of an object that can be loaded using a <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html">Loader</a></code>.&nbsp;
+        
+    
+
+      </td>
     </tr>
     
     
@@ -462,7 +495,12 @@ Summary:
         
         class</nobr></td>
       <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.UnexpectedLoaderException.html">Loader.UnexpectedLoaderException</a></td>
-      <td class="jd-descrcol" width="100%">Thrown when an unexpected exception is encountered during loading.&nbsp;</td>
+      <td class="jd-descrcol" width="100%">
+        Thrown when an unexpected exception is encountered during loading.&nbsp;
+        
+    
+
+      </td>
     </tr>
     
     
@@ -505,7 +543,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html#Loader(java.lang.String, com.google.android.exoplayer.upstream.Loader.Listener)">Loader</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> threadName, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Listener.html">Loader.Listener</a> listener)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html#Loader(java.lang.String)">Loader</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> threadName)</nobr>
         
   </td></tr>
 
@@ -536,7 +574,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html#cancelLoading()">cancelLoading</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Cancels the current load.</div>
+        <div class="jd-descrdiv">
+          Cancels the current load.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -554,7 +597,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html#isLoading()">isLoading</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Whether the <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html">Loader</a></code> is currently loading a <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a></code>.</div>
+        <div class="jd-descrdiv">
+          Whether the <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html">Loader</a></code> is currently loading a <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a></code>.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -572,7 +620,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html#release()">release</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Releases the <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html">Loader</a></code>.</div>
+        <div class="jd-descrdiv">
+          Releases the <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html">Loader</a></code>.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -588,9 +641,38 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html#startLoading(com.google.android.exoplayer.upstream.Loader.Loadable)">startLoading</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html#startLoading(android.os.Looper, com.google.android.exoplayer.upstream.Loader.Loadable, com.google.android.exoplayer.upstream.Loader.Callback)">startLoading</a></span>(<a href="http://developer.android.com/reference/android/os/Looper.html"><?csvar:type.label ?></a> looper, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Callback.html">Loader.Callback</a> callback)</nobr>
         
-        <div class="jd-descrdiv">Start loading a <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a></code>.</div>
+        <div class="jd-descrdiv">
+          Start loading a <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a></code>.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html#startLoading(com.google.android.exoplayer.upstream.Loader.Loadable, com.google.android.exoplayer.upstream.Loader.Callback)">startLoading</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Callback.html">Loader.Callback</a> callback)</nobr>
+        
+        <div class="jd-descrdiv">
+          Invokes <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html#startLoading(android.os.Looper, com.google.android.exoplayer.upstream.Loader.Loadable, com.google.android.exoplayer.upstream.Loader.Callback)">startLoading(Looper, Loadable, Callback)</a></code>, using the <code><a href="http://developer.android.com/reference/android/os/Looper.html">Looper</a></code>
+ associated with the calling thread.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -656,7 +738,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
         
   </td></tr>
 
@@ -845,7 +927,7 @@ From class
 
 
 
-<A NAME="Loader(java.lang.String, com.google.android.exoplayer.upstream.Loader.Listener)"></A>
+<A NAME="Loader(java.lang.String)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -858,7 +940,7 @@ From class
         
       </span>
       <span class="sympad">Loader</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> threadName, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Listener.html">Loader.Listener</a> listener)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> threadName)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -868,17 +950,16 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
         <tr>
           <th>threadName</td>
-          <td>A name for the loader's thread.</td>
-        </tr>
-        <tr>
-          <th>listener</td>
-          <td>A listener to invoke when state changes occur.
+          <td>A name for the loader's thread.
 </td>
         </tr>
       </table>
@@ -926,6 +1007,9 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Cancels the current load.
  <p>
  This method should only be called when a load is in progress.
@@ -957,6 +1041,9 @@ From class
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Whether the <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html">Loader</a></code> is currently loading a <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a></code>.</p></div>
   <div class="jd-tagdata">
@@ -992,6 +1079,9 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Releases the <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html">Loader</a></code>.
  <p>
  This method should be called when the <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html">Loader</a></code> is no longer required.
@@ -1001,7 +1091,7 @@ From class
 </div>
 
 
-<A NAME="startLoading(com.google.android.exoplayer.upstream.Loader.Loadable)"></A>
+<A NAME="startLoading(android.os.Looper, com.google.android.exoplayer.upstream.Loader.Loadable, com.google.android.exoplayer.upstream.Loader.Callback)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1014,7 +1104,7 @@ From class
         void
       </span>
       <span class="sympad">startLoading</span>
-      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/android/os/Looper.html"><?csvar:type.label ?></a> looper, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Callback.html">Loader.Callback</a> callback)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1024,6 +1114,9 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Start loading a <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a></code>.
  <p>
  A <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html">Loader</a></code> instance can only load one <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a></code> at a time, and so this method
@@ -1032,8 +1125,72 @@ From class
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
         <tr>
+          <th>looper</td>
+          <td>The looper of the thread on which the callback should be invoked.</td>
+        </tr>
+        <tr>
           <th>loadable</td>
-          <td>The <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a></code> to load.
+          <td>The <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a></code> to load.</td>
+        </tr>
+        <tr>
+          <th>callback</td>
+          <td>A callback to invoke when the load ends.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="startLoading(com.google.android.exoplayer.upstream.Loader.Loadable, com.google.android.exoplayer.upstream.Loader.Callback)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">startLoading</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Callback.html">Loader.Callback</a> callback)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Invokes <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.html#startLoading(android.os.Looper, com.google.android.exoplayer.upstream.Loader.Loadable, com.google.android.exoplayer.upstream.Loader.Callback)">startLoading(Looper, Loadable, Callback)</a></code>, using the <code><a href="http://developer.android.com/reference/android/os/Looper.html">Looper</a></code>
+ associated with the calling thread.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>loadable</td>
+          <td>The <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a></code> to load.</td>
+        </tr>
+        <tr>
+          <th>callback</td>
+          <td>A callback to invoke when the load ends.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Throws</h5>
+      <table class="jd-tagtable">  
+        <tr>
+            <th><a href="http://developer.android.com/reference/java/lang/IllegalStateException.html">IllegalStateException</a></td>
+            <td>If the calling thread does not have an associated <code><a href="http://developer.android.com/reference/android/os/Looper.html">Looper</a></code>.
 </td>
         </tr>
       </table>

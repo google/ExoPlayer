@@ -75,6 +75,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <html>
 <head>
 
@@ -87,8 +103,10 @@
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
-href="http://fonts.googleapis.com/css?family=Roboto:regular,medium,thin,italic,mediumitalic,bold" title="roboto">
-<link href="../../../../../../assets/css/default.css" rel="stylesheet" type="text/css">
+href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
+  title="roboto">
+<link href="../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -104,30 +122,27 @@ type="text/css">
   var metaTags = [];
   var devsite = false;
 </script>
-<script src="../../../../../../assets/js/docs.js" type="text/javascript"></script>
+<script src="../../../../../../assets/js/docs.js?v=3" type="text/javascript"></script>
 
-<!-- RESOURCES LIBRARY -->
-<script src="http://androiddevdocs-staging.appspot.com/ytblogger_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../jd_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../assets/js/jd_tag_helpers.js" type="text/javascript"></script>
-<link href="../../../../../../assets/css/resourcecards.css"  rel="stylesheet" type="text/css" />
-<script src="../../../../../../assets/js/resourcecards.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-5831155-1']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-5831155-1', 'android.com');
+  ga('create', 'UA-49880327-2', 'android.com', {'name': 'universal'});  // New tracker);
+  ga('send', 'pageview');
+  ga('universal.send', 'pageview'); // Send page view for new tracker.
 </script>
+
 </head>
 
+
 <body class="gc-documentation 
-  develop">
+  develop reference">
   <div id="doc-api-level" class="" style="display:none"></div>
   <a name="top"></a>
 
@@ -155,6 +170,8 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
@@ -175,6 +192,8 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/webvtt/package-summary.html">com.google.android.exoplayer.text.webvtt</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/upstream/cache/package-summary.html">com.google.android.exoplayer.upstream.cache</a></li>
@@ -194,7 +213,9 @@ type="text/css">
     <li><h2>Interfaces</h2>
       <ul>
         <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/Clock.html">Clock</a></li>
+        <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.EventListener.html">ManifestFetcher.EventListener</a></li>
         <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestFetcher.ManifestCallback</a></li>
+        <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestParser.html">ManifestParser</a></li>
         <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/Predicate.html">Predicate</a></li>
       </ul>
     </li>
@@ -207,6 +228,7 @@ type="text/css">
         <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html">ManifestFetcher</a></li>
         <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html">MimeTypes</a></li>
         <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/PlayerControl.html">PlayerControl</a></li>
+        <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/PriorityHandlerThread.html">PriorityHandlerThread</a></li>
         <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/SlidingPercentile.html">SlidingPercentile</a></li>
         <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/SystemClock.html">SystemClock</a></li>
         <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/TraceUtil.html">TraceUtil</a></li>
@@ -295,20 +317,66 @@ type="text/css">
     <h2>Interfaces</h2>
     <div class="jd-sumtable">
     
+  
   <table class="jd-sumtable-expando">
-        <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/Clock.html">Clock</a></td>
-              <td class="jd-descrcol" width="100%">An interface through which system clocks can be read.&nbsp;</td>
-          </tr>
-        <tr class=" api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestFetcher.ManifestCallback</a>&lt;T&gt;</td>
-              <td class="jd-descrcol" width="100%">Invoked with the result of a manifest fetch.&nbsp;</td>
-          </tr>
-        <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/Predicate.html">Predicate</a>&lt;T&gt;</td>
-              <td class="jd-descrcol" width="100%">Determines a true of false value for a given input.&nbsp;</td>
-          </tr>
+    
+      <tr class="alt-color api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/Clock.html">Clock</a></td>
+        <td class="jd-descrcol" width="100%">
+          An interface through which system clocks can be read.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.EventListener.html">ManifestFetcher.EventListener</a></td>
+        <td class="jd-descrcol" width="100%">
+          Interface definition for a callback to be notified of <code><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html">ManifestFetcher</a></code> events.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestFetcher.ManifestCallback</a>&lt;T&gt;</td>
+        <td class="jd-descrcol" width="100%">
+          Callback for the result of a single load.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestParser.html">ManifestParser</a>&lt;T&gt;</td>
+        <td class="jd-descrcol" width="100%">
+          Parses a manifest from an <code><a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a></code>.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/Predicate.html">Predicate</a>&lt;T&gt;</td>
+        <td class="jd-descrcol" width="100%">
+          Determines a true of false value for a given input.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
   </table>
+
     </div>
   
 
@@ -317,52 +385,143 @@ type="text/css">
     <h2>Classes</h2>
     <div class="jd-sumtable">
     
+  
   <table class="jd-sumtable-expando">
-        <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/Assertions.html">Assertions</a></td>
-              <td class="jd-descrcol" width="100%">Provides methods for asserting the truth of expressions and properties.&nbsp;</td>
-          </tr>
-        <tr class=" api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/CodecSpecificDataUtil.html">CodecSpecificDataUtil</a></td>
-              <td class="jd-descrcol" width="100%">Provides static utility methods for manipulating various types of codec specific data.&nbsp;</td>
-          </tr>
-        <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/LongArray.html">LongArray</a></td>
-              <td class="jd-descrcol" width="100%">An append-only, auto-growing <code>long[]</code>.&nbsp;</td>
-          </tr>
-        <tr class=" api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html">ManifestFetcher</a>&lt;T&gt;</td>
-              <td class="jd-descrcol" width="100%">An <code><a href="http://developer.android.com/reference/android/os/AsyncTask.html">AsyncTask</a></code> for loading and parsing media manifests.&nbsp;</td>
-          </tr>
-        <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html">MimeTypes</a></td>
-              <td class="jd-descrcol" width="100%">Defines common MIME types and helper methods.&nbsp;</td>
-          </tr>
-        <tr class=" api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/PlayerControl.html">PlayerControl</a></td>
-              <td class="jd-descrcol" width="100%">An implementation of <code><a href="http://developer.android.com/reference/android/widget/MediaController.MediaPlayerControl.html">MediaController.MediaPlayerControl</a></code> for controlling an <code><a href="../../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> instance.&nbsp;</td>
-          </tr>
-        <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/SlidingPercentile.html">SlidingPercentile</a></td>
-              <td class="jd-descrcol" width="100%">Calculate any percentile over a sliding window of weighted values.&nbsp;</td>
-          </tr>
-        <tr class=" api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/SystemClock.html">SystemClock</a></td>
-              <td class="jd-descrcol" width="100%">The standard implementation of <code><a href="../../../../../../reference/com/google/android/exoplayer/util/Clock.html">Clock</a></code>.&nbsp;</td>
-          </tr>
-        <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/TraceUtil.html">TraceUtil</a></td>
-              <td class="jd-descrcol" width="100%">Calls through to <code><a href="http://developer.android.com/reference/android/os/Trace.html">Trace</a></code> methods on supported API levels.&nbsp;</td>
-          </tr>
-        <tr class=" api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html">Util</a></td>
-              <td class="jd-descrcol" width="100%">Miscellaneous utility functions.&nbsp;</td>
-          </tr>
-        <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/VerboseLogUtil.html">VerboseLogUtil</a></td>
-              <td class="jd-descrcol" width="100%">Utility class for managing a set of tags for which verbose logging should be enabled.&nbsp;</td>
-          </tr>
+    
+      <tr class="alt-color api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/Assertions.html">Assertions</a></td>
+        <td class="jd-descrcol" width="100%">
+          Provides methods for asserting the truth of expressions and properties.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/CodecSpecificDataUtil.html">CodecSpecificDataUtil</a></td>
+        <td class="jd-descrcol" width="100%">
+          Provides static utility methods for manipulating various types of codec specific data.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/LongArray.html">LongArray</a></td>
+        <td class="jd-descrcol" width="100%">
+          An append-only, auto-growing <code>long[]</code>.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html">ManifestFetcher</a>&lt;T&gt;</td>
+        <td class="jd-descrcol" width="100%">
+          Performs both single and repeated loads of media manifests.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html">MimeTypes</a></td>
+        <td class="jd-descrcol" width="100%">
+          Defines common MIME types and helper methods.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/PlayerControl.html">PlayerControl</a></td>
+        <td class="jd-descrcol" width="100%">
+          An implementation of <code><a href="http://developer.android.com/reference/android/widget/MediaController.MediaPlayerControl.html">MediaController.MediaPlayerControl</a></code> for controlling an <code><a href="../../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> instance.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/PriorityHandlerThread.html">PriorityHandlerThread</a></td>
+        <td class="jd-descrcol" width="100%">
+          A <code><a href="http://developer.android.com/reference/android/os/HandlerThread.html">HandlerThread</a></code> with a specified process priority.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/SlidingPercentile.html">SlidingPercentile</a></td>
+        <td class="jd-descrcol" width="100%">
+          Calculate any percentile over a sliding window of weighted values.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/SystemClock.html">SystemClock</a></td>
+        <td class="jd-descrcol" width="100%">
+          The standard implementation of <code><a href="../../../../../../reference/com/google/android/exoplayer/util/Clock.html">Clock</a></code>.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/TraceUtil.html">TraceUtil</a></td>
+        <td class="jd-descrcol" width="100%">
+          Calls through to <code><a href="http://developer.android.com/reference/android/os/Trace.html">Trace</a></code> methods on supported API levels.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html">Util</a></td>
+        <td class="jd-descrcol" width="100%">
+          Miscellaneous utility functions.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/VerboseLogUtil.html">VerboseLogUtil</a></td>
+        <td class="jd-descrcol" width="100%">
+          Utility class for managing a set of tags for which verbose logging should be enabled.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
   </table>
+
     </div>
   
 

@@ -1,4 +1,5 @@
 com.google.android.exoplayer
+com.google.android.exoplayer.audio
 com.google.android.exoplayer.chunk
 com.google.android.exoplayer.dash
 com.google.android.exoplayer.dash.mpd
@@ -9,6 +10,7 @@ com.google.android.exoplayer.parser.webm
 com.google.android.exoplayer.smoothstreaming
 com.google.android.exoplayer.text
 com.google.android.exoplayer.text.ttml
+com.google.android.exoplayer.text.webvtt
 com.google.android.exoplayer.upstream
 com.google.android.exoplayer.upstream.cache
 com.google.android.exoplayer.util

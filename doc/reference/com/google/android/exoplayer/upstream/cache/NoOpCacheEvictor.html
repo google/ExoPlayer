@@ -75,6 +75,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <html>
 <head>
 
@@ -87,8 +103,10 @@
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
-href="http://fonts.googleapis.com/css?family=Roboto:regular,medium,thin,italic,mediumitalic,bold" title="roboto">
-<link href="../../../../../../../assets/css/default.css" rel="stylesheet" type="text/css">
+href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
+  title="roboto">
+<link href="../../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -104,29 +122,26 @@ type="text/css">
   var metaTags = [];
   var devsite = false;
 </script>
-<script src="../../../../../../../assets/js/docs.js" type="text/javascript"></script>
+<script src="../../../../../../../assets/js/docs.js?v=3" type="text/javascript"></script>
 
-<!-- RESOURCES LIBRARY -->
-<script src="http://androiddevdocs-staging.appspot.com/ytblogger_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../../jd_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../../assets/js/jd_tag_helpers.js" type="text/javascript"></script>
-<link href="../../../../../../../assets/css/resourcecards.css"  rel="stylesheet" type="text/css" />
-<script src="../../../../../../../assets/js/resourcecards.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-5831155-1']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-5831155-1', 'android.com');
+  ga('create', 'UA-49880327-2', 'android.com', {'name': 'universal'});  // New tracker);
+  ga('send', 'pageview');
+  ga('universal.send', 'pageview'); // Send page view for new tracker.
 </script>
+
 </head>
+
 <body class="gc-documentation 
-  develop" itemscope itemtype="http://schema.org/Article">
+  develop reference" itemscope itemtype="http://schema.org/Article">
   <div id="doc-api-level" class="" style="display:none"></div>
   <a name="top"></a>
 
@@ -154,6 +169,8 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
@@ -173,6 +190,8 @@ type="text/css">
   <a href="../../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/text/webvtt/package-summary.html">com.google.android.exoplayer.text.webvtt</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
     <li class="selected api apilevel-">
@@ -355,6 +374,9 @@ Summary:
   
 
 
+    
+
+
 </div><!-- end header -->
 
 <div id="naMessage"></div>
@@ -490,7 +512,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/NoOpCacheEvictor.html#onSpanAdded(com.google.android.exoplayer.upstream.cache.Cache, com.google.android.exoplayer.upstream.cache.CacheSpan)">onSpanAdded</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a> cache, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> span)</nobr>
         
-        <div class="jd-descrdiv">Invoked when a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> is added to the cache.</div>
+        <div class="jd-descrdiv">
+          Invoked when a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> is added to the cache.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -508,7 +535,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/NoOpCacheEvictor.html#onSpanRemoved(com.google.android.exoplayer.upstream.cache.Cache, com.google.android.exoplayer.upstream.cache.CacheSpan)">onSpanRemoved</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a> cache, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> span)</nobr>
         
-        <div class="jd-descrdiv">Invoked when a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> is removed from the cache.</div>
+        <div class="jd-descrdiv">
+          Invoked when a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> is removed from the cache.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -526,7 +558,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/NoOpCacheEvictor.html#onSpanTouched(com.google.android.exoplayer.upstream.cache.Cache, com.google.android.exoplayer.upstream.cache.CacheSpan, com.google.android.exoplayer.upstream.cache.CacheSpan)">onSpanTouched</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a> cache, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> oldSpan, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> newSpan)</nobr>
         
-        <div class="jd-descrdiv">Invoked when an existing <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> is accessed, causing it to be replaced.</div>
+        <div class="jd-descrdiv">
+          Invoked when an existing <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> is accessed, causing it to be replaced.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -542,9 +579,14 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/NoOpCacheEvictor.html#onStartFile(com.google.android.exoplayer.upstream.cache.Cache, java.lang.String, long, long)">onStartFile</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a> cache, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, long length)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/NoOpCacheEvictor.html#onStartFile(com.google.android.exoplayer.upstream.cache.Cache, java.lang.String, long, long)">onStartFile</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a> cache, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position, long length)</nobr>
         
-        <div class="jd-descrdiv">Invoked when a writer starts writing to the cache.</div>
+        <div class="jd-descrdiv">
+          Invoked when a writer starts writing to the cache.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -610,7 +652,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
         
   </td></tr>
 
@@ -768,6 +810,55 @@ From class
 
 <tr class="api apilevel-" >
 <td colspan="12">
+  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-com.google.android.exoplayer.upstream.cache.CacheEvictor" class="jd-expando-trigger closed"
+          ><img id="inherited-methods-com.google.android.exoplayer.upstream.cache.CacheEvictor-trigger"
+          src="../../../../../../../assets/images/triangle-closed.png"
+          class="jd-expando-trigger-img" /></a>
+From interface
+
+  <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheEvictor.html">com.google.android.exoplayer.upstream.cache.CacheEvictor</a>
+
+<div id="inherited-methods-com.google.android.exoplayer.upstream.cache.CacheEvictor">
+  <div id="inherited-methods-com.google.android.exoplayer.upstream.cache.CacheEvictor-list"
+        class="jd-inheritedlinks">
+  </div>
+  <div id="inherited-methods-com.google.android.exoplayer.upstream.cache.CacheEvictor-summary" style="display: none;">
+    <table class="jd-sumtable-expando">
+    
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheEvictor.html#onStartFile(com.google.android.exoplayer.upstream.cache.Cache, java.lang.String, long, long)">onStartFile</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a> cache, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position, long length)</nobr>
+        
+        <div class="jd-descrdiv">
+          Invoked when a writer starts writing to the cache.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+</table>
+  </div>
+</div>
+</td></tr>
+
+
+
+<tr class="api apilevel-" >
+<td colspan="12">
   <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-com.google.android.exoplayer.upstream.cache.Cache.Listener" class="jd-expando-trigger closed"
           ><img id="inherited-methods-com.google.android.exoplayer.upstream.cache.Cache.Listener-trigger"
           src="../../../../../../../assets/images/triangle-closed.png"
@@ -798,7 +889,12 @@ From interface
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html#onSpanAdded(com.google.android.exoplayer.upstream.cache.Cache, com.google.android.exoplayer.upstream.cache.CacheSpan)">onSpanAdded</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a> cache, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> span)</nobr>
         
-        <div class="jd-descrdiv">Invoked when a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> is added to the cache.</div>
+        <div class="jd-descrdiv">
+          Invoked when a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> is added to the cache.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -816,7 +912,12 @@ From interface
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html#onSpanRemoved(com.google.android.exoplayer.upstream.cache.Cache, com.google.android.exoplayer.upstream.cache.CacheSpan)">onSpanRemoved</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a> cache, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> span)</nobr>
         
-        <div class="jd-descrdiv">Invoked when a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> is removed from the cache.</div>
+        <div class="jd-descrdiv">
+          Invoked when a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> is removed from the cache.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -834,51 +935,12 @@ From interface
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html#onSpanTouched(com.google.android.exoplayer.upstream.cache.Cache, com.google.android.exoplayer.upstream.cache.CacheSpan, com.google.android.exoplayer.upstream.cache.CacheSpan)">onSpanTouched</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a> cache, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> oldSpan, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> newSpan)</nobr>
         
-        <div class="jd-descrdiv">Invoked when an existing <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> is accessed, causing it to be replaced.</div>
-  
-  </td></tr>
-
-
-</table>
-  </div>
-</div>
-</td></tr>
-
-
-
-<tr class="api apilevel-" >
-<td colspan="12">
-  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-com.google.android.exoplayer.upstream.cache.CacheEvictor" class="jd-expando-trigger closed"
-          ><img id="inherited-methods-com.google.android.exoplayer.upstream.cache.CacheEvictor-trigger"
-          src="../../../../../../../assets/images/triangle-closed.png"
-          class="jd-expando-trigger-img" /></a>
-From interface
-
-  <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheEvictor.html">com.google.android.exoplayer.upstream.cache.CacheEvictor</a>
-
-<div id="inherited-methods-com.google.android.exoplayer.upstream.cache.CacheEvictor">
-  <div id="inherited-methods-com.google.android.exoplayer.upstream.cache.CacheEvictor-list"
-        class="jd-inheritedlinks">
-  </div>
-  <div id="inherited-methods-com.google.android.exoplayer.upstream.cache.CacheEvictor-summary" style="display: none;">
-    <table class="jd-sumtable-expando">
+        <div class="jd-descrdiv">
+          Invoked when an existing <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> is accessed, causing it to be replaced.
+          
     
 
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            abstract
-            
-            
-            
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheEvictor.html#onStartFile(com.google.android.exoplayer.upstream.cache.Cache, java.lang.String, long, long)">onStartFile</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a> cache, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, long length)</nobr>
-        
-        <div class="jd-descrdiv">Invoked when a writer starts writing to the cache.</div>
+        </div>
   
   </td></tr>
 
@@ -946,6 +1008,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
     </div>
@@ -990,6 +1055,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Invoked when a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> is added to the cache.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Parameters</h5>
@@ -1032,6 +1100,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Invoked when a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> is removed from the cache.</p></div>
   <div class="jd-tagdata">
@@ -1076,6 +1147,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Invoked when an existing <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> is accessed, causing it to be replaced. The new
  <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> is guaranteed to represent the same data as the one it replaces, however
  <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html#file">file</a></code> and <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html#lastAccessTimestamp">lastAccessTimestamp</a></code> may have changed.
@@ -1118,7 +1192,7 @@ From interface
         void
       </span>
       <span class="sympad">onStartFile</span>
-      <span class="normal">(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a> cache, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, long length)</span>
+      <span class="normal">(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html">Cache</a> cache, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position, long length)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1127,6 +1201,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Invoked when a writer starts writing to the cache.</p></div>
   <div class="jd-tagdata">

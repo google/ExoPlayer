@@ -75,6 +75,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <html>
 <head>
 
@@ -87,8 +103,10 @@
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
-href="http://fonts.googleapis.com/css?family=Roboto:regular,medium,thin,italic,mediumitalic,bold" title="roboto">
-<link href="../../../../../../../assets/css/default.css" rel="stylesheet" type="text/css">
+href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
+  title="roboto">
+<link href="../../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -104,29 +122,26 @@ type="text/css">
   var metaTags = [];
   var devsite = false;
 </script>
-<script src="../../../../../../../assets/js/docs.js" type="text/javascript"></script>
+<script src="../../../../../../../assets/js/docs.js?v=3" type="text/javascript"></script>
 
-<!-- RESOURCES LIBRARY -->
-<script src="http://androiddevdocs-staging.appspot.com/ytblogger_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../../jd_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../../assets/js/jd_tag_helpers.js" type="text/javascript"></script>
-<link href="../../../../../../../assets/css/resourcecards.css"  rel="stylesheet" type="text/css" />
-<script src="../../../../../../../assets/js/resourcecards.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-5831155-1']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-5831155-1', 'android.com');
+  ga('create', 'UA-49880327-2', 'android.com', {'name': 'universal'});  // New tracker);
+  ga('send', 'pageview');
+  ga('universal.send', 'pageview'); // Send page view for new tracker.
 </script>
+
 </head>
+
 <body class="gc-documentation 
-  develop" itemscope itemtype="http://schema.org/Article">
+  develop reference" itemscope itemtype="http://schema.org/Article">
   <div id="doc-api-level" class="" style="display:none"></div>
   <a name="top"></a>
 
@@ -154,6 +169,8 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
@@ -173,6 +190,8 @@ type="text/css">
   <a href="../../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/text/webvtt/package-summary.html">com.google.android.exoplayer.text.webvtt</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
     <li class="api apilevel-">
@@ -196,7 +215,6 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/AdaptationSet.html">AdaptationSet</a></li>
           <li class="selected api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/ContentProtection.html">ContentProtection</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescription.html">MediaPresentationDescription</a></li>
-          <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionFetcher.html">MediaPresentationDescriptionFetcher</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionParser.html">MediaPresentationDescriptionParser</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a></li>
           <li class="api apilevel-"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></li>
@@ -317,7 +335,7 @@ Summary:
 <div id="jd-header">
     public
      
-    final 
+     
     
     class
 <h1 itemprop="name">ContentProtection</h1>
@@ -333,6 +351,9 @@ Summary:
   
   
   
+
+
+    
 
 
 </div><!-- end header -->
@@ -369,8 +390,7 @@ Summary:
 
 
 <h2>Class Overview</h2>
-<p itemprop="articleBody">Represents a ContentProtection tag in an AdaptationSet. Holds arbitrary data for various DRM
- schemes.
+<p itemprop="articleBody">Represents a ContentProtection tag in an AdaptationSet.
 </p>
 
 
@@ -426,9 +446,14 @@ Summary:
           public
           
           final
-          <a href="http://developer.android.com/reference/java/util/Map.html">Map</a>&lt;<a href="http://developer.android.com/reference/java/lang/String.html">String</a>,&nbsp;<a href="http://developer.android.com/reference/java/lang/String.html">String</a>&gt;</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/ContentProtection.html#keyedData">keyedData</a></td>
-          <td class="jd-descrcol" width="100%">Protection scheme specific data.</td>
+          byte[]</nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/ContentProtection.html#data">data</a></td>
+          <td class="jd-descrcol" width="100%">
+            Protection scheme specific data.
+            
+    
+
+          </td>
       </tr>
       
     
@@ -439,7 +464,28 @@ Summary:
           final
           <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/ContentProtection.html#schemeUriId">schemeUriId</a></td>
-          <td class="jd-descrcol" width="100%">Identifies the content protection scheme.</td>
+          <td class="jd-descrcol" width="100%">
+            Identifies the content protection scheme.
+            
+    
+
+          </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+          <td class="jd-typecol"><nobr>
+          public
+          
+          final
+          <a href="http://developer.android.com/reference/java/util/UUID.html">UUID</a></nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/ContentProtection.html#uuid">uuid</a></td>
+          <td class="jd-descrcol" width="100%">
+            The UUID of the protection scheme.
+            
+    
+
+          </td>
       </tr>
       
     
@@ -468,7 +514,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/ContentProtection.html#ContentProtection(java.lang.String, java.util.Map<java.lang.String, java.lang.String>)">ContentProtection</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> schemeUriId, <a href="http://developer.android.com/reference/java/util/Map.html">Map</a>&lt;<a href="http://developer.android.com/reference/java/lang/String.html">String</a>,&nbsp;<a href="http://developer.android.com/reference/java/lang/String.html">String</a>&gt; keyedData)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/ContentProtection.html#ContentProtection(java.lang.String, java.util.UUID, byte[])">ContentProtection</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> schemeUriId, <a href="http://developer.android.com/reference/java/util/UUID.html"><?csvar:type.label ?></a> uuid, byte[] data)</nobr>
         
   </td></tr>
 
@@ -538,7 +584,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
         
   </td></tr>
 
@@ -725,7 +771,7 @@ From class
 
 
 
-<A NAME="keyedData"></A>
+<A NAME="data"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -733,9 +779,9 @@ From class
         public 
          
         final 
-        <a href="http://developer.android.com/reference/java/util/Map.html">Map</a>&lt;<a href="http://developer.android.com/reference/java/lang/String.html">String</a>,&nbsp;<a href="http://developer.android.com/reference/java/lang/String.html">String</a>&gt;
+        byte[]
       </span>
-        keyedData
+        data
     </h4>
       <div class="api-level">
         
@@ -745,7 +791,10 @@ From class
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Protection scheme specific data.
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Protection scheme specific data. May be null.
 </p></div>
 
     
@@ -774,7 +823,42 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Identifies the content protection scheme.
+</p></div>
+
+    
+    </div>
+</div>
+
+
+
+<A NAME="uuid"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+        final 
+        <a href="http://developer.android.com/reference/java/util/UUID.html">UUID</a>
+      </span>
+        uuid
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The UUID of the protection scheme. May be null.
 </p></div>
 
     
@@ -792,7 +876,7 @@ From class
 
 
 
-<A NAME="ContentProtection(java.lang.String, java.util.Map<java.lang.String, java.lang.String>)"></A>
+<A NAME="ContentProtection(java.lang.String, java.util.UUID, byte[])"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -805,7 +889,7 @@ From class
         
       </span>
       <span class="sympad">ContentProtection</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> schemeUriId, <a href="http://developer.android.com/reference/java/util/Map.html">Map</a>&lt;<a href="http://developer.android.com/reference/java/lang/String.html">String</a>,&nbsp;<a href="http://developer.android.com/reference/java/lang/String.html">String</a>&gt; keyedData)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> schemeUriId, <a href="http://developer.android.com/reference/java/util/UUID.html"><?csvar:type.label ?></a> uuid, byte[] data)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -814,6 +898,9 @@ From class
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
   <div class="jd-tagdata">
@@ -824,8 +911,12 @@ From class
           <td>Identifies the content protection scheme.</td>
         </tr>
         <tr>
-          <th>keyedData</td>
-          <td>Data specific to the scheme.
+          <th>uuid</td>
+          <td>The UUID of the protection scheme, if known. May be null.</td>
+        </tr>
+        <tr>
+          <th>data</td>
+          <td>Protection scheme specific initialization data. May be null.
 </td>
         </tr>
       </table>

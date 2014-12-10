@@ -75,6 +75,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <html>
 <head>
 
@@ -87,8 +103,10 @@
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
-href="http://fonts.googleapis.com/css?family=Roboto:regular,medium,thin,italic,mediumitalic,bold" title="roboto">
-<link href="../../../../../../assets/css/default.css" rel="stylesheet" type="text/css">
+href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
+  title="roboto">
+<link href="../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -104,29 +122,26 @@ type="text/css">
   var metaTags = [];
   var devsite = false;
 </script>
-<script src="../../../../../../assets/js/docs.js" type="text/javascript"></script>
+<script src="../../../../../../assets/js/docs.js?v=3" type="text/javascript"></script>
 
-<!-- RESOURCES LIBRARY -->
-<script src="http://androiddevdocs-staging.appspot.com/ytblogger_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../jd_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../assets/js/jd_tag_helpers.js" type="text/javascript"></script>
-<link href="../../../../../../assets/css/resourcecards.css"  rel="stylesheet" type="text/css" />
-<script src="../../../../../../assets/js/resourcecards.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-5831155-1']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-5831155-1', 'android.com');
+  ga('create', 'UA-49880327-2', 'android.com', {'name': 'universal'});  // New tracker);
+  ga('send', 'pageview');
+  ga('universal.send', 'pageview'); // Send page view for new tracker.
 </script>
+
 </head>
+
 <body class="gc-documentation 
-  develop" itemscope itemtype="http://schema.org/Article">
+  develop reference" itemscope itemtype="http://schema.org/Article">
   <div id="doc-api-level" class="" style="display:none"></div>
   <a name="top"></a>
 
@@ -154,6 +169,8 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
@@ -174,6 +191,8 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/webvtt/package-summary.html">com.google.android.exoplayer.text.webvtt</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/upstream/cache/package-summary.html">com.google.android.exoplayer.upstream.cache</a></li>
@@ -193,7 +212,9 @@ type="text/css">
     <li><h2>Interfaces</h2>
       <ul>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/Clock.html">Clock</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.EventListener.html">ManifestFetcher.EventListener</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestFetcher.ManifestCallback</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestParser.html">ManifestParser</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/Predicate.html">Predicate</a></li>
       </ul>
     </li>
@@ -206,6 +227,7 @@ type="text/css">
           <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html">ManifestFetcher</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html">MimeTypes</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/PlayerControl.html">PlayerControl</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/PriorityHandlerThread.html">PriorityHandlerThread</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/SlidingPercentile.html">SlidingPercentile</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/SystemClock.html">SystemClock</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/TraceUtil.html">TraceUtil</a></li>
@@ -273,8 +295,6 @@ type="text/css">
   
   
   
-   
-  
   
 
   
@@ -296,14 +316,8 @@ Summary:
 
 
 
-  &#124; <a href="#constants">Constants</a>
-  
 
 
-
-
-  &#124; <a href="#inhfields">Inherited Fields</a>
-  
 
 
   &#124; <a href="#pubctors">Ctors</a>
@@ -311,9 +325,9 @@ Summary:
 
 
 
-
-  &#124; <a href="#promethods">Protected Methods</a>
+  &#124; <a href="#pubmethods">Methods</a>
   
+
 
 
   &#124; <a href="#inhmethods">Inherited Methods</a>
@@ -336,25 +350,29 @@ Summary:
     public
      
      
-    abstract
+    
     class
 <h1 itemprop="name">ManifestFetcher</h1>
 
 
 
   
-  
-  
-
-  
-    extends <a href="http://developer.android.com/reference/android/os/AsyncTask.html">AsyncTask</a>&lt;Params,&nbsp;Progress,&nbsp;Result&gt;<br/>
+    extends <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a><br/>
   
   
   
 
   
   
+      implements 
+      
+        <a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Callback.html">Loader.Callback</a> 
+      
   
+  
+
+
+    
 
 
 </div><!-- end header -->
@@ -367,21 +385,11 @@ Summary:
 
     <tr>
          	
-        <td colspan="3" class="jd-inheritance-class-cell"><a href="http://developer.android.com/reference/java/lang/Object.html">java.lang.Object</a></td>
+        <td colspan="2" class="jd-inheritance-class-cell"><a href="http://developer.android.com/reference/java/lang/Object.html">java.lang.Object</a></td>
     </tr>
     
 
     <tr>
-        
-            <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
-         	
-        <td colspan="2" class="jd-inheritance-class-cell"><a href="http://developer.android.com/reference/android/os/AsyncTask.html">android.os.AsyncTask</a>&lt;Params,&nbsp;Progress,&nbsp;Result&gt;</td>
-    </tr>
-    
-
-    <tr>
-        
-            <td class="jd-inheritance-space">&nbsp;</td>
         
             <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
          	
@@ -394,44 +402,6 @@ Summary:
 
 
 
-<table class="jd-sumtable jd-sumtable-subclasses"><tr><td colspan="12" style="border:none;margin:0;padding:0;">
-
-  <a href="#" onclick="return toggleInherited(this, null)" id="subclasses-direct" class="jd-expando-trigger closed"
-          ><img id="subclasses-direct-trigger"
-          src="../../../../../../assets/images/triangle-closed.png"
-          class="jd-expando-trigger-img" /></a>Known Direct Subclasses
-
-  <div id="subclasses-direct">
-      <div id="subclasses-direct-list"
-              class="jd-inheritedlinks"
-              
-              >
-          
-            
-              <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionFetcher.html">MediaPresentationDescriptionFetcher</a>,
-            
-              <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifestFetcher.html">SmoothStreamingManifestFetcher</a>
-            
-          
-      </div>
-      <div id="subclasses-direct-summary"
-              style="display: none;"
-              >
-  <table class="jd-sumtable-expando">
-        <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/MediaPresentationDescriptionFetcher.html">MediaPresentationDescriptionFetcher</a></td>
-              <td class="jd-descrcol" width="100%">A concrete implementation of <code><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html">ManifestFetcher</a></code> for loading DASH manifests.&nbsp;</td>
-          </tr>
-        <tr class=" api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifestFetcher.html">SmoothStreamingManifestFetcher</a></td>
-              <td class="jd-descrcol" width="100%">A concrete implementation of <code><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html">ManifestFetcher</a></code> for loading SmoothStreaming
- manifests.&nbsp;</td>
-          </tr>
-  </table>
-      </div>
-  </div>
-</td></tr></table>
-
 
 
 
@@ -439,7 +409,7 @@ Summary:
 
 
 <h2>Class Overview</h2>
-<p itemprop="articleBody">An <code><a href="http://developer.android.com/reference/android/os/AsyncTask.html">AsyncTask</a></code> for loading and parsing media manifests.</p>
+<p itemprop="articleBody">Performs both single and repeated loads of media manifests.</p>
 
 
 
@@ -481,8 +451,30 @@ Summary:
          
         
         interface</nobr></td>
+      <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.EventListener.html">ManifestFetcher.EventListener</a></td>
+      <td class="jd-descrcol" width="100%">
+        Interface definition for a callback to be notified of <code><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html">ManifestFetcher</a></code> events.&nbsp;
+        
+    
+
+      </td>
+    </tr>
+    
+    
+    <tr class=" api apilevel-" >
+      <td class="jd-typecol"><nobr>
+        
+         
+         
+        
+        interface</nobr></td>
       <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestFetcher.ManifestCallback</a>&lt;T&gt;</td>
-      <td class="jd-descrcol" width="100%">Invoked with the result of a manifest fetch.&nbsp;</td>
+      <td class="jd-descrcol" width="100%">
+        Callback for the result of a single load.&nbsp;
+        
+    
+
+      </td>
     </tr>
     
     
@@ -499,84 +491,12 @@ Summary:
 
 
 
-<!-- =========== ENUM CONSTANT SUMMARY =========== -->
-<table id="constants" class="jd-sumtable"><tr><th colspan="12">Constants</th></tr>
-
-
-    
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol">int</td>
-        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#DEFAULT_HTTP_TIMEOUT_MILLIS">DEFAULT_HTTP_TIMEOUT_MILLIS</a></td>
-        <td class="jd-descrcol" width="100%"></td>
-    </tr>
-    
-    
-
-</table>
 
 
 
 
 
 
-
-
-
-
-<!-- =========== FIELD SUMMARY =========== -->
-<table id="inhfields" class="jd-sumtable"><tr><th>
-  <a href="#" class="toggle-all" onclick="return toggleAllInherited(this, null)">[Expand]</a>
-  <div style="clear:left;">Inherited Fields</div></th></tr>
-
-
-<tr class="api apilevel-" >
-<td colspan="12">
-
-  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-fields-android.os.AsyncTask" class="jd-expando-trigger closed"
-          ><img id="inherited-fields-android.os.AsyncTask-trigger"
-          src="../../../../../../assets/images/triangle-closed.png"
-          class="jd-expando-trigger-img" /></a>From class
-android.os.AsyncTask
-<div id="inherited-fields-android.os.AsyncTask">
-  <div id="inherited-fields-android.os.AsyncTask-list"
-        class="jd-inheritedlinks">
-  </div>
-  <div id="inherited-fields-android.os.AsyncTask-summary" style="display: none;">
-    <table class="jd-sumtable-expando">
-    
-
-    
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          static
-          final
-          <a href="http://developer.android.com/reference/java/util/concurrent/Executor.html">Executor</a></nobr></td>
-          <td class="jd-linkcol">SERIAL_EXECUTOR</td>
-          <td class="jd-descrcol" width="100%"></td>
-      </tr>
-      
-    
-      <tr class=" api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          static
-          final
-          <a href="http://developer.android.com/reference/java/util/concurrent/Executor.html">Executor</a></nobr></td>
-          <td class="jd-linkcol">THREAD_POOL_EXECUTOR</td>
-          <td class="jd-descrcol" width="100%"></td>
-      </tr>
-      
-    
-</table>
-  </div>
-</div>
-</td></tr>
-
-
-
-
-</table>
 
 
 
@@ -597,7 +517,7 @@ android.os.AsyncTask
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#ManifestFetcher(com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback<T>)">ManifestFetcher</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestCallback</a>&lt;T&gt; callback)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#ManifestFetcher(com.google.android.exoplayer.util.ManifestParser<T>, java.lang.String, java.lang.String, java.lang.String)">ManifestFetcher</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestParser.html">ManifestParser</a>&lt;T&gt; parser, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> contentId, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> manifestUrl, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> userAgent)</nobr>
         
   </td></tr>
 
@@ -613,7 +533,7 @@ android.os.AsyncTask
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#ManifestFetcher(com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback<T>, int)">ManifestFetcher</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestCallback</a>&lt;T&gt; callback, int timeoutMillis)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#ManifestFetcher(com.google.android.exoplayer.util.ManifestParser<T>, java.lang.String, java.lang.String, java.lang.String, android.os.Handler, com.google.android.exoplayer.util.ManifestFetcher.EventListener)">ManifestFetcher</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestParser.html">ManifestParser</a>&lt;T&gt; parser, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> contentId, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> manifestUrl, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> userAgent, <a href="http://developer.android.com/reference/android/os/Handler.html"><?csvar:type.label ?></a> eventHandler, <a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.EventListener.html">ManifestFetcher.EventListener</a> eventListener)</nobr>
         
   </td></tr>
 
@@ -626,10 +546,8 @@ android.os.AsyncTask
 
 
 
-
-
 <!-- ========== METHOD SUMMARY =========== -->
-<table id="promethods" class="jd-sumtable"><tr><th colspan="12">Protected Methods</th></tr>
+<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
 
 
 
@@ -638,14 +556,21 @@ android.os.AsyncTask
         <td class="jd-typecol"><nobr>
             
             
-            final
             
             
-            T</nobr>
+            
+            void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#doInBackground(java.lang.String...)">doInBackground</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String...</a> data)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#disable()">disable</a></span>()</nobr>
         
+        <div class="jd-descrdiv">
+          Disables refresh functionality.
+          
+    
+
+        </div>
+  
   </td></tr>
 
 
@@ -654,21 +579,52 @@ android.os.AsyncTask
         <td class="jd-typecol"><nobr>
             
             
-            final
+            
             
             
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#onPostExecute(T)">onPostExecute</a></span>(T manifest)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#enable()">enable</a></span>()</nobr>
         
+        <div class="jd-descrdiv">
+          Enables refresh functionality.
+          
+    
+
+        </div>
+  
   </td></tr>
 
 
 	 
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
-            abstract
+            
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#getError()">getError</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Gets the error that affected the most recent attempt to load the manifest, or null if the
+ most recent attempt was successful.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
             
             
             
@@ -676,9 +632,176 @@ android.os.AsyncTask
             T</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#parse(java.io.InputStream, java.lang.String, java.lang.String, android.net.Uri)">parse</a></span>(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> stream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> baseUrl)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#getManifest()">getManifest</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Reads the <code><a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a></code> and parses it into a manifest.</div>
+        <div class="jd-descrdiv">
+          Gets a <code><a href="http://developer.android.com/reference/android/util/Pair.html">Pair</a></code> containing the most recently loaded manifest together with the timestamp
+ at which the load completed.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            long</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#getManifestLoadTimestamp()">getManifestLoadTimestamp</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Gets the value of <code><a href="../../../../../../reference/com/google/android/exoplayer/util/SystemClock.html#elapsedRealtime()">elapsedRealtime()</a></code> when the last load completed.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#onLoadCanceled(com.google.android.exoplayer.upstream.Loader.Loadable)">onLoadCanceled</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable)</nobr>
+        
+        <div class="jd-descrdiv">
+          Invoked when loading has been canceled.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#onLoadCompleted(com.google.android.exoplayer.upstream.Loader.Loadable)">onLoadCompleted</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable)</nobr>
+        
+        <div class="jd-descrdiv">
+          Invoked when the data source has been fully loaded.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#onLoadError(com.google.android.exoplayer.upstream.Loader.Loadable, java.io.IOException)">onLoadError</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable, <a href="http://developer.android.com/reference/java/io/IOException.html"><?csvar:type.label ?></a> exception)</nobr>
+        
+        <div class="jd-descrdiv">
+          Invoked when the data source is stopped due to an error.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#requestRefresh()">requestRefresh</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Should be invoked repeatedly by callers who require an updated manifest.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#singleLoad(android.os.Looper, com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback<T>)">singleLoad</a></span>(<a href="http://developer.android.com/reference/android/os/Looper.html"><?csvar:type.label ?></a> callbackLooper, <a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestCallback</a>&lt;T&gt; callback)</nobr>
+        
+        <div class="jd-descrdiv">
+          Performs a single manifest load.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#updateManifestUrl(java.lang.String)">updateManifestUrl</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> manifestUrl)</nobr>
+        
+        <div class="jd-descrdiv">
+          Updates the manifest location.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -690,276 +813,12 @@ android.os.AsyncTask
 
 
 
+
+
 <!-- ========== METHOD SUMMARY =========== -->
 <table id="inhmethods" class="jd-sumtable"><tr><th>
   <a href="#" class="toggle-all" onclick="return toggleAllInherited(this, null)">[Expand]</a>
   <div style="clear:left;">Inherited Methods</div></th></tr>
-
-
-<tr class="api apilevel-" >
-<td colspan="12">
-  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-android.os.AsyncTask" class="jd-expando-trigger closed"
-          ><img id="inherited-methods-android.os.AsyncTask-trigger"
-          src="../../../../../../assets/images/triangle-closed.png"
-          class="jd-expando-trigger-img" /></a>
-From class
-
-  <a href="http://developer.android.com/reference/android/os/AsyncTask.html">android.os.AsyncTask</a>
-
-<div id="inherited-methods-android.os.AsyncTask">
-  <div id="inherited-methods-android.os.AsyncTask-list"
-        class="jd-inheritedlinks">
-  </div>
-  <div id="inherited-methods-android.os.AsyncTask-summary" style="display: none;">
-    <table class="jd-sumtable-expando">
-    
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            final
-            
-            
-            boolean</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">cancel</span>(boolean arg0)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            abstract
-            
-            
-            
-            
-            Result</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">doInBackground</span>(Params... arg0)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            static
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">execute</span>(<a href="http://developer.android.com/reference/java/lang/Runnable.html">Runnable</a> arg0)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            final
-            
-            
-            <a href="http://developer.android.com/reference/android/os/AsyncTask.html">AsyncTask</a>&lt;Params,&nbsp;Progress,&nbsp;Result&gt;</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">execute</span>(Params... arg0)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            final
-            
-            
-            <a href="http://developer.android.com/reference/android/os/AsyncTask.html">AsyncTask</a>&lt;Params,&nbsp;Progress,&nbsp;Result&gt;</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">executeOnExecutor</span>(<a href="http://developer.android.com/reference/java/util/concurrent/Executor.html">Executor</a> arg0, Params... arg1)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            final
-            
-            
-            Result</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">get</span>(long arg0, <a href="http://developer.android.com/reference/java/util/concurrent/TimeUnit.html">TimeUnit</a> arg1)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            final
-            
-            
-            Result</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">get</span>()</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            final
-            
-            
-            <a href="http://developer.android.com/reference/android/os/AsyncTask.Status.html">AsyncTask.Status</a></nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">getStatus</span>()</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            final
-            
-            
-            boolean</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">isCancelled</span>()</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">onCancelled</span>(Result arg0)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">onCancelled</span>()</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">onPostExecute</span>(Result arg0)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">onPreExecute</span>()</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">onProgressUpdate</span>(Progress... arg0)</nobr>
-        
-  </td></tr>
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            final
-            
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">publishProgress</span>(Progress... arg0)</nobr>
-        
-  </td></tr>
-
-
-</table>
-  </div>
-</div>
-</td></tr>
-
 
 
 <tr class="api apilevel-" >
@@ -1008,7 +867,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
         
   </td></tr>
 
@@ -1163,6 +1022,101 @@ From class
 </td></tr>
 
 
+
+<tr class="api apilevel-" >
+<td colspan="12">
+  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-com.google.android.exoplayer.upstream.Loader.Callback" class="jd-expando-trigger closed"
+          ><img id="inherited-methods-com.google.android.exoplayer.upstream.Loader.Callback-trigger"
+          src="../../../../../../assets/images/triangle-closed.png"
+          class="jd-expando-trigger-img" /></a>
+From interface
+
+  <a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Callback.html">com.google.android.exoplayer.upstream.Loader.Callback</a>
+
+<div id="inherited-methods-com.google.android.exoplayer.upstream.Loader.Callback">
+  <div id="inherited-methods-com.google.android.exoplayer.upstream.Loader.Callback-list"
+        class="jd-inheritedlinks">
+  </div>
+  <div id="inherited-methods-com.google.android.exoplayer.upstream.Loader.Callback-summary" style="display: none;">
+    <table class="jd-sumtable-expando">
+    
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Callback.html#onLoadCanceled(com.google.android.exoplayer.upstream.Loader.Loadable)">onLoadCanceled</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable)</nobr>
+        
+        <div class="jd-descrdiv">
+          Invoked when loading has been canceled.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Callback.html#onLoadCompleted(com.google.android.exoplayer.upstream.Loader.Loadable)">onLoadCompleted</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable)</nobr>
+        
+        <div class="jd-descrdiv">
+          Invoked when the data source has been fully loaded.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Callback.html#onLoadError(com.google.android.exoplayer.upstream.Loader.Loadable, java.io.IOException)">onLoadError</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable, <a href="http://developer.android.com/reference/java/io/IOException.html"><?csvar:type.label ?></a> exception)</nobr>
+        
+        <div class="jd-descrdiv">
+          Invoked when the data source is stopped due to an error.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+</table>
+  </div>
+</div>
+</td></tr>
+
+
 </table>
 
 
@@ -1186,51 +1140,6 @@ From class
 <!-- Constants -->
 
 
-<!-- ========= ENUM CONSTANTS DETAIL ======== -->
-<h2>Constants</h2>
-
-
-
-
-<A NAME="DEFAULT_HTTP_TIMEOUT_MILLIS"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-        static 
-        final 
-        int
-      </span>
-        DEFAULT_HTTP_TIMEOUT_MILLIS
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p></p></div>
-
-    
-        <div class="jd-tagdata">
-        <span class="jd-tagtitle">Constant Value: </span>
-        <span>
-            
-                8000
-                (0x00001f40)
-            
-        </span>
-        </div>
-    
-    </div>
-</div>
-
-
-
-
 <!-- Fields -->
 
 
@@ -1242,7 +1151,7 @@ From class
 
 
 
-<A NAME="ManifestFetcher(com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback<T>)"></A>
+<A NAME="ManifestFetcher(com.google.android.exoplayer.util.ManifestParser<T>, java.lang.String, java.lang.String, java.lang.String)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1255,7 +1164,7 @@ From class
         
       </span>
       <span class="sympad">ManifestFetcher</span>
-      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestCallback</a>&lt;T&gt; callback)</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestParser.html">ManifestParser</a>&lt;T&gt; parser, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> contentId, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> manifestUrl, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> userAgent)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1265,23 +1174,16 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
-  <div class="jd-tagdata">
-      <h5 class="jd-tagtitle">Parameters</h5>
-      <table class="jd-tagtable">
-        <tr>
-          <th>callback</td>
-          <td>The callback to provide with the parsed manifest (or error).
-</td>
-        </tr>
-      </table>
-  </div>
 
     </div>
 </div>
 
 
-<A NAME="ManifestFetcher(com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback<T>, int)"></A>
+<A NAME="ManifestFetcher(com.google.android.exoplayer.util.ManifestParser<T>, java.lang.String, java.lang.String, java.lang.String, android.os.Handler, com.google.android.exoplayer.util.ManifestFetcher.EventListener)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1294,7 +1196,7 @@ From class
         
       </span>
       <span class="sympad">ManifestFetcher</span>
-      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestCallback</a>&lt;T&gt; callback, int timeoutMillis)</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestParser.html">ManifestParser</a>&lt;T&gt; parser, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> contentId, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> manifestUrl, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> userAgent, <a href="http://developer.android.com/reference/android/os/Handler.html"><?csvar:type.label ?></a> eventHandler, <a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.EventListener.html">ManifestFetcher.EventListener</a> eventListener)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1304,17 +1206,28 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
         <tr>
-          <th>callback</td>
-          <td>The callback to provide with the parsed manifest (or error).</td>
+          <th>parser</td>
+          <td>A parser to parse the loaded manifest data.</td>
         </tr>
         <tr>
-          <th>timeoutMillis</td>
-          <td>The timeout in milliseconds for the connection used to load the data.
+          <th>contentId</td>
+          <td>The content id of the content being loaded. May be null.</td>
+        </tr>
+        <tr>
+          <th>manifestUrl</td>
+          <td>The manifest location.</td>
+        </tr>
+        <tr>
+          <th>userAgent</td>
+          <td>The User-Agent string that should be used.
 </td>
         </tr>
       </table>
@@ -1335,57 +1248,24 @@ From class
 <!-- ========= METHOD DETAIL ======== -->
 <!-- Public methdos -->
 
-
-
-<!-- ========= METHOD DETAIL ======== -->
-
-<h2>Protected Methods</h2>
+<h2>Public Methods</h2>
 
 
 
-<A NAME="doInBackground(java.lang.String...)"></A>
+<A NAME="disable()"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
       <span class="normal">
-        protected 
-         
-        final 
+        public 
          
          
-        T
-      </span>
-      <span class="sympad">doInBackground</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String...</a> data)</span>
-    </h4>
-      <div class="api-level">
-        <div></div>
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p></p></div>
-
-    </div>
-</div>
-
-
-<A NAME="onPostExecute(T)"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        protected 
-         
-        final 
          
          
         void
       </span>
-      <span class="sympad">onPostExecute</span>
-      <span class="normal">(T manifest)</span>
+      <span class="sympad">disable</span>
+      <span class="normal">()</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1395,26 +1275,30 @@ From class
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Disables refresh functionality.
+</p></div>
 
     </div>
 </div>
 
 
-<A NAME="parse(java.io.InputStream, java.lang.String, java.lang.String, android.net.Uri)"></A>
+<A NAME="enable()"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
       <span class="normal">
-        protected 
+        public 
          
          
-        abstract 
          
-        T
+         
+        void
       </span>
-      <span class="sympad">parse</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> stream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId, <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> baseUrl)</span>
+      <span class="sympad">enable</span>
+      <span class="normal">()</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1424,40 +1308,163 @@ From class
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Reads the <code><a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a></code> and parses it into a manifest. Invoked from the
- <code><a href="http://developer.android.com/reference/android/os/AsyncTask.html">AsyncTask</a></code>'s background thread.</p></div>
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Enables refresh functionality.
+</p></div>
+
+    </div>
+</div>
+
+
+<A NAME="getError()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        <a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a>
+      </span>
+      <span class="sympad">getError</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Gets the error that affected the most recent attempt to load the manifest, or null if the
+ most recent attempt was successful.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The error, or null if the most recent attempt was successful.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getManifest()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        T
+      </span>
+      <span class="sympad">getManifest</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Gets a <code><a href="http://developer.android.com/reference/android/util/Pair.html">Pair</a></code> containing the most recently loaded manifest together with the timestamp
+ at which the load completed.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The most recently loaded manifest and the timestamp at which the load completed, or
+     null if no manifest has loaded.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getManifestLoadTimestamp()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        long
+      </span>
+      <span class="sympad">getManifestLoadTimestamp</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Gets the value of <code><a href="../../../../../../reference/com/google/android/exoplayer/util/SystemClock.html#elapsedRealtime()">elapsedRealtime()</a></code> when the last load completed.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The value of <code><a href="../../../../../../reference/com/google/android/exoplayer/util/SystemClock.html#elapsedRealtime()">elapsedRealtime()</a></code> when the last load completed.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="onLoadCanceled(com.google.android.exoplayer.upstream.Loader.Loadable)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">onLoadCanceled</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Invoked when loading has been canceled.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
         <tr>
-          <th>stream</td>
-          <td>The input stream to read.</td>
-        </tr>
-        <tr>
-          <th>inputEncoding</td>
-          <td>The encoding of the input stream.</td>
-        </tr>
-        <tr>
-          <th>contentId</td>
-          <td>The content id of the media.</td>
-        </tr>
-        <tr>
-          <th>baseUrl</td>
-          <td>Required where the manifest contains urls that are relative to a base url. May
-     be null where this is not the case.</td>
-        </tr>
-      </table>
-  </div>
-  <div class="jd-tagdata">
-      <h5 class="jd-tagtitle">Throws</h5>
-      <table class="jd-tagtable">  
-        <tr>
-            <th><a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a></td>
-            <td>If an error occurred loading the data.</td>
-        </tr>  
-        <tr>
-            <th><a href="../../../../../../reference/com/google/android/exoplayer/ParserException.html">ParserException</a></td>
-            <td>If an error occurred parsing the loaded data.
+          <th>loadable</td>
+          <td>The loadable whose load has been canceled.
 </td>
         </tr>
       </table>
@@ -1467,6 +1474,216 @@ From class
 </div>
 
 
+<A NAME="onLoadCompleted(com.google.android.exoplayer.upstream.Loader.Loadable)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">onLoadCompleted</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Invoked when the data source has been fully loaded.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>loadable</td>
+          <td>The loadable whose load has completed.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="onLoadError(com.google.android.exoplayer.upstream.Loader.Loadable, java.io.IOException)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">onLoadError</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable, <a href="http://developer.android.com/reference/java/io/IOException.html"><?csvar:type.label ?></a> exception)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Invoked when the data source is stopped due to an error.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>loadable</td>
+          <td>The loadable whose load has failed.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="requestRefresh()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">requestRefresh</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Should be invoked repeatedly by callers who require an updated manifest.
+</p></div>
+
+    </div>
+</div>
+
+
+<A NAME="singleLoad(android.os.Looper, com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback<T>)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">singleLoad</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/android/os/Looper.html"><?csvar:type.label ?></a> callbackLooper, <a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestCallback</a>&lt;T&gt; callback)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Performs a single manifest load.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>callbackLooper</td>
+          <td>The looper associated with the thread on which the callback should be
+     invoked.</td>
+        </tr>
+        <tr>
+          <th>callback</td>
+          <td>The callback to receive the result.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="updateManifestUrl(java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">updateManifestUrl</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> manifestUrl)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Updates the manifest location.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>manifestUrl</td>
+          <td>The manifest location.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
 
 
 

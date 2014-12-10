@@ -75,6 +75,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <html>
 <head>
 
@@ -87,8 +103,10 @@
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
-href="http://fonts.googleapis.com/css?family=Roboto:regular,medium,thin,italic,mediumitalic,bold" title="roboto">
-<link href="../../../../../../assets/css/default.css" rel="stylesheet" type="text/css">
+href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
+  title="roboto">
+<link href="../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -104,29 +122,26 @@ type="text/css">
   var metaTags = [];
   var devsite = false;
 </script>
-<script src="../../../../../../assets/js/docs.js" type="text/javascript"></script>
+<script src="../../../../../../assets/js/docs.js?v=3" type="text/javascript"></script>
 
-<!-- RESOURCES LIBRARY -->
-<script src="http://androiddevdocs-staging.appspot.com/ytblogger_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../jd_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../assets/js/jd_tag_helpers.js" type="text/javascript"></script>
-<link href="../../../../../../assets/css/resourcecards.css"  rel="stylesheet" type="text/css" />
-<script src="../../../../../../assets/js/resourcecards.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-5831155-1']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-5831155-1', 'android.com');
+  ga('create', 'UA-49880327-2', 'android.com', {'name': 'universal'});  // New tracker);
+  ga('send', 'pageview');
+  ga('universal.send', 'pageview'); // Send page view for new tracker.
 </script>
+
 </head>
+
 <body class="gc-documentation 
-  develop" itemscope itemtype="http://schema.org/Article">
+  develop reference" itemscope itemtype="http://schema.org/Article">
   <div id="doc-api-level" class="" style="display:none"></div>
   <a name="top"></a>
 
@@ -154,6 +169,8 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
@@ -173,6 +190,8 @@ type="text/css">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/webvtt/package-summary.html">com.google.android.exoplayer.text.webvtt</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
     <li class="api apilevel-">
@@ -198,7 +217,6 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.ProtectionElement.html">SmoothStreamingManifest.ProtectionElement</a></li>
           <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html">SmoothStreamingManifest.StreamElement</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.TrackElement.html">SmoothStreamingManifest.TrackElement</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifestFetcher.html">SmoothStreamingManifestFetcher</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifestParser.html">SmoothStreamingManifestParser</a></li>
       </ul>
     </li>
@@ -335,6 +353,9 @@ Summary:
   
 
 
+    
+
+
 </div><!-- end header -->
 
 <div id="naMessage"></div>
@@ -418,28 +439,48 @@ Summary:
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#TYPE_AUDIO">TYPE_AUDIO</a></td>
-        <td class="jd-descrcol" width="100%"></td>
+        <td class="jd-descrcol" width="100%">
+          
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class=" api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#TYPE_TEXT">TYPE_TEXT</a></td>
-        <td class="jd-descrcol" width="100%"></td>
+        <td class="jd-descrcol" width="100%">
+          
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#TYPE_UNKNOWN">TYPE_UNKNOWN</a></td>
-        <td class="jd-descrcol" width="100%"></td>
+        <td class="jd-descrcol" width="100%">
+          
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class=" api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#TYPE_VIDEO">TYPE_VIDEO</a></td>
-        <td class="jd-descrcol" width="100%"></td>
+        <td class="jd-descrcol" width="100%">
+          
+          
+    
+
+        </td>
     </tr>
     
     
@@ -464,7 +505,12 @@ Summary:
           final
           int</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#chunkCount">chunkCount</a></td>
-          <td class="jd-descrcol" width="100%"></td>
+          <td class="jd-descrcol" width="100%">
+            
+            
+    
+
+          </td>
       </tr>
       
     
@@ -475,7 +521,12 @@ Summary:
           final
           int</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#displayHeight">displayHeight</a></td>
-          <td class="jd-descrcol" width="100%"></td>
+          <td class="jd-descrcol" width="100%">
+            
+            
+    
+
+          </td>
       </tr>
       
     
@@ -486,7 +537,12 @@ Summary:
           final
           int</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#displayWidth">displayWidth</a></td>
-          <td class="jd-descrcol" width="100%"></td>
+          <td class="jd-descrcol" width="100%">
+            
+            
+    
+
+          </td>
       </tr>
       
     
@@ -497,7 +553,12 @@ Summary:
           final
           <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#language">language</a></td>
-          <td class="jd-descrcol" width="100%"></td>
+          <td class="jd-descrcol" width="100%">
+            
+            
+    
+
+          </td>
       </tr>
       
     
@@ -508,7 +569,12 @@ Summary:
           final
           int</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#maxHeight">maxHeight</a></td>
-          <td class="jd-descrcol" width="100%"></td>
+          <td class="jd-descrcol" width="100%">
+            
+            
+    
+
+          </td>
       </tr>
       
     
@@ -519,7 +585,12 @@ Summary:
           final
           int</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#maxWidth">maxWidth</a></td>
-          <td class="jd-descrcol" width="100%"></td>
+          <td class="jd-descrcol" width="100%">
+            
+            
+    
+
+          </td>
       </tr>
       
     
@@ -530,7 +601,12 @@ Summary:
           final
           <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#name">name</a></td>
-          <td class="jd-descrcol" width="100%"></td>
+          <td class="jd-descrcol" width="100%">
+            
+            
+    
+
+          </td>
       </tr>
       
     
@@ -541,7 +617,12 @@ Summary:
           final
           int</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#qualityLevels">qualityLevels</a></td>
-          <td class="jd-descrcol" width="100%"></td>
+          <td class="jd-descrcol" width="100%">
+            
+            
+    
+
+          </td>
       </tr>
       
     
@@ -552,7 +633,12 @@ Summary:
           final
           <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#subType">subType</a></td>
-          <td class="jd-descrcol" width="100%"></td>
+          <td class="jd-descrcol" width="100%">
+            
+            
+    
+
+          </td>
       </tr>
       
     
@@ -562,8 +648,13 @@ Summary:
           
           final
           long</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#timeScale">timeScale</a></td>
-          <td class="jd-descrcol" width="100%"></td>
+          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#timescale">timescale</a></td>
+          <td class="jd-descrcol" width="100%">
+            
+            
+    
+
+          </td>
       </tr>
       
     
@@ -574,7 +665,12 @@ Summary:
           final
           <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.TrackElement.html">TrackElement[]</a></nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#tracks">tracks</a></td>
-          <td class="jd-descrcol" width="100%"></td>
+          <td class="jd-descrcol" width="100%">
+            
+            
+    
+
+          </td>
       </tr>
       
     
@@ -585,18 +681,12 @@ Summary:
           final
           int</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#type">type</a></td>
-          <td class="jd-descrcol" width="100%"></td>
-      </tr>
-      
+          <td class="jd-descrcol" width="100%">
+            
+            
     
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#url">url</a></td>
-          <td class="jd-descrcol" width="100%"></td>
+
+          </td>
       </tr>
       
     
@@ -625,7 +715,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#SmoothStreamingManifest.StreamElement(int, java.lang.String, long, java.lang.String, int, java.lang.String, int, int, int, int, java.lang.String, com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement[], long[])">SmoothStreamingManifest.StreamElement</a></span>(int type, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> subType, long timeScale, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> name, int qualityLevels, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> url, int maxWidth, int maxHeight, int displayWidth, int displayHeight, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> language, <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.TrackElement.html">TrackElement[]</a> tracks, long[] chunkStartTimes)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#SmoothStreamingManifest.StreamElement(android.net.Uri, java.lang.String, int, java.lang.String, long, java.lang.String, int, int, int, int, int, java.lang.String, com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement[], java.util.List<java.lang.Long>, long)">SmoothStreamingManifest.StreamElement</a></span>(<a href="http://developer.android.com/reference/android/net/Uri.html"><?csvar:type.label ?></a> baseUri, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> chunkTemplate, int type, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> subType, long timescale, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> name, int qualityLevels, int maxWidth, int maxHeight, int displayWidth, int displayHeight, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> language, <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.TrackElement.html">TrackElement[]</a> tracks, <a href="http://developer.android.com/reference/java/util/List.html"><?csvar:type.label ?></a>&lt;<a href="http://developer.android.com/reference/java/lang/Long.html">Long</a>&gt; chunkStartTimes, long lastChunkDuration)</nobr>
         
   </td></tr>
 
@@ -651,12 +741,17 @@ Summary:
             
             
             
-            <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr>
+            <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#buildRequestUrl(int, int)">buildRequestUrl</a></span>(int track, int chunkIndex)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#buildRequestUri(int, int)">buildRequestUri</a></span>(int track, int chunkIndex)</nobr>
         
-        <div class="jd-descrdiv">Builds a URL for requesting the specified chunk of the specified track.</div>
+        <div class="jd-descrdiv">
+          Builds a uri for requesting the specified chunk of the specified track.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -669,12 +764,17 @@ Summary:
             
             
             
-            int</nobr>
+            long</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#getChunkIndex(long)">getChunkIndex</a></span>(long timeUs)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#getChunkDurationUs(int)">getChunkDurationUs</a></span>(int chunkIndex)</nobr>
         
-        <div class="jd-descrdiv">Gets the index of the chunk that contains the specified time.</div>
+        <div class="jd-descrdiv">
+          Gets the duration of the specified chunk.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -687,12 +787,40 @@ Summary:
             
             
             
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#getChunkIndex(long)">getChunkIndex</a></span>(long timeUs)</nobr>
+        
+        <div class="jd-descrdiv">
+          Gets the index of the chunk that contains the specified time.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
             long</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.StreamElement.html#getStartTimeUs(int)">getStartTimeUs</a></span>(int chunkIndex)</nobr>
         
-        <div class="jd-descrdiv">Gets the start time of the specified chunk.</div>
+        <div class="jd-descrdiv">
+          Gets the start time of the specified chunk.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -758,7 +886,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
         
   </td></tr>
 
@@ -962,6 +1090,9 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
     
@@ -999,6 +1130,9 @@ From class
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
@@ -1038,6 +1172,9 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
     
@@ -1075,6 +1212,9 @@ From class
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
@@ -1124,6 +1264,9 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
     
@@ -1151,6 +1294,9 @@ From class
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
@@ -1180,6 +1326,9 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
     
@@ -1207,6 +1356,9 @@ From class
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
@@ -1236,6 +1388,9 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
     
@@ -1263,6 +1418,9 @@ From class
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
@@ -1292,6 +1450,9 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
     
@@ -1319,6 +1480,9 @@ From class
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
@@ -1348,6 +1512,9 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
     
@@ -1356,7 +1523,7 @@ From class
 
 
 
-<A NAME="timeScale"></A>
+<A NAME="timescale"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1366,7 +1533,7 @@ From class
         final 
         long
       </span>
-        timeScale
+        timescale
     </h4>
       <div class="api-level">
         
@@ -1375,6 +1542,9 @@ From class
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
@@ -1404,6 +1574,9 @@ From class
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
     
@@ -1432,33 +1605,8 @@ From class
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p></p></div>
-
     
-    </div>
-</div>
 
-
-
-<A NAME="url"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
-      </span>
-        url
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
@@ -1477,7 +1625,7 @@ From class
 
 
 
-<A NAME="SmoothStreamingManifest.StreamElement(int, java.lang.String, long, java.lang.String, int, java.lang.String, int, int, int, int, java.lang.String, com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement[], long[])"></A>
+<A NAME="SmoothStreamingManifest.StreamElement(android.net.Uri, java.lang.String, int, java.lang.String, long, java.lang.String, int, int, int, int, int, java.lang.String, com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement[], java.util.List<java.lang.Long>, long)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1490,7 +1638,7 @@ From class
         
       </span>
       <span class="sympad">SmoothStreamingManifest.StreamElement</span>
-      <span class="normal">(int type, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> subType, long timeScale, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> name, int qualityLevels, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> url, int maxWidth, int maxHeight, int displayWidth, int displayHeight, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> language, <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.TrackElement.html">TrackElement[]</a> tracks, long[] chunkStartTimes)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/android/net/Uri.html"><?csvar:type.label ?></a> baseUri, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> chunkTemplate, int type, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> subType, long timescale, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> name, int qualityLevels, int maxWidth, int maxHeight, int displayWidth, int displayHeight, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> language, <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/SmoothStreamingManifest.TrackElement.html">TrackElement[]</a> tracks, <a href="http://developer.android.com/reference/java/util/List.html"><?csvar:type.label ?></a>&lt;<a href="http://developer.android.com/reference/java/lang/Long.html">Long</a>&gt; chunkStartTimes, long lastChunkDuration)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1499,6 +1647,9 @@ From class
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
@@ -1521,7 +1672,7 @@ From class
 
 
 
-<A NAME="buildRequestUrl(int, int)"></A>
+<A NAME="buildRequestUri(int, int)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1531,9 +1682,9 @@ From class
          
          
          
-        <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
+        <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a>
       </span>
-      <span class="sympad">buildRequestUrl</span>
+      <span class="sympad">buildRequestUri</span>
       <span class="normal">(int track, int chunkIndex)</span>
     </h4>
       <div class="api-level">
@@ -1544,7 +1695,10 @@ From class
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Builds a URL for requesting the specified chunk of the specified track.</p></div>
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Builds a uri for requesting the specified chunk of the specified track.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
@@ -1560,7 +1714,53 @@ From class
   </div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
-      <ul class="nolist"><li>The request URL.
+      <ul class="nolist"><li>The request uri.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getChunkDurationUs(int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        long
+      </span>
+      <span class="sympad">getChunkDurationUs</span>
+      <span class="normal">(int chunkIndex)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Gets the duration of the specified chunk.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>chunkIndex</td>
+          <td>The index of the chunk.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The duration of the chunk, in microseconds.
 </li></ul>
   </div>
 
@@ -1590,6 +1790,9 @@ From class
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Gets the index of the chunk that contains the specified time.</p></div>
   <div class="jd-tagdata">
@@ -1633,6 +1836,9 @@ From class
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Gets the start time of the specified chunk.</p></div>
   <div class="jd-tagdata">

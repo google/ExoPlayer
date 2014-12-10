@@ -75,6 +75,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <html>
 <head>
 
@@ -87,8 +103,10 @@
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
-href="http://fonts.googleapis.com/css?family=Roboto:regular,medium,thin,italic,mediumitalic,bold" title="roboto">
-<link href="../../../../../../../assets/css/default.css" rel="stylesheet" type="text/css">
+href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
+  title="roboto">
+<link href="../../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -104,29 +122,26 @@ type="text/css">
   var metaTags = [];
   var devsite = false;
 </script>
-<script src="../../../../../../../assets/js/docs.js" type="text/javascript"></script>
+<script src="../../../../../../../assets/js/docs.js?v=3" type="text/javascript"></script>
 
-<!-- RESOURCES LIBRARY -->
-<script src="http://androiddevdocs-staging.appspot.com/ytblogger_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../../jd_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../../assets/js/jd_tag_helpers.js" type="text/javascript"></script>
-<link href="../../../../../../../assets/css/resourcecards.css"  rel="stylesheet" type="text/css" />
-<script src="../../../../../../../assets/js/resourcecards.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-5831155-1']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-5831155-1', 'android.com');
+  ga('create', 'UA-49880327-2', 'android.com', {'name': 'universal'});  // New tracker);
+  ga('send', 'pageview');
+  ga('universal.send', 'pageview'); // Send page view for new tracker.
 </script>
+
 </head>
+
 <body class="gc-documentation 
-  develop" itemscope itemtype="http://schema.org/Article">
+  develop reference" itemscope itemtype="http://schema.org/Article">
   <div id="doc-api-level" class="" style="display:none"></div>
   <a name="top"></a>
 
@@ -154,6 +169,8 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
@@ -173,6 +190,8 @@ type="text/css">
   <a href="../../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/text/webvtt/package-summary.html">com.google.android.exoplayer.text.webvtt</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
     <li class="selected api apilevel-">
@@ -348,6 +367,9 @@ Summary:
   
 
 
+    
+
+
 </div><!-- end header -->
 
 <div id="naMessage"></div>
@@ -449,9 +471,14 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#SimpleCache(java.io.File, com.google.android.exoplayer.upstream.cache.CacheEvictor)">SimpleCache</a></span>(<a href="http://developer.android.com/reference/java/io/File.html">File</a> cacheDir, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheEvictor.html">CacheEvictor</a> evictor)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#SimpleCache(java.io.File, com.google.android.exoplayer.upstream.cache.CacheEvictor)">SimpleCache</a></span>(<a href="http://developer.android.com/reference/java/io/File.html"><?csvar:type.label ?></a> cacheDir, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheEvictor.html">CacheEvictor</a> evictor)</nobr>
         
-        <div class="jd-descrdiv">Constructs the cache.</div>
+        <div class="jd-descrdiv">
+          Constructs the cache.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -480,9 +507,14 @@ Summary:
             <a href="http://developer.android.com/reference/java/util/NavigableSet.html">NavigableSet</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>&gt;</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#addListener(java.lang.String, com.google.android.exoplayer.upstream.cache.Cache.Listener)">addListener</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#addListener(java.lang.String, com.google.android.exoplayer.upstream.cache.Cache.Listener)">addListener</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</nobr>
         
-        <div class="jd-descrdiv">Registers a listener to listen for changes to a given key.</div>
+        <div class="jd-descrdiv">
+          Registers a listener to listen for changes to a given key.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -498,9 +530,14 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#commitFile(java.io.File)">commitFile</a></span>(<a href="http://developer.android.com/reference/java/io/File.html">File</a> file)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#commitFile(java.io.File)">commitFile</a></span>(<a href="http://developer.android.com/reference/java/io/File.html"><?csvar:type.label ?></a> file)</nobr>
         
-        <div class="jd-descrdiv">Commits a file into the cache.</div>
+        <div class="jd-descrdiv">
+          Commits a file into the cache.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -518,7 +555,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#getCacheSpace()">getCacheSpace</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns the total disk space in bytes used by the cache.</div>
+        <div class="jd-descrdiv">
+          Returns the total disk space in bytes used by the cache.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -534,9 +576,14 @@ Summary:
             <a href="http://developer.android.com/reference/java/util/NavigableSet.html">NavigableSet</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>&gt;</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#getCachedSpans(java.lang.String)">getCachedSpans</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#getCachedSpans(java.lang.String)">getCachedSpans</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key)</nobr>
         
-        <div class="jd-descrdiv">Returns the cached spans for a given cache key.</div>
+        <div class="jd-descrdiv">
+          Returns the cached spans for a given cache key.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -554,7 +601,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#getKeys()">getKeys</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns all keys in the cache.</div>
+        <div class="jd-descrdiv">
+          Returns all keys in the cache.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -570,9 +622,14 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#isCached(java.lang.String, long, long)">isCached</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, long length)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#isCached(java.lang.String, long, long)">isCached</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position, long length)</nobr>
         
-        <div class="jd-descrdiv">Queries if a range is entirely available in the cache.</div>
+        <div class="jd-descrdiv">
+          Queries if a range is entirely available in the cache.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -590,8 +647,13 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#releaseHoleSpan(com.google.android.exoplayer.upstream.cache.CacheSpan)">releaseHoleSpan</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> holeSpan)</nobr>
         
-        <div class="jd-descrdiv">Releases a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> obtained from <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code> which
- corresponded to a hole in the cache.</div>
+        <div class="jd-descrdiv">
+          Releases a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> obtained from <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code> which
+ corresponded to a hole in the cache.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -607,9 +669,14 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#removeListener(java.lang.String, com.google.android.exoplayer.upstream.cache.Cache.Listener)">removeListener</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#removeListener(java.lang.String, com.google.android.exoplayer.upstream.cache.Cache.Listener)">removeListener</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</nobr>
         
-        <div class="jd-descrdiv">Unregisters a listener.</div>
+        <div class="jd-descrdiv">
+          Unregisters a listener.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -627,7 +694,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#removeSpan(com.google.android.exoplayer.upstream.cache.CacheSpan)">removeSpan</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> span)</nobr>
         
-        <div class="jd-descrdiv">Removes a cached <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> from the cache, deleting the underlying file.</div>
+        <div class="jd-descrdiv">
+          Removes a cached <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> from the cache, deleting the underlying file.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -643,9 +715,14 @@ Summary:
             <a href="http://developer.android.com/reference/java/io/File.html">File</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#startFile(java.lang.String, long, long)">startFile</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, long length)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#startFile(java.lang.String, long, long)">startFile</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position, long length)</nobr>
         
-        <div class="jd-descrdiv">Obtains a cache file into which data can be written.</div>
+        <div class="jd-descrdiv">
+          Obtains a cache file into which data can be written.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -661,10 +738,15 @@ Summary:
             <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#startReadWrite(java.lang.String, long)">startReadWrite</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#startReadWrite(java.lang.String, long)">startReadWrite</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position)</nobr>
         
-        <div class="jd-descrdiv">A caller should invoke this method when they require data from a given position for a given
- key.</div>
+        <div class="jd-descrdiv">
+          A caller should invoke this method when they require data from a given position for a given
+ key.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -680,9 +762,14 @@ Summary:
             <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#startReadWriteNonBlocking(java.lang.String, long)">startReadWriteNonBlocking</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/SimpleCache.html#startReadWriteNonBlocking(java.lang.String, long)">startReadWriteNonBlocking</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position)</nobr>
         
-        <div class="jd-descrdiv">Same as <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code>.</div>
+        <div class="jd-descrdiv">
+          Same as <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code>.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -748,7 +835,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
         
   </td></tr>
 
@@ -934,9 +1021,14 @@ From interface
             <a href="http://developer.android.com/reference/java/util/NavigableSet.html">NavigableSet</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>&gt;</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#addListener(java.lang.String, com.google.android.exoplayer.upstream.cache.Cache.Listener)">addListener</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#addListener(java.lang.String, com.google.android.exoplayer.upstream.cache.Cache.Listener)">addListener</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</nobr>
         
-        <div class="jd-descrdiv">Registers a listener to listen for changes to a given key.</div>
+        <div class="jd-descrdiv">
+          Registers a listener to listen for changes to a given key.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -952,9 +1044,14 @@ From interface
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#commitFile(java.io.File)">commitFile</a></span>(<a href="http://developer.android.com/reference/java/io/File.html">File</a> file)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#commitFile(java.io.File)">commitFile</a></span>(<a href="http://developer.android.com/reference/java/io/File.html"><?csvar:type.label ?></a> file)</nobr>
         
-        <div class="jd-descrdiv">Commits a file into the cache.</div>
+        <div class="jd-descrdiv">
+          Commits a file into the cache.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -972,7 +1069,12 @@ From interface
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#getCacheSpace()">getCacheSpace</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns the total disk space in bytes used by the cache.</div>
+        <div class="jd-descrdiv">
+          Returns the total disk space in bytes used by the cache.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -988,9 +1090,14 @@ From interface
             <a href="http://developer.android.com/reference/java/util/NavigableSet.html">NavigableSet</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>&gt;</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#getCachedSpans(java.lang.String)">getCachedSpans</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#getCachedSpans(java.lang.String)">getCachedSpans</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key)</nobr>
         
-        <div class="jd-descrdiv">Returns the cached spans for a given cache key.</div>
+        <div class="jd-descrdiv">
+          Returns the cached spans for a given cache key.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1008,7 +1115,12 @@ From interface
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#getKeys()">getKeys</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns all keys in the cache.</div>
+        <div class="jd-descrdiv">
+          Returns all keys in the cache.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1024,9 +1136,14 @@ From interface
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#isCached(java.lang.String, long, long)">isCached</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, long length)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#isCached(java.lang.String, long, long)">isCached</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position, long length)</nobr>
         
-        <div class="jd-descrdiv">Queries if a range is entirely available in the cache.</div>
+        <div class="jd-descrdiv">
+          Queries if a range is entirely available in the cache.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1044,8 +1161,13 @@ From interface
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#releaseHoleSpan(com.google.android.exoplayer.upstream.cache.CacheSpan)">releaseHoleSpan</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> holeSpan)</nobr>
         
-        <div class="jd-descrdiv">Releases a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> obtained from <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code> which
- corresponded to a hole in the cache.</div>
+        <div class="jd-descrdiv">
+          Releases a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> obtained from <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code> which
+ corresponded to a hole in the cache.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1061,9 +1183,14 @@ From interface
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#removeListener(java.lang.String, com.google.android.exoplayer.upstream.cache.Cache.Listener)">removeListener</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#removeListener(java.lang.String, com.google.android.exoplayer.upstream.cache.Cache.Listener)">removeListener</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</nobr>
         
-        <div class="jd-descrdiv">Unregisters a listener.</div>
+        <div class="jd-descrdiv">
+          Unregisters a listener.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1081,7 +1208,12 @@ From interface
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#removeSpan(com.google.android.exoplayer.upstream.cache.CacheSpan)">removeSpan</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a> span)</nobr>
         
-        <div class="jd-descrdiv">Removes a cached <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> from the cache, deleting the underlying file.</div>
+        <div class="jd-descrdiv">
+          Removes a cached <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> from the cache, deleting the underlying file.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1097,9 +1229,14 @@ From interface
             <a href="http://developer.android.com/reference/java/io/File.html">File</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startFile(java.lang.String, long, long)">startFile</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, long length)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startFile(java.lang.String, long, long)">startFile</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position, long length)</nobr>
         
-        <div class="jd-descrdiv">Obtains a cache file into which data can be written.</div>
+        <div class="jd-descrdiv">
+          Obtains a cache file into which data can be written.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1115,10 +1252,15 @@ From interface
             <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position)</nobr>
         
-        <div class="jd-descrdiv">A caller should invoke this method when they require data from a given position for a given
- key.</div>
+        <div class="jd-descrdiv">
+          A caller should invoke this method when they require data from a given position for a given
+ key.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1134,9 +1276,14 @@ From interface
             <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWriteNonBlocking(java.lang.String, long)">startReadWriteNonBlocking</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWriteNonBlocking(java.lang.String, long)">startReadWriteNonBlocking</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position)</nobr>
         
-        <div class="jd-descrdiv">Same as <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code>.</div>
+        <div class="jd-descrdiv">
+          Same as <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code>.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1194,7 +1341,7 @@ From interface
         
       </span>
       <span class="sympad">SimpleCache</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/io/File.html">File</a> cacheDir, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheEvictor.html">CacheEvictor</a> evictor)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/io/File.html"><?csvar:type.label ?></a> cacheDir, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheEvictor.html">CacheEvictor</a> evictor)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1203,6 +1350,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
  the directory cannot be used to store other files.</p></div>
@@ -1249,7 +1399,7 @@ From interface
         <a href="http://developer.android.com/reference/java/util/NavigableSet.html">NavigableSet</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>&gt;
       </span>
       <span class="sympad">addListener</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1258,6 +1408,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Registers a listener to listen for changes to a given key.
  <p>
@@ -1300,7 +1453,7 @@ From interface
         void
       </span>
       <span class="sympad">commitFile</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/io/File.html">File</a> file)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/io/File.html"><?csvar:type.label ?></a> file)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1309,6 +1462,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Commits a file into the cache. Must only be called when holding a corresponding hole
  <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> obtained from <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code></p></div>
@@ -1350,6 +1506,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Returns the total disk space in bytes used by the cache.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
@@ -1374,7 +1533,7 @@ From interface
         <a href="http://developer.android.com/reference/java/util/NavigableSet.html">NavigableSet</a>&lt;<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>&gt;
       </span>
       <span class="sympad">getCachedSpans</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1383,6 +1542,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Returns the cached spans for a given cache key.</p></div>
   <div class="jd-tagdata">
@@ -1427,6 +1589,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Returns all keys in the cache.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
@@ -1451,7 +1616,7 @@ From interface
         boolean
       </span>
       <span class="sympad">isCached</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, long length)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position, long length)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1460,6 +1625,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Queries if a range is entirely available in the cache.</p></div>
   <div class="jd-tagdata">
@@ -1512,6 +1680,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Releases a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> obtained from <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code> which
  corresponded to a hole in the cache.</p></div>
   <div class="jd-tagdata">
@@ -1542,7 +1713,7 @@ From interface
         void
       </span>
       <span class="sympad">removeListener</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.Listener.html">Cache.Listener</a> listener)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1551,6 +1722,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Unregisters a listener.</p></div>
   <div class="jd-tagdata">
@@ -1595,6 +1769,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Removes a cached <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> from the cache, deleting the underlying file.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Parameters</h5>
@@ -1624,7 +1801,7 @@ From interface
         <a href="http://developer.android.com/reference/java/io/File.html">File</a>
       </span>
       <span class="sympad">startFile</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, long length)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position, long length)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1633,6 +1810,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Obtains a cache file into which data can be written. Must only be called when holding a
  corresponding hole <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code> obtained from <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code>.</p></div>
@@ -1677,7 +1857,7 @@ From interface
         <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>
       </span>
       <span class="sympad">startReadWrite</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1686,6 +1866,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>A caller should invoke this method when they require data from a given position for a given
  key.
@@ -1745,7 +1928,7 @@ From interface
         <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>
       </span>
       <span class="sympad">startReadWriteNonBlocking</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1754,6 +1937,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Same as <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/Cache.html#startReadWrite(java.lang.String, long)">startReadWrite(String, long)</a></code>. However, if the cache entry is locked, then
  instead of blocking, this method will return null as the <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></code>.</p></div>

@@ -75,6 +75,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <html>
 <head>
 
@@ -87,8 +103,10 @@
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
-href="http://fonts.googleapis.com/css?family=Roboto:regular,medium,thin,italic,mediumitalic,bold" title="roboto">
-<link href="../../../../../assets/css/default.css" rel="stylesheet" type="text/css">
+href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
+  title="roboto">
+<link href="../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -104,29 +122,26 @@ type="text/css">
   var metaTags = [];
   var devsite = false;
 </script>
-<script src="../../../../../assets/js/docs.js" type="text/javascript"></script>
+<script src="../../../../../assets/js/docs.js?v=3" type="text/javascript"></script>
 
-<!-- RESOURCES LIBRARY -->
-<script src="http://androiddevdocs-staging.appspot.com/ytblogger_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../jd_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../assets/js/jd_tag_helpers.js" type="text/javascript"></script>
-<link href="../../../../../assets/css/resourcecards.css"  rel="stylesheet" type="text/css" />
-<script src="../../../../../assets/js/resourcecards.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-5831155-1']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-5831155-1', 'android.com');
+  ga('create', 'UA-49880327-2', 'android.com', {'name': 'universal'});  // New tracker);
+  ga('send', 'pageview');
+  ga('universal.send', 'pageview'); // Send page view for new tracker.
 </script>
+
 </head>
+
 <body class="gc-documentation 
-  develop" itemscope itemtype="http://schema.org/Article">
+  develop reference" itemscope itemtype="http://schema.org/Article">
   <div id="doc-api-level" class="" style="display:none"></div>
   <a name="top"></a>
 
@@ -154,6 +169,8 @@ type="text/css">
     <li class="selected api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
@@ -173,6 +190,8 @@ type="text/css">
   <a href="../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/text/webvtt/package-summary.html">com.google.android.exoplayer.text.webvtt</a></li>
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
     <li class="api apilevel-">
@@ -200,6 +219,7 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecAudioTrackRenderer.EventListener.html">MediaCodecAudioTrackRenderer.EventListener</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.EventListener.html">MediaCodecTrackRenderer.EventListener</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecVideoTrackRenderer.EventListener.html">MediaCodecVideoTrackRenderer.EventListener</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecVideoTrackRenderer.FrameReleaseTimeHelper.html">MediaCodecVideoTrackRenderer.FrameReleaseTimeHelper</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a></li>
       </ul>
     </li>
@@ -222,6 +242,7 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormatHolder.html">MediaFormatHolder</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/SmoothFrameReleaseTimeHelper.html">SmoothFrameReleaseTimeHelper</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/TrackInfo.html">TrackInfo</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/VideoSurfaceView.html">VideoSurfaceView</a></li>
@@ -231,8 +252,8 @@ type="text/css">
               
     <li><h2>Exceptions</h2>
       <ul>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/BehindLiveWindowException.html">BehindLiveWindowException</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlaybackException.html">ExoPlaybackException</a></li>
-          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecAudioTrackRenderer.AudioTrackInitializationException.html">MediaCodecAudioTrackRenderer.AudioTrackInitializationException</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.DecoderInitializationException.html">MediaCodecTrackRenderer.DecoderInitializationException</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ParserException.html">ParserException</a></li>
       </ul>
@@ -389,6 +410,9 @@ Summary:
   
 
 
+    
+
+
 </div><!-- end header -->
 
 <div id="naMessage"></div>
@@ -449,16 +473,33 @@ Summary:
       <div id="subclasses-direct-summary"
               style="display: none;"
               >
+  
   <table class="jd-sumtable-expando">
-        <tr class="alt-color api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecAudioTrackRenderer.html">MediaCodecAudioTrackRenderer</a></td>
-              <td class="jd-descrcol" width="100%">Decodes and renders audio using <code><a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a></code> and <code><a href="http://developer.android.com/reference/android/media/AudioTrack.html">AudioTrack</a></code>.&nbsp;</td>
-          </tr>
-        <tr class=" api apilevel-" >
-              <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecVideoTrackRenderer.html">MediaCodecVideoTrackRenderer</a></td>
-              <td class="jd-descrcol" width="100%">Decodes and renders video using <code><a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a></code>.&nbsp;</td>
-          </tr>
+    
+      <tr class="alt-color api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecAudioTrackRenderer.html">MediaCodecAudioTrackRenderer</a></td>
+        <td class="jd-descrcol" width="100%">
+          Decodes and renders audio using <code><a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a></code> and <code><a href="http://developer.android.com/reference/android/media/AudioTrack.html">AudioTrack</a></code>.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecVideoTrackRenderer.html">MediaCodecVideoTrackRenderer</a></td>
+        <td class="jd-descrcol" width="100%">
+          Decodes and renders video using <code><a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a></code>.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
   </table>
+
       </div>
   </div>
 </td></tr></table>
@@ -514,7 +555,12 @@ Summary:
         
         class</nobr></td>
       <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.DecoderInitializationException.html">MediaCodecTrackRenderer.DecoderInitializationException</a></td>
-      <td class="jd-descrcol" width="100%">Thrown when a failure occurs instantiating a decoder.&nbsp;</td>
+      <td class="jd-descrcol" width="100%">
+        Thrown when a failure occurs instantiating a decoder.&nbsp;
+        
+    
+
+      </td>
     </tr>
     
     
@@ -526,7 +572,12 @@ Summary:
         
         interface</nobr></td>
       <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.EventListener.html">MediaCodecTrackRenderer.EventListener</a></td>
-      <td class="jd-descrcol" width="100%">Interface definition for a callback to be notified of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html">MediaCodecTrackRenderer</a></code> events.&nbsp;</td>
+      <td class="jd-descrcol" width="100%">
+        Interface definition for a callback to be notified of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html">MediaCodecTrackRenderer</a></code> events.&nbsp;
+        
+    
+
+      </td>
     </tr>
     
     
@@ -551,22 +602,38 @@ Summary:
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#SOURCE_STATE_NOT_READY">SOURCE_STATE_NOT_READY</a></td>
-        <td class="jd-descrcol" width="100%">Value of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is not ready.</td>
+        <td class="jd-descrcol" width="100%">
+          Value returned by <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is not ready.
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class=" api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#SOURCE_STATE_READY">SOURCE_STATE_READY</a></td>
-        <td class="jd-descrcol" width="100%">Value of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is ready and we're able to read from it.</td>
+        <td class="jd-descrcol" width="100%">
+          Value returned by <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is ready and we're able to read
+ from it.
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#SOURCE_STATE_READY_READ_MAY_FAIL">SOURCE_STATE_READY_READ_MAY_FAIL</a></td>
-        <td class="jd-descrcol" width="100%">Value of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is ready but we might not be able to read from
- it.</td>
+        <td class="jd-descrcol" width="100%">
+          Value returned by <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is ready but we might not be able
+ to read from it.
+          
+    
+
+        </td>
     </tr>
     
     
@@ -603,64 +670,109 @@ Summary:
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">long</td>
         <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#END_OF_TRACK_US">END_OF_TRACK_US</a></td>
-        <td class="jd-descrcol" width="100%">Represents the time of the end of the track.</td>
+        <td class="jd-descrcol" width="100%">
+          Represents the time of the end of the track.
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class=" api apilevel-" >
         <td class="jd-typecol">long</td>
         <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#MATCH_LONGEST_US">MATCH_LONGEST_US</a></td>
-        <td class="jd-descrcol" width="100%">Represents a time or duration that should match the duration of the longest track whose
- duration is known.</td>
+        <td class="jd-descrcol" width="100%">
+          Represents a time or duration that should match the duration of the longest track whose
+ duration is known.
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_ENABLED">STATE_ENABLED</a></td>
-        <td class="jd-descrcol" width="100%">The renderer is enabled.</td>
+        <td class="jd-descrcol" width="100%">
+          The renderer is enabled.
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class=" api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_IGNORE">STATE_IGNORE</a></td>
-        <td class="jd-descrcol" width="100%">The renderer should be ignored by the player.</td>
+        <td class="jd-descrcol" width="100%">
+          The renderer should be ignored by the player.
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_PREPARED">STATE_PREPARED</a></td>
-        <td class="jd-descrcol" width="100%">The renderer has completed necessary preparation.</td>
+        <td class="jd-descrcol" width="100%">
+          The renderer has completed necessary preparation.
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class=" api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_RELEASED">STATE_RELEASED</a></td>
-        <td class="jd-descrcol" width="100%">The renderer has been released and should not be used.</td>
+        <td class="jd-descrcol" width="100%">
+          The renderer has been released and should not be used.
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_STARTED">STATE_STARTED</a></td>
-        <td class="jd-descrcol" width="100%">The renderer is started.</td>
+        <td class="jd-descrcol" width="100%">
+          The renderer is started.
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class=" api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_UNPREPARED">STATE_UNPREPARED</a></td>
-        <td class="jd-descrcol" width="100%">The renderer has not yet been prepared.</td>
+        <td class="jd-descrcol" width="100%">
+          The renderer has not yet been prepared.
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">long</td>
         <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#UNKNOWN_TIME_US">UNKNOWN_TIME_US</a></td>
-        <td class="jd-descrcol" width="100%">Represents an unknown time or duration.</td>
+        <td class="jd-descrcol" width="100%">
+          Represents an unknown time or duration.
+          
+    
+
+        </td>
     </tr>
     
     
@@ -691,7 +803,12 @@ Summary:
           final
           <a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html">CodecCounters</a></nobr></td>
           <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#codecCounters">codecCounters</a></td>
-          <td class="jd-descrcol" width="100%"></td>
+          <td class="jd-descrcol" width="100%">
+            
+            
+    
+
+          </td>
       </tr>
       
     
@@ -702,7 +819,12 @@ Summary:
           final
           <a href="http://developer.android.com/reference/android/os/Handler.html">Handler</a></nobr></td>
           <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#eventHandler">eventHandler</a></td>
-          <td class="jd-descrcol" width="100%"></td>
+          <td class="jd-descrcol" width="100%">
+            
+            
+    
+
+          </td>
       </tr>
       
     
@@ -731,7 +853,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#MediaCodecTrackRenderer(com.google.android.exoplayer.SampleSource, com.google.android.exoplayer.drm.DrmSessionManager, boolean, android.os.Handler, com.google.android.exoplayer.MediaCodecTrackRenderer.EventListener)">MediaCodecTrackRenderer</a></span>(<a href="../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a> source, <a href="../../../../../reference/com/google/android/exoplayer/drm/DrmSessionManager.html">DrmSessionManager</a> drmSessionManager, boolean playClearSamplesWithoutKeys, <a href="http://developer.android.com/reference/android/os/Handler.html">Handler</a> eventHandler, <a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.EventListener.html">MediaCodecTrackRenderer.EventListener</a> eventListener)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#MediaCodecTrackRenderer(com.google.android.exoplayer.SampleSource, com.google.android.exoplayer.drm.DrmSessionManager, boolean, android.os.Handler, com.google.android.exoplayer.MediaCodecTrackRenderer.EventListener)">MediaCodecTrackRenderer</a></span>(<a href="../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a> source, <a href="../../../../../reference/com/google/android/exoplayer/drm/DrmSessionManager.html">DrmSessionManager</a> drmSessionManager, boolean playClearSamplesWithoutKeys, <a href="http://developer.android.com/reference/android/os/Handler.html"><?csvar:type.label ?></a> eventHandler, <a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.EventListener.html">MediaCodecTrackRenderer.EventListener</a> eventListener)</nobr>
         
   </td></tr>
 
@@ -762,10 +884,15 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#canReconfigureCodec(android.media.MediaCodec, boolean, com.google.android.exoplayer.MediaFormat, com.google.android.exoplayer.MediaFormat)">canReconfigureCodec</a></span>(<a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a> codec, boolean codecIsAdaptive, <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> oldFormat, <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> newFormat)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#canReconfigureCodec(android.media.MediaCodec, boolean, com.google.android.exoplayer.MediaFormat, com.google.android.exoplayer.MediaFormat)">canReconfigureCodec</a></span>(<a href="http://developer.android.com/reference/android/media/MediaCodec.html"><?csvar:type.label ?></a> codec, boolean codecIsAdaptive, <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> oldFormat, <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> newFormat)</nobr>
         
-        <div class="jd-descrdiv">Determines whether the existing <code><a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a></code> should be reconfigured for a new format by
- sending codec specific initialization data at the start of the next input buffer.</div>
+        <div class="jd-descrdiv">
+          Determines whether the existing <code><a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a></code> should be reconfigured for a new format by
+ sending codec specific initialization data at the start of the next input buffer.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -797,9 +924,14 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#configureCodec(android.media.MediaCodec, android.media.MediaFormat, android.media.MediaCrypto)">configureCodec</a></span>(<a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a> codec, <a href="http://developer.android.com/reference/android/media/MediaFormat.html">MediaFormat</a> x, <a href="http://developer.android.com/reference/android/media/MediaCrypto.html">MediaCrypto</a> crypto)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#configureCodec(android.media.MediaCodec, android.media.MediaFormat, android.media.MediaCrypto)">configureCodec</a></span>(<a href="http://developer.android.com/reference/android/media/MediaCodec.html"><?csvar:type.label ?></a> codec, <a href="http://developer.android.com/reference/android/media/MediaFormat.html"><?csvar:type.label ?></a> x, <a href="http://developer.android.com/reference/android/media/MediaCrypto.html"><?csvar:type.label ?></a> crypto)</nobr>
         
-        <div class="jd-descrdiv">Configures a newly created <code><a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a></code>.</div>
+        <div class="jd-descrdiv">
+          Configures a newly created <code><a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a></code>.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -817,7 +949,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#doPrepare()">doPrepare</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Invoked to make progress when the renderer is in the <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_UNPREPARED">STATE_UNPREPARED</a></code> state.</div>
+        <div class="jd-descrdiv">
+          Invoked to make progress when the renderer is in the <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_UNPREPARED">STATE_UNPREPARED</a></code> state.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -833,10 +970,15 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#doSomeWork(long)">doSomeWork</a></span>(long timeUs)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#doSomeWork(long, long)">doSomeWork</a></span>(long positionUs, long elapsedRealtimeUs)</nobr>
         
-        <div class="jd-descrdiv">Invoked to make progress when the renderer is in the <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_ENABLED">STATE_ENABLED</a></code> or
- <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_STARTED">STATE_STARTED</a></code> states.</div>
+        <div class="jd-descrdiv">
+          Invoked to make progress when the renderer is in the <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_ENABLED">STATE_ENABLED</a></code> or
+ <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_STARTED">STATE_STARTED</a></code> states.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -854,7 +996,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getBufferedPositionUs()">getBufferedPositionUs</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns an estimate of the absolute position in micro-seconds up to which data is buffered.</div>
+        <div class="jd-descrdiv">
+          Returns an estimate of the absolute position in microseconds up to which data is buffered.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -872,7 +1019,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getCurrentPositionUs()">getCurrentPositionUs</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns the current playback position.</div>
+        <div class="jd-descrdiv">
+          Returns the current playback position.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -890,7 +1042,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getDurationUs()">getDurationUs</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns the duration of the media being rendered.</div>
+        <div class="jd-descrdiv">
+          Returns the duration of the media being rendered.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -908,7 +1065,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Gets the source state.</div>
+        <div class="jd-descrdiv">
+          Gets the source state.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -924,9 +1086,14 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#handlesMimeType(java.lang.String)">handlesMimeType</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#handlesMimeType(java.lang.String)">handlesMimeType</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</nobr>
         
-        <div class="jd-descrdiv">Determines whether a mime type is handled by the renderer.</div>
+        <div class="jd-descrdiv">
+          Determines whether a mime type is handled by the renderer.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -960,8 +1127,13 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#isEnded()">isEnded</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Whether the renderer is ready for the <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> instance to transition to
- <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#STATE_ENDED">STATE_ENDED</a></code>.</div>
+        <div class="jd-descrdiv">
+          Whether the renderer is ready for the <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> instance to transition to
+ <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#STATE_ENDED">STATE_ENDED</a></code>.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -979,7 +1151,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#isReady()">isReady</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Whether the renderer is able to immediately render media from the current position.</div>
+        <div class="jd-descrdiv">
+          Whether the renderer is able to immediately render media from the current position.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1013,7 +1190,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#onDisabled()">onDisabled</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Called when the renderer is disabled.</div>
+        <div class="jd-descrdiv">
+          Called when the renderer is disabled.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1029,9 +1211,14 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#onEnabled(long, boolean)">onEnabled</a></span>(long timeUs, boolean joining)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#onEnabled(long, boolean)">onEnabled</a></span>(long positionUs, boolean joining)</nobr>
         
-        <div class="jd-descrdiv">Called when the renderer is enabled.</div>
+        <div class="jd-descrdiv">
+          Called when the renderer is enabled.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1047,15 +1234,43 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#onOutputFormatChanged(android.media.MediaFormat)">onOutputFormatChanged</a></span>(<a href="http://developer.android.com/reference/android/media/MediaFormat.html">MediaFormat</a> format)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#onInputFormatChanged(com.google.android.exoplayer.MediaFormatHolder)">onInputFormatChanged</a></span>(<a href="../../../../../reference/com/google/android/exoplayer/MediaFormatHolder.html">MediaFormatHolder</a> formatHolder)</nobr>
         
-        <div class="jd-descrdiv">Invoked when the output format of the <code><a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a></code> changes.</div>
+        <div class="jd-descrdiv">
+          Invoked when a new format is read from the upstream <code><a href="../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a></code>.
+          
+    
+
+        </div>
   
   </td></tr>
 
 
 	 
     <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#onOutputFormatChanged(android.media.MediaFormat)">onOutputFormatChanged</a></span>(<a href="http://developer.android.com/reference/android/media/MediaFormat.html"><?csvar:type.label ?></a> format)</nobr>
+        
+        <div class="jd-descrdiv">
+          Invoked when the output format of the <code><a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a></code> changes.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1067,13 +1282,18 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#onReleased()">onReleased</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Called when the renderer is released.</div>
+        <div class="jd-descrdiv">
+          Called when the renderer is released.
+          
+    
+
+        </div>
   
   </td></tr>
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1085,13 +1305,18 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#onStarted()">onStarted</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Called when the renderer is started.</div>
+        <div class="jd-descrdiv">
+          Called when the renderer is started.
+          
+    
+
+        </div>
   
   </td></tr>
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1103,13 +1328,18 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#onStopped()">onStopped</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Called when the renderer is stopped.</div>
+        <div class="jd-descrdiv">
+          Called when the renderer is stopped.
+          
+    
+
+        </div>
   
   </td></tr>
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             abstract
             
@@ -1119,15 +1349,20 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#processOutputBuffer(long, android.media.MediaCodec, java.nio.ByteBuffer, android.media.MediaCodec.BufferInfo, int, boolean)">processOutputBuffer</a></span>(long timeUs, <a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a> codec, <a href="http://developer.android.com/reference/java/nio/ByteBuffer.html">ByteBuffer</a> buffer, <a href="http://developer.android.com/reference/android/media/MediaCodec.BufferInfo.html">MediaCodec.BufferInfo</a> bufferInfo, int bufferIndex, boolean shouldSkip)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#processOutputBuffer(long, long, android.media.MediaCodec, java.nio.ByteBuffer, android.media.MediaCodec.BufferInfo, int, boolean)">processOutputBuffer</a></span>(long positionUs, long elapsedRealtimeUs, <a href="http://developer.android.com/reference/android/media/MediaCodec.html"><?csvar:type.label ?></a> codec, <a href="http://developer.android.com/reference/java/nio/ByteBuffer.html"><?csvar:type.label ?></a> buffer, <a href="http://developer.android.com/reference/android/media/MediaCodec.BufferInfo.html"><?csvar:type.label ?></a> bufferInfo, int bufferIndex, boolean shouldSkip)</nobr>
         
-        <div class="jd-descrdiv">Processes the provided output buffer.</div>
+        <div class="jd-descrdiv">
+          Processes the provided output buffer.
+          
+    
+
+        </div>
   
   </td></tr>
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1143,7 +1378,7 @@ Summary:
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1153,15 +1388,20 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#seekTo(long)">seekTo</a></span>(long timeUs)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#seekTo(long)">seekTo</a></span>(long positionUs)</nobr>
         
-        <div class="jd-descrdiv">Seeks to a specified time in the track.</div>
+        <div class="jd-descrdiv">
+          Seeks to a specified time in the track.
+          
+    
+
+        </div>
   
   </td></tr>
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1221,7 +1461,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#doPrepare()">doPrepare</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Invoked to make progress when the renderer is in the <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_UNPREPARED">STATE_UNPREPARED</a></code> state.</div>
+        <div class="jd-descrdiv">
+          Invoked to make progress when the renderer is in the <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_UNPREPARED">STATE_UNPREPARED</a></code> state.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1237,10 +1482,15 @@ From class
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#doSomeWork(long)">doSomeWork</a></span>(long timeUs)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#doSomeWork(long, long)">doSomeWork</a></span>(long positionUs, long elapsedRealtimeUs)</nobr>
         
-        <div class="jd-descrdiv">Invoked to make progress when the renderer is in the <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_ENABLED">STATE_ENABLED</a></code> or
- <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_STARTED">STATE_STARTED</a></code> states.</div>
+        <div class="jd-descrdiv">
+          Invoked to make progress when the renderer is in the <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_ENABLED">STATE_ENABLED</a></code> or
+ <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_STARTED">STATE_STARTED</a></code> states.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1258,7 +1508,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#getBufferedPositionUs()">getBufferedPositionUs</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns an estimate of the absolute position in micro-seconds up to which data is buffered.</div>
+        <div class="jd-descrdiv">
+          Returns an estimate of the absolute position in microseconds up to which data is buffered.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1276,7 +1531,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#getCurrentPositionUs()">getCurrentPositionUs</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns the current playback position.</div>
+        <div class="jd-descrdiv">
+          Returns the current playback position.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1294,7 +1554,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#getDurationUs()">getDurationUs</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns the duration of the media being rendered.</div>
+        <div class="jd-descrdiv">
+          Returns the duration of the media being rendered.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1312,7 +1577,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#getState()">getState</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns the current state of the renderer.</div>
+        <div class="jd-descrdiv">
+          Returns the current state of the renderer.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1328,9 +1598,14 @@ From class
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#handleMessage(int, java.lang.Object)">handleMessage</a></span>(int what, <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> object)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#handleMessage(int, java.lang.Object)">handleMessage</a></span>(int what, <a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> object)</nobr>
         
-        <div class="jd-descrdiv">Handles a message delivered to the component.</div>
+        <div class="jd-descrdiv">
+          Handles a message delivered to the component.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1348,8 +1623,13 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#isEnded()">isEnded</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Whether the renderer is ready for the <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> instance to transition to
- <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#STATE_ENDED">STATE_ENDED</a></code>.</div>
+        <div class="jd-descrdiv">
+          Whether the renderer is ready for the <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> instance to transition to
+ <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#STATE_ENDED">STATE_ENDED</a></code>.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1367,7 +1647,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#isReady()">isReady</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Whether the renderer is able to immediately render media from the current position.</div>
+        <div class="jd-descrdiv">
+          Whether the renderer is able to immediately render media from the current position.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1385,7 +1670,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#isTimeSource()">isTimeSource</a></span>()</nobr>
         
-        <div class="jd-descrdiv">A time source renderer is a renderer that, when started, advances its own playback position.</div>
+        <div class="jd-descrdiv">
+          A time source renderer is a renderer that, when started, advances its own playback position.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1403,7 +1693,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#onDisabled()">onDisabled</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Called when the renderer is disabled.</div>
+        <div class="jd-descrdiv">
+          Called when the renderer is disabled.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1419,9 +1714,14 @@ From class
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#onEnabled(long, boolean)">onEnabled</a></span>(long timeUs, boolean joining)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#onEnabled(long, boolean)">onEnabled</a></span>(long positionUs, boolean joining)</nobr>
         
-        <div class="jd-descrdiv">Called when the renderer is enabled.</div>
+        <div class="jd-descrdiv">
+          Called when the renderer is enabled.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1439,7 +1739,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#onReleased()">onReleased</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Called when the renderer is released.</div>
+        <div class="jd-descrdiv">
+          Called when the renderer is released.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1457,7 +1762,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#onStarted()">onStarted</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Called when the renderer is started.</div>
+        <div class="jd-descrdiv">
+          Called when the renderer is started.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1475,7 +1785,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#onStopped()">onStopped</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Called when the renderer is stopped.</div>
+        <div class="jd-descrdiv">
+          Called when the renderer is stopped.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1491,9 +1806,14 @@ From class
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#seekTo(long)">seekTo</a></span>(long timeUs)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#seekTo(long)">seekTo</a></span>(long positionUs)</nobr>
         
-        <div class="jd-descrdiv">Seeks to a specified time in the track.</div>
+        <div class="jd-descrdiv">
+          Seeks to a specified time in the track.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1551,7 +1871,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
         
   </td></tr>
 
@@ -1737,9 +2057,14 @@ From interface
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.ExoPlayerComponent.html#handleMessage(int, java.lang.Object)">handleMessage</a></span>(int messageType, <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> message)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.ExoPlayerComponent.html#handleMessage(int, java.lang.Object)">handleMessage</a></span>(int messageType, <a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> message)</nobr>
         
-        <div class="jd-descrdiv">Handles a message delivered to the component.</div>
+        <div class="jd-descrdiv">
+          Handles a message delivered to the component.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1799,7 +2124,10 @@ From interface
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Value of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is not ready.
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Value returned by <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is not ready.
 </p></div>
 
     
@@ -1838,7 +2166,11 @@ From interface
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Value of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is ready and we're able to read from it.
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Value returned by <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is ready and we're able to read
+ from it.
 </p></div>
 
     
@@ -1877,10 +2209,13 @@ From interface
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Value of <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is ready but we might not be able to read from
- it. We transition to this state when an attempt to read a sample fails despite the source
- reporting that samples are available. This can occur when the next sample to be provided by
- the source is for another renderer.
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Value returned by <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#getSourceState()">getSourceState()</a></code> when the source is ready but we might not be able
+ to read from it. We transition to this state when an attempt to read a sample fails despite the
+ source reporting that samples are available. This can occur when the next sample to be provided
+ by the source is for another renderer.
 </p></div>
 
     
@@ -1929,6 +2264,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
     
@@ -1956,6 +2294,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
@@ -1987,7 +2328,7 @@ From interface
         
       </span>
       <span class="sympad">MediaCodecTrackRenderer</span>
-      <span class="normal">(<a href="../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a> source, <a href="../../../../../reference/com/google/android/exoplayer/drm/DrmSessionManager.html">DrmSessionManager</a> drmSessionManager, boolean playClearSamplesWithoutKeys, <a href="http://developer.android.com/reference/android/os/Handler.html">Handler</a> eventHandler, <a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.EventListener.html">MediaCodecTrackRenderer.EventListener</a> eventListener)</span>
+      <span class="normal">(<a href="../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a> source, <a href="../../../../../reference/com/google/android/exoplayer/drm/DrmSessionManager.html">DrmSessionManager</a> drmSessionManager, boolean playClearSamplesWithoutKeys, <a href="http://developer.android.com/reference/android/os/Handler.html"><?csvar:type.label ?></a> eventHandler, <a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.EventListener.html">MediaCodecTrackRenderer.EventListener</a> eventListener)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1996,6 +2337,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
   <div class="jd-tagdata">
@@ -2067,7 +2411,7 @@ From interface
         boolean
       </span>
       <span class="sympad">canReconfigureCodec</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a> codec, boolean codecIsAdaptive, <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> oldFormat, <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> newFormat)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/android/media/MediaCodec.html"><?csvar:type.label ?></a> codec, boolean codecIsAdaptive, <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> oldFormat, <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> newFormat)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -2076,6 +2420,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Determines whether the existing <code><a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a></code> should be reconfigured for a new format by
  sending codec specific initialization data at the start of the next input buffer. If true is
@@ -2138,6 +2485,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
     </div>
@@ -2157,7 +2507,7 @@ From interface
         void
       </span>
       <span class="sympad">configureCodec</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a> codec, <a href="http://developer.android.com/reference/android/media/MediaFormat.html">MediaFormat</a> x, <a href="http://developer.android.com/reference/android/media/MediaCrypto.html">MediaCrypto</a> crypto)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/android/media/MediaCodec.html"><?csvar:type.label ?></a> codec, <a href="http://developer.android.com/reference/android/media/MediaFormat.html"><?csvar:type.label ?></a> x, <a href="http://developer.android.com/reference/android/media/MediaCrypto.html"><?csvar:type.label ?></a> crypto)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -2166,6 +2516,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Configures a newly created <code><a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a></code>. Sub-classes should
  override this method if they wish to configure the codec with a
@@ -2199,6 +2552,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Invoked to make progress when the renderer is in the <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_UNPREPARED">STATE_UNPREPARED</a></code> state. This
  method will be called repeatedly until a value other than <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_UNPREPARED">STATE_UNPREPARED</a></code> is
  returned.
@@ -2224,7 +2580,7 @@ From interface
 </div>
 
 
-<A NAME="doSomeWork(long)"></A>
+<A NAME="doSomeWork(long, long)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -2237,7 +2593,7 @@ From interface
         void
       </span>
       <span class="sympad">doSomeWork</span>
-      <span class="normal">(long timeUs)</span>
+      <span class="normal">(long positionUs, long elapsedRealtimeUs)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -2246,6 +2602,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Invoked to make progress when the renderer is in the <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_ENABLED">STATE_ENABLED</a></code> or
  <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_STARTED">STATE_STARTED</a></code> states.
@@ -2264,8 +2623,14 @@ From interface
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
         <tr>
-          <th>timeUs</td>
-          <td>The current playback time.</td>
+          <th>positionUs</td>
+          <td>The current media time in microseconds, measured at the start of the
+     current iteration of the rendering loop.</td>
+        </tr>
+        <tr>
+          <th>elapsedRealtimeUs</td>
+          <td><code><a href="http://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()">elapsedRealtime()</a></code> in microseconds, measured at
+     the start of the current iteration of the rendering loop.</td>
         </tr>
       </table>
   </div>
@@ -2306,13 +2671,16 @@ From interface
       </div>
     <div class="jd-details-descr">
       
-  <div class="jd-tagdata jd-tagdescr"><p>Returns an estimate of the absolute position in micro-seconds up to which data is buffered.
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns an estimate of the absolute position in microseconds up to which data is buffered.
  <p>
  This method may be called when the renderer is in the following states:
  <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_ENABLED">STATE_ENABLED</a></code>, <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_STARTED">STATE_STARTED</a></code></p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
-      <ul class="nolist"><li>An estimate of the absolute position in micro-seconds up to which data is buffered,
+      <ul class="nolist"><li>An estimate of the absolute position in microseconds up to which data is buffered,
      or <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#END_OF_TRACK_US">END_OF_TRACK_US</a></code> if the track is fully buffered, or <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#UNKNOWN_TIME_US">UNKNOWN_TIME_US</a></code> if
      no estimate is available.
 </li></ul>
@@ -2345,13 +2713,16 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Returns the current playback position.
  <p>
  This method may be called when the renderer is in the following states:
  <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_ENABLED">STATE_ENABLED</a></code>, <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_STARTED">STATE_STARTED</a></code></p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
-      <ul class="nolist"><li>The current playback position in micro-seconds.
+      <ul class="nolist"><li>The current playback position in microseconds.
 </li></ul>
   </div>
 
@@ -2382,13 +2753,16 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Returns the duration of the media being rendered.
  <p>
  This method may be called when the renderer is in the following states:
  <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_PREPARED">STATE_PREPARED</a></code>, <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_ENABLED">STATE_ENABLED</a></code>, <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#STATE_STARTED">STATE_STARTED</a></code></p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
-      <ul class="nolist"><li>The duration of the track in micro-seconds, or <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#MATCH_LONGEST_US">MATCH_LONGEST_US</a></code> if
+      <ul class="nolist"><li>The duration of the track in microseconds, or <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#MATCH_LONGEST_US">MATCH_LONGEST_US</a></code> if
      the track's duration should match that of the longest track whose duration is known, or
      or <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html#UNKNOWN_TIME_US">UNKNOWN_TIME_US</a></code> if the duration is not known.
 </li></ul>
@@ -2421,6 +2795,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Gets the source state.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
@@ -2446,7 +2823,7 @@ From interface
         boolean
       </span>
       <span class="sympad">handlesMimeType</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -2455,6 +2832,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Determines whether a mime type is handled by the renderer.</p></div>
   <div class="jd-tagdata">
@@ -2499,6 +2879,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
     </div>
@@ -2527,6 +2910,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Whether the renderer is ready for the <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> instance to transition to
  <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#STATE_ENDED">STATE_ENDED</a></code>. The player will make this transition as soon as <code>true</code> is
@@ -2566,6 +2952,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Whether the renderer is able to immediately render media from the current position.
  <p>
@@ -2611,6 +3000,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Throws</h5>
@@ -2649,6 +3041,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Called when the renderer is disabled.
  <p>
  The default implementation is a no-op.</p></div>
@@ -2670,7 +3065,7 @@ From interface
         void
       </span>
       <span class="sympad">onEnabled</span>
-      <span class="normal">(long timeUs, boolean joining)</span>
+      <span class="normal">(long positionUs, boolean joining)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -2680,6 +3075,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Called when the renderer is enabled.
  <p>
  The default implementation is a no-op.</p></div>
@@ -2687,7 +3085,7 @@ From interface
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
         <tr>
-          <th>timeUs</td>
+          <th>positionUs</td>
           <td>The player's current position.</td>
         </tr>
         <tr>
@@ -2695,6 +3093,57 @@ From interface
           <td>Whether this renderer is being enabled to join an ongoing playback. If true
      then <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html#onStarted()">onStarted()</a></code> is guaranteed to be called immediately after this method returns
      (unless a <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlaybackException.html">ExoPlaybackException</a></code> is thrown).</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="onInputFormatChanged(com.google.android.exoplayer.MediaFormatHolder)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        protected 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">onInputFormatChanged</span>
+      <span class="normal">(<a href="../../../../../reference/com/google/android/exoplayer/MediaFormatHolder.html">MediaFormatHolder</a> formatHolder)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Invoked when a new format is read from the upstream <code><a href="../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a></code>.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>formatHolder</td>
+          <td>Holds the new format.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Throws</h5>
+      <table class="jd-tagtable">  
+        <tr>
+            <th><a href="../../../../../reference/com/google/android/exoplayer/ExoPlaybackException.html">ExoPlaybackException</a></td>
+            <td>If an error occurs reinitializing the <code><a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a></code>.
+</td>
         </tr>
       </table>
   </div>
@@ -2716,7 +3165,7 @@ From interface
         void
       </span>
       <span class="sympad">onOutputFormatChanged</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/android/media/MediaFormat.html">MediaFormat</a> format)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/android/media/MediaFormat.html"><?csvar:type.label ?></a> format)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -2725,6 +3174,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Invoked when the output format of the <code><a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a></code> changes.
  <p>
@@ -2767,6 +3219,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Called when the renderer is released.
  <p>
  The default implementation is a no-op.</p></div>
@@ -2797,6 +3252,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Called when the renderer is started.
  <p>
@@ -2829,6 +3287,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Called when the renderer is stopped.
  <p>
  The default implementation is a no-op.</p></div>
@@ -2837,7 +3298,7 @@ From interface
 </div>
 
 
-<A NAME="processOutputBuffer(long, android.media.MediaCodec, java.nio.ByteBuffer, android.media.MediaCodec.BufferInfo, int, boolean)"></A>
+<A NAME="processOutputBuffer(long, long, android.media.MediaCodec, java.nio.ByteBuffer, android.media.MediaCodec.BufferInfo, int, boolean)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -2850,7 +3311,7 @@ From interface
         boolean
       </span>
       <span class="sympad">processOutputBuffer</span>
-      <span class="normal">(long timeUs, <a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a> codec, <a href="http://developer.android.com/reference/java/nio/ByteBuffer.html">ByteBuffer</a> buffer, <a href="http://developer.android.com/reference/android/media/MediaCodec.BufferInfo.html">MediaCodec.BufferInfo</a> bufferInfo, int bufferIndex, boolean shouldSkip)</span>
+      <span class="normal">(long positionUs, long elapsedRealtimeUs, <a href="http://developer.android.com/reference/android/media/MediaCodec.html"><?csvar:type.label ?></a> codec, <a href="http://developer.android.com/reference/java/nio/ByteBuffer.html"><?csvar:type.label ?></a> buffer, <a href="http://developer.android.com/reference/android/media/MediaCodec.BufferInfo.html"><?csvar:type.label ?></a> bufferInfo, int bufferIndex, boolean shouldSkip)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -2859,6 +3320,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Processes the provided output buffer.</p></div>
   <div class="jd-tagdata">
@@ -2904,6 +3368,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
     </div>
@@ -2923,7 +3390,7 @@ From interface
         void
       </span>
       <span class="sympad">seekTo</span>
-      <span class="normal">(long timeUs)</span>
+      <span class="normal">(long positionUs)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -2933,6 +3400,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Seeks to a specified time in the track.
  <p>
  This method may be called when the renderer is in the following states:
@@ -2941,8 +3411,8 @@ From interface
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
         <tr>
-          <th>timeUs</td>
-          <td>The desired time in micro-seconds.</td>
+          <th>positionUs</td>
+          <td>The desired playback position in microseconds.</td>
         </tr>
       </table>
   </div>
@@ -2982,6 +3452,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 

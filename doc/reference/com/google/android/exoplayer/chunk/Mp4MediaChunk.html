@@ -75,6 +75,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <html>
 <head>
 
@@ -87,8 +103,10 @@
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
-href="http://fonts.googleapis.com/css?family=Roboto:regular,medium,thin,italic,mediumitalic,bold" title="roboto">
-<link href="../../../../../../assets/css/default.css" rel="stylesheet" type="text/css">
+href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
+  title="roboto">
+<link href="../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -104,29 +122,26 @@ type="text/css">
   var metaTags = [];
   var devsite = false;
 </script>
-<script src="../../../../../../assets/js/docs.js" type="text/javascript"></script>
+<script src="../../../../../../assets/js/docs.js?v=3" type="text/javascript"></script>
 
-<!-- RESOURCES LIBRARY -->
-<script src="http://androiddevdocs-staging.appspot.com/ytblogger_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../jd_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../assets/js/jd_tag_helpers.js" type="text/javascript"></script>
-<link href="../../../../../../assets/css/resourcecards.css"  rel="stylesheet" type="text/css" />
-<script src="../../../../../../assets/js/resourcecards.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-5831155-1']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-5831155-1', 'android.com');
+  ga('create', 'UA-49880327-2', 'android.com', {'name': 'universal'});  // New tracker);
+  ga('send', 'pageview');
+  ga('universal.send', 'pageview'); // Send page view for new tracker.
 </script>
+
 </head>
+
 <body class="gc-documentation 
-  develop" itemscope itemtype="http://schema.org/Article">
+  develop reference" itemscope itemtype="http://schema.org/Article">
   <div id="doc-api-level" class="" style="display:none"></div>
   <a name="top"></a>
 
@@ -153,6 +168,8 @@ type="text/css">
                 
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
     <li class="selected api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
@@ -173,6 +190,8 @@ type="text/css">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/webvtt/package-summary.html">com.google.android.exoplayer.text.webvtt</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
     <li class="api apilevel-">
@@ -212,6 +231,7 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a></li>
           <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html">Mp4MediaChunk</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MultiTrackChunkSource.html">MultiTrackChunkSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/SingleSampleChunkSource.html">SingleSampleChunkSource</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/SingleSampleMediaChunk.html">SingleSampleMediaChunk</a></li>
       </ul>
     </li>
@@ -373,6 +393,9 @@ Summary:
   
 
 
+    
+
+
 </div><!-- end header -->
 
 <div id="naMessage"></div>
@@ -508,7 +531,12 @@ Summary:
           final
           long</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html#endTimeUs">endTimeUs</a></td>
-          <td class="jd-descrcol" width="100%">The end time of the media contained by the chunk.</td>
+          <td class="jd-descrcol" width="100%">
+            The end time of the media contained by the chunk.
+            
+    
+
+          </td>
       </tr>
       
     
@@ -519,7 +547,12 @@ Summary:
           final
           int</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html#nextChunkIndex">nextChunkIndex</a></td>
-          <td class="jd-descrcol" width="100%">The index of the next media chunk, or -1 if this is the last media chunk in the stream.</td>
+          <td class="jd-descrcol" width="100%">
+            The index of the next media chunk, or -1 if this is the last media chunk in the stream.
+            
+    
+
+          </td>
       </tr>
       
     
@@ -530,7 +563,12 @@ Summary:
           final
           long</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html#startTimeUs">startTimeUs</a></td>
-          <td class="jd-descrcol" width="100%">The start time of the media contained by the chunk.</td>
+          <td class="jd-descrcol" width="100%">
+            The start time of the media contained by the chunk.
+            
+    
+
+          </td>
       </tr>
       
     
@@ -565,7 +603,12 @@ Summary:
           final
           <a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a></nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#format">format</a></td>
-          <td class="jd-descrcol" width="100%">The format associated with the data being loaded.</td>
+          <td class="jd-descrcol" width="100%">
+            The format associated with the data being loaded.
+            
+    
+
+          </td>
       </tr>
       
     
@@ -576,7 +619,12 @@ Summary:
           final
           int</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#trigger">trigger</a></td>
-          <td class="jd-descrcol" width="100%">The reason for a <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></code> having generated this chunk.</td>
+          <td class="jd-descrcol" width="100%">
+            The reason for a <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></code> having generated this chunk.
+            
+    
+
+          </td>
       </tr>
       
     
@@ -613,6 +661,32 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#Mp4MediaChunk(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSpec, com.google.android.exoplayer.chunk.Format, int, long, long, int, com.google.android.exoplayer.parser.Extractor, boolean, long)">Mp4MediaChunk</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a> dataSpec, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a> format, int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex, <a href="../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html">Extractor</a> extractor, boolean maybeSelfContained, long sampleOffsetUs)</nobr>
         
+        <div class="jd-descrdiv">
+          <em>
+      This constructor is deprecated.
+    Use the other constructor, passing null as <code>psshInfo</code>.
+</em>
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            </nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#Mp4MediaChunk(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSpec, com.google.android.exoplayer.chunk.Format, int, long, long, int, com.google.android.exoplayer.parser.Extractor, java.util.Map<java.util.UUID, byte[]>, boolean, long)">Mp4MediaChunk</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a> dataSpec, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a> format, int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex, <a href="../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html">Extractor</a> extractor, <a href="http://developer.android.com/reference/java/util/Map.html"><?csvar:type.label ?></a>&lt;<a href="http://developer.android.com/reference/java/util/UUID.html">UUID</a>,&nbsp;byte[]&gt; psshInfo, boolean maybeSelfContained, long sampleOffsetUs)</nobr>
+        
   </td></tr>
 
 
@@ -642,7 +716,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#getMediaFormat()">getMediaFormat</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns the media format of the samples contained within this chunk.</div>
+        <div class="jd-descrdiv">
+          Returns the media format of the samples contained within this chunk.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -660,7 +739,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#getPsshInfo()">getPsshInfo</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns the pssh information associated with the chunk.</div>
+        <div class="jd-descrdiv">
+          Returns the pssh information associated with the chunk.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -678,7 +762,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#prepare()">prepare</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Prepares the chunk for reading.</div>
+        <div class="jd-descrdiv">
+          Prepares the chunk for reading.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -696,7 +785,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#read(com.google.android.exoplayer.SampleHolder)">read</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> holder)</nobr>
         
-        <div class="jd-descrdiv">Reads the next media sample from the chunk.</div>
+        <div class="jd-descrdiv">
+          Reads the next media sample from the chunk.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -714,7 +808,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#sampleAvailable()">sampleAvailable</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns whether the next sample is available.</div>
+        <div class="jd-descrdiv">
+          Returns whether the next sample is available.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -732,7 +831,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#seekTo(long, boolean)">seekTo</a></span>(long positionUs, boolean allowNoop)</nobr>
         
-        <div class="jd-descrdiv">Seeks to the specified position within the chunk.</div>
+        <div class="jd-descrdiv">
+          Seeks to the specified position within the chunk.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -750,7 +854,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#seekToStart()">seekToStart</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Seeks to the beginning of the chunk.</div>
+        <div class="jd-descrdiv">
+          Seeks to the beginning of the chunk.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -802,7 +911,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html#getMediaFormat()">getMediaFormat</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns the media format of the samples contained within this chunk.</div>
+        <div class="jd-descrdiv">
+          Returns the media format of the samples contained within this chunk.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -820,7 +934,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html#getPsshInfo()">getPsshInfo</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns the pssh information associated with the chunk.</div>
+        <div class="jd-descrdiv">
+          Returns the pssh information associated with the chunk.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -838,7 +957,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html#isLastChunk()">isLastChunk</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Whether this is the last chunk in the stream.</div>
+        <div class="jd-descrdiv">
+          Whether this is the last chunk in the stream.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -856,7 +980,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html#prepare()">prepare</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Prepares the chunk for reading.</div>
+        <div class="jd-descrdiv">
+          Prepares the chunk for reading.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -874,7 +1003,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html#read(com.google.android.exoplayer.SampleHolder)">read</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> holder)</nobr>
         
-        <div class="jd-descrdiv">Reads the next media sample from the chunk.</div>
+        <div class="jd-descrdiv">
+          Reads the next media sample from the chunk.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -892,7 +1026,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html#sampleAvailable()">sampleAvailable</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns whether the next sample is available.</div>
+        <div class="jd-descrdiv">
+          Returns whether the next sample is available.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -910,7 +1049,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html#seekTo(long, boolean)">seekTo</a></span>(long positionUs, boolean allowNoop)</nobr>
         
-        <div class="jd-descrdiv">Seeks to the specified position within the chunk.</div>
+        <div class="jd-descrdiv">
+          Seeks to the specified position within the chunk.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -928,7 +1072,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html#seekToStart()">seekToStart</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Seeks to the beginning of the chunk.</div>
+        <div class="jd-descrdiv">
+          Seeks to the beginning of the chunk.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -972,7 +1121,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#bytesLoaded()">bytesLoaded</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Gets the number of bytes that have been loaded.</div>
+        <div class="jd-descrdiv">
+          Gets the number of bytes that have been loaded.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -990,7 +1144,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#cancelLoad()">cancelLoad</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Cancels the load.</div>
+        <div class="jd-descrdiv">
+          Cancels the load.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1008,7 +1167,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#consume()">consume</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Causes loaded data to be consumed.</div>
+        <div class="jd-descrdiv">
+          Causes loaded data to be consumed.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1026,7 +1190,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#consumeStream(com.google.android.exoplayer.upstream.NonBlockingInputStream)">consumeStream</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/NonBlockingInputStream.html">NonBlockingInputStream</a> stream)</nobr>
         
-        <div class="jd-descrdiv">Invoked by <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#consume()">consume()</a></code>.</div>
+        <div class="jd-descrdiv">
+          Invoked by <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#consume()">consume()</a></code>.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1044,31 +1213,18 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#getLength()">getLength</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Gets the length of the chunk in bytes.</div>
+        <div class="jd-descrdiv">
+          Gets the length of the chunk in bytes.
+          
+    
+
+        </div>
   
   </td></tr>
 
 
 	 
     <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            final
-            
-            
-            byte[]</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#getLoadedData()">getLoadedData</a></span>()</nobr>
-        
-        <div class="jd-descrdiv">Returns a byte array containing the loaded data.</div>
-  
-  </td></tr>
-
-
-	 
-    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1084,7 +1240,7 @@ From class
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1096,13 +1252,18 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#init(com.google.android.exoplayer.upstream.Allocator)">init</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Allocator.html">Allocator</a> allocator)</nobr>
         
-        <div class="jd-descrdiv">Initializes the <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></code>.</div>
+        <div class="jd-descrdiv">
+          Initializes the <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></code>.
+          
+    
+
+        </div>
   
   </td></tr>
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1114,13 +1275,18 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#isLoadCanceled()">isLoadCanceled</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Whether the load has been canceled.</div>
+        <div class="jd-descrdiv">
+          Whether the load has been canceled.
+          
+    
+
+        </div>
   
   </td></tr>
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1132,13 +1298,18 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#isLoadFinished()">isLoadFinished</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Whether the whole of the chunk has been loaded.</div>
+        <div class="jd-descrdiv">
+          Whether the whole of the chunk has been loaded.
+          
+    
+
+        </div>
   
   </td></tr>
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1150,25 +1321,12 @@ From class
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#isReadFinished()">isReadFinished</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Whether the whole of the data has been consumed.</div>
-  
-  </td></tr>
+        <div class="jd-descrdiv">
+          Whether the whole of the data has been consumed.
+          
+    
 
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            final
-            
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#load()">load</a></span>()</nobr>
-        
-        <div class="jd-descrdiv">Performs the load, returning on completion or cancelation.</div>
+        </div>
   
   </td></tr>
 
@@ -1184,15 +1342,43 @@ From class
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#release()">release</a></span>()</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#load()">load</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Releases the <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></code>, releasing any backing <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Allocation.html">Allocation</a></code>s.</div>
+        <div class="jd-descrdiv">
+          Performs the load, returning on completion or cancelation.
+          
+    
+
+        </div>
   
   </td></tr>
 
 
 	 
     <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html#release()">release</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Releases the <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></code>, releasing any backing <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Allocation.html">Allocation</a></code>s.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -1260,7 +1446,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
         
   </td></tr>
 
@@ -1448,7 +1634,12 @@ From interface
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html#cancelLoad()">cancelLoad</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Cancels the load.</div>
+        <div class="jd-descrdiv">
+          Cancels the load.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1466,7 +1657,12 @@ From interface
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html#isLoadCanceled()">isLoadCanceled</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Whether the load has been canceled.</div>
+        <div class="jd-descrdiv">
+          Whether the load has been canceled.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1484,7 +1680,12 @@ From interface
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html#load()">load</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Performs the load, returning on completion or cancelation.</div>
+        <div class="jd-descrdiv">
+          Performs the load, returning on completion or cancelation.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1552,6 +1753,46 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      <p>
+  <p class="caution"><strong>
+      This constructor is deprecated.</strong><br/>
+    Use the other constructor, passing null as <code>psshInfo</code>.
+
+  </p>
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+
+    </div>
+</div>
+
+
+<A NAME="Mp4MediaChunk(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSpec, com.google.android.exoplayer.chunk.Format, int, long, long, int, com.google.android.exoplayer.parser.Extractor, java.util.Map<java.util.UUID, byte[]>, boolean, long)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        
+      </span>
+      <span class="sympad">Mp4MediaChunk</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a> dataSpec, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a> format, int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex, <a href="../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html">Extractor</a> extractor, <a href="http://developer.android.com/reference/java/util/Map.html"><?csvar:type.label ?></a>&lt;<a href="http://developer.android.com/reference/java/util/UUID.html">UUID</a>,&nbsp;byte[]&gt; psshInfo, boolean maybeSelfContained, long sampleOffsetUs)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Parameters</h5>
@@ -1587,6 +1828,11 @@ From interface
         <tr>
           <th>extractor</td>
           <td>The extractor that will be used to extract the samples.</td>
+        </tr>
+        <tr>
+          <th>psshInfo</td>
+          <td>Pssh data. May be null if pssh data is present within the stream, meaning it
+     can be obtained directly from <code>extractor</code>, or if no pssh data is required.</td>
         </tr>
         <tr>
           <th>maybeSelfContained</td>
@@ -1645,6 +1891,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Returns the media format of the samples contained within this chunk.
  <p>
  Should only be called after the chunk has been successfully prepared.</p></div>
@@ -1681,6 +1930,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Returns the pssh information associated with the chunk.
  <p>
  Should only be called after the chunk has been successfully prepared.</p></div>
@@ -1716,6 +1968,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Prepares the chunk for reading. Does nothing if the chunk is already prepared.
  <p>
@@ -1762,6 +2017,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Reads the next media sample from the chunk.
  <p>
@@ -1816,6 +2074,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Returns whether the next sample is available.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
@@ -1857,6 +2118,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Seeks to the specified position within the chunk.</p></div>
   <div class="jd-tagdata">
@@ -1907,6 +2171,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Seeks to the beginning of the chunk.
 </p></div>

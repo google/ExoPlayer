@@ -75,6 +75,22 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <html>
 <head>
 
@@ -87,8 +103,10 @@
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
-href="http://fonts.googleapis.com/css?family=Roboto:regular,medium,thin,italic,mediumitalic,bold" title="roboto">
-<link href="../../../../../../../assets/css/default.css" rel="stylesheet" type="text/css">
+href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
+  title="roboto">
+<link href="../../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -104,29 +122,26 @@ type="text/css">
   var metaTags = [];
   var devsite = false;
 </script>
-<script src="../../../../../../../assets/js/docs.js" type="text/javascript"></script>
+<script src="../../../../../../../assets/js/docs.js?v=3" type="text/javascript"></script>
 
-<!-- RESOURCES LIBRARY -->
-<script src="http://androiddevdocs-staging.appspot.com/ytblogger_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../../jd_lists_unified.js" type="text/javascript"></script>
-<script src="../../../../../../../assets/js/jd_tag_helpers.js" type="text/javascript"></script>
-<link href="../../../../../../../assets/css/resourcecards.css"  rel="stylesheet" type="text/css" />
-<script src="../../../../../../../assets/js/resourcecards.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-5831155-1']);
-  _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-5831155-1', 'android.com');
+  ga('create', 'UA-49880327-2', 'android.com', {'name': 'universal'});  // New tracker);
+  ga('send', 'pageview');
+  ga('universal.send', 'pageview'); // Send page view for new tracker.
 </script>
+
 </head>
+
 <body class="gc-documentation 
-  develop" itemscope itemtype="http://schema.org/Article">
+  develop reference" itemscope itemtype="http://schema.org/Article">
   <div id="doc-api-level" class="" style="display:none"></div>
   <a name="top"></a>
 
@@ -154,6 +169,8 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
@@ -173,6 +190,8 @@ type="text/css">
   <a href="../../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/text/webvtt/package-summary.html">com.google.android.exoplayer.text.webvtt</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
     <li class="api apilevel-">
@@ -340,6 +359,9 @@ Summary:
   
 
 
+    
+
+
 </div><!-- end header -->
 
 <div id="naMessage"></div>
@@ -425,7 +447,12 @@ Summary:
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME">WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME</a></td>
-        <td class="jd-descrcol" width="100%">Flag to work around an issue in some video streams where every frame is marked as a sync frame.</td>
+        <td class="jd-descrcol" width="100%">
+          Flag to work around an issue in some video streams where every frame is marked as a sync frame.
+          
+    
+
+        </td>
     </tr>
     
     
@@ -464,42 +491,72 @@ Summary:
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html#RESULT_END_OF_STREAM">RESULT_END_OF_STREAM</a></td>
-        <td class="jd-descrcol" width="100%">The end of the input stream was reached.</td>
+        <td class="jd-descrcol" width="100%">
+          The end of the input stream was reached.
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class=" api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html#RESULT_NEED_MORE_DATA">RESULT_NEED_MORE_DATA</a></td>
-        <td class="jd-descrcol" width="100%">An attempt to read from the input stream returned insufficient data.</td>
+        <td class="jd-descrcol" width="100%">
+          An attempt to read from the input stream returned insufficient data.
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html#RESULT_NEED_SAMPLE_HOLDER">RESULT_NEED_SAMPLE_HOLDER</a></td>
-        <td class="jd-descrcol" width="100%">The next thing to be read is a sample, but a <code><a href="../../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a></code> was not supplied.</td>
+        <td class="jd-descrcol" width="100%">
+          The next thing to be read is a sample, but a <code><a href="../../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a></code> was not supplied.
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class=" api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html#RESULT_READ_INDEX">RESULT_READ_INDEX</a></td>
-        <td class="jd-descrcol" width="100%">A sidx atom was read.</td>
+        <td class="jd-descrcol" width="100%">
+          A sidx atom was read.
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html#RESULT_READ_INIT">RESULT_READ_INIT</a></td>
-        <td class="jd-descrcol" width="100%">Initialization data was read.</td>
+        <td class="jd-descrcol" width="100%">
+          Initialization data was read.
+          
+    
+
+        </td>
     </tr>
     
     
     <tr class=" api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html#RESULT_READ_SAMPLE">RESULT_READ_SAMPLE</a></td>
-        <td class="jd-descrcol" width="100%">A media sample was read.</td>
+        <td class="jd-descrcol" width="100%">
+          A media sample was read.
+          
+    
+
+        </td>
     </tr>
     
     
@@ -582,7 +639,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#getFormat()">getFormat</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns the format of the samples contained within the media stream.</div>
+        <div class="jd-descrdiv">
+          Returns the format of the samples contained within the media stream.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -600,7 +662,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#getIndex()">getIndex</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns the segment index parsed from the stream.</div>
+        <div class="jd-descrdiv">
+          Returns the segment index parsed from the stream.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -618,7 +685,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#getPsshInfo()">getPsshInfo</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns the pssh information parsed from the stream.</div>
+        <div class="jd-descrdiv">
+          Returns the pssh information parsed from the stream.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -636,33 +708,19 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#hasRelativeIndexOffsets()">hasRelativeIndexOffsets</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns true if the offsets in the index returned by <code><a href="../../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html#getIndex()">getIndex()</a></code> are relative to the
- first byte following the initialization data, or false if they are absolute (i.e.</div>
+        <div class="jd-descrdiv">
+          Returns true if the offsets in the index returned by <code><a href="../../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html#getIndex()">getIndex()</a></code> are relative to the
+ first byte following the initialization data, or false if they are absolute (i.e.
+          
+    
+
+        </div>
   
   </td></tr>
 
 
 	 
     <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#putPsshInfo(java.util.UUID, byte[])">putPsshInfo</a></span>(<a href="http://developer.android.com/reference/java/util/UUID.html">UUID</a> uuid, byte[] data)</nobr>
-        
-        <div class="jd-descrdiv">Sideloads pssh information into the extractor, so that it can be read through
- <code><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#getPsshInfo()">getPsshInfo()</a></code>.</div>
-  
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -674,25 +732,12 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#read(com.google.android.exoplayer.upstream.NonBlockingInputStream, com.google.android.exoplayer.SampleHolder)">read</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/NonBlockingInputStream.html">NonBlockingInputStream</a> inputStream, <a href="../../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> out)</nobr>
         
-        <div class="jd-descrdiv">Consumes data from a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/NonBlockingInputStream.html">NonBlockingInputStream</a></code>.</div>
-  
-  </td></tr>
+        <div class="jd-descrdiv">
+          Consumes data from a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/NonBlockingInputStream.html">NonBlockingInputStream</a></code>.
+          
+    
 
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            
-            
-            boolean</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#seekTo(long, boolean)">seekTo</a></span>(long seekTimeUs, boolean allowNoop)</nobr>
-        
-        <div class="jd-descrdiv">Seeks to a position before or equal to the requested time.</div>
+        </div>
   
   </td></tr>
 
@@ -705,12 +750,40 @@ Summary:
             
             
             
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#seekTo(long, boolean)">seekTo</a></span>(long seekTimeUs, boolean allowNoop)</nobr>
+        
+        <div class="jd-descrdiv">
+          Seeks to a position before or equal to the requested time.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#setTrack(com.google.android.exoplayer.parser.mp4.Track)">setTrack</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/Track.html">Track</a> track)</nobr>
         
-        <div class="jd-descrdiv">Sideloads track information into the extractor.</div>
+        <div class="jd-descrdiv">
+          Sideloads track information into the extractor.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -776,7 +849,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
         
   </td></tr>
 
@@ -964,7 +1037,12 @@ From interface
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html#getFormat()">getFormat</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns the format of the samples contained within the media stream.</div>
+        <div class="jd-descrdiv">
+          Returns the format of the samples contained within the media stream.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -982,7 +1060,12 @@ From interface
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html#getIndex()">getIndex</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns the segment index parsed from the stream.</div>
+        <div class="jd-descrdiv">
+          Returns the segment index parsed from the stream.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1000,7 +1083,12 @@ From interface
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html#getPsshInfo()">getPsshInfo</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns the pssh information parsed from the stream.</div>
+        <div class="jd-descrdiv">
+          Returns the pssh information parsed from the stream.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1018,8 +1106,13 @@ From interface
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html#hasRelativeIndexOffsets()">hasRelativeIndexOffsets</a></span>()</nobr>
         
-        <div class="jd-descrdiv">Returns true if the offsets in the index returned by <code><a href="../../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html#getIndex()">getIndex()</a></code> are relative to the
- first byte following the initialization data, or false if they are absolute (i.e.</div>
+        <div class="jd-descrdiv">
+          Returns true if the offsets in the index returned by <code><a href="../../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html#getIndex()">getIndex()</a></code> are relative to the
+ first byte following the initialization data, or false if they are absolute (i.e.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1037,7 +1130,12 @@ From interface
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html#read(com.google.android.exoplayer.upstream.NonBlockingInputStream, com.google.android.exoplayer.SampleHolder)">read</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/upstream/NonBlockingInputStream.html">NonBlockingInputStream</a> inputStream, <a href="../../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> out)</nobr>
         
-        <div class="jd-descrdiv">Consumes data from a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/NonBlockingInputStream.html">NonBlockingInputStream</a></code>.</div>
+        <div class="jd-descrdiv">
+          Consumes data from a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/NonBlockingInputStream.html">NonBlockingInputStream</a></code>.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1055,7 +1153,12 @@ From interface
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html#seekTo(long, boolean)">seekTo</a></span>(long seekTimeUs, boolean allowNoop)</nobr>
         
-        <div class="jd-descrdiv">Seeks to a position before or equal to the requested time.</div>
+        <div class="jd-descrdiv">
+          Seeks to a position before or equal to the requested time.
+          
+    
+
+        </div>
   
   </td></tr>
 
@@ -1115,6 +1218,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Flag to work around an issue in some video streams where every frame is marked as a sync frame.
  The workaround overrides the sync frame flags in the stream, forcing them to false except for
  the first sample in each segment.
@@ -1173,6 +1279,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
     </div>
@@ -1201,6 +1310,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
   <div class="jd-tagdata">
@@ -1257,6 +1369,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Returns the format of the samples contained within the media stream.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
@@ -1291,6 +1406,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Returns the segment index parsed from the stream.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
@@ -1324,6 +1442,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Returns the pssh information parsed from the stream.</p></div>
   <div class="jd-tagdata">
@@ -1360,6 +1481,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Returns true if the offsets in the index returned by <code><a href="../../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html#getIndex()">getIndex()</a></code> are relative to the
  first byte following the initialization data, or false if they are absolute (i.e. relative to
  the first byte of the stream).</p></div>
@@ -1368,50 +1492,6 @@ From interface
       <ul class="nolist"><li>True if the offsets are relative to the first byte following the initialization data.
      False otherwise.
 </li></ul>
-  </div>
-
-    </div>
-</div>
-
-
-<A NAME="putPsshInfo(java.util.UUID, byte[])"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-         
-         
-         
-        void
-      </span>
-      <span class="sympad">putPsshInfo</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/util/UUID.html">UUID</a> uuid, byte[] data)</span>
-    </h4>
-      <div class="api-level">
-        <div></div>
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-  <div class="jd-tagdata jd-tagdescr"><p>Sideloads pssh information into the extractor, so that it can be read through
- <code><a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/FragmentedMp4Extractor.html#getPsshInfo()">getPsshInfo()</a></code>.</p></div>
-  <div class="jd-tagdata">
-      <h5 class="jd-tagtitle">Parameters</h5>
-      <table class="jd-tagtable">
-        <tr>
-          <th>uuid</td>
-          <td>The UUID of the scheme for which information is being sideloaded.</td>
-        </tr>
-        <tr>
-          <th>data</td>
-          <td>The corresponding data.
-</td>
-        </tr>
-      </table>
   </div>
 
     </div>
@@ -1440,6 +1520,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Consumes data from a <code><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/NonBlockingInputStream.html">NonBlockingInputStream</a></code>.
  <p>
@@ -1501,6 +1584,9 @@ From interface
       </div>
     <div class="jd-details-descr">
       
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p>Seeks to a position before or equal to the requested time.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Parameters</h5>
@@ -1549,6 +1635,9 @@ From interface
 
       </div>
     <div class="jd-details-descr">
+      
+    
+
       
   <div class="jd-tagdata jd-tagdescr"><p>Sideloads track information into the extractor.</p></div>
   <div class="jd-tagdata">
