@@ -448,12 +448,14 @@ public final class TsExtractor {
     private void readPacketStart() {
       int startCodePrefix = pesBuffer.readBits(24);
       if (startCodePrefix != 0x000001) {
-        // Error.
+        Log.e(TAG, "Unexpected start code prefix: " + startCodePrefix);
+        pesBuffer.reset();
+        packetLength = -1;
+      } else {
+        // TODO: Read and use stream_id.
+        pesBuffer.skipBits(8); // Skip stream_id.
+        packetLength = pesBuffer.readBits(16);
       }
-      // TODO: Read and use stream_id.
-      // Skip stream_id.
-      pesBuffer.skipBits(8);
-      packetLength = pesBuffer.readBits(16);
     }
 
     private void readPacketBody() {
