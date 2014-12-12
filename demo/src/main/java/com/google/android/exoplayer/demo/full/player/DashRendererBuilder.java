@@ -144,8 +144,8 @@ public class DashRendererBuilder implements RendererBuilder,
     DrmSessionManager drmSessionManager = null;
     if (hasContentProtection) {
       if (Util.SDK_INT < 18) {
-        callback.onRenderersError(new UnsupportedOperationException(
-            "Protected content not supported on API level " + Util.SDK_INT));
+        callback.onRenderersError(
+            new UnsupportedDrmException(UnsupportedDrmException.REASON_NO_DRM));
         return;
       }
       try {
@@ -155,8 +155,12 @@ public class DashRendererBuilder implements RendererBuilder,
         // HD streams require L1 security.
         filterHdContent = videoAdaptationSet != null && videoAdaptationSet.hasContentProtection()
             && !drmSessionManagerData.second;
+      } catch (UnsupportedSchemeException e) {
+        callback.onRenderersError(
+            new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME, e));
       } catch (Exception e) {
-        callback.onRenderersError(e);
+        callback.onRenderersError(
+            new UnsupportedDrmException(UnsupportedDrmException.REASON_UNKNOWN, e));
         return;
       }
     }

@@ -24,6 +24,7 @@ import com.google.android.exoplayer.demo.full.player.DefaultRendererBuilder;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.full.player.SmoothStreamingRendererBuilder;
+import com.google.android.exoplayer.demo.full.player.UnsupportedDrmException;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.SubtitleView;
 import com.google.android.exoplayer.util.Util;
@@ -52,6 +53,7 @@ import android.widget.MediaController;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * An activity that plays media using {@link DemoPlayer}.
@@ -256,6 +258,16 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
 
   @Override
   public void onError(Exception e) {
+    if (e instanceof UnsupportedDrmException) {
+      // Special case DRM failures.
+      UnsupportedDrmException unsupportedDrmException = (UnsupportedDrmException) e;
+      int stringId = unsupportedDrmException.reason == UnsupportedDrmException.REASON_NO_DRM
+          ? R.string.drm_error_not_supported
+          : unsupportedDrmException.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
+          ? R.string.drm_error_unsupported_scheme
+          : R.string.drm_error_unknown;
+      Toast.makeText(getApplicationContext(), stringId, Toast.LENGTH_LONG).show();
+    }
     playerNeedsPrepare = true;
     updateButtonVisibilities();
     showControls();

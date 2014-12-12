@@ -111,15 +111,19 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     DrmSessionManager drmSessionManager = null;
     if (manifest.protectionElement != null) {
       if (Util.SDK_INT < 18) {
-        callback.onRenderersError(new UnsupportedOperationException(
-            "Protected content not supported on API level " + Util.SDK_INT));
+        callback.onRenderersError(
+            new UnsupportedDrmException(UnsupportedDrmException.REASON_NO_DRM));
         return;
       }
       try {
         drmSessionManager = V18Compat.getDrmSessionManager(manifest.protectionElement.uuid, player,
             drmCallback);
+      } catch (UnsupportedSchemeException e) {
+        callback.onRenderersError(
+            new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME, e));
       } catch (Exception e) {
-        callback.onRenderersError(e);
+        callback.onRenderersError(
+            new UnsupportedDrmException(UnsupportedDrmException.REASON_UNKNOWN, e));
         return;
       }
     }
