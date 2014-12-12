@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.demo.full.player;
 
+import com.google.android.exoplayer.Ac3PassthroughAudioTrackRenderer;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
@@ -22,6 +23,7 @@ import com.google.android.exoplayer.MediaCodecUtil;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSource;
 import com.google.android.exoplayer.chunk.Format;
@@ -84,18 +86,20 @@ public class DashRendererBuilder implements RendererBuilder,
   private final String contentId;
   private final MediaDrmCallback drmCallback;
   private final TextView debugTextView;
+  private final AudioCapabilities audioCapabilities;
 
   private DemoPlayer player;
   private RendererBuilderCallback callback;
   private ManifestFetcher<MediaPresentationDescription> manifestFetcher;
 
   public DashRendererBuilder(String userAgent, String url, String contentId,
-      MediaDrmCallback drmCallback, TextView debugTextView) {
+      MediaDrmCallback drmCallback, TextView debugTextView, AudioCapabilities audioCapabilities) {
     this.userAgent = userAgent;
     this.url = url;
     this.contentId = contentId;
     this.drmCallback = drmCallback;
     this.debugTextView = debugTextView;
+    this.audioCapabilities = audioCapabilities;
   }
 
   @Override
@@ -208,6 +212,7 @@ public class DashRendererBuilder implements RendererBuilder,
     }
 
     // Build the audio chunk sources.
+    boolean haveAc3Tracks = false;
     List<ChunkSource> audioChunkSourceList = new ArrayList<ChunkSource>();
     List<String> audioTrackNameList = new ArrayList<String>();
     if (audioAdaptationSet != null) {
@@ -220,6 +225,19 @@ public class DashRendererBuilder implements RendererBuilder,
             format.audioSamplingRate + "Hz)");
         audioChunkSourceList.add(new DashChunkSource(manifestFetcher, audioAdaptationSetIndex,
             new int[] {i}, audioDataSource, audioEvaluator, LIVE_EDGE_LATENCY_MS));
+        haveAc3Tracks |= format.mimeType.equals(MimeTypes.AUDIO_AC3)
+            || format.mimeType.equals(MimeTypes.AUDIO_EC3);
+      }
+      // Filter out non-AC-3 tracks if there is an AC-3 track, to avoid having to switch renderers.
+      if (haveAc3Tracks) {
+        for (int i = audioRepresentations.size() - 1; i >= 0; i--) {
+          Format format = audioRepresentations.get(i).format;
+          if (!format.mimeType.equals(MimeTypes.AUDIO_AC3)
+              && !format.mimeType.equals(MimeTypes.AUDIO_EC3)) {
+            audioTrackNameList.remove(i);
+            audioChunkSourceList.remove(i);
+          }
+        }
       }
     }
 
@@ -238,8 +256,16 @@ public class DashRendererBuilder implements RendererBuilder,
       SampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
           AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
           DemoPlayer.TYPE_AUDIO);
-      audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource, drmSessionManager, true,
-          mainHandler, player);
+      // TODO: There needs to be some logic to filter out non-AC3 tracks when selecting to use AC3.
+      boolean useAc3Passthrough = haveAc3Tracks && audioCapabilities != null
+          && (audioCapabilities.supportsAc3() || audioCapabilities.supportsEAc3());
+      if (useAc3Passthrough) {
+        audioRenderer =
+            new Ac3PassthroughAudioTrackRenderer(audioSampleSource, mainHandler, player);
+      } else {
+        audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource, drmSessionManager, true,
+            mainHandler, player);
+      }
     }
 
     // Build the text chunk sources.
