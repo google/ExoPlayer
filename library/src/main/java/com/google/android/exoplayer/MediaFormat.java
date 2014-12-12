@@ -87,6 +87,14 @@ public class MediaFormat {
         sampleRate, bitrate, initializationData);
   }
 
+  public static MediaFormat createId3Format() {
+    return createFormatForMimeType(MimeTypes.APPLICATION_ID3);
+  }
+
+  public static MediaFormat createEia608Format() {
+    return createFormatForMimeType(MimeTypes.APPLICATION_EIA608);
+  }
+
   public static MediaFormat createTtmlFormat() {
     return createFormatForMimeType(MimeTypes.APPLICATION_TTML);
   }

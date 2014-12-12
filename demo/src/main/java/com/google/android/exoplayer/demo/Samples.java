@@ -52,6 +52,9 @@ package com.google.android.exoplayer.demo;
     new Sample("Super speed (SmoothStreaming)", "uid:ss:superspeed",
         "http://playready.directtaps.net/smoothstreaming/SSWSS720H264/SuperSpeedway_720.ism",
         DemoUtil.TYPE_SS, false),
+    new Sample("Apple master playlist (HLS)", "uid:hls:applemaster",
+        "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/"
+        + "bipbop_4x3_variant.m3u8", DemoUtil.TYPE_HLS, false),
     new Sample("Dizzy (Misc)", "uid:misc:dizzy",
         "http://html5demos.com/assets/dizzy.mp4", DemoUtil.TYPE_OTHER, false),
   };
@@ -122,6 +125,18 @@ package com.google.android.exoplayer.demo;
         + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
         + "&expire=19000000000&signature=88DC53943385CED8CF9F37ADD9E9843E3BF621E6."
         + "22727BB612D24AA4FACE4EF62726F9461A9BF57A&key=ik0", DemoUtil.TYPE_DASH, true),
+  };
+
+  public static final Sample[] HLS = new Sample[] {
+    new Sample("Apple master playlist", "uid:hls:applemaster",
+        "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/"
+        + "bipbop_4x3_variant.m3u8", DemoUtil.TYPE_HLS, true),
+    new Sample("Apple master playlist advanced", "uid:hls:applemasteradvanced",
+        "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/"
+        + "bipbop_16x9_variant.m3u8", DemoUtil.TYPE_HLS, true),
+    new Sample("Apple single media playlist", "uid:hls:applesinglemedia",
+        "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/"
+        + "prog_index.m3u8", DemoUtil.TYPE_HLS, true),
   };
 
   public static final Sample[] MISC = new Sample[] {
