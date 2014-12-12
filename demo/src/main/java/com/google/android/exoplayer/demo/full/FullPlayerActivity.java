@@ -17,6 +17,8 @@ package com.google.android.exoplayer.demo.full;
 
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.VideoSurfaceView;
+import com.google.android.exoplayer.audio.AudioCapabilities;
+import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
 import com.google.android.exoplayer.demo.DemoUtil;
 import com.google.android.exoplayer.demo.R;
 import com.google.android.exoplayer.demo.full.player.DashRendererBuilder;
@@ -25,6 +27,7 @@ import com.google.android.exoplayer.demo.full.player.DemoPlayer;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.full.player.HlsRendererBuilder;
 import com.google.android.exoplayer.demo.full.player.SmoothStreamingRendererBuilder;
+import com.google.android.exoplayer.demo.full.player.UnsupportedDrmException;
 import com.google.android.exoplayer.metadata.TxxxMetadata;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.SubtitleView;
@@ -55,6 +58,7 @@ import android.widget.MediaController;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Map;
 
@@ -62,7 +66,8 @@ import java.util.Map;
  * An activity that plays media using {@link DemoPlayer}.
  */
 public class FullPlayerActivity extends Activity implements SurfaceHolder.Callback, OnClickListener,
-    DemoPlayer.Listener, DemoPlayer.TextListener, DemoPlayer.Id3MetadataListener {
+    DemoPlayer.Listener, DemoPlayer.TextListener, DemoPlayer.Id3MetadataListener,
+    AudioCapabilitiesReceiver.Listener {
 
   private static final String TAG = "FullPlayerActivity";
 
@@ -94,6 +99,9 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
   private int contentType;
   private String contentId;
 
+  private AudioCapabilitiesReceiver audioCapabilitiesReceiver;
+  private AudioCapabilities audioCapabilities;
+
   // Activity lifecycle
 
   @Override
@@ -116,6 +124,8 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
         return true;
       }
     });
+
+    audioCapabilitiesReceiver = new AudioCapabilitiesReceiver(getApplicationContext(), this);
 
     shutterView = findViewById(R.id.shutter);
     debugRootView = findViewById(R.id.controls_root);
@@ -142,7 +152,9 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
   public void onResume() {
     super.onResume();
     configureSubtitleView();
-    preparePlayer();
+
+    // The player will be prepared on receiving audio capabilities.
+    audioCapabilitiesReceiver.register();
   }
 
   @Override
@@ -153,6 +165,8 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
     } else {
       player.blockingClearSurface();
     }
+
+    audioCapabilitiesReceiver.unregister();
   }
 
   @Override
@@ -171,6 +185,17 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
     }
   }
 
+  // AudioCapabilitiesReceiver.Listener methods
+
+  @Override
+  public void onAudioCapabilitiesChanged(AudioCapabilities audioCapabilities) {
+    this.audioCapabilities = audioCapabilities;
+    releasePlayer();
+
+    autoPlay = true;
+    preparePlayer();
+  }
+
   // Internal methods
 
   private RendererBuilder getRendererBuilder() {
@@ -181,7 +206,7 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
             new SmoothStreamingTestMediaDrmCallback(), debugTextView);
       case DemoUtil.TYPE_DASH:
         return new DashRendererBuilder(userAgent, contentUri.toString(), contentId,
-            new WidevineTestMediaDrmCallback(contentId), debugTextView);
+            new WidevineTestMediaDrmCallback(contentId), debugTextView, audioCapabilities);
       case DemoUtil.TYPE_HLS:
         return new HlsRendererBuilder(userAgent, contentUri.toString(), contentId);
       default:
@@ -266,6 +291,16 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
 
   @Override
   public void onError(Exception e) {
+    if (e instanceof UnsupportedDrmException) {
+      // Special case DRM failures.
+      UnsupportedDrmException unsupportedDrmException = (UnsupportedDrmException) e;
+      int stringId = unsupportedDrmException.reason == UnsupportedDrmException.REASON_NO_DRM
+          ? R.string.drm_error_not_supported
+          : unsupportedDrmException.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
+          ? R.string.drm_error_unsupported_scheme
+          : R.string.drm_error_unknown;
+      Toast.makeText(getApplicationContext(), stringId, Toast.LENGTH_LONG).show();
+    }
     playerNeedsPrepare = true;
     updateButtonVisibilities();
     showControls();

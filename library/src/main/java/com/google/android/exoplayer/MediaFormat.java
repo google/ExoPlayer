@@ -88,13 +88,20 @@ public class MediaFormat {
   }
 
   public static MediaFormat createId3Format() {
-    return new MediaFormat(MimeTypes.APPLICATION_ID3, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, null);
+    return createFormatForMimeType(MimeTypes.APPLICATION_ID3);
   }
 
   public static MediaFormat createEia608Format() {
-    return new MediaFormat(MimeTypes.APPLICATION_EIA608, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, null);
+    return createFormatForMimeType(MimeTypes.APPLICATION_EIA608);
+  }
+
+  public static MediaFormat createTtmlFormat() {
+    return createFormatForMimeType(MimeTypes.APPLICATION_TTML);
+  }
+
+  public static MediaFormat createFormatForMimeType(String mimeType) {
+    return new MediaFormat(mimeType, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
+        NO_VALUE, null);
   }
 
   @TargetApi(16)

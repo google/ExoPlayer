@@ -358,8 +358,9 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       MediaFormat format = MediaFormat.createAudioFormat(mimeType, -1, trackElement.numChannels,
           trackElement.sampleRate, csd);
       return format;
+    } else if (streamElement.type == StreamElement.TYPE_TEXT) {
+      return MediaFormat.createFormatForMimeType(streamElement.tracks[trackIndex].mimeType);
     }
-    // TODO: Do subtitles need a format? MediaFormat supports KEY_LANGUAGE.
     return null;
   }
 

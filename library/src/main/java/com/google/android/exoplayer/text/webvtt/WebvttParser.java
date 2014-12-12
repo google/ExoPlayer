@@ -32,7 +32,6 @@ import java.util.regex.Pattern;
  * A simple WebVTT parser.
  * <p>
  * @see <a href="http://dev.w3.org/html5/webvtt">WebVTT specification</a>
- * <p>
  */
 public class WebvttParser implements SubtitleParser {
 

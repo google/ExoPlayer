@@ -58,8 +58,9 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   private final TextRenderer textRenderer;
   private final SampleSource source;
   private final MediaFormatHolder formatHolder;
-  private final SubtitleParser subtitleParser;
+  private final SubtitleParser[] subtitleParsers;
 
+  private int parserIndex;
   private int trackIndex;
 
   private long currentPositionUs;
@@ -73,21 +74,22 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
 
   /**
    * @param source A source from which samples containing subtitle data can be read.
-   * @param subtitleParser A subtitle parser that will parse Subtitle objects from the source.
    * @param textRenderer The text renderer.
    * @param textRendererLooper The looper associated with the thread on which textRenderer should be
    *     invoked. If the renderer makes use of standard Android UI components, then this should
    *     normally be the looper associated with the applications' main thread, which can be
    *     obtained using {@link android.app.Activity#getMainLooper()}. Null may be passed if the
    *     renderer should be invoked directly on the player's internal rendering thread.
+   * @param subtitleParsers An array of available subtitle parsers. Where multiple parsers are able
+   *     to render a subtitle, the one with the lowest index will be preferred.
    */
-  public TextTrackRenderer(SampleSource source, SubtitleParser subtitleParser,
-      TextRenderer textRenderer, Looper textRendererLooper) {
+  public TextTrackRenderer(SampleSource source, TextRenderer textRenderer,
+      Looper textRendererLooper, SubtitleParser... subtitleParsers) {
     this.source = Assertions.checkNotNull(source);
-    this.subtitleParser = Assertions.checkNotNull(subtitleParser);
     this.textRenderer = Assertions.checkNotNull(textRenderer);
-    this.textRendererHandler = textRendererLooper == null ? null : new Handler(textRendererLooper,
-        this);
+    this.textRendererHandler = textRendererLooper == null ? null
+        : new Handler(textRendererLooper, this);
+    this.subtitleParsers = Assertions.checkNotNull(subtitleParsers);
     formatHolder = new MediaFormatHolder();
   }
 
@@ -101,10 +103,13 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
     } catch (IOException e) {
       throw new ExoPlaybackException(e);
     }
-    for (int i = 0; i < source.getTrackCount(); i++) {
-      if (subtitleParser.canParse(source.getTrackInfo(i).mimeType)) {
-        trackIndex = i;
-        return TrackRenderer.STATE_PREPARED;
+    for (int i = 0; i < subtitleParsers.length; i++) {
+      for (int j = 0; j < source.getTrackCount(); j++) {
+        if (subtitleParsers[i].canParse(source.getTrackInfo(j).mimeType)) {
+          parserIndex = i;
+          trackIndex = j;
+          return TrackRenderer.STATE_PREPARED;
+        }
       }
     }
     return TrackRenderer.STATE_IGNORE;
@@ -115,7 +120,7 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
     source.enable(trackIndex, positionUs);
     parserThread = new HandlerThread("textParser");
     parserThread.start();
-    parserHelper = new SubtitleParserHelper(parserThread.getLooper(), subtitleParser);
+    parserHelper = new SubtitleParserHelper(parserThread.getLooper(), subtitleParsers[parserIndex]);
     seekToInternal(positionUs);
   }
 
@@ -189,6 +194,7 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
         int result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
         if (result == SampleSource.SAMPLE_READ) {
           parserHelper.startParseOperation();
+          textRendererNeedsUpdate = false;
         } else if (result == SampleSource.END_OF_STREAM) {
           inputStreamEnded = true;
         }

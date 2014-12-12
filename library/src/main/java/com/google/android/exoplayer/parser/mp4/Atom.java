@@ -58,6 +58,7 @@ import java.util.ArrayList;
   public static final int TYPE_uuid = 0x75756964;
   public static final int TYPE_senc = 0x73656E63;
   public static final int TYPE_pasp = 0x70617370;
+  public static final int TYPE_TTML = 0x54544D4C;
 
   public final int type;
 

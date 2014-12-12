@@ -428,7 +428,8 @@ public final class FragmentedMp4Extractor implements Extractor {
   private static Track parseTrak(ContainerAtom trak) {
     ContainerAtom mdia = trak.getContainerAtomOfType(Atom.TYPE_mdia);
     int trackType = parseHdlr(mdia.getLeafAtomOfType(Atom.TYPE_hdlr).data);
-    Assertions.checkState(trackType == Track.TYPE_AUDIO || trackType == Track.TYPE_VIDEO);
+    Assertions.checkState(trackType == Track.TYPE_AUDIO || trackType == Track.TYPE_VIDEO
+        || trackType == Track.TYPE_TEXT);
 
     Pair<Integer, Long> header = parseTkhd(trak.getLeafAtomOfType(Atom.TYPE_tkhd).data);
     int id = header.first;
@@ -528,6 +529,8 @@ public final class FragmentedMp4Extractor implements Extractor {
             parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize);
         mediaFormat = audioSampleEntry.first;
         trackEncryptionBoxes[i] = audioSampleEntry.second;
+      } else if (childAtomType == Atom.TYPE_TTML) {
+        mediaFormat = MediaFormat.createTtmlFormat();
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
