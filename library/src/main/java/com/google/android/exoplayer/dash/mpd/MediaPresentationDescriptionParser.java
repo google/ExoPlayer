@@ -356,7 +356,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   }
 
   protected SegmentList parseSegmentList(XmlPullParser xpp, Uri baseUrl, SegmentList parent,
-      long periodDuration) throws XmlPullParserException, IOException {
+      long periodDurationMs) throws XmlPullParserException, IOException {
 
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
     long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
@@ -388,19 +388,19 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       segments = segments != null ? segments : parent.mediaSegments;
     }
 
-    return buildSegmentList(initialization, timescale, presentationTimeOffset, periodDuration,
+    return buildSegmentList(initialization, timescale, presentationTimeOffset, periodDurationMs,
         startNumber, duration, timeline, segments);
   }
 
   protected SegmentList buildSegmentList(RangedUri initialization, long timescale,
-      long presentationTimeOffset, long periodDuration, int startNumber, long duration,
+      long presentationTimeOffset, long periodDurationMs, int startNumber, long duration,
       List<SegmentTimelineElement> timeline, List<RangedUri> segments) {
-    return new SegmentList(initialization, timescale, presentationTimeOffset, periodDuration,
+    return new SegmentList(initialization, timescale, presentationTimeOffset, periodDurationMs,
         startNumber, duration, timeline, segments);
   }
 
   protected SegmentTemplate parseSegmentTemplate(XmlPullParser xpp, Uri baseUrl,
-      SegmentTemplate parent, long periodDuration) throws XmlPullParserException, IOException {
+      SegmentTemplate parent, long periodDurationMs) throws XmlPullParserException, IOException {
 
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
     long presentationTimeOffset = parseLong(xpp, "presentationTimeOffset",
@@ -429,15 +429,15 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       timeline = timeline != null ? timeline : parent.segmentTimeline;
     }
 
-    return buildSegmentTemplate(initialization, timescale, presentationTimeOffset, periodDuration,
+    return buildSegmentTemplate(initialization, timescale, presentationTimeOffset, periodDurationMs,
         startNumber, duration, timeline, initializationTemplate, mediaTemplate, baseUrl);
   }
 
   protected SegmentTemplate buildSegmentTemplate(RangedUri initialization, long timescale,
-      long presentationTimeOffset, long periodDuration, int startNumber, long duration,
+      long presentationTimeOffset, long periodDurationMs, int startNumber, long duration,
       List<SegmentTimelineElement> timeline, UrlTemplate initializationTemplate,
       UrlTemplate mediaTemplate, Uri baseUrl) {
-    return new SegmentTemplate(initialization, timescale, presentationTimeOffset, periodDuration,
+    return new SegmentTemplate(initialization, timescale, presentationTimeOffset, periodDurationMs,
         startNumber, duration, timeline, initializationTemplate, mediaTemplate, baseUrl);
   }
 

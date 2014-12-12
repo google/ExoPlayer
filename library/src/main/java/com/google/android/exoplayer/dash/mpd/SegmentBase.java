@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.dash.mpd;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.dash.DashSegmentIndex;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -127,17 +128,28 @@ public abstract class SegmentBase {
       this.segmentTimeline = segmentTimeline;
     }
 
-    public final int getSegmentNum(long timeUs) {
-      // TODO: Optimize this
-      int index = startNumber;
-      while (index + 1 <= getLastSegmentNum()) {
-        if (getSegmentTimeUs(index + 1) <= timeUs) {
-          index++;
-        } else {
-          return index;
+    public int getSegmentNum(long timeUs) {
+      if (segmentTimeline == null) {
+        // All segments are of equal duration (with the possible exception of the last one).
+        long durationUs = (duration * C.MICROS_PER_SECOND) / timescale;
+        return startNumber + (int) (timeUs / durationUs);
+      } else {
+        // Identify the segment using binary search.
+        int lowIndex = getFirstSegmentNum();
+        int highIndex = getLastSegmentNum();
+        while (lowIndex <= highIndex) {
+          int midIndex = (lowIndex + highIndex) / 2;
+          long midTimeUs = getSegmentTimeUs(midIndex);
+          if (midTimeUs < timeUs) {
+            lowIndex = midIndex + 1;
+          } else if (midTimeUs > timeUs) {
+            highIndex = midIndex - 1;
+          } else {
+            return midIndex;
+          }
         }
+        return lowIndex - 1;
       }
-      return index;
     }
 
     public final long getSegmentDurationUs(int sequenceNumber) {
@@ -285,6 +297,8 @@ public abstract class SegmentBase {
     public int getLastSegmentNum() {
       if (segmentTimeline != null) {
         return segmentTimeline.size() + startNumber - 1;
+      } else if (periodDurationMs == -1) {
+        return DashSegmentIndex.INDEX_UNBOUNDED;
       } else {
         long durationMs = (duration * 1000) / timescale;
         return startNumber + (int) (periodDurationMs / durationMs);
