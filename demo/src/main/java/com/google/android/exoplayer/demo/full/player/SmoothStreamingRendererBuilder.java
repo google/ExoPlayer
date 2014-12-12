@@ -149,19 +149,28 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
         }
       }
     }
-    int[] videoTrackIndices = Util.toArray(videoTrackIndexList);
 
     // Build the video renderer.
-    DataSource videoDataSource = new UriDataSource(userAgent, bandwidthMeter);
-    ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
-        videoStreamElementIndex, videoTrackIndices, videoDataSource,
-        new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
-    ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
-        VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
-        DemoPlayer.TYPE_VIDEO);
-    MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource,
-        drmSessionManager, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null,
-        mainHandler, player, 50);
+    final MediaCodecVideoTrackRenderer videoRenderer;
+    final TrackRenderer debugRenderer;
+    if (videoTrackIndexList.isEmpty()) {
+      videoRenderer = null;
+      debugRenderer = null;
+    } else {
+      int[] videoTrackIndices = Util.toArray(videoTrackIndexList);
+      DataSource videoDataSource = new UriDataSource(userAgent, bandwidthMeter);
+      ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
+          videoStreamElementIndex, videoTrackIndices, videoDataSource,
+          new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
+      ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
+          VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
+          DemoPlayer.TYPE_VIDEO);
+      videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource, drmSessionManager, true,
+          MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, mainHandler, player, 50);
+      debugRenderer = debugTextView != null
+          ? new DebugTrackRenderer(debugTextView, videoRenderer, videoSampleSource)
+          : null;
+    }
 
     // Build the audio renderer.
     final String[] audioTrackNames;
@@ -223,11 +232,6 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
       textRenderer = new TextTrackRenderer(ttmlSampleSource, new TtmlParser(), player,
           mainHandler.getLooper());
     }
-
-    // Build the debug renderer.
-    TrackRenderer debugRenderer = debugTextView != null
-        ? new DebugTrackRenderer(debugTextView, videoRenderer, videoSampleSource)
-        : null;
 
     // Invoke the callback.
     String[][] trackNames = new String[DemoPlayer.RENDERER_COUNT][];
