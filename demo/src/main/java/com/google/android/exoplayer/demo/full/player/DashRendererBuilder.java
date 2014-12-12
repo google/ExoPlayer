@@ -41,6 +41,7 @@ import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.drm.MediaDrmCallback;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.text.TextTrackRenderer;
+import com.google.android.exoplayer.text.ttml.TtmlParser;
 import com.google.android.exoplayer.text.webvtt.WebvttParser;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -274,8 +275,8 @@ public class DashRendererBuilder implements RendererBuilder,
       SampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
           TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
           DemoPlayer.TYPE_TEXT);
-      textRenderer = new TextTrackRenderer(textSampleSource, new WebvttParser(), player,
-          mainHandler.getLooper());
+      textRenderer = new TextTrackRenderer(textSampleSource, player, mainHandler.getLooper(),
+          new TtmlParser(), new WebvttParser());
     }
 
     // Invoke the callback.

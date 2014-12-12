@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.SuppressLint;
@@ -84,6 +85,15 @@ public class MediaFormat {
       int sampleRate, int bitrate, List<byte[]> initializationData) {
     return new MediaFormat(mimeType, maxInputSize, NO_VALUE, NO_VALUE, NO_VALUE, channelCount,
         sampleRate, bitrate, initializationData);
+  }
+
+  public static MediaFormat createTtmlFormat() {
+    return createFormatForMimeType(MimeTypes.APPLICATION_TTML);
+  }
+
+  public static MediaFormat createFormatForMimeType(String mimeType) {
+    return new MediaFormat(mimeType, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
+        NO_VALUE, null);
   }
 
   @TargetApi(16)

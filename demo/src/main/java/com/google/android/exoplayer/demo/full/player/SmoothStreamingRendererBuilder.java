@@ -233,8 +233,8 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
       ChunkSampleSource ttmlSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
           TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
           DemoPlayer.TYPE_TEXT);
-      textRenderer = new TextTrackRenderer(ttmlSampleSource, new TtmlParser(), player,
-          mainHandler.getLooper());
+      textRenderer = new TextTrackRenderer(ttmlSampleSource, player, mainHandler.getLooper(),
+          new TtmlParser());
     }
 
     // Invoke the callback.
