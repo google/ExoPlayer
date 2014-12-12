@@ -316,7 +316,8 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   private void maybeThrowLoadableException() throws IOException {
-    if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
+    if (currentLoadableException != null && (currentLoadableExceptionFatal
+        || currentLoadableExceptionCount > minLoadableRetryCount)) {
       throw currentLoadableException;
     }
   }
