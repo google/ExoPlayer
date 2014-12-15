@@ -81,6 +81,9 @@ public class DashRendererBuilder implements RendererBuilder,
   private static final int SECURITY_LEVEL_1 = 1;
   private static final int SECURITY_LEVEL_3 = 3;
 
+  private static final String AC_3_CODEC = "ac-3";
+  private static final String E_AC_3_CODEC = "ec-3";
+
   private final String userAgent;
   private final String url;
   private final String contentId;
@@ -160,12 +163,8 @@ public class DashRendererBuilder implements RendererBuilder,
         // HD streams require L1 security.
         filterHdContent = videoAdaptationSet != null && videoAdaptationSet.hasContentProtection()
             && !drmSessionManagerData.second;
-      } catch (UnsupportedSchemeException e) {
-        callback.onRenderersError(
-            new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME, e));
-      } catch (Exception e) {
-        callback.onRenderersError(
-            new UnsupportedDrmException(UnsupportedDrmException.REASON_UNKNOWN, e));
+      } catch (UnsupportedDrmException e) {
+        callback.onRenderersError(e);
         return;
       }
     }
@@ -225,15 +224,13 @@ public class DashRendererBuilder implements RendererBuilder,
             format.audioSamplingRate + "Hz)");
         audioChunkSourceList.add(new DashChunkSource(manifestFetcher, audioAdaptationSetIndex,
             new int[] {i}, audioDataSource, audioEvaluator, LIVE_EDGE_LATENCY_MS));
-        haveAc3Tracks |= format.mimeType.equals(MimeTypes.AUDIO_AC3)
-            || format.mimeType.equals(MimeTypes.AUDIO_EC3);
+        haveAc3Tracks |= AC_3_CODEC.equals(format.codecs) || E_AC_3_CODEC.equals(format.codecs);
       }
       // Filter out non-AC-3 tracks if there is an AC-3 track, to avoid having to switch renderers.
       if (haveAc3Tracks) {
         for (int i = audioRepresentations.size() - 1; i >= 0; i--) {
           Format format = audioRepresentations.get(i).format;
-          if (!format.mimeType.equals(MimeTypes.AUDIO_AC3)
-              && !format.mimeType.equals(MimeTypes.AUDIO_EC3)) {
+          if (!AC_3_CODEC.equals(format.codecs) && !E_AC_3_CODEC.equals(format.codecs)) {
             audioTrackNameList.remove(i);
             audioChunkSourceList.remove(i);
           }
@@ -327,12 +324,18 @@ public class DashRendererBuilder implements RendererBuilder,
   private static class V18Compat {
 
     public static Pair<DrmSessionManager, Boolean> getDrmSessionManagerData(DemoPlayer player,
-        MediaDrmCallback drmCallback) throws UnsupportedSchemeException {
-      StreamingDrmSessionManager streamingDrmSessionManager = new StreamingDrmSessionManager(
-          DemoUtil.WIDEVINE_UUID, player.getPlaybackLooper(), drmCallback, null,
-          player.getMainHandler(), player);
-      return Pair.create((DrmSessionManager) streamingDrmSessionManager,
-          getWidevineSecurityLevel(streamingDrmSessionManager) == SECURITY_LEVEL_1);
+        MediaDrmCallback drmCallback) throws UnsupportedDrmException {
+      try {
+        StreamingDrmSessionManager streamingDrmSessionManager = new StreamingDrmSessionManager(
+            DemoUtil.WIDEVINE_UUID, player.getPlaybackLooper(), drmCallback, null,
+            player.getMainHandler(), player);
+        return Pair.create((DrmSessionManager) streamingDrmSessionManager,
+            getWidevineSecurityLevel(streamingDrmSessionManager) == SECURITY_LEVEL_1);
+      } catch (UnsupportedSchemeException e) {
+        throw new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME);
+      } catch (Exception e) {
+        throw new UnsupportedDrmException(UnsupportedDrmException.REASON_UNKNOWN, e);
+      }
     }
 
     private static int getWidevineSecurityLevel(StreamingDrmSessionManager sessionManager) {

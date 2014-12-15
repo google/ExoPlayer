@@ -136,7 +136,7 @@ public final class Ac3PassthroughAudioTrackRenderer extends TrackRenderer {
   }
 
   private static boolean handlesMimeType(String mimeType) {
-    return MimeTypes.AUDIO_AC3.equals(mimeType) || MimeTypes.AUDIO_EC3.equals(mimeType);
+    return MimeTypes.AUDIO_MP4.equals(mimeType);
   }
 
   @Override

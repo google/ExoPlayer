@@ -641,7 +641,8 @@ public final class AudioTrack {
 
   private long bytesToFrames(long byteCount) {
     if (isAc3) {
-      return byteCount * 8 * sampleRate / (1000 * ac3Bitrate);
+      return
+          ac3Bitrate == UNKNOWN_AC3_BITRATE ? 0L : byteCount * 8 * sampleRate / (1000 * ac3Bitrate);
     } else {
       return byteCount / frameSize;
     }
