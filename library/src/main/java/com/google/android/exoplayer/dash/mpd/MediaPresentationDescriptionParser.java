@@ -283,6 +283,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     int width = parseInt(xpp, "width");
     int height = parseInt(xpp, "height");
     mimeType = parseString(xpp, "mimeType", mimeType);
+    String codecs = parseString(xpp, "codecs", null);
 
     int numChannels = -1;
     do {
@@ -302,15 +303,15 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     } while (!isEndTag(xpp, "Representation"));
 
     Format format = buildFormat(id, mimeType, width, height, numChannels, audioSamplingRate,
-        bandwidth, language);
+        bandwidth, language, codecs);
     return buildRepresentation(periodStartMs, periodDurationMs, contentId, -1, format,
         segmentBase);
   }
 
   protected Format buildFormat(String id, String mimeType, int width, int height, int numChannels,
-      int audioSamplingRate, int bandwidth, String language) {
-    return new Format(id, mimeType, width, height, numChannels, audioSamplingRate,
-        bandwidth, language);
+      int audioSamplingRate, int bandwidth, String language, String codecs) {
+    return new Format(id, mimeType, width, height, numChannels, audioSamplingRate, bandwidth,
+        language, codecs);
   }
 
   protected Representation buildRepresentation(long periodStartMs, long periodDurationMs,

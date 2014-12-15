@@ -81,6 +81,9 @@ public class DashRendererBuilder implements RendererBuilder,
   private static final int SECURITY_LEVEL_1 = 1;
   private static final int SECURITY_LEVEL_3 = 3;
 
+  private static final String AC_3_CODEC = "ac-3";
+  private static final String E_AC_3_CODEC = "ec-3";
+
   private final String userAgent;
   private final String url;
   private final String contentId;
@@ -225,15 +228,13 @@ public class DashRendererBuilder implements RendererBuilder,
             format.audioSamplingRate + "Hz)");
         audioChunkSourceList.add(new DashChunkSource(manifestFetcher, audioAdaptationSetIndex,
             new int[] {i}, audioDataSource, audioEvaluator, LIVE_EDGE_LATENCY_MS));
-        haveAc3Tracks |= format.mimeType.equals(MimeTypes.AUDIO_AC3)
-            || format.mimeType.equals(MimeTypes.AUDIO_EC3);
+        haveAc3Tracks |= AC_3_CODEC.equals(format.codecs) || E_AC_3_CODEC.equals(format.codecs);
       }
       // Filter out non-AC-3 tracks if there is an AC-3 track, to avoid having to switch renderers.
       if (haveAc3Tracks) {
         for (int i = audioRepresentations.size() - 1; i >= 0; i--) {
           Format format = audioRepresentations.get(i).format;
-          if (!format.mimeType.equals(MimeTypes.AUDIO_AC3)
-              && !format.mimeType.equals(MimeTypes.AUDIO_EC3)) {
+          if (!AC_3_CODEC.equals(format.codecs) && !E_AC_3_CODEC.equals(format.codecs)) {
             audioTrackNameList.remove(i);
             audioChunkSourceList.remove(i);
           }
