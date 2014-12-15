@@ -246,6 +246,9 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
       pushSurfaceAndVideoTrack(false);
     } else {
       pushTrackSelection(type, true);
+      if (type == TYPE_TEXT && index == DISABLED_TRACK && textListener != null) {
+        textListener.onText(null);
+      }
     }
   }
 
