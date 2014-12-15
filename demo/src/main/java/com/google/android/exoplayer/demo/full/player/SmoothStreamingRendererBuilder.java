@@ -118,12 +118,8 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
       try {
         drmSessionManager = V18Compat.getDrmSessionManager(manifest.protectionElement.uuid, player,
             drmCallback);
-      } catch (UnsupportedSchemeException e) {
-        callback.onRenderersError(
-            new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME, e));
-      } catch (Exception e) {
-        callback.onRenderersError(
-            new UnsupportedDrmException(UnsupportedDrmException.REASON_UNKNOWN, e));
+      } catch (UnsupportedDrmException e) {
+        callback.onRenderersError(e);
         return;
       }
     }
@@ -259,9 +255,15 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
   private static class V18Compat {
 
     public static DrmSessionManager getDrmSessionManager(UUID uuid, DemoPlayer player,
-        MediaDrmCallback drmCallback) throws UnsupportedSchemeException {
-      return new StreamingDrmSessionManager(uuid, player.getPlaybackLooper(), drmCallback, null,
-          player.getMainHandler(), player);
+        MediaDrmCallback drmCallback) throws UnsupportedDrmException {
+      try {
+        return new StreamingDrmSessionManager(uuid, player.getPlaybackLooper(), drmCallback, null,
+            player.getMainHandler(), player);
+      } catch (UnsupportedSchemeException e) {
+        throw new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME);
+      } catch (Exception e) {
+        throw new UnsupportedDrmException(UnsupportedDrmException.REASON_UNKNOWN, e);
+      }
     }
 
   }
