@@ -156,7 +156,7 @@ public class MediaFormat {
   public int hashCode() {
     if (hashCode == 0) {
       int result = 17;
-      result = 31 * result + mimeType == null ? 0 : mimeType.hashCode();
+      result = 31 * result + (mimeType == null ? 0 : mimeType.hashCode());
       result = 31 * result + maxInputSize;
       result = 31 * result + width;
       result = 31 * result + height;

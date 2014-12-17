@@ -317,8 +317,8 @@ public final class Util {
     } else if (matcher.group(9).equalsIgnoreCase("Z")) {
       timezoneShift = 0;
     } else {
-      timezoneShift = ((Integer.valueOf(matcher.group(12)) * 60
-          + Integer.valueOf(matcher.group(13))));
+      timezoneShift = ((Integer.parseInt(matcher.group(12)) * 60
+          + Integer.parseInt(matcher.group(13))));
       if (matcher.group(11).equals("-")) {
         timezoneShift *= -1;
       }
@@ -328,12 +328,12 @@ public final class Util {
 
     dateTime.clear();
     // Note: The month value is 0-based, hence the -1 on group(2)
-    dateTime.set(Integer.valueOf(matcher.group(1)),
-                 Integer.valueOf(matcher.group(2)) - 1,
-                 Integer.valueOf(matcher.group(3)),
-                 Integer.valueOf(matcher.group(4)),
-                 Integer.valueOf(matcher.group(5)),
-                 Integer.valueOf(matcher.group(6)));
+    dateTime.set(Integer.parseInt(matcher.group(1)),
+                 Integer.parseInt(matcher.group(2)) - 1,
+                 Integer.parseInt(matcher.group(3)),
+                 Integer.parseInt(matcher.group(4)),
+                 Integer.parseInt(matcher.group(5)),
+                 Integer.parseInt(matcher.group(6)));
     if (!TextUtils.isEmpty(matcher.group(8))) {
       final BigDecimal bd = new BigDecimal("0." + matcher.group(8));
       // we care only for milliseconds, so movePointRight(3)

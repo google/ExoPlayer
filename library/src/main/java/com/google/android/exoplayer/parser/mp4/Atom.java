@@ -80,9 +80,11 @@ import java.util.ArrayList;
   public final static class ContainerAtom extends Atom {
 
     public final ArrayList<Atom> children;
+    public final int endByteOffset;
 
-    public ContainerAtom(int type) {
+    public ContainerAtom(int type, int endByteOffset) {
       super(type);
+      this.endByteOffset = endByteOffset;
       children = new ArrayList<Atom>();
     }
 
