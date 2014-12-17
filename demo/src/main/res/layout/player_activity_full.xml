@@ -14,6 +14,7 @@
      limitations under the License.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -49,14 +50,16 @@
         android:layout_height="wrap_content"
         android:paddingLeft="4dp"
         android:paddingRight="4dp"
-        android:textSize="10sp"/>
+        android:textSize="10sp"
+        tools:ignore="SmallSp"/>
 
     <TextView android:id="@+id/debug_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="4dp"
         android:paddingRight="4dp"
-        android:textSize="10sp"/>
+        android:textSize="10sp"
+        tools:ignore="SmallSp"/>
 
     <LinearLayout android:id="@+id/controls_root"
         android:layout_width="match_parent"
