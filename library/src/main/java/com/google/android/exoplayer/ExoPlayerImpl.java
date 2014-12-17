@@ -53,6 +53,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @SuppressLint("HandlerLeak")
   public ExoPlayerImpl(int rendererCount, int minBufferMs, int minRebufferMs) {
     Log.i(TAG, "Init " + ExoPlayerLibraryInfo.VERSION);
+    this.playWhenReady = false;
     this.playbackState = STATE_IDLE;
     this.listeners = new CopyOnWriteArraySet<Listener>();
     this.rendererEnabledFlags = new boolean[rendererCount];

@@ -199,11 +199,9 @@ public final class Ac3PassthroughAudioTrackRenderer extends TrackRenderer {
 
       int result =
           source.readData(trackIndex, currentPositionUs, formatHolder, sampleHolder, false);
-      sampleHolder.data.flip();
-      shouldReadInputBuffer = false;
-
       if (result == SampleSource.FORMAT_READ) {
         format = formatHolder.format;
+        audioTrack.reconfigure(format.getFrameworkMediaFormatV16(), AudioFormat.ENCODING_AC3, 0);
       }
       if (result == SampleSource.END_OF_STREAM) {
         inputStreamEnded = true;
@@ -211,6 +209,7 @@ public final class Ac3PassthroughAudioTrackRenderer extends TrackRenderer {
       if (result != SampleSource.SAMPLE_READ) {
         return;
       }
+      shouldReadInputBuffer = false;
     }
 
     int handleBufferResult =
@@ -227,16 +226,12 @@ public final class Ac3PassthroughAudioTrackRenderer extends TrackRenderer {
 
   @Override
   protected void onStarted() {
-    if (audioTrack.isInitialized()) {
-      audioTrack.play();
-    }
+    audioTrack.play();
   }
 
   @Override
   protected void onStopped() {
-    if (audioTrack.isInitialized()) {
-      audioTrack.pause();
-    }
+    audioTrack.pause();
   }
 
   @Override

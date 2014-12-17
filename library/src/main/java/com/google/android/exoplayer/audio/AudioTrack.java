@@ -310,8 +310,8 @@ public final class AudioTrack {
 
     // TODO: Does channelConfig determine channelCount?
     boolean isAc3 = encoding == AudioFormat.ENCODING_AC3 || encoding == AudioFormat.ENCODING_E_AC3;
-    if (audioTrack != null && this.sampleRate == sampleRate
-        && this.channelConfig == channelConfig && !this.isAc3 && !isAc3) {
+    if (isInitialized() && this.sampleRate == sampleRate && this.channelConfig == channelConfig
+        && !this.isAc3 && !isAc3) {
       // We already have an existing audio track with the correct sample rate and channel config.
       return;
     }
@@ -450,7 +450,7 @@ public final class AudioTrack {
 
   /** Returns whether the audio track has more data pending that will be played back. */
   public boolean hasPendingData() {
-    return audioTrack != null && bytesToFrames(submittedBytes) > getPlaybackPositionFrames();
+    return isInitialized() && bytesToFrames(submittedBytes) > getPlaybackPositionFrames();
   }
 
   /** Returns whether enough data has been supplied via {@link #handleBuffer} to begin playback. */
@@ -461,7 +461,7 @@ public final class AudioTrack {
   /** Sets the playback volume. */
   public void setVolume(float volume) {
     this.volume = volume;
-    if (audioTrack != null) {
+    if (isInitialized()) {
       if (Util.SDK_INT >= 21) {
         setVolumeV21(audioTrack, volume);
       } else {
@@ -482,7 +482,7 @@ public final class AudioTrack {
 
   /** Pauses playback. */
   public void pause() {
-    if (audioTrack != null) {
+    if (isInitialized()) {
       resetSyncParams();
       audioTrack.pause();
     }
@@ -494,7 +494,7 @@ public final class AudioTrack {
    * after resetting.
    */
   public void reset() {
-    if (audioTrack != null) {
+    if (isInitialized()) {
       submittedBytes = 0;
       temporaryBufferSize = 0;
       lastRawPlaybackHeadPosition = 0;

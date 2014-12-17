@@ -139,7 +139,6 @@ public final class FragmentedMp4Extractor implements Extractor {
   private final ParsableByteArray atomHeader;
   private final byte[] extendedTypeScratch;
   private final Stack<ContainerAtom> containerAtoms;
-  private final Stack<Integer> containerAtomEndPoints;
   private final TrackFragment fragmentRun;
 
   private int parserState;
@@ -174,7 +173,6 @@ public final class FragmentedMp4Extractor implements Extractor {
     atomHeader = new ParsableByteArray(ATOM_HEADER_SIZE);
     extendedTypeScratch = new byte[16];
     containerAtoms = new Stack<ContainerAtom>();
-    containerAtomEndPoints = new Stack<Integer>();
     fragmentRun = new TrackFragment();
     psshData = new HashMap<UUID, byte[]>();
   }
@@ -258,7 +256,6 @@ public final class FragmentedMp4Extractor implements Extractor {
       }
     }
     containerAtoms.clear();
-    containerAtomEndPoints.clear();
     enterState(STATE_READING_ATOM_HEADER);
     return true;
   }
@@ -267,7 +264,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     switch (state) {
       case STATE_READING_ATOM_HEADER:
         atomBytesRead = 0;
-        if (containerAtomEndPoints.isEmpty()) {
+        if (containerAtoms.isEmpty()) {
           rootAtomBytesRead = 0;
         }
         break;
@@ -300,11 +297,12 @@ public final class FragmentedMp4Extractor implements Extractor {
       return 0;
     }
 
-    if (PARSED_ATOMS.contains(atomType)) {
-      if (CONTAINER_TYPES.contains(atomType)) {
+    Integer atomTypeInteger = atomType; // Avoids boxing atomType twice.
+    if (PARSED_ATOMS.contains(atomTypeInteger)) {
+      if (CONTAINER_TYPES.contains(atomTypeInteger)) {
         enterState(STATE_READING_ATOM_HEADER);
-        containerAtoms.add(new ContainerAtom(atomType));
-        containerAtomEndPoints.add(rootAtomBytesRead + atomSize - ATOM_HEADER_SIZE);
+        containerAtoms.add(new ContainerAtom(atomType,
+            rootAtomBytesRead + atomSize - ATOM_HEADER_SIZE));
       } else {
         atomData = new ParsableByteArray(atomSize);
         System.arraycopy(atomHeader.data, 0, atomData.data, 0, ATOM_HEADER_SIZE);
@@ -339,9 +337,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       results |= onLeafAtomRead(new LeafAtom(atomType, atomData));
     }
 
-    while (!containerAtomEndPoints.isEmpty()
-        && containerAtomEndPoints.peek() == rootAtomBytesRead) {
-      containerAtomEndPoints.pop();
+    while (!containerAtoms.isEmpty() && containerAtoms.peek().endByteOffset == rootAtomBytesRead) {
       results |= onContainerAtomRead(containerAtoms.pop());
     }
 
