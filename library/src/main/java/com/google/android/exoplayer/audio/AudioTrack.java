@@ -399,6 +399,7 @@ public final class AudioTrack {
     }
 
     if (size == 0) {
+      result |= RESULT_BUFFER_CONSUMED;
       return result;
     }
 
