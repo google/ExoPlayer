@@ -82,7 +82,7 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
         HlsChunkSource.ADAPTIVE_MODE_SPLICE);
     HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, true, 3);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
-        MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 0, player.getMainHandler(), player, 50);
+        MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, player.getMainHandler(), player, 50);
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
 
     MetadataTrackRenderer<Map<String, Object>> id3Renderer =
