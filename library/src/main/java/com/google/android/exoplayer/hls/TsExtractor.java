@@ -427,10 +427,17 @@ public final class TsExtractor {
     @Override
     public void read(BitArray tsBuffer, boolean payloadUnitStartIndicator) {
       if (payloadUnitStartIndicator && !pesBuffer.isEmpty()) {
-        // We've encountered the start of the next packet, but haven't yet read the body. Read it.
-        // Note that this should only happen if the packet length was unspecified.
-        Assertions.checkState(packetLength == 0);
-        readPacketBody();
+        if (packetLength == 0) {
+          // The length of the previous packet was unspecified. We've now seen the start of the
+          // next one, so consume the previous packet's body.
+          readPacketBody();
+        } else {
+          // Either we didn't have enough data to read the length of the previous packet, or we
+          // did read the length but didn't receive that amount of data. Neither case is expected.
+          Log.w(TAG, "Unexpected packet fragment of length " + pesBuffer.bytesLeft());
+          pesBuffer.reset();
+          packetLength = -1;
+        }
       }
 
       pesBuffer.append(tsBuffer, tsBuffer.bytesLeft());
@@ -448,7 +455,7 @@ public final class TsExtractor {
     private void readPacketStart() {
       int startCodePrefix = pesBuffer.readBits(24);
       if (startCodePrefix != 0x000001) {
-        Log.e(TAG, "Unexpected start code prefix: " + startCodePrefix);
+        Log.w(TAG, "Unexpected start code prefix: " + startCodePrefix);
         pesBuffer.reset();
         packetLength = -1;
       } else {
