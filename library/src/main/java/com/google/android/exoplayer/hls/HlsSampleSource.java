@@ -160,6 +160,9 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     Assertions.checkState(prepared);
     Assertions.checkState(enabledTrackCount > 0);
     downstreamPositionUs = playbackPositionUs;
+    if (!extractors.isEmpty()) {
+      discardSamplesForDisabledTracks(extractors.getFirst(), downstreamPositionUs);
+    }
     return continueBufferingInternal();
   }
 
@@ -168,7 +171,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     if (isPendingReset() || extractors.isEmpty()) {
       return false;
     }
-    boolean haveSamples = extractors.getFirst().hasSamples();
+    boolean haveSamples = prepared && haveSamplesForEnabledTracks(extractors.getFirst());
     if (!haveSamples) {
       maybeThrowLoadableException();
     }
@@ -192,7 +195,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     }
 
     TsExtractor extractor = extractors.getFirst();
-    while (extractors.size() > 1 && !extractor.hasSamples()) {
+    while (extractors.size() > 1 && !haveSamplesForEnabledTracks(extractor)) {
       // We're finished reading from the extractor for all tracks, and so can discard it.
       extractors.removeFirst().release();
       extractor = extractors.getFirst();
@@ -313,6 +316,23 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     currentLoadableExceptionCount++;
     currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
     maybeStartLoading();
+  }
+
+  private void discardSamplesForDisabledTracks(TsExtractor extractor, long timeUs) {
+    for (int i = 0; i < trackEnabledStates.length; i++) {
+      if (!trackEnabledStates[i]) {
+        extractor.discardUntil(i, timeUs);
+      }
+    }
+  }
+
+  private boolean haveSamplesForEnabledTracks(TsExtractor extractor) {
+    for (int i = 0; i < trackEnabledStates.length; i++) {
+      if (trackEnabledStates[i] && extractor.hasSamples(i)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void maybeThrowLoadableException() throws IOException {

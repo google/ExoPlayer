@@ -187,19 +187,14 @@ public final class TsExtractor {
   }
 
   /**
-   * Whether samples are available for reading from {@link #getSample(int, SampleHolder)} for any
-   * track.
+   * Discards samples for the specified track up to the specified time.
    *
-   * @return True if samples are available for reading from {@link #getSample(int, SampleHolder)}
-   *     for any track. False otherwise.
+   * @param track The track from which samples should be discarded.
+   * @param timeUs The time up to which samples should be discarded, in microseconds.
    */
-  public boolean hasSamples() {
-    for (int i = 0; i < sampleQueues.size(); i++) {
-      if (hasSamples(i)) {
-        return true;
-      }
-    }
-    return false;
+  public void discardUntil(int track, long timeUs) {
+    Assertions.checkState(prepared);
+    sampleQueues.valueAt(track).discardUntil(timeUs);
   }
 
   /**
@@ -519,7 +514,7 @@ public final class TsExtractor {
     private final ConcurrentLinkedQueue<Sample> internalQueue;
 
     // Accessed only by the consuming thread.
-    private boolean readFirstFrame;
+    private boolean needKeyframe;
     private long lastReadTimeUs;
     private long spliceOutTimeUs;
 
@@ -529,8 +524,9 @@ public final class TsExtractor {
     protected SampleQueue(SamplePool samplePool) {
       this.samplePool = samplePool;
       internalQueue = new ConcurrentLinkedQueue<Sample>();
-      spliceOutTimeUs = Long.MIN_VALUE;
+      needKeyframe = true;
       lastReadTimeUs = Long.MIN_VALUE;
+      spliceOutTimeUs = Long.MIN_VALUE;
     }
 
     public boolean hasMediaFormat() {
@@ -557,7 +553,7 @@ public final class TsExtractor {
       Sample head = peek();
       if (head != null) {
         internalQueue.remove();
-        readFirstFrame = true;
+        needKeyframe = false;
         lastReadTimeUs = head.timeUs;
       }
       return head;
@@ -570,7 +566,7 @@ public final class TsExtractor {
      */
     public Sample peek() {
       Sample head = internalQueue.peek();
-      if (!readFirstFrame) {
+      if (needKeyframe) {
         // Peeking discard of samples until we find a keyframe or run out of available samples.
         while (head != null && !head.isKeyframe) {
           recycle(head);
@@ -588,6 +584,24 @@ public final class TsExtractor {
         return null;
       }
       return head;
+    }
+
+    /**
+     * Discards samples from the queue up to the specified time.
+     *
+     * @param timeUs The time up to which samples should be discarded, in microseconds.
+     */
+    public void discardUntil(long timeUs) {
+      Sample head = peek();
+      while (head != null && head.timeUs < timeUs) {
+        recycle(head);
+        internalQueue.remove();
+        head = internalQueue.peek();
+        // We're discarding at least one sample, so any subsequent read will need to start at
+        // a keyframe.
+        needKeyframe = true;
+      }
+      lastReadTimeUs = Long.MIN_VALUE;
     }
 
     /**
