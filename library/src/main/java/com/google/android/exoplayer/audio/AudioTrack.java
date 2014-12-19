@@ -361,9 +361,12 @@ public final class AudioTrack {
    *     written data.
    */
   public int handleBuffer(ByteBuffer buffer, int offset, int size, long presentationTimeUs) {
-    int result = 0;
+    if (size == 0) {
+      return RESULT_BUFFER_CONSUMED;
+    }
 
-    if (temporaryBufferSize == 0 && size != 0) {
+    int result = 0;
+    if (temporaryBufferSize == 0) {
       if (isAc3 && ac3Bitrate == UNKNOWN_AC3_BITRATE) {
         // Each AC-3 buffer contains 1536 frames of audio, so the AudioTrack playback position
         // advances by 1536 per buffer (32 ms at 48 kHz). Calculate the bitrate in kbit/s.
@@ -393,13 +396,9 @@ public final class AudioTrack {
           // number of bytes submitted.
           startMediaTimeUs += (bufferStartTime - expectedBufferStartTime);
           startMediaTimeState = START_IN_SYNC;
-          result = RESULT_POSITION_DISCONTINUITY;
+          result |= RESULT_POSITION_DISCONTINUITY;
         }
       }
-    }
-
-    if (size == 0) {
-      return result;
     }
 
     if (temporaryBufferSize == 0) {
