@@ -320,21 +320,17 @@ public final class TsExtractor {
         tsBuffer.skipBytes(pointerField);
       }
 
-      // Skip PAT header.
-      tsBuffer.skipBits(64); // 8+1+1+2+12+16+2+5+1+8+8
+      tsBuffer.skipBits(12); // 8+1+1+2
+      int sectionLength = tsBuffer.readBits(12);
+      tsBuffer.skipBits(40); // 16+2+5+1+8+8
 
-      // Only read the first program and take it.
-
-      // Skip program_number.
-      tsBuffer.skipBits(16 + 3);
-      int pid = tsBuffer.readBits(13);
-
-      // Pick the first program.
-      if (tsPayloadReaders.get(pid) == null) {
+      int programCount = (sectionLength - 9) / 4;
+      for (int i = 0; i < programCount; i++) {
+        tsBuffer.skipBits(19);
+        int pid = tsBuffer.readBits(13);
         tsPayloadReaders.put(pid, new PmtReader());
       }
 
-      // Skip other programs if exist.
       // Skip CRC_32.
     }
 
