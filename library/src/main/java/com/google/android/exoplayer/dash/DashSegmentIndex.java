@@ -24,6 +24,8 @@ import com.google.android.exoplayer.dash.mpd.RangedUri;
  */
 public interface DashSegmentIndex {
 
+  public static final int INDEX_UNBOUNDED = -1;
+
   /**
    * Returns the segment number of the segment containing a given media time.
    *
@@ -64,9 +66,15 @@ public interface DashSegmentIndex {
   int getFirstSegmentNum();
 
   /**
-   * Returns the segment number of the last segment.
+   * Returns the segment number of the last segment, or {@link #INDEX_UNBOUNDED}.
+   * <p>
+   * An unbounded index occurs if a live stream manifest uses SegmentTemplate elements without a
+   * SegmentTimeline element. In this case the manifest can be used to derive information about
+   * segments arbitrarily far into the future. This means that the manifest does not need to be
+   * refreshed as frequently (if at all) during playback, however it is necessary for a player to
+   * manually calculate the window of currently available segments.
    *
-   * @return The segment number of the last segment.
+   * @return The segment number of the last segment, or {@link #INDEX_UNBOUNDED}.
    */
   int getLastSegmentNum();
 

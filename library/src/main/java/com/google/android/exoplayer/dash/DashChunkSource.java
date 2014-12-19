@@ -326,10 +326,30 @@ public class DashChunkSource implements ChunkSource {
       return;
     }
 
+    // TODO: Use UtcTimingElement where possible.
+    long nowUs = System.currentTimeMillis() * 1000;
+
+    int firstAvailableSegmentNum = segmentIndex.getFirstSegmentNum();
+    int lastAvailableSegmentNum = segmentIndex.getLastSegmentNum();
+    boolean indexUnbounded = lastAvailableSegmentNum == DashSegmentIndex.INDEX_UNBOUNDED;
+    if (indexUnbounded) {
+      // The index is itself unbounded. We need to use the current time to calculate the range of
+      // available segments.
+      long liveEdgeTimestampUs = nowUs - currentManifest.availabilityStartTime * 1000;
+      if (currentManifest.timeShiftBufferDepth != -1) {
+        long bufferDepthUs = currentManifest.timeShiftBufferDepth * 1000;
+        firstAvailableSegmentNum = Math.max(firstAvailableSegmentNum,
+            segmentIndex.getSegmentNum(liveEdgeTimestampUs - bufferDepthUs));
+      }
+      // getSegmentNum(liveEdgeTimestampUs) will not be completed yet, so subtract one to get the
+      // index of the last completed segment.
+      lastAvailableSegmentNum = segmentIndex.getSegmentNum(liveEdgeTimestampUs) - 1;
+    }
+
     int segmentNum;
     if (queue.isEmpty()) {
       if (currentManifest.dynamic) {
-        seekPositionUs = getLiveSeekPosition();
+        seekPositionUs = getLiveSeekPosition(nowUs, indexUnbounded);
       }
       segmentNum = segmentIndex.getSegmentNum(seekPositionUs);
     } else {
@@ -338,17 +358,19 @@ public class DashChunkSource implements ChunkSource {
     }
 
     if (currentManifest.dynamic) {
-      if (segmentNum < segmentIndex.getFirstSegmentNum()) {
+      if (segmentNum < firstAvailableSegmentNum) {
         // This is before the first chunk in the current manifest.
         fatalError = new BehindLiveWindowException();
         return;
-      } else if (segmentNum > segmentIndex.getLastSegmentNum()) {
-        // This is beyond the last chunk in the current manifest.
-        finishedCurrentManifest = true;
+      } else if (segmentNum > lastAvailableSegmentNum) {
+        // This chunk is beyond the last chunk in the current manifest. If the index is bounded
+        // we'll need to refresh it. If it's unbounded we just need to wait for a while before
+        // attempting to load the chunk.
+        finishedCurrentManifest = !indexUnbounded;
         return;
-      } else if (segmentNum == segmentIndex.getLastSegmentNum()) {
-        // This is the last chunk in the current manifest. Mark the manifest as being finished,
-        // but continue to return the final chunk.
+      } else if (!indexUnbounded && segmentNum == lastAvailableSegmentNum) {
+        // This is the last chunk in a dynamic bounded manifest. We'll need to refresh the manifest
+        // to obtain the next chunk.
         finishedCurrentManifest = true;
       }
     }
@@ -452,16 +474,23 @@ public class DashChunkSource implements ChunkSource {
    * For live playbacks, determines the seek position that snaps playback to be
    * {@link #liveEdgeLatencyUs} behind the live edge of the current manifest
    *
+   * @param nowUs An estimate of the current server time, in microseconds.
+   * @param indexUnbounded True if the segment index for this source is unbounded. False otherwise.
    * @return The seek position in microseconds.
    */
-  private long getLiveSeekPosition() {
-    long liveEdgeTimestampUs = Long.MIN_VALUE;
-    for (RepresentationHolder representationHolder : representationHolders.values()) {
-      DashSegmentIndex segmentIndex = representationHolder.segmentIndex;
-      int lastSegmentNum = segmentIndex.getLastSegmentNum();
-      long indexLiveEdgeTimestampUs = segmentIndex.getTimeUs(lastSegmentNum)
-          + segmentIndex.getDurationUs(lastSegmentNum);
-      liveEdgeTimestampUs = Math.max(liveEdgeTimestampUs, indexLiveEdgeTimestampUs);
+  private long getLiveSeekPosition(long nowUs, boolean indexUnbounded) {
+    long liveEdgeTimestampUs;
+    if (indexUnbounded) {
+      liveEdgeTimestampUs = nowUs - currentManifest.availabilityStartTime * 1000;
+    } else {
+      liveEdgeTimestampUs = Long.MIN_VALUE;
+      for (RepresentationHolder representationHolder : representationHolders.values()) {
+        DashSegmentIndex segmentIndex = representationHolder.segmentIndex;
+        int lastSegmentNum = segmentIndex.getLastSegmentNum();
+        long indexLiveEdgeTimestampUs = segmentIndex.getTimeUs(lastSegmentNum)
+            + segmentIndex.getDurationUs(lastSegmentNum);
+        liveEdgeTimestampUs = Math.max(liveEdgeTimestampUs, indexLiveEdgeTimestampUs);
+      }
     }
     return liveEdgeTimestampUs - liveEdgeLatencyUs;
   }

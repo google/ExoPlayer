@@ -18,7 +18,6 @@ package com.google.android.exoplayer.demo;
 import com.google.android.exoplayer.demo.Samples.Sample;
 import com.google.android.exoplayer.demo.full.FullPlayerActivity;
 import com.google.android.exoplayer.demo.simple.SimplePlayerActivity;
-import com.google.android.exoplayer.util.Util;
 
 import android.app.Activity;
 import android.content.Context;
@@ -33,7 +32,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * An activity for selecting from a number of samples.
@@ -58,6 +56,8 @@ public class SampleChooserActivity extends Activity {
     sampleAdapter.addAll((Object[]) Samples.SMOOTHSTREAMING);
     sampleAdapter.add(new Header("Misc"));
     sampleAdapter.addAll((Object[]) Samples.MISC);
+    sampleAdapter.add(new Header("HLS"));
+    sampleAdapter.addAll((Object[]) Samples.HLS);
     if (DemoUtil.EXPOSE_EXPERIMENTAL_FEATURES) {
       sampleAdapter.add(new Header("YouTube WebM DASH (Experimental)"));
       sampleAdapter.addAll((Object[]) Samples.YOUTUBE_DASH_WEBM);
@@ -76,11 +76,6 @@ public class SampleChooserActivity extends Activity {
   }
 
   private void onSampleSelected(Sample sample) {
-    if (Util.SDK_INT < 18 && sample.isEncypted) {
-      Toast.makeText(getApplicationContext(), R.string.drm_not_supported, Toast.LENGTH_SHORT)
-          .show();
-      return;
-    }
     Class<?> playerActivityClass = sample.fullPlayer ? FullPlayerActivity.class
         : SimplePlayerActivity.class;
     Intent mpdIntent = new Intent(this, playerActivityClass)

@@ -18,8 +18,6 @@ package com.google.android.exoplayer;
 import com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent;
 import com.google.android.exoplayer.util.Assertions;
 
-import android.os.SystemClock;
-
 /**
  * Renders a single component of media.
  *
@@ -293,8 +291,8 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    *
    * @param positionUs The current media time in microseconds, measured at the start of the
    *     current iteration of the rendering loop.
-   * @param elapsedRealtimeUs {@link SystemClock#elapsedRealtime()} in microseconds, measured at
-   *     the start of the current iteration of the rendering loop.
+   * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
+   *     measured at the start of the current iteration of the rendering loop.
    * @throws ExoPlaybackException If an error occurs.
    */
   protected abstract void doSomeWork(long positionUs, long elapsedRealtimeUs)

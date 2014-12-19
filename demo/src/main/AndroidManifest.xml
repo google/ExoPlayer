@@ -29,6 +29,7 @@
 
   <application
       android:label="@string/application_name"
+      android:icon="@drawable/ic_launcher"
       android:largeHeap="true"
       android:allowBackup="false">
 

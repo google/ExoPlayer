@@ -310,8 +310,8 @@ public final class AudioTrack {
 
     // TODO: Does channelConfig determine channelCount?
     boolean isAc3 = encoding == AudioFormat.ENCODING_AC3 || encoding == AudioFormat.ENCODING_E_AC3;
-    if (audioTrack != null && this.sampleRate == sampleRate
-        && this.channelConfig == channelConfig && !this.isAc3 && !isAc3) {
+    if (isInitialized() && this.sampleRate == sampleRate && this.channelConfig == channelConfig
+        && !this.isAc3 && !isAc3) {
       // We already have an existing audio track with the correct sample rate and channel config.
       return;
     }
@@ -424,7 +424,6 @@ public final class AudioTrack {
         bytesToWrite = Math.min(temporaryBufferSize, bytesToWrite);
         bytesWritten = audioTrack.write(temporaryBuffer, temporaryBufferOffset, bytesToWrite);
         if (bytesWritten < 0) {
-          Log.w(TAG, "AudioTrack.write returned error code: " + bytesWritten);
         } else {
           temporaryBufferOffset += bytesWritten;
         }
@@ -433,10 +432,15 @@ public final class AudioTrack {
       bytesWritten = writeNonBlockingV21(audioTrack, buffer, temporaryBufferSize);
     }
 
-    temporaryBufferSize -= bytesWritten;
-    submittedBytes += bytesWritten;
-    if (temporaryBufferSize == 0) {
-      result |= RESULT_BUFFER_CONSUMED;
+    if (bytesWritten < 0) {
+        Log.w(TAG, "AudioTrack.write returned error code: " + bytesWritten);
+        result |= RESULT_BUFFER_CONSUMED;
+    } else {
+        temporaryBufferSize -= bytesWritten;
+        submittedBytes += bytesWritten;
+        if (temporaryBufferSize == 0) {
+            result |= RESULT_BUFFER_CONSUMED;
+        }
     }
 
     return result;
@@ -450,7 +454,7 @@ public final class AudioTrack {
 
   /** Returns whether the audio track has more data pending that will be played back. */
   public boolean hasPendingData() {
-    return audioTrack != null && bytesToFrames(submittedBytes) > getPlaybackPositionFrames();
+    return isInitialized() && bytesToFrames(submittedBytes) > getPlaybackPositionFrames();
   }
 
   /** Returns whether enough data has been supplied via {@link #handleBuffer} to begin playback. */
@@ -461,7 +465,7 @@ public final class AudioTrack {
   /** Sets the playback volume. */
   public void setVolume(float volume) {
     this.volume = volume;
-    if (audioTrack != null) {
+    if (isInitialized()) {
       if (Util.SDK_INT >= 21) {
         setVolumeV21(audioTrack, volume);
       } else {
@@ -482,7 +486,7 @@ public final class AudioTrack {
 
   /** Pauses playback. */
   public void pause() {
-    if (audioTrack != null) {
+    if (isInitialized()) {
       resetSyncParams();
       audioTrack.pause();
     }
@@ -494,7 +498,7 @@ public final class AudioTrack {
    * after resetting.
    */
   public void reset() {
-    if (audioTrack != null) {
+    if (isInitialized()) {
       submittedBytes = 0;
       temporaryBufferSize = 0;
       lastRawPlaybackHeadPosition = 0;
@@ -641,7 +645,8 @@ public final class AudioTrack {
 
   private long bytesToFrames(long byteCount) {
     if (isAc3) {
-      return byteCount * 8 * sampleRate / (1000 * ac3Bitrate);
+      return
+          ac3Bitrate == UNKNOWN_AC3_BITRATE ? 0L : byteCount * 8 * sampleRate / (1000 * ac3Bitrate);
     } else {
       return byteCount / frameSize;
     }

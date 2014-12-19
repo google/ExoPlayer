@@ -97,7 +97,7 @@ public class SubtitleView extends View {
 
     Resources resources = getContext().getResources();
     DisplayMetrics displayMetrics = resources.getDisplayMetrics();
-    int twoDpInPx = Math.round((2 * displayMetrics.densityDpi) / DisplayMetrics.DENSITY_DEFAULT);
+    int twoDpInPx = Math.round((2f * displayMetrics.densityDpi) / DisplayMetrics.DENSITY_DEFAULT);
     cornerRadius = twoDpInPx;
     outlineWidth = twoDpInPx;
     shadowRadius = twoDpInPx;

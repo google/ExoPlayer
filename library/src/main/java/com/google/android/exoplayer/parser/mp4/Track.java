@@ -31,6 +31,10 @@ public final class Track {
    */
   public static final int TYPE_AUDIO = 0x736F756E;
   /**
+   * Type of a text track.
+   */
+  public static final int TYPE_TEXT = 0x74657874;
+  /**
    * Type of a hint track.
    */
   public static final int TYPE_HINT = 0x68696E74;

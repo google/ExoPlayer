@@ -273,7 +273,7 @@ public class SmoothStreamingManifest {
       Assertions.checkState(chunkIndex < chunkStartTimes.size());
       String chunkUrl = chunkTemplate
           .replace(URL_PLACEHOLDER_BITRATE, Integer.toString(tracks[track].bitrate))
-          .replace(URL_PLACEHOLDER_START_TIME, Long.toString(chunkStartTimes.get(chunkIndex)));
+          .replace(URL_PLACEHOLDER_START_TIME, chunkStartTimes.get(chunkIndex).toString());
       return Util.getMergedUri(baseUri, chunkUrl);
     }
 

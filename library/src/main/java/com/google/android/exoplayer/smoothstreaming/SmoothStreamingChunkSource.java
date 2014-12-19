@@ -343,8 +343,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     TrackElement trackElement = streamElement.tracks[trackIndex];
     String mimeType = trackElement.mimeType;
     if (streamElement.type == StreamElement.TYPE_VIDEO) {
-      MediaFormat format = MediaFormat.createVideoFormat(mimeType, -1, trackElement.maxWidth,
-          trackElement.maxHeight, Arrays.asList(trackElement.csd));
+      MediaFormat format = MediaFormat.createVideoFormat(mimeType, MediaFormat.NO_VALUE,
+          trackElement.maxWidth, trackElement.maxHeight, Arrays.asList(trackElement.csd));
       format.setMaxVideoDimensions(streamElement.maxWidth, streamElement.maxHeight);
       return format;
     } else if (streamElement.type == StreamElement.TYPE_AUDIO) {
@@ -355,11 +355,12 @@ public class SmoothStreamingChunkSource implements ChunkSource {
         csd = Collections.singletonList(CodecSpecificDataUtil.buildAudioSpecificConfig(
             trackElement.sampleRate, trackElement.numChannels));
       }
-      MediaFormat format = MediaFormat.createAudioFormat(mimeType, -1, trackElement.numChannels,
-          trackElement.sampleRate, csd);
+      MediaFormat format = MediaFormat.createAudioFormat(mimeType, MediaFormat.NO_VALUE,
+          trackElement.numChannels, trackElement.sampleRate, csd);
       return format;
+    } else if (streamElement.type == StreamElement.TYPE_TEXT) {
+      return MediaFormat.createFormatForMimeType(streamElement.tracks[trackIndex].mimeType);
     }
-    // TODO: Do subtitles need a format? MediaFormat supports KEY_LANGUAGE.
     return null;
   }
 

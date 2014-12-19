@@ -47,6 +47,11 @@ public class Format {
   public final String mimeType;
 
   /**
+   * The codecs used to decode the format, or {@code null} if they are not specified.
+   */
+  public final String codecs;
+
+  /**
    * The width of the video in pixels, or -1 for non-video formats.
    */
   public final int width;
@@ -98,7 +103,7 @@ public class Format {
    */
   public Format(String id, String mimeType, int width, int height, int numChannels,
       int audioSamplingRate, int bitrate) {
-    this(id, mimeType, width, height, numChannels, audioSamplingRate, bitrate, null);
+    this(id, mimeType, width, height, numChannels, audioSamplingRate, bitrate, null, null);
   }
 
   /**
@@ -113,6 +118,23 @@ public class Format {
    */
   public Format(String id, String mimeType, int width, int height, int numChannels,
       int audioSamplingRate, int bitrate, String language) {
+    this(id, mimeType, width, height, numChannels, audioSamplingRate, bitrate, language, null);
+  }
+
+
+  /**
+   * @param id The format identifier.
+   * @param mimeType The format mime type.
+   * @param width The width of the video in pixels, or -1 for non-video formats.
+   * @param height The height of the video in pixels, or -1 for non-video formats.
+   * @param numChannels The number of audio channels, or -1 for non-audio formats.
+   * @param audioSamplingRate The audio sampling rate in Hz, or -1 for non-audio formats.
+   * @param bitrate The average bandwidth of the format in bits per second.
+   * @param language The language of the format.
+   * @param codecs The codecs used to decode the format.
+   */
+  public Format(String id, String mimeType, int width, int height, int numChannels,
+      int audioSamplingRate, int bitrate, String language, String codecs) {
     this.id = Assertions.checkNotNull(id);
     this.mimeType = mimeType;
     this.width = width;
@@ -121,6 +143,7 @@ public class Format {
     this.audioSamplingRate = audioSamplingRate;
     this.bitrate = bitrate;
     this.language = language;
+    this.codecs = codecs;
     this.bandwidth = bitrate / 8;
   }
 
