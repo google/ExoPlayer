@@ -205,6 +205,7 @@ public final class TsExtractor {
    *     for the specified track. False otherwise.
    */
   public boolean hasSamples(int track) {
+    Assertions.checkState(prepared);
     return sampleQueues.valueAt(track).peek() != null;
   }
 
