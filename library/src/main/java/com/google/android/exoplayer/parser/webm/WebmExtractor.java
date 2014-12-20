@@ -47,7 +47,9 @@ public final class WebmExtractor implements Extractor {
   private static final String DOC_TYPE_WEBM = "webm";
   private static final String CODEC_ID_VP9 = "V_VP9";
   private static final String CODEC_ID_VORBIS = "A_VORBIS";
+  private static final String CODEC_ID_OPUS = "A_OPUS";
   private static final int VORBIS_MAX_INPUT_SIZE = 8192;
+  private static final int OPUS_MAX_INPUT_SIZE = 5760;
   private static final int UNKNOWN = -1;
 
   // Element IDs
@@ -65,11 +67,15 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_CLUSTER = 0x1F43B675;
   private static final int ID_TIME_CODE = 0xE7;
   private static final int ID_SIMPLE_BLOCK = 0xA3;
+  private static final int ID_BLOCK_GROUP = 0xA0;
+  private static final int ID_BLOCK = 0xA1;
 
   private static final int ID_TRACKS = 0x1654AE6B;
   private static final int ID_TRACK_ENTRY = 0xAE;
   private static final int ID_CODEC_ID = 0x86;
   private static final int ID_CODEC_PRIVATE = 0x63A2;
+  private static final int ID_CODEC_DELAY = 0x56AA;
+  private static final int ID_SEEK_PRE_ROLL = 0x56BB;
   private static final int ID_VIDEO = 0xE0;
   private static final int ID_PIXEL_WIDTH = 0xB0;
   private static final int ID_PIXEL_HEIGHT = 0xBA;
@@ -107,6 +113,9 @@ public final class WebmExtractor implements Extractor {
   private int channelCount = UNKNOWN;
   private int sampleRate = UNKNOWN;
   private byte[] codecPrivate;
+  private String codecId;
+  private long codecDelayNs;
+  private long seekPreRollNs;
   private boolean seenAudioTrack;
   private long cuesSizeBytes = UNKNOWN;
   private long clusterTimecodeUs = UNKNOWN;
@@ -194,6 +203,7 @@ public final class WebmExtractor implements Extractor {
       case ID_CUES:
       case ID_CUE_POINT:
       case ID_CUE_TRACK_POSITIONS:
+      case ID_BLOCK_GROUP:
         return EbmlReader.TYPE_MASTER;
       case ID_EBML_READ_VERSION:
       case ID_DOC_TYPE_READ_VERSION:
@@ -201,6 +211,8 @@ public final class WebmExtractor implements Extractor {
       case ID_TIME_CODE:
       case ID_PIXEL_WIDTH:
       case ID_PIXEL_HEIGHT:
+      case ID_CODEC_DELAY:
+      case ID_SEEK_PRE_ROLL:
       case ID_CHANNELS:
       case ID_CUE_TIME:
       case ID_CUE_CLUSTER_POSITION:
@@ -209,6 +221,7 @@ public final class WebmExtractor implements Extractor {
       case ID_CODEC_ID:
         return EbmlReader.TYPE_STRING;
       case ID_SIMPLE_BLOCK:
+      case ID_BLOCK:
       case ID_CODEC_PRIVATE:
         return EbmlReader.TYPE_BINARY;
       case ID_DURATION:
@@ -287,6 +300,12 @@ public final class WebmExtractor implements Extractor {
       case ID_PIXEL_HEIGHT:
         pixelHeight = (int) value;
         break;
+      case ID_CODEC_DELAY:
+        codecDelayNs = value;
+        break;
+      case ID_SEEK_PRE_ROLL:
+        seekPreRollNs = value;
+        break;
       case ID_CHANNELS:
         channelCount = (int) value;
         break;
@@ -329,9 +348,10 @@ public final class WebmExtractor implements Extractor {
         break;
       case ID_CODEC_ID:
         // Validate that CodecID is supported. This extractor only supports "V_VP9" and "A_VORBIS".
-        if (!CODEC_ID_VP9.equals(value) && !CODEC_ID_VORBIS.equals(value)) {
+        if (!isCodecSupported(value)) {
           throw new ParserException("CodecID " + value + " not supported");
         }
+        codecId = value;
         break;
       default:
         // pass
@@ -344,8 +364,11 @@ public final class WebmExtractor implements Extractor {
       NonBlockingInputStream inputStream) throws ParserException {
     switch (id) {
       case ID_SIMPLE_BLOCK:
+      case ID_BLOCK:
         // Please refer to http://www.matroska.org/technical/specs/index.html#simpleblock_structure
-        // for info about how data is organized in a SimpleBlock element.
+        // and http://matroska.org/technical/specs/index.html#block_structure
+        // for info about how data is organized in SimpleBlock and Block elements respectively. They
+        // differ only in the way flags are specified.
 
         // If we don't have a sample holder then don't consume the data.
         if (sampleHolder == null) {
@@ -365,7 +388,16 @@ public final class WebmExtractor implements Extractor {
         long timecodeUs = scaleTimecodeToUs(timecode);
 
         // Last byte of the three has some flags and the lacing value.
-        boolean keyframe = (simpleBlockTimecodeAndFlags[2] & 0x80) == 0x80;
+        boolean keyframe;
+        if (id == ID_BLOCK) {
+          // Matroska Block element does not self-sufficiently say whether it is a key frame or not.
+          // It depends on the existence of another element (ReferenceBlock) which may occur after
+          // the Block element. Since this extractor uses Block element only for Opus, we set the
+          // keyframe to be true always since all Opus frames are key frames.
+          keyframe = true;
+        } else {
+          keyframe = (simpleBlockTimecodeAndFlags[2] & 0x80) == 0x80;
+        }
         boolean invisible = (simpleBlockTimecodeAndFlags[2] & 0x08) == 0x08;
         int lacing = (simpleBlockTimecodeAndFlags[2] & 0x06) >> 1;
 
@@ -413,6 +445,12 @@ public final class WebmExtractor implements Extractor {
     return TimeUnit.NANOSECONDS.toMicros(unscaledTimecode * timecodeScale);
   }
 
+  private boolean isCodecSupported(String codecId) {
+    return CODEC_ID_VP9.equals(codecId)
+        || CODEC_ID_OPUS.equals(codecId)
+        || CODEC_ID_VORBIS.equals(codecId);
+  }
+
   /**
    * Build a video {@link MediaFormat} containing recently gathered Video information, if needed.
    *
@@ -444,9 +482,19 @@ public final class WebmExtractor implements Extractor {
     if (channelCount != UNKNOWN && sampleRate != UNKNOWN
         && (format == null || format.channelCount != channelCount
             || format.sampleRate != sampleRate)) {
-      format = MediaFormat.createAudioFormat(
-          MimeTypes.AUDIO_VORBIS, VORBIS_MAX_INPUT_SIZE,
-          sampleRate, channelCount, parseVorbisCodecPrivate());
+      if (CODEC_ID_VORBIS.equals(codecId)) {
+        format = MediaFormat.createAudioFormat(
+            MimeTypes.AUDIO_VORBIS, VORBIS_MAX_INPUT_SIZE,
+            channelCount, sampleRate, parseVorbisCodecPrivate());
+      } else if (CODEC_ID_OPUS.equals(codecId)) {
+        ArrayList<byte[]> opusInitializationData = new ArrayList<byte[]>(3);
+        opusInitializationData.add(codecPrivate);
+        opusInitializationData.add(ByteBuffer.allocate(8).putLong(codecDelayNs).array());
+        opusInitializationData.add(ByteBuffer.allocate(8).putLong(seekPreRollNs).array());
+        format = MediaFormat.createAudioFormat(
+            MimeTypes.AUDIO_OPUS, OPUS_MAX_INPUT_SIZE, channelCount, sampleRate,
+            opusInitializationData);
+      }
       readResults |= RESULT_READ_INIT;
     } else if (format == null) {
       throw new ParserException("Unable to build format");
