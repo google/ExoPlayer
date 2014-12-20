@@ -46,7 +46,7 @@ public class DataSourceInputStream extends InputStream {
   @Override
   public int read() throws IOException {
     read(singleByteArray);
-    return singleByteArray[0];
+    return singleByteArray[0] & 0xFF;
   }
 
   @Override
