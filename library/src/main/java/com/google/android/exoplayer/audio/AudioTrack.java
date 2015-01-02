@@ -404,7 +404,7 @@ public final class AudioTrack {
       if (bytesToWrite > 0) {
         bytesToWrite = Math.min(temporaryBufferSize, bytesToWrite);
         bytesWritten = audioTrack.write(temporaryBuffer, temporaryBufferOffset, bytesToWrite);
-        if (bytesWritten < 0) {
+        if (bytesWritten > 0) {
           temporaryBufferOffset += bytesWritten;
         }
       }
