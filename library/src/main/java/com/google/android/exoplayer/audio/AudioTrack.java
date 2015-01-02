@@ -66,6 +66,21 @@ public final class AudioTrack {
 
   }
 
+  /**
+   * Thrown when a failure occurs writing to an {@link android.media.AudioTrack}.
+   */
+  public static class WriteException extends Exception {
+
+    /** The value returned from {@link android.media.AudioTrack#write(byte[], int, int)}. */
+    public final int errorCode;
+
+    public WriteException(int errorCode) {
+      super("AudioTrack write failed: " + errorCode);
+      this.errorCode = errorCode;
+    }
+
+  }
+
   /** Returned in the result of {@link #handleBuffer} if the buffer was discontinuous. */
   public static final int RESULT_POSITION_DISCONTINUITY = 1;
   /** Returned in the result of {@link #handleBuffer} if the buffer can be released. */
@@ -359,8 +374,10 @@ public final class AudioTrack {
    * @return A bit field with {@link #RESULT_BUFFER_CONSUMED} if the buffer can be released, and
    *     {@link #RESULT_POSITION_DISCONTINUITY} if the buffer was not contiguous with previously
    *     written data.
+   * @throws WriteException If an error occurs writing the audio data.
    */
-  public int handleBuffer(ByteBuffer buffer, int offset, int size, long presentationTimeUs) {
+  public int handleBuffer(ByteBuffer buffer, int offset, int size, long presentationTimeUs)
+      throws WriteException {
     if (size == 0) {
       return RESULT_BUFFER_CONSUMED;
     }
@@ -422,9 +439,7 @@ public final class AudioTrack {
       if (bytesToWrite > 0) {
         bytesToWrite = Math.min(temporaryBufferSize, bytesToWrite);
         bytesWritten = audioTrack.write(temporaryBuffer, temporaryBufferOffset, bytesToWrite);
-        if (bytesWritten < 0) {
-          Log.w(TAG, "AudioTrack.write returned error code: " + bytesWritten);
-        } else {
+        if (bytesWritten >= 0) {
           temporaryBufferOffset += bytesWritten;
         }
       }
@@ -432,12 +447,15 @@ public final class AudioTrack {
       bytesWritten = writeNonBlockingV21(audioTrack, buffer, temporaryBufferSize);
     }
 
+    if (bytesWritten < 0) {
+      throw new WriteException(bytesWritten);
+    }
+
     temporaryBufferSize -= bytesWritten;
     submittedBytes += bytesWritten;
     if (temporaryBufferSize == 0) {
       result |= RESULT_BUFFER_CONSUMED;
     }
-
     return result;
   }
 

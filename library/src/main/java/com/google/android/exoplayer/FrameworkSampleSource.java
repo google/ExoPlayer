@@ -190,7 +190,8 @@ public final class FrameworkSampleSource implements SampleSource {
     if (bufferedDurationUs == -1) {
       return TrackRenderer.UNKNOWN_TIME_US;
     } else {
-      return extractor.getSampleTime() + bufferedDurationUs;
+      long sampleTime = extractor.getSampleTime();
+      return sampleTime == -1 ? TrackRenderer.END_OF_TRACK_US : sampleTime + bufferedDurationUs;
     }
   }
 

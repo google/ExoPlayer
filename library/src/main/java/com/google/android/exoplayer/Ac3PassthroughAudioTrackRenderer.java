@@ -51,6 +51,13 @@ public final class Ac3PassthroughAudioTrackRenderer extends TrackRenderer {
      */
     void onAudioTrackInitializationError(AudioTrack.InitializationException e);
 
+    /**
+     * Invoked when an {@link AudioTrack} write fails.
+     *
+     * @param e The corresponding exception.
+     */
+    void onAudioTrackWriteError(AudioTrack.WriteException e);
+
   }
 
   /**
@@ -188,7 +195,7 @@ public final class Ac3PassthroughAudioTrackRenderer extends TrackRenderer {
     }
   }
 
-  private void feedInputBuffer() throws IOException {
+  private void feedInputBuffer() throws IOException, ExoPlaybackException {
     if (!audioTrack.isInitialized() || inputStreamEnded) {
       return;
     }
@@ -212,8 +219,14 @@ public final class Ac3PassthroughAudioTrackRenderer extends TrackRenderer {
       shouldReadInputBuffer = false;
     }
 
-    int handleBufferResult =
-        audioTrack.handleBuffer(sampleHolder.data, 0, sampleHolder.size, sampleHolder.timeUs);
+    int handleBufferResult;
+    try {
+      handleBufferResult =
+          audioTrack.handleBuffer(sampleHolder.data, 0, sampleHolder.size, sampleHolder.timeUs);
+    } catch (AudioTrack.WriteException e) {
+      notifyAudioTrackWriteError(e);
+      throw new ExoPlaybackException(e);
+    }
 
     // If we are out of sync, allow currentPositionUs to jump backwards.
     if ((handleBufferResult & AudioTrack.RESULT_POSITION_DISCONTINUITY) != 0) {
@@ -303,6 +316,17 @@ public final class Ac3PassthroughAudioTrackRenderer extends TrackRenderer {
         @Override
         public void run() {
           eventListener.onAudioTrackInitializationError(e);
+        }
+      });
+    }
+  }
+
+  private void notifyAudioTrackWriteError(final AudioTrack.WriteException e) {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable()  {
+        @Override
+        public void run() {
+          eventListener.onAudioTrackWriteError(e);
         }
       });
     }
