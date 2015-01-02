@@ -422,9 +422,7 @@ public final class AudioTrack {
       if (bytesToWrite > 0) {
         bytesToWrite = Math.min(temporaryBufferSize, bytesToWrite);
         bytesWritten = audioTrack.write(temporaryBuffer, temporaryBufferOffset, bytesToWrite);
-        if (bytesWritten < 0) {
-          Log.w(TAG, "AudioTrack.write returned error code: " + bytesWritten);
-        } else {
+        if (bytesWritten > 0) {
           temporaryBufferOffset += bytesWritten;
         }
       }
@@ -432,10 +430,15 @@ public final class AudioTrack {
       bytesWritten = writeNonBlockingV21(audioTrack, buffer, temporaryBufferSize);
     }
 
-    temporaryBufferSize -= bytesWritten;
-    submittedBytes += bytesWritten;
-    if (temporaryBufferSize == 0) {
-      result |= RESULT_BUFFER_CONSUMED;
+    if (bytesWritten < 0) {
+        Log.w(TAG, "AudioTrack.write returned error code: " + bytesWritten);
+        result |= RESULT_BUFFER_CONSUMED;
+    } else {
+        temporaryBufferSize -= bytesWritten;
+        submittedBytes += bytesWritten;
+        if (temporaryBufferSize == 0) {
+            result |= RESULT_BUFFER_CONSUMED;
+        }
     }
 
     return result;
