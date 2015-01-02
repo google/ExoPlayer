@@ -154,6 +154,11 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   @Override
+  public void onAudioTrackWriteError(AudioTrack.WriteException e) {
+    printInternalError("audioTrackWriteError", e);
+  }
+
+  @Override
   public void onCryptoError(CryptoException e) {
     printInternalError("cryptoError", e);
   }

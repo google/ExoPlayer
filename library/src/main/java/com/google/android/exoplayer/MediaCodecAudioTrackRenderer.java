@@ -47,6 +47,13 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
      */
     void onAudioTrackInitializationError(AudioTrack.InitializationException e);
 
+    /**
+     * Invoked when an {@link AudioTrack} write fails.
+     *
+     * @param e The corresponding exception.
+     */
+    void onAudioTrackWriteError(AudioTrack.WriteException e);
+
   }
 
   /**
@@ -303,8 +310,14 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
       }
     }
 
-    int handleBufferResult = audioTrack.handleBuffer(
-        buffer, bufferInfo.offset, bufferInfo.size, bufferInfo.presentationTimeUs);
+    int handleBufferResult;
+    try {
+      handleBufferResult = audioTrack.handleBuffer(
+          buffer, bufferInfo.offset, bufferInfo.size, bufferInfo.presentationTimeUs);
+    } catch (AudioTrack.WriteException e) {
+      notifyAudioTrackWriteError(e);
+      throw new ExoPlaybackException(e);
+    }
 
     // If we are out of sync, allow currentPositionUs to jump backwards.
     if ((handleBufferResult & AudioTrack.RESULT_POSITION_DISCONTINUITY) != 0) {
@@ -336,6 +349,17 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
         @Override
         public void run() {
           eventListener.onAudioTrackInitializationError(e);
+        }
+      });
+    }
+  }
+
+  private void notifyAudioTrackWriteError(final AudioTrack.WriteException e) {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable()  {
+        @Override
+        public void run() {
+          eventListener.onAudioTrackWriteError(e);
         }
       });
     }
