@@ -17,7 +17,6 @@ package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.drm.DrmSessionManager;
-import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.annotation.TargetApi;
@@ -64,10 +63,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   public static final int MSG_SET_VOLUME = 1;
 
   private final EventListener eventListener;
-
   private final AudioTrack audioTrack;
-  private int audioSessionId;
 
+  private int audioSessionId;
   private long currentPositionUs;
 
   /**
@@ -118,72 +116,10 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
    */
   public MediaCodecAudioTrackRenderer(SampleSource source, DrmSessionManager drmSessionManager,
       boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener) {
-    this(source, drmSessionManager, playClearSamplesWithoutKeys, eventHandler, eventListener,
-        new AudioTrack());
-  }
-
-  /**
-   * @param source The upstream source from which the renderer obtains samples.
-   * @param minBufferMultiplicationFactor When instantiating an underlying
-   *     {@link android.media.AudioTrack}, the size of the track is calculated as this value
-   *     multiplied by the minimum buffer size obtained from
-   *     {@link android.media.AudioTrack#getMinBufferSize(int, int, int)}. The multiplication
-   *     factor must be greater than or equal to 1.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   */
-  public MediaCodecAudioTrackRenderer(SampleSource source, float minBufferMultiplicationFactor,
-      Handler eventHandler, EventListener eventListener) {
-    this(source, null, true, minBufferMultiplicationFactor, eventHandler, eventListener);
-  }
-
-  /**
-   * @param source The upstream source from which the renderer obtains samples.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisision. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param minBufferMultiplicationFactor When instantiating an underlying
-   *     {@link android.media.AudioTrack}, the size of the track is calculated as this value
-   *     multiplied by the minimum buffer size obtained from
-   *     {@link android.media.AudioTrack#getMinBufferSize(int, int, int)}. The multiplication
-   *     factor must be greater than or equal to 1.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   */
-  public MediaCodecAudioTrackRenderer(SampleSource source, DrmSessionManager drmSessionManager,
-      boolean playClearSamplesWithoutKeys, float minBufferMultiplicationFactor,
-      Handler eventHandler, EventListener eventListener) {
-    this(source, drmSessionManager, playClearSamplesWithoutKeys, eventHandler, eventListener,
-        new AudioTrack(minBufferMultiplicationFactor));
-  }
-
-  /**
-   * @param source The upstream source from which the renderer obtains samples.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisision. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param audioTrack Used for playing back decoded audio samples.
-   */
-  public MediaCodecAudioTrackRenderer(SampleSource source, DrmSessionManager drmSessionManager,
-      boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener,
-      AudioTrack audioTrack) {
     super(source, drmSessionManager, playClearSamplesWithoutKeys, eventHandler, eventListener);
     this.eventListener = eventListener;
-    this.audioTrack = Assertions.checkNotNull(audioTrack);
     this.audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
+    this.audioTrack = new AudioTrack();
   }
 
   @Override

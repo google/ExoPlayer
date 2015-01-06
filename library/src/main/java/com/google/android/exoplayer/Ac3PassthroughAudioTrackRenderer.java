@@ -73,9 +73,6 @@ public final class Ac3PassthroughAudioTrackRenderer extends TrackRenderer {
   /** Default buffer size for AC-3 packets from the sample source */
   private static final int DEFAULT_BUFFER_SIZE = 16384 * 2;
 
-  /** Multiplication factor for the audio track's buffer size. */
-  private static final int MIN_BUFFER_MULTIPLICATION_FACTOR = 3;
-
   private final Handler eventHandler;
   private final EventListener eventListener;
 
@@ -103,15 +100,15 @@ public final class Ac3PassthroughAudioTrackRenderer extends TrackRenderer {
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public Ac3PassthroughAudioTrackRenderer(
-      SampleSource source, Handler eventHandler, EventListener eventListener) {
+  public Ac3PassthroughAudioTrackRenderer(SampleSource source, Handler eventHandler,
+      EventListener eventListener) {
     this.source = Assertions.checkNotNull(source);
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
     sampleHolder.data = ByteBuffer.allocateDirect(DEFAULT_BUFFER_SIZE);
     formatHolder = new MediaFormatHolder();
-    audioTrack = new AudioTrack(MIN_BUFFER_MULTIPLICATION_FACTOR);
+    audioTrack = new AudioTrack();
     shouldReadInputBuffer = true;
   }
 
