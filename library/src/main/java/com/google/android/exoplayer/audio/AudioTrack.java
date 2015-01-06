@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.audio;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.SuppressLint;
@@ -89,11 +88,18 @@ public final class AudioTrack {
   /** Represents an unset {@link android.media.AudioTrack} session identifier. */
   public static final int SESSION_ID_NOT_SET = 0;
 
-  /** The default multiplication factor used when determining the size of the track's buffer. */
-  public static final float DEFAULT_MIN_BUFFER_MULTIPLICATION_FACTOR = 4;
-
   /** Returned by {@link #getCurrentPositionUs} when the position is not set. */
   public static final long CURRENT_POSITION_NOT_SET = Long.MIN_VALUE;
+
+  /** A minimum length for the {@link android.media.AudioTrack} buffer, in microseconds. */
+  private static final long MIN_BUFFER_DURATION_US = 250000;
+  /** A maximum length for the {@link android.media.AudioTrack} buffer, in microseconds. */
+  private static final long MAX_BUFFER_DURATION_US = 750000;
+  /**
+   * A multiplication factor to apply to the minimum buffer size requested by the underlying
+   * {@link android.media.AudioTrack}.
+   */
+  private static final int BUFFER_MULTIPLICATION_FACTOR = 4;
 
   private static final String TAG = "AudioTrack";
 
@@ -126,7 +132,6 @@ public final class AudioTrack {
   private final ConditionVariable releasingConditionVariable;
   private final AudioTimestampCompat audioTimestampCompat;
   private final long[] playheadOffsets;
-  private final float minBufferMultiplicationFactor;
 
   private android.media.AudioTrack audioTrack;
   private int sampleRate;
@@ -162,15 +167,7 @@ public final class AudioTrack {
   /** Bitrate measured in kilobits per second, if {@link #isAc3} is true. */
   private int ac3Bitrate;
 
-  /** Constructs an audio track using the default minimum buffer size multiplier. */
   public AudioTrack() {
-    this(DEFAULT_MIN_BUFFER_MULTIPLICATION_FACTOR);
-  }
-
-  /** Constructs an audio track using the specified minimum buffer size multiplier. */
-  public AudioTrack(float minBufferMultiplicationFactor) {
-    Assertions.checkArgument(minBufferMultiplicationFactor >= 1);
-    this.minBufferMultiplicationFactor = minBufferMultiplicationFactor;
     releasingConditionVariable = new ConditionVariable(true);
     if (Util.SDK_INT >= 19) {
       audioTimestampCompat = new AudioTimestampCompatV19();
@@ -297,11 +294,11 @@ public final class AudioTrack {
    *
    * @param format Specifies the channel count and sample rate to play back.
    * @param encoding The format in which audio is represented.
-   * @param bufferSize The total size of the playback buffer in bytes. Specify 0 to use a buffer
-   *     size based on the minimum for format.
+   * @param specifiedBufferSize A specific size for the playback buffer in bytes, or 0 to use a
+   *     size inferred from the format.
    */
   @SuppressLint("InlinedApi")
-  public void reconfigure(MediaFormat format, int encoding, int bufferSize) {
+  public void reconfigure(MediaFormat format, int encoding, int specifiedBufferSize) {
     int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
     int channelConfig;
     switch (channelCount) {
@@ -333,16 +330,25 @@ public final class AudioTrack {
 
     reset();
 
-    minBufferSize = android.media.AudioTrack.getMinBufferSize(sampleRate, channelConfig, encoding);
-
     this.encoding = encoding;
-    this.bufferSize =
-        bufferSize == 0 ? (int) (minBufferMultiplicationFactor * minBufferSize) : bufferSize;
     this.sampleRate = sampleRate;
     this.channelConfig = channelConfig;
     this.isAc3 = isAc3;
     ac3Bitrate = UNKNOWN_AC3_BITRATE; // Calculated on receiving the first buffer if isAc3 is true.
     frameSize = 2 * channelCount; // 2 bytes per 16 bit sample * number of channels.
+    minBufferSize = android.media.AudioTrack.getMinBufferSize(sampleRate, channelConfig, encoding);
+
+    if (specifiedBufferSize != 0) {
+      bufferSize = specifiedBufferSize;
+    } else {
+      int multipliedBufferSize = minBufferSize * BUFFER_MULTIPLICATION_FACTOR;
+      int minAppBufferSize = (int) durationUsToFrames(MIN_BUFFER_DURATION_US) * frameSize;
+      int maxAppBufferSize = (int) Math.max(minBufferSize,
+          durationUsToFrames(MAX_BUFFER_DURATION_US) * frameSize);
+      bufferSize = multipliedBufferSize < minAppBufferSize ? minAppBufferSize
+          : multipliedBufferSize > maxAppBufferSize ? maxAppBufferSize
+          : multipliedBufferSize;
+    }
   }
 
   /** Starts/resumes playing audio if the audio track has been initialized. */
@@ -434,7 +440,7 @@ public final class AudioTrack {
     int bytesWritten = 0;
     if (Util.SDK_INT < 21) {
       // Work out how many bytes we can write without the risk of blocking.
-      int bytesPending = (int) (submittedBytes - framesToBytes(getPlaybackPositionFrames()));
+      int bytesPending = (int) (submittedBytes - (getPlaybackPositionFrames() * frameSize));
       int bytesToWrite = bufferSize - bytesPending;
       if (bytesToWrite > 0) {
         bytesToWrite = Math.min(temporaryBufferSize, bytesToWrite);
@@ -649,11 +655,6 @@ public final class AudioTrack {
 
   private long getPlaybackPositionUs() {
     return framesToDurationUs(getPlaybackPositionFrames());
-  }
-
-  private long framesToBytes(long frameCount) {
-    // This method is unused on SDK >= 21.
-    return frameCount * frameSize;
   }
 
   private long bytesToFrames(long byteCount) {
