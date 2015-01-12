@@ -20,6 +20,7 @@ import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecUtil;
+import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackRenderer;
@@ -172,7 +173,13 @@ public class DashRendererBuilder implements RendererBuilder,
     // Determine which video representations we should use for playback.
     ArrayList<Integer> videoRepresentationIndexList = new ArrayList<Integer>();
     if (videoAdaptationSet != null) {
-      int maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
+      int maxDecodableFrameSize;
+      try {
+        maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
+      } catch (DecoderQueryException e) {
+        callback.onRenderersError(e);
+        return;
+      }
       List<Representation> videoRepresentations = videoAdaptationSet.representations;
       for (int i = 0; i < videoRepresentations.size(); i++) {
         Format format = videoRepresentations.get(i).format;

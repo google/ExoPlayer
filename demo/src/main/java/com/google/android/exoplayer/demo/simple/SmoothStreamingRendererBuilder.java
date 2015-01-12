@@ -19,6 +19,7 @@ import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecUtil;
+import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
@@ -94,7 +95,13 @@ import java.util.ArrayList;
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 
     // Obtain stream elements for playback.
-    int maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
+    int maxDecodableFrameSize;
+    try {
+      maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
+    } catch (DecoderQueryException e) {
+      callback.onRenderersError(e);
+      return;
+    }
     int audioStreamElementIndex = -1;
     int videoStreamElementIndex = -1;
     ArrayList<Integer> videoTrackIndexList = new ArrayList<Integer>();

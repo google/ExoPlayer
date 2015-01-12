@@ -393,18 +393,22 @@ public class HttpDataSource implements DataSource {
         connection.setRequestProperty(property.getKey(), property.getValue());
       }
     }
+    setRangeHeader(connection, dataSpec);
     connection.setRequestProperty("User-Agent", userAgent);
-    connection.setRequestProperty("Range", buildRangeHeader(dataSpec));
     connection.connect();
     return connection;
   }
 
-  private String buildRangeHeader(DataSpec dataSpec) {
+  private void setRangeHeader(HttpURLConnection connection, DataSpec dataSpec) {
+    if (dataSpec.position == 0 && dataSpec.length == C.LENGTH_UNBOUNDED) {
+      // Not required.
+      return;
+    }
     String rangeRequest = "bytes=" + dataSpec.position + "-";
     if (dataSpec.length != C.LENGTH_UNBOUNDED) {
       rangeRequest += (dataSpec.position + dataSpec.length - 1);
     }
-    return rangeRequest;
+    connection.setRequestProperty("Range", rangeRequest);
   }
 
   private long getContentLength(HttpURLConnection connection) {

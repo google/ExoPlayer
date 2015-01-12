@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
@@ -67,8 +68,12 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    */
   public static class DecoderInitializationException extends Exception {
 
+    private static final int CUSTOM_ERROR_CODE_BASE = -50000;
+    private static final int NO_SUITABLE_DECODER_ERROR = CUSTOM_ERROR_CODE_BASE + 1;
+    private static final int DECODER_QUERY_ERROR = CUSTOM_ERROR_CODE_BASE + 2;
+
     /**
-     * The name of the decoder that failed to initialize.
+     * The name of the decoder that failed to initialize. Null if no suitable decoder was found.
      */
     public final String decoderName;
 
@@ -77,8 +82,14 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
      */
     public final String diagnosticInfo;
 
-    public DecoderInitializationException(String decoderName, MediaFormat mediaFormat,
-        Throwable cause) {
+    public DecoderInitializationException(MediaFormat mediaFormat, Throwable cause, int errorCode) {
+      super("Decoder init failed: [" + errorCode + "], " + mediaFormat, cause);
+      this.decoderName = null;
+      this.diagnosticInfo = buildCustomDiagnosticInfo(errorCode);
+    }
+
+    public DecoderInitializationException(MediaFormat mediaFormat, Throwable cause,
+        String decoderName) {
       super("Decoder init failed: " + decoderName + ", " + mediaFormat, cause);
       this.decoderName = decoderName;
       this.diagnosticInfo = Util.SDK_INT >= 21 ? getDiagnosticInfoV21(cause) : null;
@@ -90,6 +101,11 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         return ((CodecException) cause).getDiagnosticInfo();
       }
       return null;
+    }
+
+    private static String buildCustomDiagnosticInfo(int errorCode) {
+      String sign = errorCode < 0 ? "neg_" : "";
+      return "com.google.android.exoplayer.MediaCodecTrackRenderer_" + sign + Math.abs(errorCode);
     }
 
   }
@@ -281,21 +297,29 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       }
     }
 
-    DecoderInfo selectedDecoderInfo = MediaCodecUtil.getDecoderInfo(mimeType,
-        requiresSecureDecoder);
-    String selectedDecoderName = selectedDecoderInfo.name;
-    codecIsAdaptive = selectedDecoderInfo.adaptive;
+    DecoderInfo decoderInfo = null;
     try {
-      codec = MediaCodec.createByCodecName(selectedDecoderName);
+      decoderInfo = MediaCodecUtil.getDecoderInfo(mimeType, requiresSecureDecoder);
+    } catch (DecoderQueryException e) {
+      notifyAndThrowDecoderInitError(new DecoderInitializationException(format, e,
+          DecoderInitializationException.DECODER_QUERY_ERROR));
+    }
+
+    if (decoderInfo == null) {
+      notifyAndThrowDecoderInitError(new DecoderInitializationException(format, null,
+          DecoderInitializationException.NO_SUITABLE_DECODER_ERROR));
+    }
+
+    String decoderName = decoderInfo.name;
+    codecIsAdaptive = decoderInfo.adaptive;
+    try {
+      codec = MediaCodec.createByCodecName(decoderName);
       configureCodec(codec, format.getFrameworkMediaFormatV16(), mediaCrypto);
       codec.start();
       inputBuffers = codec.getInputBuffers();
       outputBuffers = codec.getOutputBuffers();
     } catch (Exception e) {
-      DecoderInitializationException exception = new DecoderInitializationException(
-          selectedDecoderName, format, e);
-      notifyDecoderInitializationError(exception);
-      throw new ExoPlaybackException(exception);
+      notifyAndThrowDecoderInitError(new DecoderInitializationException(format, e, decoderName));
     }
     codecHotswapTimeMs = getState() == TrackRenderer.STATE_STARTED ?
         SystemClock.elapsedRealtime() : -1;
@@ -303,6 +327,12 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     outputIndex = -1;
     waitingForFirstSyncFrame = true;
     codecCounters.codecInitCount++;
+  }
+
+  private void notifyAndThrowDecoderInitError(DecoderInitializationException e)
+      throws ExoPlaybackException {
+    notifyDecoderInitializationError(e);
+    throw new ExoPlaybackException(e);
   }
 
   protected boolean shouldInitCodec() {

@@ -109,14 +109,14 @@ public final class AudioTrack {
    *
    * <p>This is a fail safe that should not be required on correctly functioning devices.
    */
-  private static final long MAX_AUDIO_TIMESTAMP_OFFSET_US = 10 * C.MICROS_PER_SECOND;
+  private static final long MAX_AUDIO_TIMESTAMP_OFFSET_US = 5 * C.MICROS_PER_SECOND;
 
   /**
    * AudioTrack latencies are deemed impossibly large if they are greater than this amount.
    *
    * <p>This is a fail safe that should not be required on correctly functioning devices.
    */
-  private static final long MAX_LATENCY_US = 10 * C.MICROS_PER_SECOND;
+  private static final long MAX_LATENCY_US = 5 * C.MICROS_PER_SECOND;
 
   /** Value for ac3Bitrate before the bitrate has been calculated. */
   private static final int UNKNOWN_AC3_BITRATE = 0;
@@ -130,10 +130,10 @@ public final class AudioTrack {
   private static final int MIN_TIMESTAMP_SAMPLE_INTERVAL_US = 500000;
 
   private final ConditionVariable releasingConditionVariable;
-  private final AudioTimestampCompat audioTimestampCompat;
   private final long[] playheadOffsets;
 
   private android.media.AudioTrack audioTrack;
+  private AudioTrackUtil audioTrackUtil;
   private int sampleRate;
   private int channelConfig;
   private int encoding;
@@ -147,8 +147,6 @@ public final class AudioTrack {
   private long lastPlayheadSampleTimeUs;
   private boolean audioTimestampSet;
   private long lastTimestampSampleTimeUs;
-  private long lastRawPlaybackHeadPosition;
-  private long rawPlaybackHeadWrapCount;
 
   private Method getLatencyMethod;
   private long submittedBytes;
@@ -169,11 +167,6 @@ public final class AudioTrack {
 
   public AudioTrack() {
     releasingConditionVariable = new ConditionVariable(true);
-    if (Util.SDK_INT >= 19) {
-      audioTimestampCompat = new AudioTimestampCompatV19();
-    } else {
-      audioTimestampCompat = new NoopAudioTimestampCompat();
-    }
     if (Util.SDK_INT >= 18) {
       try {
         getLatencyMethod =
@@ -219,15 +212,15 @@ public final class AudioTrack {
     long currentPositionUs;
     if (audioTimestampSet) {
       // How long ago in the past the audio timestamp is (negative if it's in the future).
-      long presentationDiff = systemClockUs - (audioTimestampCompat.getNanoTime() / 1000);
+      long presentationDiff = systemClockUs - (audioTrackUtil.getTimestampNanoTime() / 1000);
       long framesDiff = durationUsToFrames(presentationDiff);
       // The position of the frame that's currently being presented.
-      long currentFramePosition = audioTimestampCompat.getFramePosition() + framesDiff;
+      long currentFramePosition = audioTrackUtil.getTimestampFramePosition() + framesDiff;
       currentPositionUs = framesToDurationUs(currentFramePosition) + startMediaTimeUs;
     } else {
       if (playheadOffsetCount == 0) {
         // The AudioTrack has started, but we don't have any samples to compute a smoothed position.
-        currentPositionUs = getPlaybackPositionUs() + startMediaTimeUs;
+        currentPositionUs = audioTrackUtil.getPlaybackHeadPositionUs() + startMediaTimeUs;
       } else {
         // getPlayheadPositionUs() only has a granularity of ~20ms, so we base the position off the
         // system clock (and a smoothed offset between it and the playhead position) so as to
@@ -274,7 +267,13 @@ public final class AudioTrack {
       audioTrack = new android.media.AudioTrack(AudioManager.STREAM_MUSIC, sampleRate,
           channelConfig, encoding, bufferSize, android.media.AudioTrack.MODE_STREAM, sessionId);
     }
+
     checkAudioTrackInitialized();
+    if (Util.SDK_INT >= 19) {
+      audioTrackUtil = new AudioTrackUtilV19(audioTrack);
+    } else {
+      audioTrackUtil = new AudioTrackUtil(audioTrack);
+    }
     setVolume(volume);
     return audioTrack.getAudioSessionId();
   }
@@ -440,7 +439,8 @@ public final class AudioTrack {
     int bytesWritten = 0;
     if (Util.SDK_INT < 21) {
       // Work out how many bytes we can write without the risk of blocking.
-      int bytesPending = (int) (submittedBytes - (getPlaybackPositionFrames() * frameSize));
+      int bytesPending =
+          (int) (submittedBytes - (audioTrackUtil.getPlaybackHeadPosition() * frameSize));
       int bytesToWrite = bufferSize - bytesPending;
       if (bytesToWrite > 0) {
         bytesToWrite = Math.min(temporaryBufferSize, bytesToWrite);
@@ -473,7 +473,8 @@ public final class AudioTrack {
 
   /** Returns whether the audio track has more data pending that will be played back. */
   public boolean hasPendingData() {
-    return isInitialized() && bytesToFrames(submittedBytes) > getPlaybackPositionFrames();
+    return isInitialized()
+        && bytesToFrames(submittedBytes) > audioTrackUtil.getPlaybackHeadPosition();
   }
 
   /** Returns whether enough data has been supplied via {@link #handleBuffer} to begin playback. */
@@ -520,8 +521,6 @@ public final class AudioTrack {
     if (isInitialized()) {
       submittedBytes = 0;
       temporaryBufferSize = 0;
-      lastRawPlaybackHeadPosition = 0;
-      rawPlaybackHeadWrapCount = 0;
       startMediaTimeUs = START_NOT_SET;
       resetSyncParams();
       int playState = audioTrack.getPlayState();
@@ -531,6 +530,7 @@ public final class AudioTrack {
       // AudioTrack.release can take some time, so we call it on a background thread.
       final android.media.AudioTrack toRelease = audioTrack;
       audioTrack = null;
+      audioTrackUtil = null;
       releasingConditionVariable.close();
       new Thread() {
         @Override
@@ -552,7 +552,7 @@ public final class AudioTrack {
 
   /** Updates the audio track latency and playback position parameters. */
   private void maybeSampleSyncParams() {
-    long playbackPositionUs = getPlaybackPositionUs();
+    long playbackPositionUs = audioTrackUtil.getPlaybackHeadPositionUs();
     if (playbackPositionUs == 0) {
       // The AudioTrack hasn't output anything yet.
       return;
@@ -573,18 +573,27 @@ public final class AudioTrack {
     }
 
     if (systemClockUs - lastTimestampSampleTimeUs >= MIN_TIMESTAMP_SAMPLE_INTERVAL_US) {
-      audioTimestampSet = audioTimestampCompat.update(audioTrack);
+      audioTimestampSet = audioTrackUtil.updateTimestamp();
       if (audioTimestampSet) {
         // Perform sanity checks on the timestamp.
-        long audioTimestampUs = audioTimestampCompat.getNanoTime() / 1000;
+        long audioTimestampUs = audioTrackUtil.getTimestampNanoTime() / 1000;
+        long audioTimestampFramePosition = audioTrackUtil.getTimestampFramePosition();
         if (audioTimestampUs < resumeSystemTimeUs) {
           // The timestamp corresponds to a time before the track was most recently resumed.
           audioTimestampSet = false;
         } else if (Math.abs(audioTimestampUs - systemClockUs) > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
           // The timestamp time base is probably wrong.
           audioTimestampSet = false;
-          Log.w(TAG, "Spurious audio timestamp: " + audioTimestampCompat.getFramePosition() + ", "
-              + audioTimestampUs + ", " + systemClockUs);
+          Log.w(TAG, "Spurious audio timestamp (system clock mismatch): "
+              + audioTimestampFramePosition + ", " + audioTimestampUs + ", " + systemClockUs + ", "
+              + playbackPositionUs);
+        } else if (Math.abs(framesToDurationUs(audioTimestampFramePosition) - playbackPositionUs)
+            > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
+          // The timestamp frame position is probably wrong.
+          audioTimestampSet = false;
+          Log.w(TAG, "Spurious audio timestamp (frame position mismatch): "
+              + audioTimestampFramePosition + ", " + audioTimestampUs + ", " + systemClockUs + ", "
+              + playbackPositionUs);
         }
       }
       if (getLatencyMethod != null) {
@@ -634,29 +643,6 @@ public final class AudioTrack {
     throw new InitializationException(state, sampleRate, channelConfig, bufferSize);
   }
 
-  /**
-   * {@link android.media.AudioTrack#getPlaybackHeadPosition()} returns a value intended to be
-   * interpreted as an unsigned 32 bit integer, which also wraps around periodically. This method
-   * returns the playback head position as a long that will only wrap around if the value exceeds
-   * {@link Long#MAX_VALUE} (which in practice will never happen).
-   *
-   * @return {@link android.media.AudioTrack#getPlaybackHeadPosition()} of {@link #audioTrack}
-   *     expressed as a long.
-   */
-  private long getPlaybackPositionFrames() {
-    long rawPlaybackHeadPosition = 0xFFFFFFFFL & audioTrack.getPlaybackHeadPosition();
-    if (lastRawPlaybackHeadPosition > rawPlaybackHeadPosition) {
-      // The value must have wrapped around.
-      rawPlaybackHeadWrapCount++;
-    }
-    lastRawPlaybackHeadPosition = rawPlaybackHeadPosition;
-    return rawPlaybackHeadPosition + (rawPlaybackHeadWrapCount << 32);
-  }
-
-  private long getPlaybackPositionUs() {
-    return framesToDurationUs(getPlaybackPositionFrames());
-  }
-
   private long bytesToFrames(long byteCount) {
     if (isAc3) {
       return
@@ -684,72 +670,126 @@ public final class AudioTrack {
   }
 
   /**
-   * Interface exposing the {@link android.media.AudioTimestamp} methods we need that were added in
-   * SDK 19.
+   * Wraps an {@link android.media.AudioTrack} to expose useful utility methods.
    */
-  private interface AudioTimestampCompat {
+  private static class AudioTrackUtil {
+
+    protected final android.media.AudioTrack audioTrack;
+    private final int sampleRate;
+
+    private long lastRawPlaybackHeadPosition;
+    private long rawPlaybackHeadWrapCount;
+
+    public AudioTrackUtil(android.media.AudioTrack audioTrack) {
+      this.audioTrack = audioTrack;
+      this.sampleRate = audioTrack.getSampleRate();
+    }
 
     /**
-     * Returns true if the audioTimestamp was retrieved from the audioTrack.
+     * {@link android.media.AudioTrack#getPlaybackHeadPosition()} returns a value intended to be
+     * interpreted as an unsigned 32 bit integer, which also wraps around periodically. This method
+     * returns the playback head position as a long that will only wrap around if the value exceeds
+     * {@link Long#MAX_VALUE} (which in practice will never happen).
+     *
+     * @return {@link android.media.AudioTrack#getPlaybackHeadPosition()} of {@link #audioTrack}
+     *     expressed as a long.
      */
-    boolean update(android.media.AudioTrack audioTrack);
+    public long getPlaybackHeadPosition() {
+      long rawPlaybackHeadPosition = 0xFFFFFFFFL & audioTrack.getPlaybackHeadPosition();
+      if (lastRawPlaybackHeadPosition > rawPlaybackHeadPosition) {
+        // The value must have wrapped around.
+        rawPlaybackHeadWrapCount++;
+      }
+      lastRawPlaybackHeadPosition = rawPlaybackHeadPosition;
+      return rawPlaybackHeadPosition + (rawPlaybackHeadWrapCount << 32);
+    }
 
-    long getNanoTime();
+    /**
+     * Returns {@link #getPlaybackHeadPosition()} expressed as microseconds.
+     */
+    public long getPlaybackHeadPositionUs() {
+      return (getPlaybackHeadPosition() * C.MICROS_PER_SECOND) / sampleRate;
+    }
 
-    long getFramePosition();
-
-  }
-
-  /**
-   * The AudioTimestampCompat implementation for SDK < 19 that does nothing or throws an exception.
-   */
-  private static final class NoopAudioTimestampCompat implements AudioTimestampCompat {
-
-    @Override
-    public boolean update(android.media.AudioTrack audioTrack) {
+    /**
+     * Updates the values returned by {@link #getTimestampNanoTime()} and
+     * {@link #getTimestampFramePosition()}.
+     *
+     * @return True if the timestamp values were updated. False otherwise.
+     */
+    public boolean updateTimestamp() {
       return false;
     }
 
-    @Override
-    public long getNanoTime() {
-      // Should never be called if initTimestamp() returned false.
+    /**
+     * Returns the {@link android.media.AudioTimestamp#nanoTime} obtained during the most recent
+     * call to {@link #updateTimestamp()} that returned true.
+     *
+     * @return The nanoTime obtained during the most recent call to {@link #updateTimestamp()} that
+     *     returned true.
+     * @throws UnsupportedOperationException If the implementation does not support audio timestamp
+     *     queries. {@link #updateTimestamp()} will always return false in this case.
+     */
+    public long getTimestampNanoTime() {
+      // Should never be called if updateTimestamp() returned false.
       throw new UnsupportedOperationException();
     }
 
-    @Override
-    public long getFramePosition() {
-      // Should never be called if initTimestamp() returned false.
+    /**
+     * Returns the {@link android.media.AudioTimestamp#framePosition} obtained during the most
+     * recent call to {@link #updateTimestamp()} that returned true. The value is adjusted so that
+     * wrap around only occurs if the value exceeds {@link Long#MAX_VALUE} (which in practice will
+     * never happen).
+     *
+     * @return The framePosition obtained during the most recent call to {@link #updateTimestamp()}
+     *     that returned true.
+     * @throws UnsupportedOperationException If the implementation does not support audio timestamp
+     *     queries. {@link #updateTimestamp()} will always return false in this case.
+     */
+    public long getTimestampFramePosition() {
+      // Should never be called if updateTimestamp() returned false.
       throw new UnsupportedOperationException();
     }
 
   }
 
-  /**
-   * The AudioTimestampCompat implementation for SDK >= 19 that simply calls through to the actual
-   * implementations added in SDK 19.
-   */
   @TargetApi(19)
-  private static final class AudioTimestampCompatV19 implements AudioTimestampCompat {
+  private static class AudioTrackUtilV19 extends AudioTrackUtil {
 
     private final AudioTimestamp audioTimestamp;
 
-    public AudioTimestampCompatV19() {
+    private long rawTimestampFramePositionWrapCount;
+    private long lastRawTimestampFramePosition;
+    private long lastTimestampFramePosition;
+
+    public AudioTrackUtilV19(android.media.AudioTrack audioTrack) {
+      super(audioTrack);
       audioTimestamp = new AudioTimestamp();
     }
 
     @Override
-    public boolean update(android.media.AudioTrack audioTrack) {
-      return audioTrack.getTimestamp(audioTimestamp);
+    public boolean updateTimestamp() {
+      boolean updated = audioTrack.getTimestamp(audioTimestamp);
+      if (updated) {
+        long rawFramePosition = audioTimestamp.framePosition;
+        if (lastRawTimestampFramePosition > rawFramePosition) {
+          // The value must have wrapped around.
+          rawTimestampFramePositionWrapCount++;
+        }
+        lastRawTimestampFramePosition = rawFramePosition;
+        lastTimestampFramePosition = rawFramePosition + (rawTimestampFramePositionWrapCount << 32);
+      }
+      return updated;
     }
 
     @Override
-    public long getNanoTime() {
+    public long getTimestampNanoTime() {
       return audioTimestamp.nanoTime;
     }
 
     @Override
-    public long getFramePosition() {
-      return audioTimestamp.framePosition;
+    public long getTimestampFramePosition() {
+      return lastTimestampFramePosition;
     }
 
   }

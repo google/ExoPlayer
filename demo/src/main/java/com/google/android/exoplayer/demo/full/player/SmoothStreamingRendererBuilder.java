@@ -19,6 +19,7 @@ import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecUtil;
+import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
@@ -125,7 +126,13 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     }
 
     // Obtain stream elements for playback.
-    int maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
+    int maxDecodableFrameSize;
+    try {
+      maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
+    } catch (DecoderQueryException e) {
+      callback.onRenderersError(e);
+      return;
+    }
     int audioStreamElementCount = 0;
     int textStreamElementCount = 0;
     int videoStreamElementIndex = -1;

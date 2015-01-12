@@ -19,6 +19,7 @@ import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecUtil;
+import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
@@ -99,7 +100,14 @@ import java.util.List;
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 
     // Determine which video representations we should use for playback.
-    int maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
+    int maxDecodableFrameSize;
+    try {
+      maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
+    } catch (DecoderQueryException e) {
+      callback.onRenderersError(e);
+      return;
+    }
+
     int videoAdaptationSetIndex = period.getAdaptationSetIndex(AdaptationSet.TYPE_VIDEO);
     List<Representation> videoRepresentations =
         period.adaptationSets.get(videoAdaptationSetIndex).representations;
