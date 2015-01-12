@@ -35,6 +35,20 @@ import java.util.HashMap;
 @TargetApi(16)
 public class MediaCodecUtil {
 
+  /**
+   * Thrown when an error occurs querying the device for its underlying media capabilities.
+   * <p>
+   * Such failures are not expected in normal operation and are normally temporary (e.g. if the
+   * mediaserver process has crashed and is yet to restart).
+   */
+  public static class DecoderQueryException extends Exception {
+
+    private DecoderQueryException(Throwable cause) {
+      super("Failed to query underlying media codecs", cause);
+    }
+
+  }
+
   private static final String TAG = "MediaCodecUtil";
 
   private static final HashMap<CodecKey, Pair<String, CodecCapabilities>> codecs =
@@ -48,7 +62,8 @@ public class MediaCodecUtil {
    *     unless secure decryption really is required.
    * @return Information about the decoder that will be used, or null if no decoder exists.
    */
-  public static DecoderInfo getDecoderInfo(String mimeType, boolean secure) {
+  public static DecoderInfo getDecoderInfo(String mimeType, boolean secure)
+      throws DecoderQueryException {
     Pair<String, CodecCapabilities> info = getMediaCodecInfo(mimeType, secure);
     if (info == null) {
       return null;
@@ -66,14 +81,19 @@ public class MediaCodecUtil {
    *     unless secure decryption really is required.
    */
   public static synchronized void warmCodec(String mimeType, boolean secure) {
-    getMediaCodecInfo(mimeType, secure);
+    try {
+      getMediaCodecInfo(mimeType, secure);
+    } catch (DecoderQueryException e) {
+      // Codec warming is best effort, so we can swallow the exception.
+      Log.e(TAG, "Codec warming failed", e);
+    }
   }
 
   /**
    * Returns the name of the best decoder and its capabilities for the given mimeType.
    */
   private static synchronized Pair<String, CodecCapabilities> getMediaCodecInfo(
-      String mimeType, boolean secure) {
+      String mimeType, boolean secure) throws DecoderQueryException {
     CodecKey key = new CodecKey(mimeType, secure);
     if (codecs.containsKey(key)) {
       return codecs.get(key);
@@ -95,6 +115,17 @@ public class MediaCodecUtil {
   }
 
   private static Pair<String, CodecCapabilities> getMediaCodecInfo(CodecKey key,
+      MediaCodecListCompat mediaCodecList) throws DecoderQueryException {
+    try {
+      return getMediaCodecInfoInternal(key, mediaCodecList);
+    } catch (Exception e) {
+      // If the underlying mediaserver is in a bad state, we may catch an IllegalStateException
+      // or an IllegalArgumentException here.
+      throw new DecoderQueryException(e);
+    }
+  }
+
+  private static Pair<String, CodecCapabilities> getMediaCodecInfoInternal(CodecKey key,
       MediaCodecListCompat mediaCodecList) {
     String mimeType = key.mimeType;
     int numberOfCodecs = mediaCodecList.getCodecCount();
@@ -153,7 +184,8 @@ public class MediaCodecUtil {
    * @param level An AVC profile level from {@link CodecProfileLevel}.
    * @return Whether the specified profile is supported at the specified level.
    */
-  public static boolean isH264ProfileSupported(int profile, int level) {
+  public static boolean isH264ProfileSupported(int profile, int level)
+      throws DecoderQueryException {
     Pair<String, CodecCapabilities> info = getMediaCodecInfo(MimeTypes.VIDEO_H264, false);
     if (info == null) {
       return false;
@@ -173,7 +205,7 @@ public class MediaCodecUtil {
   /**
    * @return the maximum frame size for an H264 stream that can be decoded on the device.
    */
-  public static int maxH264DecodableFrameSize() {
+  public static int maxH264DecodableFrameSize() throws DecoderQueryException {
     Pair<String, CodecCapabilities> info = getMediaCodecInfo(MimeTypes.VIDEO_H264, false);
     if (info == null) {
       return 0;
@@ -248,20 +280,23 @@ public class MediaCodecUtil {
   @TargetApi(21)
   private static final class MediaCodecListCompatV21 implements MediaCodecListCompat {
 
-    private final MediaCodecInfo[] mediaCodecInfos;
+    private final int codecKind;
+
+    private MediaCodecInfo[] mediaCodecInfos;
 
     public MediaCodecListCompatV21(boolean includeSecure) {
-      int codecKind = includeSecure ? MediaCodecList.ALL_CODECS : MediaCodecList.REGULAR_CODECS;
-      mediaCodecInfos = new MediaCodecList(codecKind).getCodecInfos();
+      codecKind = includeSecure ? MediaCodecList.ALL_CODECS : MediaCodecList.REGULAR_CODECS;
     }
 
     @Override
     public int getCodecCount() {
+      ensureMediaCodecInfosInitialized();
       return mediaCodecInfos.length;
     }
 
     @Override
     public MediaCodecInfo getCodecInfoAt(int index) {
+      ensureMediaCodecInfosInitialized();
       return mediaCodecInfos[index];
     }
 
@@ -273,6 +308,12 @@ public class MediaCodecUtil {
     @Override
     public boolean isSecurePlaybackSupported(String mimeType, CodecCapabilities capabilities) {
       return capabilities.isFeatureSupported(CodecCapabilities.FEATURE_SecurePlayback);
+    }
+
+    private void ensureMediaCodecInfosInitialized() {
+      if (mediaCodecInfos == null) {
+        mediaCodecInfos = new MediaCodecList(codecKind).getCodecInfos();
+      }
     }
 
   }
