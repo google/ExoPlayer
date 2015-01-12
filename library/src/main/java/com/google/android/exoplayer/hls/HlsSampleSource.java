@@ -38,7 +38,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   /**
    * The default minimum number of times to retry loading data prior to failing.
    */
-  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 1;
+  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
   private static final int NO_RESET_PENDING = -1;
 
