@@ -489,8 +489,8 @@ public final class WebmExtractor implements Extractor {
       } else if (CODEC_ID_OPUS.equals(codecId)) {
         ArrayList<byte[]> opusInitializationData = new ArrayList<byte[]>(3);
         opusInitializationData.add(codecPrivate);
-        opusInitializationData.add(ByteBuffer.allocate(8).putLong(codecDelayNs).array());
-        opusInitializationData.add(ByteBuffer.allocate(8).putLong(seekPreRollNs).array());
+        opusInitializationData.add(ByteBuffer.allocate(Long.SIZE).putLong(codecDelayNs).array());
+        opusInitializationData.add(ByteBuffer.allocate(Long.SIZE).putLong(seekPreRollNs).array());
         format = MediaFormat.createAudioFormat(
             MimeTypes.AUDIO_OPUS, OPUS_MAX_INPUT_SIZE, channelCount, sampleRate,
             opusInitializationData);
