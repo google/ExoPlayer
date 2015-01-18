@@ -737,6 +737,11 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       return false;
     }
 
+    if (outputBufferInfo.size == 0) {
+        outputIndex = -1;
+        return true;
+    }
+
     int decodeOnlyIndex = getDecodeOnlyIndex(outputBufferInfo.presentationTimeUs);
     if (processOutputBuffer(positionUs, elapsedRealtimeUs, codec, outputBuffers[outputIndex],
         outputBufferInfo, outputIndex, decodeOnlyIndex != -1)) {
