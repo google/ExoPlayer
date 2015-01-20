@@ -286,7 +286,13 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     String selectedDecoderName = selectedDecoderInfo.name;
     codecIsAdaptive = selectedDecoderInfo.adaptive;
     try {
-      codec = MediaCodec.createByCodecName(selectedDecoderName);
+        codec = MediaCodec.createByCodecName(selectedDecoderName);
+      // TODO: Need to check if this problem still applies if we use vorbis codec
+//      // Xiaomi default AAC encoder cannot decode. We force use google aac decoder to fix this!
+//      codec = MediaCodec.createByCodecName("OMX.google.aac.decoder");
+//      if (codec == null) {
+//          codec = MediaCodec.createByCodecName(selectedDecoderName);
+//      }
       configureCodec(codec, format.getFrameworkMediaFormatV16(), mediaCrypto);
       codec.start();
       inputBuffers = codec.getInputBuffers();
