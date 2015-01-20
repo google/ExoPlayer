@@ -388,4 +388,6 @@ public interface ExoPlayer {
    */
   public int getBufferedPercentage();
 
+  public void setPlaybackSpeed(float speed);
+
 }

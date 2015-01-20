@@ -278,6 +278,11 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
+  protected void setPlaybackSpeed(float speed) throws ExoPlaybackException {
+      // do nothing
+  }
+
+  @Override
   protected boolean isReady() {
     if (super.isReady() && (renderedFirstFrame || !codecInitialized()
         || getSourceState() == SOURCE_STATE_READY_READ_MAY_FAIL)) {

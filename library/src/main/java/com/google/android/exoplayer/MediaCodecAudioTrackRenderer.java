@@ -63,6 +63,11 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   private long currentPositionUs;
 
+  public MediaCodecAudioTrackRenderer(SampleSource source, float speed) {
+      this(source, null, true);
+      this.audioTrack.setPlaybackSpeed(speed);
+  }
+
   /**
    * @param source The upstream source from which the renderer obtains samples.
    */
@@ -271,6 +276,11 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
     // TODO: Try and re-use the same AudioTrack instance once [Internal: b/7941810] is fixed.
     audioTrack.reset();
     currentPositionUs = Long.MIN_VALUE;
+  }
+
+  @Override
+  protected void setPlaybackSpeed(float speed) throws ExoPlaybackException {
+      audioTrack.setPlaybackSpeed(speed);
   }
 
   @Override
