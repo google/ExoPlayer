@@ -23,6 +23,7 @@ import android.content.Context;
 import android.media.MediaExtractor;
 import android.net.Uri;
 
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
@@ -39,9 +40,15 @@ public final class FrameworkSampleSource implements SampleSource {
   private static final int TRACK_STATE_ENABLED = 1;
   private static final int TRACK_STATE_FORMAT_SENT = 2;
 
+  // Parameters for a Uri data source.
   private final Context context;
   private final Uri uri;
   private final Map<String, String> headers;
+
+  // Parameters for a FileDescriptor data source.
+  private final FileDescriptor fileDescriptor;
+  private final long fileDescriptorOffset;
+  private final long fileDescriptorLength;
 
   private MediaExtractor extractor;
   private TrackInfo[] trackInfos;
@@ -55,17 +62,41 @@ public final class FrameworkSampleSource implements SampleSource {
   public FrameworkSampleSource(Context context, Uri uri, Map<String, String> headers,
       int downstreamRendererCount) {
     Assertions.checkState(Util.SDK_INT >= 16);
+    this.remainingReleaseCount = downstreamRendererCount;
+
     this.context = context;
     this.uri = uri;
     this.headers = headers;
+
+    this.fileDescriptor = null;
+    this.fileDescriptorOffset = 0;
+    this.fileDescriptorLength = 0;
+  }
+
+  public FrameworkSampleSource(FileDescriptor fileDescriptor, long offset, long length,
+	  int downstreamRendererCount) {
+    Assertions.checkState(Util.SDK_INT >= 16);
     this.remainingReleaseCount = downstreamRendererCount;
+
+    this.fileDescriptor = fileDescriptor;
+    this.fileDescriptorOffset = offset;
+    this.fileDescriptorLength = length;
+
+    this.context = null;
+    this.uri = null;
+    this.headers = null;
   }
 
   @Override
   public boolean prepare() throws IOException {
     if (!prepared) {
       extractor = new MediaExtractor();
-      extractor.setDataSource(context, uri, headers);
+      if (context != null) {
+        extractor.setDataSource(context, uri, headers);
+      } else {
+    	extractor.setDataSource(fileDescriptor, fileDescriptorOffset, fileDescriptorLength);
+      }
+      
       trackStates = new int[extractor.getTrackCount()];
       pendingDiscontinuities = new boolean[trackStates.length];
       trackInfos = new TrackInfo[trackStates.length];
