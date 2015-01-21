@@ -91,12 +91,12 @@ public final class FrameworkSampleSource implements SampleSource {
   public boolean prepare() throws IOException {
     if (!prepared) {
       extractor = new MediaExtractor();
-
-      if (context != null)
+      if (context != null) {
         extractor.setDataSource(context, uri, headers);
-      else
+      } else {
     	extractor.setDataSource(fileDescriptor, fileDescriptorOffset, fileDescriptorLength);
-
+      }
+      
       trackStates = new int[extractor.getTrackCount()];
       pendingDiscontinuities = new boolean[trackStates.length];
       trackInfos = new TrackInfo[trackStates.length];
