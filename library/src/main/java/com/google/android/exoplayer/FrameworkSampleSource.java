@@ -74,9 +74,9 @@ public final class FrameworkSampleSource implements SampleSource {
 	  int downstreamRendererCount) {
     Assertions.checkState(Util.SDK_INT >= 16);
     
-	this.fileDescriptor = fileDescriptor;
-	this.fdOffset = offset;
-	this.fdLength = length;
+    this.fileDescriptor = fileDescriptor;
+    this.fdOffset = offset;
+    this.fdLength = length;
     this.remainingReleaseCount = downstreamRendererCount;
     
     this.context = null;
