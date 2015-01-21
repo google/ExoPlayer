@@ -27,9 +27,8 @@ import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
-import com.google.android.exoplayer.metadata.ClosedCaption;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
-import com.google.android.exoplayer.text.TextTrackRenderer;
+import com.google.android.exoplayer.text.TextRenderer;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.util.PlayerControl;
 
@@ -39,7 +38,6 @@ import android.os.Looper;
 import android.view.Surface;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -51,7 +49,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventListener,
     DefaultBandwidthMeter.EventListener, MediaCodecVideoTrackRenderer.EventListener,
     MediaCodecAudioTrackRenderer.EventListener, Ac3PassthroughAudioTrackRenderer.EventListener,
-    TextTrackRenderer.TextRenderer, StreamingDrmSessionManager.EventListener {
+    TextRenderer, StreamingDrmSessionManager.EventListener {
 
   /**
    * Builds renderers for the player.
@@ -173,7 +171,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   private final PlayerControl playerControl;
   private final Handler mainHandler;
   private final CopyOnWriteArrayList<Listener> listeners;
-  private final StringBuilder closedCaptionStringBuilder;
 
   private int rendererBuildingState;
   private int lastReportedPlaybackState;
@@ -204,7 +201,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     selectedTracks = new int[RENDERER_COUNT];
     // Disable text initially.
     selectedTracks[TYPE_TEXT] = DISABLED_TRACK;
-    closedCaptionStringBuilder = new StringBuilder();
   }
 
   public PlayerControl getPlayerControl() {
@@ -499,16 +495,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     };
   }
 
-  /* package */ MetadataTrackRenderer.MetadataRenderer<List<ClosedCaption>>
-      getClosedCaptionMetadataRenderer() {
-    return new MetadataTrackRenderer.MetadataRenderer<List<ClosedCaption>>() {
-      @Override
-      public void onMetadata(List<ClosedCaption> metadata) {
-        processClosedCaption(metadata);
-      }
-    };
-  }
-
   @Override
   public void onPlayWhenReadyCommitted() {
     // Do nothing.
@@ -605,29 +591,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
       return;
     }
     textListener.onText(text);
-  }
-
-  /* package */ void processClosedCaption(List<ClosedCaption> metadata) {
-    if (textListener == null || selectedTracks[TYPE_TEXT] == DISABLED_TRACK) {
-      return;
-    }
-    closedCaptionStringBuilder.setLength(0);
-    for (ClosedCaption caption : metadata) {
-      // Ignore control characters and just insert a new line in between words.
-      if (caption.type == ClosedCaption.TYPE_CTRL) {
-        if (closedCaptionStringBuilder.length() > 0
-            && closedCaptionStringBuilder.charAt(closedCaptionStringBuilder.length() - 1) != '\n') {
-          closedCaptionStringBuilder.append('\n');
-        }
-      } else if (caption.type == ClosedCaption.TYPE_TEXT) {
-        closedCaptionStringBuilder.append(caption.text);
-      }
-    }
-    if (closedCaptionStringBuilder.length() > 0
-        && closedCaptionStringBuilder.charAt(closedCaptionStringBuilder.length() - 1) == '\n') {
-      closedCaptionStringBuilder.deleteCharAt(closedCaptionStringBuilder.length() - 1);
-    }
-    textListener.onText(closedCaptionStringBuilder.toString());
   }
 
   private class InternalRendererBuilderCallback implements RendererBuilderCallback {

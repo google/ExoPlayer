@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.metadata;
+package com.google.android.exoplayer.text.eia608;
 
 /**
  * A Closed Caption that contains textual data associated with time indices.
  */
-public final class ClosedCaption {
+public final class ClosedCaption implements Comparable<ClosedCaption> {
 
   /**
    * Identifies closed captions with control characters.
@@ -39,10 +39,24 @@ public final class ClosedCaption {
    * Contains text or two control characters.
    */
   public final String text;
+  /**
+   * Timestamp associated with the closed caption.
+   */
+  public final long timeUs;
 
-  public ClosedCaption(int type, String text) {
+  public ClosedCaption(int type, String text, long timeUs) {
     this.type = type;
     this.text = text;
+    this.timeUs = timeUs;
+  }
+
+  @Override
+  public int compareTo(ClosedCaption another) {
+    long delta = this.timeUs - another.timeUs;
+    if (delta == 0) {
+      return 0;
+    }
+    return delta > 0 ? 1 : -1;
   }
 
 }

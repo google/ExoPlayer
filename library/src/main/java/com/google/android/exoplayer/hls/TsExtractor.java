@@ -18,7 +18,7 @@ package com.google.android.exoplayer.hls;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.metadata.Eia608Parser;
+import com.google.android.exoplayer.text.eia608.Eia608Parser;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.BitArray;
@@ -769,7 +769,7 @@ public final class TsExtractor {
         if (!hasMediaFormat() && currentSample.isKeyframe) {
           parseMediaFormat(currentSample);
         }
-        seiReader.read(currentSample.data, currentSample.size, pesTimeUs);
+        seiReader.read(currentSample.data, currentSample.size, currentSample.timeUs);
         addSample(currentSample);
       }
       currentSample = getSample(Sample.TYPE_VIDEO);

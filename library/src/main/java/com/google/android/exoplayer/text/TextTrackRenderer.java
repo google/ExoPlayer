@@ -38,20 +38,6 @@ import java.io.IOException;
 @TargetApi(16)
 public class TextTrackRenderer extends TrackRenderer implements Callback {
 
-  /**
-   * An interface for components that render text.
-   */
-  public interface TextRenderer {
-
-    /**
-     * Invoked each time there is a change in the text to be rendered.
-     *
-     * @param text The text to render, or null if no text is to be rendered.
-     */
-    void onText(String text);
-
-  }
-
   private static final int MSG_UPDATE_OVERLAY = 0;
 
   private final Handler textRendererHandler;
