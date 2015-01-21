@@ -23,6 +23,7 @@ import android.content.Context;
 import android.media.MediaExtractor;
 import android.net.Uri;
 
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
@@ -42,6 +43,10 @@ public final class FrameworkSampleSource implements SampleSource {
   private final Context context;
   private final Uri uri;
   private final Map<String, String> headers;
+  
+  private final FileDescriptor fileDescriptor;
+  private final long fdOffset;
+  private final long fdLength;
 
   private MediaExtractor extractor;
   private TrackInfo[] trackInfos;
@@ -59,13 +64,36 @@ public final class FrameworkSampleSource implements SampleSource {
     this.uri = uri;
     this.headers = headers;
     this.remainingReleaseCount = downstreamRendererCount;
+    
+    this.fileDescriptor = null;
+    this.fdOffset = 0;
+    this.fdLength = 0;
+  }
+  
+  public FrameworkSampleSource(FileDescriptor fileDescriptor, long offset, long length,
+	  int downstreamRendererCount) {
+    Assertions.checkState(Util.SDK_INT >= 16);
+    
+    this.fileDescriptor = fileDescriptor;
+    this.fdOffset = offset;
+    this.fdLength = length;
+    this.remainingReleaseCount = downstreamRendererCount;
+    
+    this.context = null;
+    this.uri = null;
+    this.headers = null;
   }
 
   @Override
   public boolean prepare() throws IOException {
     if (!prepared) {
       extractor = new MediaExtractor();
-      extractor.setDataSource(context, uri, headers);
+      
+      if (context != null)
+        extractor.setDataSource(context, uri, headers);
+      else
+    	extractor.setDataSource(fileDescriptor, fdOffset, fdLength);
+      
       trackStates = new int[extractor.getTrackCount()];
       pendingDiscontinuities = new boolean[trackStates.length];
       trackInfos = new TrackInfo[trackStates.length];
