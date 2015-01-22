@@ -107,8 +107,7 @@ public class Eia608Parser {
         continue;
       }
       int ccType = seiBuffer.readBits(2);
-      if (ccType != 0 && ccType != 1) {
-        // Not EIA-608 captions.
+      if (ccType != 0) {
         seiBuffer.skipBits(16);
         continue;
       }
