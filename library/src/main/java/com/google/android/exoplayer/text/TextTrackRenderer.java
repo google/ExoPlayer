@@ -125,6 +125,11 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
     seekToInternal(positionUs);
   }
 
+  @Override
+  protected void setPlaybackSpeed(float speed) throws ExoPlaybackException {
+      // do nothing
+  }
+
   private void seekToInternal(long positionUs) {
     inputStreamEnded = false;
     currentPositionUs = positionUs;

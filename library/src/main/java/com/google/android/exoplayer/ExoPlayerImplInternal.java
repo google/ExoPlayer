@@ -54,6 +54,7 @@ import java.util.List;
   private static final int MSG_DO_SOME_WORK = 7;
   private static final int MSG_SET_RENDERER_ENABLED = 8;
   private static final int MSG_CUSTOM = 9;
+  private static final int MSG_SPEED = 1999;
 
   private static final int PREPARE_INTERVAL_MS = 10;
   private static final int RENDERING_INTERVAL_MS = 10;
@@ -124,6 +125,10 @@ import java.util.List;
   public long getDuration() {
     return durationUs == TrackRenderer.UNKNOWN_TIME_US ? ExoPlayer.UNKNOWN_TIME
         : durationUs / 1000;
+  }
+
+  public void setPlaybackSpeed(float speed) {
+      handler.obtainMessage(MSG_SPEED, new Float(speed)).sendToTarget();
   }
 
   public void prepare(TrackRenderer... renderers) {
@@ -222,6 +227,10 @@ import java.util.List;
         case MSG_SET_RENDERER_ENABLED: {
           setRendererEnabledInternal(msg.arg1, msg.arg2 != 0);
           return true;
+        }
+        case MSG_SPEED: {
+            setPlaybackSpeedInternal(((Float)msg.obj).floatValue());
+            return true;
         }
         default:
           return false;
@@ -469,6 +478,13 @@ import java.util.List;
     }
     setState(ExoPlayer.STATE_BUFFERING);
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+  }
+
+  private void setPlaybackSpeedInternal(float speed) throws ExoPlaybackException {
+      for (int i = 0; i < enabledRenderers.size(); i++) {
+          TrackRenderer renderer = enabledRenderers.get(i);
+          renderer.setPlaybackSpeed(speed);
+      }
   }
 
   private void stopInternal() {
