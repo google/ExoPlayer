@@ -345,6 +345,13 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    */
   protected abstract void seekTo(long positionUs) throws ExoPlaybackException;
 
+  /**
+   * Set specified playback speed.
+   *
+   * @throws ExoPlaybackException
+   */
+  protected abstract void setPlaybackSpeed(float speed) throws ExoPlaybackException;
+
   @Override
   public void handleMessage(int what, Object object) throws ExoPlaybackException {
     // Do nothing.

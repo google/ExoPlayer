@@ -28,6 +28,8 @@ import android.media.MediaFormat;
 import android.os.ConditionVariable;
 import android.util.Log;
 
+import org.vinuxproject.sonic.Sonic;
+
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 
@@ -48,6 +50,8 @@ import java.nio.ByteBuffer;
  */
 @TargetApi(16)
 public final class AudioTrack {
+
+  private byte[] sonicBuffer;
 
   /**
    * Thrown when a failure occurs instantiating an {@link android.media.AudioTrack}.
@@ -75,7 +79,7 @@ public final class AudioTrack {
   public static final int SESSION_ID_NOT_SET = 0;
 
   /** The default multiplication factor used when determining the size of the track's buffer. */
-  public static final float DEFAULT_MIN_BUFFER_MULTIPLICATION_FACTOR = 4;
+  public static final float DEFAULT_MIN_BUFFER_MULTIPLICATION_FACTOR = 1;
 
   /** Returned by {@link #getCurrentPositionUs} when the position is not set. */
   public static final long CURRENT_POSITION_NOT_SET = Long.MIN_VALUE;
@@ -114,6 +118,7 @@ public final class AudioTrack {
   private final float minBufferMultiplicationFactor;
 
   private android.media.AudioTrack audioTrack;
+  private Sonic sonic;
   private int sampleRate;
   private int channelConfig;
   private int encoding;
@@ -131,12 +136,13 @@ public final class AudioTrack {
   private long rawPlaybackHeadWrapCount;
 
   private Method getLatencyMethod;
-  private long submittedBytes;
+  private float submittedBytes;
   private int startMediaTimeState;
   private long startMediaTimeUs;
   private long resumeSystemTimeUs;
   private long latencyUs;
   private float volume;
+  private float speed = 1f;
 
   private byte[] temporaryBuffer;
   private int temporaryBufferOffset;
@@ -255,11 +261,11 @@ public final class AudioTrack {
     releasingConditionVariable.block();
 
     if (sessionId == SESSION_ID_NOT_SET) {
-      audioTrack = new android.media.AudioTrack(AudioManager.STREAM_MUSIC, sampleRate,
+      audioTrack = new android.media.AudioTrack(AudioManager.STREAM_VOICE_CALL, sampleRate,
           channelConfig, encoding, bufferSize, android.media.AudioTrack.MODE_STREAM);
     } else {
       // Re-attach to the same audio session.
-      audioTrack = new android.media.AudioTrack(AudioManager.STREAM_MUSIC, sampleRate,
+      audioTrack = new android.media.AudioTrack(AudioManager.STREAM_VOICE_CALL, sampleRate,
           channelConfig, encoding, bufferSize, android.media.AudioTrack.MODE_STREAM, sessionId);
     }
     checkAudioTrackInitialized();
@@ -374,14 +380,14 @@ public final class AudioTrack {
 
       // This is the first time we've seen this {@code buffer}.
       // Note: presentationTimeUs corresponds to the end of the sample, not the start.
-      long bufferStartTime = presentationTimeUs - framesToDurationUs(bytesToFrames(size));
+      long bufferStartTime = presentationTimeUs - framesToDurationUs(bytesToFrames(size) * speed);
       if (startMediaTimeUs == START_NOT_SET) {
         startMediaTimeUs = Math.max(0, bufferStartTime);
         startMediaTimeState = START_IN_SYNC;
       } else {
         // Sanity check that bufferStartTime is consistent with the expected value.
         long expectedBufferStartTime = startMediaTimeUs
-            + framesToDurationUs(bytesToFrames(submittedBytes));
+            + framesToDurationUs(bytesToFrames(submittedBytes) * speed);
         if (startMediaTimeState == START_IN_SYNC
             && Math.abs(expectedBufferStartTime - bufferStartTime) > 200000) {
           Log.e(TAG, "Discontinuity detected [expected " + expectedBufferStartTime + ", got "
@@ -402,21 +408,40 @@ public final class AudioTrack {
       return result;
     }
 
-    if (temporaryBufferSize == 0) {
-      temporaryBufferSize = size;
-      buffer.position(offset);
-      if (Util.SDK_INT < 21) {
-        // Copy {@code buffer} into {@code temporaryBuffer}.
-        if (temporaryBuffer == null || temporaryBuffer.length < size) {
-          temporaryBuffer = new byte[size];
-        }
-        buffer.get(temporaryBuffer, 0, size);
-        temporaryBufferOffset = 0;
+    if (sonic == null) {
+      final int numChannels;
+      if (channelConfig == AudioFormat.CHANNEL_IN_MONO) {
+        numChannels = 1;
+      } else if (channelConfig == AudioFormat.CHANNEL_IN_STEREO) {
+        numChannels = 2;
+      } else {
+        numChannels = 1;
+        Log.e(TAG, "Surround channels are not supported at this time");
       }
+      sonic = new Sonic(sampleRate, numChannels);
+      sonic.setSpeed(speed);
+    }
+
+    if (temporaryBufferSize == 0) {
+      buffer.position(offset);
+      if (sonicBuffer == null || sonicBuffer.length < size) {
+        sonicBuffer = new byte[size];
+      }
+      buffer.get(sonicBuffer, 0, size);
+      sonic.putBytes(sonicBuffer, size);
+
+      temporaryBufferSize = sonic.availableBytes();
+      if (temporaryBuffer == null || temporaryBuffer.length < temporaryBufferSize) {
+        temporaryBuffer = new byte[temporaryBufferSize];
+      }
+      sonic.receiveBytes(temporaryBuffer, temporaryBufferSize);
+      temporaryBufferOffset = 0;
     }
 
     int bytesWritten = 0;
-    if (Util.SDK_INT < 21) {
+    // TODO: non-blocking writing with SDK21 is not supported right now. If we want that as well, we
+    // need to convert the temporaryBuffer into a ByteBuffer
+    if (Util.SDK_INT < 21 || true) {
       // Work out how many bytes we can write without the risk of blocking.
       int bytesPending = (int) (submittedBytes - framesToBytes(getPlaybackPositionFrames()));
       int bytesToWrite = bufferSize - bytesPending;
@@ -430,6 +455,7 @@ public final class AudioTrack {
         }
       }
     } else {
+      // Right now this will write the original byte stream. see the to-do item above
       bytesWritten = writeNonBlockingV21(audioTrack, buffer, temporaryBufferSize);
     }
 
@@ -456,6 +482,13 @@ public final class AudioTrack {
   /** Returns whether enough data has been supplied via {@link #handleBuffer} to begin playback. */
   public boolean hasEnoughDataToBeginPlayback() {
     return submittedBytes >= minBufferSize;
+  }
+
+  public void setPlaybackSpeed(float speed) {
+      this.speed = speed;
+      if (sonic != null) {
+          sonic.setSpeed(speed);
+      }
   }
 
   /** Sets the playback volume. */
@@ -639,7 +672,7 @@ public final class AudioTrack {
     return frameCount * frameSize;
   }
 
-  private long bytesToFrames(long byteCount) {
+  private float bytesToFrames(float byteCount) {
     if (isAc3) {
       return byteCount * 8 * sampleRate / (1000 * ac3Bitrate);
     } else {
@@ -647,8 +680,8 @@ public final class AudioTrack {
     }
   }
 
-  private long framesToDurationUs(long frameCount) {
-    return (frameCount * C.MICROS_PER_SECOND) / sampleRate;
+  private long framesToDurationUs(float frameCount) {
+    return (long) ((frameCount * C.MICROS_PER_SECOND) / sampleRate);
   }
 
   private long durationUsToFrames(long durationUs) {

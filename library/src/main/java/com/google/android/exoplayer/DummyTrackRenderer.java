@@ -64,4 +64,6 @@ public class DummyTrackRenderer extends TrackRenderer {
     throw new IllegalStateException();
   }
 
+  @Override
+  protected void setPlaybackSpeed(float speed) { throw new IllegalStateException();}
 }

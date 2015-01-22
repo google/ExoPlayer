@@ -95,6 +95,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public void setPlaybackSpeed(float speed) {
+      internalPlayer.setPlaybackSpeed(speed);
+  }
+
+  @Override
   public void setRendererEnabled(int index, boolean enabled) {
     if (rendererEnabledFlags[index] != enabled) {
       rendererEnabledFlags[index] = enabled;
