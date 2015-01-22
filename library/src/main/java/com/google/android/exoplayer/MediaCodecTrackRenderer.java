@@ -493,9 +493,10 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     decodeOnlyPresentationTimestamps.clear();
     // Workaround for framework bugs.
     // See [Internal: b/8347958], [Internal: b/8578467], [Internal: b/8543366].
-    if (Util.SDK_INT >= 18) {
+    if (Util.SDK_INT >= 18 && codecReinitState == REINIT_STATE_NONE) {
       codec.flush();
     } else {
+      codecReinitState = REINIT_STATE_NONE;
       releaseCodec();
       maybeInitCodec();
     }
@@ -504,6 +505,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       // avoid this issue by sending reconfiguration data following every flush.
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
     }
+
+    hasQueuedOneInputBuffer = false;
   }
 
   /**
