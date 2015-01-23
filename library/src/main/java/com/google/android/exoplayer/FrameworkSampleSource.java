@@ -74,7 +74,7 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   public FrameworkSampleSource(FileDescriptor fileDescriptor, long offset, long length,
-	  int downstreamRendererCount) {
+      int downstreamRendererCount) {
     Assertions.checkState(Util.SDK_INT >= 16);
     this.remainingReleaseCount = downstreamRendererCount;
 
@@ -94,7 +94,7 @@ public final class FrameworkSampleSource implements SampleSource {
       if (context != null) {
         extractor.setDataSource(context, uri, headers);
       } else {
-    	extractor.setDataSource(fileDescriptor, fileDescriptorOffset, fileDescriptorLength);
+        extractor.setDataSource(fileDescriptor, fileDescriptorOffset, fileDescriptorLength);
       }
       
       trackStates = new int[extractor.getTrackCount()];
