@@ -151,7 +151,7 @@ public final class BitArray {
     byte b;
     if (bitOffset != 0) {
       b = (byte) ((data[byteOffset] << bitOffset)
-          | (data[byteOffset + 1] >> (8 - bitOffset)));
+          | ((data[byteOffset + 1] & 0xFF) >> (8 - bitOffset)));
     } else {
       b = data[byteOffset];
     }
