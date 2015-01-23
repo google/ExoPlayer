@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.parser.mp4;
 
+import com.google.android.exoplayer.util.Assertions;
+
 import java.nio.ByteBuffer;
 
 /**
@@ -23,77 +25,104 @@ import java.nio.ByteBuffer;
  */
 /* package */ final class ParsableByteArray {
 
-  public byte[] data;
+  public final byte[] data;
 
   private int position;
 
+  /** Creates a new parsable array with {@code length} bytes. */
   public ParsableByteArray(int length) {
     this.data = new byte[length];
   }
 
+  /** Returns the number of bytes in the array. */
   public int length() {
     return data.length;
   }
 
+  /** Returns the current offset in the array, in bytes. */
   public int getPosition() {
     return position;
   }
 
+  /**
+   * Sets the reading offset in the array.
+   *
+   * @param position Byte offset in the array from which to read.
+   * @throws IllegalArgumentException Thrown if the new position is neither in nor at the end of the
+   *     array.
+   */
   public void setPosition(int position) {
+    // It is fine for position to be at the end of the array.
+    Assertions.checkArgument(position >= 0 && position <= data.length);
     this.position = position;
   }
 
+  /**
+   * Moves the reading offset by {@code bytes}.
+   *
+   * @throws IllegalArgumentException Thrown if the new position is neither in nor at the end of the
+   *     array.
+   */
   public void skip(int bytes) {
-    position += bytes;
+    setPosition(position + bytes);
   }
 
-  public void rewind(int bytes) {
-    position -= bytes;
-  }
-
+  /**
+   * Reads the next {@code length} bytes into {@code buffer} at {@code offset}.
+   *
+   * @see System#arraycopy
+   */
   public void readBytes(byte[] buffer, int offset, int length) {
     System.arraycopy(data, position, buffer, offset, length);
     position += length;
   }
 
+  /**
+   * Reads the next {@code length} bytes into {@code buffer}.
+   *
+   * @see ByteBuffer#put(byte[], int, int)
+   */
   public void readBytes(ByteBuffer buffer, int length) {
     buffer.put(data, position, length);
     position += length;
   }
 
+  /** Reads the next byte as an unsigned value. */
   public int readUnsignedByte() {
     int result = shiftIntoInt(data, position, 1);
     position += 1;
     return result;
   }
 
+  /** Reads the next two bytes as an unsigned value. */
   public int readUnsignedShort() {
     int result = shiftIntoInt(data, position, 2);
     position += 2;
     return result;
   }
 
+  /** Reads the next four bytes as an unsigned value. */
   public long readUnsignedInt() {
     long result = shiftIntoLong(data, position, 4);
     position += 4;
     return result;
   }
 
+  /** Reads the next four bytes as a signed value. */
   public int readInt() {
     int result = shiftIntoInt(data, position, 4);
     position += 4;
     return result;
   }
 
+  /** Reads the next eight bytes as a signed value. */
   public long readLong() {
     long result = shiftIntoLong(data, position, 8);
     position += 8;
     return result;
   }
 
-  /**
-   * @return The integer portion of a fixed point 16.16.
-   */
+  /** Reads the next four bytes, returning the integer portion of the fixed point 16.16 integer. */
   public int readUnsignedFixedPoint1616() {
     int result = shiftIntoInt(data, position, 2);
     position += 4;
@@ -101,10 +130,9 @@ import java.nio.ByteBuffer;
   }
 
   /**
-   * Reads an unsigned integer into an integer. This method is suitable for use when it can be
-   * assumed that the top bit will always be set to zero.
+   * Reads the next four bytes as an unsigned integer into an integer, if the top bit is a zero.
    *
-   * @throws IllegalArgumentException If the top bit of the input data is set.
+   * @throws IllegalArgumentException Thrown if the top bit of the input data is set.
    */
   public int readUnsignedIntToInt() {
     int result = shiftIntoInt(data, position, 4);
@@ -116,10 +144,9 @@ import java.nio.ByteBuffer;
   }
 
   /**
-   * Reads an unsigned long into a long. This method is suitable for use when it can be
-   * assumed that the top bit will always be set to zero.
+   * Reads the next eight bytes as an unsigned long into a long, if the top bit is a zero.
    *
-   * @throws IllegalArgumentException If the top bit of the input data is set.
+   * @throws IllegalArgumentException Thrown if the top bit of the input data is set.
    */
   public long readUnsignedLongToLong() {
     long result = shiftIntoLong(data, position, 8);
@@ -130,6 +157,7 @@ import java.nio.ByteBuffer;
     return result;
   }
 
+  /** Reads {@code length} bytes into an int at {@code offset} in {@code bytes}. */
   private static int shiftIntoInt(byte[] bytes, int offset, int length) {
     int result = 0xFF & bytes[offset];
     for (int i = offset + 1; i < offset + length; i++) {
@@ -139,6 +167,7 @@ import java.nio.ByteBuffer;
     return result;
   }
 
+  /** Reads {@code length} bytes into a long at {@code offset} in {@code bytes}. */
   private static long shiftIntoLong(byte[] bytes, int offset, int length) {
     long result = 0xFF & bytes[offset];
     for (int i = offset + 1; i < offset + length; i++) {
