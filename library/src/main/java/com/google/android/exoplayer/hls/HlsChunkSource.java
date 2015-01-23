@@ -184,7 +184,7 @@ public class HlsChunkSource {
         variantIndex = i;
       }
       maxWidth = Math.max(enabledVariants[i].width, maxWidth);
-      maxHeight = Math.max(enabledVariants[i].width, maxHeight);
+      maxHeight = Math.max(enabledVariants[i].height, maxHeight);
     }
     // TODO: We should allow the default values to be passed through the constructor.
     this.maxWidth = maxWidth > 0 ? maxWidth : 1920;
