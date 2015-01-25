@@ -24,6 +24,10 @@ import java.util.ArrayList;
   public static final int TYPE_esds = 0x65736473;
   public static final int TYPE_mdat = 0x6D646174;
   public static final int TYPE_mp4a = 0x6D703461;
+  public static final int TYPE_ac_3 = 0x61632D33; // ac-3
+  public static final int TYPE_dac3 = 0x64616333;
+  public static final int TYPE_ec_3 = 0x65632D33; // ec-3
+  public static final int TYPE_dec3 = 0x64656333;
   public static final int TYPE_tfdt = 0x74666474;
   public static final int TYPE_tfhd = 0x74666864;
   public static final int TYPE_trex = 0x74726578;
@@ -53,6 +57,7 @@ import java.util.ArrayList;
   public static final int TYPE_saiz = 0x7361697A;
   public static final int TYPE_uuid = 0x75756964;
   public static final int TYPE_senc = 0x73656E63;
+  public static final int TYPE_pasp = 0x70617370;
 
   public final int type;
 

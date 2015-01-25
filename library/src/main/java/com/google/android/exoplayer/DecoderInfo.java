@@ -29,7 +29,7 @@ public final class DecoderInfo {
   public final String name;
 
   /**
-   * Whether the decoder is adaptive.
+   * Whether the decoder supports seamless resolution switches.
    *
    * @see android.media.MediaCodecInfo.CodecCapabilities#isFeatureSupported(String)
    * @see android.media.MediaCodecInfo.CodecCapabilities#FEATURE_AdaptivePlayback

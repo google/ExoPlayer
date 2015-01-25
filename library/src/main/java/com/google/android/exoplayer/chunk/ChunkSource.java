@@ -45,6 +45,8 @@ public interface ChunkSource {
    * the supplied {@link MediaFormat}. Other implementations do nothing.
    * <p>
    * Only called when the source is enabled.
+   *
+   * @param out The {@link MediaFormat} on which the maximum video dimensions should be set.
    */
   void getMaxVideoDimensions(MediaFormat out);
 

@@ -1,4 +1,4 @@
-# How to contribute #
+# How to Contribute #
 
 We'd love to hear your feedback. Please open new issues describing any bugs,
 feature requests or suggestions that you have.

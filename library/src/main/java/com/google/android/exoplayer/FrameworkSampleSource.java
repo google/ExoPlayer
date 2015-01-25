@@ -50,7 +50,7 @@ public final class FrameworkSampleSource implements SampleSource {
   private int[] trackStates;
   private boolean[] pendingDiscontinuities;
 
-  private long seekTimeUs;
+  private long seekPositionUs;
 
   public FrameworkSampleSource(Context context, Uri uri, Map<String, String> headers,
       int downstreamRendererCount) {
@@ -71,10 +71,10 @@ public final class FrameworkSampleSource implements SampleSource {
       trackInfos = new TrackInfo[trackStates.length];
       for (int i = 0; i < trackStates.length; i++) {
         android.media.MediaFormat format = extractor.getTrackFormat(i);
-        long duration = format.containsKey(android.media.MediaFormat.KEY_DURATION) ?
-            format.getLong(android.media.MediaFormat.KEY_DURATION) : TrackRenderer.UNKNOWN_TIME_US;
+        long durationUs = format.containsKey(android.media.MediaFormat.KEY_DURATION) ?
+            format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
         String mime = format.getString(android.media.MediaFormat.KEY_MIME);
-        trackInfos[i] = new TrackInfo(mime, duration);
+        trackInfos[i] = new TrackInfo(mime, durationUs);
       }
       prepared = true;
     }
@@ -94,16 +94,16 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public void enable(int track, long timeUs) {
+  public void enable(int track, long positionUs) {
     Assertions.checkState(prepared);
     Assertions.checkState(trackStates[track] == TRACK_STATE_DISABLED);
     trackStates[track] = TRACK_STATE_ENABLED;
     extractor.selectTrack(track);
-    seekToUs(timeUs);
+    seekToUs(positionUs);
   }
 
   @Override
-  public boolean continueBuffering(long playbackPositionUs) {
+  public boolean continueBuffering(long positionUs) {
     // MediaExtractor takes care of buffering and blocks until it has samples, so we can always
     // return true here. Although note that the blocking behavior is itself as bug, as per the
     // TODO further up this file. This method will need to return something else as part of fixing
@@ -112,7 +112,7 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public int readData(int track, long playbackPositionUs, MediaFormatHolder formatHolder,
+  public int readData(int track, long positionUs, MediaFormatHolder formatHolder,
       SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
     Assertions.checkState(prepared);
     Assertions.checkState(trackStates[track] != TRACK_STATE_DISABLED);
@@ -144,7 +144,7 @@ public final class FrameworkSampleSource implements SampleSource {
       if ((sampleHolder.flags & MediaExtractor.SAMPLE_FLAG_ENCRYPTED) != 0) {
         sampleHolder.cryptoInfo.setFromExtractorV16(extractor);
       }
-      seekTimeUs = -1;
+      seekPositionUs = -1;
       extractor.advance();
       return SAMPLE_READ;
     } else {
@@ -168,13 +168,13 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public void seekToUs(long timeUs) {
+  public void seekToUs(long positionUs) {
     Assertions.checkState(prepared);
-    if (seekTimeUs != timeUs) {
+    if (seekPositionUs != positionUs) {
       // Avoid duplicate calls to the underlying extractor's seek method in the case that there
       // have been no interleaving calls to advance.
-      seekTimeUs = timeUs;
-      extractor.seekTo(timeUs, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
+      seekPositionUs = positionUs;
+      extractor.seekTo(positionUs, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
       for (int i = 0; i < trackStates.length; ++i) {
         if (trackStates[i] != TRACK_STATE_DISABLED) {
           pendingDiscontinuities[i] = true;

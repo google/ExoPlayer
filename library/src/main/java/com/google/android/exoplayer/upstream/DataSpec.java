@@ -54,6 +54,15 @@ public final class DataSpec {
   public final String key;
 
   /**
+   * Construct a {@link DataSpec} for the given uri and with {@link #key} set to null.
+   *
+   * @param uri {@link #uri}.
+   */
+  public DataSpec(Uri uri) {
+    this(uri, 0, C.LENGTH_UNBOUNDED, null);
+  }
+
+  /**
    * Construct a {@link DataSpec} for which {@link #uriIsFullStream} is true.
    *
    * @param uri {@link #uri}.

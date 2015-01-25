@@ -36,8 +36,27 @@ public final class FileDataSource implements DataSource {
 
   }
 
+  private final TransferListener listener;
+
   private RandomAccessFile file;
   private long bytesRemaining;
+  private boolean opened;
+
+  /**
+   * Constructs a new {@link DataSource} that retrieves data from a file.
+   */
+  public FileDataSource() {
+    this(null);
+  }
+
+  /**
+   * Constructs a new {@link DataSource} that retrieves data from a file.
+   *
+   * @param listener An optional listener. Specify {@code null} for no listener.
+   */
+  public FileDataSource(TransferListener listener) {
+    this.listener = listener;
+  }
 
   @Override
   public long open(DataSpec dataSpec) throws FileDataSourceException {
@@ -46,10 +65,16 @@ public final class FileDataSource implements DataSource {
       file.seek(dataSpec.position);
       bytesRemaining = dataSpec.length == C.LENGTH_UNBOUNDED ? file.length() - dataSpec.position
           : dataSpec.length;
-      return bytesRemaining;
     } catch (IOException e) {
       throw new FileDataSourceException(e);
     }
+
+    opened = true;
+    if (listener != null) {
+      listener.onTransferStart();
+    }
+
+    return bytesRemaining;
   }
 
   @Override
@@ -63,7 +88,14 @@ public final class FileDataSource implements DataSource {
       } catch (IOException e) {
         throw new FileDataSourceException(e);
       }
-      bytesRemaining -= bytesRead;
+
+      if (bytesRead > 0) {
+        bytesRemaining -= bytesRead;
+        if (listener != null) {
+          listener.onBytesTransferred(bytesRead);
+        }
+      }
+
       return bytesRead;
     }
   }
@@ -75,8 +107,16 @@ public final class FileDataSource implements DataSource {
         file.close();
       } catch (IOException e) {
         throw new FileDataSourceException(e);
+      } finally {
+        file = null;
+
+        if (opened) {
+          opened = false;
+          if (listener != null) {
+            listener.onTransferEnd();
+          }
+        }
       }
-      file = null;
     }
   }
 

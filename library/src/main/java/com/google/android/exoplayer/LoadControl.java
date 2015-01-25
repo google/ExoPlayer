@@ -65,9 +65,10 @@ public interface LoadControl {
    *
    * @param loader The loader invoking the update.
    * @param playbackPositionUs The loader's playback position.
-   * @param nextLoadPositionUs The loader's next load position, or -1 if finished.
+   * @param nextLoadPositionUs The loader's next load position. -1 if finished, failed, or if the
+   *     next load position is not yet known.
    * @param loading Whether the loader is currently loading data.
-   * @param failed Whether the loader has failed, meaning it does not wish to load more data.
+   * @param failed Whether the loader has failed.
    * @return True if the loader is allowed to start its next load. False otherwise.
    */
   boolean update(Object loader, long playbackPositionUs, long nextLoadPositionUs,

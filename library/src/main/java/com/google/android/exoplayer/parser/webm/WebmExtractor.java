@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.parser.webm;
 
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.parser.Extractor;
 import com.google.android.exoplayer.parser.SegmentIndex;
@@ -27,6 +28,7 @@ import android.annotation.TargetApi;
 import android.media.MediaExtractor;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
@@ -44,6 +46,8 @@ public final class WebmExtractor implements Extractor {
 
   private static final String DOC_TYPE_WEBM = "webm";
   private static final String CODEC_ID_VP9 = "V_VP9";
+  private static final String CODEC_ID_VORBIS = "A_VORBIS";
+  private static final int VORBIS_MAX_INPUT_SIZE = 8192;
   private static final int UNKNOWN = -1;
 
   // Element IDs
@@ -65,9 +69,13 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_TRACKS = 0x1654AE6B;
   private static final int ID_TRACK_ENTRY = 0xAE;
   private static final int ID_CODEC_ID = 0x86;
+  private static final int ID_CODEC_PRIVATE = 0x63A2;
   private static final int ID_VIDEO = 0xE0;
   private static final int ID_PIXEL_WIDTH = 0xB0;
   private static final int ID_PIXEL_HEIGHT = 0xBA;
+  private static final int ID_AUDIO = 0xE1;
+  private static final int ID_CHANNELS = 0x9F;
+  private static final int ID_SAMPLING_FREQUENCY = 0xB5;
 
   private static final int ID_CUES = 0x1C53BB6B;
   private static final int ID_CUE_POINT = 0xBB;
@@ -96,6 +104,10 @@ public final class WebmExtractor implements Extractor {
   private long durationUs = UNKNOWN;
   private int pixelWidth = UNKNOWN;
   private int pixelHeight = UNKNOWN;
+  private int channelCount = UNKNOWN;
+  private int sampleRate = UNKNOWN;
+  private byte[] codecPrivate;
+  private boolean seenAudioTrack;
   private long cuesSizeBytes = UNKNOWN;
   private long clusterTimecodeUs = UNKNOWN;
   private long simpleBlockTimecodeUs = UNKNOWN;
@@ -114,7 +126,8 @@ public final class WebmExtractor implements Extractor {
   }
 
   @Override
-  public int read(NonBlockingInputStream inputStream, SampleHolder sampleHolder) {
+  public int read(
+      NonBlockingInputStream inputStream, SampleHolder sampleHolder) throws ParserException {
     this.sampleHolder = sampleHolder;
     this.readResults = 0;
     while ((readResults & READ_TERMINATING_RESULTS) == 0) {
@@ -176,6 +189,7 @@ public final class WebmExtractor implements Extractor {
       case ID_CLUSTER:
       case ID_TRACKS:
       case ID_TRACK_ENTRY:
+      case ID_AUDIO:
       case ID_VIDEO:
       case ID_CUES:
       case ID_CUE_POINT:
@@ -187,6 +201,7 @@ public final class WebmExtractor implements Extractor {
       case ID_TIME_CODE:
       case ID_PIXEL_WIDTH:
       case ID_PIXEL_HEIGHT:
+      case ID_CHANNELS:
       case ID_CUE_TIME:
       case ID_CUE_CLUSTER_POSITION:
         return EbmlReader.TYPE_UNSIGNED_INT;
@@ -194,8 +209,10 @@ public final class WebmExtractor implements Extractor {
       case ID_CODEC_ID:
         return EbmlReader.TYPE_STRING;
       case ID_SIMPLE_BLOCK:
+      case ID_CODEC_PRIVATE:
         return EbmlReader.TYPE_BINARY;
       case ID_DURATION:
+      case ID_SAMPLING_FREQUENCY:
         return EbmlReader.TYPE_FLOAT;
       default:
         return EbmlReader.TYPE_UNKNOWN;
@@ -203,11 +220,12 @@ public final class WebmExtractor implements Extractor {
   }
 
   /* package */ boolean onMasterElementStart(
-      int id, long elementOffsetBytes, int headerSizeBytes, long contentsSizeBytes) {
+      int id, long elementOffsetBytes, int headerSizeBytes,
+      long contentsSizeBytes) throws ParserException {
     switch (id) {
       case ID_SEGMENT:
         if (segmentStartOffsetBytes != UNKNOWN || segmentEndOffsetBytes != UNKNOWN) {
-          throw new IllegalStateException("Multiple Segment elements not supported");
+          throw new ParserException("Multiple Segment elements not supported");
         }
         segmentStartOffsetBytes = elementOffsetBytes + headerSizeBytes;
         segmentEndOffsetBytes = elementOffsetBytes + headerSizeBytes + contentsSizeBytes;
@@ -223,31 +241,41 @@ public final class WebmExtractor implements Extractor {
     return true;
   }
 
-  /* package */ boolean onMasterElementEnd(int id) {
+  /* package */ boolean onMasterElementEnd(int id) throws ParserException {
     switch (id) {
       case ID_CUES:
         buildCues();
         return false;
       case ID_VIDEO:
-        buildFormat();
+        buildVideoFormat();
+        return true;
+      case ID_AUDIO:
+        seenAudioTrack = true;
+        return true;
+      case ID_TRACK_ENTRY:
+        if (seenAudioTrack) {
+          // Audio format has to be built here since codec private may not be available at the end
+          // of ID_AUDIO.
+          buildAudioFormat();
+        }
         return true;
       default:
         return true;
     }
   }
 
-  /* package */ boolean onIntegerElement(int id, long value) {
+  /* package */ boolean onIntegerElement(int id, long value) throws ParserException {
     switch (id) {
       case ID_EBML_READ_VERSION:
         // Validate that EBMLReadVersion is supported. This extractor only supports v1.
         if (value != 1) {
-          throw new IllegalArgumentException("EBMLReadVersion " + value + " not supported");
+          throw new ParserException("EBMLReadVersion " + value + " not supported");
         }
         break;
       case ID_DOC_TYPE_READ_VERSION:
         // Validate that DocTypeReadVersion is supported. This extractor only supports up to v2.
         if (value < 1 || value > 2) {
-          throw new IllegalArgumentException("DocTypeReadVersion " + value + " not supported");
+          throw new ParserException("DocTypeReadVersion " + value + " not supported");
         }
         break;
       case ID_TIMECODE_SCALE:
@@ -258,6 +286,9 @@ public final class WebmExtractor implements Extractor {
         break;
       case ID_PIXEL_HEIGHT:
         pixelHeight = (int) value;
+        break;
+      case ID_CHANNELS:
+        channelCount = (int) value;
         break;
       case ID_CUE_TIME:
         cueTimesUs.add(scaleTimecodeToUs(value));
@@ -275,24 +306,31 @@ public final class WebmExtractor implements Extractor {
   }
 
   /* package */ boolean onFloatElement(int id, double value) {
-    if (id == ID_DURATION) {
-      durationUs = scaleTimecodeToUs((long) value);
+    switch (id) {
+      case ID_DURATION:
+        durationUs = scaleTimecodeToUs((long) value);
+        break;
+      case ID_SAMPLING_FREQUENCY:
+        sampleRate = (int) value;
+        break;
+      default:
+        // pass
     }
     return true;
   }
 
-  /* package */ boolean onStringElement(int id, String value) {
+  /* package */ boolean onStringElement(int id, String value) throws ParserException {
     switch (id) {
       case ID_DOC_TYPE:
         // Validate that DocType is supported. This extractor only supports "webm".
         if (!DOC_TYPE_WEBM.equals(value)) {
-          throw new IllegalArgumentException("DocType " + value + " not supported");
+          throw new ParserException("DocType " + value + " not supported");
         }
         break;
       case ID_CODEC_ID:
-        // Validate that CodecID is supported. This extractor only supports "V_VP9".
-        if (!CODEC_ID_VP9.equals(value)) {
-          throw new IllegalArgumentException("CodecID " + value + " not supported");
+        // Validate that CodecID is supported. This extractor only supports "V_VP9" and "A_VORBIS".
+        if (!CODEC_ID_VP9.equals(value) && !CODEC_ID_VORBIS.equals(value)) {
+          throw new ParserException("CodecID " + value + " not supported");
         }
         break;
       default:
@@ -303,64 +341,70 @@ public final class WebmExtractor implements Extractor {
 
   /* package */ boolean onBinaryElement(
       int id, long elementOffsetBytes, int headerSizeBytes, int contentsSizeBytes,
-      NonBlockingInputStream inputStream) {
-    if (id == ID_SIMPLE_BLOCK) {
-      // Please refer to http://www.matroska.org/technical/specs/index.html#simpleblock_structure
-      // for info about how data is organized in a SimpleBlock element.
+      NonBlockingInputStream inputStream) throws ParserException {
+    switch (id) {
+      case ID_SIMPLE_BLOCK:
+        // Please refer to http://www.matroska.org/technical/specs/index.html#simpleblock_structure
+        // for info about how data is organized in a SimpleBlock element.
 
-      // If we don't have a sample holder then don't consume the data.
-      if (sampleHolder == null) {
-        readResults |= RESULT_NEED_SAMPLE_HOLDER;
-        return false;
-      }
+        // If we don't have a sample holder then don't consume the data.
+        if (sampleHolder == null) {
+          readResults |= RESULT_NEED_SAMPLE_HOLDER;
+          return false;
+        }
 
-      // Value of trackNumber is not used but needs to be read.
-      reader.readVarint(inputStream);
+        // Value of trackNumber is not used but needs to be read.
+        reader.readVarint(inputStream);
 
-      // Next three bytes have timecode and flags.
-      reader.readBytes(inputStream, simpleBlockTimecodeAndFlags, 3);
+        // Next three bytes have timecode and flags.
+        reader.readBytes(inputStream, simpleBlockTimecodeAndFlags, 3);
 
-      // First two bytes of the three are the relative timecode.
-      int timecode =
-          (simpleBlockTimecodeAndFlags[0] << 8) | (simpleBlockTimecodeAndFlags[1] & 0xff);
-      long timecodeUs = scaleTimecodeToUs(timecode);
+        // First two bytes of the three are the relative timecode.
+        int timecode =
+            (simpleBlockTimecodeAndFlags[0] << 8) | (simpleBlockTimecodeAndFlags[1] & 0xff);
+        long timecodeUs = scaleTimecodeToUs(timecode);
 
-      // Last byte of the three has some flags and the lacing value.
-      boolean keyframe = (simpleBlockTimecodeAndFlags[2] & 0x80) == 0x80;
-      boolean invisible = (simpleBlockTimecodeAndFlags[2] & 0x08) == 0x08;
-      int lacing = (simpleBlockTimecodeAndFlags[2] & 0x06) >> 1;
+        // Last byte of the three has some flags and the lacing value.
+        boolean keyframe = (simpleBlockTimecodeAndFlags[2] & 0x80) == 0x80;
+        boolean invisible = (simpleBlockTimecodeAndFlags[2] & 0x08) == 0x08;
+        int lacing = (simpleBlockTimecodeAndFlags[2] & 0x06) >> 1;
 
-      // Validate lacing and set info into sample holder.
-      switch (lacing) {
-        case LACING_NONE:
-          long elementEndOffsetBytes = elementOffsetBytes + headerSizeBytes + contentsSizeBytes;
-          simpleBlockTimecodeUs = clusterTimecodeUs + timecodeUs;
-          sampleHolder.flags = keyframe ? MediaExtractor.SAMPLE_FLAG_SYNC : 0;
-          sampleHolder.decodeOnly = invisible;
-          sampleHolder.timeUs = clusterTimecodeUs + timecodeUs;
-          sampleHolder.size = (int) (elementEndOffsetBytes - reader.getBytesRead());
-          break;
-        case LACING_EBML:
-        case LACING_FIXED:
-        case LACING_XIPH:
-        default:
-          throw new IllegalStateException("Lacing mode " + lacing + " not supported");
-      }
+        // Validate lacing and set info into sample holder.
+        switch (lacing) {
+          case LACING_NONE:
+            long elementEndOffsetBytes = elementOffsetBytes + headerSizeBytes + contentsSizeBytes;
+            simpleBlockTimecodeUs = clusterTimecodeUs + timecodeUs;
+            sampleHolder.flags = keyframe ? MediaExtractor.SAMPLE_FLAG_SYNC : 0;
+            sampleHolder.decodeOnly = invisible;
+            sampleHolder.timeUs = clusterTimecodeUs + timecodeUs;
+            sampleHolder.size = (int) (elementEndOffsetBytes - reader.getBytesRead());
+            break;
+          case LACING_EBML:
+          case LACING_FIXED:
+          case LACING_XIPH:
+          default:
+            throw new ParserException("Lacing mode " + lacing + " not supported");
+        }
 
-      ByteBuffer outputData = sampleHolder.data;
-      if (sampleHolder.allowDataBufferReplacement
-          && (sampleHolder.data == null || sampleHolder.data.capacity() < sampleHolder.size)) {
-        outputData = ByteBuffer.allocate(sampleHolder.size);
-        sampleHolder.data = outputData;
-      }
+        if (sampleHolder.data == null || sampleHolder.data.capacity() < sampleHolder.size) {
+          sampleHolder.replaceBuffer(sampleHolder.size);
+        }
 
-      if (outputData == null) {
-        reader.skipBytes(inputStream, sampleHolder.size);
-        sampleHolder.size = 0;
-      } else {
-        reader.readBytes(inputStream, outputData, sampleHolder.size);
-      }
-      readResults |= RESULT_READ_SAMPLE;
+        ByteBuffer outputData = sampleHolder.data;
+        if (outputData == null) {
+          reader.skipBytes(inputStream, sampleHolder.size);
+          sampleHolder.size = 0;
+        } else {
+          reader.readBytes(inputStream, outputData, sampleHolder.size);
+        }
+        readResults |= RESULT_READ_SAMPLE;
+        break;
+      case ID_CODEC_PRIVATE:
+        codecPrivate = new byte[contentsSizeBytes];
+        reader.readBytes(inputStream, codecPrivate, contentsSizeBytes);
+        break;
+      default:
+        // pass
     }
     return true;
   }
@@ -374,16 +418,38 @@ public final class WebmExtractor implements Extractor {
    *
    * <p>Replaces the previous {@link #format} only if video width/height have changed.
    * {@link #format} is guaranteed to not be null after calling this method. In
-   * the event that it can't be built, an {@link IllegalStateException} will be thrown.
+   * the event that it can't be built, an {@link ParserException} will be thrown.
    */
-  private void buildFormat() {
+  private void buildVideoFormat() throws ParserException {
     if (pixelWidth != UNKNOWN && pixelHeight != UNKNOWN
         && (format == null || format.width != pixelWidth || format.height != pixelHeight)) {
       format = MediaFormat.createVideoFormat(
           MimeTypes.VIDEO_VP9, MediaFormat.NO_VALUE, pixelWidth, pixelHeight, null);
       readResults |= RESULT_READ_INIT;
     } else if (format == null) {
-      throw new IllegalStateException("Unable to build format");
+      throw new ParserException("Unable to build format");
+    }
+  }
+
+  /**
+   * Build an audio {@link MediaFormat} containing recently gathered Audio information, if needed.
+   *
+   * <p>Replaces the previous {@link #format} only if audio channel count/sample rate have changed.
+   * {@link #format} is guaranteed to not be null after calling this method.
+   *
+   * @throws ParserException If an error occurs when parsing codec's private data or if the format
+   *    can't be built.
+   */
+  private void buildAudioFormat() throws ParserException {
+    if (channelCount != UNKNOWN && sampleRate != UNKNOWN
+        && (format == null || format.channelCount != channelCount
+            || format.sampleRate != sampleRate)) {
+      format = MediaFormat.createAudioFormat(
+          MimeTypes.AUDIO_VORBIS, VORBIS_MAX_INPUT_SIZE,
+          sampleRate, channelCount, parseVorbisCodecPrivate());
+      readResults |= RESULT_READ_INIT;
+    } else if (format == null) {
+      throw new ParserException("Unable to build format");
     }
   }
 
@@ -391,18 +457,18 @@ public final class WebmExtractor implements Extractor {
    * Build a {@link SegmentIndex} containing recently gathered Cues information.
    *
    * <p>{@link #cues} is guaranteed to not be null after calling this method. In
-   * the event that it can't be built, an {@link IllegalStateException} will be thrown.
+   * the event that it can't be built, an {@link ParserException} will be thrown.
    */
-  private void buildCues() {
+  private void buildCues() throws ParserException {
     if (segmentStartOffsetBytes == UNKNOWN) {
-      throw new IllegalStateException("Segment start/end offsets unknown");
+      throw new ParserException("Segment start/end offsets unknown");
     } else if (durationUs == UNKNOWN) {
-      throw new IllegalStateException("Duration unknown");
+      throw new ParserException("Duration unknown");
     } else if (cuesSizeBytes == UNKNOWN) {
-      throw new IllegalStateException("Cues size unknown");
+      throw new ParserException("Cues size unknown");
     } else if (cueTimesUs == null || cueClusterPositions == null
         || cueTimesUs.size() == 0 || cueTimesUs.size() != cueClusterPositions.size()) {
-      throw new IllegalStateException("Invalid/missing cue points");
+      throw new ParserException("Invalid/missing cue points");
     }
     int cuePointsSize = cueTimesUs.size();
     int[] sizes = new int[cuePointsSize];
@@ -426,6 +492,58 @@ public final class WebmExtractor implements Extractor {
   }
 
   /**
+   * Parses Vorbis Codec Private data and adds it as initialization data to the {@link #format}.
+   * WebM Vorbis Codec Private data specification can be found
+   * <a href="http://matroska.org/technical/specs/codecid/index.html">here</a>.
+   *
+   * @return ArrayList of byte arrays containing the initialization data on success.
+   * @throws ParserException If parsing codec private data fails.
+   */
+  private ArrayList<byte[]> parseVorbisCodecPrivate() throws ParserException {
+    try {
+      if (codecPrivate[0] != 0x02) {
+        throw new ParserException("Error parsing vorbis codec private");
+      }
+      int offset = 1;
+      int vorbisInfoLength = 0;
+      while (codecPrivate[offset] == (byte) 0xFF) {
+        vorbisInfoLength += 0xFF;
+        offset++;
+      }
+      vorbisInfoLength += codecPrivate[offset++];
+
+      int vorbisSkipLength = 0;
+      while (codecPrivate[offset] == (byte) 0xFF) {
+        vorbisSkipLength += 0xFF;
+        offset++;
+      }
+      vorbisSkipLength += codecPrivate[offset++];
+
+      if (codecPrivate[offset] != 0x01) {
+        throw new ParserException("Error parsing vorbis codec private");
+      }
+      byte[] vorbisInfo = new byte[vorbisInfoLength];
+      System.arraycopy(codecPrivate, offset, vorbisInfo, 0, vorbisInfoLength);
+      offset += vorbisInfoLength;
+      if (codecPrivate[offset] != 0x03) {
+        throw new ParserException("Error parsing vorbis codec private");
+      }
+      offset += vorbisSkipLength;
+      if (codecPrivate[offset] != 0x05) {
+        throw new ParserException("Error parsing vorbis codec private");
+      }
+      byte[] vorbisBooks = new byte[codecPrivate.length - offset];
+      System.arraycopy(codecPrivate, offset, vorbisBooks, 0, codecPrivate.length - offset);
+      ArrayList<byte[]> initializationData = new ArrayList<byte[]>(2);
+      initializationData.add(vorbisInfo);
+      initializationData.add(vorbisBooks);
+      return initializationData;
+    } catch (ArrayIndexOutOfBoundsException e) {
+      throw new ParserException("Error parsing vorbis codec private");
+    }
+  }
+
+  /**
    * Passes events through to {@link WebmExtractor} as
    * callbacks from {@link EbmlReader} are received.
    */
@@ -438,18 +556,19 @@ public final class WebmExtractor implements Extractor {
 
     @Override
     public void onMasterElementStart(
-        int id, long elementOffsetBytes, int headerSizeBytes, long contentsSizeBytes) {
+        int id, long elementOffsetBytes, int headerSizeBytes,
+        long contentsSizeBytes) throws ParserException {
       WebmExtractor.this.onMasterElementStart(
           id, elementOffsetBytes, headerSizeBytes, contentsSizeBytes);
     }
 
     @Override
-    public void onMasterElementEnd(int id) {
+    public void onMasterElementEnd(int id) throws ParserException {
       WebmExtractor.this.onMasterElementEnd(id);
     }
 
     @Override
-    public void onIntegerElement(int id, long value) {
+    public void onIntegerElement(int id, long value) throws ParserException {
       WebmExtractor.this.onIntegerElement(id, value);
     }
 
@@ -459,14 +578,14 @@ public final class WebmExtractor implements Extractor {
     }
 
     @Override
-    public void onStringElement(int id, String value) {
+    public void onStringElement(int id, String value) throws ParserException {
       WebmExtractor.this.onStringElement(id, value);
     }
 
     @Override
     public boolean onBinaryElement(
         int id, long elementOffsetBytes, int headerSizeBytes, int contentsSizeBytes,
-        NonBlockingInputStream inputStream) {
+        NonBlockingInputStream inputStream) throws ParserException {
       return WebmExtractor.this.onBinaryElement(
           id, elementOffsetBytes, headerSizeBytes, contentsSizeBytes, inputStream);
     }

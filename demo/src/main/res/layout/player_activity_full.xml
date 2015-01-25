@@ -24,15 +24,13 @@
       android:layout_height="match_parent"
       android:layout_gravity="center"/>
 
-  <TextView android:id="@+id/subtitles"
-      android:layout_width="match_parent"
+  <com.google.android.exoplayer.text.SubtitleView android:id="@+id/subtitles"
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_gravity="center|bottom"
-      android:paddingLeft="8dp"
-      android:paddingRight="8dp"
-      android:paddingBottom="32dp"
-      android:gravity="center"
-      android:textSize="20sp"
+      android:layout_gravity="bottom|center_horizontal"
+      android:layout_marginLeft="16dp"
+      android:layout_marginRight="16dp"
+      android:layout_marginBottom="32dp"
       android:visibility="invisible"/>
 
   <View android:id="@+id/shutter"

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.parser.webm;
 
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 
 import java.nio.ByteBuffer;
@@ -53,8 +54,9 @@ import java.nio.ByteBuffer;
    *
    * @param inputStream The input stream from which data should be read
    * @return One of the {@code RESULT_*} flags defined in this interface
+   * @throws ParserException If parsing fails.
    */
-  public int read(NonBlockingInputStream inputStream);
+  public int read(NonBlockingInputStream inputStream) throws ParserException;
 
   /**
    * The total number of bytes consumed by the reader since first created or last {@link #reset()}.

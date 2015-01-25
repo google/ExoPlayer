@@ -19,10 +19,10 @@ import com.google.android.exoplayer.DummyTrackRenderer;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
-import com.google.android.exoplayer.MediaCodecAudioTrackRenderer.AudioTrackInitializationException;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
@@ -93,7 +93,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   public interface Listener {
     void onStateChanged(boolean playWhenReady, int playbackState);
     void onError(Exception e);
-    void onVideoSizeChanged(int width, int height);
+    void onVideoSizeChanged(int width, int height, float pixelWidthHeightRatio);
   }
 
   /**
@@ -106,7 +106,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
    */
   public interface InternalErrorListener {
     void onRendererInitializationError(Exception e);
-    void onAudioTrackInitializationError(AudioTrackInitializationException e);
+    void onAudioTrackInitializationError(AudioTrack.InitializationException e);
     void onDecoderInitializationError(DecoderInitializationException e);
     void onCryptoError(CryptoException e);
     void onUpstreamError(int sourceId, IOException e);
@@ -131,7 +131,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
    * A listener for receiving notifications of timed text.
    */
   public interface TextListener {
-    public abstract void onText(String text);
+    void onText(String text);
   }
 
   // Constants pulled into this class for convenience.
@@ -287,7 +287,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     this.trackNames = trackNames;
     this.multiTrackSources = multiTrackSources;
     rendererBuildingState = RENDERER_BUILDING_STATE_BUILT;
-    maybeReportPlayerState();
     pushSurfaceAndVideoTrack(false);
     pushTrackSelection(TYPE_AUDIO, true);
     pushTrackSelection(TYPE_TEXT, true);
@@ -310,7 +309,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     player.setPlayWhenReady(playWhenReady);
   }
 
-  public void seekTo(int positionMs) {
+  public void seekTo(long positionMs) {
     player.seekTo(positionMs);
   }
 
@@ -339,11 +338,11 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     return playerState;
   }
 
-  public int getCurrentPosition() {
+  public long getCurrentPosition() {
     return player.getCurrentPosition();
   }
 
-  public int getDuration() {
+  public long getDuration() {
     return player.getDuration();
   }
 
@@ -377,9 +376,9 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   @Override
-  public void onVideoSizeChanged(int width, int height) {
+  public void onVideoSizeChanged(int width, int height, float pixelWidthHeightRatio) {
     for (Listener listener : listeners) {
-      listener.onVideoSizeChanged(width, height);
+      listener.onVideoSizeChanged(width, height, pixelWidthHeightRatio);
     }
   }
 
@@ -425,7 +424,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   @Override
-  public void onAudioTrackInitializationError(AudioTrackInitializationException e) {
+  public void onAudioTrackInitializationError(AudioTrack.InitializationException e) {
     if (internalErrorListener != null) {
       internalErrorListener.onAudioTrackInitializationError(e);
     }

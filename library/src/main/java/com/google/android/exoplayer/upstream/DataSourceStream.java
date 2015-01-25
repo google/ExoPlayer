@@ -119,26 +119,6 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
     return resolvedLength != C.LENGTH_UNBOUNDED && loadPosition == resolvedLength;
   }
 
-  /**
-   * Returns a byte array containing the loaded data. If the data is partially loaded, this method
-   * returns the portion of the data that has been loaded so far. If nothing has been loaded, null
-   * is returned. This method does not use or update the current read position.
-   * <p>
-   * Note: The read methods provide a more efficient way of consuming the loaded data. Use this
-   * method only when a freshly allocated byte[] containing all of the loaded data is required.
-   *
-   * @return The loaded data, or null.
-   */
-  public final byte[] getLoadedData() {
-    if (loadPosition == 0) {
-      return null;
-    }
-
-    byte[] rawData = new byte[(int) loadPosition];
-    read(null, rawData, 0, new ReadHead(), rawData.length);
-    return rawData;
-  }
-
   // {@link NonBlockingInputStream} implementation.
 
   @Override

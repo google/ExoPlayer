@@ -16,8 +16,8 @@
 package com.google.android.exoplayer.demo.full;
 
 import com.google.android.exoplayer.ExoPlayer;
-import com.google.android.exoplayer.MediaCodecAudioTrackRenderer.AudioTrackInitializationException;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
+import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer;
 import com.google.android.exoplayer.util.VerboseLogUtil;
 
@@ -73,8 +73,8 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   @Override
-  public void onVideoSizeChanged(int width, int height) {
-    Log.d(TAG, "videoSizeChanged [" + width + ", " + height + "]");
+  public void onVideoSizeChanged(int width, int height, float pixelWidthHeightRatio) {
+    Log.d(TAG, "videoSizeChanged [" + width + ", " + height + ", " + pixelWidthHeightRatio + "]");
   }
 
   // DemoPlayer.InfoListener
@@ -149,7 +149,7 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   @Override
-  public void onAudioTrackInitializationError(AudioTrackInitializationException e) {
+  public void onAudioTrackInitializationError(AudioTrack.InitializationException e) {
     printInternalError("audioTrackInitializationError", e);
   }
 

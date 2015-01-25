@@ -18,17 +18,25 @@ package com.google.android.exoplayer.util;
 import com.google.android.exoplayer.upstream.DataSource;
 
 import android.net.Uri;
+import android.text.TextUtils;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Miscellaneous utility functions.
@@ -40,6 +48,15 @@ public final class Util {
    * overridden for local testing.
    */
   public static final int SDK_INT = android.os.Build.VERSION.SDK_INT;
+
+  private static final Pattern XS_DATE_TIME_PATTERN = Pattern.compile(
+      "(\\d\\d\\d\\d)\\-(\\d\\d)\\-(\\d\\d)[Tt]"
+      + "(\\d\\d):(\\d\\d):(\\d\\d)(\\.(\\d+))?"
+      + "([Zz]|((\\+|\\-)(\\d\\d):(\\d\\d)))?");
+
+  private static final Pattern XS_DURATION_PATTERN =
+      Pattern.compile("^(-)?P(([0-9]*)Y)?(([0-9]*)M)?(([0-9]*)D)?"
+          + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
 
   private Util() {}
 
@@ -129,6 +146,43 @@ public final class Util {
   }
 
   /**
+   * Merges a uri and a string to produce a new uri.
+   * <p>
+   * The uri is built according to the following rules:
+   * <ul>
+   * <li>If {@code baseUri} is null or if {@code stringUri} is absolute, then {@code baseUri} is
+   * ignored and the uri consists solely of {@code stringUri}.
+   * <li>If {@code stringUri} is null, then the uri consists solely of {@code baseUrl}.
+   * <li>Otherwise, the uri consists of the concatenation of {@code baseUri} and {@code stringUri}.
+   * </ul>
+   *
+   * @param baseUri A uri that can form the base of the merged uri.
+   * @param stringUri A relative or absolute uri in string form.
+   * @return The merged uri.
+   */
+  public static Uri getMergedUri(Uri baseUri, String stringUri) {
+    if (stringUri == null) {
+      return baseUri;
+    }
+    if (baseUri == null) {
+      return Uri.parse(stringUri);
+    }
+    if (stringUri.startsWith("/")) {
+      stringUri = stringUri.substring(1);
+      return new Uri.Builder()
+          .scheme(baseUri.getScheme())
+          .authority(baseUri.getAuthority())
+          .appendEncodedPath(stringUri)
+          .build();
+    }
+    Uri uri = Uri.parse(stringUri);
+    if (uri.isAbsolute()) {
+      return uri;
+    }
+    return Uri.withAppendedPath(baseUri, stringUri);
+  }
+
+  /**
    * Returns the index of the largest value in an array that is less than (or optionally equal to)
    * a specified key.
    * <p>
@@ -210,6 +264,159 @@ public final class Util {
     int index = Collections.binarySearch(list, key);
     index = index < 0 ? ~index : (inclusive ? index : (index + 1));
     return stayInBounds ? Math.min(list.size() - 1, index) : index;
+  }
+
+  /**
+   * Parses an xs:duration attribute value, returning the parsed duration in milliseconds.
+   *
+   * @param value The attribute value to parse.
+   * @return The parsed duration in milliseconds.
+   */
+  public static long parseXsDuration(String value) {
+    Matcher matcher = XS_DURATION_PATTERN.matcher(value);
+    if (matcher.matches()) {
+      boolean negated = !TextUtils.isEmpty(matcher.group(1));
+      // Durations containing years and months aren't completely defined. We assume there are
+      // 30.4368 days in a month, and 365.242 days in a year.
+      String years = matcher.group(3);
+      double durationSeconds = (years != null) ? Double.parseDouble(years) * 31556908 : 0;
+      String months = matcher.group(5);
+      durationSeconds += (months != null) ? Double.parseDouble(months) * 2629739 : 0;
+      String days = matcher.group(7);
+      durationSeconds += (days != null) ? Double.parseDouble(days) * 86400 : 0;
+      String hours = matcher.group(10);
+      durationSeconds += (hours != null) ? Double.parseDouble(hours) * 3600 : 0;
+      String minutes = matcher.group(12);
+      durationSeconds += (minutes != null) ? Double.parseDouble(minutes) * 60 : 0;
+      String seconds = matcher.group(14);
+      durationSeconds += (seconds != null) ? Double.parseDouble(seconds) : 0;
+      long durationMillis = (long) (durationSeconds * 1000);
+      return negated ? -durationMillis : durationMillis;
+    } else {
+      return (long) (Double.parseDouble(value) * 3600 * 1000);
+    }
+  }
+
+  /**
+   * Parses an xs:dateTime attribute value, returning the parsed timestamp in milliseconds since
+   * the epoch.
+   *
+   * @param value The attribute value to parse.
+   * @return The parsed timestamp in milliseconds since the epoch.
+   */
+  public static long parseXsDateTime(String value) throws ParseException {
+    Matcher matcher = XS_DATE_TIME_PATTERN.matcher(value);
+    if (!matcher.matches()) {
+      throw new ParseException("Invalid date/time format: " + value, 0);
+    }
+
+    int timezoneShift;
+    if (matcher.group(9) == null) {
+      // No time zone specified.
+      timezoneShift = 0;
+    } else if (matcher.group(9).equalsIgnoreCase("Z")) {
+      timezoneShift = 0;
+    } else {
+      timezoneShift = ((Integer.valueOf(matcher.group(12)) * 60
+          + Integer.valueOf(matcher.group(13))));
+      if (matcher.group(11).equals("-")) {
+        timezoneShift *= -1;
+      }
+    }
+
+    Calendar dateTime = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+
+    dateTime.clear();
+    // Note: The month value is 0-based, hence the -1 on group(2)
+    dateTime.set(Integer.valueOf(matcher.group(1)),
+                 Integer.valueOf(matcher.group(2)) - 1,
+                 Integer.valueOf(matcher.group(3)),
+                 Integer.valueOf(matcher.group(4)),
+                 Integer.valueOf(matcher.group(5)),
+                 Integer.valueOf(matcher.group(6)));
+    if (!TextUtils.isEmpty(matcher.group(8))) {
+      final BigDecimal bd = new BigDecimal("0." + matcher.group(8));
+      // we care only for milliseconds, so movePointRight(3)
+      dateTime.set(Calendar.MILLISECOND, bd.movePointRight(3).intValue());
+    }
+
+    long time = dateTime.getTimeInMillis();
+    if (timezoneShift != 0) {
+      time -= timezoneShift * 60000;
+    }
+
+    return time;
+  }
+
+  /**
+   * Scales a large timestamp.
+   * <p>
+   * Logically, scaling consists of a multiplication followed by a division. The actual operations
+   * performed are designed to minimize the probability of overflow.
+   *
+   * @param timestamp The timestamp to scale.
+   * @param multiplier The multiplier.
+   * @param divisor The divisor.
+   * @return The scaled timestamp.
+   */
+  public static long scaleLargeTimestamp(long timestamp, long multiplier, long divisor) {
+    if (divisor >= multiplier && (divisor % multiplier) == 0) {
+      long divisionFactor = divisor / multiplier;
+      return timestamp / divisionFactor;
+    } else if (divisor < multiplier && (multiplier % divisor) == 0) {
+      long multiplicationFactor = multiplier / divisor;
+      return timestamp * multiplicationFactor;
+    } else {
+      double multiplicationFactor = (double) multiplier / divisor;
+      return (long) (timestamp * multiplicationFactor);
+    }
+  }
+
+  /**
+   * Applies {@link #scaleLargeTimestamp(long, long, long)} to a list of unscaled timestamps.
+   *
+   * @param timestamps The timestamps to scale.
+   * @param multiplier The multiplier.
+   * @param divisor The divisor.
+   * @return The scaled timestamps.
+   */
+  public static long[] scaleLargeTimestamps(List<Long> timestamps, long multiplier, long divisor) {
+    long[] scaledTimestamps = new long[timestamps.size()];
+    if (divisor >= multiplier && (divisor % multiplier) == 0) {
+      long divisionFactor = divisor / multiplier;
+      for (int i = 0; i < scaledTimestamps.length; i++) {
+        scaledTimestamps[i] = timestamps.get(i) / divisionFactor;
+      }
+    } else if (divisor < multiplier && (multiplier % divisor) == 0) {
+      long multiplicationFactor = multiplier / divisor;
+      for (int i = 0; i < scaledTimestamps.length; i++) {
+        scaledTimestamps[i] = timestamps.get(i) * multiplicationFactor;
+      }
+    } else {
+      double multiplicationFactor = (double) multiplier / divisor;
+      for (int i = 0; i < scaledTimestamps.length; i++) {
+        scaledTimestamps[i] = (long) (timestamps.get(i) * multiplicationFactor);
+      }
+    }
+    return scaledTimestamps;
+  }
+
+  /**
+   * Converts a list of integers to a primitive array.
+   *
+   * @param list A list of integers.
+   * @return The list in array form, or null if the input list was null.
+   */
+  public static int[] toArray(List<Integer> list) {
+    if (list == null) {
+      return null;
+    }
+    int length = list.size();
+    int[] intArray = new int[length];
+    for (int i = 0; i < length; i++) {
+      intArray[i] = list.get(i);
+    }
+    return intArray;
   }
 
 }

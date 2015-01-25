@@ -85,9 +85,9 @@ public interface SampleSource {
    * This method should not be called until after the source has been successfully prepared.
    *
    * @param track The track to enable.
-   * @param timeUs The player's current playback position.
+   * @param positionUs The player's current playback position.
    */
-  public void enable(int track, long timeUs);
+  public void enable(int track, long positionUs);
 
   /**
    * Disable the specified track.
@@ -101,12 +101,12 @@ public interface SampleSource {
   /**
    * Indicates to the source that it should still be buffering data.
    *
-   * @param playbackPositionUs The current playback position.
+   * @param positionUs The current playback position.
    * @return True if the source has available samples, or if the end of the stream has been reached.
    *     False if more data needs to be buffered for samples to become available.
    * @throws IOException If an error occurred reading from the source.
    */
-  public boolean continueBuffering(long playbackPositionUs) throws IOException;
+  public boolean continueBuffering(long positionUs) throws IOException;
 
   /**
    * Attempts to read either a sample, a new format or or a discontinuity from the source.
@@ -118,7 +118,7 @@ public interface SampleSource {
    * than the one for which data was requested.
    *
    * @param track The track from which to read.
-   * @param playbackPositionUs The current playback position.
+   * @param positionUs The current playback position.
    * @param formatHolder A {@link MediaFormatHolder} object to populate in the case of a new format.
    * @param sampleHolder A {@link SampleHolder} object to populate in the case of a new sample. If
    *     the caller requires the sample data then it must ensure that {@link SampleHolder#data}
@@ -129,7 +129,7 @@ public interface SampleSource {
    *     {@link #DISCONTINUITY_READ}, {@link #NOTHING_READ} or {@link #END_OF_STREAM}.
    * @throws IOException If an error occurred reading from the source.
    */
-  public int readData(int track, long playbackPositionUs, MediaFormatHolder formatHolder,
+  public int readData(int track, long positionUs, MediaFormatHolder formatHolder,
       SampleHolder sampleHolder, boolean onlyReadDiscontinuity) throws IOException;
 
   /**
@@ -137,16 +137,16 @@ public interface SampleSource {
    * <p>
    * This method should not be called until after the source has been successfully prepared.
    *
-   * @param timeUs The seek position in microseconds.
+   * @param positionUs The seek position in microseconds.
    */
-  public void seekToUs(long timeUs);
+  public void seekToUs(long positionUs);
 
   /**
    * Returns an estimate of the position up to which data is buffered.
    * <p>
    * This method should not be called until after the source has been successfully prepared.
    *
-   * @return An estimate of the absolute position in micro-seconds up to which data is buffered,
+   * @return An estimate of the absolute position in microseconds up to which data is buffered,
    *     or {@link TrackRenderer#END_OF_TRACK_US} if data is buffered to the end of the stream, or
    *     {@link TrackRenderer#UNKNOWN_TIME_US} if no estimate is available.
    */

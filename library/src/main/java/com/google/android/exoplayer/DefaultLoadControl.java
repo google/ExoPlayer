@@ -166,9 +166,9 @@ public class DefaultLoadControl implements LoadControl {
     // Update the loader state.
     int loaderBufferState = getLoaderBufferState(playbackPositionUs, nextLoadPositionUs);
     LoaderState loaderState = loaderStates.get(loader);
-    boolean loaderStateChanged = loaderState.bufferState != loaderBufferState ||
-        loaderState.nextLoadPositionUs != nextLoadPositionUs || loaderState.loading != loading ||
-        loaderState.failed != failed;
+    boolean loaderStateChanged = loaderState.bufferState != loaderBufferState
+        || loaderState.nextLoadPositionUs != nextLoadPositionUs || loaderState.loading != loading
+        || loaderState.failed != failed;
     if (loaderStateChanged) {
       loaderState.bufferState = loaderBufferState;
       loaderState.nextLoadPositionUs = nextLoadPositionUs;
@@ -214,17 +214,17 @@ public class DefaultLoadControl implements LoadControl {
   private void updateControlState() {
     boolean loading = false;
     boolean failed = false;
-    boolean finished = true;
+    boolean haveNextLoadPosition = false;
     int highestState = bufferPoolState;
     for (int i = 0; i < loaders.size(); i++) {
       LoaderState loaderState = loaderStates.get(loaders.get(i));
       loading |= loaderState.loading;
       failed |= loaderState.failed;
-      finished &= loaderState.nextLoadPositionUs == -1;
+      haveNextLoadPosition |= loaderState.nextLoadPositionUs != -1;
       highestState = Math.max(highestState, loaderState.bufferState);
     }
 
-    fillingBuffers = !loaders.isEmpty() && !finished && !failed
+    fillingBuffers = !loaders.isEmpty() && !failed && (loading || haveNextLoadPosition)
         && (highestState == BELOW_LOW_WATERMARK
         || (highestState == BETWEEN_WATERMARKS && fillingBuffers));
     if (fillingBuffers && !streamingPrioritySet) {
