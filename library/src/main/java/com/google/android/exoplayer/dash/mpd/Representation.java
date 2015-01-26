@@ -277,6 +277,11 @@ public abstract class Representation {
       return segmentBase.getLastSegmentNum();
     }
 
+    @Override
+    public boolean isExplicit() {
+      return segmentBase.isExplicit();
+    }
+
   }
 
 }
