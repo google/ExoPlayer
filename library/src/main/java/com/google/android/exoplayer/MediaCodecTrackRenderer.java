@@ -181,7 +181,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
   private boolean waitingForFirstSyncFrame;
-  private boolean hasQueuedOneInputBuffer;
+  private boolean hasQueuedInputBuffer;
   private long currentPositionUs;
 
   /**
@@ -319,7 +319,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     inputIndex = -1;
     outputIndex = -1;
     waitingForFirstSyncFrame = true;
-    hasQueuedOneInputBuffer = false;
+    hasQueuedInputBuffer = false;
     codecCounters.codecInitCount++;
   }
 
@@ -501,7 +501,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
     }
 
-    hasQueuedOneInputBuffer = false;
+    hasQueuedInputBuffer = false;
   }
 
   /**
@@ -624,7 +624,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         codec.queueInputBuffer(inputIndex, 0 , bufferSize, presentationTimeUs, 0);
       }
       inputIndex = -1;
-      hasQueuedOneInputBuffer = true;
+      hasQueuedInputBuffer = true;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     } catch (CryptoException e) {
       notifyCryptoError(e);
@@ -678,7 +678,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       codecReconfigured = true;
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
     } else {
-      if (!hasQueuedOneInputBuffer) {
+      if (!hasQueuedInputBuffer) {
         // no need to signal end of stream if nothing has been queued, we can just reinit asap
         releaseCodec();
         maybeInitCodec();
