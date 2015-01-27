@@ -21,16 +21,16 @@ import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.ChunkSource;
+import com.google.android.exoplayer.chunk.ContainerMediaChunk;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.chunk.Format.DecreasingBandwidthComparator;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer.chunk.MediaChunk;
-import com.google.android.exoplayer.chunk.Mp4MediaChunk;
-import com.google.android.exoplayer.parser.Extractor;
-import com.google.android.exoplayer.parser.mp4.FragmentedMp4Extractor;
-import com.google.android.exoplayer.parser.mp4.Track;
-import com.google.android.exoplayer.parser.mp4.TrackEncryptionBox;
+import com.google.android.exoplayer.chunk.parser.Extractor;
+import com.google.android.exoplayer.chunk.parser.mp4.FragmentedMp4Extractor;
+import com.google.android.exoplayer.chunk.parser.mp4.TrackEncryptionBox;
+import com.google.android.exoplayer.mp4.Track;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
@@ -373,7 +373,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     DataSpec dataSpec = new DataSpec(uri, offset, -1, cacheKey);
     // In SmoothStreaming each chunk contains sample timestamps relative to the start of the chunk.
     // To convert them the absolute timestamps, we need to set sampleOffsetUs to -chunkStartTimeUs.
-    return new Mp4MediaChunk(dataSource, dataSpec, formatInfo, trigger, chunkStartTimeUs,
+    return new ContainerMediaChunk(dataSource, dataSpec, formatInfo, trigger, chunkStartTimeUs,
         nextStartTimeUs, nextChunkIndex, extractor, psshInfo, false, -chunkStartTimeUs);
   }
 

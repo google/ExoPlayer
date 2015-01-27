@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.parser.mp4;
+package com.google.android.exoplayer.chunk.parser.mp4;
 
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
+import com.google.android.exoplayer.util.ParsableByteArray;
 
 /**
  * A holder for information corresponding to a single fragment of an mp4 file.

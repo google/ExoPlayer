@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.parser;
+package com.google.android.exoplayer.chunk.parser;
 
 /**
  * Defines segments within a media stream.

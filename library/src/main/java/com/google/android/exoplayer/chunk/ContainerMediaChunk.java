@@ -18,7 +18,7 @@ package com.google.android.exoplayer.chunk;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.parser.Extractor;
+import com.google.android.exoplayer.chunk.parser.Extractor;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
@@ -28,9 +28,9 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * An Mp4 {@link MediaChunk}.
+ * A {@link MediaChunk} extracted from a container.
  */
-public final class Mp4MediaChunk extends MediaChunk {
+public final class ContainerMediaChunk extends MediaChunk {
 
   private final Extractor extractor;
   private final boolean maybeSelfContained;
@@ -44,7 +44,7 @@ public final class Mp4MediaChunk extends MediaChunk {
    * @deprecated Use the other constructor, passing null as {@code psshInfo}.
    */
   @Deprecated
-  public Mp4MediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
+  public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
       int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex,
       Extractor extractor, boolean maybeSelfContained, long sampleOffsetUs) {
     this(dataSource, dataSpec, format, trigger, startTimeUs, endTimeUs, nextChunkIndex,
@@ -68,7 +68,7 @@ public final class Mp4MediaChunk extends MediaChunk {
    *     improve startup latency.
    * @param sampleOffsetUs An offset to subtract from the sample timestamps parsed by the extractor.
    */
-  public Mp4MediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
+  public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
       int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex, Extractor extractor,
       Map<UUID, byte[]> psshInfo, boolean maybeSelfContained, long sampleOffsetUs) {
     super(dataSource, dataSpec, format, trigger, startTimeUs, endTimeUs, nextChunkIndex);

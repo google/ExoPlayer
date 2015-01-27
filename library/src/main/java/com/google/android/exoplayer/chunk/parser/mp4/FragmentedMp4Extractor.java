@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.parser.mp4;
+package com.google.android.exoplayer.chunk.parser.mp4;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.parser.Extractor;
-import com.google.android.exoplayer.parser.SegmentIndex;
-import com.google.android.exoplayer.parser.mp4.Atom.ContainerAtom;
-import com.google.android.exoplayer.parser.mp4.Atom.LeafAtom;
+import com.google.android.exoplayer.chunk.parser.Extractor;
+import com.google.android.exoplayer.chunk.parser.SegmentIndex;
+import com.google.android.exoplayer.mp4.Atom;
+import com.google.android.exoplayer.mp4.Atom.ContainerAtom;
+import com.google.android.exoplayer.mp4.Atom.LeafAtom;
+import com.google.android.exoplayer.mp4.Track;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.SuppressLint;

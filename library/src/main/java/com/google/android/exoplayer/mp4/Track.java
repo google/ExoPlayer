@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.parser.mp4;
+package com.google.android.exoplayer.mp4;
 
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.chunk.parser.mp4.TrackEncryptionBox;
 
 /**
  * Encapsulates information describing an MP4 track.

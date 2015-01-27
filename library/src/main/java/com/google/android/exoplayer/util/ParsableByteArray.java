@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.parser.mp4;
-
-import com.google.android.exoplayer.util.Assertions;
+package com.google.android.exoplayer.util;
 
 import java.nio.ByteBuffer;
 
@@ -23,7 +21,7 @@ import java.nio.ByteBuffer;
  * Wraps a byte array, providing a set of methods for parsing data from it. Numerical values are
  * parsed with the assumption that their constituent bytes are in big endian order.
  */
-/* package */ final class ParsableByteArray {
+public final class ParsableByteArray {
 
   public final byte[] data;
 

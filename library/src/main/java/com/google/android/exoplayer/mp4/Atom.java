@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.parser.mp4;
+package com.google.android.exoplayer.mp4;
+
+import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.util.ArrayList;
 
-/* package */ abstract class Atom {
+public abstract class Atom {
 
   public static final int TYPE_avc1 = 0x61766331;
   public static final int TYPE_avc3 = 0x61766333;
@@ -66,7 +68,7 @@ import java.util.ArrayList;
     this.type = type;
   }
 
-  public final static class LeafAtom extends Atom {
+  public static final class LeafAtom extends Atom {
 
     public final ParsableByteArray data;
 
@@ -77,7 +79,7 @@ import java.util.ArrayList;
 
   }
 
-  public final static class ContainerAtom extends Atom {
+  public static final class ContainerAtom extends Atom {
 
     public final ArrayList<Atom> children;
     public final int endByteOffset;

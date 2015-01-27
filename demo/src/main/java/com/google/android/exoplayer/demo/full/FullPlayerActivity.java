@@ -117,9 +117,11 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
     View root = findViewById(R.id.root);
     root.setOnTouchListener(new OnTouchListener() {
       @Override
-      public boolean onTouch(View arg0, MotionEvent arg1) {
-        if (arg1.getAction() == MotionEvent.ACTION_DOWN) {
+      public boolean onTouch(View view, MotionEvent motionEvent) {
+        if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
           toggleControlsVisibility();
+        } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+          view.performClick();
         }
         return true;
       }

@@ -18,7 +18,6 @@ package com.google.android.exoplayer.text.eia608;
 import com.google.android.exoplayer.util.BitArray;
 import com.google.android.exoplayer.util.MimeTypes;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -87,7 +86,7 @@ public class Eia608Parser {
     return mimeType.equals(MimeTypes.APPLICATION_EIA608);
   }
 
-  public List<ClosedCaption> parse(byte[] data, int size, long timeUs) throws IOException {
+  public List<ClosedCaption> parse(byte[] data, int size, long timeUs) {
     if (size <= 0) {
       return null;
     }

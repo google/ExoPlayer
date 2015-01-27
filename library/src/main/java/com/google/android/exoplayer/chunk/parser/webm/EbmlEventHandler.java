@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.parser.webm;
+package com.google.android.exoplayer.chunk.parser.webm;
 
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;

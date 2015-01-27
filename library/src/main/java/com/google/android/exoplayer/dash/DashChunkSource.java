@@ -23,22 +23,22 @@ import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.ChunkSource;
+import com.google.android.exoplayer.chunk.ContainerMediaChunk;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.chunk.Format.DecreasingBandwidthComparator;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer.chunk.MediaChunk;
-import com.google.android.exoplayer.chunk.Mp4MediaChunk;
 import com.google.android.exoplayer.chunk.SingleSampleMediaChunk;
+import com.google.android.exoplayer.chunk.parser.Extractor;
+import com.google.android.exoplayer.chunk.parser.mp4.FragmentedMp4Extractor;
+import com.google.android.exoplayer.chunk.parser.webm.WebmExtractor;
 import com.google.android.exoplayer.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer.dash.mpd.ContentProtection;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.RangedUri;
 import com.google.android.exoplayer.dash.mpd.Representation;
-import com.google.android.exoplayer.parser.Extractor;
-import com.google.android.exoplayer.parser.mp4.FragmentedMp4Extractor;
-import com.google.android.exoplayer.parser.webm.WebmExtractor;
 import com.google.android.exoplayer.text.webvtt.WebvttParser;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -464,9 +464,9 @@ public class DashChunkSource implements ChunkSource {
       return new SingleSampleMediaChunk(dataSource, dataSpec, representation.format, 0,
           startTimeUs, endTimeUs, nextAbsoluteSegmentNum, null, representationHolder.vttHeader);
     } else {
-      return new Mp4MediaChunk(dataSource, dataSpec, representation.format, trigger, startTimeUs,
-          endTimeUs, nextAbsoluteSegmentNum, representationHolder.extractor, psshInfo, false,
-          presentationTimeOffsetUs);
+      return new ContainerMediaChunk(dataSource, dataSpec, representation.format, trigger,
+          startTimeUs, endTimeUs, nextAbsoluteSegmentNum, representationHolder.extractor, psshInfo,
+          false, presentationTimeOffsetUs);
     }
   }
 

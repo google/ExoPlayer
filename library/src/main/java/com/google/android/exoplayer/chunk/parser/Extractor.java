@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.parser;
+package com.google.android.exoplayer.chunk.parser;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
