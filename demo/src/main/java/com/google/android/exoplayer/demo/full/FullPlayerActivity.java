@@ -25,8 +25,10 @@ import com.google.android.exoplayer.demo.full.player.DashRendererBuilder;
 import com.google.android.exoplayer.demo.full.player.DefaultRendererBuilder;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilder;
+import com.google.android.exoplayer.demo.full.player.HlsRendererBuilder;
 import com.google.android.exoplayer.demo.full.player.SmoothStreamingRendererBuilder;
 import com.google.android.exoplayer.demo.full.player.UnsupportedDrmException;
+import com.google.android.exoplayer.metadata.TxxxMetadata;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.SubtitleView;
 import com.google.android.exoplayer.util.Util;
@@ -40,6 +42,7 @@ import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -57,11 +60,16 @@ import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Map;
+
 /**
  * An activity that plays media using {@link DemoPlayer}.
  */
 public class FullPlayerActivity extends Activity implements SurfaceHolder.Callback, OnClickListener,
-    DemoPlayer.Listener, DemoPlayer.TextListener, AudioCapabilitiesReceiver.Listener {
+    DemoPlayer.Listener, DemoPlayer.TextListener, DemoPlayer.Id3MetadataListener,
+    AudioCapabilitiesReceiver.Listener {
+
+  private static final String TAG = "FullPlayerActivity";
 
   private static final float CAPTION_LINE_HEIGHT_RATIO = 0.0533f;
   private static final int MENU_GROUP_TRACKS = 1;
@@ -199,6 +207,8 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
       case DemoUtil.TYPE_DASH:
         return new DashRendererBuilder(userAgent, contentUri.toString(), contentId,
             new WidevineTestMediaDrmCallback(contentId), debugTextView, audioCapabilities);
+      case DemoUtil.TYPE_HLS:
+        return new HlsRendererBuilder(userAgent, contentUri.toString(), contentId);
       default:
         return new DefaultRendererBuilder(this, contentUri, debugTextView);
     }
@@ -209,6 +219,7 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
       player = new DemoPlayer(getRendererBuilder());
       player.addListener(this);
       player.setTextListener(this);
+      player.setMetadataListener(this);
       player.seekTo(playerPosition);
       playerNeedsPrepare = true;
       mediaController.setMediaPlayer(player.getPlayerControl());
@@ -432,6 +443,19 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
     } else {
       subtitleView.setVisibility(View.VISIBLE);
       subtitleView.setText(text);
+    }
+  }
+
+  // DemoPlayer.MetadataListener implementation
+
+  @Override
+  public void onId3Metadata(Map<String, Object> metadata) {
+    for (int i = 0; i < metadata.size(); i++) {
+      if (metadata.containsKey(TxxxMetadata.TYPE)) {
+        TxxxMetadata txxxMetadata = (TxxxMetadata) metadata.get(TxxxMetadata.TYPE);
+        Log.i(TAG, String.format("ID3 TimedMetadata: description=%s, value=%s",
+            txxxMetadata.description, txxxMetadata.value));
+      }
     }
   }
 
