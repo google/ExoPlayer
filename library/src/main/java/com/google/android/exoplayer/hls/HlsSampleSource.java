@@ -306,9 +306,14 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public void onLoadError(Loadable loadable, IOException e) {
-    currentLoadableException = e;
-    currentLoadableExceptionCount++;
-    currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
+    if (chunkSource.onLoadError(currentLoadable, e)) {
+      // Error handled by source.
+      clearCurrentLoadable();
+    } else {
+      currentLoadableException = e;
+      currentLoadableExceptionCount++;
+      currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
+    }
     maybeStartLoading();
   }
 
