@@ -530,7 +530,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       inputIndex = -1;
       codecReinitState = REINIT_STATE_WAIT_END_OF_STREAM;
       return false;
-    } else if (codecReinitState != REINIT_STATE_NONE) {
+    } else if (codecReinitState == REINIT_STATE_WAIT_END_OF_STREAM) {
       // we are still waiting for the last samples to be output
       return false;
     }
