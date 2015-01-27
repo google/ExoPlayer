@@ -53,19 +53,21 @@ public final class TsExtractor {
   private static final int TS_STREAM_TYPE_ID3 = 0x15;
   private static final int TS_STREAM_TYPE_EIA608 = 0x100; // 0xFF + 1
 
+  private static final long MAX_PTS = 0x1FFFFFFFFL;
+
   private final BitArray tsPacketBuffer;
   private final SparseArray<SampleQueue> sampleQueues; // Indexed by streamType
   private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
   private final SamplePool samplePool;
   private final boolean shouldSpliceIn;
-  /* package */ final long firstSampleTimestamp;
+  private final long firstSampleTimestamp;
 
   // Accessed only by the consuming thread.
   private boolean spliceConfigured;
 
   // Accessed only by the loading thread.
-  /* package */ boolean pendingFirstSampleTimestampAdjustment;
-  /* package */ long sampleTimestampOffsetUs;
+  private long timestampOffsetUs;
+  private long lastPts;
 
   // Accessed by both the loading and consuming threads.
   private volatile boolean prepared;
@@ -75,12 +77,12 @@ public final class TsExtractor {
     this.firstSampleTimestamp = firstSampleTimestamp;
     this.samplePool = samplePool;
     this.shouldSpliceIn = shouldSpliceIn;
-    pendingFirstSampleTimestampAdjustment = true;
     tsPacketBuffer = new BitArray();
     sampleQueues = new SparseArray<SampleQueue>();
     tsPayloadReaders = new SparseArray<TsPayloadReader>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
     largestParsedTimestampUs = Long.MIN_VALUE;
+    lastPts = Long.MIN_VALUE;
   }
 
   /**
@@ -295,6 +297,33 @@ public final class TsExtractor {
   }
 
   /**
+   * Adjusts a PTS value to the corresponding time in microseconds, accounting for PTS wraparound.
+   *
+   * @param pts The raw PTS value.
+   * @return The corresponding time in microseconds.
+   */
+  /* package */ long ptsToTimeUs(long pts) {
+    if (lastPts != Long.MIN_VALUE) {
+      // The wrap count for the current PTS may be closestWrapCount or (closestWrapCount - 1),
+      // and we need to snap to the one closest to lastPts.
+      long closestWrapCount = (lastPts + (MAX_PTS / 2)) / MAX_PTS;
+      long ptsWrapBelow = pts + (MAX_PTS * (closestWrapCount - 1));
+      long ptsWrapAbove = pts + (MAX_PTS * closestWrapCount);
+      pts = Math.abs(ptsWrapBelow - lastPts) < Math.abs(ptsWrapAbove - lastPts)
+          ? ptsWrapBelow : ptsWrapAbove;
+    }
+    // Calculate the corresponding timestamp.
+    long timeUs = (pts * C.MICROS_PER_SECOND) / 90000;
+    // If we haven't done the initial timestamp adjustment, do it now.
+    if (lastPts == Long.MIN_VALUE) {
+      timestampOffsetUs = firstSampleTimestamp - timeUs;
+    }
+    // Record the adjusted PTS to adjust for wraparound next time.
+    lastPts = pts;
+    return timeUs + timestampOffsetUs;
+  }
+
+  /**
    * Parses payload data.
    */
   private abstract static class TsPayloadReader {
@@ -482,7 +511,7 @@ public final class TsExtractor {
         pesBuffer.skipBits(1);
         pts |= pesBuffer.readBitsLong(15);
         pesBuffer.skipBits(1);
-        timeUs = (pts * C.MICROS_PER_SECOND) / 90000;
+        timeUs = ptsToTimeUs(pts);
         // Skip the rest of the header.
         pesBuffer.skipBytes(headerDataLength - 5);
       } else {
@@ -690,7 +719,6 @@ public final class TsExtractor {
     }
 
     protected void addSample(Sample sample) {
-      adjustTimestamp(sample);
       largestParsedTimestampUs = Math.max(largestParsedTimestampUs, sample.timeUs);
       internalQueue.add(sample);
     }
@@ -701,14 +729,6 @@ public final class TsExtractor {
       }
       buffer.readBytes(sample.data, sample.size, size);
       sample.size += size;
-    }
-
-    private void adjustTimestamp(Sample sample) {
-      if (pendingFirstSampleTimestampAdjustment) {
-        sampleTimestampOffsetUs = firstSampleTimestamp - sample.timeUs;
-        pendingFirstSampleTimestampAdjustment = false;
-      }
-      sample.timeUs += sampleTimestampOffsetUs;
     }
 
   }
