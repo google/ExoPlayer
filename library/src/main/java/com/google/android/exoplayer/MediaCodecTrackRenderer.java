@@ -148,11 +148,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    * The end of stream has been sent, wait for the codec to acknowledge it.
    */
   private static final int REINIT_STATE_WAIT_END_OF_STREAM = 2;
-  /**
-   * The last sample has been processed, we can safely reinit now.
-   */
-  private static final int REINIT_STATE_DO_REINIT_NOW = 3;
-
 
   public final CodecCounters codecCounters;
 
@@ -521,12 +516,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       return false;
     }
 
-    if (codecReinitState == REINIT_STATE_DO_REINIT_NOW) {
-      releaseCodec();
-      maybeInitCodec();
-      return false;
-    }
-
     if (inputIndex < 0) {
       inputIndex = codec.dequeueInputBuffer(0);
       if (inputIndex < 0) {
@@ -691,7 +680,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     } else {
       if (!hasQueuedOneInputBuffer) {
         // no need to signal end of stream if nothing has been queued, we can just reinit asap
-        codecReinitState = REINIT_STATE_DO_REINIT_NOW;
+        releaseCodec();
+        maybeInitCodec();
       } else {
         codecReinitState = REINIT_STATE_SIGNAL_END_OF_STREAM;
       }
@@ -783,7 +773,9 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
     if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
       if (codecReinitState == REINIT_STATE_WAIT_END_OF_STREAM) {
-        codecReinitState = REINIT_STATE_DO_REINIT_NOW;
+        // The last sample has been processed, we can safely reinit now
+        releaseCodec();
+        maybeInitCodec();
       } else {
         outputStreamEnded = true;
       }
