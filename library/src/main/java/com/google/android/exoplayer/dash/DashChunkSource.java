@@ -349,7 +349,7 @@ public class DashChunkSource implements ChunkSource {
     int segmentNum;
     if (queue.isEmpty()) {
       if (currentManifest.dynamic) {
-        seekPositionUs = getLiveSeekPosition(nowUs, indexUnbounded);
+        seekPositionUs = getLiveSeekPosition(nowUs, indexUnbounded, segmentIndex.isExplicit());
       }
       segmentNum = segmentIndex.getSegmentNum(seekPositionUs);
     } else {
@@ -476,9 +476,10 @@ public class DashChunkSource implements ChunkSource {
    *
    * @param nowUs An estimate of the current server time, in microseconds.
    * @param indexUnbounded True if the segment index for this source is unbounded. False otherwise.
+   * @param indexExplicit True if the segment index is explicit. False otherwise.
    * @return The seek position in microseconds.
    */
-  private long getLiveSeekPosition(long nowUs, boolean indexUnbounded) {
+  private long getLiveSeekPosition(long nowUs, boolean indexUnbounded, boolean indexExplicit) {
     long liveEdgeTimestampUs;
     if (indexUnbounded) {
       liveEdgeTimestampUs = nowUs - currentManifest.availabilityStartTime * 1000;
@@ -490,6 +491,12 @@ public class DashChunkSource implements ChunkSource {
         long indexLiveEdgeTimestampUs = segmentIndex.getTimeUs(lastSegmentNum)
             + segmentIndex.getDurationUs(lastSegmentNum);
         liveEdgeTimestampUs = Math.max(liveEdgeTimestampUs, indexLiveEdgeTimestampUs);
+      }
+      if (!indexExplicit) {
+        // Some segments defined by the index may not be available yet. Bound the calculated live
+        // edge based on the elapsed time since the manifest became available.
+        liveEdgeTimestampUs = Math.min(liveEdgeTimestampUs,
+            nowUs - currentManifest.availabilityStartTime * 1000);
       }
     }
     return liveEdgeTimestampUs - liveEdgeLatencyUs;

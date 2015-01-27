@@ -74,4 +74,9 @@ public class DashWrappingSegmentIndex implements DashSegmentIndex {
     return Util.binarySearchFloor(segmentIndex.timesUs, timeUs, true, true);
   }
 
+  @Override
+  public boolean isExplicit() {
+    return true;
+  }
+
 }
