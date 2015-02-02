@@ -15,12 +15,13 @@
  */
 package com.google.android.exoplayer.demo.full.player;
 
-import com.google.android.exoplayer.FrameworkSampleSource;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilderCallback;
+import com.google.android.exoplayer.source.DefaultSampleSource;
+import com.google.android.exoplayer.source.FrameworkSampleExtractor;
 
 import android.content.Context;
 import android.media.MediaCodec;
@@ -46,7 +47,8 @@ public class DefaultRendererBuilder implements RendererBuilder {
   @Override
   public void buildRenderers(DemoPlayer player, RendererBuilderCallback callback) {
     // Build the video and audio renderers.
-    FrameworkSampleSource sampleSource = new FrameworkSampleSource(context, uri, null, 2);
+    DefaultSampleSource sampleSource =
+        new DefaultSampleSource(new FrameworkSampleExtractor(context, uri, null), 2);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
         null, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, player.getMainHandler(),
         player, 50);
