@@ -410,13 +410,13 @@ public final class AudioTrack {
 
     if (sonic == null) {
       final int numChannels;
-      if (channelConfig == AudioFormat.CHANNEL_IN_MONO) {
+      if (channelConfig == AudioFormat.CHANNEL_OUT_MONO) {
         numChannels = 1;
-      } else if (channelConfig == AudioFormat.CHANNEL_IN_STEREO) {
+      } else if (channelConfig == AudioFormat.CHANNEL_OUT_STEREO) {
         numChannels = 2;
       } else {
         numChannels = 1;
-        Log.e(TAG, "Surround channels are not supported at this time");
+        Log.e(TAG, "Surround channels are not supported at this time (Channelconfig: + " + channelConfig + ")");
       }
       sonic = new Sonic(sampleRate, numChannels);
       sonic.setSpeed(speed);
