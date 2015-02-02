@@ -144,7 +144,9 @@ public final class AudioTrack {
   private float volume;
   private float speed = 1f;
 
-  private byte[] temporaryBuffer;
+  private byte[] temporaryBuffer; // This should actually better be named 'blockingTemporaryBuffer'. But I keep it this
+                                  // way in order to stay consistent with Google's original ExoPlayer
+  private ByteBuffer nonBlockingTemporaryBuffer;
   private int temporaryBufferOffset;
   private int temporaryBufferSize;
 
@@ -436,12 +438,16 @@ public final class AudioTrack {
       }
       sonic.receiveBytes(temporaryBuffer, temporaryBufferSize);
       temporaryBufferOffset = 0;
+
+      if (Util.SDK_INT >= 21) {
+        // non-blocking write expects a ByteByffer instead of a byte array (see below when writing to the audio track).
+        // As we are just wrapping and not copying, this should be a cheap operation
+        nonBlockingTemporaryBuffer = ByteBuffer.wrap(temporaryBuffer);
+      }
     }
 
     int bytesWritten = 0;
-    // TODO: non-blocking writing with SDK21 is not supported right now. If we want that as well, we
-    // need to convert the temporaryBuffer into a ByteBuffer
-    if (Util.SDK_INT < 21 || true) {
+    if (Util.SDK_INT < 21) {
       // Work out how many bytes we can write without the risk of blocking.
       int bytesPending = (int) (submittedBytes - framesToBytes(getPlaybackPositionFrames()));
       int bytesToWrite = bufferSize - bytesPending;
@@ -455,8 +461,7 @@ public final class AudioTrack {
         }
       }
     } else {
-      // Right now this will write the original byte stream. see the to-do item above
-      bytesWritten = writeNonBlockingV21(audioTrack, buffer, temporaryBufferSize);
+      bytesWritten = writeNonBlockingV21(audioTrack, nonBlockingTemporaryBuffer, temporaryBufferSize);
     }
 
     temporaryBufferSize -= bytesWritten;
