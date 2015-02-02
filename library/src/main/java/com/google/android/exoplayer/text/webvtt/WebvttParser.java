@@ -87,6 +87,7 @@ public class WebvttParser implements SubtitleParser {
     if (line == null) {
       throw new ParserException("Expected WEBVTT or EXO-HEADER. Got null");
     }
+
     if (line.startsWith(EXO_HEADER)) {
       // parse the timestamp offset, if present
       Matcher matcher = MEDIA_TIMESTAMP_OFFSET.matcher(line);
@@ -100,7 +101,8 @@ public class WebvttParser implements SubtitleParser {
         throw new ParserException("Expected WEBVTT. Got null");
       }
     }
-    if (!line.equals("WEBVTT")) {
+
+    if (!line.equals("WEBVTT") && !line.equals("\uFEFFWEBVTT")) {
       throw new ParserException("Expected WEBVTT. Got " + line);
     }
 
