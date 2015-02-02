@@ -57,6 +57,15 @@ public abstract class SegmentBase {
   }
 
   /**
+   * Gets the presentation time offset, in microseconds.
+   *
+   * @return The presentation time offset, in microseconds.
+   */
+  public long getPresentationTimeOffsetUs() {
+    return Util.scaleLargeTimestamp(presentationTimeOffset, C.MICROS_PER_SECOND, timescale);
+  }
+
+  /**
    * A {@link SegmentBase} that defines a single segment.
    */
   public static class SingleSegmentBase extends SegmentBase {
@@ -87,8 +96,15 @@ public abstract class SegmentBase {
       this.indexLength = indexLength;
     }
 
+    /**
+     * @param uri The uri of the segment.
+     */
+    public SingleSegmentBase(Uri uri) {
+      this(null, 1, 0, uri, 0, -1);
+    }
+
     public RangedUri getIndex() {
-      return new RangedUri(uri, null, indexStart, indexLength);
+      return indexLength <= 0 ? null : new RangedUri(uri, null, indexStart, indexLength);
     }
 
   }

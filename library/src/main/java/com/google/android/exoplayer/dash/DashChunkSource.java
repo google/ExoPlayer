@@ -451,7 +451,7 @@ public class DashChunkSource implements ChunkSource {
     DataSpec dataSpec = new DataSpec(segmentUri.getUri(), segmentUri.start, segmentUri.length,
         representation.getCacheKey());
 
-    long presentationTimeOffsetUs = representation.presentationTimeOffsetMs * 1000;
+    long presentationTimeOffsetUs = representation.presentationTimeOffsetUs;
     if (representation.format.mimeType.equals(MimeTypes.TEXT_VTT)) {
       if (representationHolder.vttHeaderOffsetUs != presentationTimeOffsetUs) {
         // Update the VTT header.

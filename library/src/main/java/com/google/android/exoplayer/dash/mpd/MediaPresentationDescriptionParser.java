@@ -305,7 +305,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     Format format = buildFormat(id, mimeType, width, height, numChannels, audioSamplingRate,
         bandwidth, language, codecs);
     return buildRepresentation(periodStartMs, periodDurationMs, contentId, -1, format,
-        segmentBase);
+        segmentBase != null ? segmentBase : new SingleSegmentBase(baseUrl));
   }
 
   protected Format buildFormat(String id, String mimeType, int width, int height, int numChannels,
