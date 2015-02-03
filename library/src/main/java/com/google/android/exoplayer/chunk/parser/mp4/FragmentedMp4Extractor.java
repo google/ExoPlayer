@@ -227,7 +227,7 @@ public final class FragmentedMp4Extractor implements Extractor {
             results |= readEncryptionData(inputStream);
             break;
           default:
-              results |= readOrSkipSample(inputStream, out);
+            results |= readOrSkipSample(inputStream, out);
             break;
         }
       }
@@ -371,12 +371,12 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   private void onMoovContainerAtomRead(ContainerAtom moov) {
-    List<Atom> moovChildren = moov.children;
+    List<Atom.LeafAtom> moovChildren = moov.leafChildren;
     int moovChildrenSize = moovChildren.size();
     for (int i = 0; i < moovChildrenSize; i++) {
-      Atom child = moovChildren.get(i);
+      LeafAtom child = moovChildren.get(i);
       if (child.type == Atom.TYPE_pssh) {
-        ParsableByteArray psshAtom = ((LeafAtom) child).data;
+        ParsableByteArray psshAtom = child.data;
         psshAtom.setPosition(FULL_ATOM_HEADER_SIZE);
         UUID uuid = new UUID(psshAtom.readLong(), psshAtom.readLong());
         int dataSize = psshAtom.readInt();
@@ -836,11 +836,11 @@ public final class FragmentedMp4Extractor implements Extractor {
       parseSenc(senc.data, out);
     }
 
-    int childrenSize = traf.children.size();
+    int childrenSize = traf.leafChildren.size();
     for (int i = 0; i < childrenSize; i++) {
-      Atom atom = traf.children.get(i);
+      LeafAtom atom = traf.leafChildren.get(i);
       if (atom.type == Atom.TYPE_uuid) {
-        parseUuid(((LeafAtom) atom).data, out, extendedTypeScratch);
+        parseUuid(atom.data, out, extendedTypeScratch);
       }
     }
   }
@@ -910,7 +910,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   /**
    * Parses a tfdt atom (defined in 14496-12).
    *
-   * @return baseMediaDecodeTime. The sum of the decode durations of all earlier samples in the
+   * @return baseMediaDecodeTime The sum of the decode durations of all earlier samples in the
    *     media, expressed in the media's timescale.
    */
   private static long parseTfdt(ParsableByteArray tfdt) {
