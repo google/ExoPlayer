@@ -27,24 +27,27 @@ public class ByteArrayDataSource implements DataSource {
 
   private final byte[] data;
   private int readPosition;
+  private int remainingBytes;
 
   /**
    * @param data The data to be read.
    */
   public ByteArrayDataSource(byte[] data) {
-    this.data = Assertions.checkNotNull(data);
+    Assertions.checkNotNull(data);
+    Assertions.checkArgument(data.length > 0);
+    this.data = data;
   }
 
   @Override
   public long open(DataSpec dataSpec) throws IOException {
-    if (dataSpec.length == C.LENGTH_UNBOUNDED) {
-      Assertions.checkArgument(dataSpec.position < data.length);
-    } else {
-      Assertions.checkArgument(dataSpec.position + dataSpec.length <= data.length);
-    }
     readPosition = (int) dataSpec.position;
-    return (dataSpec.length == C.LENGTH_UNBOUNDED) ? (data.length - dataSpec.position)
-        : dataSpec.length;
+    remainingBytes = (int) ((dataSpec.length == C.LENGTH_UNBOUNDED)
+        ? (data.length - dataSpec.position) : dataSpec.length);
+    if (remainingBytes <= 0 || readPosition + remainingBytes > data.length) {
+      throw new IOException("Unsatisfiable range: [" + readPosition + ", " + dataSpec.length
+          + "], length: " + data.length);
+    }
+    return remainingBytes;
   }
 
   @Override
@@ -54,8 +57,13 @@ public class ByteArrayDataSource implements DataSource {
 
   @Override
   public int read(byte[] buffer, int offset, int length) throws IOException {
+    if (remainingBytes == 0) {
+      return -1;
+    }
+    length = Math.min(length, remainingBytes);
     System.arraycopy(data, readPosition, buffer, offset, length);
     readPosition += length;
+    remainingBytes -= length;
     return length;
   }
 }
