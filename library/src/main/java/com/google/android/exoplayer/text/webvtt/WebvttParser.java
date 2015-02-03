@@ -56,20 +56,28 @@ public class WebvttParser implements SubtitleParser {
   private static final Pattern WEBVTT_METADATA_HEADER =
       Pattern.compile(WEBVTT_METADATA_HEADER_STRING);
 
+  private static final String WEBVTT_CUE_IDENTIFIER_STRING = "^(?!.*(-->)).*$";
+  private static final Pattern WEBVTT_CUE_IDENTIFIER =
+      Pattern.compile(WEBVTT_CUE_IDENTIFIER_STRING);
+
   private static final String WEBVTT_TIMESTAMP_STRING = "(\\d+:)?[0-5]\\d:[0-5]\\d\\.\\d{3}";
   private static final Pattern WEBVTT_TIMESTAMP = Pattern.compile(WEBVTT_TIMESTAMP_STRING);
 
   private static final Pattern MEDIA_TIMESTAMP_OFFSET = Pattern.compile(OFFSET + "\\d+");
   private static final Pattern MEDIA_TIMESTAMP = Pattern.compile("MPEGTS:\\d+");
 
+  private static final String WEBVTT_CUE_TAG_STRING = "\\<.*?>";
+
   private final boolean strictParsing;
+  private final boolean filterTags;
 
   public WebvttParser() {
-    this(true);
+    this(true, true);
   }
 
-  public WebvttParser(boolean strictParsing) {
+  public WebvttParser(boolean strictParsing, boolean filterTags) {
     this.strictParsing = strictParsing;
+    this.filterTags = filterTags;
   }
 
   @Override
@@ -137,8 +145,15 @@ public class WebvttParser implements SubtitleParser {
 
     // process the cues and text
     while ((line = webvttData.readLine()) != null) {
+      // parse the cue identifier (if present) {
+      Matcher matcher = WEBVTT_CUE_IDENTIFIER.matcher(line);
+      if (matcher.find()) {
+        // ignore the identifier (we currently don't use it) and read the next line
+        line = webvttData.readLine();
+      }
+
       // parse the cue timestamps
-      Matcher matcher = WEBVTT_TIMESTAMP.matcher(line);
+      matcher = WEBVTT_TIMESTAMP.matcher(line);
       long startTime;
       long endTime;
       String text = "";
@@ -159,7 +174,7 @@ public class WebvttParser implements SubtitleParser {
 
       // parse text
       while (((line = webvttData.readLine()) != null) && (!line.isEmpty())) {
-        text += line.trim() + "\n";
+        text += processCueText(line.trim()) + "\n";
       }
 
       WebvttCue cue = new WebvttCue(startTime, endTime, text);
@@ -191,6 +206,19 @@ public class WebvttParser implements SubtitleParser {
 
   protected long getAdjustedStartTime(long startTimeUs) {
     return startTimeUs;
+  }
+
+  protected String processCueText(String line) {
+    if (filterTags) {
+      line = line.replaceAll(WEBVTT_CUE_TAG_STRING, "");
+      line = line.replaceAll("&lt;", "<");
+      line = line.replaceAll("&gt;", ">");
+      line = line.replaceAll("&nbsp;", " ");
+      line = line.replaceAll("&amp;", "&");
+      return line;
+    } else {
+      return line;
+    }
   }
 
   protected void handleNoncompliantLine(String line) throws ParserException {
