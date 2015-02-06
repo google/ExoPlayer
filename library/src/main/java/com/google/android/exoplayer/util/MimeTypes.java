@@ -29,6 +29,7 @@ public class MimeTypes {
   public static final String VIDEO_WEBM = BASE_TYPE_VIDEO + "/webm";
   public static final String VIDEO_H264 = BASE_TYPE_VIDEO + "/avc";
   public static final String VIDEO_VP9 = BASE_TYPE_VIDEO + "/x-vnd.on2.vp9";
+  public static final String VIDEO_MP4V = BASE_TYPE_VIDEO + "/mp4v-es";
 
   public static final String AUDIO_MP4 = BASE_TYPE_AUDIO + "/mp4";
   public static final String AUDIO_AAC = BASE_TYPE_AUDIO + "/mp4a-latm";
