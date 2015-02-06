@@ -167,8 +167,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
           : Track.TYPE_AUDIO;
       FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
           FragmentedMp4Extractor.WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME);
-      extractor.setTrack(new Track(trackIndex, trackType, streamElement.timescale, mediaFormat,
-          trackEncryptionBoxes));
+      extractor.setTrack(new Track(trackIndex, trackType, streamElement.timescale,
+          initialManifest.durationUs, mediaFormat, trackEncryptionBoxes));
       extractors.put(trackIndex, extractor);
     }
     this.maxHeight = maxHeight;
