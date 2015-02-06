@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.demo.full;
+package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.VideoSurfaceView;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
-import com.google.android.exoplayer.demo.DemoUtil;
-import com.google.android.exoplayer.demo.R;
-import com.google.android.exoplayer.demo.full.player.DashRendererBuilder;
-import com.google.android.exoplayer.demo.full.player.DefaultRendererBuilder;
-import com.google.android.exoplayer.demo.full.player.DemoPlayer;
-import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilder;
-import com.google.android.exoplayer.demo.full.player.HlsRendererBuilder;
-import com.google.android.exoplayer.demo.full.player.SmoothStreamingRendererBuilder;
-import com.google.android.exoplayer.demo.full.player.UnsupportedDrmException;
+import com.google.android.exoplayer.demo.player.DashRendererBuilder;
+import com.google.android.exoplayer.demo.player.DefaultRendererBuilder;
+import com.google.android.exoplayer.demo.player.DemoPlayer;
+import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
+import com.google.android.exoplayer.demo.player.HlsRendererBuilder;
+import com.google.android.exoplayer.demo.player.SmoothStreamingRendererBuilder;
+import com.google.android.exoplayer.demo.player.UnsupportedDrmException;
 import com.google.android.exoplayer.metadata.TxxxMetadata;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.SubtitleView;
@@ -65,11 +63,14 @@ import java.util.Map;
 /**
  * An activity that plays media using {@link DemoPlayer}.
  */
-public class FullPlayerActivity extends Activity implements SurfaceHolder.Callback, OnClickListener,
+public class PlayerActivity extends Activity implements SurfaceHolder.Callback, OnClickListener,
     DemoPlayer.Listener, DemoPlayer.TextListener, DemoPlayer.Id3MetadataListener,
     AudioCapabilitiesReceiver.Listener {
 
-  private static final String TAG = "FullPlayerActivity";
+  public static final String CONTENT_TYPE_EXTRA = "content_type";
+  public static final String CONTENT_ID_EXTRA = "content_id";
+
+  private static final String TAG = "PlayerActivity";
 
   private static final float CAPTION_LINE_HEIGHT_RATIO = 0.0533f;
   private static final int MENU_GROUP_TRACKS = 1;
@@ -110,10 +111,10 @@ public class FullPlayerActivity extends Activity implements SurfaceHolder.Callba
 
     Intent intent = getIntent();
     contentUri = intent.getData();
-    contentType = intent.getIntExtra(DemoUtil.CONTENT_TYPE_EXTRA, DemoUtil.TYPE_OTHER);
-    contentId = intent.getStringExtra(DemoUtil.CONTENT_ID_EXTRA);
+    contentType = intent.getIntExtra(CONTENT_TYPE_EXTRA, DemoUtil.TYPE_OTHER);
+    contentId = intent.getStringExtra(CONTENT_ID_EXTRA);
 
-    setContentView(R.layout.player_activity_full);
+    setContentView(R.layout.player_activity);
     View root = findViewById(R.id.root);
     root.setOnTouchListener(new OnTouchListener() {
       @Override

@@ -42,12 +42,7 @@
       </intent-filter>
     </activity>
 
-    <activity android:name="com.google.android.exoplayer.demo.simple.SimplePlayerActivity"
-        android:configChanges="keyboardHidden|orientation|screenSize"
-        android:label="@string/application_name"
-        android:theme="@style/PlayerTheme"/>
-
-    <activity android:name="com.google.android.exoplayer.demo.full.FullPlayerActivity"
+    <activity android:name="com.google.android.exoplayer.demo.PlayerActivity"
         android:configChanges="keyboardHidden|orientation|screenSize"
         android:label="@string/application_name"
         android:theme="@style/PlayerTheme"/>

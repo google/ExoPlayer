@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.demo.full.player;
+package com.google.android.exoplayer.demo.player;
 
 import com.google.android.exoplayer.Ac3PassthroughAudioTrackRenderer;
 import com.google.android.exoplayer.DefaultLoadControl;
@@ -38,8 +38,8 @@ import com.google.android.exoplayer.dash.mpd.MediaPresentationDescriptionParser;
 import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.Representation;
 import com.google.android.exoplayer.demo.DemoUtil;
-import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilder;
-import com.google.android.exoplayer.demo.full.player.DemoPlayer.RendererBuilderCallback;
+import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
+import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilderCallback;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.drm.MediaDrmCallback;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;

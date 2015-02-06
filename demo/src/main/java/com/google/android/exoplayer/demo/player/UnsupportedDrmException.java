@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.demo.full.player;
+package com.google.android.exoplayer.demo.player;
 
 /**
  * Exception thrown when the required level of DRM is not supported.

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.demo.full;
+package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.audio.AudioTrack;
-import com.google.android.exoplayer.demo.full.player.DemoPlayer;
+import com.google.android.exoplayer.demo.player.DemoPlayer;
 import com.google.android.exoplayer.util.VerboseLogUtil;
 
 import android.media.MediaCodec.CryptoException;
@@ -63,8 +63,8 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
 
   @Override
   public void onStateChanged(boolean playWhenReady, int state) {
-    Log.d(TAG, "state [" + getSessionTimeString() + ", " + playWhenReady + ", " +
-        getStateString(state) + "]");
+    Log.d(TAG, "state [" + getSessionTimeString() + ", " + playWhenReady + ", "
+        + getStateString(state) + "]");
   }
 
   @Override
@@ -81,8 +81,8 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
 
   @Override
   public void onBandwidthSample(int elapsedMs, long bytes, long bitrateEstimate) {
-    Log.d(TAG, "bandwidth [" + getSessionTimeString() + ", " + bytes +
-        ", " + getTimeString(elapsedMs) + ", " + bitrateEstimate + "]");
+    Log.d(TAG, "bandwidth [" + getSessionTimeString() + ", " + bytes + ", "
+        + getTimeString(elapsedMs) + ", " + bitrateEstimate + "]");
   }
 
   @Override
@@ -104,21 +104,21 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   public void onLoadCompleted(int sourceId, long bytesLoaded) {
     if (VerboseLogUtil.isTagEnabled(TAG)) {
       long downloadTime = SystemClock.elapsedRealtime() - loadStartTimeMs[sourceId];
-      Log.v(TAG, "loadEnd [" + getSessionTimeString() + ", " + sourceId + ", " +
-          downloadTime + "]");
+      Log.v(TAG, "loadEnd [" + getSessionTimeString() + ", " + sourceId + ", " + downloadTime
+          + "]");
     }
   }
 
   @Override
   public void onVideoFormatEnabled(String formatId, int trigger, int mediaTimeMs) {
-    Log.d(TAG, "videoFormat [" + getSessionTimeString() + ", " + formatId + ", " +
-        Integer.toString(trigger) + "]");
+    Log.d(TAG, "videoFormat [" + getSessionTimeString() + ", " + formatId + ", "
+        + Integer.toString(trigger) + "]");
   }
 
   @Override
   public void onAudioFormatEnabled(String formatId, int trigger, int mediaTimeMs) {
-    Log.d(TAG, "audioFormat [" + getSessionTimeString() + ", " + formatId + ", " +
-        Integer.toString(trigger) + "]");
+    Log.d(TAG, "audioFormat [" + getSessionTimeString() + ", " + formatId + ", "
+        + Integer.toString(trigger) + "]");
   }
 
   // DemoPlayer.InternalErrorListener

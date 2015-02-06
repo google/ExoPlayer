@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.demo.full.player;
+package com.google.android.exoplayer.demo.player;
 
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaCodecTrackRenderer;
@@ -82,8 +82,8 @@ import android.widget.TextView;
   }
 
   private String getRenderString() {
-    return "ms(" + (currentPositionUs / 1000) + "), " + getQualityString() +
-        ", " + renderer.codecCounters.getDebugString();
+    return "ms(" + (currentPositionUs / 1000) + "), " + getQualityString()
+        + ", " + renderer.codecCounters.getDebugString();
   }
 
   private String getQualityString() {
