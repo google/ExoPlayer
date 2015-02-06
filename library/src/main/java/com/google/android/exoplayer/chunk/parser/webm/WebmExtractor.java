@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.chunk.parser.webm;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
@@ -182,6 +183,11 @@ public final class WebmExtractor implements Extractor {
   @Override
   public MediaFormat getFormat() {
     return format;
+  }
+
+  @Override
+  public long getDurationUs() {
+    return durationUs == UNKNOWN ? C.UNKNOWN_TIME_US : durationUs;
   }
 
   @Override

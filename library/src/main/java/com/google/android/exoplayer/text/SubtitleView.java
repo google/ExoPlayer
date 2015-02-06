@@ -123,7 +123,7 @@ public class SubtitleView extends View {
   @Override
   public void setBackgroundColor(int color) {
     backgroundColor = color;
-    invalidate();
+    forceUpdate(false);
   }
 
   /**
@@ -134,8 +134,7 @@ public class SubtitleView extends View {
   public void setText(CharSequence text) {
     textBuilder.setLength(0);
     textBuilder.append(text);
-    hasMeasurements = false;
-    requestLayout();
+    forceUpdate(true);
   }
 
   /**
@@ -147,9 +146,7 @@ public class SubtitleView extends View {
     if (textPaint.getTextSize() != size) {
       textPaint.setTextSize(size);
       innerPaddingX = (int) (size * INNER_PADDING_RATIO + 0.5f);
-      hasMeasurements = false;
-      requestLayout();
-      invalidate();
+      forceUpdate(true);
     }
   }
 
@@ -165,17 +162,22 @@ public class SubtitleView extends View {
     edgeColor = style.edgeColor;
     setTypeface(style.typeface);
     super.setBackgroundColor(style.windowColor);
-    hasMeasurements = false;
-    requestLayout();
+    forceUpdate(true);
   }
 
   private void setTypeface(Typeface typeface) {
     if (textPaint.getTypeface() != typeface) {
       textPaint.setTypeface(typeface);
+      forceUpdate(true);
+    }
+  }
+
+  private void forceUpdate(boolean needsLayout) {
+    if (needsLayout) {
       hasMeasurements = false;
       requestLayout();
-      invalidate();
     }
+    invalidate();
   }
 
   @Override

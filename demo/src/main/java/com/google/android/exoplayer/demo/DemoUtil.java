@@ -44,15 +44,10 @@ public class DemoUtil {
 
   public static final UUID WIDEVINE_UUID = new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
 
-  public static final String CONTENT_TYPE_EXTRA = "content_type";
-  public static final String CONTENT_ID_EXTRA = "content_id";
-
   public static final int TYPE_DASH = 0;
   public static final int TYPE_SS = 1;
   public static final int TYPE_OTHER = 2;
   public static final int TYPE_HLS = 3;
-
-  public static final boolean EXPOSE_EXPERIMENTAL_FEATURES = false;
 
   private static final CookieManager defaultCookieManager;
 

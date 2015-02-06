@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.mp4;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.chunk.parser.mp4.TrackEncryptionBox;
 
@@ -43,6 +44,10 @@ public final class Track {
    * Type of a meta track.
    */
   public static final int TYPE_META = 0x6D657461;
+  /**
+   * Type of a time-code track.
+   */
+  public static final int TYPE_TIME_CODE = 0x746D6364;
 
   /**
    * The track identifier.
@@ -50,7 +55,8 @@ public final class Track {
   public final int id;
 
   /**
-   * One of {@link #TYPE_VIDEO}, {@link #TYPE_AUDIO}, {@link #TYPE_HINT} and {@link #TYPE_META}.
+   * One of {@link #TYPE_VIDEO}, {@link #TYPE_AUDIO}, {@link #TYPE_HINT}, {@link #TYPE_META} and
+   * {@link #TYPE_TIME_CODE}.
    */
   public final int type;
 
@@ -58,6 +64,11 @@ public final class Track {
    * The track timescale, defined as the number of time units that pass in one second.
    */
   public final long timescale;
+
+  /**
+   * The duration of the track in microseconds, or {@link C#UNKNOWN_TIME_US} if unknown.
+   */
+  public final long durationUs;
 
   /**
    * The format if {@link #type} is {@link #TYPE_VIDEO} or {@link #TYPE_AUDIO}. Null otherwise.
@@ -69,11 +80,12 @@ public final class Track {
    */
   public final TrackEncryptionBox[] sampleDescriptionEncryptionBoxes;
 
-  public Track(int id, int type, long timescale, MediaFormat mediaFormat,
+  public Track(int id, int type, long timescale, long durationUs, MediaFormat mediaFormat,
       TrackEncryptionBox[] sampleDescriptionEncryptionBoxes) {
     this.id = id;
     this.type = type;
     this.timescale = timescale;
+    this.durationUs = durationUs;
     this.mediaFormat = mediaFormat;
     this.sampleDescriptionEncryptionBoxes = sampleDescriptionEncryptionBoxes;
   }

@@ -24,21 +24,18 @@ import com.google.android.exoplayer.chunk.parser.SegmentIndex;
 import com.google.android.exoplayer.mp4.Atom;
 import com.google.android.exoplayer.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer.mp4.Atom.LeafAtom;
+import com.google.android.exoplayer.mp4.CommonMp4AtomParsers;
+import com.google.android.exoplayer.mp4.Mp4Util;
 import com.google.android.exoplayer.mp4.Track;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
-import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.CodecSpecificDataUtil;
-import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.SuppressLint;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
-import android.util.Pair;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -67,24 +64,14 @@ public final class FragmentedMp4Extractor implements Extractor {
 
   private static final int READ_TERMINATING_RESULTS = RESULT_NEED_MORE_DATA | RESULT_END_OF_STREAM
       | RESULT_READ_SAMPLE | RESULT_NEED_SAMPLE_HOLDER;
-  private static final byte[] NAL_START_CODE = new byte[] {0, 0, 0, 1};
   private static final byte[] PIFF_SAMPLE_ENCRYPTION_BOX_EXTENDED_TYPE =
       new byte[] {-94, 57, 79, 82, 90, -101, 79, 20, -94, 68, 108, 66, 124, 100, -115, -12};
-  /** Channel counts for AC-3 audio, indexed by acmod. (See ETSI TS 102 366.) */
-  private static final int[] AC3_CHANNEL_COUNTS = new int[] {2, 1, 2, 3, 3, 4, 4, 5};
-  /** Nominal bit-rates for AC-3 audio in kbps, indexed by bit_rate_code. (See ETSI TS 102 366.) */
-  private static final int[] AC3_BIT_RATES = new int[] {32, 40, 48, 56, 64, 80, 96, 112, 128, 160,
-      192, 224, 256, 320, 384, 448, 512, 576, 640};
 
   // Parser states
   private static final int STATE_READING_ATOM_HEADER = 0;
   private static final int STATE_READING_ATOM_PAYLOAD = 1;
   private static final int STATE_READING_ENCRYPTION_DATA = 2;
   private static final int STATE_READING_SAMPLE = 3;
-
-  // Atom data offsets
-  private static final int ATOM_HEADER_SIZE = 8;
-  private static final int FULL_ATOM_HEADER_SIZE = 12;
 
   // Atoms that the parser cares about
   private static final Set<Integer> PARSED_ATOMS;
@@ -173,7 +160,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   public FragmentedMp4Extractor(int workaroundFlags) {
     this.workaroundFlags = workaroundFlags;
     parserState = STATE_READING_ATOM_HEADER;
-    atomHeader = new ParsableByteArray(ATOM_HEADER_SIZE);
+    atomHeader = new ParsableByteArray(Mp4Util.ATOM_HEADER_SIZE);
     extendedTypeScratch = new byte[16];
     containerAtoms = new Stack<ContainerAtom>();
     fragmentRun = new TrackFragment();
@@ -211,6 +198,11 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   @Override
+  public long getDurationUs() {
+    return track == null ? C.UNKNOWN_TIME_US : track.durationUs;
+  }
+
+  @Override
   public int read(NonBlockingInputStream inputStream, SampleHolder out)
       throws ParserException {
     try {
@@ -227,7 +219,7 @@ public final class FragmentedMp4Extractor implements Extractor {
             results |= readEncryptionData(inputStream);
             break;
           default:
-              results |= readOrSkipSample(inputStream, out);
+            results |= readOrSkipSample(inputStream, out);
             break;
         }
       }
@@ -276,14 +268,14 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   private int readAtomHeader(NonBlockingInputStream inputStream) {
-    int remainingBytes = ATOM_HEADER_SIZE - atomBytesRead;
+    int remainingBytes = Mp4Util.ATOM_HEADER_SIZE - atomBytesRead;
     int bytesRead = inputStream.read(atomHeader.data, atomBytesRead, remainingBytes);
     if (bytesRead == -1) {
       return RESULT_END_OF_STREAM;
     }
     rootAtomBytesRead += bytesRead;
     atomBytesRead += bytesRead;
-    if (atomBytesRead != ATOM_HEADER_SIZE) {
+    if (atomBytesRead != Mp4Util.ATOM_HEADER_SIZE) {
       return RESULT_NEED_MORE_DATA;
     }
 
@@ -305,10 +297,10 @@ public final class FragmentedMp4Extractor implements Extractor {
       if (CONTAINER_TYPES.contains(atomTypeInteger)) {
         enterState(STATE_READING_ATOM_HEADER);
         containerAtoms.add(new ContainerAtom(atomType,
-            rootAtomBytesRead + atomSize - ATOM_HEADER_SIZE));
+            rootAtomBytesRead + atomSize - Mp4Util.ATOM_HEADER_SIZE));
       } else {
         atomData = new ParsableByteArray(atomSize);
-        System.arraycopy(atomHeader.data, 0, atomData.data, 0, ATOM_HEADER_SIZE);
+        System.arraycopy(atomHeader.data, 0, atomData.data, 0, Mp4Util.ATOM_HEADER_SIZE);
         enterState(STATE_READING_ATOM_PAYLOAD);
       }
     } else {
@@ -371,13 +363,13 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   private void onMoovContainerAtomRead(ContainerAtom moov) {
-    List<Atom> moovChildren = moov.children;
+    List<Atom.LeafAtom> moovChildren = moov.leafChildren;
     int moovChildrenSize = moovChildren.size();
     for (int i = 0; i < moovChildrenSize; i++) {
-      Atom child = moovChildren.get(i);
+      LeafAtom child = moovChildren.get(i);
       if (child.type == Atom.TYPE_pssh) {
-        ParsableByteArray psshAtom = ((LeafAtom) child).data;
-        psshAtom.setPosition(FULL_ATOM_HEADER_SIZE);
+        ParsableByteArray psshAtom = child.data;
+        psshAtom.setPosition(Mp4Util.FULL_ATOM_HEADER_SIZE);
         UUID uuid = new UUID(psshAtom.readLong(), psshAtom.readLong());
         int dataSize = psshAtom.readInt();
         byte[] data = new byte[dataSize];
@@ -387,7 +379,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     }
     ContainerAtom mvex = moov.getContainerAtomOfType(Atom.TYPE_mvex);
     extendsDefaults = parseTrex(mvex.getLeafAtomOfType(Atom.TYPE_trex).data);
-    track = parseTrak(moov.getContainerAtomOfType(Atom.TYPE_trak));
+    track = CommonMp4AtomParsers.parseTrak(moov.getContainerAtomOfType(Atom.TYPE_trak));
   }
 
   private void onMoofContainerAtomRead(ContainerAtom moof) {
@@ -412,395 +404,13 @@ public final class FragmentedMp4Extractor implements Extractor {
    * Parses a trex atom (defined in 14496-12).
    */
   private static DefaultSampleValues parseTrex(ParsableByteArray trex) {
-    trex.setPosition(FULL_ATOM_HEADER_SIZE + 4);
+    trex.setPosition(Mp4Util.FULL_ATOM_HEADER_SIZE + 4);
     int defaultSampleDescriptionIndex = trex.readUnsignedIntToInt() - 1;
     int defaultSampleDuration = trex.readUnsignedIntToInt();
     int defaultSampleSize = trex.readUnsignedIntToInt();
     int defaultSampleFlags = trex.readInt();
     return new DefaultSampleValues(defaultSampleDescriptionIndex, defaultSampleDuration,
         defaultSampleSize, defaultSampleFlags);
-  }
-
-  /**
-   * Parses a trak atom (defined in 14496-12).
-   */
-  private static Track parseTrak(ContainerAtom trak) {
-    ContainerAtom mdia = trak.getContainerAtomOfType(Atom.TYPE_mdia);
-    int trackType = parseHdlr(mdia.getLeafAtomOfType(Atom.TYPE_hdlr).data);
-    Assertions.checkState(trackType == Track.TYPE_AUDIO || trackType == Track.TYPE_VIDEO
-        || trackType == Track.TYPE_TEXT);
-
-    Pair<Integer, Long> header = parseTkhd(trak.getLeafAtomOfType(Atom.TYPE_tkhd).data);
-    int id = header.first;
-    // TODO: This value should be used to set a duration field on the Track object
-    // instantiated below, however we've found examples where the value is 0. Revisit whether we
-    // should set it anyway (and just have it be wrong for bad media streams).
-    // long duration = header.second;
-    long timescale = parseMdhd(mdia.getLeafAtomOfType(Atom.TYPE_mdhd).data);
-    ContainerAtom stbl = mdia.getContainerAtomOfType(Atom.TYPE_minf)
-        .getContainerAtomOfType(Atom.TYPE_stbl);
-
-    Pair<MediaFormat, TrackEncryptionBox[]> sampleDescriptions =
-        parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data);
-    return new Track(id, trackType, timescale, sampleDescriptions.first, sampleDescriptions.second);
-  }
-
-  /**
-   * Parses a tkhd atom (defined in 14496-12).
-   *
-   * @return A {@link Pair} consisting of the track id and duration (in the timescale indicated in
-   *     the movie header box). The duration is set to -1 if the duration is unspecified.
-   */
-  private static Pair<Integer, Long> parseTkhd(ParsableByteArray tkhd) {
-    tkhd.setPosition(ATOM_HEADER_SIZE);
-    int fullAtom = tkhd.readInt();
-    int version = parseFullAtomVersion(fullAtom);
-
-    tkhd.skip(version == 0 ? 8 : 16);
-
-    int trackId = tkhd.readInt();
-    tkhd.skip(4);
-
-    boolean durationUnknown = true;
-    int durationPosition = tkhd.getPosition();
-    int durationByteCount = version == 0 ? 4 : 8;
-    for (int i = 0; i < durationByteCount; i++) {
-      if (tkhd.data[durationPosition + i] != -1) {
-        durationUnknown = false;
-        break;
-      }
-    }
-    long duration;
-    if (durationUnknown) {
-      tkhd.skip(durationByteCount);
-      duration = -1;
-    } else {
-      duration = version == 0 ? tkhd.readUnsignedInt() : tkhd.readUnsignedLongToLong();
-    }
-
-    return Pair.create(trackId, duration);
-  }
-
-  /**
-   * Parses an hdlr atom (defined in 14496-12).
-   *
-   * @param hdlr The hdlr atom to parse.
-   * @return The track type.
-   */
-  private static int parseHdlr(ParsableByteArray hdlr) {
-    hdlr.setPosition(FULL_ATOM_HEADER_SIZE + 4);
-    return hdlr.readInt();
-  }
-
-  /**
-   * Parses an mdhd atom (defined in 14496-12).
-   *
-   * @param mdhd The mdhd atom to parse.
-   * @return The media timescale, defined as the number of time units that pass in one second.
-   */
-  private static long parseMdhd(ParsableByteArray mdhd) {
-    mdhd.setPosition(ATOM_HEADER_SIZE);
-    int fullAtom = mdhd.readInt();
-    int version = parseFullAtomVersion(fullAtom);
-
-    mdhd.skip(version == 0 ? 8 : 16);
-    return mdhd.readUnsignedInt();
-  }
-
-  private static Pair<MediaFormat, TrackEncryptionBox[]> parseStsd(ParsableByteArray stsd) {
-    stsd.setPosition(FULL_ATOM_HEADER_SIZE);
-    int numberOfEntries = stsd.readInt();
-    MediaFormat mediaFormat = null;
-    TrackEncryptionBox[] trackEncryptionBoxes = new TrackEncryptionBox[numberOfEntries];
-    for (int i = 0; i < numberOfEntries; i++) {
-      int childStartPosition = stsd.getPosition();
-      int childAtomSize = stsd.readInt();
-      int childAtomType = stsd.readInt();
-      if (childAtomType == Atom.TYPE_avc1 || childAtomType == Atom.TYPE_avc3
-          || childAtomType == Atom.TYPE_encv) {
-        Pair<MediaFormat, TrackEncryptionBox> avc =
-            parseAvcFromParent(stsd, childStartPosition, childAtomSize);
-        mediaFormat = avc.first;
-        trackEncryptionBoxes[i] = avc.second;
-      } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca
-          || childAtomType == Atom.TYPE_ac_3) {
-        Pair<MediaFormat, TrackEncryptionBox> audioSampleEntry =
-            parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize);
-        mediaFormat = audioSampleEntry.first;
-        trackEncryptionBoxes[i] = audioSampleEntry.second;
-      } else if (childAtomType == Atom.TYPE_TTML) {
-        mediaFormat = MediaFormat.createTtmlFormat();
-      }
-      stsd.setPosition(childStartPosition + childAtomSize);
-    }
-    return Pair.create(mediaFormat, trackEncryptionBoxes);
-  }
-
-  private static Pair<MediaFormat, TrackEncryptionBox> parseAvcFromParent(ParsableByteArray parent,
-      int position, int size) {
-    parent.setPosition(position + ATOM_HEADER_SIZE);
-
-    parent.skip(24);
-    int width = parent.readUnsignedShort();
-    int height = parent.readUnsignedShort();
-    float pixelWidthHeightRatio = 1;
-    parent.skip(50);
-
-    List<byte[]> initializationData = null;
-    TrackEncryptionBox trackEncryptionBox = null;
-    int childPosition = parent.getPosition();
-    while (childPosition - position < size) {
-      parent.setPosition(childPosition);
-      int childStartPosition = parent.getPosition();
-      int childAtomSize = parent.readInt();
-      int childAtomType = parent.readInt();
-      if (childAtomType == Atom.TYPE_avcC) {
-        initializationData = parseAvcCFromParent(parent, childStartPosition);
-      } else if (childAtomType == Atom.TYPE_sinf) {
-        trackEncryptionBox = parseSinfFromParent(parent, childStartPosition, childAtomSize);
-      } else if (childAtomType == Atom.TYPE_pasp) {
-        pixelWidthHeightRatio = parsePaspFromParent(parent, childStartPosition);
-      }
-      childPosition += childAtomSize;
-    }
-
-    MediaFormat format = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
-        width, height, pixelWidthHeightRatio, initializationData);
-    return Pair.create(format, trackEncryptionBox);
-  }
-
-  private static Pair<MediaFormat, TrackEncryptionBox> parseAudioSampleEntry(
-      ParsableByteArray parent, int atomType, int position, int size) {
-    parent.setPosition(position + ATOM_HEADER_SIZE);
-    parent.skip(16);
-    int channelCount = parent.readUnsignedShort();
-    int sampleSize = parent.readUnsignedShort();
-    parent.skip(4);
-    int sampleRate = parent.readUnsignedFixedPoint1616();
-    int bitrate = MediaFormat.NO_VALUE;
-
-    byte[] initializationData = null;
-    TrackEncryptionBox trackEncryptionBox = null;
-    int childPosition = parent.getPosition();
-    while (childPosition - position < size) {
-      parent.setPosition(childPosition);
-      int childStartPosition = parent.getPosition();
-      int childAtomSize = parent.readInt();
-      int childAtomType = parent.readInt();
-      if (atomType == Atom.TYPE_mp4a || atomType == Atom.TYPE_enca) {
-        if (childAtomType == Atom.TYPE_esds) {
-          initializationData = parseEsdsFromParent(parent, childStartPosition);
-          // TODO: Do we really need to do this? See [Internal: b/10903778]
-          // Update sampleRate and channelCount from the AudioSpecificConfig initialization data.
-          Pair<Integer, Integer> audioSpecificConfig =
-              CodecSpecificDataUtil.parseAudioSpecificConfig(initializationData);
-          sampleRate = audioSpecificConfig.first;
-          channelCount = audioSpecificConfig.second;
-        } else if (childAtomType == Atom.TYPE_sinf) {
-          trackEncryptionBox = parseSinfFromParent(parent, childStartPosition, childAtomSize);
-        }
-      } else if (atomType == Atom.TYPE_ac_3 && childAtomType == Atom.TYPE_dac3) {
-        // TODO: Choose the right AC-3 track based on the contents of dac3/dec3.
-        Ac3Format ac3Format =
-            parseAc3SpecificBoxFromParent(parent, childStartPosition);
-        if (ac3Format != null) {
-          sampleRate = ac3Format.sampleRate;
-          channelCount = ac3Format.channelCount;
-          bitrate = ac3Format.bitrate;
-        }
-
-        // TODO: Add support for encrypted AC-3.
-        trackEncryptionBox = null;
-      } else if (atomType == Atom.TYPE_ec_3 && childAtomType == Atom.TYPE_dec3) {
-        sampleRate = parseEc3SpecificBoxFromParent(parent, childStartPosition);
-        trackEncryptionBox = null;
-      }
-      childPosition += childAtomSize;
-    }
-
-    String mimeType;
-    if (atomType == Atom.TYPE_ac_3) {
-      mimeType = MimeTypes.AUDIO_AC3;
-    } else if (atomType == Atom.TYPE_ec_3) {
-      mimeType = MimeTypes.AUDIO_EC3;
-    } else {
-      mimeType = MimeTypes.AUDIO_AAC;
-    }
-
-    MediaFormat format = MediaFormat.createAudioFormat(
-        mimeType, sampleSize, channelCount, sampleRate, bitrate,
-        initializationData == null ? null : Collections.singletonList(initializationData));
-    return Pair.create(format, trackEncryptionBox);
-  }
-
-  private static Ac3Format parseAc3SpecificBoxFromParent(ParsableByteArray parent, int position) {
-    // Start of the dac3 atom (defined in ETSI TS 102 366)
-    parent.setPosition(position + ATOM_HEADER_SIZE);
-
-    // fscod (sample rate code)
-    int fscod = (parent.readUnsignedByte() & 0xC0) >> 6;
-    int sampleRate;
-    switch (fscod) {
-      case 0:
-        sampleRate = 48000;
-        break;
-      case 1:
-        sampleRate = 44100;
-        break;
-      case 2:
-        sampleRate = 32000;
-        break;
-      default:
-        // TODO: The decoder should not use this stream.
-        return null;
-    }
-
-    int nextByte = parent.readUnsignedByte();
-
-    // Map acmod (audio coding mode) onto a channel count.
-    int channelCount = AC3_CHANNEL_COUNTS[(nextByte & 0x38) >> 3];
-
-    // lfeon (low frequency effects on)
-    if ((nextByte & 0x04) != 0) {
-      channelCount++;
-    }
-
-    // Map bit_rate_code onto a bit-rate in kbit/s.
-    int bitrate = AC3_BIT_RATES[((nextByte & 0x03) << 3) + (parent.readUnsignedByte() >> 5)];
-
-    return new Ac3Format(channelCount, sampleRate, bitrate);
-  }
-
-  private static int parseEc3SpecificBoxFromParent(ParsableByteArray parent, int position) {
-    // Start of the dec3 atom (defined in ETSI TS 102 366)
-    parent.setPosition(position + ATOM_HEADER_SIZE);
-    // TODO: Implement parsing for enhanced AC-3 with multiple sub-streams.
-    return 0;
-  }
-
-  private static List<byte[]> parseAvcCFromParent(ParsableByteArray parent, int position) {
-    parent.setPosition(position + ATOM_HEADER_SIZE + 4);
-    // Start of the AVCDecoderConfigurationRecord (defined in 14496-15)
-    int nalUnitLength = (parent.readUnsignedByte() & 0x3) + 1;
-    if (nalUnitLength != 4) {
-      // readSample currently relies on a nalUnitLength of 4.
-      // TODO: Consider handling the case where it isn't.
-      throw new IllegalStateException();
-    }
-    List<byte[]> initializationData = new ArrayList<byte[]>();
-    // TODO: We should try and parse these using CodecSpecificDataUtil.parseSpsNalUnit, and
-    // expose the AVC profile and level somewhere useful; Most likely in MediaFormat.
-    int numSequenceParameterSets = parent.readUnsignedByte() & 0x1F;
-    for (int j = 0; j < numSequenceParameterSets; j++) {
-      initializationData.add(parseChildNalUnit(parent));
-    }
-    int numPictureParamterSets = parent.readUnsignedByte();
-    for (int j = 0; j < numPictureParamterSets; j++) {
-      initializationData.add(parseChildNalUnit(parent));
-    }
-    return initializationData;
-  }
-
-  private static byte[] parseChildNalUnit(ParsableByteArray atom) {
-    int length = atom.readUnsignedShort();
-    int offset = atom.getPosition();
-    atom.skip(length);
-    return CodecSpecificDataUtil.buildNalUnit(atom.data, offset, length);
-  }
-
-  private static TrackEncryptionBox parseSinfFromParent(ParsableByteArray parent, int position,
-      int size) {
-    int childPosition = position + ATOM_HEADER_SIZE;
-
-    TrackEncryptionBox trackEncryptionBox = null;
-    while (childPosition - position < size) {
-      parent.setPosition(childPosition);
-      int childAtomSize = parent.readInt();
-      int childAtomType = parent.readInt();
-      if (childAtomType == Atom.TYPE_frma) {
-        parent.readInt(); // dataFormat.
-      } else if (childAtomType == Atom.TYPE_schm) {
-        parent.skip(4);
-        parent.readInt(); // schemeType. Expect cenc
-        parent.readInt(); // schemeVersion. Expect 0x00010000
-      } else if (childAtomType == Atom.TYPE_schi) {
-        trackEncryptionBox = parseSchiFromParent(parent, childPosition, childAtomSize);
-      }
-      childPosition += childAtomSize;
-    }
-
-    return trackEncryptionBox;
-  }
-
-  private static float parsePaspFromParent(ParsableByteArray parent, int position) {
-    parent.setPosition(position + ATOM_HEADER_SIZE);
-    int hSpacing = parent.readUnsignedIntToInt();
-    int vSpacing = parent.readUnsignedIntToInt();
-    return (float) hSpacing / vSpacing;
-  }
-
-  private static TrackEncryptionBox parseSchiFromParent(ParsableByteArray parent, int position,
-      int size) {
-    int childPosition = position + ATOM_HEADER_SIZE;
-    while (childPosition - position < size) {
-      parent.setPosition(childPosition);
-      int childAtomSize = parent.readInt();
-      int childAtomType = parent.readInt();
-      if (childAtomType == Atom.TYPE_tenc) {
-        parent.skip(4);
-        int firstInt = parent.readInt();
-        boolean defaultIsEncrypted = (firstInt >> 8) == 1;
-        int defaultInitVectorSize = firstInt & 0xFF;
-        byte[] defaultKeyId = new byte[16];
-        parent.readBytes(defaultKeyId, 0, defaultKeyId.length);
-        return new TrackEncryptionBox(defaultIsEncrypted, defaultInitVectorSize, defaultKeyId);
-      }
-      childPosition += childAtomSize;
-    }
-    return null;
-  }
-
-  private static byte[] parseEsdsFromParent(ParsableByteArray parent, int position) {
-    parent.setPosition(position + ATOM_HEADER_SIZE + 4);
-    // Start of the ES_Descriptor (defined in 14496-1)
-    parent.skip(1); // ES_Descriptor tag
-    int varIntByte = parent.readUnsignedByte();
-    while (varIntByte > 127) {
-      varIntByte = parent.readUnsignedByte();
-    }
-    parent.skip(2); // ES_ID
-
-    int flags = parent.readUnsignedByte();
-    if ((flags & 0x80 /* streamDependenceFlag */) != 0) {
-      parent.skip(2);
-    }
-    if ((flags & 0x40 /* URL_Flag */) != 0) {
-      parent.skip(parent.readUnsignedShort());
-    }
-    if ((flags & 0x20 /* OCRstreamFlag */) != 0) {
-      parent.skip(2);
-    }
-
-    // Start of the DecoderConfigDescriptor (defined in 14496-1)
-    parent.skip(1); // DecoderConfigDescriptor tag
-    varIntByte = parent.readUnsignedByte();
-    while (varIntByte > 127) {
-      varIntByte = parent.readUnsignedByte();
-    }
-    parent.skip(13);
-
-    // Start of AudioSpecificConfig (defined in 14496-3)
-    parent.skip(1); // AudioSpecificConfig tag
-    varIntByte = parent.readUnsignedByte();
-    int varInt = varIntByte & 0x7F;
-    while (varIntByte > 127) {
-      varIntByte = parent.readUnsignedByte();
-      varInt = varInt << 8;
-      varInt |= varIntByte & 0x7F;
-    }
-    byte[] initializationData = new byte[varInt];
-    parent.readBytes(initializationData, 0, varInt);
-    return initializationData;
   }
 
   private static void parseMoof(Track track, DefaultSampleValues extendsDefaults,
@@ -836,11 +446,11 @@ public final class FragmentedMp4Extractor implements Extractor {
       parseSenc(senc.data, out);
     }
 
-    int childrenSize = traf.children.size();
+    int childrenSize = traf.leafChildren.size();
     for (int i = 0; i < childrenSize; i++) {
-      Atom atom = traf.children.get(i);
+      LeafAtom atom = traf.leafChildren.get(i);
       if (atom.type == Atom.TYPE_uuid) {
-        parseUuid(((LeafAtom) atom).data, out, extendedTypeScratch);
+        parseUuid(atom.data, out, extendedTypeScratch);
       }
     }
   }
@@ -848,9 +458,9 @@ public final class FragmentedMp4Extractor implements Extractor {
   private static void parseSaiz(TrackEncryptionBox encryptionBox, ParsableByteArray saiz,
       TrackFragment out) {
     int vectorSize = encryptionBox.initializationVectorSize;
-    saiz.setPosition(ATOM_HEADER_SIZE);
+    saiz.setPosition(Mp4Util.ATOM_HEADER_SIZE);
     int fullAtom = saiz.readInt();
-    int flags = parseFullAtomFlags(fullAtom);
+    int flags = Mp4Util.parseFullAtomFlags(fullAtom);
     if ((flags & 0x01) == 1) {
       saiz.skip(8);
     }
@@ -885,9 +495,9 @@ public final class FragmentedMp4Extractor implements Extractor {
    */
   private static DefaultSampleValues parseTfhd(DefaultSampleValues extendsDefaults,
       ParsableByteArray tfhd) {
-    tfhd.setPosition(ATOM_HEADER_SIZE);
+    tfhd.setPosition(Mp4Util.ATOM_HEADER_SIZE);
     int fullAtom = tfhd.readInt();
-    int flags = parseFullAtomFlags(fullAtom);
+    int flags = Mp4Util.parseFullAtomFlags(fullAtom);
 
     tfhd.skip(4); // trackId
     if ((flags & 0x01 /* base_data_offset_present */) != 0) {
@@ -910,13 +520,13 @@ public final class FragmentedMp4Extractor implements Extractor {
   /**
    * Parses a tfdt atom (defined in 14496-12).
    *
-   * @return baseMediaDecodeTime. The sum of the decode durations of all earlier samples in the
+   * @return baseMediaDecodeTime The sum of the decode durations of all earlier samples in the
    *     media, expressed in the media's timescale.
    */
   private static long parseTfdt(ParsableByteArray tfdt) {
-    tfdt.setPosition(ATOM_HEADER_SIZE);
+    tfdt.setPosition(Mp4Util.ATOM_HEADER_SIZE);
     int fullAtom = tfdt.readInt();
-    int version = parseFullAtomVersion(fullAtom);
+    int version = Mp4Util.parseFullAtomVersion(fullAtom);
     return version == 1 ? tfdt.readUnsignedLongToLong() : tfdt.readUnsignedInt();
   }
 
@@ -931,9 +541,9 @@ public final class FragmentedMp4Extractor implements Extractor {
    */
   private static void parseTrun(Track track, DefaultSampleValues defaultSampleValues,
       long decodeTime, int workaroundFlags, ParsableByteArray trun, TrackFragment out) {
-    trun.setPosition(ATOM_HEADER_SIZE);
+    trun.setPosition(Mp4Util.ATOM_HEADER_SIZE);
     int fullAtom = trun.readInt();
-    int flags = parseFullAtomFlags(fullAtom);
+    int flags = Mp4Util.parseFullAtomFlags(fullAtom);
 
     int sampleCount = trun.readUnsignedIntToInt();
     if ((flags & 0x01 /* data_offset_present */) != 0) {
@@ -991,7 +601,7 @@ public final class FragmentedMp4Extractor implements Extractor {
 
   private static void parseUuid(ParsableByteArray uuid, TrackFragment out,
       byte[] extendedTypeScratch) {
-    uuid.setPosition(ATOM_HEADER_SIZE);
+    uuid.setPosition(Mp4Util.ATOM_HEADER_SIZE);
     uuid.readBytes(extendedTypeScratch, 0, 16);
 
     // Currently this parser only supports Microsoft's PIFF SampleEncryptionBox.
@@ -1010,9 +620,9 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   private static void parseSenc(ParsableByteArray senc, int offset, TrackFragment out) {
-    senc.setPosition(ATOM_HEADER_SIZE + offset);
+    senc.setPosition(Mp4Util.ATOM_HEADER_SIZE + offset);
     int fullAtom = senc.readInt();
-    int flags = parseFullAtomFlags(fullAtom);
+    int flags = Mp4Util.parseFullAtomFlags(fullAtom);
 
     if ((flags & 0x01 /* override_track_encryption_box_parameters */) != 0) {
       // TODO: Implement this.
@@ -1034,9 +644,9 @@ public final class FragmentedMp4Extractor implements Extractor {
    * Parses a sidx atom (defined in 14496-12).
    */
   private static SegmentIndex parseSidx(ParsableByteArray atom) {
-    atom.setPosition(ATOM_HEADER_SIZE);
+    atom.setPosition(Mp4Util.ATOM_HEADER_SIZE);
     int fullAtom = atom.readInt();
-    int version = parseFullAtomVersion(fullAtom);
+    int version = Mp4Util.parseFullAtomVersion(fullAtom);
 
     atom.skip(4);
     long timescale = atom.readUnsignedInt();
@@ -1176,17 +786,8 @@ public final class FragmentedMp4Extractor implements Extractor {
       inputStream.read(outputData, sampleSize);
       if (track.type == Track.TYPE_VIDEO) {
         // The mp4 file contains length-prefixed NAL units, but the decoder wants start code
-        // delimited content. Replace length prefixes with start codes.
-        int sampleOffset = outputData.position() - sampleSize;
-        int position = sampleOffset;
-        while (position < sampleOffset + sampleSize) {
-          outputData.position(position);
-          int length = readUnsignedIntToInt(outputData);
-          outputData.position(position);
-          outputData.put(NAL_START_CODE);
-          position += length + 4;
-        }
-        outputData.position(sampleOffset + sampleSize);
+        // delimited content.
+        Mp4Util.replaceLengthPrefixesWithAvcStartCodes(outputData, sampleSize);
       }
       out.size = sampleSize;
     }
@@ -1234,53 +835,6 @@ public final class FragmentedMp4Extractor implements Extractor {
     if (isEncrypted) {
       out.flags |= MediaExtractor.SAMPLE_FLAG_ENCRYPTED;
     }
-  }
-
-  /**
-   * Parses the version number out of the additional integer component of a full atom.
-   */
-  private static int parseFullAtomVersion(int fullAtomInt) {
-    return 0x000000FF & (fullAtomInt >> 24);
-  }
-
-  /**
-   * Parses the atom flags out of the additional integer component of a full atom.
-   */
-  private static int parseFullAtomFlags(int fullAtomInt) {
-    return 0x00FFFFFF & fullAtomInt;
-  }
-
-  /**
-   * Reads an unsigned integer into an integer. This method is suitable for use when it can be
-   * assumed that the top bit will always be set to zero.
-   *
-   * @throws IllegalArgumentException If the top bit of the input data is set.
-   */
-  private static int readUnsignedIntToInt(ByteBuffer data) {
-    int result = 0xFF & data.get();
-    for (int i = 1; i < 4; i++) {
-      result <<= 8;
-      result |= 0xFF & data.get();
-    }
-    if (result < 0) {
-      throw new IllegalArgumentException("Top bit not zero: " + result);
-    }
-    return result;
-  }
-
-  /** Represents the format for AC-3 audio. */
-  private static final class Ac3Format {
-
-    public final int channelCount;
-    public final int sampleRate;
-    public final int bitrate;
-
-    public Ac3Format(int channelCount, int sampleRate, int bitrate) {
-      this.channelCount = channelCount;
-      this.sampleRate = sampleRate;
-      this.bitrate = bitrate;
-    }
-
   }
 
 }

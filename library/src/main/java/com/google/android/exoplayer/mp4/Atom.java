@@ -15,52 +15,64 @@
  */
 package com.google.android.exoplayer.mp4;
 
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public abstract class Atom {
 
-  public static final int TYPE_avc1 = 0x61766331;
-  public static final int TYPE_avc3 = 0x61766333;
-  public static final int TYPE_esds = 0x65736473;
-  public static final int TYPE_mdat = 0x6D646174;
-  public static final int TYPE_mp4a = 0x6D703461;
-  public static final int TYPE_ac_3 = 0x61632D33; // ac-3
-  public static final int TYPE_dac3 = 0x64616333;
-  public static final int TYPE_ec_3 = 0x65632D33; // ec-3
-  public static final int TYPE_dec3 = 0x64656333;
-  public static final int TYPE_tfdt = 0x74666474;
-  public static final int TYPE_tfhd = 0x74666864;
-  public static final int TYPE_trex = 0x74726578;
-  public static final int TYPE_trun = 0x7472756E;
-  public static final int TYPE_sidx = 0x73696478;
-  public static final int TYPE_moov = 0x6D6F6F76;
-  public static final int TYPE_trak = 0x7472616B;
-  public static final int TYPE_mdia = 0x6D646961;
-  public static final int TYPE_minf = 0x6D696E66;
-  public static final int TYPE_stbl = 0x7374626C;
-  public static final int TYPE_avcC = 0x61766343;
-  public static final int TYPE_moof = 0x6D6F6F66;
-  public static final int TYPE_traf = 0x74726166;
-  public static final int TYPE_mvex = 0x6D766578;
-  public static final int TYPE_tkhd = 0x746B6864;
-  public static final int TYPE_mdhd = 0x6D646864;
-  public static final int TYPE_hdlr = 0x68646C72;
-  public static final int TYPE_stsd = 0x73747364;
-  public static final int TYPE_pssh = 0x70737368;
-  public static final int TYPE_sinf = 0x73696E66;
-  public static final int TYPE_schm = 0x7363686D;
-  public static final int TYPE_schi = 0x73636869;
-  public static final int TYPE_tenc = 0x74656E63;
-  public static final int TYPE_encv = 0x656E6376;
-  public static final int TYPE_enca = 0x656E6361;
-  public static final int TYPE_frma = 0x66726D61;
-  public static final int TYPE_saiz = 0x7361697A;
-  public static final int TYPE_uuid = 0x75756964;
-  public static final int TYPE_senc = 0x73656E63;
-  public static final int TYPE_pasp = 0x70617370;
-  public static final int TYPE_TTML = 0x54544D4C;
+  public static final int TYPE_avc1 = getAtomTypeInteger("avc1");
+  public static final int TYPE_avc3 = getAtomTypeInteger("avc3");
+  public static final int TYPE_esds = getAtomTypeInteger("esds");
+  public static final int TYPE_mdat = getAtomTypeInteger("mdat");
+  public static final int TYPE_mp4a = getAtomTypeInteger("mp4a");
+  public static final int TYPE_ac_3 = getAtomTypeInteger("ac-3");
+  public static final int TYPE_dac3 = getAtomTypeInteger("dac3");
+  public static final int TYPE_ec_3 = getAtomTypeInteger("ec-3");
+  public static final int TYPE_dec3 = getAtomTypeInteger("dec3");
+  public static final int TYPE_tfdt = getAtomTypeInteger("tfdt");
+  public static final int TYPE_tfhd = getAtomTypeInteger("tfhd");
+  public static final int TYPE_trex = getAtomTypeInteger("trex");
+  public static final int TYPE_trun = getAtomTypeInteger("trun");
+  public static final int TYPE_sidx = getAtomTypeInteger("sidx");
+  public static final int TYPE_moov = getAtomTypeInteger("moov");
+  public static final int TYPE_trak = getAtomTypeInteger("trak");
+  public static final int TYPE_mdia = getAtomTypeInteger("mdia");
+  public static final int TYPE_minf = getAtomTypeInteger("minf");
+  public static final int TYPE_stbl = getAtomTypeInteger("stbl");
+  public static final int TYPE_avcC = getAtomTypeInteger("avcC");
+  public static final int TYPE_moof = getAtomTypeInteger("moof");
+  public static final int TYPE_traf = getAtomTypeInteger("traf");
+  public static final int TYPE_mvex = getAtomTypeInteger("mvex");
+  public static final int TYPE_tkhd = getAtomTypeInteger("tkhd");
+  public static final int TYPE_mdhd = getAtomTypeInteger("mdhd");
+  public static final int TYPE_hdlr = getAtomTypeInteger("hdlr");
+  public static final int TYPE_stsd = getAtomTypeInteger("stsd");
+  public static final int TYPE_pssh = getAtomTypeInteger("pssh");
+  public static final int TYPE_sinf = getAtomTypeInteger("sinf");
+  public static final int TYPE_schm = getAtomTypeInteger("schm");
+  public static final int TYPE_schi = getAtomTypeInteger("schi");
+  public static final int TYPE_tenc = getAtomTypeInteger("tenc");
+  public static final int TYPE_encv = getAtomTypeInteger("encv");
+  public static final int TYPE_enca = getAtomTypeInteger("enca");
+  public static final int TYPE_frma = getAtomTypeInteger("frma");
+  public static final int TYPE_saiz = getAtomTypeInteger("saiz");
+  public static final int TYPE_uuid = getAtomTypeInteger("uuid");
+  public static final int TYPE_senc = getAtomTypeInteger("senc");
+  public static final int TYPE_pasp = getAtomTypeInteger("pasp");
+  public static final int TYPE_TTML = getAtomTypeInteger("TTML");
+  public static final int TYPE_vmhd = getAtomTypeInteger("vmhd");
+  public static final int TYPE_smhd = getAtomTypeInteger("smhd");
+  public static final int TYPE_mp4v = getAtomTypeInteger("mp4v");
+  public static final int TYPE_stts = getAtomTypeInteger("stts");
+  public static final int TYPE_stss = getAtomTypeInteger("stss");
+  public static final int TYPE_stsc = getAtomTypeInteger("stsc");
+  public static final int TYPE_stsz = getAtomTypeInteger("stsz");
+  public static final int TYPE_stco = getAtomTypeInteger("stco");
+  public static final int TYPE_co64 = getAtomTypeInteger("co64");
 
   public final int type;
 
@@ -68,6 +80,12 @@ public abstract class Atom {
     this.type = type;
   }
 
+  @Override
+  public String toString() {
+    return getAtomTypeString(type);
+  }
+
+  /** An MP4 atom that is a leaf. */
   public static final class LeafAtom extends Atom {
 
     public final ParsableByteArray data;
@@ -79,43 +97,75 @@ public abstract class Atom {
 
   }
 
+  /** An MP4 atom that has child atoms. */
   public static final class ContainerAtom extends Atom {
 
-    public final ArrayList<Atom> children;
-    public final int endByteOffset;
+    public final long endByteOffset;
+    public final List<LeafAtom> leafChildren;
+    public final List<ContainerAtom> containerChildren;
 
-    public ContainerAtom(int type, int endByteOffset) {
+    public ContainerAtom(int type, long endByteOffset) {
       super(type);
+
+      leafChildren = new ArrayList<LeafAtom>();
+      containerChildren = new ArrayList<ContainerAtom>();
       this.endByteOffset = endByteOffset;
-      children = new ArrayList<Atom>();
     }
 
-    public void add(Atom atom) {
-      children.add(atom);
+    public void add(LeafAtom atom) {
+      leafChildren.add(atom);
+    }
+
+    public void add(ContainerAtom atom) {
+      containerChildren.add(atom);
     }
 
     public LeafAtom getLeafAtomOfType(int type) {
-      int childrenSize = children.size();
+      int childrenSize = leafChildren.size();
       for (int i = 0; i < childrenSize; i++) {
-        Atom atom = children.get(i);
+        LeafAtom atom = leafChildren.get(i);
         if (atom.type == type) {
-          return (LeafAtom) atom;
+          return atom;
         }
       }
       return null;
     }
 
     public ContainerAtom getContainerAtomOfType(int type) {
-      int childrenSize = children.size();
+      int childrenSize = containerChildren.size();
       for (int i = 0; i < childrenSize; i++) {
-        Atom atom = children.get(i);
+        ContainerAtom atom = containerChildren.get(i);
         if (atom.type == type) {
-          return (ContainerAtom) atom;
+          return atom;
         }
       }
       return null;
     }
 
+    @Override
+    public String toString() {
+      return getAtomTypeString(type)
+          + " leaves: " + Arrays.toString(leafChildren.toArray(new LeafAtom[0]))
+          + " containers: " + Arrays.toString(containerChildren.toArray(new ContainerAtom[0]));
+    }
+
+  }
+
+  private static String getAtomTypeString(int type) {
+    return "" + (char) (type >> 24)
+        + (char) ((type >> 16) & 0xFF)
+        + (char) ((type >> 8) & 0xFF)
+        + (char) (type & 0xFF);
+  }
+
+  private static int getAtomTypeInteger(String typeName) {
+    Assertions.checkArgument(typeName.length() == 4);
+    int result = 0;
+    for (int i = 0; i < 4; i++) {
+      result <<= 8;
+      result |= typeName.charAt(i);
+    }
+    return result;
   }
 
 }

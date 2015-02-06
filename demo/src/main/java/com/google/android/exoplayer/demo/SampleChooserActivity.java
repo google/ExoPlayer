@@ -15,15 +15,17 @@
  */
 package com.google.android.exoplayer.demo;
 
+import com.google.android.exoplayer.MediaCodecUtil;
+import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.demo.Samples.Sample;
-import com.google.android.exoplayer.demo.full.FullPlayerActivity;
-import com.google.android.exoplayer.demo.simple.SimplePlayerActivity;
+import com.google.android.exoplayer.util.MimeTypes;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +40,8 @@ import android.widget.TextView;
  */
 public class SampleChooserActivity extends Activity {
 
+  private static final String TAG = "SampleChooserActivity";
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -46,21 +50,25 @@ public class SampleChooserActivity extends Activity {
     ListView sampleList = (ListView) findViewById(R.id.sample_list);
     final SampleAdapter sampleAdapter = new SampleAdapter(this);
 
-    sampleAdapter.add(new Header("Simple player"));
-    sampleAdapter.addAll((Object[]) Samples.SIMPLE);
     sampleAdapter.add(new Header("YouTube DASH"));
     sampleAdapter.addAll((Object[]) Samples.YOUTUBE_DASH_MP4);
     sampleAdapter.add(new Header("Widevine GTS DASH"));
     sampleAdapter.addAll((Object[]) Samples.WIDEVINE_GTS);
     sampleAdapter.add(new Header("SmoothStreaming"));
     sampleAdapter.addAll((Object[]) Samples.SMOOTHSTREAMING);
-    sampleAdapter.add(new Header("Misc"));
-    sampleAdapter.addAll((Object[]) Samples.MISC);
     sampleAdapter.add(new Header("HLS"));
     sampleAdapter.addAll((Object[]) Samples.HLS);
-    if (DemoUtil.EXPOSE_EXPERIMENTAL_FEATURES) {
-      sampleAdapter.add(new Header("YouTube WebM DASH (Experimental)"));
-      sampleAdapter.addAll((Object[]) Samples.YOUTUBE_DASH_WEBM);
+    sampleAdapter.add(new Header("Misc"));
+    sampleAdapter.addAll((Object[]) Samples.MISC);
+
+    // Add WebM samples if the device has a VP9 decoder.
+    try {
+      if (MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_VP9, false) != null) {
+        sampleAdapter.add(new Header("YouTube WebM DASH (Experimental)"));
+        sampleAdapter.addAll((Object[]) Samples.YOUTUBE_DASH_WEBM);
+      }
+    } catch (DecoderQueryException e) {
+      Log.e(TAG, "Failed to query vp9 decoder", e);
     }
 
     sampleList.setAdapter(sampleAdapter);
@@ -76,12 +84,10 @@ public class SampleChooserActivity extends Activity {
   }
 
   private void onSampleSelected(Sample sample) {
-    Class<?> playerActivityClass = sample.fullPlayer ? FullPlayerActivity.class
-        : SimplePlayerActivity.class;
-    Intent mpdIntent = new Intent(this, playerActivityClass)
+    Intent mpdIntent = new Intent(this, PlayerActivity.class)
         .setData(Uri.parse(sample.uri))
-        .putExtra(DemoUtil.CONTENT_ID_EXTRA, sample.contentId)
-        .putExtra(DemoUtil.CONTENT_TYPE_EXTRA, sample.type);
+        .putExtra(PlayerActivity.CONTENT_ID_EXTRA, sample.contentId)
+        .putExtra(PlayerActivity.CONTENT_TYPE_EXTRA, sample.type);
     startActivity(mpdIntent);
   }
 
