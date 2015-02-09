@@ -86,6 +86,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     parsedAtoms.add(Atom.TYPE_moof);
     parsedAtoms.add(Atom.TYPE_moov);
     parsedAtoms.add(Atom.TYPE_mp4a);
+    parsedAtoms.add(Atom.TYPE_mvhd);
     parsedAtoms.add(Atom.TYPE_sidx);
     parsedAtoms.add(Atom.TYPE_stsd);
     parsedAtoms.add(Atom.TYPE_tfdt);
@@ -379,7 +380,8 @@ public final class FragmentedMp4Extractor implements Extractor {
     }
     ContainerAtom mvex = moov.getContainerAtomOfType(Atom.TYPE_mvex);
     extendsDefaults = parseTrex(mvex.getLeafAtomOfType(Atom.TYPE_trex).data);
-    track = CommonMp4AtomParsers.parseTrak(moov.getContainerAtomOfType(Atom.TYPE_trak));
+    track = CommonMp4AtomParsers.parseTrak(moov.getContainerAtomOfType(Atom.TYPE_trak),
+        moov.getLeafAtomOfType(Atom.TYPE_mvhd));
   }
 
   private void onMoofContainerAtomRead(ContainerAtom moof) {

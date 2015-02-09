@@ -18,7 +18,7 @@ package com.google.android.exoplayer.text.eia608;
 /**
  * A Closed Caption that contains textual data associated with time indices.
  */
-public final class ClosedCaption implements Comparable<ClosedCaption> {
+/* package */ abstract class ClosedCaption implements Comparable<ClosedCaption> {
 
   /**
    * Identifies closed captions with control characters.
@@ -30,23 +30,16 @@ public final class ClosedCaption implements Comparable<ClosedCaption> {
   public static final int TYPE_TEXT = 1;
 
   /**
-   * The type of the closed caption data. If equals to {@link #TYPE_TEXT} the {@link #text} field
-   * has the textual data, if equals to {@link #TYPE_CTRL} the {@link #text} field has two control
-   * characters (C1, C2).
+   * The type of the closed caption data.
    */
   public final int type;
-  /**
-   * Contains text or two control characters.
-   */
-  public final String text;
   /**
    * Timestamp associated with the closed caption.
    */
   public final long timeUs;
 
-  public ClosedCaption(int type, String text, long timeUs) {
+  protected ClosedCaption(int type, long timeUs) {
     this.type = type;
-    this.text = text;
     this.timeUs = timeUs;
   }
 

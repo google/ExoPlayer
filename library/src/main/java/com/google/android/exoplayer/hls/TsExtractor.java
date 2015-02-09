@@ -34,7 +34,9 @@ import android.util.SparseArray;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -541,7 +543,6 @@ public final class TsExtractor {
 
     @SuppressWarnings("hiding")
     private final SamplePool samplePool;
-    private final ConcurrentLinkedQueue<Sample> internalQueue;
 
     // Accessed only by the consuming thread.
     private boolean needKeyframe;
@@ -553,7 +554,6 @@ public final class TsExtractor {
 
     protected SampleQueue(SamplePool samplePool) {
       this.samplePool = samplePool;
-      internalQueue = new ConcurrentLinkedQueue<Sample>();
       needKeyframe = true;
       lastReadTimeUs = Long.MIN_VALUE;
       spliceOutTimeUs = Long.MIN_VALUE;
@@ -582,7 +582,7 @@ public final class TsExtractor {
     public Sample poll() {
       Sample head = peek();
       if (head != null) {
-        internalQueue.remove();
+        internalPollSample();
         needKeyframe = false;
         lastReadTimeUs = head.timeUs;
       }
@@ -595,13 +595,13 @@ public final class TsExtractor {
      * @return The next sample from the queue, or null if a sample isn't available.
      */
     public Sample peek() {
-      Sample head = internalQueue.peek();
+      Sample head = internalPeekSample();
       if (needKeyframe) {
         // Peeking discard of samples until we find a keyframe or run out of available samples.
         while (head != null && !head.isKeyframe) {
           recycle(head);
-          internalQueue.remove();
-          head = internalQueue.peek();
+          internalPollSample();
+          head = internalPeekSample();
         }
       }
       if (head == null) {
@@ -610,7 +610,7 @@ public final class TsExtractor {
       if (spliceOutTimeUs != Long.MIN_VALUE && head.timeUs >= spliceOutTimeUs) {
         // The sample is later than the time this queue is spliced out.
         recycle(head);
-        internalQueue.remove();
+        internalPollSample();
         return null;
       }
       return head;
@@ -625,8 +625,8 @@ public final class TsExtractor {
       Sample head = peek();
       while (head != null && head.timeUs < timeUs) {
         recycle(head);
-        internalQueue.remove();
-        head = internalQueue.peek();
+        internalPollSample();
+        head = internalPeekSample();
         // We're discarding at least one sample, so any subsequent read will need to start at
         // a keyframe.
         needKeyframe = true;
@@ -638,10 +638,10 @@ public final class TsExtractor {
      * Clears the queue.
      */
     public void release() {
-      Sample toRecycle = internalQueue.poll();
+      Sample toRecycle = internalPollSample();
       while (toRecycle != null) {
         recycle(toRecycle);
-        toRecycle = internalQueue.poll();
+        toRecycle = internalPollSample();
       }
     }
 
@@ -666,20 +666,19 @@ public final class TsExtractor {
         return true;
       }
       long firstPossibleSpliceTime;
-      Sample nextSample = internalQueue.peek();
+      Sample nextSample = internalPeekSample();
       if (nextSample != null) {
         firstPossibleSpliceTime = nextSample.timeUs;
       } else {
         firstPossibleSpliceTime = lastReadTimeUs + 1;
       }
-      ConcurrentLinkedQueue<Sample> nextInternalQueue = nextQueue.internalQueue;
-      Sample nextQueueSample = nextInternalQueue.peek();
+      Sample nextQueueSample = nextQueue.internalPeekSample();
       while (nextQueueSample != null
           && (nextQueueSample.timeUs < firstPossibleSpliceTime || !nextQueueSample.isKeyframe)) {
         // Discard samples from the next queue for as long as they are before the earliest possible
         // splice time, or not keyframes.
-        nextQueue.internalQueue.remove();
-        nextQueueSample = nextQueue.internalQueue.peek();
+        nextQueue.internalPollSample();
+        nextQueueSample = nextQueue.internalPeekSample();
       }
       if (nextQueueSample != null) {
         // We've found a keyframe in the next queue that can serve as the splice point. Set the
@@ -720,7 +719,7 @@ public final class TsExtractor {
 
     protected void addSample(Sample sample) {
       largestParsedTimestampUs = Math.max(largestParsedTimestampUs, sample.timeUs);
-      internalQueue.add(sample);
+      internalQueueSample(sample);
     }
 
     protected void addToSample(Sample sample, BitArray buffer, int size) {
@@ -731,15 +730,37 @@ public final class TsExtractor {
       sample.size += size;
     }
 
+    protected abstract Sample internalPeekSample();
+    protected abstract Sample internalPollSample();
+    protected abstract void internalQueueSample(Sample sample);
+
   }
 
   /**
-   * Extracts individual samples from continuous byte stream.
+   * Extracts individual samples from continuous byte stream, preserving original order.
    */
   private abstract class PesPayloadReader extends SampleQueue {
 
+    private final ConcurrentLinkedQueue<Sample> internalQueue;
+
     protected PesPayloadReader(SamplePool samplePool) {
       super(samplePool);
+      internalQueue = new ConcurrentLinkedQueue<Sample>();
+    }
+
+    @Override
+    protected final Sample internalPeekSample() {
+      return internalQueue.peek();
+    }
+
+    @Override
+    protected final Sample internalPollSample() {
+      return internalQueue.poll();
+    }
+
+    @Override
+    protected final void internalQueueSample(Sample sample) {
+      internalQueue.add(sample);
     }
 
     public abstract void read(BitArray pesBuffer, int pesPayloadSize, long pesTimeUs);
@@ -992,18 +1013,23 @@ public final class TsExtractor {
 
   /**
    * Parses a SEI data from H.264 frames and extracts samples with closed captions data.
+   *
+   * TODO: Technically, we shouldn't allow a sample to be read from the queue until we're sure that
+   * a sample with an earlier timestamp won't be added to it.
    */
-  private class SeiReader extends SampleQueue {
+  private class SeiReader extends SampleQueue implements Comparator<Sample> {
 
     // SEI data, used for Closed Captions.
     private static final int NAL_UNIT_TYPE_SEI = 6;
 
     private final BitArray seiBuffer;
+    private final TreeSet<Sample> internalQueue;
 
     public SeiReader(SamplePool samplePool) {
       super(samplePool);
       setMediaFormat(MediaFormat.createEia608Format());
       seiBuffer = new BitArray();
+      internalQueue = new TreeSet<Sample>(this);
     }
 
     @SuppressLint("InlinedApi")
@@ -1020,6 +1046,27 @@ public final class TsExtractor {
           addSample(Sample.TYPE_MISC, seiBuffer, ccDataSize, pesTimeUs, true);
         }
       }
+    }
+
+    @Override
+    public int compare(Sample first, Sample second) {
+      // Note - We don't expect samples to have identical timestamps.
+      return first.timeUs <= second.timeUs ? -1 : 1;
+    }
+
+    @Override
+    protected synchronized Sample internalPeekSample() {
+      return internalQueue.isEmpty() ? null : internalQueue.first();
+    }
+
+    @Override
+    protected synchronized Sample internalPollSample() {
+      return internalQueue.pollFirst();
+    }
+
+    @Override
+    protected synchronized void internalQueueSample(Sample sample) {
+      internalQueue.add(sample);
     }
 
   }

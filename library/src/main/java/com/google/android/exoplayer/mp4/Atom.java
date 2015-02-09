@@ -39,6 +39,7 @@ public abstract class Atom {
   public static final int TYPE_trun = getAtomTypeInteger("trun");
   public static final int TYPE_sidx = getAtomTypeInteger("sidx");
   public static final int TYPE_moov = getAtomTypeInteger("moov");
+  public static final int TYPE_mvhd = getAtomTypeInteger("mvhd");
   public static final int TYPE_trak = getAtomTypeInteger("trak");
   public static final int TYPE_mdia = getAtomTypeInteger("mdia");
   public static final int TYPE_minf = getAtomTypeInteger("minf");
@@ -69,6 +70,7 @@ public abstract class Atom {
   public static final int TYPE_mp4v = getAtomTypeInteger("mp4v");
   public static final int TYPE_stts = getAtomTypeInteger("stts");
   public static final int TYPE_stss = getAtomTypeInteger("stss");
+  public static final int TYPE_ctts = getAtomTypeInteger("ctts");
   public static final int TYPE_stsc = getAtomTypeInteger("stsc");
   public static final int TYPE_stsz = getAtomTypeInteger("stsz");
   public static final int TYPE_stco = getAtomTypeInteger("stco");

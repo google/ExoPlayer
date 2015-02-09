@@ -135,7 +135,6 @@ public class SubtitleParserHelper implements Handler.Callback {
       if (sampleHolder != holder) {
         // A flush has occurred since this holder was posted. Do nothing.
       } else {
-        holder.data.position(0);
         this.result = result;
         this.error = error;
         this.parsing = false;
