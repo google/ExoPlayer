@@ -99,7 +99,7 @@
 <meta name="viewport" content="width=device-width" />
 
 <link rel="shortcut icon" type="image/x-icon" href="../../../../../../favicon.ico" />
-<title>SegmentIndex - ExoPlayer | Android Developers</title>
+<title>AudioTrack.WriteException - ExoPlayer | Android Developers</title>
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
@@ -168,26 +168,36 @@ type="text/css">
                 
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
-    <li class="api apilevel-">
+    <li class="selected api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/package-summary.html">com.google.android.exoplayer.chunk.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/mp4/package-summary.html">com.google.android.exoplayer.chunk.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/webm/package-summary.html">com.google.android.exoplayer.chunk.parser.webm</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
-    <li class="selected api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/package-summary.html">com.google.android.exoplayer.parser</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/mp4/package-summary.html">com.google.android.exoplayer.parser.mp4</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/webm/package-summary.html">com.google.android.exoplayer.parser.webm</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/source/package-summary.html">com.google.android.exoplayer.source</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/eia608/package-summary.html">com.google.android.exoplayer.text.eia608</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
     <li class="api apilevel-">
@@ -211,17 +221,25 @@ type="text/css">
               
     <li><h2>Interfaces</h2>
       <ul>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html">Extractor</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioCapabilitiesReceiver.Listener.html">AudioCapabilitiesReceiver.Listener</a></li>
       </ul>
     </li>
               
     <li><h2>Classes</h2>
       <ul>
-          <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html">SegmentIndex</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioCapabilities.html">AudioCapabilities</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioCapabilitiesReceiver.html">AudioCapabilitiesReceiver</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.html">AudioTrack</a></li>
       </ul>
     </li>
               
               
+    <li><h2>Exceptions</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.InitializationException.html">AudioTrack.InitializationException</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.WriteException.html">AudioTrack.WriteException</a></li>
+      </ul>
+    </li>
               
             </ul><br/>
         
@@ -276,7 +294,24 @@ type="text/css">
 
 
   
+  
+  
+  
+
+  
    
+  
+  
+  
+  
+
+  
+   
+  
+  
+  
+  
+
   
   
   
@@ -323,16 +358,24 @@ Summary:
 
 <div id="jd-header">
     public
+    static 
      
-    final 
     
     class
-<h1 itemprop="name">SegmentIndex</h1>
+<h1 itemprop="name">AudioTrack.WriteException</h1>
 
 
 
   
-    extends <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a><br/>
+  
+  
+
+  
+  
+  
+
+  
+    extends <a href="http://developer.android.com/reference/java/lang/Exception.html">Exception</a><br/>
   
   
   
@@ -355,7 +398,7 @@ Summary:
 
     <tr>
          	
-        <td colspan="2" class="jd-inheritance-class-cell"><a href="http://developer.android.com/reference/java/lang/Object.html">java.lang.Object</a></td>
+        <td colspan="4" class="jd-inheritance-class-cell"><a href="http://developer.android.com/reference/java/lang/Object.html">java.lang.Object</a></td>
     </tr>
     
 
@@ -363,7 +406,29 @@ Summary:
         
             <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
          	
-        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.parser.SegmentIndex</td>
+        <td colspan="3" class="jd-inheritance-class-cell"><a href="http://developer.android.com/reference/java/lang/Throwable.html">java.lang.Throwable</a></td>
+    </tr>
+    
+
+    <tr>
+        
+            <td class="jd-inheritance-space">&nbsp;</td>
+        
+            <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
+         	
+        <td colspan="2" class="jd-inheritance-class-cell"><a href="http://developer.android.com/reference/java/lang/Exception.html">java.lang.Exception</a></td>
+    </tr>
+    
+
+    <tr>
+        
+            <td class="jd-inheritance-space">&nbsp;</td>
+        
+            <td class="jd-inheritance-space">&nbsp;</td>
+        
+            <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
+         	
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.audio.AudioTrack.WriteException</td>
     </tr>
     
 
@@ -379,7 +444,7 @@ Summary:
 
 
 <h2>Class Overview</h2>
-<p itemprop="articleBody">Defines segments within a media stream.
+<p itemprop="articleBody">Thrown when a failure occurs writing to an <code><a href="http://developer.android.com/reference/android/media/AudioTrack.html">AudioTrack</a></code>.
 </p>
 
 
@@ -435,90 +500,10 @@ Summary:
           public
           
           final
-          long[]</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html#durationsUs">durationsUs</a></td>
-          <td class="jd-descrcol" width="100%">
-            The segment durations, in microseconds.
-            
-    
-
-          </td>
-      </tr>
-      
-    
-      <tr class=" api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
           int</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html#length">length</a></td>
+          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.WriteException.html#errorCode">errorCode</a></td>
           <td class="jd-descrcol" width="100%">
-            The number of segments.
-            
-    
-
-          </td>
-      </tr>
-      
-    
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          long[]</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html#offsets">offsets</a></td>
-          <td class="jd-descrcol" width="100%">
-            The segment byte offsets.
-            
-    
-
-          </td>
-      </tr>
-      
-    
-      <tr class=" api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          int</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html#sizeBytes">sizeBytes</a></td>
-          <td class="jd-descrcol" width="100%">
-            The size in bytes of the segment index as it exists in the stream.
-            
-    
-
-          </td>
-      </tr>
-      
-    
-      <tr class="alt-color api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          int[]</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html#sizes">sizes</a></td>
-          <td class="jd-descrcol" width="100%">
-            The segment sizes, in bytes.
-            
-    
-
-          </td>
-      </tr>
-      
-    
-      <tr class=" api apilevel-" >
-          <td class="jd-typecol"><nobr>
-          public
-          
-          final
-          long[]</nobr></td>
-          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html#timesUs">timesUs</a></td>
-          <td class="jd-descrcol" width="100%">
-            The start time of each segment, in microseconds.
+            The value returned from <code><a href="http://developer.android.com/reference/android/media/AudioTrack.html#write(byte[], int, int)">write(byte[], int, int)</a></code>.
             
     
 
@@ -551,7 +536,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html#SegmentIndex(int, int[], long[], long[], long[])">SegmentIndex</a></span>(int sizeBytes, int[] sizes, long[] offsets, long[] durationsUs, long[] timesUs)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.WriteException.html#AudioTrack.WriteException(int)">AudioTrack.WriteException</a></span>(int errorCode)</nobr>
         
   </td></tr>
 
@@ -573,6 +558,242 @@ Summary:
 <table id="inhmethods" class="jd-sumtable"><tr><th>
   <a href="#" class="toggle-all" onclick="return toggleAllInherited(this, null)">[Expand]</a>
   <div style="clear:left;">Inherited Methods</div></th></tr>
+
+
+
+
+<tr class="api apilevel-" >
+<td colspan="12">
+  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-java.lang.Throwable" class="jd-expando-trigger closed"
+          ><img id="inherited-methods-java.lang.Throwable-trigger"
+          src="../../../../../../assets/images/triangle-closed.png"
+          class="jd-expando-trigger-img" /></a>
+From class
+
+  <a href="http://developer.android.com/reference/java/lang/Throwable.html">java.lang.Throwable</a>
+
+<div id="inherited-methods-java.lang.Throwable">
+  <div id="inherited-methods-java.lang.Throwable-list"
+        class="jd-inheritedlinks">
+  </div>
+  <div id="inherited-methods-java.lang.Throwable-summary" style="display: none;">
+    <table class="jd-sumtable-expando">
+    
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">addSuppressed</span>(<a href="http://developer.android.com/reference/java/lang/Throwable.html"><?csvar:type.label ?></a> arg0)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/Throwable.html">Throwable</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">fillInStackTrace</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/Throwable.html">Throwable</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">getCause</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">getLocalizedMessage</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">getMessage</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/StackTraceElement.html">StackTraceElement[]</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">getStackTrace</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/Throwable.html">Throwable[]</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">getSuppressed</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/Throwable.html">Throwable</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">initCause</span>(<a href="http://developer.android.com/reference/java/lang/Throwable.html"><?csvar:type.label ?></a> arg0)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">printStackTrace</span>(<a href="http://developer.android.com/reference/java/io/PrintStream.html"><?csvar:type.label ?></a> arg0)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">printStackTrace</span>(<a href="http://developer.android.com/reference/java/io/PrintWriter.html"><?csvar:type.label ?></a> arg0)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">printStackTrace</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">setStackTrace</span>(<a href="http://developer.android.com/reference/java/lang/StackTraceElement.html"><?csvar:type.label ?></a> arg0)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">toString</span>()</nobr>
+        
+  </td></tr>
+
+
+</table>
+  </div>
+</div>
+</td></tr>
+
 
 
 <tr class="api apilevel-" >
@@ -776,6 +997,8 @@ From class
 </td></tr>
 
 
+
+
 </table>
 
 
@@ -808,39 +1031,7 @@ From class
 
 
 
-<A NAME="durationsUs"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        long[]
-      </span>
-        durationsUs
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-    
-
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The segment durations, in microseconds.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="length"></A>
+<A NAME="errorCode"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -850,7 +1041,7 @@ From class
         final 
         int
       </span>
-        length
+        errorCode
     </h4>
       <div class="api-level">
         
@@ -863,136 +1054,7 @@ From class
     
 
       
-  <div class="jd-tagdata jd-tagdescr"><p>The number of segments.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="offsets"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        long[]
-      </span>
-        offsets
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-    
-
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The segment byte offsets.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="sizeBytes"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        int
-      </span>
-        sizeBytes
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-    
-
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The size in bytes of the segment index as it exists in the stream.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="sizes"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        int[]
-      </span>
-        sizes
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-    
-
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The segment sizes, in bytes.
-</p></div>
-
-    
-    </div>
-</div>
-
-
-
-<A NAME="timesUs"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-        final 
-        long[]
-      </span>
-        timesUs
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-    
-
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The start time of each segment, in microseconds.
-</p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>The value returned from <code><a href="http://developer.android.com/reference/android/media/AudioTrack.html#write(byte[], int, int)">write(byte[], int, int)</a></code>. </p></div>
 
     
     </div>
@@ -1009,7 +1071,7 @@ From class
 
 
 
-<A NAME="SegmentIndex(int, int[], long[], long[], long[])"></A>
+<A NAME="AudioTrack.WriteException(int)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1021,8 +1083,8 @@ From class
          
         
       </span>
-      <span class="sympad">SegmentIndex</span>
-      <span class="normal">(int sizeBytes, int[] sizes, long[] offsets, long[] durationsUs, long[] timesUs)</span>
+      <span class="sympad">AudioTrack.WriteException</span>
+      <span class="normal">(int errorCode)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1036,32 +1098,6 @@ From class
 
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
-  <div class="jd-tagdata">
-      <h5 class="jd-tagtitle">Parameters</h5>
-      <table class="jd-tagtable">
-        <tr>
-          <th>sizeBytes</td>
-          <td>The size in bytes of the segment index as it exists in the stream.</td>
-        </tr>
-        <tr>
-          <th>sizes</td>
-          <td>The segment sizes, in bytes.</td>
-        </tr>
-        <tr>
-          <th>offsets</td>
-          <td>The segment byte offsets.</td>
-        </tr>
-        <tr>
-          <th>durationsUs</td>
-          <td>The segment durations, in microseconds.</td>
-        </tr>
-        <tr>
-          <th>timesUs</td>
-          <td>The start time of each segment, in microseconds.
-</td>
-        </tr>
-      </table>
-  </div>
 
     </div>
 </div>

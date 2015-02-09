@@ -173,21 +173,31 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/chunk/parser/package-summary.html">com.google.android.exoplayer.chunk.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/chunk/parser/mp4/package-summary.html">com.google.android.exoplayer.chunk.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/chunk/parser/webm/package-summary.html">com.google.android.exoplayer.chunk.parser.webm</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../reference/com/google/android/exoplayer/parser/package-summary.html">com.google.android.exoplayer.parser</a></li>
+  <a href="../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../reference/com/google/android/exoplayer/parser/mp4/package-summary.html">com.google.android.exoplayer.parser.mp4</a></li>
+  <a href="../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../reference/com/google/android/exoplayer/parser/webm/package-summary.html">com.google.android.exoplayer.parser.webm</a></li>
+  <a href="../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/source/package-summary.html">com.google.android.exoplayer.source</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/text/eia608/package-summary.html">com.google.android.exoplayer.text.eia608</a></li>
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
     <li class="api apilevel-">
@@ -234,7 +244,6 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DummyTrackRenderer.html">DummyTrackRenderer</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html">ExoPlayer.Factory</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayerLibraryInfo.html">ExoPlayerLibraryInfo</a></li>
-          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/FrameworkSampleSource.html">FrameworkSampleSource</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecAudioTrackRenderer.html">MediaCodecAudioTrackRenderer</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html">MediaCodecTrackRenderer</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecUtil.html">MediaCodecUtil</a></li>
@@ -255,6 +264,7 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/BehindLiveWindowException.html">BehindLiveWindowException</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlaybackException.html">ExoPlaybackException</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.DecoderInitializationException.html">MediaCodecTrackRenderer.DecoderInitializationException</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecUtil.DecoderQueryException.html">MediaCodecUtil.DecoderQueryException</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ParserException.html">ParserException</a></li>
       </ul>
     </li>
@@ -442,7 +452,11 @@ Summary:
             
               <a href="../../../../../reference/com/google/android/exoplayer/DummyTrackRenderer.html">DummyTrackRenderer</a>,
             
+              <a href="../../../../../reference/com/google/android/exoplayer/text/eia608/Eia608TrackRenderer.html">Eia608TrackRenderer</a>,
+            
               <a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html">MediaCodecTrackRenderer</a>,
+            
+              <a href="../../../../../reference/com/google/android/exoplayer/metadata/MetadataTrackRenderer.html">MetadataTrackRenderer</a>&lt;T&gt;,
             
               <a href="../../../../../reference/com/google/android/exoplayer/text/TextTrackRenderer.html">TextTrackRenderer</a>
             
@@ -466,9 +480,31 @@ Summary:
       
     
       <tr class=" api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/text/eia608/Eia608TrackRenderer.html">Eia608TrackRenderer</a></td>
+        <td class="jd-descrcol" width="100%">
+          A <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></code> for EIA-608 closed captions in a media stream.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
         <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html">MediaCodecTrackRenderer</a></td>
         <td class="jd-descrcol" width="100%">
           An abstract <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></code> that uses <code><a href="http://developer.android.com/reference/android/media/MediaCodec.html">MediaCodec</a></code> to decode samples for rendering.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/metadata/MetadataTrackRenderer.html">MetadataTrackRenderer</a>&lt;T&gt;</td>
+        <td class="jd-descrcol" width="100%">
+          A <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></code> for metadata embedded in a media stream.&nbsp;
           
     
 
@@ -2048,8 +2084,8 @@ From interface
         </tr>
         <tr>
           <th>elapsedRealtimeUs</td>
-          <td><code><a href="http://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()">elapsedRealtime()</a></code> in microseconds, measured at
-     the start of the current iteration of the rendering loop.</td>
+          <td><code><a href="http://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()">elapsedRealtime()</a></code> in microseconds,
+     measured at the start of the current iteration of the rendering loop.</td>
         </tr>
       </table>
   </div>

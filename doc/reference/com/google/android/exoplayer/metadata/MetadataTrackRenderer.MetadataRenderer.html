@@ -99,7 +99,7 @@
 <meta name="viewport" content="width=device-width" />
 
 <link rel="shortcut icon" type="image/x-icon" href="../../../../../../favicon.ico" />
-<title>com.google.android.exoplayer.parser - ExoPlayer | Android Developers</title>
+<title>MetadataTrackRenderer.MetadataRenderer - ExoPlayer | Android Developers</title>
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
@@ -140,9 +140,8 @@ type="text/css">
 
 </head>
 
-
 <body class="gc-documentation 
-  develop reference">
+  develop reference" itemscope itemtype="http://schema.org/Article">
   <div id="doc-api-level" class="" style="display:none"></div>
   <a name="top"></a>
 
@@ -174,21 +173,31 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/package-summary.html">com.google.android.exoplayer.chunk.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/mp4/package-summary.html">com.google.android.exoplayer.chunk.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/webm/package-summary.html">com.google.android.exoplayer.chunk.parser.webm</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
     <li class="selected api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/package-summary.html">com.google.android.exoplayer.parser</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/mp4/package-summary.html">com.google.android.exoplayer.parser.mp4</a></li>
-    <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/webm/package-summary.html">com.google.android.exoplayer.parser.webm</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/source/package-summary.html">com.google.android.exoplayer.source</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/eia608/package-summary.html">com.google.android.exoplayer.text.eia608</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
     <li class="api apilevel-">
@@ -212,13 +221,16 @@ type="text/css">
               
     <li><h2>Interfaces</h2>
       <ul>
-        <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html">Extractor</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/metadata/MetadataParser.html">MetadataParser</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/metadata/MetadataTrackRenderer.MetadataRenderer.html">MetadataTrackRenderer.MetadataRenderer</a></li>
       </ul>
     </li>
               
     <li><h2>Classes</h2>
       <ul>
-        <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html">SegmentIndex</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/metadata/Id3Parser.html">Id3Parser</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/metadata/MetadataTrackRenderer.html">MetadataTrackRenderer</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/metadata/TxxxMetadata.html">TxxxMetadata</a></li>
       </ul>
     </li>
               
@@ -270,90 +282,252 @@ type="text/css">
 
 
 
-<div class="col-12" id="doc-col">
+<div class="col-12"  id="doc-col">
 
 <div id="api-info-block">
+
+
+
+
+<div class="sum-details-links">
+
+</div><!-- end sum-details-links -->
 <div class="api-level">
   
   
   
 
 </div>
-</div>
+</div><!-- end api-info-block -->
+
+
+<!-- ======== START OF CLASS DATA ======== -->
 
 <div id="jd-header">
-  package
-  <h1>com.google.android.exoplayer.parser</h1>
+    public
+    static 
+     
+    
+    interface
+<h1 itemprop="name">MetadataTrackRenderer.MetadataRenderer</h1>
+
+
+
+  
+  
+  
+
+
+    
+
+
 </div><!-- end header -->
 
 <div id="naMessage"></div>
 
 <div id="jd-content" class="api apilevel-">
+<table class="jd-inheritance-table">
 
 
-
-
-
-
-  
-
-
-  
-    <h2>Interfaces</h2>
-    <div class="jd-sumtable">
+    <tr>
+         	
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.metadata.MetadataTrackRenderer.MetadataRenderer&lt;T&gt;</td>
+    </tr>
     
-  
-  <table class="jd-sumtable-expando">
-    
-      <tr class="alt-color api apilevel-" >
-        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html">Extractor</a></td>
-        <td class="jd-descrcol" width="100%">
-          Facilitates extraction of media samples from a container format.&nbsp;
+
+</table>
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Class Overview</h2>
+<p itemprop="articleBody">An interface for components that process metadata.</p>
+
+
+
+
+
+</div><!-- jd-descr -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Summary</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
+
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/metadata/MetadataTrackRenderer.MetadataRenderer.html#onMetadata(T)">onMetadata</a></span>(T metadata)</nobr>
+        
+        <div class="jd-descrdiv">
+          Invoked each time there is a metadata associated with current playback time.
           
     
 
-        </td>
-      </tr>
+        </div>
+  
+  </td></tr>
+
+
+
+</table>
+
+
+
+
+
+
+
+</div><!-- jd-descr (summary) -->
+
+<!-- Details -->
+
+
+
+
+
+
+
+
+<!-- XML Attributes -->
+
+
+<!-- Enum Values -->
+
+
+<!-- Constants -->
+
+
+<!-- Fields -->
+
+
+<!-- Public ctors -->
+
+
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<!-- Protected ctors -->
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+<!-- Public methdos -->
+
+<h2>Public Methods</h2>
+
+
+
+<A NAME="onMetadata(T)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">onMetadata</span>
+      <span class="normal">(T metadata)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
       
     
-  </table>
 
-    </div>
-  
-
-
-  
-    <h2>Classes</h2>
-    <div class="jd-sumtable">
-    
-  
-  <table class="jd-sumtable-expando">
-    
-      <tr class="alt-color api apilevel-" >
-        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html">SegmentIndex</a></td>
-        <td class="jd-descrcol" width="100%">
-          Defines segments within a media stream.&nbsp;
-          
-    
-
-        </td>
-      </tr>
       
-    
-  </table>
+  <div class="jd-tagdata jd-tagdescr"><p>Invoked each time there is a metadata associated with current playback time.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>metadata</td>
+          <td>The metadata to process.
+</td>
+        </tr>
+      </table>
+  </div>
 
     </div>
-  
+</div>
 
 
-  
 
 
-  
+
+<!-- ========= METHOD DETAIL ======== -->
 
 
-  
 
+<!-- ========= END OF CLASS DATA ========= -->
+<A NAME="navbar_top"></A>
 
 <div id="footer" class="wrap" >
         
@@ -365,8 +539,9 @@ type="text/css">
 
 </div> <!-- end footer -->
 
-</div><!-- end jd-content -->
-</div><!-- doc-content -->
+</div> <!-- jd-content -->
+
+</div><!-- end doc-content -->
 
 </div> <!-- end body-content --> 
 

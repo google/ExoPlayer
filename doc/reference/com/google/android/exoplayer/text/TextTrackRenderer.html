@@ -173,21 +173,31 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/package-summary.html">com.google.android.exoplayer.chunk.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/mp4/package-summary.html">com.google.android.exoplayer.chunk.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/webm/package-summary.html">com.google.android.exoplayer.chunk.parser.webm</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/package-summary.html">com.google.android.exoplayer.parser</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/mp4/package-summary.html">com.google.android.exoplayer.parser.mp4</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/webm/package-summary.html">com.google.android.exoplayer.parser.webm</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/source/package-summary.html">com.google.android.exoplayer.source</a></li>
     <li class="selected api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/eia608/package-summary.html">com.google.android.exoplayer.text.eia608</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
     <li class="api apilevel-">
@@ -213,7 +223,7 @@ type="text/css">
       <ul>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/text/Subtitle.html">Subtitle</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/text/SubtitleParser.html">SubtitleParser</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/text/TextTrackRenderer.TextRenderer.html">TextTrackRenderer.TextRenderer</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/text/TextRenderer.html">TextRenderer</a></li>
       </ul>
     </li>
               
@@ -315,15 +325,12 @@ type="text/css">
 
 Summary:
 
-  <a href="#nestedclasses">Nested Classes</a>
-  
 
 
 
 
 
-
-  &#124; <a href="#inhconstants">Inherited Constants</a>
+  <a href="#inhconstants">Inherited Constants</a>
   
 
 
@@ -436,7 +443,7 @@ Summary:
 
 <h2>Class Overview</h2>
 <p itemprop="articleBody">A <code><a href="../../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></code> for textual subtitles. The actual rendering of each line of text to a
- suitable output (e.g. the display) is delegated to a <code><a href="../../../../../../reference/com/google/android/exoplayer/text/TextTrackRenderer.TextRenderer.html">TextTrackRenderer.TextRenderer</a></code>.
+ suitable output (e.g. the display) is delegated to a <code><a href="../../../../../../reference/com/google/android/exoplayer/text/TextRenderer.html">TextRenderer</a></code>.
 </p>
 
 
@@ -464,31 +471,6 @@ Summary:
 
 
 <h2>Summary</h2>
-
-
-
-<!-- ======== NESTED CLASS SUMMARY ======== -->
-<table id="nestedclasses" class="jd-sumtable"><tr><th colspan="12">Nested Classes</th></tr>
-
-
-  
-    <tr class="alt-color api apilevel-" >
-      <td class="jd-typecol"><nobr>
-        
-         
-         
-        
-        interface</nobr></td>
-      <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/text/TextTrackRenderer.TextRenderer.html">TextTrackRenderer.TextRenderer</a></td>
-      <td class="jd-descrcol" width="100%">
-        An interface for components that render text.&nbsp;
-        
-    
-
-      </td>
-    </tr>
-    
-    
 
 
 
@@ -675,7 +657,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/text/TextTrackRenderer.html#TextTrackRenderer(com.google.android.exoplayer.SampleSource, com.google.android.exoplayer.text.SubtitleParser, com.google.android.exoplayer.text.TextTrackRenderer.TextRenderer, android.os.Looper)">TextTrackRenderer</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a> source, <a href="../../../../../../reference/com/google/android/exoplayer/text/SubtitleParser.html">SubtitleParser</a> subtitleParser, <a href="../../../../../../reference/com/google/android/exoplayer/text/TextTrackRenderer.TextRenderer.html">TextTrackRenderer.TextRenderer</a> textRenderer, <a href="http://developer.android.com/reference/android/os/Looper.html"><?csvar:type.label ?></a> textRendererLooper)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/text/TextTrackRenderer.html#TextTrackRenderer(com.google.android.exoplayer.SampleSource, com.google.android.exoplayer.text.TextRenderer, android.os.Looper, com.google.android.exoplayer.text.SubtitleParser...)">TextTrackRenderer</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a> source, <a href="../../../../../../reference/com/google/android/exoplayer/text/TextRenderer.html">TextRenderer</a> textRenderer, <a href="http://developer.android.com/reference/android/os/Looper.html"><?csvar:type.label ?></a> textRendererLooper, <a href="../../../../../../reference/com/google/android/exoplayer/text/SubtitleParser.html">SubtitleParser...</a> subtitleParsers)</nobr>
         
   </td></tr>
 
@@ -1710,7 +1692,7 @@ From interface
 
 
 
-<A NAME="TextTrackRenderer(com.google.android.exoplayer.SampleSource, com.google.android.exoplayer.text.SubtitleParser, com.google.android.exoplayer.text.TextTrackRenderer.TextRenderer, android.os.Looper)"></A>
+<A NAME="TextTrackRenderer(com.google.android.exoplayer.SampleSource, com.google.android.exoplayer.text.TextRenderer, android.os.Looper, com.google.android.exoplayer.text.SubtitleParser...)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1723,7 +1705,7 @@ From interface
         
       </span>
       <span class="sympad">TextTrackRenderer</span>
-      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a> source, <a href="../../../../../../reference/com/google/android/exoplayer/text/SubtitleParser.html">SubtitleParser</a> subtitleParser, <a href="../../../../../../reference/com/google/android/exoplayer/text/TextTrackRenderer.TextRenderer.html">TextTrackRenderer.TextRenderer</a> textRenderer, <a href="http://developer.android.com/reference/android/os/Looper.html"><?csvar:type.label ?></a> textRendererLooper)</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a> source, <a href="../../../../../../reference/com/google/android/exoplayer/text/TextRenderer.html">TextRenderer</a> textRenderer, <a href="http://developer.android.com/reference/android/os/Looper.html"><?csvar:type.label ?></a> textRendererLooper, <a href="../../../../../../reference/com/google/android/exoplayer/text/SubtitleParser.html">SubtitleParser...</a> subtitleParsers)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1745,10 +1727,6 @@ From interface
           <td>A source from which samples containing subtitle data can be read.</td>
         </tr>
         <tr>
-          <th>subtitleParser</td>
-          <td>A subtitle parser that will parse Subtitle objects from the source.</td>
-        </tr>
-        <tr>
           <th>textRenderer</td>
           <td>The text renderer.</td>
         </tr>
@@ -1758,7 +1736,12 @@ From interface
      invoked. If the renderer makes use of standard Android UI components, then this should
      normally be the looper associated with the applications' main thread, which can be
      obtained using <code><a href="http://developer.android.com/reference/android/content/ContextWrapper.html#getMainLooper()">getMainLooper()</a></code>. Null may be passed if the
-     renderer should be invoked directly on the player's internal rendering thread.
+     renderer should be invoked directly on the player's internal rendering thread.</td>
+        </tr>
+        <tr>
+          <th>subtitleParsers</td>
+          <td>An array of available subtitle parsers. Where multiple parsers are able
+     to render a subtitle, the one with the lowest index will be preferred.
 </td>
         </tr>
       </table>
@@ -1924,8 +1907,8 @@ From interface
         </tr>
         <tr>
           <th>elapsedRealtimeUs</td>
-          <td><code><a href="http://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()">elapsedRealtime()</a></code> in microseconds, measured at
-     the start of the current iteration of the rendering loop.</td>
+          <td><code><a href="http://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()">elapsedRealtime()</a></code> in microseconds,
+     measured at the start of the current iteration of the rendering loop.</td>
         </tr>
       </table>
   </div>
