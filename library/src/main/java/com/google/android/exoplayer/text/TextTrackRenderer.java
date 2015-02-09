@@ -177,8 +177,9 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
     if (!inputStreamEnded && subtitle == null) {
       try {
         SampleHolder sampleHolder = parserHelper.getSampleHolder();
+        sampleHolder.clearData();
         int result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
-        if (result == SampleSource.SAMPLE_READ) {
+        if (result == SampleSource.SAMPLE_READ && !sampleHolder.decodeOnly) {
           parserHelper.startParseOperation();
           textRendererNeedsUpdate = false;
         } else if (result == SampleSource.END_OF_STREAM) {

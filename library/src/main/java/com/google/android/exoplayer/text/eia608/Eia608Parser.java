@@ -18,8 +18,6 @@ package com.google.android.exoplayer.text.eia608;
 import com.google.android.exoplayer.util.BitArray;
 import com.google.android.exoplayer.util.MimeTypes;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -82,22 +80,29 @@ public class Eia608Parser {
     0xFB     // 3F: 251 'û' "Latin small letter U with circumflex"
   };
 
-  public boolean canParse(String mimeType) {
+  private final BitArray seiBuffer;
+  private final StringBuilder stringBuilder;
+
+  /* package */ Eia608Parser() {
+    seiBuffer = new BitArray();
+    stringBuilder = new StringBuilder();
+  }
+
+  /* package */ boolean canParse(String mimeType) {
     return mimeType.equals(MimeTypes.APPLICATION_EIA608);
   }
 
-  public List<ClosedCaption> parse(byte[] data, int size, long timeUs) {
+  /* package */ void parse(byte[] data, int size, long timeUs, List<ClosedCaption> out) {
     if (size <= 0) {
-      return null;
+      return;
     }
-    BitArray seiBuffer = new BitArray(data, size);
+
+    stringBuilder.setLength(0);
+    seiBuffer.reset(data, size);
     seiBuffer.skipBits(3); // reserved + process_cc_data_flag + zero_bit
     int ccCount = seiBuffer.readBits(5);
     seiBuffer.skipBytes(1);
 
-    List<ClosedCaption> captions = new ArrayList<ClosedCaption>();
-
-    StringBuilder stringBuilder = new StringBuilder();
     for (int i = 0; i < ccCount; i++) {
       seiBuffer.skipBits(5); // one_bit + reserved
       boolean ccValid = seiBuffer.readBit();
@@ -129,12 +134,10 @@ public class Eia608Parser {
       // Control character.
       if (ccData1 < 0x20) {
         if (stringBuilder.length() > 0) {
-          captions.add(new ClosedCaption(ClosedCaption.TYPE_TEXT, stringBuilder.toString(),
-              timeUs));
+          out.add(new ClosedCaptionText(stringBuilder.toString(), timeUs));
           stringBuilder.setLength(0);
         }
-        captions.add(new ClosedCaption(ClosedCaption.TYPE_CTRL,
-            new String(new char[] {(char) ccData1, (char) ccData2}), timeUs));
+        out.add(new ClosedCaptionCtrl(ccData1, ccData2, timeUs));
         continue;
       }
 
@@ -146,10 +149,8 @@ public class Eia608Parser {
     }
 
     if (stringBuilder.length() > 0) {
-      captions.add(new ClosedCaption(ClosedCaption.TYPE_TEXT, stringBuilder.toString(), timeUs));
+      out.add(new ClosedCaptionText(stringBuilder.toString(), timeUs));
     }
-
-    return Collections.unmodifiableList(captions);
   }
 
   private static char getChar(byte ccData) {

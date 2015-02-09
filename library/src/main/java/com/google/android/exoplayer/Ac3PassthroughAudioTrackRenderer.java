@@ -25,7 +25,6 @@ import android.media.AudioFormat;
 import android.os.Handler;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 /**
  * Renders encoded AC-3/enhanced AC-3 data to an {@link AudioTrack} for decoding on the playback
@@ -105,8 +104,8 @@ public final class Ac3PassthroughAudioTrackRenderer extends TrackRenderer {
     this.source = Assertions.checkNotNull(source);
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
-    sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
-    sampleHolder.data = ByteBuffer.allocateDirect(DEFAULT_BUFFER_SIZE);
+    sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_DIRECT);
+    sampleHolder.replaceBuffer(DEFAULT_BUFFER_SIZE);
     formatHolder = new MediaFormatHolder();
     audioTrack = new AudioTrack();
     shouldReadInputBuffer = true;
@@ -199,8 +198,7 @@ public final class Ac3PassthroughAudioTrackRenderer extends TrackRenderer {
 
     // Get more data if we have run out.
     if (shouldReadInputBuffer) {
-      sampleHolder.data.clear();
-
+      sampleHolder.clearData();
       int result =
           source.readData(trackIndex, currentPositionUs, formatHolder, sampleHolder, false);
       if (result == SampleSource.FORMAT_READ) {
