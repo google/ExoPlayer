@@ -34,6 +34,15 @@ public final class Mp4Util {
   /** Size of a full atom header, in bytes. */
   public static final int FULL_ATOM_HEADER_SIZE = 12;
 
+  /** Value for the first 32 bits of atomSize when the atom size is actually a long value. */
+  public static final int LONG_ATOM_SIZE = 1;
+
+  /** Sample index when no sample is available. */
+  public static final int NO_SAMPLE = -1;
+
+  /** Track index when no track is selected. */
+  public static final int NO_TRACK = -1;
+
   /** Four initial bytes that must prefix H.264/AVC NAL units for decoding. */
   private static final byte[] NAL_START_CODE = new byte[] {0, 0, 0, 1};
 

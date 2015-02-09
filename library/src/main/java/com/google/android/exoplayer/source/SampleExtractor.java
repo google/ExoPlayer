@@ -91,8 +91,9 @@ public interface SampleExtractor {
    *     {@link SampleSource#END_OF_STREAM} if the last samples in all tracks have been read, or
    *     {@link SampleSource#NOTHING_READ} if the sample cannot be read immediately as it is not
    *     loaded.
+   * @throws IOException Thrown if the source can't be read.
    */
-  int readSample(int track, SampleHolder sampleHolder);
+  int readSample(int track, SampleHolder sampleHolder) throws IOException;
 
   /** Releases resources associated with this extractor. */
   void release();

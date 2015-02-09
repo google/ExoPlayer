@@ -24,6 +24,8 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
+import android.annotation.SuppressLint;
+import android.media.MediaExtractor;
 import android.util.Pair;
 
 import java.util.ArrayList;
@@ -40,11 +42,13 @@ public final class CommonMp4AtomParsers {
       192, 224, 256, 320, 384, 448, 512, 576, 640};
 
   /**
-   * Parses a trak atom (defined in 14496-12).
+   * Parses a trak atom (defined in 14496-12)
    *
+   * @param trak Atom to parse.
+   * @param mvhd Movie header atom, used to get the timescale.
    * @return A {@link Track} instance.
    */
-  public static Track parseTrak(Atom.ContainerAtom trak) {
+  public static Track parseTrak(Atom.ContainerAtom trak, Atom.LeafAtom mvhd) {
     Atom.ContainerAtom mdia = trak.getContainerAtomOfType(Atom.TYPE_mdia);
     int trackType = parseHdlr(mdia.getLeafAtomOfType(Atom.TYPE_hdlr).data);
     Assertions.checkState(trackType == Track.TYPE_AUDIO || trackType == Track.TYPE_VIDEO
@@ -53,20 +57,209 @@ public final class CommonMp4AtomParsers {
     Pair<Integer, Long> header = parseTkhd(trak.getLeafAtomOfType(Atom.TYPE_tkhd).data);
     int id = header.first;
     long duration = header.second;
-    long timescale = parseMdhd(mdia.getLeafAtomOfType(Atom.TYPE_mdhd).data);
+    long movieTimescale = parseMvhd(mvhd.data);
     long durationUs;
     if (duration == -1) {
       durationUs = C.UNKNOWN_TIME_US;
     } else {
-      durationUs = Util.scaleLargeTimestamp(duration, C.MICROS_PER_SECOND, timescale);
+      durationUs = Util.scaleLargeTimestamp(duration, C.MICROS_PER_SECOND, movieTimescale);
     }
     Atom.ContainerAtom stbl = mdia.getContainerAtomOfType(Atom.TYPE_minf)
         .getContainerAtomOfType(Atom.TYPE_stbl);
 
+    long mediaTimescale = parseMdhd(mdia.getLeafAtomOfType(Atom.TYPE_mdhd).data);
     Pair<MediaFormat, TrackEncryptionBox[]> sampleDescriptions =
         parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data);
-    return new Track(id, trackType, timescale, durationUs, sampleDescriptions.first,
+    return new Track(id, trackType, mediaTimescale, durationUs, sampleDescriptions.first,
           sampleDescriptions.second);
+  }
+
+  /**
+   * Parses an stbl atom (defined in 14496-12).
+   *
+   * @param track Track to which this sample table corresponds.
+   * @param stblAtom stbl (sample table) atom to parse.
+   * @return Sample table described by the stbl atom.
+   */
+  @SuppressLint("InlinedApi")
+  public static Mp4TrackSampleTable parseStbl(Track track, Atom.ContainerAtom stblAtom) {
+    // Array of sample sizes.
+    ParsableByteArray stsz = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz).data;
+
+    // Entries are byte offsets of chunks.
+    ParsableByteArray chunkOffsets;
+    Atom.LeafAtom chunkOffsetsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stco);
+    if (chunkOffsetsAtom == null) {
+      chunkOffsetsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_co64);
+    }
+    chunkOffsets = chunkOffsetsAtom.data;
+    // Entries are (chunk number, number of samples per chunk, sample description index).
+    ParsableByteArray stsc = stblAtom.getLeafAtomOfType(Atom.TYPE_stsc).data;
+    // Entries are (number of samples, timestamp delta between those samples).
+    ParsableByteArray stts = stblAtom.getLeafAtomOfType(Atom.TYPE_stts).data;
+    // Entries are the indices of samples that are synchronization samples.
+    Atom.LeafAtom stssAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stss);
+    ParsableByteArray stss = stssAtom != null ? stssAtom.data : null;
+    // Entries are (number of samples, timestamp offset).
+    Atom.LeafAtom cttsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_ctts);
+    ParsableByteArray ctts = cttsAtom != null ? cttsAtom.data : null;
+
+    // Skip full atom.
+    stsz.setPosition(Mp4Util.FULL_ATOM_HEADER_SIZE);
+    int fixedSampleSize = stsz.readUnsignedIntToInt();
+    int sampleCount = stsz.readUnsignedIntToInt();
+
+    int[] sizes = new int[sampleCount];
+    long[] timestamps = new long[sampleCount];
+    long[] offsets = new long[sampleCount];
+    int[] flags = new int[sampleCount];
+
+    // Prepare to read chunk offsets.
+    chunkOffsets.setPosition(Mp4Util.FULL_ATOM_HEADER_SIZE);
+    int chunkCount = chunkOffsets.readUnsignedIntToInt();
+
+    stsc.setPosition(Mp4Util.FULL_ATOM_HEADER_SIZE);
+    int remainingSamplesPerChunkChanges = stsc.readUnsignedIntToInt() - 1;
+    Assertions.checkState(stsc.readInt() == 1, "stsc first chunk must be 1");
+    int samplesPerChunk = stsc.readUnsignedIntToInt();
+    stsc.skip(4); // Skip the sample description index.
+    int nextSamplesPerChunkChangeChunkIndex = -1;
+    if (remainingSamplesPerChunkChanges > 0) {
+      // Store the chunk index when the samples-per-chunk will next change.
+      nextSamplesPerChunkChangeChunkIndex = stsc.readUnsignedIntToInt() - 1;
+    }
+
+    int chunkIndex = 0;
+    int remainingSamplesInChunk = samplesPerChunk;
+
+    // Prepare to read sample timestamps.
+    stts.setPosition(Mp4Util.FULL_ATOM_HEADER_SIZE);
+    int remainingTimestampDeltaChanges = stts.readUnsignedIntToInt() - 1;
+    int remainingSamplesAtTimestampDelta = stts.readUnsignedIntToInt();
+    int timestampDeltaInTimeUnits = stts.readUnsignedIntToInt();
+
+    // Prepare to read sample timestamp offsets, if ctts is present.
+    boolean cttsHasSignedOffsets = false;
+    int remainingSamplesAtTimestampOffset = 0;
+    int remainingTimestampOffsetChanges = 0;
+    int timestampOffset = 0;
+    if (ctts != null) {
+      ctts.setPosition(Mp4Util.ATOM_HEADER_SIZE);
+      cttsHasSignedOffsets = Mp4Util.parseFullAtomVersion(ctts.readInt()) == 1;
+      remainingTimestampOffsetChanges = ctts.readUnsignedIntToInt() - 1;
+      remainingSamplesAtTimestampOffset = ctts.readUnsignedIntToInt();
+      timestampOffset = cttsHasSignedOffsets ? ctts.readInt() : ctts.readUnsignedIntToInt();
+    }
+
+    int nextSynchronizationSampleIndex = -1;
+    int remainingSynchronizationSamples = 0;
+    if (stss != null) {
+      stss.setPosition(Mp4Util.FULL_ATOM_HEADER_SIZE);
+      remainingSynchronizationSamples = stss.readUnsignedIntToInt();
+      nextSynchronizationSampleIndex = stss.readUnsignedIntToInt() - 1;
+    }
+
+    // Calculate the chunk offsets
+    long offsetBytes;
+    if (chunkOffsetsAtom.type == Atom.TYPE_stco) {
+      offsetBytes = chunkOffsets.readUnsignedInt();
+    } else {
+      offsetBytes = chunkOffsets.readUnsignedLongToLong();
+    }
+
+    long timestampTimeUnits = 0;
+    for (int i = 0; i < sampleCount; i++) {
+      offsets[i] = offsetBytes;
+      sizes[i] = fixedSampleSize == 0 ? stsz.readUnsignedIntToInt() : fixedSampleSize;
+      timestamps[i] = timestampTimeUnits + timestampOffset;
+
+      // All samples are synchronization samples if the stss is not present.
+      flags[i] = stss == null ? MediaExtractor.SAMPLE_FLAG_SYNC : 0;
+      if (i == nextSynchronizationSampleIndex) {
+        flags[i] = MediaExtractor.SAMPLE_FLAG_SYNC;
+        remainingSynchronizationSamples--;
+        if (remainingSynchronizationSamples > 0) {
+          nextSynchronizationSampleIndex = stss.readUnsignedIntToInt() - 1;
+        }
+      }
+
+      // Add on the duration of this sample.
+      timestampTimeUnits += timestampDeltaInTimeUnits;
+      remainingSamplesAtTimestampDelta--;
+      if (remainingSamplesAtTimestampDelta == 0 && remainingTimestampDeltaChanges > 0) {
+        remainingSamplesAtTimestampDelta = stts.readUnsignedIntToInt();
+        timestampDeltaInTimeUnits = stts.readUnsignedIntToInt();
+        remainingTimestampDeltaChanges--;
+      }
+
+      // Add on the timestamp offset if ctts is present.
+      if (ctts != null) {
+        remainingSamplesAtTimestampOffset--;
+        if (remainingSamplesAtTimestampOffset == 0 && remainingTimestampOffsetChanges > 0) {
+          remainingSamplesAtTimestampOffset = ctts.readUnsignedIntToInt();
+          timestampOffset = cttsHasSignedOffsets ? ctts.readInt() : ctts.readUnsignedIntToInt();
+          remainingTimestampOffsetChanges--;
+        }
+      }
+
+      // If we're at the last sample in this chunk, move to the next chunk.
+      remainingSamplesInChunk--;
+      if (remainingSamplesInChunk == 0) {
+        chunkIndex++;
+        if (chunkIndex < chunkCount) {
+          if (chunkOffsetsAtom.type == Atom.TYPE_stco) {
+            offsetBytes = chunkOffsets.readUnsignedInt();
+          } else {
+            offsetBytes = chunkOffsets.readUnsignedLongToLong();
+          }
+        }
+
+        // Change the samples-per-chunk if required.
+        if (chunkIndex == nextSamplesPerChunkChangeChunkIndex) {
+          samplesPerChunk = stsc.readUnsignedIntToInt();
+          stsc.skip(4); // Skip the sample description index.
+          remainingSamplesPerChunkChanges--;
+          if (remainingSamplesPerChunkChanges > 0) {
+            nextSamplesPerChunkChangeChunkIndex = stsc.readUnsignedIntToInt() - 1;
+          }
+        }
+
+        // Expect samplesPerChunk samples in the following chunk, if it's before the end.
+        if (chunkIndex < chunkCount) {
+          remainingSamplesInChunk = samplesPerChunk;
+        }
+      } else {
+        // The next sample follows the current one.
+        offsetBytes += sizes[i];
+      }
+    }
+
+    Util.scaleLargeTimestampsInPlace(timestamps, 1000000, track.timescale);
+
+    // Check all the expected samples have been seen.
+    Assertions.checkArgument(remainingSynchronizationSamples == 0);
+    Assertions.checkArgument(remainingSamplesAtTimestampDelta == 0);
+    Assertions.checkArgument(remainingSamplesInChunk == 0);
+    Assertions.checkArgument(remainingTimestampDeltaChanges == 0);
+    Assertions.checkArgument(remainingTimestampOffsetChanges == 0);
+    return new Mp4TrackSampleTable(offsets, sizes, timestamps, flags);
+  }
+
+  /**
+   * Parses a mvhd atom (defined in 14496-12), returning the timescale for the movie.
+   *
+   * @param mvhd Contents of the mvhd atom to be parsed.
+   * @return Timescale for the movie.
+   */
+  private static long parseMvhd(ParsableByteArray mvhd) {
+    mvhd.setPosition(Mp4Util.ATOM_HEADER_SIZE);
+
+    int fullAtom = mvhd.readInt();
+    int version = Mp4Util.parseFullAtomVersion(fullAtom);
+
+    mvhd.skip(version == 0 ? 8 : 16);
+
+    return mvhd.readUnsignedInt();
   }
 
   /**
