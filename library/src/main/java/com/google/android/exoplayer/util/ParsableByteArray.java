@@ -27,9 +27,18 @@ public final class ParsableByteArray {
 
   private int position;
 
-  /** Creates a new parsable array with {@code length} bytes. */
+  /** Creates a new instance with {@code length} bytes. */
   public ParsableByteArray(int length) {
     this.data = new byte[length];
+  }
+
+  /**
+   * Creates a new instance that wraps an existing array.
+   *
+   * @param data The data to wrap.
+   */
+  public ParsableByteArray(byte[] data) {
+    this.data = data;
   }
 
   /** Returns the number of bytes in the array. */
@@ -125,6 +134,22 @@ public final class ParsableByteArray {
     int result = shiftIntoInt(data, position, 2);
     position += 4;
     return result;
+  }
+
+  /**
+   * Reads a Synchsafe integer.
+   * <p>
+   * Synchsafe integers keep the highest bit of every byte zeroed. A 32 bit synchsafe integer can
+   * store 28 bits of information.
+   *
+   * @return The parsed value.
+   */
+  public int readSynchSafeInt() {
+    int b1 = readUnsignedByte();
+    int b2 = readUnsignedByte();
+    int b3 = readUnsignedByte();
+    int b4 = readUnsignedByte();
+    return (b1 << 21) | (b2 << 14) | (b3 << 7) | b4;
   }
 
   /**

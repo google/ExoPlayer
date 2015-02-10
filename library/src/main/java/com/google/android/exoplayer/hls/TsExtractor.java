@@ -18,6 +18,7 @@ package com.google.android.exoplayer.hls;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.mp4.Mp4Util;
 import com.google.android.exoplayer.text.eia608.Eia608Parser;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.Assertions;
@@ -824,43 +825,49 @@ public final class TsExtractor {
 
     @SuppressLint("InlinedApi")
     private int readOneH264Frame(BitArray pesBuffer, boolean remainderOnly) {
-      int offset = remainderOnly ? 0 : 3;
-      int audStart = pesBuffer.findNextNalUnit(NAL_UNIT_TYPE_AUD, offset);
+      byte[] pesData = pesBuffer.getData();
+      int pesOffset = pesBuffer.getByteOffset();
+      int pesLimit = pesBuffer.limit();
+
+      int searchOffset = pesOffset + (remainderOnly ? 0 : 3);
+      int audOffset = Mp4Util.findNalUnit(pesData, searchOffset, pesLimit, NAL_UNIT_TYPE_AUD);
+      int bytesToNextAud = audOffset - pesOffset;
       if (currentSample != null) {
-        int idrStart = pesBuffer.findNextNalUnit(NAL_UNIT_TYPE_IDR, offset);
-        if (idrStart < audStart) {
+        int idrOffset = Mp4Util.findNalUnit(pesData, searchOffset, pesLimit, NAL_UNIT_TYPE_IDR);
+        if (idrOffset < audOffset) {
           currentSample.isKeyframe = true;
         }
-        addToSample(currentSample, pesBuffer, audStart);
+        addToSample(currentSample, pesBuffer, bytesToNextAud);
       } else {
-        pesBuffer.skipBytes(audStart);
+        pesBuffer.skipBytes(bytesToNextAud);
       }
-      return audStart;
+      return bytesToNextAud;
     }
 
     private void parseMediaFormat(Sample sample) {
-      BitArray bitArray = new BitArray(sample.data, sample.size);
+      byte[] sampleData = sample.data;
+      int sampleSize = sample.size;
       // Locate the SPS and PPS units.
-      int spsOffset = bitArray.findNextNalUnit(NAL_UNIT_TYPE_SPS, 0);
-      int ppsOffset = bitArray.findNextNalUnit(NAL_UNIT_TYPE_PPS, 0);
-      if (spsOffset == bitArray.bytesLeft() || ppsOffset == bitArray.bytesLeft()) {
+      int spsOffset = Mp4Util.findNalUnit(sampleData, 0, sampleSize, NAL_UNIT_TYPE_SPS);
+      int ppsOffset = Mp4Util.findNalUnit(sampleData, 0, sampleSize, NAL_UNIT_TYPE_PPS);
+      if (spsOffset == sampleSize || ppsOffset == sampleSize) {
         return;
       }
-      int spsLength = bitArray.findNextNalUnit(-1, spsOffset + 3) - spsOffset;
-      int ppsLength = bitArray.findNextNalUnit(-1, ppsOffset + 3) - ppsOffset;
+      // Determine the length of the units, and copy them to build the initialization data.
+      int spsLength = Mp4Util.findNextNalUnit(sampleData, spsOffset + 3, sampleSize) - spsOffset;
+      int ppsLength = Mp4Util.findNextNalUnit(sampleData, ppsOffset + 3, sampleSize) - ppsOffset;
       byte[] spsData = new byte[spsLength];
       byte[] ppsData = new byte[ppsLength];
-      System.arraycopy(bitArray.getData(), spsOffset, spsData, 0, spsLength);
-      System.arraycopy(bitArray.getData(), ppsOffset, ppsData, 0, ppsLength);
+      System.arraycopy(sampleData, spsOffset, spsData, 0, spsLength);
+      System.arraycopy(sampleData, ppsOffset, ppsData, 0, ppsLength);
       List<byte[]> initializationData = new ArrayList<byte[]>();
       initializationData.add(spsData);
       initializationData.add(ppsData);
 
-      // Unescape the SPS unit.
+      // Unescape and then parse the SPS unit.
       byte[] unescapedSps = unescapeStream(spsData, 0, spsLength);
-      bitArray.reset(unescapedSps, unescapedSps.length);
+      BitArray bitArray = new BitArray(unescapedSps, unescapedSps.length);
 
-      // Parse the SPS unit
       // Skip the NAL header.
       bitArray.skipBytes(4);
       int profileIdc = bitArray.readBits(8);
@@ -1033,14 +1040,15 @@ public final class TsExtractor {
     }
 
     @SuppressLint("InlinedApi")
-    public void read(byte[] data, int size, long pesTimeUs) {
-      seiBuffer.reset(data, size);
+    public void read(byte[] data, int length, long pesTimeUs) {
+      seiBuffer.reset(data, length);
       while (seiBuffer.bytesLeft() > 0) {
-        int seiStart = seiBuffer.findNextNalUnit(NAL_UNIT_TYPE_SEI, 0);
-        if (seiStart == seiBuffer.bytesLeft()) {
+        int currentOffset = seiBuffer.getByteOffset();
+        int seiOffset = Mp4Util.findNalUnit(data, currentOffset, length, NAL_UNIT_TYPE_SEI);
+        if (seiOffset == length) {
           return;
         }
-        seiBuffer.skipBytes(seiStart + 4);
+        seiBuffer.skipBytes(seiOffset + 4 - currentOffset);
         int ccDataSize = Eia608Parser.parseHeader(seiBuffer);
         if (ccDataSize > 0) {
           addSample(Sample.TYPE_MISC, seiBuffer, ccDataSize, pesTimeUs, true);
@@ -1105,7 +1113,7 @@ public final class TsExtractor {
         return false;
       }
 
-      int offsetToSyncWord = adtsBuffer.findNextAdtsSyncWord();
+      int offsetToSyncWord = findOffsetToSyncWord();
       adtsBuffer.skipBytes(offsetToSyncWord);
 
       int adtsStartOffset = adtsBuffer.getByteOffset();
@@ -1166,6 +1174,25 @@ public final class TsExtractor {
     public void release() {
       super.release();
       adtsBuffer.reset();
+    }
+
+    /**
+     * Finds the offset to the next Adts sync word.
+     *
+     * @return The position of the next Adts sync word. If an Adts sync word is not found, then the
+     * position of the end of the data is returned.
+     */
+    private int findOffsetToSyncWord() {
+      byte[] adtsData = adtsBuffer.getData();
+      int startOffset = adtsBuffer.getByteOffset();
+      int endOffset = startOffset + adtsBuffer.bytesLeft();
+      for (int i = startOffset; i < endOffset - 1; i++) {
+        int syncBits = ((adtsData[i] & 0xFF) << 8) | (adtsData[i + 1] & 0xFF);
+        if ((syncBits & 0xFFF0) == 0xFFF0 && syncBits != 0xFFFF) {
+          return i - startOffset;
+        }
+      }
+      return endOffset - startOffset;
     }
 
   }

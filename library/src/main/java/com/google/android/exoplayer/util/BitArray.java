@@ -272,6 +272,13 @@ public final class BitArray {
   }
 
   /**
+   * @return The limit of the data, specified in whole bytes.
+   */
+  public int limit() {
+    return limit;
+  }
+
+  /**
    * @return Whether or not there is any data available.
    */
   public boolean isEmpty() {
@@ -303,59 +310,6 @@ public final class BitArray {
       leadingZeros++;
     }
     return (1 << leadingZeros) - 1 + (leadingZeros > 0 ? readBits(leadingZeros) : 0);
-  }
-
-  /**
-   * Reads a Synchsafe integer.
-   * Synchsafe integers are integers that keep the highest bit of every byte zeroed.
-   * A 32 bit synchsafe integer can store 28 bits of information.
-   *
-   * @return The value of the parsed Synchsafe integer.
-   */
-  public int readSynchSafeInt() {
-    int b1 = readUnsignedByte();
-    int b2 = readUnsignedByte();
-    int b3 = readUnsignedByte();
-    int b4 = readUnsignedByte();
-
-    return (b1 << 21) | (b2 << 14) | (b3 << 7) | b4;
-  }
-
-  // TODO: Find a better place for this method.
-  /**
-   * Finds the next Adts sync word.
-   *
-   * @return The offset from the current position to the start of the next Adts sync word. If an
-   *     Adts sync word is not found, then the offset to the end of the data is returned.
-   */
-  public int findNextAdtsSyncWord() {
-    for (int i = byteOffset; i < limit - 1; i++) {
-      int syncBits = (getUnsignedByte(i) << 8) | getUnsignedByte(i + 1);
-      if ((syncBits & 0xFFF0) == 0xFFF0 && syncBits != 0xFFFF) {
-        return i - byteOffset;
-      }
-    }
-    return limit - byteOffset;
-  }
-
-  //TODO: Find a better place for this method.
-  /**
-   * Finds the next NAL unit.
-   *
-   * @param nalUnitType The type of the NAL unit to search for, or -1 for any NAL unit.
-   * @param offset The additional offset in the data to start the search from.
-   * @return The offset from the current position to the start of the NAL unit. If a NAL unit is
-   *     not found, then the offset to the end of the data is returned.
-   */
-  public int findNextNalUnit(int nalUnitType, int offset) {
-    for (int i = byteOffset + offset; i < limit - 3; i++) {
-      // Check for NAL unit start code prefix == 0x000001.
-      if ((data[i] == 0 && data[i + 1] == 0 && data[i + 2] == 1)
-          && (nalUnitType == -1 || (nalUnitType == (data[i + 3] & 0x1F)))) {
-        return i - byteOffset;
-      }
-    }
-    return limit - byteOffset;
   }
 
 }

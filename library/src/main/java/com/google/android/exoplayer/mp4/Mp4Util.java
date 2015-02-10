@@ -99,4 +99,37 @@ public final class Mp4Util {
     return CodecSpecificDataUtil.buildNalUnit(atom.data, offset, length);
   }
 
+  /**
+   * Like {@link #findNalUnit(byte[], int, int, int)} with {@code type == -1}.
+   *
+   * @param startOffset The offset (inclusive) in the data to start the search.
+   * @param endOffset The offset (exclusive) in the data to end the search.
+   * @return The offset of the NAL unit, or {@code endOffset} if a NAL unit was not found.
+   */
+  public static int findNextNalUnit(byte[] data, int startOffset, int endOffset) {
+    return findNalUnit(data, startOffset, endOffset, -1);
+  }
+
+  /**
+   * Finds the first NAL unit in {@code data}.
+   * <p>
+   * For a NAL unit to be found, its first four bytes must be contained within the part of the
+   * array being searched.
+   *
+   * @param type The type of the NAL unit to search for, or -1 for any NAL unit.
+   * @param startOffset The offset (inclusive) in the data to start the search.
+   * @param endOffset The offset (exclusive) in the data to end the search.
+   * @return The offset of the NAL unit, or {@code endOffset} if a NAL unit was not found.
+   */
+  public static int findNalUnit(byte[] data, int startOffset, int endOffset, int type) {
+    for (int i = startOffset; i < endOffset - 3; i++) {
+      // Check for NAL unit start code prefix == 0x000001.
+      if ((data[i] == 0 && data[i + 1] == 0 && data[i + 2] == 1)
+          && (type == -1 || (type == (data[i + 3] & 0x1F)))) {
+        return i;
+      }
+    }
+    return endOffset;
+  }
+
 }

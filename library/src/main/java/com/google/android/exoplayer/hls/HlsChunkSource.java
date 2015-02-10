@@ -24,7 +24,6 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.BitArray;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -35,6 +34,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -106,7 +106,6 @@ public class HlsChunkSource {
   private final HlsPlaylistParser playlistParser;
   private final Variant[] enabledVariants;
   private final BandwidthMeter bandwidthMeter;
-  private final BitArray bitArray;
   private final int adaptiveMode;
   private final Uri baseUri;
   private final int maxWidth;
@@ -115,6 +114,7 @@ public class HlsChunkSource {
   private final long minBufferDurationToSwitchUpUs;
   private final long maxBufferDurationToSwitchDownUs;
 
+  /* package */ byte[] scratchSpace;
   /* package */ final HlsMediaPlaylist[] mediaPlaylists;
   /* package */ final boolean[] mediaPlaylistBlacklistFlags;
   /* package */ final long[] lastMediaPlaylistLoadTimesMs;
@@ -163,7 +163,6 @@ public class HlsChunkSource {
     minBufferDurationToSwitchUpUs = minBufferDurationToSwitchUpMs * 1000;
     maxBufferDurationToSwitchDownUs = maxBufferDurationToSwitchDownMs * 1000;
     baseUri = playlist.baseUri;
-    bitArray = new BitArray();
     playlistParser = new HlsPlaylistParser();
 
     if (playlist.type == HlsPlaylist.TYPE_MEDIA) {
@@ -526,7 +525,7 @@ public class HlsChunkSource {
     return true;
   }
 
-  private class MediaPlaylistChunk extends BitArrayChunk {
+  private class MediaPlaylistChunk extends DataChunk {
 
     @SuppressWarnings("hiding")
     /* package */ final int variantIndex;
@@ -535,37 +534,38 @@ public class HlsChunkSource {
 
     public MediaPlaylistChunk(int variantIndex, DataSource dataSource, DataSpec dataSpec,
         Uri playlistBaseUri) {
-      super(dataSource, dataSpec, bitArray);
+      super(dataSource, dataSpec, scratchSpace);
       this.variantIndex = variantIndex;
       this.playlistBaseUri = playlistBaseUri;
     }
 
     @Override
-    protected void consume(BitArray data) throws IOException {
-      HlsPlaylist playlist = playlistParser.parse(
-          new ByteArrayInputStream(data.getData(), 0, data.bytesLeft()), null, null,
-          playlistBaseUri);
+    protected void consume(byte[] data, int limit) throws IOException {
+      HlsPlaylist playlist = playlistParser.parse(new ByteArrayInputStream(data, 0, limit),
+          null, null, playlistBaseUri);
       Assertions.checkState(playlist.type == HlsPlaylist.TYPE_MEDIA);
       HlsMediaPlaylist mediaPlaylist = (HlsMediaPlaylist) playlist;
       setMediaPlaylist(variantIndex, mediaPlaylist);
+      // Recycle the allocation.
+      scratchSpace = data;
     }
 
   }
 
-  private class EncryptionKeyChunk extends BitArrayChunk {
+  private class EncryptionKeyChunk extends DataChunk {
 
     private final String iv;
 
     public EncryptionKeyChunk(DataSource dataSource, DataSpec dataSpec, String iv) {
-      super(dataSource, dataSpec, bitArray);
+      super(dataSource, dataSpec, scratchSpace);
       this.iv = iv;
     }
 
     @Override
-    protected void consume(BitArray data) throws IOException {
-      byte[] secretKey = new byte[data.bytesLeft()];
-      data.readBytes(secretKey, 0, secretKey.length);
-      initEncryptedDataSource(dataSpec.uri, iv, secretKey);
+    protected void consume(byte[] data, int limit) throws IOException {
+      initEncryptedDataSource(dataSpec.uri, iv, Arrays.copyOf(data, limit));
+      // Recycle the allocation.
+      scratchSpace = data;
     }
 
   }
