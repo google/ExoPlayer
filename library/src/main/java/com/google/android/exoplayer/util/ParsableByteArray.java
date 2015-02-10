@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.util;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
  * Wraps a byte array, providing a set of methods for parsing data from it. Numerical values are
@@ -23,27 +24,82 @@ import java.nio.ByteBuffer;
  */
 public final class ParsableByteArray {
 
-  public final byte[] data;
+  public byte[] data;
 
   private int position;
+  private int limit;
+
+  /** Creates a new instance that initially has no backing data. */
+  public ParsableByteArray() {}
 
   /** Creates a new instance with {@code length} bytes. */
   public ParsableByteArray(int length) {
     this.data = new byte[length];
+    limit = data.length;
   }
 
   /**
    * Creates a new instance that wraps an existing array.
    *
    * @param data The data to wrap.
+   * @param limit The limit.
    */
-  public ParsableByteArray(byte[] data) {
+  public ParsableByteArray(byte[] data, int limit) {
     this.data = data;
+    this.limit = limit;
+  }
+
+  /**
+   * Updates the instance to wrap {@code data}, and resets the position to zero.
+   *
+   * @param data The array to wrap.
+   * @param limit The limit.
+   */
+  public void reset(byte[] data, int limit) {
+    this.data = data;
+    this.limit = limit;
+    position = 0;
+  }
+
+  /**
+   * Sets the position and limit to zero.
+   */
+  public void reset() {
+    position = 0;
+    limit = 0;
+  }
+
+  // TODO: This method is temporary
+  public void append(ParsableByteArray buffer, int length) {
+    if (data == null) {
+      data = new byte[length];
+    } else if (data.length < limit + length) {
+      data = Arrays.copyOf(data, limit + length);
+    }
+    buffer.readBytes(data, limit, length);
+    limit += length;
+  }
+
+  // TODO: This method is temporary
+  public void clearReadData() {
+    System.arraycopy(data, position, data, 0, limit - position);
+    limit -= position;
+    position = 0;
+  }
+
+  // TODO: This method is temporary
+  public boolean isEmpty() {
+    return limit == 0;
+  }
+
+  /** Returns the number of bytes yet to be read. */
+  public int bytesLeft() {
+    return limit - position;
   }
 
   /** Returns the number of bytes in the array. */
   public int length() {
-    return data.length;
+    return limit;
   }
 
   /** Returns the current offset in the array, in bytes. */
@@ -60,7 +116,7 @@ public final class ParsableByteArray {
    */
   public void setPosition(int position) {
     // It is fine for position to be at the end of the array.
-    Assertions.checkArgument(position >= 0 && position <= data.length);
+    Assertions.checkArgument(position >= 0 && position <= limit);
     this.position = position;
   }
 
@@ -70,8 +126,24 @@ public final class ParsableByteArray {
    * @throws IllegalArgumentException Thrown if the new position is neither in nor at the end of the
    *     array.
    */
+  // TODO: Rename to skipBytes so that it's clearer how much data is being skipped in code where
+  // both ParsableBitArray and ParsableByteArray are in use.
   public void skip(int bytes) {
     setPosition(position + bytes);
+  }
+
+  /**
+   * Reads the next {@code length} bytes into {@code bitArray}, and resets the position of
+   * {@code bitArray} to zero.
+   *
+   * @param bitArray The {@link ParsableBitArray} into which the bytes should be read.
+   * @param length The number of bytes to write.
+   */
+  // TODO: It's possible to have bitArray directly index into the same array as is being wrapped
+  // by this instance. Decide whether it's worth doing this.
+  public void readBytes(ParsableBitArray bitArray, int length) {
+    readBytes(bitArray.getData(), 0, length);
+    bitArray.setPosition(0);
   }
 
   /**

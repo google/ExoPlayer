@@ -22,9 +22,10 @@ import com.google.android.exoplayer.mp4.Mp4Util;
 import com.google.android.exoplayer.text.eia608.Eia608Parser;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.BitArray;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.ParsableBitArray;
+import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.annotation.SuppressLint;
 import android.media.MediaExtractor;
@@ -58,17 +59,19 @@ public final class TsExtractor {
 
   private static final long MAX_PTS = 0x1FFFFFFFFL;
 
-  private final BitArray tsPacketBuffer;
+  private final ParsableByteArray tsPacketBuffer;
   private final SparseArray<SampleQueue> sampleQueues; // Indexed by streamType
   private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
   private final SamplePool samplePool;
   private final boolean shouldSpliceIn;
   private final long firstSampleTimestamp;
+  /* package */ final ParsableBitArray scratch;
 
   // Accessed only by the consuming thread.
   private boolean spliceConfigured;
 
   // Accessed only by the loading thread.
+  private int tsPacketBytesRead;
   private long timestampOffsetUs;
   private long lastPts;
 
@@ -80,7 +83,8 @@ public final class TsExtractor {
     this.firstSampleTimestamp = firstSampleTimestamp;
     this.samplePool = samplePool;
     this.shouldSpliceIn = shouldSpliceIn;
-    tsPacketBuffer = new BitArray();
+    scratch = new ParsableBitArray(new byte[5]);
+    tsPacketBuffer = new ParsableByteArray(TS_PACKET_SIZE);
     sampleQueues = new SparseArray<SampleQueue>();
     tsPayloadReaders = new SparseArray<TsPayloadReader>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
@@ -235,42 +239,44 @@ public final class TsExtractor {
    * @return The number of bytes read from the source.
    */
   public int read(DataSource dataSource) throws IOException {
-    int read = tsPacketBuffer.append(dataSource, TS_PACKET_SIZE - tsPacketBuffer.bytesLeft());
-    if (read == -1) {
+    int bytesRead = dataSource.read(tsPacketBuffer.data, tsPacketBytesRead,
+        TS_PACKET_SIZE - tsPacketBytesRead);
+    if (bytesRead == -1) {
       return -1;
     }
 
-    if (tsPacketBuffer.bytesLeft() != TS_PACKET_SIZE) {
-      return read;
+    tsPacketBytesRead += bytesRead;
+    if (tsPacketBytesRead < TS_PACKET_SIZE) {
+      // We haven't read the whole packet yet.
+      return bytesRead;
     }
 
-    // Parse TS header.
-    // Check sync byte.
+    // Reset before reading the packet.
+    tsPacketBytesRead = 0;
+    tsPacketBuffer.setPosition(0);
+
     int syncByte = tsPacketBuffer.readUnsignedByte();
     if (syncByte != TS_SYNC_BYTE) {
-      return read;
+      return bytesRead;
     }
 
-    // Skip transportErrorIndicator.
-    tsPacketBuffer.skipBits(1);
-    boolean payloadUnitStartIndicator = tsPacketBuffer.readBit();
-    // Skip transportPriority.
-    tsPacketBuffer.skipBits(1);
-    int pid = tsPacketBuffer.readBits(13);
-    // Skip transport_scrambling_control.
-    tsPacketBuffer.skipBits(2);
-    boolean adaptationFieldExists = tsPacketBuffer.readBit();
-    boolean payloadExists = tsPacketBuffer.readBit();
-    // Skip continuityCounter.
-    tsPacketBuffer.skipBits(4);
+    tsPacketBuffer.readBytes(scratch, 3);
+    scratch.skipBits(1); // transport_error_indicator
+    boolean payloadUnitStartIndicator = scratch.readBit();
+    scratch.skipBits(1); // transport_priority
+    int pid = scratch.readBits(13);
+    scratch.skipBits(2); // transport_scrambling_control
+    boolean adaptationFieldExists = scratch.readBit();
+    boolean payloadExists = scratch.readBit();
+    // Last 4 bits of scratch are skipped: continuity_counter
 
-    // Read the adaptation field.
+    // Skip the adaptation field.
     if (adaptationFieldExists) {
-      int adaptationFieldLength = tsPacketBuffer.readBits(8);
-      tsPacketBuffer.skipBytes(adaptationFieldLength);
+      int adaptationFieldLength = tsPacketBuffer.readUnsignedByte();
+      tsPacketBuffer.skip(adaptationFieldLength);
     }
 
-    // Read Payload.
+    // Read the payload.
     if (payloadExists) {
       TsPayloadReader payloadReader = tsPayloadReaders.get(pid);
       if (payloadReader != null) {
@@ -282,8 +288,7 @@ public final class TsExtractor {
       prepared = checkPrepared();
     }
 
-    tsPacketBuffer.reset();
-    return read;
+    return bytesRead;
   }
 
   @SuppressLint("InlinedApi")
@@ -331,7 +336,7 @@ public final class TsExtractor {
    */
   private abstract static class TsPayloadReader {
 
-    public abstract void read(BitArray tsBuffer, boolean payloadUnitStartIndicator);
+    public abstract void read(ParsableByteArray tsBuffer, boolean payloadUnitStartIndicator);
 
   }
 
@@ -341,21 +346,25 @@ public final class TsExtractor {
   private class PatReader extends TsPayloadReader {
 
     @Override
-    public void read(BitArray tsBuffer, boolean payloadUnitStartIndicator) {
+    public void read(ParsableByteArray tsBuffer, boolean payloadUnitStartIndicator) {
       // Skip pointer.
       if (payloadUnitStartIndicator) {
-        int pointerField = tsBuffer.readBits(8);
-        tsBuffer.skipBytes(pointerField);
+        int pointerField = tsBuffer.readUnsignedByte();
+        tsBuffer.skip(pointerField);
       }
 
-      tsBuffer.skipBits(12); // 8+1+1+2
-      int sectionLength = tsBuffer.readBits(12);
-      tsBuffer.skipBits(40); // 16+2+5+1+8+8
+      tsBuffer.readBytes(scratch, 3);
+      scratch.skipBits(12); // table_id (8), section_syntax_indicator (1), '0' (1), reserved (2)
+      int sectionLength = scratch.readBits(12);
+      // transport_stream_id (16), reserved (2), version_number (5), current_next_indicator (1),
+      // section_number (8), last_section_number (8)
+      tsBuffer.skip(5);
 
       int programCount = (sectionLength - 9) / 4;
       for (int i = 0; i < programCount; i++) {
-        tsBuffer.skipBits(19);
-        int pid = tsBuffer.readBits(13);
+        tsBuffer.readBytes(scratch, 4);
+        scratch.skipBits(19); // program_number (16), reserved (3)
+        int pid = scratch.readBits(13);
         tsPayloadReaders.put(pid, new PmtReader());
       }
 
@@ -370,34 +379,41 @@ public final class TsExtractor {
   private class PmtReader extends TsPayloadReader {
 
     @Override
-    public void read(BitArray tsBuffer, boolean payloadUnitStartIndicator) {
+    public void read(ParsableByteArray tsBuffer, boolean payloadUnitStartIndicator) {
       // Skip pointer.
       if (payloadUnitStartIndicator) {
-        int pointerField = tsBuffer.readBits(8);
-        tsBuffer.skipBytes(pointerField);
+        int pointerField = tsBuffer.readUnsignedByte();
+        tsBuffer.skip(pointerField);
       }
 
-      // Skip table_id, section_syntax_indicator, etc.
-      tsBuffer.skipBits(12); // 8+1+1+2
-      int sectionLength = tsBuffer.readBits(12);
+      tsBuffer.readBytes(scratch, 3);
+      scratch.skipBits(12); // table_id (8), section_syntax_indicator (1), '0' (1), reserved (2)
+      int sectionLength = scratch.readBits(12);
+
+      // program_number (16), reserved (2), version_number (5), current_next_indicator (1),
+      // section_number (8), last_section_number (8), reserved (3), PCR_PID (13)
       // Skip the rest of the PMT header.
-      tsBuffer.skipBits(60); // 16+2+5+1+8+8+3+13+4
+      tsBuffer.skip(7);
 
-      int programInfoLength = tsBuffer.readBits(12);
+      tsBuffer.readBytes(scratch, 2);
+      scratch.skipBits(4);
+      int programInfoLength = scratch.readBits(12);
+
       // Skip the descriptors.
-      tsBuffer.skipBytes(programInfoLength);
+      tsBuffer.skip(programInfoLength);
 
-      int entriesSize = sectionLength - 9 /* size of the rest of the fields before descriptors */
+      int entriesSize = sectionLength - 9 /* Size of the rest of the fields before descriptors */
           - programInfoLength - 4 /* CRC size */;
       while (entriesSize > 0) {
-        int streamType = tsBuffer.readBits(8);
-        tsBuffer.skipBits(3);
-        int elementaryPid = tsBuffer.readBits(13);
-        tsBuffer.skipBits(4);
+        tsBuffer.readBytes(scratch, 5);
+        int streamType = scratch.readBits(8);
+        scratch.skipBits(3); // reserved
+        int elementaryPid = scratch.readBits(13);
+        scratch.skipBits(4); // reserved
+        int esInfoLength = scratch.readBits(12);
 
-        int esInfoLength = tsBuffer.readBits(12);
         // Skip the descriptors.
-        tsBuffer.skipBytes(esInfoLength);
+        tsBuffer.skip(esInfoLength);
         entriesSize -= esInfoLength + 5;
 
         if (sampleQueues.get(streamType) != null) {
@@ -436,7 +452,7 @@ public final class TsExtractor {
   private class PesReader extends TsPayloadReader {
 
     // Reusable buffer for incomplete PES data.
-    private final BitArray pesBuffer;
+    private final ParsableByteArray pesBuffer;
     // Parses PES payload and extracts individual samples.
     private final PesPayloadReader pesPayloadReader;
 
@@ -445,11 +461,11 @@ public final class TsExtractor {
     public PesReader(PesPayloadReader pesPayloadReader) {
       this.pesPayloadReader = pesPayloadReader;
       this.packetLength = -1;
-      pesBuffer = new BitArray();
+      pesBuffer = new ParsableByteArray();
     }
 
     @Override
-    public void read(BitArray tsBuffer, boolean payloadUnitStartIndicator) {
+    public void read(ParsableByteArray tsBuffer, boolean payloadUnitStartIndicator) {
       if (payloadUnitStartIndicator && !pesBuffer.isEmpty()) {
         if (packetLength == 0) {
           // The length of the previous packet was unspecified. We've now seen the start of the
@@ -477,49 +493,50 @@ public final class TsExtractor {
     }
 
     private void readPacketStart() {
-      int startCodePrefix = pesBuffer.readBits(24);
+      pesBuffer.readBytes(scratch, 3);
+      int startCodePrefix = scratch.readBits(24);
       if (startCodePrefix != 0x000001) {
         Log.w(TAG, "Unexpected start code prefix: " + startCodePrefix);
         pesBuffer.reset();
         packetLength = -1;
       } else {
-        // TODO: Read and use stream_id.
-        pesBuffer.skipBits(8); // Skip stream_id.
-        packetLength = pesBuffer.readBits(16);
+        pesBuffer.skip(1); // stream_id.
+        packetLength = pesBuffer.readUnsignedShort();
       }
     }
 
     private void readPacketBody() {
-      // Skip some fields/flags.
-      // TODO: might need to use data_alignment_indicator.
-      pesBuffer.skipBits(8); // 2+2+1+1+1+1
-      boolean ptsFlag = pesBuffer.readBit();
-      // Skip DTS flag.
-      pesBuffer.skipBits(1);
-      // Skip some fields/flags.
-      pesBuffer.skipBits(6); // 1+1+1+1+1+1
+      // '10' (2), PES_scrambling_control (2), PES_priority (1), data_alignment_indicator (1),
+      // copyright (1), original_or_copy (1)
+      pesBuffer.skip(1);
 
-      int headerDataLength = pesBuffer.readBits(8);
+      pesBuffer.readBytes(scratch, 1);
+      boolean ptsFlag = scratch.readBit();
+      // Last 7 bits of scratch are skipped: DTS_flag (1), ESCR_flag (1), ES_rate_flag (1),
+      // DSM_trick_mode_flag (1), additional_copy_info_flag (1), PES_CRC_flag (1),
+      // PES_extension_flag (1)
+
+      int headerDataLength = pesBuffer.readUnsignedByte();
       if (headerDataLength == 0) {
         headerDataLength = pesBuffer.bytesLeft();
       }
 
       long timeUs = 0;
       if (ptsFlag) {
-        // Skip prefix.
-        pesBuffer.skipBits(4);
-        long pts = pesBuffer.readBitsLong(3) << 30;
-        pesBuffer.skipBits(1);
-        pts |= pesBuffer.readBitsLong(15) << 15;
-        pesBuffer.skipBits(1);
-        pts |= pesBuffer.readBitsLong(15);
-        pesBuffer.skipBits(1);
+        pesBuffer.readBytes(scratch, 5);
+        scratch.skipBits(4); // '0010'
+        long pts = scratch.readBitsLong(3) << 30;
+        scratch.skipBits(1); // marker_bit
+        pts |= scratch.readBitsLong(15) << 15;
+        scratch.skipBits(1); // marker_bit
+        pts |= scratch.readBitsLong(15);
+        scratch.skipBits(1); // marker_bit
         timeUs = ptsToTimeUs(pts);
         // Skip the rest of the header.
-        pesBuffer.skipBytes(headerDataLength - 5);
+        pesBuffer.skip(headerDataLength - 5);
       } else {
         // Skip the rest of the header.
-        pesBuffer.skipBytes(headerDataLength);
+        pesBuffer.skip(headerDataLength);
       }
 
       int payloadSize;
@@ -709,7 +726,7 @@ public final class TsExtractor {
      * @param sampleTimeUs The sample time stamp.
      * @param isKeyframe True if the sample is a keyframe. False otherwise.
      */
-    protected void addSample(int type, BitArray buffer, int sampleSize, long sampleTimeUs,
+    protected void addSample(int type, ParsableByteArray buffer, int sampleSize, long sampleTimeUs,
         boolean isKeyframe) {
       Sample sample = getSample(type);
       addToSample(sample, buffer, sampleSize);
@@ -723,7 +740,7 @@ public final class TsExtractor {
       internalQueueSample(sample);
     }
 
-    protected void addToSample(Sample sample, BitArray buffer, int size) {
+    protected void addToSample(Sample sample, ParsableByteArray buffer, int size) {
       if (sample.data.length - sample.size < size) {
         sample.expand(size - sample.data.length + sample.size);
       }
@@ -764,7 +781,7 @@ public final class TsExtractor {
       internalQueue.add(sample);
     }
 
-    public abstract void read(BitArray pesBuffer, int pesPayloadSize, long pesTimeUs);
+    public abstract void read(ParsableByteArray pesBuffer, int pesPayloadSize, long pesTimeUs);
 
   }
 
@@ -798,7 +815,7 @@ public final class TsExtractor {
     }
 
     @Override
-    public void read(BitArray pesBuffer, int pesPayloadSize, long pesTimeUs) {
+    public void read(ParsableByteArray pesBuffer, int pesPayloadSize, long pesTimeUs) {
       // Read leftover frame data from previous PES packet.
       pesPayloadSize -= readOneH264Frame(pesBuffer, true);
 
@@ -824,10 +841,10 @@ public final class TsExtractor {
     }
 
     @SuppressLint("InlinedApi")
-    private int readOneH264Frame(BitArray pesBuffer, boolean remainderOnly) {
-      byte[] pesData = pesBuffer.getData();
-      int pesOffset = pesBuffer.getByteOffset();
-      int pesLimit = pesBuffer.limit();
+    private int readOneH264Frame(ParsableByteArray pesBuffer, boolean remainderOnly) {
+      byte[] pesData = pesBuffer.data;
+      int pesOffset = pesBuffer.getPosition();
+      int pesLimit = pesBuffer.length();
 
       int searchOffset = pesOffset + (remainderOnly ? 0 : 3);
       int audOffset = Mp4Util.findNalUnit(pesData, searchOffset, pesLimit, NAL_UNIT_TYPE_AUD);
@@ -839,7 +856,7 @@ public final class TsExtractor {
         }
         addToSample(currentSample, pesBuffer, bytesToNextAud);
       } else {
-        pesBuffer.skipBytes(bytesToNextAud);
+        pesBuffer.skip(bytesToNextAud);
       }
       return bytesToNextAud;
     }
@@ -854,8 +871,8 @@ public final class TsExtractor {
         return;
       }
       // Determine the length of the units, and copy them to build the initialization data.
-      int spsLength = Mp4Util.findNextNalUnit(sampleData, spsOffset + 3, sampleSize) - spsOffset;
-      int ppsLength = Mp4Util.findNextNalUnit(sampleData, ppsOffset + 3, sampleSize) - ppsOffset;
+      int spsLength = Mp4Util.findNalUnit(sampleData, spsOffset + 3, sampleSize) - spsOffset;
+      int ppsLength = Mp4Util.findNalUnit(sampleData, ppsOffset + 3, sampleSize) - ppsOffset;
       byte[] spsData = new byte[spsLength];
       byte[] ppsData = new byte[ppsLength];
       System.arraycopy(sampleData, spsOffset, spsData, 0, spsLength);
@@ -866,15 +883,11 @@ public final class TsExtractor {
 
       // Unescape and then parse the SPS unit.
       byte[] unescapedSps = unescapeStream(spsData, 0, spsLength);
-      BitArray bitArray = new BitArray(unescapedSps, unescapedSps.length);
-
-      // Skip the NAL header.
-      bitArray.skipBytes(4);
+      ParsableBitArray bitArray = new ParsableBitArray(unescapedSps);
+      bitArray.skipBits(32); // NAL header
       int profileIdc = bitArray.readBits(8);
-      // Skip 6 constraint bits, 2 reserved bits and level_idc.
-      bitArray.skipBytes(2);
-      // Skip seq_parameter_set_id.
-      bitArray.readUnsignedExpGolombCodedInt();
+      bitArray.skipBits(16); // constraint bits (6), reserved (2) and level_idc (8)
+      bitArray.readUnsignedExpGolombCodedInt(); // seq_parameter_set_id
 
       int chromaFormatIdc = 1; // Default is 4:2:0
       if (profileIdc == 100 || profileIdc == 110 || profileIdc == 122 || profileIdc == 244
@@ -882,15 +895,11 @@ public final class TsExtractor {
           || profileIdc == 128 || profileIdc == 138) {
         chromaFormatIdc = bitArray.readUnsignedExpGolombCodedInt();
         if (chromaFormatIdc == 3) {
-          // Skip separate_colour_plane_flag
-          bitArray.skipBits(1);
+          bitArray.skipBits(1); // separate_colour_plane_flag
         }
-        // Skip bit_depth_luma_minus8
-        bitArray.readUnsignedExpGolombCodedInt();
-        // Skip bit_depth_chroma_minus8
-        bitArray.readUnsignedExpGolombCodedInt();
-        // Skip qpprime_y_zero_transform_bypass_flag
-        bitArray.skipBits(1);
+        bitArray.readUnsignedExpGolombCodedInt(); // bit_depth_luma_minus8
+        bitArray.readUnsignedExpGolombCodedInt(); // bit_depth_chroma_minus8
+        bitArray.skipBits(1); // qpprime_y_zero_transform_bypass_flag
         boolean seqScalingMatrixPresentFlag = bitArray.readBit();
         if (seqScalingMatrixPresentFlag) {
           int limit = (chromaFormatIdc != 3) ? 8 : 12;
@@ -902,39 +911,32 @@ public final class TsExtractor {
           }
         }
       }
-      // Skip log2_max_frame_num_minus4
-      bitArray.readUnsignedExpGolombCodedInt();
+
+      bitArray.readUnsignedExpGolombCodedInt(); // log2_max_frame_num_minus4
       long picOrderCntType = bitArray.readUnsignedExpGolombCodedInt();
       if (picOrderCntType == 0) {
-        // Skip log2_max_pic_order_cnt_lsb_minus4
-        bitArray.readUnsignedExpGolombCodedInt();
+        bitArray.readUnsignedExpGolombCodedInt(); // log2_max_pic_order_cnt_lsb_minus4
       } else if (picOrderCntType == 1) {
-        // Skip delta_pic_order_always_zero_flag
-        bitArray.skipBits(1);
-        // Skip offset_for_non_ref_pic
-        bitArray.readSignedExpGolombCodedInt();
-        // Skip offset_for_top_to_bottom_field
-        bitArray.readSignedExpGolombCodedInt();
+        bitArray.skipBits(1); // delta_pic_order_always_zero_flag
+        bitArray.readSignedExpGolombCodedInt(); // offset_for_non_ref_pic
+        bitArray.readSignedExpGolombCodedInt(); // offset_for_top_to_bottom_field
         long numRefFramesInPicOrderCntCycle = bitArray.readUnsignedExpGolombCodedInt();
         for (int i = 0; i < numRefFramesInPicOrderCntCycle; i++) {
-          // Skip offset_for_ref_frame[i]
-          bitArray.readUnsignedExpGolombCodedInt();
+          bitArray.readUnsignedExpGolombCodedInt(); // offset_for_ref_frame[i]
         }
       }
-      // Skip max_num_ref_frames
-      bitArray.readUnsignedExpGolombCodedInt();
-      // Skip gaps_in_frame_num_value_allowed_flag
-      bitArray.skipBits(1);
+      bitArray.readUnsignedExpGolombCodedInt(); // max_num_ref_frames
+      bitArray.skipBits(1); // gaps_in_frame_num_value_allowed_flag
+
       int picWidthInMbs = bitArray.readUnsignedExpGolombCodedInt() + 1;
       int picHeightInMapUnits = bitArray.readUnsignedExpGolombCodedInt() + 1;
       boolean frameMbsOnlyFlag = bitArray.readBit();
       int frameHeightInMbs = (2 - (frameMbsOnlyFlag ? 1 : 0)) * picHeightInMapUnits;
       if (!frameMbsOnlyFlag) {
-        // Skip mb_adaptive_frame_field_flag
-        bitArray.skipBits(1);
+        bitArray.skipBits(1); // mb_adaptive_frame_field_flag
       }
-      // Skip direct_8x8_inference_flag
-      bitArray.skipBits(1);
+
+      bitArray.skipBits(1); // direct_8x8_inference_flag
       int frameWidth = picWidthInMbs * 16;
       int frameHeight = frameHeightInMbs * 16;
       boolean frameCroppingFlag = bitArray.readBit();
@@ -962,7 +964,7 @@ public final class TsExtractor {
           frameWidth, frameHeight, initializationData));
     }
 
-    private void skipScalingList(BitArray bitArray, int size) {
+    private void skipScalingList(ParsableBitArray bitArray, int size) {
       int lastScale = 8;
       int nextScale = 8;
       for (int i = 0; i < size; i++) {
@@ -1029,13 +1031,13 @@ public final class TsExtractor {
     // SEI data, used for Closed Captions.
     private static final int NAL_UNIT_TYPE_SEI = 6;
 
-    private final BitArray seiBuffer;
+    private final ParsableByteArray seiBuffer;
     private final TreeSet<Sample> internalQueue;
 
     public SeiReader(SamplePool samplePool) {
       super(samplePool);
       setMediaFormat(MediaFormat.createEia608Format());
-      seiBuffer = new BitArray();
+      seiBuffer = new ParsableByteArray();
       internalQueue = new TreeSet<Sample>(this);
     }
 
@@ -1043,12 +1045,12 @@ public final class TsExtractor {
     public void read(byte[] data, int length, long pesTimeUs) {
       seiBuffer.reset(data, length);
       while (seiBuffer.bytesLeft() > 0) {
-        int currentOffset = seiBuffer.getByteOffset();
+        int currentOffset = seiBuffer.getPosition();
         int seiOffset = Mp4Util.findNalUnit(data, currentOffset, length, NAL_UNIT_TYPE_SEI);
         if (seiOffset == length) {
           return;
         }
-        seiBuffer.skipBytes(seiOffset + 4 - currentOffset);
+        seiBuffer.skip(seiOffset + 4 - currentOffset);
         int ccDataSize = Eia608Parser.parseHeader(seiBuffer);
         if (ccDataSize > 0) {
           addSample(Sample.TYPE_MISC, seiBuffer, ccDataSize, pesTimeUs, true);
@@ -1084,17 +1086,17 @@ public final class TsExtractor {
    */
   private class AdtsReader extends PesPayloadReader {
 
-    private final BitArray adtsBuffer;
+    private final ParsableByteArray adtsBuffer;
     private long timeUs;
     private long frameDurationUs;
 
     public AdtsReader(SamplePool samplePool) {
       super(samplePool);
-      adtsBuffer = new BitArray();
+      adtsBuffer = new ParsableByteArray();
     }
 
     @Override
-    public void read(BitArray pesBuffer, int pesPayloadSize, long pesTimeUs) {
+    public void read(ParsableByteArray pesBuffer, int pesPayloadSize, long pesTimeUs) {
       boolean needToProcessLeftOvers = !adtsBuffer.isEmpty();
       adtsBuffer.append(pesBuffer, pesPayloadSize);
       // If there are leftovers from previous PES packet, process it with last calculated timeUs.
@@ -1114,24 +1116,26 @@ public final class TsExtractor {
       }
 
       int offsetToSyncWord = findOffsetToSyncWord();
-      adtsBuffer.skipBytes(offsetToSyncWord);
+      adtsBuffer.skip(offsetToSyncWord);
 
-      int adtsStartOffset = adtsBuffer.getByteOffset();
+      int adtsStartOffset = adtsBuffer.getPosition();
 
       if (adtsBuffer.bytesLeft() < 7) {
-        adtsBuffer.setByteOffset(adtsStartOffset);
+        adtsBuffer.setPosition(adtsStartOffset);
         adtsBuffer.clearReadData();
         return false;
       }
 
-      adtsBuffer.skipBits(15);
-      boolean hasCRC = !adtsBuffer.readBit();
+      adtsBuffer.readBytes(scratch, 2);
+      scratch.skipBits(15);
+      boolean hasCRC = !scratch.readBit();
 
+      adtsBuffer.readBytes(scratch, 5);
       if (!hasMediaFormat()) {
-        int audioObjectType = adtsBuffer.readBits(2) + 1;
-        int sampleRateIndex = adtsBuffer.readBits(4);
-        adtsBuffer.skipBits(1);
-        int channelConfig = adtsBuffer.readBits(3);
+        int audioObjectType = scratch.readBits(2) + 1;
+        int sampleRateIndex = scratch.readBits(4);
+        scratch.skipBits(1);
+        int channelConfig = scratch.readBits(3);
 
         byte[] audioSpecificConfig = CodecSpecificDataUtil.buildAudioSpecificConfig(
             audioObjectType, sampleRateIndex, channelConfig);
@@ -1144,24 +1148,23 @@ public final class TsExtractor {
         frameDurationUs = (C.MICROS_PER_SECOND * 1024L) / mediaFormat.sampleRate;
         setMediaFormat(mediaFormat);
       } else {
-        adtsBuffer.skipBits(10);
+        scratch.skipBits(10);
       }
-
-      adtsBuffer.skipBits(4);
-      int frameSize = adtsBuffer.readBits(13);
-      adtsBuffer.skipBits(13);
+      scratch.skipBits(4);
+      int frameSize = scratch.readBits(13);
+      scratch.skipBits(13);
 
       // Decrement frame size by ADTS header size and CRC.
       if (hasCRC) {
         // Skip CRC.
-        adtsBuffer.skipBytes(2);
+        adtsBuffer.skip(2);
         frameSize -= 9;
       } else {
         frameSize -= 7;
       }
 
       if (frameSize > adtsBuffer.bytesLeft()) {
-        adtsBuffer.setByteOffset(adtsStartOffset);
+        adtsBuffer.setPosition(adtsStartOffset);
         adtsBuffer.clearReadData();
         return false;
       }
@@ -1183,9 +1186,9 @@ public final class TsExtractor {
      * position of the end of the data is returned.
      */
     private int findOffsetToSyncWord() {
-      byte[] adtsData = adtsBuffer.getData();
-      int startOffset = adtsBuffer.getByteOffset();
-      int endOffset = startOffset + adtsBuffer.bytesLeft();
+      byte[] adtsData = adtsBuffer.data;
+      int startOffset = adtsBuffer.getPosition();
+      int endOffset = adtsBuffer.length();
       for (int i = startOffset; i < endOffset - 1; i++) {
         int syncBits = ((adtsData[i] & 0xFF) << 8) | (adtsData[i + 1] & 0xFF);
         if ((syncBits & 0xFFF0) == 0xFFF0 && syncBits != 0xFFFF) {
@@ -1209,7 +1212,7 @@ public final class TsExtractor {
 
     @SuppressLint("InlinedApi")
     @Override
-    public void read(BitArray pesBuffer, int pesPayloadSize, long pesTimeUs) {
+    public void read(ParsableByteArray pesBuffer, int pesPayloadSize, long pesTimeUs) {
       addSample(Sample.TYPE_MISC, pesBuffer, pesPayloadSize, pesTimeUs, true);
     }
 

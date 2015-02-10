@@ -38,7 +38,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
   public Map<String, Object> parse(byte[] data, int size)
       throws UnsupportedEncodingException, ParserException {
     Map<String, Object> metadata = new HashMap<String, Object>();
-    ParsableByteArray id3Data = new ParsableByteArray(data);
+    ParsableByteArray id3Data = new ParsableByteArray(data, size);
     int id3Size = parseId3Header(id3Data);
 
     while (id3Size > 0) {

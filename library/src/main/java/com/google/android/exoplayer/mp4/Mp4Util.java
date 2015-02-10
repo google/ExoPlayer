@@ -106,7 +106,7 @@ public final class Mp4Util {
    * @param endOffset The offset (exclusive) in the data to end the search.
    * @return The offset of the NAL unit, or {@code endOffset} if a NAL unit was not found.
    */
-  public static int findNextNalUnit(byte[] data, int startOffset, int endOffset) {
+  public static int findNalUnit(byte[] data, int startOffset, int endOffset) {
     return findNalUnit(data, startOffset, endOffset, -1);
   }
 
