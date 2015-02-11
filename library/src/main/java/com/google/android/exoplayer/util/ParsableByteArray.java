@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.util;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 /**
  * Wraps a byte array, providing a set of methods for parsing data from it. Numerical values are
@@ -69,37 +68,25 @@ public final class ParsableByteArray {
     limit = 0;
   }
 
-  // TODO: This method is temporary
-  public void append(ParsableByteArray buffer, int length) {
-    if (data == null) {
-      data = new byte[length];
-    } else if (data.length < limit + length) {
-      data = Arrays.copyOf(data, limit + length);
-    }
-    buffer.readBytes(data, limit, length);
-    limit += length;
-  }
-
-  // TODO: This method is temporary
-  public void clearReadData() {
-    System.arraycopy(data, position, data, 0, limit - position);
-    limit -= position;
-    position = 0;
-  }
-
-  // TODO: This method is temporary
-  public boolean isEmpty() {
-    return limit == 0;
-  }
-
   /** Returns the number of bytes yet to be read. */
   public int bytesLeft() {
     return limit - position;
   }
 
   /** Returns the number of bytes in the array. */
+  // TODO: Rename to limit.
   public int length() {
     return limit;
+  }
+
+  /**
+   * Sets the limit.
+   *
+   * @param limit The limit to set.
+   */
+  public void setLimit(int limit) {
+    Assertions.checkArgument(limit >= 0 && limit <= data.length);
+    this.limit = limit;
   }
 
   /** Returns the current offset in the array, in bytes. */
