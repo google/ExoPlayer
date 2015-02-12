@@ -17,7 +17,8 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.hls.TsExtractor.SamplePool;
+import com.google.android.exoplayer.hls.parser.SamplePool;
+import com.google.android.exoplayer.hls.parser.TsExtractor;
 import com.google.android.exoplayer.upstream.Aes128DataSource;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -101,7 +102,7 @@ public class HlsChunkSource {
   private static final String TAG = "HlsChunkSource";
   private static final float BANDWIDTH_FRACTION = 0.8f;
 
-  private final SamplePool samplePool = new TsExtractor.SamplePool();
+  private final SamplePool samplePool = new SamplePool();
   private final DataSource upstreamDataSource;
   private final HlsPlaylistParser playlistParser;
   private final Variant[] enabledVariants;
