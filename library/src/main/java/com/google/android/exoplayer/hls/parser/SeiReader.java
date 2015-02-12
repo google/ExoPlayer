@@ -22,28 +22,23 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.annotation.SuppressLint;
 
-import java.util.Comparator;
-import java.util.TreeSet;
-
 /**
  * Parses a SEI data from H.264 frames and extracts samples with closed captions data.
  *
  * TODO: Technically, we shouldn't allow a sample to be read from the queue until we're sure that
  * a sample with an earlier timestamp won't be added to it.
  */
-/* package */ class SeiReader extends SampleQueue implements Comparator<Sample> {
+/* package */ class SeiReader extends SampleQueue {
 
   // SEI data, used for Closed Captions.
   private static final int NAL_UNIT_TYPE_SEI = 6;
 
   private final ParsableByteArray seiBuffer;
-  private final TreeSet<Sample> internalQueue;
 
   public SeiReader(SamplePool samplePool) {
     super(samplePool);
     setMediaFormat(MediaFormat.createEia608Format());
     seiBuffer = new ParsableByteArray();
-    internalQueue = new TreeSet<Sample>(this);
   }
 
   @SuppressLint("InlinedApi")
@@ -61,27 +56,6 @@ import java.util.TreeSet;
         addSample(Sample.TYPE_MISC, seiBuffer, ccDataSize, pesTimeUs, true);
       }
     }
-  }
-
-  @Override
-  public int compare(Sample first, Sample second) {
-    // Note - We don't expect samples to have identical timestamps.
-    return first.timeUs <= second.timeUs ? -1 : 1;
-  }
-
-  @Override
-  protected synchronized Sample internalPeekSample() {
-    return internalQueue.isEmpty() ? null : internalQueue.first();
-  }
-
-  @Override
-  protected synchronized Sample internalPollSample() {
-    return internalQueue.pollFirst();
-  }
-
-  @Override
-  protected synchronized void internalQueueSample(Sample sample) {
-    internalQueue.add(sample);
   }
 
 }

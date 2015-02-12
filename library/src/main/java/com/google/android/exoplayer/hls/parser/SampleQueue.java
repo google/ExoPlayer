@@ -18,9 +18,12 @@ package com.google.android.exoplayer.hls.parser;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 /* package */ abstract class SampleQueue {
 
   private final SamplePool samplePool;
+  private final ConcurrentLinkedQueue<Sample> internalQueue;
 
   // Accessed only by the consuming thread.
   private boolean needKeyframe;
@@ -33,6 +36,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
   protected SampleQueue(SamplePool samplePool) {
     this.samplePool = samplePool;
+    internalQueue = new ConcurrentLinkedQueue<Sample>();
     needKeyframe = true;
     lastReadTimeUs = Long.MIN_VALUE;
     spliceOutTimeUs = Long.MIN_VALUE;
@@ -66,7 +70,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   public Sample poll() {
     Sample head = peek();
     if (head != null) {
-      internalPollSample();
+      internalQueue.poll();
       needKeyframe = false;
       lastReadTimeUs = head.timeUs;
     }
@@ -79,13 +83,13 @@ import com.google.android.exoplayer.util.ParsableByteArray;
    * @return The next sample from the queue, or null if a sample isn't available.
    */
   public Sample peek() {
-    Sample head = internalPeekSample();
+    Sample head = internalQueue.peek();
     if (needKeyframe) {
       // Peeking discard of samples until we find a keyframe or run out of available samples.
       while (head != null && !head.isKeyframe) {
         recycle(head);
-        internalPollSample();
-        head = internalPeekSample();
+        internalQueue.poll();
+        head = internalQueue.peek();
       }
     }
     if (head == null) {
@@ -94,7 +98,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
     if (spliceOutTimeUs != Long.MIN_VALUE && head.timeUs >= spliceOutTimeUs) {
       // The sample is later than the time this queue is spliced out.
       recycle(head);
-      internalPollSample();
+      internalQueue.poll();
       return null;
     }
     return head;
@@ -109,8 +113,8 @@ import com.google.android.exoplayer.util.ParsableByteArray;
     Sample head = peek();
     while (head != null && head.timeUs < timeUs) {
       recycle(head);
-      internalPollSample();
-      head = internalPeekSample();
+      internalQueue.poll();
+      head = internalQueue.peek();
       // We're discarding at least one sample, so any subsequent read will need to start at
       // a keyframe.
       needKeyframe = true;
@@ -122,10 +126,10 @@ import com.google.android.exoplayer.util.ParsableByteArray;
    * Clears the queue.
    */
   public void release() {
-    Sample toRecycle = internalPollSample();
+    Sample toRecycle = internalQueue.poll();
     while (toRecycle != null) {
       recycle(toRecycle);
-      toRecycle = internalPollSample();
+      toRecycle = internalQueue.poll();
     }
   }
 
@@ -150,19 +154,19 @@ import com.google.android.exoplayer.util.ParsableByteArray;
       return true;
     }
     long firstPossibleSpliceTime;
-    Sample nextSample = internalPeekSample();
+    Sample nextSample = internalQueue.peek();
     if (nextSample != null) {
       firstPossibleSpliceTime = nextSample.timeUs;
     } else {
       firstPossibleSpliceTime = lastReadTimeUs + 1;
     }
-    Sample nextQueueSample = nextQueue.internalPeekSample();
+    Sample nextQueueSample = nextQueue.internalQueue.peek();
     while (nextQueueSample != null
         && (nextQueueSample.timeUs < firstPossibleSpliceTime || !nextQueueSample.isKeyframe)) {
       // Discard samples from the next queue for as long as they are before the earliest possible
       // splice time, or not keyframes.
-      nextQueue.internalPollSample();
-      nextQueueSample = nextQueue.internalPeekSample();
+      nextQueue.internalQueue.poll();
+      nextQueueSample = nextQueue.internalQueue.peek();
     }
     if (nextQueueSample != null) {
       // We've found a keyframe in the next queue that can serve as the splice point. Set the
@@ -203,7 +207,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
   protected void addSample(Sample sample) {
     largestParsedTimestampUs = Math.max(largestParsedTimestampUs, sample.timeUs);
-    internalQueueSample(sample);
+    internalQueue.add(sample);
   }
 
   protected void addToSample(Sample sample, ParsableByteArray buffer, int size) {
@@ -213,9 +217,5 @@ import com.google.android.exoplayer.util.ParsableByteArray;
     buffer.readBytes(sample.data, sample.size, size);
     sample.size += size;
   }
-
-  protected abstract Sample internalPeekSample();
-  protected abstract Sample internalPollSample();
-  protected abstract void internalQueueSample(Sample sample);
 
 }

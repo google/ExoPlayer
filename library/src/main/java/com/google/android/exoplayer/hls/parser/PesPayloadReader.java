@@ -17,33 +17,13 @@ package com.google.android.exoplayer.hls.parser;
 
 import com.google.android.exoplayer.util.ParsableByteArray;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 /**
  * Extracts individual samples from continuous byte stream, preserving original order.
  */
 /* package */ abstract class PesPayloadReader extends SampleQueue {
 
-  private final ConcurrentLinkedQueue<Sample> internalQueue;
-
   protected PesPayloadReader(SamplePool samplePool) {
     super(samplePool);
-    internalQueue = new ConcurrentLinkedQueue<Sample>();
-  }
-
-  @Override
-  protected final Sample internalPeekSample() {
-    return internalQueue.peek();
-  }
-
-  @Override
-  protected final Sample internalPollSample() {
-    return internalQueue.poll();
-  }
-
-  @Override
-  protected final void internalQueueSample(Sample sample) {
-    internalQueue.add(sample);
   }
 
   /**
