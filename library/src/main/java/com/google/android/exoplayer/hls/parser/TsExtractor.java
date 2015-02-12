@@ -23,8 +23,6 @@ import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
-import android.annotation.SuppressLint;
-import android.media.MediaExtractor;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -172,19 +170,12 @@ public final class TsExtractor {
    * Gets the next sample for the specified track.
    *
    * @param track The track from which to read.
-   * @param out A {@link SampleHolder} into which the next sample should be read.
+   * @param holder A {@link SampleHolder} into which the sample should be read.
    * @return True if a sample was read. False otherwise.
    */
-  public boolean getSample(int track, SampleHolder out) {
+  public boolean getSample(int track, SampleHolder holder) {
     Assertions.checkState(prepared);
-    SampleQueue sampleQueue = sampleQueues.valueAt(track);
-    Sample sample = sampleQueue.poll();
-    if (sample == null) {
-      return false;
-    }
-    convert(sample, out);
-    sampleQueue.recycle(sample);
-    return true;
+    return sampleQueues.valueAt(track).getSample(holder);
   }
 
   /**
@@ -207,7 +198,7 @@ public final class TsExtractor {
    */
   public boolean hasSamples(int track) {
     Assertions.checkState(prepared);
-    return sampleQueues.valueAt(track).peek() != null;
+    return !sampleQueues.valueAt(track).isEmpty();
   }
 
   private boolean checkPrepared() {
@@ -282,19 +273,6 @@ public final class TsExtractor {
     }
 
     return bytesRead;
-  }
-
-  @SuppressLint("InlinedApi")
-  private void convert(Sample in, SampleHolder out) {
-    if (out.data == null || out.data.capacity() < in.size) {
-      out.replaceBuffer(in.size);
-    }
-    if (out.data != null) {
-      out.data.put(in.data, 0, in.size);
-    }
-    out.size = in.size;
-    out.flags = in.isKeyframe ? MediaExtractor.SAMPLE_FLAG_SYNC : 0;
-    out.timeUs = in.timeUs;
   }
 
   /**

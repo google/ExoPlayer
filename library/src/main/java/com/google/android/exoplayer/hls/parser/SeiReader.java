@@ -16,11 +16,8 @@
 package com.google.android.exoplayer.hls.parser;
 
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.mp4.Mp4Util;
 import com.google.android.exoplayer.text.eia608.Eia608Parser;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
-import android.annotation.SuppressLint;
 
 /**
  * Parses a SEI data from H.264 frames and extracts samples with closed captions data.
@@ -30,9 +27,6 @@ import android.annotation.SuppressLint;
  */
 /* package */ class SeiReader extends SampleQueue {
 
-  // SEI data, used for Closed Captions.
-  private static final int NAL_UNIT_TYPE_SEI = 6;
-
   private final ParsableByteArray seiBuffer;
 
   public SeiReader(SamplePool samplePool) {
@@ -41,20 +35,14 @@ import android.annotation.SuppressLint;
     seiBuffer = new ParsableByteArray();
   }
 
-  @SuppressLint("InlinedApi")
-  public void read(byte[] data, int length, long pesTimeUs) {
-    seiBuffer.reset(data, length);
-    while (seiBuffer.bytesLeft() > 0) {
-      int currentOffset = seiBuffer.getPosition();
-      int seiOffset = Mp4Util.findNalUnit(data, currentOffset, length, NAL_UNIT_TYPE_SEI);
-      if (seiOffset == length) {
-        return;
-      }
-      seiBuffer.skip(seiOffset + 4 - currentOffset);
-      int ccDataSize = Eia608Parser.parseHeader(seiBuffer);
-      if (ccDataSize > 0) {
-        addSample(Sample.TYPE_MISC, seiBuffer, ccDataSize, pesTimeUs, true);
-      }
+  public void read(byte[] data, int position, long pesTimeUs) {
+    seiBuffer.reset(data, data.length);
+    seiBuffer.setPosition(position + 4);
+    int ccDataSize = Eia608Parser.parseHeader(seiBuffer);
+    if (ccDataSize > 0) {
+      startSample(Sample.TYPE_MISC, pesTimeUs);
+      appendSampleData(seiBuffer, ccDataSize);
+      commitSample(true);
     }
   }
 

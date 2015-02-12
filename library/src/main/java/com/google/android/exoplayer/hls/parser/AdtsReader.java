@@ -53,7 +53,6 @@ import java.util.Collections;
 
   // Used when reading the samples.
   private long timeUs;
-  private Sample currentSample;
 
   public AdtsReader(SamplePool samplePool) {
     super(samplePool);
@@ -78,20 +77,17 @@ import java.util.Collections;
           int targetLength = hasCrc ? HEADER_SIZE + CRC_SIZE : HEADER_SIZE;
           if (continueRead(data, adtsScratch.getData(), targetLength)) {
             parseHeader();
-            currentSample = getSample(Sample.TYPE_AUDIO);
-            currentSample.timeUs = timeUs;
-            currentSample.isKeyframe = true;
+            startSample(Sample.TYPE_AUDIO, timeUs);
             bytesRead = 0;
             state = STATE_READING_SAMPLE;
           }
           break;
         case STATE_READING_SAMPLE:
           int bytesToRead = Math.min(data.bytesLeft(), sampleSize - bytesRead);
-          addToSample(currentSample, data, bytesToRead);
+          appendSampleData(data, bytesToRead);
           bytesRead += bytesToRead;
           if (bytesRead == sampleSize) {
-            addSample(currentSample);
-            currentSample = null;
+            commitSample(true);
             timeUs += frameDurationUs;
             bytesRead = 0;
             state = STATE_FINDING_SYNC;
@@ -104,15 +100,6 @@ import java.util.Collections;
   @Override
   public void packetFinished() {
     // Do nothing.
-  }
-
-  @Override
-  public void release() {
-    super.release();
-    if (currentSample != null) {
-      recycle(currentSample);
-      currentSample = null;
-    }
   }
 
   /**

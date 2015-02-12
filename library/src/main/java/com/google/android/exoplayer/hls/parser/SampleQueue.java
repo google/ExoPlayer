@@ -16,7 +16,11 @@
 package com.google.android.exoplayer.hls.parser;
 
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.ParsableByteArray;
+
+import android.annotation.SuppressLint;
+import android.media.MediaExtractor;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -34,6 +38,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
   private volatile MediaFormat mediaFormat;
   private volatile long largestParsedTimestampUs;
 
+  // Accessed by only the loading thread (except on release, which shouldn't happen until the
+  // loading thread has been terminated).
+  private Sample pendingSample;
+
   protected SampleQueue(SamplePool samplePool) {
     this.samplePool = samplePool;
     internalQueue = new ConcurrentLinkedQueue<Sample>();
@@ -41,6 +49,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
     lastReadTimeUs = Long.MIN_VALUE;
     spliceOutTimeUs = Long.MIN_VALUE;
     largestParsedTimestampUs = Long.MIN_VALUE;
+  }
+
+  public boolean isEmpty() {
+    return peek() == null;
   }
 
   public long getLargestParsedTimestampUs() {
@@ -60,34 +72,49 @@ import java.util.concurrent.ConcurrentLinkedQueue;
   }
 
   /**
-   * Removes and returns the next sample from the queue.
+   * Removes the next sample from the head of the queue, writing it into the provided holder.
    * <p>
    * The first sample returned is guaranteed to be a keyframe, since any non-keyframe samples
    * queued prior to the first keyframe are discarded.
    *
-   * @return The next sample from the queue, or null if a sample isn't available.
+   * @param holder A {@link SampleHolder} into which the sample should be read.
+   * @return True if a sample was read. False otherwise.
    */
-  public Sample poll() {
-    Sample head = peek();
-    if (head != null) {
-      internalQueue.poll();
-      needKeyframe = false;
-      lastReadTimeUs = head.timeUs;
+  @SuppressLint("InlinedApi")
+  public boolean getSample(SampleHolder holder) {
+    Sample sample = peek();
+    if (sample == null) {
+      return false;
     }
-    return head;
+    // Write the sample into the holder.
+    if (holder.data == null || holder.data.capacity() < sample.size) {
+      holder.replaceBuffer(sample.size);
+    }
+    if (holder.data != null) {
+      holder.data.put(sample.data, 0, sample.size);
+    }
+    holder.size = sample.size;
+    holder.flags = sample.isKeyframe ? MediaExtractor.SAMPLE_FLAG_SYNC : 0;
+    holder.timeUs = sample.timeUs;
+    // Pop and recycle the sample, and update state.
+    needKeyframe = false;
+    lastReadTimeUs = sample.timeUs;
+    internalQueue.poll();
+    samplePool.recycle(sample);
+    return true;
   }
 
   /**
-   * Like {@link #poll()}, except the returned sample is not removed from the queue.
+   * Returns (but does not remove) the next sample in the queue.
    *
    * @return The next sample from the queue, or null if a sample isn't available.
    */
-  public Sample peek() {
+  private Sample peek() {
     Sample head = internalQueue.peek();
     if (needKeyframe) {
       // Peeking discard of samples until we find a keyframe or run out of available samples.
       while (head != null && !head.isKeyframe) {
-        recycle(head);
+        samplePool.recycle(head);
         internalQueue.poll();
         head = internalQueue.peek();
       }
@@ -97,7 +124,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
     }
     if (spliceOutTimeUs != Long.MIN_VALUE && head.timeUs >= spliceOutTimeUs) {
       // The sample is later than the time this queue is spliced out.
-      recycle(head);
+      samplePool.recycle(head);
       internalQueue.poll();
       return null;
     }
@@ -112,7 +139,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
   public void discardUntil(long timeUs) {
     Sample head = peek();
     while (head != null && head.timeUs < timeUs) {
-      recycle(head);
+      samplePool.recycle(head);
       internalQueue.poll();
       head = internalQueue.peek();
       // We're discarding at least one sample, so any subsequent read will need to start at
@@ -125,21 +152,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
   /**
    * Clears the queue.
    */
-  public void release() {
+  public final void release() {
     Sample toRecycle = internalQueue.poll();
     while (toRecycle != null) {
-      recycle(toRecycle);
+      samplePool.recycle(toRecycle);
       toRecycle = internalQueue.poll();
     }
-  }
-
-  /**
-   * Recycles a sample.
-   *
-   * @param sample The sample to recycle.
-   */
-  public void recycle(Sample sample) {
-    samplePool.recycle(sample);
+    if (pendingSample != null) {
+      samplePool.recycle(pendingSample);
+      pendingSample = null;
+    }
   }
 
   /**
@@ -177,45 +199,34 @@ import java.util.concurrent.ConcurrentLinkedQueue;
     return false;
   }
 
-  /**
-   * Obtains a Sample object to use.
-   *
-   * @param type The type of the sample.
-   * @return The sample.
-   */
-  protected Sample getSample(int type) {
-    return samplePool.get(type);
+  // Writing side.
+
+  protected final boolean havePendingSample() {
+    return pendingSample != null;
   }
 
-  /**
-   * Creates a new Sample and adds it to the queue.
-   *
-   * @param type The type of the sample.
-   * @param buffer The buffer to read sample data.
-   * @param sampleSize The size of the sample data.
-   * @param sampleTimeUs The sample time stamp.
-   * @param isKeyframe True if the sample is a keyframe. False otherwise.
-   */
-  protected void addSample(int type, ParsableByteArray buffer, int sampleSize, long sampleTimeUs,
-      boolean isKeyframe) {
-    Sample sample = getSample(type);
-    addToSample(sample, buffer, sampleSize);
-    sample.isKeyframe = isKeyframe;
-    sample.timeUs = sampleTimeUs;
-    addSample(sample);
+  protected final Sample getPendingSample() {
+    return pendingSample;
   }
 
-  protected void addSample(Sample sample) {
-    largestParsedTimestampUs = Math.max(largestParsedTimestampUs, sample.timeUs);
-    internalQueue.add(sample);
+  protected final void startSample(int type, long timeUs) {
+    pendingSample = samplePool.get(type);
+    pendingSample.timeUs = timeUs;
   }
 
-  protected void addToSample(Sample sample, ParsableByteArray buffer, int size) {
-    if (sample.data.length - sample.size < size) {
-      sample.expand(size - sample.data.length + sample.size);
+  protected final void appendSampleData(ParsableByteArray buffer, int size) {
+    if (pendingSample.data.length - pendingSample.size < size) {
+      pendingSample.expand(size - pendingSample.data.length + pendingSample.size);
     }
-    buffer.readBytes(sample.data, sample.size, size);
-    sample.size += size;
+    buffer.readBytes(pendingSample.data, pendingSample.size, size);
+    pendingSample.size += size;
+  }
+
+  protected final void commitSample(boolean isKeyframe) {
+    pendingSample.isKeyframe = isKeyframe;
+    internalQueue.add(pendingSample);
+    largestParsedTimestampUs = Math.max(largestParsedTimestampUs, pendingSample.timeUs);
+    pendingSample = null;
   }
 
 }

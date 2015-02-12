@@ -30,13 +30,12 @@ import java.util.List;
 /* package */ class H264Reader extends PesPayloadReader {
 
   private static final int NAL_UNIT_TYPE_IDR = 5;
+  private static final int NAL_UNIT_TYPE_SEI = 6;
   private static final int NAL_UNIT_TYPE_SPS = 7;
   private static final int NAL_UNIT_TYPE_PPS = 8;
   private static final int NAL_UNIT_TYPE_AUD = 9;
 
   private final SeiReader seiReader;
-
-  private Sample currentSample;
 
   public H264Reader(SamplePool samplePool, SeiReader seiReader) {
     super(samplePool);
@@ -47,14 +46,32 @@ import java.util.List;
   public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
     while (data.bytesLeft() > 0) {
       if (readToNextAudUnit(data, pesTimeUs)) {
-        currentSample.isKeyframe = currentSample.size
-            > Mp4Util.findNalUnit(currentSample.data, 0, currentSample.size, NAL_UNIT_TYPE_IDR);
-        if (!hasMediaFormat() && currentSample.isKeyframe) {
-          parseMediaFormat(currentSample);
+        // TODO: Allowing access to the Sample object here is messy. Fix this.
+        Sample pendingSample = getPendingSample();
+        byte[] pendingSampleData = pendingSample.data;
+        int pendingSampleSize = pendingSample.size;
+
+        // Scan the sample to find relevant NAL units.
+        int position = 0;
+        int idrNalUnitPosition = Integer.MAX_VALUE;
+        while (position < pendingSampleSize) {
+          position = Mp4Util.findNalUnit(pendingSampleData, position, pendingSampleSize);
+          if (position < pendingSampleSize) {
+            int type = Mp4Util.getNalUnitType(pendingSampleData, position);
+            if (type == NAL_UNIT_TYPE_IDR) {
+              idrNalUnitPosition = position;
+            } else if (type == NAL_UNIT_TYPE_SEI) {
+              seiReader.read(pendingSampleData, position, pendingSample.timeUs);
+            }
+            position += 4;
+          }
         }
-        seiReader.read(currentSample.data, currentSample.size, currentSample.timeUs);
-        addSample(currentSample);
-        currentSample = null;
+
+        boolean isKeyframe = pendingSampleSize > idrNalUnitPosition;
+        if (!hasMediaFormat() && isKeyframe) {
+          parseMediaFormat(pendingSampleData, pendingSampleSize);
+        }
+        commitSample(isKeyframe);
       }
     }
   }
@@ -62,15 +79,6 @@ import java.util.List;
   @Override
   public void packetFinished() {
     // Do nothing.
-  }
-
-  @Override
-  public void release() {
-    super.release();
-    if (currentSample != null) {
-      recycle(currentSample);
-      currentSample = null;
-    }
   }
 
   /**
@@ -89,16 +97,15 @@ import java.util.List;
     int audOffset = Mp4Util.findNalUnit(data.data, pesOffset, pesLimit, NAL_UNIT_TYPE_AUD);
     int bytesToNextAud = audOffset - pesOffset;
     if (bytesToNextAud == 0) {
-      if (currentSample == null) {
-        currentSample = getSample(Sample.TYPE_VIDEO);
-        currentSample.timeUs = pesTimeUs;
-        addToSample(currentSample, data, 4);
+      if (!havePendingSample()) {
+        startSample(Sample.TYPE_VIDEO, pesTimeUs);
+        appendSampleData(data, 4);
         return false;
       } else {
         return true;
       }
-    } else if (currentSample != null) {
-      addToSample(currentSample, data, bytesToNextAud);
+    } else if (havePendingSample()) {
+      appendSampleData(data, bytesToNextAud);
       return data.bytesLeft() > 0;
     } else {
       data.skip(bytesToNextAud);
@@ -106,9 +113,7 @@ import java.util.List;
     }
   }
 
-  private void parseMediaFormat(Sample sample) {
-    byte[] sampleData = sample.data;
-    int sampleSize = sample.size;
+  private void parseMediaFormat(byte[] sampleData, int sampleSize) {
     // Locate the SPS and PPS units.
     int spsOffset = Mp4Util.findNalUnit(sampleData, 0, sampleSize, NAL_UNIT_TYPE_SPS);
     int ppsOffset = Mp4Util.findNalUnit(sampleData, 0, sampleSize, NAL_UNIT_TYPE_PPS);

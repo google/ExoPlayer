@@ -144,4 +144,15 @@ public final class Mp4Util {
     return endOffset;
   }
 
+  /**
+   * Gets the type of the NAL unit in {@code data} that starts at {@code offset}.
+   *
+   * @param data The data to search.
+   * @param offset The start offset of a NAL unit.
+   * @return The type of the unit.
+   */
+  public static int getNalUnitType(byte[] data, int offset) {
+    return data[offset + 3] & 0x1F;
+  }
+
 }

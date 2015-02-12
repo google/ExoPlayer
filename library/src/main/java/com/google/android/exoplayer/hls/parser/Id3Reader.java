@@ -25,8 +25,6 @@ import android.annotation.SuppressLint;
  */
 /* package */ class Id3Reader extends PesPayloadReader {
 
-  private Sample currentSample;
-
   public Id3Reader(SamplePool samplePool) {
     super(samplePool);
     setMediaFormat(MediaFormat.createId3Format());
@@ -36,28 +34,16 @@ import android.annotation.SuppressLint;
   @Override
   public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
     if (startOfPacket) {
-      currentSample = getSample(Sample.TYPE_MISC);
-      currentSample.timeUs = pesTimeUs;
-      currentSample.isKeyframe = true;
+      startSample(Sample.TYPE_MISC, pesTimeUs);
     }
-    if (currentSample != null) {
-      addToSample(currentSample, data, data.bytesLeft());
+    if (havePendingSample()) {
+      appendSampleData(data, data.bytesLeft());
     }
   }
 
   @Override
   public void packetFinished() {
-    addSample(currentSample);
-    currentSample = null;
-  }
-
-  @Override
-  public void release() {
-    super.release();
-    if (currentSample != null) {
-      recycle(currentSample);
-      currentSample = null;
-    }
+    commitSample(true);
   }
 
 }
