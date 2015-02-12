@@ -92,9 +92,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private DemoPlayer player;
   private boolean playerNeedsPrepare;
 
-  private boolean autoPlay = true;
   private long playerPosition;
-  private boolean enableBackgroundAudio = false;
+  private boolean enableBackgroundAudio;
 
   private Uri contentUri;
   private int contentType;
@@ -166,10 +165,10 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (!enableBackgroundAudio) {
       releasePlayer();
     } else {
-      player.blockingClearSurface();
+      player.setBackgrounded(true);
     }
-
     audioCapabilitiesReceiver.unregister();
+    shutterView.setVisibility(View.VISIBLE);
   }
 
   @Override
@@ -183,7 +182,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   @Override
   public void onClick(View view) {
     if (view == retryButton) {
-      autoPlay = true;
       preparePlayer();
     }
   }
@@ -192,11 +190,14 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   @Override
   public void onAudioCapabilitiesChanged(AudioCapabilities audioCapabilities) {
-    this.audioCapabilities = audioCapabilities;
-    releasePlayer();
-
-    autoPlay = true;
-    preparePlayer();
+    boolean audioCapabilitiesChanged = !audioCapabilities.equals(this.audioCapabilities);
+    if (player == null || audioCapabilitiesChanged) {
+      this.audioCapabilities = audioCapabilities;
+      releasePlayer();
+      preparePlayer();
+    } else if (player != null) {
+      player.setBackgrounded(false);
+    }
   }
 
   // Internal methods
@@ -239,15 +240,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       updateButtonVisibilities();
     }
     player.setSurface(surfaceView.getHolder().getSurface());
-    maybeStartPlayback();
-  }
-
-  private void maybeStartPlayback() {
-    if (autoPlay && (player.getSurface().isValid()
-        || player.getSelectedTrackIndex(DemoPlayer.TYPE_VIDEO) == DemoPlayer.DISABLED_TRACK)) {
-      player.setPlayWhenReady(true);
-      autoPlay = false;
-    }
+    player.setPlayWhenReady(true);
   }
 
   private void releasePlayer() {
@@ -468,7 +461,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   public void surfaceCreated(SurfaceHolder holder) {
     if (player != null) {
       player.setSurface(holder.getSurface());
-      maybeStartPlayback();
     }
   }
 

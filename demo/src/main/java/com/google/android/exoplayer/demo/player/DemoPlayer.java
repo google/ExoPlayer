@@ -179,10 +179,12 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   private Surface surface;
   private InternalRendererBuilderCallback builderCallback;
   private TrackRenderer videoRenderer;
+  private int videoTrackToRestore;
 
   private MultiTrackChunkSource[] multiTrackSources;
   private String[][] trackNames;
   private int[] selectedTracks;
+  private boolean backgrounded;
 
   private TextListener textListener;
   private Id3MetadataListener id3MetadataListener;
@@ -233,7 +235,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
 
   public void setSurface(Surface surface) {
     this.surface = surface;
-    pushSurfaceAndVideoTrack(false);
+    pushSurface(false);
   }
 
   public Surface getSurface() {
@@ -242,7 +244,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
 
   public void blockingClearSurface() {
     surface = null;
-    pushSurfaceAndVideoTrack(true);
+    pushSurface(true);
   }
 
   public String[] getTracks(int type) {
@@ -258,13 +260,23 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
       return;
     }
     selectedTracks[type] = index;
-    if (type == TYPE_VIDEO) {
-      pushSurfaceAndVideoTrack(false);
+    pushTrackSelection(type, true);
+    if (type == TYPE_TEXT && index == DISABLED_TRACK && textListener != null) {
+      textListener.onText(null);
+    }
+  }
+
+  public void setBackgrounded(boolean backgrounded) {
+    if (this.backgrounded == backgrounded) {
+      return;
+    }
+    this.backgrounded = backgrounded;
+    if (backgrounded) {
+      videoTrackToRestore = getSelectedTrackIndex(TYPE_VIDEO);
+      selectTrack(TYPE_VIDEO, DISABLED_TRACK);
+      blockingClearSurface();
     } else {
-      pushTrackSelection(type, true);
-      if (type == TYPE_TEXT && index == DISABLED_TRACK && textListener != null) {
-        textListener.onText(null);
-      }
+      selectTrack(TYPE_VIDEO, videoTrackToRestore);
     }
   }
 
@@ -307,7 +319,8 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     this.trackNames = trackNames;
     this.multiTrackSources = multiTrackSources;
     rendererBuildingState = RENDERER_BUILDING_STATE_BUILT;
-    pushSurfaceAndVideoTrack(false);
+    pushSurface(false);
+    pushTrackSelection(TYPE_VIDEO, true);
     pushTrackSelection(TYPE_AUDIO, true);
     pushTrackSelection(TYPE_TEXT, true);
     player.prepare(renderers);
@@ -550,7 +563,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     }
   }
 
-  private void pushSurfaceAndVideoTrack(boolean blockForSurfacePush) {
+  private void pushSurface(boolean blockForSurfacePush) {
     if (rendererBuildingState != RENDERER_BUILDING_STATE_BUILT) {
       return;
     }
@@ -562,7 +575,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
       player.sendMessage(
           videoRenderer, MediaCodecVideoTrackRenderer.MSG_SET_SURFACE, surface);
     }
-    pushTrackSelection(TYPE_VIDEO, surface != null && surface.isValid());
   }
 
   private void pushTrackSelection(int type, boolean allowRendererEnable) {

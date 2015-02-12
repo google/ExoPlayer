@@ -440,17 +440,14 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       checkForDiscontinuity();
       if (format == null) {
         readFormat();
-      } else if (codec == null && !shouldInitCodec() && getState() == TrackRenderer.STATE_STARTED) {
-        discardSamples(positionUs);
-      } else {
-        if (codec == null && shouldInitCodec()) {
-          maybeInitCodec();
-        }
-        if (codec != null) {
-          while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
-          if (feedInputBuffer(true)) {
-            while (feedInputBuffer(false)) {}
-          }
+      }
+      if (codec == null && shouldInitCodec()) {
+        maybeInitCodec();
+      }
+      if (codec != null) {
+        while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
+        if (feedInputBuffer(true)) {
+          while (feedInputBuffer(false)) {}
         }
       }
       codecCounters.ensureUpdated();
@@ -463,21 +460,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     int result = source.readData(trackIndex, currentPositionUs, formatHolder, sampleHolder, false);
     if (result == SampleSource.FORMAT_READ) {
       onInputFormatChanged(formatHolder);
-    }
-  }
-
-  private void discardSamples(long positionUs) throws IOException, ExoPlaybackException {
-    sampleHolder.data = null;
-    int result = SampleSource.SAMPLE_READ;
-    while (result == SampleSource.SAMPLE_READ && currentPositionUs <= positionUs) {
-      result = source.readData(trackIndex, currentPositionUs, formatHolder, sampleHolder, false);
-      if (result == SampleSource.SAMPLE_READ) {
-        if (!sampleHolder.decodeOnly) {
-          currentPositionUs = sampleHolder.timeUs;
-        }
-      } else if (result == SampleSource.FORMAT_READ) {
-        onInputFormatChanged(formatHolder);
-      }
     }
   }
 
