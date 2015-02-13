@@ -35,7 +35,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
       startSample(pesTimeUs);
     }
     if (writingSample()) {
-      appendSampleData(data, data.bytesLeft());
+      appendData(data, data.bytesLeft());
     }
   }
 

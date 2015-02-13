@@ -85,7 +85,7 @@ import java.util.Collections;
           break;
         case STATE_READING_SAMPLE:
           int bytesToRead = Math.min(data.bytesLeft(), sampleSize - bytesRead);
-          appendSampleData(data, bytesToRead);
+          appendData(data, bytesToRead);
           bytesRead += bytesToRead;
           if (bytesRead == sampleSize) {
             commitSample(true);

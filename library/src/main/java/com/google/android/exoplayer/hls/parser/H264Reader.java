@@ -18,11 +18,13 @@ package com.google.android.exoplayer.hls.parser;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.mp4.Mp4Util;
 import com.google.android.exoplayer.upstream.BufferPool;
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -37,54 +39,72 @@ import java.util.List;
   private static final int NAL_UNIT_TYPE_AUD = 9;
 
   private final SeiReader seiReader;
-  private final ParsableByteArray pendingSampleWrapper;
+  private final boolean[] prefixFlags;
+  private final NalUnitTargetBuffer sps;
+  private final NalUnitTargetBuffer pps;
+  private final NalUnitTargetBuffer sei;
 
-  // TODO: Ideally we wouldn't need to have a copy step through a byte array here.
-  private byte[] pendingSampleData;
-  private int pendingSampleSize;
-  private long pendingSampleTimeUs;
+  private boolean isKeyframe;
 
   public H264Reader(BufferPool bufferPool, SeiReader seiReader) {
     super(bufferPool);
     this.seiReader = seiReader;
-    this.pendingSampleData = new byte[1024];
-    this.pendingSampleWrapper = new ParsableByteArray();
+    prefixFlags = new boolean[3];
+    sps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SPS, 128);
+    pps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_PPS, 128);
+    sei = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SEI, 128);
   }
 
   @Override
   public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
     while (data.bytesLeft() > 0) {
-      boolean sampleFinished = readToNextAudUnit(data, pesTimeUs);
-      if (!sampleFinished) {
-        continue;
-      }
+      int offset = data.getPosition();
+      int limit = data.limit();
+      byte[] dataArray = data.data;
 
-      // Scan the sample to find relevant NAL units.
-      int position = 0;
-      int idrNalUnitPosition = Integer.MAX_VALUE;
-      while (position < pendingSampleSize) {
-        position = Mp4Util.findNalUnit(pendingSampleData, position, pendingSampleSize);
-        if (position < pendingSampleSize) {
-          int type = Mp4Util.getNalUnitType(pendingSampleData, position);
-          if (type == NAL_UNIT_TYPE_IDR) {
-            idrNalUnitPosition = position;
-          } else if (type == NAL_UNIT_TYPE_SEI) {
-            seiReader.read(pendingSampleData, position, pendingSampleTimeUs);
+      // Append the data to the buffer.
+      appendData(data, data.bytesLeft());
+
+      // Scan the appended data, processing NAL units as they are encountered
+      while (offset < limit) {
+        int nextNalUnitOffset = Mp4Util.findNalUnit(dataArray, offset, limit, prefixFlags);
+        if (nextNalUnitOffset < limit) {
+          // We've seen the start of a NAL unit.
+
+          // This is the length to the start of the unit. It may be negative if the NAL unit
+          // actually started in previously consumed data.
+          int lengthToNalUnit = nextNalUnitOffset - offset;
+          if (lengthToNalUnit > 0) {
+            feedNalUnitTargetBuffersData(dataArray, offset, nextNalUnitOffset);
           }
-          position += 4;
+
+          int nalUnitType = Mp4Util.getNalUnitType(dataArray, nextNalUnitOffset);
+          int nalUnitOffsetInData = nextNalUnitOffset - limit;
+          if (nalUnitType == NAL_UNIT_TYPE_AUD) {
+            if (writingSample()) {
+              if (isKeyframe && !hasMediaFormat() && sps.isCompleted() && pps.isCompleted()) {
+                parseMediaFormat(sps, pps);
+              }
+              commitSample(isKeyframe, nalUnitOffsetInData);
+            }
+            startSample(pesTimeUs, nalUnitOffsetInData);
+            isKeyframe = false;
+          } else if (nalUnitType == NAL_UNIT_TYPE_IDR) {
+            isKeyframe = true;
+          }
+
+          // If the length to the start of the unit is negative then we wrote too many bytes to the
+          // NAL buffers. Discard the excess bytes when notifying that the unit has ended.
+          feedNalUnitTargetEnd(pesTimeUs, lengthToNalUnit < 0 ? -lengthToNalUnit : 0);
+          // Notify the start of the next NAL unit.
+          feedNalUnitTargetBuffersStart(nalUnitType);
+          // Continue scanning the data.
+          offset = nextNalUnitOffset + 4;
+        } else {
+          feedNalUnitTargetBuffersData(dataArray, offset, limit);
+          offset = limit;
         }
       }
-
-      // Determine whether the sample is a keyframe.
-      boolean isKeyframe = pendingSampleSize > idrNalUnitPosition;
-      if (!hasMediaFormat() && isKeyframe) {
-        parseMediaFormat(pendingSampleData, pendingSampleSize);
-      }
-
-      // Commit the sample to the queue.
-      pendingSampleWrapper.reset(pendingSampleData, pendingSampleSize);
-      appendSampleData(pendingSampleWrapper, pendingSampleSize);
-      commitSample(isKeyframe);
     }
   }
 
@@ -93,71 +113,41 @@ import java.util.List;
     // Do nothing.
   }
 
-  /**
-   * Reads data up to (but not including) the start of the next AUD unit.
-   *
-   * @param data The data to consume.
-   * @param pesTimeUs The corresponding time.
-   * @return True if the current sample is now complete. False otherwise.
-   */
-  private boolean readToNextAudUnit(ParsableByteArray data, long pesTimeUs) {
-    int pesOffset = data.getPosition();
-    int pesLimit = data.limit();
+  private void feedNalUnitTargetBuffersStart(int nalUnitType) {
+    if (!hasMediaFormat()) {
+      sps.startNalUnit(nalUnitType);
+      pps.startNalUnit(nalUnitType);
+    }
+    sei.startNalUnit(nalUnitType);
+  }
 
-    // TODO: We probably need to handle the case where the AUD start code was split across the
-    // previous and current data buffers.
-    int audOffset = Mp4Util.findNalUnit(data.data, pesOffset, pesLimit, NAL_UNIT_TYPE_AUD);
-    int bytesToNextAud = audOffset - pesOffset;
-    if (bytesToNextAud == 0) {
-      if (!writingSample()) {
-        startSample(pesTimeUs);
-        pendingSampleSize = 0;
-        pendingSampleTimeUs = pesTimeUs;
-        appendToSample(data, 4);
-        return false;
-      } else {
-        return true;
-      }
-    } else if (writingSample()) {
-      appendToSample(data, bytesToNextAud);
-      return data.bytesLeft() > 0;
-    } else {
-      data.skip(bytesToNextAud);
-      return false;
+  private void feedNalUnitTargetBuffersData(byte[] dataArray, int offset, int limit) {
+    if (!hasMediaFormat()) {
+      sps.appendToNalUnit(dataArray, offset, limit);
+      pps.appendToNalUnit(dataArray, offset, limit);
+    }
+    sei.appendToNalUnit(dataArray, offset, limit);
+  }
+
+  private void feedNalUnitTargetEnd(long pesTimeUs, int discardPadding) {
+    sps.endNalUnit(discardPadding);
+    pps.endNalUnit(discardPadding);
+    if (sei.endNalUnit(discardPadding)) {
+      seiReader.read(sei.nalData, 0, pesTimeUs);
     }
   }
 
-  private void appendToSample(ParsableByteArray data, int length) {
-    int requiredSize = pendingSampleSize + length;
-    if (pendingSampleData.length < requiredSize) {
-      byte[] newPendingSampleData = new byte[(requiredSize * 3) / 2];
-      System.arraycopy(pendingSampleData, 0, newPendingSampleData, 0, pendingSampleSize);
-      pendingSampleData = newPendingSampleData;
-    }
-    data.readBytes(pendingSampleData, pendingSampleSize, length);
-    pendingSampleSize += length;
-  }
-
-  private void parseMediaFormat(byte[] sampleData, int sampleSize) {
-    // Locate the SPS and PPS units.
-    int spsOffset = Mp4Util.findNalUnit(sampleData, 0, sampleSize, NAL_UNIT_TYPE_SPS);
-    int ppsOffset = Mp4Util.findNalUnit(sampleData, 0, sampleSize, NAL_UNIT_TYPE_PPS);
-    if (spsOffset == sampleSize || ppsOffset == sampleSize) {
-      return;
-    }
-    // Determine the length of the units, and copy them to build the initialization data.
-    int spsLength = Mp4Util.findNalUnit(sampleData, spsOffset + 3, sampleSize) - spsOffset;
-    int ppsLength = Mp4Util.findNalUnit(sampleData, ppsOffset + 3, sampleSize) - ppsOffset;
-    byte[] spsData = new byte[spsLength];
-    byte[] ppsData = new byte[ppsLength];
-    System.arraycopy(sampleData, spsOffset, spsData, 0, spsLength);
-    System.arraycopy(sampleData, ppsOffset, ppsData, 0, ppsLength);
+  private void parseMediaFormat(NalUnitTargetBuffer sps, NalUnitTargetBuffer pps) {
+    byte[] spsData = new byte[sps.nalLength];
+    byte[] ppsData = new byte[pps.nalLength];
+    System.arraycopy(sps.nalData, 0, spsData, 0, sps.nalLength);
+    System.arraycopy(pps.nalData, 0, ppsData, 0, pps.nalLength);
     List<byte[]> initializationData = new ArrayList<byte[]>();
     initializationData.add(spsData);
     initializationData.add(ppsData);
 
     // Unescape and then parse the SPS unit.
-    byte[] unescapedSps = unescapeStream(spsData, 0, spsLength);
+    byte[] unescapedSps = unescapeStream(spsData, 0, spsData.length);
     ParsableBitArray bitArray = new ParsableBitArray(unescapedSps);
     bitArray.skipBits(32); // NAL header
     int profileIdc = bitArray.readBits(8);
@@ -291,6 +281,85 @@ import java.util.List;
       }
     }
     return limit;
+  }
+
+  /**
+   * A buffer that fills itself with data corresponding to a specific NAL unit, as it is
+   * encountered in the stream.
+   */
+  private static final class NalUnitTargetBuffer {
+
+    private final int targetType;
+
+    private boolean isFilling;
+    private boolean isCompleted;
+
+    public byte[] nalData;
+    public int nalLength;
+
+    public NalUnitTargetBuffer(int targetType, int initialCapacity) {
+      this.targetType = targetType;
+      // Initialize data, writing the known NAL prefix into the first four bytes.
+      nalData = new byte[4 + initialCapacity];
+      nalData[2] = 1;
+      nalData[3] = (byte) targetType;
+    }
+
+    public boolean isCompleted() {
+      return isCompleted;
+    }
+
+    /**
+     * Invoked to indicate that a NAL unit has started.
+     *
+     * @param type The type of the NAL unit.
+     */
+    public void startNalUnit(int type) {
+      Assertions.checkState(!isFilling);
+      isFilling = type == targetType;
+      if (isFilling) {
+        // Length is initially the length of the NAL prefix.
+        nalLength = 4;
+        isCompleted = false;
+      }
+    }
+
+    /**
+     * Invoked to pass stream data. The data passed should not include 4 byte NAL unit prefixes.
+     *
+     * @param data Holds the data being passed.
+     * @param offset The offset of the data in {@code data}.
+     * @param limit The limit (exclusive) of the data in {@code data}.
+     */
+    public void appendToNalUnit(byte[] data, int offset, int limit) {
+      if (!isFilling) {
+        return;
+      }
+      int readLength = limit - offset;
+      if (nalData.length < nalLength + readLength) {
+        nalData = Arrays.copyOf(nalData, (nalLength + readLength) * 2);
+      }
+      System.arraycopy(data, offset, nalData, nalLength, readLength);
+      nalLength += readLength;
+    }
+
+    /**
+     * Invoked to indicate that a NAL unit has ended.
+     *
+     * @param discardPadding The number of excess bytes that were passed to
+     *     {@link #appendData(byte[], int, int)}, which should be discarded.
+     * @return True if the ended NAL unit is of the target type. False otherwise.
+     */
+    public boolean endNalUnit(int discardPadding) {
+      if (!isFilling) {
+        return false;
+      }
+      nalLength -= discardPadding;
+      isFilling = false;
+      isCompleted = true;
+      return true;
+    }
+
   }
 
 }

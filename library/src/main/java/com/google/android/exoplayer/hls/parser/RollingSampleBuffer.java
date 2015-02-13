@@ -17,6 +17,7 @@ package com.google.android.exoplayer.hls.parser;
 
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.upstream.BufferPool;
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.annotation.SuppressLint;
@@ -44,7 +45,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
   private long totalBytesWritten;
   private byte[] lastFragment;
   private int lastFragmentOffset;
-  private int pendingSampleSize;
   private long pendingSampleTimeUs;
   private long pendingSampleOffset;
 
@@ -141,23 +141,25 @@ import java.util.concurrent.ConcurrentLinkedQueue;
   // Called by the loading thread.
 
   /**
-   * Starts writing the next sample.
+   * Indicates the start point for the next sample.
    *
    * @param sampleTimeUs The sample timestamp.
+   * @param offset The offset of the sample's data, relative to the total number of bytes written
+   *     to the buffer. Must be negative or zero.
    */
-  public void startSample(long sampleTimeUs) {
+  public void startSample(long sampleTimeUs, int offset) {
+    Assertions.checkState(offset <= 0);
     pendingSampleTimeUs = sampleTimeUs;
-    pendingSampleOffset = totalBytesWritten;
-    pendingSampleSize = 0;
+    pendingSampleOffset = totalBytesWritten + offset;
   }
 
   /**
-   * Appends data to the sample currently being written.
+   * Appends data to the rolling buffer.
    *
    * @param buffer A buffer containing the data to append.
    * @param length The length of the data to append.
    */
-  public void appendSampleData(ParsableByteArray buffer, int length) {
+  public void appendData(ParsableByteArray buffer, int length) {
     int remainingWriteLength = length;
     while (remainingWriteLength > 0) {
       if (dataQueue.isEmpty() || lastFragmentOffset == fragmentLength) {
@@ -171,17 +173,20 @@ import java.util.concurrent.ConcurrentLinkedQueue;
       remainingWriteLength -= thisWriteLength;
     }
     totalBytesWritten += length;
-    pendingSampleSize += length;
   }
 
   /**
-   * Commits the sample currently being written, making it available for consumption.
+   * Indicates the end point for the current sample, making it available for consumption.
    *
    * @param isKeyframe True if the sample being committed is a keyframe. False otherwise.
+   * @param offset The offset of the first byte after the end of the sample's data, relative to
+   *     the total number of bytes written to the buffer. Must be negative or zero.
    */
   @SuppressLint("InlinedApi")
-  public void commitSample(boolean isKeyframe) {
-    infoQueue.commitSample(pendingSampleTimeUs, pendingSampleOffset, pendingSampleSize,
+  public void commitSample(boolean isKeyframe, int offset) {
+    Assertions.checkState(offset <= 0);
+    int sampleSize = (int) (totalBytesWritten + offset - pendingSampleOffset);
+    infoQueue.commitSample(pendingSampleTimeUs, pendingSampleOffset, sampleSize,
         isKeyframe ? MediaExtractor.SAMPLE_FLAG_SYNC : 0);
   }
 

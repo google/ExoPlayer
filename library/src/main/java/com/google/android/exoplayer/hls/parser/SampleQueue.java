@@ -181,17 +181,25 @@ import android.media.MediaExtractor;
   }
 
   protected void startSample(long sampleTimeUs) {
-    writingSample = true;
-    largestParsedTimestampUs = Math.max(largestParsedTimestampUs, sampleTimeUs);
-    rollingBuffer.startSample(sampleTimeUs);
+    startSample(sampleTimeUs, 0);
   }
 
-  protected void appendSampleData(ParsableByteArray buffer, int size) {
-    rollingBuffer.appendSampleData(buffer, size);
+  protected void startSample(long sampleTimeUs, int offset) {
+    writingSample = true;
+    largestParsedTimestampUs = Math.max(largestParsedTimestampUs, sampleTimeUs);
+    rollingBuffer.startSample(sampleTimeUs, offset);
+  }
+
+  protected void appendData(ParsableByteArray buffer, int length) {
+    rollingBuffer.appendData(buffer, length);
   }
 
   protected void commitSample(boolean isKeyframe) {
-    rollingBuffer.commitSample(isKeyframe);
+    commitSample(isKeyframe, 0);
+  }
+
+  protected void commitSample(boolean isKeyframe, int offset) {
+    rollingBuffer.commitSample(isKeyframe, offset);
     writingSample = false;
   }
 

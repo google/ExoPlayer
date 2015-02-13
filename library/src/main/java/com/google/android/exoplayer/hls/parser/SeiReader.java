@@ -42,7 +42,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
     int ccDataSize = Eia608Parser.parseHeader(seiBuffer);
     if (ccDataSize > 0) {
       startSample(pesTimeUs);
-      appendSampleData(seiBuffer, ccDataSize);
+      appendData(seiBuffer, ccDataSize);
       commitSample(true);
     }
   }
