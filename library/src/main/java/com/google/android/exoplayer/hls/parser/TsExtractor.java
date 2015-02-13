@@ -18,6 +18,7 @@ package com.google.android.exoplayer.hls.parser;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableBitArray;
@@ -49,7 +50,7 @@ public final class TsExtractor {
   private final ParsableByteArray tsPacketBuffer;
   private final SparseArray<SampleQueue> sampleQueues; // Indexed by streamType
   private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
-  private final SamplePool samplePool;
+  private final BufferPool bufferPool;
   private final boolean shouldSpliceIn;
   private final long firstSampleTimestamp;
   private final ParsableBitArray tsScratch;
@@ -65,10 +66,10 @@ public final class TsExtractor {
   // Accessed by both the loading and consuming threads.
   private volatile boolean prepared;
 
-  public TsExtractor(long firstSampleTimestamp, SamplePool samplePool, boolean shouldSpliceIn) {
+  public TsExtractor(long firstSampleTimestamp, boolean shouldSpliceIn, BufferPool bufferPool) {
     this.firstSampleTimestamp = firstSampleTimestamp;
-    this.samplePool = samplePool;
     this.shouldSpliceIn = shouldSpliceIn;
+    this.bufferPool = bufferPool;
     tsScratch = new ParsableBitArray(new byte[3]);
     tsPacketBuffer = new ParsableByteArray(TS_PACKET_SIZE);
     sampleQueues = new SparseArray<SampleQueue>();
@@ -406,15 +407,15 @@ public final class TsExtractor {
         PesPayloadReader pesPayloadReader = null;
         switch (streamType) {
           case TS_STREAM_TYPE_AAC:
-            pesPayloadReader = new AdtsReader(samplePool);
+            pesPayloadReader = new AdtsReader(bufferPool);
             break;
           case TS_STREAM_TYPE_H264:
-            SeiReader seiReader = new SeiReader(samplePool);
+            SeiReader seiReader = new SeiReader(bufferPool);
             sampleQueues.put(TS_STREAM_TYPE_EIA608, seiReader);
-            pesPayloadReader = new H264Reader(samplePool, seiReader);
+            pesPayloadReader = new H264Reader(bufferPool, seiReader);
             break;
           case TS_STREAM_TYPE_ID3:
-            pesPayloadReader = new Id3Reader(samplePool);
+            pesPayloadReader = new Id3Reader(bufferPool);
             break;
         }
 

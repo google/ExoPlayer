@@ -16,27 +16,25 @@
 package com.google.android.exoplayer.hls.parser;
 
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
-import android.annotation.SuppressLint;
 
 /**
  * Parses ID3 data and extracts individual text information frames.
  */
 /* package */ class Id3Reader extends PesPayloadReader {
 
-  public Id3Reader(SamplePool samplePool) {
-    super(samplePool);
+  public Id3Reader(BufferPool bufferPool) {
+    super(bufferPool);
     setMediaFormat(MediaFormat.createId3Format());
   }
 
-  @SuppressLint("InlinedApi")
   @Override
   public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
     if (startOfPacket) {
-      startSample(Sample.TYPE_MISC, pesTimeUs);
+      startSample(pesTimeUs);
     }
-    if (havePendingSample()) {
+    if (writingSample()) {
       appendSampleData(data, data.bytesLeft());
     }
   }

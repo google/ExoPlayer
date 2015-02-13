@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.hls.parser;
 
+import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 /**
@@ -22,8 +23,8 @@ import com.google.android.exoplayer.util.ParsableByteArray;
  */
 /* package */ abstract class PesPayloadReader extends SampleQueue {
 
-  protected PesPayloadReader(SamplePool samplePool) {
-    super(samplePool);
+  protected PesPayloadReader(BufferPool bufferPool) {
+    super(bufferPool);
   }
 
   /**

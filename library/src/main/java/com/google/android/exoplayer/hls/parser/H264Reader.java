@@ -17,6 +17,7 @@ package com.google.android.exoplayer.hls.parser;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.mp4.Mp4Util;
+import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
@@ -36,43 +37,54 @@ import java.util.List;
   private static final int NAL_UNIT_TYPE_AUD = 9;
 
   private final SeiReader seiReader;
+  private final ParsableByteArray pendingSampleWrapper;
 
-  public H264Reader(SamplePool samplePool, SeiReader seiReader) {
-    super(samplePool);
+  // TODO: Ideally we wouldn't need to have a copy step through a byte array here.
+  private byte[] pendingSampleData;
+  private int pendingSampleSize;
+  private long pendingSampleTimeUs;
+
+  public H264Reader(BufferPool bufferPool, SeiReader seiReader) {
+    super(bufferPool);
     this.seiReader = seiReader;
+    this.pendingSampleData = new byte[1024];
+    this.pendingSampleWrapper = new ParsableByteArray();
   }
 
   @Override
   public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
     while (data.bytesLeft() > 0) {
-      if (readToNextAudUnit(data, pesTimeUs)) {
-        // TODO: Allowing access to the Sample object here is messy. Fix this.
-        Sample pendingSample = getPendingSample();
-        byte[] pendingSampleData = pendingSample.data;
-        int pendingSampleSize = pendingSample.size;
-
-        // Scan the sample to find relevant NAL units.
-        int position = 0;
-        int idrNalUnitPosition = Integer.MAX_VALUE;
-        while (position < pendingSampleSize) {
-          position = Mp4Util.findNalUnit(pendingSampleData, position, pendingSampleSize);
-          if (position < pendingSampleSize) {
-            int type = Mp4Util.getNalUnitType(pendingSampleData, position);
-            if (type == NAL_UNIT_TYPE_IDR) {
-              idrNalUnitPosition = position;
-            } else if (type == NAL_UNIT_TYPE_SEI) {
-              seiReader.read(pendingSampleData, position, pendingSample.timeUs);
-            }
-            position += 4;
-          }
-        }
-
-        boolean isKeyframe = pendingSampleSize > idrNalUnitPosition;
-        if (!hasMediaFormat() && isKeyframe) {
-          parseMediaFormat(pendingSampleData, pendingSampleSize);
-        }
-        commitSample(isKeyframe);
+      boolean sampleFinished = readToNextAudUnit(data, pesTimeUs);
+      if (!sampleFinished) {
+        continue;
       }
+
+      // Scan the sample to find relevant NAL units.
+      int position = 0;
+      int idrNalUnitPosition = Integer.MAX_VALUE;
+      while (position < pendingSampleSize) {
+        position = Mp4Util.findNalUnit(pendingSampleData, position, pendingSampleSize);
+        if (position < pendingSampleSize) {
+          int type = Mp4Util.getNalUnitType(pendingSampleData, position);
+          if (type == NAL_UNIT_TYPE_IDR) {
+            idrNalUnitPosition = position;
+          } else if (type == NAL_UNIT_TYPE_SEI) {
+            seiReader.read(pendingSampleData, position, pendingSampleTimeUs);
+          }
+          position += 4;
+        }
+      }
+
+      // Determine whether the sample is a keyframe.
+      boolean isKeyframe = pendingSampleSize > idrNalUnitPosition;
+      if (!hasMediaFormat() && isKeyframe) {
+        parseMediaFormat(pendingSampleData, pendingSampleSize);
+      }
+
+      // Commit the sample to the queue.
+      pendingSampleWrapper.reset(pendingSampleData, pendingSampleSize);
+      appendSampleData(pendingSampleWrapper, pendingSampleSize);
+      commitSample(isKeyframe);
     }
   }
 
@@ -97,20 +109,33 @@ import java.util.List;
     int audOffset = Mp4Util.findNalUnit(data.data, pesOffset, pesLimit, NAL_UNIT_TYPE_AUD);
     int bytesToNextAud = audOffset - pesOffset;
     if (bytesToNextAud == 0) {
-      if (!havePendingSample()) {
-        startSample(Sample.TYPE_VIDEO, pesTimeUs);
-        appendSampleData(data, 4);
+      if (!writingSample()) {
+        startSample(pesTimeUs);
+        pendingSampleSize = 0;
+        pendingSampleTimeUs = pesTimeUs;
+        appendToSample(data, 4);
         return false;
       } else {
         return true;
       }
-    } else if (havePendingSample()) {
-      appendSampleData(data, bytesToNextAud);
+    } else if (writingSample()) {
+      appendToSample(data, bytesToNextAud);
       return data.bytesLeft() > 0;
     } else {
       data.skip(bytesToNextAud);
       return false;
     }
+  }
+
+  private void appendToSample(ParsableByteArray data, int length) {
+    int requiredSize = pendingSampleSize + length;
+    if (pendingSampleData.length < requiredSize) {
+      byte[] newPendingSampleData = new byte[(requiredSize * 3) / 2];
+      System.arraycopy(pendingSampleData, 0, newPendingSampleData, 0, pendingSampleSize);
+      pendingSampleData = newPendingSampleData;
+    }
+    data.readBytes(pendingSampleData, pendingSampleSize, length);
+    pendingSampleSize += length;
   }
 
   private void parseMediaFormat(byte[] sampleData, int sampleSize) {

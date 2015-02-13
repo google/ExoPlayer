@@ -17,6 +17,7 @@ package com.google.android.exoplayer.hls.parser;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableBitArray;
@@ -44,7 +45,7 @@ import java.util.Collections;
   private int bytesRead;
 
   // Used to find the header.
-  private boolean lastByteWasOxFF;
+  private boolean lastByteWasFF;
   private boolean hasCrc;
 
   // Parsed from the header.
@@ -54,8 +55,8 @@ import java.util.Collections;
   // Used when reading the samples.
   private long timeUs;
 
-  public AdtsReader(SamplePool samplePool) {
-    super(samplePool);
+  public AdtsReader(BufferPool bufferPool) {
+    super(bufferPool);
     adtsScratch = new ParsableBitArray(new byte[HEADER_SIZE + CRC_SIZE]);
     state = STATE_FINDING_SYNC;
   }
@@ -77,7 +78,7 @@ import java.util.Collections;
           int targetLength = hasCrc ? HEADER_SIZE + CRC_SIZE : HEADER_SIZE;
           if (continueRead(data, adtsScratch.getData(), targetLength)) {
             parseHeader();
-            startSample(Sample.TYPE_AUDIO, timeUs);
+            startSample(timeUs);
             bytesRead = 0;
             state = STATE_READING_SAMPLE;
           }
@@ -130,9 +131,9 @@ import java.util.Collections;
     int startOffset = pesBuffer.getPosition();
     int endOffset = pesBuffer.limit();
     for (int i = startOffset; i < endOffset; i++) {
-      boolean byteIsOxFF = (adtsData[i] & 0xFF) == 0xFF;
-      boolean found = lastByteWasOxFF && !byteIsOxFF && (adtsData[i] & 0xF0) == 0xF0;
-      lastByteWasOxFF = byteIsOxFF;
+      boolean byteIsFF = (adtsData[i] & 0xFF) == 0xFF;
+      boolean found = lastByteWasFF && !byteIsFF && (adtsData[i] & 0xF0) == 0xF0;
+      lastByteWasFF = byteIsFF;
       if (found) {
         hasCrc = (adtsData[i] & 0x1) == 0;
         pesBuffer.setPosition(i + 1);

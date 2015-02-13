@@ -17,43 +17,48 @@ package com.google.android.exoplayer.hls.parser;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.annotation.SuppressLint;
 import android.media.MediaExtractor;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-
+/**
+ * Wraps a {@link RollingSampleBuffer}, adding higher level functionality such as enforcing that
+ * the first sample returned from the queue is a keyframe, allowing splicing to another queue, and
+ * so on.
+ */
 /* package */ abstract class SampleQueue {
 
-  private final SamplePool samplePool;
-  private final ConcurrentLinkedQueue<Sample> internalQueue;
+  private final RollingSampleBuffer rollingBuffer;
+  private final SampleHolder sampleInfoHolder;
 
   // Accessed only by the consuming thread.
   private boolean needKeyframe;
   private long lastReadTimeUs;
   private long spliceOutTimeUs;
 
+  // Accessed only by the loading thread.
+  private boolean writingSample;
+
   // Accessed by both the loading and consuming threads.
   private volatile MediaFormat mediaFormat;
   private volatile long largestParsedTimestampUs;
 
-  // Accessed by only the loading thread (except on release, which shouldn't happen until the
-  // loading thread has been terminated).
-  private Sample pendingSample;
-
-  protected SampleQueue(SamplePool samplePool) {
-    this.samplePool = samplePool;
-    internalQueue = new ConcurrentLinkedQueue<Sample>();
+  protected SampleQueue(BufferPool bufferPool) {
+    rollingBuffer = new RollingSampleBuffer(bufferPool);
+    sampleInfoHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_DISABLED);
     needKeyframe = true;
     lastReadTimeUs = Long.MIN_VALUE;
     spliceOutTimeUs = Long.MIN_VALUE;
     largestParsedTimestampUs = Long.MIN_VALUE;
   }
 
-  public boolean isEmpty() {
-    return peek() == null;
+  public void release() {
+    rollingBuffer.release();
   }
+
+  // Called by the consuming thread.
 
   public long getLargestParsedTimestampUs() {
     return largestParsedTimestampUs;
@@ -67,8 +72,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
     return mediaFormat;
   }
 
-  protected void setMediaFormat(MediaFormat mediaFormat) {
-    this.mediaFormat = mediaFormat;
+  public boolean isEmpty() {
+    return !advanceToEligibleSample();
   }
 
   /**
@@ -80,55 +85,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
    * @param holder A {@link SampleHolder} into which the sample should be read.
    * @return True if a sample was read. False otherwise.
    */
-  @SuppressLint("InlinedApi")
   public boolean getSample(SampleHolder holder) {
-    Sample sample = peek();
-    if (sample == null) {
+    boolean foundEligibleSample = advanceToEligibleSample();
+    if (!foundEligibleSample) {
       return false;
     }
     // Write the sample into the holder.
-    if (holder.data == null || holder.data.capacity() < sample.size) {
-      holder.replaceBuffer(sample.size);
-    }
-    if (holder.data != null) {
-      holder.data.put(sample.data, 0, sample.size);
-    }
-    holder.size = sample.size;
-    holder.flags = sample.isKeyframe ? MediaExtractor.SAMPLE_FLAG_SYNC : 0;
-    holder.timeUs = sample.timeUs;
-    // Pop and recycle the sample, and update state.
+    rollingBuffer.readSample(holder);
     needKeyframe = false;
-    lastReadTimeUs = sample.timeUs;
-    internalQueue.poll();
-    samplePool.recycle(sample);
+    lastReadTimeUs = holder.timeUs;
     return true;
-  }
-
-  /**
-   * Returns (but does not remove) the next sample in the queue.
-   *
-   * @return The next sample from the queue, or null if a sample isn't available.
-   */
-  private Sample peek() {
-    Sample head = internalQueue.peek();
-    if (needKeyframe) {
-      // Peeking discard of samples until we find a keyframe or run out of available samples.
-      while (head != null && !head.isKeyframe) {
-        samplePool.recycle(head);
-        internalQueue.poll();
-        head = internalQueue.peek();
-      }
-    }
-    if (head == null) {
-      return null;
-    }
-    if (spliceOutTimeUs != Long.MIN_VALUE && head.timeUs >= spliceOutTimeUs) {
-      // The sample is later than the time this queue is spliced out.
-      samplePool.recycle(head);
-      internalQueue.poll();
-      return null;
-    }
-    return head;
   }
 
   /**
@@ -137,31 +103,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
    * @param timeUs The time up to which samples should be discarded, in microseconds.
    */
   public void discardUntil(long timeUs) {
-    Sample head = peek();
-    while (head != null && head.timeUs < timeUs) {
-      samplePool.recycle(head);
-      internalQueue.poll();
-      head = internalQueue.peek();
-      // We're discarding at least one sample, so any subsequent read will need to start at
-      // a keyframe.
+    while (rollingBuffer.peekSample(sampleInfoHolder) && sampleInfoHolder.timeUs < timeUs) {
+      rollingBuffer.skipSample();
+      // We're discarding one or more samples. A subsequent read will need to start at a keyframe.
       needKeyframe = true;
     }
     lastReadTimeUs = Long.MIN_VALUE;
-  }
-
-  /**
-   * Clears the queue.
-   */
-  public final void release() {
-    Sample toRecycle = internalQueue.poll();
-    while (toRecycle != null) {
-      samplePool.recycle(toRecycle);
-      toRecycle = internalQueue.poll();
-    }
-    if (pendingSample != null) {
-      samplePool.recycle(pendingSample);
-      pendingSample = null;
-    }
   }
 
   /**
@@ -170,63 +117,82 @@ import java.util.concurrent.ConcurrentLinkedQueue;
    * @param nextQueue The queue being spliced to.
    * @return Whether the splice was configured successfully.
    */
+  @SuppressLint("InlinedApi")
   public boolean configureSpliceTo(SampleQueue nextQueue) {
     if (spliceOutTimeUs != Long.MIN_VALUE) {
       // We've already configured the splice.
       return true;
     }
     long firstPossibleSpliceTime;
-    Sample nextSample = internalQueue.peek();
-    if (nextSample != null) {
-      firstPossibleSpliceTime = nextSample.timeUs;
+    if (rollingBuffer.peekSample(sampleInfoHolder)) {
+      firstPossibleSpliceTime = sampleInfoHolder.timeUs;
     } else {
       firstPossibleSpliceTime = lastReadTimeUs + 1;
     }
-    Sample nextQueueSample = nextQueue.internalQueue.peek();
-    while (nextQueueSample != null
-        && (nextQueueSample.timeUs < firstPossibleSpliceTime || !nextQueueSample.isKeyframe)) {
+    RollingSampleBuffer nextRollingBuffer = nextQueue.rollingBuffer;
+    while (nextRollingBuffer.peekSample(sampleInfoHolder)
+        && (sampleInfoHolder.timeUs < firstPossibleSpliceTime
+            || (sampleInfoHolder.flags & MediaExtractor.SAMPLE_FLAG_SYNC) == 0)) {
       // Discard samples from the next queue for as long as they are before the earliest possible
       // splice time, or not keyframes.
-      nextQueue.internalQueue.poll();
-      nextQueueSample = nextQueue.internalQueue.peek();
+      nextRollingBuffer.skipSample();
     }
-    if (nextQueueSample != null) {
+    if (nextRollingBuffer.peekSample(sampleInfoHolder)) {
       // We've found a keyframe in the next queue that can serve as the splice point. Set the
       // splice point now.
-      spliceOutTimeUs = nextQueueSample.timeUs;
+      spliceOutTimeUs = sampleInfoHolder.timeUs;
       return true;
     }
     return false;
   }
 
-  // Writing side.
-
-  protected final boolean havePendingSample() {
-    return pendingSample != null;
-  }
-
-  protected final Sample getPendingSample() {
-    return pendingSample;
-  }
-
-  protected final void startSample(int type, long timeUs) {
-    pendingSample = samplePool.get(type);
-    pendingSample.timeUs = timeUs;
-  }
-
-  protected final void appendSampleData(ParsableByteArray buffer, int size) {
-    if (pendingSample.data.length - pendingSample.size < size) {
-      pendingSample.expand(size - pendingSample.data.length + pendingSample.size);
+  /**
+   * Advances the underlying buffer to the next sample that is eligible to be returned.
+   *
+   * @boolean True if an eligible sample was found. False otherwise, in which case the underlying
+   *     buffer has been emptied.
+   */
+  @SuppressLint("InlinedApi")
+  private boolean advanceToEligibleSample() {
+    boolean haveNext = rollingBuffer.peekSample(sampleInfoHolder);
+    if (needKeyframe) {
+      while (haveNext && (sampleInfoHolder.flags & MediaExtractor.SAMPLE_FLAG_SYNC) == 0) {
+        rollingBuffer.skipSample();
+        haveNext = rollingBuffer.peekSample(sampleInfoHolder);
+      }
     }
-    buffer.readBytes(pendingSample.data, pendingSample.size, size);
-    pendingSample.size += size;
+    if (!haveNext) {
+      return false;
+    }
+    if (spliceOutTimeUs != Long.MIN_VALUE && sampleInfoHolder.timeUs >= spliceOutTimeUs) {
+      return false;
+    }
+    return true;
   }
 
-  protected final void commitSample(boolean isKeyframe) {
-    pendingSample.isKeyframe = isKeyframe;
-    internalQueue.add(pendingSample);
-    largestParsedTimestampUs = Math.max(largestParsedTimestampUs, pendingSample.timeUs);
-    pendingSample = null;
+  // Called by the loading thread.
+
+  protected boolean writingSample() {
+    return writingSample;
+  }
+
+  protected void setMediaFormat(MediaFormat mediaFormat) {
+    this.mediaFormat = mediaFormat;
+  }
+
+  protected void startSample(long sampleTimeUs) {
+    writingSample = true;
+    largestParsedTimestampUs = Math.max(largestParsedTimestampUs, sampleTimeUs);
+    rollingBuffer.startSample(sampleTimeUs);
+  }
+
+  protected void appendSampleData(ParsableByteArray buffer, int size) {
+    rollingBuffer.appendSampleData(buffer, size);
+  }
+
+  protected void commitSample(boolean isKeyframe) {
+    rollingBuffer.commitSample(isKeyframe);
+    writingSample = false;
   }
 
 }

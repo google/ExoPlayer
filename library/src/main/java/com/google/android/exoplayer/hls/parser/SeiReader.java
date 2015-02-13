@@ -17,6 +17,7 @@ package com.google.android.exoplayer.hls.parser;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.text.eia608.Eia608Parser;
+import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 /**
@@ -29,8 +30,8 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
   private final ParsableByteArray seiBuffer;
 
-  public SeiReader(SamplePool samplePool) {
-    super(samplePool);
+  public SeiReader(BufferPool bufferPool) {
+    super(bufferPool);
     setMediaFormat(MediaFormat.createEia608Format());
     seiBuffer = new ParsableByteArray();
   }
@@ -40,7 +41,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
     seiBuffer.setPosition(position + 4);
     int ccDataSize = Eia608Parser.parseHeader(seiBuffer);
     if (ccDataSize > 0) {
-      startSample(Sample.TYPE_MISC, pesTimeUs);
+      startSample(pesTimeUs);
       appendSampleData(seiBuffer, ccDataSize);
       commitSample(true);
     }
