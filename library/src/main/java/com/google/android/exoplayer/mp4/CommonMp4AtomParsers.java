@@ -24,8 +24,6 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
-import android.annotation.SuppressLint;
-import android.media.MediaExtractor;
 import android.util.Pair;
 
 import java.util.ArrayList;
@@ -81,7 +79,6 @@ public final class CommonMp4AtomParsers {
    * @param stblAtom stbl (sample table) atom to parse.
    * @return Sample table described by the stbl atom.
    */
-  @SuppressLint("InlinedApi")
   public static Mp4TrackSampleTable parseStbl(Track track, Atom.ContainerAtom stblAtom) {
     // Array of sample sizes.
     ParsableByteArray stsz = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz).data;
@@ -174,9 +171,9 @@ public final class CommonMp4AtomParsers {
       timestamps[i] = timestampTimeUnits + timestampOffset;
 
       // All samples are synchronization samples if the stss is not present.
-      flags[i] = stss == null ? MediaExtractor.SAMPLE_FLAG_SYNC : 0;
+      flags[i] = stss == null ? C.SAMPLE_FLAG_SYNC : 0;
       if (i == nextSynchronizationSampleIndex) {
-        flags[i] = MediaExtractor.SAMPLE_FLAG_SYNC;
+        flags[i] = C.SAMPLE_FLAG_SYNC;
         remainingSynchronizationSamples--;
         if (remainingSynchronizationSamples > 0) {
           nextSynchronizationSampleIndex = stss.readUnsignedIntToInt() - 1;

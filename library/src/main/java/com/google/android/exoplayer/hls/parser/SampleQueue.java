@@ -15,13 +15,11 @@
  */
 package com.google.android.exoplayer.hls.parser;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
-import android.annotation.SuppressLint;
-import android.media.MediaExtractor;
 
 /**
  * Wraps a {@link RollingSampleBuffer}, adding higher level functionality such as enforcing that
@@ -117,7 +115,6 @@ import android.media.MediaExtractor;
    * @param nextQueue The queue being spliced to.
    * @return Whether the splice was configured successfully.
    */
-  @SuppressLint("InlinedApi")
   public boolean configureSpliceTo(SampleQueue nextQueue) {
     if (spliceOutTimeUs != Long.MIN_VALUE) {
       // We've already configured the splice.
@@ -132,7 +129,7 @@ import android.media.MediaExtractor;
     RollingSampleBuffer nextRollingBuffer = nextQueue.rollingBuffer;
     while (nextRollingBuffer.peekSample(sampleInfoHolder)
         && (sampleInfoHolder.timeUs < firstPossibleSpliceTime
-            || (sampleInfoHolder.flags & MediaExtractor.SAMPLE_FLAG_SYNC) == 0)) {
+            || (sampleInfoHolder.flags & C.SAMPLE_FLAG_SYNC) == 0)) {
       // Discard samples from the next queue for as long as they are before the earliest possible
       // splice time, or not keyframes.
       nextRollingBuffer.skipSample();
@@ -152,11 +149,10 @@ import android.media.MediaExtractor;
    * @boolean True if an eligible sample was found. False otherwise, in which case the underlying
    *     buffer has been emptied.
    */
-  @SuppressLint("InlinedApi")
   private boolean advanceToEligibleSample() {
     boolean haveNext = rollingBuffer.peekSample(sampleInfoHolder);
     if (needKeyframe) {
-      while (haveNext && (sampleInfoHolder.flags & MediaExtractor.SAMPLE_FLAG_SYNC) == 0) {
+      while (haveNext && (sampleInfoHolder.flags & C.SAMPLE_FLAG_SYNC) == 0) {
         rollingBuffer.skipSample();
         haveNext = rollingBuffer.peekSample(sampleInfoHolder);
       }

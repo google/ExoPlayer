@@ -572,7 +572,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     if (waitingForFirstSyncFrame) {
       // TODO: Find out if it's possible to supply samples prior to the first sync
       // frame for HE-AAC.
-      if ((sampleHolder.flags & MediaExtractor.SAMPLE_FLAG_SYNC) == 0) {
+      if ((sampleHolder.flags & C.SAMPLE_FLAG_SYNC) == 0) {
         sampleHolder.data.clear();
         if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
           // The buffer we just cleared contained reconfiguration data. We need to re-write this

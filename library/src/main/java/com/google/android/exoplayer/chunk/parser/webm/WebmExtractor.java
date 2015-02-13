@@ -25,9 +25,6 @@ import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.LongArray;
 import com.google.android.exoplayer.util.MimeTypes;
 
-import android.annotation.TargetApi;
-import android.media.MediaExtractor;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +39,6 @@ import java.util.concurrent.TimeUnit;
  * Matroska is available <a href="http://www.matroska.org/technical/specs/index.html">here</a>.
  * More info about WebM is <a href="http://www.webmproject.org/code/specs/container/">here</a>.
  */
-@TargetApi(16)
 public final class WebmExtractor implements Extractor {
 
   private static final String DOC_TYPE_WEBM = "webm";
@@ -412,7 +408,7 @@ public final class WebmExtractor implements Extractor {
           case LACING_NONE:
             long elementEndOffsetBytes = elementOffsetBytes + headerSizeBytes + contentsSizeBytes;
             simpleBlockTimecodeUs = clusterTimecodeUs + timecodeUs;
-            sampleHolder.flags = keyframe ? MediaExtractor.SAMPLE_FLAG_SYNC : 0;
+            sampleHolder.flags = keyframe ? C.SAMPLE_FLAG_SYNC : 0;
             sampleHolder.decodeOnly = invisible;
             sampleHolder.timeUs = clusterTimecodeUs + timecodeUs;
             sampleHolder.size = (int) (elementEndOffsetBytes - reader.getBytesRead());
