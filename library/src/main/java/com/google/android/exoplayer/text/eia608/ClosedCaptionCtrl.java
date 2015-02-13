@@ -70,8 +70,8 @@ package com.google.android.exoplayer.text.eia608;
   public final byte cc1;
   public final byte cc2;
 
-  protected ClosedCaptionCtrl(byte cc1, byte cc2, long timeUs) {
-    super(ClosedCaption.TYPE_CTRL, timeUs);
+  protected ClosedCaptionCtrl(byte cc1, byte cc2) {
+    super(ClosedCaption.TYPE_CTRL);
     this.cc1 = cc1;
     this.cc2 = cc2;
   }

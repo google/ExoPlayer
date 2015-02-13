@@ -31,8 +31,7 @@ import android.os.Looper;
 import android.os.Message;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.TreeSet;
 
 /**
  * A {@link TrackRenderer} for EIA-608 closed captions in a media stream.
@@ -48,6 +47,8 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
 
   // The default number of rows to display in roll-up captions mode.
   private static final int DEFAULT_CAPTIONS_ROW_COUNT = 4;
+  // The maximum duration that captions are parsed ahead of the current position.
+  private static final int MAX_SAMPLE_READAHEAD_US = 5000000;
 
   private final SampleSource source;
   private final Eia608Parser eia608Parser;
@@ -56,7 +57,7 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
   private final MediaFormatHolder formatHolder;
   private final SampleHolder sampleHolder;
   private final StringBuilder captionStringBuilder;
-  private final List<ClosedCaption> captionBuffer;
+  private final TreeSet<ClosedCaptionList> pendingCaptionLists;
 
   private int trackIndex;
   private long currentPositionUs;
@@ -85,7 +86,7 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
     formatHolder = new MediaFormatHolder();
     sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
     captionStringBuilder = new StringBuilder();
-    captionBuffer = new ArrayList<ClosedCaption>();
+    pendingCaptionLists = new TreeSet<ClosedCaptionList>();
   }
 
   @Override
@@ -122,6 +123,7 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
   private void seekToInternal(long positionUs) {
     currentPositionUs = positionUs;
     inputStreamEnded = false;
+    pendingCaptionLists.clear();
     clearPendingSample();
     captionRowCount = DEFAULT_CAPTIONS_ROW_COUNT;
     setCaptionMode(CC_MODE_UNKNOWN);
@@ -138,10 +140,17 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
       throw new ExoPlaybackException(e);
     }
 
-    if (!inputStreamEnded && !isSamplePending()) {
+    if (isSamplePending()) {
+      maybeParsePendingSample();
+    }
+
+    int result = inputStreamEnded ? SampleSource.END_OF_STREAM : SampleSource.SAMPLE_READ;
+    while (!isSamplePending() && result == SampleSource.SAMPLE_READ) {
       try {
-        int result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
-        if (result == SampleSource.END_OF_STREAM) {
+        result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
+        if (result == SampleSource.SAMPLE_READ) {
+          maybeParsePendingSample();
+        } else if (result == SampleSource.END_OF_STREAM) {
           inputStreamEnded = true;
         }
       } catch (IOException e) {
@@ -149,17 +158,18 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
       }
     }
 
-    if (isSamplePending() && sampleHolder.timeUs <= currentPositionUs) {
-      // Parse the pending sample.
-      eia608Parser.parse(sampleHolder.data.array(), sampleHolder.size, sampleHolder.timeUs,
-          captionBuffer);
-      // Consume parsed captions.
-      consumeCaptionBuffer();
-      // Update the renderer, unless the sample was marked for decoding only.
-      if (!sampleHolder.decodeOnly) {
+    while (!pendingCaptionLists.isEmpty()) {
+      if (pendingCaptionLists.first().timeUs > currentPositionUs) {
+        // We're too early to render any of the pending caption lists.
+        return;
+      }
+      // Remove and consume the next caption list.
+      ClosedCaptionList nextCaptionList = pendingCaptionLists.pollFirst();
+      consumeCaptionList(nextCaptionList);
+      // Update the renderer, unless the caption list was marked for decoding only.
+      if (!nextCaptionList.decodeOnly) {
         invokeRenderer(caption);
       }
-      clearPendingSample();
     }
   }
 
@@ -221,14 +231,26 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
     textRenderer.onText(text);
   }
 
-  private void consumeCaptionBuffer() {
-    int captionBufferSize = captionBuffer.size();
+  private void maybeParsePendingSample() {
+    if (sampleHolder.timeUs > currentPositionUs + MAX_SAMPLE_READAHEAD_US) {
+      // We're too early to parse the sample.
+      return;
+    }
+    ClosedCaptionList holder = eia608Parser.parse(sampleHolder);
+    clearPendingSample();
+    if (holder != null) {
+      pendingCaptionLists.add(holder);
+    }
+  }
+
+  private void consumeCaptionList(ClosedCaptionList captionList) {
+    int captionBufferSize = captionList.captions.length;
     if (captionBufferSize == 0) {
       return;
     }
 
     for (int i = 0; i < captionBufferSize; i++) {
-      ClosedCaption caption = captionBuffer.get(i);
+      ClosedCaption caption = captionList.captions[i];
       if (caption.type == ClosedCaption.TYPE_CTRL) {
         ClosedCaptionCtrl captionCtrl = (ClosedCaptionCtrl) caption;
         if (captionCtrl.isMiscCode()) {
@@ -240,7 +262,6 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
         handleText((ClosedCaptionText) caption);
       }
     }
-    captionBuffer.clear();
 
     if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
       caption = getDisplayCaption();

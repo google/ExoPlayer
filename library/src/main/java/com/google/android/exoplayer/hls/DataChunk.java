@@ -17,19 +17,21 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
-import com.google.android.exoplayer.util.BitArray;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * An abstract base class for {@link HlsChunk} implementations where the data should be loaded into
- * a {@link BitArray} and subsequently consumed.
+ * a {@code byte[]} before being consumed.
  */
-public abstract class BitArrayChunk extends HlsChunk {
+public abstract class DataChunk extends HlsChunk {
 
   private static final int READ_GRANULARITY = 16 * 1024;
 
-  private final BitArray bitArray;
+  private byte[] data;
+  private int limit;
+
   private volatile boolean loadFinished;
   private volatile boolean loadCanceled;
 
@@ -39,26 +41,27 @@ public abstract class BitArrayChunk extends HlsChunk {
    *     {@link Integer#MAX_VALUE}. If {@code dataSpec.length == C.LENGTH_UNBOUNDED} then
    *     the length resolved by {@code dataSource.open(dataSpec)} must not exceed
    *     {@link Integer#MAX_VALUE}.
-   * @param bitArray The {@link BitArray} into which the data should be loaded.
+   * @param data An optional recycled array that can be used as a holder for the data.
    */
-  public BitArrayChunk(DataSource dataSource, DataSpec dataSpec, BitArray bitArray) {
+  public DataChunk(DataSource dataSource, DataSpec dataSpec, byte[] data) {
     super(dataSource, dataSpec);
-    this.bitArray = bitArray;
+    this.data = data;
   }
 
   @Override
   public void consume() throws IOException {
-    consume(bitArray);
+    consume(data, limit);
   }
 
   /**
    * Invoked by {@link #consume()}. Implementations should override this method to consume the
    * loaded data.
    *
-   * @param bitArray The {@link BitArray} containing the loaded data.
+   * @param data An array containing the data.
+   * @param limit The limit of the data.
    * @throws IOException If an error occurs consuming the loaded data.
    */
-  protected abstract void consume(BitArray bitArray) throws IOException;
+  protected abstract void consume(byte[] data, int limit) throws IOException;
 
   /**
    * Whether the whole of the chunk has been loaded.
@@ -85,15 +88,29 @@ public abstract class BitArrayChunk extends HlsChunk {
   @Override
   public final void load() throws IOException, InterruptedException {
     try {
-      bitArray.reset();
       dataSource.open(dataSpec);
+      limit = 0;
       int bytesRead = 0;
       while (bytesRead != -1 && !loadCanceled) {
-        bytesRead = bitArray.append(dataSource, READ_GRANULARITY);
+        maybeExpandData();
+        bytesRead = dataSource.read(data, limit, READ_GRANULARITY);
+        if (bytesRead != -1) {
+          limit += bytesRead;
+        }
       }
       loadFinished = !loadCanceled;
     } finally {
       dataSource.close();
+    }
+  }
+
+  private void maybeExpandData() {
+    if (data == null) {
+      data = new byte[READ_GRANULARITY];
+    } else if (data.length < limit + READ_GRANULARITY) {
+      // The new length is calculated as (data.length + READ_GRANULARITY) rather than
+      // (limit + READ_GRANULARITY) in order to avoid small increments in the length.
+      data = Arrays.copyOf(data, data.length + READ_GRANULARITY);
     }
   }
 

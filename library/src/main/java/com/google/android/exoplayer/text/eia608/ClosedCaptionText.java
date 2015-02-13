@@ -19,8 +19,8 @@ package com.google.android.exoplayer.text.eia608;
 
   public final String text;
 
-  public ClosedCaptionText(String text, long timeUs) {
-    super(ClosedCaption.TYPE_TEXT, timeUs);
+  public ClosedCaptionText(String text) {
+    super(ClosedCaption.TYPE_TEXT);
     this.text = text;
   }
 

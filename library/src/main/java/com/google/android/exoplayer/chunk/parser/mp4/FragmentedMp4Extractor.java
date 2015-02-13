@@ -638,7 +638,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     }
 
     Arrays.fill(out.sampleHasSubsampleEncryptionTable, 0, sampleCount, subsampleEncryption);
-    out.initEncryptionData(senc.length() - senc.getPosition());
+    out.initEncryptionData(senc.bytesLeft());
     out.fillEncryptionData(senc);
   }
 
@@ -696,7 +696,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       offset += sizes[i];
     }
 
-    return new SegmentIndex(atom.length(), sizes, offsets, durationsUs, timesUs);
+    return new SegmentIndex(atom.limit(), sizes, offsets, durationsUs, timesUs);
   }
 
   private int readEncryptionData(NonBlockingInputStream inputStream) {
@@ -762,7 +762,6 @@ public final class FragmentedMp4Extractor implements Extractor {
     return 0;
   }
 
-  @SuppressLint("InlinedApi")
   private int readSample(NonBlockingInputStream inputStream, int sampleSize, SampleHolder out) {
     if (out == null) {
       return RESULT_NEED_SAMPLE_HOLDER;
@@ -770,7 +769,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     out.timeUs = fragmentRun.getSamplePresentationTime(sampleIndex) * 1000L;
     out.flags = 0;
     if (fragmentRun.sampleIsSyncFrameTable[sampleIndex]) {
-      out.flags |= MediaExtractor.SAMPLE_FLAG_SYNC;
+      out.flags |= C.SAMPLE_FLAG_SYNC;
       lastSyncSampleIndex = sampleIndex;
     }
     if (out.data == null || out.data.capacity() < sampleSize) {

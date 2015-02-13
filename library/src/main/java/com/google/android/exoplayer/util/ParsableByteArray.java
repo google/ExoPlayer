@@ -23,23 +23,79 @@ import java.nio.ByteBuffer;
  */
 public final class ParsableByteArray {
 
-  public final byte[] data;
+  public byte[] data;
 
   private int position;
+  private int limit;
 
-  /** Creates a new parsable array with {@code length} bytes. */
+  /** Creates a new instance that initially has no backing data. */
+  public ParsableByteArray() {}
+
+  /** Creates a new instance with {@code length} bytes. */
   public ParsableByteArray(int length) {
     this.data = new byte[length];
+    limit = data.length;
   }
 
-  /** Returns the number of bytes in the array. */
-  public int length() {
-    return data.length;
+  /**
+   * Creates a new instance that wraps an existing array.
+   *
+   * @param data The data to wrap.
+   * @param limit The limit.
+   */
+  public ParsableByteArray(byte[] data, int limit) {
+    this.data = data;
+    this.limit = limit;
+  }
+
+  /**
+   * Updates the instance to wrap {@code data}, and resets the position to zero.
+   *
+   * @param data The array to wrap.
+   * @param limit The limit.
+   */
+  public void reset(byte[] data, int limit) {
+    this.data = data;
+    this.limit = limit;
+    position = 0;
+  }
+
+  /**
+   * Sets the position and limit to zero.
+   */
+  public void reset() {
+    position = 0;
+    limit = 0;
+  }
+
+  /** Returns the number of bytes yet to be read. */
+  public int bytesLeft() {
+    return limit - position;
+  }
+
+  /** Returns the limit. */
+  public int limit() {
+    return limit;
+  }
+
+  /**
+   * Sets the limit.
+   *
+   * @param limit The limit to set.
+   */
+  public void setLimit(int limit) {
+    Assertions.checkArgument(limit >= 0 && limit <= data.length);
+    this.limit = limit;
   }
 
   /** Returns the current offset in the array, in bytes. */
   public int getPosition() {
     return position;
+  }
+
+  /** Returns the capacity of the array, which may be larger than the limit. */
+  public int capacity() {
+    return data == null ? 0 : data.length;
   }
 
   /**
@@ -51,7 +107,7 @@ public final class ParsableByteArray {
    */
   public void setPosition(int position) {
     // It is fine for position to be at the end of the array.
-    Assertions.checkArgument(position >= 0 && position <= data.length);
+    Assertions.checkArgument(position >= 0 && position <= limit);
     this.position = position;
   }
 
@@ -61,8 +117,24 @@ public final class ParsableByteArray {
    * @throws IllegalArgumentException Thrown if the new position is neither in nor at the end of the
    *     array.
    */
+  // TODO: Rename to skipBytes so that it's clearer how much data is being skipped in code where
+  // both ParsableBitArray and ParsableByteArray are in use.
   public void skip(int bytes) {
     setPosition(position + bytes);
+  }
+
+  /**
+   * Reads the next {@code length} bytes into {@code bitArray}, and resets the position of
+   * {@code bitArray} to zero.
+   *
+   * @param bitArray The {@link ParsableBitArray} into which the bytes should be read.
+   * @param length The number of bytes to write.
+   */
+  // TODO: It's possible to have bitArray directly index into the same array as is being wrapped
+  // by this instance. Decide whether it's worth doing this.
+  public void readBytes(ParsableBitArray bitArray, int length) {
+    readBytes(bitArray.getData(), 0, length);
+    bitArray.setPosition(0);
   }
 
   /**
@@ -125,6 +197,22 @@ public final class ParsableByteArray {
     int result = shiftIntoInt(data, position, 2);
     position += 4;
     return result;
+  }
+
+  /**
+   * Reads a Synchsafe integer.
+   * <p>
+   * Synchsafe integers keep the highest bit of every byte zeroed. A 32 bit synchsafe integer can
+   * store 28 bits of information.
+   *
+   * @return The parsed value.
+   */
+  public int readSynchSafeInt() {
+    int b1 = readUnsignedByte();
+    int b2 = readUnsignedByte();
+    int b3 = readUnsignedByte();
+    int b4 = readUnsignedByte();
+    return (b1 << 21) | (b2 << 14) | (b3 << 7) | b4;
   }
 
   /**
