@@ -15,13 +15,11 @@
  */
 package com.google.android.exoplayer.hls.parser;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
-import android.annotation.SuppressLint;
-import android.media.MediaExtractor;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -182,12 +180,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
    * @param offset The offset of the first byte after the end of the sample's data, relative to
    *     the total number of bytes written to the buffer. Must be negative or zero.
    */
-  @SuppressLint("InlinedApi")
   public void commitSample(boolean isKeyframe, int offset) {
     Assertions.checkState(offset <= 0);
     int sampleSize = (int) (totalBytesWritten + offset - pendingSampleOffset);
     infoQueue.commitSample(pendingSampleTimeUs, pendingSampleOffset, sampleSize,
-        isKeyframe ? MediaExtractor.SAMPLE_FLAG_SYNC : 0);
+        isKeyframe ? C.SAMPLE_FLAG_SYNC : 0);
   }
 
   /**
