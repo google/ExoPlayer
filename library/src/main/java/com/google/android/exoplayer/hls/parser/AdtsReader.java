@@ -128,7 +128,7 @@ import java.util.Collections;
   private boolean skipToNextSync(ParsableByteArray pesBuffer) {
     byte[] adtsData = pesBuffer.data;
     int startOffset = pesBuffer.getPosition();
-    int endOffset = pesBuffer.length();
+    int endOffset = pesBuffer.limit();
     for (int i = startOffset; i < endOffset; i++) {
       boolean byteIsOxFF = (adtsData[i] & 0xFF) == 0xFF;
       boolean found = lastByteWasOxFF && !byteIsOxFF && (adtsData[i] & 0xF0) == 0xF0;

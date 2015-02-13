@@ -73,9 +73,8 @@ public final class ParsableByteArray {
     return limit - position;
   }
 
-  /** Returns the number of bytes in the array. */
-  // TODO: Rename to limit.
-  public int length() {
+  /** Returns the limit. */
+  public int limit() {
     return limit;
   }
 
@@ -92,6 +91,11 @@ public final class ParsableByteArray {
   /** Returns the current offset in the array, in bytes. */
   public int getPosition() {
     return position;
+  }
+
+  /** Returns the capacity of the array, which may be larger than the limit. */
+  public int capacity() {
+    return data == null ? 0 : data.length;
   }
 
   /**

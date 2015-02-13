@@ -90,7 +90,7 @@ import java.util.List;
    */
   private boolean readToNextAudUnit(ParsableByteArray data, long pesTimeUs) {
     int pesOffset = data.getPosition();
-    int pesLimit = data.length();
+    int pesLimit = data.limit();
 
     // TODO: We probably need to handle the case where the AUD start code was split across the
     // previous and current data buffers.

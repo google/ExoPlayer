@@ -113,7 +113,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
    * @param length The length in bytes of the encryption data.
    */
   public void initEncryptionData(int length) {
-    if (sampleEncryptionData == null || sampleEncryptionData.length() < length) {
+    if (sampleEncryptionData == null || sampleEncryptionData.limit() < length) {
       sampleEncryptionData = new ParsableByteArray(length);
     }
     sampleEncryptionDataLength = length;
