@@ -83,6 +83,11 @@ public class HlsChunkSource {
   public static final int ADAPTIVE_MODE_ABRUPT = 3;
 
   /**
+   * The default target buffer size in bytes.
+   */
+  public static final int DEFAULT_TARGET_BUFFER_SIZE = 18 * 1024 * 1024;
+
+  /**
    * The default target buffer duration in milliseconds.
    */
   public static final long DEFAULT_TARGET_BUFFER_DURATION_MS = 40000;
@@ -111,6 +116,7 @@ public class HlsChunkSource {
   private final Uri baseUri;
   private final int maxWidth;
   private final int maxHeight;
+  private final int targetBufferSize;
   private final long targetBufferDurationUs;
   private final long minBufferDurationToSwitchUpUs;
   private final long maxBufferDurationToSwitchDownUs;
@@ -131,8 +137,8 @@ public class HlsChunkSource {
   public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
       BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode) {
     this(dataSource, playlistUrl, playlist, bandwidthMeter, variantIndices, adaptiveMode,
-        DEFAULT_TARGET_BUFFER_DURATION_MS, DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS,
-        DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS);
+        DEFAULT_TARGET_BUFFER_SIZE, DEFAULT_TARGET_BUFFER_DURATION_MS,
+        DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS, DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS);
   }
 
   /**
@@ -145,9 +151,10 @@ public class HlsChunkSource {
    * @param adaptiveMode The mode for switching from one variant to another. One of
    *     {@link #ADAPTIVE_MODE_NONE}, {@link #ADAPTIVE_MODE_ABRUPT} and
    *     {@link #ADAPTIVE_MODE_SPLICE}.
+   * @param targetBufferSize The targeted buffer size in bytes. The buffer will not be filled more
+   *     than one chunk beyond this amount of data.
    * @param targetBufferDurationMs The targeted duration of media to buffer ahead of the current
-   *     playback position. Note that the greater this value, the greater the amount of memory
-   *     that will be consumed.
+   *     playback position. The buffer will not be filled more than one chunk beyond this position.
    * @param minBufferDurationToSwitchUpMs The minimum duration of media that needs to be buffered
    *     for a switch to a higher quality variant to be considered.
    * @param maxBufferDurationToSwitchDownMs The maximum duration of media that needs to be buffered
@@ -155,11 +162,12 @@ public class HlsChunkSource {
    */
   public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
       BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode,
-      long targetBufferDurationMs, long minBufferDurationToSwitchUpMs,
+      int targetBufferSize, long targetBufferDurationMs, long minBufferDurationToSwitchUpMs,
       long maxBufferDurationToSwitchDownMs) {
     this.upstreamDataSource = dataSource;
     this.bandwidthMeter = bandwidthMeter;
     this.adaptiveMode = adaptiveMode;
+    this.targetBufferSize = targetBufferSize;
     targetBufferDurationUs = targetBufferDurationMs * 1000;
     minBufferDurationToSwitchUpUs = minBufferDurationToSwitchUpMs * 1000;
     maxBufferDurationToSwitchDownUs = maxBufferDurationToSwitchDownMs * 1000;
@@ -226,8 +234,9 @@ public class HlsChunkSource {
   public HlsChunk getChunkOperation(TsChunk previousTsChunk, long seekPositionUs,
       long playbackPositionUs) {
     if (previousTsChunk != null && (previousTsChunk.isLastChunk
-        || previousTsChunk.endTimeUs - playbackPositionUs >= targetBufferDurationUs)) {
-      // We're either finished, or we have the target amount of data buffered.
+        || previousTsChunk.endTimeUs - playbackPositionUs >= targetBufferDurationUs)
+        || bufferPool.getAllocatedSize() >= targetBufferSize) {
+      // We're either finished, or we have the target amount of data or time buffered.
       return null;
     }
 
