@@ -347,7 +347,7 @@ import java.util.List;
      * Invoked to indicate that a NAL unit has ended.
      *
      * @param discardPadding The number of excess bytes that were passed to
-     *     {@link #appendData(byte[], int, int)}, which should be discarded.
+     *     {@link #appendToNalUnit(byte[], int, int)}, which should be discarded.
      * @return True if the ended NAL unit is of the target type. False otherwise.
      */
     public boolean endNalUnit(int discardPadding) {
