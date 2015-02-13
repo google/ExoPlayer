@@ -24,8 +24,6 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
-import android.annotation.SuppressLint;
-import android.media.MediaExtractor;
 import android.util.Pair;
 
 import java.util.ArrayList;
@@ -37,8 +35,8 @@ public final class CommonMp4AtomParsers {
 
   /** Channel counts for AC-3 audio, indexed by acmod. (See ETSI TS 102 366.) */
   private static final int[] AC3_CHANNEL_COUNTS = new int[] {2, 1, 2, 3, 3, 4, 4, 5};
-  /** Nominal bit-rates for AC-3 audio in kbps, indexed by bit_rate_code. (See ETSI TS 102 366.) */
-  private static final int[] AC3_BIT_RATES = new int[] {32, 40, 48, 56, 64, 80, 96, 112, 128, 160,
+  /** Nominal bitrates for AC-3 audio in kbps, indexed by bit_rate_code. (See ETSI TS 102 366.) */
+  private static final int[] AC3_BITRATES = new int[] {32, 40, 48, 56, 64, 80, 96, 112, 128, 160,
       192, 224, 256, 320, 384, 448, 512, 576, 640};
 
   /**
@@ -81,7 +79,6 @@ public final class CommonMp4AtomParsers {
    * @param stblAtom stbl (sample table) atom to parse.
    * @return Sample table described by the stbl atom.
    */
-  @SuppressLint("InlinedApi")
   public static Mp4TrackSampleTable parseStbl(Track track, Atom.ContainerAtom stblAtom) {
     // Array of sample sizes.
     ParsableByteArray stsz = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz).data;
@@ -174,9 +171,9 @@ public final class CommonMp4AtomParsers {
       timestamps[i] = timestampTimeUnits + timestampOffset;
 
       // All samples are synchronization samples if the stss is not present.
-      flags[i] = stss == null ? MediaExtractor.SAMPLE_FLAG_SYNC : 0;
+      flags[i] = stss == null ? C.SAMPLE_FLAG_SYNC : 0;
       if (i == nextSynchronizationSampleIndex) {
-        flags[i] = MediaExtractor.SAMPLE_FLAG_SYNC;
+        flags[i] = C.SAMPLE_FLAG_SYNC;
         remainingSynchronizationSamples--;
         if (remainingSynchronizationSamples > 0) {
           nextSynchronizationSampleIndex = stss.readUnsignedIntToInt() - 1;
@@ -639,8 +636,8 @@ public final class CommonMp4AtomParsers {
       channelCount++;
     }
 
-    // Map bit_rate_code onto a bit-rate in kbit/s.
-    int bitrate = AC3_BIT_RATES[((nextByte & 0x03) << 3) + (parent.readUnsignedByte() >> 5)];
+    // Map bit_rate_code onto a bitrate in kbit/s.
+    int bitrate = AC3_BITRATES[((nextByte & 0x03) << 3) + (parent.readUnsignedByte() >> 5)];
 
     return new Ac3Format(channelCount, sampleRate, bitrate);
   }

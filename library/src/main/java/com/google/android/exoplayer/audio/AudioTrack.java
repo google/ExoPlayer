@@ -479,7 +479,9 @@ public final class AudioTrack {
 
   /** Returns whether enough data has been supplied via {@link #handleBuffer} to begin playback. */
   public boolean hasEnoughDataToBeginPlayback() {
-    return submittedBytes >= minBufferSize;
+    // The value of minBufferSize can be slightly less than what's actually required for playback
+    // to start, hence the multiplication factor.
+    return submittedBytes > (minBufferSize * 3) / 2;
   }
 
   /** Sets the playback volume. */

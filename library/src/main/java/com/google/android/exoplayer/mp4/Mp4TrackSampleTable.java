@@ -15,10 +15,9 @@
  */
 package com.google.android.exoplayer.mp4;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
-
-import android.media.MediaExtractor;
 
 /** Sample table for a track in an MP4 file. */
 public final class Mp4TrackSampleTable {
@@ -59,7 +58,7 @@ public final class Mp4TrackSampleTable {
   public int getIndexOfEarlierOrEqualSynchronizationSample(long timeUs) {
     int startIndex = Util.binarySearchFloor(timestampsUs, timeUs, true, false);
     for (int i = startIndex; i >= 0; i--) {
-      if (timestampsUs[i] <= timeUs && (flags[i] & MediaExtractor.SAMPLE_FLAG_SYNC) != 0) {
+      if (timestampsUs[i] <= timeUs && (flags[i] & C.SAMPLE_FLAG_SYNC) != 0) {
         return i;
       }
     }
@@ -77,7 +76,7 @@ public final class Mp4TrackSampleTable {
   public int getIndexOfLaterOrEqualSynchronizationSample(long timeUs) {
     int startIndex = Util.binarySearchCeil(timestampsUs, timeUs, true, false);
     for (int i = startIndex; i < timestampsUs.length; i++) {
-      if (timestampsUs[i] >= timeUs && (flags[i] & MediaExtractor.SAMPLE_FLAG_SYNC) != 0) {
+      if (timestampsUs[i] >= timeUs && (flags[i] & C.SAMPLE_FLAG_SYNC) != 0) {
         return i;
       }
     }

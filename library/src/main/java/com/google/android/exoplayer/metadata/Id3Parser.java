@@ -16,8 +16,8 @@
 package com.google.android.exoplayer.metadata;
 
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.util.BitArray;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
@@ -37,30 +37,28 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
   @Override
   public Map<String, Object> parse(byte[] data, int size)
       throws UnsupportedEncodingException, ParserException {
-    BitArray id3Buffer = new BitArray(data, size);
-    int id3Size = parseId3Header(id3Buffer);
-
     Map<String, Object> metadata = new HashMap<String, Object>();
+    ParsableByteArray id3Data = new ParsableByteArray(data, size);
+    int id3Size = parseId3Header(id3Data);
 
     while (id3Size > 0) {
-      int frameId0 = id3Buffer.readUnsignedByte();
-      int frameId1 = id3Buffer.readUnsignedByte();
-      int frameId2 = id3Buffer.readUnsignedByte();
-      int frameId3 = id3Buffer.readUnsignedByte();
-
-      int frameSize = id3Buffer.readSynchSafeInt();
+      int frameId0 = id3Data.readUnsignedByte();
+      int frameId1 = id3Data.readUnsignedByte();
+      int frameId2 = id3Data.readUnsignedByte();
+      int frameId3 = id3Data.readUnsignedByte();
+      int frameSize = id3Data.readSynchSafeInt();
       if (frameSize <= 1) {
         break;
       }
 
-      id3Buffer.skipBytes(2); // Skip frame flags.
-
+      // Skip frame flags.
+      id3Data.skip(2);
       // Check Frame ID == TXXX.
       if (frameId0 == 'T' && frameId1 == 'X' && frameId2 == 'X' && frameId3 == 'X') {
-        int encoding = id3Buffer.readUnsignedByte();
+        int encoding = id3Data.readUnsignedByte();
         String charset = getCharsetName(encoding);
         byte[] frame = new byte[frameSize - 1];
-        id3Buffer.readBytes(frame, 0, frameSize - 1);
+        id3Data.readBytes(frame, 0, frameSize - 1);
 
         int firstZeroIndex = indexOf(frame, 0, (byte) 0);
         String description = new String(frame, 0, firstZeroIndex, charset);
@@ -72,7 +70,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
       } else {
         String type = String.format("%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
         byte[] frame = new byte[frameSize];
-        id3Buffer.readBytes(frame, 0, frameSize);
+        id3Data.readBytes(frame, 0, frameSize);
         metadata.put(type, frame);
       }
 
@@ -101,12 +99,13 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
   }
 
   /**
-   * Parses ID3 header.
-   * @param id3Buffer A {@link BitArray} with raw ID3 data.
-   * @return The size of data that contains ID3 frames without header and footer.
+   * Parses an ID3 header.
+   *
+   * @param id3Buffer A {@link ParsableByteArray} from which data should be read.
+   * @return The size of ID3 frames in bytes, excluding the header and footer.
    * @throws ParserException If ID3 file identifier != "ID3".
    */
-  private static int parseId3Header(BitArray id3Buffer) throws ParserException {
+  private static int parseId3Header(ParsableByteArray id3Buffer) throws ParserException {
     int id1 = id3Buffer.readUnsignedByte();
     int id2 = id3Buffer.readUnsignedByte();
     int id3 = id3Buffer.readUnsignedByte();
@@ -114,7 +113,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
       throw new ParserException(String.format(
           "Unexpected ID3 file identifier, expected \"ID3\", actual \"%c%c%c\".", id1, id2, id3));
     }
-    id3Buffer.skipBytes(2); // Skip version.
+    id3Buffer.skip(2); // Skip version.
 
     int flags = id3Buffer.readUnsignedByte();
     int id3Size = id3Buffer.readSynchSafeInt();
@@ -123,7 +122,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
     if ((flags & 0x2) != 0) {
       int extendedHeaderSize = id3Buffer.readSynchSafeInt();
       if (extendedHeaderSize > 4) {
-        id3Buffer.skipBytes(extendedHeaderSize - 4);
+        id3Buffer.skip(extendedHeaderSize - 4);
       }
       id3Size -= extendedHeaderSize;
     }

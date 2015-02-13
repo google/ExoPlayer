@@ -15,10 +15,12 @@
  */
 package com.google.android.exoplayer.text.eia608;
 
-import com.google.android.exoplayer.util.BitArray;
+import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.ParsableBitArray;
+import com.google.android.exoplayer.util.ParsableByteArray;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Facilitates the extraction and parsing of EIA-608 (a.k.a. "line 21 captions" and "CEA-608")
@@ -80,28 +82,31 @@ public class Eia608Parser {
     0xFB     // 3F: 251 'û' "Latin small letter U with circumflex"
   };
 
-  private final BitArray seiBuffer;
+  private final ParsableBitArray seiBuffer;
   private final StringBuilder stringBuilder;
+  private final ArrayList<ClosedCaption> captions;
 
   /* package */ Eia608Parser() {
-    seiBuffer = new BitArray();
+    seiBuffer = new ParsableBitArray();
     stringBuilder = new StringBuilder();
+    captions = new ArrayList<ClosedCaption>();
   }
 
   /* package */ boolean canParse(String mimeType) {
     return mimeType.equals(MimeTypes.APPLICATION_EIA608);
   }
 
-  /* package */ void parse(byte[] data, int size, long timeUs, List<ClosedCaption> out) {
-    if (size <= 0) {
-      return;
+  /* package */ ClosedCaptionList parse(SampleHolder sampleHolder) {
+    if (sampleHolder.size <= 0) {
+      return null;
     }
 
+    captions.clear();
     stringBuilder.setLength(0);
-    seiBuffer.reset(data, size);
+    seiBuffer.reset(sampleHolder.data.array());
     seiBuffer.skipBits(3); // reserved + process_cc_data_flag + zero_bit
     int ccCount = seiBuffer.readBits(5);
-    seiBuffer.skipBytes(1);
+    seiBuffer.skipBits(8);
 
     for (int i = 0; i < ccCount; i++) {
       seiBuffer.skipBits(5); // one_bit + reserved
@@ -134,10 +139,10 @@ public class Eia608Parser {
       // Control character.
       if (ccData1 < 0x20) {
         if (stringBuilder.length() > 0) {
-          out.add(new ClosedCaptionText(stringBuilder.toString(), timeUs));
+          captions.add(new ClosedCaptionText(stringBuilder.toString()));
           stringBuilder.setLength(0);
         }
-        out.add(new ClosedCaptionCtrl(ccData1, ccData2, timeUs));
+        captions.add(new ClosedCaptionCtrl(ccData1, ccData2));
         continue;
       }
 
@@ -149,8 +154,16 @@ public class Eia608Parser {
     }
 
     if (stringBuilder.length() > 0) {
-      out.add(new ClosedCaptionText(stringBuilder.toString(), timeUs));
+      captions.add(new ClosedCaptionText(stringBuilder.toString()));
     }
+
+    if (captions.isEmpty()) {
+      return null;
+    }
+
+    ClosedCaption[] captionArray = new ClosedCaption[captions.size()];
+    captions.toArray(captionArray);
+    return new ClosedCaptionList(sampleHolder.timeUs, sampleHolder.decodeOnly, captionArray);
   }
 
   private static char getChar(byte ccData) {
@@ -170,7 +183,7 @@ public class Eia608Parser {
    * @param seiBuffer The buffer to read from.
    * @return The size of closed captions data.
    */
-  public static int parseHeader(BitArray seiBuffer) {
+  public static int parseHeader(ParsableByteArray seiBuffer) {
     int b = 0;
     int payloadType = 0;
 
@@ -197,11 +210,11 @@ public class Eia608Parser {
     if (countryCode != COUNTRY_CODE) {
       return 0;
     }
-    int providerCode = seiBuffer.readBits(16);
+    int providerCode = seiBuffer.readUnsignedShort();
     if (providerCode != PROVIDER_CODE) {
       return 0;
     }
-    int userIdentifier = seiBuffer.readBits(32);
+    int userIdentifier = seiBuffer.readInt();
     if (userIdentifier != USER_ID) {
       return 0;
     }

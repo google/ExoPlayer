@@ -440,17 +440,14 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       checkForDiscontinuity();
       if (format == null) {
         readFormat();
-      } else if (codec == null && !shouldInitCodec() && getState() == TrackRenderer.STATE_STARTED) {
-        discardSamples(positionUs);
-      } else {
-        if (codec == null && shouldInitCodec()) {
-          maybeInitCodec();
-        }
-        if (codec != null) {
-          while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
-          if (feedInputBuffer(true)) {
-            while (feedInputBuffer(false)) {}
-          }
+      }
+      if (codec == null && shouldInitCodec()) {
+        maybeInitCodec();
+      }
+      if (codec != null) {
+        while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
+        if (feedInputBuffer(true)) {
+          while (feedInputBuffer(false)) {}
         }
       }
       codecCounters.ensureUpdated();
@@ -463,21 +460,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     int result = source.readData(trackIndex, currentPositionUs, formatHolder, sampleHolder, false);
     if (result == SampleSource.FORMAT_READ) {
       onInputFormatChanged(formatHolder);
-    }
-  }
-
-  private void discardSamples(long positionUs) throws IOException, ExoPlaybackException {
-    sampleHolder.data = null;
-    int result = SampleSource.SAMPLE_READ;
-    while (result == SampleSource.SAMPLE_READ && currentPositionUs <= positionUs) {
-      result = source.readData(trackIndex, currentPositionUs, formatHolder, sampleHolder, false);
-      if (result == SampleSource.SAMPLE_READ) {
-        if (!sampleHolder.decodeOnly) {
-          currentPositionUs = sampleHolder.timeUs;
-        }
-      } else if (result == SampleSource.FORMAT_READ) {
-        onInputFormatChanged(formatHolder);
-      }
     }
   }
 
@@ -590,7 +572,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     if (waitingForFirstSyncFrame) {
       // TODO: Find out if it's possible to supply samples prior to the first sync
       // frame for HE-AAC.
-      if ((sampleHolder.flags & MediaExtractor.SAMPLE_FLAG_SYNC) == 0) {
+      if ((sampleHolder.flags & C.SAMPLE_FLAG_SYNC) == 0) {
         sampleHolder.data.clear();
         if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
           // The buffer we just cleared contained reconfiguration data. We need to re-write this
