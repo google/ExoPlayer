@@ -99,7 +99,7 @@
 <meta name="viewport" content="width=device-width" />
 
 <link rel="shortcut icon" type="image/x-icon" href="../../../../../../favicon.ico" />
-<title>TextTrackRenderer.TextRenderer - ExoPlayer | Android Developers</title>
+<title>com.google.android.exoplayer.mp4 - ExoPlayer | Android Developers</title>
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
@@ -140,8 +140,9 @@ type="text/css">
 
 </head>
 
+
 <body class="gc-documentation 
-  develop reference" itemscope itemtype="http://schema.org/Article">
+  develop reference">
   <div id="doc-api-level" class="" style="display:none"></div>
   <a name="top"></a>
 
@@ -173,21 +174,31 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/package-summary.html">com.google.android.exoplayer.chunk.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/mp4/package-summary.html">com.google.android.exoplayer.chunk.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/webm/package-summary.html">com.google.android.exoplayer.chunk.parser.webm</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/package-summary.html">com.google.android.exoplayer.parser</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/mp4/package-summary.html">com.google.android.exoplayer.parser.mp4</a></li>
-    <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/webm/package-summary.html">com.google.android.exoplayer.parser.webm</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
+    <li class="selected api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
-    <li class="selected api apilevel-">
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/source/package-summary.html">com.google.android.exoplayer.source</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/eia608/package-summary.html">com.google.android.exoplayer.text.eia608</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
     <li class="api apilevel-">
@@ -209,20 +220,16 @@ type="text/css">
             <ul>
               
               
-    <li><h2>Interfaces</h2>
-      <ul>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/text/Subtitle.html">Subtitle</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/text/SubtitleParser.html">SubtitleParser</a></li>
-          <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/text/TextTrackRenderer.TextRenderer.html">TextTrackRenderer.TextRenderer</a></li>
-      </ul>
-    </li>
               
     <li><h2>Classes</h2>
       <ul>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/text/CaptionStyleCompat.html">CaptionStyleCompat</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/text/SubtitleParserHelper.html">SubtitleParserHelper</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/text/SubtitleView.html">SubtitleView</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/text/TextTrackRenderer.html">TextTrackRenderer</a></li>
+        <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Atom.html">Atom</a></li>
+        <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Atom.ContainerAtom.html">Atom.ContainerAtom</a></li>
+        <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Atom.LeafAtom.html">Atom.LeafAtom</a></li>
+        <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/CommonMp4AtomParsers.html">CommonMp4AtomParsers</a></li>
+        <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4TrackSampleTable.html">Mp4TrackSampleTable</a></li>
+        <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4Util.html">Mp4Util</a></li>
+        <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Track.html">Track</a></li>
       </ul>
     </li>
               
@@ -274,253 +281,135 @@ type="text/css">
 
 
 
-<div class="col-12"  id="doc-col">
+<div class="col-12" id="doc-col">
 
 <div id="api-info-block">
-
-
-
-
-<div class="sum-details-links">
-
-</div><!-- end sum-details-links -->
 <div class="api-level">
   
   
   
 
 </div>
-</div><!-- end api-info-block -->
-
-
-<!-- ======== START OF CLASS DATA ======== -->
+</div>
 
 <div id="jd-header">
-    public
-    static 
-     
-    
-    interface
-<h1 itemprop="name">TextTrackRenderer.TextRenderer</h1>
-
-
-
-  
-  
-  
-
-
-    
-
-
+  package
+  <h1>com.google.android.exoplayer.mp4</h1>
 </div><!-- end header -->
 
 <div id="naMessage"></div>
 
 <div id="jd-content" class="api apilevel-">
-<table class="jd-inheritance-table">
 
 
-    <tr>
-         	
-        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.text.TextTrackRenderer.TextRenderer</td>
-    </tr>
+
+
+
+
+  
+
+
+  
+
+
+  
+    <h2>Classes</h2>
+    <div class="jd-sumtable">
     
-
-</table>
-
-
-
-
-
-
-
-<div class="jd-descr">
-
-
-<h2>Class Overview</h2>
-<p itemprop="articleBody">An interface for components that render text.
-</p>
-
-
-
-
-
-</div><!-- jd-descr -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="jd-descr">
-
-
-<h2>Summary</h2>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- ========== METHOD SUMMARY =========== -->
-<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
-
-
-
-	 
-    <tr class="alt-color api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            abstract
-            
-            
-            
-            
-            void</nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/text/TextTrackRenderer.TextRenderer.html#onText(java.lang.String)">onText</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> text)</nobr>
-        
-        <div class="jd-descrdiv">
-          Invoked each time there is a change in the text to be rendered.
+  
+  <table class="jd-sumtable-expando">
+    
+      <tr class="alt-color api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Atom.html">Atom</a></td>
+        <td class="jd-descrcol" width="100%">
+          &nbsp;
           
     
 
-        </div>
-  
-  </td></tr>
-
-
-
-</table>
-
-
-
-
-
-
-
-</div><!-- jd-descr (summary) -->
-
-<!-- Details -->
-
-
-
-
-
-
-
-
-<!-- XML Attributes -->
-
-
-<!-- Enum Values -->
-
-
-<!-- Constants -->
-
-
-<!-- Fields -->
-
-
-<!-- Public ctors -->
-
-
-
-<!-- ========= CONSTRUCTOR DETAIL ======== -->
-<!-- Protected ctors -->
-
-
-
-<!-- ========= METHOD DETAIL ======== -->
-<!-- Public methdos -->
-
-<h2>Public Methods</h2>
-
-
-
-<A NAME="onText(java.lang.String)"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-         
-        abstract 
-         
-        void
-      </span>
-      <span class="sympad">onText</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> text)</span>
-    </h4>
-      <div class="api-level">
-        <div></div>
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
+        </td>
+      </tr>
       
     
+      <tr class=" api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Atom.ContainerAtom.html">Atom.ContainerAtom</a></td>
+        <td class="jd-descrcol" width="100%">
+          An MP4 atom that has child atoms.&nbsp;
+          
+    
 
+        </td>
+      </tr>
       
-  <div class="jd-tagdata jd-tagdescr"><p>Invoked each time there is a change in the text to be rendered.</p></div>
-  <div class="jd-tagdata">
-      <h5 class="jd-tagtitle">Parameters</h5>
-      <table class="jd-tagtable">
-        <tr>
-          <th>text</td>
-          <td>The text to render, or null if no text is to be rendered.
-</td>
-        </tr>
-      </table>
-  </div>
+    
+      <tr class="alt-color api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Atom.LeafAtom.html">Atom.LeafAtom</a></td>
+        <td class="jd-descrcol" width="100%">
+          An MP4 atom that is a leaf.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/CommonMp4AtomParsers.html">CommonMp4AtomParsers</a></td>
+        <td class="jd-descrcol" width="100%">
+          Utility methods for parsing MP4 format atom payloads according to ISO 14496-12.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4TrackSampleTable.html">Mp4TrackSampleTable</a></td>
+        <td class="jd-descrcol" width="100%">
+          Sample table for a track in an MP4 file.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4Util.html">Mp4Util</a></td>
+        <td class="jd-descrcol" width="100%">
+          Utility methods and constants for parsing fragmented and unfragmented MP4 files.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Track.html">Track</a></td>
+        <td class="jd-descrcol" width="100%">
+          Encapsulates information describing an MP4 track.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+  </table>
 
     </div>
-</div>
+  
 
 
+  
 
 
-
-<!-- ========= METHOD DETAIL ======== -->
-
+  
 
 
-<!-- ========= END OF CLASS DATA ========= -->
-<A NAME="navbar_top"></A>
+  
+
 
 <div id="footer" class="wrap" >
         
@@ -532,9 +421,8 @@ type="text/css">
 
 </div> <!-- end footer -->
 
-</div> <!-- jd-content -->
-
-</div><!-- end doc-content -->
+</div><!-- end jd-content -->
+</div><!-- doc-content -->
 
 </div> <!-- end body-content --> 
 

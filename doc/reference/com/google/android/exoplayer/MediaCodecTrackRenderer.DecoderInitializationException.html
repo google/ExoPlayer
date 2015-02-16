@@ -173,21 +173,31 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/chunk/parser/package-summary.html">com.google.android.exoplayer.chunk.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/chunk/parser/mp4/package-summary.html">com.google.android.exoplayer.chunk.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/chunk/parser/webm/package-summary.html">com.google.android.exoplayer.chunk.parser.webm</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../reference/com/google/android/exoplayer/parser/package-summary.html">com.google.android.exoplayer.parser</a></li>
+  <a href="../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../reference/com/google/android/exoplayer/parser/mp4/package-summary.html">com.google.android.exoplayer.parser.mp4</a></li>
+  <a href="../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../reference/com/google/android/exoplayer/parser/webm/package-summary.html">com.google.android.exoplayer.parser.webm</a></li>
+  <a href="../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/source/package-summary.html">com.google.android.exoplayer.source</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/text/eia608/package-summary.html">com.google.android.exoplayer.text.eia608</a></li>
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
     <li class="api apilevel-">
@@ -234,7 +244,6 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DummyTrackRenderer.html">DummyTrackRenderer</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html">ExoPlayer.Factory</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayerLibraryInfo.html">ExoPlayerLibraryInfo</a></li>
-          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/FrameworkSampleSource.html">FrameworkSampleSource</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecAudioTrackRenderer.html">MediaCodecAudioTrackRenderer</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html">MediaCodecTrackRenderer</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecUtil.html">MediaCodecUtil</a></li>
@@ -255,6 +264,7 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/BehindLiveWindowException.html">BehindLiveWindowException</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlaybackException.html">ExoPlaybackException</a></li>
           <li class="selected api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.DecoderInitializationException.html">MediaCodecTrackRenderer.DecoderInitializationException</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecUtil.DecoderQueryException.html">MediaCodecUtil.DecoderQueryException</a></li>
           <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ParserException.html">ParserException</a></li>
       </ul>
     </li>
@@ -570,7 +580,23 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.DecoderInitializationException.html#MediaCodecTrackRenderer.DecoderInitializationException(java.lang.String, com.google.android.exoplayer.MediaFormat, java.lang.Throwable)">MediaCodecTrackRenderer.DecoderInitializationException</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> decoderName, <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> mediaFormat, <a href="http://developer.android.com/reference/java/lang/Throwable.html"><?csvar:type.label ?></a> cause)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.DecoderInitializationException.html#MediaCodecTrackRenderer.DecoderInitializationException(com.google.android.exoplayer.MediaFormat, java.lang.Throwable, int)">MediaCodecTrackRenderer.DecoderInitializationException</a></span>(<a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> mediaFormat, <a href="http://developer.android.com/reference/java/lang/Throwable.html"><?csvar:type.label ?></a> cause, int errorCode)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            </nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.DecoderInitializationException.html#MediaCodecTrackRenderer.DecoderInitializationException(com.google.android.exoplayer.MediaFormat, java.lang.Throwable, java.lang.String)">MediaCodecTrackRenderer.DecoderInitializationException</a></span>(<a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> mediaFormat, <a href="http://developer.android.com/reference/java/lang/Throwable.html"><?csvar:type.label ?></a> cause, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> decoderName)</nobr>
         
   </td></tr>
 
@@ -1088,7 +1114,7 @@ From class
     
 
       
-  <div class="jd-tagdata jd-tagdescr"><p>The name of the decoder that failed to initialize.
+  <div class="jd-tagdata jd-tagdescr"><p>The name of the decoder that failed to initialize. Null if no suitable decoder was found.
 </p></div>
 
     
@@ -1138,7 +1164,7 @@ From class
 
 
 
-<A NAME="MediaCodecTrackRenderer.DecoderInitializationException(java.lang.String, com.google.android.exoplayer.MediaFormat, java.lang.Throwable)"></A>
+<A NAME="MediaCodecTrackRenderer.DecoderInitializationException(com.google.android.exoplayer.MediaFormat, java.lang.Throwable, int)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1151,7 +1177,39 @@ From class
         
       </span>
       <span class="sympad">MediaCodecTrackRenderer.DecoderInitializationException</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> decoderName, <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> mediaFormat, <a href="http://developer.android.com/reference/java/lang/Throwable.html"><?csvar:type.label ?></a> cause)</span>
+      <span class="normal">(<a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> mediaFormat, <a href="http://developer.android.com/reference/java/lang/Throwable.html"><?csvar:type.label ?></a> cause, int errorCode)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+
+    </div>
+</div>
+
+
+<A NAME="MediaCodecTrackRenderer.DecoderInitializationException(com.google.android.exoplayer.MediaFormat, java.lang.Throwable, java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        
+      </span>
+      <span class="sympad">MediaCodecTrackRenderer.DecoderInitializationException</span>
+      <span class="normal">(<a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a> mediaFormat, <a href="http://developer.android.com/reference/java/lang/Throwable.html"><?csvar:type.label ?></a> cause, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> decoderName)</span>
     </h4>
       <div class="api-level">
         <div></div>

@@ -173,21 +173,31 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/package-summary.html">com.google.android.exoplayer.chunk.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/mp4/package-summary.html">com.google.android.exoplayer.chunk.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/webm/package-summary.html">com.google.android.exoplayer.chunk.parser.webm</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/package-summary.html">com.google.android.exoplayer.parser</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/mp4/package-summary.html">com.google.android.exoplayer.parser.mp4</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/webm/package-summary.html">com.google.android.exoplayer.parser.webm</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/source/package-summary.html">com.google.android.exoplayer.source</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/eia608/package-summary.html">com.google.android.exoplayer.text.eia608</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
     <li class="api apilevel-">
@@ -227,6 +237,7 @@ type="text/css">
     <li><h2>Exceptions</h2>
       <ul>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.InitializationException.html">AudioTrack.InitializationException</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.WriteException.html">AudioTrack.WriteException</a></li>
       </ul>
     </li>
               
@@ -457,6 +468,23 @@ Summary:
     </tr>
     
     
+    <tr class=" api apilevel-" >
+      <td class="jd-typecol"><nobr>
+        
+         
+         
+        
+        class</nobr></td>
+      <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.WriteException.html">AudioTrack.WriteException</a></td>
+      <td class="jd-descrcol" width="100%">
+        Thrown when a failure occurs writing to an <code><a href="http://developer.android.com/reference/android/media/AudioTrack.html">AudioTrack</a></code>.&nbsp;
+        
+    
+
+      </td>
+    </tr>
+    
+    
 
 
 
@@ -488,18 +516,6 @@ Summary:
     
     
     <tr class=" api apilevel-" >
-        <td class="jd-typecol">float</td>
-        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.html#DEFAULT_MIN_BUFFER_MULTIPLICATION_FACTOR">DEFAULT_MIN_BUFFER_MULTIPLICATION_FACTOR</a></td>
-        <td class="jd-descrcol" width="100%">
-          The default multiplication factor used when determining the size of the track's buffer.
-          
-    
-
-        </td>
-    </tr>
-    
-    
-    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.html#RESULT_BUFFER_CONSUMED">RESULT_BUFFER_CONSUMED</a></td>
         <td class="jd-descrcol" width="100%">
@@ -511,7 +527,7 @@ Summary:
     </tr>
     
     
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.html#RESULT_POSITION_DISCONTINUITY">RESULT_POSITION_DISCONTINUITY</a></td>
         <td class="jd-descrcol" width="100%">
@@ -523,7 +539,7 @@ Summary:
     </tr>
     
     
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol">int</td>
         <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.html#SESSION_ID_NOT_SET">SESSION_ID_NOT_SET</a></td>
         <td class="jd-descrcol" width="100%">
@@ -567,36 +583,6 @@ Summary:
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.html#AudioTrack()">AudioTrack</a></span>()</nobr>
         
-        <div class="jd-descrdiv">
-          Constructs an audio track using the default minimum buffer size multiplier.
-          
-    
-
-        </div>
-  
-  </td></tr>
-
-
-	 
-    <tr class=" api apilevel-" >
-        <td class="jd-typecol"><nobr>
-            
-            
-            
-            
-            
-            </nobr>
-        </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.html#AudioTrack(float)">AudioTrack</a></span>(float minBufferMultiplicationFactor)</nobr>
-        
-        <div class="jd-descrdiv">
-          Constructs an audio track using the specified minimum buffer size multiplier.
-          
-    
-
-        </div>
-  
   </td></tr>
 
 
@@ -856,7 +842,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.html#reconfigure(android.media.MediaFormat, int, int)">reconfigure</a></span>(<a href="http://developer.android.com/reference/android/media/MediaFormat.html"><?csvar:type.label ?></a> format, int encoding, int bufferSize)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.html#reconfigure(android.media.MediaFormat, int, int)">reconfigure</a></span>(<a href="http://developer.android.com/reference/android/media/MediaFormat.html"><?csvar:type.label ?></a> format, int encoding, int specifiedBufferSize)</nobr>
         
         <div class="jd-descrdiv">
           Reconfigures the audio track to play back media in <code>format</code>.
@@ -1223,46 +1209,6 @@ From class
 
 
 
-<A NAME="DEFAULT_MIN_BUFFER_MULTIPLICATION_FACTOR"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-        static 
-        final 
-        float
-      </span>
-        DEFAULT_MIN_BUFFER_MULTIPLICATION_FACTOR
-    </h4>
-      <div class="api-level">
-        
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-    
-
-      
-  <div class="jd-tagdata jd-tagdescr"><p>The default multiplication factor used when determining the size of the track's buffer. </p></div>
-
-    
-        <div class="jd-tagdata">
-        <span class="jd-tagtitle">Constant Value: </span>
-        <span>
-            
-                4.0
-            
-        </span>
-        </div>
-    
-    </div>
-</div>
-
-
-
 <A NAME="RESULT_BUFFER_CONSUMED"></A>
 
 <div class="jd-details api apilevel-"> 
@@ -1424,39 +1370,7 @@ From class
     
 
       
-  <div class="jd-tagdata jd-tagdescr"><p>Constructs an audio track using the default minimum buffer size multiplier. </p></div>
-
-    </div>
-</div>
-
-
-<A NAME="AudioTrack(float)"></A>
-
-<div class="jd-details api apilevel-"> 
-    <h4 class="jd-details-title">
-      <span class="normal">
-        public 
-         
-         
-         
-         
-        
-      </span>
-      <span class="sympad">AudioTrack</span>
-      <span class="normal">(float minBufferMultiplicationFactor)</span>
-    </h4>
-      <div class="api-level">
-        <div></div>
-        
-  
-
-      </div>
-    <div class="jd-details-descr">
-      
-    
-
-      
-  <div class="jd-tagdata jd-tagdescr"><p>Constructs an audio track using the specified minimum buffer size multiplier. </p></div>
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
 
     </div>
 </div>
@@ -1583,8 +1497,17 @@ From class
       <h5 class="jd-tagtitle">Returns</h5>
       <ul class="nolist"><li>A bit field with <code><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.html#RESULT_BUFFER_CONSUMED">RESULT_BUFFER_CONSUMED</a></code> if the buffer can be released, and
      <code><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.html#RESULT_POSITION_DISCONTINUITY">RESULT_POSITION_DISCONTINUITY</a></code> if the buffer was not contiguous with previously
-     written data.
-</li></ul>
+     written data.</li></ul>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Throws</h5>
+      <table class="jd-tagtable">  
+        <tr>
+            <th><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.WriteException.html">AudioTrack.WriteException</a></td>
+            <td>If an error occurs writing the audio data.
+</td>
+        </tr>
+      </table>
   </div>
 
     </div>
@@ -1900,7 +1823,7 @@ From class
         void
       </span>
       <span class="sympad">reconfigure</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/android/media/MediaFormat.html"><?csvar:type.label ?></a> format, int encoding, int bufferSize)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/android/media/MediaFormat.html"><?csvar:type.label ?></a> format, int encoding, int specifiedBufferSize)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1928,9 +1851,9 @@ From class
           <td>The format in which audio is represented.</td>
         </tr>
         <tr>
-          <th>bufferSize</td>
-          <td>The total size of the playback buffer in bytes. Specify 0 to use a buffer
-     size based on the minimum for format.
+          <th>specifiedBufferSize</td>
+          <td>A specific size for the playback buffer in bytes, or 0 to use a
+     size inferred from the format.
 </td>
         </tr>
       </table>

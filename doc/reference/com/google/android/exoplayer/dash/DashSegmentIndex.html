@@ -172,6 +172,12 @@ type="text/css">
   <a href="../../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/package-summary.html">com.google.android.exoplayer.chunk.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/mp4/package-summary.html">com.google.android.exoplayer.chunk.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/webm/package-summary.html">com.google.android.exoplayer.chunk.parser.webm</a></li>
     <li class="selected api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
     <li class="api apilevel-">
@@ -179,15 +185,19 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/package-summary.html">com.google.android.exoplayer.parser</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/mp4/package-summary.html">com.google.android.exoplayer.parser.mp4</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/webm/package-summary.html">com.google.android.exoplayer.parser.webm</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/source/package-summary.html">com.google.android.exoplayer.source</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/eia608/package-summary.html">com.google.android.exoplayer.text.eia608</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
     <li class="api apilevel-">
@@ -218,6 +228,7 @@ type="text/css">
     <li><h2>Classes</h2>
       <ul>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashChunkSource.html">DashChunkSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSingleSegmentIndex.html">DashSingleSegmentIndex</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWrappingSegmentIndex.html">DashWrappingSegmentIndex</a></li>
       </ul>
     </li>
@@ -290,13 +301,16 @@ Summary:
 
 
 
+  <a href="#constants">Constants</a>
+  
 
 
 
 
 
 
-  <a href="#pubmethods">Methods</a>
+
+  &#124; <a href="#pubmethods">Methods</a>
   
 
 
@@ -368,6 +382,8 @@ Summary:
               >
           
             
+              <a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSingleSegmentIndex.html">DashSingleSegmentIndex</a>,
+            
               <a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWrappingSegmentIndex.html">DashWrappingSegmentIndex</a>,
             
               <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.MultiSegmentRepresentation.html">Representation.MultiSegmentRepresentation</a>
@@ -381,10 +397,9 @@ Summary:
   <table class="jd-sumtable-expando">
     
       <tr class="alt-color api apilevel-" >
-        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWrappingSegmentIndex.html">DashWrappingSegmentIndex</a></td>
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSingleSegmentIndex.html">DashSingleSegmentIndex</a></td>
         <td class="jd-descrcol" width="100%">
-          An implementation of <code><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html">DashSegmentIndex</a></code> that wraps a <code><a href="../../../../../../reference/com/google/android/exoplayer/parser/SegmentIndex.html">SegmentIndex</a></code> parsed from a
- media stream.&nbsp;
+          A <code><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html">DashSegmentIndex</a></code> that defines a single segment.&nbsp;
           
     
 
@@ -393,6 +408,18 @@ Summary:
       
     
       <tr class=" api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashWrappingSegmentIndex.html">DashWrappingSegmentIndex</a></td>
+        <td class="jd-descrcol" width="100%">
+          An implementation of <code><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html">DashSegmentIndex</a></code> that wraps a <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/SegmentIndex.html">SegmentIndex</a></code> parsed from a
+ media stream.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
         <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.MultiSegmentRepresentation.html">Representation.MultiSegmentRepresentation</a></td>
         <td class="jd-descrcol" width="100%">
           A DASH representation consisting of multiple segments.&nbsp;
@@ -455,6 +482,27 @@ Summary:
 
 
 
+
+
+<!-- =========== ENUM CONSTANT SUMMARY =========== -->
+<table id="constants" class="jd-sumtable"><tr><th colspan="12">Constants</th></tr>
+
+
+    
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#INDEX_UNBOUNDED">INDEX_UNBOUNDED</a></td>
+        <td class="jd-descrcol" width="100%">
+          
+          
+    
+
+        </td>
+    </tr>
+    
+    
+
+</table>
 
 
 
@@ -536,7 +584,7 @@ Summary:
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#getLastSegmentNum()">getLastSegmentNum</a></span>()</nobr>
         
         <div class="jd-descrdiv">
-          Returns the segment number of the last segment.
+          Returns the segment number of the last segment, or <code><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#INDEX_UNBOUNDED">INDEX_UNBOUNDED</a></code>.
           
     
 
@@ -614,6 +662,29 @@ Summary:
   </td></tr>
 
 
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#isExplicit()">isExplicit</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Returns true if segments are defined explicitly by the index.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
 
 </table>
 
@@ -641,6 +712,54 @@ Summary:
 
 
 <!-- Constants -->
+
+
+<!-- ========= ENUM CONSTANTS DETAIL ======== -->
+<h2>Constants</h2>
+
+
+
+
+<A NAME="INDEX_UNBOUNDED"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        INDEX_UNBOUNDED
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                -1
+                (0xffffffff)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
 
 
 <!-- Fields -->
@@ -771,10 +890,16 @@ Summary:
     
 
       
-  <div class="jd-tagdata jd-tagdescr"><p>Returns the segment number of the last segment.</p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the segment number of the last segment, or <code><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#INDEX_UNBOUNDED">INDEX_UNBOUNDED</a></code>.
+ <p>
+ An unbounded index occurs if a live stream manifest uses SegmentTemplate elements without a
+ SegmentTimeline element. In this case the manifest can be used to derive information about
+ segments arbitrarily far into the future. This means that the manifest does not need to be
+ refreshed as frequently (if at all) during playback, however it is necessary for a player to
+ manually calculate the window of currently available segments.</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
-      <ul class="nolist"><li>The segment number of the last segment.
+      <ul class="nolist"><li>The segment number of the last segment, or <code><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#INDEX_UNBOUNDED">INDEX_UNBOUNDED</a></code>.
 </li></ul>
   </div>
 
@@ -808,7 +933,12 @@ Summary:
     
 
       
-  <div class="jd-tagdata jd-tagdescr"><p>Returns the segment number of the segment containing a given media time.</p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the segment number of the segment containing a given media time.
+ <p>
+ If the given media time is outside the range of the index, then the returned segment number is
+ clamped to <code><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#getFirstSegmentNum()">getFirstSegmentNum()</a></code> (if the given media time is earlier the start of the
+ first segment) or <code><a href="../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#getLastSegmentNum()">getLastSegmentNum()</a></code> (if the given media time is later then the end
+ of the last segment).</p></div>
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable">
@@ -913,6 +1043,50 @@ Summary:
   <div class="jd-tagdata">
       <h5 class="jd-tagtitle">Returns</h5>
       <ul class="nolist"><li>The corresponding start time in microseconds.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="isExplicit()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        boolean
+      </span>
+      <span class="sympad">isExplicit</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns true if segments are defined explicitly by the index.
+ <p>
+ If true is returned, each segment is defined explicitly by the index data, and all of the
+ listed segments are guaranteed to be available at the time when the index was obtained.
+ <p>
+ If false is returned then segment information was derived from properties such as a fixed
+ segment duration. If the presentation is dynamic, it's possible that only a subset of the
+ segments are available.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>True if segments are defined explicitly by the index. False otherwise.
 </li></ul>
   </div>
 

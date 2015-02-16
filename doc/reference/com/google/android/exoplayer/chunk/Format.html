@@ -173,21 +173,31 @@ type="text/css">
     <li class="selected api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/package-summary.html">com.google.android.exoplayer.chunk.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/mp4/package-summary.html">com.google.android.exoplayer.chunk.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/webm/package-summary.html">com.google.android.exoplayer.chunk.parser.webm</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/package-summary.html">com.google.android.exoplayer.parser</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/mp4/package-summary.html">com.google.android.exoplayer.parser.mp4</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/webm/package-summary.html">com.google.android.exoplayer.parser.webm</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/source/package-summary.html">com.google.android.exoplayer.source</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/eia608/package-summary.html">com.google.android.exoplayer.text.eia608</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
     <li class="api apilevel-">
@@ -222,6 +232,7 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html">ChunkOperationHolder</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ContainerMediaChunk.html">ContainerMediaChunk</a></li>
           <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.DecreasingBandwidthComparator.html">Format.DecreasingBandwidthComparator</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.AdaptiveEvaluator.html">FormatEvaluator.AdaptiveEvaluator</a></li>
@@ -229,7 +240,6 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.FixedEvaluator.html">FormatEvaluator.FixedEvaluator</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.RandomEvaluator.html">FormatEvaluator.RandomEvaluator</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html">Mp4MediaChunk</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MultiTrackChunkSource.html">MultiTrackChunkSource</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/SingleSampleChunkSource.html">SingleSampleChunkSource</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/SingleSampleMediaChunk.html">SingleSampleMediaChunk</a></li>
@@ -532,6 +542,22 @@ Summary:
           public
           
           final
+          <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#codecs">codecs</a></td>
+          <td class="jd-descrcol" width="100%">
+            The codecs used to decode the format, or <code>null</code> if they are not specified.
+            
+    
+
+          </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+          <td class="jd-typecol"><nobr>
+          public
+          
+          final
           int</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#height">height</a></td>
           <td class="jd-descrcol" width="100%">
@@ -543,7 +569,7 @@ Summary:
       </tr>
       
     
-      <tr class="alt-color api apilevel-" >
+      <tr class=" api apilevel-" >
           <td class="jd-typecol"><nobr>
           public
           
@@ -559,7 +585,7 @@ Summary:
       </tr>
       
     
-      <tr class=" api apilevel-" >
+      <tr class="alt-color api apilevel-" >
           <td class="jd-typecol"><nobr>
           public
           
@@ -575,7 +601,7 @@ Summary:
       </tr>
       
     
-      <tr class="alt-color api apilevel-" >
+      <tr class=" api apilevel-" >
           <td class="jd-typecol"><nobr>
           public
           
@@ -591,7 +617,7 @@ Summary:
       </tr>
       
     
-      <tr class=" api apilevel-" >
+      <tr class="alt-color api apilevel-" >
           <td class="jd-typecol"><nobr>
           public
           
@@ -607,7 +633,7 @@ Summary:
       </tr>
       
     
-      <tr class="alt-color api apilevel-" >
+      <tr class=" api apilevel-" >
           <td class="jd-typecol"><nobr>
           public
           
@@ -665,6 +691,22 @@ Summary:
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#Format(java.lang.String, java.lang.String, int, int, int, int, int, java.lang.String)">Format</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> id, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType, int width, int height, int numChannels, int audioSamplingRate, int bitrate, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> language)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            </nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#Format(java.lang.String, java.lang.String, int, int, int, int, int, java.lang.String, java.lang.String)">Format</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> id, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType, int width, int height, int numChannels, int audioSamplingRate, int bitrate, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> language, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> codecs)</nobr>
         
   </td></tr>
 
@@ -1069,6 +1111,38 @@ From class
 
 
 
+<A NAME="codecs"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+        final 
+        <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
+      </span>
+        codecs
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The codecs used to decode the format, or <code>null</code> if they are not specified.
+</p></div>
+
+    
+    </div>
+</div>
+
+
+
 <A NAME="height"></A>
 
 <div class="jd-details api apilevel-"> 
@@ -1400,6 +1474,80 @@ From class
         <tr>
           <th>language</td>
           <td>The language of the format.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="Format(java.lang.String, java.lang.String, int, int, int, int, int, java.lang.String, java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        
+      </span>
+      <span class="sympad">Format</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> id, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType, int width, int height, int numChannels, int audioSamplingRate, int bitrate, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> language, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> codecs)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>id</td>
+          <td>The format identifier.</td>
+        </tr>
+        <tr>
+          <th>mimeType</td>
+          <td>The format mime type.</td>
+        </tr>
+        <tr>
+          <th>width</td>
+          <td>The width of the video in pixels, or -1 for non-video formats.</td>
+        </tr>
+        <tr>
+          <th>height</td>
+          <td>The height of the video in pixels, or -1 for non-video formats.</td>
+        </tr>
+        <tr>
+          <th>numChannels</td>
+          <td>The number of audio channels, or -1 for non-audio formats.</td>
+        </tr>
+        <tr>
+          <th>audioSamplingRate</td>
+          <td>The audio sampling rate in Hz, or -1 for non-audio formats.</td>
+        </tr>
+        <tr>
+          <th>bitrate</td>
+          <td>The average bandwidth of the format in bits per second.</td>
+        </tr>
+        <tr>
+          <th>language</td>
+          <td>The language of the format.</td>
+        </tr>
+        <tr>
+          <th>codecs</td>
+          <td>The codecs used to decode the format.
 </td>
         </tr>
       </table>

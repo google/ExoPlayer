@@ -173,21 +173,31 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/chunk/parser/package-summary.html">com.google.android.exoplayer.chunk.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/chunk/parser/mp4/package-summary.html">com.google.android.exoplayer.chunk.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/chunk/parser/webm/package-summary.html">com.google.android.exoplayer.chunk.parser.webm</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
     <li class="selected api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../../reference/com/google/android/exoplayer/parser/package-summary.html">com.google.android.exoplayer.parser</a></li>
+  <a href="../../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../../reference/com/google/android/exoplayer/parser/mp4/package-summary.html">com.google.android.exoplayer.parser.mp4</a></li>
+  <a href="../../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../../reference/com/google/android/exoplayer/parser/webm/package-summary.html">com.google.android.exoplayer.parser.webm</a></li>
+  <a href="../../../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/source/package-summary.html">com.google.android.exoplayer.source</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/text/eia608/package-summary.html">com.google.android.exoplayer.text.eia608</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
     <li class="api apilevel-">
@@ -603,7 +613,7 @@ Summary:
         <td class="jd-typecol"><nobr>
             
             
-            final
+            
             
             
             int</nobr>
@@ -642,6 +652,30 @@ Summary:
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html#getSegmentUrl(com.google.android.exoplayer.dash.mpd.Representation, int)">getSegmentUrl</a></span>(<a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/Representation.html">Representation</a> representation, int index)</nobr>
+        
+        <div class="jd-descrdiv">
+          Returns a <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> defining the location of a segment for the given index in the
+ given representation.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.MultiSegmentBase.html#isExplicit()">isExplicit</a></span>()</nobr>
         
   </td></tr>
 
@@ -696,6 +730,29 @@ From class
         <div class="jd-descrdiv">
           Gets the <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> defining the location of initialization data for a given
  representation.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            long</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/SegmentBase.html#getPresentationTimeOffsetUs()">getPresentationTimeOffsetUs</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Gets the presentation time offset, in microseconds.
           
     
 
@@ -1060,6 +1117,11 @@ From class
 
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">See Also</h5>
+      <ul class="nolist"><li><code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#getFirstSegmentNum()">getFirstSegmentNum()</a></code></li>
+      </ul>
+  </div>
 
     </div>
 </div>
@@ -1092,6 +1154,11 @@ From class
 
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">See Also</h5>
+      <ul class="nolist"><li><code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#getLastSegmentNum()">getLastSegmentNum()</a></code></li>
+      </ul>
+  </div>
 
     </div>
 </div>
@@ -1124,6 +1191,11 @@ From class
 
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">See Also</h5>
+      <ul class="nolist"><li><code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#getDurationUs(int)">getDurationUs(int)</a></code></li>
+      </ul>
+  </div>
 
     </div>
 </div>
@@ -1136,7 +1208,7 @@ From class
       <span class="normal">
         public 
          
-        final 
+         
          
          
         int
@@ -1156,6 +1228,11 @@ From class
 
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">See Also</h5>
+      <ul class="nolist"><li><code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#getSegmentNum(long)">getSegmentNum(long)</a></code></li>
+      </ul>
+  </div>
 
     </div>
 </div>
@@ -1188,6 +1265,11 @@ From class
 
       
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">See Also</h5>
+      <ul class="nolist"><li><code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#getTimeUs(int)">getTimeUs(int)</a></code></li>
+      </ul>
+  </div>
 
     </div>
 </div>
@@ -1219,7 +1301,50 @@ From class
     
 
       
+  <div class="jd-tagdata jd-tagdescr"><p>Returns a <code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/mpd/RangedUri.html">RangedUri</a></code> defining the location of a segment for the given index in the
+ given representation.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">See Also</h5>
+      <ul class="nolist"><li><code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#getSegmentUrl(int)">getSegmentUrl(int)</a></code></li>
+      </ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="isExplicit()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        boolean
+      </span>
+      <span class="sympad">isExplicit</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
   <div class="jd-tagdata jd-tagdescr"><p></p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">See Also</h5>
+      <ul class="nolist"><li><code><a href="../../../../../../../reference/com/google/android/exoplayer/dash/DashSegmentIndex.html#isExplicit()">isExplicit()</a></code></li>
+      </ul>
+  </div>
 
     </div>
 </div>

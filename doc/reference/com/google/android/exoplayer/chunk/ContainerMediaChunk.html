@@ -99,7 +99,7 @@
 <meta name="viewport" content="width=device-width" />
 
 <link rel="shortcut icon" type="image/x-icon" href="../../../../../../favicon.ico" />
-<title>Mp4MediaChunk - ExoPlayer | Android Developers</title>
+<title>ContainerMediaChunk - ExoPlayer | Android Developers</title>
 
 <!-- STYLESHEETS -->
 <link rel="stylesheet"
@@ -173,21 +173,31 @@ type="text/css">
     <li class="selected api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/package-summary.html">com.google.android.exoplayer.chunk.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/mp4/package-summary.html">com.google.android.exoplayer.chunk.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/webm/package-summary.html">com.google.android.exoplayer.chunk.parser.webm</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/package-summary.html">com.google.android.exoplayer.parser</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/mp4/package-summary.html">com.google.android.exoplayer.parser.mp4</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
-  <a href="../../../../../../reference/com/google/android/exoplayer/parser/webm/package-summary.html">com.google.android.exoplayer.parser.webm</a></li>
+  <a href="../../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/source/package-summary.html">com.google.android.exoplayer.source</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/eia608/package-summary.html">com.google.android.exoplayer.text.eia608</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
     <li class="api apilevel-">
@@ -222,6 +232,7 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html">ChunkOperationHolder</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ContainerMediaChunk.html">ContainerMediaChunk</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.DecreasingBandwidthComparator.html">Format.DecreasingBandwidthComparator</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.AdaptiveEvaluator.html">FormatEvaluator.AdaptiveEvaluator</a></li>
@@ -229,7 +240,6 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.FixedEvaluator.html">FormatEvaluator.FixedEvaluator</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.RandomEvaluator.html">FormatEvaluator.RandomEvaluator</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a></li>
-          <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html">Mp4MediaChunk</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MultiTrackChunkSource.html">MultiTrackChunkSource</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/SingleSampleChunkSource.html">SingleSampleChunkSource</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/SingleSampleMediaChunk.html">SingleSampleMediaChunk</a></li>
@@ -370,7 +380,7 @@ Summary:
     final 
     
     class
-<h1 itemprop="name">Mp4MediaChunk</h1>
+<h1 itemprop="name">ContainerMediaChunk</h1>
 
 
 
@@ -436,7 +446,7 @@ Summary:
         
             <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
          	
-        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.chunk.Mp4MediaChunk</td>
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.chunk.ContainerMediaChunk</td>
     </tr>
     
 
@@ -452,7 +462,7 @@ Summary:
 
 
 <h2>Class Overview</h2>
-<p itemprop="articleBody">An Mp4 <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a></code>.
+<p itemprop="articleBody">A <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a></code> extracted from a container.
 </p>
 
 
@@ -659,7 +669,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#Mp4MediaChunk(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSpec, com.google.android.exoplayer.chunk.Format, int, long, long, int, com.google.android.exoplayer.parser.Extractor, boolean, long)">Mp4MediaChunk</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a> dataSpec, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a> format, int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex, <a href="../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html">Extractor</a> extractor, boolean maybeSelfContained, long sampleOffsetUs)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ContainerMediaChunk.html#ContainerMediaChunk(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSpec, com.google.android.exoplayer.chunk.Format, int, long, long, int, com.google.android.exoplayer.chunk.parser.Extractor, boolean, long)">ContainerMediaChunk</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a> dataSpec, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a> format, int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/Extractor.html">Extractor</a> extractor, boolean maybeSelfContained, long sampleOffsetUs)</nobr>
         
         <div class="jd-descrdiv">
           <em>
@@ -685,7 +695,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#Mp4MediaChunk(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSpec, com.google.android.exoplayer.chunk.Format, int, long, long, int, com.google.android.exoplayer.parser.Extractor, java.util.Map<java.util.UUID, byte[]>, boolean, long)">Mp4MediaChunk</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a> dataSpec, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a> format, int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex, <a href="../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html">Extractor</a> extractor, <a href="http://developer.android.com/reference/java/util/Map.html"><?csvar:type.label ?></a>&lt;<a href="http://developer.android.com/reference/java/util/UUID.html">UUID</a>,&nbsp;byte[]&gt; psshInfo, boolean maybeSelfContained, long sampleOffsetUs)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ContainerMediaChunk.html#ContainerMediaChunk(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSpec, com.google.android.exoplayer.chunk.Format, int, long, long, int, com.google.android.exoplayer.chunk.parser.Extractor, java.util.Map<java.util.UUID, byte[]>, boolean, long)">ContainerMediaChunk</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a> dataSpec, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a> format, int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/Extractor.html">Extractor</a> extractor, <a href="http://developer.android.com/reference/java/util/Map.html"><?csvar:type.label ?></a>&lt;<a href="http://developer.android.com/reference/java/util/UUID.html">UUID</a>,&nbsp;byte[]&gt; psshInfo, boolean maybeSelfContained, long sampleOffsetUs)</nobr>
         
   </td></tr>
 
@@ -714,7 +724,7 @@ Summary:
             <a href="../../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#getMediaFormat()">getMediaFormat</a></span>()</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ContainerMediaChunk.html#getMediaFormat()">getMediaFormat</a></span>()</nobr>
         
         <div class="jd-descrdiv">
           Returns the media format of the samples contained within this chunk.
@@ -737,7 +747,7 @@ Summary:
             <a href="http://developer.android.com/reference/java/util/Map.html">Map</a>&lt;<a href="http://developer.android.com/reference/java/util/UUID.html">UUID</a>,&nbsp;byte[]&gt;</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#getPsshInfo()">getPsshInfo</a></span>()</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ContainerMediaChunk.html#getPsshInfo()">getPsshInfo</a></span>()</nobr>
         
         <div class="jd-descrdiv">
           Returns the pssh information associated with the chunk.
@@ -760,7 +770,7 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#prepare()">prepare</a></span>()</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ContainerMediaChunk.html#prepare()">prepare</a></span>()</nobr>
         
         <div class="jd-descrdiv">
           Prepares the chunk for reading.
@@ -783,7 +793,7 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#read(com.google.android.exoplayer.SampleHolder)">read</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> holder)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ContainerMediaChunk.html#read(com.google.android.exoplayer.SampleHolder)">read</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a> holder)</nobr>
         
         <div class="jd-descrdiv">
           Reads the next media sample from the chunk.
@@ -806,7 +816,7 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#sampleAvailable()">sampleAvailable</a></span>()</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ContainerMediaChunk.html#sampleAvailable()">sampleAvailable</a></span>()</nobr>
         
         <div class="jd-descrdiv">
           Returns whether the next sample is available.
@@ -829,7 +839,7 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#seekTo(long, boolean)">seekTo</a></span>(long positionUs, boolean allowNoop)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ContainerMediaChunk.html#seekTo(long, boolean)">seekTo</a></span>(long positionUs, boolean allowNoop)</nobr>
         
         <div class="jd-descrdiv">
           Seeks to the specified position within the chunk.
@@ -852,7 +862,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Mp4MediaChunk.html#seekToStart()">seekToStart</a></span>()</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ContainerMediaChunk.html#seekToStart()">seekToStart</a></span>()</nobr>
         
         <div class="jd-descrdiv">
           Seeks to the beginning of the chunk.
@@ -1730,7 +1740,7 @@ From interface
 
 
 
-<A NAME="Mp4MediaChunk(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSpec, com.google.android.exoplayer.chunk.Format, int, long, long, int, com.google.android.exoplayer.parser.Extractor, boolean, long)"></A>
+<A NAME="ContainerMediaChunk(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSpec, com.google.android.exoplayer.chunk.Format, int, long, long, int, com.google.android.exoplayer.chunk.parser.Extractor, boolean, long)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1742,8 +1752,8 @@ From interface
          
         
       </span>
-      <span class="sympad">Mp4MediaChunk</span>
-      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a> dataSpec, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a> format, int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex, <a href="../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html">Extractor</a> extractor, boolean maybeSelfContained, long sampleOffsetUs)</span>
+      <span class="sympad">ContainerMediaChunk</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a> dataSpec, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a> format, int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/Extractor.html">Extractor</a> extractor, boolean maybeSelfContained, long sampleOffsetUs)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1767,7 +1777,7 @@ From interface
 </div>
 
 
-<A NAME="Mp4MediaChunk(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSpec, com.google.android.exoplayer.chunk.Format, int, long, long, int, com.google.android.exoplayer.parser.Extractor, java.util.Map<java.util.UUID, byte[]>, boolean, long)"></A>
+<A NAME="ContainerMediaChunk(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSpec, com.google.android.exoplayer.chunk.Format, int, long, long, int, com.google.android.exoplayer.chunk.parser.Extractor, java.util.Map<java.util.UUID, byte[]>, boolean, long)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1779,8 +1789,8 @@ From interface
          
         
       </span>
-      <span class="sympad">Mp4MediaChunk</span>
-      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a> dataSpec, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a> format, int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex, <a href="../../../../../../reference/com/google/android/exoplayer/parser/Extractor.html">Extractor</a> extractor, <a href="http://developer.android.com/reference/java/util/Map.html"><?csvar:type.label ?></a>&lt;<a href="http://developer.android.com/reference/java/util/UUID.html">UUID</a>,&nbsp;byte[]&gt; psshInfo, boolean maybeSelfContained, long sampleOffsetUs)</span>
+      <span class="sympad">ContainerMediaChunk</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a> dataSpec, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a> format, int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/Extractor.html">Extractor</a> extractor, <a href="http://developer.android.com/reference/java/util/Map.html"><?csvar:type.label ?></a>&lt;<a href="http://developer.android.com/reference/java/util/UUID.html">UUID</a>,&nbsp;byte[]&gt; psshInfo, boolean maybeSelfContained, long sampleOffsetUs)</span>
     </h4>
       <div class="api-level">
         <div></div>
