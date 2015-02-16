@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.demo.player;
 
-import com.google.android.exoplayer.Ac3PassthroughAudioTrackRenderer;
 import com.google.android.exoplayer.DummyTrackRenderer;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
@@ -48,8 +47,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventListener,
     DefaultBandwidthMeter.EventListener, MediaCodecVideoTrackRenderer.EventListener,
-    MediaCodecAudioTrackRenderer.EventListener, Ac3PassthroughAudioTrackRenderer.EventListener,
-    TextRenderer, StreamingDrmSessionManager.EventListener {
+    MediaCodecAudioTrackRenderer.EventListener, TextRenderer,
+    StreamingDrmSessionManager.EventListener {
 
   /**
    * Builds renderers for the player.

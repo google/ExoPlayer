@@ -17,8 +17,6 @@ package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.VideoSurfaceView;
-import com.google.android.exoplayer.audio.AudioCapabilities;
-import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
 import com.google.android.exoplayer.demo.player.DashRendererBuilder;
 import com.google.android.exoplayer.demo.player.DefaultRendererBuilder;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
@@ -64,8 +62,7 @@ import java.util.Map;
  * An activity that plays media using {@link DemoPlayer}.
  */
 public class PlayerActivity extends Activity implements SurfaceHolder.Callback, OnClickListener,
-    DemoPlayer.Listener, DemoPlayer.TextListener, DemoPlayer.Id3MetadataListener,
-    AudioCapabilitiesReceiver.Listener {
+    DemoPlayer.Listener, DemoPlayer.TextListener, DemoPlayer.Id3MetadataListener {
 
   public static final String CONTENT_TYPE_EXTRA = "content_type";
   public static final String CONTENT_ID_EXTRA = "content_id";
@@ -99,9 +96,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private int contentType;
   private String contentId;
 
-  private AudioCapabilitiesReceiver audioCapabilitiesReceiver;
-  private AudioCapabilities audioCapabilities;
-
   // Activity lifecycle
 
   @Override
@@ -126,8 +120,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
         return true;
       }
     });
-
-    audioCapabilitiesReceiver = new AudioCapabilitiesReceiver(getApplicationContext(), this);
 
     shutterView = findViewById(R.id.shutter);
     debugRootView = findViewById(R.id.controls_root);
@@ -154,9 +146,11 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   public void onResume() {
     super.onResume();
     configureSubtitleView();
-
-    // The player will be prepared on receiving audio capabilities.
-    audioCapabilitiesReceiver.register();
+    if (player == null) {
+      preparePlayer();
+    } else if (player != null) {
+      player.setBackgrounded(false);
+    }
   }
 
   @Override
@@ -167,7 +161,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     } else {
       player.setBackgrounded(true);
     }
-    audioCapabilitiesReceiver.unregister();
     shutterView.setVisibility(View.VISIBLE);
   }
 
@@ -186,20 +179,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     }
   }
 
-  // AudioCapabilitiesReceiver.Listener methods
-
-  @Override
-  public void onAudioCapabilitiesChanged(AudioCapabilities audioCapabilities) {
-    boolean audioCapabilitiesChanged = !audioCapabilities.equals(this.audioCapabilities);
-    if (player == null || audioCapabilitiesChanged) {
-      this.audioCapabilities = audioCapabilities;
-      releasePlayer();
-      preparePlayer();
-    } else if (player != null) {
-      player.setBackgrounded(false);
-    }
-  }
-
   // Internal methods
 
   private RendererBuilder getRendererBuilder() {
@@ -210,7 +189,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
             new SmoothStreamingTestMediaDrmCallback(), debugTextView);
       case DemoUtil.TYPE_DASH:
         return new DashRendererBuilder(userAgent, contentUri.toString(), contentId,
-            new WidevineTestMediaDrmCallback(contentId), debugTextView, audioCapabilities);
+            new WidevineTestMediaDrmCallback(contentId), debugTextView);
       case DemoUtil.TYPE_HLS:
         return new HlsRendererBuilder(userAgent, contentUri.toString(), contentId);
       default:
