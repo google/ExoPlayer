@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -186,6 +185,8 @@ type="text/css">
   <a href="../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
@@ -627,7 +628,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.html#DefaultLoadControl(com.google.android.exoplayer.upstream.Allocator, android.os.Handler, com.google.android.exoplayer.DefaultLoadControl.EventListener)">DefaultLoadControl</a></span>(<a href="../../../../../reference/com/google/android/exoplayer/upstream/Allocator.html">Allocator</a> allocator, <a href="http://developer.android.com/reference/android/os/Handler.html"><?csvar:type.label ?></a> eventHandler, <a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.EventListener.html">DefaultLoadControl.EventListener</a> eventListener)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.html#DefaultLoadControl(com.google.android.exoplayer.upstream.Allocator, android.os.Handler, com.google.android.exoplayer.DefaultLoadControl.EventListener)">DefaultLoadControl</a></span>(<a href="../../../../../reference/com/google/android/exoplayer/upstream/Allocator.html">Allocator</a> allocator, <a href="http://developer.android.com/reference/android/os/Handler.html">Handler</a> eventHandler, <a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.EventListener.html">DefaultLoadControl.EventListener</a> eventListener)</nobr>
         
         <div class="jd-descrdiv">
           Constructs a new instance, using the <code>DEFAULT_*</code> constants defined in this class.
@@ -650,7 +651,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.html#DefaultLoadControl(com.google.android.exoplayer.upstream.Allocator, android.os.Handler, com.google.android.exoplayer.DefaultLoadControl.EventListener, int, int, float, float)">DefaultLoadControl</a></span>(<a href="../../../../../reference/com/google/android/exoplayer/upstream/Allocator.html">Allocator</a> allocator, <a href="http://developer.android.com/reference/android/os/Handler.html"><?csvar:type.label ?></a> eventHandler, <a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.EventListener.html">DefaultLoadControl.EventListener</a> eventListener, int lowWatermarkMs, int highWatermarkMs, float lowPoolLoad, float highPoolLoad)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.html#DefaultLoadControl(com.google.android.exoplayer.upstream.Allocator, android.os.Handler, com.google.android.exoplayer.DefaultLoadControl.EventListener, int, int, float, float)">DefaultLoadControl</a></span>(<a href="../../../../../reference/com/google/android/exoplayer/upstream/Allocator.html">Allocator</a> allocator, <a href="http://developer.android.com/reference/android/os/Handler.html">Handler</a> eventHandler, <a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.EventListener.html">DefaultLoadControl.EventListener</a> eventListener, int lowWatermarkMs, int highWatermarkMs, float lowPoolLoad, float highPoolLoad)</nobr>
         
         <div class="jd-descrdiv">
           Constructs a new instance.
@@ -710,7 +711,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.html#register(java.lang.Object, int)">register</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> loader, int bufferSizeContribution)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.html#register(java.lang.Object, int)">register</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> loader, int bufferSizeContribution)</nobr>
         
         <div class="jd-descrdiv">
           Registers a loader.
@@ -757,7 +758,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.html#unregister(java.lang.Object)">unregister</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> loader)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.html#unregister(java.lang.Object)">unregister</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> loader)</nobr>
         
         <div class="jd-descrdiv">
           Unregisters a loader.
@@ -780,7 +781,7 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.html#update(java.lang.Object, long, long, boolean, boolean)">update</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> loader, long playbackPositionUs, long nextLoadPositionUs, boolean loading, boolean failed)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.html#update(java.lang.Object, long, long, boolean, boolean)">update</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> loader, long playbackPositionUs, long nextLoadPositionUs, boolean loading, boolean failed)</nobr>
         
         <div class="jd-descrdiv">
           Invoked by a loader to update the control with its current state.
@@ -853,7 +854,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
         
   </td></tr>
 
@@ -1063,7 +1064,7 @@ From interface
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/LoadControl.html#register(java.lang.Object, int)">register</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> loader, int bufferSizeContribution)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/LoadControl.html#register(java.lang.Object, int)">register</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> loader, int bufferSizeContribution)</nobr>
         
         <div class="jd-descrdiv">
           Registers a loader.
@@ -1110,7 +1111,7 @@ From interface
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/LoadControl.html#unregister(java.lang.Object)">unregister</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> loader)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/LoadControl.html#unregister(java.lang.Object)">unregister</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> loader)</nobr>
         
         <div class="jd-descrdiv">
           Unregisters a loader.
@@ -1133,7 +1134,7 @@ From interface
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/LoadControl.html#update(java.lang.Object, long, long, boolean, boolean)">update</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> loader, long playbackPositionUs, long nextLoadPositionUs, boolean loading, boolean failed)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/LoadControl.html#update(java.lang.Object, long, long, boolean, boolean)">update</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> loader, long playbackPositionUs, long nextLoadPositionUs, boolean loading, boolean failed)</nobr>
         
         <div class="jd-descrdiv">
           Invoked by a loader to update the control with its current state.
@@ -1409,7 +1410,7 @@ From interface
         
       </span>
       <span class="sympad">DefaultLoadControl</span>
-      <span class="normal">(<a href="../../../../../reference/com/google/android/exoplayer/upstream/Allocator.html">Allocator</a> allocator, <a href="http://developer.android.com/reference/android/os/Handler.html"><?csvar:type.label ?></a> eventHandler, <a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.EventListener.html">DefaultLoadControl.EventListener</a> eventListener)</span>
+      <span class="normal">(<a href="../../../../../reference/com/google/android/exoplayer/upstream/Allocator.html">Allocator</a> allocator, <a href="http://developer.android.com/reference/android/os/Handler.html">Handler</a> eventHandler, <a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.EventListener.html">DefaultLoadControl.EventListener</a> eventListener)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1460,7 +1461,7 @@ From interface
         
       </span>
       <span class="sympad">DefaultLoadControl</span>
-      <span class="normal">(<a href="../../../../../reference/com/google/android/exoplayer/upstream/Allocator.html">Allocator</a> allocator, <a href="http://developer.android.com/reference/android/os/Handler.html"><?csvar:type.label ?></a> eventHandler, <a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.EventListener.html">DefaultLoadControl.EventListener</a> eventListener, int lowWatermarkMs, int highWatermarkMs, float lowPoolLoad, float highPoolLoad)</span>
+      <span class="normal">(<a href="../../../../../reference/com/google/android/exoplayer/upstream/Allocator.html">Allocator</a> allocator, <a href="http://developer.android.com/reference/android/os/Handler.html">Handler</a> eventHandler, <a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.EventListener.html">DefaultLoadControl.EventListener</a> eventListener, int lowWatermarkMs, int highWatermarkMs, float lowPoolLoad, float highPoolLoad)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1586,7 +1587,7 @@ From interface
         void
       </span>
       <span class="sympad">register</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> loader, int bufferSizeContribution)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> loader, int bufferSizeContribution)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1671,7 +1672,7 @@ From interface
         void
       </span>
       <span class="sympad">unregister</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> loader)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> loader)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1713,7 +1714,7 @@ From interface
         boolean
       </span>
       <span class="sympad">update</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> loader, long playbackPositionUs, long nextLoadPositionUs, boolean loading, boolean failed)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> loader, long playbackPositionUs, long nextLoadPositionUs, boolean loading, boolean failed)</span>
     </h4>
       <div class="api-level">
         <div></div>

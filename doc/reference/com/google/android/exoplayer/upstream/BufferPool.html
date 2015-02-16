@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -186,6 +185,8 @@ type="text/css">
   <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
@@ -592,6 +593,29 @@ Summary:
             
             
             
+            byte[]</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/BufferPool.html#allocateDirect()">allocateDirect</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Obtain a single buffer directly from the pool.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            synchronized
+            
+            
+            
             int</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
@@ -599,6 +623,29 @@ Summary:
         
         <div class="jd-descrdiv">
           Returns the number of bytes currently allocated in the form of <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Allocation.html">Allocation</a></code>s.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            synchronized
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/BufferPool.html#releaseDirect(byte[])">releaseDirect</a></span>(byte[] buffer)</nobr>
+        
+        <div class="jd-descrdiv">
+          Return a single buffer to the pool.
           
     
 
@@ -693,7 +740,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
         
   </td></tr>
 
@@ -1121,6 +1168,46 @@ From interface
 </div>
 
 
+<A NAME="allocateDirect()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+        synchronized 
+        byte[]
+      </span>
+      <span class="sympad">allocateDirect</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Obtain a single buffer directly from the pool.
+ <p>
+ When the caller has finished with the buffer, it should be returned to the pool by calling
+ <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/BufferPool.html#releaseDirect(byte[])">releaseDirect(byte[])</a></code>.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The allocated buffer.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
 <A NAME="getAllocatedSize()"></A>
 
 <div class="jd-details api apilevel-"> 
@@ -1152,6 +1239,48 @@ From interface
       <h5 class="jd-tagtitle">Returns</h5>
       <ul class="nolist"><li>The number of allocated bytes.
 </li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="releaseDirect(byte[])"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+        synchronized 
+        void
+      </span>
+      <span class="sympad">releaseDirect</span>
+      <span class="normal">(byte[] buffer)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Return a single buffer to the pool.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>buffer</td>
+          <td>The buffer being returned.
+</td>
+        </tr>
+      </table>
   </div>
 
     </div>

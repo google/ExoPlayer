@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -187,6 +186,8 @@ type="text/css">
     <li class="selected api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
@@ -222,7 +223,7 @@ type="text/css">
               
     <li><h2>Classes</h2>
       <ul>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/BitArrayChunk.html">BitArrayChunk</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/DataChunk.html">DataChunk</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunk.html">HlsChunk</a></li>
           <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunkSource.html">HlsChunkSource</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsMasterPlaylist.html">HlsMasterPlaylist</a></li>
@@ -232,8 +233,6 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsPlaylistParser.html">HlsPlaylistParser</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsSampleSource.html">HlsSampleSource</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/TsChunk.html">TsChunk</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/TsExtractor.html">TsExtractor</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/TsExtractor.SamplePool.html">TsExtractor.SamplePool</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/Variant.html">Variant</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/Variant.DecreasingBandwidthComparator.html">Variant.DecreasingBandwidthComparator</a></li>
       </ul>
@@ -523,6 +522,18 @@ Summary:
     </tr>
     
     
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunkSource.html#DEFAULT_TARGET_BUFFER_SIZE">DEFAULT_TARGET_BUFFER_SIZE</a></td>
+        <td class="jd-descrcol" width="100%">
+          The default target buffer size in bytes.
+          
+    
+
+        </td>
+    </tr>
+    
+    
 
 </table>
 
@@ -553,7 +564,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunkSource.html#HlsChunkSource(com.google.android.exoplayer.upstream.DataSource, java.lang.String, com.google.android.exoplayer.hls.HlsPlaylist, com.google.android.exoplayer.upstream.BandwidthMeter, int[], int)">HlsChunkSource</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> playlistUrl, <a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsPlaylist.html">HlsPlaylist</a> playlist, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html">BandwidthMeter</a> bandwidthMeter, int[] variantIndices, int adaptiveMode)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunkSource.html#HlsChunkSource(com.google.android.exoplayer.upstream.DataSource, java.lang.String, com.google.android.exoplayer.hls.HlsPlaylist, com.google.android.exoplayer.upstream.BandwidthMeter, int[], int)">HlsChunkSource</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> playlistUrl, <a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsPlaylist.html">HlsPlaylist</a> playlist, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html">BandwidthMeter</a> bandwidthMeter, int[] variantIndices, int adaptiveMode)</nobr>
         
   </td></tr>
 
@@ -569,7 +580,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunkSource.html#HlsChunkSource(com.google.android.exoplayer.upstream.DataSource, java.lang.String, com.google.android.exoplayer.hls.HlsPlaylist, com.google.android.exoplayer.upstream.BandwidthMeter, int[], int, long, long, long)">HlsChunkSource</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> playlistUrl, <a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsPlaylist.html">HlsPlaylist</a> playlist, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html">BandwidthMeter</a> bandwidthMeter, int[] variantIndices, int adaptiveMode, long targetBufferDurationMs, long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunkSource.html#HlsChunkSource(com.google.android.exoplayer.upstream.DataSource, java.lang.String, com.google.android.exoplayer.hls.HlsPlaylist, com.google.android.exoplayer.upstream.BandwidthMeter, int[], int, int, long, long, long)">HlsChunkSource</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> playlistUrl, <a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsPlaylist.html">HlsPlaylist</a> playlist, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html">BandwidthMeter</a> bandwidthMeter, int[] variantIndices, int adaptiveMode, int targetBufferSize, long targetBufferDurationMs, long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs)</nobr>
         
   </td></tr>
 
@@ -661,7 +672,7 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunkSource.html#onLoadError(com.google.android.exoplayer.hls.HlsChunk, java.io.IOException)">onLoadError</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunk.html">HlsChunk</a> chunk, <a href="http://developer.android.com/reference/java/io/IOException.html"><?csvar:type.label ?></a> e)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunkSource.html#onLoadError(com.google.android.exoplayer.hls.HlsChunk, java.io.IOException)">onLoadError</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunk.html">HlsChunk</a> chunk, <a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a> e)</nobr>
         
         <div class="jd-descrdiv">
           Invoked when an error occurs loading a chunk.
@@ -734,7 +745,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
         
   </td></tr>
 
@@ -1191,6 +1202,48 @@ From class
 
 
 
+<A NAME="DEFAULT_TARGET_BUFFER_SIZE"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        DEFAULT_TARGET_BUFFER_SIZE
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The default target buffer size in bytes.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                18874368
+                (0x01200000)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
 
 <!-- Fields -->
 
@@ -1216,7 +1269,7 @@ From class
         
       </span>
       <span class="sympad">HlsChunkSource</span>
-      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> playlistUrl, <a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsPlaylist.html">HlsPlaylist</a> playlist, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html">BandwidthMeter</a> bandwidthMeter, int[] variantIndices, int adaptiveMode)</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> playlistUrl, <a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsPlaylist.html">HlsPlaylist</a> playlist, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html">BandwidthMeter</a> bandwidthMeter, int[] variantIndices, int adaptiveMode)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1235,7 +1288,7 @@ From class
 </div>
 
 
-<A NAME="HlsChunkSource(com.google.android.exoplayer.upstream.DataSource, java.lang.String, com.google.android.exoplayer.hls.HlsPlaylist, com.google.android.exoplayer.upstream.BandwidthMeter, int[], int, long, long, long)"></A>
+<A NAME="HlsChunkSource(com.google.android.exoplayer.upstream.DataSource, java.lang.String, com.google.android.exoplayer.hls.HlsPlaylist, com.google.android.exoplayer.upstream.BandwidthMeter, int[], int, int, long, long, long)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1248,7 +1301,7 @@ From class
         
       </span>
       <span class="sympad">HlsChunkSource</span>
-      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> playlistUrl, <a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsPlaylist.html">HlsPlaylist</a> playlist, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html">BandwidthMeter</a> bandwidthMeter, int[] variantIndices, int adaptiveMode, long targetBufferDurationMs, long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs)</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> playlistUrl, <a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsPlaylist.html">HlsPlaylist</a> playlist, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/BandwidthMeter.html">BandwidthMeter</a> bandwidthMeter, int[] variantIndices, int adaptiveMode, int targetBufferSize, long targetBufferDurationMs, long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1293,10 +1346,14 @@ From class
      <code><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunkSource.html#ADAPTIVE_MODE_SPLICE">ADAPTIVE_MODE_SPLICE</a></code>.</td>
         </tr>
         <tr>
+          <th>targetBufferSize</td>
+          <td>The targeted buffer size in bytes. The buffer will not be filled more
+     than one chunk beyond this amount of data.</td>
+        </tr>
+        <tr>
           <th>targetBufferDurationMs</td>
           <td>The targeted duration of media to buffer ahead of the current
-     playback position. Note that the greater this value, the greater the amount of memory
-     that will be consumed.</td>
+     playback position. The buffer will not be filled more than one chunk beyond this position.</td>
         </tr>
         <tr>
           <th>minBufferDurationToSwitchUpMs</td>
@@ -1476,7 +1533,7 @@ From class
         boolean
       </span>
       <span class="sympad">onLoadError</span>
-      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunk.html">HlsChunk</a> chunk, <a href="http://developer.android.com/reference/java/io/IOException.html"><?csvar:type.label ?></a> e)</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunk.html">HlsChunk</a> chunk, <a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a> e)</span>
     </h4>
       <div class="api-level">
         <div></div>

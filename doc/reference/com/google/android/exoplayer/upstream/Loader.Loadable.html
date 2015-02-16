@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -186,6 +185,8 @@ type="text/css">
   <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
@@ -408,11 +409,11 @@ Summary:
               >
           
             
-              <a href="../../../../../../reference/com/google/android/exoplayer/hls/BitArrayChunk.html">BitArrayChunk</a>,
-            
               <a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a>,
             
               <a href="../../../../../../reference/com/google/android/exoplayer/chunk/ContainerMediaChunk.html">ContainerMediaChunk</a>,
+            
+              <a href="../../../../../../reference/com/google/android/exoplayer/hls/DataChunk.html">DataChunk</a>,
             
               <a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSourceStream.html">DataSourceStream</a>,
             
@@ -433,18 +434,6 @@ Summary:
   <table class="jd-sumtable-expando">
     
       <tr class="alt-color api apilevel-" >
-        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/hls/BitArrayChunk.html">BitArrayChunk</a></td>
-        <td class="jd-descrcol" width="100%">
-          An abstract base class for <code><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunk.html">HlsChunk</a></code> implementations where the data should be loaded into
- a <code><a href="../../../../../../reference/com/google/android/exoplayer/util/BitArray.html">BitArray</a></code> and subsequently consumed.&nbsp;
-          
-    
-
-        </td>
-      </tr>
-      
-    
-      <tr class=" api apilevel-" >
         <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></td>
         <td class="jd-descrcol" width="100%">
           An abstract base class for <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a></code> implementations that load chunks of data required
@@ -456,10 +445,22 @@ Summary:
       </tr>
       
     
-      <tr class="alt-color api apilevel-" >
+      <tr class=" api apilevel-" >
         <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ContainerMediaChunk.html">ContainerMediaChunk</a></td>
         <td class="jd-descrcol" width="100%">
           A <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a></code> extracted from a container.&nbsp;
+          
+    
+
+        </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+        <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/hls/DataChunk.html">DataChunk</a></td>
+        <td class="jd-descrcol" width="100%">
+          An abstract base class for <code><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunk.html">HlsChunk</a></code> implementations where the data should be loaded into
+ a <code>byte[]</code> before being consumed.&nbsp;
           
     
 

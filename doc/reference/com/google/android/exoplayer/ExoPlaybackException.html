@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -186,6 +185,8 @@ type="text/css">
   <a href="../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
@@ -538,7 +539,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlaybackException.html#ExoPlaybackException(java.lang.String)">ExoPlaybackException</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> message)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlaybackException.html#ExoPlaybackException(java.lang.String)">ExoPlaybackException</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> message)</nobr>
         
   </td></tr>
 
@@ -554,7 +555,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlaybackException.html#ExoPlaybackException(java.lang.Throwable)">ExoPlaybackException</a></span>(<a href="http://developer.android.com/reference/java/lang/Throwable.html"><?csvar:type.label ?></a> cause)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlaybackException.html#ExoPlaybackException(java.lang.Throwable)">ExoPlaybackException</a></span>(<a href="http://developer.android.com/reference/java/lang/Throwable.html">Throwable</a> cause)</nobr>
         
   </td></tr>
 
@@ -570,7 +571,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlaybackException.html#ExoPlaybackException(java.lang.String, java.lang.Throwable)">ExoPlaybackException</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> message, <a href="http://developer.android.com/reference/java/lang/Throwable.html"><?csvar:type.label ?></a> cause)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlaybackException.html#ExoPlaybackException(java.lang.String, java.lang.Throwable)">ExoPlaybackException</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> message, <a href="http://developer.android.com/reference/java/lang/Throwable.html">Throwable</a> cause)</nobr>
         
   </td></tr>
 
@@ -626,7 +627,7 @@ From class
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">addSuppressed</span>(<a href="http://developer.android.com/reference/java/lang/Throwable.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">addSuppressed</span>(<a href="http://developer.android.com/reference/java/lang/Throwable.html">Throwable</a> arg0)</nobr>
         
   </td></tr>
 
@@ -738,7 +739,7 @@ From class
             <a href="http://developer.android.com/reference/java/lang/Throwable.html">Throwable</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">initCause</span>(<a href="http://developer.android.com/reference/java/lang/Throwable.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">initCause</span>(<a href="http://developer.android.com/reference/java/lang/Throwable.html">Throwable</a> arg0)</nobr>
         
   </td></tr>
 
@@ -754,7 +755,7 @@ From class
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">printStackTrace</span>(<a href="http://developer.android.com/reference/java/io/PrintStream.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">printStackTrace</span>(<a href="http://developer.android.com/reference/java/io/PrintStream.html">PrintStream</a> arg0)</nobr>
         
   </td></tr>
 
@@ -770,7 +771,7 @@ From class
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">printStackTrace</span>(<a href="http://developer.android.com/reference/java/io/PrintWriter.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">printStackTrace</span>(<a href="http://developer.android.com/reference/java/io/PrintWriter.html">PrintWriter</a> arg0)</nobr>
         
   </td></tr>
 
@@ -802,7 +803,7 @@ From class
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">setStackTrace</span>(<a href="http://developer.android.com/reference/java/lang/StackTraceElement.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">setStackTrace</span>(<a href="http://developer.android.com/reference/java/lang/StackTraceElement.html">StackTraceElement[]</a> arg0)</nobr>
         
   </td></tr>
 
@@ -876,7 +877,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
         
   </td></tr>
 
@@ -1080,7 +1081,7 @@ From class
         
       </span>
       <span class="sympad">ExoPlaybackException</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> message)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> message)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1112,7 +1113,7 @@ From class
         
       </span>
       <span class="sympad">ExoPlaybackException</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/Throwable.html"><?csvar:type.label ?></a> cause)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/Throwable.html">Throwable</a> cause)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1144,7 +1145,7 @@ From class
         
       </span>
       <span class="sympad">ExoPlaybackException</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> message, <a href="http://developer.android.com/reference/java/lang/Throwable.html"><?csvar:type.label ?></a> cause)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> message, <a href="http://developer.android.com/reference/java/lang/Throwable.html">Throwable</a> cause)</span>
     </h4>
       <div class="api-level">
         <div></div>

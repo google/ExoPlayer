@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -187,6 +186,8 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
@@ -232,11 +233,11 @@ type="text/css">
     <li><h2>Classes</h2>
       <ul>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/Assertions.html">Assertions</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/BitArray.html">BitArray</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/CodecSpecificDataUtil.html">CodecSpecificDataUtil</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/LongArray.html">LongArray</a></li>
           <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html">ManifestFetcher</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html">MimeTypes</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableBitArray.html">ParsableBitArray</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html">ParsableByteArray</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/PlayerControl.html">PlayerControl</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/PriorityHandlerThread.html">PriorityHandlerThread</a></li>
@@ -529,7 +530,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#ManifestFetcher(com.google.android.exoplayer.util.ManifestParser<T>, java.lang.String, java.lang.String, java.lang.String)">ManifestFetcher</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestParser.html">ManifestParser</a>&lt;T&gt; parser, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> contentId, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> manifestUrl, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> userAgent)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#ManifestFetcher(com.google.android.exoplayer.util.ManifestParser<T>, java.lang.String, java.lang.String, java.lang.String)">ManifestFetcher</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestParser.html">ManifestParser</a>&lt;T&gt; parser, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> manifestUrl, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> userAgent)</nobr>
         
   </td></tr>
 
@@ -545,7 +546,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#ManifestFetcher(com.google.android.exoplayer.util.ManifestParser<T>, java.lang.String, java.lang.String, java.lang.String, android.os.Handler, com.google.android.exoplayer.util.ManifestFetcher.EventListener)">ManifestFetcher</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestParser.html">ManifestParser</a>&lt;T&gt; parser, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> contentId, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> manifestUrl, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> userAgent, <a href="http://developer.android.com/reference/android/os/Handler.html"><?csvar:type.label ?></a> eventHandler, <a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.EventListener.html">ManifestFetcher.EventListener</a> eventListener)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#ManifestFetcher(com.google.android.exoplayer.util.ManifestParser<T>, java.lang.String, java.lang.String, java.lang.String, android.os.Handler, com.google.android.exoplayer.util.ManifestFetcher.EventListener)">ManifestFetcher</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestParser.html">ManifestParser</a>&lt;T&gt; parser, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> manifestUrl, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> userAgent, <a href="http://developer.android.com/reference/android/os/Handler.html">Handler</a> eventHandler, <a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.EventListener.html">ManifestFetcher.EventListener</a> eventListener)</nobr>
         
   </td></tr>
 
@@ -737,7 +738,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#onLoadError(com.google.android.exoplayer.upstream.Loader.Loadable, java.io.IOException)">onLoadError</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable, <a href="http://developer.android.com/reference/java/io/IOException.html"><?csvar:type.label ?></a> exception)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#onLoadError(com.google.android.exoplayer.upstream.Loader.Loadable, java.io.IOException)">onLoadError</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable, <a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a> exception)</nobr>
         
         <div class="jd-descrdiv">
           Invoked when the data source is stopped due to an error.
@@ -783,7 +784,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#singleLoad(android.os.Looper, com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback<T>)">singleLoad</a></span>(<a href="http://developer.android.com/reference/android/os/Looper.html"><?csvar:type.label ?></a> callbackLooper, <a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestCallback</a>&lt;T&gt; callback)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#singleLoad(android.os.Looper, com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback<T>)">singleLoad</a></span>(<a href="http://developer.android.com/reference/android/os/Looper.html">Looper</a> callbackLooper, <a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestCallback</a>&lt;T&gt; callback)</nobr>
         
         <div class="jd-descrdiv">
           Performs a single manifest load.
@@ -806,7 +807,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#updateManifestUrl(java.lang.String)">updateManifestUrl</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> manifestUrl)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html#updateManifestUrl(java.lang.String)">updateManifestUrl</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> manifestUrl)</nobr>
         
         <div class="jd-descrdiv">
           Updates the manifest location.
@@ -879,7 +880,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
         
   </td></tr>
 
@@ -1111,7 +1112,7 @@ From interface
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Callback.html#onLoadError(com.google.android.exoplayer.upstream.Loader.Loadable, java.io.IOException)">onLoadError</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable, <a href="http://developer.android.com/reference/java/io/IOException.html"><?csvar:type.label ?></a> exception)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Callback.html#onLoadError(com.google.android.exoplayer.upstream.Loader.Loadable, java.io.IOException)">onLoadError</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable, <a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a> exception)</nobr>
         
         <div class="jd-descrdiv">
           Invoked when the data source is stopped due to an error.
@@ -1176,7 +1177,7 @@ From interface
         
       </span>
       <span class="sympad">ManifestFetcher</span>
-      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestParser.html">ManifestParser</a>&lt;T&gt; parser, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> contentId, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> manifestUrl, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> userAgent)</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestParser.html">ManifestParser</a>&lt;T&gt; parser, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> manifestUrl, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> userAgent)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1208,7 +1209,7 @@ From interface
         
       </span>
       <span class="sympad">ManifestFetcher</span>
-      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestParser.html">ManifestParser</a>&lt;T&gt; parser, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> contentId, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> manifestUrl, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> userAgent, <a href="http://developer.android.com/reference/android/os/Handler.html"><?csvar:type.label ?></a> eventHandler, <a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.EventListener.html">ManifestFetcher.EventListener</a> eventListener)</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestParser.html">ManifestParser</a>&lt;T&gt; parser, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> contentId, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> manifestUrl, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> userAgent, <a href="http://developer.android.com/reference/android/os/Handler.html">Handler</a> eventHandler, <a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.EventListener.html">ManifestFetcher.EventListener</a> eventListener)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1541,7 +1542,7 @@ From interface
         void
       </span>
       <span class="sympad">onLoadError</span>
-      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable, <a href="http://developer.android.com/reference/java/io/IOException.html"><?csvar:type.label ?></a> exception)</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/Loader.Loadable.html">Loader.Loadable</a> loadable, <a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a> exception)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1616,7 +1617,7 @@ From interface
         void
       </span>
       <span class="sympad">singleLoad</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/android/os/Looper.html"><?csvar:type.label ?></a> callbackLooper, <a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestCallback</a>&lt;T&gt; callback)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/android/os/Looper.html">Looper</a> callbackLooper, <a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestCallback</a>&lt;T&gt; callback)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1663,7 +1664,7 @@ From interface
         void
       </span>
       <span class="sympad">updateManifestUrl</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> manifestUrl)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> manifestUrl)</span>
     </h4>
       <div class="api-level">
         <div></div>

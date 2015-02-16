@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -186,6 +185,8 @@ type="text/css">
   <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
@@ -600,7 +601,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#DataSpec(android.net.Uri)">DataSpec</a></span>(<a href="http://developer.android.com/reference/android/net/Uri.html"><?csvar:type.label ?></a> uri)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#DataSpec(android.net.Uri)">DataSpec</a></span>(<a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> uri)</nobr>
         
         <div class="jd-descrdiv">
           Construct a <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a></code> for the given uri and with <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#key">key</a></code> set to null.
@@ -623,7 +624,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#DataSpec(android.net.Uri, long, long, java.lang.String)">DataSpec</a></span>(<a href="http://developer.android.com/reference/android/net/Uri.html"><?csvar:type.label ?></a> uri, long absoluteStreamPosition, long length, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#DataSpec(android.net.Uri, long, long, java.lang.String)">DataSpec</a></span>(<a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> uri, long absoluteStreamPosition, long length, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> key)</nobr>
         
         <div class="jd-descrdiv">
           Construct a <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a></code> for which <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#uriIsFullStream">uriIsFullStream</a></code> is true.
@@ -646,7 +647,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#DataSpec(android.net.Uri, long, long, java.lang.String, long)">DataSpec</a></span>(<a href="http://developer.android.com/reference/android/net/Uri.html"><?csvar:type.label ?></a> uri, long absoluteStreamPosition, long length, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#DataSpec(android.net.Uri, long, long, java.lang.String, long)">DataSpec</a></span>(<a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> uri, long absoluteStreamPosition, long length, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</nobr>
         
         <div class="jd-descrdiv">
           Construct a <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a></code> for which <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#uriIsFullStream">uriIsFullStream</a></code> is false.
@@ -669,7 +670,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#DataSpec(android.net.Uri, long, long, java.lang.String, long, boolean)">DataSpec</a></span>(<a href="http://developer.android.com/reference/android/net/Uri.html"><?csvar:type.label ?></a> uri, long absoluteStreamPosition, long length, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position, boolean uriIsFullStream)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html#DataSpec(android.net.Uri, long, long, java.lang.String, long, boolean)">DataSpec</a></span>(<a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> uri, long absoluteStreamPosition, long length, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, boolean uriIsFullStream)</nobr>
         
         <div class="jd-descrdiv">
           Construct a <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a></code>.
@@ -771,7 +772,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
         
   </td></tr>
 
@@ -1175,7 +1176,7 @@ From class
         
       </span>
       <span class="sympad">DataSpec</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/android/net/Uri.html"><?csvar:type.label ?></a> uri)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> uri)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1217,7 +1218,7 @@ From class
         
       </span>
       <span class="sympad">DataSpec</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/android/net/Uri.html"><?csvar:type.label ?></a> uri, long absoluteStreamPosition, long length, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> uri, long absoluteStreamPosition, long length, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> key)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1271,7 +1272,7 @@ From class
         
       </span>
       <span class="sympad">DataSpec</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/android/net/Uri.html"><?csvar:type.label ?></a> uri, long absoluteStreamPosition, long length, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> uri, long absoluteStreamPosition, long length, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1329,7 +1330,7 @@ From class
         
       </span>
       <span class="sympad">DataSpec</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/android/net/Uri.html"><?csvar:type.label ?></a> uri, long absoluteStreamPosition, long length, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position, boolean uriIsFullStream)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> uri, long absoluteStreamPosition, long length, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, boolean uriIsFullStream)</span>
     </h4>
       <div class="api-level">
         <div></div>

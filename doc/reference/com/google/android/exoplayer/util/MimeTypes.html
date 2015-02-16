@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -187,6 +186,8 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
@@ -232,11 +233,11 @@ type="text/css">
     <li><h2>Classes</h2>
       <ul>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/Assertions.html">Assertions</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/BitArray.html">BitArray</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/CodecSpecificDataUtil.html">CodecSpecificDataUtil</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/LongArray.html">LongArray</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html">ManifestFetcher</a></li>
           <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html">MimeTypes</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableBitArray.html">ParsableBitArray</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html">ParsableByteArray</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/PlayerControl.html">PlayerControl</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/PriorityHandlerThread.html">PriorityHandlerThread</a></li>
@@ -726,7 +727,7 @@ Summary:
             <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html#getTopLevelType(java.lang.String)">getTopLevelType</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html#getTopLevelType(java.lang.String)">getTopLevelType</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</nobr>
         
         <div class="jd-descrdiv">
           Returns the top-level type of <code>mimeType</code>.
@@ -749,7 +750,7 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html#isApplication(java.lang.String)">isApplication</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html#isApplication(java.lang.String)">isApplication</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</nobr>
         
         <div class="jd-descrdiv">
           Whether the top-level type of <code>mimeType</code> is application.
@@ -772,7 +773,7 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html#isAudio(java.lang.String)">isAudio</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html#isAudio(java.lang.String)">isAudio</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</nobr>
         
         <div class="jd-descrdiv">
           Whether the top-level type of <code>mimeType</code> is audio.
@@ -795,7 +796,7 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html#isText(java.lang.String)">isText</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html#isText(java.lang.String)">isText</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</nobr>
         
         <div class="jd-descrdiv">
           Whether the top-level type of <code>mimeType</code> is text.
@@ -818,7 +819,7 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html#isTtml(java.lang.String)">isTtml</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html#isTtml(java.lang.String)">isTtml</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</nobr>
         
         <div class="jd-descrdiv">
           Whether the mimeType is <code><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html#APPLICATION_TTML">APPLICATION_TTML</a></code>.
@@ -841,7 +842,7 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html#isVideo(java.lang.String)">isVideo</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html#isVideo(java.lang.String)">isVideo</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</nobr>
         
         <div class="jd-descrdiv">
           Whether the top-level type of <code>mimeType</code> is video.
@@ -914,7 +915,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
         
   </td></tr>
 
@@ -1931,7 +1932,7 @@ From class
         <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
       </span>
       <span class="sympad">getTopLevelType</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1977,7 +1978,7 @@ From class
         boolean
       </span>
       <span class="sympad">isApplication</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -2023,7 +2024,7 @@ From class
         boolean
       </span>
       <span class="sympad">isAudio</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -2069,7 +2070,7 @@ From class
         boolean
       </span>
       <span class="sympad">isText</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -2115,7 +2116,7 @@ From class
         boolean
       </span>
       <span class="sympad">isTtml</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -2161,7 +2162,7 @@ From class
         boolean
       </span>
       <span class="sympad">isVideo</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</span>
     </h4>
       <div class="api-level">
         <div></div>

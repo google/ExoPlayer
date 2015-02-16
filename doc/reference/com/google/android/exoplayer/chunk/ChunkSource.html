@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -186,6 +185,8 @@ type="text/css">
   <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
@@ -553,7 +554,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#disable(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>)">disable</a></span>(<a href="http://developer.android.com/reference/java/util/List.html"><?csvar:type.label ?></a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#disable(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>)">disable</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</nobr>
         
         <div class="jd-descrdiv">
           Called when the source is disabled.
@@ -599,7 +600,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#getChunkOperation(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>, long, long, com.google.android.exoplayer.chunk.ChunkOperationHolder)">getChunkOperation</a></span>(<a href="http://developer.android.com/reference/java/util/List.html"><?csvar:type.label ?></a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue, long seekPositionUs, long playbackPositionUs, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html">ChunkOperationHolder</a> out)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#getChunkOperation(java.util.List<? extends com.google.android.exoplayer.chunk.MediaChunk>, long, long, com.google.android.exoplayer.chunk.ChunkOperationHolder)">getChunkOperation</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue, long seekPositionUs, long playbackPositionUs, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html">ChunkOperationHolder</a> out)</nobr>
         
         <div class="jd-descrdiv">
           Updates the provided <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html">ChunkOperationHolder</a></code> to contain the next operation that should
@@ -694,7 +695,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#onChunkLoadError(com.google.android.exoplayer.chunk.Chunk, java.lang.Exception)">onChunkLoadError</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a> chunk, <a href="http://developer.android.com/reference/java/lang/Exception.html"><?csvar:type.label ?></a> e)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html#onChunkLoadError(com.google.android.exoplayer.chunk.Chunk, java.lang.Exception)">onChunkLoadError</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a> chunk, <a href="http://developer.android.com/reference/java/lang/Exception.html">Exception</a> e)</nobr>
         
         <div class="jd-descrdiv">
           Invoked when the <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a></code> encounters an error loading a chunk obtained from
@@ -810,7 +811,7 @@ Summary:
         void
       </span>
       <span class="sympad">disable</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/util/List.html"><?csvar:type.label ?></a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -885,7 +886,7 @@ Summary:
         void
       </span>
       <span class="sympad">getChunkOperation</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/util/List.html"><?csvar:type.label ?></a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue, long seekPositionUs, long playbackPositionUs, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html">ChunkOperationHolder</a> out)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a>&gt; queue, long seekPositionUs, long playbackPositionUs, <a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html">ChunkOperationHolder</a> out)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1075,7 +1076,7 @@ Summary:
         void
       </span>
       <span class="sympad">onChunkLoadError</span>
-      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a> chunk, <a href="http://developer.android.com/reference/java/lang/Exception.html"><?csvar:type.label ?></a> e)</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a> chunk, <a href="http://developer.android.com/reference/java/lang/Exception.html">Exception</a> e)</span>
     </h4>
       <div class="api-level">
         <div></div>

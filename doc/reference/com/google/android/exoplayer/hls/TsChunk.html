@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -187,6 +186,8 @@ type="text/css">
     <li class="selected api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
@@ -222,7 +223,7 @@ type="text/css">
               
     <li><h2>Classes</h2>
       <ul>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/BitArrayChunk.html">BitArrayChunk</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/DataChunk.html">DataChunk</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunk.html">HlsChunk</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunkSource.html">HlsChunkSource</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsMasterPlaylist.html">HlsMasterPlaylist</a></li>
@@ -232,8 +233,6 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsPlaylistParser.html">HlsPlaylistParser</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsSampleSource.html">HlsSampleSource</a></li>
           <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/TsChunk.html">TsChunk</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/TsExtractor.html">TsExtractor</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/TsExtractor.SamplePool.html">TsExtractor.SamplePool</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/Variant.html">Variant</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/Variant.DecreasingBandwidthComparator.html">Variant.DecreasingBandwidthComparator</a></li>
       </ul>
@@ -521,7 +520,7 @@ Summary:
           public
           
           final
-          <a href="../../../../../../reference/com/google/android/exoplayer/hls/TsExtractor.html">TsExtractor</a></nobr></td>
+          <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/TsExtractor.html">TsExtractor</a></nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/hls/TsChunk.html#extractor">extractor</a></td>
           <td class="jd-descrcol" width="100%">
             The extractor into which this chunk is being consumed.
@@ -673,7 +672,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/hls/TsChunk.html#TsChunk(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSpec, com.google.android.exoplayer.hls.TsExtractor, int, long, long, int, boolean)">TsChunk</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a> dataSpec, <a href="../../../../../../reference/com/google/android/exoplayer/hls/TsExtractor.html">TsExtractor</a> tsExtractor, int variantIndex, long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/hls/TsChunk.html#TsChunk(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSpec, com.google.android.exoplayer.hls.parser.TsExtractor, int, long, long, int, boolean)">TsChunk</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a> dataSpec, <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/TsExtractor.html">TsExtractor</a> tsExtractor, int variantIndex, long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk)</nobr>
         
   </td></tr>
 
@@ -890,7 +889,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
         
   </td></tr>
 
@@ -1244,7 +1243,7 @@ From interface
         public 
          
         final 
-        <a href="../../../../../../reference/com/google/android/exoplayer/hls/TsExtractor.html">TsExtractor</a>
+        <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/TsExtractor.html">TsExtractor</a>
       </span>
         extractor
     </h4>
@@ -1373,7 +1372,7 @@ From interface
 
 
 
-<A NAME="TsChunk(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSpec, com.google.android.exoplayer.hls.TsExtractor, int, long, long, int, boolean)"></A>
+<A NAME="TsChunk(com.google.android.exoplayer.upstream.DataSource, com.google.android.exoplayer.upstream.DataSpec, com.google.android.exoplayer.hls.parser.TsExtractor, int, long, long, int, boolean)"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1386,7 +1385,7 @@ From interface
         
       </span>
       <span class="sympad">TsChunk</span>
-      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a> dataSpec, <a href="../../../../../../reference/com/google/android/exoplayer/hls/TsExtractor.html">TsExtractor</a> tsExtractor, int variantIndex, long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk)</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource, <a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a> dataSpec, <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/TsExtractor.html">TsExtractor</a> tsExtractor, int variantIndex, long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk)</span>
     </h4>
       <div class="api-level">
         <div></div>

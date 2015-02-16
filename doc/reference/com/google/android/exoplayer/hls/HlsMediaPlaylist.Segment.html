@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -187,6 +186,8 @@ type="text/css">
     <li class="selected api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
@@ -222,7 +223,7 @@ type="text/css">
               
     <li><h2>Classes</h2>
       <ul>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/BitArrayChunk.html">BitArrayChunk</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/DataChunk.html">DataChunk</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunk.html">HlsChunk</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsChunkSource.html">HlsChunkSource</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsMasterPlaylist.html">HlsMasterPlaylist</a></li>
@@ -232,8 +233,6 @@ type="text/css">
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsPlaylistParser.html">HlsPlaylistParser</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsSampleSource.html">HlsSampleSource</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/TsChunk.html">TsChunk</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/TsExtractor.html">TsExtractor</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/TsExtractor.SamplePool.html">TsExtractor.SamplePool</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/Variant.html">Variant</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/hls/Variant.DecreasingBandwidthComparator.html">Variant.DecreasingBandwidthComparator</a></li>
       </ul>
@@ -632,7 +631,7 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsMediaPlaylist.Segment.html#HlsMediaPlaylist.Segment(java.lang.String, double, boolean, long, java.lang.String, java.lang.String, java.lang.String, int, int)">HlsMediaPlaylist.Segment</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> uri, double durationSecs, boolean discontinuity, long startTimeUs, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> encryptionMethod, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> encryptionKeyUri, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> encryptionIV, int byterangeOffset, int byterangeLength)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsMediaPlaylist.Segment.html#HlsMediaPlaylist.Segment(java.lang.String, double, boolean, long, java.lang.String, java.lang.String, java.lang.String, int, int)">HlsMediaPlaylist.Segment</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> uri, double durationSecs, boolean discontinuity, long startTimeUs, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> encryptionMethod, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> encryptionKeyUri, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> encryptionIV, int byterangeOffset, int byterangeLength)</nobr>
         
   </td></tr>
 
@@ -661,7 +660,7 @@ Summary:
             int</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsMediaPlaylist.Segment.html#compareTo(java.lang.Long)">compareTo</a></span>(<a href="http://developer.android.com/reference/java/lang/Long.html"><?csvar:type.label ?></a> startTimeUs)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/hls/HlsMediaPlaylist.Segment.html#compareTo(java.lang.Long)">compareTo</a></span>(<a href="http://developer.android.com/reference/java/lang/Long.html">Long</a> startTimeUs)</nobr>
         
   </td></tr>
 
@@ -727,7 +726,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
         
   </td></tr>
 
@@ -913,7 +912,7 @@ From interface
             int</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">compareTo</span>(<a href="http://developer.android.com/reference/java/lang/Long.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">compareTo</span>(<a href="http://developer.android.com/reference/java/lang/Long.html">Long</a> arg0)</nobr>
         
   </td></tr>
 
@@ -1257,7 +1256,7 @@ From interface
         
       </span>
       <span class="sympad">HlsMediaPlaylist.Segment</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> uri, double durationSecs, boolean discontinuity, long startTimeUs, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> encryptionMethod, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> encryptionKeyUri, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> encryptionIV, int byterangeOffset, int byterangeLength)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> uri, double durationSecs, boolean discontinuity, long startTimeUs, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> encryptionMethod, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> encryptionKeyUri, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> encryptionIV, int byterangeOffset, int byterangeLength)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1304,7 +1303,7 @@ From interface
         int
       </span>
       <span class="sympad">compareTo</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/Long.html"><?csvar:type.label ?></a> startTimeUs)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/Long.html">Long</a> startTimeUs)</span>
     </h4>
       <div class="api-level">
         <div></div>

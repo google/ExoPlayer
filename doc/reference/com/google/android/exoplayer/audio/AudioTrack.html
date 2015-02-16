@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -186,6 +185,8 @@ type="text/css">
   <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
@@ -634,7 +635,7 @@ Summary:
             int</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.html#handleBuffer(java.nio.ByteBuffer, int, int, long)">handleBuffer</a></span>(<a href="http://developer.android.com/reference/java/nio/ByteBuffer.html"><?csvar:type.label ?></a> buffer, int offset, int size, long presentationTimeUs)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.html#handleBuffer(java.nio.ByteBuffer, int, int, long)">handleBuffer</a></span>(<a href="http://developer.android.com/reference/java/nio/ByteBuffer.html">ByteBuffer</a> buffer, int offset, int size, long presentationTimeUs)</nobr>
         
         <div class="jd-descrdiv">
           Attempts to write <code>size</code> bytes from <code>buffer</code> at <code>offset</code> to the audio track.
@@ -842,7 +843,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.html#reconfigure(android.media.MediaFormat, int, int)">reconfigure</a></span>(<a href="http://developer.android.com/reference/android/media/MediaFormat.html"><?csvar:type.label ?></a> format, int encoding, int specifiedBufferSize)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.html#reconfigure(android.media.MediaFormat, int, int)">reconfigure</a></span>(<a href="http://developer.android.com/reference/android/media/MediaFormat.html">MediaFormat</a> format, int encoding, int specifiedBufferSize)</nobr>
         
         <div class="jd-descrdiv">
           Reconfigures the audio track to play back media in <code>format</code>.
@@ -865,7 +866,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.html#reconfigure(android.media.MediaFormat)">reconfigure</a></span>(<a href="http://developer.android.com/reference/android/media/MediaFormat.html"><?csvar:type.label ?></a> format)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/audio/AudioTrack.html#reconfigure(android.media.MediaFormat)">reconfigure</a></span>(<a href="http://developer.android.com/reference/android/media/MediaFormat.html">MediaFormat</a> format)</nobr>
         
         <div class="jd-descrdiv">
           Reconfigures the audio track to play back media in <code>format</code>.
@@ -984,7 +985,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
         
   </td></tr>
 
@@ -1455,7 +1456,7 @@ From class
         int
       </span>
       <span class="sympad">handleBuffer</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/nio/ByteBuffer.html"><?csvar:type.label ?></a> buffer, int offset, int size, long presentationTimeUs)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/nio/ByteBuffer.html">ByteBuffer</a> buffer, int offset, int size, long presentationTimeUs)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1823,7 +1824,7 @@ From class
         void
       </span>
       <span class="sympad">reconfigure</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/android/media/MediaFormat.html"><?csvar:type.label ?></a> format, int encoding, int specifiedBufferSize)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/android/media/MediaFormat.html">MediaFormat</a> format, int encoding, int specifiedBufferSize)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1876,7 +1877,7 @@ From class
         void
       </span>
       <span class="sympad">reconfigure</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/android/media/MediaFormat.html"><?csvar:type.label ?></a> format)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/android/media/MediaFormat.html">MediaFormat</a> format)</span>
     </h4>
       <div class="api-level">
         <div></div>

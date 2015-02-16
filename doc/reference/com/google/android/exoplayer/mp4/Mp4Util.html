@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -186,6 +185,8 @@ type="text/css">
   <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="selected api apilevel-">
@@ -567,6 +568,122 @@ Summary:
             
             static
             
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4Util.html#findNalUnit(byte[], int, int, int)">findNalUnit</a></span>(byte[] data, int startOffset, int endOffset, int type)</nobr>
+        
+        <div class="jd-descrdiv">
+          Finds the first NAL unit in <code>data</code>.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4Util.html#findNalUnit(byte[], int, int, boolean[])">findNalUnit</a></span>(byte[] data, int startOffset, int endOffset, boolean[] prefixFlags)</nobr>
+        
+        <div class="jd-descrdiv">
+          Like <code><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4Util.html#findNalUnit(byte[], int, int, int, boolean[])">findNalUnit(byte[], int, int, int, boolean[])</a></code> with <code>type == -1</code>.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4Util.html#findNalUnit(byte[], int, int)">findNalUnit</a></span>(byte[] data, int startOffset, int endOffset)</nobr>
+        
+        <div class="jd-descrdiv">
+          Like <code><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4Util.html#findNalUnit(byte[], int, int, int)">findNalUnit(byte[], int, int, int)</a></code> with <code>type == -1</code>.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4Util.html#findNalUnit(byte[], int, int, int, boolean[])">findNalUnit</a></span>(byte[] data, int startOffset, int endOffset, int type, boolean[] prefixFlags)</nobr>
+        
+        <div class="jd-descrdiv">
+          Like <code><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4Util.html#findNalUnit(byte[], int, int, int)">findNalUnit(byte[], int, int, int)</a></code>, but supports finding of NAL units across
+ array boundaries.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4Util.html#getNalUnitType(byte[], int)">getNalUnitType</a></span>(byte[] data, int offset)</nobr>
+        
+        <div class="jd-descrdiv">
+          Gets the type of the NAL unit in <code>data</code> that starts at <code>offset</code>.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
             byte[]</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
@@ -583,7 +700,7 @@ Summary:
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -606,7 +723,7 @@ Summary:
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -629,7 +746,7 @@ Summary:
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -639,7 +756,7 @@ Summary:
             int</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4Util.html#readUnsignedIntToInt(java.nio.ByteBuffer)">readUnsignedIntToInt</a></span>(<a href="http://developer.android.com/reference/java/nio/ByteBuffer.html"><?csvar:type.label ?></a> data)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4Util.html#readUnsignedIntToInt(java.nio.ByteBuffer)">readUnsignedIntToInt</a></span>(<a href="http://developer.android.com/reference/java/nio/ByteBuffer.html">ByteBuffer</a> data)</nobr>
         
         <div class="jd-descrdiv">
           Reads an unsigned integer into an integer.
@@ -652,7 +769,7 @@ Summary:
 
 
 	 
-    <tr class="alt-color api apilevel-" >
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -662,7 +779,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4Util.html#replaceLengthPrefixesWithAvcStartCodes(java.nio.ByteBuffer, int)">replaceLengthPrefixesWithAvcStartCodes</a></span>(<a href="http://developer.android.com/reference/java/nio/ByteBuffer.html"><?csvar:type.label ?></a> buffer, int size)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4Util.html#replaceLengthPrefixesWithAvcStartCodes(java.nio.ByteBuffer, int)">replaceLengthPrefixesWithAvcStartCodes</a></span>(<a href="http://developer.android.com/reference/java/nio/ByteBuffer.html">ByteBuffer</a> buffer, int size)</nobr>
         
         <div class="jd-descrdiv">
           Replaces length prefixes of NAL units in <code>buffer</code> with start code prefixes, within the
@@ -736,7 +853,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
         
   </td></tr>
 
@@ -1225,6 +1342,303 @@ From class
 
 
 
+<A NAME="findNalUnit(byte[], int, int, int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">findNalUnit</span>
+      <span class="normal">(byte[] data, int startOffset, int endOffset, int type)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Finds the first NAL unit in <code>data</code>.
+ <p>
+ For a NAL unit to be found, its first four bytes must be contained within the part of the
+ array being searched.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>data</td>
+          <td>The data to search.</td>
+        </tr>
+        <tr>
+          <th>startOffset</td>
+          <td>The offset (inclusive) in the data to start the search.</td>
+        </tr>
+        <tr>
+          <th>endOffset</td>
+          <td>The offset (exclusive) in the data to end the search.</td>
+        </tr>
+        <tr>
+          <th>type</td>
+          <td>The type of the NAL unit to search for, or -1 for any NAL unit.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The offset of the NAL unit, or <code>endOffset</code> if a NAL unit was not found.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="findNalUnit(byte[], int, int, boolean[])"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">findNalUnit</span>
+      <span class="normal">(byte[] data, int startOffset, int endOffset, boolean[] prefixFlags)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Like <code><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4Util.html#findNalUnit(byte[], int, int, int, boolean[])">findNalUnit(byte[], int, int, int, boolean[])</a></code> with <code>type == -1</code>.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>data</td>
+          <td>The data to search.</td>
+        </tr>
+        <tr>
+          <th>startOffset</td>
+          <td>The offset (inclusive) in the data to start the search.</td>
+        </tr>
+        <tr>
+          <th>endOffset</td>
+          <td>The offset (exclusive) in the data to end the search.</td>
+        </tr>
+        <tr>
+          <th>prefixFlags</td>
+          <td>A boolean array of length at least 3.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The offset of the NAL unit, or <code>endOffset</code> if a NAL unit was not found.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="findNalUnit(byte[], int, int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">findNalUnit</span>
+      <span class="normal">(byte[] data, int startOffset, int endOffset)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Like <code><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4Util.html#findNalUnit(byte[], int, int, int)">findNalUnit(byte[], int, int, int)</a></code> with <code>type == -1</code>.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>data</td>
+          <td>The data to search.</td>
+        </tr>
+        <tr>
+          <th>startOffset</td>
+          <td>The offset (inclusive) in the data to start the search.</td>
+        </tr>
+        <tr>
+          <th>endOffset</td>
+          <td>The offset (exclusive) in the data to end the search.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The offset of the NAL unit, or <code>endOffset</code> if a NAL unit was not found.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="findNalUnit(byte[], int, int, int, boolean[])"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">findNalUnit</span>
+      <span class="normal">(byte[] data, int startOffset, int endOffset, int type, boolean[] prefixFlags)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Like <code><a href="../../../../../../reference/com/google/android/exoplayer/mp4/Mp4Util.html#findNalUnit(byte[], int, int, int)">findNalUnit(byte[], int, int, int)</a></code>, but supports finding of NAL units across
+ array boundaries.
+ <p>
+ To use this method, pass the same <code>prefixFlags</code> parameter to successive calls where the
+ data passed represents a contiguous stream. The state maintained in this parameter allows the
+ detection of NAL units where the NAL unit prefix spans array boundaries.
+ <p>
+ Note that when using <code>prefixFlags</code> the return value may be 3, 2 or 1 less than
+ <code>startOffset</code>, to indicate a NAL unit starting 3, 2 or 1 bytes before the first byte in
+ the current array.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>data</td>
+          <td>The data to search.</td>
+        </tr>
+        <tr>
+          <th>startOffset</td>
+          <td>The offset (inclusive) in the data to start the search.</td>
+        </tr>
+        <tr>
+          <th>endOffset</td>
+          <td>The offset (exclusive) in the data to end the search.</td>
+        </tr>
+        <tr>
+          <th>type</td>
+          <td>The type of the NAL unit to search for, or -1 for any NAL unit.</td>
+        </tr>
+        <tr>
+          <th>prefixFlags</td>
+          <td>A boolean array whose first three elements are used to store the state
+     required to detect NAL units where the NAL unit prefix spans array boundaries. The array
+     must be at least 3 elements long.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The offset of the NAL unit, or <code>endOffset</code> if a NAL unit was not found.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getNalUnitType(byte[], int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">getNalUnitType</span>
+      <span class="normal">(byte[] data, int offset)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Gets the type of the NAL unit in <code>data</code> that starts at <code>offset</code>.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>data</td>
+          <td>The data to search.</td>
+        </tr>
+        <tr>
+          <th>offset</td>
+          <td>The start offset of a NAL unit. Must lie between <code>-3</code> (inclusive) and
+     <code>data.length - 3</code> (exclusive).</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The type of the unit.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
 <A NAME="parseChildNalUnit(com.google.android.exoplayer.util.ParsableByteArray)"></A>
 
 <div class="jd-details api apilevel-"> 
@@ -1334,7 +1748,7 @@ From class
         int
       </span>
       <span class="sympad">readUnsignedIntToInt</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/nio/ByteBuffer.html"><?csvar:type.label ?></a> data)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/nio/ByteBuffer.html">ByteBuffer</a> data)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1377,7 +1791,7 @@ From class
         void
       </span>
       <span class="sympad">replaceLengthPrefixesWithAvcStartCodes</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/nio/ByteBuffer.html"><?csvar:type.label ?></a> buffer, int size)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/nio/ByteBuffer.html">ByteBuffer</a> buffer, int size)</span>
     </h4>
       <div class="api-level">
         <div></div>

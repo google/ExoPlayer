@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -187,6 +186,8 @@ type="text/css">
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
     <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
+    <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
@@ -232,11 +233,11 @@ type="text/css">
     <li><h2>Classes</h2>
       <ul>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/Assertions.html">Assertions</a></li>
-          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/BitArray.html">BitArray</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/CodecSpecificDataUtil.html">CodecSpecificDataUtil</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/LongArray.html">LongArray</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html">ManifestFetcher</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html">MimeTypes</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableBitArray.html">ParsableBitArray</a></li>
           <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html">ParsableByteArray</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/PlayerControl.html">PlayerControl</a></li>
           <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/PriorityHandlerThread.html">PriorityHandlerThread</a></li>
@@ -465,7 +466,7 @@ Summary:
           <td class="jd-typecol"><nobr>
           public
           
-          final
+          
           byte[]</nobr></td>
           <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html#data">data</a></td>
           <td class="jd-descrcol" width="100%">
@@ -502,10 +503,56 @@ Summary:
             </nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html#ParsableByteArray()">ParsableByteArray</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Creates a new instance that initially has no backing data.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            </nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html#ParsableByteArray(int)">ParsableByteArray</a></span>(int length)</nobr>
         
         <div class="jd-descrdiv">
-          Creates a new parsable array with <code>length</code> bytes.
+          Creates a new instance with <code>length</code> bytes.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            </nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html#ParsableByteArray(byte[], int)">ParsableByteArray</a></span>(byte[] data, int limit)</nobr>
+        
+        <div class="jd-descrdiv">
+          Creates a new instance that wraps an existing array.
           
     
 
@@ -525,6 +572,52 @@ Summary:
 <!-- ========== METHOD SUMMARY =========== -->
 <table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
 
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html#bytesLeft()">bytesLeft</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Returns the number of bytes yet to be read.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html#capacity()">capacity</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Returns the capacity of the array, which may be larger than the limit.
+          
+    
+
+        </div>
+  
+  </td></tr>
 
 
 	 
@@ -561,10 +654,10 @@ Summary:
             int</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html#length()">length</a></span>()</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html#limit()">limit</a></span>()</nobr>
         
         <div class="jd-descrdiv">
-          Returns the number of bytes in the array.
+          Returns the limit.
           
     
 
@@ -607,7 +700,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html#readBytes(java.nio.ByteBuffer, int)">readBytes</a></span>(<a href="http://developer.android.com/reference/java/nio/ByteBuffer.html"><?csvar:type.label ?></a> buffer, int length)</nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html#readBytes(java.nio.ByteBuffer, int)">readBytes</a></span>(<a href="http://developer.android.com/reference/java/nio/ByteBuffer.html">ByteBuffer</a> buffer, int length)</nobr>
         
         <div class="jd-descrdiv">
           Reads the next <code>length</code> bytes into <code>buffer</code>.
@@ -621,6 +714,30 @@ Summary:
 
 	 
     <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html#readBytes(com.google.android.exoplayer.util.ParsableBitArray, int)">readBytes</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableBitArray.html">ParsableBitArray</a> bitArray, int length)</nobr>
+        
+        <div class="jd-descrdiv">
+          Reads the next <code>length</code> bytes into <code>bitArray</code>, and resets the position of
+ <code>bitArray</code> to zero.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -643,7 +760,7 @@ Summary:
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -657,6 +774,29 @@ Summary:
         
         <div class="jd-descrdiv">
           Reads the next eight bytes as a signed value.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html#readSynchSafeInt()">readSynchSafeInt</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Reads a Synchsafe integer.
           
     
 
@@ -814,6 +954,75 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html#reset()">reset</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Sets the position and limit to zero.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html#reset(byte[], int)">reset</a></span>(byte[] data, int limit)</nobr>
+        
+        <div class="jd-descrdiv">
+          Updates the instance to wrap <code>data</code>, and resets the position to zero.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html#setLimit(int)">setLimit</a></span>(int limit)</nobr>
+        
+        <div class="jd-descrdiv">
+          Sets the limit.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
         <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html#setPosition(int)">setPosition</a></span>(int position)</nobr>
         
         <div class="jd-descrdiv">
@@ -827,7 +1036,7 @@ Summary:
 
 
 	 
-    <tr class=" api apilevel-" >
+    <tr class="alt-color api apilevel-" >
         <td class="jd-typecol"><nobr>
             
             
@@ -910,7 +1119,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
         
   </td></tr>
 
@@ -1104,7 +1313,7 @@ From class
       <span class="normal">
         public 
          
-        final 
+         
         byte[]
       </span>
         data
@@ -1137,6 +1346,38 @@ From class
 
 
 
+<A NAME="ParsableByteArray()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        
+      </span>
+      <span class="sympad">ParsableByteArray</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Creates a new instance that initially has no backing data. </p></div>
+
+    </div>
+</div>
+
+
 <A NAME="ParsableByteArray(int)"></A>
 
 <div class="jd-details api apilevel-"> 
@@ -1163,7 +1404,53 @@ From class
     
 
       
-  <div class="jd-tagdata jd-tagdescr"><p>Creates a new parsable array with <code>length</code> bytes. </p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Creates a new instance with <code>length</code> bytes. </p></div>
+
+    </div>
+</div>
+
+
+<A NAME="ParsableByteArray(byte[], int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        
+      </span>
+      <span class="sympad">ParsableByteArray</span>
+      <span class="normal">(byte[] data, int limit)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Creates a new instance that wraps an existing array.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>data</td>
+          <td>The data to wrap.</td>
+        </tr>
+        <tr>
+          <th>limit</td>
+          <td>The limit.
+</td>
+        </tr>
+      </table>
+  </div>
 
     </div>
 </div>
@@ -1182,6 +1469,70 @@ From class
 
 <h2>Public Methods</h2>
 
+
+
+<A NAME="bytesLeft()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">bytesLeft</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the number of bytes yet to be read. </p></div>
+
+    </div>
+</div>
+
+
+<A NAME="capacity()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">capacity</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the capacity of the array, which may be larger than the limit. </p></div>
+
+    </div>
+</div>
 
 
 <A NAME="getPosition()"></A>
@@ -1216,7 +1567,7 @@ From class
 </div>
 
 
-<A NAME="length()"></A>
+<A NAME="limit()"></A>
 
 <div class="jd-details api apilevel-"> 
     <h4 class="jd-details-title">
@@ -1228,7 +1579,7 @@ From class
          
         int
       </span>
-      <span class="sympad">length</span>
+      <span class="sympad">limit</span>
       <span class="normal">()</span>
     </h4>
       <div class="api-level">
@@ -1242,7 +1593,7 @@ From class
     
 
       
-  <div class="jd-tagdata jd-tagdescr"><p>Returns the number of bytes in the array. </p></div>
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the limit. </p></div>
 
     </div>
 </div>
@@ -1298,7 +1649,7 @@ From class
         void
       </span>
       <span class="sympad">readBytes</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/nio/ByteBuffer.html"><?csvar:type.label ?></a> buffer, int length)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/nio/ByteBuffer.html">ByteBuffer</a> buffer, int length)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1316,6 +1667,53 @@ From class
       <h5 class="jd-tagtitle">See Also</h5>
       <ul class="nolist"><li><code><a href="http://developer.android.com/reference/java/nio/ByteBuffer.html#put(byte[], int, int)">put(byte[], int, int)</a></code></li>
       </ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="readBytes(com.google.android.exoplayer.util.ParsableBitArray, int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">readBytes</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableBitArray.html">ParsableBitArray</a> bitArray, int length)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Reads the next <code>length</code> bytes into <code>bitArray</code>, and resets the position of
+ <code>bitArray</code> to zero.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>bitArray</td>
+          <td>The <code><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableBitArray.html">ParsableBitArray</a></code> into which the bytes should be read.</td>
+        </tr>
+        <tr>
+          <th>length</td>
+          <td>The number of bytes to write.
+</td>
+        </tr>
+      </table>
   </div>
 
     </div>
@@ -1381,6 +1779,46 @@ From class
 
       
   <div class="jd-tagdata jd-tagdescr"><p>Reads the next eight bytes as a signed value. </p></div>
+
+    </div>
+</div>
+
+
+<A NAME="readSynchSafeInt()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">readSynchSafeInt</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Reads a Synchsafe integer.
+ <p>
+ Synchsafe integers keep the highest bit of every byte zeroed. A 32 bit synchsafe integer can
+ store 28 bits of information.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The parsed value.
+</li></ul>
+  </div>
 
     </div>
 </div>
@@ -1593,6 +2031,127 @@ From class
 
       
   <div class="jd-tagdata jd-tagdescr"><p>Reads the next two bytes as an unsigned value. </p></div>
+
+    </div>
+</div>
+
+
+<A NAME="reset()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">reset</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Sets the position and limit to zero.
+</p></div>
+
+    </div>
+</div>
+
+
+<A NAME="reset(byte[], int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">reset</span>
+      <span class="normal">(byte[] data, int limit)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Updates the instance to wrap <code>data</code>, and resets the position to zero.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>data</td>
+          <td>The array to wrap.</td>
+        </tr>
+        <tr>
+          <th>limit</td>
+          <td>The limit.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="setLimit(int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">setLimit</span>
+      <span class="normal">(int limit)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Sets the limit.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>limit</td>
+          <td>The limit to set.
+</td>
+        </tr>
+      </table>
+  </div>
 
     </div>
 </div>

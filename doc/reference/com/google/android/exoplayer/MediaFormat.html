@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -186,6 +185,8 @@ type="text/css">
   <a href="../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
     <li class="api apilevel-">
   <a href="../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
@@ -673,7 +674,7 @@ Summary:
             <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html#createAudioFormat(java.lang.String, int, int, int, java.util.List<byte[]>)">createAudioFormat</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType, int maxInputSize, int channelCount, int sampleRate, <a href="http://developer.android.com/reference/java/util/List.html"><?csvar:type.label ?></a>&lt;byte[]&gt; initializationData)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html#createAudioFormat(java.lang.String, int, int, int, java.util.List<byte[]>)">createAudioFormat</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int maxInputSize, int channelCount, int sampleRate, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;byte[]&gt; initializationData)</nobr>
         
   </td></tr>
 
@@ -689,7 +690,7 @@ Summary:
             <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html#createAudioFormat(java.lang.String, int, int, int, int, java.util.List<byte[]>)">createAudioFormat</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType, int maxInputSize, int channelCount, int sampleRate, int bitrate, <a href="http://developer.android.com/reference/java/util/List.html"><?csvar:type.label ?></a>&lt;byte[]&gt; initializationData)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html#createAudioFormat(java.lang.String, int, int, int, int, java.util.List<byte[]>)">createAudioFormat</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int maxInputSize, int channelCount, int sampleRate, int bitrate, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;byte[]&gt; initializationData)</nobr>
         
   </td></tr>
 
@@ -721,7 +722,7 @@ Summary:
             <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html#createFormatForMimeType(java.lang.String)">createFormatForMimeType</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html#createFormatForMimeType(java.lang.String)">createFormatForMimeType</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</nobr>
         
   </td></tr>
 
@@ -737,7 +738,7 @@ Summary:
             <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html#createFromFrameworkMediaFormatV16(android.media.MediaFormat)">createFromFrameworkMediaFormatV16</a></span>(<a href="http://developer.android.com/reference/android/media/MediaFormat.html"><?csvar:type.label ?></a> format)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html#createFromFrameworkMediaFormatV16(android.media.MediaFormat)">createFromFrameworkMediaFormatV16</a></span>(<a href="http://developer.android.com/reference/android/media/MediaFormat.html">MediaFormat</a> format)</nobr>
         
   </td></tr>
 
@@ -785,7 +786,7 @@ Summary:
             <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html#createVideoFormat(java.lang.String, int, int, int, java.util.List<byte[]>)">createVideoFormat</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType, int maxInputSize, int width, int height, <a href="http://developer.android.com/reference/java/util/List.html"><?csvar:type.label ?></a>&lt;byte[]&gt; initializationData)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html#createVideoFormat(java.lang.String, int, int, int, java.util.List<byte[]>)">createVideoFormat</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int maxInputSize, int width, int height, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;byte[]&gt; initializationData)</nobr>
         
   </td></tr>
 
@@ -801,7 +802,7 @@ Summary:
             <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html#createVideoFormat(java.lang.String, int, int, int, float, java.util.List<byte[]>)">createVideoFormat</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType, int maxInputSize, int width, int height, float pixelWidthHeightRatio, <a href="http://developer.android.com/reference/java/util/List.html"><?csvar:type.label ?></a>&lt;byte[]&gt; initializationData)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html#createVideoFormat(java.lang.String, int, int, int, float, java.util.List<byte[]>)">createVideoFormat</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int maxInputSize, int width, int height, float pixelWidthHeightRatio, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;byte[]&gt; initializationData)</nobr>
         
   </td></tr>
 
@@ -817,7 +818,7 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html#equals(java.lang.Object)">equals</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> obj)</nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html#equals(java.lang.Object)">equals</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> obj)</nobr>
         
   </td></tr>
 
@@ -995,7 +996,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
         
   </td></tr>
 
@@ -1539,7 +1540,7 @@ From class
         <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a>
       </span>
       <span class="sympad">createAudioFormat</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType, int maxInputSize, int channelCount, int sampleRate, <a href="http://developer.android.com/reference/java/util/List.html"><?csvar:type.label ?></a>&lt;byte[]&gt; initializationData)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int maxInputSize, int channelCount, int sampleRate, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;byte[]&gt; initializationData)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1571,7 +1572,7 @@ From class
         <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a>
       </span>
       <span class="sympad">createAudioFormat</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType, int maxInputSize, int channelCount, int sampleRate, int bitrate, <a href="http://developer.android.com/reference/java/util/List.html"><?csvar:type.label ?></a>&lt;byte[]&gt; initializationData)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int maxInputSize, int channelCount, int sampleRate, int bitrate, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;byte[]&gt; initializationData)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1635,7 +1636,7 @@ From class
         <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a>
       </span>
       <span class="sympad">createFormatForMimeType</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1667,7 +1668,7 @@ From class
         <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a>
       </span>
       <span class="sympad">createFromFrameworkMediaFormatV16</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/android/media/MediaFormat.html"><?csvar:type.label ?></a> format)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/android/media/MediaFormat.html">MediaFormat</a> format)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1763,7 +1764,7 @@ From class
         <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a>
       </span>
       <span class="sympad">createVideoFormat</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType, int maxInputSize, int width, int height, <a href="http://developer.android.com/reference/java/util/List.html"><?csvar:type.label ?></a>&lt;byte[]&gt; initializationData)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int maxInputSize, int width, int height, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;byte[]&gt; initializationData)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1795,7 +1796,7 @@ From class
         <a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a>
       </span>
       <span class="sympad">createVideoFormat</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType, int maxInputSize, int width, int height, float pixelWidthHeightRatio, <a href="http://developer.android.com/reference/java/util/List.html"><?csvar:type.label ?></a>&lt;byte[]&gt; initializationData)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int maxInputSize, int width, int height, float pixelWidthHeightRatio, <a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;byte[]&gt; initializationData)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1827,7 +1828,7 @@ From class
         boolean
       </span>
       <span class="sympad">equals</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> obj)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> obj)</span>
     </h4>
       <div class="api-level">
         <div></div>

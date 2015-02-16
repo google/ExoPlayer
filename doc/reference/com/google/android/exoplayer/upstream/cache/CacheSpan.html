@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../../../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -186,6 +185,8 @@ type="text/css">
   <a href="../../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
@@ -606,7 +607,7 @@ Summary:
             <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html#createCacheEntry(java.io.File)">createCacheEntry</a></span>(<a href="http://developer.android.com/reference/java/io/File.html"><?csvar:type.label ?></a> file)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html#createCacheEntry(java.io.File)">createCacheEntry</a></span>(<a href="http://developer.android.com/reference/java/io/File.html">File</a> file)</nobr>
         
         <div class="jd-descrdiv">
           Creates a cache span from an underlying cache file.
@@ -629,7 +630,7 @@ Summary:
             <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html#createClosedHole(java.lang.String, long, long)">createClosedHole</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position, long length)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html#createClosedHole(java.lang.String, long, long)">createClosedHole</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, long length)</nobr>
         
   </td></tr>
 
@@ -645,7 +646,7 @@ Summary:
             <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html#createLookup(java.lang.String, long)">createLookup</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html#createLookup(java.lang.String, long)">createLookup</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</nobr>
         
   </td></tr>
 
@@ -661,7 +662,7 @@ Summary:
             <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html#createOpenHole(java.lang.String, long)">createOpenHole</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html#createOpenHole(java.lang.String, long)">createOpenHole</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</nobr>
         
   </td></tr>
 
@@ -677,7 +678,7 @@ Summary:
             <a href="http://developer.android.com/reference/java/io/File.html">File</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html#getCacheFileName(java.io.File, java.lang.String, long, long)">getCacheFileName</a></span>(<a href="http://developer.android.com/reference/java/io/File.html"><?csvar:type.label ?></a> cacheDir, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long offset, long lastAccessTimestamp)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html#getCacheFileName(java.io.File, java.lang.String, long, long)">getCacheFileName</a></span>(<a href="http://developer.android.com/reference/java/io/File.html">File</a> cacheDir, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long offset, long lastAccessTimestamp)</nobr>
         
   </td></tr>
 
@@ -782,7 +783,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
         
   </td></tr>
 
@@ -1265,7 +1266,7 @@ From interface
         <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>
       </span>
       <span class="sympad">createCacheEntry</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/io/File.html"><?csvar:type.label ?></a> file)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/io/File.html">File</a> file)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1311,7 +1312,7 @@ From interface
         <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>
       </span>
       <span class="sympad">createClosedHole</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position, long length)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position, long length)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1343,7 +1344,7 @@ From interface
         <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>
       </span>
       <span class="sympad">createLookup</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1375,7 +1376,7 @@ From interface
         <a href="../../../../../../../reference/com/google/android/exoplayer/upstream/cache/CacheSpan.html">CacheSpan</a>
       </span>
       <span class="sympad">createOpenHole</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long position)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long position)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1407,7 +1408,7 @@ From interface
         <a href="http://developer.android.com/reference/java/io/File.html">File</a>
       </span>
       <span class="sympad">getCacheFileName</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/io/File.html"><?csvar:type.label ?></a> cacheDir, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> key, long offset, long lastAccessTimestamp)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/io/File.html">File</a> cacheDir, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> key, long offset, long lastAccessTimestamp)</span>
     </h4>
       <div class="api-level">
         <div></div>

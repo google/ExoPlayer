@@ -8,6 +8,7 @@ com.google.android.exoplayer.dash
 com.google.android.exoplayer.dash.mpd
 com.google.android.exoplayer.drm
 com.google.android.exoplayer.hls
+com.google.android.exoplayer.hls.parser
 com.google.android.exoplayer.metadata
 com.google.android.exoplayer.mp4
 com.google.android.exoplayer.smoothstreaming

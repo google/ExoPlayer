@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -185,6 +184,8 @@ type="text/css">
   <a href="../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
   <a href="../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
+    <li class="api apilevel-">
+  <a href="../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
     <li class="api apilevel-">
   <a href="../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
@@ -473,29 +474,6 @@ type="text/css">
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/BehindLiveWindowException.html">BehindLiveWindowException</a></td>
             <td class="jd-descrcol" width="100%">
               Thrown when a live playback falls behind the available media window.&nbsp;
-              
-    
-
-            </td>
-        </tr>
-    
-    
-        <tr class="alt-color api apilevel-" >
-            <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/util/BitArray.html">BitArray</a></td>
-            <td class="jd-descrcol" width="100%">
-              Wraps a byte array, providing methods that allow it to be read as a bitstream.&nbsp;
-              
-    
-
-            </td>
-        </tr>
-    
-    
-        <tr class=" api apilevel-" >
-            <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/hls/BitArrayChunk.html">BitArrayChunk</a></td>
-            <td class="jd-descrcol" width="100%">
-              An abstract base class for <code><a href="../reference/com/google/android/exoplayer/hls/HlsChunk.html">HlsChunk</a></code> implementations where the data should be loaded into
- a <code><a href="../reference/com/google/android/exoplayer/util/BitArray.html">BitArray</a></code> and subsequently consumed.&nbsp;
               
     
 
@@ -863,6 +841,18 @@ type="text/css">
     
     
         <tr class=" api apilevel-" >
+            <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/hls/DataChunk.html">DataChunk</a></td>
+            <td class="jd-descrcol" width="100%">
+              An abstract base class for <code><a href="../reference/com/google/android/exoplayer/hls/HlsChunk.html">HlsChunk</a></code> implementations where the data should be loaded into
+ a <code>byte[]</code> before being consumed.&nbsp;
+              
+    
+
+            </td>
+        </tr>
+    
+    
+        <tr class="alt-color api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/upstream/DataSink.html">DataSink</a></td>
             <td class="jd-descrcol" width="100%">
               A component that consumes media data.&nbsp;
@@ -873,7 +863,7 @@ type="text/css">
         </tr>
     
     
-        <tr class="alt-color api apilevel-" >
+        <tr class=" api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a></td>
             <td class="jd-descrcol" width="100%">
               A component that provides media data.&nbsp;
@@ -884,7 +874,7 @@ type="text/css">
         </tr>
     
     
-        <tr class=" api apilevel-" >
+        <tr class="alt-color api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/upstream/DataSourceInputStream.html">DataSourceInputStream</a></td>
             <td class="jd-descrcol" width="100%">
               Allows data corresponding to a given <code><a href="../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a></code> to be read from a <code><a href="../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a></code> and
@@ -896,7 +886,7 @@ type="text/css">
         </tr>
     
     
-        <tr class="alt-color api apilevel-" >
+        <tr class=" api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/upstream/DataSourceStream.html">DataSourceStream</a></td>
             <td class="jd-descrcol" width="100%">
               Loads data from a <code><a href="../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a></code> into an in-memory <code><a href="../reference/com/google/android/exoplayer/upstream/Allocation.html">Allocation</a></code>.&nbsp;
@@ -907,7 +897,7 @@ type="text/css">
         </tr>
     
     
-        <tr class=" api apilevel-" >
+        <tr class="alt-color api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/upstream/DataSourceStream.DataSourceStreamLoadException.html">DataSourceStream.DataSourceStreamLoadException</a></td>
             <td class="jd-descrcol" width="100%">
               Thrown when an error is encountered trying to load data into a <code><a href="../reference/com/google/android/exoplayer/upstream/DataSourceStream.html">DataSourceStream</a></code>.&nbsp;
@@ -918,7 +908,7 @@ type="text/css">
         </tr>
     
     
-        <tr class="alt-color api apilevel-" >
+        <tr class=" api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/upstream/DataSpec.html">DataSpec</a></td>
             <td class="jd-descrcol" width="100%">
               Defines a region of media data.&nbsp;
@@ -929,7 +919,7 @@ type="text/css">
         </tr>
     
     
-        <tr class=" api apilevel-" >
+        <tr class="alt-color api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/DecoderInfo.html">DecoderInfo</a></td>
             <td class="jd-descrcol" width="100%">
               Contains information about a media decoder.&nbsp;
@@ -940,7 +930,7 @@ type="text/css">
         </tr>
     
     
-        <tr class="alt-color api apilevel-" >
+        <tr class=" api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/upstream/DefaultBandwidthMeter.html">DefaultBandwidthMeter</a></td>
             <td class="jd-descrcol" width="100%">
               Counts transferred bytes while transfers are open and creates a bandwidth sample and updated
@@ -952,7 +942,7 @@ type="text/css">
         </tr>
     
     
-        <tr class=" api apilevel-" >
+        <tr class="alt-color api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/upstream/DefaultBandwidthMeter.EventListener.html">DefaultBandwidthMeter.EventListener</a></td>
             <td class="jd-descrcol" width="100%">
               Interface definition for a callback to be notified of <code><a href="../reference/com/google/android/exoplayer/upstream/DefaultBandwidthMeter.html">DefaultBandwidthMeter</a></code> events.&nbsp;
@@ -963,7 +953,7 @@ type="text/css">
         </tr>
     
     
-        <tr class="alt-color api apilevel-" >
+        <tr class=" api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/DefaultLoadControl.html">DefaultLoadControl</a></td>
             <td class="jd-descrcol" width="100%">
               A <code><a href="../reference/com/google/android/exoplayer/LoadControl.html">LoadControl</a></code> implementation that allows loads to continue in a sequence that prevents
@@ -975,7 +965,7 @@ type="text/css">
         </tr>
     
     
-        <tr class=" api apilevel-" >
+        <tr class="alt-color api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/DefaultLoadControl.EventListener.html">DefaultLoadControl.EventListener</a></td>
             <td class="jd-descrcol" width="100%">
               Interface definition for a callback to be notified of <code><a href="../reference/com/google/android/exoplayer/DefaultLoadControl.html">DefaultLoadControl</a></code> events.&nbsp;
@@ -986,7 +976,7 @@ type="text/css">
         </tr>
     
     
-        <tr class="alt-color api apilevel-" >
+        <tr class=" api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/source/DefaultSampleSource.html">DefaultSampleSource</a></td>
             <td class="jd-descrcol" width="100%">
               <code><a href="../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a></code> that extracts sample data using a <code><a href="../reference/com/google/android/exoplayer/source/SampleExtractor.html">SampleExtractor</a></code> &nbsp;
@@ -997,7 +987,7 @@ type="text/css">
         </tr>
     
     
-        <tr class=" api apilevel-" >
+        <tr class="alt-color api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/drm/DrmSessionManager.html">DrmSessionManager</a></td>
             <td class="jd-descrcol" width="100%">
               Manages a DRM session.&nbsp;
@@ -1008,7 +998,7 @@ type="text/css">
         </tr>
     
     
-        <tr class="alt-color api apilevel-" >
+        <tr class=" api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/DummyTrackRenderer.html">DummyTrackRenderer</a></td>
             <td class="jd-descrcol" width="100%">
               A <code><a href="../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></code> that does nothing.&nbsp;
@@ -1863,6 +1853,17 @@ type="text/css">
     
     
         <tr class="alt-color api apilevel-" >
+            <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/util/ParsableBitArray.html">ParsableBitArray</a></td>
+            <td class="jd-descrcol" width="100%">
+              Wraps a byte array, providing methods that allow it to be read as a bitstream.&nbsp;
+              
+    
+
+            </td>
+        </tr>
+    
+    
+        <tr class=" api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/util/ParsableByteArray.html">ParsableByteArray</a></td>
             <td class="jd-descrcol" width="100%">
               Wraps a byte array, providing a set of methods for parsing data from it.&nbsp;
@@ -1873,7 +1874,7 @@ type="text/css">
         </tr>
     
     
-        <tr class=" api apilevel-" >
+        <tr class="alt-color api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/ParserException.html">ParserException</a></td>
             <td class="jd-descrcol" width="100%">
               Thrown when an error occurs parsing media data.&nbsp;
@@ -1884,7 +1885,7 @@ type="text/css">
         </tr>
     
     
-        <tr class="alt-color api apilevel-" >
+        <tr class=" api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/dash/mpd/Period.html">Period</a></td>
             <td class="jd-descrcol" width="100%">
               Encapsulates media content components over a contiguous period of time.&nbsp;
@@ -1895,7 +1896,7 @@ type="text/css">
         </tr>
     
     
-        <tr class=" api apilevel-" >
+        <tr class="alt-color api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/util/PlayerControl.html">PlayerControl</a></td>
             <td class="jd-descrcol" width="100%">
               An implementation of <code><a href="http://developer.android.com/reference/android/widget/MediaController.MediaPlayerControl.html">MediaController.MediaPlayerControl</a></code> for controlling an <code><a href="../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> instance.&nbsp;
@@ -1906,7 +1907,7 @@ type="text/css">
         </tr>
     
     
-        <tr class="alt-color api apilevel-" >
+        <tr class=" api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/util/Predicate.html">Predicate</a>&lt;T&gt;</td>
             <td class="jd-descrcol" width="100%">
               Determines a true of false value for a given input.&nbsp;
@@ -1917,7 +1918,7 @@ type="text/css">
         </tr>
     
     
-        <tr class=" api apilevel-" >
+        <tr class="alt-color api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/upstream/PriorityDataSource.html">PriorityDataSource</a></td>
             <td class="jd-descrcol" width="100%">
               Allows <code><a href="../reference/com/google/android/exoplayer/upstream/PriorityDataSource.html#open(com.google.android.exoplayer.upstream.DataSpec)">open(DataSpec)</a></code> and <code><a href="../reference/com/google/android/exoplayer/upstream/PriorityDataSource.html#read(byte[], int, int)">read(byte[], int, int)</a></code> calls only if the specified
@@ -1929,7 +1930,7 @@ type="text/css">
         </tr>
     
     
-        <tr class="alt-color api apilevel-" >
+        <tr class=" api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/util/PriorityHandlerThread.html">PriorityHandlerThread</a></td>
             <td class="jd-descrcol" width="100%">
               A <code><a href="http://developer.android.com/reference/android/os/HandlerThread.html">HandlerThread</a></code> with a specified process priority.&nbsp;
@@ -2438,7 +2439,7 @@ type="text/css">
     
     
         <tr class="alt-color api apilevel-" >
-            <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/hls/TsExtractor.html">TsExtractor</a></td>
+            <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/hls/parser/TsExtractor.html">TsExtractor</a></td>
             <td class="jd-descrcol" width="100%">
               Facilitates the extraction of data from the MPEG-2 TS container format.&nbsp;
               
@@ -2449,17 +2450,6 @@ type="text/css">
     
     
         <tr class=" api apilevel-" >
-            <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/hls/TsExtractor.SamplePool.html">TsExtractor.SamplePool</a></td>
-            <td class="jd-descrcol" width="100%">
-              A pool from which the extractor can obtain sample objects for internal use.&nbsp;
-              
-    
-
-            </td>
-        </tr>
-    
-    
-        <tr class="alt-color api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/text/ttml/TtmlParser.html">TtmlParser</a></td>
             <td class="jd-descrcol" width="100%">
               A simple TTML parser that supports DFXP presentation profile.&nbsp;
@@ -2470,7 +2460,7 @@ type="text/css">
         </tr>
     
     
-        <tr class=" api apilevel-" >
+        <tr class="alt-color api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/text/ttml/TtmlSubtitle.html">TtmlSubtitle</a></td>
             <td class="jd-descrcol" width="100%">
               A representation of a TTML subtitle.&nbsp;
@@ -2481,7 +2471,7 @@ type="text/css">
         </tr>
     
     
-        <tr class="alt-color api apilevel-" >
+        <tr class=" api apilevel-" >
             <td class="jd-linkcol"><a href="../reference/com/google/android/exoplayer/metadata/TxxxMetadata.html">TxxxMetadata</a></td>
             <td class="jd-descrcol" width="100%">
               A metadata that contains parsed ID3 TXXX (User defined text information) frame data associated

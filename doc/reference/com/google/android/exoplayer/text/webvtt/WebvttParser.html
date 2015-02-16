@@ -90,7 +90,6 @@
 
 
 
-
 <html>
 <head>
 
@@ -106,7 +105,7 @@
 href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
   title="roboto">
-<link href="../../../../../../../assets/css/default.css?v=4" rel="stylesheet" type="text/css">
+<link href="../../../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
 
 
 <!-- FULLSCREEN STYLESHEET -->
@@ -186,6 +185,8 @@ type="text/css">
   <a href="../../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
     <li class="api apilevel-">
   <a href="../../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
     <li class="api apilevel-">
@@ -517,7 +518,7 @@ Summary:
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/webvtt/WebvttParser.html#canParse(java.lang.String)">canParse</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/webvtt/WebvttParser.html#canParse(java.lang.String)">canParse</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</nobr>
         
         <div class="jd-descrdiv">
           Checks whether the parser supports a given subtitle mime type.
@@ -540,7 +541,7 @@ Summary:
             <a href="../../../../../../../reference/com/google/android/exoplayer/text/webvtt/WebvttSubtitle.html">WebvttSubtitle</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/webvtt/WebvttParser.html#parse(java.io.InputStream, java.lang.String, long)">parse</a></span>(<a href="http://developer.android.com/reference/java/io/InputStream.html"><?csvar:type.label ?></a> inputStream, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> inputEncoding, long startTimeUs)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/webvtt/WebvttParser.html#parse(java.io.InputStream, java.lang.String, long)">parse</a></span>(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> inputStream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, long startTimeUs)</nobr>
         
         <div class="jd-descrdiv">
           Parses a <code><a href="../../../../../../../reference/com/google/android/exoplayer/text/Subtitle.html">Subtitle</a></code> from the provided <code><a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a></code>.
@@ -590,7 +591,7 @@ Summary:
             void</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/webvtt/WebvttParser.html#handleNoncompliantLine(java.lang.String)">handleNoncompliantLine</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> line)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/webvtt/WebvttParser.html#handleNoncompliantLine(java.lang.String)">handleNoncompliantLine</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> line)</nobr>
         
   </td></tr>
 
@@ -606,7 +607,7 @@ Summary:
             <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/webvtt/WebvttParser.html#processCueText(java.lang.String)">processCueText</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> line)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/webvtt/WebvttParser.html#processCueText(java.lang.String)">processCueText</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> line)</nobr>
         
   </td></tr>
 
@@ -670,7 +671,7 @@ From class
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html"><?csvar:type.label ?></a> arg0)</nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
         
   </td></tr>
 
@@ -856,7 +857,7 @@ From interface
             boolean</nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/SubtitleParser.html#canParse(java.lang.String)">canParse</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/SubtitleParser.html#canParse(java.lang.String)">canParse</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</nobr>
         
         <div class="jd-descrdiv">
           Checks whether the parser supports a given subtitle mime type.
@@ -879,7 +880,7 @@ From interface
             <a href="../../../../../../../reference/com/google/android/exoplayer/text/Subtitle.html">Subtitle</a></nobr>
         </td>
         <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/SubtitleParser.html#parse(java.io.InputStream, java.lang.String, long)">parse</a></span>(<a href="http://developer.android.com/reference/java/io/InputStream.html"><?csvar:type.label ?></a> inputStream, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> inputEncoding, long startTimeUs)</nobr>
+        <span class="sympad"><a href="../../../../../../../reference/com/google/android/exoplayer/text/SubtitleParser.html#parse(java.io.InputStream, java.lang.String, long)">parse</a></span>(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> inputStream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, long startTimeUs)</nobr>
         
         <div class="jd-descrdiv">
           Parses a <code><a href="../../../../../../../reference/com/google/android/exoplayer/text/Subtitle.html">Subtitle</a></code> from the provided <code><a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a></code>.
@@ -1023,7 +1024,7 @@ From interface
         boolean
       </span>
       <span class="sympad">canParse</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> mimeType)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1069,7 +1070,7 @@ From interface
         <a href="../../../../../../../reference/com/google/android/exoplayer/text/webvtt/WebvttSubtitle.html">WebvttSubtitle</a>
       </span>
       <span class="sympad">parse</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/io/InputStream.html"><?csvar:type.label ?></a> inputStream, <a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> inputEncoding, long startTimeUs)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/io/InputStream.html">InputStream</a> inputStream, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> inputEncoding, long startTimeUs)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1172,7 +1173,7 @@ From interface
         void
       </span>
       <span class="sympad">handleNoncompliantLine</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> line)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> line)</span>
     </h4>
       <div class="api-level">
         <div></div>
@@ -1213,7 +1214,7 @@ From interface
         <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
       </span>
       <span class="sympad">processCueText</span>
-      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html"><?csvar:type.label ?></a> line)</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> line)</span>
     </h4>
       <div class="api-level">
         <div></div>
