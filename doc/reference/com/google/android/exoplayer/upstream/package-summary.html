@@ -280,32 +280,10 @@ type="text/css">
           <div id="tree-list"></div>
         </div><!-- end nav-tree -->
       </div><!-- end swapper -->
-      <div id="nav-swap">
-      <a class="fullscreen">fullscreen</a>
-      <a href='#' onclick='swapNav();return false;'><span id='tree-link'>Use Tree Navigation</span><span id='panel-link' style='display:none'>Use Panel Navigation</span></a>
-      </div>
     </div> <!-- end devdoc-nav -->
     </div> <!-- end side-nav -->
     <script type="text/javascript">
-      // init fullscreen based on user pref
-      var fullscreen = readCookie("fullscreen");
-      if (fullscreen != 0) {
-        if (fullscreen == "false") {
-          toggleFullscreen(false);
-        } else {
-          toggleFullscreen(true);
-        }
-      }
-      // init nav version for mobile
-      if (isMobile) {
-        swapNav(); // tree view should be used on mobile
-        $('#nav-swap').hide();
-      } else {
-        chooseDefaultNav();
-        if ($("#nav-tree").is(':visible')) {
-          init_default_navtree("../../../../../../");
-        }
-      }
+      toggleFullscreen(true);
       // scroll the selected page into view
       $(document).ready(function() {
         scrollIntoView("packages-nav");
