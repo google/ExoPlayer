@@ -137,6 +137,8 @@ import java.util.Collections;
       if (found) {
         hasCrc = (adtsData[i] & 0x1) == 0;
         pesBuffer.setPosition(i + 1);
+        // Reset lastByteWasFF for next time.
+        lastByteWasFF = false;
         return true;
       }
     }
