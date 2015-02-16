@@ -39,7 +39,11 @@
 
   <string name="on">[on]</string>
 
-  <string name="drm_not_supported">Protected content not supported on API levels below 18</string>
+  <string name="drm_error_not_supported">Protected content not supported on API levels below 18</string>
+
+  <string name="drm_error_unsupported_scheme">This device does not support the required DRM scheme</string>
+
+  <string name="drm_error_unknown">An unknown DRM error occurred</string>
 
   <string name="failed">Playback failed</string>
 

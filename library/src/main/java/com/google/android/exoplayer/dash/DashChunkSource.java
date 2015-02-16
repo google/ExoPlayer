@@ -23,22 +23,22 @@ import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.ChunkSource;
+import com.google.android.exoplayer.chunk.ContainerMediaChunk;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.chunk.Format.DecreasingBandwidthComparator;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer.chunk.MediaChunk;
-import com.google.android.exoplayer.chunk.Mp4MediaChunk;
 import com.google.android.exoplayer.chunk.SingleSampleMediaChunk;
+import com.google.android.exoplayer.chunk.parser.Extractor;
+import com.google.android.exoplayer.chunk.parser.mp4.FragmentedMp4Extractor;
+import com.google.android.exoplayer.chunk.parser.webm.WebmExtractor;
 import com.google.android.exoplayer.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer.dash.mpd.ContentProtection;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.RangedUri;
 import com.google.android.exoplayer.dash.mpd.Representation;
-import com.google.android.exoplayer.parser.Extractor;
-import com.google.android.exoplayer.parser.mp4.FragmentedMp4Extractor;
-import com.google.android.exoplayer.parser.webm.WebmExtractor;
 import com.google.android.exoplayer.text.webvtt.WebvttParser;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -326,10 +326,30 @@ public class DashChunkSource implements ChunkSource {
       return;
     }
 
+    // TODO: Use UtcTimingElement where possible.
+    long nowUs = System.currentTimeMillis() * 1000;
+
+    int firstAvailableSegmentNum = segmentIndex.getFirstSegmentNum();
+    int lastAvailableSegmentNum = segmentIndex.getLastSegmentNum();
+    boolean indexUnbounded = lastAvailableSegmentNum == DashSegmentIndex.INDEX_UNBOUNDED;
+    if (indexUnbounded) {
+      // The index is itself unbounded. We need to use the current time to calculate the range of
+      // available segments.
+      long liveEdgeTimestampUs = nowUs - currentManifest.availabilityStartTime * 1000;
+      if (currentManifest.timeShiftBufferDepth != -1) {
+        long bufferDepthUs = currentManifest.timeShiftBufferDepth * 1000;
+        firstAvailableSegmentNum = Math.max(firstAvailableSegmentNum,
+            segmentIndex.getSegmentNum(liveEdgeTimestampUs - bufferDepthUs));
+      }
+      // getSegmentNum(liveEdgeTimestampUs) will not be completed yet, so subtract one to get the
+      // index of the last completed segment.
+      lastAvailableSegmentNum = segmentIndex.getSegmentNum(liveEdgeTimestampUs) - 1;
+    }
+
     int segmentNum;
     if (queue.isEmpty()) {
       if (currentManifest.dynamic) {
-        seekPositionUs = getLiveSeekPosition();
+        seekPositionUs = getLiveSeekPosition(nowUs, indexUnbounded, segmentIndex.isExplicit());
       }
       segmentNum = segmentIndex.getSegmentNum(seekPositionUs);
     } else {
@@ -338,17 +358,19 @@ public class DashChunkSource implements ChunkSource {
     }
 
     if (currentManifest.dynamic) {
-      if (segmentNum < segmentIndex.getFirstSegmentNum()) {
+      if (segmentNum < firstAvailableSegmentNum) {
         // This is before the first chunk in the current manifest.
         fatalError = new BehindLiveWindowException();
         return;
-      } else if (segmentNum > segmentIndex.getLastSegmentNum()) {
-        // This is beyond the last chunk in the current manifest.
-        finishedCurrentManifest = true;
+      } else if (segmentNum > lastAvailableSegmentNum) {
+        // This chunk is beyond the last chunk in the current manifest. If the index is bounded
+        // we'll need to refresh it. If it's unbounded we just need to wait for a while before
+        // attempting to load the chunk.
+        finishedCurrentManifest = !indexUnbounded;
         return;
-      } else if (segmentNum == segmentIndex.getLastSegmentNum()) {
-        // This is the last chunk in the current manifest. Mark the manifest as being finished,
-        // but continue to return the final chunk.
+      } else if (!indexUnbounded && segmentNum == lastAvailableSegmentNum) {
+        // This is the last chunk in a dynamic bounded manifest. We'll need to refresh the manifest
+        // to obtain the next chunk.
         finishedCurrentManifest = true;
       }
     }
@@ -429,7 +451,7 @@ public class DashChunkSource implements ChunkSource {
     DataSpec dataSpec = new DataSpec(segmentUri.getUri(), segmentUri.start, segmentUri.length,
         representation.getCacheKey());
 
-    long presentationTimeOffsetUs = representation.presentationTimeOffsetMs * 1000;
+    long presentationTimeOffsetUs = representation.presentationTimeOffsetUs;
     if (representation.format.mimeType.equals(MimeTypes.TEXT_VTT)) {
       if (representationHolder.vttHeaderOffsetUs != presentationTimeOffsetUs) {
         // Update the VTT header.
@@ -442,9 +464,9 @@ public class DashChunkSource implements ChunkSource {
       return new SingleSampleMediaChunk(dataSource, dataSpec, representation.format, 0,
           startTimeUs, endTimeUs, nextAbsoluteSegmentNum, null, representationHolder.vttHeader);
     } else {
-      return new Mp4MediaChunk(dataSource, dataSpec, representation.format, trigger, startTimeUs,
-          endTimeUs, nextAbsoluteSegmentNum, representationHolder.extractor, psshInfo, false,
-          presentationTimeOffsetUs);
+      return new ContainerMediaChunk(dataSource, dataSpec, representation.format, trigger,
+          startTimeUs, endTimeUs, nextAbsoluteSegmentNum, representationHolder.extractor, psshInfo,
+          false, presentationTimeOffsetUs);
     }
   }
 
@@ -452,16 +474,30 @@ public class DashChunkSource implements ChunkSource {
    * For live playbacks, determines the seek position that snaps playback to be
    * {@link #liveEdgeLatencyUs} behind the live edge of the current manifest
    *
+   * @param nowUs An estimate of the current server time, in microseconds.
+   * @param indexUnbounded True if the segment index for this source is unbounded. False otherwise.
+   * @param indexExplicit True if the segment index is explicit. False otherwise.
    * @return The seek position in microseconds.
    */
-  private long getLiveSeekPosition() {
-    long liveEdgeTimestampUs = Long.MIN_VALUE;
-    for (RepresentationHolder representationHolder : representationHolders.values()) {
-      DashSegmentIndex segmentIndex = representationHolder.segmentIndex;
-      int lastSegmentNum = segmentIndex.getLastSegmentNum();
-      long indexLiveEdgeTimestampUs = segmentIndex.getTimeUs(lastSegmentNum)
-          + segmentIndex.getDurationUs(lastSegmentNum);
-      liveEdgeTimestampUs = Math.max(liveEdgeTimestampUs, indexLiveEdgeTimestampUs);
+  private long getLiveSeekPosition(long nowUs, boolean indexUnbounded, boolean indexExplicit) {
+    long liveEdgeTimestampUs;
+    if (indexUnbounded) {
+      liveEdgeTimestampUs = nowUs - currentManifest.availabilityStartTime * 1000;
+    } else {
+      liveEdgeTimestampUs = Long.MIN_VALUE;
+      for (RepresentationHolder representationHolder : representationHolders.values()) {
+        DashSegmentIndex segmentIndex = representationHolder.segmentIndex;
+        int lastSegmentNum = segmentIndex.getLastSegmentNum();
+        long indexLiveEdgeTimestampUs = segmentIndex.getTimeUs(lastSegmentNum)
+            + segmentIndex.getDurationUs(lastSegmentNum);
+        liveEdgeTimestampUs = Math.max(liveEdgeTimestampUs, indexLiveEdgeTimestampUs);
+      }
+      if (!indexExplicit) {
+        // Some segments defined by the index may not be available yet. Bound the calculated live
+        // edge based on the elapsed time since the manifest became available.
+        liveEdgeTimestampUs = Math.min(liveEdgeTimestampUs,
+            nowUs - currentManifest.availabilityStartTime * 1000);
+      }
     }
     return liveEdgeTimestampUs - liveEdgeLatencyUs;
   }

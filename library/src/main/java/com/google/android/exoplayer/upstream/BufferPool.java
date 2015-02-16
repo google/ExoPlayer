@@ -96,10 +96,36 @@ public final class BufferPool implements Allocator {
     allocatedBufferCount += requiredBufferCount - firstNewBufferIndex;
     for (int i = firstNewBufferIndex; i < requiredBufferCount; i++) {
       // Use a recycled buffer if one is available. Else instantiate a new one.
-      buffers[i] = recycledBufferCount > 0 ? recycledBuffers[--recycledBufferCount] :
-          new byte[bufferLength];
+      buffers[i] = nextBuffer();
     }
     return buffers;
+  }
+
+  /**
+   * Obtain a single buffer directly from the pool.
+   * <p>
+   * When the caller has finished with the buffer, it should be returned to the pool by calling
+   * {@link #releaseDirect(byte[])}.
+   *
+   * @return The allocated buffer.
+   */
+  public synchronized byte[] allocateDirect() {
+    allocatedBufferCount++;
+    return nextBuffer();
+  }
+
+  /**
+   * Return a single buffer to the pool.
+   *
+   * @param buffer The buffer being returned.
+   */
+  public synchronized void releaseDirect(byte[] buffer) {
+    // Weak sanity check that the buffer probably originated from this pool.
+    Assertions.checkArgument(buffer.length == bufferLength);
+    allocatedBufferCount--;
+
+    ensureRecycledBufferCapacity(recycledBufferCount + 1);
+    recycledBuffers[recycledBufferCount++] = buffer;
   }
 
   /**
@@ -112,20 +138,29 @@ public final class BufferPool implements Allocator {
     allocatedBufferCount -= buffers.length;
 
     int newRecycledBufferCount = recycledBufferCount + buffers.length;
-    if (recycledBuffers.length < newRecycledBufferCount) {
-      // Expand the capacity of the recycled buffers array.
-      byte[][] newRecycledBuffers = new byte[newRecycledBufferCount * 2][];
-      if (recycledBufferCount > 0) {
-        System.arraycopy(recycledBuffers, 0, newRecycledBuffers, 0, recycledBufferCount);
-      }
-      recycledBuffers = newRecycledBuffers;
-    }
+    ensureRecycledBufferCapacity(newRecycledBufferCount);
     System.arraycopy(buffers, 0, recycledBuffers, recycledBufferCount, buffers.length);
     recycledBufferCount = newRecycledBufferCount;
   }
 
   private int requiredBufferCount(long size) {
     return (int) ((size + bufferLength - 1) / bufferLength);
+  }
+
+  private byte[] nextBuffer() {
+    return recycledBufferCount > 0 ? recycledBuffers[--recycledBufferCount]
+        : new byte[bufferLength];
+  }
+
+  private void ensureRecycledBufferCapacity(int requiredCapacity) {
+    if (recycledBuffers.length < requiredCapacity) {
+      // Expand the capacity of the recycled buffers array.
+      byte[][] newRecycledBuffers = new byte[requiredCapacity * 2][];
+      if (recycledBufferCount > 0) {
+        System.arraycopy(recycledBuffers, 0, newRecycledBuffers, 0, recycledBufferCount);
+      }
+      recycledBuffers = newRecycledBuffers;
+    }
   }
 
   private class AllocationImpl implements Allocation {

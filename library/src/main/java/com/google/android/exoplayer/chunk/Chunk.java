@@ -24,6 +24,7 @@ import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.TraceUtil;
 
 import java.io.IOException;
 
@@ -173,7 +174,12 @@ public abstract class Chunk implements Loadable {
 
   @Override
   public final void load() throws IOException, InterruptedException {
-    dataSourceStream.load();
+    TraceUtil.beginSection("chunkLoad");
+    try {
+      dataSourceStream.load();
+    } finally {
+      TraceUtil.endSection();
+    }
   }
 
 }

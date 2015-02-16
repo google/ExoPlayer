@@ -24,8 +24,15 @@ import com.google.android.exoplayer.dash.mpd.RangedUri;
  */
 public interface DashSegmentIndex {
 
+  public static final int INDEX_UNBOUNDED = -1;
+
   /**
    * Returns the segment number of the segment containing a given media time.
+   * <p>
+   * If the given media time is outside the range of the index, then the returned segment number is
+   * clamped to {@link #getFirstSegmentNum()} (if the given media time is earlier the start of the
+   * first segment) or {@link #getLastSegmentNum()} (if the given media time is later then the end
+   * of the last segment).
    *
    * @param timeUs The time in microseconds.
    * @return The segment number of the corresponding segment.
@@ -64,10 +71,30 @@ public interface DashSegmentIndex {
   int getFirstSegmentNum();
 
   /**
-   * Returns the segment number of the last segment.
+   * Returns the segment number of the last segment, or {@link #INDEX_UNBOUNDED}.
+   * <p>
+   * An unbounded index occurs if a live stream manifest uses SegmentTemplate elements without a
+   * SegmentTimeline element. In this case the manifest can be used to derive information about
+   * segments arbitrarily far into the future. This means that the manifest does not need to be
+   * refreshed as frequently (if at all) during playback, however it is necessary for a player to
+   * manually calculate the window of currently available segments.
    *
-   * @return The segment number of the last segment.
+   * @return The segment number of the last segment, or {@link #INDEX_UNBOUNDED}.
    */
   int getLastSegmentNum();
+
+  /**
+   * Returns true if segments are defined explicitly by the index.
+   * <p>
+   * If true is returned, each segment is defined explicitly by the index data, and all of the
+   * listed segments are guaranteed to be available at the time when the index was obtained.
+   * <p>
+   * If false is returned then segment information was derived from properties such as a fixed
+   * segment duration. If the presentation is dynamic, it's possible that only a subset of the
+   * segments are available.
+   *
+   * @return True if segments are defined explicitly by the index. False otherwise.
+   */
+  boolean isExplicit();
 
 }

@@ -53,10 +53,17 @@ public final class NetworkLock {
    */
   public static final int DOWNLOAD_PRIORITY = 10;
 
+  private final Object lock = new Object();
+
+  /** Guarded by {@link #lock}. */
   private final PriorityQueue<Integer> queue;
+
+  /** Guarded by {@link #lock}. */
+  private int highestPriority;
 
   private NetworkLock() {
     queue = new PriorityQueue<Integer>();
+    highestPriority = Integer.MAX_VALUE;
   }
 
   /**
@@ -64,9 +71,11 @@ public final class NetworkLock {
    *
    * @param priority The priority of the task that would like to proceed.
    */
-  public synchronized void proceed(int priority) throws InterruptedException {
-    while (queue.peek() < priority) {
-      wait();
+  public void proceed(int priority) throws InterruptedException {
+    synchronized (lock) {
+      while (highestPriority < priority) {
+        lock.wait();
+      }
     }
   }
 
@@ -76,8 +85,10 @@ public final class NetworkLock {
    * @param priority The priority of the task that would like to proceed.
    * @return Whether the passed priority is allowed to proceed.
    */
-  public synchronized boolean proceedNonBlocking(int priority) {
-    return queue.peek() >= priority;
+  public boolean proceedNonBlocking(int priority) {
+    synchronized (lock) {
+      return highestPriority >= priority;
+    }
   }
 
   /**
@@ -86,10 +97,11 @@ public final class NetworkLock {
    * @param priority The priority of the task that would like to proceed.
    * @throws PriorityTooLowException If the passed priority is not high enough to proceed.
    */
-  public synchronized void proceedOrThrow(int priority) throws PriorityTooLowException {
-    int highestPriority = queue.peek();
-    if (highestPriority < priority) {
-      throw new PriorityTooLowException(priority, highestPriority);
+  public void proceedOrThrow(int priority) throws PriorityTooLowException {
+    synchronized (lock) {
+      if (highestPriority < priority) {
+        throw new PriorityTooLowException(priority, highestPriority);
+      }
     }
   }
 
@@ -100,8 +112,11 @@ public final class NetworkLock {
    *
    * @param priority The priority of the task.
    */
-  public synchronized void add(int priority) {
-    queue.add(priority);
+  public void add(int priority) {
+    synchronized (lock) {
+      queue.add(priority);
+      highestPriority = Math.min(highestPriority, priority);
+    }
   }
 
   /**
@@ -109,9 +124,12 @@ public final class NetworkLock {
    *
    * @param priority The priority of the task.
    */
-  public synchronized void remove(int priority) {
-    queue.remove(priority);
-    notifyAll();
+  public void remove(int priority) {
+    synchronized (lock) {
+      queue.remove(priority);
+      highestPriority = queue.isEmpty() ? Integer.MAX_VALUE : queue.peek();
+      lock.notifyAll();
+    }
   }
 
 }

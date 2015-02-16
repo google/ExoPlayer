@@ -21,16 +21,16 @@ import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.ChunkSource;
+import com.google.android.exoplayer.chunk.ContainerMediaChunk;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.chunk.Format.DecreasingBandwidthComparator;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer.chunk.MediaChunk;
-import com.google.android.exoplayer.chunk.Mp4MediaChunk;
-import com.google.android.exoplayer.parser.Extractor;
-import com.google.android.exoplayer.parser.mp4.FragmentedMp4Extractor;
-import com.google.android.exoplayer.parser.mp4.Track;
-import com.google.android.exoplayer.parser.mp4.TrackEncryptionBox;
+import com.google.android.exoplayer.chunk.parser.Extractor;
+import com.google.android.exoplayer.chunk.parser.mp4.FragmentedMp4Extractor;
+import com.google.android.exoplayer.chunk.parser.mp4.TrackEncryptionBox;
+import com.google.android.exoplayer.mp4.Track;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
@@ -167,8 +167,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
           : Track.TYPE_AUDIO;
       FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
           FragmentedMp4Extractor.WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME);
-      extractor.setTrack(new Track(trackIndex, trackType, streamElement.timescale, mediaFormat,
-          trackEncryptionBoxes));
+      extractor.setTrack(new Track(trackIndex, trackType, streamElement.timescale,
+          initialManifest.durationUs, mediaFormat, trackEncryptionBoxes));
       extractors.put(trackIndex, extractor);
     }
     this.maxHeight = maxHeight;
@@ -343,8 +343,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     TrackElement trackElement = streamElement.tracks[trackIndex];
     String mimeType = trackElement.mimeType;
     if (streamElement.type == StreamElement.TYPE_VIDEO) {
-      MediaFormat format = MediaFormat.createVideoFormat(mimeType, -1, trackElement.maxWidth,
-          trackElement.maxHeight, Arrays.asList(trackElement.csd));
+      MediaFormat format = MediaFormat.createVideoFormat(mimeType, MediaFormat.NO_VALUE,
+          trackElement.maxWidth, trackElement.maxHeight, Arrays.asList(trackElement.csd));
       format.setMaxVideoDimensions(streamElement.maxWidth, streamElement.maxHeight);
       return format;
     } else if (streamElement.type == StreamElement.TYPE_AUDIO) {
@@ -355,11 +355,12 @@ public class SmoothStreamingChunkSource implements ChunkSource {
         csd = Collections.singletonList(CodecSpecificDataUtil.buildAudioSpecificConfig(
             trackElement.sampleRate, trackElement.numChannels));
       }
-      MediaFormat format = MediaFormat.createAudioFormat(mimeType, -1, trackElement.numChannels,
-          trackElement.sampleRate, csd);
+      MediaFormat format = MediaFormat.createAudioFormat(mimeType, MediaFormat.NO_VALUE,
+          trackElement.numChannels, trackElement.sampleRate, csd);
       return format;
+    } else if (streamElement.type == StreamElement.TYPE_TEXT) {
+      return MediaFormat.createFormatForMimeType(streamElement.tracks[trackIndex].mimeType);
     }
-    // TODO: Do subtitles need a format? MediaFormat supports KEY_LANGUAGE.
     return null;
   }
 
@@ -372,7 +373,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     DataSpec dataSpec = new DataSpec(uri, offset, -1, cacheKey);
     // In SmoothStreaming each chunk contains sample timestamps relative to the start of the chunk.
     // To convert them the absolute timestamps, we need to set sampleOffsetUs to -chunkStartTimeUs.
-    return new Mp4MediaChunk(dataSource, dataSpec, formatInfo, trigger, chunkStartTimeUs,
+    return new ContainerMediaChunk(dataSource, dataSpec, formatInfo, trigger, chunkStartTimeUs,
         nextStartTimeUs, nextChunkIndex, extractor, psshInfo, false, -chunkStartTimeUs);
   }
 
