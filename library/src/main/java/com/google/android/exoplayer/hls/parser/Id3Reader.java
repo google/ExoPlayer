@@ -22,7 +22,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 /**
  * Parses ID3 data and extracts individual text information frames.
  */
-/* package */ class Id3Reader extends PesPayloadReader {
+/* package */ class Id3Reader extends ElementaryStreamReader {
 
   public Id3Reader(BufferPool bufferPool) {
     super(bufferPool);

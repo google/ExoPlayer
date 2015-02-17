@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Parses a continuous H264 byte stream and extracts individual frames.
  */
-/* package */ class H264Reader extends PesPayloadReader {
+/* package */ class H264Reader extends ElementaryStreamReader {
 
   private static final int NAL_UNIT_TYPE_IDR = 5;
   private static final int NAL_UNIT_TYPE_SEI = 6;
