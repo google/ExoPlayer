@@ -17,6 +17,8 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.hls.parser.AdtsExtractor;
+import com.google.android.exoplayer.hls.parser.HlsExtractor;
 import com.google.android.exoplayer.hls.parser.TsExtractor;
 import com.google.android.exoplayer.upstream.Aes128DataSource;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
@@ -105,6 +107,7 @@ public class HlsChunkSource {
   public static final long DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS = 20000;
 
   private static final String TAG = "HlsChunkSource";
+  private static final String AAC_FILE_EXTENSION = ".aac";
   private static final float BANDWIDTH_FRACTION = 0.8f;
 
   private final BufferPool bufferPool;
@@ -332,9 +335,11 @@ public class HlsChunkSource {
     boolean isLastChunk = !mediaPlaylist.live && chunkIndex == mediaPlaylist.segments.size() - 1;
 
     // Configure the extractor that will read the chunk.
-    TsExtractor extractor;
+    HlsExtractor extractor;
     if (previousTsChunk == null || segment.discontinuity || switchingVariant || liveDiscontinuity) {
-      extractor = new TsExtractor(startTimeUs, switchingVariantSpliced, bufferPool);
+      extractor = chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)
+          ? new AdtsExtractor(switchingVariantSpliced, startTimeUs, bufferPool)
+          : new TsExtractor(switchingVariantSpliced, startTimeUs, bufferPool);
     } else {
       extractor = previousTsChunk.extractor;
     }
