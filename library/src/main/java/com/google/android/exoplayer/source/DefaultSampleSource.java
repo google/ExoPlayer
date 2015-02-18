@@ -88,7 +88,7 @@ public final class DefaultSampleSource implements SampleSource {
     Assertions.checkState(trackStates[track] == TRACK_STATE_DISABLED);
     trackStates[track] = TRACK_STATE_ENABLED;
     sampleExtractor.selectTrack(track);
-    seekToUs(positionUs);
+    seekToUsInternal(positionUs, positionUs != 0);
   }
 
   @Override
@@ -131,17 +131,7 @@ public final class DefaultSampleSource implements SampleSource {
   @Override
   public void seekToUs(long positionUs) {
     Assertions.checkState(prepared);
-    if (seekPositionUs != positionUs) {
-      // Avoid duplicate calls to the underlying extractor's seek method in the case that there
-      // have been no interleaving calls to readSample.
-      seekPositionUs = positionUs;
-      sampleExtractor.seekTo(positionUs);
-      for (int i = 0; i < trackStates.length; ++i) {
-        if (trackStates[i] != TRACK_STATE_DISABLED) {
-          pendingDiscontinuities[i] = true;
-        }
-      }
-    }
+    seekToUsInternal(positionUs, false);
   }
 
   @Override
@@ -155,6 +145,20 @@ public final class DefaultSampleSource implements SampleSource {
     Assertions.checkState(remainingReleaseCount > 0);
     if (--remainingReleaseCount == 0) {
       sampleExtractor.release();
+    }
+  }
+
+  private void seekToUsInternal(long positionUs, boolean force) {
+    // Unless forced, avoid duplicate calls to the underlying extractor's seek method in the case
+    // that there have been no interleaving calls to readSample.
+    if (force || seekPositionUs != positionUs) {
+      seekPositionUs = positionUs;
+      sampleExtractor.seekTo(positionUs);
+      for (int i = 0; i < trackStates.length; ++i) {
+        if (trackStates[i] != TRACK_STATE_DISABLED) {
+          pendingDiscontinuities[i] = true;
+        }
+      }
     }
   }
 
