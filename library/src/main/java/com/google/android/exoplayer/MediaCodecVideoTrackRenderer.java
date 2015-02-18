@@ -353,7 +353,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected boolean shouldInitCodec() {
-    return super.shouldInitCodec() && surface != null;
+    return super.shouldInitCodec() && surface != null && surface.isValid();
   }
 
   // Override configureCodec to provide the surface.

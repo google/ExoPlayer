@@ -137,7 +137,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   /**
    * The default minimum number of times to retry loading data prior to failing.
    */
-  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 1;
+  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
   private static final int STATE_UNPREPARED = 0;
   private static final int STATE_PREPARED = 1;
@@ -272,16 +272,23 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     downstreamPositionUs = positionUs;
     chunkSource.continueBuffering(positionUs);
     updateLoadControl();
+
+    boolean haveSamples = false;
     if (isPendingReset() || mediaChunks.isEmpty()) {
-      return false;
+      // No sample available.
     } else if (mediaChunks.getFirst().sampleAvailable()) {
       // There's a sample available to be read from the current chunk.
-      return true;
+      haveSamples = true;
     } else {
       // It may be the case that the current chunk has been fully read but not yet discarded and
       // that the next chunk has an available sample. Return true if so, otherwise false.
-      return mediaChunks.size() > 1 && mediaChunks.get(1).sampleAvailable();
+      haveSamples = mediaChunks.size() > 1 && mediaChunks.get(1).sampleAvailable();
     }
+
+    if (!haveSamples) {
+      maybeThrowLoadableException();
+    }
+    return haveSamples;
   }
 
   @Override
@@ -380,7 +387,8 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   }
 
   private void maybeThrowLoadableException() throws IOException {
-    if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
+    if (currentLoadableException != null && (currentLoadableExceptionFatal
+        || currentLoadableExceptionCount > minLoadableRetryCount)) {
       throw currentLoadableException;
     }
   }

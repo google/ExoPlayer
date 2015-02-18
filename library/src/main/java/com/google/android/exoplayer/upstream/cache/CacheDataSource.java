@@ -25,6 +25,7 @@ import com.google.android.exoplayer.upstream.cache.CacheDataSink.CacheDataSinkEx
 import com.google.android.exoplayer.util.Assertions;
 
 import android.net.Uri;
+import android.util.Log;
 
 import java.io.IOException;
 
@@ -49,6 +50,8 @@ public final class CacheDataSource implements DataSource {
     void onCachedBytesRead(long cacheSizeBytes, long cachedBytesRead);
 
   }
+
+  private static final String TAG = "CacheDataSource";
 
   private final Cache cache;
   private final DataSource cacheReadDataSource;
@@ -123,9 +126,6 @@ public final class CacheDataSource implements DataSource {
   @Override
   public long open(DataSpec dataSpec) throws IOException {
     Assertions.checkState(dataSpec.uriIsFullStream);
-    // TODO: Support caching for unbounded requests. This requires storing the source length
-    // into the cache (the simplest approach is to incorporate it into each cache file's name).
-    Assertions.checkState(dataSpec.length != C.LENGTH_UNBOUNDED);
     try {
       uri = dataSpec.uri;
       key = dataSpec.key;
@@ -148,10 +148,12 @@ public final class CacheDataSource implements DataSource {
           totalCachedBytesRead += bytesRead;
         }
         readPosition += bytesRead;
-        bytesRemaining -= bytesRead;
+        if (bytesRemaining != C.LENGTH_UNBOUNDED) {
+          bytesRemaining -= bytesRead;
+        }
       } else {
         closeCurrentSource();
-        if (bytesRemaining > 0) {
+        if (bytesRemaining > 0 && bytesRemaining != C.LENGTH_UNBOUNDED) {
           openNextSource();
           return read(buffer, offset, max);
         }
@@ -184,6 +186,11 @@ public final class CacheDataSource implements DataSource {
       DataSpec dataSpec;
       CacheSpan span;
       if (ignoreCache) {
+        span = null;
+      } else if (bytesRemaining == C.LENGTH_UNBOUNDED) {
+        // TODO: Support caching for unbounded requests. This requires storing the source length
+        // into the cache (the simplest approach is to incorporate it into each cache file's name).
+        Log.w(TAG, "Cache bypassed due to unbounded length.");
         span = null;
       } else if (blockOnCache) {
         span = cache.startReadWrite(key, readPosition);

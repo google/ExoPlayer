@@ -16,8 +16,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.google.android.exoplayer.demo"
-    android:versionCode="1100"
-    android:versionName="1.1.00"
+    android:versionCode="1201"
+    android:versionName="1.2.1"
     android:theme="@style/RootTheme">
 
   <uses-permission android:name="android.permission.INTERNET"/>
@@ -29,6 +29,7 @@
 
   <application
       android:label="@string/application_name"
+      android:icon="@drawable/ic_launcher"
       android:largeHeap="true"
       android:allowBackup="false">
 
@@ -41,12 +42,7 @@
       </intent-filter>
     </activity>
 
-    <activity android:name="com.google.android.exoplayer.demo.simple.SimplePlayerActivity"
-        android:configChanges="keyboardHidden|orientation|screenSize"
-        android:label="@string/application_name"
-        android:theme="@style/PlayerTheme"/>
-
-    <activity android:name="com.google.android.exoplayer.demo.full.FullPlayerActivity"
+    <activity android:name="com.google.android.exoplayer.demo.PlayerActivity"
         android:configChanges="keyboardHidden|orientation|screenSize"
         android:label="@string/application_name"
         android:theme="@style/PlayerTheme"/>

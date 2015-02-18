@@ -375,10 +375,13 @@ import java.util.List;
   }
 
   private void updatePositionUs() {
-    positionUs = timeSourceTrackRenderer != null &&
-        enabledRenderers.contains(timeSourceTrackRenderer) ?
-        timeSourceTrackRenderer.getCurrentPositionUs() :
-        mediaClock.getPositionUs();
+    if (timeSourceTrackRenderer != null && enabledRenderers.contains(timeSourceTrackRenderer)
+        && !timeSourceTrackRenderer.isEnded()) {
+      positionUs = timeSourceTrackRenderer.getCurrentPositionUs();
+      mediaClock.setPositionUs(positionUs);
+    } else {
+      positionUs = mediaClock.getPositionUs();
+    }
     elapsedRealtimeUs = SystemClock.elapsedRealtime() * 1000;
   }
 

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer;
 
+import android.media.MediaExtractor;
+
 /**
  * Defines constants that are generally useful throughout the library.
  */
@@ -39,6 +41,12 @@ public final class C {
    * The name of the UTF-8 charset.
    */
   public static final String UTF8_NAME = "UTF-8";
+
+  /**
+   * Sample flag that indicates the sample is a synchronization sample.
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int SAMPLE_FLAG_SYNC = MediaExtractor.SAMPLE_FLAG_SYNC;
 
   private C() {}
 

@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer.dash;
 
+import com.google.android.exoplayer.chunk.parser.SegmentIndex;
 import com.google.android.exoplayer.dash.mpd.RangedUri;
-import com.google.android.exoplayer.parser.SegmentIndex;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -72,6 +72,11 @@ public class DashWrappingSegmentIndex implements DashSegmentIndex {
   @Override
   public int getSegmentNum(long timeUs) {
     return Util.binarySearchFloor(segmentIndex.timesUs, timeUs, true, true);
+  }
+
+  @Override
+  public boolean isExplicit() {
+    return true;
   }
 
 }

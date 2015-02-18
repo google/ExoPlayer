@@ -29,6 +29,7 @@ public class MimeTypes {
   public static final String VIDEO_WEBM = BASE_TYPE_VIDEO + "/webm";
   public static final String VIDEO_H264 = BASE_TYPE_VIDEO + "/avc";
   public static final String VIDEO_VP9 = BASE_TYPE_VIDEO + "/x-vnd.on2.vp9";
+  public static final String VIDEO_MP4V = BASE_TYPE_VIDEO + "/mp4v-es";
 
   public static final String AUDIO_MP4 = BASE_TYPE_AUDIO + "/mp4";
   public static final String AUDIO_AAC = BASE_TYPE_AUDIO + "/mp4a-latm";
@@ -36,9 +37,12 @@ public class MimeTypes {
   public static final String AUDIO_EC3 = BASE_TYPE_AUDIO + "/eac3";
   public static final String AUDIO_WEBM = BASE_TYPE_AUDIO + "/webm";
   public static final String AUDIO_VORBIS = BASE_TYPE_AUDIO + "/vorbis";
+  public static final String AUDIO_OPUS = BASE_TYPE_AUDIO + "/opus";
 
   public static final String TEXT_VTT = BASE_TYPE_TEXT + "/vtt";
 
+  public static final String APPLICATION_ID3 = BASE_TYPE_APPLICATION + "/id3";
+  public static final String APPLICATION_EIA608 = BASE_TYPE_APPLICATION + "/eia-608";
   public static final String APPLICATION_TTML = BASE_TYPE_APPLICATION + "/ttml+xml";
 
   private MimeTypes() {}

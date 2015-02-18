@@ -226,6 +226,19 @@ public class HttpDataSource implements DataSource {
     }
   }
 
+  /*
+   * TODO: If the server uses gzip compression when serving the response, this may end up returning
+   * the size of the compressed response, where-as it should be returning the decompressed size or
+   * -1. See: developer.android.com/reference/java/net/HttpURLConnection.html
+   *
+   * To fix this we should:
+   *
+   * 1. Explicitly require no compression for media requests (since media should be compressed
+   *    already) by setting the Accept-Encoding header to "identity"
+   * 2. In other cases, for example when requesting manifests, we don't want to disable compression.
+   *    For these cases we should ensure that we return -1 here (and avoid performing any sanity
+   *    checks on the content length).
+   */
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
     this.dataSpec = dataSpec;
@@ -380,19 +393,22 @@ public class HttpDataSource implements DataSource {
         connection.setRequestProperty(property.getKey(), property.getValue());
       }
     }
-    connection.setRequestProperty("Accept-Encoding", "deflate");
+    setRangeHeader(connection, dataSpec);
     connection.setRequestProperty("User-Agent", userAgent);
-    connection.setRequestProperty("Range", buildRangeHeader(dataSpec));
     connection.connect();
     return connection;
   }
 
-  private String buildRangeHeader(DataSpec dataSpec) {
+  private void setRangeHeader(HttpURLConnection connection, DataSpec dataSpec) {
+    if (dataSpec.position == 0 && dataSpec.length == C.LENGTH_UNBOUNDED) {
+      // Not required.
+      return;
+    }
     String rangeRequest = "bytes=" + dataSpec.position + "-";
     if (dataSpec.length != C.LENGTH_UNBOUNDED) {
       rangeRequest += (dataSpec.position + dataSpec.length - 1);
     }
-    return rangeRequest;
+    connection.setRequestProperty("Range", rangeRequest);
   }
 
   private long getContentLength(HttpURLConnection connection) {

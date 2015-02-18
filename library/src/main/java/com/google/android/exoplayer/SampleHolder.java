@@ -96,4 +96,13 @@ public final class SampleHolder {
     return false;
   }
 
+  /**
+   * Clears {@link #data}. Does nothing if {@link #data} is null.
+   */
+  public void clearData() {
+    if (data != null) {
+      data.clear();
+    }
+  }
+
 }
