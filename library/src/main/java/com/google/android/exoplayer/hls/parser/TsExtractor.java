@@ -196,7 +196,7 @@ public final class TsExtractor extends HlsExtractor {
 
   @Override
   protected SampleQueue getSampleQueue(int track) {
-    Assertions.checkState(track == 0);
+    //Assertions.checkState(track == 0);
     return sampleQueues.valueAt(track);
   }
 
