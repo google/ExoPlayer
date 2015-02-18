@@ -60,7 +60,7 @@ public final class HlsPlaylistParser implements ManifestParser<HlsPlaylist> {
   private static final Pattern BANDWIDTH_ATTR_REGEX =
       Pattern.compile(BANDWIDTH_ATTR + "=(\\d+)\\b");
   private static final Pattern CODECS_ATTR_REGEX =
-      Pattern.compile(CODECS_ATTR + "=\"([^\"]*)" );
+      Pattern.compile(CODECS_ATTR + "=\"(.+?)\"" );
   private static final Pattern RESOLUTION_ATTR_REGEX =
       Pattern.compile(RESOLUTION_ATTR + "=(\\d+x\\d+)");
 
