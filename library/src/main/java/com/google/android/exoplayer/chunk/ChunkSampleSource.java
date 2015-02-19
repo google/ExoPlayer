@@ -417,7 +417,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     if (currentLoadable != null && mediaChunk == currentLoadable) {
       // Linearly interpolate partially-fetched chunk times.
       long chunkLength = mediaChunk.getLength();
-      if (chunkLength != C.LENGTH_UNBOUNDED) {
+      if (chunkLength != C.LENGTH_UNBOUNDED && chunkLength != 0) {
         return mediaChunk.startTimeUs + ((mediaChunk.endTimeUs - mediaChunk.startTimeUs) *
             mediaChunk.bytesLoaded()) / chunkLength;
       } else {

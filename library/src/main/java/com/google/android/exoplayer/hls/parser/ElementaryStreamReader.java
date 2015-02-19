@@ -19,11 +19,11 @@ import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 /**
- * Extracts individual samples from continuous byte stream, preserving original order.
+ * Extracts individual samples from an elementary media stream, preserving original order.
  */
-/* package */ abstract class PesPayloadReader extends SampleQueue {
+/* package */ abstract class ElementaryStreamReader extends SampleQueue {
 
-  protected PesPayloadReader(BufferPool bufferPool) {
+  protected ElementaryStreamReader(BufferPool bufferPool) {
     super(bufferPool);
   }
 

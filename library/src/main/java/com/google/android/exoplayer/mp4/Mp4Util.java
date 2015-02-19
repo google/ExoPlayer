@@ -161,7 +161,7 @@ public final class Mp4Util {
       }
     }
 
-    int limit = endOffset - 2;
+    int limit = endOffset - 1;
     // We're looking for the NAL unit start code prefix 0x000001, followed by a byte that matches
     // the specified type. The value of i tracks the index of the third byte in the four bytes
     // being examined.
