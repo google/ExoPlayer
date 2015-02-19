@@ -30,7 +30,7 @@ import java.util.Collections;
 /**
  * Parses a continuous ADTS byte stream and extracts individual frames.
  */
-/* package */ class AdtsReader extends PesPayloadReader {
+/* package */ class AdtsReader extends ElementaryStreamReader {
 
   private static final int STATE_FINDING_SYNC = 0;
   private static final int STATE_READING_HEADER = 1;

@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.hls;
 
-import com.google.android.exoplayer.hls.parser.TsExtractor;
+import com.google.android.exoplayer.hls.parser.HlsExtractor;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 
@@ -51,7 +51,7 @@ public final class TsChunk extends HlsChunk {
   /**
    * The extractor into which this chunk is being consumed.
    */
-  public final TsExtractor extractor;
+  public final HlsExtractor extractor;
 
   private int loadPosition;
   private volatile boolean loadFinished;
@@ -60,16 +60,17 @@ public final class TsChunk extends HlsChunk {
   /**
    * @param dataSource A {@link DataSource} for loading the data.
    * @param dataSpec Defines the data to be loaded.
+   * @param extractor An extractor to parse samples from the data.
    * @param variantIndex The index of the variant in the master playlist.
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
    * @param isLastChunk True if this is the last chunk in the media. False otherwise.
    */
-  public TsChunk(DataSource dataSource, DataSpec dataSpec, TsExtractor tsExtractor,
+  public TsChunk(DataSource dataSource, DataSpec dataSpec, HlsExtractor extractor,
       int variantIndex, long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk) {
     super(dataSource, dataSpec);
-    this.extractor = tsExtractor;
+    this.extractor = extractor;
     this.variantIndex = variantIndex;
     this.startTimeUs = startTimeUs;
     this.endTimeUs = endTimeUs;
