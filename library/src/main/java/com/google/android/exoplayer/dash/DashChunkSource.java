@@ -86,6 +86,7 @@ public class DashChunkSource implements ChunkSource {
   private final Evaluation evaluation;
   private final StringBuilder headerBuilder;
   private final long liveEdgeLatencyUs;
+  private final long elapsedRealtimeOffsetUs;
   private final int maxWidth;
   private final int maxHeight;
 
@@ -140,7 +141,8 @@ public class DashChunkSource implements ChunkSource {
    */
   public DashChunkSource(MediaPresentationDescription manifest, int adaptationSetIndex,
       int[] representationIndices, DataSource dataSource, FormatEvaluator formatEvaluator) {
-    this(null, manifest, adaptationSetIndex, representationIndices, dataSource, formatEvaluator, 0);
+    this(null, manifest, adaptationSetIndex, representationIndices, dataSource, formatEvaluator, 0,
+        0);
   }
 
   /**
@@ -162,18 +164,21 @@ public class DashChunkSource implements ChunkSource {
    *     manifest). Choosing a small value will minimize latency introduced by the player, however
    *     note that the value sets an upper bound on the length of media that the player can buffer.
    *     Hence a small value may increase the probability of rebuffering and playback failures.
+   * @param elapsedRealtimeOffsetMs If known, an estimate of the instantaneous difference between
+   *    server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds, specified
+   *    as the server's unix time minus the local elapsed time. It unknown, set to 0.
    */
   public DashChunkSource(ManifestFetcher<MediaPresentationDescription> manifestFetcher,
       int adaptationSetIndex, int[] representationIndices, DataSource dataSource,
-      FormatEvaluator formatEvaluator, long liveEdgeLatencyMs) {
+      FormatEvaluator formatEvaluator, long liveEdgeLatencyMs, long elapsedRealtimeOffsetMs) {
     this(manifestFetcher, manifestFetcher.getManifest(), adaptationSetIndex, representationIndices,
-        dataSource, formatEvaluator, liveEdgeLatencyMs * 1000);
+        dataSource, formatEvaluator, liveEdgeLatencyMs * 1000, elapsedRealtimeOffsetMs * 1000);
   }
 
   private DashChunkSource(ManifestFetcher<MediaPresentationDescription> manifestFetcher,
       MediaPresentationDescription initialManifest, int adaptationSetIndex,
       int[] representationIndices, DataSource dataSource, FormatEvaluator formatEvaluator,
-      long liveEdgeLatencyUs) {
+      long liveEdgeLatencyUs, long elapsedRealtimeOffsetUs) {
     this.manifestFetcher = manifestFetcher;
     this.currentManifest = initialManifest;
     this.adaptationSetIndex = adaptationSetIndex;
@@ -181,6 +186,7 @@ public class DashChunkSource implements ChunkSource {
     this.dataSource = dataSource;
     this.evaluator = formatEvaluator;
     this.liveEdgeLatencyUs = liveEdgeLatencyUs;
+    this.elapsedRealtimeOffsetUs = elapsedRealtimeOffsetUs;
     this.evaluation = new Evaluation();
     this.headerBuilder = new StringBuilder();
 
@@ -326,8 +332,12 @@ public class DashChunkSource implements ChunkSource {
       return;
     }
 
-    // TODO: Use UtcTimingElement where possible.
-    long nowUs = System.currentTimeMillis() * 1000;
+    long nowUs;
+    if (elapsedRealtimeOffsetUs != 0) {
+      nowUs = (SystemClock.elapsedRealtime() * 1000) + elapsedRealtimeOffsetUs;
+    } else {
+      nowUs = System.currentTimeMillis() * 1000;
+    }
 
     int firstAvailableSegmentNum = segmentIndex.getFirstSegmentNum();
     int lastAvailableSegmentNum = segmentIndex.getLastSegmentNum();

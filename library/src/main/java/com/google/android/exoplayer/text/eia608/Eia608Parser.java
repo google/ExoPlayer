@@ -189,7 +189,7 @@ public class Eia608Parser {
    * @param payload A {@link ParsableByteArray} containing the payload.
    * @return True if the sei message contains EIA-608. False otherwise.
    */
-  public static boolean inspectSeiMessage(int payloadType, int payloadLength,
+  public static boolean isSeiMessageEia608(int payloadType, int payloadLength,
       ParsableByteArray payload) {
     if (payloadType != PAYLOAD_TYPE_CC || payloadLength < 8) {
       return false;

@@ -56,7 +56,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
         payloadSize += b;
       } while (b == 0xFF);
       // Process the payload. We only support EIA-608 payloads currently.
-      if (Eia608Parser.inspectSeiMessage(payloadType, payloadSize, seiBuffer)) {
+      if (Eia608Parser.isSeiMessageEia608(payloadType, payloadSize, seiBuffer)) {
         startSample(pesTimeUs);
         appendData(seiBuffer, payloadSize);
         commitSample(true);
