@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.util;
 
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 
@@ -25,8 +26,6 @@ import android.util.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.concurrent.CancellationException;
 
 /**
@@ -84,7 +83,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   private int enabledCount;
   private Loader loader;
-  private ManifestLoadable currentLoadable;
+  private ManifestLoadable<T> currentLoadable;
 
   private int loadExceptionCount;
   private long loadExceptionTimestamp;
@@ -204,7 +203,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       loader = new Loader("manifestLoader");
     }
     if (!loader.isLoading()) {
-      currentLoadable = new ManifestLoadable();
+      currentLoadable = new ManifestLoadable<T>(manifestUrl, userAgent, contentId, parser);
       loader.startLoading(currentLoadable, this);
       notifyManifestRefreshStarted();
     }
@@ -217,7 +216,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       return;
     }
 
-    manifest = currentLoadable.result;
+    manifest = currentLoadable.getResult();
     manifestLoadTimestamp = SystemClock.elapsedRealtime();
     loadExceptionCount = 0;
     loadException = null;
@@ -242,6 +241,11 @@ public class ManifestFetcher<T> implements Loader.Callback {
     loadException = new IOException(exception);
 
     notifyManifestError(loadException);
+  }
+
+  /* package */ void onSingleFetchCompleted(T result) {
+    manifest = result;
+    manifestLoadTimestamp = SystemClock.elapsedRealtime();
   }
 
   private long getRetryDelayMillis(long errorCount) {
@@ -286,13 +290,13 @@ public class ManifestFetcher<T> implements Loader.Callback {
     private final Looper callbackLooper;
     private final ManifestCallback<T> wrappedCallback;
     private final Loader singleUseLoader;
-    private final ManifestLoadable singleUseLoadable;
+    private final ManifestLoadable<T> singleUseLoadable;
 
     public SingleFetchHelper(Looper callbackLooper, ManifestCallback<T> wrappedCallback) {
       this.callbackLooper = callbackLooper;
       this.wrappedCallback = wrappedCallback;
       singleUseLoader = new Loader("manifestLoader:single");
-      singleUseLoadable = new ManifestLoadable();
+      singleUseLoadable = new ManifestLoadable<T>(manifestUrl, userAgent, contentId, parser);
     }
 
     public void startLoading() {
@@ -302,9 +306,9 @@ public class ManifestFetcher<T> implements Loader.Callback {
     @Override
     public void onLoadCompleted(Loadable loadable) {
       try {
-        manifest = singleUseLoadable.result;
-        manifestLoadTimestamp = SystemClock.elapsedRealtime();
-        wrappedCallback.onManifest(contentId, singleUseLoadable.result);
+        T result = singleUseLoadable.getResult();
+        onSingleFetchCompleted(result);
+        wrappedCallback.onManifest(contentId, result);
       } finally {
         releaseLoader();
       }
@@ -336,50 +340,22 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   }
 
-  private class ManifestLoadable implements Loadable {
+  private static class ManifestLoadable<T> extends NetworkLoadable<T> {
 
-    private static final int TIMEOUT_MILLIS = 10000;
+    private final String contentId;
+    private final ManifestParser<T> parser;
 
-    /* package */ volatile T result;
-    private volatile boolean isCanceled;
-
-    @Override
-    public void cancelLoad() {
-      // We don't actually cancel anything, but we need to record the cancellation so that
-      // isLoadCanceled can return the correct value.
-      isCanceled = true;
+    public ManifestLoadable(String url, String userAgent, String contentId,
+        ManifestParser<T> parser) {
+      super(url, userAgent);
+      this.contentId = contentId;
+      this.parser = parser;
     }
 
     @Override
-    public boolean isLoadCanceled() {
-      return isCanceled;
-    }
-
-    @Override
-    public void load() throws IOException, InterruptedException {
-      String inputEncoding;
-      InputStream inputStream = null;
-      try {
-        URLConnection connection = configureConnection(new URL(manifestUrl));
-        inputStream = connection.getInputStream();
-        inputEncoding = connection.getContentEncoding();
-        result = parser.parse(inputStream, inputEncoding, contentId,
-            Util.parseBaseUri(connection.getURL().toString()));
-      } finally {
-        if (inputStream != null) {
-          inputStream.close();
-        }
-      }
-    }
-
-    private URLConnection configureConnection(URL url) throws IOException {
-      URLConnection connection = url.openConnection();
-      connection.setConnectTimeout(TIMEOUT_MILLIS);
-      connection.setReadTimeout(TIMEOUT_MILLIS);
-      connection.setDoOutput(false);
-      connection.setRequestProperty("User-Agent", userAgent);
-      connection.connect();
-      return connection;
+    protected T parse(String connectionUrl, InputStream inputStream, String inputEncoding)
+        throws ParserException, IOException {
+      return parser.parse(inputStream, inputEncoding, contentId, Util.parseBaseUri(connectionUrl));
     }
 
   }
