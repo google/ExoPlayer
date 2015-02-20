@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 apply plugin: 'com.android.library'
+apply plugin: 'bintray-release'
 
 android {
     compileSdkVersion 21
@@ -46,4 +47,14 @@ android.libraryVariants.all { variant ->
     task.dependsOn variant.javaCompile
     task.from variant.javaCompile.destinationDir
     artifacts.add('archives', task);
+}
+
+publish {
+    repoName = 'maven'
+    userOrg = 'novoda'
+    groupId = 'com.novoda'
+    artifactId = 'exoplayer'
+    version = 'r1.2.2'
+    description = "Google's Exoplayer for Android (released for use by Novoda)"
+    website = 'https://github.com/novoda/ExoPlayer'
 }
