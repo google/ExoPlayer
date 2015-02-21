@@ -13,6 +13,13 @@
 // limitations under the License.
 apply plugin: 'com.android.library'
 
+apply plugin: 'maven'
+
+group = 'com.google.android'
+archivesBaseName = 'exoplayer'
+version = '1.2.2'
+
+
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
@@ -46,4 +53,29 @@ android.libraryVariants.all { variant ->
     task.dependsOn variant.javaCompile
     task.from variant.javaCompile.destinationDir
     artifacts.add('archives', task);
+}
+
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+
+artifacts {
+    archives sourcesJar
+}
+
+if (project.hasProperty("repoUrl") &&
+    project.hasProperty("repoUsername") &&
+    project.hasProperty("repoPassword")) {
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                repository(url: repoUrl) {
+                    authentication(userName: repoUsername, password: repoPassword)
+                }
+            }
+        }
+    }
 }
