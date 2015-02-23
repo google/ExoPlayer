@@ -258,6 +258,7 @@ public class HlsChunkSource {
     if (adaptiveMode == ADAPTIVE_MODE_NONE) {
       // Do nothing.
     } else {
+      clearStaleBlacklistedPlaylists();
       nextVariantIndex = getNextVariantIndex(previousTsChunk, playbackPositionUs);
       switchingVariant = nextVariantIndex != variantIndex;
       switchingVariantSpliced = switchingVariant && adaptiveMode == ADAPTIVE_MODE_SPLICE;
@@ -372,7 +373,6 @@ public class HlsChunkSource {
         MediaPlaylistChunk playlistChunk = (MediaPlaylistChunk) chunk;
         mediaPlaylistBlacklistFlags[playlistChunk.variantIndex] = true;
         mediaPlaylistBlacklistedTimeMs[playlistChunk.variantIndex] = SystemClock.elapsedRealtime();
-        clearStaleBlacklistedPlaylists();
         if (!allPlaylistsBlacklisted()) {
           // We've handled the 404/410 by blacklisting the playlist.
           Log.w(TAG, "Blacklisted playlist (" + responseCode + "): "
