@@ -372,7 +372,7 @@ public class HlsChunkSource {
         MediaPlaylistChunk playlistChunk = (MediaPlaylistChunk) chunk;
         mediaPlaylistBlacklistFlags[playlistChunk.variantIndex] = true;
         mediaPlaylistBlacklistedTimeMs[playlistChunk.variantIndex] = SystemClock.elapsedRealtime();
-        evaluatePlaylistBlacklistedTimestamps();
+        clearStaleBlacklistedPlaylists();
         if (!allPlaylistsBlacklisted()) {
           // We've handled the 404/410 by blacklisting the playlist.
           Log.w(TAG, "Blacklisted playlist (" + responseCode + "): "
@@ -553,11 +553,11 @@ public class HlsChunkSource {
     return true;
   }
 
-  private void evaluatePlaylistBlacklistedTimestamps()
-  {
+  private void clearStaleBlacklistedPlaylists() {
     long currentTime = SystemClock.elapsedRealtime();
     for (int i = 0; i < mediaPlaylistBlacklistFlags.length; i++) {
-      if (mediaPlaylistBlacklistFlags[i] && currentTime - mediaPlaylistBlacklistedTimeMs[i] > DEFAULT_MAX_TIME_MEDIA_PLAYLIST_BLACKLISTED_MS) {
+      if (mediaPlaylistBlacklistFlags[i] &&
+          currentTime - mediaPlaylistBlacklistedTimeMs[i] > DEFAULT_MAX_TIME_MEDIA_PLAYLIST_BLACKLISTED_MS) {
         mediaPlaylistBlacklistFlags[i] = false;
         mediaPlaylistBlacklistedTimeMs[i] = 0;
       }
