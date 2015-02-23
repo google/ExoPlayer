@@ -106,6 +106,12 @@ public class HlsChunkSource {
    */
   public static final long DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS = 20000;
 
+  /**
+   * The default maximum time a media playlist is blacklisted without
+   * rechecking if it is alive again (because an encoder reset, for example)
+   */
+  public static final long DEFAULT_MAX_TIME_MEDIA_PLAYLIST_BLACKLISTED_MS = 60000;
+
   private static final String TAG = "HlsChunkSource";
   private static final String AAC_FILE_EXTENSION = ".aac";
   private static final float BANDWIDTH_FRACTION = 0.8f;
@@ -127,6 +133,7 @@ public class HlsChunkSource {
   /* package */ byte[] scratchSpace;
   /* package */ final HlsMediaPlaylist[] mediaPlaylists;
   /* package */ final boolean[] mediaPlaylistBlacklistFlags;
+  /* package */ final long[] mediaPlaylistBlacklistedTimeMs;
   /* package */ final long[] lastMediaPlaylistLoadTimesMs;
   /* package */ boolean live;
   /* package */ long durationUs;
@@ -182,6 +189,7 @@ public class HlsChunkSource {
       enabledVariants = new Variant[] {new Variant(0, playlistUrl, 0, null, -1, -1)};
       mediaPlaylists = new HlsMediaPlaylist[1];
       mediaPlaylistBlacklistFlags = new boolean[1];
+      mediaPlaylistBlacklistedTimeMs = new long[1];
       lastMediaPlaylistLoadTimesMs = new long[1];
       setMediaPlaylist(0, (HlsMediaPlaylist) playlist);
     } else {
@@ -189,6 +197,7 @@ public class HlsChunkSource {
       enabledVariants = filterVariants((HlsMasterPlaylist) playlist, variantIndices);
       mediaPlaylists = new HlsMediaPlaylist[enabledVariants.length];
       mediaPlaylistBlacklistFlags = new boolean[enabledVariants.length];
+      mediaPlaylistBlacklistedTimeMs = new long[enabledVariants.length];
       lastMediaPlaylistLoadTimesMs = new long[enabledVariants.length];
     }
 
@@ -362,6 +371,8 @@ public class HlsChunkSource {
       if (responseCode == 404 || responseCode == 410) {
         MediaPlaylistChunk playlistChunk = (MediaPlaylistChunk) chunk;
         mediaPlaylistBlacklistFlags[playlistChunk.variantIndex] = true;
+        mediaPlaylistBlacklistedTimeMs[playlistChunk.variantIndex] = SystemClock.elapsedRealtime();
+        evaluatePlaylistBlacklistedTimestamps();
         if (!allPlaylistsBlacklisted()) {
           // We've handled the 404/410 by blacklisting the playlist.
           Log.w(TAG, "Blacklisted playlist (" + responseCode + "): "
@@ -372,6 +383,7 @@ public class HlsChunkSource {
           Log.w(TAG, "Final playlist not blacklisted (" + responseCode + "): "
               + playlistChunk.dataSpec.uri);
           mediaPlaylistBlacklistFlags[playlistChunk.variantIndex] = false;
+          mediaPlaylistBlacklistedTimeMs[playlistChunk.variantIndex] = 0;
           return false;
         }
       }
@@ -539,6 +551,17 @@ public class HlsChunkSource {
       }
     }
     return true;
+  }
+
+  private void evaluatePlaylistBlacklistedTimestamps()
+  {
+    long currentTime = SystemClock.elapsedRealtime();
+    for (int i = 0; i < mediaPlaylistBlacklistFlags.length; i++) {
+      if (mediaPlaylistBlacklistFlags[i] && currentTime - mediaPlaylistBlacklistedTimeMs[i] > DEFAULT_MAX_TIME_MEDIA_PLAYLIST_BLACKLISTED_MS) {
+        mediaPlaylistBlacklistFlags[i] = false;
+        mediaPlaylistBlacklistedTimeMs[i] = 0;
+      }
+    }
   }
 
   private class MediaPlaylistChunk extends DataChunk {
