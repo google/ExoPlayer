@@ -258,7 +258,6 @@ public class HlsChunkSource {
     if (adaptiveMode == ADAPTIVE_MODE_NONE) {
       // Do nothing.
     } else {
-      clearStaleBlacklistedPlaylists();
       nextVariantIndex = getNextVariantIndex(previousTsChunk, playbackPositionUs);
       switchingVariant = nextVariantIndex != variantIndex;
       switchingVariantSpliced = switchingVariant && adaptiveMode == ADAPTIVE_MODE_SPLICE;
@@ -392,6 +391,7 @@ public class HlsChunkSource {
   }
 
   private int getNextVariantIndex(TsChunk previousTsChunk, long playbackPositionUs) {
+    clearStaleBlacklistedPlaylists();
     int idealVariantIndex = getVariantIndexForBandwdith(
         (int) (bandwidthMeter.getBitrateEstimate() * BANDWIDTH_FRACTION));
     if (idealVariantIndex == variantIndex) {
