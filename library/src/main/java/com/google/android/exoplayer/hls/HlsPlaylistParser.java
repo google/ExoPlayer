@@ -18,7 +18,7 @@ package com.google.android.exoplayer.hls;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.hls.HlsMediaPlaylist.Segment;
-import com.google.android.exoplayer.util.NetworkLoadable;
+import com.google.android.exoplayer.upstream.NetworkLoadable;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -84,11 +84,10 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
       Pattern.compile(IV_ATTR + "=([^,.*]+)");
 
   @Override
-  public HlsPlaylist parse(String connectionUrl, InputStream inputStream, String inputEncoding)
+  public HlsPlaylist parse(String connectionUrl, InputStream inputStream)
       throws IOException, ParserException {
     Uri baseUri = Util.parseBaseUri(connectionUrl);
-    BufferedReader reader = new BufferedReader((inputEncoding == null)
-        ? new InputStreamReader(inputStream) : new InputStreamReader(inputStream, inputEncoding));
+    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
     Queue<String> extraLines = new LinkedList<String>();
     String line;
     try {

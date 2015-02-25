@@ -19,10 +19,10 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
+import com.google.android.exoplayer.upstream.NetworkLoadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.NetworkLoadable;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -60,11 +60,11 @@ public class SmoothStreamingManifestParser implements
   }
 
   @Override
-  public SmoothStreamingManifest parse(String connectionUrl, InputStream inputStream,
-      String inputEncoding) throws IOException, ParserException {
+  public SmoothStreamingManifest parse(String connectionUrl, InputStream inputStream)
+      throws IOException, ParserException {
     try {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
-      xmlParser.setInput(inputStream, inputEncoding);
+      xmlParser.setInput(inputStream, null);
       SmoothStreamMediaParser smoothStreamMediaParser = new SmoothStreamMediaParser(null,
           Util.parseBaseUri(connectionUrl));
       return (SmoothStreamingManifest) smoothStreamMediaParser.parse(xmlParser);

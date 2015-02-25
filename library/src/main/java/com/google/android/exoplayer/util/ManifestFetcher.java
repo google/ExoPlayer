@@ -15,8 +15,10 @@
  */
 package com.google.android.exoplayer.util;
 
+import com.google.android.exoplayer.upstream.HttpDataSource;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
+import com.google.android.exoplayer.upstream.NetworkLoadable;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -28,6 +30,18 @@ import java.util.concurrent.CancellationException;
 
 /**
  * Performs both single and repeated loads of media manifests.
+ * <p>
+ * Client code is responsible for ensuring that only one load is taking place at any one time.
+ * Typical usage of this class is as follows:
+ * <ol>
+ * <li>Create an instance.</li>
+ * <li>Obtain an initial manifest by calling {@link #singleLoad(Looper, ManifestCallback)} and
+ *     waiting for the callback to be invoked.</li>
+ * <li>For on-demand playbacks, the loader is no longer required. For live playbacks, the loader
+ *     may be required to periodically refresh the manifest. In this case it is injected into any
+ *     components that require it. These components will call {@link #requestRefresh()} on the
+ *     loader whenever a refresh is required.</li>
+ * </ol>
  *
  * @param <T> The type of manifest.
  */
@@ -70,7 +84,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
   }
 
   private final NetworkLoadable.Parser<T> parser;
-  private final String userAgent;
+  private final HttpDataSource httpDataSource;
   private final Handler eventHandler;
   private final EventListener eventListener;
 
@@ -89,26 +103,27 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   /**
    * @param manifestUrl The manifest location.
-   * @param userAgent The User-Agent string that should be used.
+   * @param httpDataSource The {@link HttpDataSource} to use when loading the manifest.
    * @param parser A parser to parse the loaded manifest data.
    */
-  public ManifestFetcher(String manifestUrl, String userAgent, NetworkLoadable.Parser<T> parser) {
-    this(manifestUrl, userAgent, parser, null, null);
+  public ManifestFetcher(String manifestUrl, HttpDataSource httpDataSource,
+      NetworkLoadable.Parser<T> parser) {
+    this(manifestUrl, httpDataSource, parser, null, null);
   }
 
   /**
    * @param manifestUrl The manifest location.
-   * @param userAgent The User-Agent string that should be used.
+   * @param httpDataSource The {@link HttpDataSource} to use when loading the manifest.
    * @param parser A parser to parse the loaded manifest data.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public ManifestFetcher(String manifestUrl, String userAgent, NetworkLoadable.Parser<T> parser,
-      Handler eventHandler, EventListener eventListener) {
+  public ManifestFetcher(String manifestUrl, HttpDataSource httpDataSource,
+      NetworkLoadable.Parser<T> parser, Handler eventHandler, EventListener eventListener) {
     this.parser = parser;
     this.manifestUrl = manifestUrl;
-    this.userAgent = userAgent;
+    this.httpDataSource = httpDataSource;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
   }
@@ -131,7 +146,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
    */
   public void singleLoad(Looper callbackLooper, final ManifestCallback<T> callback) {
     SingleFetchHelper fetchHelper = new SingleFetchHelper(
-        new NetworkLoadable<T>(manifestUrl, userAgent, parser), callbackLooper, callback);
+        new NetworkLoadable<T>(manifestUrl, httpDataSource, parser), callbackLooper, callback);
     fetchHelper.startLoading();
   }
 
@@ -204,7 +219,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       loader = new Loader("manifestLoader");
     }
     if (!loader.isLoading()) {
-      currentLoadable = new NetworkLoadable<T>(manifestUrl, userAgent, parser);
+      currentLoadable = new NetworkLoadable<T>(manifestUrl, httpDataSource, parser);
       loader.startLoading(currentLoadable, this);
       notifyManifestRefreshStarted();
     }

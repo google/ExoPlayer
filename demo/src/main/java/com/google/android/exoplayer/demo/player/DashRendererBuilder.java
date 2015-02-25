@@ -52,6 +52,8 @@ import com.google.android.exoplayer.text.webvtt.WebvttParser;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer.upstream.HttpDataSource;
 import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
@@ -100,6 +102,7 @@ public class DashRendererBuilder implements RendererBuilder,
   private DemoPlayer player;
   private RendererBuilderCallback callback;
   private ManifestFetcher<MediaPresentationDescription> manifestFetcher;
+  private HttpDataSource manifestDataSource;
 
   private MediaPresentationDescription manifest;
   private long elapsedRealtimeOffset;
@@ -118,7 +121,9 @@ public class DashRendererBuilder implements RendererBuilder,
     this.player = player;
     this.callback = callback;
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
-    manifestFetcher = new ManifestFetcher<MediaPresentationDescription>(url, userAgent, parser);
+    manifestDataSource = new DefaultHttpDataSource(userAgent, null);
+    manifestFetcher = new ManifestFetcher<MediaPresentationDescription>(url, manifestDataSource,
+        parser);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 
@@ -126,7 +131,7 @@ public class DashRendererBuilder implements RendererBuilder,
   public void onSingleManifest(MediaPresentationDescription manifest) {
     this.manifest = manifest;
     if (manifest.dynamic && manifest.utcTiming != null) {
-      UtcTimingElementResolver.resolveTimingElement(userAgent, manifest.utcTiming,
+      UtcTimingElementResolver.resolveTimingElement(manifestDataSource, manifest.utcTiming,
           manifestFetcher.getManifestLoadTimestamp(), this);
     } else {
       buildRenderers();

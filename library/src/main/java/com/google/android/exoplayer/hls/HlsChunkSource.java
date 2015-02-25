@@ -558,7 +558,7 @@ public class HlsChunkSource {
     @Override
     protected void consume(byte[] data, int limit) throws IOException {
       HlsPlaylist playlist = playlistParser.parse(playlistUrl,
-          new ByteArrayInputStream(data, 0, limit), null);
+          new ByteArrayInputStream(data, 0, limit));
       Assertions.checkState(playlist.type == HlsPlaylist.TYPE_MEDIA);
       HlsMediaPlaylist mediaPlaylist = (HlsMediaPlaylist) playlist;
       setMediaPlaylist(variantIndex, mediaPlaylist);

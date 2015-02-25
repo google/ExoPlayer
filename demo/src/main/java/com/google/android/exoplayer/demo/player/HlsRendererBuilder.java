@@ -29,6 +29,7 @@ import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
 import com.google.android.exoplayer.text.eia608.Eia608TrackRenderer;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
@@ -60,7 +61,7 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
     this.callback = callback;
     HlsPlaylistParser parser = new HlsPlaylistParser();
     ManifestFetcher<HlsPlaylist> playlistFetcher =
-        new ManifestFetcher<HlsPlaylist>(url, userAgent, parser);
+        new ManifestFetcher<HlsPlaylist>(url, new DefaultHttpDataSource(userAgent, null), parser);
     playlistFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 

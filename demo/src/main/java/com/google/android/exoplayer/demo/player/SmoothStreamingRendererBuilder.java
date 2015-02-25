@@ -42,6 +42,7 @@ import com.google.android.exoplayer.text.ttml.TtmlParser;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.Util;
@@ -90,8 +91,8 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     this.player = player;
     this.callback = callback;
     SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
-    manifestFetcher = new ManifestFetcher<SmoothStreamingManifest>(url + "/Manifest", userAgent,
-        parser);
+    manifestFetcher = new ManifestFetcher<SmoothStreamingManifest>(url + "/Manifest",
+        new DefaultHttpDataSource(userAgent, null), parser);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 

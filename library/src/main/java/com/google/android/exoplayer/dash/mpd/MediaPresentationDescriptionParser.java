@@ -21,9 +21,9 @@ import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentList;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTemplate;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTimelineElement;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SingleSegmentBase;
+import com.google.android.exoplayer.upstream.NetworkLoadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.NetworkLoadable;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -73,11 +73,11 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   // MPD parsing.
 
   @Override
-  public MediaPresentationDescription parse(String connectionUrl, InputStream inputStream,
-      String inputEncoding) throws IOException, ParserException {
+  public MediaPresentationDescription parse(String connectionUrl, InputStream inputStream)
+      throws IOException, ParserException {
     try {
       XmlPullParser xpp = xmlParserFactory.newPullParser();
-      xpp.setInput(inputStream, inputEncoding);
+      xpp.setInput(inputStream, null);
       int eventType = xpp.next();
       if (eventType != XmlPullParser.START_TAG || !"MPD".equals(xpp.getName())) {
         throw new ParserException(
