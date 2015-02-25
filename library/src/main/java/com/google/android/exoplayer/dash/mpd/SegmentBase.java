@@ -148,7 +148,8 @@ public abstract class SegmentBase {
      * @see DashSegmentIndex#getSegmentNum(long)
      */
     public int getSegmentNum(long timeUs) {
-      int lowIndex = getFirstSegmentNum();
+      final int firstSegmentNum = getFirstSegmentNum();
+      int lowIndex = firstSegmentNum;
       int highIndex = getLastSegmentNum();
       if (segmentTimeline == null) {
         // All segments are of equal duration (with the possible exception of the last one).
@@ -171,7 +172,7 @@ public abstract class SegmentBase {
             return midIndex;
           }
         }
-        return lowIndex - 1;
+        return lowIndex == firstSegmentNum ? lowIndex : highIndex;
       }
     }
 
