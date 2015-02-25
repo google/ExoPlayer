@@ -36,6 +36,7 @@ import com.google.android.exoplayer.ext.vp9.LibvpxVideoTrackRenderer;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
@@ -66,18 +67,19 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
   public void build() {
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
     ManifestFetcher<MediaPresentationDescription> manifestFetcher =
-        new ManifestFetcher<MediaPresentationDescription>(parser, null, manifestUrl, userAgent);
+        new ManifestFetcher<MediaPresentationDescription>(manifestUrl,
+            new DefaultHttpDataSource(userAgent, null), parser);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 
   @Override
-  public void onManifestError(String contentId, IOException e) {
+  public void onSingleManifestError(IOException e) {
     // TODO: do something meaningful here.
     e.printStackTrace();
   }
 
   @Override
-  public void onManifest(String contentId, MediaPresentationDescription manifest) {
+  public void onSingleManifest(MediaPresentationDescription manifest) {
     LoadControl loadControl = new DefaultLoadControl(new BufferPool(BUFFER_SEGMENT_SIZE));
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter(null, null);
 
