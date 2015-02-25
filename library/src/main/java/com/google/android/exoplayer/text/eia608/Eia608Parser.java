@@ -97,14 +97,17 @@ public class Eia608Parser {
   }
 
   /* package */ ClosedCaptionList parse(SampleHolder sampleHolder) {
-    if (sampleHolder.size <= 0) {
+    if (sampleHolder.size < 10) {
       return null;
     }
 
     captions.clear();
     stringBuilder.setLength(0);
     seiBuffer.reset(sampleHolder.data.array());
-    seiBuffer.skipBits(3); // reserved + process_cc_data_flag + zero_bit
+
+    // country_code (8) + provider_code (16) + user_identifier (32) + user_data_type_code (8) +
+    // reserved (1) + process_cc_data_flag (1) + zero_bit (1)
+    seiBuffer.skipBits(67);
     int ccCount = seiBuffer.readBits(5);
     seiBuffer.skipBits(8);
 
@@ -177,52 +180,28 @@ public class Eia608Parser {
   }
 
   /**
-   * Parses the beginning of SEI data and returns the size of underlying contains closed captions
-   * data following the header. Returns 0 if the SEI doesn't contain any closed captions data.
+   * Inspects an sei message to determine whether it contains EIA-608.
+   * <p>
+   * The position of {@code payload} is left unchanged.
    *
-   * @param seiBuffer The buffer to read from.
-   * @return The size of closed captions data.
+   * @param payloadType The payload type of the message.
+   * @param payloadLength The length of the payload.
+   * @param payload A {@link ParsableByteArray} containing the payload.
+   * @return True if the sei message contains EIA-608. False otherwise.
    */
-  public static int parseHeader(ParsableByteArray seiBuffer) {
-    int b = 0;
-    int payloadType = 0;
-
-    do {
-      b = seiBuffer.readUnsignedByte();
-      payloadType += b;
-    } while (b == 0xFF);
-
-    if (payloadType != PAYLOAD_TYPE_CC) {
-      return 0;
+  public static boolean inspectSeiMessage(int payloadType, int payloadLength,
+      ParsableByteArray payload) {
+    if (payloadType != PAYLOAD_TYPE_CC || payloadLength < 8) {
+      return false;
     }
-
-    int payloadSize = 0;
-    do {
-      b = seiBuffer.readUnsignedByte();
-      payloadSize += b;
-    } while (b == 0xFF);
-
-    if (payloadSize <= 0) {
-      return 0;
-    }
-
-    int countryCode = seiBuffer.readUnsignedByte();
-    if (countryCode != COUNTRY_CODE) {
-      return 0;
-    }
-    int providerCode = seiBuffer.readUnsignedShort();
-    if (providerCode != PROVIDER_CODE) {
-      return 0;
-    }
-    int userIdentifier = seiBuffer.readInt();
-    if (userIdentifier != USER_ID) {
-      return 0;
-    }
-    int userDataTypeCode = seiBuffer.readUnsignedByte();
-    if (userDataTypeCode != USER_DATA_TYPE_CODE) {
-      return 0;
-    }
-    return payloadSize;
+    int startPosition = payload.getPosition();
+    int countryCode = payload.readUnsignedByte();
+    int providerCode = payload.readUnsignedShort();
+    int userIdentifier = payload.readInt();
+    int userDataTypeCode = payload.readUnsignedByte();
+    payload.setPosition(startPosition);
+    return countryCode == COUNTRY_CODE && providerCode == PROVIDER_CODE
+        && userIdentifier == USER_ID && userDataTypeCode == USER_DATA_TYPE_CODE;
   }
 
 }

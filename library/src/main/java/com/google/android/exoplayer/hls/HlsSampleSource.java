@@ -21,7 +21,7 @@ import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
-import com.google.android.exoplayer.hls.parser.TsExtractor;
+import com.google.android.exoplayer.hls.parser.HlsExtractor;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
@@ -44,7 +44,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   private static final int NO_RESET_PENDING = -1;
 
   private final HlsChunkSource chunkSource;
-  private final LinkedList<TsExtractor> extractors;
+  private final LinkedList<HlsExtractor> extractors;
   private final boolean frameAccurateSeeking;
   private final int minLoadableRetryCount;
 
@@ -83,7 +83,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     this.frameAccurateSeeking = frameAccurateSeeking;
     this.remainingReleaseCount = downstreamRendererCount;
     this.minLoadableRetryCount = minLoadableRetryCount;
-    extractors = new LinkedList<TsExtractor>();
+    extractors = new LinkedList<HlsExtractor>();
   }
 
   @Override
@@ -96,7 +96,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     }
     continueBufferingInternal();
     if (!extractors.isEmpty()) {
-      TsExtractor extractor = extractors.getFirst();
+      HlsExtractor extractor = extractors.getFirst();
       if (extractor.isPrepared()) {
         trackCount = extractor.getTrackCount();
         trackEnabledStates = new boolean[trackCount];
@@ -164,7 +164,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     if (!extractors.isEmpty()) {
       discardSamplesForDisabledTracks(extractors.getFirst(), downstreamPositionUs);
     }
-    return continueBufferingInternal();
+    return loadingFinished || continueBufferingInternal();
   }
 
   private boolean continueBufferingInternal() throws IOException {
@@ -195,7 +195,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       return NOTHING_READ;
     }
 
-    TsExtractor extractor = getCurrentExtractor();
+    HlsExtractor extractor = getCurrentExtractor();
     if (extractors.size() > 1) {
       // If there's more than one extractor, attempt to configure a seamless splice from the
       // current one to the next one.
@@ -328,8 +328,8 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
    *
    * @return The current extractor from which samples should be read. Guaranteed to be non-null.
    */
-  private TsExtractor getCurrentExtractor() {
-    TsExtractor extractor = extractors.getFirst();
+  private HlsExtractor getCurrentExtractor() {
+    HlsExtractor extractor = extractors.getFirst();
     while (extractors.size() > 1 && !haveSamplesForEnabledTracks(extractor)) {
       // We're finished reading from the extractor for all tracks, and so can discard it.
       extractors.removeFirst().release();
@@ -338,7 +338,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     return extractor;
   }
 
-  private void discardSamplesForDisabledTracks(TsExtractor extractor, long timeUs) {
+  private void discardSamplesForDisabledTracks(HlsExtractor extractor, long timeUs) {
     if (!extractor.isPrepared()) {
       return;
     }
@@ -349,7 +349,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     }
   }
 
-  private boolean haveSamplesForEnabledTracks(TsExtractor extractor) {
+  private boolean haveSamplesForEnabledTracks(HlsExtractor extractor) {
     if (!extractor.isPrepared()) {
       return false;
     }

@@ -117,8 +117,11 @@ import java.util.Locale;
     new Sample("Apple master playlist advanced",
         "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/"
         + "bipbop_16x9_variant.m3u8", DemoUtil.TYPE_HLS),
-    new Sample("Apple single media playlist",
+    new Sample("Apple TS media playlist",
         "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/"
+        + "prog_index.m3u8", DemoUtil.TYPE_HLS),
+    new Sample("Apple AAC media playlist",
+        "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear0/"
         + "prog_index.m3u8", DemoUtil.TYPE_HLS),
   };
 

@@ -32,7 +32,7 @@ import java.io.IOException;
 /**
  * Facilitates the extraction of data from the MPEG-2 TS container format.
  */
-public final class TsExtractor {
+public final class TsExtractor extends HlsExtractor {
 
   private static final String TAG = "TsExtractor";
 
@@ -51,12 +51,8 @@ public final class TsExtractor {
   private final SparseArray<SampleQueue> sampleQueues; // Indexed by streamType
   private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
   private final BufferPool bufferPool;
-  private final boolean shouldSpliceIn;
   private final long firstSampleTimestamp;
   private final ParsableBitArray tsScratch;
-
-  // Accessed only by the consuming thread.
-  private boolean spliceConfigured;
 
   // Accessed only by the loading thread.
   private int tsPacketBytesRead;
@@ -66,9 +62,9 @@ public final class TsExtractor {
   // Accessed by both the loading and consuming threads.
   private volatile boolean prepared;
 
-  public TsExtractor(long firstSampleTimestamp, boolean shouldSpliceIn, BufferPool bufferPool) {
+  public TsExtractor(boolean shouldSpliceIn, long firstSampleTimestamp, BufferPool bufferPool) {
+    super(shouldSpliceIn);
     this.firstSampleTimestamp = firstSampleTimestamp;
-    this.shouldSpliceIn = shouldSpliceIn;
     this.bufferPool = bufferPool;
     tsScratch = new ParsableBitArray(new byte[3]);
     tsPacketBuffer = new ParsableByteArray(TS_PACKET_SIZE);
@@ -78,86 +74,31 @@ public final class TsExtractor {
     lastPts = Long.MIN_VALUE;
   }
 
-  /**
-   * Gets the number of available tracks.
-   * <p>
-   * This method should only be called after the extractor has been prepared.
-   *
-   * @return The number of available tracks.
-   */
+  @Override
   public int getTrackCount() {
     Assertions.checkState(prepared);
     return sampleQueues.size();
   }
 
-  /**
-   * Gets the format of the specified track.
-   * <p>
-   * This method must only be called after the extractor has been prepared.
-   *
-   * @param track The track index.
-   * @return The corresponding format.
-   */
+  @Override
   public MediaFormat getFormat(int track) {
     Assertions.checkState(prepared);
     return sampleQueues.valueAt(track).getMediaFormat();
   }
 
-  /**
-   * Whether the extractor is prepared.
-   *
-   * @return True if the extractor is prepared. False otherwise.
-   */
+  @Override
   public boolean isPrepared() {
     return prepared;
   }
 
-  /**
-   * Releases the extractor, recycling any pending or incomplete samples to the sample pool.
-   * <p>
-   * This method should not be called whilst {@link #read(DataSource)} is also being invoked.
-   */
+  @Override
   public void release() {
     for (int i = 0; i < sampleQueues.size(); i++) {
       sampleQueues.valueAt(i).release();
     }
   }
 
-  /**
-   * Attempts to configure a splice from this extractor to the next.
-   * <p>
-   * The splice is performed such that for each track the samples read from the next extractor
-   * start with a keyframe, and continue from where the samples read from this extractor finish.
-   * A successful splice may discard samples from either or both extractors.
-   * <p>
-   * Splice configuration may fail if the next extractor is not yet in a state that allows the
-   * splice to be performed. Calling this method is a noop if the splice has already been
-   * configured. Hence this method should be called repeatedly during the window within which a
-   * splice can be performed.
-   *
-   * @param nextExtractor The extractor being spliced to.
-   */
-  public void configureSpliceTo(TsExtractor nextExtractor) {
-    Assertions.checkState(prepared);
-    if (spliceConfigured || !nextExtractor.shouldSpliceIn || !nextExtractor.isPrepared()) {
-      // The splice is already configured, or the next extractor doesn't want to be spliced in, or
-      // the next extractor isn't ready to be spliced in.
-      return;
-    }
-    boolean spliceConfigured = true;
-    for (int i = 0; i < sampleQueues.size(); i++) {
-      spliceConfigured &= sampleQueues.valueAt(i).configureSpliceTo(
-          nextExtractor.sampleQueues.valueAt(i));
-    }
-    this.spliceConfigured = spliceConfigured;
-    return;
-  }
-
-  /**
-   * Gets the largest timestamp of any sample parsed by the extractor.
-   *
-   * @return The largest timestamp, or {@link Long#MIN_VALUE} if no samples have been parsed.
-   */
+  @Override
   public long getLargestSampleTimestamp() {
     long largestParsedTimestampUs = Long.MIN_VALUE;
     for (int i = 0; i < sampleQueues.size(); i++) {
@@ -167,36 +108,19 @@ public final class TsExtractor {
     return largestParsedTimestampUs;
   }
 
-  /**
-   * Gets the next sample for the specified track.
-   *
-   * @param track The track from which to read.
-   * @param holder A {@link SampleHolder} into which the sample should be read.
-   * @return True if a sample was read. False otherwise.
-   */
+  @Override
   public boolean getSample(int track, SampleHolder holder) {
     Assertions.checkState(prepared);
     return sampleQueues.valueAt(track).getSample(holder);
   }
 
-  /**
-   * Discards samples for the specified track up to the specified time.
-   *
-   * @param track The track from which samples should be discarded.
-   * @param timeUs The time up to which samples should be discarded, in microseconds.
-   */
+  @Override
   public void discardUntil(int track, long timeUs) {
     Assertions.checkState(prepared);
     sampleQueues.valueAt(track).discardUntil(timeUs);
   }
 
-  /**
-   * Whether samples are available for reading from {@link #getSample(int, SampleHolder)} for the
-   * specified track.
-   *
-   * @return True if samples are available for reading from {@link #getSample(int, SampleHolder)}
-   *     for the specified track. False otherwise.
-   */
+  @Override
   public boolean hasSamples(int track) {
     Assertions.checkState(prepared);
     return !sampleQueues.valueAt(track).isEmpty();
@@ -215,13 +139,7 @@ public final class TsExtractor {
     return true;
   }
 
-  /**
-   * Reads up to a single TS packet.
-   *
-   * @param dataSource The {@link DataSource} from which to read.
-   * @throws IOException If an error occurred reading from the source.
-   * @return The number of bytes read from the source.
-   */
+  @Override
   public int read(DataSource dataSource) throws IOException {
     int bytesRead = dataSource.read(tsPacketBuffer.data, tsPacketBytesRead,
         TS_PACKET_SIZE - tsPacketBytesRead);
@@ -274,6 +192,11 @@ public final class TsExtractor {
     }
 
     return bytesRead;
+  }
+
+  @Override
+  protected SampleQueue getSampleQueue(int track) {
+    return sampleQueues.valueAt(track);
   }
 
   /**
@@ -404,7 +327,7 @@ public final class TsExtractor {
           continue;
         }
 
-        PesPayloadReader pesPayloadReader = null;
+        ElementaryStreamReader pesPayloadReader = null;
         switch (streamType) {
           case TS_STREAM_TYPE_AAC:
             pesPayloadReader = new AdtsReader(bufferPool);
@@ -444,7 +367,7 @@ public final class TsExtractor {
     private static final int MAX_HEADER_EXTENSION_SIZE = 5;
 
     private final ParsableBitArray pesScratch;
-    private final PesPayloadReader pesPayloadReader;
+    private final ElementaryStreamReader pesPayloadReader;
 
     private int state;
     private int bytesRead;
@@ -457,7 +380,7 @@ public final class TsExtractor {
 
     private long timeUs;
 
-    public PesReader(PesPayloadReader pesPayloadReader) {
+    public PesReader(ElementaryStreamReader pesPayloadReader) {
       this.pesPayloadReader = pesPayloadReader;
       pesScratch = new ParsableBitArray(new byte[HEADER_SIZE]);
       state = STATE_FINDING_HEADER;
