@@ -433,8 +433,8 @@ public class HlsChunkSource {
   private MediaPlaylistChunk newMediaPlaylistChunk(int variantIndex) {
     Uri mediaPlaylistUri = Util.getMergedUri(baseUri, enabledVariants[variantIndex].url);
     DataSpec dataSpec = new DataSpec(mediaPlaylistUri, 0, C.LENGTH_UNBOUNDED, null);
-    Uri baseUri = Util.parseBaseUri(mediaPlaylistUri.toString());
-    return new MediaPlaylistChunk(variantIndex, upstreamDataSource, dataSpec, baseUri);
+    return new MediaPlaylistChunk(variantIndex, upstreamDataSource, dataSpec,
+        mediaPlaylistUri.toString());
   }
 
   private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv) {
@@ -546,19 +546,19 @@ public class HlsChunkSource {
     @SuppressWarnings("hiding")
     /* package */ final int variantIndex;
 
-    private final Uri playlistBaseUri;
+    private final String playlistUrl;
 
     public MediaPlaylistChunk(int variantIndex, DataSource dataSource, DataSpec dataSpec,
-        Uri playlistBaseUri) {
+        String playlistUrl) {
       super(dataSource, dataSpec, scratchSpace);
       this.variantIndex = variantIndex;
-      this.playlistBaseUri = playlistBaseUri;
+      this.playlistUrl = playlistUrl;
     }
 
     @Override
     protected void consume(byte[] data, int limit) throws IOException {
-      HlsPlaylist playlist = playlistParser.parse(new ByteArrayInputStream(data, 0, limit),
-          null, null, playlistBaseUri);
+      HlsPlaylist playlist = playlistParser.parse(playlistUrl,
+          new ByteArrayInputStream(data, 0, limit));
       Assertions.checkState(playlist.type == HlsPlaylist.TYPE_MEDIA);
       HlsMediaPlaylist mediaPlaylist = (HlsMediaPlaylist) playlist;
       setMediaPlaylist(variantIndex, mediaPlaylist);

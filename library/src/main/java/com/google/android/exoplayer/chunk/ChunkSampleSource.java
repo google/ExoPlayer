@@ -276,13 +276,14 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     boolean haveSamples = false;
     if (isPendingReset() || mediaChunks.isEmpty()) {
       // No sample available.
-    } else if (mediaChunks.getFirst().sampleAvailable()) {
+    } else if (sampleAvailableOrFinishedLastChunk(mediaChunks.getFirst())) {
       // There's a sample available to be read from the current chunk.
       haveSamples = true;
     } else {
       // It may be the case that the current chunk has been fully read but not yet discarded and
       // that the next chunk has an available sample. Return true if so, otherwise false.
-      haveSamples = mediaChunks.size() > 1 && mediaChunks.get(1).sampleAvailable();
+      haveSamples = mediaChunks.size() > 1
+          && sampleAvailableOrFinishedLastChunk(mediaChunks.get(1));
     }
 
     if (!haveSamples) {
@@ -714,6 +715,10 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     }
     notifyUpstreamDiscarded(startTimeUs, endTimeUs, totalBytes);
     return true;
+  }
+
+  private boolean sampleAvailableOrFinishedLastChunk(MediaChunk chunk) throws IOException {
+    return chunk.sampleAvailable() || (chunk.isLastChunk() && chunk.isReadFinished());
   }
 
   private boolean isMediaChunk(Chunk chunk) {

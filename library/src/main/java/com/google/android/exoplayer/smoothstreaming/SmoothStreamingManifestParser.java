@@ -19,10 +19,11 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
+import com.google.android.exoplayer.upstream.NetworkLoadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
-import com.google.android.exoplayer.util.ManifestParser;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
 import android.util.Base64;
@@ -45,7 +46,8 @@ import java.util.UUID;
  * @see <a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">
  * IIS Smooth Streaming Client Manifest Format</a>
  */
-public class SmoothStreamingManifestParser implements ManifestParser<SmoothStreamingManifest> {
+public class SmoothStreamingManifestParser implements
+    NetworkLoadable.Parser<SmoothStreamingManifest> {
 
   private final XmlPullParserFactory xmlParserFactory;
 
@@ -58,12 +60,13 @@ public class SmoothStreamingManifestParser implements ManifestParser<SmoothStrea
   }
 
   @Override
-  public SmoothStreamingManifest parse(InputStream inputStream, String inputEncoding,
-      String contentId, Uri baseUri) throws IOException, ParserException {
+  public SmoothStreamingManifest parse(String connectionUrl, InputStream inputStream)
+      throws IOException, ParserException {
     try {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
-      xmlParser.setInput(inputStream, inputEncoding);
-      SmoothStreamMediaParser smoothStreamMediaParser = new SmoothStreamMediaParser(null, baseUri);
+      xmlParser.setInput(inputStream, null);
+      SmoothStreamMediaParser smoothStreamMediaParser = new SmoothStreamMediaParser(null,
+          Util.parseBaseUri(connectionUrl));
       return (SmoothStreamingManifest) smoothStreamMediaParser.parse(xmlParser);
     } catch (XmlPullParserException e) {
       throw new ParserException(e);

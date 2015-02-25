@@ -171,6 +171,9 @@ public final class Mp4Util {
         // loop advance the index by three.
       } else if (data[i - 2] == 0 && data[i - 1] == 0 && data[i] == 1
           && matchesType(data, i + 1, type)) {
+        if (prefixFlags != null) {
+          clearPrefixFlags(prefixFlags);
+        }
         return i - 2;
       } else {
         // There isn't a NAL prefix here, but there might be at the next position. We should

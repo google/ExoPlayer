@@ -16,10 +16,11 @@
 package com.google.android.exoplayer.dash.mpd;
 
 import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.upstream.HttpDataSource;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
+import com.google.android.exoplayer.upstream.NetworkLoadable;
 import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.NetworkLoadable;
 import com.google.android.exoplayer.util.Util;
 
 import android.os.SystemClock;
@@ -62,36 +63,34 @@ public class UtcTimingElementResolver implements Loader.Callback {
     void onTimestampError(UtcTimingElement utcTiming, IOException e);
   }
 
-  private static final int TYPE_XS = 0;
-  private static final int TYPE_ISO = 1;
-
-  private final String userAgent;
+  private final HttpDataSource httpDataSource;
   private final UtcTimingElement timingElement;
   private final long timingElementElapsedRealtime;
   private final UtcTimingCallback callback;
 
   private Loader singleUseLoader;
-  private HttpTimestampLoadable singleUseLoadable;
+  private NetworkLoadable<Long> singleUseLoadable;
 
   /**
    * Resolves a {@link UtcTimingElement}.
    *
-   * @param userAgent A user agent to use should network requests be necessary.
+   * @param httpDataSource A source to use should network requests be necessary.
    * @param timingElement The element to resolve.
    * @param timingElementElapsedRealtime The {@link SystemClock#elapsedRealtime()} timestamp at
    *     which the element was obtained. Used if the element contains a timestamp directly.
    * @param callback The callback to invoke on resolution or failure.
    */
-  public static void resolveTimingElement(String userAgent, UtcTimingElement timingElement,
-      long timingElementElapsedRealtime, UtcTimingCallback callback) {
-    UtcTimingElementResolver resolver = new UtcTimingElementResolver(userAgent, timingElement,
+  public static void resolveTimingElement(HttpDataSource httpDataSource,
+      UtcTimingElement timingElement, long timingElementElapsedRealtime,
+      UtcTimingCallback callback) {
+    UtcTimingElementResolver resolver = new UtcTimingElementResolver(httpDataSource, timingElement,
         timingElementElapsedRealtime, callback);
     resolver.resolve();
   }
 
-  private UtcTimingElementResolver(String userAgent, UtcTimingElement timingElement,
+  private UtcTimingElementResolver(HttpDataSource httpDataSource, UtcTimingElement timingElement,
       long timingElementElapsedRealtime, UtcTimingCallback callback) {
-    this.userAgent = userAgent;
+    this.httpDataSource = httpDataSource;
     this.timingElement = Assertions.checkNotNull(timingElement);
     this.timingElementElapsedRealtime = timingElementElapsedRealtime;
     this.callback = Assertions.checkNotNull(callback);
@@ -102,10 +101,10 @@ public class UtcTimingElementResolver implements Loader.Callback {
     if (Util.areEqual(scheme, "urn:mpeg:dash:utc:direct:2012")) {
       resolveDirect();
     } else if (Util.areEqual(scheme, "urn:mpeg:dash:utc:http-iso:2014")) {
-      resolveHttp(TYPE_ISO);
+      resolveHttp(new Iso8601Parser());
     } else if (Util.areEqual(scheme, "urn:mpeg:dash:utc:http-xsdate:2012")
         || Util.areEqual(scheme, "urn:mpeg:dash:utc:http-xsdate:2014")) {
-      resolveHttp(TYPE_XS);
+      resolveHttp(new XsDateTimeParser());
     } else {
       // Unsupported scheme.
       callback.onTimestampError(timingElement, new IOException("Unsupported utc timing scheme"));
@@ -122,9 +121,9 @@ public class UtcTimingElementResolver implements Loader.Callback {
     }
   }
 
-  private void resolveHttp(int type) {
+  private void resolveHttp(NetworkLoadable.Parser<Long> parser) {
     singleUseLoader = new Loader("utctiming");
-    singleUseLoadable = new HttpTimestampLoadable(timingElement.value, userAgent, type);
+    singleUseLoadable = new NetworkLoadable<Long>(timingElement.value, httpDataSource, parser);
     singleUseLoader.startLoading(singleUseLoadable, this);
   }
 
@@ -150,32 +149,31 @@ public class UtcTimingElementResolver implements Loader.Callback {
     singleUseLoader.release();
   }
 
-  private static class HttpTimestampLoadable extends NetworkLoadable<Long> {
-
-    private final int type;
-
-    public HttpTimestampLoadable(String url, String userAgent, int type) {
-      super(url, userAgent);
-      this.type = type;
-    }
+  private static class XsDateTimeParser implements NetworkLoadable.Parser<Long> {
 
     @Override
-    protected Long parse(String connectionUrl, InputStream inputStream, String inputEncoding)
-        throws ParserException, IOException {
-      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-      String firstLine = reader.readLine();
+    public Long parse(String connectionUrl, InputStream inputStream) throws ParserException,
+        IOException {
+      String firstLine = new BufferedReader(new InputStreamReader(inputStream)).readLine();
       try {
-        switch (type) {
-          case TYPE_XS:
-            return Util.parseXsDateTime(firstLine);
-          case TYPE_ISO:
-            // TODO: It may be necessary to handle timestamp offsets from UTC.
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
-            return format.parse(firstLine).getTime();
-          default:
-            // Never happens.
-            throw new RuntimeException();
-        }
+        return Util.parseXsDateTime(firstLine);
+      } catch (ParseException e) {
+        throw new ParserException(e);
+      }
+    }
+
+  }
+
+  private static class Iso8601Parser implements NetworkLoadable.Parser<Long> {
+
+    @Override
+    public Long parse(String connectionUrl, InputStream inputStream) throws ParserException,
+        IOException {
+      String firstLine = new BufferedReader(new InputStreamReader(inputStream)).readLine();
+      try {
+        // TODO: It may be necessary to handle timestamp offsets from UTC.
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+        return format.parse(firstLine).getTime();
       } catch (ParseException e) {
         throw new ParserException(e);
       }

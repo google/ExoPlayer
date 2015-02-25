@@ -52,6 +52,8 @@ import com.google.android.exoplayer.text.webvtt.WebvttParser;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer.upstream.HttpDataSource;
 import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
@@ -93,7 +95,6 @@ public class DashRendererBuilder implements RendererBuilder,
 
   private final String userAgent;
   private final String url;
-  private final String contentId;
   private final MediaDrmCallback drmCallback;
   private final TextView debugTextView;
   private final AudioCapabilities audioCapabilities;
@@ -101,15 +102,15 @@ public class DashRendererBuilder implements RendererBuilder,
   private DemoPlayer player;
   private RendererBuilderCallback callback;
   private ManifestFetcher<MediaPresentationDescription> manifestFetcher;
+  private HttpDataSource manifestDataSource;
 
   private MediaPresentationDescription manifest;
   private long elapsedRealtimeOffset;
 
-  public DashRendererBuilder(String userAgent, String url, String contentId,
-      MediaDrmCallback drmCallback, TextView debugTextView, AudioCapabilities audioCapabilities) {
+  public DashRendererBuilder(String userAgent, String url, MediaDrmCallback drmCallback,
+      TextView debugTextView, AudioCapabilities audioCapabilities) {
     this.userAgent = userAgent;
     this.url = url;
-    this.contentId = contentId;
     this.drmCallback = drmCallback;
     this.debugTextView = debugTextView;
     this.audioCapabilities = audioCapabilities;
@@ -120,16 +121,17 @@ public class DashRendererBuilder implements RendererBuilder,
     this.player = player;
     this.callback = callback;
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
-    manifestFetcher = new ManifestFetcher<MediaPresentationDescription>(parser, contentId, url,
-        userAgent);
+    manifestDataSource = new DefaultHttpDataSource(userAgent, null);
+    manifestFetcher = new ManifestFetcher<MediaPresentationDescription>(url, manifestDataSource,
+        parser);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 
   @Override
-  public void onManifest(String contentId, MediaPresentationDescription manifest) {
+  public void onSingleManifest(MediaPresentationDescription manifest) {
     this.manifest = manifest;
     if (manifest.dynamic && manifest.utcTiming != null) {
-      UtcTimingElementResolver.resolveTimingElement(userAgent, manifest.utcTiming,
+      UtcTimingElementResolver.resolveTimingElement(manifestDataSource, manifest.utcTiming,
           manifestFetcher.getManifestLoadTimestamp(), this);
     } else {
       buildRenderers();
@@ -137,7 +139,7 @@ public class DashRendererBuilder implements RendererBuilder,
   }
 
   @Override
-  public void onManifestError(String contentId, IOException e) {
+  public void onSingleManifestError(IOException e) {
     callback.onRenderersError(e);
   }
 

@@ -37,14 +37,14 @@ public final class UriDataSource implements DataSource {
 
   /**
    * Constructs a new data source that delegates to a {@link FileDataSource} for file URIs and an
-   * {@link HttpDataSource} for other URIs.
+   * {@link DefaultHttpDataSource} for other URIs.
    *
    * @param userAgent The User-Agent string that should be used when requesting remote data.
    * @param transferListener An optional listener.
    */
   public UriDataSource(String userAgent, TransferListener transferListener) {
     this(new FileDataSource(transferListener),
-        new HttpDataSource(userAgent, null, transferListener));
+        new DefaultHttpDataSource(userAgent, null, transferListener));
   }
 
   /**
