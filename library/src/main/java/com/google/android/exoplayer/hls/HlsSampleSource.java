@@ -164,7 +164,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     if (!extractors.isEmpty()) {
       discardSamplesForDisabledTracks(extractors.getFirst(), downstreamPositionUs);
     }
-    return continueBufferingInternal();
+    return loadingFinished || continueBufferingInternal();
   }
 
   private boolean continueBufferingInternal() throws IOException {
