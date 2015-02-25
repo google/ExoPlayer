@@ -93,7 +93,6 @@ public class DashRendererBuilder implements RendererBuilder,
 
   private final String userAgent;
   private final String url;
-  private final String contentId;
   private final MediaDrmCallback drmCallback;
   private final TextView debugTextView;
   private final AudioCapabilities audioCapabilities;
@@ -105,11 +104,10 @@ public class DashRendererBuilder implements RendererBuilder,
   private MediaPresentationDescription manifest;
   private long elapsedRealtimeOffset;
 
-  public DashRendererBuilder(String userAgent, String url, String contentId,
-      MediaDrmCallback drmCallback, TextView debugTextView, AudioCapabilities audioCapabilities) {
+  public DashRendererBuilder(String userAgent, String url, MediaDrmCallback drmCallback,
+      TextView debugTextView, AudioCapabilities audioCapabilities) {
     this.userAgent = userAgent;
     this.url = url;
-    this.contentId = contentId;
     this.drmCallback = drmCallback;
     this.debugTextView = debugTextView;
     this.audioCapabilities = audioCapabilities;
@@ -120,13 +118,12 @@ public class DashRendererBuilder implements RendererBuilder,
     this.player = player;
     this.callback = callback;
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
-    manifestFetcher = new ManifestFetcher<MediaPresentationDescription>(parser, contentId, url,
-        userAgent);
+    manifestFetcher = new ManifestFetcher<MediaPresentationDescription>(url, userAgent, parser);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 
   @Override
-  public void onManifest(String contentId, MediaPresentationDescription manifest) {
+  public void onSingleManifest(MediaPresentationDescription manifest) {
     this.manifest = manifest;
     if (manifest.dynamic && manifest.utcTiming != null) {
       UtcTimingElementResolver.resolveTimingElement(userAgent, manifest.utcTiming,
@@ -137,7 +134,7 @@ public class DashRendererBuilder implements RendererBuilder,
   }
 
   @Override
-  public void onManifestError(String contentId, IOException e) {
+  public void onSingleManifestError(IOException e) {
     callback.onRenderersError(e);
   }
 

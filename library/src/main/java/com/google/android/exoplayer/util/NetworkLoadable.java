@@ -28,13 +28,34 @@ import java.net.URLConnection;
  *
  * @param <T> The type of the object being loaded.
  */
-public abstract class NetworkLoadable<T> implements Loadable {
+public final class NetworkLoadable<T> implements Loadable {
+
+  /**
+   * Parses an object from data loaded over the network.
+   */
+  public interface Parser<T> {
+
+    /**
+     * Parses an object from a network response.
+     *
+     * @param connectionUrl The source of the response, after any redirection.
+     * @param inputStream An {@link InputStream} from which the response data can be read.
+     * @param inputEncoding The encoding of the data, if available.
+     * @return The parsed object.
+     * @throws ParserException If an error occurs parsing the data.
+     * @throws IOException If an error occurs reading data from the stream.
+     */
+    T parse(String connectionUrl, InputStream inputStream, String inputEncoding)
+        throws ParserException, IOException;
+
+  }
 
   public static final int DEFAULT_TIMEOUT_MILLIS = 10000;
 
   private final String url;
   private final String userAgent;
   private final int timeoutMillis;
+  private final Parser<T> parser;
 
   private volatile T result;
   private volatile boolean isCanceled;
@@ -42,20 +63,23 @@ public abstract class NetworkLoadable<T> implements Loadable {
   /**
    * @param url The url from which the object should be loaded.
    * @param userAgent The user agent to use when requesting the object.
+   * @param parser Parses the object from the network response.
    */
-  public NetworkLoadable(String url, String userAgent) {
-    this(url, userAgent, DEFAULT_TIMEOUT_MILLIS);
+  public NetworkLoadable(String url, String userAgent, Parser<T> parser) {
+    this(url, userAgent, DEFAULT_TIMEOUT_MILLIS, parser);
   }
 
   /**
    * @param url The url from which the object should be loaded.
    * @param userAgent The user agent to use when requesting the object.
    * @param timeoutMillis The desired http timeout in milliseconds.
+   * @param parser Parses the object from the network response.
    */
-  public NetworkLoadable(String url, String userAgent, int timeoutMillis) {
+  public NetworkLoadable(String url, String userAgent, int timeoutMillis, Parser<T> parser) {
     this.url = url;
     this.userAgent = userAgent;
     this.timeoutMillis = timeoutMillis;
+    this.parser = parser;
   }
 
   /**
@@ -85,26 +109,13 @@ public abstract class NetworkLoadable<T> implements Loadable {
       URLConnection connection = configureConnection(new URL(url));
       inputStream = connection.getInputStream();
       inputEncoding = connection.getContentEncoding();
-      result = parse(connection.getURL().toString(), inputStream, inputEncoding);
+      result = parser.parse(connection.getURL().toString(), inputStream, inputEncoding);
     } finally {
       if (inputStream != null) {
         inputStream.close();
       }
     }
   }
-
-  /**
-   * Parses the raw data into an object.
-   *
-   * @param connectionUrl The url, after any redirection has taken place.
-   * @param inputStream An {@link InputStream} from which the raw data can be read.
-   * @param inputEncoding The encoding of the raw data, if available.
-   * @return The parsed object.
-   * @throws ParserException If an error occurs parsing the data.
-   * @throws IOException If an error occurs reading data from the stream.
-   */
-  protected abstract T parse(String connectionUrl, InputStream inputStream, String inputEncoding)
-      throws ParserException, IOException;
 
   private URLConnection configureConnection(URL url) throws IOException {
     URLConnection connection = url.openConnection();

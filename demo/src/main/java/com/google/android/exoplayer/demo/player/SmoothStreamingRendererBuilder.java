@@ -70,7 +70,6 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
 
   private final String userAgent;
   private final String url;
-  private final String contentId;
   private final MediaDrmCallback drmCallback;
   private final TextView debugTextView;
 
@@ -78,11 +77,10 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
   private RendererBuilderCallback callback;
   private ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
 
-  public SmoothStreamingRendererBuilder(String userAgent, String url, String contentId,
-      MediaDrmCallback drmCallback, TextView debugTextView) {
+  public SmoothStreamingRendererBuilder(String userAgent, String url, MediaDrmCallback drmCallback,
+      TextView debugTextView) {
     this.userAgent = userAgent;
     this.url = url;
-    this.contentId = contentId;
     this.drmCallback = drmCallback;
     this.debugTextView = debugTextView;
   }
@@ -92,18 +90,18 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     this.player = player;
     this.callback = callback;
     SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
-    manifestFetcher = new ManifestFetcher<SmoothStreamingManifest>(parser, contentId,
-        url + "/Manifest", userAgent);
+    manifestFetcher = new ManifestFetcher<SmoothStreamingManifest>(url + "/Manifest", userAgent,
+        parser);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 
   @Override
-  public void onManifestError(String contentId, IOException exception) {
+  public void onSingleManifestError(IOException exception) {
     callback.onRenderersError(exception);
   }
 
   @Override
-  public void onManifest(String contentId, SmoothStreamingManifest manifest) {
+  public void onSingleManifest(SmoothStreamingManifest manifest) {
     Handler mainHandler = player.getMainHandler();
     LoadControl loadControl = new DefaultLoadControl(new BufferPool(BUFFER_SEGMENT_SIZE));
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter(mainHandler, player);

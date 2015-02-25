@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.util;
 
-import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 
@@ -25,7 +24,6 @@ import android.os.SystemClock;
 import android.util.Pair;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.concurrent.CancellationException;
 
 /**
@@ -58,24 +56,21 @@ public class ManifestFetcher<T> implements Loader.Callback {
     /**
      * Invoked when the load has successfully completed.
      *
-     * @param contentId The content id of the media.
      * @param manifest The loaded manifest.
      */
-    void onManifest(String contentId, T manifest);
+    void onSingleManifest(T manifest);
 
     /**
      * Invoked when the load has failed.
      *
-     * @param contentId The content id of the media.
      * @param e The cause of the failure.
      */
-    void onManifestError(String contentId, IOException e);
+    void onSingleManifestError(IOException e);
 
   }
 
-  /* package */ final ManifestParser<T> parser;
-  /* package */ final String contentId;
-  /* package */ final String userAgent;
+  private final NetworkLoadable.Parser<T> parser;
+  private final String userAgent;
   private final Handler eventHandler;
   private final EventListener eventListener;
 
@@ -83,7 +78,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   private int enabledCount;
   private Loader loader;
-  private ManifestLoadable<T> currentLoadable;
+  private NetworkLoadable<T> currentLoadable;
 
   private int loadExceptionCount;
   private long loadExceptionTimestamp;
@@ -92,21 +87,26 @@ public class ManifestFetcher<T> implements Loader.Callback {
   private volatile T manifest;
   private volatile long manifestLoadTimestamp;
 
-  public ManifestFetcher(ManifestParser<T> parser, String contentId, String manifestUrl,
-      String userAgent) {
-    this(parser, contentId, manifestUrl, userAgent, null, null);
+  /**
+   * @param manifestUrl The manifest location.
+   * @param userAgent The User-Agent string that should be used.
+   * @param parser A parser to parse the loaded manifest data.
+   */
+  public ManifestFetcher(String manifestUrl, String userAgent, NetworkLoadable.Parser<T> parser) {
+    this(manifestUrl, userAgent, parser, null, null);
   }
 
   /**
-   * @param parser A parser to parse the loaded manifest data.
-   * @param contentId The content id of the content being loaded. May be null.
    * @param manifestUrl The manifest location.
    * @param userAgent The User-Agent string that should be used.
+   * @param parser A parser to parse the loaded manifest data.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public ManifestFetcher(ManifestParser<T> parser, String contentId, String manifestUrl,
-      String userAgent, Handler eventHandler, EventListener eventListener) {
+  public ManifestFetcher(String manifestUrl, String userAgent, NetworkLoadable.Parser<T> parser,
+      Handler eventHandler, EventListener eventListener) {
     this.parser = parser;
-    this.contentId = contentId;
     this.manifestUrl = manifestUrl;
     this.userAgent = userAgent;
     this.eventHandler = eventHandler;
@@ -130,7 +130,8 @@ public class ManifestFetcher<T> implements Loader.Callback {
    * @param callback The callback to receive the result.
    */
   public void singleLoad(Looper callbackLooper, final ManifestCallback<T> callback) {
-    SingleFetchHelper fetchHelper = new SingleFetchHelper(callbackLooper, callback);
+    SingleFetchHelper fetchHelper = new SingleFetchHelper(
+        new NetworkLoadable<T>(manifestUrl, userAgent, parser), callbackLooper, callback);
     fetchHelper.startLoading();
   }
 
@@ -203,7 +204,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       loader = new Loader("manifestLoader");
     }
     if (!loader.isLoading()) {
-      currentLoadable = new ManifestLoadable<T>(manifestUrl, userAgent, contentId, parser);
+      currentLoadable = new NetworkLoadable<T>(manifestUrl, userAgent, parser);
       loader.startLoading(currentLoadable, this);
       notifyManifestRefreshStarted();
     }
@@ -287,16 +288,17 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   private class SingleFetchHelper implements Loader.Callback {
 
+    private final NetworkLoadable<T> singleUseLoadable;
     private final Looper callbackLooper;
     private final ManifestCallback<T> wrappedCallback;
     private final Loader singleUseLoader;
-    private final ManifestLoadable<T> singleUseLoadable;
 
-    public SingleFetchHelper(Looper callbackLooper, ManifestCallback<T> wrappedCallback) {
+    public SingleFetchHelper(NetworkLoadable<T> singleUseLoadable, Looper callbackLooper,
+        ManifestCallback<T> wrappedCallback) {
+      this.singleUseLoadable = singleUseLoadable;
       this.callbackLooper = callbackLooper;
       this.wrappedCallback = wrappedCallback;
       singleUseLoader = new Loader("manifestLoader:single");
-      singleUseLoadable = new ManifestLoadable<T>(manifestUrl, userAgent, contentId, parser);
     }
 
     public void startLoading() {
@@ -308,7 +310,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       try {
         T result = singleUseLoadable.getResult();
         onSingleFetchCompleted(result);
-        wrappedCallback.onManifest(contentId, result);
+        wrappedCallback.onSingleManifest(result);
       } finally {
         releaseLoader();
       }
@@ -319,7 +321,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       // This shouldn't ever happen, but handle it anyway.
       try {
         IOException exception = new IOException("Load cancelled", new CancellationException());
-        wrappedCallback.onManifestError(contentId, exception);
+        wrappedCallback.onSingleManifestError(exception);
       } finally {
         releaseLoader();
       }
@@ -328,7 +330,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
     @Override
     public void onLoadError(Loadable loadable, IOException exception) {
       try {
-        wrappedCallback.onManifestError(contentId, exception);
+        wrappedCallback.onSingleManifestError(exception);
       } finally {
         releaseLoader();
       }
@@ -336,26 +338,6 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
     private void releaseLoader() {
       singleUseLoader.release();
-    }
-
-  }
-
-  private static class ManifestLoadable<T> extends NetworkLoadable<T> {
-
-    private final String contentId;
-    private final ManifestParser<T> parser;
-
-    public ManifestLoadable(String url, String userAgent, String contentId,
-        ManifestParser<T> parser) {
-      super(url, userAgent);
-      this.contentId = contentId;
-      this.parser = parser;
-    }
-
-    @Override
-    protected T parse(String connectionUrl, InputStream inputStream, String inputEncoding)
-        throws ParserException, IOException {
-      return parser.parse(inputStream, inputEncoding, contentId, Util.parseBaseUri(connectionUrl));
     }
 
   }

@@ -62,16 +62,13 @@ public class UtcTimingElementResolver implements Loader.Callback {
     void onTimestampError(UtcTimingElement utcTiming, IOException e);
   }
 
-  private static final int TYPE_XS = 0;
-  private static final int TYPE_ISO = 1;
-
   private final String userAgent;
   private final UtcTimingElement timingElement;
   private final long timingElementElapsedRealtime;
   private final UtcTimingCallback callback;
 
   private Loader singleUseLoader;
-  private HttpTimestampLoadable singleUseLoadable;
+  private NetworkLoadable<Long> singleUseLoadable;
 
   /**
    * Resolves a {@link UtcTimingElement}.
@@ -102,10 +99,10 @@ public class UtcTimingElementResolver implements Loader.Callback {
     if (Util.areEqual(scheme, "urn:mpeg:dash:utc:direct:2012")) {
       resolveDirect();
     } else if (Util.areEqual(scheme, "urn:mpeg:dash:utc:http-iso:2014")) {
-      resolveHttp(TYPE_ISO);
+      resolveHttp(new Iso8601Parser());
     } else if (Util.areEqual(scheme, "urn:mpeg:dash:utc:http-xsdate:2012")
         || Util.areEqual(scheme, "urn:mpeg:dash:utc:http-xsdate:2014")) {
-      resolveHttp(TYPE_XS);
+      resolveHttp(new XsDateTimeParser());
     } else {
       // Unsupported scheme.
       callback.onTimestampError(timingElement, new IOException("Unsupported utc timing scheme"));
@@ -122,9 +119,9 @@ public class UtcTimingElementResolver implements Loader.Callback {
     }
   }
 
-  private void resolveHttp(int type) {
+  private void resolveHttp(NetworkLoadable.Parser<Long> parser) {
     singleUseLoader = new Loader("utctiming");
-    singleUseLoadable = new HttpTimestampLoadable(timingElement.value, userAgent, type);
+    singleUseLoadable = new NetworkLoadable<Long>(timingElement.value, userAgent, parser);
     singleUseLoader.startLoading(singleUseLoadable, this);
   }
 
@@ -150,32 +147,31 @@ public class UtcTimingElementResolver implements Loader.Callback {
     singleUseLoader.release();
   }
 
-  private static class HttpTimestampLoadable extends NetworkLoadable<Long> {
-
-    private final int type;
-
-    public HttpTimestampLoadable(String url, String userAgent, int type) {
-      super(url, userAgent);
-      this.type = type;
-    }
+  private static class XsDateTimeParser implements NetworkLoadable.Parser<Long> {
 
     @Override
-    protected Long parse(String connectionUrl, InputStream inputStream, String inputEncoding)
+    public Long parse(String connectionUrl, InputStream inputStream, String inputEncoding)
         throws ParserException, IOException {
-      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-      String firstLine = reader.readLine();
+      String firstLine = new BufferedReader(new InputStreamReader(inputStream)).readLine();
       try {
-        switch (type) {
-          case TYPE_XS:
-            return Util.parseXsDateTime(firstLine);
-          case TYPE_ISO:
-            // TODO: It may be necessary to handle timestamp offsets from UTC.
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
-            return format.parse(firstLine).getTime();
-          default:
-            // Never happens.
-            throw new RuntimeException();
-        }
+        return Util.parseXsDateTime(firstLine);
+      } catch (ParseException e) {
+        throw new ParserException(e);
+      }
+    }
+
+  }
+
+  private static class Iso8601Parser implements NetworkLoadable.Parser<Long> {
+
+    @Override
+    public Long parse(String connectionUrl, InputStream inputStream, String inputEncoding)
+        throws ParserException, IOException {
+      String firstLine = new BufferedReader(new InputStreamReader(inputStream)).readLine();
+      try {
+        // TODO: It may be necessary to handle timestamp offsets from UTC.
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+        return format.parse(firstLine).getTime();
       } catch (ParseException e) {
         throw new ParserException(e);
       }

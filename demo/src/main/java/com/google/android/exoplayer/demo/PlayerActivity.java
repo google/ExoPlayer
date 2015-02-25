@@ -206,13 +206,13 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     String userAgent = DemoUtil.getUserAgent(this);
     switch (contentType) {
       case DemoUtil.TYPE_SS:
-        return new SmoothStreamingRendererBuilder(userAgent, contentUri.toString(), contentId,
+        return new SmoothStreamingRendererBuilder(userAgent, contentUri.toString(),
             new SmoothStreamingTestMediaDrmCallback(), debugTextView);
       case DemoUtil.TYPE_DASH:
-        return new DashRendererBuilder(userAgent, contentUri.toString(), contentId,
+        return new DashRendererBuilder(userAgent, contentUri.toString(),
             new WidevineTestMediaDrmCallback(contentId), debugTextView, audioCapabilities);
       case DemoUtil.TYPE_HLS:
-        return new HlsRendererBuilder(userAgent, contentUri.toString(), contentId);
+        return new HlsRendererBuilder(userAgent, contentUri.toString());
       default:
         return new DefaultRendererBuilder(this, contentUri, debugTextView);
     }
