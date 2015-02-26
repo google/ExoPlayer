@@ -29,11 +29,11 @@ public final class CodecSpecificDataUtil {
 
   private static final byte[] NAL_START_CODE = new byte[] {0, 0, 0, 1};
 
-  private static final int[] AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE = new int[] {
+  public static final int[] AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE = new int[] {
     96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350
   };
 
-  private static final int[] AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE = new int[] {
+  public static final int[] AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE = new int[] {
     0, 1, 2, 3, 4, 5, 6, 8
   };
 
@@ -49,13 +49,22 @@ public final class CodecSpecificDataUtil {
    */
   public static Pair<Integer, Integer> parseAudioSpecificConfig(byte[] audioSpecificConfig) {
     int audioObjectType = (audioSpecificConfig[0] >> 3) & 0x1F;
-    int byteOffset = audioObjectType == 5 || audioObjectType == 29 ? 1 : 0;
-    int frequencyIndex = (audioSpecificConfig[byteOffset] & 0x7) << 1
-        | ((audioSpecificConfig[byteOffset + 1] >> 7) & 0x1);
-    Assertions.checkState(frequencyIndex < 13);
-    int sampleRate = AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE[frequencyIndex];
-    int channelCount = (audioSpecificConfig[byteOffset + 1] >> 3) & 0xF;
-    return Pair.create(sampleRate, channelCount);
+    if (audioObjectType != 31) {
+      int byteOffset = audioObjectType == 5 || audioObjectType == 29 ? 1 : 0;
+      int frequencyIndex = (audioSpecificConfig[byteOffset] & 0x7) << 1 |
+              ((audioSpecificConfig[byteOffset + 1] >> 7) & 0x1);
+      Assertions.checkState(frequencyIndex < 13);
+      int sampleRate = AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE[frequencyIndex];
+      int channelCount = (audioSpecificConfig[byteOffset + 1] >> 3) & 0xF;
+      return Pair.create(sampleRate, channelCount);
+    } else {
+      int frequencyIndex = (audioSpecificConfig[1] & 0x1E) >> 1;
+      Assertions.checkState(frequencyIndex < 13);
+      int sampleRate = AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE[frequencyIndex];
+      int channelCount = (audioSpecificConfig[1] & 0x01) << 2 |
+              ((audioSpecificConfig[2] >> 6) & 0x03);
+      return Pair.create(sampleRate, channelCount);
+    }
   }
 
   /**
@@ -68,10 +77,25 @@ public final class CodecSpecificDataUtil {
    */
   public static byte[] buildAudioSpecificConfig(int audioObjectType, int sampleRateIndex,
       int channelConfig) {
-    byte[] audioSpecificConfig = new byte[2];
-    audioSpecificConfig[0] = (byte) ((audioObjectType << 3) & 0xF8 | (sampleRateIndex >> 1) & 0x07);
-    audioSpecificConfig[1] = (byte) ((sampleRateIndex << 7) & 0x80 | (channelConfig << 3) & 0x78);
-    return audioSpecificConfig;
+    if (audioObjectType < 31) {
+      byte[] audioSpecificConfig = new byte[2];
+      audioSpecificConfig[0] = (byte) ((audioObjectType << 3) & 0xF8 |
+                                       (sampleRateIndex >> 1) & 0x07);
+      audioSpecificConfig[1] = (byte) ((sampleRateIndex << 7) & 0x80 |
+                                       (channelConfig   << 3) & 0x78);
+      return audioSpecificConfig;
+    } else {
+      byte[] audioSpecificConfig = new byte[3];
+      int audioObjectTypeExt = audioObjectType - 32;
+      audioObjectType = 31;
+      audioSpecificConfig[0] = (byte) ((audioObjectType    << 3) & 0xF8 |
+                                       (audioObjectTypeExt >> 3) & 0x07);
+      audioSpecificConfig[1] = (byte) ((audioObjectTypeExt << 5) & 0xE0 |
+                                       (sampleRateIndex    << 1) & 0x1E |
+                                       (channelConfig      >> 2) & 0x01);
+      audioSpecificConfig[2] = (byte) ((channelConfig << 6) & 0xC0);
+      return audioSpecificConfig;
+    }
   }
 
   /**
