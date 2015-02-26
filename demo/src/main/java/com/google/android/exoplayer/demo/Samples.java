@@ -123,6 +123,9 @@ import java.util.Locale;
     new Sample("Apple AAC media playlist",
         "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear0/"
         + "prog_index.m3u8", DemoUtil.TYPE_HLS),
+    new Sample("Apple ID3 metadata",
+        "http://devimages.apple.com/samplecode/adDemo/"
+        + "ad.m3u8", DemoUtil.TYPE_HLS),
   };
 
   public static final Sample[] MISC = new Sample[] {

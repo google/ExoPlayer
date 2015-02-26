@@ -67,6 +67,39 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
         String value = new String(frame, valueStartIndex, valueEndIndex - valueStartIndex,
             charset);
         metadata.put(TxxxMetadata.TYPE, new TxxxMetadata(description, value));
+      } else if (frameId0 == 'P' && frameId1 == 'R' && frameId2 == 'I' && frameId3 == 'V') {
+        // Check frame ID == PRIV
+        byte[] frame = new byte[frameSize];
+        id3Data.readBytes(frame, 0, frameSize);
+
+        int firstZeroIndex = indexOf(frame, 0, (byte) 0);
+        String owner = new String(frame, 0, firstZeroIndex);
+        byte[] privateData = new byte[frameSize - firstZeroIndex - 1];
+        System.arraycopy(frame, firstZeroIndex + 1, privateData, 0, frameSize - firstZeroIndex - 1);
+        metadata.put(PrivMetadata.TYPE, new PrivMetadata(owner, privateData));
+      } else if (frameId0 == 'G' && frameId1 == 'E' && frameId2 == 'O' && frameId3 == 'B') {
+        // Check frame ID == GEOB
+        int encoding = id3Data.readUnsignedByte();
+        String charset = getCharsetName(encoding);
+        byte[] frame = new byte[frameSize - 1];
+        id3Data.readBytes(frame, 0, frameSize - 1);
+
+        int firstZeroIndex = indexOf(frame, 0, (byte) 0);
+        String mimeType = new String(frame, 0, firstZeroIndex);
+        int filenameStartIndex = firstZeroIndex + 1;
+        int filenameEndIndex = indexOf(frame, filenameStartIndex, (byte) 0);
+        String filename = new String(frame, filenameStartIndex,
+                                     filenameEndIndex - filenameStartIndex, charset);
+        int descriptionStartIndex = filenameEndIndex + 1;
+        int descriptionEndIndex = indexOf(frame, descriptionStartIndex, (byte) 0);
+        String description = new String(frame, descriptionStartIndex,
+                descriptionEndIndex - descriptionStartIndex, charset);
+
+        byte[] objectData = new byte[frameSize - descriptionEndIndex - 2];
+        System.arraycopy(frame, descriptionEndIndex + 1, objectData, 0,
+                         frameSize - descriptionEndIndex - 2);
+        metadata.put(GeobMetadata.TYPE, new GeobMetadata(mimeType, filename,
+                                                         description, objectData));
       } else {
         String type = String.format("%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
         byte[] frame = new byte[frameSize];
