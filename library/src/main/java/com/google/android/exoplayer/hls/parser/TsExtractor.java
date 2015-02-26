@@ -40,6 +40,8 @@ public final class TsExtractor extends HlsExtractor {
   private static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
   private static final int TS_PAT_PID = 0;
 
+  private static final int TS_STREAM_TYPE_MPA = 0x03;
+  private static final int TS_STREAM_TYPE_MPA_LSF = 0x04;
   private static final int TS_STREAM_TYPE_AAC = 0x0F;
   private static final int TS_STREAM_TYPE_H264 = 0x1B;
   private static final int TS_STREAM_TYPE_ID3 = 0x15;
@@ -329,6 +331,10 @@ public final class TsExtractor extends HlsExtractor {
 
         ElementaryStreamReader pesPayloadReader = null;
         switch (streamType) {
+          case TS_STREAM_TYPE_MPA:
+          case TS_STREAM_TYPE_MPA_LSF:
+            pesPayloadReader = new MpaReader(bufferPool);
+            break;
           case TS_STREAM_TYPE_AAC:
             pesPayloadReader = new AdtsReader(bufferPool);
             break;
