@@ -26,7 +26,7 @@ public class PrivMetadata {
   public final String owner;
   public final byte[] privateData;
 
-  public PrivMetadata(String owner, byte [] privateData) {
+  public PrivMetadata(String owner, byte[] privateData) {
     this.owner = owner;
     this.privateData = privateData;
   }
