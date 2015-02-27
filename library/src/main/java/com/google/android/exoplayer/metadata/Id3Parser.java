@@ -67,7 +67,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
 
         int firstZeroIndex = indexOfEOS(frame, 0, encoding);
         String description = new String(frame, 0, firstZeroIndex, charset);
-        int valueStartIndex = firstZeroIndex + 1;
+        int valueStartIndex = firstZeroIndex + delimiterLength(encoding);
         int valueEndIndex = indexOfEOS(frame, valueStartIndex, encoding);
         String value = new String(frame, valueStartIndex, valueEndIndex - valueStartIndex,
             charset);
@@ -91,17 +91,17 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
 
         int firstZeroIndex = indexOf(frame, 0, (byte) 0);
         String mimeType = new String(frame, 0, firstZeroIndex, "ISO-8859-1");
-        int filenameStartIndex = firstZeroIndex + 1;
+        int filenameStartIndex = firstZeroIndex + delimiterLength(encoding);
         int filenameEndIndex = indexOfEOS(frame, filenameStartIndex, encoding);
         String filename = new String(frame, filenameStartIndex,
                                      filenameEndIndex - filenameStartIndex, charset);
-        int descriptionStartIndex = filenameEndIndex + 1;
+        int descriptionStartIndex = filenameEndIndex + delimiterLength(encoding);
         int descriptionEndIndex = indexOfEOS(frame, descriptionStartIndex, encoding);
         String description = new String(frame, descriptionStartIndex,
                 descriptionEndIndex - descriptionStartIndex, charset);
 
         byte[] objectData = new byte[frameSize - descriptionEndIndex - 2];
-        System.arraycopy(frame, descriptionEndIndex + 1, objectData, 0,
+        System.arraycopy(frame, descriptionEndIndex + delimiterLength(encoding), objectData, 0,
                          frameSize - descriptionEndIndex - 2);
         metadata.put(GeobMetadata.TYPE, new GeobMetadata(mimeType, filename,
                                                          description, objectData));
@@ -147,12 +147,17 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
     // Otherwise, look for a two zero bytes
     while(terminationPos < data.length - 1) {
       if(data[terminationPos + 1] == (byte) 0) {
-        return terminationPos + 1;
+        return terminationPos;
       }
       terminationPos = indexOf(data, terminationPos + 1, (byte) 0);
     }
 
     return data.length;
+  }
+
+  private static int delimiterLength(int encodingByte) {
+    return (encodingByte == ID3_TEXT_ENCODING_ISO_8859_1 ||
+            encodingByte == ID3_TEXT_ENCODING_UTF_8) ? 1 : 2;
   }
 
   /**
