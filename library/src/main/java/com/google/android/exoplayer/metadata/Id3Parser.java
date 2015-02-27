@@ -70,7 +70,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
         int valueStartIndex = firstZeroIndex + delimiterLength(encoding);
         int valueEndIndex = indexOfEOS(frame, valueStartIndex, encoding);
         String value = new String(frame, valueStartIndex, valueEndIndex - valueStartIndex,
-            charset);
+                                  charset);
         metadata.put(TxxxMetadata.TYPE, new TxxxMetadata(description, value));
       } else if (frameId0 == 'P' && frameId1 == 'R' && frameId2 == 'I' && frameId3 == 'V') {
         // Check frame ID == PRIV
@@ -98,7 +98,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
         int descriptionStartIndex = filenameEndIndex + delimiterLength(encoding);
         int descriptionEndIndex = indexOfEOS(frame, descriptionStartIndex, encoding);
         String description = new String(frame, descriptionStartIndex,
-                descriptionEndIndex - descriptionStartIndex, charset);
+                                        descriptionEndIndex - descriptionStartIndex, charset);
 
         byte[] objectData = new byte[frameSize - descriptionEndIndex - 2];
         System.arraycopy(frame, descriptionEndIndex + delimiterLength(encoding), objectData, 0,
@@ -121,15 +121,6 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
   private static int indexOf(byte[] data, int fromIndex, byte key) {
     for (int i = fromIndex; i < data.length; i++) {
       if (data[i] == key) {
-        return i;
-      }
-    }
-    return data.length;
-  }
-
-  private static int indexOfNot(byte[] data, int fromIndex, byte key) {
-    for (int i = fromIndex; i < data.length; i++) {
-      if (data[i] != key) {
         return i;
       }
     }
