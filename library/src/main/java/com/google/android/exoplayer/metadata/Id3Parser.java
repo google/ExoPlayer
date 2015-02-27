@@ -70,7 +70,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
         int valueStartIndex = firstZeroIndex + delimiterLength(encoding);
         int valueEndIndex = indexOfEOS(frame, valueStartIndex, encoding);
         String value = new String(frame, valueStartIndex, valueEndIndex - valueStartIndex,
-                                  charset);
+            charset);
         metadata.put(TxxxMetadata.TYPE, new TxxxMetadata(description, value));
       } else if (frameId0 == 'P' && frameId1 == 'R' && frameId2 == 'I' && frameId3 == 'V') {
         // Check frame ID == PRIV
@@ -94,17 +94,19 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
         int filenameStartIndex = firstZeroIndex + delimiterLength(encoding);
         int filenameEndIndex = indexOfEOS(frame, filenameStartIndex, encoding);
         String filename = new String(frame, filenameStartIndex,
-                                     filenameEndIndex - filenameStartIndex, charset);
+            filenameEndIndex - filenameStartIndex, charset);
         int descriptionStartIndex = filenameEndIndex + delimiterLength(encoding);
         int descriptionEndIndex = indexOfEOS(frame, descriptionStartIndex, encoding);
         String description = new String(frame, descriptionStartIndex,
-                                        descriptionEndIndex - descriptionStartIndex, charset);
+            descriptionEndIndex - descriptionStartIndex, charset);
 
-        byte[] objectData = new byte[frameSize - descriptionEndIndex - 2];
+        int objectDataSize = frameSize - 1 /* encoding byte */ - descriptionEndIndex -
+            delimiterLength(encoding);
+        byte[] objectData = new byte[objectDataSize];
         System.arraycopy(frame, descriptionEndIndex + delimiterLength(encoding), objectData, 0,
-                         frameSize - descriptionEndIndex - 2);
+            objectDataSize);
         metadata.put(GeobMetadata.TYPE, new GeobMetadata(mimeType, filename,
-                                                         description, objectData));
+            description, objectData));
       } else {
         String type = String.format("%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
         byte[] frame = new byte[frameSize];
