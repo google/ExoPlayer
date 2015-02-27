@@ -38,7 +38,6 @@ import java.util.Collections;
     private static final int STATE_READING_SAMPLE = 2;
 
     private static final int HEADER_SIZE = 4;
-    private static final int SYNCWORD_SIZE = 2;
     private static final int CRC_SIZE = 2;
 
     private final ParsableBitArray mpaScratch;
@@ -172,13 +171,8 @@ import java.util.Collections;
                 case STATE_READING_HEADER:
                     int targetLength = hasCrc ? HEADER_SIZE + CRC_SIZE : HEADER_SIZE;
                     if (continueRead(data, mpaScratch.getData(), targetLength)) {
-                        parseHeader();
                         startSample(timeUs);
-                        /**
-                         * Reset buffer after Header data extraction in order to pass full
-                         *  mpeg audio frame to the mpeg decoder
-                         */
-                        data.setPosition(data.getPosition() - targetLength);
+                        parseHeader();
                         bytesRead = 0;
                         state = STATE_READING_SAMPLE;
                     }
@@ -260,6 +254,7 @@ import java.util.Collections;
      * Parses the sample header.
      */
     private void parseHeader() {
+        int headerLength = hasCrc ? HEADER_SIZE + CRC_SIZE : HEADER_SIZE;
         mpaScratch.setPosition(0);
 
         if (!hasMediaFormat()) {
@@ -270,12 +265,7 @@ import java.util.Collections;
             int audioObjectType = 32 + layer;
             int bitRate = MPA_BITRATES[isLSF][layer][mpaScratch.readBits(4)];
             int sampleRate = MPA_SAMPLING_RATES[3 - isLSF][mpaScratch.readBits(2)];
-            int sampleRateIndex = 0;
-            for (; sampleRateIndex < (CodecSpecificDataUtil.AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE).length; sampleRateIndex++) {
-                if ((CodecSpecificDataUtil.AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE)[sampleRateIndex] == sampleRate) {
-                    break;
-                }
-            }
+            int sampleRateIndex = CodecSpecificDataUtil.getSampleRateIndex(sampleRate);
             int paddingBit = (mpaScratch.readBit()) ? 1 : 0;
             mpaScratch.skipBits(1);
             int channelConfig = mpaScratch.readBits(2) == 3 ? 1 : 2;
@@ -291,7 +281,12 @@ import java.util.Collections;
                     Collections.singletonList(audioSpecificConfig));
             frameDurationUs = (C.MICROS_PER_SECOND * MPA_SAMPLES_PER_FRAME[isLSF][layer]) / mediaFormat.sampleRate;
             setMediaFormat(mediaFormat);
-            sampleSize = CalcMpaFrameSize(layer, isLSF, bitRate * 1000, sampleRate, paddingBit);
+            sampleSize = CalcMpaFrameSize(layer, isLSF, bitRate * 1000, sampleRate, paddingBit) - headerLength;
         }
+
+        mpaScratch.setPosition(0);
+
+        ParsableByteArray header = new ParsableByteArray(mpaScratch.getData(),headerLength);
+        appendData(header, headerLength);
     }
 }

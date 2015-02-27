@@ -29,17 +29,33 @@ public final class CodecSpecificDataUtil {
 
   private static final byte[] NAL_START_CODE = new byte[] {0, 0, 0, 1};
 
-  public static final int[] AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE = new int[] {
+  private static final int[] AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE = new int[] {
     96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350
   };
 
-  public static final int[] AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE = new int[] {
+  private static final int[] AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE = new int[] {
     0, 1, 2, 3, 4, 5, 6, 8
   };
 
   private static final int SPS_NAL_UNIT_TYPE = 7;
 
   private CodecSpecificDataUtil() {}
+
+   /**
+    * Gets the sample rate index.
+    *
+    * @param sampleRate The sample rate in Hz.
+    * @return The sample rate index.
+    */
+   public static int getSampleRateIndex(int sampleRate) {
+     int sampleRateIndex = 0;
+     for (; sampleRateIndex < AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE.length; sampleRateIndex++) {
+       if (AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE[sampleRateIndex] == sampleRate) {
+         return sampleRateIndex;
+        }
+       }
+       return -1;
+    }
 
   /**
    * Parses an AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1
@@ -49,7 +65,7 @@ public final class CodecSpecificDataUtil {
    */
   public static Pair<Integer, Integer> parseAudioSpecificConfig(byte[] audioSpecificConfig) {
     int audioObjectType = (audioSpecificConfig[0] >> 3) & 0x1F;
-    if (audioObjectType != 31) {
+    if (audioObjectType < 31) {
       int byteOffset = audioObjectType == 5 || audioObjectType == 29 ? 1 : 0;
       int frequencyIndex = (audioSpecificConfig[byteOffset] & 0x7) << 1 |
               ((audioSpecificConfig[byteOffset + 1] >> 7) & 0x1);
