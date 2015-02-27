@@ -91,7 +91,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
 
         int firstZeroIndex = indexOf(frame, 0, (byte) 0);
         String mimeType = new String(frame, 0, firstZeroIndex, "ISO-8859-1");
-        int filenameStartIndex = firstZeroIndex + delimiterLength(encoding);
+        int filenameStartIndex = firstZeroIndex + 1;
         int filenameEndIndex = indexOfEOS(frame, filenameStartIndex, encoding);
         String filename = new String(frame, filenameStartIndex,
             filenameEndIndex - filenameStartIndex, charset);
