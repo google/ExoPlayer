@@ -100,8 +100,8 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
         String description = new String(frame, descriptionStartIndex,
             descriptionEndIndex - descriptionStartIndex, charset);
 
-        int objectDataSize = frameSize - 1 /* encoding byte */ - descriptionEndIndex -
-            delimiterLength(encoding);
+        int objectDataSize = frameSize - 1 /* encoding byte */ - descriptionEndIndex
+            - delimiterLength(encoding);
         byte[] objectData = new byte[objectDataSize];
         System.arraycopy(frame, descriptionEndIndex + delimiterLength(encoding), objectData, 0,
             objectDataSize);
@@ -133,13 +133,13 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
     int terminationPos = indexOf(data, fromIndex, (byte) 0);
 
     // For single byte encoding charsets, we are done
-    if(encodingByte == ID3_TEXT_ENCODING_ISO_8859_1 || encodingByte == ID3_TEXT_ENCODING_UTF_8) {
+    if (encodingByte == ID3_TEXT_ENCODING_ISO_8859_1 || encodingByte == ID3_TEXT_ENCODING_UTF_8) {
       return terminationPos;
     }
 
     // Otherwise, look for a two zero bytes
-    while(terminationPos < data.length - 1) {
-      if(data[terminationPos + 1] == (byte) 0) {
+    while (terminationPos < data.length - 1) {
+      if (data[terminationPos + 1] == (byte) 0) {
         return terminationPos;
       }
       terminationPos = indexOf(data, terminationPos + 1, (byte) 0);
@@ -149,8 +149,8 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
   }
 
   private static int delimiterLength(int encodingByte) {
-    return (encodingByte == ID3_TEXT_ENCODING_ISO_8859_1 ||
-            encodingByte == ID3_TEXT_ENCODING_UTF_8) ? 1 : 2;
+    return (encodingByte == ID3_TEXT_ENCODING_ISO_8859_1
+        || encodingByte == ID3_TEXT_ENCODING_UTF_8) ? 1 : 2;
   }
 
   /**
