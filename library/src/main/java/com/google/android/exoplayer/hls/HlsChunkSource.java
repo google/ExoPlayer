@@ -438,13 +438,14 @@ public class HlsChunkSource {
 
   private MediaPlaylistChunk newMediaPlaylistChunk(int variantIndex) {
     Uri mediaPlaylistUri = Util.getMergedUri(baseUri, enabledVariants[variantIndex].url);
-    DataSpec dataSpec = new DataSpec(mediaPlaylistUri, 0, C.LENGTH_UNBOUNDED, null);
+    DataSpec dataSpec = new DataSpec(mediaPlaylistUri, 0, C.LENGTH_UNBOUNDED, null,
+        DataSpec.FLAG_ALLOW_GZIP);
     return new MediaPlaylistChunk(variantIndex, upstreamDataSource, dataSpec,
         mediaPlaylistUri.toString());
   }
 
   private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv) {
-    DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNBOUNDED, null);
+    DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNBOUNDED, null, DataSpec.FLAG_ALLOW_GZIP);
     return new EncryptionKeyChunk(upstreamDataSource, dataSpec, iv);
   }
 
