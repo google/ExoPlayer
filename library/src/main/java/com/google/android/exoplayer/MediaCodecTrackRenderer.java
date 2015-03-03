@@ -370,6 +370,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       codecHotswapTimeMs = -1;
       inputIndex = -1;
       outputIndex = -1;
+      waitingForKeys = false;
       decodeOnlyPresentationTimestamps.clear();
       inputBuffers = null;
       outputBuffers = null;
@@ -418,7 +419,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     sourceState = SOURCE_STATE_NOT_READY;
     inputStreamEnded = false;
     outputStreamEnded = false;
-    waitingForKeys = false;
   }
 
   @Override
@@ -478,6 +478,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     inputIndex = -1;
     outputIndex = -1;
     waitingForFirstSyncFrame = true;
+    waitingForKeys = false;
     decodeOnlyPresentationTimestamps.clear();
     // Workaround for framework bugs.
     // See [Internal: b/8347958], [Internal: b/8578467], [Internal: b/8543366].
