@@ -225,7 +225,7 @@ import java.util.Collections;
         int startOffset = pesBuffer.getPosition();
         int endOffset = pesBuffer.limit();
         for (int i = startOffset; i < endOffset - 1; i++) {
-            int syncBits = (mpaData[i] << 8 ) | mpaData[i + 1];
+            int syncBits = ((mpaData[i] & 0xFF) << 8 ) | (mpaData[i + 1] & 0xFF);
             if ((syncBits & 0xFFF0) == 0xFFF0) {
                 hasCrc = (mpaData[i + 1] & 0x1) == 0;
                 pesBuffer.setPosition(i);
