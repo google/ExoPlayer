@@ -143,11 +143,13 @@ public class ManifestFetcher<T> implements Loader.Callback {
    * @param callbackLooper The looper associated with the thread on which the callback should be
    *     invoked.
    * @param callback The callback to receive the result.
+   * @return Instance of SingleFetchHelper which is loading the manifest.
    */
-  public void singleLoad(Looper callbackLooper, final ManifestCallback<T> callback) {
+  public SingleFetchHelper singleLoad(Looper callbackLooper, final ManifestCallback<T> callback) {
     SingleFetchHelper fetchHelper = new SingleFetchHelper(
         new NetworkLoadable<T>(manifestUrl, httpDataSource, parser), callbackLooper, callback);
     fetchHelper.startLoading();
+    return fetchHelper;
   }
 
   /**
@@ -320,6 +322,19 @@ public class ManifestFetcher<T> implements Loader.Callback {
       singleUseLoader.startLoading(callbackLooper, singleUseLoadable, this);
     }
 
+    public void cancelLoading() {
+      singleUseLoader.cancelLoading();
+    }
+
+    /**
+    * Whether the {@link SingleFetchHelper} is currently loading a Manifest.
+    *
+    * @return Whether the {@link SingleFetchHelper} is currently loading a Manifest.
+    */
+    public boolean isLoading() {
+      return singleUseLoader.isLoading();
+    }
+
     @Override
     public void onLoadCompleted(Loadable loadable) {
       try {
@@ -333,7 +348,6 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
     @Override
     public void onLoadCanceled(Loadable loadable) {
-      // This shouldn't ever happen, but handle it anyway.
       try {
         IOException exception = new IOException("Load cancelled", new CancellationException());
         wrappedCallback.onSingleManifestError(exception);
