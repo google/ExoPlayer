@@ -19,9 +19,6 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.hls.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer.upstream.NetworkLoadable;
-import com.google.android.exoplayer.util.Util;
-
-import android.net.Uri;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -86,7 +83,6 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
   @Override
   public HlsPlaylist parse(String connectionUrl, InputStream inputStream)
       throws IOException, ParserException {
-    Uri baseUri = Util.parseBaseUri(connectionUrl);
     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
     Queue<String> extraLines = new LinkedList<String>();
     String line;
@@ -97,7 +93,7 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
           // Do nothing.
         } else if (line.startsWith(STREAM_INF_TAG)) {
           extraLines.add(line);
-          return parseMasterPlaylist(new LineIterator(extraLines, reader), baseUri);
+          return parseMasterPlaylist(new LineIterator(extraLines, reader), connectionUrl);
         } else if (line.startsWith(TARGET_DURATION_TAG)
             || line.startsWith(MEDIA_SEQUENCE_TAG)
             || line.startsWith(MEDIA_DURATION_TAG)
@@ -106,7 +102,7 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
             || line.equals(DISCONTINUITY_TAG)
             || line.equals(ENDLIST_TAG)) {
           extraLines.add(line);
-          return parseMediaPlaylist(new LineIterator(extraLines, reader), baseUri);
+          return parseMediaPlaylist(new LineIterator(extraLines, reader), connectionUrl);
         } else if (line.startsWith(VERSION_TAG)) {
           extraLines.add(line);
         } else if (!line.startsWith("#")) {
@@ -119,7 +115,7 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
     throw new ParserException("Failed to parse the playlist, could not identify any tags.");
   }
 
-  private static HlsMasterPlaylist parseMasterPlaylist(LineIterator iterator, Uri baseUri)
+  private static HlsMasterPlaylist parseMasterPlaylist(LineIterator iterator, String baseUri)
       throws IOException {
     List<Variant> variants = new ArrayList<Variant>();
     int bandwidth = 0;
@@ -160,7 +156,7 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
     return new HlsMasterPlaylist(baseUri, Collections.unmodifiableList(variants));
   }
 
-  private static HlsMediaPlaylist parseMediaPlaylist(LineIterator iterator, Uri baseUri)
+  private static HlsMediaPlaylist parseMediaPlaylist(LineIterator iterator, String baseUri)
       throws IOException {
     int mediaSequence = 0;
     int targetDurationSecs = 0;

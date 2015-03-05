@@ -27,6 +27,7 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -121,7 +122,7 @@ public class HlsChunkSource {
   private final Variant[] enabledVariants;
   private final BandwidthMeter bandwidthMeter;
   private final int adaptiveMode;
-  private final Uri baseUri;
+  private final String baseUri;
   private final int maxWidth;
   private final int maxHeight;
   private final int targetBufferSize;
@@ -301,11 +302,11 @@ public class HlsChunkSource {
     }
 
     HlsMediaPlaylist.Segment segment = mediaPlaylist.segments.get(chunkIndex);
-    Uri chunkUri = Util.getMergedUri(mediaPlaylist.baseUri, segment.url);
+    Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
 
     // Check if encryption is specified.
     if (HlsMediaPlaylist.ENCRYPTION_METHOD_AES_128.equals(segment.encryptionMethod)) {
-      Uri keyUri = Util.getMergedUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
+      Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
       if (!keyUri.equals(encryptionKeyUri)) {
         // Encryption is specified and the key has changed.
         HlsChunk toReturn = newEncryptionKeyChunk(keyUri, segment.encryptionIV);
@@ -437,7 +438,7 @@ public class HlsChunkSource {
   }
 
   private MediaPlaylistChunk newMediaPlaylistChunk(int variantIndex) {
-    Uri mediaPlaylistUri = Util.getMergedUri(baseUri, enabledVariants[variantIndex].url);
+    Uri mediaPlaylistUri = UriUtil.resolveToUri(baseUri, enabledVariants[variantIndex].url);
     DataSpec dataSpec = new DataSpec(mediaPlaylistUri, 0, C.LENGTH_UNBOUNDED, null,
         DataSpec.FLAG_ALLOW_GZIP);
     return new MediaPlaylistChunk(variantIndex, upstreamDataSource, dataSpec,

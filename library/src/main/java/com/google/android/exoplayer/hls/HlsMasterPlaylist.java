@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.hls;
 
-import android.net.Uri;
-
 import java.util.List;
 
 /**
@@ -26,7 +24,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
 
   public final List<Variant> variants;
 
-  public HlsMasterPlaylist(Uri baseUri, List<Variant> variants) {
+  public HlsMasterPlaylist(String baseUri, List<Variant> variants) {
     super(baseUri, HlsPlaylist.TYPE_MASTER);
     this.variants = variants;
   }
