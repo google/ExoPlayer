@@ -36,14 +36,33 @@ import com.google.android.exoplayer.util.ParsableByteArray;
     seiBuffer = new ParsableByteArray();
   }
 
-  public void read(byte[] data, int position, long pesTimeUs) {
-    seiBuffer.reset(data, data.length);
+  public void read(byte[] data, int position, int limit, long pesTimeUs) {
+    seiBuffer.reset(data, limit);
+    // Skip the NAL prefix and type.
     seiBuffer.setPosition(position + 4);
-    int ccDataSize = Eia608Parser.parseHeader(seiBuffer);
-    if (ccDataSize > 0) {
-      startSample(pesTimeUs);
-      appendData(seiBuffer, ccDataSize);
-      commitSample(true);
+
+    int b;
+    while (seiBuffer.bytesLeft() > 1 /* last byte will be rbsp_trailing_bits */) {
+      // Parse payload type.
+      int payloadType = 0;
+      do {
+        b = seiBuffer.readUnsignedByte();
+        payloadType += b;
+      } while (b == 0xFF);
+      // Parse payload size.
+      int payloadSize = 0;
+      do {
+        b = seiBuffer.readUnsignedByte();
+        payloadSize += b;
+      } while (b == 0xFF);
+      // Process the payload. We only support EIA-608 payloads currently.
+      if (Eia608Parser.isSeiMessageEia608(payloadType, payloadSize, seiBuffer)) {
+        startSample(pesTimeUs);
+        appendData(seiBuffer, payloadSize);
+        commitSample(true);
+      } else {
+        seiBuffer.skip(payloadSize);
+      }
     }
   }
 

@@ -13,24 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.dash.mpd;
+package com.google.android.exoplayer.metadata;
 
 /**
- * Represents a UTCTiming element.
+ * A metadata that contains parsed ID3 PRIV (Private) frame data associated
+ * with time indices.
  */
-public class UtcTimingElement {
+public class PrivMetadata {
 
-  public final String schemeIdUri;
-  public final String value;
+  public static final String TYPE = "PRIV";
 
-  public UtcTimingElement(String schemeIdUri, String value) {
-    this.schemeIdUri = schemeIdUri;
-    this.value = value;
-  }
+  public final String owner;
+  public final byte[] privateData;
 
-  @Override
-  public String toString() {
-    return schemeIdUri + ", " + value;
+  public PrivMetadata(String owner, byte[] privateData) {
+    this.owner = owner;
+    this.privateData = privateData;
   }
 
 }

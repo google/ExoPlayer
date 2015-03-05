@@ -18,7 +18,8 @@ package com.google.android.exoplayer.hls;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.hls.HlsMediaPlaylist.Segment;
-import com.google.android.exoplayer.util.ManifestParser;
+import com.google.android.exoplayer.upstream.NetworkLoadable;
+import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
 
@@ -36,7 +37,7 @@ import java.util.regex.Pattern;
 /**
  * HLS playlists parsing logic.
  */
-public final class HlsPlaylistParser implements ManifestParser<HlsPlaylist> {
+public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlaylist> {
 
   private static final String VERSION_TAG = "#EXT-X-VERSION";
 
@@ -60,7 +61,7 @@ public final class HlsPlaylistParser implements ManifestParser<HlsPlaylist> {
   private static final Pattern BANDWIDTH_ATTR_REGEX =
       Pattern.compile(BANDWIDTH_ATTR + "=(\\d+)\\b");
   private static final Pattern CODECS_ATTR_REGEX =
-      Pattern.compile(CODECS_ATTR + "=\"(.+)\"");
+      Pattern.compile(CODECS_ATTR + "=\"(.+?)\"");
   private static final Pattern RESOLUTION_ATTR_REGEX =
       Pattern.compile(RESOLUTION_ATTR + "=(\\d+x\\d+)");
 
@@ -83,10 +84,10 @@ public final class HlsPlaylistParser implements ManifestParser<HlsPlaylist> {
       Pattern.compile(IV_ATTR + "=([^,.*]+)");
 
   @Override
-  public HlsPlaylist parse(InputStream inputStream, String inputEncoding,
-      String contentId, Uri baseUri) throws IOException {
-    BufferedReader reader = new BufferedReader((inputEncoding == null)
-        ? new InputStreamReader(inputStream) : new InputStreamReader(inputStream, inputEncoding));
+  public HlsPlaylist parse(String connectionUrl, InputStream inputStream)
+      throws IOException, ParserException {
+    Uri baseUri = Util.parseBaseUri(connectionUrl);
+    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
     Queue<String> extraLines = new LinkedList<String>();
     String line;
     try {

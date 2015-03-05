@@ -13,24 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.dash.mpd;
+package com.google.android.exoplayer.metadata;
 
 /**
- * Represents a UTCTiming element.
+ * A metadata that contains parsed ID3 GEOB (General Encapsulated Object) frame data associated
+ * with time indices.
  */
-public class UtcTimingElement {
+public class GeobMetadata {
 
-  public final String schemeIdUri;
-  public final String value;
+  public static final String TYPE = "GEOB";
 
-  public UtcTimingElement(String schemeIdUri, String value) {
-    this.schemeIdUri = schemeIdUri;
-    this.value = value;
-  }
+  public final String mimeType;
+  public final String filename;
+  public final String description;
+  public final byte[] data;
 
-  @Override
-  public String toString() {
-    return schemeIdUri + ", " + value;
+  public GeobMetadata(String mimeType, String filename, String description, byte[] data) {
+    this.mimeType = mimeType;
+    this.filename = filename;
+    this.description = description;
+    this.data = data;
   }
 
 }

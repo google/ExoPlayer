@@ -29,6 +29,7 @@ import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
 import com.google.android.exoplayer.text.eia608.Eia608TrackRenderer;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
@@ -45,15 +46,13 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
 
   private final String userAgent;
   private final String url;
-  private final String contentId;
 
   private DemoPlayer player;
   private RendererBuilderCallback callback;
 
-  public HlsRendererBuilder(String userAgent, String url, String contentId) {
+  public HlsRendererBuilder(String userAgent, String url) {
     this.userAgent = userAgent;
     this.url = url;
-    this.contentId = contentId;
   }
 
   @Override
@@ -62,17 +61,17 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
     this.callback = callback;
     HlsPlaylistParser parser = new HlsPlaylistParser();
     ManifestFetcher<HlsPlaylist> playlistFetcher =
-        new ManifestFetcher<HlsPlaylist>(parser, contentId, url, userAgent);
+        new ManifestFetcher<HlsPlaylist>(url, new DefaultHttpDataSource(userAgent, null), parser);
     playlistFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 
   @Override
-  public void onManifestError(String contentId, IOException e) {
+  public void onSingleManifestError(IOException e) {
     callback.onRenderersError(e);
   }
 
   @Override
-  public void onManifest(String contentId, HlsPlaylist manifest) {
+  public void onSingleManifest(HlsPlaylist manifest) {
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 
     DataSource dataSource = new UriDataSource(userAgent, bandwidthMeter);

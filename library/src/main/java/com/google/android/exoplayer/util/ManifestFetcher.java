@@ -15,8 +15,10 @@
  */
 package com.google.android.exoplayer.util;
 
+import com.google.android.exoplayer.upstream.HttpDataSource;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
+import com.google.android.exoplayer.upstream.NetworkLoadable;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -24,13 +26,22 @@ import android.os.SystemClock;
 import android.util.Pair;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.concurrent.CancellationException;
 
 /**
  * Performs both single and repeated loads of media manifests.
+ * <p>
+ * Client code is responsible for ensuring that only one load is taking place at any one time.
+ * Typical usage of this class is as follows:
+ * <ol>
+ * <li>Create an instance.</li>
+ * <li>Obtain an initial manifest by calling {@link #singleLoad(Looper, ManifestCallback)} and
+ *     waiting for the callback to be invoked.</li>
+ * <li>For on-demand playbacks, the loader is no longer required. For live playbacks, the loader
+ *     may be required to periodically refresh the manifest. In this case it is injected into any
+ *     components that require it. These components will call {@link #requestRefresh()} on the
+ *     loader whenever a refresh is required.</li>
+ * </ol>
  *
  * @param <T> The type of manifest.
  */
@@ -59,24 +70,21 @@ public class ManifestFetcher<T> implements Loader.Callback {
     /**
      * Invoked when the load has successfully completed.
      *
-     * @param contentId The content id of the media.
      * @param manifest The loaded manifest.
      */
-    void onManifest(String contentId, T manifest);
+    void onSingleManifest(T manifest);
 
     /**
      * Invoked when the load has failed.
      *
-     * @param contentId The content id of the media.
      * @param e The cause of the failure.
      */
-    void onManifestError(String contentId, IOException e);
+    void onSingleManifestError(IOException e);
 
   }
 
-  /* package */ final ManifestParser<T> parser;
-  /* package */ final String contentId;
-  /* package */ final String userAgent;
+  private final NetworkLoadable.Parser<T> parser;
+  private final HttpDataSource httpDataSource;
   private final Handler eventHandler;
   private final EventListener eventListener;
 
@@ -84,7 +92,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   private int enabledCount;
   private Loader loader;
-  private ManifestLoadable currentLoadable;
+  private NetworkLoadable<T> currentLoadable;
 
   private int loadExceptionCount;
   private long loadExceptionTimestamp;
@@ -93,23 +101,29 @@ public class ManifestFetcher<T> implements Loader.Callback {
   private volatile T manifest;
   private volatile long manifestLoadTimestamp;
 
-  public ManifestFetcher(ManifestParser<T> parser, String contentId, String manifestUrl,
-      String userAgent) {
-    this(parser, contentId, manifestUrl, userAgent, null, null);
+  /**
+   * @param manifestUrl The manifest location.
+   * @param httpDataSource The {@link HttpDataSource} to use when loading the manifest.
+   * @param parser A parser to parse the loaded manifest data.
+   */
+  public ManifestFetcher(String manifestUrl, HttpDataSource httpDataSource,
+      NetworkLoadable.Parser<T> parser) {
+    this(manifestUrl, httpDataSource, parser, null, null);
   }
 
   /**
-   * @param parser A parser to parse the loaded manifest data.
-   * @param contentId The content id of the content being loaded. May be null.
    * @param manifestUrl The manifest location.
-   * @param userAgent The User-Agent string that should be used.
+   * @param httpDataSource The {@link HttpDataSource} to use when loading the manifest.
+   * @param parser A parser to parse the loaded manifest data.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public ManifestFetcher(ManifestParser<T> parser, String contentId, String manifestUrl,
-      String userAgent, Handler eventHandler, EventListener eventListener) {
+  public ManifestFetcher(String manifestUrl, HttpDataSource httpDataSource,
+      NetworkLoadable.Parser<T> parser, Handler eventHandler, EventListener eventListener) {
     this.parser = parser;
-    this.contentId = contentId;
     this.manifestUrl = manifestUrl;
-    this.userAgent = userAgent;
+    this.httpDataSource = httpDataSource;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
   }
@@ -131,7 +145,8 @@ public class ManifestFetcher<T> implements Loader.Callback {
    * @param callback The callback to receive the result.
    */
   public void singleLoad(Looper callbackLooper, final ManifestCallback<T> callback) {
-    SingleFetchHelper fetchHelper = new SingleFetchHelper(callbackLooper, callback);
+    SingleFetchHelper fetchHelper = new SingleFetchHelper(
+        new NetworkLoadable<T>(manifestUrl, httpDataSource, parser), callbackLooper, callback);
     fetchHelper.startLoading();
   }
 
@@ -204,7 +219,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       loader = new Loader("manifestLoader");
     }
     if (!loader.isLoading()) {
-      currentLoadable = new ManifestLoadable();
+      currentLoadable = new NetworkLoadable<T>(manifestUrl, httpDataSource, parser);
       loader.startLoading(currentLoadable, this);
       notifyManifestRefreshStarted();
     }
@@ -217,7 +232,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       return;
     }
 
-    manifest = currentLoadable.result;
+    manifest = currentLoadable.getResult();
     manifestLoadTimestamp = SystemClock.elapsedRealtime();
     loadExceptionCount = 0;
     loadException = null;
@@ -242,6 +257,11 @@ public class ManifestFetcher<T> implements Loader.Callback {
     loadException = new IOException(exception);
 
     notifyManifestError(loadException);
+  }
+
+  /* package */ void onSingleFetchCompleted(T result) {
+    manifest = result;
+    manifestLoadTimestamp = SystemClock.elapsedRealtime();
   }
 
   private long getRetryDelayMillis(long errorCount) {
@@ -283,16 +303,17 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   private class SingleFetchHelper implements Loader.Callback {
 
+    private final NetworkLoadable<T> singleUseLoadable;
     private final Looper callbackLooper;
     private final ManifestCallback<T> wrappedCallback;
     private final Loader singleUseLoader;
-    private final ManifestLoadable singleUseLoadable;
 
-    public SingleFetchHelper(Looper callbackLooper, ManifestCallback<T> wrappedCallback) {
+    public SingleFetchHelper(NetworkLoadable<T> singleUseLoadable, Looper callbackLooper,
+        ManifestCallback<T> wrappedCallback) {
+      this.singleUseLoadable = singleUseLoadable;
       this.callbackLooper = callbackLooper;
       this.wrappedCallback = wrappedCallback;
       singleUseLoader = new Loader("manifestLoader:single");
-      singleUseLoadable = new ManifestLoadable();
     }
 
     public void startLoading() {
@@ -302,9 +323,9 @@ public class ManifestFetcher<T> implements Loader.Callback {
     @Override
     public void onLoadCompleted(Loadable loadable) {
       try {
-        manifest = singleUseLoadable.result;
-        manifestLoadTimestamp = SystemClock.elapsedRealtime();
-        wrappedCallback.onManifest(contentId, singleUseLoadable.result);
+        T result = singleUseLoadable.getResult();
+        onSingleFetchCompleted(result);
+        wrappedCallback.onSingleManifest(result);
       } finally {
         releaseLoader();
       }
@@ -315,7 +336,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       // This shouldn't ever happen, but handle it anyway.
       try {
         IOException exception = new IOException("Load cancelled", new CancellationException());
-        wrappedCallback.onManifestError(contentId, exception);
+        wrappedCallback.onSingleManifestError(exception);
       } finally {
         releaseLoader();
       }
@@ -324,7 +345,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
     @Override
     public void onLoadError(Loadable loadable, IOException exception) {
       try {
-        wrappedCallback.onManifestError(contentId, exception);
+        wrappedCallback.onSingleManifestError(exception);
       } finally {
         releaseLoader();
       }
@@ -332,54 +353,6 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
     private void releaseLoader() {
       singleUseLoader.release();
-    }
-
-  }
-
-  private class ManifestLoadable implements Loadable {
-
-    private static final int TIMEOUT_MILLIS = 10000;
-
-    /* package */ volatile T result;
-    private volatile boolean isCanceled;
-
-    @Override
-    public void cancelLoad() {
-      // We don't actually cancel anything, but we need to record the cancellation so that
-      // isLoadCanceled can return the correct value.
-      isCanceled = true;
-    }
-
-    @Override
-    public boolean isLoadCanceled() {
-      return isCanceled;
-    }
-
-    @Override
-    public void load() throws IOException, InterruptedException {
-      String inputEncoding;
-      InputStream inputStream = null;
-      try {
-        URLConnection connection = configureConnection(new URL(manifestUrl));
-        inputStream = connection.getInputStream();
-        inputEncoding = connection.getContentEncoding();
-        result = parser.parse(inputStream, inputEncoding, contentId,
-            Util.parseBaseUri(connection.getURL().toString()));
-      } finally {
-        if (inputStream != null) {
-          inputStream.close();
-        }
-      }
-    }
-
-    private URLConnection configureConnection(URL url) throws IOException {
-      URLConnection connection = url.openConnection();
-      connection.setConnectTimeout(TIMEOUT_MILLIS);
-      connection.setReadTimeout(TIMEOUT_MILLIS);
-      connection.setDoOutput(false);
-      connection.setRequestProperty("User-Agent", userAgent);
-      connection.connect();
-      return connection;
     }
 
   }
