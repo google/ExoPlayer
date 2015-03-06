@@ -17,6 +17,7 @@ package com.google.android.exoplayer.smoothstreaming;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -197,14 +198,14 @@ public class SmoothStreamingManifest {
     public final TrackElement[] tracks;
     public final int chunkCount;
 
-    private final Uri baseUri;
+    private final String baseUri;
     private final String chunkTemplate;
 
     private final List<Long> chunkStartTimes;
     private final long[] chunkStartTimesUs;
     private final long lastChunkDurationUs;
 
-    public StreamElement(Uri baseUri, String chunkTemplate, int type, String subType,
+    public StreamElement(String baseUri, String chunkTemplate, int type, String subType,
         long timescale, String name, int qualityLevels, int maxWidth, int maxHeight,
         int displayWidth, int displayHeight, String language, TrackElement[] tracks,
         List<Long> chunkStartTimes, long lastChunkDuration) {
@@ -274,7 +275,7 @@ public class SmoothStreamingManifest {
       String chunkUrl = chunkTemplate
           .replace(URL_PLACEHOLDER_BITRATE, Integer.toString(tracks[track].bitrate))
           .replace(URL_PLACEHOLDER_START_TIME, chunkStartTimes.get(chunkIndex).toString());
-      return Util.getMergedUri(baseUri, chunkUrl);
+      return UriUtil.resolveToUri(baseUri, chunkUrl);
     }
 
   }

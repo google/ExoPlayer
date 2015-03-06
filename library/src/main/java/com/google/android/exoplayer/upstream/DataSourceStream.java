@@ -230,7 +230,7 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
         long remainingLength = resolvedLength != C.LENGTH_UNBOUNDED
             ? resolvedLength - loadPosition : C.LENGTH_UNBOUNDED;
         loadDataSpec = new DataSpec(dataSpec.uri, dataSpec.position + loadPosition,
-            remainingLength, dataSpec.key);
+            remainingLength, dataSpec.key, dataSpec.flags);
         dataSource.open(loadDataSpec);
       }
 

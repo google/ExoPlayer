@@ -23,9 +23,7 @@ import com.google.android.exoplayer.upstream.NetworkLoadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.Util;
 
-import android.net.Uri;
 import android.util.Base64;
 import android.util.Pair;
 
@@ -65,8 +63,8 @@ public class SmoothStreamingManifestParser implements
     try {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
       xmlParser.setInput(inputStream, null);
-      SmoothStreamMediaParser smoothStreamMediaParser = new SmoothStreamMediaParser(null,
-          Util.parseBaseUri(connectionUrl));
+      SmoothStreamMediaParser smoothStreamMediaParser =
+          new SmoothStreamMediaParser(null, connectionUrl);
       return (SmoothStreamingManifest) smoothStreamMediaParser.parse(xmlParser);
     } catch (XmlPullParserException e) {
       throw new ParserException(e);
@@ -89,13 +87,13 @@ public class SmoothStreamingManifestParser implements
    */
   private static abstract class ElementParser {
 
-    private final Uri baseUri;
+    private final String baseUri;
     private final String tag;
 
     private final ElementParser parent;
     private final List<Pair<String, Object>> normalizedAttributes;
 
-    public ElementParser(ElementParser parent, Uri baseUri, String tag) {
+    public ElementParser(ElementParser parent, String baseUri, String tag) {
       this.parent = parent;
       this.baseUri = baseUri;
       this.tag = tag;
@@ -158,7 +156,7 @@ public class SmoothStreamingManifestParser implements
       }
     }
 
-    private ElementParser newChildParser(ElementParser parent, String name, Uri baseUri) {
+    private ElementParser newChildParser(ElementParser parent, String name, String baseUri) {
       if (TrackElementParser.TAG.equals(name)) {
         return new TrackElementParser(parent, baseUri);
       } else if (ProtectionElementParser.TAG.equals(name)) {
@@ -342,7 +340,7 @@ public class SmoothStreamingManifestParser implements
     private ProtectionElement protectionElement;
     private List<StreamElement> streamElements;
 
-    public SmoothStreamMediaParser(ElementParser parent, Uri baseUri) {
+    public SmoothStreamMediaParser(ElementParser parent, String baseUri) {
       super(parent, baseUri, TAG);
       lookAheadCount = -1;
       protectionElement = null;
@@ -392,7 +390,7 @@ public class SmoothStreamingManifestParser implements
     private UUID uuid;
     private byte[] initData;
 
-    public ProtectionElementParser(ElementParser parent, Uri baseUri) {
+    public ProtectionElementParser(ElementParser parent, String baseUri) {
       super(parent, baseUri, TAG);
     }
 
@@ -455,7 +453,7 @@ public class SmoothStreamingManifestParser implements
     private static final String KEY_FRAGMENT_START_TIME = "t";
     private static final String KEY_FRAGMENT_REPEAT_COUNT = "r";
 
-    private final Uri baseUri;
+    private final String baseUri;
     private final List<TrackElement> tracks;
 
     private int type;
@@ -473,7 +471,7 @@ public class SmoothStreamingManifestParser implements
 
     private long lastChunkDuration;
 
-    public StreamElementParser(ElementParser parent, Uri baseUri) {
+    public StreamElementParser(ElementParser parent, String baseUri) {
       super(parent, baseUri, TAG);
       this.baseUri = baseUri;
       tracks = new LinkedList<TrackElement>();
@@ -615,7 +613,7 @@ public class SmoothStreamingManifestParser implements
     private int nalUnitLengthField;
     private String content;
 
-    public TrackElementParser(ElementParser parent, Uri baseUri) {
+    public TrackElementParser(ElementParser parent, String baseUri) {
       super(parent, baseUri, TAG);
       this.csd = new LinkedList<byte[]>();
     }

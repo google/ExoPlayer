@@ -24,6 +24,7 @@ import java.util.List;
 
 public abstract class Atom {
 
+  public static final int TYPE_ftyp = getAtomTypeInteger("ftyp");
   public static final int TYPE_avc1 = getAtomTypeInteger("avc1");
   public static final int TYPE_avc3 = getAtomTypeInteger("avc3");
   public static final int TYPE_esds = getAtomTypeInteger("esds");

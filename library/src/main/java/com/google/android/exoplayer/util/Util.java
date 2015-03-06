@@ -17,7 +17,6 @@ package com.google.android.exoplayer.util;
 
 import com.google.android.exoplayer.upstream.DataSource;
 
-import android.net.Uri;
 import android.text.TextUtils;
 
 import java.io.IOException;
@@ -132,54 +131,6 @@ public final class Util {
    */
   public static String toLowerInvariant(String text) {
     return text == null ? null : text.toLowerCase(Locale.US);
-  }
-
-  /**
-   * Like {@link Uri#parse(String)}, but discards the part of the uri that follows the final
-   * forward slash.
-   *
-   * @param uriString An RFC 2396-compliant, encoded uri.
-   * @return The parsed base uri.
-   */
-  public static Uri parseBaseUri(String uriString) {
-    return Uri.parse(uriString.substring(0, uriString.lastIndexOf('/')));
-  }
-
-  /**
-   * Merges a uri and a string to produce a new uri.
-   * <p>
-   * The uri is built according to the following rules:
-   * <ul>
-   * <li>If {@code baseUri} is null or if {@code stringUri} is absolute, then {@code baseUri} is
-   * ignored and the uri consists solely of {@code stringUri}.
-   * <li>If {@code stringUri} is null, then the uri consists solely of {@code baseUrl}.
-   * <li>Otherwise, the uri consists of the concatenation of {@code baseUri} and {@code stringUri}.
-   * </ul>
-   *
-   * @param baseUri A uri that can form the base of the merged uri.
-   * @param stringUri A relative or absolute uri in string form.
-   * @return The merged uri.
-   */
-  public static Uri getMergedUri(Uri baseUri, String stringUri) {
-    if (stringUri == null) {
-      return baseUri;
-    }
-    if (baseUri == null) {
-      return Uri.parse(stringUri);
-    }
-    if (stringUri.startsWith("/")) {
-      stringUri = stringUri.substring(1);
-      return new Uri.Builder()
-          .scheme(baseUri.getScheme())
-          .authority(baseUri.getAuthority())
-          .appendEncodedPath(stringUri)
-          .build();
-    }
-    Uri uri = Uri.parse(stringUri);
-    if (uri.isAbsolute()) {
-      return uri;
-    }
-    return Uri.withAppendedPath(baseUri, stringUri);
   }
 
   /**

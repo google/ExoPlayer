@@ -19,8 +19,6 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.dash.DashSegmentIndex;
 import com.google.android.exoplayer.util.Util;
 
-import android.net.Uri;
-
 import java.util.List;
 
 /**
@@ -73,7 +71,7 @@ public abstract class SegmentBase {
     /**
      * The uri of the segment.
      */
-    public final Uri uri;
+    public final String uri;
 
     /* package */ final long indexStart;
     /* package */ final long indexLength;
@@ -89,7 +87,7 @@ public abstract class SegmentBase {
      * @param indexLength The length of the index data in bytes.
      */
     public SingleSegmentBase(RangedUri initialization, long timescale, long presentationTimeOffset,
-        Uri uri, long indexStart, long indexLength) {
+        String uri, long indexStart, long indexLength) {
       super(initialization, timescale, presentationTimeOffset);
       this.uri = uri;
       this.indexStart = indexStart;
@@ -99,7 +97,7 @@ public abstract class SegmentBase {
     /**
      * @param uri The uri of the segment.
      */
-    public SingleSegmentBase(Uri uri) {
+    public SingleSegmentBase(String uri) {
       this(null, 1, 0, uri, 0, -1);
     }
 
@@ -289,7 +287,7 @@ public abstract class SegmentBase {
     /* package */ final UrlTemplate initializationTemplate;
     /* package */ final UrlTemplate mediaTemplate;
 
-    private final Uri baseUrl;
+    private final String baseUrl;
 
     /**
      * @param initialization A {@link RangedUri} corresponding to initialization data, if such data
@@ -315,7 +313,7 @@ public abstract class SegmentBase {
     public SegmentTemplate(RangedUri initialization, long timescale, long presentationTimeOffset,
         long periodDurationMs, int startNumber, long duration,
         List<SegmentTimelineElement> segmentTimeline, UrlTemplate initializationTemplate,
-        UrlTemplate mediaTemplate, Uri baseUrl) {
+        UrlTemplate mediaTemplate, String baseUrl) {
       super(initialization, timescale, presentationTimeOffset, periodDurationMs, startNumber,
           duration, segmentTimeline);
       this.initializationTemplate = initializationTemplate;

@@ -42,8 +42,8 @@ public final class TeeDataSource implements DataSource {
     long dataLength = upstream.open(dataSpec);
     if (dataSpec.length == C.LENGTH_UNBOUNDED && dataLength != C.LENGTH_UNBOUNDED) {
       // Reconstruct dataSpec in order to provide the resolved length to the sink.
-      dataSpec = new DataSpec(dataSpec.uri, dataSpec.absoluteStreamPosition, dataLength,
-          dataSpec.key, dataSpec.position, dataSpec.uriIsFullStream);
+      dataSpec = new DataSpec(dataSpec.uri, dataSpec.absoluteStreamPosition, dataSpec.position,
+          dataLength, dataSpec.key, dataSpec.flags);
     }
     dataSink.open(dataSpec);
     return dataLength;

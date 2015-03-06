@@ -17,8 +17,6 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
 
-import android.net.Uri;
-
 import java.util.List;
 
 /**
@@ -70,7 +68,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public final boolean live;
   public final long durationUs;
 
-  public HlsMediaPlaylist(Uri baseUri, int mediaSequence, int targetDurationSecs, int version,
+  public HlsMediaPlaylist(String baseUri, int mediaSequence, int targetDurationSecs, int version,
       boolean live, List<Segment> segments) {
     super(baseUri, HlsPlaylist.TYPE_MEDIA);
     this.mediaSequence = mediaSequence;

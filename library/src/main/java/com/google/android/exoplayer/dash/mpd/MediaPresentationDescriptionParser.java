@@ -24,9 +24,9 @@ import com.google.android.exoplayer.dash.mpd.SegmentBase.SingleSegmentBase;
 import com.google.android.exoplayer.upstream.NetworkLoadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
 
-import android.net.Uri;
 import android.text.TextUtils;
 
 import org.xml.sax.helpers.DefaultHandler;
@@ -83,7 +83,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         throw new ParserException(
             "inputStream does not contain a valid media presentation description");
       }
-      return parseMediaPresentationDescription(xpp, Util.parseBaseUri(connectionUrl));
+      return parseMediaPresentationDescription(xpp, connectionUrl);
     } catch (XmlPullParserException e) {
       throw new ParserException(e);
     } catch (ParseException e) {
@@ -92,7 +92,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   }
 
   protected MediaPresentationDescription parseMediaPresentationDescription(XmlPullParser xpp,
-      Uri baseUrl) throws XmlPullParserException, IOException, ParseException {
+      String baseUrl) throws XmlPullParserException, IOException, ParseException {
     long availabilityStartTime = parseDateTime(xpp, "availabilityStartTime", -1);
     long durationMs = parseDuration(xpp, "mediaPresentationDuration", -1);
     long minBufferTimeMs = parseDuration(xpp, "minBufferTime", -1);
@@ -137,7 +137,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     return new UtcTimingElement(schemeIdUri, value);
   }
 
-  protected Period parsePeriod(XmlPullParser xpp, Uri baseUrl, long mpdDurationMs)
+  protected Period parsePeriod(XmlPullParser xpp, String baseUrl, long mpdDurationMs)
       throws XmlPullParserException, IOException {
     String id = xpp.getAttributeValue(null, "id");
     long startMs = parseDuration(xpp, "start", 0);
@@ -170,7 +170,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
   // AdaptationSet parsing.
 
-  protected AdaptationSet parseAdaptationSet(XmlPullParser xpp, Uri baseUrl, long periodStartMs,
+  protected AdaptationSet parseAdaptationSet(XmlPullParser xpp, String baseUrl, long periodStartMs,
       long periodDurationMs, SegmentBase segmentBase) throws XmlPullParserException, IOException {
 
     String mimeType = xpp.getAttributeValue(null, "mimeType");
@@ -287,9 +287,9 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
   // Representation parsing.
 
-  protected Representation parseRepresentation(XmlPullParser xpp, Uri baseUrl, long periodStartMs,
-      long periodDurationMs, String mimeType, String language, SegmentBase segmentBase)
-      throws XmlPullParserException, IOException {
+  protected Representation parseRepresentation(XmlPullParser xpp, String baseUrl,
+      long periodStartMs, long periodDurationMs, String mimeType, String language,
+      SegmentBase segmentBase) throws XmlPullParserException, IOException {
     String id = xpp.getAttributeValue(null, "id");
     int bandwidth = parseInt(xpp, "bandwidth");
     int audioSamplingRate = parseInt(xpp, "audioSamplingRate");
@@ -335,7 +335,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
   // SegmentBase, SegmentList and SegmentTemplate parsing.
 
-  protected SingleSegmentBase parseSegmentBase(XmlPullParser xpp, Uri baseUrl,
+  protected SingleSegmentBase parseSegmentBase(XmlPullParser xpp, String baseUrl,
       SingleSegmentBase parent) throws XmlPullParserException, IOException {
 
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
@@ -364,12 +364,12 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   }
 
   protected SingleSegmentBase buildSingleSegmentBase(RangedUri initialization, long timescale,
-      long presentationTimeOffset, Uri baseUrl, long indexStart, long indexLength) {
+      long presentationTimeOffset, String baseUrl, long indexStart, long indexLength) {
     return new SingleSegmentBase(initialization, timescale, presentationTimeOffset, baseUrl,
         indexStart, indexLength);
   }
 
-  protected SegmentList parseSegmentList(XmlPullParser xpp, Uri baseUrl, SegmentList parent,
+  protected SegmentList parseSegmentList(XmlPullParser xpp, String baseUrl, SegmentList parent,
       long periodDurationMs) throws XmlPullParserException, IOException {
 
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
@@ -413,7 +413,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         startNumber, duration, timeline, segments);
   }
 
-  protected SegmentTemplate parseSegmentTemplate(XmlPullParser xpp, Uri baseUrl,
+  protected SegmentTemplate parseSegmentTemplate(XmlPullParser xpp, String baseUrl,
       SegmentTemplate parent, long periodDurationMs) throws XmlPullParserException, IOException {
 
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
@@ -450,7 +450,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   protected SegmentTemplate buildSegmentTemplate(RangedUri initialization, long timescale,
       long presentationTimeOffset, long periodDurationMs, int startNumber, long duration,
       List<SegmentTimelineElement> timeline, UrlTemplate initializationTemplate,
-      UrlTemplate mediaTemplate, Uri baseUrl) {
+      UrlTemplate mediaTemplate, String baseUrl) {
     return new SegmentTemplate(initialization, timescale, presentationTimeOffset, periodDurationMs,
         startNumber, duration, timeline, initializationTemplate, mediaTemplate, baseUrl);
   }
@@ -487,15 +487,15 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     return defaultValue;
   }
 
-  protected RangedUri parseInitialization(XmlPullParser xpp, Uri baseUrl) {
+  protected RangedUri parseInitialization(XmlPullParser xpp, String baseUrl) {
     return parseRangedUrl(xpp, baseUrl, "sourceURL", "range");
   }
 
-  protected RangedUri parseSegmentUrl(XmlPullParser xpp, Uri baseUrl) {
+  protected RangedUri parseSegmentUrl(XmlPullParser xpp, String baseUrl) {
     return parseRangedUrl(xpp, baseUrl, "media", "mediaRange");
   }
 
-  protected RangedUri parseRangedUrl(XmlPullParser xpp, Uri baseUrl, String urlAttribute,
+  protected RangedUri parseRangedUrl(XmlPullParser xpp, String baseUrl, String urlAttribute,
       String rangeAttribute) {
     String urlText = xpp.getAttributeValue(null, urlAttribute);
     long rangeStart = 0;
@@ -509,7 +509,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     return buildRangedUri(baseUrl, urlText, rangeStart, rangeLength);
   }
 
-  protected RangedUri buildRangedUri(Uri baseUrl, String urlText, long rangeStart,
+  protected RangedUri buildRangedUri(String baseUrl, String urlText, long rangeStart,
       long rangeLength) {
     return new RangedUri(baseUrl, urlText, rangeStart, rangeLength);
   }
@@ -548,15 +548,10 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     }
   }
 
-  protected static Uri parseBaseUrl(XmlPullParser xpp, Uri parentBaseUrl)
+  protected static String parseBaseUrl(XmlPullParser xpp, String parentBaseUrl)
       throws XmlPullParserException, IOException {
     xpp.next();
-    String newBaseUrlText = xpp.getText();
-    Uri newBaseUri = Uri.parse(newBaseUrlText);
-    if (!newBaseUri.isAbsolute()) {
-      newBaseUri = Uri.withAppendedPath(parentBaseUrl, newBaseUrlText);
-    }
-    return newBaseUri;
+    return UriUtil.resolve(parentBaseUrl, xpp.getText());
   }
 
   protected static int parseInt(XmlPullParser xpp, String name) {

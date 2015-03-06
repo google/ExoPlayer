@@ -581,7 +581,7 @@ public class DashChunkSource implements ChunkSource {
       }
       if ((result & Extractor.RESULT_READ_INDEX) != 0) {
         representationHolders.get(format.id).segmentIndex =
-            new DashWrappingSegmentIndex(extractor.getIndex(), uri, indexAnchor);
+            new DashWrappingSegmentIndex(extractor.getIndex(), uri.toString(), indexAnchor);
       }
     }
 

@@ -32,6 +32,7 @@ import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.CancellationException;
 
 /**
@@ -173,6 +174,7 @@ public class UtcTimingElementResolver implements Loader.Callback {
       try {
         // TODO: It may be necessary to handle timestamp offsets from UTC.
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
         return format.parse(firstLine).getTime();
       } catch (ParseException e) {
         throw new ParserException(e);
