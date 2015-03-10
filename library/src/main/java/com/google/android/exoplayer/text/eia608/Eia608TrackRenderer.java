@@ -317,6 +317,11 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
       case ClosedCaptionCtrl.CARRIAGE_RETURN:
         maybeAppendNewline();
         return;
+      case ClosedCaptionCtrl.BACKSPACE:
+        if (captionStringBuilder.length() > 0) {
+          captionStringBuilder.setLength(captionStringBuilder.length() - 1);
+        }
+        return;
     }
   }
 
