@@ -486,29 +486,30 @@ public final class WebmExtractor implements Extractor {
             throw new ParserException("Extension bit is set in signal byte");
           }
           boolean isEncrypted = (signalByte[0] & 0x01) == 0x01;
-          byte[] iv = null;
           if (isEncrypted) {
+            byte[] iv = null;
             iv = sampleHolder.cryptoInfo.iv;
             if (iv == null || iv.length != BLOCK_COUNTER_SIZE) {
               iv = new byte[BLOCK_COUNTER_SIZE];
             }
             reader.readBytes(inputStream, iv, 8); // The container has only 8 bytes of IV.
             sampleHolder.size -= 8;
+
+            int[] clearDataSizes = sampleHolder.cryptoInfo.numBytesOfClearData;
+            if (clearDataSizes == null || clearDataSizes.length < 1) {
+              clearDataSizes = new int[1];
+            }
+            int[] encryptedDataSizes = sampleHolder.cryptoInfo.numBytesOfEncryptedData;
+            if (encryptedDataSizes == null || encryptedDataSizes.length < 1) {
+              encryptedDataSizes = new int[1];
+            }
+            clearDataSizes[0] = 0;
+            encryptedDataSizes[0] = sampleHolder.size;
+
+            sampleHolder.cryptoInfo.set(1, clearDataSizes, encryptedDataSizes,
+                encryptionKeyId, iv, MediaCodec.CRYPTO_MODE_AES_CTR);
             sampleHolder.flags |= MediaExtractor.SAMPLE_FLAG_ENCRYPTED;
           }
-          int[] numBytesOfClearData = sampleHolder.cryptoInfo.numBytesOfClearData;
-          if (numBytesOfClearData == null || numBytesOfClearData.length != 1) {
-            numBytesOfClearData = new int[1];
-          }
-          numBytesOfClearData[0] = isEncrypted ? 0 : sampleHolder.size;
-          int[] numBytesOfEncryptedData = sampleHolder.cryptoInfo.numBytesOfEncryptedData;
-          if (numBytesOfEncryptedData == null || numBytesOfEncryptedData.length != 1) {
-            numBytesOfEncryptedData = new int[1];
-          }
-          numBytesOfEncryptedData[0] = isEncrypted ? sampleHolder.size : 0;
-          sampleHolder.cryptoInfo.set(
-              1, numBytesOfClearData, numBytesOfEncryptedData, encryptionKeyId, iv,
-              isEncrypted ? MediaCodec.CRYPTO_MODE_AES_CTR : MediaCodec.CRYPTO_MODE_UNENCRYPTED);
         }
 
         if (sampleHolder.data == null || sampleHolder.data.capacity() < sampleHolder.size) {

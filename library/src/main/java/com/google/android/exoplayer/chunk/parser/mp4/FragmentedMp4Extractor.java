@@ -799,8 +799,11 @@ public final class FragmentedMp4Extractor implements Extractor {
   private void readSampleEncryptionData(ParsableByteArray sampleEncryptionData, SampleHolder out) {
     TrackEncryptionBox encryptionBox =
         track.sampleDescriptionEncryptionBoxes[fragmentRun.sampleDescriptionIndex];
+    if (!encryptionBox.isEncrypted) {
+      return;
+    }
+
     byte[] keyId = encryptionBox.keyId;
-    boolean isEncrypted = encryptionBox.isEncrypted;
     int vectorSize = encryptionBox.initializationVectorSize;
     boolean subsampleEncryption = fragmentRun.sampleHasSubsampleEncryptionTable[sampleIndex];
 
@@ -828,11 +831,10 @@ public final class FragmentedMp4Extractor implements Extractor {
       clearDataSizes[0] = 0;
       encryptedDataSizes[0] = fragmentRun.sampleSizeTable[sampleIndex];
     }
+
     out.cryptoInfo.set(subsampleCount, clearDataSizes, encryptedDataSizes, keyId, vector,
-        isEncrypted ? MediaCodec.CRYPTO_MODE_AES_CTR : MediaCodec.CRYPTO_MODE_UNENCRYPTED);
-    if (isEncrypted) {
-      out.flags |= MediaExtractor.SAMPLE_FLAG_ENCRYPTED;
-    }
+        MediaCodec.CRYPTO_MODE_AES_CTR);
+    out.flags |= MediaExtractor.SAMPLE_FLAG_ENCRYPTED;
   }
 
 }
