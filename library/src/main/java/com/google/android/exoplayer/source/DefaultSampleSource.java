@@ -62,9 +62,14 @@ public final class DefaultSampleSource implements SampleSource {
 
     if (sampleExtractor.prepare()) {
       prepared = true;
-      trackInfos = sampleExtractor.getTrackInfos();
-      trackStates = new int[trackInfos.length];
-      pendingDiscontinuities = new boolean[trackInfos.length];
+      int trackCount = sampleExtractor.getTrackCount();
+      trackStates = new int[trackCount];
+      pendingDiscontinuities = new boolean[trackCount];
+      trackInfos = new TrackInfo[trackCount];
+      for (int track = 0; track < trackCount; track++) {
+        String mimeType = sampleExtractor.getMediaFormat(track).mimeType;
+        trackInfos[track] = new TrackInfo(mimeType, sampleExtractor.getDurationUs(track));
+      }
     }
 
     return prepared;
@@ -119,7 +124,8 @@ public final class DefaultSampleSource implements SampleSource {
       return NOTHING_READ;
     }
     if (trackStates[track] != TRACK_STATE_FORMAT_SENT) {
-      sampleExtractor.getTrackMediaFormat(track, formatHolder);
+      formatHolder.format = sampleExtractor.getMediaFormat(track);
+      formatHolder.drmInitData = sampleExtractor.getDrmInitData(track);
       trackStates[track] = TRACK_STATE_FORMAT_SENT;
       return FORMAT_READ;
     }
