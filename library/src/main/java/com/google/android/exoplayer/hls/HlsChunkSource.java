@@ -387,16 +387,24 @@ public class HlsChunkSource {
 
   private int getNextVariantIndex(TsChunk previousTsChunk, long playbackPositionUs) {
     clearStaleBlacklistedPlaylists();
+    if (previousTsChunk == null) {
+      // Don't consider switching if we don't have a previous chunk.
+      return variantIndex;
+    }
+    long bitrateEstimate = bandwidthMeter.getBitrateEstimate();
+    if (bitrateEstimate == BandwidthMeter.NO_ESTIMATE) {
+      // Don't consider switching if we don't have a bandwidth estimate.
+      return variantIndex;
+    }
     int idealVariantIndex = getVariantIndexForBandwdith(
-        (int) (bandwidthMeter.getBitrateEstimate() * BANDWIDTH_FRACTION));
+        (int) (bitrateEstimate * BANDWIDTH_FRACTION));
     if (idealVariantIndex == variantIndex) {
       // We're already using the ideal variant.
       return variantIndex;
     }
     // We're not using the ideal variant for the available bandwidth, but only switch if the
     // conditions are appropriate.
-    long bufferedPositionUs = previousTsChunk == null ? playbackPositionUs
-        : adaptiveMode == ADAPTIVE_MODE_SPLICE ? previousTsChunk.startTimeUs
+    long bufferedPositionUs = adaptiveMode == ADAPTIVE_MODE_SPLICE ? previousTsChunk.startTimeUs
         : previousTsChunk.endTimeUs;
     long bufferedUs = bufferedPositionUs - playbackPositionUs;
     if (mediaPlaylistBlacklistTimesMs[variantIndex] != 0
