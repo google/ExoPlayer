@@ -15,20 +15,23 @@
  */
 package com.google.android.exoplayer.hls;
 
-import java.util.List;
-
 /**
- * Represents an HLS master playlist.
+ * Subtitle media tag.
  */
-public final class HlsMasterPlaylist extends HlsPlaylist {
+public final class Subtitle {
 
-  public final List<Variant> variants;
-  public final List<Subtitle> subtitles;
+  public final String name;
+  public final String uri;
+  public final String language;
+  public final boolean isDefault;
+  public final boolean autoSelect;
 
-  public HlsMasterPlaylist(String baseUri, List<Variant> variants, List<Subtitle> subtitles) {
-    super(baseUri, HlsPlaylist.TYPE_MASTER);
-    this.variants = variants;
-    this.subtitles = subtitles;
+  public Subtitle(String name, String uri, String language, boolean isDefault, boolean autoSelect) {
+    this.name = name;
+    this.uri = uri;
+    this.language = language;
+    this.autoSelect = autoSelect;
+    this.isDefault = isDefault;
   }
 
 }
