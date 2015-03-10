@@ -81,9 +81,6 @@ public interface SampleExtractor {
   /** Returns the DRM initialization data for {@code track}. */
   Map<UUID, byte[]> getDrmInitData(int track);
 
-  /** Returns the duration of {@code track} in microseconds. */
-  long getDurationUs(int track);
-
   /**
    * Reads the next sample in the track at index {@code track} into {@code sampleHolder}, returning
    * {@link SampleSource#SAMPLE_READ} if it is available.

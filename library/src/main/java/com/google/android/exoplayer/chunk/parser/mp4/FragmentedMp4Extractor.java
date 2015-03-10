@@ -199,11 +199,6 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   @Override
-  public long getDurationUs() {
-    return track == null ? C.UNKNOWN_TIME_US : track.durationUs;
-  }
-
-  @Override
   public int read(NonBlockingInputStream inputStream, SampleHolder out)
       throws ParserException {
     try {

@@ -40,6 +40,8 @@ public class MediaFormat {
   public final String mimeType;
   public final int maxInputSize;
 
+  public final long durationUs;
+
   public final int width;
   public final int height;
   public final float pixelWidthHeightRatio;
@@ -49,10 +51,10 @@ public class MediaFormat {
 
   public final int bitrate;
 
+  public final List<byte[]> initializationData;
+
   private int maxWidth;
   private int maxHeight;
-
-  public final List<byte[]> initializationData;
 
   // Lazy-initialized hashcode.
   private int hashCode;
@@ -66,25 +68,38 @@ public class MediaFormat {
 
   public static MediaFormat createVideoFormat(String mimeType, int maxInputSize, int width,
       int height, List<byte[]> initializationData) {
-    return createVideoFormat(mimeType, maxInputSize, width, height, 1, initializationData);
+    return createVideoFormat(
+        mimeType, maxInputSize, C.UNKNOWN_TIME_US, width, height, initializationData);
   }
 
-  public static MediaFormat createVideoFormat(String mimeType, int maxInputSize, int width,
-      int height, float pixelWidthHeightRatio, List<byte[]> initializationData) {
-    return new MediaFormat(mimeType, maxInputSize, width, height, pixelWidthHeightRatio, NO_VALUE,
-        NO_VALUE, NO_VALUE, initializationData);
+  public static MediaFormat createVideoFormat(String mimeType, int maxInputSize, long durationUs,
+      int width, int height, List<byte[]> initializationData) {
+    return createVideoFormat(
+        mimeType, maxInputSize, durationUs, width, height, 1, initializationData);
+  }
+
+  public static MediaFormat createVideoFormat(String mimeType, int maxInputSize, long durationUs,
+      int width, int height, float pixelWidthHeightRatio, List<byte[]> initializationData) {
+    return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, pixelWidthHeightRatio,
+        NO_VALUE, NO_VALUE, NO_VALUE, initializationData);
   }
 
   public static MediaFormat createAudioFormat(String mimeType, int maxInputSize, int channelCount,
       int sampleRate, List<byte[]> initializationData) {
-    return new MediaFormat(mimeType, maxInputSize, NO_VALUE, NO_VALUE, NO_VALUE, channelCount,
-        sampleRate, NO_VALUE, initializationData);
+    return createAudioFormat(
+        mimeType, maxInputSize, C.UNKNOWN_TIME_US, channelCount, sampleRate, initializationData);
   }
 
-  public static MediaFormat createAudioFormat(String mimeType, int maxInputSize, int channelCount,
-      int sampleRate, int bitrate, List<byte[]> initializationData) {
-    return new MediaFormat(mimeType, maxInputSize, NO_VALUE, NO_VALUE, NO_VALUE, channelCount,
-        sampleRate, bitrate, initializationData);
+  public static MediaFormat createAudioFormat(String mimeType, int maxInputSize, long durationUs,
+      int channelCount, int sampleRate, List<byte[]> initializationData) {
+    return createAudioFormat(
+        mimeType, maxInputSize, durationUs, channelCount, sampleRate, NO_VALUE, initializationData);
+  }
+
+  public static MediaFormat createAudioFormat(String mimeType, int maxInputSize, long durationUs,
+      int channelCount, int sampleRate, int bitrate, List<byte[]> initializationData) {
+    return new MediaFormat(mimeType, maxInputSize, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
+        channelCount, sampleRate, bitrate, initializationData);
   }
 
   public static MediaFormat createId3Format() {
@@ -100,8 +115,8 @@ public class MediaFormat {
   }
 
   public static MediaFormat createFormatForMimeType(String mimeType) {
-    return new MediaFormat(mimeType, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, null);
+    return new MediaFormat(mimeType, NO_VALUE, C.UNKNOWN_TIME_US, NO_VALUE, NO_VALUE, NO_VALUE,
+        NO_VALUE, NO_VALUE, NO_VALUE, null);
   }
 
   @TargetApi(16)
@@ -123,15 +138,18 @@ public class MediaFormat {
       initializationData.add(data);
       buffer.flip();
     }
+    durationUs = format.containsKey(android.media.MediaFormat.KEY_DURATION)
+        ? format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
     maxWidth = NO_VALUE;
     maxHeight = NO_VALUE;
   }
 
-  private MediaFormat(String mimeType, int maxInputSize, int width, int height,
+  private MediaFormat(String mimeType, int maxInputSize, long durationUs, int width, int height,
       float pixelWidthHeightRatio, int channelCount, int sampleRate, int bitrate,
       List<byte[]> initializationData) {
     this.mimeType = mimeType;
     this.maxInputSize = maxInputSize;
+    this.durationUs = durationUs;
     this.width = width;
     this.height = height;
     this.pixelWidthHeightRatio = pixelWidthHeightRatio;
@@ -169,6 +187,7 @@ public class MediaFormat {
       result = 31 * result + width;
       result = 31 * result + height;
       result = 31 * result + Float.floatToRawIntBits(pixelWidthHeightRatio);
+      result = 31 * result + (int) durationUs;
       result = 31 * result + maxWidth;
       result = 31 * result + maxHeight;
       result = 31 * result + channelCount;
@@ -225,7 +244,7 @@ public class MediaFormat {
   public String toString() {
     return "MediaFormat(" + mimeType + ", " + maxInputSize + ", " + width + ", " + height + ", "
         + pixelWidthHeightRatio + ", " + channelCount + ", " + sampleRate + ", " + bitrate + ", "
-        + maxWidth + ", " + maxHeight + ")";
+        + durationUs + ", " + maxWidth + ", " + maxHeight + ")";
   }
 
   /**
@@ -245,6 +264,9 @@ public class MediaFormat {
       maybeSetFloatV16(format, KEY_PIXEL_WIDTH_HEIGHT_RATIO, pixelWidthHeightRatio);
       for (int i = 0; i < initializationData.size(); i++) {
         format.setByteBuffer("csd-" + i, ByteBuffer.wrap(initializationData.get(i)));
+      }
+      if (durationUs != C.UNKNOWN_TIME_US) {
+        format.setLong(android.media.MediaFormat.KEY_DURATION, durationUs);
       }
       maybeSetMaxDimensionsV16(format);
       frameworkMediaFormat = format;

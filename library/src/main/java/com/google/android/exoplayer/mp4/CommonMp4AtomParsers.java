@@ -67,7 +67,7 @@ public final class CommonMp4AtomParsers {
 
     long mediaTimescale = parseMdhd(mdia.getLeafAtomOfType(Atom.TYPE_mdhd).data);
     Pair<MediaFormat, TrackEncryptionBox[]> sampleDescriptions =
-        parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data);
+        parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, durationUs);
     return new Track(id, trackType, mediaTimescale, durationUs, sampleDescriptions.first,
           sampleDescriptions.second);
   }
@@ -321,7 +321,8 @@ public final class CommonMp4AtomParsers {
     return mdhd.readUnsignedInt();
   }
 
-  private static Pair<MediaFormat, TrackEncryptionBox[]> parseStsd(ParsableByteArray stsd) {
+  private static Pair<MediaFormat, TrackEncryptionBox[]> parseStsd(
+      ParsableByteArray stsd, long durationUs) {
     stsd.setPosition(Mp4Util.FULL_ATOM_HEADER_SIZE);
     int numberOfEntries = stsd.readInt();
     MediaFormat mediaFormat = null;
@@ -334,19 +335,19 @@ public final class CommonMp4AtomParsers {
       if (childAtomType == Atom.TYPE_avc1 || childAtomType == Atom.TYPE_avc3
           || childAtomType == Atom.TYPE_encv) {
         Pair<MediaFormat, TrackEncryptionBox> avc =
-            parseAvcFromParent(stsd, childStartPosition, childAtomSize);
+            parseAvcFromParent(stsd, childStartPosition, childAtomSize, durationUs);
         mediaFormat = avc.first;
         trackEncryptionBoxes[i] = avc.second;
       } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca
           || childAtomType == Atom.TYPE_ac_3) {
-        Pair<MediaFormat, TrackEncryptionBox> audioSampleEntry =
-            parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize);
+        Pair<MediaFormat, TrackEncryptionBox> audioSampleEntry = parseAudioSampleEntry(stsd,
+            childAtomType, childStartPosition, childAtomSize, durationUs);
         mediaFormat = audioSampleEntry.first;
         trackEncryptionBoxes[i] = audioSampleEntry.second;
       } else if (childAtomType == Atom.TYPE_TTML) {
         mediaFormat = MediaFormat.createTtmlFormat();
       } else if (childAtomType == Atom.TYPE_mp4v) {
-        mediaFormat = parseMp4vFromParent(stsd, childStartPosition, childAtomSize);
+        mediaFormat = parseMp4vFromParent(stsd, childStartPosition, childAtomSize, durationUs);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
@@ -355,7 +356,7 @@ public final class CommonMp4AtomParsers {
 
   /** Returns the media format for an avc1 box. */
   private static Pair<MediaFormat, TrackEncryptionBox> parseAvcFromParent(ParsableByteArray parent,
-      int position, int size) {
+      int position, int size, long durationUs) {
     parent.setPosition(position + Mp4Util.ATOM_HEADER_SIZE);
 
     parent.skip(24);
@@ -388,7 +389,7 @@ public final class CommonMp4AtomParsers {
     }
 
     MediaFormat format = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
-        width, height, pixelWidthHeightRatio, initializationData);
+        durationUs, width, height, pixelWidthHeightRatio, initializationData);
     return Pair.create(format, trackEncryptionBox);
   }
 
@@ -468,8 +469,8 @@ public final class CommonMp4AtomParsers {
   }
 
   /** Returns the media format for an mp4v box. */
-  private static MediaFormat parseMp4vFromParent(ParsableByteArray parent,
-      int position, int size) {
+  private static MediaFormat parseMp4vFromParent(ParsableByteArray parent, int position, int size,
+      long durationUs) {
     parent.setPosition(position + Mp4Util.ATOM_HEADER_SIZE);
 
     parent.skip(24);
@@ -492,11 +493,11 @@ public final class CommonMp4AtomParsers {
     }
 
     return MediaFormat.createVideoFormat(
-        MimeTypes.VIDEO_MP4V, MediaFormat.NO_VALUE, width, height, initializationData);
+        MimeTypes.VIDEO_MP4V, MediaFormat.NO_VALUE, durationUs, width, height, initializationData);
   }
 
   private static Pair<MediaFormat, TrackEncryptionBox> parseAudioSampleEntry(
-      ParsableByteArray parent, int atomType, int position, int size) {
+      ParsableByteArray parent, int atomType, int position, int size, long durationUs) {
     parent.setPosition(position + Mp4Util.ATOM_HEADER_SIZE);
     parent.skip(16);
     int channelCount = parent.readUnsignedShort();
@@ -555,7 +556,7 @@ public final class CommonMp4AtomParsers {
     }
 
     MediaFormat format = MediaFormat.createAudioFormat(
-        mimeType, sampleSize, channelCount, sampleRate, bitrate,
+        mimeType, sampleSize, durationUs, channelCount, sampleRate, bitrate,
         initializationData == null ? null : Collections.singletonList(initializationData));
     return Pair.create(format, trackEncryptionBox);
   }

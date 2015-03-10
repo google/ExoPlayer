@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.source;
 
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
@@ -144,13 +143,6 @@ public final class FrameworkSampleExtractor implements SampleExtractor {
   @Override
   public Map<UUID, byte[]> getDrmInitData(int track) {
     return Util.SDK_INT >= 18 ? getPsshInfoV18() : null;
-  }
-
-  @Override
-  public long getDurationUs(int track) {
-    android.media.MediaFormat format = mediaExtractor.getTrackFormat(track);
-    return format.containsKey(android.media.MediaFormat.KEY_DURATION)
-        ? format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
   }
 
   @Override

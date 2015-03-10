@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.chunk.parser;
 
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
@@ -78,11 +77,6 @@ public interface Extractor {
    * @return The sample media format, or null if the format has yet to be parsed.
    */
   public MediaFormat getFormat();
-
-  /**
-   * Returns the duration of the stream in microseconds, or {@link C#UNKNOWN_TIME_US} if unknown.
-   */
-  public long getDurationUs();
 
   /**
    * Returns the pssh information parsed from the stream.

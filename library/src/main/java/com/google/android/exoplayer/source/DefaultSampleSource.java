@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.source;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
@@ -67,8 +68,8 @@ public final class DefaultSampleSource implements SampleSource {
       pendingDiscontinuities = new boolean[trackCount];
       trackInfos = new TrackInfo[trackCount];
       for (int track = 0; track < trackCount; track++) {
-        String mimeType = sampleExtractor.getMediaFormat(track).mimeType;
-        trackInfos[track] = new TrackInfo(mimeType, sampleExtractor.getDurationUs(track));
+        MediaFormat mediaFormat = sampleExtractor.getMediaFormat(track);
+        trackInfos[track] = new TrackInfo(mediaFormat.mimeType, mediaFormat.durationUs);
       }
     }
 

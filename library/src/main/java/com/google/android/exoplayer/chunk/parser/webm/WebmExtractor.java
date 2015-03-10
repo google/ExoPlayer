@@ -104,7 +104,7 @@ public final class WebmExtractor implements Extractor {
   private long segmentStartOffsetBytes = UNKNOWN;
   private long segmentEndOffsetBytes = UNKNOWN;
   private long timecodeScale = 1000000L;
-  private long durationUs = UNKNOWN;
+  private long durationUs = C.UNKNOWN_TIME_US;
   private int pixelWidth = UNKNOWN;
   private int pixelHeight = UNKNOWN;
   private int channelCount = UNKNOWN;
@@ -179,11 +179,6 @@ public final class WebmExtractor implements Extractor {
   @Override
   public MediaFormat getFormat() {
     return format;
-  }
-
-  @Override
-  public long getDurationUs() {
-    return durationUs == UNKNOWN ? C.UNKNOWN_TIME_US : durationUs;
   }
 
   @Override
@@ -463,8 +458,8 @@ public final class WebmExtractor implements Extractor {
   private void buildVideoFormat() throws ParserException {
     if (pixelWidth != UNKNOWN && pixelHeight != UNKNOWN
         && (format == null || format.width != pixelWidth || format.height != pixelHeight)) {
-      format = MediaFormat.createVideoFormat(
-          MimeTypes.VIDEO_VP9, MediaFormat.NO_VALUE, pixelWidth, pixelHeight, null);
+      format = MediaFormat.createVideoFormat(MimeTypes.VIDEO_VP9, MediaFormat.NO_VALUE, durationUs,
+          pixelWidth, pixelHeight, null);
       readResults |= RESULT_READ_INIT;
     } else if (format == null) {
       throw new ParserException("Unable to build format");
@@ -485,17 +480,15 @@ public final class WebmExtractor implements Extractor {
         && (format == null || format.channelCount != channelCount
             || format.sampleRate != sampleRate)) {
       if (CODEC_ID_VORBIS.equals(codecId)) {
-        format = MediaFormat.createAudioFormat(
-            MimeTypes.AUDIO_VORBIS, VORBIS_MAX_INPUT_SIZE,
-            channelCount, sampleRate, parseVorbisCodecPrivate());
+        format = MediaFormat.createAudioFormat(MimeTypes.AUDIO_VORBIS, VORBIS_MAX_INPUT_SIZE,
+            durationUs, channelCount, sampleRate, parseVorbisCodecPrivate());
       } else if (CODEC_ID_OPUS.equals(codecId)) {
         ArrayList<byte[]> opusInitializationData = new ArrayList<byte[]>(3);
         opusInitializationData.add(codecPrivate);
         opusInitializationData.add(ByteBuffer.allocate(Long.SIZE).putLong(codecDelayNs).array());
         opusInitializationData.add(ByteBuffer.allocate(Long.SIZE).putLong(seekPreRollNs).array());
-        format = MediaFormat.createAudioFormat(
-            MimeTypes.AUDIO_OPUS, OPUS_MAX_INPUT_SIZE, channelCount, sampleRate,
-            opusInitializationData);
+        format = MediaFormat.createAudioFormat(MimeTypes.AUDIO_OPUS, OPUS_MAX_INPUT_SIZE,
+            durationUs, channelCount, sampleRate, opusInitializationData);
       }
       readResults |= RESULT_READ_INIT;
     } else if (format == null) {
@@ -512,7 +505,7 @@ public final class WebmExtractor implements Extractor {
   private void buildCues() throws ParserException {
     if (segmentStartOffsetBytes == UNKNOWN) {
       throw new ParserException("Segment start/end offsets unknown");
-    } else if (durationUs == UNKNOWN) {
+    } else if (durationUs == C.UNKNOWN_TIME_US) {
       throw new ParserException("Duration unknown");
     } else if (cuesSizeBytes == UNKNOWN) {
       throw new ParserException("Cues size unknown");
