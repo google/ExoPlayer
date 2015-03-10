@@ -352,7 +352,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     if (mediaFormat != null && !mediaFormat.equals(downstreamMediaFormat, true)) {
       chunkSource.getMaxVideoDimensions(mediaFormat);
       formatHolder.format = mediaFormat;
-      formatHolder.drmInitData = mediaChunk.getPsshInfo();
+      formatHolder.drmInitData = mediaChunk.getDrmInitData();
       downstreamMediaFormat = mediaFormat;
       return FORMAT_READ;
     }

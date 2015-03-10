@@ -19,13 +19,11 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.chunk.parser.Extractor;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.Assertions;
-
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * A {@link MediaChunk} extracted from a container.
@@ -38,7 +36,7 @@ public final class ContainerMediaChunk extends MediaChunk {
 
   private boolean prepared;
   private MediaFormat mediaFormat;
-  private Map<UUID, byte[]> psshInfo;
+  private DrmInitData drmInitData;
 
   /**
    * @deprecated Use the other constructor, passing null as {@code psshInfo}.
@@ -60,8 +58,9 @@ public final class ContainerMediaChunk extends MediaChunk {
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param nextChunkIndex The index of the next chunk, or -1 if this is the last chunk.
    * @param extractor The extractor that will be used to extract the samples.
-   * @param psshInfo Pssh data. May be null if pssh data is present within the stream, meaning it
-   *     can be obtained directly from {@code extractor}, or if no pssh data is required.
+   * @param drmInitData DRM initialization data. May be null if DRM initialization data is present
+   *     within the stream, meaning it can be obtained directly from {@code extractor}, or if no
+   *     DRM initialization data is required.
    * @param maybeSelfContained Set to true if this chunk might be self contained, meaning it might
    *     contain a moov atom defining the media format of the chunk. This parameter can always be
    *     safely set to true. Setting to false where the chunk is known to not be self contained may
@@ -70,12 +69,12 @@ public final class ContainerMediaChunk extends MediaChunk {
    */
   public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, Format format,
       int trigger, long startTimeUs, long endTimeUs, int nextChunkIndex, Extractor extractor,
-      Map<UUID, byte[]> psshInfo, boolean maybeSelfContained, long sampleOffsetUs) {
+      DrmInitData drmInitData, boolean maybeSelfContained, long sampleOffsetUs) {
     super(dataSource, dataSpec, format, trigger, startTimeUs, endTimeUs, nextChunkIndex);
     this.extractor = extractor;
     this.maybeSelfContained = maybeSelfContained;
     this.sampleOffsetUs = sampleOffsetUs;
-    this.psshInfo = psshInfo;
+    this.drmInitData = drmInitData;
   }
 
   @Override
@@ -111,9 +110,9 @@ public final class ContainerMediaChunk extends MediaChunk {
       }
       if (prepared) {
         mediaFormat = extractor.getFormat();
-        Map<UUID, byte[]> extractorPsshInfo = extractor.getPsshInfo();
-        if (extractorPsshInfo != null) {
-          psshInfo = extractorPsshInfo;
+        DrmInitData extractorDrmInitData = extractor.getDrmInitData();
+        if (extractorDrmInitData != null) {
+          drmInitData = extractorDrmInitData;
         }
       }
     }
@@ -145,8 +144,8 @@ public final class ContainerMediaChunk extends MediaChunk {
   }
 
   @Override
-  public Map<UUID, byte[]> getPsshInfo() {
-    return psshInfo;
+  public DrmInitData getDrmInitData() {
+    return drmInitData;
   }
 
 }

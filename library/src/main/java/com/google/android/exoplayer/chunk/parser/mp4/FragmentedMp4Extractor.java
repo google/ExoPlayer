@@ -21,6 +21,7 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.chunk.parser.Extractor;
 import com.google.android.exoplayer.chunk.parser.SegmentIndex;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.mp4.Atom;
 import com.google.android.exoplayer.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer.mp4.Atom.LeafAtom;
@@ -28,6 +29,7 @@ import com.google.android.exoplayer.mp4.CommonMp4AtomParsers;
 import com.google.android.exoplayer.mp4.Mp4Util;
 import com.google.android.exoplayer.mp4.Track;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
@@ -38,10 +40,8 @@ import android.media.MediaExtractor;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
@@ -145,7 +145,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   private int lastSyncSampleIndex;
 
   // Data parsed from moov and sidx atoms
-  private final HashMap<UUID, byte[]> psshData;
+  private DrmInitData.Mapped drmInitData;
   private SegmentIndex segmentIndex;
   private Track track;
   private DefaultSampleValues extendsDefaults;
@@ -165,7 +165,6 @@ public final class FragmentedMp4Extractor implements Extractor {
     extendedTypeScratch = new byte[16];
     containerAtoms = new Stack<ContainerAtom>();
     fragmentRun = new TrackFragment();
-    psshData = new HashMap<UUID, byte[]>();
   }
 
   /**
@@ -179,8 +178,8 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   @Override
-  public Map<UUID, byte[]> getPsshInfo() {
-    return psshData.isEmpty() ? null : psshData;
+  public DrmInitData getDrmInitData() {
+    return drmInitData;
   }
 
   @Override
@@ -370,7 +369,10 @@ public final class FragmentedMp4Extractor implements Extractor {
         int dataSize = psshAtom.readInt();
         byte[] data = new byte[dataSize];
         psshAtom.readBytes(data, 0, dataSize);
-        psshData.put(uuid, data);
+        if (drmInitData == null) {
+          drmInitData = new DrmInitData.Mapped(MimeTypes.VIDEO_MP4);
+        }
+        drmInitData.put(uuid, data);
       }
     }
     ContainerAtom mvex = moov.getContainerAtomOfType(Atom.TYPE_mvex);

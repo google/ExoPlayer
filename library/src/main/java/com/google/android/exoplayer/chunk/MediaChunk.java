@@ -18,11 +18,9 @@ package com.google.android.exoplayer.chunk;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
-
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * An abstract base class for {@link Chunk}s that contain media samples.
@@ -129,12 +127,12 @@ public abstract class MediaChunk extends Chunk {
   public abstract MediaFormat getMediaFormat();
 
   /**
-   * Returns the pssh information associated with the chunk.
+   * Returns the DRM initialization data associated with the chunk.
    * <p>
    * Should only be called after the chunk has been successfully prepared.
    *
-   * @return The pssh information.
+   * @return The DRM initialization data.
    */
-  public abstract Map<UUID, byte[]> getPsshInfo();
+  public abstract DrmInitData getDrmInitData();
 
 }

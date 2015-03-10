@@ -19,7 +19,9 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
@@ -141,8 +143,8 @@ public final class FrameworkSampleExtractor implements SampleExtractor {
   }
 
   @Override
-  public Map<UUID, byte[]> getDrmInitData(int track) {
-    return Util.SDK_INT >= 18 ? getPsshInfoV18() : null;
+  public DrmInitData getDrmInitData(int track) {
+    return Util.SDK_INT >= 18 ? getDrmInitDataV18() : null;
   }
 
   @Override
@@ -176,9 +178,15 @@ public final class FrameworkSampleExtractor implements SampleExtractor {
   }
 
   @TargetApi(18)
-  private Map<UUID, byte[]> getPsshInfoV18() {
+  private DrmInitData getDrmInitDataV18() {
+    // MediaExtractor only supports psshInfo for MP4, so it's ok to hard code the mimeType here.
     Map<UUID, byte[]> psshInfo = mediaExtractor.getPsshInfo();
-    return (psshInfo == null || psshInfo.isEmpty()) ? null : psshInfo;
+    if (psshInfo == null || psshInfo.isEmpty()) {
+      return null;
+    }
+    DrmInitData.Mapped drmInitData = new DrmInitData.Mapped(MimeTypes.VIDEO_MP4);
+    drmInitData.putAll(psshInfo);
+    return drmInitData;
   }
 
 }

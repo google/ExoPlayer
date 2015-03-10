@@ -20,10 +20,12 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.chunk.parser.SegmentIndex;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.upstream.ByteArrayNonBlockingInputStream;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.MimeTypes;
 
+import android.annotation.SuppressLint;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.test.InstrumentationTestCase;
@@ -31,7 +33,6 @@ import android.test.InstrumentationTestCase;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.UUID;
 
 public class WebmExtractorTest extends InstrumentationTestCase {
@@ -56,6 +57,7 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   private static final int TEST_VORBIS_BOOKS_SIZE = 4140;
   private static final byte[] TEST_ENCRYPTION_KEY_ID = { 0x00, 0x01, 0x02, 0x03 };
   private static final UUID WIDEVINE_UUID = new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
+  private static final UUID ZERO_UUID = new UUID(0, 0);
   // First 8 bytes of IV come from the container, last 8 bytes are always initialized to 0.
   private static final byte[] TEST_INITIALIZATION_VECTOR = {
       0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -110,10 +112,10 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     assertEquals(EXPECTED_INIT_RESULT, extractor.read(testInputStream, sampleHolder));
     assertFormat();
     assertIndex(new IndexPoint(0, 0, TEST_DURATION_US));
-    Map<UUID, byte[]> psshInfo = extractor.getPsshInfo();
-    assertNotNull(psshInfo);
-    assertTrue(psshInfo.containsKey(WIDEVINE_UUID));
-    android.test.MoreAsserts.assertEquals(TEST_ENCRYPTION_KEY_ID, psshInfo.get(WIDEVINE_UUID));
+    DrmInitData drmInitData = extractor.getDrmInitData();
+    assertNotNull(drmInitData);
+    android.test.MoreAsserts.assertEquals(TEST_ENCRYPTION_KEY_ID, drmInitData.get(WIDEVINE_UUID));
+    android.test.MoreAsserts.assertEquals(TEST_ENCRYPTION_KEY_ID, drmInitData.get(ZERO_UUID));
   }
 
   public void testPrepareThreeCuePoints() throws ParserException {
@@ -353,6 +355,7 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     }
   }
 
+  @SuppressLint("InlinedApi")
   private void assertSample(
       MediaSegment mediaSegment, int timeUs, boolean keyframe, boolean invisible,
       boolean encrypted) {
@@ -695,7 +698,7 @@ public class WebmExtractorTest extends InstrumentationTestCase {
 
   }
 
-  /** Used by {@link createTracksElementWithVideo} to create a Track header with Encryption. */
+  /** Used by {@link #createTracksElementWithVideo} to create a Track header with Encryption. */
   private static final class ContentEncodingSettings {
 
     private final int order;

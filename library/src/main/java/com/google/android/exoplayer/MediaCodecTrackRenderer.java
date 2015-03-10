@@ -16,6 +16,7 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
@@ -33,8 +34,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * An abstract {@link TrackRenderer} that uses {@link MediaCodec} to decode samples for rendering.
@@ -164,7 +163,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   protected final Handler eventHandler;
 
   private MediaFormat format;
-  private Map<UUID, byte[]> drmInitData;
+  private DrmInitData drmInitData;
   private MediaCodec codec;
   private boolean codecIsAdaptive;
   private ByteBuffer[] inputBuffers;
@@ -281,7 +280,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         throw new ExoPlaybackException("Media requires a DrmSessionManager");
       }
       if (!openedDrmSession) {
-        drmSessionManager.open(drmInitData, mimeType);
+        drmSessionManager.open(drmInitData);
         openedDrmSession = true;
       }
       int drmSessionState = drmSessionManager.getState();

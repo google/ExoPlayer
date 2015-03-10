@@ -19,10 +19,9 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.drm.DrmInitData;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * Extractor for reading track metadata and samples stored in tracks.
@@ -79,7 +78,7 @@ public interface SampleExtractor {
   MediaFormat getMediaFormat(int track);
 
   /** Returns the DRM initialization data for {@code track}. */
-  Map<UUID, byte[]> getDrmInitData(int track);
+  DrmInitData getDrmInitData(int track);
 
   /**
    * Reads the next sample in the track at index {@code track} into {@code sampleHolder}, returning

@@ -21,19 +21,18 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.chunk.parser.Extractor;
 import com.google.android.exoplayer.chunk.parser.SegmentIndex;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.LongArray;
 import com.google.android.exoplayer.util.MimeTypes;
 
+import android.annotation.SuppressLint;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -111,7 +110,7 @@ public final class WebmExtractor implements Extractor {
 
   private final EbmlReader reader;
   private final byte[] simpleBlockTimecodeAndFlags = new byte[3];
-  private final HashMap<UUID, byte[]> psshInfo = new HashMap<UUID, byte[]>();
+  private DrmInitData.Universal drmInitData;
 
   private SampleHolder sampleHolder;
   private int readResults;
@@ -199,8 +198,8 @@ public final class WebmExtractor implements Extractor {
   }
 
   @Override
-  public Map<UUID, byte[]> getPsshInfo() {
-    return psshInfo.isEmpty() ? null : psshInfo;
+  public DrmInitData getDrmInitData() {
+    return drmInitData;
   }
 
   /* package */ int getElementType(int id) {
@@ -296,8 +295,7 @@ public final class WebmExtractor implements Extractor {
         if (encryptionKeyId == null) {
           throw new ParserException("Encrypted Track found but ContentEncKeyID was not found");
         }
-        // Widevine.
-        psshInfo.put(new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL), encryptionKeyId);
+        drmInitData = new DrmInitData.Universal(MimeTypes.VIDEO_WEBM, encryptionKeyId);
         return true;
       case ID_AUDIO:
         isAudioTrack = true;
@@ -427,6 +425,7 @@ public final class WebmExtractor implements Extractor {
     return true;
   }
 
+  @SuppressLint("InlinedApi")
   /* package */ boolean onBinaryElement(
       int id, long elementOffsetBytes, int headerSizeBytes, int contentsSizeBytes,
       NonBlockingInputStream inputStream) throws ParserException {
