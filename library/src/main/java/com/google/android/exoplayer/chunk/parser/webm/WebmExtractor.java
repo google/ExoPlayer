@@ -25,9 +25,13 @@ import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.LongArray;
 import com.google.android.exoplayer.util.MimeTypes;
 
+import android.media.MediaCodec;
+import android.media.MediaExtractor;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +42,8 @@ import java.util.concurrent.TimeUnit;
  * <p>WebM is a subset of the EBML elements defined for Matroska. More information about EBML and
  * Matroska is available <a href="http://www.matroska.org/technical/specs/index.html">here</a>.
  * More info about WebM is <a href="http://www.webmproject.org/code/specs/container/">here</a>.
+ * RFC on encrypted WebM can be found
+ * <a href="http://wiki.webmproject.org/encryption/webm-encryption-rfc">here</a>.
  */
 public final class WebmExtractor implements Extractor {
 
@@ -47,6 +53,7 @@ public final class WebmExtractor implements Extractor {
   private static final String CODEC_ID_OPUS = "A_OPUS";
   private static final int VORBIS_MAX_INPUT_SIZE = 8192;
   private static final int OPUS_MAX_INPUT_SIZE = 5760;
+  private static final int BLOCK_COUNTER_SIZE = 16;
   private static final int UNKNOWN = -1;
 
   // Element IDs
@@ -80,23 +87,31 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_CHANNELS = 0x9F;
   private static final int ID_SAMPLING_FREQUENCY = 0xB5;
 
+  private static final int ID_CONTENT_ENCODINGS = 0x6D80;
+  private static final int ID_CONTENT_ENCODING = 0x6240;
+  private static final int ID_CONTENT_ENCODING_ORDER = 0x5031;
+  private static final int ID_CONTENT_ENCODING_SCOPE = 0x5032;
+  private static final int ID_CONTENT_ENCODING_TYPE = 0x5033;
+  private static final int ID_CONTENT_ENCRYPTION = 0x5035;
+  private static final int ID_CONTENT_ENCRYPTION_ALGORITHM = 0x47E1;
+  private static final int ID_CONTENT_ENCRYPTION_KEY_ID = 0x47E2;
+  private static final int ID_CONTENT_ENCRYPTION_AES_SETTINGS = 0x47E7;
+  private static final int ID_CONTENT_ENCRYPTION_AES_SETTINGS_CIPHER_MODE = 0x47E8;
+
   private static final int ID_CUES = 0x1C53BB6B;
   private static final int ID_CUE_POINT = 0xBB;
   private static final int ID_CUE_TIME = 0xB3;
   private static final int ID_CUE_TRACK_POSITIONS = 0xB7;
   private static final int ID_CUE_CLUSTER_POSITION = 0xF1;
 
-  // SimpleBlock Lacing Values
   private static final int LACING_NONE = 0;
-  private static final int LACING_XIPH = 1;
-  private static final int LACING_FIXED = 2;
-  private static final int LACING_EBML = 3;
 
   private static final int READ_TERMINATING_RESULTS = RESULT_NEED_MORE_DATA | RESULT_END_OF_STREAM
       | RESULT_READ_SAMPLE | RESULT_NEED_SAMPLE_HOLDER;
 
   private final EbmlReader reader;
   private final byte[] simpleBlockTimecodeAndFlags = new byte[3];
+  private final HashMap<UUID, byte[]> psshInfo = new HashMap<UUID, byte[]>();
 
   private SampleHolder sampleHolder;
   private int readResults;
@@ -113,7 +128,9 @@ public final class WebmExtractor implements Extractor {
   private String codecId;
   private long codecDelayNs;
   private long seekPreRollNs;
-  private boolean seenAudioTrack;
+  private boolean isAudioTrack;
+  private boolean hasContentEncryption;
+  private byte[] encryptionKeyId;
   private long cuesSizeBytes = UNKNOWN;
   private long clusterTimecodeUs = UNKNOWN;
   private long simpleBlockTimecodeUs = UNKNOWN;
@@ -183,8 +200,7 @@ public final class WebmExtractor implements Extractor {
 
   @Override
   public Map<UUID, byte[]> getPsshInfo() {
-    // TODO: Parse pssh data from Webm streams.
-    return null;
+    return psshInfo.isEmpty() ? null : psshInfo;
   }
 
   /* package */ int getElementType(int id) {
@@ -197,6 +213,10 @@ public final class WebmExtractor implements Extractor {
       case ID_TRACK_ENTRY:
       case ID_AUDIO:
       case ID_VIDEO:
+      case ID_CONTENT_ENCODINGS:
+      case ID_CONTENT_ENCODING:
+      case ID_CONTENT_ENCRYPTION:
+      case ID_CONTENT_ENCRYPTION_AES_SETTINGS:
       case ID_CUES:
       case ID_CUE_POINT:
       case ID_CUE_TRACK_POSITIONS:
@@ -211,12 +231,18 @@ public final class WebmExtractor implements Extractor {
       case ID_CODEC_DELAY:
       case ID_SEEK_PRE_ROLL:
       case ID_CHANNELS:
+      case ID_CONTENT_ENCODING_ORDER:
+      case ID_CONTENT_ENCODING_SCOPE:
+      case ID_CONTENT_ENCODING_TYPE:
+      case ID_CONTENT_ENCRYPTION_ALGORITHM:
+      case ID_CONTENT_ENCRYPTION_AES_SETTINGS_CIPHER_MODE:
       case ID_CUE_TIME:
       case ID_CUE_CLUSTER_POSITION:
         return EbmlReader.TYPE_UNSIGNED_INT;
       case ID_DOC_TYPE:
       case ID_CODEC_ID:
         return EbmlReader.TYPE_STRING;
+      case ID_CONTENT_ENCRYPTION_KEY_ID:
       case ID_SIMPLE_BLOCK:
       case ID_BLOCK:
       case ID_CODEC_PRIVATE:
@@ -245,6 +271,12 @@ public final class WebmExtractor implements Extractor {
         cueTimesUs = new LongArray();
         cueClusterPositions = new LongArray();
         break;
+      case ID_CONTENT_ENCODING:
+        // TODO: check and fail if more than one content encoding is present.
+        break;
+      case ID_CONTENT_ENCRYPTION:
+        hasContentEncryption = true;
+        break;
       default:
         // pass
     }
@@ -256,17 +288,25 @@ public final class WebmExtractor implements Extractor {
       case ID_CUES:
         buildCues();
         return false;
-      case ID_VIDEO:
-        buildVideoFormat();
+      case ID_CONTENT_ENCODING:
+        if (!hasContentEncryption) {
+          // We found a ContentEncoding other than Encryption.
+          throw new ParserException("Found an unsupported ContentEncoding");
+        }
+        if (encryptionKeyId == null) {
+          throw new ParserException("Encrypted Track found but ContentEncKeyID was not found");
+        }
+        // Widevine.
+        psshInfo.put(new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL), encryptionKeyId);
         return true;
       case ID_AUDIO:
-        seenAudioTrack = true;
+        isAudioTrack = true;
         return true;
       case ID_TRACK_ENTRY:
-        if (seenAudioTrack) {
-          // Audio format has to be built here since codec private may not be available at the end
-          // of ID_AUDIO.
+        if (isAudioTrack) {
           buildAudioFormat();
+        } else {
+          buildVideoFormat();
         }
         return true;
       default:
@@ -305,6 +345,37 @@ public final class WebmExtractor implements Extractor {
         break;
       case ID_CHANNELS:
         channelCount = (int) value;
+        break;
+      case ID_CONTENT_ENCODING_ORDER:
+        // This extractor only supports one ContentEncoding element and hence the order has to be 0.
+        if (value != 0) {
+          throw new ParserException("ContentEncodingOrder " + value + " not supported");
+        }
+        break;
+      case ID_CONTENT_ENCODING_SCOPE:
+        // This extractor only supports the scope of all frames (since that's the only scope used
+        // for Encryption).
+        if (value != 1) {
+          throw new ParserException("ContentEncodingScope " + value + " not supported");
+        }
+        break;
+      case ID_CONTENT_ENCODING_TYPE:
+        // This extractor only supports Encrypted ContentEncodingType.
+        if (value != 1) {
+          throw new ParserException("ContentEncodingType " + value + " not supported");
+        }
+        break;
+      case ID_CONTENT_ENCRYPTION_ALGORITHM:
+        // Only the value 5 (AES) is allowed according to the WebM specification.
+        if (value != 5) {
+          throw new ParserException("ContentEncAlgo " + value + " not supported");
+        }
+        break;
+      case ID_CONTENT_ENCRYPTION_AES_SETTINGS_CIPHER_MODE:
+        // Only the value 1 is allowed according to the WebM specification.
+        if (value != 1) {
+          throw new ParserException("AESSettingsCipherMode " + value + " not supported");
+        }
         break;
       case ID_CUE_TIME:
         cueTimesUs.add(scaleTimecodeToUs(value));
@@ -397,22 +468,48 @@ public final class WebmExtractor implements Extractor {
         }
         boolean invisible = (simpleBlockTimecodeAndFlags[2] & 0x08) == 0x08;
         int lacing = (simpleBlockTimecodeAndFlags[2] & 0x06) >> 1;
+        if (lacing != LACING_NONE) {
+          throw new ParserException("Lacing mode " + lacing + " not supported");
+        }
+        long elementEndOffsetBytes = elementOffsetBytes + headerSizeBytes + contentsSizeBytes;
+        simpleBlockTimecodeUs = clusterTimecodeUs + timecodeUs;
+        sampleHolder.flags = keyframe ? C.SAMPLE_FLAG_SYNC : 0;
+        sampleHolder.decodeOnly = invisible;
+        sampleHolder.timeUs = clusterTimecodeUs + timecodeUs;
+        sampleHolder.size = (int) (elementEndOffsetBytes - reader.getBytesRead());
 
-        // Validate lacing and set info into sample holder.
-        switch (lacing) {
-          case LACING_NONE:
-            long elementEndOffsetBytes = elementOffsetBytes + headerSizeBytes + contentsSizeBytes;
-            simpleBlockTimecodeUs = clusterTimecodeUs + timecodeUs;
-            sampleHolder.flags = keyframe ? C.SAMPLE_FLAG_SYNC : 0;
-            sampleHolder.decodeOnly = invisible;
-            sampleHolder.timeUs = clusterTimecodeUs + timecodeUs;
-            sampleHolder.size = (int) (elementEndOffsetBytes - reader.getBytesRead());
-            break;
-          case LACING_EBML:
-          case LACING_FIXED:
-          case LACING_XIPH:
-          default:
-            throw new ParserException("Lacing mode " + lacing + " not supported");
+        if (hasContentEncryption) {
+          byte[] signalByte = new byte[1];
+          reader.readBytes(inputStream, signalByte, 1);
+          sampleHolder.size -= 1;
+          // First bit of the signalByte (extension bit) must be 0.
+          if ((signalByte[0] & 0x80) != 0) {
+            throw new ParserException("Extension bit is set in signal byte");
+          }
+          boolean isEncrypted = (signalByte[0] & 0x01) == 0x01;
+          byte[] iv = null;
+          if (isEncrypted) {
+            iv = sampleHolder.cryptoInfo.iv;
+            if (iv == null || iv.length != BLOCK_COUNTER_SIZE) {
+              iv = new byte[BLOCK_COUNTER_SIZE];
+            }
+            reader.readBytes(inputStream, iv, 8); // The container has only 8 bytes of IV.
+            sampleHolder.size -= 8;
+            sampleHolder.flags |= MediaExtractor.SAMPLE_FLAG_ENCRYPTED;
+          }
+          int[] numBytesOfClearData = sampleHolder.cryptoInfo.numBytesOfClearData;
+          if (numBytesOfClearData == null || numBytesOfClearData.length != 1) {
+            numBytesOfClearData = new int[1];
+          }
+          numBytesOfClearData[0] = isEncrypted ? 0 : sampleHolder.size;
+          int[] numBytesOfEncryptedData = sampleHolder.cryptoInfo.numBytesOfEncryptedData;
+          if (numBytesOfEncryptedData == null || numBytesOfEncryptedData.length != 1) {
+            numBytesOfEncryptedData = new int[1];
+          }
+          numBytesOfEncryptedData[0] = isEncrypted ? sampleHolder.size : 0;
+          sampleHolder.cryptoInfo.set(
+              1, numBytesOfClearData, numBytesOfEncryptedData, encryptionKeyId, iv,
+              isEncrypted ? MediaCodec.CRYPTO_MODE_AES_CTR : MediaCodec.CRYPTO_MODE_UNENCRYPTED);
         }
 
         if (sampleHolder.data == null || sampleHolder.data.capacity() < sampleHolder.size) {
@@ -431,6 +528,10 @@ public final class WebmExtractor implements Extractor {
       case ID_CODEC_PRIVATE:
         codecPrivate = new byte[contentsSizeBytes];
         reader.readBytes(inputStream, codecPrivate, contentsSizeBytes);
+        break;
+      case ID_CONTENT_ENCRYPTION_KEY_ID:
+        encryptionKeyId = new byte[contentsSizeBytes];
+        reader.readBytes(inputStream, encryptionKeyId, contentsSizeBytes);
         break;
       default:
         // pass
