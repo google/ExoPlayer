@@ -76,8 +76,8 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 
     DataSource dataSource = new UriDataSource(userAgent, bandwidthMeter);
-    HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter, null,
-        HlsChunkSource.ADAPTIVE_MODE_SPLICE);
+    HlsChunkSource chunkSource = new HlsChunkSourceImpl(dataSource, url, manifest, bandwidthMeter, null,
+        HlsChunkSourceImpl.ADAPTIVE_MODE_SPLICE);
     HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, true, 3);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
         MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, player.getMainHandler(), player, 50);
