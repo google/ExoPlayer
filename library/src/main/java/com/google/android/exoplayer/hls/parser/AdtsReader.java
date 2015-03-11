@@ -88,7 +88,7 @@ import java.util.Collections;
           appendData(data, bytesToRead);
           bytesRead += bytesToRead;
           if (bytesRead == sampleSize) {
-            commitSample(true);
+            commitSample(C.SAMPLE_FLAG_SYNC);
             timeUs += frameDurationUs;
             bytesRead = 0;
             state = STATE_FINDING_SYNC;

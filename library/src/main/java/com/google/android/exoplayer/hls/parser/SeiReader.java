@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.hls.parser;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.text.eia608.Eia608Parser;
 import com.google.android.exoplayer.upstream.BufferPool;
@@ -59,7 +60,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
       if (Eia608Parser.isSeiMessageEia608(payloadType, payloadSize, seiBuffer)) {
         startSample(pesTimeUs);
         appendData(seiBuffer, payloadSize);
-        commitSample(true);
+        commitSample(C.SAMPLE_FLAG_SYNC);
       } else {
         seiBuffer.skip(payloadSize);
       }

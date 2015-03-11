@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.hls.parser;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.util.ParsableByteArray;
@@ -41,7 +42,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
   @Override
   public void packetFinished() {
-    commitSample(true);
+    commitSample(C.SAMPLE_FLAG_SYNC);
   }
 
 }

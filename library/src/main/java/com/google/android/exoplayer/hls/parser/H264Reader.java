@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.hls.parser;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.mp4.Mp4Util;
 import com.google.android.exoplayer.upstream.BufferPool;
@@ -88,7 +89,7 @@ import java.util.List;
               if (isKeyframe && !hasMediaFormat() && sps.isCompleted() && pps.isCompleted()) {
                 parseMediaFormat(sps, pps);
               }
-              commitSample(isKeyframe, nalUnitOffsetInData);
+              commitSample(isKeyframe ? C.SAMPLE_FLAG_SYNC : 0, nalUnitOffsetInData);
             }
             startSample(pesTimeUs, nalUnitOffsetInData);
             isKeyframe = false;

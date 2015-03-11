@@ -19,7 +19,10 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.upstream.BufferPool;
+import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.ParsableByteArray;
+
+import java.io.IOException;
 
 /**
  * Wraps a {@link RollingSampleBuffer}, adding higher level functionality such as enforcing that
@@ -186,16 +189,24 @@ import com.google.android.exoplayer.util.ParsableByteArray;
     rollingBuffer.startSample(sampleTimeUs, offset);
   }
 
+  protected int appendData(DataSource dataSource, int length) throws IOException {
+    return rollingBuffer.appendData(dataSource, length);
+  }
+
   protected void appendData(ParsableByteArray buffer, int length) {
     rollingBuffer.appendData(buffer, length);
   }
 
-  protected void commitSample(boolean isKeyframe) {
-    commitSample(isKeyframe, 0);
+  protected void commitSample(int flags) {
+    commitSample(flags, 0, null);
   }
 
-  protected void commitSample(boolean isKeyframe, int offset) {
-    rollingBuffer.commitSample(isKeyframe, offset);
+  protected void commitSample(int flags, int offset) {
+    commitSample(flags, offset, null);
+  }
+
+  protected void commitSample(int flags, int offset, byte[] encryptionKey) {
+    rollingBuffer.commitSample(flags, offset, encryptionKey);
     writingSample = false;
   }
 
