@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.chunk;
+package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MultiTrackSource;
 import com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent;
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.util.Assertions;
 
 import java.io.IOException;
 import java.util.List;
 
 /**
- * A {@link ChunkSource} providing the ability to switch between multiple other {@link ChunkSource}
+ * A {@link HlsChunkSource} providing the ability to switch between multiple other {@link HlsChunkSource}
  * instances.
  */
-public class MultiTrackChunkSource implements ChunkSource, MultiTrackSource, ExoPlayerComponent {
+public class MultiTrackHlsChunkSource implements HlsChunkSource, MultiTrackSource, ExoPlayerComponent {
 
   /**
    * A message to indicate a source selection. Source selection can only be performed when the
@@ -38,18 +37,18 @@ public class MultiTrackChunkSource implements ChunkSource, MultiTrackSource, Exo
    */
   public static final int MSG_SELECT_TRACK = 1;
 
-  private final ChunkSource[] allSources;
+  private final HlsChunkSource[] allSources;
 
-  private ChunkSource selectedSource;
+  private HlsChunkSource selectedSource;
   private boolean enabled;
 
-  public MultiTrackChunkSource(ChunkSource... sources) {
+  public MultiTrackHlsChunkSource(HlsChunkSource... sources) {
     this.allSources = sources;
     this.selectedSource = sources[0];
   }
 
-  public MultiTrackChunkSource(List<ChunkSource> sources) {
-    this(toChunkSourceArray(sources));
+  public MultiTrackHlsChunkSource(List<HlsChunkSource> sources) {
+    this(toHlsChunkSourceArray(sources));
   }
 
   /**
@@ -58,52 +57,25 @@ public class MultiTrackChunkSource implements ChunkSource, MultiTrackSource, Exo
    *
    * @return The number of tracks.
    */
+  @Override
   public int getTrackCount() {
     return allSources.length;
   }
 
   @Override
-  public TrackInfo getTrackInfo() {
-    return selectedSource.getTrackInfo();
+  public long getDurationUs() {
+    return selectedSource.getDurationUs();
   }
 
   @Override
-  public void enable() {
-    selectedSource.enable();
-    enabled = true;
-  }
-
-  @Override
-  public void disable(List<? extends MediaChunk> queue) {
-    selectedSource.disable(queue);
-    enabled = false;
-  }
-
-  @Override
-  public void continueBuffering(long playbackPositionUs) {
-    selectedSource.continueBuffering(playbackPositionUs);
-  }
-
-  @Override
-  public void getChunkOperation(List<? extends MediaChunk> queue, long seekPositionUs,
-      long playbackPositionUs, ChunkOperationHolder out) {
-    selectedSource.getChunkOperation(queue, seekPositionUs, playbackPositionUs, out);
-  }
-
-  @Override
-  public IOException getError() {
-    return null;
+  public HlsChunk getChunkOperation(TsChunk previousTsChunk, long seekPositionUs,
+      long playbackPositionUs) {
+    return selectedSource.getChunkOperation(previousTsChunk, seekPositionUs, playbackPositionUs);
   }
 
   @Override
   public void getMaxVideoDimensions(MediaFormat out) {
     selectedSource.getMaxVideoDimensions(out);
-  }
-
-  @Override
-  public void selectTrack(ExoPlayer player, int index) {
-    player.sendMessage(this, MultiTrackChunkSource.MSG_SELECT_TRACK,
-                       index);
   }
 
   @Override
@@ -115,14 +87,21 @@ public class MultiTrackChunkSource implements ChunkSource, MultiTrackSource, Exo
   }
 
   @Override
-  public void onChunkLoadError(Chunk chunk, Exception e) {
-    selectedSource.onChunkLoadError(chunk, e);
+  public boolean onLoadError(HlsChunk chunk, IOException e) {
+    return selectedSource.onLoadError(chunk, e);
   }
 
-  private static ChunkSource[] toChunkSourceArray(List<ChunkSource> sources) {
-    ChunkSource[] chunkSourceArray = new ChunkSource[sources.size()];
+  private static HlsChunkSource[] toHlsChunkSourceArray(List<HlsChunkSource> sources) {
+    HlsChunkSource[] chunkSourceArray = new HlsChunkSource[sources.size()];
     sources.toArray(chunkSourceArray);
     return chunkSourceArray;
   }
+
+  @Override
+  public void selectTrack(ExoPlayer player, int index) {
+    player.sendMessage(this, MultiTrackHlsChunkSource.MSG_SELECT_TRACK,
+                       index);
+  }
+
 
 }
