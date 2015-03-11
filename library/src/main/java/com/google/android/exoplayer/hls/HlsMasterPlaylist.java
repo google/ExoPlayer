@@ -18,6 +18,7 @@ package com.google.android.exoplayer.hls;
 import android.net.Uri;
 
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Represents an HLS master playlist.
@@ -25,10 +26,22 @@ import java.util.List;
 public final class HlsMasterPlaylist extends HlsPlaylist {
 
   public final List<Variant> variants;
+  public final List<AlternateMedia> alternateMedias;
 
-  public HlsMasterPlaylist(Uri baseUri, List<Variant> variants) {
+  public HlsMasterPlaylist(Uri baseUri, List<Variant> variants, List<AlternateMedia> alternateMedias) {
     super(baseUri, HlsPlaylist.TYPE_MASTER);
     this.variants = variants;
-  }
+    this.alternateMedias = alternateMedias;
 
+    // Setup variant alternate medias
+    for (Variant v: variants) {
+      if (v.audio != null) {
+        for (AlternateMedia a: alternateMedias) {
+          if (a.groupID != null && v.audio.equals(a.groupID)) {
+            v.alternateMedias.add(a);
+          }
+        }
+      }
+    }
+  }
 }

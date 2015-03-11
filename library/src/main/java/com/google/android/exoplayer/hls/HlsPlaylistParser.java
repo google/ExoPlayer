@@ -42,8 +42,17 @@ public final class HlsPlaylistParser implements ManifestParser<HlsPlaylist> {
 
   private static final String STREAM_INF_TAG = "#EXT-X-STREAM-INF";
   private static final String BANDWIDTH_ATTR = "BANDWIDTH";
+  private static final String AUDIO_ATTR = "AUDIO";
   private static final String CODECS_ATTR = "CODECS";
   private static final String RESOLUTION_ATTR = "RESOLUTION";
+
+  private static final String MEDIA_TAG = "#EXT-X-MEDIA";
+  private static final String TYPE_ATTR = "TYPE";
+  private static final String GROUP_ID_ATTR = "GROUP-ID";
+  private static final String NAME_ATTR = "NAME";
+  private static final String DEFAULT_ATTR = "DEFAULT";
+  private static final String AUTOSELECT_ATTR = "AUTOSELECT";
+  private static final String LANGUAGE_ATTR = "LANGUAGE";
 
   private static final String DISCONTINUITY_TAG = "#EXT-X-DISCONTINUITY";
   private static final String MEDIA_DURATION_TAG = "#EXTINF";
@@ -63,6 +72,21 @@ public final class HlsPlaylistParser implements ManifestParser<HlsPlaylist> {
       Pattern.compile(CODECS_ATTR + "=\"(.+?)\"");
   private static final Pattern RESOLUTION_ATTR_REGEX =
       Pattern.compile(RESOLUTION_ATTR + "=(\\d+x\\d+)");
+  private static final Pattern AUDIO_ATTR_REGEX =
+    Pattern.compile(AUDIO_ATTR + "=\"(.+)\"");
+
+  private static final Pattern TYPE_ATTR_REGEX =
+    Pattern.compile(TYPE_ATTR + "=(AUDIO|VIDEO)");
+  private static final Pattern GROUP_ID_ATTR_REGEX =
+    Pattern.compile(GROUP_ID_ATTR + "=\"([^\"]+)\"");
+  private static final Pattern NAME_ATTR_REGEX =
+    Pattern.compile(NAME_ATTR + "=\"([^\"]+)\"");
+  private static final Pattern DEFAULT_ATTR_REGEX =
+    Pattern.compile(DEFAULT_ATTR + "=(YES|NO)");
+  private static final Pattern AUTOSELECT_ATTR_REGEX =
+    Pattern.compile(AUTOSELECT_ATTR + "=(YES|NO)");
+  private static final Pattern LANGUAGE_ATTR_REGEX =
+    Pattern.compile(LANGUAGE_ATTR + "=\"([^\"]+)\"");
 
   private static final Pattern MEDIA_DURATION_REGEX =
       Pattern.compile(MEDIA_DURATION_TAG + ":([\\d.]+),");
@@ -94,7 +118,10 @@ public final class HlsPlaylistParser implements ManifestParser<HlsPlaylist> {
         line = line.trim();
         if (line.isEmpty()) {
           // Do nothing.
-        } else if (line.startsWith(STREAM_INF_TAG)) {
+        } else if (line.startsWith(STREAM_INF_TAG) || line.startsWith(MEDIA_TAG + ":")) {
+          extraLines.add(line);
+          return parseMasterPlaylist(new LineIterator(extraLines, reader), baseUri);
+        } else if (line.startsWith(MEDIA_TAG)) {
           extraLines.add(line);
           return parseMasterPlaylist(new LineIterator(extraLines, reader), baseUri);
         } else if (line.startsWith(TARGET_DURATION_TAG)
@@ -121,11 +148,14 @@ public final class HlsPlaylistParser implements ManifestParser<HlsPlaylist> {
   private static HlsMasterPlaylist parseMasterPlaylist(LineIterator iterator, Uri baseUri)
       throws IOException {
     List<Variant> variants = new ArrayList<Variant>();
+    List<AlternateMedia> alternateMedias = new ArrayList<AlternateMedia>();
     int bandwidth = 0;
     String[] codecs = null;
     int width = -1;
     int height = -1;
     int variantIndex = 0;
+    int alternateIndex = 0;
+    String audio = null;
 
     String line;
     while (iterator.hasNext()) {
@@ -148,15 +178,31 @@ public final class HlsPlaylistParser implements ManifestParser<HlsPlaylist> {
           width = -1;
           height = -1;
         }
+        audio = HlsParserUtil.parseOptionalStringAttr(line, AUDIO_ATTR_REGEX);
+
+      } else if (line.startsWith(MEDIA_TAG)) {
+        int type = ("AUDIO".equals(HlsParserUtil.parseStringAttr(line, TYPE_ATTR_REGEX, TYPE_ATTR)) ?
+                    AlternateMedia.TYPE_AUDIO : AlternateMedia.TYPE_VIDEO);
+        String groupID =  HlsParserUtil.parseStringAttr(line, GROUP_ID_ATTR_REGEX, GROUP_ID_ATTR);
+        String name = HlsParserUtil.parseStringAttr(line, NAME_ATTR_REGEX, NAME_ATTR);
+        boolean deflt = HlsParserUtil.parseBooleanAttr(line, DEFAULT_ATTR_REGEX, DEFAULT_ATTR);
+        boolean autoSelect = HlsParserUtil.parseBooleanAttr(line, AUTOSELECT_ATTR_REGEX, AUTOSELECT_ATTR);
+        String language = HlsParserUtil.parseStringAttr(line, LANGUAGE_ATTR_REGEX, LANGUAGE_ATTR);
+        String uri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX, URI_ATTR);
+
+        AlternateMedia media =
+          new AlternateMedia(alternateIndex++, type, groupID, name, deflt, autoSelect, language, uri);
+        alternateMedias.add(media);
       } else if (!line.startsWith("#")) {
-        variants.add(new Variant(variantIndex++, line, bandwidth, codecs, width, height));
+        variants.add(new Variant(variantIndex++, line, bandwidth, codecs, width, height, audio));
         bandwidth = 0;
         codecs = null;
         width = -1;
         height = -1;
       }
     }
-    return new HlsMasterPlaylist(baseUri, Collections.unmodifiableList(variants));
+    return new HlsMasterPlaylist(baseUri, Collections.unmodifiableList(variants),
+                                 Collections.unmodifiableList(alternateMedias));
   }
 
   private static HlsMediaPlaylist parseMediaPlaylist(LineIterator iterator, Uri baseUri)
@@ -180,6 +226,7 @@ public final class HlsPlaylistParser implements ManifestParser<HlsPlaylist> {
 
     String line;
     while (iterator.hasNext()) {
+      segmentEncryptionIV = null;
       line = iterator.next();
       if (line.startsWith(TARGET_DURATION_TAG)) {
         targetDurationSecs = HlsParserUtil.parseIntAttr(line, TARGET_DURATION_REGEX,
@@ -202,9 +249,6 @@ public final class HlsPlaylistParser implements ManifestParser<HlsPlaylist> {
           segmentEncryptionKeyUri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX,
               URI_ATTR);
           segmentEncryptionIV = HlsParserUtil.parseOptionalStringAttr(line, IV_ATTR_REGEX);
-          if (segmentEncryptionIV == null) {
-            segmentEncryptionIV = Integer.toHexString(segmentMediaSequence);
-          }
         }
       } else if (line.startsWith(BYTERANGE_TAG)) {
         String byteRange = HlsParserUtil.parseStringAttr(line, BYTERANGE_REGEX, BYTERANGE_TAG);
@@ -216,7 +260,10 @@ public final class HlsPlaylistParser implements ManifestParser<HlsPlaylist> {
       } else if (line.equals(DISCONTINUITY_TAG)) {
         segmentDiscontinuity = true;
       } else if (!line.startsWith("#")) {
-        segmentMediaSequence++;
+        if (segmentEncryptionIV == null) {
+            segmentEncryptionIV = Integer.toHexString(segmentMediaSequence);
+          }
+
         if (segmentByterangeLength == C.LENGTH_UNBOUNDED) {
           segmentByterangeOffset = 0;
         }
@@ -230,6 +277,7 @@ public final class HlsPlaylistParser implements ManifestParser<HlsPlaylist> {
           segmentByterangeOffset += segmentByterangeLength;
         }
         segmentByterangeLength = C.LENGTH_UNBOUNDED;
+        segmentMediaSequence++;
       } else if (line.equals(ENDLIST_TAG)) {
         live = false;
         break;

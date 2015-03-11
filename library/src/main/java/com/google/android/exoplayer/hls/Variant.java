@@ -16,6 +16,8 @@
 package com.google.android.exoplayer.hls;
 
 import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Variant stream reference.
@@ -43,14 +45,19 @@ public final class Variant {
   public final String[] codecs;
   public final int width;
   public final int height;
+  public final List<AlternateMedia> alternateMedias;
+  public final String audio;
 
-  public Variant(int index, String url, int bandwidth, String[] codecs, int width, int height) {
+  public Variant(int index, String url, int bandwidth, String[] codecs, int width, int height, String audio) {
     this.index = index;
     this.bandwidth = bandwidth;
     this.url = url;
     this.codecs = codecs;
     this.width = width;
     this.height = height;
+    this.audio = audio;
+    this.alternateMedias = new ArrayList<AlternateMedia>();
+
   }
 
 }
