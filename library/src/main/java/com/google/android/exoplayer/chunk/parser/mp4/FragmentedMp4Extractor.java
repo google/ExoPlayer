@@ -33,10 +33,6 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
-import android.annotation.SuppressLint;
-import android.media.MediaCodec;
-import android.media.MediaExtractor;
-
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collections;
@@ -795,7 +791,6 @@ public final class FragmentedMp4Extractor implements Extractor {
     return RESULT_READ_SAMPLE;
   }
 
-  @SuppressLint("InlinedApi")
   private void readSampleEncryptionData(ParsableByteArray sampleEncryptionData, SampleHolder out) {
     TrackEncryptionBox encryptionBox =
         track.sampleDescriptionEncryptionBoxes[fragmentRun.sampleDescriptionIndex];
@@ -833,8 +828,8 @@ public final class FragmentedMp4Extractor implements Extractor {
     }
 
     out.cryptoInfo.set(subsampleCount, clearDataSizes, encryptedDataSizes, keyId, vector,
-        MediaCodec.CRYPTO_MODE_AES_CTR);
-    out.flags |= MediaExtractor.SAMPLE_FLAG_ENCRYPTED;
+        C.CRYPTO_MODE_AES_CTR);
+    out.flags |= C.SAMPLE_FLAG_ENCRYPTED;
   }
 
 }

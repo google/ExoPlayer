@@ -26,7 +26,6 @@ import android.media.MediaCodec;
 import android.media.MediaCodec.CodecException;
 import android.media.MediaCodec.CryptoException;
 import android.media.MediaCrypto;
-import android.media.MediaExtractor;
 import android.os.Handler;
 import android.os.SystemClock;
 
@@ -583,7 +582,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       }
       waitingForFirstSyncFrame = false;
     }
-    boolean sampleEncrypted = (sampleHolder.flags & MediaExtractor.SAMPLE_FLAG_ENCRYPTED) != 0;
+    boolean sampleEncrypted = (sampleHolder.flags & C.SAMPLE_FLAG_ENCRYPTED) != 0;
     waitingForKeys = shouldWaitForKeys(sampleEncrypted);
     if (waitingForKeys) {
       return false;

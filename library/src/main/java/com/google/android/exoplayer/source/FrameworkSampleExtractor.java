@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.source;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
@@ -163,7 +164,7 @@ public final class FrameworkSampleExtractor implements SampleExtractor {
     }
     sampleHolder.timeUs = mediaExtractor.getSampleTime();
     sampleHolder.flags = mediaExtractor.getSampleFlags();
-    if ((sampleHolder.flags & MediaExtractor.SAMPLE_FLAG_ENCRYPTED) != 0) {
+    if ((sampleHolder.flags & C.SAMPLE_FLAG_ENCRYPTED) != 0) {
       sampleHolder.cryptoInfo.setFromExtractorV16(mediaExtractor);
     }
 

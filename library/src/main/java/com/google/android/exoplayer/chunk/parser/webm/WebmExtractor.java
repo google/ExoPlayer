@@ -26,10 +26,6 @@ import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.LongArray;
 import com.google.android.exoplayer.util.MimeTypes;
 
-import android.annotation.SuppressLint;
-import android.media.MediaCodec;
-import android.media.MediaExtractor;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -425,7 +421,6 @@ public final class WebmExtractor implements Extractor {
     return true;
   }
 
-  @SuppressLint("InlinedApi")
   /* package */ boolean onBinaryElement(
       int id, long elementOffsetBytes, int headerSizeBytes, int contentsSizeBytes,
       NonBlockingInputStream inputStream) throws ParserException {
@@ -507,8 +502,8 @@ public final class WebmExtractor implements Extractor {
             encryptedDataSizes[0] = sampleHolder.size;
 
             sampleHolder.cryptoInfo.set(1, clearDataSizes, encryptedDataSizes,
-                encryptionKeyId, iv, MediaCodec.CRYPTO_MODE_AES_CTR);
-            sampleHolder.flags |= MediaExtractor.SAMPLE_FLAG_ENCRYPTED;
+                encryptionKeyId, iv, C.CRYPTO_MODE_AES_CTR);
+            sampleHolder.flags |= C.SAMPLE_FLAG_ENCRYPTED;
           }
         }
 

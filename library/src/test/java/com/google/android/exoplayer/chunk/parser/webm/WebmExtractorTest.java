@@ -25,9 +25,6 @@ import com.google.android.exoplayer.upstream.ByteArrayNonBlockingInputStream;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.MimeTypes;
 
-import android.annotation.SuppressLint;
-import android.media.MediaCodec;
-import android.media.MediaExtractor;
 import android.test.InstrumentationTestCase;
 
 import java.io.IOException;
@@ -355,7 +352,6 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     }
   }
 
-  @SuppressLint("InlinedApi")
   private void assertSample(
       MediaSegment mediaSegment, int timeUs, boolean keyframe, boolean invisible,
       boolean encrypted) {
@@ -364,10 +360,10 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     assertEquals(timeUs, sampleHolder.timeUs);
     assertEquals(keyframe, (sampleHolder.flags & C.SAMPLE_FLAG_SYNC) != 0);
     assertEquals(invisible, sampleHolder.decodeOnly);
-    assertEquals(encrypted, (sampleHolder.flags & MediaExtractor.SAMPLE_FLAG_ENCRYPTED) != 0);
+    assertEquals(encrypted, (sampleHolder.flags & C.SAMPLE_FLAG_ENCRYPTED) != 0);
     if (encrypted) {
       android.test.MoreAsserts.assertEquals(TEST_INITIALIZATION_VECTOR, sampleHolder.cryptoInfo.iv);
-      assertEquals(MediaCodec.CRYPTO_MODE_AES_CTR, sampleHolder.cryptoInfo.mode);
+      assertEquals(C.CRYPTO_MODE_AES_CTR, sampleHolder.cryptoInfo.mode);
       assertEquals(1, sampleHolder.cryptoInfo.numSubSamples);
       assertEquals(100, sampleHolder.cryptoInfo.numBytesOfEncryptedData[0]);
       assertEquals(0, sampleHolder.cryptoInfo.numBytesOfClearData[0]);
