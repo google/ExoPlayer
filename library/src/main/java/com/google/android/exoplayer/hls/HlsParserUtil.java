@@ -54,4 +54,10 @@ import java.util.regex.Pattern;
     return Double.parseDouble(parseStringAttr(line, pattern, tag));
   }
 
+  public static boolean parseBooleanAttr(String line, Pattern pattern, String tag)
+      throws ParserException {
+    String val = parseStringAttr(line, pattern, tag);
+    return ("YES".equals(val));
+  }
+
 }

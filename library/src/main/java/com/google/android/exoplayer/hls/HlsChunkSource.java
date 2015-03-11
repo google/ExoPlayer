@@ -179,7 +179,7 @@ public class HlsChunkSource {
     bufferPool = new BufferPool(256 * 1024);
 
     if (playlist.type == HlsPlaylist.TYPE_MEDIA) {
-      enabledVariants = new Variant[] {new Variant(0, playlistUrl, 0, null, -1, -1)};
+      enabledVariants = new Variant[] {new Variant(0, playlistUrl, 0, null, -1, -1, null)};
       mediaPlaylists = new HlsMediaPlaylist[1];
       mediaPlaylistBlacklistFlags = new boolean[1];
       lastMediaPlaylistLoadTimesMs = new long[1];
