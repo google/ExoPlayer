@@ -19,6 +19,7 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.hls.parser.AdtsExtractor;
 import com.google.android.exoplayer.hls.parser.HlsExtractor;
+import com.google.android.exoplayer.hls.parser.HlsExtractorWrapper;
 import com.google.android.exoplayer.hls.parser.TsExtractor;
 import com.google.android.exoplayer.upstream.Aes128DataSource;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
@@ -341,16 +342,17 @@ public class HlsChunkSource {
     boolean isLastChunk = !mediaPlaylist.live && chunkIndex == mediaPlaylist.segments.size() - 1;
 
     // Configure the extractor that will read the chunk.
-    HlsExtractor extractor;
+    HlsExtractorWrapper extractorWrapper;
     if (previousTsChunk == null || segment.discontinuity || switchingVariant || liveDiscontinuity) {
-      extractor = chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)
-          ? new AdtsExtractor(switchingVariantSpliced, startTimeUs, bufferPool)
-          : new TsExtractor(switchingVariantSpliced, startTimeUs, bufferPool);
+      HlsExtractor extractor = chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)
+          ? new AdtsExtractor(startTimeUs)
+          : new TsExtractor(startTimeUs);
+      extractorWrapper = new HlsExtractorWrapper(bufferPool, extractor, switchingVariantSpliced);
     } else {
-      extractor = previousTsChunk.extractor;
+      extractorWrapper = previousTsChunk.extractor;
     }
 
-    return new TsChunk(dataSource, dataSpec, extractor, enabledVariants[variantIndex].index,
+    return new TsChunk(dataSource, dataSpec, extractorWrapper, enabledVariants[variantIndex].index,
         startTimeUs, endTimeUs, chunkMediaSequence, isLastChunk);
   }
 

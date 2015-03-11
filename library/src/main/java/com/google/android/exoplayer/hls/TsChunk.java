@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.hls;
 
-import com.google.android.exoplayer.hls.parser.HlsExtractor;
+import com.google.android.exoplayer.hls.parser.HlsExtractorWrapper;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 
@@ -51,7 +51,7 @@ public final class TsChunk extends HlsChunk {
   /**
    * The extractor into which this chunk is being consumed.
    */
-  public final HlsExtractor extractor;
+  public final HlsExtractorWrapper extractor;
 
   private int loadPosition;
   private volatile boolean loadFinished;
@@ -67,7 +67,7 @@ public final class TsChunk extends HlsChunk {
    * @param chunkIndex The index of the chunk.
    * @param isLastChunk True if this is the last chunk in the media. False otherwise.
    */
-  public TsChunk(DataSource dataSource, DataSpec dataSpec, HlsExtractor extractor,
+  public TsChunk(DataSource dataSource, DataSpec dataSpec, HlsExtractorWrapper extractor,
       int variantIndex, long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk) {
     super(dataSource, dataSpec);
     this.extractor = extractor;

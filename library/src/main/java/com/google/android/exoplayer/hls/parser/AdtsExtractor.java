@@ -16,10 +16,7 @@
 package com.google.android.exoplayer.hls.parser;
 
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
-import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.IOException;
@@ -28,73 +25,41 @@ import java.io.IOException;
  * Facilitates the extraction of AAC samples from elementary audio files formatted as AAC with ADTS
  * headers.
  */
-public class AdtsExtractor extends HlsExtractor {
+public class AdtsExtractor implements HlsExtractor {
 
   private static final int MAX_PACKET_SIZE = 200;
 
   private final long firstSampleTimestamp;
   private final ParsableByteArray packetBuffer;
-  private final AdtsReader adtsReader;
 
   // Accessed only by the loading thread.
+  private AdtsReader adtsReader;
   private boolean firstPacket;
-  // Accessed by both the loading and consuming threads.
-  private volatile boolean prepared;
 
-  public AdtsExtractor(boolean shouldSpliceIn, long firstSampleTimestamp, BufferPool bufferPool) {
-    super(shouldSpliceIn);
+  public AdtsExtractor(long firstSampleTimestamp) {
     this.firstSampleTimestamp = firstSampleTimestamp;
     packetBuffer = new ParsableByteArray(MAX_PACKET_SIZE);
-    adtsReader = new AdtsReader(bufferPool);
     firstPacket = true;
   }
 
   @Override
+  public void init(ExtractorOutput output) {
+    adtsReader = new AdtsReader(output.getTrackOutput(0));
+  }
+
+  @Override
   public int getTrackCount() {
-    Assertions.checkState(prepared);
     return 1;
   }
 
   @Override
   public MediaFormat getFormat(int track) {
-    Assertions.checkState(prepared);
-    return adtsReader.getMediaFormat();
+    return adtsReader.getFormat();
   }
 
   @Override
   public boolean isPrepared() {
-    return prepared;
-  }
-
-  @Override
-  public void release() {
-    adtsReader.release();
-  }
-
-  @Override
-  public long getLargestSampleTimestamp() {
-    return adtsReader.getLargestParsedTimestampUs();
-  }
-
-  @Override
-  public boolean getSample(int track, SampleHolder holder) {
-    Assertions.checkState(prepared);
-    Assertions.checkState(track == 0);
-    return adtsReader.getSample(holder);
-  }
-
-  @Override
-  public void discardUntil(int track, long timeUs) {
-    Assertions.checkState(prepared);
-    Assertions.checkState(track == 0);
-    adtsReader.discardUntil(timeUs);
-  }
-
-  @Override
-  public boolean hasSamples(int track) {
-    Assertions.checkState(prepared);
-    Assertions.checkState(track == 0);
-    return !adtsReader.isEmpty();
+    return adtsReader != null && adtsReader.hasFormat();
   }
 
   @Override
@@ -111,16 +76,7 @@ public class AdtsExtractor extends HlsExtractor {
     // unnecessary to copy the data through packetBuffer.
     adtsReader.consume(packetBuffer, firstSampleTimestamp, firstPacket);
     firstPacket = false;
-    if (!prepared) {
-      prepared = adtsReader.hasMediaFormat();
-    }
     return bytesRead;
-  }
-
-  @Override
-  protected SampleQueue getSampleQueue(int track) {
-    Assertions.checkState(track == 0);
-    return adtsReader;
   }
 
 }

@@ -15,16 +15,46 @@
  */
 package com.google.android.exoplayer.hls.parser;
 
-import com.google.android.exoplayer.upstream.BufferPool;
+import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.hls.parser.HlsExtractor.TrackOutput;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 /**
  * Extracts individual samples from an elementary media stream, preserving original order.
  */
-/* package */ abstract class ElementaryStreamReader extends SampleQueue {
+/* package */ abstract class ElementaryStreamReader {
 
-  protected ElementaryStreamReader(BufferPool bufferPool) {
-    super(bufferPool);
+  protected final TrackOutput output;
+  private MediaFormat format;
+
+  /**
+   * @param output A {@link TrackOutput} to which samples should be written.
+   */
+  protected ElementaryStreamReader(TrackOutput output) {
+    this.output = output;
+  }
+
+  /**
+   * True if the format of the stream is known. False otherwise.
+   */
+  public boolean hasFormat() {
+    return format != null;
+  }
+
+  /**
+   * Returns the format of the stream, or {@code null} if {@link #hasFormat()} is false.
+   */
+  public MediaFormat getFormat() {
+    return format;
+  }
+
+  /**
+   * Sets the format of the stream.
+   *
+   * @param format The format.
+   */
+  protected void setFormat(MediaFormat format) {
+    this.format = format;
   }
 
   /**

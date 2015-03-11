@@ -17,8 +17,6 @@ package com.google.android.exoplayer.hls.parser;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableBitArray;
@@ -32,7 +30,7 @@ import java.io.IOException;
 /**
  * Facilitates the extraction of data from the MPEG-2 TS container format.
  */
-public final class TsExtractor extends HlsExtractor {
+public final class TsExtractor implements HlsExtractor {
 
   private static final String TAG = "TsExtractor";
 
@@ -48,13 +46,13 @@ public final class TsExtractor extends HlsExtractor {
   private static final long MAX_PTS = 0x1FFFFFFFFL;
 
   private final ParsableByteArray tsPacketBuffer;
-  private final SparseArray<SampleQueue> sampleQueues; // Indexed by streamType
+  private final SparseArray<ElementaryStreamReader> streamReaders; // Indexed by streamType
   private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
-  private final BufferPool bufferPool;
   private final long firstSampleTimestamp;
   private final ParsableBitArray tsScratch;
 
   // Accessed only by the loading thread.
+  private ExtractorOutput output;
   private int tsPacketBytesRead;
   private long timestampOffsetUs;
   private long lastPts;
@@ -62,28 +60,31 @@ public final class TsExtractor extends HlsExtractor {
   // Accessed by both the loading and consuming threads.
   private volatile boolean prepared;
 
-  public TsExtractor(boolean shouldSpliceIn, long firstSampleTimestamp, BufferPool bufferPool) {
-    super(shouldSpliceIn);
+  public TsExtractor(long firstSampleTimestamp) {
     this.firstSampleTimestamp = firstSampleTimestamp;
-    this.bufferPool = bufferPool;
     tsScratch = new ParsableBitArray(new byte[3]);
     tsPacketBuffer = new ParsableByteArray(TS_PACKET_SIZE);
-    sampleQueues = new SparseArray<SampleQueue>();
+    streamReaders = new SparseArray<ElementaryStreamReader>();
     tsPayloadReaders = new SparseArray<TsPayloadReader>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
     lastPts = Long.MIN_VALUE;
   }
 
   @Override
+  public void init(ExtractorOutput output) {
+    this.output = output;
+  }
+
+  @Override
   public int getTrackCount() {
     Assertions.checkState(prepared);
-    return sampleQueues.size();
+    return streamReaders.size();
   }
 
   @Override
   public MediaFormat getFormat(int track) {
     Assertions.checkState(prepared);
-    return sampleQueues.valueAt(track).getMediaFormat();
+    return streamReaders.valueAt(track).getFormat();
   }
 
   @Override
@@ -91,48 +92,13 @@ public final class TsExtractor extends HlsExtractor {
     return prepared;
   }
 
-  @Override
-  public void release() {
-    for (int i = 0; i < sampleQueues.size(); i++) {
-      sampleQueues.valueAt(i).release();
-    }
-  }
-
-  @Override
-  public long getLargestSampleTimestamp() {
-    long largestParsedTimestampUs = Long.MIN_VALUE;
-    for (int i = 0; i < sampleQueues.size(); i++) {
-      largestParsedTimestampUs = Math.max(largestParsedTimestampUs,
-          sampleQueues.valueAt(i).getLargestParsedTimestampUs());
-    }
-    return largestParsedTimestampUs;
-  }
-
-  @Override
-  public boolean getSample(int track, SampleHolder holder) {
-    Assertions.checkState(prepared);
-    return sampleQueues.valueAt(track).getSample(holder);
-  }
-
-  @Override
-  public void discardUntil(int track, long timeUs) {
-    Assertions.checkState(prepared);
-    sampleQueues.valueAt(track).discardUntil(timeUs);
-  }
-
-  @Override
-  public boolean hasSamples(int track) {
-    Assertions.checkState(prepared);
-    return !sampleQueues.valueAt(track).isEmpty();
-  }
-
   private boolean checkPrepared() {
-    int pesPayloadReaderCount = sampleQueues.size();
+    int pesPayloadReaderCount = streamReaders.size();
     if (pesPayloadReaderCount == 0) {
       return false;
     }
     for (int i = 0; i < pesPayloadReaderCount; i++) {
-      if (!sampleQueues.valueAt(i).hasMediaFormat()) {
+      if (!streamReaders.valueAt(i).hasFormat()) {
         return false;
       }
     }
@@ -183,7 +149,7 @@ public final class TsExtractor extends HlsExtractor {
     if (payloadExists) {
       TsPayloadReader payloadReader = tsPayloadReaders.get(pid);
       if (payloadReader != null) {
-        payloadReader.consume(tsPacketBuffer, payloadUnitStartIndicator);
+        payloadReader.consume(tsPacketBuffer, payloadUnitStartIndicator, output);
       }
     }
 
@@ -192,11 +158,6 @@ public final class TsExtractor extends HlsExtractor {
     }
 
     return bytesRead;
-  }
-
-  @Override
-  protected SampleQueue getSampleQueue(int track) {
-    return sampleQueues.valueAt(track);
   }
 
   /**
@@ -231,7 +192,8 @@ public final class TsExtractor extends HlsExtractor {
    */
   private abstract static class TsPayloadReader {
 
-    public abstract void consume(ParsableByteArray data, boolean payloadUnitStartIndicator);
+    public abstract void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
+        ExtractorOutput output);
 
   }
 
@@ -247,7 +209,8 @@ public final class TsExtractor extends HlsExtractor {
     }
 
     @Override
-    public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator) {
+    public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
+        ExtractorOutput output) {
       // Skip pointer.
       if (payloadUnitStartIndicator) {
         int pointerField = data.readUnsignedByte();
@@ -286,7 +249,8 @@ public final class TsExtractor extends HlsExtractor {
     }
 
     @Override
-    public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator) {
+    public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
+        ExtractorOutput output) {
       // Skip pointer.
       if (payloadUnitStartIndicator) {
         int pointerField = data.readUnsignedByte();
@@ -323,27 +287,28 @@ public final class TsExtractor extends HlsExtractor {
         data.skip(esInfoLength);
         entriesSize -= esInfoLength + 5;
 
-        if (sampleQueues.get(streamType) != null) {
+        if (streamReaders.get(streamType) != null) {
           continue;
         }
 
         ElementaryStreamReader pesPayloadReader = null;
         switch (streamType) {
           case TS_STREAM_TYPE_AAC:
-            pesPayloadReader = new AdtsReader(bufferPool);
+            pesPayloadReader = new AdtsReader(output.getTrackOutput(TS_STREAM_TYPE_AAC));
             break;
           case TS_STREAM_TYPE_H264:
-            SeiReader seiReader = new SeiReader(bufferPool);
-            sampleQueues.put(TS_STREAM_TYPE_EIA608, seiReader);
-            pesPayloadReader = new H264Reader(bufferPool, seiReader);
+            SeiReader seiReader = new SeiReader(output.getTrackOutput(TS_STREAM_TYPE_EIA608));
+            streamReaders.put(TS_STREAM_TYPE_EIA608, seiReader);
+            pesPayloadReader = new H264Reader(output.getTrackOutput(TS_STREAM_TYPE_H264),
+                seiReader);
             break;
           case TS_STREAM_TYPE_ID3:
-            pesPayloadReader = new Id3Reader(bufferPool);
+            pesPayloadReader = new Id3Reader(output.getTrackOutput(TS_STREAM_TYPE_ID3));
             break;
         }
 
         if (pesPayloadReader != null) {
-          sampleQueues.put(streamType, pesPayloadReader);
+          streamReaders.put(streamType, pesPayloadReader);
           tsPayloadReaders.put(elementaryPid, new PesReader(pesPayloadReader));
         }
       }
@@ -387,7 +352,8 @@ public final class TsExtractor extends HlsExtractor {
     }
 
     @Override
-    public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator) {
+    public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
+        ExtractorOutput output) {
       if (payloadUnitStartIndicator) {
         switch (state) {
           case STATE_FINDING_HEADER:
