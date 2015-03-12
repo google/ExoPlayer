@@ -25,7 +25,7 @@ import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
-import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
+import com.google.android.exoplayer.MultiTrackSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
 import com.google.android.exoplayer.text.TextRenderer;
@@ -80,7 +80,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
      * @param renderers Renderers indexed by {@link DemoPlayer} TYPE_* constants. An individual
      *     element may be null if there do not exist tracks of the corresponding type.
      */
-    void onRenderers(String[][] trackNames, MultiTrackChunkSource[] multiTrackSources,
+    void onRenderers(String[][] trackNames, MultiTrackSource[] multiTrackSources,
         TrackRenderer[] renderers);
     /**
      * Invoked if a {@link RendererBuilder} encounters an error.
@@ -181,7 +181,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   private TrackRenderer videoRenderer;
   private int videoTrackToRestore;
 
-  private MultiTrackChunkSource[] multiTrackSources;
+  private MultiTrackSource[] multiTrackSources;
   private String[][] trackNames;
   private int[] selectedTracks;
   private boolean backgrounded;
@@ -294,14 +294,14 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   /* package */ void onRenderers(String[][] trackNames,
-      MultiTrackChunkSource[] multiTrackSources, TrackRenderer[] renderers) {
+      MultiTrackSource[] multiTrackSources, TrackRenderer[] renderers) {
     builderCallback = null;
     // Normalize the results.
     if (trackNames == null) {
       trackNames = new String[RENDERER_COUNT][];
     }
     if (multiTrackSources == null) {
-      multiTrackSources = new MultiTrackChunkSource[RENDERER_COUNT];
+      multiTrackSources = new MultiTrackSource[RENDERER_COUNT];
     }
     for (int i = 0; i < RENDERER_COUNT; i++) {
       if (renderers[i] == null) {
@@ -591,8 +591,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
       boolean playWhenReady = player.getPlayWhenReady();
       player.setPlayWhenReady(false);
       player.setRendererEnabled(type, false);
-      player.sendMessage(multiTrackSources[type], MultiTrackChunkSource.MSG_SELECT_TRACK,
-          trackIndex);
+      multiTrackSources[type].selectTrack(player, trackIndex);
       player.setRendererEnabled(type, allowRendererEnable);
       player.setPlayWhenReady(playWhenReady);
     }
@@ -614,7 +613,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     }
 
     @Override
-    public void onRenderers(String[][] trackNames, MultiTrackChunkSource[] multiTrackSources,
+    public void onRenderers(String[][] trackNames, MultiTrackSource[] multiTrackSources,
         TrackRenderer[] renderers) {
       if (!canceled) {
         DemoPlayer.this.onRenderers(trackNames, multiTrackSources, renderers);
