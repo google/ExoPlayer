@@ -50,7 +50,7 @@ import java.util.Locale;
  * TODO: Figure out whether this should merge with the chunk package, or whether the hls
  * implementation is going to naturally diverge.
  */
-public class HlsChunkSource {
+public class HlsChunkSourceImpl {
 
   /**
    * Adaptive switching is disabled.
@@ -113,7 +113,7 @@ public class HlsChunkSource {
    */
   public static final long DEFAULT_PLAYLIST_BLACKLIST_MS = 60000;
 
-  private static final String TAG = "HlsChunkSource";
+  private static final String TAG = "HlsChunkSourceImpl";
   private static final String AAC_FILE_EXTENSION = ".aac";
   private static final float BANDWIDTH_FRACTION = 0.8f;
 
@@ -144,7 +144,7 @@ public class HlsChunkSource {
   private String encryptedDataSourceIv;
   private byte[] encryptedDataSourceSecretKey;
 
-  public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
+  public HlsChunkSourceImpl(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
       BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode) {
     this(dataSource, playlistUrl, playlist, bandwidthMeter, variantIndices, adaptiveMode,
         DEFAULT_TARGET_BUFFER_SIZE, DEFAULT_TARGET_BUFFER_DURATION_MS,
@@ -170,7 +170,7 @@ public class HlsChunkSource {
    * @param maxBufferDurationToSwitchDownMs The maximum duration of media that needs to be buffered
    *     for a switch to a lower quality variant to be considered.
    */
-  public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
+  public HlsChunkSourceImpl(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
       BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode,
       int targetBufferSize, long targetBufferDurationMs, long minBufferDurationToSwitchUpMs,
       long maxBufferDurationToSwitchDownMs) {
