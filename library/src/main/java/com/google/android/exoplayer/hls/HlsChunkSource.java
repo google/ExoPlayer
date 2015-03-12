@@ -306,7 +306,7 @@ public class HlsChunkSource {
     Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
 
     // Check if encryption is specified.
-    if (HlsMediaPlaylist.ENCRYPTION_METHOD_AES_128.equals(segment.encryptionMethod)) {
+    if (segment.isEncrypted) {
       Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
       if (!keyUri.equals(encryptionKeyUri)) {
         // Encryption is specified and the key has changed.

@@ -64,6 +64,9 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
   private static final String SUBTITLES_TYPE = "SUBTITLES";
   private static final String CLOSED_CAPTIONS_TYPE = "CLOSED-CAPTIONS";
 
+  private static final String METHOD_NONE = "NONE";
+  private static final String METHOD_AES128 = "AES-128";
+
   private static final Pattern BANDWIDTH_ATTR_REGEX =
       Pattern.compile(BANDWIDTH_ATTR + "=(\\d+)\\b");
   private static final Pattern CODECS_ATTR_REGEX =
@@ -80,8 +83,9 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
       Pattern.compile(VERSION_TAG + ":(\\d+)\\b");
   private static final Pattern BYTERANGE_REGEX =
       Pattern.compile(BYTERANGE_TAG + ":(\\d+(?:@\\d+)?)\\b");
+
   private static final Pattern METHOD_ATTR_REGEX =
-      Pattern.compile(METHOD_ATTR + "=([^,.*]+)");
+      Pattern.compile(METHOD_ATTR + "=(" + METHOD_NONE + "|" + METHOD_AES128 + ")");
   private static final Pattern URI_ATTR_REGEX =
       Pattern.compile(URI_ATTR + "=\"(.+)\"");
   private static final Pattern IV_ATTR_REGEX =
