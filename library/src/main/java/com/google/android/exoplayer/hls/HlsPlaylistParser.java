@@ -233,9 +233,6 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
           segmentEncryptionKeyUri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX,
               URI_ATTR);
           segmentEncryptionIV = HlsParserUtil.parseOptionalStringAttr(line, IV_ATTR_REGEX);
-          if (segmentEncryptionIV == null) {
-            segmentEncryptionIV = Integer.toHexString(segmentMediaSequence);
-          }
         }
       } else if (line.startsWith(BYTERANGE_TAG)) {
         String byteRange = HlsParserUtil.parseStringAttr(line, BYTERANGE_REGEX, BYTERANGE_TAG);
@@ -247,13 +244,15 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
       } else if (line.equals(DISCONTINUITY_TAG)) {
         segmentDiscontinuity = true;
       } else if (!line.startsWith("#")) {
+        String thisSegmentEncryptionIV =
+          (segmentEncryptionIV != null ? segmentEncryptionIV : Integer.toHexString(segmentMediaSequence));
         segmentMediaSequence++;
         if (segmentByterangeLength == C.LENGTH_UNBOUNDED) {
           segmentByterangeOffset = 0;
         }
         segments.add(new Segment(line, segmentDurationSecs, segmentDiscontinuity,
             segmentStartTimeUs, segmentEncryptionMethod, segmentEncryptionKeyUri,
-            segmentEncryptionIV, segmentByterangeOffset, segmentByterangeLength));
+            thisSegmentEncryptionIV, segmentByterangeOffset, segmentByterangeLength));
         segmentStartTimeUs += (long) (segmentDurationSecs * C.MICROS_PER_SECOND);
         segmentDiscontinuity = false;
         segmentDurationSecs = 0.0;
