@@ -50,7 +50,7 @@ import java.util.Locale;
  * TODO: Figure out whether this should merge with the chunk package, or whether the hls
  * implementation is going to naturally diverge.
  */
-public class HlsChunkSourceImpl {
+public class HlsChunkSourceImpl implements HlsChunkSource {
 
   /**
    * Adaptive switching is disabled.
@@ -217,31 +217,17 @@ public class HlsChunkSourceImpl {
     this.maxHeight = maxHeight > 0 ? maxHeight : 1080;
   }
 
+  @Override
   public long getDurationUs() {
     return live ? C.UNKNOWN_TIME_US : durationUs;
   }
 
-  /**
-   * Adaptive implementations must set the maximum video dimensions on the supplied
-   * {@link MediaFormat}. Other implementations do nothing.
-   * <p>
-   * Only called when the source is enabled.
-   *
-   * @param out The {@link MediaFormat} on which the maximum video dimensions should be set.
-   */
+  @Override
   public void getMaxVideoDimensions(MediaFormat out) {
     out.setMaxVideoDimensions(maxWidth, maxHeight);
   }
 
-  /**
-   * Returns the next {@link HlsChunk} that should be loaded.
-   *
-   * @param previousTsChunk The previously loaded chunk that the next chunk should follow.
-   * @param seekPositionUs If there is no previous chunk, this parameter must specify the seek
-   *     position. If there is a previous chunk then this parameter is ignored.
-   * @param playbackPositionUs The current playback position.
-   * @return The next chunk to load.
-   */
+  @Override
   public HlsChunk getChunkOperation(TsChunk previousTsChunk, long seekPositionUs,
       long playbackPositionUs) {
     if (previousTsChunk != null && (previousTsChunk.isLastChunk
@@ -357,13 +343,7 @@ public class HlsChunkSourceImpl {
         startTimeUs, endTimeUs, chunkMediaSequence, isLastChunk);
   }
 
-  /**
-   * Invoked when an error occurs loading a chunk.
-   *
-   * @param chunk The chunk whose load failed.
-   * @param e The failure.
-   * @return True if the error was handled by the source. False otherwise.
-   */
+  @Override
   public boolean onLoadError(HlsChunk chunk, IOException e) {
     if ((chunk instanceof MediaPlaylistChunk) && (e instanceof InvalidResponseCodeException)) {
       InvalidResponseCodeException responseCodeException = (InvalidResponseCodeException) e;
