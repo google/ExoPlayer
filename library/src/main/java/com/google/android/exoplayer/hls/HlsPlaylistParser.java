@@ -55,6 +55,7 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
   private static final String AUTOSELECT_ATTR = "AUTOSELECT";
   private static final String DEFAULT_ATTR = "DEFAULT";
   private static final String TYPE_ATTR = "TYPE";
+  private static final String GROUP_ID_ATTR = "GROUP-ID";
   private static final String METHOD_ATTR = "METHOD";
   private static final String URI_ATTR = "URI";
   private static final String IV_ATTR = "IV";
@@ -68,6 +69,14 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
       Pattern.compile(BANDWIDTH_ATTR + "=(\\d+)\\b");
   private static final Pattern CODECS_ATTR_REGEX =
       Pattern.compile(CODECS_ATTR + "=\"(.+?)\"");
+  private static final Pattern AUDIO_ATTR_REGEX =
+    Pattern.compile(AUDIO_TYPE + "=\"(.+?)\"");
+  private static final Pattern VIDEO_ATTR_REGEX =
+    Pattern.compile(VIDEO_TYPE + "=\"(.+?)\"");
+  private static final Pattern SUBTITLES_ATTR_REGEX =
+    Pattern.compile(SUBTITLES_TYPE + "=\"(.+?)\"");
+  private static final Pattern CLOSED_CAPTIONS_ATTR_REGEX =
+    Pattern.compile(CLOSED_CAPTIONS_TYPE + "=\"(.+?)\"");
   private static final Pattern RESOLUTION_ATTR_REGEX =
       Pattern.compile(RESOLUTION_ATTR + "=(\\d+x\\d+)");
   private static final Pattern MEDIA_DURATION_REGEX =
@@ -89,6 +98,8 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
   private static final Pattern TYPE_ATTR_REGEX =
       Pattern.compile(TYPE_ATTR + "=(" + AUDIO_TYPE + "|" + VIDEO_TYPE + "|" + SUBTITLES_TYPE + "|"
           + CLOSED_CAPTIONS_TYPE + ")");
+  private static final Pattern GROUP_ID_ATTR_REGEX =
+    Pattern.compile(GROUP_ID_ATTR + "=\"(.+?)\"");
   private static final Pattern LANGUAGE_ATTR_REGEX =
       Pattern.compile(LANGUAGE_ATTR + "=\"(.+?)\"");
   private static final Pattern NAME_ATTR_REGEX =
@@ -134,30 +145,42 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
   private static HlsMasterPlaylist parseMasterPlaylist(LineIterator iterator, String baseUri)
       throws IOException {
     ArrayList<Variant> variants = new ArrayList<Variant>();
-    ArrayList<Subtitle> subtitles = new ArrayList<Subtitle>();
+    ArrayList<AlternateMedia> alternateMedias = new ArrayList<AlternateMedia>();
+
     int bandwidth = 0;
     String[] codecs = null;
     int width = -1;
     int height = -1;
+    String audioGroup = null;
+    String videoGroup = null;
+    String subtitlesGroup = null;
+    String closedCaptionsGroup = null;
     int variantIndex = 0;
-
+    int alternateIndex = 0;
     boolean expectingStreamInfUrl = false;
     String line;
     while (iterator.hasNext()) {
       line = iterator.next();
       if (line.startsWith(MEDIA_TAG)) {
-        String type = HlsParserUtil.parseStringAttr(line, TYPE_ATTR_REGEX, TYPE_ATTR);
-        if (SUBTITLES_TYPE.equals(type)) {
-          // We assume all subtitles belong to the same group.
-          String name = HlsParserUtil.parseStringAttr(line, NAME_ATTR_REGEX, NAME_ATTR);
-          String uri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX, URI_ATTR);
-          String language = HlsParserUtil.parseOptionalStringAttr(line, LANGUAGE_ATTR_REGEX);
-          boolean isDefault = HlsParserUtil.parseOptionalBoolAttr(line, DEFAULT_ATTR_REGEX);
-          boolean autoSelect = HlsParserUtil.parseOptionalBoolAttr(line, AUTOSELECT_ATTR_REGEX);
-          subtitles.add(new Subtitle(name, uri, language, isDefault, autoSelect));
-        } else {
-          // TODO: Support other types of media tag.
-        }
+        String typeStr = HlsParserUtil.parseStringAttr(line, TYPE_ATTR_REGEX, TYPE_ATTR);
+        int type = AlternateMedia.TYPE_VIDEO;
+        if (AUDIO_TYPE.equals(typeStr))
+          type = AlternateMedia.TYPE_AUDIO;
+        else if (SUBTITLES_TYPE.equals(typeStr))
+          type = AlternateMedia.TYPE_SUBTITLES;
+        else if (CLOSED_CAPTIONS_TYPE.equals(typeStr))
+          type = AlternateMedia.TYPE_CLOSED_CAPTIONS;
+
+        String name = HlsParserUtil.parseStringAttr(line, NAME_ATTR_REGEX, NAME_ATTR);
+        String uri = HlsParserUtil.parseOptionalStringAttr(line, URI_ATTR_REGEX);
+        String language = HlsParserUtil.parseOptionalStringAttr(line, LANGUAGE_ATTR_REGEX);
+        boolean isDefault = HlsParserUtil.parseOptionalBoolAttr(line, DEFAULT_ATTR_REGEX);
+        boolean autoSelect = HlsParserUtil.parseOptionalBoolAttr(line, AUTOSELECT_ATTR_REGEX);
+        String groupID =  HlsParserUtil.parseStringAttr(line, GROUP_ID_ATTR_REGEX, GROUP_ID_ATTR);
+
+        AlternateMedia media =
+          new AlternateMedia(alternateIndex++, type, name, uri, groupID, language, isDefault, autoSelect);
+        alternateMedias.add(media);
       } else if (line.startsWith(STREAM_INF_TAG)) {
         bandwidth = HlsParserUtil.parseIntAttr(line, BANDWIDTH_ATTR_REGEX, BANDWIDTH_ATTR);
         String codecsString = HlsParserUtil.parseOptionalStringAttr(line, CODECS_ATTR_REGEX);
@@ -176,9 +199,16 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
           width = -1;
           height = -1;
         }
+
+        videoGroup = HlsParserUtil.parseOptionalStringAttr(line, VIDEO_ATTR_REGEX);
+        audioGroup = HlsParserUtil.parseOptionalStringAttr(line, AUDIO_ATTR_REGEX);
+        subtitlesGroup = HlsParserUtil.parseOptionalStringAttr(line, SUBTITLES_ATTR_REGEX);
+        closedCaptionsGroup = HlsParserUtil.parseOptionalStringAttr(line, CLOSED_CAPTIONS_ATTR_REGEX);
+
         expectingStreamInfUrl = true;
       } else if (!line.startsWith("#") && expectingStreamInfUrl) {
-        variants.add(new Variant(variantIndex++, line, bandwidth, codecs, width, height));
+        variants.add(new Variant(variantIndex++, line, bandwidth, codecs, width, height,
+                                 videoGroup, audioGroup, subtitlesGroup, closedCaptionsGroup));
         bandwidth = 0;
         codecs = null;
         width = -1;
@@ -187,7 +217,7 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
       }
     }
     return new HlsMasterPlaylist(baseUri, Collections.unmodifiableList(variants),
-        Collections.unmodifiableList(subtitles));
+        Collections.unmodifiableList(alternateMedias));
   }
 
   private static HlsMediaPlaylist parseMediaPlaylist(LineIterator iterator, String baseUri)
