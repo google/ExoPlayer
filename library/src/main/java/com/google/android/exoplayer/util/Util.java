@@ -15,12 +15,16 @@
  */
 package com.google.android.exoplayer.util;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.upstream.DataSource;
 
 import android.text.TextUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.Arrays;
@@ -56,6 +60,8 @@ public final class Util {
   private static final Pattern XS_DURATION_PATTERN =
       Pattern.compile("^(-)?P(([0-9]*)Y)?(([0-9]*)M)?(([0-9]*)D)?"
           + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
+
+  private static final long MAX_BYTES_TO_DRAIN = 2048;
 
   private Util() {}
 
@@ -394,6 +400,50 @@ public final class Util {
       intArray[i] = list.get(i);
     }
     return intArray;
+  }
+
+  /**
+   * On platform API levels 19 and 20, okhttp's implementation of {@link InputStream#close} can
+   * block for a long time if the stream has a lot of data remaining. Call this method before
+   * closing the input stream to make a best effort to cause the input stream to encounter an
+   * unexpected end of input, working around this issue. On other platform API levels, the method
+   * does nothing.
+   *
+   * @param connection The connection whose {@link InputStream} should be terminated.
+   * @param bytesRemaining The number of bytes remaining to be read from the input stream if its
+   *     length is known. {@link C#LENGTH_UNBOUNDED} otherwise.
+   */
+  public static void maybeTerminateInputStream(HttpURLConnection connection, long bytesRemaining) {
+    if (SDK_INT != 19 && SDK_INT != 20) {
+      return;
+    }
+
+    try {
+      InputStream inputStream = connection.getInputStream();
+      if (bytesRemaining == C.LENGTH_UNBOUNDED) {
+        // If the input stream has already ended, do nothing. The socket may be re-used.
+        if (inputStream.read() == -1) {
+          return;
+        }
+      } else if (bytesRemaining <= MAX_BYTES_TO_DRAIN) {
+        // There isn't much data left. Prefer to allow it to drain, which may allow the socket to be
+        // re-used.
+        return;
+      }
+      String className = inputStream.getClass().getName();
+      if (className.equals("com.android.okhttp.internal.http.HttpTransport$ChunkedInputStream")
+          || className.equals(
+              "com.android.okhttp.internal.http.HttpTransport$FixedLengthInputStream")) {
+        Class<?> superclass = inputStream.getClass().getSuperclass();
+        Method unexpectedEndOfInput = superclass.getDeclaredMethod("unexpectedEndOfInput");
+        unexpectedEndOfInput.setAccessible(true);
+        unexpectedEndOfInput.invoke(inputStream);
+      }
+    } catch (IOException e) {
+      // The connection didn't ever have an input stream, or it was closed already.
+    } catch (Exception e) {
+      // Something went wrong. The device probably isn't using okhttp.
+    }
   }
 
 }
