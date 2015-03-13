@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.hls.parser;
 
-import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -43,23 +42,9 @@ public class AdtsExtractor implements HlsExtractor {
   }
 
   @Override
-  public void init(ExtractorOutput output) {
-    adtsReader = new AdtsReader(output.getTrackOutput(0));
-  }
-
-  @Override
-  public int getTrackCount() {
-    return 1;
-  }
-
-  @Override
-  public MediaFormat getFormat(int track) {
-    return adtsReader.getFormat();
-  }
-
-  @Override
-  public boolean isPrepared() {
-    return adtsReader != null && adtsReader.hasFormat();
+  public void init(TrackOutputBuilder output) {
+    adtsReader = new AdtsReader(output.buildOutput(0));
+    output.allOutputsBuilt();
   }
 
   @Override

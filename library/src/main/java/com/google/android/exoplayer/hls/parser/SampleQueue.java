@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.hls.parser;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.hls.parser.HlsExtractor.TrackOutput;
 import com.google.android.exoplayer.upstream.BufferPool;
@@ -44,6 +45,7 @@ public final class SampleQueue implements TrackOutput {
 
   // Accessed by both the loading and consuming threads.
   private volatile long largestParsedTimestampUs;
+  private volatile MediaFormat format;
 
   public SampleQueue(BufferPool bufferPool) {
     rollingBuffer = new RollingSampleBuffer(bufferPool);
@@ -59,6 +61,10 @@ public final class SampleQueue implements TrackOutput {
   }
 
   // Called by the consuming thread.
+
+  public MediaFormat getFormat() {
+    return format;
+  }
 
   public long getLargestParsedTimestampUs() {
     return largestParsedTimestampUs;
@@ -161,6 +167,16 @@ public final class SampleQueue implements TrackOutput {
   }
 
   // TrackOutput implementation. Called by the loading thread.
+
+  @Override
+  public boolean hasFormat() {
+    return format != null;
+  }
+
+  @Override
+  public void setFormat(MediaFormat format) {
+    this.format = format;
+  }
 
   @Override
   public int appendData(DataSource dataSource, int length) throws IOException {

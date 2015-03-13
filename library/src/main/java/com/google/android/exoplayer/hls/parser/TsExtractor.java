@@ -16,9 +16,7 @@
 package com.google.android.exoplayer.hls.parser;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.upstream.DataSource;
-import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -52,13 +50,10 @@ public final class TsExtractor implements HlsExtractor {
   private final ParsableBitArray tsScratch;
 
   // Accessed only by the loading thread.
-  private ExtractorOutput output;
+  private TrackOutputBuilder output;
   private int tsPacketBytesRead;
   private long timestampOffsetUs;
   private long lastPts;
-
-  // Accessed by both the loading and consuming threads.
-  private volatile boolean prepared;
 
   public TsExtractor(long firstSampleTimestamp) {
     this.firstSampleTimestamp = firstSampleTimestamp;
@@ -71,38 +66,8 @@ public final class TsExtractor implements HlsExtractor {
   }
 
   @Override
-  public void init(ExtractorOutput output) {
+  public void init(TrackOutputBuilder output) {
     this.output = output;
-  }
-
-  @Override
-  public int getTrackCount() {
-    Assertions.checkState(prepared);
-    return streamReaders.size();
-  }
-
-  @Override
-  public MediaFormat getFormat(int track) {
-    Assertions.checkState(prepared);
-    return streamReaders.valueAt(track).getFormat();
-  }
-
-  @Override
-  public boolean isPrepared() {
-    return prepared;
-  }
-
-  private boolean checkPrepared() {
-    int pesPayloadReaderCount = streamReaders.size();
-    if (pesPayloadReaderCount == 0) {
-      return false;
-    }
-    for (int i = 0; i < pesPayloadReaderCount; i++) {
-      if (!streamReaders.valueAt(i).hasFormat()) {
-        return false;
-      }
-    }
-    return true;
   }
 
   @Override
@@ -153,10 +118,6 @@ public final class TsExtractor implements HlsExtractor {
       }
     }
 
-    if (!prepared) {
-      prepared = checkPrepared();
-    }
-
     return bytesRead;
   }
 
@@ -193,7 +154,7 @@ public final class TsExtractor implements HlsExtractor {
   private abstract static class TsPayloadReader {
 
     public abstract void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
-        ExtractorOutput output);
+        TrackOutputBuilder output);
 
   }
 
@@ -210,7 +171,7 @@ public final class TsExtractor implements HlsExtractor {
 
     @Override
     public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
-        ExtractorOutput output) {
+        TrackOutputBuilder output) {
       // Skip pointer.
       if (payloadUnitStartIndicator) {
         int pointerField = data.readUnsignedByte();
@@ -250,7 +211,7 @@ public final class TsExtractor implements HlsExtractor {
 
     @Override
     public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
-        ExtractorOutput output) {
+        TrackOutputBuilder output) {
       // Skip pointer.
       if (payloadUnitStartIndicator) {
         int pointerField = data.readUnsignedByte();
@@ -294,16 +255,16 @@ public final class TsExtractor implements HlsExtractor {
         ElementaryStreamReader pesPayloadReader = null;
         switch (streamType) {
           case TS_STREAM_TYPE_AAC:
-            pesPayloadReader = new AdtsReader(output.getTrackOutput(TS_STREAM_TYPE_AAC));
+            pesPayloadReader = new AdtsReader(output.buildOutput(TS_STREAM_TYPE_AAC));
             break;
           case TS_STREAM_TYPE_H264:
-            SeiReader seiReader = new SeiReader(output.getTrackOutput(TS_STREAM_TYPE_EIA608));
+            SeiReader seiReader = new SeiReader(output.buildOutput(TS_STREAM_TYPE_EIA608));
             streamReaders.put(TS_STREAM_TYPE_EIA608, seiReader);
-            pesPayloadReader = new H264Reader(output.getTrackOutput(TS_STREAM_TYPE_H264),
+            pesPayloadReader = new H264Reader(output.buildOutput(TS_STREAM_TYPE_H264),
                 seiReader);
             break;
           case TS_STREAM_TYPE_ID3:
-            pesPayloadReader = new Id3Reader(output.getTrackOutput(TS_STREAM_TYPE_ID3));
+            pesPayloadReader = new Id3Reader(output.buildOutput(TS_STREAM_TYPE_ID3));
             break;
         }
 
@@ -313,7 +274,7 @@ public final class TsExtractor implements HlsExtractor {
         }
       }
 
-      // Skip CRC_32.
+      output.allOutputsBuilt();
     }
 
   }
@@ -353,7 +314,7 @@ public final class TsExtractor implements HlsExtractor {
 
     @Override
     public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
-        ExtractorOutput output) {
+        TrackOutputBuilder output) {
       if (payloadUnitStartIndicator) {
         switch (state) {
           case STATE_FINDING_HEADER:

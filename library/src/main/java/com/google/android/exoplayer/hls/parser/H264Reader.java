@@ -88,7 +88,7 @@ import java.util.List;
           int nalUnitOffsetInData = nextNalUnitOffset - limit;
           if (nalUnitType == NAL_UNIT_TYPE_AUD) {
             if (output.isWritingSample()) {
-              if (isKeyframe && !hasFormat() && sps.isCompleted() && pps.isCompleted()) {
+              if (isKeyframe && !output.hasFormat() && sps.isCompleted() && pps.isCompleted()) {
                 parseMediaFormat(sps, pps);
               }
               output.commitSample(isKeyframe ? C.SAMPLE_FLAG_SYNC : 0, nalUnitOffsetInData, null);
@@ -120,7 +120,7 @@ import java.util.List;
   }
 
   private void feedNalUnitTargetBuffersStart(int nalUnitType) {
-    if (!hasFormat()) {
+    if (!output.hasFormat()) {
       sps.startNalUnit(nalUnitType);
       pps.startNalUnit(nalUnitType);
     }
@@ -128,7 +128,7 @@ import java.util.List;
   }
 
   private void feedNalUnitTargetBuffersData(byte[] dataArray, int offset, int limit) {
-    if (!hasFormat()) {
+    if (!output.hasFormat()) {
       sps.appendToNalUnit(dataArray, offset, limit);
       pps.appendToNalUnit(dataArray, offset, limit);
     }
@@ -233,7 +233,7 @@ import java.util.List;
     }
 
     // Set the format.
-    setFormat(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
+    output.setFormat(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
         frameWidth, frameHeight, initializationData));
   }
 

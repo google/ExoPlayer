@@ -152,7 +152,7 @@ import java.util.Collections;
   private void parseHeader() {
     adtsScratch.setPosition(0);
 
-    if (!hasFormat()) {
+    if (!output.hasFormat()) {
       int audioObjectType = adtsScratch.readBits(2) + 1;
       int sampleRateIndex = adtsScratch.readBits(4);
       adtsScratch.skipBits(1);
@@ -167,7 +167,7 @@ import java.util.Collections;
           MediaFormat.NO_VALUE, audioParams.second, audioParams.first,
           Collections.singletonList(audioSpecificConfig));
       frameDurationUs = (C.MICROS_PER_SECOND * 1024L) / mediaFormat.sampleRate;
-      setFormat(mediaFormat);
+      output.setFormat(mediaFormat);
     } else {
       adtsScratch.skipBits(10);
     }

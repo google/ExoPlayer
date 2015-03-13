@@ -29,15 +29,21 @@ public interface HlsExtractor {
   /**
    * An object to which extracted data should be output.
    */
-  public interface ExtractorOutput {
+  public interface TrackOutputBuilder {
 
     /**
-     * Obtains a {@link TrackOutput} to which extracted data should be output for a given track.
+     * Invoked to build a {@link TrackOutput} to which data should be output for a given track.
      *
      * @param trackId A stable track id.
      * @return The corresponding {@link TrackOutput}.
      */
-    TrackOutput getTrackOutput(int trackId);
+    TrackOutput buildOutput(int trackId);
+
+    /**
+     * Invoked when all {@link TrackOutput}s have been built, meaning {@link #buildOutput(int)}
+     * will not be invoked again.
+     */
+    void allOutputsBuilt();
 
   }
 
@@ -45,6 +51,12 @@ public interface HlsExtractor {
    * An object to which extracted data belonging to a given track should be output.
    */
   public interface TrackOutput {
+
+    boolean hasFormat();
+
+    void setFormat(MediaFormat format);
+
+    boolean isWritingSample();
 
     int appendData(DataSource dataSource, int length) throws IOException;
 
@@ -54,42 +66,14 @@ public interface HlsExtractor {
 
     void commitSample(int flags, int offset, byte[] encryptionKey);
 
-    boolean isWritingSample();
-
   }
 
   /**
    * Initializes the extractor.
    *
-   * @param output An {@link ExtractorOutput} to which extracted data should be output.
+   * @param output A {@link TrackOutputBuilder} to which extracted data should be output.
    */
-  void init(ExtractorOutput output);
-
-  /**
-   * Whether the extractor is prepared.
-   *
-   * @return True if the extractor is prepared. False otherwise.
-   */
-  boolean isPrepared();
-
-  /**
-   * Gets the number of available tracks.
-   * <p>
-   * This method should only be called after the extractor has been prepared.
-   *
-   * @return The number of available tracks.
-   */
-  int getTrackCount();
-
-  /**
-   * Gets the format of the specified track.
-   * <p>
-   * This method must only be called after the extractor has been prepared.
-   *
-   * @param track The track index.
-   * @return The corresponding format.
-   */
-  MediaFormat getFormat(int track);
+  void init(TrackOutputBuilder output);
 
   /**
    * Reads up to a single TS packet.

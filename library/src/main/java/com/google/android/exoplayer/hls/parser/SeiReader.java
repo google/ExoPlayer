@@ -31,7 +31,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
   public SeiReader(TrackOutput output) {
     super(output);
-    setFormat(MediaFormat.createEia608Format());
+    output.setFormat(MediaFormat.createEia608Format());
   }
 
   @Override

@@ -29,15 +29,17 @@ import java.io.IOException;
 /**
  * Wraps a {@link HlsExtractor}, adding functionality to enable reading of the extracted samples.
  */
-public final class HlsExtractorWrapper implements HlsExtractor.ExtractorOutput {
+public final class HlsExtractorWrapper implements HlsExtractor.TrackOutputBuilder {
 
   private final BufferPool bufferPool;
   private final HlsExtractor extractor;
+  private final SparseArray<SampleQueue> sampleQueues;
   private final boolean shouldSpliceIn;
 
-  private SparseArray<SampleQueue> sampleQueues;
+  private volatile boolean outputsBuilt;
 
   // Accessed only by the consuming thread.
+  private boolean prepared;
   private boolean spliceConfigured;
 
   public HlsExtractorWrapper(BufferPool bufferPool, HlsExtractor extractor,
@@ -88,7 +90,7 @@ public final class HlsExtractorWrapper implements HlsExtractor.ExtractorOutput {
    * @return The number of available tracks.
    */
   public int getTrackCount() {
-    return extractor.getTrackCount();
+    return sampleQueues.size();
   }
 
   /**
@@ -100,7 +102,7 @@ public final class HlsExtractorWrapper implements HlsExtractor.ExtractorOutput {
    * @return The corresponding format.
    */
   public MediaFormat getFormat(int track) {
-    return extractor.getFormat(track);
+    return sampleQueues.valueAt(track).getFormat();
   }
 
   /**
@@ -109,7 +111,15 @@ public final class HlsExtractorWrapper implements HlsExtractor.ExtractorOutput {
    * @return True if the extractor is prepared. False otherwise.
    */
   public boolean isPrepared() {
-    return extractor.isPrepared();
+    if (!prepared && outputsBuilt) {
+      for (int i = 0; i < sampleQueues.size(); i++) {
+        if (!sampleQueues.valueAt(i).hasFormat()) {
+          return false;
+        }
+      }
+      prepared = true;
+    }
+    return prepared;
   }
 
   /**
@@ -186,13 +196,15 @@ public final class HlsExtractorWrapper implements HlsExtractor.ExtractorOutput {
   // ExtractorOutput implementation.
 
   @Override
-  public TrackOutput getTrackOutput(int id) {
-    SampleQueue sampleQueue = sampleQueues.get(id);
-    if (sampleQueue == null) {
-      sampleQueue = new SampleQueue(bufferPool);
-      sampleQueues.put(id, sampleQueue);
-    }
+  public TrackOutput buildOutput(int id) {
+    SampleQueue sampleQueue = new SampleQueue(bufferPool);
+    sampleQueues.put(id, sampleQueue);
     return sampleQueue;
+  }
+
+  @Override
+  public void allOutputsBuilt() {
+    this.outputsBuilt = true;
   }
 
 }
