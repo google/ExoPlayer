@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.hls.parser;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -51,7 +50,6 @@ public final class TsExtractor implements HlsExtractor {
 
   // Accessed only by the loading thread.
   private TrackOutputBuilder output;
-  private int tsPacketBytesRead;
   private long timestampOffsetUs;
   private long lastPts;
 
@@ -71,27 +69,15 @@ public final class TsExtractor implements HlsExtractor {
   }
 
   @Override
-  public int read(DataSource dataSource) throws IOException {
-    int bytesRead = dataSource.read(tsPacketBuffer.data, tsPacketBytesRead,
-        TS_PACKET_SIZE - tsPacketBytesRead);
-    if (bytesRead == -1) {
-      return -1;
+  public void read(ExtractorInput input) throws IOException, InterruptedException {
+    if (!input.readFully(tsPacketBuffer.data, 0, TS_PACKET_SIZE)) {
+      return;
     }
 
-    tsPacketBytesRead += bytesRead;
-    if (tsPacketBytesRead < TS_PACKET_SIZE) {
-      // We haven't read the whole packet yet.
-      return bytesRead;
-    }
-
-    // Reset before reading the packet.
-    tsPacketBytesRead = 0;
     tsPacketBuffer.setPosition(0);
-    tsPacketBuffer.setLimit(TS_PACKET_SIZE);
-
     int syncByte = tsPacketBuffer.readUnsignedByte();
     if (syncByte != TS_SYNC_BYTE) {
-      return bytesRead;
+      return;
     }
 
     tsPacketBuffer.readBytes(tsScratch, 3);
@@ -117,8 +103,6 @@ public final class TsExtractor implements HlsExtractor {
         payloadReader.consume(tsPacketBuffer, payloadUnitStartIndicator, output);
       }
     }
-
-    return bytesRead;
   }
 
   /**

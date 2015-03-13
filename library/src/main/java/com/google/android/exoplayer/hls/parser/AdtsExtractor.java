@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.hls.parser;
 
-import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.IOException;
@@ -48,12 +47,13 @@ public class AdtsExtractor implements HlsExtractor {
   }
 
   @Override
-  public int read(DataSource dataSource) throws IOException {
-    int bytesRead = dataSource.read(packetBuffer.data, 0, MAX_PACKET_SIZE);
+  public void read(ExtractorInput input) throws IOException, InterruptedException {
+    int bytesRead = input.read(packetBuffer.data, 0, MAX_PACKET_SIZE);
     if (bytesRead == -1) {
-      return -1;
+      return;
     }
 
+    // Feed whatever data we have to the reader, regardless of whether the read finished or not.
     packetBuffer.setPosition(0);
     packetBuffer.setLimit(bytesRead);
 
@@ -61,7 +61,6 @@ public class AdtsExtractor implements HlsExtractor {
     // unnecessary to copy the data through packetBuffer.
     adtsReader.consume(packetBuffer, firstSampleTimestamp, firstPacket);
     firstPacket = false;
-    return bytesRead;
   }
 
 }

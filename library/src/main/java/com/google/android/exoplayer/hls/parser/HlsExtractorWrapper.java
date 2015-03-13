@@ -17,9 +17,9 @@ package com.google.android.exoplayer.hls.parser;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.hls.parser.HlsExtractor.ExtractorInput;
 import com.google.android.exoplayer.hls.parser.HlsExtractor.TrackOutput;
 import com.google.android.exoplayer.upstream.BufferPool;
-import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.Assertions;
 
 import android.util.SparseArray;
@@ -125,7 +125,7 @@ public final class HlsExtractorWrapper implements HlsExtractor.TrackOutputBuilde
   /**
    * Releases the extractor, recycling any pending or incomplete samples to the sample pool.
    * <p>
-   * This method should not be called whilst {@link #read(DataSource)} is also being invoked.
+   * This method should not be called whilst {@link #read(ExtractorInput)} is also being invoked.
    */
   public void release() {
     for (int i = 0; i < sampleQueues.size(); i++) {
@@ -183,14 +183,14 @@ public final class HlsExtractorWrapper implements HlsExtractor.TrackOutputBuilde
   }
 
   /**
-   * Reads up to a single TS packet.
+   * Reads from the provided {@link ExtractorInput}.
    *
-   * @param dataSource The {@link DataSource} from which to read.
+   * @param input The {@link ExtractorInput} from which to read.
    * @throws IOException If an error occurred reading from the source.
-   * @return The number of bytes read from the source.
+   * @throws InterruptedException If the thread was interrupted.
    */
-  public int read(DataSource dataSource) throws IOException {
-    return extractor.read(dataSource);
+  public void read(ExtractorInput input) throws IOException, InterruptedException {
+    extractor.read(input);
   }
 
   // ExtractorOutput implementation.
