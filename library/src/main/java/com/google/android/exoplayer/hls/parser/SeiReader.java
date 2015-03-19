@@ -15,9 +15,10 @@
  */
 package com.google.android.exoplayer.hls.parser;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.hls.parser.HlsExtractor.TrackOutput;
 import com.google.android.exoplayer.text.eia608.Eia608Parser;
-import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 /**
@@ -26,20 +27,17 @@ import com.google.android.exoplayer.util.ParsableByteArray;
  * TODO: Technically, we shouldn't allow a sample to be read from the queue until we're sure that
  * a sample with an earlier timestamp won't be added to it.
  */
-/* package */ class SeiReader extends SampleQueue {
+/* package */ class SeiReader extends ElementaryStreamReader {
 
-  private final ParsableByteArray seiBuffer;
-
-  public SeiReader(BufferPool bufferPool) {
-    super(bufferPool);
-    setMediaFormat(MediaFormat.createEia608Format());
-    seiBuffer = new ParsableByteArray();
+  public SeiReader(TrackOutput output) {
+    super(output);
+    output.setFormat(MediaFormat.createEia608Format());
   }
 
-  public void read(byte[] data, int position, int limit, long pesTimeUs) {
-    seiBuffer.reset(data, limit);
+  @Override
+  public void consume(ParsableByteArray seiBuffer, long pesTimeUs, boolean startOfPacket) {
     // Skip the NAL prefix and type.
-    seiBuffer.setPosition(position + 4);
+    seiBuffer.skip(4);
 
     int b;
     while (seiBuffer.bytesLeft() > 1 /* last byte will be rbsp_trailing_bits */) {
@@ -57,13 +55,18 @@ import com.google.android.exoplayer.util.ParsableByteArray;
       } while (b == 0xFF);
       // Process the payload. We only support EIA-608 payloads currently.
       if (Eia608Parser.isSeiMessageEia608(payloadType, payloadSize, seiBuffer)) {
-        startSample(pesTimeUs);
-        appendData(seiBuffer, payloadSize);
-        commitSample(true);
+        output.startSample(pesTimeUs, 0);
+        output.appendData(seiBuffer, payloadSize);
+        output.commitSample(C.SAMPLE_FLAG_SYNC, 0, null);
       } else {
         seiBuffer.skip(payloadSize);
       }
     }
+  }
+
+  @Override
+  public void packetFinished() {
+    // Do nothing.
   }
 
 }

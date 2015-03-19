@@ -30,6 +30,7 @@ import com.google.android.exoplayer.chunk.MediaChunk;
 import com.google.android.exoplayer.chunk.parser.Extractor;
 import com.google.android.exoplayer.chunk.parser.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer.chunk.parser.mp4.TrackEncryptionBox;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.mp4.Track;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
@@ -38,6 +39,7 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.ManifestFetcher;
+import com.google.android.exoplayer.util.MimeTypes;
 
 import android.net.Uri;
 import android.os.SystemClock;
@@ -48,8 +50,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * An {@link ChunkSource} for SmoothStreaming.
@@ -71,7 +71,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private final int maxHeight;
 
   private final SparseArray<FragmentedMp4Extractor> extractors;
-  private final Map<UUID, byte[]> psshInfo;
+  private final DrmInitData drmInitData;
   private final SmoothStreamingFormat[] formats;
 
   private SmoothStreamingManifest currentManifest;
@@ -143,9 +143,11 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       byte[] keyId = getKeyId(protectionElement.data);
       trackEncryptionBoxes = new TrackEncryptionBox[1];
       trackEncryptionBoxes[0] = new TrackEncryptionBox(true, INITIALIZATION_VECTOR_SIZE, keyId);
-      psshInfo = Collections.singletonMap(protectionElement.uuid, protectionElement.data);
+      DrmInitData.Mapped drmInitData = new DrmInitData.Mapped(MimeTypes.VIDEO_MP4);
+      drmInitData.put(protectionElement.uuid, protectionElement.data);
+      this.drmInitData = drmInitData;
     } else {
-      psshInfo = null;
+      drmInitData = null;
     }
 
     int trackCount = trackIndices != null ? trackIndices.length : streamElement.tracks.length;
@@ -299,7 +301,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
     Uri uri = streamElement.buildRequestUri(selectedFormat.trackIndex, chunkIndex);
     Chunk mediaChunk = newMediaChunk(selectedFormat, uri, null,
-        extractors.get(Integer.parseInt(selectedFormat.id)), psshInfo, dataSource,
+        extractors.get(Integer.parseInt(selectedFormat.id)), drmInitData, dataSource,
         currentAbsoluteChunkIndex, isLastChunk, chunkStartTimeUs, nextChunkStartTimeUs, 0);
     out.chunk = mediaChunk;
   }
@@ -365,7 +367,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   }
 
   private static MediaChunk newMediaChunk(Format formatInfo, Uri uri, String cacheKey,
-      Extractor extractor, Map<UUID, byte[]> psshInfo, DataSource dataSource, int chunkIndex,
+      Extractor extractor, DrmInitData drmInitData, DataSource dataSource, int chunkIndex,
       boolean isLast, long chunkStartTimeUs, long nextChunkStartTimeUs, int trigger) {
     int nextChunkIndex = isLast ? -1 : chunkIndex + 1;
     long nextStartTimeUs = isLast ? -1 : nextChunkStartTimeUs;
@@ -374,7 +376,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     // In SmoothStreaming each chunk contains sample timestamps relative to the start of the chunk.
     // To convert them the absolute timestamps, we need to set sampleOffsetUs to -chunkStartTimeUs.
     return new ContainerMediaChunk(dataSource, dataSpec, formatInfo, trigger, chunkStartTimeUs,
-        nextStartTimeUs, nextChunkIndex, extractor, psshInfo, false, -chunkStartTimeUs);
+        nextStartTimeUs, nextChunkIndex, extractor, drmInitData, false, -chunkStartTimeUs);
   }
 
   private static byte[] getKeyId(byte[] initData) {

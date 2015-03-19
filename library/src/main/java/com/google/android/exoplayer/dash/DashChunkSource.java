@@ -39,6 +39,7 @@ import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.RangedUri;
 import com.google.android.exoplayer.dash.mpd.Representation;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.text.webvtt.WebvttParser;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -54,8 +55,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * An {@link ChunkSource} for DASH streams.
@@ -96,7 +95,7 @@ public class DashChunkSource implements ChunkSource {
   private final ManifestFetcher<MediaPresentationDescription> manifestFetcher;
   private final int adaptationSetIndex;
   private final int[] representationIndices;
-  private final Map<UUID, byte[]> psshInfo;
+  private final DrmInitData drmInitData;
 
   private MediaPresentationDescription currentManifest;
   private boolean finishedCurrentManifest;
@@ -190,7 +189,7 @@ public class DashChunkSource implements ChunkSource {
     this.evaluation = new Evaluation();
     this.headerBuilder = new StringBuilder();
 
-    psshInfo = getPsshInfo(currentManifest, adaptationSetIndex);
+    drmInitData = getDrmInitData(currentManifest, adaptationSetIndex);
     Representation[] representations = getFilteredRepresentations(currentManifest,
         adaptationSetIndex, representationIndices);
     long periodDurationUs = (representations[0].periodDurationMs == TrackRenderer.UNKNOWN_TIME_US)
@@ -407,7 +406,7 @@ public class DashChunkSource implements ChunkSource {
     // Do nothing.
   }
 
-  private boolean mimeTypeIsWebm(String mimeType) {
+  private static boolean mimeTypeIsWebm(String mimeType) {
     return mimeType.startsWith(MimeTypes.VIDEO_WEBM) || mimeType.startsWith(MimeTypes.AUDIO_WEBM);
   }
 
@@ -475,8 +474,8 @@ public class DashChunkSource implements ChunkSource {
           startTimeUs, endTimeUs, nextAbsoluteSegmentNum, null, representationHolder.vttHeader);
     } else {
       return new ContainerMediaChunk(dataSource, dataSpec, representation.format, trigger,
-          startTimeUs, endTimeUs, nextAbsoluteSegmentNum, representationHolder.extractor, psshInfo,
-          false, presentationTimeOffsetUs);
+          startTimeUs, endTimeUs, nextAbsoluteSegmentNum, representationHolder.extractor,
+          drmInitData, false, presentationTimeOffsetUs);
     }
   }
 
@@ -529,19 +528,24 @@ public class DashChunkSource implements ChunkSource {
     }
   }
 
-  private static Map<UUID, byte[]> getPsshInfo(MediaPresentationDescription manifest,
+  private static DrmInitData getDrmInitData(MediaPresentationDescription manifest,
       int adaptationSetIndex) {
     AdaptationSet adaptationSet = manifest.periods.get(0).adaptationSets.get(adaptationSetIndex);
+    String drmInitMimeType = mimeTypeIsWebm(adaptationSet.representations.get(0).format.mimeType)
+        ? MimeTypes.VIDEO_WEBM : MimeTypes.VIDEO_MP4;
     if (adaptationSet.contentProtections.isEmpty()) {
       return null;
     } else {
-      Map<UUID, byte[]> psshInfo = new HashMap<UUID, byte[]>();
+      DrmInitData.Mapped drmInitData = null;
       for (ContentProtection contentProtection : adaptationSet.contentProtections) {
         if (contentProtection.uuid != null && contentProtection.data != null) {
-          psshInfo.put(contentProtection.uuid, contentProtection.data);
+          if (drmInitData == null) {
+            drmInitData = new DrmInitData.Mapped(drmInitMimeType);
+          }
+          drmInitData.put(contentProtection.uuid, contentProtection.data);
         }
       }
-      return psshInfo.isEmpty() ? null : psshInfo;
+      return drmInitData;
     }
   }
 
@@ -581,7 +585,7 @@ public class DashChunkSource implements ChunkSource {
       }
       if ((result & Extractor.RESULT_READ_INDEX) != 0) {
         representationHolders.get(format.id).segmentIndex =
-            new DashWrappingSegmentIndex(extractor.getIndex(), uri, indexAnchor);
+            new DashWrappingSegmentIndex(extractor.getIndex(), uri.toString(), indexAnchor);
       }
     }
 

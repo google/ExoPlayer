@@ -63,7 +63,7 @@ public final class NetworkLoadable<T> implements Loadable {
   public NetworkLoadable(String url, HttpDataSource httpDataSource, Parser<T> parser) {
     this.httpDataSource = httpDataSource;
     this.parser = parser;
-    dataSpec = new DataSpec(Uri.parse(url));
+    dataSpec = new DataSpec(Uri.parse(url), DataSpec.FLAG_ALLOW_GZIP);
   }
 
   /**

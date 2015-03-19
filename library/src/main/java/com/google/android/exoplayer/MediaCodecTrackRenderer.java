@@ -16,6 +16,7 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
@@ -25,7 +26,6 @@ import android.media.MediaCodec;
 import android.media.MediaCodec.CodecException;
 import android.media.MediaCodec.CryptoException;
 import android.media.MediaCrypto;
-import android.media.MediaExtractor;
 import android.os.Handler;
 import android.os.SystemClock;
 
@@ -33,8 +33,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * An abstract {@link TrackRenderer} that uses {@link MediaCodec} to decode samples for rendering.
@@ -164,7 +162,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   protected final Handler eventHandler;
 
   private MediaFormat format;
-  private Map<UUID, byte[]> drmInitData;
+  private DrmInitData drmInitData;
   private MediaCodec codec;
   private boolean codecIsAdaptive;
   private ByteBuffer[] inputBuffers;
@@ -281,7 +279,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         throw new ExoPlaybackException("Media requires a DrmSessionManager");
       }
       if (!openedDrmSession) {
-        drmSessionManager.open(drmInitData, mimeType);
+        drmSessionManager.open(drmInitData);
         openedDrmSession = true;
       }
       int drmSessionState = drmSessionManager.getState();
@@ -370,6 +368,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       codecHotswapTimeMs = -1;
       inputIndex = -1;
       outputIndex = -1;
+      waitingForKeys = false;
       decodeOnlyPresentationTimestamps.clear();
       inputBuffers = null;
       outputBuffers = null;
@@ -418,7 +417,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     sourceState = SOURCE_STATE_NOT_READY;
     inputStreamEnded = false;
     outputStreamEnded = false;
-    waitingForKeys = false;
   }
 
   @Override
@@ -478,6 +476,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     inputIndex = -1;
     outputIndex = -1;
     waitingForFirstSyncFrame = true;
+    waitingForKeys = false;
     decodeOnlyPresentationTimestamps.clear();
     // Workaround for framework bugs.
     // See [Internal: b/8347958], [Internal: b/8578467], [Internal: b/8543366].
@@ -583,7 +582,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       }
       waitingForFirstSyncFrame = false;
     }
-    boolean sampleEncrypted = (sampleHolder.flags & MediaExtractor.SAMPLE_FLAG_ENCRYPTED) != 0;
+    boolean sampleEncrypted = (sampleHolder.flags & C.SAMPLE_FLAG_ENCRYPTED) != 0;
     waitingForKeys = shouldWaitForKeys(sampleEncrypted);
     if (waitingForKeys) {
       return false;

@@ -18,6 +18,7 @@ package com.google.android.exoplayer.upstream;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Predicate;
+import com.google.android.exoplayer.util.Util;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -132,19 +133,6 @@ public class DefaultHttpDataSource implements HttpDataSource {
     }
   }
 
-  /*
-   * TODO: If the server uses gzip compression when serving the response, this may end up returning
-   * the size of the compressed response, where-as it should be returning the decompressed size or
-   * -1. See: developer.android.com/reference/java/net/HttpURLConnection.html
-   *
-   * To fix this we should:
-   *
-   * 1. Explicitly require no compression for media requests (since media should be compressed
-   *    already) by setting the Accept-Encoding header to "identity"
-   * 2. In other cases, for example when requesting manifests, we don't want to disable compression.
-   *    For these cases we should ensure that we return -1 here (and avoid performing any sanity
-   *    checks on the content length).
-   */
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
     this.dataSpec = dataSpec;
@@ -177,16 +165,23 @@ public class DefaultHttpDataSource implements HttpDataSource {
       throw new InvalidContentTypeException(contentType, dataSpec);
     }
 
-    long contentLength = getContentLength(connection);
-    dataLength = dataSpec.length == C.LENGTH_UNBOUNDED ? contentLength : dataSpec.length;
-
-    if (dataSpec.length != C.LENGTH_UNBOUNDED && contentLength != C.LENGTH_UNBOUNDED
-        && contentLength != dataSpec.length) {
-      // The DataSpec specified a length and we resolved a length from the response headers, but
-      // the two lengths do not match.
-      closeConnection();
-      throw new HttpDataSourceException(
-          new UnexpectedLengthException(dataSpec.length, contentLength), dataSpec);
+    if ((dataSpec.flags & DataSpec.FLAG_ALLOW_GZIP) == 0) {
+      long contentLength = getContentLength(connection);
+      dataLength = dataSpec.length == C.LENGTH_UNBOUNDED ? contentLength : dataSpec.length;
+      if (dataSpec.length != C.LENGTH_UNBOUNDED && contentLength != C.LENGTH_UNBOUNDED
+          && contentLength != dataSpec.length) {
+        // The DataSpec specified a length and we resolved a length from the response headers, but
+        // the two lengths do not match.
+        closeConnection();
+        throw new HttpDataSourceException(
+            new UnexpectedLengthException(dataSpec.length, contentLength), dataSpec);
+      }
+    } else {
+      // Gzip is enabled. If the server opts to use gzip then the content length in the response
+      // will be that of the compressed data, which isn't what we want. Furthermore, there isn't a
+      // reliable way to determine whether the gzip was used or not. Hence we always treat the
+      // length as unknown.
+      dataLength = C.LENGTH_UNBOUNDED;
     }
 
     try {
@@ -232,6 +227,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
   public void close() throws HttpDataSourceException {
     try {
       if (inputStream != null) {
+        Util.maybeTerminateInputStream(connection, bytesRemaining());
         try {
           inputStream.close();
         } catch (IOException e) {
@@ -301,6 +297,9 @@ public class DefaultHttpDataSource implements HttpDataSource {
     }
     setRangeHeader(connection, dataSpec);
     connection.setRequestProperty("User-Agent", userAgent);
+    if ((dataSpec.flags & DataSpec.FLAG_ALLOW_GZIP) == 0) {
+      connection.setRequestProperty("Accept-Encoding", "identity");
+    }
     connection.connect();
     return connection;
   }
