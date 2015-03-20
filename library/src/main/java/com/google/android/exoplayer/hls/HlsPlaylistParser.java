@@ -98,9 +98,9 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
   private static final Pattern NAME_ATTR_REGEX =
       Pattern.compile(NAME_ATTR + "=\"(.+?)\"");
   private static final Pattern AUTOSELECT_ATTR_REGEX =
-      Pattern.compile(AUTOSELECT_ATTR + "=\"(.+?)\"");
+      Pattern.compile(AUTOSELECT_ATTR + "=([A-Z]+)", Pattern.CASE_INSENSITIVE);
   private static final Pattern DEFAULT_ATTR_REGEX =
-      Pattern.compile(DEFAULT_ATTR + "=\"(.+?)\"");
+      Pattern.compile(DEFAULT_ATTR + "=([A-Z]+)", Pattern.CASE_INSENSITIVE);
 
   @Override
   public HlsPlaylist parse(String connectionUrl, InputStream inputStream)
