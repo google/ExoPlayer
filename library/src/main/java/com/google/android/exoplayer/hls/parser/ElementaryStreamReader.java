@@ -15,16 +15,21 @@
  */
 package com.google.android.exoplayer.hls.parser;
 
-import com.google.android.exoplayer.upstream.BufferPool;
+import com.google.android.exoplayer.hls.parser.HlsExtractor.TrackOutput;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 /**
  * Extracts individual samples from an elementary media stream, preserving original order.
  */
-/* package */ abstract class ElementaryStreamReader extends SampleQueue {
+/* package */ abstract class ElementaryStreamReader {
 
-  protected ElementaryStreamReader(BufferPool bufferPool) {
-    super(bufferPool);
+  protected final TrackOutput output;
+
+  /**
+   * @param output A {@link TrackOutput} to which samples should be written.
+   */
+  protected ElementaryStreamReader(TrackOutput output) {
+    this.output = output;
   }
 
   /**

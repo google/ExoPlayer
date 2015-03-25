@@ -47,6 +47,10 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
   private final Allocator allocator;
   private final ReadHead readHead;
 
+  /** Whether {@link #allocation}'s capacity is fixed. If true, the allocation is not resized. */
+  private final boolean isAllocationFixedSize;
+  private final int allocationSize;
+
   private Allocation allocation;
 
   private volatile boolean loadCanceled;
@@ -58,6 +62,9 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
   private int writeFragmentRemainingLength;
 
   /**
+   * Constructs an instance whose allocation grows to contain all of the data specified by the
+   * {@code dataSpec}.
+   *
    * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded. {@code dataSpec.length} must not exceed
    *     {@link Integer#MAX_VALUE}. If {@code dataSpec.length == C.LENGTH_UNBOUNDED} then
@@ -72,12 +79,48 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
     this.allocator = allocator;
     resolvedLength = C.LENGTH_UNBOUNDED;
     readHead = new ReadHead();
+
+    isAllocationFixedSize = false;
+    allocationSize = 0;
+  }
+
+  /**
+   * Constructs an instance whose allocation is of a fixed size, which may be smaller than the data
+   * specified by the {@code dataSpec}.
+   * <p>
+   * The allocation size determines how far ahead loading can proceed relative to the current
+   * reading position.
+   *
+   * @param dataSource The source form which the data should be loaded.
+   * @param dataSpec Defines the data to be loaded.
+   * @param allocator Used to obtain an {@link Allocation} for holding the data.
+   * @param allocationSize The minimum size for a fixed-size allocation that will hold the data
+   *     loaded from {@code dataSource}.
+   */
+  public DataSourceStream(
+      DataSource dataSource, DataSpec dataSpec, Allocator allocator, int allocationSize) {
+    Assertions.checkState(dataSpec.length <= Integer.MAX_VALUE);
+    this.dataSource = dataSource;
+    this.dataSpec = dataSpec;
+    this.allocator = allocator;
+    this.allocationSize = allocationSize;
+    resolvedLength = C.LENGTH_UNBOUNDED;
+    readHead = new ReadHead();
+
+    isAllocationFixedSize = true;
   }
 
   /**
    * Resets the read position to the start of the data.
+   *
+   * @throws UnsupportedOperationException Thrown if the allocation size is fixed.
    */
   public void resetReadPosition() {
+    if (isAllocationFixedSize) {
+      throw new UnsupportedOperationException(
+          "The read position cannot be reset when using a fixed allocation");
+    }
+
     readHead.reset();
   }
 
@@ -176,7 +219,12 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
     byte[][] buffers = allocation.getBuffers();
     while (bytesRead < bytesToRead) {
       if (readHead.fragmentRemaining == 0) {
-        readHead.fragmentIndex++;
+        if (readHead.fragmentIndex == buffers.length - 1) {
+          Assertions.checkState(isAllocationFixedSize);
+          readHead.fragmentIndex = 0;
+        } else {
+          readHead.fragmentIndex++;
+        }
         readHead.fragmentOffset = allocation.getFragmentOffset(readHead.fragmentIndex);
         readHead.fragmentRemaining = allocation.getFragmentLength(readHead.fragmentIndex);
       }
@@ -192,6 +240,13 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
       bytesRead += bufferReadLength;
       readHead.fragmentOffset += bufferReadLength;
       readHead.fragmentRemaining -= bufferReadLength;
+    }
+
+    if (isAllocationFixedSize) {
+      synchronized (readHead) {
+        // Notify load() of the updated position so it can resume.
+        readHead.notify();
+      }
     }
 
     return bytesRead;
@@ -210,6 +265,7 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
   }
 
   @Override
+  @SuppressWarnings("NonAtomicVolatileUpdate")
   public void load() throws IOException, InterruptedException {
     if (loadCanceled || isLoadFinished()) {
       // The load was canceled, or is already complete.
@@ -221,7 +277,7 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
       if (loadPosition == 0 && resolvedLength == C.LENGTH_UNBOUNDED) {
         loadDataSpec = dataSpec;
         long resolvedLength = dataSource.open(loadDataSpec);
-        if (resolvedLength > Integer.MAX_VALUE) {
+        if (!isAllocationFixedSize && resolvedLength > Integer.MAX_VALUE) {
           throw new DataSourceStreamLoadException(
               new UnexpectedLengthException(dataSpec.length, resolvedLength));
         }
@@ -235,9 +291,13 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
       }
 
       if (allocation == null) {
-        int initialAllocationSize = resolvedLength != C.LENGTH_UNBOUNDED
-            ? (int) resolvedLength : CHUNKED_ALLOCATION_INCREMENT;
-        allocation = allocator.allocate(initialAllocationSize);
+        if (isAllocationFixedSize) {
+          allocation = allocator.allocate(allocationSize);
+        } else {
+          int initialAllocationSize = resolvedLength != C.LENGTH_UNBOUNDED
+              ? (int) resolvedLength : CHUNKED_ALLOCATION_INCREMENT;
+          allocation = allocator.allocate(initialAllocationSize);
+        }
       }
       int allocationCapacity = allocation.capacity();
 
@@ -253,18 +313,25 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
         if (Thread.interrupted()) {
           throw new InterruptedException();
         }
-        read = dataSource.read(buffers[writeFragmentIndex], writeFragmentOffset,
-            writeFragmentRemainingLength);
+
+        int bytesToWrite = getBytesToWrite();
+        read = dataSource.read(buffers[writeFragmentIndex], writeFragmentOffset, bytesToWrite);
         if (read > 0) {
           loadPosition += read;
           writeFragmentOffset += read;
           writeFragmentRemainingLength -= read;
           if (writeFragmentRemainingLength == 0 && maybeMoreToLoad()) {
             writeFragmentIndex++;
-            if (loadPosition == allocationCapacity) {
-              allocation.ensureCapacity(allocationCapacity + CHUNKED_ALLOCATION_INCREMENT);
-              allocationCapacity = allocation.capacity();
-              buffers = allocation.getBuffers();
+            if (writeFragmentIndex == buffers.length) {
+              if (isAllocationFixedSize) {
+                // Wrap back to the first fragment.
+                writeFragmentIndex = 0;
+              } else {
+                // Grow the allocation.
+                allocation.ensureCapacity(allocationCapacity + CHUNKED_ALLOCATION_INCREMENT);
+                allocationCapacity = allocation.capacity();
+                buffers = allocation.getBuffers();
+              }
             }
             writeFragmentOffset = allocation.getFragmentOffset(writeFragmentIndex);
             writeFragmentRemainingLength = allocation.getFragmentLength(writeFragmentIndex);
@@ -279,6 +346,25 @@ public final class DataSourceStream implements Loadable, NonBlockingInputStream 
     } finally {
       Util.closeQuietly(dataSource);
     }
+  }
+
+  /**
+   * Returns the number of bytes that can be written to the current fragment, blocking until the
+   * reader has consumed data if the allocation has a fixed size and is full.
+   */
+  private int getBytesToWrite() throws InterruptedException {
+    if (!isAllocationFixedSize) {
+      return writeFragmentRemainingLength;
+    }
+
+    synchronized (readHead) {
+      while (loadPosition == readHead.position + allocation.capacity()) {
+        readHead.wait();
+      }
+    }
+
+    return Math.min(writeFragmentRemainingLength,
+        allocation.capacity() - (int) (loadPosition - readHead.position));
   }
 
   private boolean maybeMoreToLoad() {

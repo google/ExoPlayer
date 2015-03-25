@@ -15,9 +15,10 @@
  */
 package com.google.android.exoplayer.hls.parser;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.hls.parser.HlsExtractor.TrackOutput;
 import com.google.android.exoplayer.mp4.Mp4Util;
-import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableBitArray;
@@ -43,18 +44,20 @@ import java.util.List;
   private final NalUnitTargetBuffer sps;
   private final NalUnitTargetBuffer pps;
   private final NalUnitTargetBuffer sei;
+  private final ParsableByteArray seiWrapper;
 
   private int scratchEscapeCount;
   private int[] scratchEscapePositions;
   private boolean isKeyframe;
 
-  public H264Reader(BufferPool bufferPool, SeiReader seiReader) {
-    super(bufferPool);
+  public H264Reader(TrackOutput output, SeiReader seiReader) {
+    super(output);
     this.seiReader = seiReader;
     prefixFlags = new boolean[3];
     sps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SPS, 128);
     pps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_PPS, 128);
     sei = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SEI, 128);
+    seiWrapper = new ParsableByteArray();
     scratchEscapePositions = new int[10];
   }
 
@@ -66,7 +69,7 @@ import java.util.List;
       byte[] dataArray = data.data;
 
       // Append the data to the buffer.
-      appendData(data, data.bytesLeft());
+      output.appendData(data, data.bytesLeft());
 
       // Scan the appended data, processing NAL units as they are encountered
       while (offset < limit) {
@@ -84,13 +87,13 @@ import java.util.List;
           int nalUnitType = Mp4Util.getNalUnitType(dataArray, nextNalUnitOffset);
           int nalUnitOffsetInData = nextNalUnitOffset - limit;
           if (nalUnitType == NAL_UNIT_TYPE_AUD) {
-            if (writingSample()) {
-              if (isKeyframe && !hasMediaFormat() && sps.isCompleted() && pps.isCompleted()) {
+            if (output.isWritingSample()) {
+              if (isKeyframe && !output.hasFormat() && sps.isCompleted() && pps.isCompleted()) {
                 parseMediaFormat(sps, pps);
               }
-              commitSample(isKeyframe, nalUnitOffsetInData);
+              output.commitSample(isKeyframe ? C.SAMPLE_FLAG_SYNC : 0, nalUnitOffsetInData, null);
             }
-            startSample(pesTimeUs, nalUnitOffsetInData);
+            output.startSample(pesTimeUs, nalUnitOffsetInData);
             isKeyframe = false;
           } else if (nalUnitType == NAL_UNIT_TYPE_IDR) {
             isKeyframe = true;
@@ -117,7 +120,7 @@ import java.util.List;
   }
 
   private void feedNalUnitTargetBuffersStart(int nalUnitType) {
-    if (!hasMediaFormat()) {
+    if (!output.hasFormat()) {
       sps.startNalUnit(nalUnitType);
       pps.startNalUnit(nalUnitType);
     }
@@ -125,7 +128,7 @@ import java.util.List;
   }
 
   private void feedNalUnitTargetBuffersData(byte[] dataArray, int offset, int limit) {
-    if (!hasMediaFormat()) {
+    if (!output.hasFormat()) {
       sps.appendToNalUnit(dataArray, offset, limit);
       pps.appendToNalUnit(dataArray, offset, limit);
     }
@@ -137,7 +140,8 @@ import java.util.List;
     pps.endNalUnit(discardPadding);
     if (sei.endNalUnit(discardPadding)) {
       int unescapedLength = unescapeStream(sei.nalData, sei.nalLength);
-      seiReader.read(sei.nalData, 0, unescapedLength, pesTimeUs);
+      seiWrapper.reset(sei.nalData, unescapedLength);
+      seiReader.consume(seiWrapper, pesTimeUs, true);
     }
   }
 
@@ -229,7 +233,7 @@ import java.util.List;
     }
 
     // Set the format.
-    setMediaFormat(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
+    output.setFormat(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
         frameWidth, frameHeight, initializationData));
   }
 

@@ -24,6 +24,7 @@ import com.google.android.exoplayer.demo.player.DefaultRendererBuilder;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.player.HlsRendererBuilder;
+import com.google.android.exoplayer.demo.player.Mp4RendererBuilder;
 import com.google.android.exoplayer.demo.player.SmoothStreamingRendererBuilder;
 import com.google.android.exoplayer.demo.player.UnsupportedDrmException;
 import com.google.android.exoplayer.metadata.GeobMetadata;
@@ -215,6 +216,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
             new WidevineTestMediaDrmCallback(contentId), debugTextView, audioCapabilities);
       case DemoUtil.TYPE_HLS:
         return new HlsRendererBuilder(userAgent, contentUri.toString());
+      case DemoUtil.TYPE_MP4:
+        return new Mp4RendererBuilder(contentUri, debugTextView);
       default:
         return new DefaultRendererBuilder(this, contentUri, debugTextView);
     }

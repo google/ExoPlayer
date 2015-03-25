@@ -21,6 +21,7 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.chunk.parser.Extractor;
 import com.google.android.exoplayer.chunk.parser.SegmentIndex;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.mp4.Atom;
 import com.google.android.exoplayer.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer.mp4.Atom.LeafAtom;
@@ -28,20 +29,15 @@ import com.google.android.exoplayer.mp4.CommonMp4AtomParsers;
 import com.google.android.exoplayer.mp4.Mp4Util;
 import com.google.android.exoplayer.mp4.Track;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
-
-import android.annotation.SuppressLint;
-import android.media.MediaCodec;
-import android.media.MediaExtractor;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.UUID;
@@ -145,7 +141,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   private int lastSyncSampleIndex;
 
   // Data parsed from moov and sidx atoms
-  private final HashMap<UUID, byte[]> psshData;
+  private DrmInitData.Mapped drmInitData;
   private SegmentIndex segmentIndex;
   private Track track;
   private DefaultSampleValues extendsDefaults;
@@ -165,7 +161,6 @@ public final class FragmentedMp4Extractor implements Extractor {
     extendedTypeScratch = new byte[16];
     containerAtoms = new Stack<ContainerAtom>();
     fragmentRun = new TrackFragment();
-    psshData = new HashMap<UUID, byte[]>();
   }
 
   /**
@@ -179,8 +174,8 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   @Override
-  public Map<UUID, byte[]> getPsshInfo() {
-    return psshData.isEmpty() ? null : psshData;
+  public DrmInitData getDrmInitData() {
+    return drmInitData;
   }
 
   @Override
@@ -196,11 +191,6 @@ public final class FragmentedMp4Extractor implements Extractor {
   @Override
   public MediaFormat getFormat() {
     return track == null ? null : track.mediaFormat;
-  }
-
-  @Override
-  public long getDurationUs() {
-    return track == null ? C.UNKNOWN_TIME_US : track.durationUs;
   }
 
   @Override
@@ -375,7 +365,10 @@ public final class FragmentedMp4Extractor implements Extractor {
         int dataSize = psshAtom.readInt();
         byte[] data = new byte[dataSize];
         psshAtom.readBytes(data, 0, dataSize);
-        psshData.put(uuid, data);
+        if (drmInitData == null) {
+          drmInitData = new DrmInitData.Mapped(MimeTypes.VIDEO_MP4);
+        }
+        drmInitData.put(uuid, data);
       }
     }
     ContainerAtom mvex = moov.getContainerAtomOfType(Atom.TYPE_mvex);
@@ -798,12 +791,14 @@ public final class FragmentedMp4Extractor implements Extractor {
     return RESULT_READ_SAMPLE;
   }
 
-  @SuppressLint("InlinedApi")
   private void readSampleEncryptionData(ParsableByteArray sampleEncryptionData, SampleHolder out) {
     TrackEncryptionBox encryptionBox =
         track.sampleDescriptionEncryptionBoxes[fragmentRun.sampleDescriptionIndex];
+    if (!encryptionBox.isEncrypted) {
+      return;
+    }
+
     byte[] keyId = encryptionBox.keyId;
-    boolean isEncrypted = encryptionBox.isEncrypted;
     int vectorSize = encryptionBox.initializationVectorSize;
     boolean subsampleEncryption = fragmentRun.sampleHasSubsampleEncryptionTable[sampleIndex];
 
@@ -831,11 +826,10 @@ public final class FragmentedMp4Extractor implements Extractor {
       clearDataSizes[0] = 0;
       encryptedDataSizes[0] = fragmentRun.sampleSizeTable[sampleIndex];
     }
+
     out.cryptoInfo.set(subsampleCount, clearDataSizes, encryptedDataSizes, keyId, vector,
-        isEncrypted ? MediaCodec.CRYPTO_MODE_AES_CTR : MediaCodec.CRYPTO_MODE_UNENCRYPTED);
-    if (isEncrypted) {
-      out.flags |= MediaExtractor.SAMPLE_FLAG_ENCRYPTED;
-    }
+        C.CRYPTO_MODE_AES_CTR);
+    out.flags |= C.SAMPLE_FLAG_ENCRYPTED;
   }
 
 }

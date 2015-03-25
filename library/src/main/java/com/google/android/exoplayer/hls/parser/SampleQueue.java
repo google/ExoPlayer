@@ -18,15 +18,19 @@ package com.google.android.exoplayer.hls.parser;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.hls.parser.HlsExtractor.TrackOutput;
 import com.google.android.exoplayer.upstream.BufferPool;
+import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.ParsableByteArray;
+
+import java.io.IOException;
 
 /**
  * Wraps a {@link RollingSampleBuffer}, adding higher level functionality such as enforcing that
  * the first sample returned from the queue is a keyframe, allowing splicing to another queue, and
  * so on.
  */
-/* package */ abstract class SampleQueue {
+public final class SampleQueue implements TrackOutput {
 
   private final RollingSampleBuffer rollingBuffer;
   private final SampleHolder sampleInfoHolder;
@@ -40,10 +44,10 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   private boolean writingSample;
 
   // Accessed by both the loading and consuming threads.
-  private volatile MediaFormat mediaFormat;
   private volatile long largestParsedTimestampUs;
+  private volatile MediaFormat format;
 
-  protected SampleQueue(BufferPool bufferPool) {
+  public SampleQueue(BufferPool bufferPool) {
     rollingBuffer = new RollingSampleBuffer(bufferPool);
     sampleInfoHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_DISABLED);
     needKeyframe = true;
@@ -58,16 +62,12 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
   // Called by the consuming thread.
 
+  public MediaFormat getFormat() {
+    return format;
+  }
+
   public long getLargestParsedTimestampUs() {
     return largestParsedTimestampUs;
-  }
-
-  public boolean hasMediaFormat() {
-    return mediaFormat != null;
-  }
-
-  public MediaFormat getMediaFormat() {
-    return mediaFormat;
   }
 
   public boolean isEmpty() {
@@ -166,37 +166,44 @@ import com.google.android.exoplayer.util.ParsableByteArray;
     return true;
   }
 
-  // Called by the loading thread.
+  // TrackOutput implementation. Called by the loading thread.
 
-  protected boolean writingSample() {
-    return writingSample;
+  @Override
+  public boolean hasFormat() {
+    return format != null;
   }
 
-  protected void setMediaFormat(MediaFormat mediaFormat) {
-    this.mediaFormat = mediaFormat;
+  @Override
+  public void setFormat(MediaFormat format) {
+    this.format = format;
   }
 
-  protected void startSample(long sampleTimeUs) {
-    startSample(sampleTimeUs, 0);
+  @Override
+  public int appendData(DataSource dataSource, int length) throws IOException {
+    return rollingBuffer.appendData(dataSource, length);
   }
 
-  protected void startSample(long sampleTimeUs, int offset) {
+  @Override
+  public void appendData(ParsableByteArray buffer, int length) {
+    rollingBuffer.appendData(buffer, length);
+  }
+
+  @Override
+  public void startSample(long sampleTimeUs, int offset) {
     writingSample = true;
     largestParsedTimestampUs = Math.max(largestParsedTimestampUs, sampleTimeUs);
     rollingBuffer.startSample(sampleTimeUs, offset);
   }
 
-  protected void appendData(ParsableByteArray buffer, int length) {
-    rollingBuffer.appendData(buffer, length);
-  }
-
-  protected void commitSample(boolean isKeyframe) {
-    commitSample(isKeyframe, 0);
-  }
-
-  protected void commitSample(boolean isKeyframe, int offset) {
-    rollingBuffer.commitSample(isKeyframe, offset);
+  @Override
+  public void commitSample(int flags, int offset, byte[] encryptionKey) {
+    rollingBuffer.commitSample(flags, offset, encryptionKey);
     writingSample = false;
+  }
+
+  @Override
+  public boolean isWritingSample() {
+    return writingSample;
   }
 
 }

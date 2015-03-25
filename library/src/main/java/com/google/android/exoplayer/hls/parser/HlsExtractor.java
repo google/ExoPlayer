@@ -16,136 +16,138 @@
 package com.google.android.exoplayer.hls.parser;
 
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.IOException;
 
 /**
  * Facilitates extraction of media samples for HLS playbacks.
  */
-// TODO: Consider consolidating more common logic in this base class.
-public abstract class HlsExtractor {
+public interface HlsExtractor {
 
-  private final boolean shouldSpliceIn;
+  /**
+   * An object from which source data can be read.
+   */
+  public interface ExtractorInput {
 
-  // Accessed only by the consuming thread.
-  private boolean spliceConfigured;
+    /**
+     * Reads up to {@code length} bytes from the input.
+     * <p>
+     * This method blocks until at least one byte of data can be read, the end of the input is
+     * detected, or an exception is thrown.
+     *
+     * @param target A target array into which data should be written.
+     * @param offset The offset into the target array at which to write.
+     * @param length The maximum number of bytes to read from the input.
+     * @return The number of bytes read, or -1 if the input has ended.
+     * @throws IOException If an error occurs reading from the input.
+     * @throws InterruptedException If the thread has been interrupted.
+     */
+    int read(byte[] target, int offset, int length) throws IOException, InterruptedException;
 
-  public HlsExtractor(boolean shouldSpliceIn) {
-    this.shouldSpliceIn = shouldSpliceIn;
+    /**
+     * Like {@link #read(byte[], int, int)}, but guaranteed to read request {@code length} in full
+     * unless the end of the input is detected, or an exception is thrown.
+     *
+     * TODO: Firm up behavior of this method if (a) zero bytes are read before EOS, (b) the read
+     * is partially satisfied before EOS.
+     *
+     * @param target A target array into which data should be written.
+     * @param offset The offset into the target array at which to write.
+     * @param length The number of bytes to read from the input.
+     * @return True if the read was successful. False if the end of the input was reached.
+     * @throws IOException If an error occurs reading from the input.
+     * @throws InterruptedException If the thread has been interrupted.
+     */
+    boolean readFully(byte[] target, int offset, int length)
+        throws IOException, InterruptedException;
+
+    /**
+     * Like {@link #readFully(byte[], int, int)}, except the data is skipped instead of read.
+     *
+     * TODO: Firm up behavior of this method if (a) zero bytes are skipped before EOS, (b) the skip
+     * is partially satisfied before EOS.
+     *
+     * @param length The number of bytes to skip from the input.
+     * @return True if the read was successful. False if the end of the input was reached.
+     * @throws IOException If an error occurs reading from the input.
+     * @throws InterruptedException If the thread is interrupted.
+     */
+    boolean skipFully(int length) throws IOException, InterruptedException;
+
+    /**
+     * The current position in the stream.
+     *
+     * @return The position in the stream.
+     */
+    long getPosition();
+
+    /**
+     * Whether or not the input has ended.
+     *
+     * @return True if the input has ended. False otherwise.
+     */
+    boolean isEnded();
+
   }
 
   /**
-   * Attempts to configure a splice from this extractor to the next.
-   * <p>
-   * The splice is performed such that for each track the samples read from the next extractor
-   * start with a keyframe, and continue from where the samples read from this extractor finish.
-   * A successful splice may discard samples from either or both extractors.
-   * <p>
-   * Splice configuration may fail if the next extractor is not yet in a state that allows the
-   * splice to be performed. Calling this method is a noop if the splice has already been
-   * configured. Hence this method should be called repeatedly during the window within which a
-   * splice can be performed.
-   *
-   * @param nextExtractor The extractor being spliced to.
+   * An object to which extracted data should be output.
    */
-  public final void configureSpliceTo(HlsExtractor nextExtractor) {
-    if (spliceConfigured || !nextExtractor.shouldSpliceIn || !nextExtractor.isPrepared()) {
-      // The splice is already configured, or the next extractor doesn't want to be spliced in, or
-      // the next extractor isn't ready to be spliced in.
-      return;
-    }
-    boolean spliceConfigured = true;
-    int trackCount = getTrackCount();
-    for (int i = 0; i < trackCount; i++) {
-      spliceConfigured &= getSampleQueue(i).configureSpliceTo(nextExtractor.getSampleQueue(i));
-    }
-    this.spliceConfigured = spliceConfigured;
-    return;
+  public interface TrackOutputBuilder {
+
+    /**
+     * Invoked to build a {@link TrackOutput} to which data should be output for a given track.
+     *
+     * @param trackId A stable track id.
+     * @return The corresponding {@link TrackOutput}.
+     */
+    TrackOutput buildOutput(int trackId);
+
+    /**
+     * Invoked when all {@link TrackOutput}s have been built, meaning {@link #buildOutput(int)}
+     * will not be invoked again.
+     */
+    void allOutputsBuilt();
+
   }
 
   /**
-   * Gets the number of available tracks.
-   * <p>
-   * This method should only be called after the extractor has been prepared.
-   *
-   * @return The number of available tracks.
+   * An object to which extracted data belonging to a given track should be output.
    */
-  public abstract int getTrackCount();
+  public interface TrackOutput {
+
+    boolean hasFormat();
+
+    void setFormat(MediaFormat format);
+
+    boolean isWritingSample();
+
+    int appendData(DataSource dataSource, int length) throws IOException;
+
+    void appendData(ParsableByteArray data, int length);
+
+    void startSample(long timeUs, int offset);
+
+    void commitSample(int flags, int offset, byte[] encryptionKey);
+
+  }
 
   /**
-   * Gets the format of the specified track.
-   * <p>
-   * This method must only be called after the extractor has been prepared.
+   * Initializes the extractor.
    *
-   * @param track The track index.
-   * @return The corresponding format.
+   * @param output A {@link TrackOutputBuilder} to which extracted data should be output.
    */
-  public abstract MediaFormat getFormat(int track);
+  void init(TrackOutputBuilder output);
 
   /**
-   * Whether the extractor is prepared.
+   * Reads from the provided {@link ExtractorInput}.
    *
-   * @return True if the extractor is prepared. False otherwise.
-   */
-  public abstract boolean isPrepared();
-
-  /**
-   * Releases the extractor, recycling any pending or incomplete samples to the sample pool.
-   * <p>
-   * This method should not be called whilst {@link #read(DataSource)} is also being invoked.
-   */
-  public abstract void release();
-
-  /**
-   * Gets the largest timestamp of any sample parsed by the extractor.
-   *
-   * @return The largest timestamp, or {@link Long#MIN_VALUE} if no samples have been parsed.
-   */
-  public abstract long getLargestSampleTimestamp();
-
-  /**
-   * Gets the next sample for the specified track.
-   *
-   * @param track The track from which to read.
-   * @param holder A {@link SampleHolder} into which the sample should be read.
-   * @return True if a sample was read. False otherwise.
-   */
-  public abstract boolean getSample(int track, SampleHolder holder);
-
-  /**
-   * Discards samples for the specified track up to the specified time.
-   *
-   * @param track The track from which samples should be discarded.
-   * @param timeUs The time up to which samples should be discarded, in microseconds.
-   */
-  public abstract void discardUntil(int track, long timeUs);
-
-  /**
-   * Whether samples are available for reading from {@link #getSample(int, SampleHolder)} for the
-   * specified track.
-   *
-   * @return True if samples are available for reading from {@link #getSample(int, SampleHolder)}
-   *     for the specified track. False otherwise.
-   */
-  public abstract boolean hasSamples(int track);
-
-  /**
-   * Reads up to a single TS packet.
-   *
-   * @param dataSource The {@link DataSource} from which to read.
+   * @param input The {@link ExtractorInput} from which to read.
    * @throws IOException If an error occurred reading from the source.
-   * @return The number of bytes read from the source.
+   * @throws InterruptedException If the thread was interrupted.
    */
-  public abstract int read(DataSource dataSource) throws IOException;
-
-  /**
-   * Gets the {@link SampleQueue} for the specified track.
-   *
-   * @param track The track index.
-   * @return The corresponding sample queue.
-   */
-  protected abstract SampleQueue getSampleQueue(int track);
+  void read(ExtractorInput input) throws IOException, InterruptedException;
 
 }

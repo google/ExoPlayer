@@ -50,9 +50,8 @@ public final class SampleHolder {
   public int size;
 
   /**
-   * Flags that accompany the sample. A combination of
-   * {@link android.media.MediaExtractor#SAMPLE_FLAG_SYNC} and
-   * {@link android.media.MediaExtractor#SAMPLE_FLAG_ENCRYPTED}
+   * Flags that accompany the sample. A combination of {@link C#SAMPLE_FLAG_SYNC} and
+   * {@link C#SAMPLE_FLAG_ENCRYPTED}
    */
   public int flags;
 

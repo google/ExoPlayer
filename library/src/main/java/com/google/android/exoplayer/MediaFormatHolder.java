@@ -15,8 +15,7 @@
  */
 package com.google.android.exoplayer;
 
-import java.util.Map;
-import java.util.UUID;
+import com.google.android.exoplayer.drm.DrmInitData;
 
 /**
  * Holds a {@link MediaFormat} and corresponding drm scheme initialization data.
@@ -28,9 +27,8 @@ public final class MediaFormatHolder {
    */
   public MediaFormat format;
   /**
-   * Initialization data for each of the drm schemes supported by the media, keyed by scheme UUID.
-   * Null if the media is not encrypted.
+   * Initialization data for drm schemes supported by the media. Null if the media is not encrypted.
    */
-  public Map<UUID, byte[]> drmInitData;
+  public DrmInitData drmInitData;
 
 }

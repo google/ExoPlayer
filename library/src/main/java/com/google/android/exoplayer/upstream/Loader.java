@@ -128,6 +128,21 @@ public final class Loader {
   }
 
   /**
+   * Invokes {@link #startLoading(Looper, Loadable, Callback)}, using the {@link Looper}
+   * associated with the calling thread. Loading is delayed by {@code delayMs}.
+   *
+   * @param loadable The {@link Loadable} to load.
+   * @param callback A callback to invoke when the load ends.
+   * @param delayMs Number of milliseconds to wait before calling {@link Loadable#load()}.
+   * @throws IllegalStateException If the calling thread does not have an associated {@link Looper}.
+   */
+  public void startLoading(Loadable loadable, Callback callback, int delayMs) {
+    Looper myLooper = Looper.myLooper();
+    Assertions.checkState(myLooper != null);
+    startLoading(myLooper, loadable, callback, delayMs);
+  }
+
+  /**
    * Start loading a {@link Loadable}.
    * <p>
    * A {@link Loader} instance can only load one {@link Loadable} at a time, and so this method
@@ -138,9 +153,24 @@ public final class Loader {
    * @param callback A callback to invoke when the load ends.
    */
   public void startLoading(Looper looper, Loadable loadable, Callback callback) {
+    startLoading(looper, loadable, callback, 0);
+  }
+
+  /**
+   * Start loading a {@link Loadable} after {@code delayMs} has elapsed.
+   * <p>
+   * A {@link Loader} instance can only load one {@link Loadable} at a time, and so this method
+   * must not be called when another load is in progress.
+   *
+   * @param looper The looper of the thread on which the callback should be invoked.
+   * @param loadable The {@link Loadable} to load.
+   * @param callback A callback to invoke when the load ends.
+   * @param delayMs Number of milliseconds to wait before calling {@link Loadable#load()}.
+   */
+  public void startLoading(Looper looper, Loadable loadable, Callback callback, int delayMs) {
     Assertions.checkState(!loading);
     loading = true;
-    currentTask = new LoadTask(looper, loadable, callback);
+    currentTask = new LoadTask(looper, loadable, callback, delayMs);
     downloadExecutorService.submit(currentTask);
   }
 
@@ -182,13 +212,15 @@ public final class Loader {
 
     private final Loadable loadable;
     private final Loader.Callback callback;
+    private final int delayMs;
 
     private volatile Thread executorThread;
 
-    public LoadTask(Looper looper, Loadable loadable, Loader.Callback callback) {
+    public LoadTask(Looper looper, Loadable loadable, Loader.Callback callback, int delayMs) {
       super(looper);
       this.loadable = loadable;
       this.callback = callback;
+      this.delayMs = delayMs;
     }
 
     public void quit() {
@@ -202,6 +234,9 @@ public final class Loader {
     public void run() {
       try {
         executorThread = Thread.currentThread();
+        if (delayMs > 0) {
+          Thread.sleep(delayMs);
+        }
         if (!loadable.isLoadCanceled()) {
           loadable.load();
         }

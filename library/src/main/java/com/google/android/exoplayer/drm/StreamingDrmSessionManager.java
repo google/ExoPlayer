@@ -31,7 +31,6 @@ import android.os.Looper;
 import android.os.Message;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -168,7 +167,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   @Override
-  public void open(Map<UUID, byte[]> psshData, String mimeType) {
+  public void open(DrmInitData drmInitData) {
     if (++openCount != 1) {
       return;
     }
@@ -178,8 +177,8 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
       postRequestHandler = new PostRequestHandler(requestHandlerThread.getLooper());
     }
     if (this.schemePsshData == null) {
-      this.mimeType = mimeType;
-      schemePsshData = psshData.get(uuid);
+      mimeType = drmInitData.mimeType;
+      schemePsshData = drmInitData.get(uuid);
       if (schemePsshData == null) {
         onError(new IllegalStateException("Media does not support uuid: " + uuid));
         return;

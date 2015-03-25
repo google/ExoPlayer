@@ -17,12 +17,12 @@ package com.google.android.exoplayer.source;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
-import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
@@ -52,8 +52,6 @@ public final class FrameworkSampleExtractor implements SampleExtractor {
   private final long fileDescriptorLength;
 
   private final MediaExtractor mediaExtractor;
-
-  private TrackInfo[] trackInfos;
 
   /**
    * Instantiates a new sample extractor reading from the specified {@code uri}.
@@ -106,22 +104,7 @@ public final class FrameworkSampleExtractor implements SampleExtractor {
       mediaExtractor.setDataSource(fileDescriptor, fileDescriptorOffset, fileDescriptorLength);
     }
 
-    int trackCount = mediaExtractor.getTrackCount();
-    trackInfos = new TrackInfo[trackCount];
-    for (int i = 0; i < trackCount; i++) {
-      android.media.MediaFormat format = mediaExtractor.getTrackFormat(i);
-      long durationUs = format.containsKey(android.media.MediaFormat.KEY_DURATION)
-          ? format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
-      String mime = format.getString(android.media.MediaFormat.KEY_MIME);
-      trackInfos[i] = new TrackInfo(mime, durationUs);
-    }
-
     return true;
-  }
-
-  @Override
-  public TrackInfo[] getTrackInfos() {
-    return trackInfos;
   }
 
   @Override
@@ -151,10 +134,18 @@ public final class FrameworkSampleExtractor implements SampleExtractor {
   }
 
   @Override
-  public void getTrackMediaFormat(int track, MediaFormatHolder mediaFormatHolder) {
-    mediaFormatHolder.format =
-        MediaFormat.createFromFrameworkMediaFormatV16(mediaExtractor.getTrackFormat(track));
-    mediaFormatHolder.drmInitData = Util.SDK_INT >= 18 ? getPsshInfoV18() : null;
+  public int getTrackCount() {
+    return mediaExtractor.getTrackCount();
+  }
+
+  @Override
+  public MediaFormat getMediaFormat(int track) {
+    return MediaFormat.createFromFrameworkMediaFormatV16(mediaExtractor.getTrackFormat(track));
+  }
+
+  @Override
+  public DrmInitData getDrmInitData(int track) {
+    return Util.SDK_INT >= 18 ? getDrmInitDataV18() : null;
   }
 
   @Override
@@ -173,7 +164,7 @@ public final class FrameworkSampleExtractor implements SampleExtractor {
     }
     sampleHolder.timeUs = mediaExtractor.getSampleTime();
     sampleHolder.flags = mediaExtractor.getSampleFlags();
-    if ((sampleHolder.flags & MediaExtractor.SAMPLE_FLAG_ENCRYPTED) != 0) {
+    if ((sampleHolder.flags & C.SAMPLE_FLAG_ENCRYPTED) != 0) {
       sampleHolder.cryptoInfo.setFromExtractorV16(mediaExtractor);
     }
 
@@ -188,9 +179,15 @@ public final class FrameworkSampleExtractor implements SampleExtractor {
   }
 
   @TargetApi(18)
-  private Map<UUID, byte[]> getPsshInfoV18() {
+  private DrmInitData getDrmInitDataV18() {
+    // MediaExtractor only supports psshInfo for MP4, so it's ok to hard code the mimeType here.
     Map<UUID, byte[]> psshInfo = mediaExtractor.getPsshInfo();
-    return (psshInfo == null || psshInfo.isEmpty()) ? null : psshInfo;
+    if (psshInfo == null || psshInfo.isEmpty()) {
+      return null;
+    }
+    DrmInitData.Mapped drmInitData = new DrmInitData.Mapped(MimeTypes.VIDEO_MP4);
+    drmInitData.putAll(psshInfo);
+    return drmInitData;
   }
 
 }

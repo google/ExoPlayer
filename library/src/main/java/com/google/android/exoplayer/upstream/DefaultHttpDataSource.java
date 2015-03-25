@@ -18,6 +18,7 @@ package com.google.android.exoplayer.upstream;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Predicate;
+import com.google.android.exoplayer.util.Util;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -226,6 +227,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
   public void close() throws HttpDataSourceException {
     try {
       if (inputStream != null) {
+        Util.maybeTerminateInputStream(connection, bytesRemaining());
         try {
           inputStream.close();
         } catch (IOException e) {

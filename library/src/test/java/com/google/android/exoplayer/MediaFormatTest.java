@@ -42,9 +42,9 @@ public class MediaFormatTest extends TestCase {
     initData.add(initData2);
 
     testConversionToFrameworkFormatV16(
-        MediaFormat.createVideoFormat("video/xyz", 102400, 1280, 720, 1.5f, initData));
+        MediaFormat.createVideoFormat("video/xyz", 102400, 1000L, 1280, 720, 1.5f, initData));
     testConversionToFrameworkFormatV16(
-        MediaFormat.createAudioFormat("audio/xyz", 102400, 5, 44100, initData));
+        MediaFormat.createAudioFormat("audio/xyz", 102400, 1000L, 5, 44100, initData));
   }
 
   @TargetApi(16)

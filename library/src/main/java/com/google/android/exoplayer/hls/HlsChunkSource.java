@@ -19,6 +19,7 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.hls.parser.AdtsExtractor;
 import com.google.android.exoplayer.hls.parser.HlsExtractor;
+import com.google.android.exoplayer.hls.parser.HlsExtractorWrapper;
 import com.google.android.exoplayer.hls.parser.TsExtractor;
 import com.google.android.exoplayer.upstream.Aes128DataSource;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
@@ -305,7 +306,7 @@ public class HlsChunkSource {
     Uri chunkUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.url);
 
     // Check if encryption is specified.
-    if (HlsMediaPlaylist.ENCRYPTION_METHOD_AES_128.equals(segment.encryptionMethod)) {
+    if (segment.isEncrypted) {
       Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
       if (!keyUri.equals(encryptionKeyUri)) {
         // Encryption is specified and the key has changed.
@@ -341,16 +342,17 @@ public class HlsChunkSource {
     boolean isLastChunk = !mediaPlaylist.live && chunkIndex == mediaPlaylist.segments.size() - 1;
 
     // Configure the extractor that will read the chunk.
-    HlsExtractor extractor;
+    HlsExtractorWrapper extractorWrapper;
     if (previousTsChunk == null || segment.discontinuity || switchingVariant || liveDiscontinuity) {
-      extractor = chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)
-          ? new AdtsExtractor(switchingVariantSpliced, startTimeUs, bufferPool)
-          : new TsExtractor(switchingVariantSpliced, startTimeUs, bufferPool);
+      HlsExtractor extractor = chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)
+          ? new AdtsExtractor(startTimeUs)
+          : new TsExtractor(startTimeUs);
+      extractorWrapper = new HlsExtractorWrapper(bufferPool, extractor, switchingVariantSpliced);
     } else {
-      extractor = previousTsChunk.extractor;
+      extractorWrapper = previousTsChunk.extractor;
     }
 
-    return new TsChunk(dataSource, dataSpec, extractor, enabledVariants[variantIndex].index,
+    return new TsChunk(dataSource, dataSpec, extractorWrapper, enabledVariants[variantIndex].index,
         startTimeUs, endTimeUs, chunkMediaSequence, isLastChunk);
   }
 
@@ -387,16 +389,24 @@ public class HlsChunkSource {
 
   private int getNextVariantIndex(TsChunk previousTsChunk, long playbackPositionUs) {
     clearStaleBlacklistedPlaylists();
+    if (previousTsChunk == null) {
+      // Don't consider switching if we don't have a previous chunk.
+      return variantIndex;
+    }
+    long bitrateEstimate = bandwidthMeter.getBitrateEstimate();
+    if (bitrateEstimate == BandwidthMeter.NO_ESTIMATE) {
+      // Don't consider switching if we don't have a bandwidth estimate.
+      return variantIndex;
+    }
     int idealVariantIndex = getVariantIndexForBandwdith(
-        (int) (bandwidthMeter.getBitrateEstimate() * BANDWIDTH_FRACTION));
+        (int) (bitrateEstimate * BANDWIDTH_FRACTION));
     if (idealVariantIndex == variantIndex) {
       // We're already using the ideal variant.
       return variantIndex;
     }
     // We're not using the ideal variant for the available bandwidth, but only switch if the
     // conditions are appropriate.
-    long bufferedPositionUs = previousTsChunk == null ? playbackPositionUs
-        : adaptiveMode == ADAPTIVE_MODE_SPLICE ? previousTsChunk.startTimeUs
+    long bufferedPositionUs = adaptiveMode == ADAPTIVE_MODE_SPLICE ? previousTsChunk.startTimeUs
         : previousTsChunk.endTimeUs;
     long bufferedUs = bufferedPositionUs - playbackPositionUs;
     if (mediaPlaylistBlacklistTimesMs[variantIndex] != 0
