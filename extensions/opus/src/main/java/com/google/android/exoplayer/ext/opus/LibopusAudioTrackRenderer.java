@@ -380,7 +380,7 @@ public class LibopusAudioTrackRenderer extends TrackRenderer {
     }
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     try {
-      audioTrack.reset();
+      audioTrack.release();
     } finally {
       inputBuffer = null;
       outputBuffer = null;
