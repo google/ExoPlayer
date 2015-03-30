@@ -98,9 +98,9 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
   private static final Pattern NAME_ATTR_REGEX =
       Pattern.compile(NAME_ATTR + "=\"(.+?)\"");
   private static final Pattern AUTOSELECT_ATTR_REGEX =
-      Pattern.compile(AUTOSELECT_ATTR + "=\"(.+?)\"");
+      HlsParserUtil.compileBooleanAttrPattern(AUTOSELECT_ATTR);
   private static final Pattern DEFAULT_ATTR_REGEX =
-      Pattern.compile(DEFAULT_ATTR + "=\"(.+?)\"");
+      HlsParserUtil.compileBooleanAttrPattern(DEFAULT_ATTR);
 
   @Override
   public HlsPlaylist parse(String connectionUrl, InputStream inputStream)
@@ -156,8 +156,8 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
           String name = HlsParserUtil.parseStringAttr(line, NAME_ATTR_REGEX, NAME_ATTR);
           String uri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX, URI_ATTR);
           String language = HlsParserUtil.parseOptionalStringAttr(line, LANGUAGE_ATTR_REGEX);
-          boolean isDefault = HlsParserUtil.parseOptionalBoolAttr(line, DEFAULT_ATTR_REGEX);
-          boolean autoSelect = HlsParserUtil.parseOptionalBoolAttr(line, AUTOSELECT_ATTR_REGEX);
+          boolean isDefault = HlsParserUtil.parseOptionalBooleanAttr(line, DEFAULT_ATTR_REGEX);
+          boolean autoSelect = HlsParserUtil.parseOptionalBooleanAttr(line, AUTOSELECT_ATTR_REGEX);
           subtitles.add(new Subtitle(name, uri, language, isDefault, autoSelect));
         } else {
           // TODO: Support other types of media tag.
