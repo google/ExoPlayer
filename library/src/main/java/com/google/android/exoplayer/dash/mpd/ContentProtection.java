@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer.dash.mpd;
 
+import com.google.android.exoplayer.util.Util;
+
+import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -46,6 +49,35 @@ public class ContentProtection {
     this.schemeUriId = schemeUriId;
     this.uuid = uuid;
     this.data = data;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof ContentProtection)) {
+      return false;
+    }
+    if (obj == this) {
+      return true;
+    }
+
+    ContentProtection other = (ContentProtection) obj;
+    return schemeUriId.equals(other.schemeUriId)
+        && Util.areEqual(uuid, other.uuid)
+        && Arrays.equals(data, other.data);
+  }
+
+  @Override
+  public int hashCode() {
+    int hashCode = 1;
+
+    hashCode = hashCode * 37 + schemeUriId.hashCode();
+    if (uuid != null) {
+      hashCode = hashCode * 37 + uuid.hashCode();
+    }
+    if (data != null) {
+      hashCode = hashCode * 37 + Arrays.hashCode(data);
+    }
+    return hashCode;
   }
 
 }
