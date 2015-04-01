@@ -149,6 +149,20 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    */
   private static final int RECONFIGURATION_STATE_QUEUE_PENDING = 2;
 
+  /**
+   * No reinit is needed
+   */
+  private static final int REINIT_STATE_NONE = 0;
+  /**
+   * The input format has just changed. Signal an end of stream to the codec so that we can
+   * retrieve the very last decoded samples from the previous format.
+   */
+  private static final int REINIT_STATE_SIGNAL_END_OF_STREAM = 1;
+  /**
+   * The end of stream has been sent, wait for the codec to acknowledge it.
+   */
+  private static final int REINIT_STATE_WAIT_END_OF_STREAM = 2;
+
   public final CodecCounters codecCounters;
 
   private final DrmSessionManager drmSessionManager;
@@ -173,6 +187,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private boolean openedDrmSession;
   private boolean codecReconfigured;
   private int codecReconfigurationState;
+  private int codecReinitState;
 
   private int trackIndex;
   private int sourceState;
@@ -180,6 +195,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
   private boolean waitingForFirstSyncFrame;
+  private boolean hasQueuedInputBuffer;
   private long currentPositionUs;
 
   /**
@@ -208,6 +224,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     formatHolder = new MediaFormatHolder();
     decodeOnlyPresentationTimestamps = new ArrayList<Long>();
     outputBufferInfo = new MediaCodec.BufferInfo();
+    codecReinitState = REINIT_STATE_NONE;
   }
 
   @Override
@@ -324,6 +341,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     inputIndex = -1;
     outputIndex = -1;
     waitingForFirstSyncFrame = true;
+    hasQueuedInputBuffer = false;
     codecCounters.codecInitCount++;
   }
 
@@ -375,6 +393,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       codecReconfigured = false;
       codecIsAdaptive = false;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
+      codecReinitState = REINIT_STATE_NONE;
       codecCounters.codecReleaseCount++;
       try {
         codec.stop();
@@ -480,9 +499,10 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     decodeOnlyPresentationTimestamps.clear();
     // Workaround for framework bugs.
     // See [Internal: b/8347958], [Internal: b/8578467], [Internal: b/8543366].
-    if (Util.SDK_INT >= 18) {
+    if (Util.SDK_INT >= 18 && codecReinitState == REINIT_STATE_NONE) {
       codec.flush();
     } else {
+      codecReinitState = REINIT_STATE_NONE;
       releaseCodec();
       maybeInitCodec();
     }
@@ -491,6 +511,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       // avoid this issue by sending reconfiguration data following every flush.
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
     }
+
+    hasQueuedInputBuffer = false;
   }
 
   /**
@@ -504,6 +526,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     if (inputStreamEnded) {
       return false;
     }
+
     if (inputIndex < 0) {
       inputIndex = codec.dequeueInputBuffer(0);
       if (inputIndex < 0) {
@@ -511,6 +534,16 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       }
       sampleHolder.data = inputBuffers[inputIndex];
       sampleHolder.data.clear();
+    }
+
+    if (codecReinitState == REINIT_STATE_SIGNAL_END_OF_STREAM) {
+      codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+      inputIndex = -1;
+      codecReinitState = REINIT_STATE_WAIT_END_OF_STREAM;
+      return false;
+    } else if (codecReinitState == REINIT_STATE_WAIT_END_OF_STREAM) {
+      // we are still waiting for the last samples to be output
+      return false;
     }
 
     int result;
@@ -602,6 +635,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         codec.queueInputBuffer(inputIndex, 0 , bufferSize, presentationTimeUs, 0);
       }
       inputIndex = -1;
+      hasQueuedInputBuffer = true;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     } catch (CryptoException e) {
       notifyCryptoError(e);
@@ -655,8 +689,13 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       codecReconfigured = true;
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
     } else {
-      releaseCodec();
-      maybeInitCodec();
+      if (!hasQueuedInputBuffer) {
+        // no need to signal end of stream if nothing has been queued, we can just reinit asap
+        releaseCodec();
+        maybeInitCodec();
+      } else {
+        codecReinitState = REINIT_STATE_SIGNAL_END_OF_STREAM;
+      }
     }
   }
 
@@ -744,7 +783,14 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
 
     if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-      outputStreamEnded = true;
+      if (codecReinitState == REINIT_STATE_WAIT_END_OF_STREAM) {
+        // The last sample has been processed, we can safely reinit now
+        releaseCodec();
+        maybeInitCodec();
+      } else {
+        outputStreamEnded = true;
+      }
+
       return false;
     }
 
