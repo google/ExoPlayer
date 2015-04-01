@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 apply plugin: 'com.android.library'
+<<<<<<< HEAD
 apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'bintray-release'
 
 configurations {
     deployerJars
 }
+=======
+apply plugin: 'bintray-release'
+>>>>>>> df9e552e9dc1a6585640ad4d10fff7fc4b05d1ab
 
 android {
     compileSdkVersion 21
