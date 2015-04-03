@@ -70,7 +70,9 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link RendererBuilder} for DASH.
@@ -164,20 +166,26 @@ public class DashRendererBuilder implements RendererBuilder,
 
     boolean hasContentProtection = false;
     int videoAdaptationSetIndex = period.getAdaptationSetIndex(AdaptationSet.TYPE_VIDEO);
-    int audioAdaptationSetIndex = period.getAdaptationSetIndex(AdaptationSet.TYPE_AUDIO);
     AdaptationSet videoAdaptationSet = null;
-    AdaptationSet audioAdaptationSet = null;
+
     if (videoAdaptationSetIndex != -1) {
       videoAdaptationSet = period.adaptationSets.get(videoAdaptationSetIndex);
       hasContentProtection |= videoAdaptationSet.hasContentProtection();
     }
-    if (audioAdaptationSetIndex != -1) {
-      audioAdaptationSet = period.adaptationSets.get(audioAdaptationSetIndex);
-      hasContentProtection |= audioAdaptationSet.hasContentProtection();
-    }
+
+      //Loop over all Audio Sets Found in Manifest
+      HashMap<Integer, AdaptationSet> audioAdaptionSets = new HashMap<>();
+      for (int i = 0; i < period.adaptationSets.size(); i++) {
+          AdaptationSet adaptationSet = period.adaptationSets.get(i);
+          if (adaptationSet.type == AdaptationSet.TYPE_AUDIO) {
+              audioAdaptionSets.put(i, adaptationSet);
+              hasContentProtection |= adaptationSet.hasContentProtection();
+          }
+      }
+
 
     // Fail if we have neither video or audio.
-    if (videoAdaptationSet == null && audioAdaptationSet == null) {
+    if (videoAdaptationSet == null && audioAdaptionSets.size() == 0) {
       callback.onRenderersError(new IllegalStateException("No video or audio adaptation sets"));
       return;
     }
@@ -251,34 +259,42 @@ public class DashRendererBuilder implements RendererBuilder,
           ? new DebugTrackRenderer(debugTextView, videoRenderer, videoSampleSource) : null;
     }
 
-    // Build the audio chunk sources.
-    boolean haveAc3Tracks = false;
-    List<ChunkSource> audioChunkSourceList = new ArrayList<ChunkSource>();
-    List<String> audioTrackNameList = new ArrayList<String>();
-    if (audioAdaptationSet != null) {
-      DataSource audioDataSource = new UriDataSource(userAgent, bandwidthMeter);
-      FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
-      List<Representation> audioRepresentations = audioAdaptationSet.representations;
-      for (int i = 0; i < audioRepresentations.size(); i++) {
-        Format format = audioRepresentations.get(i).format;
-        audioTrackNameList.add(format.id + " (" + format.numChannels + "ch, " +
-            format.audioSamplingRate + "Hz)");
-        audioChunkSourceList.add(new DashChunkSource(manifestFetcher, audioAdaptationSetIndex,
-            new int[] {i}, audioDataSource, audioEvaluator, LIVE_EDGE_LATENCY_MS,
-            elapsedRealtimeOffset));
-        haveAc3Tracks |= AC_3_CODEC.equals(format.codecs) || E_AC_3_CODEC.equals(format.codecs);
-      }
-      // Filter out non-AC-3 tracks if there is an AC-3 track, to avoid having to switch renderers.
-      if (haveAc3Tracks) {
-        for (int i = audioRepresentations.size() - 1; i >= 0; i--) {
-          Format format = audioRepresentations.get(i).format;
-          if (!AC_3_CODEC.equals(format.codecs) && !E_AC_3_CODEC.equals(format.codecs)) {
-            audioTrackNameList.remove(i);
-            audioChunkSourceList.remove(i);
+      // Build the audio chunk sources.
+      boolean haveAc3Tracks = false;
+      List<ChunkSource> audioChunkSourceList = new ArrayList<ChunkSource>();
+      List<String> audioTrackNameList = new ArrayList<String>();
+      if (audioAdaptionSets.size() > 0) {
+          DataSource audioDataSource = new UriDataSource(userAgent, bandwidthMeter);
+          FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
+          List<Representation> audioRepresentations = new ArrayList<>();
+
+          for (Map.Entry<Integer, AdaptationSet> audioAdaption : audioAdaptionSets.entrySet()) {
+              audioRepresentations.addAll(audioAdaption.getValue().representations);
+
+
+              for (int i = 0; i < audioRepresentations.size(); i++) {
+                  Format format = audioRepresentations.get(i).format;
+                  audioTrackNameList.add(format.id + " (" + format.numChannels + "ch, " +
+                          format.audioSamplingRate + "Hz)");
+                  audioChunkSourceList.add(new DashChunkSource(manifestFetcher, audioAdaption.getKey(),
+                          new int[] {i}, audioDataSource, audioEvaluator, LIVE_EDGE_LATENCY_MS,
+                          elapsedRealtimeOffset));
+                  haveAc3Tracks |= AC_3_CODEC.equals(format.codecs) || E_AC_3_CODEC.equals(format.codecs);
+              }
+
           }
-        }
+
+          // Filter out non-AC-3 tracks if there is an AC-3 track, to avoid having to switch renderers.
+          if (haveAc3Tracks) {
+              for (int i = audioRepresentations.size() - 1; i >= 0; i--) {
+                  Format format = audioRepresentations.get(i).format;
+                  if (!AC_3_CODEC.equals(format.codecs) && !E_AC_3_CODEC.equals(format.codecs)) {
+                      audioTrackNameList.remove(i);
+                      audioChunkSourceList.remove(i);
+                  }
+              }
+          }
       }
-    }
 
     // Build the audio renderer.
     final String[] audioTrackNames;
