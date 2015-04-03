@@ -1,0 +1,21 @@
+--- library/src/main/java/com/google/android/exoplayer/upstream/DefaultHttpDataSource.java
++++ library/src/main/java/com/google/android/exoplayer/upstream/DefaultHttpDataSource.java
+@@ -273,6 +274,18 @@
+     }
+ 
+     long contentLength = getContentLength(connection);
++
++    if (responseCode == 200 && dataSpec.position != 0) {
++      // We requested a range, but server did not comply.
++      skipBytes = dataSpec.position;
++      Log.i(TAG, "Server does not support partial requests");
++
++      if (dataSpec.length != C.LENGTH_UNBOUNDED) {
++        // Avoid UnexpectedLengthException
++        contentLength = dataSpec.length;
++      }
++    }
++
+     dataLength = dataSpec.length == C.LENGTH_UNBOUNDED ? contentLength : dataSpec.length;
+ 
+     if (dataSpec.length != C.LENGTH_UNBOUNDED && contentLength != C.LENGTH_UNBOUNDED
