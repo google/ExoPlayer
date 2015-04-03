@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.dash.mpd;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -72,5 +73,26 @@ public class Period {
     }
     return -1;
   }
+
+
+    /**
+     * Returns the indices of all adaptations sets for a given type, or an empty List<Integer> if no adaptation set of
+     * the specified type exists.
+     *
+     * @param type An adaptation set type.
+     * @return List<Integer> with all indices of adaptation sets for the specified type, List can be Empty.
+     */
+    public List<Integer> getAdaptationSetIndices(int type) {
+        List<Integer> foundIndices = new ArrayList<>();
+
+        int adaptationCount = adaptationSets.size();
+        for (int i = 0; i < adaptationCount; i++) {
+            if (adaptationSets.get(i).type == type) {
+                foundIndices.add(i);
+            }
+        }
+        return foundIndices;
+    }
+
 
 }
