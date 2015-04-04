@@ -20,6 +20,7 @@ import com.google.android.exoplayer.util.Ac3Util;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
+import com.google.android.exoplayer.util.Logger;
 
 import android.annotation.TargetApi;
 import android.media.AudioFormat;
@@ -118,7 +119,7 @@ public final class AudioTrack {
    */
   private static final int BUFFER_MULTIPLICATION_FACTOR = 4;
 
-  private static final String TAG = "AudioTrack";
+  private static final String TAG = AudioTrack.class.getSimpleName();
 
   /**
    * AudioTrack timestamps are deemed spurious if they are offset from the system clock by more
@@ -205,6 +206,8 @@ public final class AudioTrack {
    * Bitrate measured in kilobits per second, if using passthrough.
    */
   private int passthroughBitrate;
+
+  private final Logger log = new Logger(Logger.Module.Audio, TAG);
 
   /**
    * Creates an audio track with default audio capabilities (no encoded audio passthrough support).
@@ -295,13 +298,16 @@ public final class AudioTrack {
         // getPlayheadPositionUs() only has a granularity of ~20ms, so we base the position off the
         // system clock (and a smoothed offset between it and the playhead position) so as to
         // prevent jitter in the reported positions.
+        log.v("startMediaTimeUs = " + startMediaTimeUs +
+            " smoothedPlayheadOffsetUs = " + smoothedPlayheadOffsetUs +
+            " systemClockUs = " + systemClockUs);
         currentPositionUs = systemClockUs + smoothedPlayheadOffsetUs + startMediaTimeUs;
       }
       if (!sourceEnded) {
         currentPositionUs -= latencyUs;
       }
     }
-
+    log.v("currentPositionUs = " + currentPositionUs);
     return currentPositionUs;
   }
 
@@ -385,6 +391,9 @@ public final class AudioTrack {
    *     size inferred from the format.
    */
   public void reconfigure(MediaFormat format, boolean passthrough, int specifiedBufferSize) {
+    log.i("reconfigure: format = " + format +
+            " passthrough = " + passthrough +
+            " specifiedBufferSize = " + specifiedBufferSize);
     int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
     int channelConfig;
     switch (channelCount) {
@@ -406,6 +415,7 @@ public final class AudioTrack {
     int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
     String mimeType = format.getString(MediaFormat.KEY_MIME);
     int encoding = passthrough ? getEncodingForMimeType(mimeType) : AudioFormat.ENCODING_PCM_16BIT;
+    log.i("mimeType = " + mimeType + " encoding = " + encoding);
     if (isInitialized() && this.sampleRate == sampleRate && this.channelConfig == channelConfig
         && this.encoding == encoding) {
       // We already have an audio track with the correct sample rate, encoding and channel config.
@@ -433,10 +443,14 @@ public final class AudioTrack {
           : multipliedBufferSize > maxAppBufferSize ? maxAppBufferSize
           : multipliedBufferSize;
     }
+    log.i("bufferSize = " + bufferSize + "minBufferSize = " + minBufferSize +
+        " frameSize = " + frameSize + " sampleRate = " + sampleRate +
+        " channelConfig = " + channelConfig);
   }
 
   /** Starts/resumes playing audio if the audio track has been initialized. */
   public void play() {
+    log.i("play");
     if (isInitialized()) {
       resumeSystemTimeUs = System.nanoTime() / 1000;
       audioTrack.play();
@@ -468,6 +482,8 @@ public final class AudioTrack {
    */
   public int handleBuffer(ByteBuffer buffer, int offset, int size, long presentationTimeUs)
       throws WriteException {
+    log.v("handleBuffer : offset = " + offset + " size = " + size +
+                        " presentationTimeUs = " + presentationTimeUs);
     if (size == 0) {
       return RESULT_BUFFER_CONSUMED;
     }
@@ -505,6 +521,7 @@ public final class AudioTrack {
       long bufferStartTime = presentationTimeUs - framesToDurationUs(bytesToFrames(size));
       if (startMediaTimeState == START_NOT_SET) {
         startMediaTimeUs = Math.max(0, bufferStartTime);
+        log.i("Setting StartMediaTimeUs = " + startMediaTimeUs);
         startMediaTimeState = START_IN_SYNC;
       } else {
         // Sanity check that bufferStartTime is consistent with the expected value.
@@ -512,7 +529,7 @@ public final class AudioTrack {
             + framesToDurationUs(bytesToFrames(submittedBytes));
         if (startMediaTimeState == START_IN_SYNC
             && Math.abs(expectedBufferStartTime - bufferStartTime) > 200000) {
-          Log.e(TAG, "Discontinuity detected [expected " + expectedBufferStartTime + ", got "
+          log.w("Discontinuity detected [expected " + expectedBufferStartTime + ", got "
               + bufferStartTime + "]");
           startMediaTimeState = START_NEED_SYNC;
         }
@@ -520,6 +537,7 @@ public final class AudioTrack {
           // Adjust startMediaTimeUs to be consistent with the current buffer's start time and the
           // number of bytes submitted.
           startMediaTimeUs += (bufferStartTime - expectedBufferStartTime);
+          log.i("StartMediaTimeUs recalculated as = " + startMediaTimeUs);
           startMediaTimeState = START_IN_SYNC;
           result |= RESULT_POSITION_DISCONTINUITY;
         }
@@ -594,6 +612,7 @@ public final class AudioTrack {
   /** Sets the playback volume. */
   public void setVolume(float volume) {
     if (this.volume != volume) {
+      log.i("setVolume: volume = " + volume);
       this.volume = volume;
       setAudioTrackVolume();
     }
@@ -621,6 +640,7 @@ public final class AudioTrack {
 
   /** Pauses playback. */
   public void pause() {
+    log.i("pause");
     if (isInitialized()) {
       resetSyncParams();
       audioTrackUtil.pause();
@@ -633,6 +653,7 @@ public final class AudioTrack {
    * resetting. The audio session may remain active until the instance is {@link #release}d.
    */
   public void reset() {
+    log.i("reset");
     if (isInitialized()) {
       submittedBytes = 0;
       temporaryBufferSize = 0;
@@ -699,6 +720,7 @@ public final class AudioTrack {
       // The AudioTrack hasn't output anything yet.
       return;
     }
+    log.v("playbackPositionUs = " + playbackPositionUs);
     long systemClockUs = System.nanoTime() / 1000;
     if (systemClockUs - lastPlayheadSampleTimeUs >= MIN_PLAYHEAD_OFFSET_SAMPLE_INTERVAL_US) {
       // Take a new sample and update the smoothed offset between the system clock and the playhead.
@@ -729,6 +751,8 @@ public final class AudioTrack {
         if (audioTimestampUs < resumeSystemTimeUs) {
           // The timestamp corresponds to a time before the track was most recently resumed.
           audioTimestampSet = false;
+          log.w( "The timestamp corresponds to a time before the track was most recently resumed: "
+              + audioTimestampUs + ", " + resumeSystemTimeUs);
         } else if (Math.abs(audioTimestampUs - systemClockUs) > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
           // The timestamp time base is probably wrong.
           String message = "Spurious audio timestamp (system clock mismatch): "
@@ -737,7 +761,7 @@ public final class AudioTrack {
           if (failOnSpuriousAudioTimestamp) {
             throw new InvalidAudioTrackTimestampException(message);
           }
-          Log.w(TAG, message);
+          log.w(message);
           audioTimestampSet = false;
         } else if (Math.abs(framesToDurationUs(audioTimestampFramePosition) - playbackPositionUs)
             > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
@@ -748,7 +772,7 @@ public final class AudioTrack {
           if (failOnSpuriousAudioTimestamp) {
             throw new InvalidAudioTrackTimestampException(message);
           }
-          Log.w(TAG, message);
+          log.w(message);
           audioTimestampSet = false;
         }
       }
@@ -762,7 +786,7 @@ public final class AudioTrack {
           latencyUs = Math.max(latencyUs, 0);
           // Sanity check that the latency isn't too large.
           if (latencyUs > MAX_LATENCY_US) {
-            Log.w(TAG, "Ignoring impossibly large audio latency: " + latencyUs);
+            log.w("Ignoring impossibly large audio latency: " + latencyUs);
             latencyUs = 0;
           }
         } catch (Exception e) {
