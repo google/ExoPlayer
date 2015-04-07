@@ -56,8 +56,6 @@ public class DefaultHttpDataSource implements HttpDataSource {
   private HttpURLConnection connection;
   private InputStream inputStream;
   private boolean opened;
-  private long bytesToSkipAtBegin;
-  private long stopReadAfter;
 
   private long dataLength;
   private long bytesRead;
@@ -167,32 +165,8 @@ public class DefaultHttpDataSource implements HttpDataSource {
       throw new InvalidContentTypeException(contentType, dataSpec);
     }
 
-    // only used if gzip not used
-    long contentLength = getContentLength(connection);
-
-    boolean isRangeRequest = dataSpec.position != 0 || dataSpec.length != C.LENGTH_UNBOUNDED;
-    if (responseCode == 200 && isRangeRequest) {
-
-      // We requested a range, but server did not comply.
-      Log.i(TAG, "Server does not support partial requests");
-      bytesToSkipAtBegin = dataSpec.position;
-
-      // Avoid UnexpectedLengthException by simulating the correct content length
-      if (dataSpec.length != C.LENGTH_UNBOUNDED) {
-
-        // Range request with specific end position
-        contentLength = dataSpec.length;
-        stopReadAfter = dataSpec.length;
-
-      } else {
-
-        // Unbounded request.
-        contentLength = contentLength - dataSpec.position;
-
-      }
-    }
-
     if ((dataSpec.flags & DataSpec.FLAG_ALLOW_GZIP) == 0) {
+      long contentLength = getContentLength(connection);
       dataLength = dataSpec.length == C.LENGTH_UNBOUNDED ? contentLength : dataSpec.length;
       if (dataSpec.length != C.LENGTH_UNBOUNDED && contentLength != C.LENGTH_UNBOUNDED
           && contentLength != dataSpec.length) {
@@ -228,34 +202,16 @@ public class DefaultHttpDataSource implements HttpDataSource {
   @Override
   public int read(byte[] buffer, int offset, int readLength) throws HttpDataSourceException {
     int read = 0;
-    int skipped = 0;
-
     try {
-      while (bytesToSkipAtBegin > 0) {
-        long currentSkip = inputStream.skip(bytesToSkipAtBegin);
-        bytesToSkipAtBegin -= currentSkip;
-        skipped += currentSkip;
-      }
-
-      if (dataSpec.length != C.LENGTH_UNBOUNDED && stopReadAfter != 0) {
-        // Stop streaming bytes at the end of the range request.
-        int bytesLeftInRange = (int)(stopReadAfter - bytesRead);
-        if (bytesLeftInRange < readLength) {
-          Log.i(TAG, "Chopping off request as client requested");
-          readLength = bytesLeftInRange;
-        }
-      }
-
       read = inputStream.read(buffer, offset, readLength);
-
     } catch (IOException e) {
       throw new HttpDataSourceException(e, dataSpec);
     }
 
-    if (read + skipped > 0) {
-      bytesRead += read;  // only count the interesting stream bytes, not the skipped ones
+    if (read > 0) {
+      bytesRead += read;
       if (listener != null) {
-        listener.onBytesTransferred(read + skipped);
+        listener.onBytesTransferred(read);
       }
     } else if (dataLength != C.LENGTH_UNBOUNDED && dataLength != bytesRead) {
       // Check for cases where the server closed the connection having not sent the correct amount
