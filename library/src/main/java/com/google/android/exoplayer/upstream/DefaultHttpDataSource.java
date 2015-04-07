@@ -56,7 +56,8 @@ public class DefaultHttpDataSource implements HttpDataSource {
   private HttpURLConnection connection;
   private InputStream inputStream;
   private boolean opened;
-  private long skipBytes;
+  private long bytesToSkipAtBegin;
+  private long stopReadAfter;
 
   private long dataLength;
   private long bytesRead;
@@ -169,15 +170,25 @@ public class DefaultHttpDataSource implements HttpDataSource {
     // only used if gzip not used
     long contentLength = getContentLength(connection);
 
-    if (responseCode == 200 && dataSpec.position != 0) {
+    boolean isRangeRequest = dataSpec.position != 0 || dataSpec.length != C.LENGTH_UNBOUNDED;
+    if (responseCode == 200 && isRangeRequest) {
+
       // We requested a range, but server did not comply.
-
       Log.i(TAG, "Server does not support partial requests");
-      skipBytes = dataSpec.position;
+      bytesToSkipAtBegin = dataSpec.position;
 
+      // Avoid UnexpectedLengthException by simulating the correct content length
       if (dataSpec.length != C.LENGTH_UNBOUNDED) {
-        // Avoid UnexpectedLengthException
+
+        // Range request with specific end position
         contentLength = dataSpec.length;
+        stopReadAfter = dataSpec.length;
+
+      } else {
+
+        // Unbounded request.
+        contentLength = contentLength - dataSpec.position;
+
       }
     }
 
@@ -220,19 +231,29 @@ public class DefaultHttpDataSource implements HttpDataSource {
     int skipped = 0;
 
     try {
-      while (skipBytes > 0) {
-        long currentSkip = inputStream.skip(skipBytes);
-        skipBytes -= currentSkip;
+      while (bytesToSkipAtBegin > 0) {
+        long currentSkip = inputStream.skip(bytesToSkipAtBegin);
+        bytesToSkipAtBegin -= currentSkip;
         skipped += currentSkip;
       }
 
+      if (dataSpec.length != C.LENGTH_UNBOUNDED && stopReadAfter != 0) {
+        // Stop streaming bytes at the end of the range request.
+        int bytesLeftInRange = (int)(stopReadAfter - bytesRead);
+        if (bytesLeftInRange < readLength) {
+          Log.i(TAG, "Chopping off request as client requested");
+          readLength = bytesLeftInRange;
+        }
+      }
+
       read = inputStream.read(buffer, offset, readLength);
+
     } catch (IOException e) {
       throw new HttpDataSourceException(e, dataSpec);
     }
 
     if (read + skipped > 0) {
-      bytesRead += read;  // only take the requested bytes, not the skipped
+      bytesRead += read;  // only count the interesting stream bytes, not the skipped ones
       if (listener != null) {
         listener.onBytesTransferred(read + skipped);
       }
