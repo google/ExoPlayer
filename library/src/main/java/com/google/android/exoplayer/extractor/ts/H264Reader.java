@@ -24,6 +24,8 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,11 +35,33 @@ import java.util.List;
  */
 /* package */ class H264Reader extends ElementaryStreamReader {
 
+  private static final String TAG = "H264Reader";
+
   private static final int NAL_UNIT_TYPE_IDR = 5;
   private static final int NAL_UNIT_TYPE_SEI = 6;
   private static final int NAL_UNIT_TYPE_SPS = 7;
   private static final int NAL_UNIT_TYPE_PPS = 8;
   private static final int NAL_UNIT_TYPE_AUD = 9;
+  private static final int EXTENDED_SAR = 0xFF;
+  private static final float[] ASPECT_RATIO_IDC_VALUES = new float[] {
+    1f /* Unspecified. Assume square */,
+    1f,
+    12f / 11f,
+    10f / 11f,
+    16f / 11f,
+    40f / 33f,
+    24f / 11f,
+    20f / 11f,
+    32f / 11f,
+    80f / 33f,
+    18f / 11f,
+    15f / 11f,
+    64f / 33f,
+    160f / 99f,
+    4f / 3f,
+    3f / 2f,
+    2f
+  };
 
   private final SeiReader seiReader;
   private final boolean[] prefixFlags;
@@ -244,8 +268,28 @@ import java.util.List;
       frameHeight -= (frameCropTopOffset + frameCropBottomOffset) * cropUnitY;
     }
 
+    float pixelWidthHeightRatio = 1;
+    boolean vuiParametersPresentFlag = bitArray.readBit();
+    if (vuiParametersPresentFlag) {
+      boolean aspectRatioInfoPresentFlag = bitArray.readBit();
+      if (aspectRatioInfoPresentFlag) {
+        int aspectRatioIdc = bitArray.readBits(8);
+        if (aspectRatioIdc == EXTENDED_SAR) {
+          int sarWidth = bitArray.readBits(16);
+          int sarHeight = bitArray.readBits(16);
+          if (sarWidth != 0 && sarHeight != 0) {
+            pixelWidthHeightRatio = (float) sarWidth / sarHeight;
+          }
+        } else if (aspectRatioIdc < ASPECT_RATIO_IDC_VALUES.length) {
+          pixelWidthHeightRatio = ASPECT_RATIO_IDC_VALUES[aspectRatioIdc];
+        } else {
+          Log.w(TAG, "Unexpected aspect_ratio_idc value: " + aspectRatioIdc);
+        }
+      }
+    }
+
     output.format(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
-        C.UNKNOWN_TIME_US, frameWidth, frameHeight, initializationData));
+        C.UNKNOWN_TIME_US, frameWidth, frameHeight, pixelWidthHeightRatio, initializationData));
     hasOutputFormat = true;
   }
 
