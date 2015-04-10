@@ -163,6 +163,12 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
     printInternalError("cryptoError", e);
   }
 
+  @Override
+  public void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
+      long initializationDurationMs) {
+    Log.d(TAG, "decoderInitialized [" + getSessionTimeString() + "]");
+  }
+
   private void printInternalError(String type, Exception e) {
     Log.e(TAG, "internalError [" + getSessionTimeString() + ", " + type + "]", e);
   }

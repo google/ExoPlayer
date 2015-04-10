@@ -59,6 +59,17 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
      */
     void onCryptoError(CryptoException e);
 
+    /**
+     * Invoked when a decoder is successfully created.
+     *
+     * @param decoderName The decoder that was configured and created.
+     * @param elapsedRealtimeMs {@code elapsedRealtime} timestamp of when the initialization
+     *    finished.
+     * @param initializationDurationMs Amount of time taken to initialize the decoder.
+     */
+    void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
+        long initializationDurationMs);
+
   }
 
   /**
@@ -332,9 +343,13 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     String decoderName = decoderInfo.name;
     codecIsAdaptive = decoderInfo.adaptive;
     try {
+      long codecInitializingTimestamp = SystemClock.elapsedRealtime();
       codec = MediaCodec.createByCodecName(decoderName);
       configureCodec(codec, format.getFrameworkMediaFormatV16(), mediaCrypto);
       codec.start();
+      long codecInitializedTimestamp = SystemClock.elapsedRealtime();
+      notifyDecoderInitialized(decoderName, codecInitializedTimestamp,
+          codecInitializedTimestamp - codecInitializingTimestamp);
       inputBuffers = codec.getInputBuffers();
       outputBuffers = codec.getOutputBuffers();
     } catch (Exception e) {
@@ -841,6 +856,19 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         @Override
         public void run() {
           eventListener.onCryptoError(e);
+        }
+      });
+    }
+  }
+
+  private void notifyDecoderInitialized(final String decoderName,
+      final long initializedTimestamp, final long initializationDuration) {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          eventListener.onDecoderInitialized(decoderName, initializedTimestamp,
+              initializationDuration);
         }
       });
     }
