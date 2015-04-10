@@ -61,8 +61,11 @@ public final class TeeDataSource implements DataSource {
 
   @Override
   public void close() throws IOException {
-    upstream.close();
-    dataSink.close();
+    try {
+      upstream.close();
+    } finally {
+      dataSink.close();
+    }
   }
 
 }

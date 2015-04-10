@@ -22,6 +22,7 @@ import android.text.TextUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
@@ -124,6 +125,19 @@ public final class Util {
   public static void closeQuietly(DataSource dataSource) {
     try {
       dataSource.close();
+    } catch (IOException e) {
+      // Ignore.
+    }
+  }
+
+  /**
+   * Closes an {@link OutputStream}, suppressing any {@link IOException} that may occur.
+   *
+   * @param outputStream The {@link OutputStream} to close.
+   */
+  public static void closeQuietly(OutputStream outputStream) {
+    try {
+      outputStream.close();
     } catch (IOException e) {
       // Ignore.
     }
