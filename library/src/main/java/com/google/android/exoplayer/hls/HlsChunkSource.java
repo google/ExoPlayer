@@ -474,7 +474,7 @@ public class HlsChunkSource {
     System.arraycopy(ivData, offset, ivDataWithPadding, ivDataWithPadding.length - ivData.length
         + offset, ivData.length - offset);
 
-    encryptedDataSource = new Aes128DataSource(secretKey, ivDataWithPadding, upstreamDataSource);
+    encryptedDataSource = new Aes128DataSource(upstreamDataSource, secretKey, ivDataWithPadding);
     encryptionKeyUri = keyUri;
     encryptedDataSourceIv = iv;
     encryptedDataSourceSecretKey = secretKey;
