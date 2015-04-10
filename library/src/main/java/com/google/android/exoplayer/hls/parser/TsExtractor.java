@@ -75,6 +75,7 @@ public final class TsExtractor implements HlsExtractor {
     }
 
     tsPacketBuffer.setPosition(0);
+    tsPacketBuffer.setLimit(TS_PACKET_SIZE);
     int syncByte = tsPacketBuffer.readUnsignedByte();
     if (syncByte != TS_SYNC_BYTE) {
       return;
