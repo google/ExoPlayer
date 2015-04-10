@@ -150,18 +150,21 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private static final int RECONFIGURATION_STATE_QUEUE_PENDING = 2;
 
   /**
-   * No reinit is needed
+   * The codec does not need to be re-initialized.
    */
-  private static final int REINIT_STATE_NONE = 0;
+  private static final int REINITIALIZATION_STATE_NONE = 0;
   /**
-   * The input format has just changed. Signal an end of stream to the codec so that we can
-   * retrieve the very last decoded samples from the previous format.
+   * The input format has changed in a way that requires the codec to be re-initialized, but we
+   * haven't yet signaled an end of stream to the existing codec. We need to do so in order to
+   * ensure that it outputs any remaining buffers before we release it.
    */
-  private static final int REINIT_STATE_SIGNAL_END_OF_STREAM = 1;
+  private static final int REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM = 1;
   /**
-   * The end of stream has been sent, wait for the codec to acknowledge it.
+   * The input format has changed in a way that requires the codec to be re-initialized, and we've
+   * signaled an end of stream to the existing codec. We're waiting for the codec to output an end
+   * of stream signal to indicate that it has output any remaining buffers before we release it.
    */
-  private static final int REINIT_STATE_WAIT_END_OF_STREAM = 2;
+  private static final int REINITIALIZATION_STATE_WAIT_END_OF_STREAM = 2;
 
   public final CodecCounters codecCounters;
 
@@ -187,7 +190,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private boolean openedDrmSession;
   private boolean codecReconfigured;
   private int codecReconfigurationState;
-  private int codecReinitState;
+  private int codecReinitializationState;
+  private boolean codecHasQueuedBuffers;
 
   private int trackIndex;
   private int sourceState;
@@ -195,7 +199,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
   private boolean waitingForFirstSyncFrame;
-  private boolean hasQueuedInputBuffer;
   private long currentPositionUs;
 
   /**
@@ -224,7 +227,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     formatHolder = new MediaFormatHolder();
     decodeOnlyPresentationTimestamps = new ArrayList<Long>();
     outputBufferInfo = new MediaCodec.BufferInfo();
-    codecReinitState = REINIT_STATE_NONE;
+    codecReconfigurationState = RECONFIGURATION_STATE_NONE;
+    codecReinitializationState = REINITIALIZATION_STATE_NONE;
   }
 
   @Override
@@ -341,7 +345,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     inputIndex = -1;
     outputIndex = -1;
     waitingForFirstSyncFrame = true;
-    hasQueuedInputBuffer = false;
     codecCounters.codecInitCount++;
   }
 
@@ -391,9 +394,10 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       inputBuffers = null;
       outputBuffers = null;
       codecReconfigured = false;
+      codecHasQueuedBuffers = false;
       codecIsAdaptive = false;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
-      codecReinitState = REINIT_STATE_NONE;
+      codecReinitializationState = REINITIALIZATION_STATE_NONE;
       codecCounters.codecReleaseCount++;
       try {
         codec.stop();
@@ -499,10 +503,10 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     decodeOnlyPresentationTimestamps.clear();
     // Workaround for framework bugs.
     // See [Internal: b/8347958], [Internal: b/8578467], [Internal: b/8543366].
-    if (Util.SDK_INT >= 18 && codecReinitState == REINIT_STATE_NONE) {
+    if (Util.SDK_INT >= 18 && codecReinitializationState == REINITIALIZATION_STATE_NONE) {
       codec.flush();
+      codecHasQueuedBuffers = false;
     } else {
-      codecReinitState = REINIT_STATE_NONE;
       releaseCodec();
       maybeInitCodec();
     }
@@ -511,8 +515,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       // avoid this issue by sending reconfiguration data following every flush.
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
     }
-
-    hasQueuedInputBuffer = false;
   }
 
   /**
@@ -523,7 +525,10 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    * @throws ExoPlaybackException If an error occurs feeding the input buffer.
    */
   private boolean feedInputBuffer(boolean firstFeed) throws IOException, ExoPlaybackException {
-    if (inputStreamEnded) {
+    if (inputStreamEnded
+        || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
+      // The input stream has ended, or we need to re-initialize the codec but are still waiting
+      // for the existing codec to output any final output buffers.
       return false;
     }
 
@@ -536,13 +541,12 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       sampleHolder.data.clear();
     }
 
-    if (codecReinitState == REINIT_STATE_SIGNAL_END_OF_STREAM) {
+    if (codecReinitializationState == REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM) {
+      // We need to re-initialize the codec. Send an end of stream signal to the existing codec so
+      // that it outputs any remaining buffers before we release it.
       codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
       inputIndex = -1;
-      codecReinitState = REINIT_STATE_WAIT_END_OF_STREAM;
-      return false;
-    } else if (codecReinitState == REINIT_STATE_WAIT_END_OF_STREAM) {
-      // we are still waiting for the last samples to be output
+      codecReinitializationState = REINITIALIZATION_STATE_WAIT_END_OF_STREAM;
       return false;
     }
 
@@ -635,7 +639,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         codec.queueInputBuffer(inputIndex, 0 , bufferSize, presentationTimeUs, 0);
       }
       inputIndex = -1;
-      hasQueuedInputBuffer = true;
+      codecHasQueuedBuffers = true;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     } catch (CryptoException e) {
       notifyCryptoError(e);
@@ -689,12 +693,13 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       codecReconfigured = true;
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
     } else {
-      if (!hasQueuedInputBuffer) {
-        // no need to signal end of stream if nothing has been queued, we can just reinit asap
+      if (codecHasQueuedBuffers) {
+        // Signal end of stream and wait for any final output buffers before re-initialization.
+        codecReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
+      } else {
+        // There aren't any final output buffers, so perform re-initialization immediately.
         releaseCodec();
         maybeInitCodec();
-      } else {
-        codecReinitState = REINIT_STATE_SIGNAL_END_OF_STREAM;
       }
     }
   }
@@ -783,14 +788,13 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
 
     if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-      if (codecReinitState == REINIT_STATE_WAIT_END_OF_STREAM) {
-        // The last sample has been processed, we can safely reinit now
+      if (codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
+        // We're waiting to re-initialize the codec, and have now received all final output buffers.
         releaseCodec();
         maybeInitCodec();
       } else {
         outputStreamEnded = true;
       }
-
       return false;
     }
 
