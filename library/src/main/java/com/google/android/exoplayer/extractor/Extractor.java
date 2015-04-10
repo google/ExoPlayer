@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.hls.parser;
+package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -24,7 +24,7 @@ import java.io.IOException;
 /**
  * Facilitates extraction of media samples for HLS playbacks.
  */
-public interface HlsExtractor {
+public interface Extractor {
 
   /**
    * An object from which source data can be read.

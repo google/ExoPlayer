@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.hls.parser;
+package com.google.android.exoplayer.extractor.ts;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -27,7 +28,7 @@ import java.io.IOException;
 /**
  * Facilitates the extraction of data from the MPEG-2 TS container format.
  */
-public final class TsExtractor implements HlsExtractor {
+public final class TsExtractor implements Extractor {
 
   private static final String TAG = "TsExtractor";
 

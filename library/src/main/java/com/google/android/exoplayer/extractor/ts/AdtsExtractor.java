@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.hls.parser;
+package com.google.android.exoplayer.extractor.ts;
 
+import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ import java.io.IOException;
  * Facilitates the extraction of AAC samples from elementary audio files formatted as AAC with ADTS
  * headers.
  */
-public class AdtsExtractor implements HlsExtractor {
+public class AdtsExtractor implements Extractor {
 
   private static final int MAX_PACKET_SIZE = 200;
 

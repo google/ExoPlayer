@@ -17,10 +17,9 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.hls.parser.AdtsExtractor;
-import com.google.android.exoplayer.hls.parser.HlsExtractor;
-import com.google.android.exoplayer.hls.parser.HlsExtractorWrapper;
-import com.google.android.exoplayer.hls.parser.TsExtractor;
+import com.google.android.exoplayer.extractor.Extractor;
+import com.google.android.exoplayer.extractor.ts.AdtsExtractor;
+import com.google.android.exoplayer.extractor.ts.TsExtractor;
 import com.google.android.exoplayer.upstream.Aes128DataSource;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.BufferPool;
@@ -344,7 +343,7 @@ public class HlsChunkSource {
     // Configure the extractor that will read the chunk.
     HlsExtractorWrapper extractorWrapper;
     if (previousTsChunk == null || segment.discontinuity || switchingVariant || liveDiscontinuity) {
-      HlsExtractor extractor = chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)
+      Extractor extractor = chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)
           ? new AdtsExtractor(startTimeUs)
           : new TsExtractor(startTimeUs);
       extractorWrapper = new HlsExtractorWrapper(bufferPool, extractor, switchingVariantSpliced);

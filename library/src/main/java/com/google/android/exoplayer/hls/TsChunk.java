@@ -15,9 +15,8 @@
  */
 package com.google.android.exoplayer.hls;
 
-import com.google.android.exoplayer.hls.parser.DataSourceExtractorInput;
-import com.google.android.exoplayer.hls.parser.HlsExtractor.ExtractorInput;
-import com.google.android.exoplayer.hls.parser.HlsExtractorWrapper;
+import com.google.android.exoplayer.extractor.Extractor.ExtractorInput;
+import com.google.android.exoplayer.extractor.ts.DataSourceExtractorInput;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 

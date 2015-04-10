@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.hls.parser;
+package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.hls.parser.HlsExtractor.ExtractorInput;
-import com.google.android.exoplayer.hls.parser.HlsExtractor.TrackOutput;
+import com.google.android.exoplayer.extractor.Extractor;
+import com.google.android.exoplayer.extractor.SampleQueue;
+import com.google.android.exoplayer.extractor.Extractor.ExtractorInput;
+import com.google.android.exoplayer.extractor.Extractor.TrackOutput;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.util.Assertions;
 
@@ -27,12 +29,12 @@ import android.util.SparseArray;
 import java.io.IOException;
 
 /**
- * Wraps a {@link HlsExtractor}, adding functionality to enable reading of the extracted samples.
+ * Wraps a {@link Extractor}, adding functionality to enable reading of the extracted samples.
  */
-public final class HlsExtractorWrapper implements HlsExtractor.TrackOutputBuilder {
+public final class HlsExtractorWrapper implements Extractor.TrackOutputBuilder {
 
   private final BufferPool bufferPool;
-  private final HlsExtractor extractor;
+  private final Extractor extractor;
   private final SparseArray<SampleQueue> sampleQueues;
   private final boolean shouldSpliceIn;
 
@@ -42,7 +44,7 @@ public final class HlsExtractorWrapper implements HlsExtractor.TrackOutputBuilde
   private boolean prepared;
   private boolean spliceConfigured;
 
-  public HlsExtractorWrapper(BufferPool bufferPool, HlsExtractor extractor,
+  public HlsExtractorWrapper(BufferPool bufferPool, Extractor extractor,
       boolean shouldSpliceIn) {
     this.bufferPool = bufferPool;
     this.extractor = extractor;

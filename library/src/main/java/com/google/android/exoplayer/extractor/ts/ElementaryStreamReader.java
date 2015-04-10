@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.hls.parser;
+package com.google.android.exoplayer.extractor.ts;
 
-import com.google.android.exoplayer.hls.parser.HlsExtractor.TrackOutput;
+import com.google.android.exoplayer.extractor.Extractor.TrackOutput;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 /**
