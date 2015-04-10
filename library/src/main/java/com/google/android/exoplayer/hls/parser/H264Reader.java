@@ -18,8 +18,8 @@ package com.google.android.exoplayer.hls.parser;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.hls.parser.HlsExtractor.TrackOutput;
-import com.google.android.exoplayer.mp4.Mp4Util;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.H264Util;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
@@ -73,7 +73,7 @@ import java.util.List;
 
       // Scan the appended data, processing NAL units as they are encountered
       while (offset < limit) {
-        int nextNalUnitOffset = Mp4Util.findNalUnit(dataArray, offset, limit, prefixFlags);
+        int nextNalUnitOffset = H264Util.findNalUnit(dataArray, offset, limit, prefixFlags);
         if (nextNalUnitOffset < limit) {
           // We've seen the start of a NAL unit.
 
@@ -84,7 +84,7 @@ import java.util.List;
             feedNalUnitTargetBuffersData(dataArray, offset, nextNalUnitOffset);
           }
 
-          int nalUnitType = Mp4Util.getNalUnitType(dataArray, nextNalUnitOffset);
+          int nalUnitType = H264Util.getNalUnitType(dataArray, nextNalUnitOffset);
           int nalUnitOffsetInData = nextNalUnitOffset - limit;
           if (nalUnitType == NAL_UNIT_TYPE_AUD) {
             if (output.isWritingSample()) {

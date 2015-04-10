@@ -20,6 +20,7 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.chunk.parser.mp4.TrackEncryptionBox;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
+import com.google.android.exoplayer.util.H264Util;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
@@ -102,7 +103,7 @@ public final class CommonMp4AtomParsers {
     ParsableByteArray ctts = cttsAtom != null ? cttsAtom.data : null;
 
     // Skip full atom.
-    stsz.setPosition(Mp4Util.FULL_ATOM_HEADER_SIZE);
+    stsz.setPosition(Atom.FULL_ATOM_HEADER_SIZE);
     int fixedSampleSize = stsz.readUnsignedIntToInt();
     int sampleCount = stsz.readUnsignedIntToInt();
 
@@ -112,10 +113,10 @@ public final class CommonMp4AtomParsers {
     int[] flags = new int[sampleCount];
 
     // Prepare to read chunk offsets.
-    chunkOffsets.setPosition(Mp4Util.FULL_ATOM_HEADER_SIZE);
+    chunkOffsets.setPosition(Atom.FULL_ATOM_HEADER_SIZE);
     int chunkCount = chunkOffsets.readUnsignedIntToInt();
 
-    stsc.setPosition(Mp4Util.FULL_ATOM_HEADER_SIZE);
+    stsc.setPosition(Atom.FULL_ATOM_HEADER_SIZE);
     int remainingSamplesPerChunkChanges = stsc.readUnsignedIntToInt() - 1;
     Assertions.checkState(stsc.readInt() == 1, "stsc first chunk must be 1");
     int samplesPerChunk = stsc.readUnsignedIntToInt();
@@ -130,7 +131,7 @@ public final class CommonMp4AtomParsers {
     int remainingSamplesInChunk = samplesPerChunk;
 
     // Prepare to read sample timestamps.
-    stts.setPosition(Mp4Util.FULL_ATOM_HEADER_SIZE);
+    stts.setPosition(Atom.FULL_ATOM_HEADER_SIZE);
     int remainingTimestampDeltaChanges = stts.readUnsignedIntToInt() - 1;
     int remainingSamplesAtTimestampDelta = stts.readUnsignedIntToInt();
     int timestampDeltaInTimeUnits = stts.readUnsignedIntToInt();
@@ -141,8 +142,8 @@ public final class CommonMp4AtomParsers {
     int remainingTimestampOffsetChanges = 0;
     int timestampOffset = 0;
     if (ctts != null) {
-      ctts.setPosition(Mp4Util.ATOM_HEADER_SIZE);
-      cttsHasSignedOffsets = Mp4Util.parseFullAtomVersion(ctts.readInt()) == 1;
+      ctts.setPosition(Atom.ATOM_HEADER_SIZE);
+      cttsHasSignedOffsets = Atom.parseFullAtomVersion(ctts.readInt()) == 1;
       remainingTimestampOffsetChanges = ctts.readUnsignedIntToInt() - 1;
       remainingSamplesAtTimestampOffset = ctts.readUnsignedIntToInt();
       timestampOffset = cttsHasSignedOffsets ? ctts.readInt() : ctts.readUnsignedIntToInt();
@@ -151,7 +152,7 @@ public final class CommonMp4AtomParsers {
     int nextSynchronizationSampleIndex = -1;
     int remainingSynchronizationSamples = 0;
     if (stss != null) {
-      stss.setPosition(Mp4Util.FULL_ATOM_HEADER_SIZE);
+      stss.setPosition(Atom.FULL_ATOM_HEADER_SIZE);
       remainingSynchronizationSamples = stss.readUnsignedIntToInt();
       nextSynchronizationSampleIndex = stss.readUnsignedIntToInt() - 1;
     }
@@ -249,10 +250,10 @@ public final class CommonMp4AtomParsers {
    * @return Timescale for the movie.
    */
   private static long parseMvhd(ParsableByteArray mvhd) {
-    mvhd.setPosition(Mp4Util.ATOM_HEADER_SIZE);
+    mvhd.setPosition(Atom.ATOM_HEADER_SIZE);
 
     int fullAtom = mvhd.readInt();
-    int version = Mp4Util.parseFullAtomVersion(fullAtom);
+    int version = Atom.parseFullAtomVersion(fullAtom);
 
     mvhd.skip(version == 0 ? 8 : 16);
 
@@ -266,9 +267,9 @@ public final class CommonMp4AtomParsers {
    *     the movie header box). The duration is set to -1 if the duration is unspecified.
    */
   private static Pair<Integer, Long> parseTkhd(ParsableByteArray tkhd) {
-    tkhd.setPosition(Mp4Util.ATOM_HEADER_SIZE);
+    tkhd.setPosition(Atom.ATOM_HEADER_SIZE);
     int fullAtom = tkhd.readInt();
-    int version = Mp4Util.parseFullAtomVersion(fullAtom);
+    int version = Atom.parseFullAtomVersion(fullAtom);
 
     tkhd.skip(version == 0 ? 8 : 16);
 
@@ -302,7 +303,7 @@ public final class CommonMp4AtomParsers {
    * @return The track type.
    */
   private static int parseHdlr(ParsableByteArray hdlr) {
-    hdlr.setPosition(Mp4Util.FULL_ATOM_HEADER_SIZE + 4);
+    hdlr.setPosition(Atom.FULL_ATOM_HEADER_SIZE + 4);
     return hdlr.readInt();
   }
 
@@ -313,9 +314,9 @@ public final class CommonMp4AtomParsers {
    * @return The media timescale, defined as the number of time units that pass in one second.
    */
   private static long parseMdhd(ParsableByteArray mdhd) {
-    mdhd.setPosition(Mp4Util.ATOM_HEADER_SIZE);
+    mdhd.setPosition(Atom.ATOM_HEADER_SIZE);
     int fullAtom = mdhd.readInt();
-    int version = Mp4Util.parseFullAtomVersion(fullAtom);
+    int version = Atom.parseFullAtomVersion(fullAtom);
 
     mdhd.skip(version == 0 ? 8 : 16);
     return mdhd.readUnsignedInt();
@@ -323,7 +324,7 @@ public final class CommonMp4AtomParsers {
 
   private static Pair<MediaFormat, TrackEncryptionBox[]> parseStsd(
       ParsableByteArray stsd, long durationUs) {
-    stsd.setPosition(Mp4Util.FULL_ATOM_HEADER_SIZE);
+    stsd.setPosition(Atom.FULL_ATOM_HEADER_SIZE);
     int numberOfEntries = stsd.readInt();
     MediaFormat mediaFormat = null;
     TrackEncryptionBox[] trackEncryptionBoxes = new TrackEncryptionBox[numberOfEntries];
@@ -357,7 +358,7 @@ public final class CommonMp4AtomParsers {
   /** Returns the media format for an avc1 box. */
   private static Pair<MediaFormat, TrackEncryptionBox> parseAvcFromParent(ParsableByteArray parent,
       int position, int size, long durationUs) {
-    parent.setPosition(position + Mp4Util.ATOM_HEADER_SIZE);
+    parent.setPosition(position + Atom.ATOM_HEADER_SIZE);
 
     parent.skip(24);
     int width = parent.readUnsignedShort();
@@ -394,7 +395,7 @@ public final class CommonMp4AtomParsers {
   }
 
   private static List<byte[]> parseAvcCFromParent(ParsableByteArray parent, int position) {
-    parent.setPosition(position + Mp4Util.ATOM_HEADER_SIZE + 4);
+    parent.setPosition(position + Atom.ATOM_HEADER_SIZE + 4);
     // Start of the AVCDecoderConfigurationRecord (defined in 14496-15)
     int nalUnitLength = (parent.readUnsignedByte() & 0x3) + 1;
     if (nalUnitLength != 4) {
@@ -407,18 +408,18 @@ public final class CommonMp4AtomParsers {
     // expose the AVC profile and level somewhere useful; Most likely in MediaFormat.
     int numSequenceParameterSets = parent.readUnsignedByte() & 0x1F;
     for (int j = 0; j < numSequenceParameterSets; j++) {
-      initializationData.add(Mp4Util.parseChildNalUnit(parent));
+      initializationData.add(H264Util.parseChildNalUnit(parent));
     }
     int numPictureParameterSets = parent.readUnsignedByte();
     for (int j = 0; j < numPictureParameterSets; j++) {
-      initializationData.add(Mp4Util.parseChildNalUnit(parent));
+      initializationData.add(H264Util.parseChildNalUnit(parent));
     }
     return initializationData;
   }
 
   private static TrackEncryptionBox parseSinfFromParent(ParsableByteArray parent, int position,
       int size) {
-    int childPosition = position + Mp4Util.ATOM_HEADER_SIZE;
+    int childPosition = position + Atom.ATOM_HEADER_SIZE;
 
     TrackEncryptionBox trackEncryptionBox = null;
     while (childPosition - position < size) {
@@ -441,7 +442,7 @@ public final class CommonMp4AtomParsers {
   }
 
   private static float parsePaspFromParent(ParsableByteArray parent, int position) {
-    parent.setPosition(position + Mp4Util.ATOM_HEADER_SIZE);
+    parent.setPosition(position + Atom.ATOM_HEADER_SIZE);
     int hSpacing = parent.readUnsignedIntToInt();
     int vSpacing = parent.readUnsignedIntToInt();
     return (float) hSpacing / vSpacing;
@@ -449,7 +450,7 @@ public final class CommonMp4AtomParsers {
 
   private static TrackEncryptionBox parseSchiFromParent(ParsableByteArray parent, int position,
       int size) {
-    int childPosition = position + Mp4Util.ATOM_HEADER_SIZE;
+    int childPosition = position + Atom.ATOM_HEADER_SIZE;
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
       int childAtomSize = parent.readInt();
@@ -471,7 +472,7 @@ public final class CommonMp4AtomParsers {
   /** Returns the media format for an mp4v box. */
   private static MediaFormat parseMp4vFromParent(ParsableByteArray parent, int position, int size,
       long durationUs) {
-    parent.setPosition(position + Mp4Util.ATOM_HEADER_SIZE);
+    parent.setPosition(position + Atom.ATOM_HEADER_SIZE);
 
     parent.skip(24);
     int width = parent.readUnsignedShort();
@@ -498,7 +499,7 @@ public final class CommonMp4AtomParsers {
 
   private static Pair<MediaFormat, TrackEncryptionBox> parseAudioSampleEntry(
       ParsableByteArray parent, int atomType, int position, int size, long durationUs) {
-    parent.setPosition(position + Mp4Util.ATOM_HEADER_SIZE);
+    parent.setPosition(position + Atom.ATOM_HEADER_SIZE);
     parent.skip(16);
     int channelCount = parent.readUnsignedShort();
     int sampleSize = parent.readUnsignedShort();
@@ -563,7 +564,7 @@ public final class CommonMp4AtomParsers {
 
   /** Returns codec-specific initialization data contained in an esds box. */
   private static byte[] parseEsdsFromParent(ParsableByteArray parent, int position) {
-    parent.setPosition(position + Mp4Util.ATOM_HEADER_SIZE + 4);
+    parent.setPosition(position + Atom.ATOM_HEADER_SIZE + 4);
     // Start of the ES_Descriptor (defined in 14496-1)
     parent.skip(1); // ES_Descriptor tag
     int varIntByte = parent.readUnsignedByte();
@@ -607,7 +608,7 @@ public final class CommonMp4AtomParsers {
 
   private static Ac3Format parseAc3SpecificBoxFromParent(ParsableByteArray parent, int position) {
     // Start of the dac3 atom (defined in ETSI TS 102 366)
-    parent.setPosition(position + Mp4Util.ATOM_HEADER_SIZE);
+    parent.setPosition(position + Atom.ATOM_HEADER_SIZE);
 
     // fscod (sample rate code)
     int fscod = (parent.readUnsignedByte() & 0xC0) >> 6;
@@ -645,7 +646,7 @@ public final class CommonMp4AtomParsers {
 
   private static int parseEc3SpecificBoxFromParent(ParsableByteArray parent, int position) {
     // Start of the dec3 atom (defined in ETSI TS 102 366)
-    parent.setPosition(position + Mp4Util.ATOM_HEADER_SIZE);
+    parent.setPosition(position + Atom.ATOM_HEADER_SIZE);
     // TODO: Implement parsing for enhanced AC-3 with multiple sub-streams.
     return 0;
   }

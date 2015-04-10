@@ -25,7 +25,6 @@ import com.google.android.exoplayer.mp4.Atom;
 import com.google.android.exoplayer.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer.mp4.CommonMp4AtomParsers;
 import com.google.android.exoplayer.mp4.Mp4TrackSampleTable;
-import com.google.android.exoplayer.mp4.Mp4Util;
 import com.google.android.exoplayer.mp4.Track;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.BufferedNonBlockingInputStream;
@@ -35,6 +34,7 @@ import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.H264Util;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
@@ -57,6 +57,8 @@ public final class Mp4SampleExtractor implements SampleExtractor, Loader.Callbac
 
   private static final String TAG = "Mp4SampleExtractor";
   private static final String LOADER_THREAD_NAME = "Mp4SampleExtractor";
+
+  private static final int NO_TRACK = -1;
 
   // Reading results
   private static final int RESULT_NEED_MORE_DATA = 1;
@@ -167,7 +169,7 @@ public final class Mp4SampleExtractor implements SampleExtractor, Loader.Callbac
     // TODO: Implement Allocator here so it is possible to check there is only one buffer at a time.
     bufferPool = new BufferPool(readAheadAllocationSize);
     loader = new Loader(LOADER_THREAD_NAME);
-    atomHeader = new ParsableByteArray(Mp4Util.LONG_ATOM_HEADER_SIZE);
+    atomHeader = new ParsableByteArray(Atom.LONG_ATOM_HEADER_SIZE);
     containerAtoms = new Stack<Atom.ContainerAtom>();
 
     parserState = STATE_READING_ATOM_HEADER;
@@ -206,12 +208,12 @@ public final class Mp4SampleExtractor implements SampleExtractor, Loader.Callbac
 
     // Get the timestamp of the earliest currently-selected sample.
     int earliestSampleTrackIndex = getTrackIndexOfEarliestCurrentSample();
-    if (earliestSampleTrackIndex == Mp4Util.NO_TRACK) {
+    if (earliestSampleTrackIndex == NO_TRACK) {
       tracks[trackIndex].sampleIndex = 0;
       return;
     }
-    if (earliestSampleTrackIndex == Mp4Util.NO_SAMPLE) {
-      tracks[trackIndex].sampleIndex = Mp4Util.NO_SAMPLE;
+    if (earliestSampleTrackIndex == Mp4TrackSampleTable.NO_SAMPLE) {
+      tracks[trackIndex].sampleIndex = Mp4TrackSampleTable.NO_SAMPLE;
       return;
     }
     long timestampUs =
@@ -281,7 +283,7 @@ public final class Mp4SampleExtractor implements SampleExtractor, Loader.Callbac
 
       Mp4TrackSampleTable sampleTable = tracks[trackIndex].sampleTable;
       int sampleIndex = sampleTable.getIndexOfEarlierOrEqualSynchronizationSample(positionUs);
-      if (sampleIndex == Mp4Util.NO_SAMPLE) {
+      if (sampleIndex == Mp4TrackSampleTable.NO_SAMPLE) {
         sampleIndex = sampleTable.getIndexOfLaterOrEqualSynchronizationSample(positionUs);
       }
       tracks[trackIndex].sampleIndex = sampleIndex;
@@ -333,7 +335,7 @@ public final class Mp4SampleExtractor implements SampleExtractor, Loader.Callbac
     int sampleIndex = track.sampleIndex;
 
     // Check for the end of the stream.
-    if (sampleIndex == Mp4Util.NO_SAMPLE) {
+    if (sampleIndex == Mp4TrackSampleTable.NO_SAMPLE) {
       // TODO: Should END_OF_STREAM be returned as soon as this track has no more samples, or as
       // soon as no tracks have a sample (as implemented here)?
       return hasSampleInAnySelectedTrack() ? SampleSource.NOTHING_READ : SampleSource.END_OF_STREAM;
@@ -395,7 +397,7 @@ public final class Mp4SampleExtractor implements SampleExtractor, Loader.Callbac
       if (MimeTypes.VIDEO_H264.equals(tracks[trackIndex].track.mediaFormat.mimeType)) {
         // The mp4 file contains length-prefixed access units, but the decoder wants start code
         // delimited content.
-        Mp4Util.replaceLengthPrefixesWithAvcStartCodes(sampleHolder.data, sampleSize);
+        H264Util.replaceLengthPrefixesWithAvcStartCodes(sampleHolder.data, sampleSize);
       }
       sampleHolder.size = sampleSize;
     }
@@ -411,7 +413,7 @@ public final class Mp4SampleExtractor implements SampleExtractor, Loader.Callbac
 
     // Advance to the next sample, checking if this was the last sample.
     track.sampleIndex =
-        sampleIndex + 1 == track.sampleTable.getSampleCount() ? Mp4Util.NO_SAMPLE : sampleIndex + 1;
+        sampleIndex + 1 == track.sampleTable.getSampleCount() ? Mp4TrackSampleTable.NO_SAMPLE : sampleIndex + 1;
 
     // Reset the loading error counter if we read past the offset at which the error was thrown.
     if (dataSourceStream.getReadPosition() > loadErrorPosition) {
@@ -489,12 +491,12 @@ public final class Mp4SampleExtractor implements SampleExtractor, Loader.Callbac
   }
 
   /**
-   * Returns the index of the track that contains the earliest current sample, or
-   * {@link Mp4Util#NO_TRACK} if no track is selected, or {@link Mp4Util#NO_SAMPLE} if no samples
-   * remain in selected tracks.
+   * Returns the index of the track that contains the earliest current sample, or {@link #NO_TRACK}
+   * if no track is selected, or {@link Mp4TrackSampleTable#NO_SAMPLE} if no samples remain in
+   * selected tracks.
    */
   private int getTrackIndexOfEarliestCurrentSample() {
-    int earliestSampleTrackIndex = Mp4Util.NO_TRACK;
+    int earliestSampleTrackIndex = NO_TRACK;
     long earliestSampleOffset = Long.MAX_VALUE;
     for (int trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
       Mp4Track track = tracks[trackIndex];
@@ -503,10 +505,10 @@ public final class Mp4SampleExtractor implements SampleExtractor, Loader.Callbac
       }
 
       int sampleIndex = track.sampleIndex;
-      if (sampleIndex == Mp4Util.NO_SAMPLE) {
-        if (earliestSampleTrackIndex == Mp4Util.NO_TRACK) {
+      if (sampleIndex == Mp4TrackSampleTable.NO_SAMPLE) {
+        if (earliestSampleTrackIndex == NO_TRACK) {
           // A track is selected, but it has no more samples.
-          earliestSampleTrackIndex = Mp4Util.NO_SAMPLE;
+          earliestSampleTrackIndex = Mp4TrackSampleTable.NO_SAMPLE;
         }
         continue;
       }
@@ -524,7 +526,8 @@ public final class Mp4SampleExtractor implements SampleExtractor, Loader.Callbac
   private boolean hasSampleInAnySelectedTrack() {
     boolean hasSample = false;
     for (int trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
-      if (tracks[trackIndex].selected && tracks[trackIndex].sampleIndex != Mp4Util.NO_SAMPLE) {
+      if (tracks[trackIndex].selected && tracks[trackIndex].sampleIndex
+          != Mp4TrackSampleTable.NO_SAMPLE) {
         hasSample = true;
         break;
       }
@@ -556,10 +559,10 @@ public final class Mp4SampleExtractor implements SampleExtractor, Loader.Callbac
 
     // The size value is either 4 or 8 bytes long (in which case atomSize = Mp4Util.LONG_ATOM_SIZE).
     int remainingBytes;
-    if (atomSize != Mp4Util.LONG_ATOM_SIZE) {
-      remainingBytes = Mp4Util.ATOM_HEADER_SIZE - atomBytesRead;
+    if (atomSize != Atom.LONG_SIZE_PREFIX) {
+      remainingBytes = Atom.ATOM_HEADER_SIZE - atomBytesRead;
     } else {
-      remainingBytes = Mp4Util.LONG_ATOM_HEADER_SIZE - atomBytesRead;
+      remainingBytes = Atom.LONG_ATOM_HEADER_SIZE - atomBytesRead;
     }
 
     int bytesRead = inputStream.read(atomHeader.data, atomBytesRead, remainingBytes);
@@ -568,17 +571,17 @@ public final class Mp4SampleExtractor implements SampleExtractor, Loader.Callbac
     }
     rootAtomBytesRead += bytesRead;
     atomBytesRead += bytesRead;
-    if (atomBytesRead < Mp4Util.ATOM_HEADER_SIZE
-        || (atomSize == Mp4Util.LONG_ATOM_SIZE && atomBytesRead < Mp4Util.LONG_ATOM_HEADER_SIZE)) {
+    if (atomBytesRead < Atom.ATOM_HEADER_SIZE
+        || (atomSize == Atom.LONG_SIZE_PREFIX && atomBytesRead < Atom.LONG_ATOM_HEADER_SIZE)) {
       return RESULT_NEED_MORE_DATA;
     }
 
     atomHeader.setPosition(0);
     atomSize = atomHeader.readUnsignedInt();
     atomType = atomHeader.readInt();
-    if (atomSize == Mp4Util.LONG_ATOM_SIZE) {
+    if (atomSize == Atom.LONG_SIZE_PREFIX) {
       // The extended atom size is contained in the next 8 bytes, so try to read it now.
-      if (atomBytesRead < Mp4Util.LONG_ATOM_HEADER_SIZE) {
+      if (atomBytesRead < Atom.LONG_ATOM_HEADER_SIZE) {
         return readAtomHeader();
       }
 
@@ -587,18 +590,18 @@ public final class Mp4SampleExtractor implements SampleExtractor, Loader.Callbac
 
     Integer atomTypeInteger = atomType; // Avoids boxing atomType twice.
     if (CONTAINER_TYPES.contains(atomTypeInteger)) {
-      if (atomSize == Mp4Util.LONG_ATOM_SIZE) {
+      if (atomSize == Atom.LONG_SIZE_PREFIX) {
         containerAtoms.add(new ContainerAtom(
-            atomType, rootAtomBytesRead + atomSize - Mp4Util.LONG_ATOM_HEADER_SIZE));
+            atomType, rootAtomBytesRead + atomSize - Atom.LONG_ATOM_HEADER_SIZE));
       } else {
         containerAtoms.add(new ContainerAtom(
-            atomType, rootAtomBytesRead + atomSize - Mp4Util.ATOM_HEADER_SIZE));
+            atomType, rootAtomBytesRead + atomSize - Atom.ATOM_HEADER_SIZE));
       }
       enterState(STATE_READING_ATOM_HEADER);
     } else if (LEAF_ATOM_TYPES.contains(atomTypeInteger)) {
       Assertions.checkState(atomSize <= Integer.MAX_VALUE);
       atomData = new ParsableByteArray((int) atomSize);
-      System.arraycopy(atomHeader.data, 0, atomData.data, 0, Mp4Util.ATOM_HEADER_SIZE);
+      System.arraycopy(atomHeader.data, 0, atomData.data, 0, Atom.ATOM_HEADER_SIZE);
       enterState(STATE_READING_ATOM_PAYLOAD);
     } else {
       atomData = null;
