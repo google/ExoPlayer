@@ -401,7 +401,8 @@ public class DefaultHttpDataSource implements HttpDataSource {
    * @param buffer The buffer into which the read data should be stored.
    * @param offset The start offset into {@code buffer} at which data should be written.
    * @param readLength The maximum number of bytes to read.
-   * @return The number of bytes read, or -1 if the end of the opened range is reached.
+   * @return The number of bytes read, or {@link C#RESULT_END_OF_INPUT} if the end of the opened
+   *     range is reached.
    * @throws IOException If an error occurs reading from the source.
    */
   private int readInternal(byte[] buffer, int offset, int readLength) throws IOException {
@@ -409,7 +410,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
         : (int) Math.min(readLength, bytesToRead - bytesRead);
     if (readLength == 0) {
       // We've read all of the requested data.
-      return -1;
+      return C.RESULT_END_OF_INPUT;
     }
 
     int read = inputStream.read(buffer, offset, readLength);
@@ -418,7 +419,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
         // The server closed the connection having not sent sufficient data.
         throw new EOFException();
       }
-      return -1;
+      return C.RESULT_END_OF_INPUT;
     }
 
     bytesRead += read;

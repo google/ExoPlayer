@@ -44,6 +44,12 @@ public final class C {
   public static final String UTF8_NAME = "UTF-8";
 
   /**
+   * @see MediaCodec#CRYPTO_MODE_AES_CTR
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int CRYPTO_MODE_AES_CTR = MediaCodec.CRYPTO_MODE_AES_CTR;
+
+  /**
    * @see MediaExtractor#SAMPLE_FLAG_SYNC
    */
   @SuppressWarnings("InlinedApi")
@@ -61,10 +67,9 @@ public final class C {
   public static final int SAMPLE_FLAG_DECODE_ONLY = 0x8000000;
 
   /**
-   * @see MediaCodec#CRYPTO_MODE_AES_CTR
+   * A return value for methods where the end of an input was encountered.
    */
-  @SuppressWarnings("InlinedApi")
-  public static final int CRYPTO_MODE_AES_CTR = MediaCodec.CRYPTO_MODE_AES_CTR;
+  public static final int RESULT_END_OF_INPUT = -1;
 
   private C() {}
 

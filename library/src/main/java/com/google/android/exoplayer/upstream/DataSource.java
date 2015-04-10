@@ -63,7 +63,8 @@ public interface DataSource {
    * @param buffer The buffer into which the read data should be stored.
    * @param offset The start offset into {@code buffer} at which data should be written.
    * @param readLength The maximum number of bytes to read.
-   * @return The number of bytes read, or -1 if the end of the opened range is reached.
+   * @return The number of bytes read, or {@link C#RESULT_END_OF_INPUT} if the end of the opened
+   *     range is reached.
    * @throws IOException If an error occurs reading from the source.
    */
   public int read(byte[] buffer, int offset, int readLength) throws IOException;
