@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.hls.parser;
 
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.hls.parser.HlsExtractor.TrackOutput;
@@ -128,8 +127,7 @@ public final class SampleQueue implements TrackOutput {
     }
     RollingSampleBuffer nextRollingBuffer = nextQueue.rollingBuffer;
     while (nextRollingBuffer.peekSample(sampleInfoHolder)
-        && (sampleInfoHolder.timeUs < firstPossibleSpliceTime
-            || (sampleInfoHolder.flags & C.SAMPLE_FLAG_SYNC) == 0)) {
+        && (sampleInfoHolder.timeUs < firstPossibleSpliceTime || !sampleInfoHolder.isSyncFrame())) {
       // Discard samples from the next queue for as long as they are before the earliest possible
       // splice time, or not keyframes.
       nextRollingBuffer.skipSample();
@@ -152,7 +150,7 @@ public final class SampleQueue implements TrackOutput {
   private boolean advanceToEligibleSample() {
     boolean haveNext = rollingBuffer.peekSample(sampleInfoHolder);
     if (needKeyframe) {
-      while (haveNext && (sampleInfoHolder.flags & C.SAMPLE_FLAG_SYNC) == 0) {
+      while (haveNext && !sampleInfoHolder.isSyncFrame()) {
         rollingBuffer.skipSample();
         haveNext = rollingBuffer.peekSample(sampleInfoHolder);
       }

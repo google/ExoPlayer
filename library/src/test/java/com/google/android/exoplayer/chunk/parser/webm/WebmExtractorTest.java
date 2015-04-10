@@ -358,9 +358,9 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     assertTrue(Arrays.equals(
         mediaSegment.videoBytes, Arrays.copyOf(sampleHolder.data.array(), sampleHolder.size)));
     assertEquals(timeUs, sampleHolder.timeUs);
-    assertEquals(keyframe, (sampleHolder.flags & C.SAMPLE_FLAG_SYNC) != 0);
-    assertEquals(invisible, sampleHolder.decodeOnly);
-    assertEquals(encrypted, (sampleHolder.flags & C.SAMPLE_FLAG_ENCRYPTED) != 0);
+    assertEquals(keyframe, sampleHolder.isSyncFrame());
+    assertEquals(invisible, sampleHolder.isDecodeOnly());
+    assertEquals(encrypted, sampleHolder.isEncrypted());
     if (encrypted) {
       android.test.MoreAsserts.assertEquals(TEST_INITIALIZATION_VECTOR, sampleHolder.cryptoInfo.iv);
       assertEquals(C.CRYPTO_MODE_AES_CTR, sampleHolder.cryptoInfo.mode);

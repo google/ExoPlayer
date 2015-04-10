@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.hls;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
@@ -223,7 +224,8 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     }
 
     if (extractor.getSample(track, sampleHolder)) {
-      sampleHolder.decodeOnly = frameAccurateSeeking && sampleHolder.timeUs < lastSeekPositionUs;
+      boolean decodeOnly = frameAccurateSeeking && sampleHolder.timeUs < lastSeekPositionUs;
+      sampleHolder.flags |= decodeOnly ? C.SAMPLE_FLAG_DECODE_ONLY : 0;
       return SAMPLE_READ;
     }
 

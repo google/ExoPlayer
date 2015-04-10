@@ -97,7 +97,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
     // Write the sample information into the holder and extrasHolder.
     infoQueue.peekSample(sampleHolder, extrasHolder);
     // Read encryption data if the sample is encrypted.
-    if ((sampleHolder.flags & C.SAMPLE_FLAG_ENCRYPTED) != 0) {
+    if (sampleHolder.isEncrypted()) {
       readEncryptionData(sampleHolder, extrasHolder);
     }
     // Write the sample data into the holder.

@@ -358,7 +358,8 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     }
 
     if (mediaChunk.read(sampleHolder)) {
-      sampleHolder.decodeOnly = frameAccurateSeeking && sampleHolder.timeUs < lastSeekPositionUs;
+      boolean decodeOnly = frameAccurateSeeking && sampleHolder.timeUs < lastSeekPositionUs;
+      sampleHolder.flags |= decodeOnly ? C.SAMPLE_FLAG_DECODE_ONLY : 0;
       onSampleRead(mediaChunk, sampleHolder);
       return SAMPLE_READ;
     } else {

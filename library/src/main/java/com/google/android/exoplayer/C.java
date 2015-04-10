@@ -56,6 +56,11 @@ public final class C {
   public static final int SAMPLE_FLAG_ENCRYPTED = MediaExtractor.SAMPLE_FLAG_ENCRYPTED;
 
   /**
+   * Indicates that a sample should be decoded but not rendered.
+   */
+  public static final int SAMPLE_FLAG_DECODE_ONLY = 0x8000000;
+
+  /**
    * @see MediaCodec#CRYPTO_MODE_AES_CTR
    */
   @SuppressWarnings("InlinedApi")

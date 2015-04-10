@@ -467,8 +467,8 @@ public final class WebmExtractor implements Extractor {
         }
         long elementEndOffsetBytes = elementOffsetBytes + headerSizeBytes + contentsSizeBytes;
         simpleBlockTimecodeUs = clusterTimecodeUs + timecodeUs;
-        sampleHolder.flags = keyframe ? C.SAMPLE_FLAG_SYNC : 0;
-        sampleHolder.decodeOnly = invisible;
+        sampleHolder.flags = (keyframe ? C.SAMPLE_FLAG_SYNC : 0)
+            | (invisible ? C.SAMPLE_FLAG_DECODE_ONLY : 0);
         sampleHolder.timeUs = clusterTimecodeUs + timecodeUs;
         sampleHolder.size = (int) (elementEndOffsetBytes - reader.getBytesRead());
 

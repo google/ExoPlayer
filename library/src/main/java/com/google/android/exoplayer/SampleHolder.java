@@ -50,8 +50,8 @@ public final class SampleHolder {
   public int size;
 
   /**
-   * Flags that accompany the sample. A combination of {@link C#SAMPLE_FLAG_SYNC} and
-   * {@link C#SAMPLE_FLAG_ENCRYPTED}
+   * Flags that accompany the sample. A combination of {@link C#SAMPLE_FLAG_SYNC},
+   * {@link C#SAMPLE_FLAG_ENCRYPTED} and {@link C#SAMPLE_FLAG_DECODE_ONLY}.
    */
   public int flags;
 
@@ -59,11 +59,6 @@ public final class SampleHolder {
    * The time at which the sample should be presented.
    */
   public long timeUs;
-
-  /**
-   * If true then the sample should be decoded, but should not be presented.
-   */
-  public boolean decodeOnly;
 
   private final int bufferReplacementMode;
 
@@ -93,6 +88,27 @@ public final class SampleHolder {
         return true;
     }
     return false;
+  }
+
+  /**
+   * Returns whether {@link #flags} has {@link C#SAMPLE_FLAG_ENCRYPTED} set.
+   */
+  public boolean isEncrypted() {
+    return (flags & C.SAMPLE_FLAG_ENCRYPTED) != 0;
+  }
+
+  /**
+   * Returns whether {@link #flags} has {@link C#SAMPLE_FLAG_DECODE_ONLY} set.
+   */
+  public boolean isDecodeOnly() {
+    return (flags & C.SAMPLE_FLAG_DECODE_ONLY) != 0;
+  }
+
+  /**
+   * Returns whether {@link #flags} has {@link C#SAMPLE_FLAG_SYNC} set.
+   */
+  public boolean isSyncFrame() {
+    return (flags & C.SAMPLE_FLAG_SYNC) != 0;
   }
 
   /**
