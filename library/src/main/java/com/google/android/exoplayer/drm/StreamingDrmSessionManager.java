@@ -81,15 +81,6 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   private byte[] sessionId;
 
   /**
-   * @deprecated Use the other constructor, passing null as {@code optionalKeyRequestParameters}.
-   */
-  @Deprecated
-  public StreamingDrmSessionManager(UUID uuid, Looper playbackLooper, MediaDrmCallback callback,
-      Handler eventHandler, EventListener eventListener) throws UnsupportedSchemeException {
-    this(uuid, playbackLooper, callback, null, eventHandler, eventListener);
-  }
-
-  /**
    * @param uuid The UUID of the drm scheme.
    * @param playbackLooper The looper associated with the media playback thread. Should usually be
    *     obtained using {@link com.google.android.exoplayer.ExoPlayer#getPlaybackLooper()}.
