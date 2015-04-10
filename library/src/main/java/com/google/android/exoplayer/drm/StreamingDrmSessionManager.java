@@ -322,7 +322,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
           return;
         case MediaDrm.EVENT_KEY_EXPIRED:
           state = STATE_OPENED;
-          postKeyRequest();
+          onError(new KeysExpiredException());
           return;
         case MediaDrm.EVENT_PROVISION_REQUIRED:
           state = STATE_OPENED;

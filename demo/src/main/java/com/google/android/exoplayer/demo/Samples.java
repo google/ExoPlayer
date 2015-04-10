@@ -103,7 +103,7 @@ import java.util.Locale;
         + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
         + "&expire=19000000000&signature=61611F115EEEC7BADE5536827343FFFE2D83D14F."
         + "2FDF4BFA502FB5865C5C86401314BDDEA4799BD0&key=ik0", DemoUtil.TYPE_DASH),
-    new Sample("WV: 30s license duration", "f9a34cab7b05881a",
+    new Sample("WV: 30s license duration (fails at ~30s)", "f9a34cab7b05881a",
         "http://www.youtube.com/api/manifest/dash/id/f9a34cab7b05881a/source/youtube?"
         + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
         + "&expire=19000000000&signature=88DC53943385CED8CF9F37ADD9E9843E3BF621E6."
