@@ -17,7 +17,7 @@ package com.google.android.exoplayer.extractor.ts;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.extractor.Extractor.TrackOutput;
+import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 /**
@@ -25,24 +25,32 @@ import com.google.android.exoplayer.util.ParsableByteArray;
  */
 /* package */ class Id3Reader extends ElementaryStreamReader {
 
+  private boolean writingSample;
+  private long sampleTimeUs;
+  private int sampleSize;
+
   public Id3Reader(TrackOutput output) {
     super(output);
-    output.setFormat(MediaFormat.createId3Format());
+    output.format(MediaFormat.createId3Format());
   }
 
   @Override
   public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
     if (startOfPacket) {
-      output.startSample(pesTimeUs, 0);
+      writingSample = true;
+      sampleTimeUs = pesTimeUs;
+      sampleSize = 0;
     }
-    if (output.isWritingSample()) {
-      output.appendData(data, data.bytesLeft());
+    if (writingSample) {
+      sampleSize += data.bytesLeft();
+      output.sampleData(data, data.bytesLeft());
     }
   }
 
   @Override
   public void packetFinished() {
-    output.commitSample(C.SAMPLE_FLAG_SYNC, 0, null);
+    output.sampleMetadata(sampleTimeUs, C.SAMPLE_FLAG_SYNC, sampleSize, 0, null);
+    writingSample = false;
   }
 
 }

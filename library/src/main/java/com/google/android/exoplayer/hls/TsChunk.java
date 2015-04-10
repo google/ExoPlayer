@@ -15,8 +15,9 @@
  */
 package com.google.android.exoplayer.hls;
 
-import com.google.android.exoplayer.extractor.Extractor.ExtractorInput;
-import com.google.android.exoplayer.extractor.ts.DataSourceExtractorInput;
+import com.google.android.exoplayer.extractor.DefaultExtractorInput;
+import com.google.android.exoplayer.extractor.Extractor;
+import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 
@@ -101,9 +102,9 @@ public final class TsChunk extends HlsChunk {
 
   @Override
   public void load() throws IOException, InterruptedException {
-    ExtractorInput input = new DataSourceExtractorInput(dataSource, 0);
+    ExtractorInput input;
     try {
-      dataSource.open(dataSpec);
+      input = new DefaultExtractorInput(dataSource, 0, dataSource.open(dataSpec));
       // If we previously fed part of this chunk to the extractor, skip it this time.
       // TODO: Ideally we'd construct a dataSpec that only loads the remainder of the data here,
       // rather than loading the whole chunk again and then skipping data we previously loaded. To
@@ -111,12 +112,12 @@ public final class TsChunk extends HlsChunk {
       // encrypted with AES, for which we'll need to modify the way that decryption is performed.
       input.skipFully(loadPosition);
       try {
-        while (!input.isEnded() && !loadCanceled) {
-          extractor.read(input);
+        int result = Extractor.RESULT_CONTINUE;
+        while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
+          result = extractor.read(input);
         }
       } finally {
         loadPosition = (int) input.getPosition();
-        loadFinished = !loadCanceled;
       }
     } finally {
       dataSource.close();

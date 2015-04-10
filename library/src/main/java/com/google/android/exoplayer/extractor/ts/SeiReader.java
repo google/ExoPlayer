@@ -17,7 +17,7 @@ package com.google.android.exoplayer.extractor.ts;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.extractor.Extractor.TrackOutput;
+import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.text.eia608.Eia608Parser;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -31,7 +31,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
   public SeiReader(TrackOutput output) {
     super(output);
-    output.setFormat(MediaFormat.createEia608Format());
+    output.format(MediaFormat.createEia608Format());
   }
 
   @Override
@@ -55,9 +55,8 @@ import com.google.android.exoplayer.util.ParsableByteArray;
       } while (b == 0xFF);
       // Process the payload. We only support EIA-608 payloads currently.
       if (Eia608Parser.isSeiMessageEia608(payloadType, payloadSize, seiBuffer)) {
-        output.startSample(pesTimeUs, 0);
-        output.appendData(seiBuffer, payloadSize);
-        output.commitSample(C.SAMPLE_FLAG_SYNC, 0, null);
+        output.sampleData(seiBuffer, payloadSize);
+        output.sampleMetadata(pesTimeUs, C.SAMPLE_FLAG_SYNC, payloadSize, 0, null);
       } else {
         seiBuffer.skip(payloadSize);
       }

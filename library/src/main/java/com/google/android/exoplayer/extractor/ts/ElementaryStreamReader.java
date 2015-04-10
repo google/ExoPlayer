@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.extractor.ts;
 
-import com.google.android.exoplayer.extractor.Extractor.TrackOutput;
+import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 /**

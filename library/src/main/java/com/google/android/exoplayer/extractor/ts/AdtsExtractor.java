@@ -16,6 +16,8 @@
 package com.google.android.exoplayer.extractor.ts;
 
 import com.google.android.exoplayer.extractor.Extractor;
+import com.google.android.exoplayer.extractor.ExtractorInput;
+import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.IOException;
@@ -42,16 +44,17 @@ public class AdtsExtractor implements Extractor {
   }
 
   @Override
-  public void init(TrackOutputBuilder output) {
-    adtsReader = new AdtsReader(output.buildOutput(0));
-    output.allOutputsBuilt();
+  public void init(ExtractorOutput output) {
+    adtsReader = new AdtsReader(output.track(0));
+    output.endTracks();
   }
 
   @Override
-  public void read(ExtractorInput input) throws IOException, InterruptedException {
+  public int read(ExtractorInput input)
+      throws IOException, InterruptedException {
     int bytesRead = input.read(packetBuffer.data, 0, MAX_PACKET_SIZE);
     if (bytesRead == -1) {
-      return;
+      return RESULT_END_OF_INPUT;
     }
 
     // Feed whatever data we have to the reader, regardless of whether the read finished or not.
@@ -62,6 +65,7 @@ public class AdtsExtractor implements Extractor {
     // unnecessary to copy the data through packetBuffer.
     adtsReader.consume(packetBuffer, firstSampleTimestamp, firstPacket);
     firstPacket = false;
+    return RESULT_CONTINUE;
   }
 
 }

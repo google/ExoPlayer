@@ -15,139 +15,44 @@
  */
 package com.google.android.exoplayer.extractor;
 
-import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.upstream.DataSource;
-import com.google.android.exoplayer.util.ParsableByteArray;
+import com.google.android.exoplayer.C;
 
 import java.io.IOException;
 
 /**
- * Facilitates extraction of media samples for HLS playbacks.
+ * Facilitates extraction of data from a container format.
  */
 public interface Extractor {
 
   /**
-   * An object from which source data can be read.
+   * Returned by {@link #read(ExtractorInput)} if the {@link ExtractorInput} passed to the next
+   * {@link #read(ExtractorInput)} is required to provide data continuing from the position in the
+   * stream reached by the returning call.
    */
-  public interface ExtractorInput {
-
-    /**
-     * Reads up to {@code length} bytes from the input.
-     * <p>
-     * This method blocks until at least one byte of data can be read, the end of the input is
-     * detected, or an exception is thrown.
-     *
-     * @param target A target array into which data should be written.
-     * @param offset The offset into the target array at which to write.
-     * @param length The maximum number of bytes to read from the input.
-     * @return The number of bytes read, or -1 if the input has ended.
-     * @throws IOException If an error occurs reading from the input.
-     * @throws InterruptedException If the thread has been interrupted.
-     */
-    int read(byte[] target, int offset, int length) throws IOException, InterruptedException;
-
-    /**
-     * Like {@link #read(byte[], int, int)}, but guaranteed to read request {@code length} in full
-     * unless the end of the input is detected, or an exception is thrown.
-     *
-     * TODO: Firm up behavior of this method if (a) zero bytes are read before EOS, (b) the read
-     * is partially satisfied before EOS.
-     *
-     * @param target A target array into which data should be written.
-     * @param offset The offset into the target array at which to write.
-     * @param length The number of bytes to read from the input.
-     * @return True if the read was successful. False if the end of the input was reached.
-     * @throws IOException If an error occurs reading from the input.
-     * @throws InterruptedException If the thread has been interrupted.
-     */
-    boolean readFully(byte[] target, int offset, int length)
-        throws IOException, InterruptedException;
-
-    /**
-     * Like {@link #readFully(byte[], int, int)}, except the data is skipped instead of read.
-     *
-     * TODO: Firm up behavior of this method if (a) zero bytes are skipped before EOS, (b) the skip
-     * is partially satisfied before EOS.
-     *
-     * @param length The number of bytes to skip from the input.
-     * @return True if the read was successful. False if the end of the input was reached.
-     * @throws IOException If an error occurs reading from the input.
-     * @throws InterruptedException If the thread is interrupted.
-     */
-    boolean skipFully(int length) throws IOException, InterruptedException;
-
-    /**
-     * The current position in the stream.
-     *
-     * @return The position in the stream.
-     */
-    long getPosition();
-
-    /**
-     * Whether or not the input has ended.
-     *
-     * @return True if the input has ended. False otherwise.
-     */
-    boolean isEnded();
-
-  }
+  public static final int RESULT_CONTINUE = 0;
+  /**
+   * Returned by {@link #read(ExtractorInput)} if the end of the {@link ExtractorInput} was reached.
+   * Equal to {@link C#RESULT_END_OF_INPUT}.
+   */
+  public static final int RESULT_END_OF_INPUT = C.RESULT_END_OF_INPUT;
 
   /**
-   * An object to which extracted data should be output.
-   */
-  public interface TrackOutputBuilder {
-
-    /**
-     * Invoked to build a {@link TrackOutput} to which data should be output for a given track.
-     *
-     * @param trackId A stable track id.
-     * @return The corresponding {@link TrackOutput}.
-     */
-    TrackOutput buildOutput(int trackId);
-
-    /**
-     * Invoked when all {@link TrackOutput}s have been built, meaning {@link #buildOutput(int)}
-     * will not be invoked again.
-     */
-    void allOutputsBuilt();
-
-  }
-
-  /**
-   * An object to which extracted data belonging to a given track should be output.
-   */
-  public interface TrackOutput {
-
-    boolean hasFormat();
-
-    void setFormat(MediaFormat format);
-
-    boolean isWritingSample();
-
-    int appendData(DataSource dataSource, int length) throws IOException;
-
-    void appendData(ParsableByteArray data, int length);
-
-    void startSample(long timeUs, int offset);
-
-    void commitSample(int flags, int offset, byte[] encryptionKey);
-
-  }
-
-  /**
-   * Initializes the extractor.
+   * Initializes the extractor with an {@link ExtractorOutput}.
    *
-   * @param output A {@link TrackOutputBuilder} to which extracted data should be output.
+   * @param output An {@link ExtractorOutput} to receive extracted data.
    */
-  void init(TrackOutputBuilder output);
+  void init(ExtractorOutput output);
 
   /**
-   * Reads from the provided {@link ExtractorInput}.
+   * Extracts data read from a provided {@link ExtractorInput}.
+   * <p>
+   * Each read will extract at most one sample from the stream before returning.
    *
-   * @param input The {@link ExtractorInput} from which to read.
-   * @throws IOException If an error occurred reading from the source.
+   * @param input The {@link ExtractorInput} from which data should be read.
+   * @return One of the {@code RESULT_} values defined in this interface.
+   * @throws IOException If an error occurred reading from the input.
    * @throws InterruptedException If the thread was interrupted.
    */
-  void read(ExtractorInput input) throws IOException, InterruptedException;
+  int read(ExtractorInput input) throws IOException, InterruptedException;
 
 }

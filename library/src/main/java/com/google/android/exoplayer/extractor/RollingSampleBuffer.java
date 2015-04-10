@@ -19,7 +19,6 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
-import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.IOException;
@@ -48,8 +47,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
   private long totalBytesWritten;
   private byte[] lastFragment;
   private int lastFragmentOffset;
-  private long pendingSampleTimeUs;
-  private long pendingSampleOffset;
 
   public RollingSampleBuffer(BufferPool bufferPool) {
     this.fragmentPool = bufferPool;
@@ -71,7 +68,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
   /**
    * Fills {@code holder} with information about the current sample, but does not write its data.
    * <p>
-   * The fields set are {SampleHolder#size}, {SampleHolder#timeUs} and {SampleHolder#flags}.
+   * The fields set are {@link SampleHolder#size}, {@link SampleHolder#timeUs} and
+   * {@link SampleHolder#flags}.
    *
    * @param holder The holder into which the current sample information should be written.
    * @return True if the holder was filled. False if there is no current sample.
@@ -92,10 +90,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
    * Reads the current sample, advancing the read index to the next sample.
    *
    * @param sampleHolder The holder into which the current sample should be written.
+   * @return True if a sample was read. False if there is no current sample.
    */
-  public void readSample(SampleHolder sampleHolder) {
+  public boolean readSample(SampleHolder sampleHolder) {
     // Write the sample information into the holder and extrasHolder.
-    infoQueue.peekSample(sampleHolder, extrasHolder);
+    boolean haveSample = infoQueue.peekSample(sampleHolder, extrasHolder);
+    if (!haveSample) {
+      return false;
+    }
+
     // Read encryption data if the sample is encrypted.
     if (sampleHolder.isEncrypted()) {
       readEncryptionData(sampleHolder, extrasHolder);
@@ -110,6 +113,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
     // Advance the read head.
     long nextOffset = infoQueue.moveToNextSample();
     dropFragmentsTo(nextOffset);
+    return true;
   }
 
   /**
@@ -250,16 +254,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
   // Called by the loading thread.
 
   /**
-   * Indicates the start point for the next sample.
+   * Returns the current write position in the rolling buffer.
    *
-   * @param sampleTimeUs The sample timestamp.
-   * @param offset The offset of the sample's data, relative to the total number of bytes written
-   *     to the buffer. Must be negative or zero.
+   * @return The current write position.
    */
-  public void startSample(long sampleTimeUs, int offset) {
-    Assertions.checkState(offset <= 0);
-    pendingSampleTimeUs = sampleTimeUs;
-    pendingSampleOffset = totalBytesWritten + offset;
+  public long getWritePosition() {
+    return totalBytesWritten;
   }
 
   /**
@@ -314,16 +314,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
   /**
    * Indicates the end point for the current sample, making it available for consumption.
    *
+   * @param sampleTimeUs The sample timestamp.
    * @param flags Flags that accompany the sample. See {@link SampleHolder#flags}.
-   * @param offset The offset of the first byte after the end of the sample's data, relative to
-   *     the total number of bytes written to the buffer. Must be negative or zero.
+   * @param position The position of the sample data in the rolling buffer.
+   * @param size The size of the sample, in bytes.
    * @param encryptionKey The encryption key associated with the sample, or null.
    */
-  public void commitSample(int flags, int offset, byte[] encryptionKey) {
-    Assertions.checkState(offset <= 0);
-    int sampleSize = (int) (totalBytesWritten + offset - pendingSampleOffset);
-    infoQueue.commitSample(pendingSampleTimeUs, pendingSampleOffset, sampleSize, flags,
-        encryptionKey);
+  public void commitSample(long sampleTimeUs, int flags, long position, int size,
+      byte[] encryptionKey) {
+    infoQueue.commitSample(sampleTimeUs, flags, position, size, encryptionKey);
   }
 
   /**
@@ -398,7 +397,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
     // Called by the loading thread.
 
-    public synchronized void commitSample(long timeUs, long offset, int size, int sampleFlags,
+    public synchronized void commitSample(long timeUs, int sampleFlags, long offset, int size,
         byte[] encryptionKey) {
       timesUs[writeIndex] = timeUs;
       offsets[writeIndex] = offset;

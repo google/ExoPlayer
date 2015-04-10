@@ -17,7 +17,6 @@ package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.extractor.Extractor.TrackOutput;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.ParsableByteArray;
@@ -29,7 +28,7 @@ import java.io.IOException;
  * the first sample returned from the queue is a keyframe, allowing splicing to another queue, and
  * so on.
  */
-public final class SampleQueue implements TrackOutput {
+public final class DefaultTrackOutput implements TrackOutput {
 
   private final RollingSampleBuffer rollingBuffer;
   private final SampleHolder sampleInfoHolder;
@@ -39,14 +38,11 @@ public final class SampleQueue implements TrackOutput {
   private long lastReadTimeUs;
   private long spliceOutTimeUs;
 
-  // Accessed only by the loading thread.
-  private boolean writingSample;
-
   // Accessed by both the loading and consuming threads.
   private volatile long largestParsedTimestampUs;
   private volatile MediaFormat format;
 
-  public SampleQueue(BufferPool bufferPool) {
+  public DefaultTrackOutput(BufferPool bufferPool) {
     rollingBuffer = new RollingSampleBuffer(bufferPool);
     sampleInfoHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_DISABLED);
     needKeyframe = true;
@@ -60,6 +56,13 @@ public final class SampleQueue implements TrackOutput {
   }
 
   // Called by the consuming thread.
+
+  /**
+   * True if the output has received a format. False otherwise.
+   */
+  public boolean hasFormat() {
+    return format != null;
+  }
 
   public MediaFormat getFormat() {
     return format;
@@ -114,7 +117,7 @@ public final class SampleQueue implements TrackOutput {
    * @param nextQueue The queue being spliced to.
    * @return Whether the splice was configured successfully.
    */
-  public boolean configureSpliceTo(SampleQueue nextQueue) {
+  public boolean configureSpliceTo(DefaultTrackOutput nextQueue) {
     if (spliceOutTimeUs != Long.MIN_VALUE) {
       // We've already configured the splice.
       return true;
@@ -164,44 +167,29 @@ public final class SampleQueue implements TrackOutput {
     return true;
   }
 
+  // Called by the loading thread.
+
+  public int sampleData(DataSource dataSource, int length) throws IOException {
+    return rollingBuffer.appendData(dataSource, length);
+  }
+
   // TrackOutput implementation. Called by the loading thread.
 
   @Override
-  public boolean hasFormat() {
-    return format != null;
-  }
-
-  @Override
-  public void setFormat(MediaFormat format) {
+  public void format(MediaFormat format) {
     this.format = format;
   }
 
   @Override
-  public int appendData(DataSource dataSource, int length) throws IOException {
-    return rollingBuffer.appendData(dataSource, length);
-  }
-
-  @Override
-  public void appendData(ParsableByteArray buffer, int length) {
+  public void sampleData(ParsableByteArray buffer, int length) {
     rollingBuffer.appendData(buffer, length);
   }
 
   @Override
-  public void startSample(long sampleTimeUs, int offset) {
-    writingSample = true;
-    largestParsedTimestampUs = Math.max(largestParsedTimestampUs, sampleTimeUs);
-    rollingBuffer.startSample(sampleTimeUs, offset);
-  }
-
-  @Override
-  public void commitSample(int flags, int offset, byte[] encryptionKey) {
-    rollingBuffer.commitSample(flags, offset, encryptionKey);
-    writingSample = false;
-  }
-
-  @Override
-  public boolean isWritingSample() {
-    return writingSample;
+  public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
+    largestParsedTimestampUs = Math.max(largestParsedTimestampUs, timeUs);
+    rollingBuffer.commitSample(timeUs, flags, rollingBuffer.getWritePosition() - size - offset,
+        size, encryptionKey);
   }
 
 }

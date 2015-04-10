@@ -13,32 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.extractor.ts;
+package com.google.android.exoplayer.extractor;
 
-import com.google.android.exoplayer.extractor.Extractor.ExtractorInput;
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.upstream.DataSource;
 
+import java.io.EOFException;
 import java.io.IOException;
 
 /**
  * An {@link ExtractorInput} that wraps a {@link DataSource}.
  */
-public final class DataSourceExtractorInput implements ExtractorInput {
+public final class DefaultExtractorInput implements ExtractorInput {
 
   private static final byte[] SCRATCH_SPACE = new byte[4096];
 
   private final DataSource dataSource;
 
   private long position;
-  private boolean isEnded;
+  private long length;
 
   /**
    * @param dataSource The wrapped {@link DataSource}.
    * @param position The initial position in the stream.
+   * @param length The length of the stream, or {@link C#LENGTH_UNBOUNDED} if it is unknown.
    */
-  public DataSourceExtractorInput(DataSource dataSource, long position) {
+  public DefaultExtractorInput(DataSource dataSource, long position, long length) {
     this.dataSource = dataSource;
     this.position = position;
+    this.length = length;
   }
 
   @Override
@@ -47,16 +50,15 @@ public final class DataSourceExtractorInput implements ExtractorInput {
       throw new InterruptedException();
     }
     int bytesRead = dataSource.read(target, offset, length);
-    if (bytesRead == -1) {
-      isEnded = true;
-      return -1;
+    if (bytesRead == C.RESULT_END_OF_INPUT) {
+      return C.RESULT_END_OF_INPUT;
     }
     position += bytesRead;
     return bytesRead;
   }
 
   @Override
-  public boolean readFully(byte[] target, int offset, int length)
+  public boolean readFully(byte[] target, int offset, int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
     int remaining = length;
     while (remaining > 0) {
@@ -64,9 +66,11 @@ public final class DataSourceExtractorInput implements ExtractorInput {
         throw new InterruptedException();
       }
       int bytesRead = dataSource.read(target, offset, remaining);
-      if (bytesRead == -1) {
-        isEnded = true;
-        return false;
+      if (bytesRead == C.RESULT_END_OF_INPUT) {
+        if (allowEndOfInput && remaining == length) {
+          return false;
+        }
+        throw new EOFException();
       }
       offset += bytesRead;
       remaining -= bytesRead;
@@ -76,21 +80,25 @@ public final class DataSourceExtractorInput implements ExtractorInput {
   }
 
   @Override
-  public boolean skipFully(int length) throws IOException, InterruptedException {
+  public void readFully(byte[] target, int offset, int length)
+      throws IOException, InterruptedException {
+    readFully(target, offset, length, false);
+  }
+
+  @Override
+  public void skipFully(int length) throws IOException, InterruptedException {
     int remaining = length;
     while (remaining > 0) {
       if (Thread.interrupted()) {
         throw new InterruptedException();
       }
       int bytesRead = dataSource.read(SCRATCH_SPACE, 0, Math.min(SCRATCH_SPACE.length, remaining));
-      if (bytesRead == -1) {
-        isEnded = true;
-        return false;
+      if (bytesRead == C.RESULT_END_OF_INPUT) {
+        throw new EOFException();
       }
       remaining -= bytesRead;
     }
     position += length;
-    return true;
   }
 
   @Override
@@ -99,8 +107,8 @@ public final class DataSourceExtractorInput implements ExtractorInput {
   }
 
   @Override
-  public boolean isEnded() {
-    return isEnded;
+  public long getLength() {
+    return length;
   }
 
 }

@@ -17,6 +17,8 @@ package com.google.android.exoplayer.extractor.ts;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.extractor.Extractor;
+import com.google.android.exoplayer.extractor.ExtractorInput;
+import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -50,7 +52,7 @@ public final class TsExtractor implements Extractor {
   private final ParsableBitArray tsScratch;
 
   // Accessed only by the loading thread.
-  private TrackOutputBuilder output;
+  private ExtractorOutput output;
   private long timestampOffsetUs;
   private long lastPts;
 
@@ -65,21 +67,22 @@ public final class TsExtractor implements Extractor {
   }
 
   @Override
-  public void init(TrackOutputBuilder output) {
+  public void init(ExtractorOutput output) {
     this.output = output;
   }
 
   @Override
-  public void read(ExtractorInput input) throws IOException, InterruptedException {
-    if (!input.readFully(tsPacketBuffer.data, 0, TS_PACKET_SIZE)) {
-      return;
+  public int read(ExtractorInput input)
+      throws IOException, InterruptedException {
+    if (!input.readFully(tsPacketBuffer.data, 0, TS_PACKET_SIZE, true)) {
+      return RESULT_END_OF_INPUT;
     }
 
     tsPacketBuffer.setPosition(0);
     tsPacketBuffer.setLimit(TS_PACKET_SIZE);
     int syncByte = tsPacketBuffer.readUnsignedByte();
     if (syncByte != TS_SYNC_BYTE) {
-      return;
+      return RESULT_CONTINUE;
     }
 
     tsPacketBuffer.readBytes(tsScratch, 3);
@@ -105,6 +108,8 @@ public final class TsExtractor implements Extractor {
         payloadReader.consume(tsPacketBuffer, payloadUnitStartIndicator, output);
       }
     }
+
+    return RESULT_CONTINUE;
   }
 
   /**
@@ -140,7 +145,7 @@ public final class TsExtractor implements Extractor {
   private abstract static class TsPayloadReader {
 
     public abstract void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
-        TrackOutputBuilder output);
+        ExtractorOutput output);
 
   }
 
@@ -157,7 +162,7 @@ public final class TsExtractor implements Extractor {
 
     @Override
     public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
-        TrackOutputBuilder output) {
+        ExtractorOutput output) {
       // Skip pointer.
       if (payloadUnitStartIndicator) {
         int pointerField = data.readUnsignedByte();
@@ -197,7 +202,7 @@ public final class TsExtractor implements Extractor {
 
     @Override
     public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
-        TrackOutputBuilder output) {
+        ExtractorOutput output) {
       // Skip pointer.
       if (payloadUnitStartIndicator) {
         int pointerField = data.readUnsignedByte();
@@ -241,16 +246,16 @@ public final class TsExtractor implements Extractor {
         ElementaryStreamReader pesPayloadReader = null;
         switch (streamType) {
           case TS_STREAM_TYPE_AAC:
-            pesPayloadReader = new AdtsReader(output.buildOutput(TS_STREAM_TYPE_AAC));
+            pesPayloadReader = new AdtsReader(output.track(TS_STREAM_TYPE_AAC));
             break;
           case TS_STREAM_TYPE_H264:
-            SeiReader seiReader = new SeiReader(output.buildOutput(TS_STREAM_TYPE_EIA608));
+            SeiReader seiReader = new SeiReader(output.track(TS_STREAM_TYPE_EIA608));
             streamReaders.put(TS_STREAM_TYPE_EIA608, seiReader);
-            pesPayloadReader = new H264Reader(output.buildOutput(TS_STREAM_TYPE_H264),
+            pesPayloadReader = new H264Reader(output.track(TS_STREAM_TYPE_H264),
                 seiReader);
             break;
           case TS_STREAM_TYPE_ID3:
-            pesPayloadReader = new Id3Reader(output.buildOutput(TS_STREAM_TYPE_ID3));
+            pesPayloadReader = new Id3Reader(output.track(TS_STREAM_TYPE_ID3));
             break;
         }
 
@@ -260,7 +265,7 @@ public final class TsExtractor implements Extractor {
         }
       }
 
-      output.allOutputsBuilt();
+      output.endTracks();
     }
 
   }
@@ -300,7 +305,7 @@ public final class TsExtractor implements Extractor {
 
     @Override
     public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
-        TrackOutputBuilder output) {
+        ExtractorOutput output) {
       if (payloadUnitStartIndicator) {
         switch (state) {
           case STATE_FINDING_HEADER:

@@ -17,7 +17,7 @@ package com.google.android.exoplayer.extractor.ts;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.extractor.Extractor.TrackOutput;
+import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableBitArray;
@@ -48,7 +48,8 @@ import java.util.Collections;
   private boolean lastByteWasFF;
   private boolean hasCrc;
 
-  // Parsed from the header.
+  // Used when parsing the header.
+  private boolean hasOutputFormat;
   private long frameDurationUs;
   private int sampleSize;
 
@@ -78,17 +79,16 @@ import java.util.Collections;
           int targetLength = hasCrc ? HEADER_SIZE + CRC_SIZE : HEADER_SIZE;
           if (continueRead(data, adtsScratch.getData(), targetLength)) {
             parseHeader();
-            output.startSample(timeUs, 0);
             bytesRead = 0;
             state = STATE_READING_SAMPLE;
           }
           break;
         case STATE_READING_SAMPLE:
           int bytesToRead = Math.min(data.bytesLeft(), sampleSize - bytesRead);
-          output.appendData(data, bytesToRead);
+          output.sampleData(data, bytesToRead);
           bytesRead += bytesToRead;
           if (bytesRead == sampleSize) {
-            output.commitSample(C.SAMPLE_FLAG_SYNC, 0, null);
+            output.sampleMetadata(timeUs, C.SAMPLE_FLAG_SYNC, sampleSize, 0, null);
             timeUs += frameDurationUs;
             bytesRead = 0;
             state = STATE_FINDING_SYNC;
@@ -152,7 +152,7 @@ import java.util.Collections;
   private void parseHeader() {
     adtsScratch.setPosition(0);
 
-    if (!output.hasFormat()) {
+    if (!hasOutputFormat) {
       int audioObjectType = adtsScratch.readBits(2) + 1;
       int sampleRateIndex = adtsScratch.readBits(4);
       adtsScratch.skipBits(1);
@@ -167,7 +167,8 @@ import java.util.Collections;
           MediaFormat.NO_VALUE, audioParams.second, audioParams.first,
           Collections.singletonList(audioSpecificConfig));
       frameDurationUs = (C.MICROS_PER_SECOND * 1024L) / mediaFormat.sampleRate;
-      output.setFormat(mediaFormat);
+      output.format(mediaFormat);
+      hasOutputFormat = true;
     } else {
       adtsScratch.skipBits(10);
     }

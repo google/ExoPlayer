@@ -17,7 +17,7 @@ package com.google.android.exoplayer.extractor.ts;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.extractor.Extractor.TrackOutput;
+import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.H264Util;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -46,9 +46,15 @@ import java.util.List;
   private final NalUnitTargetBuffer sei;
   private final ParsableByteArray seiWrapper;
 
+  private boolean hasOutputFormat;
   private int scratchEscapeCount;
   private int[] scratchEscapePositions;
+
+  private boolean writingSample;
   private boolean isKeyframe;
+  private long samplePosition;
+  private long sampleTimeUs;
+  private long totalBytesWritten;
 
   public H264Reader(TrackOutput output, SeiReader seiReader) {
     super(output);
@@ -69,7 +75,8 @@ import java.util.List;
       byte[] dataArray = data.data;
 
       // Append the data to the buffer.
-      output.appendData(data, data.bytesLeft());
+      totalBytesWritten += data.bytesLeft();
+      output.sampleData(data, data.bytesLeft());
 
       // Scan the appended data, processing NAL units as they are encountered
       while (offset < limit) {
@@ -85,15 +92,20 @@ import java.util.List;
           }
 
           int nalUnitType = H264Util.getNalUnitType(dataArray, nextNalUnitOffset);
-          int nalUnitOffsetInData = nextNalUnitOffset - limit;
+          int bytesWrittenPastNalUnit = limit - nextNalUnitOffset;
           if (nalUnitType == NAL_UNIT_TYPE_AUD) {
-            if (output.isWritingSample()) {
-              if (isKeyframe && !output.hasFormat() && sps.isCompleted() && pps.isCompleted()) {
+            if (writingSample) {
+              if (isKeyframe && !hasOutputFormat && sps.isCompleted() && pps.isCompleted()) {
                 parseMediaFormat(sps, pps);
               }
-              output.commitSample(isKeyframe ? C.SAMPLE_FLAG_SYNC : 0, nalUnitOffsetInData, null);
+              int flags = isKeyframe ? C.SAMPLE_FLAG_SYNC : 0;
+              int size = (int) (totalBytesWritten - samplePosition) - bytesWrittenPastNalUnit;
+              output.sampleMetadata(sampleTimeUs, flags, size, bytesWrittenPastNalUnit, null);
+              writingSample = false;
             }
-            output.startSample(pesTimeUs, nalUnitOffsetInData);
+            writingSample = true;
+            samplePosition = totalBytesWritten - bytesWrittenPastNalUnit;
+            sampleTimeUs = pesTimeUs;
             isKeyframe = false;
           } else if (nalUnitType == NAL_UNIT_TYPE_IDR) {
             isKeyframe = true;
@@ -120,7 +132,7 @@ import java.util.List;
   }
 
   private void feedNalUnitTargetBuffersStart(int nalUnitType) {
-    if (!output.hasFormat()) {
+    if (!hasOutputFormat) {
       sps.startNalUnit(nalUnitType);
       pps.startNalUnit(nalUnitType);
     }
@@ -128,7 +140,7 @@ import java.util.List;
   }
 
   private void feedNalUnitTargetBuffersData(byte[] dataArray, int offset, int limit) {
-    if (!output.hasFormat()) {
+    if (!hasOutputFormat) {
       sps.appendToNalUnit(dataArray, offset, limit);
       pps.appendToNalUnit(dataArray, offset, limit);
     }
@@ -232,9 +244,9 @@ import java.util.List;
       frameHeight -= (frameCropTopOffset + frameCropBottomOffset) * cropUnitY;
     }
 
-    // Set the format.
-    output.setFormat(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
-        frameWidth, frameHeight, initializationData));
+    output.format(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
+        C.UNKNOWN_TIME_US, frameWidth, frameHeight, initializationData));
+    hasOutputFormat = true;
   }
 
   private void skipScalingList(ParsableBitArray bitArray, int size) {

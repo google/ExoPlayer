@@ -17,10 +17,11 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.extractor.Extractor;
-import com.google.android.exoplayer.extractor.SampleQueue;
-import com.google.android.exoplayer.extractor.Extractor.ExtractorInput;
-import com.google.android.exoplayer.extractor.Extractor.TrackOutput;
+import com.google.android.exoplayer.extractor.ExtractorInput;
+import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.util.Assertions;
 
@@ -31,25 +32,24 @@ import java.io.IOException;
 /**
  * Wraps a {@link Extractor}, adding functionality to enable reading of the extracted samples.
  */
-public final class HlsExtractorWrapper implements Extractor.TrackOutputBuilder {
+public final class HlsExtractorWrapper implements ExtractorOutput {
 
   private final BufferPool bufferPool;
   private final Extractor extractor;
-  private final SparseArray<SampleQueue> sampleQueues;
+  private final SparseArray<DefaultTrackOutput> sampleQueues;
   private final boolean shouldSpliceIn;
 
-  private volatile boolean outputsBuilt;
+  private volatile boolean tracksBuilt;
 
   // Accessed only by the consuming thread.
   private boolean prepared;
   private boolean spliceConfigured;
 
-  public HlsExtractorWrapper(BufferPool bufferPool, Extractor extractor,
-      boolean shouldSpliceIn) {
+  public HlsExtractorWrapper(BufferPool bufferPool, Extractor extractor, boolean shouldSpliceIn) {
     this.bufferPool = bufferPool;
     this.extractor = extractor;
     this.shouldSpliceIn = shouldSpliceIn;
-    sampleQueues = new SparseArray<SampleQueue>();
+    sampleQueues = new SparseArray<DefaultTrackOutput>();
     extractor.init(this);
   }
 
@@ -76,8 +76,8 @@ public final class HlsExtractorWrapper implements Extractor.TrackOutputBuilder {
     boolean spliceConfigured = true;
     int trackCount = getTrackCount();
     for (int i = 0; i < trackCount; i++) {
-      SampleQueue currentSampleQueue = sampleQueues.valueAt(i);
-      SampleQueue nextSampleQueue = nextExtractor.sampleQueues.valueAt(i);
+      DefaultTrackOutput currentSampleQueue = sampleQueues.valueAt(i);
+      DefaultTrackOutput nextSampleQueue = nextExtractor.sampleQueues.valueAt(i);
       spliceConfigured &= currentSampleQueue.configureSpliceTo(nextSampleQueue);
     }
     this.spliceConfigured = spliceConfigured;
@@ -113,7 +113,7 @@ public final class HlsExtractorWrapper implements Extractor.TrackOutputBuilder {
    * @return True if the extractor is prepared. False otherwise.
    */
   public boolean isPrepared() {
-    if (!prepared && outputsBuilt) {
+    if (!prepared && tracksBuilt) {
       for (int i = 0; i < sampleQueues.size(); i++) {
         if (!sampleQueues.valueAt(i).hasFormat()) {
           return false;
@@ -188,25 +188,27 @@ public final class HlsExtractorWrapper implements Extractor.TrackOutputBuilder {
    * Reads from the provided {@link ExtractorInput}.
    *
    * @param input The {@link ExtractorInput} from which to read.
+   * @return One of {@link Extractor#RESULT_CONTINUE} and {@link Extractor#RESULT_END_OF_INPUT}.
    * @throws IOException If an error occurred reading from the source.
    * @throws InterruptedException If the thread was interrupted.
    */
-  public void read(ExtractorInput input) throws IOException, InterruptedException {
-    extractor.read(input);
+  public int read(ExtractorInput input) throws IOException, InterruptedException {
+    int result = extractor.read(input);
+    return result;
   }
 
   // ExtractorOutput implementation.
 
   @Override
-  public TrackOutput buildOutput(int id) {
-    SampleQueue sampleQueue = new SampleQueue(bufferPool);
+  public TrackOutput track(int id) {
+    DefaultTrackOutput sampleQueue = new DefaultTrackOutput(bufferPool);
     sampleQueues.put(id, sampleQueue);
     return sampleQueue;
   }
 
   @Override
-  public void allOutputsBuilt() {
-    this.outputsBuilt = true;
+  public void endTracks() {
+    this.tracksBuilt = true;
   }
 
 }
