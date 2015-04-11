@@ -35,6 +35,27 @@ import java.io.IOException;
 public abstract class Chunk implements Loadable {
 
   /**
+   * Value of {@link #trigger} for a load whose reason is unspecified.
+   */
+  public static final int TRIGGER_UNSPECIFIED = 0;
+  /**
+   * Value of {@link #trigger} for a load triggered by an initial format selection.
+   */
+  public static final int TRIGGER_INITIAL = 1;
+  /**
+   * Value of {@link #trigger} for a load triggered by a user initiated format selection.
+   */
+  public static final int TRIGGER_MANUAL = 2;
+  /**
+   * Value of {@link #trigger} for a load triggered by an adaptive format selection.
+   */
+  public static final int TRIGGER_ADAPTIVE = 3;
+  /**
+   * Implementations may define custom {@link #trigger} codes greater than or equal to this value.
+   */
+  public static final int TRIGGER_CUSTOM_BASE = 10000;
+
+  /**
    * The format associated with the data being loaded.
    */
   // TODO: Consider removing this and pushing it down into MediaChunk instead.
