@@ -289,7 +289,7 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     ExtractorInput input = createTestInput(data);
     int readResult = Extractor.RESULT_CONTINUE;
     while (readResult == Extractor.RESULT_CONTINUE) {
-      readResult = extractor.read(input);
+      readResult = extractor.read(input, null);
     }
     assertEquals(Extractor.RESULT_END_OF_INPUT, readResult);
   }

@@ -193,7 +193,8 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
    * @throws InterruptedException If the thread was interrupted.
    */
   public int read(ExtractorInput input) throws IOException, InterruptedException {
-    int result = extractor.read(input);
+    int result = extractor.read(input, null);
+    Assertions.checkState(result != Extractor.RESULT_SEEK);
     return result;
   }
 

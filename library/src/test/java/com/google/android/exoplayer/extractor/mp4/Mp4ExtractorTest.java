@@ -13,23 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.source;
+package com.google.android.exoplayer.extractor.mp4;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
-import com.google.android.exoplayer.mp4.Atom;
+import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.upstream.ByteArrayDataSource;
 import com.google.android.exoplayer.upstream.DataSource;
-import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.media.MediaExtractor;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -43,10 +42,10 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Tests for {@link Mp4SampleExtractor}.
+ * Tests for {@link Mp4Extractor}.
  */
 @TargetApi(16)
-public class Mp4SampleExtractorTest extends TestCase {
+public class Mp4ExtractorTest extends TestCase {
 
   /** String of hexadecimal bytes containing the video stsd payload from an AVC video. */
   private static final byte[] VIDEO_STSD_PAYLOAD = getByteArray(
@@ -97,7 +96,7 @@ public class Mp4SampleExtractorTest extends TestCase {
   /** Indices of key-frames. */
   private static final int[] SYNCHRONIZATION_SAMPLE_INDICES = {0, 4, 5};
   /** Indices of video frame chunk offsets. */
-  private static final int[] CHUNK_OFFSETS = {1000, 2000, 3000, 4000};
+  private static final int[] CHUNK_OFFSETS = {1080, 2000, 3000, 4000};
   /** Numbers of video frames in each chunk. */
   private static final int[] SAMPLES_IN_CHUNK = {2, 2, 1, 1};
   /** The mdat box must be large enough to avoid reading chunk sample data out of bounds. */
@@ -194,7 +193,7 @@ public class Mp4SampleExtractorTest extends TestCase {
     while (true) {
       int result = extractor.readSample(0, sampleHolder);
       if (result == SampleSource.SAMPLE_READ) {
-        assertTrue((sampleHolder.flags & MediaExtractor.SAMPLE_FLAG_SYNC) != 0);
+        assertTrue(sampleHolder.isSyncFrame());
         sampleHolder.clearData();
         sampleIndex++;
       } else if (result == SampleSource.END_OF_STREAM) {
@@ -343,10 +342,18 @@ public class Mp4SampleExtractorTest extends TestCase {
     return result;
   }
 
-  private static byte[] getMdat() {
-    // TODO: Put NAL length tags in at each sample position so the sample lengths don't have to
-    // be multiples of four.
-    return new byte[MDAT_SIZE];
+  private static byte[] getMdat(int mdatOffset) {
+    ByteBuffer mdat = ByteBuffer.allocate(MDAT_SIZE);
+    int sampleIndex = 0;
+    for (int chunk = 0; chunk < CHUNK_OFFSETS.length; chunk++) {
+      int sampleOffset = CHUNK_OFFSETS[chunk];
+      for (int sample = 0; sample < SAMPLES_IN_CHUNK[chunk]; sample++) {
+        int sampleSize = SAMPLE_SIZES[sampleIndex++];
+        mdat.putInt(sampleOffset - mdatOffset, sampleSize);
+        sampleOffset += sampleSize;
+      }
+    }
+    return mdat.array();
   }
 
   private static final DataSource getFakeDataSource(boolean includeStss, boolean mp4vFormat) {
@@ -389,7 +396,7 @@ public class Mp4SampleExtractorTest extends TestCase {
                             atom(Atom.TYPE_stsc, getStsc()),
                             atom(Atom.TYPE_stsz, getStsz()),
                             atom(Atom.TYPE_stco, getStco())))))),
-        atom(Atom.TYPE_mdat, getMdat()));
+        atom(Atom.TYPE_mdat, getMdat(mp4vFormat ? 1048 : 1038)));
   }
 
   /** Gets a valid MP4 file with audio/video tracks and without a synchronization table. */
@@ -425,7 +432,7 @@ public class Mp4SampleExtractorTest extends TestCase {
                             atom(Atom.TYPE_stsc, getStsc()),
                             atom(Atom.TYPE_stsz, getStsz()),
                             atom(Atom.TYPE_stco, getStco())))))),
-        atom(Atom.TYPE_mdat, getMdat()));
+        atom(Atom.TYPE_mdat, getMdat(mp4vFormat ? 992 : 982)));
   }
 
   private static Mp4Atom atom(int type, Mp4Atom... containedMp4Atoms) {
@@ -506,9 +513,8 @@ public class Mp4SampleExtractorTest extends TestCase {
   }
 
   /**
-   * Creates a {@link Mp4SampleExtractor} on a separate thread with a looper, so that it can use a
-   * handler for loading, and provides blocking operations like {@link #seekTo} and
-   * {@link #readSample}.
+   * Creates a {@link Mp4Extractor} on a separate thread with a looper, so that it can use a handler
+   * for loading, and provides blocking operations like {@link #seekTo} and {@link #readSample}.
    */
   private static final class Mp4ExtractorWrapper extends Thread {
 
@@ -526,7 +532,7 @@ public class Mp4SampleExtractorTest extends TestCase {
     private volatile CountDownLatch pendingOperationLatch;
 
     public Mp4ExtractorWrapper(DataSource dataSource) {
-      super("Mp4SampleExtractorTest");
+      super("Mp4ExtractorTest");
       this.dataSource = Assertions.checkNotNull(dataSource);
       pendingOperationLatch = new CountDownLatch(1);
       start();
@@ -563,40 +569,45 @@ public class Mp4SampleExtractorTest extends TestCase {
     @SuppressLint("HandlerLeak")
     @Override
     public void run() {
-      final Mp4SampleExtractor mp4SampleExtractor =
-          new Mp4SampleExtractor(dataSource, new DataSpec(FAKE_URI));
+      final ExtractorSampleSource source = new ExtractorSampleSource(FAKE_URI, dataSource,
+          new Mp4Extractor(), 1, 2 * 1024 * 1024);
       Looper.prepare();
       handler = new Handler() {
+
         @Override
         public void handleMessage(Message message) {
           try {
             switch (message.what) {
               case MSG_PREPARE:
-                if (!mp4SampleExtractor.prepare()) {
+                if (!source.prepare()) {
                   sendEmptyMessage(MSG_PREPARE);
                 } else {
                   // Select the video track and get its metadata.
-                  mediaFormats = new MediaFormat[mp4SampleExtractor.getTrackCount()];
-                  for (int track = 0; track < mp4SampleExtractor.getTrackCount(); track++) {
-                    MediaFormat mediaFormat = mp4SampleExtractor.getMediaFormat(track);
+                  mediaFormats = new MediaFormat[source.getTrackCount()];
+                  MediaFormatHolder mediaFormatHolder = new MediaFormatHolder();
+                  for (int track = 0; track < source.getTrackCount(); track++) {
+                    source.enable(track, 0);
+                    source.readData(track, 0, mediaFormatHolder, null, false);
+                    MediaFormat mediaFormat = mediaFormatHolder.format;
                     mediaFormats[track] = mediaFormat;
                     if (MimeTypes.isVideo(mediaFormat.mimeType)) {
-                      mp4SampleExtractor.selectTrack(track);
                       selectedTrackMediaFormat = mediaFormat;
+                    } else {
+                      source.disable(track);
                     }
                   }
                   pendingOperationLatch.countDown();
                 }
                 break;
               case MSG_SEEK_TO:
-                long timestampUs = (long) message.obj;
-                mp4SampleExtractor.seekTo(timestampUs);
+                long timestampUs = (Long) message.obj;
+                source.seekToUs(timestampUs);
                 break;
               case MSG_READ_SAMPLE:
                 int trackIndex = message.arg1;
                 SampleHolder sampleHolder = (SampleHolder) message.obj;
                 sampleHolder.clearData();
-                readSampleResult = mp4SampleExtractor.readSample(trackIndex, sampleHolder);
+                readSampleResult = source.readData(trackIndex, 0, null, sampleHolder, false);
                 if (readSampleResult == SampleSource.NOTHING_READ) {
                   Message.obtain(message).sendToTarget();
                   return;

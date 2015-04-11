@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.mp4;
+package com.google.android.exoplayer.extractor.mp4;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
 /** Sample table for a track in an MP4 file. */
-public final class Mp4TrackSampleTable {
+public final class TrackSampleTable {
 
   /** Sample index when no sample is available. */
   public static final int NO_SAMPLE = -1;
 
+  /** Number of samples. */
+  public final int sampleCount;
   /** Sample offsets in bytes. */
   public final long[] offsets;
   /** Sample sizes in bytes. */
@@ -34,7 +36,7 @@ public final class Mp4TrackSampleTable {
   /** Sample flags. */
   public final int[] flags;
 
-  Mp4TrackSampleTable(
+  TrackSampleTable(
       long[] offsets, int[] sizes, long[] timestampsUs, int[] flags) {
     Assertions.checkArgument(sizes.length == timestampsUs.length);
     Assertions.checkArgument(offsets.length == timestampsUs.length);
@@ -44,11 +46,7 @@ public final class Mp4TrackSampleTable {
     this.sizes = sizes;
     this.timestampsUs = timestampsUs;
     this.flags = flags;
-  }
-
-  /** Returns the number of samples in the table. */
-  public int getSampleCount() {
-    return sizes.length;
+    sampleCount = offsets.length;
   }
 
   /**
@@ -65,7 +63,6 @@ public final class Mp4TrackSampleTable {
         return i;
       }
     }
-
     return NO_SAMPLE;
   }
 
@@ -83,7 +80,6 @@ public final class Mp4TrackSampleTable {
         return i;
       }
     }
-
     return NO_SAMPLE;
   }
 

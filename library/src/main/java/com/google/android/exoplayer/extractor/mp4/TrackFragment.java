@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.chunk.parser.mp4;
+package com.google.android.exoplayer.extractor.mp4;
 
+import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.ParsableByteArray;
+
+import java.io.IOException;
 
 /**
  * A holder for information corresponding to a single fragment of an mp4 file.
  */
-/* package */ final class TrackFragment {
+// TODO: Make package private.
+public final class TrackFragment {
 
   public int sampleDescriptionIndex;
 
@@ -119,6 +123,17 @@ import com.google.android.exoplayer.util.ParsableByteArray;
     sampleEncryptionDataLength = length;
     definesEncryptionData = true;
     sampleEncryptionDataNeedsFill = true;
+  }
+
+  /**
+   * Fills {@link #sampleEncryptionData} from the provided input.
+   *
+   * @param input An {@link ExtractorInput} from which to read the encryption data.
+   */
+  public void fillEncryptionData(ExtractorInput input) throws IOException, InterruptedException {
+    input.readFully(sampleEncryptionData.data, 0, sampleEncryptionDataLength);
+    sampleEncryptionData.setPosition(0);
+    sampleEncryptionDataNeedsFill = false;
   }
 
   /**

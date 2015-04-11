@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.chunk.parser.mp4;
+package com.google.android.exoplayer.extractor.mp4;
 
 /**
  * Encapsulates information parsed from a track encryption (tenc) box in an MP4 stream.
  */
+// TODO: Make package private.
 public final class TrackEncryptionBox {
 
   /**

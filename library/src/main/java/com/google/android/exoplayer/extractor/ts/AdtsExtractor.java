@@ -18,6 +18,7 @@ package com.google.android.exoplayer.extractor.ts;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.IOException;
@@ -55,7 +56,8 @@ public class AdtsExtractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input) throws IOException, InterruptedException {
+  public int read(ExtractorInput input, PositionHolder seekPosition)
+      throws IOException, InterruptedException {
     int bytesRead = input.read(packetBuffer.data, 0, MAX_PACKET_SIZE);
     if (bytesRead == -1) {
       return RESULT_END_OF_INPUT;

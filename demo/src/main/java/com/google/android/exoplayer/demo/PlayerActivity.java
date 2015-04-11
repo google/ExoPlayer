@@ -23,10 +23,12 @@ import com.google.android.exoplayer.demo.player.DashRendererBuilder;
 import com.google.android.exoplayer.demo.player.DefaultRendererBuilder;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
+import com.google.android.exoplayer.demo.player.ExtractorRendererBuilder;
 import com.google.android.exoplayer.demo.player.HlsRendererBuilder;
-import com.google.android.exoplayer.demo.player.Mp4RendererBuilder;
 import com.google.android.exoplayer.demo.player.SmoothStreamingRendererBuilder;
 import com.google.android.exoplayer.demo.player.UnsupportedDrmException;
+import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
+import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer.metadata.GeobMetadata;
 import com.google.android.exoplayer.metadata.PrivMetadata;
 import com.google.android.exoplayer.metadata.TxxxMetadata;
@@ -217,7 +219,11 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       case DemoUtil.TYPE_HLS:
         return new HlsRendererBuilder(userAgent, contentUri.toString());
       case DemoUtil.TYPE_MP4:
-        return new Mp4RendererBuilder(contentUri, debugTextView);
+        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+            new Mp4Extractor());
+      case DemoUtil.TYPE_MP3:
+        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+            new Mp3Extractor());
       default:
         return new DefaultRendererBuilder(this, contentUri, debugTextView);
     }

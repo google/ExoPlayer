@@ -21,6 +21,7 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -111,7 +112,8 @@ public final class Mp3Extractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput extractorInput) throws IOException, InterruptedException {
+  public int read(ExtractorInput extractorInput, PositionHolder seekPosition)
+      throws IOException, InterruptedException {
     if (synchronizedHeaderData == 0
         && synchronizeCatchingEndOfInput(extractorInput) == RESULT_END_OF_INPUT) {
       return RESULT_END_OF_INPUT;

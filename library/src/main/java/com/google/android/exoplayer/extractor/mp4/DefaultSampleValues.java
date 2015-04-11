@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.extractor;
+package com.google.android.exoplayer.extractor.mp4;
 
-import com.google.android.exoplayer.C;
+// TODO: Make package private.
+public final class DefaultSampleValues {
 
-import junit.framework.TestCase;
+  public final int sampleDescriptionIndex;
+  public final int duration;
+  public final int size;
+  public final int flags;
 
-/**
- * Unit test for {@link Extractor}.
- */
-public class ExtractorTest extends TestCase {
-
-  public static final void testContants() {
-    // Sanity check that constant values match those defined by {@link C}.
-    assertEquals(C.RESULT_END_OF_INPUT, Extractor.RESULT_END_OF_INPUT);
-    // Sanity check that the other constant values don't overlap.
-    assertTrue(C.RESULT_END_OF_INPUT != Extractor.RESULT_CONTINUE);
-    assertTrue(C.RESULT_END_OF_INPUT != Extractor.RESULT_SEEK);
+  public DefaultSampleValues(int sampleDescriptionIndex, int duration, int size, int flags) {
+    this.sampleDescriptionIndex = sampleDescriptionIndex;
+    this.duration = duration;
+    this.size = size;
+    this.flags = flags;
   }
 
 }

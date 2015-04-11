@@ -13,20 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.chunk.parser.mp4;
+package com.google.android.exoplayer.extractor;
 
-/* package */ final class DefaultSampleValues {
+/**
+ * Holds a position in the stream.
+ */
+public final class PositionHolder {
 
-  public final int sampleDescriptionIndex;
-  public final int duration;
-  public final int size;
-  public final int flags;
-
-  public DefaultSampleValues(int sampleDescriptionIndex, int duration, int size, int flags) {
-    this.sampleDescriptionIndex = sampleDescriptionIndex;
-    this.duration = duration;
-    this.size = size;
-    this.flags = flags;
-  }
+  /**
+   * The held position.
+   */
+  public long position;
 
 }

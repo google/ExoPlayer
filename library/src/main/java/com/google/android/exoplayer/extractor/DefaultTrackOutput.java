@@ -144,6 +144,16 @@ public final class DefaultTrackOutput implements TrackOutput {
   }
 
   /**
+   * Attempts to skip to the keyframe before the specified time, if it's present in the buffer.
+   *
+   * @param timeUs The seek time.
+   * @return True if the skip was successful. False otherwise.
+   */
+  public boolean skipToKeyframeBefore(long timeUs) {
+    return rollingBuffer.skipToKeyframeBefore(timeUs);
+  }
+
+  /**
    * Attempts to configure a splice from this queue to the next.
    *
    * @param nextQueue The queue being spliced to.

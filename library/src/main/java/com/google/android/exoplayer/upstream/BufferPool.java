@@ -129,6 +129,16 @@ public final class BufferPool implements Allocator {
   }
 
   /**
+   * Blocks execution until the allocated size is not greater than the threshold, or the thread is
+   * interrupted.
+   */
+  public synchronized void blockWhileAllocatedSizeExceeds(int limit) throws InterruptedException {
+    while (getAllocatedSize() > limit) {
+      wait();
+    }
+  }
+
+  /**
    * Returns the buffers belonging to an allocation to the pool.
    *
    * @param allocation The allocation to return.

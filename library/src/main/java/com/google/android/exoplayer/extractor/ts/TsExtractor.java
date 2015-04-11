@@ -19,6 +19,7 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -77,7 +78,8 @@ public final class TsExtractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input) throws IOException, InterruptedException {
+  public int read(ExtractorInput input, PositionHolder seekPosition)
+      throws IOException, InterruptedException {
     if (!input.readFully(tsPacketBuffer.data, 0, TS_PACKET_SIZE, true)) {
       return RESULT_END_OF_INPUT;
     }

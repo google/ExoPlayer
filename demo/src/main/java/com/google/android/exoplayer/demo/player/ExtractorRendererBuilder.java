@@ -20,9 +20,9 @@ import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilderCallback;
-import com.google.android.exoplayer.source.DefaultSampleSource;
-import com.google.android.exoplayer.source.Mp4SampleExtractor;
-import com.google.android.exoplayer.upstream.DataSpec;
+import com.google.android.exoplayer.extractor.Extractor;
+import com.google.android.exoplayer.extractor.ExtractorSampleSource;
+import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.UriDataSource;
 
 import android.media.MediaCodec;
@@ -30,23 +30,31 @@ import android.net.Uri;
 import android.widget.TextView;
 
 /**
- * A {@link RendererBuilder} for streams that can be read using {@link Mp4SampleExtractor}.
+ * A {@link RendererBuilder} for streams that can be read using an {@link Extractor}.
  */
-public class Mp4RendererBuilder implements RendererBuilder {
+public class ExtractorRendererBuilder implements RendererBuilder {
 
+  private static final int BUFFER_SIZE = 10 * 1024 * 1024;
+
+  private final String userAgent;
   private final Uri uri;
   private final TextView debugTextView;
+  private final Extractor extractor;
 
-  public Mp4RendererBuilder(Uri uri, TextView debugTextView) {
+  public ExtractorRendererBuilder(String userAgent, Uri uri, TextView debugTextView,
+      Extractor extractor) {
+    this.userAgent = userAgent;
     this.uri = uri;
     this.debugTextView = debugTextView;
+    this.extractor = extractor;
   }
 
   @Override
   public void buildRenderers(DemoPlayer player, RendererBuilderCallback callback) {
     // Build the video and audio renderers.
-    DefaultSampleSource sampleSource = new DefaultSampleSource(
-        new Mp4SampleExtractor(new UriDataSource("exoplayer", null), new DataSpec(uri)), 2);
+    DataSource dataSource = new UriDataSource(userAgent, null);
+    ExtractorSampleSource sampleSource = new ExtractorSampleSource(uri, dataSource, extractor, 2,
+        BUFFER_SIZE);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
         null, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, player.getMainHandler(),
         player, 50);

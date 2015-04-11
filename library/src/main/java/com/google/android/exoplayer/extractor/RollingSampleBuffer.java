@@ -112,6 +112,21 @@ import java.util.concurrent.ConcurrentLinkedQueue;
   }
 
   /**
+   * Attempts to skip to the keyframe before the specified time, if it's present in the buffer.
+   *
+   * @param timeUs The seek time.
+   * @return True if the skip was successful. False otherwise.
+   */
+  public boolean skipToKeyframeBefore(long timeUs) {
+    long nextOffset = infoQueue.skipToKeyframeBefore(timeUs);
+    if (nextOffset == -1) {
+      return false;
+    }
+    dropDownstreamTo(nextOffset);
+    return true;
+  }
+
+  /**
    * Reads the current sample, advancing the read index to the next sample.
    *
    * @param sampleHolder The holder into which the current sample should be written.
@@ -469,6 +484,50 @@ import java.util.concurrent.ConcurrentLinkedQueue;
       }
       return queueSize > 0 ? offsets[relativeReadIndex]
           : (sizes[lastReadIndex] + offsets[lastReadIndex]);
+    }
+
+    /**
+     * Attempts to locate the keyframe before the specified time, if it's present in the buffer.
+     *
+     * @param timeUs The seek time.
+     * @return The offset of the keyframe's data if the keyframe was present. -1 otherwise.
+     */
+    public synchronized long skipToKeyframeBefore(long timeUs) {
+      if (queueSize == 0 || timeUs < timesUs[relativeReadIndex]) {
+        return -1;
+      }
+
+      int lastWriteIndex = (relativeWriteIndex == 0 ? capacity : relativeWriteIndex) - 1;
+      long lastTimeUs = timesUs[lastWriteIndex];
+      if (timeUs > lastTimeUs) {
+        return -1;
+      }
+
+      // TODO: This can be optimized further using binary search, although the fact that the array
+      // is cyclic means we'd need to implement the binary search ourselves.
+      int sampleCount = 0;
+      int sampleCountToKeyframe = -1;
+      int searchIndex = relativeReadIndex;
+      while (searchIndex != relativeWriteIndex) {
+        if (timesUs[searchIndex] > timeUs) {
+          // We've gone too far.
+          break;
+        } else if ((flags[searchIndex] & C.SAMPLE_FLAG_SYNC) != 0) {
+          // We've found a keyframe, and we're still before the seek position.
+          sampleCountToKeyframe = sampleCount;
+        }
+        searchIndex = (searchIndex + 1) % capacity;
+        sampleCount++;
+      }
+
+      if (sampleCountToKeyframe == -1) {
+        return -1;
+      }
+
+      queueSize -= sampleCountToKeyframe;
+      relativeReadIndex = (relativeReadIndex + sampleCountToKeyframe) % capacity;
+      absoluteReadIndex += sampleCountToKeyframe;
+      return offsets[relativeReadIndex];
     }
 
     // Called by the loading thread.

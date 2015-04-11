@@ -23,6 +23,7 @@ import com.google.android.exoplayer.extractor.ChunkIndex;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.LongArray;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -162,7 +163,8 @@ public final class WebmExtractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input) throws IOException, InterruptedException {
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException,
+      InterruptedException {
     sampleRead = false;
     boolean inputHasData = true;
     while (!sampleRead && inputHasData) {
