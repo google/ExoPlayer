@@ -83,6 +83,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     this.frameAccurateSeeking = frameAccurateSeeking;
     this.remainingReleaseCount = downstreamRendererCount;
     this.minLoadableRetryCount = minLoadableRetryCount;
+    this.pendingResetPositionUs = NO_RESET_PENDING;
     extractors = new LinkedList<HlsExtractorWrapper>();
   }
 
@@ -190,7 +191,11 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       return DISCONTINUITY_READ;
     }
 
-    if (onlyReadDiscontinuity || isPendingReset() || extractors.isEmpty()) {
+    if (onlyReadDiscontinuity) {
+      return NOTHING_READ;
+    }
+
+    if (isPendingReset()) {
       maybeThrowLoadableException();
       return NOTHING_READ;
     }
@@ -241,10 +246,11 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     Assertions.checkState(prepared);
     Assertions.checkState(enabledTrackCount > 0);
     lastSeekPositionUs = positionUs;
-    if (pendingResetPositionUs == positionUs || downstreamPositionUs == positionUs) {
-      downstreamPositionUs = positionUs;
+    if ((isPendingReset() ? pendingResetPositionUs : downstreamPositionUs) == positionUs) {
       return;
     }
+
+    // TODO: Optimize the seek for the case where the position is already buffered.
     downstreamPositionUs = positionUs;
     for (int i = 0; i < pendingDiscontinuities.length; i++) {
       pendingDiscontinuities[i] = true;
@@ -261,9 +267,9 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     } else if (loadingFinished) {
       return TrackRenderer.END_OF_TRACK_US;
     } else {
-      long largestSampleTimestamp = extractors.getLast().getLargestParsedTimestampUs();
-      return largestSampleTimestamp == Long.MIN_VALUE ? downstreamPositionUs
-          : largestSampleTimestamp;
+      long largestParsedTimestampUs = extractors.getLast().getLargestParsedTimestampUs();
+      return largestParsedTimestampUs == Long.MIN_VALUE ? downstreamPositionUs
+          : largestParsedTimestampUs;
     }
   }
 
