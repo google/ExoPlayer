@@ -460,4 +460,19 @@ public final class Util {
     }
   }
 
+  /**
+   * Returns the integer equal to the big-endian concatenation of the characters in {@code string}
+   * as bytes. {@code string} must contain four or fewer characters.
+   */
+  public static int getIntegerCodeForString(String string) {
+    int length = string.length();
+    Assertions.checkArgument(length <= 4);
+    int result = 0;
+    for (int i = 0; i < length; i++) {
+      result <<= 8;
+      result |= string.charAt(i);
+    }
+    return result;
+  }
+
 }

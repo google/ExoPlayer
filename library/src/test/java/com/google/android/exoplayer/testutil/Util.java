@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer.testutil;
 
+import android.test.InstrumentationTestCase;
+
+import org.mockito.MockitoAnnotations;
+
 import java.util.Random;
 
 /**
@@ -33,6 +37,13 @@ public class Util {
     byte[] source = new byte[length];
     random.nextBytes(source);
     return source;
+  }
+
+  public static void setUpMockito(InstrumentationTestCase instrumentationTestCase) {
+    // Workaround for https://code.google.com/p/dexmaker/issues/detail?id=2.
+    System.setProperty("dexmaker.dexcache",
+        instrumentationTestCase.getInstrumentation().getTargetContext().getCacheDir().getPath());
+    MockitoAnnotations.initMocks(instrumentationTestCase);
   }
 
 }
