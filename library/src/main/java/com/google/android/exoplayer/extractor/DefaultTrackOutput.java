@@ -24,9 +24,8 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 import java.io.IOException;
 
 /**
- * Wraps a {@link RollingSampleBuffer}, adding higher level functionality such as enforcing that
- * the first sample returned from the queue is a keyframe, allowing splicing to another queue, and
- * so on.
+ * A {@link TrackOutput} that buffers extracted samples in a queue, and allows for consumption from
+ * that queue.
  */
 public final class DefaultTrackOutput implements TrackOutput {
 
@@ -51,11 +50,34 @@ public final class DefaultTrackOutput implements TrackOutput {
     largestParsedTimestampUs = Long.MIN_VALUE;
   }
 
-  public void release() {
-    rollingBuffer.release();
+  // Called by the consuming thread, but only when there is no loading thread.
+
+  /**
+   * Clears the queue, returning all allocations to the allocator.
+   */
+  public void clear() {
+    rollingBuffer.clear();
+    needKeyframe = true;
+    lastReadTimeUs = Long.MIN_VALUE;
+    spliceOutTimeUs = Long.MIN_VALUE;
+    largestParsedTimestampUs = Long.MIN_VALUE;
+  }
+
+  /**
+   * Returns the current absolute write index.
+   */
+  public int getWriteIndex() {
+    return rollingBuffer.getWriteIndex();
   }
 
   // Called by the consuming thread.
+
+  /**
+   * Returns the current absolute read index.
+   */
+  public int getReadIndex() {
+    return rollingBuffer.getReadIndex();
+  }
 
   /**
    * True if the output has received a format. False otherwise.
@@ -64,14 +86,24 @@ public final class DefaultTrackOutput implements TrackOutput {
     return format != null;
   }
 
+  /**
+   * The format most recently received by the output, or null if a format has yet to be received.
+   */
   public MediaFormat getFormat() {
     return format;
   }
 
+  /**
+   * The largest timestamp of any sample received by the output, or {@link Long#MIN_VALUE} if a
+   * sample has yet to be received.
+   */
   public long getLargestParsedTimestampUs() {
     return largestParsedTimestampUs;
   }
 
+  /**
+   * True if at least one sample can be read from the queue. False otherwise.
+   */
   public boolean isEmpty() {
     return !advanceToEligibleSample();
   }

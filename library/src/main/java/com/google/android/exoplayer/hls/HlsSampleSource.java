@@ -261,7 +261,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     } else if (loadingFinished) {
       return TrackRenderer.END_OF_TRACK_US;
     } else {
-      long largestSampleTimestamp = extractors.getLast().getLargestSampleTimestamp();
+      long largestSampleTimestamp = extractors.getLast().getLargestParsedTimestampUs();
       return largestSampleTimestamp == Long.MIN_VALUE ? downstreamPositionUs
           : largestSampleTimestamp;
     }
@@ -333,7 +333,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     HlsExtractorWrapper extractor = extractors.getFirst();
     while (extractors.size() > 1 && !haveSamplesForEnabledTracks(extractor)) {
       // We're finished reading from the extractor for all tracks, and so can discard it.
-      extractors.removeFirst().release();
+      extractors.removeFirst().clear();
       extractor = extractors.getFirst();
     }
     return extractor;
@@ -382,7 +382,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
 
   private void clearState() {
     for (int i = 0; i < extractors.size(); i++) {
-      extractors.get(i).release();
+      extractors.get(i).clear();
     }
     extractors.clear();
     clearCurrentLoadable();

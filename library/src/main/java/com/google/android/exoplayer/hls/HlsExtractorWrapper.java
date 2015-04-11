@@ -125,13 +125,11 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   }
 
   /**
-   * Releases the extractor, recycling any pending or incomplete samples to the sample pool.
-   * <p>
-   * This method should not be called whilst {@link #read(ExtractorInput)} is also being invoked.
+   * Clears queues for all tracks, returning all allocations to the buffer pool.
    */
-  public void release() {
+  public void clear() {
     for (int i = 0; i < sampleQueues.size(); i++) {
-      sampleQueues.valueAt(i).release();
+      sampleQueues.valueAt(i).clear();
     }
   }
 
@@ -140,7 +138,7 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
    *
    * @return The largest timestamp, or {@link Long#MIN_VALUE} if no samples have been parsed.
    */
-  public long getLargestSampleTimestamp() {
+  public long getLargestParsedTimestampUs() {
     long largestParsedTimestampUs = Long.MIN_VALUE;
     for (int i = 0; i < sampleQueues.size(); i++) {
       largestParsedTimestampUs = Math.max(largestParsedTimestampUs,
