@@ -213,6 +213,11 @@ public final class DefaultTrackOutput implements TrackOutput {
   }
 
   @Override
+  public int sampleData(ExtractorInput input, int length) throws IOException, InterruptedException {
+    return rollingBuffer.appendData(input, length);
+  }
+
+  @Override
   public void sampleData(ParsableByteArray buffer, int length) {
     rollingBuffer.appendData(buffer, length);
   }

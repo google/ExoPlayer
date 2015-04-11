@@ -50,8 +50,12 @@ public class AdtsExtractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input)
-      throws IOException, InterruptedException {
+  public void seek() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int read(ExtractorInput input) throws IOException, InterruptedException {
     int bytesRead = input.read(packetBuffer.data, 0, MAX_PACKET_SIZE);
     if (bytesRead == -1) {
       return RESULT_END_OF_INPUT;

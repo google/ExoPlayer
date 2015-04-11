@@ -55,4 +55,14 @@ public interface Extractor {
    */
   int read(ExtractorInput input) throws IOException, InterruptedException;
 
+  /**
+   * Notifies the extractor that a seek has occurred.
+   * <p>
+   * Following a call to this method, the {@link ExtractorInput} passed to the next invocation of
+   * {@link #read(ExtractorInput)} is required to provide data starting from any random access
+   * position in the stream. Random access positions can be obtained from a {@link SeekMap} that
+   * has been extracted and passed to the {@link ExtractorOutput}.
+   */
+  void seek();
+
 }

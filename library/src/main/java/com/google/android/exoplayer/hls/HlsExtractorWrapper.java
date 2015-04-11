@@ -17,10 +17,12 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.util.Assertions;
@@ -207,6 +209,16 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   @Override
   public void endTracks() {
     this.tracksBuilt = true;
+  }
+
+  @Override
+  public void seekMap(SeekMap seekMap) {
+    // Do nothing.
+  }
+
+  @Override
+  public void drmInitData(DrmInitData drmInit) {
+    // Do nothing.
   }
 
 }

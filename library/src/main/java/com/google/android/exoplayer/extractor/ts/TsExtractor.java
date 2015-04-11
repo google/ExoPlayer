@@ -72,8 +72,12 @@ public final class TsExtractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input)
-      throws IOException, InterruptedException {
+  public void seek() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int read(ExtractorInput input) throws IOException, InterruptedException {
     if (!input.readFully(tsPacketBuffer.data, 0, TS_PACKET_SIZE, true)) {
       return RESULT_END_OF_INPUT;
     }

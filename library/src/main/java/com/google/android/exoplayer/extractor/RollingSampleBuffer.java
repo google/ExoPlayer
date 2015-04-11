@@ -315,6 +315,23 @@ import java.util.concurrent.ConcurrentLinkedQueue;
   /**
    * Appends data to the rolling buffer.
    *
+   * @param input The source from which to read.
+   * @param length The maximum length of the read.
+   * @return The number of bytes appended.
+   * @throws IOException If an error occurs reading from the source.
+   */
+  public int appendData(ExtractorInput input, int length) throws IOException, InterruptedException {
+    ensureSpaceForWrite();
+    int thisWriteLength = Math.min(length, fragmentLength - lastFragmentOffset);
+    input.readFully(lastFragment, lastFragmentOffset, thisWriteLength);
+    lastFragmentOffset += thisWriteLength;
+    totalBytesWritten += thisWriteLength;
+    return thisWriteLength;
+  }
+
+  /**
+   * Appends data to the rolling buffer.
+   *
    * @param buffer A buffer containing the data to append.
    * @param length The length of the data to append.
    */
