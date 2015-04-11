@@ -70,6 +70,17 @@ public final class DefaultTrackOutput implements TrackOutput {
     return rollingBuffer.getWriteIndex();
   }
 
+  /**
+   * Discards samples from the write side of the queue.
+   *
+   * @param discardFromIndex The absolute index of the first sample to be discarded.
+   */
+  public void discardUpstreamSamples(int discardFromIndex) {
+    rollingBuffer.discardUpstreamSamples(discardFromIndex);
+    largestParsedTimestampUs = rollingBuffer.peekSample(sampleInfoHolder) ? sampleInfoHolder.timeUs
+        : Long.MIN_VALUE;
+  }
+
   // Called by the consuming thread.
 
   /**
