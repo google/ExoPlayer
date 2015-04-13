@@ -17,6 +17,7 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.extractor.Extractor;
@@ -36,6 +37,10 @@ import java.io.IOException;
  */
 public final class HlsExtractorWrapper implements ExtractorOutput {
 
+  public final int trigger;
+  public final Format format;
+  public final long startTimeUs;
+
   private final BufferPool bufferPool;
   private final Extractor extractor;
   private final SparseArray<DefaultTrackOutput> sampleQueues;
@@ -47,7 +52,11 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   private boolean prepared;
   private boolean spliceConfigured;
 
-  public HlsExtractorWrapper(BufferPool bufferPool, Extractor extractor, boolean shouldSpliceIn) {
+  public HlsExtractorWrapper(int trigger, Format format, long startTimeUs, BufferPool bufferPool,
+      Extractor extractor, boolean shouldSpliceIn) {
+    this.trigger = trigger;
+    this.format = format;
+    this.startTimeUs = startTimeUs;
     this.bufferPool = bufferPool;
     this.extractor = extractor;
     this.shouldSpliceIn = shouldSpliceIn;
@@ -98,14 +107,14 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   }
 
   /**
-   * Gets the format of the specified track.
+   * Gets the {@link MediaFormat} of the specified track.
    * <p>
    * This method must only be called after the extractor has been prepared.
    *
    * @param track The track index.
    * @return The corresponding format.
    */
-  public MediaFormat getFormat(int track) {
+  public MediaFormat getMediaFormat(int track) {
     return sampleQueues.valueAt(track).getFormat();
   }
 

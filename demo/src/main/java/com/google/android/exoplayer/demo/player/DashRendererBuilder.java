@@ -248,7 +248,7 @@ public class DashRendererBuilder implements RendererBuilder,
       videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource, drmSessionManager, true,
           MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, mainHandler, player, 50);
       debugRenderer = debugTextView != null
-          ? new DebugTrackRenderer(debugTextView, videoRenderer, videoSampleSource) : null;
+          ? new DebugTrackRenderer(debugTextView, player, videoRenderer) : null;
     }
 
     // Build the audio chunk sources.

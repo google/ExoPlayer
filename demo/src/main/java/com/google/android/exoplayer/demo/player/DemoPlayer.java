@@ -28,6 +28,7 @@ import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
+import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
 import com.google.android.exoplayer.text.TextRenderer;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
@@ -48,9 +49,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * SmoothStreaming and so on).
  */
 public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventListener,
-    DefaultBandwidthMeter.EventListener, MediaCodecVideoTrackRenderer.EventListener,
-    MediaCodecAudioTrackRenderer.EventListener, Ac3PassthroughAudioTrackRenderer.EventListener,
-    TextRenderer, StreamingDrmSessionManager.EventListener {
+    HlsSampleSource.EventListener, DefaultBandwidthMeter.EventListener,
+    MediaCodecVideoTrackRenderer.EventListener, MediaCodecAudioTrackRenderer.EventListener,
+    Ac3PassthroughAudioTrackRenderer.EventListener, StreamingDrmSessionManager.EventListener,
+    TextRenderer {
 
   /**
    * Builds renderers for the player.
@@ -181,6 +183,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   private Surface surface;
   private InternalRendererBuilderCallback builderCallback;
   private TrackRenderer videoRenderer;
+  private Format videoFormat;
   private int videoTrackToRestore;
 
   private MultiTrackChunkSource[] multiTrackSources;
@@ -268,6 +271,10 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     }
   }
 
+  public Format getVideoFormat() {
+    return videoFormat;
+  }
+
   public void setBackgrounded(boolean backgrounded) {
     if (this.backgrounded == backgrounded) {
       return;
@@ -291,6 +298,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     }
     rendererBuildingState = RENDERER_BUILDING_STATE_BUILDING;
     maybeReportPlayerState();
+    videoFormat = null;
     builderCallback = new InternalRendererBuilderCallback();
     rendererBuilder.buildRenderers(this, builderCallback);
   }
@@ -437,6 +445,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
       return;
     }
     if (sourceId == TYPE_VIDEO) {
+      videoFormat = format;
       infoListener.onVideoFormatEnabled(format, trigger, mediaTimeMs);
     } else if (sourceId == TYPE_AUDIO) {
       infoListener.onAudioFormatEnabled(format, trigger, mediaTimeMs);

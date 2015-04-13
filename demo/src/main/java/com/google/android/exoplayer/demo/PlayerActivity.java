@@ -217,7 +217,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
         return new DashRendererBuilder(userAgent, contentUri.toString(),
             new WidevineTestMediaDrmCallback(contentId), debugTextView, audioCapabilities);
       case DemoUtil.TYPE_HLS:
-        return new HlsRendererBuilder(userAgent, contentUri.toString());
+        return new HlsRendererBuilder(userAgent, contentUri.toString(), debugTextView);
       case DemoUtil.TYPE_MP4:
         return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
             new Mp4Extractor());

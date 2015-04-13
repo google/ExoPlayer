@@ -124,6 +124,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
    *
    * @return The current downstream format.
    */
+  @Deprecated
   public Format getFormat() {
     return downstreamFormat;
   }

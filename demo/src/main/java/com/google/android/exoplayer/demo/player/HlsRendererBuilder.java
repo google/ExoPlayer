@@ -35,6 +35,8 @@ import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
 
 import android.media.MediaCodec;
+import android.os.Handler;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.Map;
@@ -46,13 +48,15 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
 
   private final String userAgent;
   private final String url;
+  private final TextView debugTextView;
 
   private DemoPlayer player;
   private RendererBuilderCallback callback;
 
-  public HlsRendererBuilder(String userAgent, String url) {
+  public HlsRendererBuilder(String userAgent, String url, TextView debugTextView) {
     this.userAgent = userAgent;
     this.url = url;
+    this.debugTextView = debugTextView;
   }
 
   @Override
@@ -72,28 +76,35 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
 
   @Override
   public void onSingleManifest(HlsPlaylist manifest) {
+    Handler mainHandler = player.getMainHandler();
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 
     DataSource dataSource = new UriDataSource(userAgent, bandwidthMeter);
     HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter, null,
         HlsChunkSource.ADAPTIVE_MODE_SPLICE);
-    HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, true, 3);
+    HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, true, 3, mainHandler, player,
+        DemoPlayer.TYPE_VIDEO);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
-        MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, player.getMainHandler(), player, 50);
+        MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, mainHandler, player, 50);
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
 
     MetadataTrackRenderer<Map<String, Object>> id3Renderer =
         new MetadataTrackRenderer<Map<String, Object>>(sampleSource, new Id3Parser(),
-            player.getId3MetadataRenderer(), player.getMainHandler().getLooper());
+            player.getId3MetadataRenderer(), mainHandler.getLooper());
 
     Eia608TrackRenderer closedCaptionRenderer = new Eia608TrackRenderer(sampleSource, player,
-        player.getMainHandler().getLooper());
+        mainHandler.getLooper());
+
+    // Build the debug renderer.
+    TrackRenderer debugRenderer = debugTextView != null
+        ? new DebugTrackRenderer(debugTextView, player, videoRenderer) : null;
 
     TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
     renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
     renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
     renderers[DemoPlayer.TYPE_TIMED_METADATA] = id3Renderer;
     renderers[DemoPlayer.TYPE_TEXT] = closedCaptionRenderer;
+    renderers[DemoPlayer.TYPE_DEBUG] = debugRenderer;
     callback.onRenderers(null, null, renderers);
   }
 

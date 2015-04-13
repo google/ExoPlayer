@@ -55,8 +55,7 @@ public class DefaultRendererBuilder implements RendererBuilder {
 
     // Build the debug renderer.
     TrackRenderer debugRenderer = debugTextView != null
-        ? new DebugTrackRenderer(debugTextView, videoRenderer)
-        : null;
+        ? new DebugTrackRenderer(debugTextView, player, videoRenderer) : null;
 
     // Invoke the callback.
     TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];

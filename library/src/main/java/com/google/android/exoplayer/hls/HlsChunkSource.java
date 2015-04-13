@@ -17,6 +17,7 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.DataChunk;
 import com.google.android.exoplayer.chunk.Format;
@@ -54,6 +55,11 @@ import java.util.Locale;
  * implementation is going to naturally diverge.
  */
 public class HlsChunkSource {
+
+  /**
+   * Interface definition for a callback to be notified of {@link HlsChunkSource} events.
+   */
+  public interface EventListener extends BaseChunkSampleSourceEventListener {}
 
   /**
    * Adaptive switching is disabled.
@@ -349,6 +355,8 @@ public class HlsChunkSource {
     }
     long endTimeUs = startTimeUs + (long) (segment.durationSecs * C.MICROS_PER_SECOND);
     boolean isLastChunk = !mediaPlaylist.live && chunkIndex == mediaPlaylist.segments.size() - 1;
+    int trigger = Chunk.TRIGGER_UNSPECIFIED;
+    Format format = enabledFormats[formatIndex];
 
     // Configure the extractor that will read the chunk.
     HlsExtractorWrapper extractorWrapper;
@@ -356,13 +364,14 @@ public class HlsChunkSource {
       Extractor extractor = chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)
           ? new AdtsExtractor(startTimeUs)
           : new TsExtractor(startTimeUs);
-      extractorWrapper = new HlsExtractorWrapper(bufferPool, extractor, switchingVariantSpliced);
+      extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, bufferPool,
+          extractor, switchingVariantSpliced);
     } else {
       extractorWrapper = previousTsChunk.extractorWrapper;
     }
 
-    return new TsChunk(dataSource, dataSpec, Chunk.TRIGGER_UNSPECIFIED, enabledFormats[formatIndex],
-        startTimeUs, endTimeUs, chunkMediaSequence, isLastChunk, extractorWrapper, encryptionKey,
+    return new TsChunk(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs,
+        chunkMediaSequence, isLastChunk, extractorWrapper, encryptionKey,
         encryptionIv);
   }
 
