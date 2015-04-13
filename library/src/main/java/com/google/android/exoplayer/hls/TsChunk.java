@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer.hls;
 
-import com.google.android.exoplayer.hls.parser.HlsExtractor;
+import com.google.android.exoplayer.extractor.DefaultExtractorInput;
+import com.google.android.exoplayer.extractor.Extractor;
+import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 
@@ -25,8 +27,6 @@ import java.io.IOException;
  * A MPEG2TS chunk.
  */
 public final class TsChunk extends HlsChunk {
-
-  private static final byte[] SCRATCH_SPACE = new byte[4096];
 
   /**
    * The index of the variant in the master playlist.
@@ -51,7 +51,7 @@ public final class TsChunk extends HlsChunk {
   /**
    * The extractor into which this chunk is being consumed.
    */
-  public final HlsExtractor extractor;
+  public final HlsExtractorWrapper extractor;
 
   private int loadPosition;
   private volatile boolean loadFinished;
@@ -67,7 +67,7 @@ public final class TsChunk extends HlsChunk {
    * @param chunkIndex The index of the chunk.
    * @param isLastChunk True if this is the last chunk in the media. False otherwise.
    */
-  public TsChunk(DataSource dataSource, DataSpec dataSpec, HlsExtractor extractor,
+  public TsChunk(DataSource dataSource, DataSpec dataSpec, HlsExtractorWrapper extractor,
       int variantIndex, long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk) {
     super(dataSource, dataSpec);
     this.extractor = extractor;
@@ -102,30 +102,23 @@ public final class TsChunk extends HlsChunk {
 
   @Override
   public void load() throws IOException, InterruptedException {
+    ExtractorInput input;
     try {
-      dataSource.open(dataSpec);
-      int bytesRead = 0;
-      int bytesSkipped = 0;
+      input = new DefaultExtractorInput(dataSource, 0, dataSource.open(dataSpec));
       // If we previously fed part of this chunk to the extractor, skip it this time.
       // TODO: Ideally we'd construct a dataSpec that only loads the remainder of the data here,
       // rather than loading the whole chunk again and then skipping data we previously loaded. To
       // do this is straightforward for non-encrypted content, but more complicated for content
       // encrypted with AES, for which we'll need to modify the way that decryption is performed.
-      while (bytesRead != -1 && !loadCanceled && bytesSkipped < loadPosition) {
-        int skipLength = Math.min(loadPosition - bytesSkipped, SCRATCH_SPACE.length);
-        bytesRead = dataSource.read(SCRATCH_SPACE, 0, skipLength);
-        if (bytesRead != -1) {
-          bytesSkipped += bytesRead;
+      input.skipFully(loadPosition);
+      try {
+        int result = Extractor.RESULT_CONTINUE;
+        while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
+          result = extractor.read(input);
         }
+      } finally {
+        loadPosition = (int) input.getPosition();
       }
-      // Feed the remaining data into the extractor.
-      while (bytesRead != -1 && !loadCanceled) {
-        bytesRead = extractor.read(dataSource);
-        if (bytesRead != -1) {
-          loadPosition += bytesRead;
-        }
-      }
-      loadFinished = !loadCanceled;
     } finally {
       dataSource.close();
     }

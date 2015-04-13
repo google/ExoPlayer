@@ -18,17 +18,21 @@ package com.google.android.exoplayer.upstream;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Predicate;
+import com.google.android.exoplayer.util.Util;
 
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,6 +47,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
   private static final String TAG = "HttpDataSource";
   private static final Pattern CONTENT_RANGE_HEADER =
       Pattern.compile("^bytes (\\d+)-(\\d+)/(\\d+)$");
+  private static final AtomicReference<byte[]> skipBufferReference = new AtomicReference<byte[]>();
 
   private final int connectTimeoutMillis;
   private final int readTimeoutMillis;
@@ -56,7 +61,10 @@ public class DefaultHttpDataSource implements HttpDataSource {
   private InputStream inputStream;
   private boolean opened;
 
-  private long dataLength;
+  private long bytesToSkip;
+  private long bytesToRead;
+
+  private long bytesSkipped;
   private long bytesRead;
 
   /**
@@ -132,23 +140,11 @@ public class DefaultHttpDataSource implements HttpDataSource {
     }
   }
 
-  /*
-   * TODO: If the server uses gzip compression when serving the response, this may end up returning
-   * the size of the compressed response, where-as it should be returning the decompressed size or
-   * -1. See: developer.android.com/reference/java/net/HttpURLConnection.html
-   *
-   * To fix this we should:
-   *
-   * 1. Explicitly require no compression for media requests (since media should be compressed
-   *    already) by setting the Accept-Encoding header to "identity"
-   * 2. In other cases, for example when requesting manifests, we don't want to disable compression.
-   *    For these cases we should ensure that we return -1 here (and avoid performing any sanity
-   *    checks on the content length).
-   */
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
     this.dataSpec = dataSpec;
     this.bytesRead = 0;
+    this.bytesSkipped = 0;
     try {
       connection = makeConnection(dataSpec);
     } catch (IOException e) {
@@ -156,14 +152,16 @@ public class DefaultHttpDataSource implements HttpDataSource {
           dataSpec);
     }
 
-    // Check for a valid response code.
     int responseCode;
     try {
       responseCode = connection.getResponseCode();
     } catch (IOException e) {
+      closeConnection();
       throw new HttpDataSourceException("Unable to connect to " + dataSpec.uri.toString(), e,
           dataSpec);
     }
+
+    // Check for a valid response code.
     if (responseCode < 200 || responseCode > 299) {
       Map<String, List<String>> headers = connection.getHeaderFields();
       closeConnection();
@@ -177,16 +175,23 @@ public class DefaultHttpDataSource implements HttpDataSource {
       throw new InvalidContentTypeException(contentType, dataSpec);
     }
 
-    long contentLength = getContentLength(connection);
-    dataLength = dataSpec.length == C.LENGTH_UNBOUNDED ? contentLength : dataSpec.length;
+    // If we requested a range starting from a non-zero position and received a 200 rather than a
+    // 206, then the server does not support partial requests. We'll need to manually skip to the
+    // requested position.
+    bytesToSkip = responseCode == 200 && dataSpec.position != 0 ? dataSpec.position : 0;
 
-    if (dataSpec.length != C.LENGTH_UNBOUNDED && contentLength != C.LENGTH_UNBOUNDED
-        && contentLength != dataSpec.length) {
-      // The DataSpec specified a length and we resolved a length from the response headers, but
-      // the two lengths do not match.
-      closeConnection();
-      throw new HttpDataSourceException(
-          new UnexpectedLengthException(dataSpec.length, contentLength), dataSpec);
+    // Determine the length of the data to be read, after skipping.
+    if ((dataSpec.flags & DataSpec.FLAG_ALLOW_GZIP) == 0) {
+      long contentLength = getContentLength(connection);
+      bytesToRead = dataSpec.length != C.LENGTH_UNBOUNDED ? dataSpec.length
+          : contentLength != C.LENGTH_UNBOUNDED ? contentLength - bytesToSkip
+          : C.LENGTH_UNBOUNDED;
+    } else {
+      // Gzip is enabled. If the server opts to use gzip then the content length in the response
+      // will be that of the compressed data, which isn't what we want. Furthermore, there isn't a
+      // reliable way to determine whether the gzip was used or not. Always use the dataSpec length
+      // in this case.
+      bytesToRead = dataSpec.length;
     }
 
     try {
@@ -201,37 +206,24 @@ public class DefaultHttpDataSource implements HttpDataSource {
       listener.onTransferStart();
     }
 
-    return dataLength;
+    return bytesToRead;
   }
 
   @Override
   public int read(byte[] buffer, int offset, int readLength) throws HttpDataSourceException {
-    int read = 0;
     try {
-      read = inputStream.read(buffer, offset, readLength);
+      skipInternal();
+      return readInternal(buffer, offset, readLength);
     } catch (IOException e) {
       throw new HttpDataSourceException(e, dataSpec);
     }
-
-    if (read > 0) {
-      bytesRead += read;
-      if (listener != null) {
-        listener.onBytesTransferred(read);
-      }
-    } else if (dataLength != C.LENGTH_UNBOUNDED && dataLength != bytesRead) {
-      // Check for cases where the server closed the connection having not sent the correct amount
-      // of data. We can only do this if we know the length of the data we were expecting.
-      throw new HttpDataSourceException(new UnexpectedLengthException(dataLength, bytesRead),
-          dataSpec);
-    }
-
-    return read;
   }
 
   @Override
   public void close() throws HttpDataSourceException {
     try {
       if (inputStream != null) {
+        Util.maybeTerminateInputStream(connection, bytesRemaining());
         try {
           inputStream.close();
         } catch (IOException e) {
@@ -250,13 +242,6 @@ public class DefaultHttpDataSource implements HttpDataSource {
     }
   }
 
-  private void closeConnection() {
-    if (connection != null) {
-      connection.disconnect();
-      connection = null;
-    }
-  }
-
   /**
    * Returns the current connection, or null if the source is not currently opened.
    *
@@ -264,6 +249,16 @@ public class DefaultHttpDataSource implements HttpDataSource {
    */
   protected final HttpURLConnection getConnection() {
     return connection;
+  }
+
+  /**
+   * Returns the number of bytes that have been skipped since the most recent call to
+   * {@link #open(DataSpec)}.
+   *
+   * @return The number of bytes skipped.
+   */
+  protected final long bytesSkipped() {
+    return bytesSkipped;
   }
 
   /**
@@ -285,7 +280,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
    * @return The remaining length, or {@link C#LENGTH_UNBOUNDED}.
    */
   protected final long bytesRemaining() {
-    return dataLength == C.LENGTH_UNBOUNDED ? dataLength : dataLength - bytesRead;
+    return bytesToRead == C.LENGTH_UNBOUNDED ? bytesToRead : bytesToRead - bytesRead;
   }
 
   private HttpURLConnection makeConnection(DataSpec dataSpec) throws IOException {
@@ -301,6 +296,9 @@ public class DefaultHttpDataSource implements HttpDataSource {
     }
     setRangeHeader(connection, dataSpec);
     connection.setRequestProperty("User-Agent", userAgent);
+    if ((dataSpec.flags & DataSpec.FLAG_ALLOW_GZIP) == 0) {
+      connection.setRequestProperty("Accept-Encoding", "identity");
+    }
     connection.connect();
     return connection;
   }
@@ -353,6 +351,89 @@ public class DefaultHttpDataSource implements HttpDataSource {
       }
     }
     return contentLength;
+  }
+
+  /**
+   * Skips any bytes that need skipping. Else does nothing.
+   * <p>
+   * This implementation is based roughly on {@code libcore.io.Streams.skipByReading()}.
+   *
+   * @throws InterruptedIOException If the thread is interrupted during the operation.
+   * @throws EOFException If the end of the input stream is reached before the bytes are skipped.
+   */
+  private void skipInternal() throws IOException {
+    if (bytesSkipped == bytesToSkip) {
+      return;
+    }
+
+    // Acquire the shared skip buffer.
+    byte[] skipBuffer = skipBufferReference.getAndSet(null);
+    if (skipBuffer == null) {
+      skipBuffer = new byte[4096];
+    }
+
+    while (bytesSkipped != bytesToSkip) {
+      int readLength = (int) Math.min(bytesToSkip - bytesSkipped, skipBuffer.length);
+      int read = inputStream.read(skipBuffer, 0, readLength);
+      if (Thread.interrupted()) {
+        throw new InterruptedIOException();
+      }
+      if (read == -1) {
+        throw new EOFException();
+      }
+      bytesSkipped += read;
+      if (listener != null) {
+        listener.onBytesTransferred(read);
+      }
+    }
+
+    // Release the shared skip buffer.
+    skipBufferReference.set(skipBuffer);
+  }
+
+  /**
+   * Reads up to {@code length} bytes of data and stores them into {@code buffer}, starting at
+   * index {@code offset}.
+   * <p>
+   * This method blocks until at least one byte of data can be read, the end of the opened range is
+   * detected, or an exception is thrown.
+   *
+   * @param buffer The buffer into which the read data should be stored.
+   * @param offset The start offset into {@code buffer} at which data should be written.
+   * @param readLength The maximum number of bytes to read.
+   * @return The number of bytes read, or {@link C#RESULT_END_OF_INPUT} if the end of the opened
+   *     range is reached.
+   * @throws IOException If an error occurs reading from the source.
+   */
+  private int readInternal(byte[] buffer, int offset, int readLength) throws IOException {
+    readLength = bytesToRead == C.LENGTH_UNBOUNDED ? readLength
+        : (int) Math.min(readLength, bytesToRead - bytesRead);
+    if (readLength == 0) {
+      // We've read all of the requested data.
+      return C.RESULT_END_OF_INPUT;
+    }
+
+    int read = inputStream.read(buffer, offset, readLength);
+    if (read == -1) {
+      if (bytesToRead != C.LENGTH_UNBOUNDED && bytesToRead != bytesRead) {
+        // The server closed the connection having not sent sufficient data.
+        throw new EOFException();
+      }
+      return C.RESULT_END_OF_INPUT;
+    }
+
+    bytesRead += read;
+    if (listener != null) {
+      listener.onBytesTransferred(read);
+    }
+    return read;
+  }
+
+  private void closeConnection() {
+    if (connection != null) {
+      connection.disconnect();
+      connection = null;
+    }
   }
 
 }

@@ -31,7 +31,6 @@ import android.os.Looper;
 import android.os.Message;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -80,15 +79,6 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   private String mimeType;
   private byte[] schemePsshData;
   private byte[] sessionId;
-
-  /**
-   * @deprecated Use the other constructor, passing null as {@code optionalKeyRequestParameters}.
-   */
-  @Deprecated
-  public StreamingDrmSessionManager(UUID uuid, Looper playbackLooper, MediaDrmCallback callback,
-      Handler eventHandler, EventListener eventListener) throws UnsupportedSchemeException {
-    this(uuid, playbackLooper, callback, null, eventHandler, eventListener);
-  }
 
   /**
    * @param uuid The UUID of the drm scheme.
@@ -168,7 +158,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   @Override
-  public void open(Map<UUID, byte[]> psshData, String mimeType) {
+  public void open(DrmInitData drmInitData) {
     if (++openCount != 1) {
       return;
     }
@@ -178,8 +168,8 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
       postRequestHandler = new PostRequestHandler(requestHandlerThread.getLooper());
     }
     if (this.schemePsshData == null) {
-      this.mimeType = mimeType;
-      schemePsshData = psshData.get(uuid);
+      mimeType = drmInitData.mimeType;
+      schemePsshData = drmInitData.get(uuid);
       if (schemePsshData == null) {
         onError(new IllegalStateException("Media does not support uuid: " + uuid));
         return;
@@ -332,7 +322,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
           return;
         case MediaDrm.EVENT_KEY_EXPIRED:
           state = STATE_OPENED;
-          postKeyRequest();
+          onError(new KeysExpiredException());
           return;
         case MediaDrm.EVENT_PROVISION_REQUIRED:
           state = STATE_OPENED;

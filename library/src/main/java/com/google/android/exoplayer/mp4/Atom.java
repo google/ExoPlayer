@@ -24,6 +24,19 @@ import java.util.List;
 
 public abstract class Atom {
 
+  /** Size of an atom header, in bytes. */
+  public static final int ATOM_HEADER_SIZE = 8;
+
+  /** Size of a long atom header, in bytes. */
+  public static final int LONG_ATOM_HEADER_SIZE = 16;
+
+  /** Size of a full atom header, in bytes. */
+  public static final int FULL_ATOM_HEADER_SIZE = 12;
+
+  /** Value for the first 32 bits of atomSize when the atom size is actually a long value. */
+  public static final int LONG_SIZE_PREFIX = 1;
+
+  public static final int TYPE_ftyp = getAtomTypeInteger("ftyp");
   public static final int TYPE_avc1 = getAtomTypeInteger("avc1");
   public static final int TYPE_avc3 = getAtomTypeInteger("avc3");
   public static final int TYPE_esds = getAtomTypeInteger("esds");
@@ -151,6 +164,20 @@ public abstract class Atom {
           + " containers: " + Arrays.toString(containerChildren.toArray(new ContainerAtom[0]));
     }
 
+  }
+
+  /**
+   * Parses the version number out of the additional integer component of a full atom.
+   */
+  public static int parseFullAtomVersion(int fullAtomInt) {
+    return 0x000000FF & (fullAtomInt >> 24);
+  }
+
+  /**
+   * Parses the atom flags out of the additional integer component of a full atom.
+   */
+  public static int parseFullAtomFlags(int fullAtomInt) {
+    return 0x00FFFFFF & fullAtomInt;
   }
 
   private static String getAtomTypeString(int type) {

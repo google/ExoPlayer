@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
@@ -177,6 +178,33 @@ public class MediaCodecUtil {
   @TargetApi(19)
   private static boolean isAdaptiveV19(CodecCapabilities capabilities) {
     return capabilities.isFeatureSupported(CodecCapabilities.FEATURE_AdaptivePlayback);
+  }
+
+  /**
+   * Tests whether the device advertises it can decode video of a given type at a specified
+   * width, height, and frame rate.
+   * <p>
+   * Must not be called if the device SDK version is less than 21.
+   *
+   * @param mimeType The mime type.
+   * @param secure Whether the decoder is required to support secure decryption. Always pass false
+   *     unless secure decryption really is required.
+   * @param width Width in pixels.
+   * @param height Height in pixels.
+   * @param frameRate Frame rate in frames per second.
+   * @return Whether the decoder advertises support of the given size and frame rate.
+   */
+  @TargetApi(21)
+  public static boolean isSizeAndRateSupportedV21(String mimeType, boolean secure,
+      int width, int height, double frameRate) throws DecoderQueryException {
+    Assertions.checkState(Util.SDK_INT >= 21);
+    Pair<String, CodecCapabilities> info = getMediaCodecInfo(mimeType, secure);
+    if (info == null) {
+      return false;
+    }
+    MediaCodecInfo.VideoCapabilities videoCapabilities = info.second.getVideoCapabilities();
+    return videoCapabilities != null
+        && videoCapabilities.areSizeAndRateSupported(width, height, frameRate);
   }
 
   /**

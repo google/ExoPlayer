@@ -202,7 +202,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   protected void onDisabled() {
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     try {
-      audioTrack.reset();
+      audioTrack.release();
     } finally {
       super.onDisabled();
     }

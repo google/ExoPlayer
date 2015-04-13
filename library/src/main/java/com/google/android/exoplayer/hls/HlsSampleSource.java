@@ -15,13 +15,13 @@
  */
 package com.google.android.exoplayer.hls;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
-import com.google.android.exoplayer.hls.parser.HlsExtractor;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
@@ -44,7 +44,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   private static final int NO_RESET_PENDING = -1;
 
   private final HlsChunkSource chunkSource;
-  private final LinkedList<HlsExtractor> extractors;
+  private final LinkedList<HlsExtractorWrapper> extractors;
   private final boolean frameAccurateSeeking;
   private final int minLoadableRetryCount;
 
@@ -83,7 +83,8 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     this.frameAccurateSeeking = frameAccurateSeeking;
     this.remainingReleaseCount = downstreamRendererCount;
     this.minLoadableRetryCount = minLoadableRetryCount;
-    extractors = new LinkedList<HlsExtractor>();
+    this.pendingResetPositionUs = NO_RESET_PENDING;
+    extractors = new LinkedList<HlsExtractorWrapper>();
   }
 
   @Override
@@ -96,7 +97,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     }
     continueBufferingInternal();
     if (!extractors.isEmpty()) {
-      HlsExtractor extractor = extractors.getFirst();
+      HlsExtractorWrapper extractor = extractors.getFirst();
       if (extractor.isPrepared()) {
         trackCount = extractor.getTrackCount();
         trackEnabledStates = new boolean[trackCount];
@@ -190,12 +191,16 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       return DISCONTINUITY_READ;
     }
 
-    if (onlyReadDiscontinuity || isPendingReset() || extractors.isEmpty()) {
+    if (onlyReadDiscontinuity) {
+      return NOTHING_READ;
+    }
+
+    if (isPendingReset()) {
       maybeThrowLoadableException();
       return NOTHING_READ;
     }
 
-    HlsExtractor extractor = getCurrentExtractor();
+    HlsExtractorWrapper extractor = getCurrentExtractor();
     if (extractors.size() > 1) {
       // If there's more than one extractor, attempt to configure a seamless splice from the
       // current one to the next one.
@@ -223,7 +228,8 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     }
 
     if (extractor.getSample(track, sampleHolder)) {
-      sampleHolder.decodeOnly = frameAccurateSeeking && sampleHolder.timeUs < lastSeekPositionUs;
+      boolean decodeOnly = frameAccurateSeeking && sampleHolder.timeUs < lastSeekPositionUs;
+      sampleHolder.flags |= decodeOnly ? C.SAMPLE_FLAG_DECODE_ONLY : 0;
       return SAMPLE_READ;
     }
 
@@ -240,10 +246,11 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     Assertions.checkState(prepared);
     Assertions.checkState(enabledTrackCount > 0);
     lastSeekPositionUs = positionUs;
-    if (pendingResetPositionUs == positionUs || downstreamPositionUs == positionUs) {
-      downstreamPositionUs = positionUs;
+    if ((isPendingReset() ? pendingResetPositionUs : downstreamPositionUs) == positionUs) {
       return;
     }
+
+    // TODO: Optimize the seek for the case where the position is already buffered.
     downstreamPositionUs = positionUs;
     for (int i = 0; i < pendingDiscontinuities.length; i++) {
       pendingDiscontinuities[i] = true;
@@ -260,9 +267,9 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     } else if (loadingFinished) {
       return TrackRenderer.END_OF_TRACK_US;
     } else {
-      long largestSampleTimestamp = extractors.getLast().getLargestSampleTimestamp();
-      return largestSampleTimestamp == Long.MIN_VALUE ? downstreamPositionUs
-          : largestSampleTimestamp;
+      long largestParsedTimestampUs = extractors.getLast().getLargestParsedTimestampUs();
+      return largestParsedTimestampUs == Long.MIN_VALUE ? downstreamPositionUs
+          : largestParsedTimestampUs;
     }
   }
 
@@ -328,17 +335,17 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
    *
    * @return The current extractor from which samples should be read. Guaranteed to be non-null.
    */
-  private HlsExtractor getCurrentExtractor() {
-    HlsExtractor extractor = extractors.getFirst();
+  private HlsExtractorWrapper getCurrentExtractor() {
+    HlsExtractorWrapper extractor = extractors.getFirst();
     while (extractors.size() > 1 && !haveSamplesForEnabledTracks(extractor)) {
       // We're finished reading from the extractor for all tracks, and so can discard it.
-      extractors.removeFirst().release();
+      extractors.removeFirst().clear();
       extractor = extractors.getFirst();
     }
     return extractor;
   }
 
-  private void discardSamplesForDisabledTracks(HlsExtractor extractor, long timeUs) {
+  private void discardSamplesForDisabledTracks(HlsExtractorWrapper extractor, long timeUs) {
     if (!extractor.isPrepared()) {
       return;
     }
@@ -349,7 +356,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     }
   }
 
-  private boolean haveSamplesForEnabledTracks(HlsExtractor extractor) {
+  private boolean haveSamplesForEnabledTracks(HlsExtractorWrapper extractor) {
     if (!extractor.isPrepared()) {
       return false;
     }
@@ -381,7 +388,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
 
   private void clearState() {
     for (int i = 0; i < extractors.size(); i++) {
-      extractors.get(i).release();
+      extractors.get(i).clear();
     }
     extractors.clear();
     clearCurrentLoadable();

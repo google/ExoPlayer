@@ -24,8 +24,11 @@ import com.google.android.exoplayer.demo.player.DefaultRendererBuilder;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.player.HlsRendererBuilder;
+import com.google.android.exoplayer.demo.player.Mp4RendererBuilder;
 import com.google.android.exoplayer.demo.player.SmoothStreamingRendererBuilder;
 import com.google.android.exoplayer.demo.player.UnsupportedDrmException;
+import com.google.android.exoplayer.metadata.GeobMetadata;
+import com.google.android.exoplayer.metadata.PrivMetadata;
 import com.google.android.exoplayer.metadata.TxxxMetadata;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.SubtitleView;
@@ -213,6 +216,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
             new WidevineTestMediaDrmCallback(contentId), debugTextView, audioCapabilities);
       case DemoUtil.TYPE_HLS:
         return new HlsRendererBuilder(userAgent, contentUri.toString());
+      case DemoUtil.TYPE_MP4:
+        return new Mp4RendererBuilder(contentUri, debugTextView);
       default:
         return new DefaultRendererBuilder(this, contentUri, debugTextView);
     }
@@ -446,11 +451,22 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   @Override
   public void onId3Metadata(Map<String, Object> metadata) {
-    for (int i = 0; i < metadata.size(); i++) {
-      if (metadata.containsKey(TxxxMetadata.TYPE)) {
-        TxxxMetadata txxxMetadata = (TxxxMetadata) metadata.get(TxxxMetadata.TYPE);
-        Log.i(TAG, String.format("ID3 TimedMetadata: description=%s, value=%s",
-            txxxMetadata.description, txxxMetadata.value));
+    for (Map.Entry<String, Object> entry : metadata.entrySet()) {
+      if (TxxxMetadata.TYPE.equals(entry.getKey())) {
+        TxxxMetadata txxxMetadata = (TxxxMetadata) entry.getValue();
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: description=%s, value=%s",
+            TxxxMetadata.TYPE, txxxMetadata.description, txxxMetadata.value));
+      } else if (PrivMetadata.TYPE.equals(entry.getKey())) {
+        PrivMetadata privMetadata = (PrivMetadata) entry.getValue();
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: owner=%s",
+            PrivMetadata.TYPE, privMetadata.owner));
+      } else if (GeobMetadata.TYPE.equals(entry.getKey())) {
+        GeobMetadata geobMetadata = (GeobMetadata) entry.getValue();
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: mimeType=%s, filename=%s, description=%s",
+            GeobMetadata.TYPE, geobMetadata.mimeType, geobMetadata.filename,
+            geobMetadata.description));
+      } else {
+        Log.i(TAG, String.format("ID3 TimedMetadata %s", entry.getKey()));
       }
     }
   }

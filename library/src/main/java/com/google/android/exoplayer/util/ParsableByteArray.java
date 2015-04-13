@@ -37,6 +37,12 @@ public final class ParsableByteArray {
     limit = data.length;
   }
 
+  /** Creates a new instance wrapping {@code data}. */
+  public ParsableByteArray(byte[] data) {
+    this.data = data;
+    limit = data.length;
+  }
+
   /**
    * Creates a new instance that wraps an existing array.
    *
@@ -171,6 +177,13 @@ public final class ParsableByteArray {
     return result;
   }
 
+  /** Reads the next three bytes as an unsigned value. */
+  public int readUnsignedInt24() {
+    int result = shiftIntoInt(data, position, 3);
+    position += 3;
+    return result;
+  }
+
   /** Reads the next four bytes as an unsigned value. */
   public long readUnsignedInt() {
     long result = shiftIntoLong(data, position, 4);
@@ -180,9 +193,11 @@ public final class ParsableByteArray {
 
   /** Reads the next four bytes as a signed value. */
   public int readInt() {
-    int result = shiftIntoInt(data, position, 4);
-    position += 4;
-    return result;
+    // shiftIntoInt inlined as performance optimization.
+    return (data[position++] & 0xFF) << 24
+        | (data[position++] & 0xFF) << 16
+        | (data[position++] & 0xFF) << 8
+        | data[position++] & 0xFF;
   }
 
   /** Reads the next eight bytes as a signed value. */
@@ -221,8 +236,11 @@ public final class ParsableByteArray {
    * @throws IllegalArgumentException Thrown if the top bit of the input data is set.
    */
   public int readUnsignedIntToInt() {
-    int result = shiftIntoInt(data, position, 4);
-    position += 4;
+    // shiftIntoInt inlined as performance optimization.
+    final int result = (data[position++] & 0xFF) << 24
+        | (data[position++] & 0xFF) << 16
+        | (data[position++] & 0xFF) << 8
+        | data[position++] & 0xFF;
     if (result < 0) {
       throw new IllegalArgumentException("Top bit not zero: " + result);
     }

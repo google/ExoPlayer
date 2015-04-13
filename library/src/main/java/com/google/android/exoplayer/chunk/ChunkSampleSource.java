@@ -352,13 +352,14 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     if (mediaFormat != null && !mediaFormat.equals(downstreamMediaFormat, true)) {
       chunkSource.getMaxVideoDimensions(mediaFormat);
       formatHolder.format = mediaFormat;
-      formatHolder.drmInitData = mediaChunk.getPsshInfo();
+      formatHolder.drmInitData = mediaChunk.getDrmInitData();
       downstreamMediaFormat = mediaFormat;
       return FORMAT_READ;
     }
 
     if (mediaChunk.read(sampleHolder)) {
-      sampleHolder.decodeOnly = frameAccurateSeeking && sampleHolder.timeUs < lastSeekPositionUs;
+      boolean decodeOnly = frameAccurateSeeking && sampleHolder.timeUs < lastSeekPositionUs;
+      sampleHolder.flags |= decodeOnly ? C.SAMPLE_FLAG_DECODE_ONLY : 0;
       onSampleRead(mediaChunk, sampleHolder);
       return SAMPLE_READ;
     } else {

@@ -17,6 +17,7 @@ package com.google.android.exoplayer.upstream;
 
 import com.google.android.exoplayer.C;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -65,6 +66,9 @@ public final class FileDataSource implements DataSource {
       file.seek(dataSpec.position);
       bytesRemaining = dataSpec.length == C.LENGTH_UNBOUNDED ? file.length() - dataSpec.position
           : dataSpec.length;
+      if (bytesRemaining < 0) {
+        throw new EOFException();
+      }
     } catch (IOException e) {
       throw new FileDataSourceException(e);
     }

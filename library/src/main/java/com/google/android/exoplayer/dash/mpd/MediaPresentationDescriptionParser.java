@@ -24,9 +24,9 @@ import com.google.android.exoplayer.dash.mpd.SegmentBase.SingleSegmentBase;
 import com.google.android.exoplayer.upstream.NetworkLoadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
 
-import android.net.Uri;
 import android.text.TextUtils;
 
 import org.xml.sax.helpers.DefaultHandler;
@@ -38,6 +38,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -83,7 +85,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         throw new ParserException(
             "inputStream does not contain a valid media presentation description");
       }
-      return parseMediaPresentationDescription(xpp, Util.parseBaseUri(connectionUrl));
+      return parseMediaPresentationDescription(xpp, connectionUrl);
     } catch (XmlPullParserException e) {
       throw new ParserException(e);
     } catch (ParseException e) {
@@ -92,7 +94,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   }
 
   protected MediaPresentationDescription parseMediaPresentationDescription(XmlPullParser xpp,
-      Uri baseUrl) throws XmlPullParserException, IOException, ParseException {
+      String baseUrl) throws XmlPullParserException, IOException, ParseException {
     long availabilityStartTime = parseDateTime(xpp, "availabilityStartTime", -1);
     long durationMs = parseDuration(xpp, "mediaPresentationDuration", -1);
     long minBufferTimeMs = parseDuration(xpp, "minBufferTime", -1);
@@ -137,7 +139,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     return new UtcTimingElement(schemeIdUri, value);
   }
 
-  protected Period parsePeriod(XmlPullParser xpp, Uri baseUrl, long mpdDurationMs)
+  protected Period parsePeriod(XmlPullParser xpp, String baseUrl, long mpdDurationMs)
       throws XmlPullParserException, IOException {
     String id = xpp.getAttributeValue(null, "id");
     long startMs = parseDuration(xpp, "start", 0);
@@ -170,7 +172,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
   // AdaptationSet parsing.
 
-  protected AdaptationSet parseAdaptationSet(XmlPullParser xpp, Uri baseUrl, long periodStartMs,
+  protected AdaptationSet parseAdaptationSet(XmlPullParser xpp, String baseUrl, long periodStartMs,
       long periodDurationMs, SegmentBase segmentBase) throws XmlPullParserException, IOException {
 
     String mimeType = xpp.getAttributeValue(null, "mimeType");
@@ -178,24 +180,22 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     int contentType = parseAdaptationSetTypeFromMimeType(mimeType);
 
     int id = -1;
-    List<ContentProtection> contentProtections = null;
+    ContentProtectionsBuilder contentProtectionsBuilder = new ContentProtectionsBuilder();
     List<Representation> representations = new ArrayList<Representation>();
     do {
       xpp.next();
       if (isStartTag(xpp, "BaseURL")) {
         baseUrl = parseBaseUrl(xpp, baseUrl);
       } else if (isStartTag(xpp, "ContentProtection")) {
-        if (contentProtections == null) {
-          contentProtections = new ArrayList<ContentProtection>();
-        }
-        contentProtections.add(parseContentProtection(xpp));
+        contentProtectionsBuilder.addAdaptationSetProtection(parseContentProtection(xpp));
       } else if (isStartTag(xpp, "ContentComponent")) {
         id = Integer.parseInt(xpp.getAttributeValue(null, "id"));
         contentType = checkAdaptationSetTypeConsistency(contentType,
             parseAdaptationSetType(xpp.getAttributeValue(null, "contentType")));
       } else if (isStartTag(xpp, "Representation")) {
         Representation representation = parseRepresentation(xpp, baseUrl, periodStartMs,
-            periodDurationMs, mimeType, language, segmentBase);
+            periodDurationMs, mimeType, language, segmentBase, contentProtectionsBuilder);
+        contentProtectionsBuilder.endRepresentation();
         contentType = checkAdaptationSetTypeConsistency(contentType,
             parseAdaptationSetTypeFromMimeType(representation.format.mimeType));
         representations.add(representation);
@@ -211,7 +211,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       }
     } while (!isEndTag(xpp, "AdaptationSet"));
 
-    return buildAdaptationSet(id, contentType, representations, contentProtections);
+    return buildAdaptationSet(id, contentType, representations, contentProtectionsBuilder.build());
   }
 
   protected AdaptationSet buildAdaptationSet(int id, int contentType,
@@ -287,8 +287,9 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
   // Representation parsing.
 
-  protected Representation parseRepresentation(XmlPullParser xpp, Uri baseUrl, long periodStartMs,
-      long periodDurationMs, String mimeType, String language, SegmentBase segmentBase)
+  protected Representation parseRepresentation(XmlPullParser xpp, String baseUrl,
+      long periodStartMs, long periodDurationMs, String mimeType, String language,
+      SegmentBase segmentBase, ContentProtectionsBuilder contentProtectionsBuilder)
       throws XmlPullParserException, IOException {
     String id = xpp.getAttributeValue(null, "id");
     int bandwidth = parseInt(xpp, "bandwidth");
@@ -312,6 +313,8 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       } else if (isStartTag(xpp, "SegmentTemplate")) {
         segmentBase = parseSegmentTemplate(xpp, baseUrl, (SegmentTemplate) segmentBase,
             periodDurationMs);
+      } else if (isStartTag(xpp, "ContentProtection")) {
+        contentProtectionsBuilder.addRepresentationProtection(parseContentProtection(xpp));
       }
     } while (!isEndTag(xpp, "Representation"));
 
@@ -335,7 +338,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
   // SegmentBase, SegmentList and SegmentTemplate parsing.
 
-  protected SingleSegmentBase parseSegmentBase(XmlPullParser xpp, Uri baseUrl,
+  protected SingleSegmentBase parseSegmentBase(XmlPullParser xpp, String baseUrl,
       SingleSegmentBase parent) throws XmlPullParserException, IOException {
 
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
@@ -364,12 +367,12 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   }
 
   protected SingleSegmentBase buildSingleSegmentBase(RangedUri initialization, long timescale,
-      long presentationTimeOffset, Uri baseUrl, long indexStart, long indexLength) {
+      long presentationTimeOffset, String baseUrl, long indexStart, long indexLength) {
     return new SingleSegmentBase(initialization, timescale, presentationTimeOffset, baseUrl,
         indexStart, indexLength);
   }
 
-  protected SegmentList parseSegmentList(XmlPullParser xpp, Uri baseUrl, SegmentList parent,
+  protected SegmentList parseSegmentList(XmlPullParser xpp, String baseUrl, SegmentList parent,
       long periodDurationMs) throws XmlPullParserException, IOException {
 
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
@@ -413,7 +416,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         startNumber, duration, timeline, segments);
   }
 
-  protected SegmentTemplate parseSegmentTemplate(XmlPullParser xpp, Uri baseUrl,
+  protected SegmentTemplate parseSegmentTemplate(XmlPullParser xpp, String baseUrl,
       SegmentTemplate parent, long periodDurationMs) throws XmlPullParserException, IOException {
 
     long timescale = parseLong(xpp, "timescale", parent != null ? parent.timescale : 1);
@@ -450,7 +453,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   protected SegmentTemplate buildSegmentTemplate(RangedUri initialization, long timescale,
       long presentationTimeOffset, long periodDurationMs, int startNumber, long duration,
       List<SegmentTimelineElement> timeline, UrlTemplate initializationTemplate,
-      UrlTemplate mediaTemplate, Uri baseUrl) {
+      UrlTemplate mediaTemplate, String baseUrl) {
     return new SegmentTemplate(initialization, timescale, presentationTimeOffset, periodDurationMs,
         startNumber, duration, timeline, initializationTemplate, mediaTemplate, baseUrl);
   }
@@ -487,15 +490,15 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     return defaultValue;
   }
 
-  protected RangedUri parseInitialization(XmlPullParser xpp, Uri baseUrl) {
+  protected RangedUri parseInitialization(XmlPullParser xpp, String baseUrl) {
     return parseRangedUrl(xpp, baseUrl, "sourceURL", "range");
   }
 
-  protected RangedUri parseSegmentUrl(XmlPullParser xpp, Uri baseUrl) {
+  protected RangedUri parseSegmentUrl(XmlPullParser xpp, String baseUrl) {
     return parseRangedUrl(xpp, baseUrl, "media", "mediaRange");
   }
 
-  protected RangedUri parseRangedUrl(XmlPullParser xpp, Uri baseUrl, String urlAttribute,
+  protected RangedUri parseRangedUrl(XmlPullParser xpp, String baseUrl, String urlAttribute,
       String rangeAttribute) {
     String urlText = xpp.getAttributeValue(null, urlAttribute);
     long rangeStart = 0;
@@ -509,7 +512,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     return buildRangedUri(baseUrl, urlText, rangeStart, rangeLength);
   }
 
-  protected RangedUri buildRangedUri(Uri baseUrl, String urlText, long rangeStart,
+  protected RangedUri buildRangedUri(String baseUrl, String urlText, long rangeStart,
       long rangeLength) {
     return new RangedUri(baseUrl, urlText, rangeStart, rangeLength);
   }
@@ -548,15 +551,10 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     }
   }
 
-  protected static Uri parseBaseUrl(XmlPullParser xpp, Uri parentBaseUrl)
+  protected static String parseBaseUrl(XmlPullParser xpp, String parentBaseUrl)
       throws XmlPullParserException, IOException {
     xpp.next();
-    String newBaseUrlText = xpp.getText();
-    Uri newBaseUri = Uri.parse(newBaseUrlText);
-    if (!newBaseUri.isAbsolute()) {
-      newBaseUri = Uri.withAppendedPath(parentBaseUrl, newBaseUrlText);
-    }
-    return newBaseUri;
+    return UriUtil.resolve(parentBaseUrl, xpp.getText());
   }
 
   protected static int parseInt(XmlPullParser xpp, String name) {
@@ -580,6 +578,122 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   protected static String parseString(XmlPullParser xpp, String name, String defaultValue) {
     String value = xpp.getAttributeValue(null, name);
     return value == null ? defaultValue : value;
+  }
+
+  /**
+   * Builds a list of {@link ContentProtection} elements for an {@link AdaptationSet}.
+   * <p>
+   * If child Representation elements contain ContentProtection elements, then it is required that
+   * they all define the same ones. If they do, the ContentProtection elements are bubbled up to the
+   * AdaptationSet. Child Representation elements defining different ContentProtection elements is
+   * considered an error.
+   */
+  protected static final class ContentProtectionsBuilder implements Comparator<ContentProtection> {
+
+    private ArrayList<ContentProtection> adaptationSetProtections;
+    private ArrayList<ContentProtection> representationProtections;
+    private ArrayList<ContentProtection> currentRepresentationProtections;
+
+    private boolean representationProtectionsSet;
+
+    /**
+     * Adds a {@link ContentProtection} found in the AdaptationSet element.
+     *
+     * @param contentProtection The {@link ContentProtection} to add.
+     */
+    public void addAdaptationSetProtection(ContentProtection contentProtection) {
+      if (adaptationSetProtections == null) {
+        adaptationSetProtections = new ArrayList<ContentProtection>();
+      }
+      maybeAddContentProtection(adaptationSetProtections, contentProtection);
+    }
+
+    /**
+     * Adds a {@link ContentProtection} found in a child Representation element.
+     *
+     * @param contentProtection The {@link ContentProtection} to add.
+     */
+    public void addRepresentationProtection(ContentProtection contentProtection) {
+      if (currentRepresentationProtections == null) {
+        currentRepresentationProtections = new ArrayList<ContentProtection>();
+      }
+      maybeAddContentProtection(currentRepresentationProtections, contentProtection);
+    }
+
+    /**
+     * Should be invoked after processing each child Representation element, in order to apply
+     * consistency checks.
+     */
+    public void endRepresentation() {
+      if (!representationProtectionsSet) {
+        if (currentRepresentationProtections != null) {
+          Collections.sort(currentRepresentationProtections, this);
+        }
+        representationProtections = currentRepresentationProtections;
+        representationProtectionsSet = true;
+      } else {
+        // Assert that each Representation element defines the same ContentProtection elements.
+        if (currentRepresentationProtections == null) {
+          Assertions.checkState(representationProtections == null);
+        } else {
+          Collections.sort(currentRepresentationProtections, this);
+          Assertions.checkState(currentRepresentationProtections.equals(representationProtections));
+        }
+      }
+      currentRepresentationProtections = null;
+    }
+
+    /**
+     * Returns the final list of consistent {@link ContentProtection} elements.
+     */
+    public ArrayList<ContentProtection> build() {
+      if (adaptationSetProtections == null) {
+        return representationProtections;
+      } else if (representationProtections == null) {
+        return adaptationSetProtections;
+      } else {
+        // Bubble up ContentProtection elements found in the child Representation elements.
+        for (int i = 0; i < representationProtections.size(); i++) {
+          maybeAddContentProtection(adaptationSetProtections, representationProtections.get(i));
+        }
+        return adaptationSetProtections;
+      }
+    }
+
+    /**
+     * Checks a ContentProtection for consistency with the given list, adding it if necessary.
+     * <ul>
+     * <li>If the new ContentProtection matches another in the list, it's consistent and is not
+     *     added to the list.
+     * <li>If the new ContentProtection has the same schemeUriId as another ContentProtection in the
+     *     list, but its other attributes do not match, then it's inconsistent and an
+     *     {@link IllegalStateException} is thrown.
+     * <li>Else the new ContentProtection has a unique schemeUriId, it's consistent and is added.
+     * </ul>
+     *
+     * @param contentProtections The list of ContentProtection elements currently known.
+     * @param contentProtection The ContentProtection to add.
+     */
+    private void maybeAddContentProtection(List<ContentProtection> contentProtections,
+        ContentProtection contentProtection) {
+      if (!contentProtections.contains(contentProtection)) {
+        for (int i = 0; i < contentProtections.size(); i++) {
+          // If contains returned false (no complete match), but find a matching schemeUriId, then
+          // the MPD contains inconsistent ContentProtection data.
+          Assertions.checkState(
+              !contentProtections.get(i).schemeUriId.equals(contentProtection.schemeUriId));
+        }
+        contentProtections.add(contentProtection);
+      }
+    }
+
+    // Comparator implementation.
+
+    @Override
+    public int compare(ContentProtection first, ContentProtection second) {
+      return first.schemeUriId.compareTo(second.schemeUriId);
+    }
+
   }
 
 }

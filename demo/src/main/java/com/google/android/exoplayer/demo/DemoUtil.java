@@ -48,6 +48,7 @@ public class DemoUtil {
   public static final int TYPE_SS = 1;
   public static final int TYPE_OTHER = 2;
   public static final int TYPE_HLS = 3;
+  public static final int TYPE_MP4 = 4;
 
   private static final CookieManager defaultCookieManager;
 

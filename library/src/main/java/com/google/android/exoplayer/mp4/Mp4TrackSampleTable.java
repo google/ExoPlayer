@@ -22,6 +22,9 @@ import com.google.android.exoplayer.util.Util;
 /** Sample table for a track in an MP4 file. */
 public final class Mp4TrackSampleTable {
 
+  /** Sample index when no sample is available. */
+  public static final int NO_SAMPLE = -1;
+
   /** Sample offsets in bytes. */
   public final long[] offsets;
   /** Sample sizes in bytes. */
@@ -53,7 +56,7 @@ public final class Mp4TrackSampleTable {
    * timestamp, if one is available.
    *
    * @param timeUs Timestamp adjacent to which to find a synchronization sample.
-   * @return Index of the synchronization sample, or {@link Mp4Util#NO_SAMPLE} if none.
+   * @return Index of the synchronization sample, or {@link #NO_SAMPLE} if none.
    */
   public int getIndexOfEarlierOrEqualSynchronizationSample(long timeUs) {
     int startIndex = Util.binarySearchFloor(timestampsUs, timeUs, true, false);
@@ -63,7 +66,7 @@ public final class Mp4TrackSampleTable {
       }
     }
 
-    return Mp4Util.NO_SAMPLE;
+    return NO_SAMPLE;
   }
 
   /**
@@ -71,7 +74,7 @@ public final class Mp4TrackSampleTable {
    * if one is available.
    *
    * @param timeUs Timestamp adjacent to which to find a synchronization sample.
-   * @return index Index of the synchronization sample, or {@link Mp4Util#NO_SAMPLE} if none.
+   * @return index Index of the synchronization sample, or {@link #NO_SAMPLE} if none.
    */
   public int getIndexOfLaterOrEqualSynchronizationSample(long timeUs) {
     int startIndex = Util.binarySearchCeil(timestampsUs, timeUs, true, false);
@@ -81,7 +84,7 @@ public final class Mp4TrackSampleTable {
       }
     }
 
-    return Mp4Util.NO_SAMPLE;
+    return NO_SAMPLE;
   }
 
 }
