@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.hls.parser;
+package com.google.android.exoplayer.extractor.ts;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.upstream.BufferPool;
+import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableBitArray;
@@ -48,7 +48,8 @@ import java.util.Collections;
     // Used to find the header.
     private boolean hasCrc;
 
-    // Parsed from the header.
+    // Used when parsing the header.
+    private boolean hasOutputFormat;
     private long frameDurationUs;
     private int sampleSize;
 
@@ -149,8 +150,8 @@ import java.util.Collections;
             1           // Layer3
     };
 
-    public MpaReader(BufferPool bufferPool) {
-        super(bufferPool);
+    public MpaReader(TrackOutput output) {
+        super(output);
         mpaScratch = new ParsableBitArray(new byte[HEADER_SIZE + CRC_SIZE]);
         state = STATE_FINDING_SYNC;
     }
@@ -171,18 +172,17 @@ import java.util.Collections;
                 case STATE_READING_HEADER:
                     int targetLength = hasCrc ? HEADER_SIZE + CRC_SIZE : HEADER_SIZE;
                     if (continueRead(data, mpaScratch.getData(), targetLength)) {
-                        startSample(timeUs);
                         parseHeader();
-                        bytesRead = 0;
+                        bytesRead = targetLength;
                         state = STATE_READING_SAMPLE;
                     }
                     break;
                 case STATE_READING_SAMPLE:
                     int bytesToRead = Math.min(data.bytesLeft(), sampleSize - bytesRead);
-                    appendData(data, bytesToRead);
+                    output.sampleData(data, bytesToRead);
                     bytesRead += bytesToRead;
                     if (bytesRead == sampleSize) {
-                        commitSample(true);
+                        output.sampleMetadata(timeUs, C.SAMPLE_FLAG_SYNC, sampleSize, 0, null);
                         timeUs += frameDurationUs;
                         bytesRead = 0;
                         state = STATE_FINDING_SYNC;
@@ -243,7 +243,7 @@ import java.util.Collections;
      * @param LSF Low Sample rate Format (MPEG 2)
      * @param bitrate The bitrate in bits per second
      * @param samplesPerSec The sampling rate in hertz
-     * @param paddingSize
+     * @param -paddingSize
      * @return Frame size in bytes
      */
     private static int CalcMpaFrameSize (int layer, int LSF, int bitrate, int samplesPerSec, int paddingSize) {
@@ -255,9 +255,9 @@ import java.util.Collections;
      */
     private void parseHeader() {
         int headerLength = hasCrc ? HEADER_SIZE + CRC_SIZE : HEADER_SIZE;
-        mpaScratch.setPosition(0);
 
-        if (!hasMediaFormat()) {
+        if (!hasOutputFormat) {
+            mpaScratch.setPosition(0);
             mpaScratch.skipBits(12);
             int isLSF = (!mpaScratch.readBit()) ? 1 : 0;
             int layer = mpaScratch.readBits(2) ^ 3;
@@ -279,14 +279,15 @@ import java.util.Collections;
             MediaFormat mediaFormat = MediaFormat.createAudioFormat(/*isLSF == 1 ?*/ MimeTypes.AUDIO_MPEG/* : MimeTypes.AUDIO_MP1L2*/,
                     MediaFormat.NO_VALUE, audioParams.second, audioParams.first,
                     Collections.singletonList(audioSpecificConfig));
+            output.format(mediaFormat);
+            hasOutputFormat = true;
             frameDurationUs = (C.MICROS_PER_SECOND * MPA_SAMPLES_PER_FRAME[isLSF][layer]) / mediaFormat.sampleRate;
-            setMediaFormat(mediaFormat);
-            sampleSize = CalcMpaFrameSize(layer, isLSF, bitRate * 1000, sampleRate, paddingBit) - headerLength;
+            sampleSize = CalcMpaFrameSize(layer, isLSF, bitRate * 1000, sampleRate, paddingBit);
         }
 
         mpaScratch.setPosition(0);
 
         ParsableByteArray header = new ParsableByteArray(mpaScratch.getData(),headerLength);
-        appendData(header, headerLength);
+        output.sampleData(header, headerLength);
     }
 }
