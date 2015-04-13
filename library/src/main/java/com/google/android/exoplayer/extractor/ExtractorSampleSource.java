@@ -177,6 +177,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
         loader.cancelLoading();
       } else {
         clearState();
+        bufferPool.trim(0);
       }
     }
   }
@@ -294,6 +295,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
       restartFrom(pendingResetPositionUs);
     } else {
       clearState();
+      bufferPool.trim(0);
     }
   }
 
