@@ -85,14 +85,6 @@ public class Format {
   public final String language;
 
   /**
-   * The average bandwidth in bytes per second.
-   *
-   * @deprecated Use {@link #bitrate}. However note that the units of measurement are different.
-   */
-  @Deprecated
-  public final int bandwidth;
-
-  /**
    * @param id The format identifier.
    * @param mimeType The format mime type.
    * @param width The width of the video in pixels, or -1 for non-video formats.
@@ -144,7 +136,6 @@ public class Format {
     this.bitrate = bitrate;
     this.language = language;
     this.codecs = codecs;
-    this.bandwidth = bitrate / 8;
   }
 
   @Override

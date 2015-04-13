@@ -19,8 +19,6 @@ import com.google.android.exoplayer.chunk.parser.SegmentIndex;
 import com.google.android.exoplayer.dash.mpd.RangedUri;
 import com.google.android.exoplayer.util.Util;
 
-import android.net.Uri;
-
 /**
  * An implementation of {@link DashSegmentIndex} that wraps a {@link SegmentIndex} parsed from a
  * media stream.
@@ -28,16 +26,16 @@ import android.net.Uri;
 public class DashWrappingSegmentIndex implements DashSegmentIndex {
 
   private final SegmentIndex segmentIndex;
-  private final Uri uri;
+  private final String uri;
   private final long indexAnchor;
 
   /**
    * @param segmentIndex The {@link SegmentIndex} to wrap.
-   * @param uri The {@link Uri} where the data is located.
+   * @param uri The URI where the data is located.
    * @param indexAnchor The index anchor point. This value is added to the byte offsets specified
    *     in the wrapped {@link SegmentIndex}.
    */
-  public DashWrappingSegmentIndex(SegmentIndex segmentIndex, Uri uri, long indexAnchor) {
+  public DashWrappingSegmentIndex(SegmentIndex segmentIndex, String uri, long indexAnchor) {
     this.segmentIndex = segmentIndex;
     this.uri = uri;
     this.indexAnchor = indexAnchor;

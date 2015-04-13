@@ -129,6 +129,8 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     void onLoadStarted(int sourceId, String formatId, int trigger, boolean isInitialization,
         int mediaStartTimeMs, int mediaEndTimeMs, long length);
     void onLoadCompleted(int sourceId, long bytesLoaded);
+    void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
+        long initializationDurationMs);
   }
 
   /**
@@ -474,6 +476,16 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   public void onCryptoError(CryptoException e) {
     if (internalErrorListener != null) {
       internalErrorListener.onCryptoError(e);
+    }
+  }
+
+  @Override
+  public void onDecoderInitialized(
+      String decoderName,
+      long elapsedRealtimeMs,
+      long initializationDurationMs) {
+    if (infoListener != null) {
+      infoListener.onDecoderInitialized(decoderName, elapsedRealtimeMs, initializationDurationMs);
     }
   }
 

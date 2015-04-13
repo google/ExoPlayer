@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer;
 
+import android.media.MediaCodec;
 import android.media.MediaExtractor;
 
 /**
@@ -43,10 +44,32 @@ public final class C {
   public static final String UTF8_NAME = "UTF-8";
 
   /**
-   * Sample flag that indicates the sample is a synchronization sample.
+   * @see MediaCodec#CRYPTO_MODE_AES_CTR
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int CRYPTO_MODE_AES_CTR = MediaCodec.CRYPTO_MODE_AES_CTR;
+
+  /**
+   * @see MediaExtractor#SAMPLE_FLAG_SYNC
    */
   @SuppressWarnings("InlinedApi")
   public static final int SAMPLE_FLAG_SYNC = MediaExtractor.SAMPLE_FLAG_SYNC;
+
+  /**
+   * @see MediaExtractor#SAMPLE_FLAG_ENCRYPTED
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int SAMPLE_FLAG_ENCRYPTED = MediaExtractor.SAMPLE_FLAG_ENCRYPTED;
+
+  /**
+   * Indicates that a sample should be decoded but not rendered.
+   */
+  public static final int SAMPLE_FLAG_DECODE_ONLY = 0x8000000;
+
+  /**
+   * A return value for methods where the end of an input was encountered.
+   */
+  public static final int RESULT_END_OF_INPUT = -1;
 
   private C() {}
 

@@ -103,7 +103,7 @@ import java.util.Locale;
         + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
         + "&expire=19000000000&signature=61611F115EEEC7BADE5536827343FFFE2D83D14F."
         + "2FDF4BFA502FB5865C5C86401314BDDEA4799BD0&key=ik0", DemoUtil.TYPE_DASH),
-    new Sample("WV: 30s license duration", "f9a34cab7b05881a",
+    new Sample("WV: 30s license duration (fails at ~30s)", "f9a34cab7b05881a",
         "http://www.youtube.com/api/manifest/dash/id/f9a34cab7b05881a/source/youtube?"
         + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
         + "&expire=19000000000&signature=88DC53943385CED8CF9F37ADD9E9843E3BF621E6."
@@ -123,6 +123,8 @@ import java.util.Locale;
     new Sample("Apple AAC media playlist",
         "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear0/"
         + "prog_index.m3u8", DemoUtil.TYPE_HLS),
+    new Sample("Apple ID3 metadata", "http://devimages.apple.com/samplecode/adDemo/ad.m3u8",
+        DemoUtil.TYPE_HLS),
   };
 
   public static final Sample[] MISC = new Sample[] {
@@ -133,6 +135,12 @@ import java.util.Locale;
     new Sample("Apple AAC 10s", "https://devimages.apple.com.edgekey.net/"
         + "streaming/examples/bipbop_4x3/gear0/fileSequence0.aac",
         DemoUtil.TYPE_OTHER),
+    new Sample("Big Buck Bunny (MP4)",
+        "http://redirector.c.youtube.com/videoplayback?id=604ed5ce52eda7ee&itag=22&source=youtube"
+        + "&sparams=ip,ipbits,expire&ip=0.0.0.0&ipbits=0&expire=19000000000&signature="
+        + "2E853B992F6CAB9D28CA3BEBD84A6F26709A8A55.94344B0D8BA83A7417AAD24DACC8C71A9A878ECE"
+        + "&key=ik0",
+        DemoUtil.TYPE_MP4),
   };
 
   private Samples() {}

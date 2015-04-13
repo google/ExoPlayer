@@ -281,7 +281,7 @@ public final class Ac3PassthroughAudioTrackRenderer extends TrackRenderer {
   protected void onDisabled() {
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     shouldReadInputBuffer = true;
-    audioTrack.reset();
+    audioTrack.release();
   }
 
   @Override

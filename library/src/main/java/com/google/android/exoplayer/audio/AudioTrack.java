@@ -44,6 +44,8 @@ import java.nio.ByteBuffer;
  * <p>Call {@link #reconfigure} when the output format changes.
  *
  * <p>Call {@link #reset} to free resources. It is safe to re-{@link #initialize} the instance.
+ *
+ * <p>Call {@link #release} when the instance will no longer be used.
  */
 @TargetApi(16)
 public final class AudioTrack {
@@ -91,6 +93,12 @@ public final class AudioTrack {
   /** Returned by {@link #getCurrentPositionUs} when the position is not set. */
   public static final long CURRENT_POSITION_NOT_SET = Long.MIN_VALUE;
 
+  /**
+   * Set to {@code true} to enable a workaround for an issue where an audio effect does not keep its
+   * session active across releasing/initializing a new audio track, on platform API version < 21.
+   */
+  private static final boolean ENABLE_PRE_V21_AUDIO_SESSION_WORKAROUND = false;
+
   /** A minimum length for the {@link android.media.AudioTrack} buffer, in microseconds. */
   private static final long MIN_BUFFER_DURATION_US = 250000;
   /** A maximum length for the {@link android.media.AudioTrack} buffer, in microseconds. */
@@ -131,6 +139,9 @@ public final class AudioTrack {
 
   private final ConditionVariable releasingConditionVariable;
   private final long[] playheadOffsets;
+
+  /** Used to keep the audio session active on pre-V21 builds (see {@link #initialize()}). */
+  private android.media.AudioTrack keepSessionIdAudioTrack;
 
   private android.media.AudioTrack audioTrack;
   private AudioTrackUtil audioTrackUtil;
@@ -267,15 +278,37 @@ public final class AudioTrack {
       audioTrack = new android.media.AudioTrack(AudioManager.STREAM_MUSIC, sampleRate,
           channelConfig, encoding, bufferSize, android.media.AudioTrack.MODE_STREAM, sessionId);
     }
-
     checkAudioTrackInitialized();
+
+    sessionId = audioTrack.getAudioSessionId();
+    if (ENABLE_PRE_V21_AUDIO_SESSION_WORKAROUND) {
+      if (Util.SDK_INT < 21) {
+        // The workaround creates an audio track with a one byte buffer on the same session, and
+        // does not release it until this object is released, which keeps the session active.
+        if (keepSessionIdAudioTrack != null
+            && sessionId != keepSessionIdAudioTrack.getAudioSessionId()) {
+          releaseKeepSessionIdAudioTrack();
+        }
+        if (keepSessionIdAudioTrack == null) {
+          int sampleRate = 4000; // Equal to private android.media.AudioTrack.MIN_SAMPLE_RATE.
+          int channelConfig = AudioFormat.CHANNEL_OUT_MONO;
+          int encoding = AudioFormat.ENCODING_PCM_8BIT;
+          int bufferSize = 1; // Use a one byte buffer, as it is not actually used for playback.
+          keepSessionIdAudioTrack = new android.media.AudioTrack(AudioManager.STREAM_MUSIC,
+              sampleRate, channelConfig, encoding, bufferSize, android.media.AudioTrack.MODE_STATIC,
+              sessionId);
+        }
+      }
+    }
+
     if (Util.SDK_INT >= 19) {
       audioTrackUtil = new AudioTrackUtilV19(audioTrack);
     } else {
       audioTrackUtil = new AudioTrackUtil(audioTrack);
     }
     setVolume(volume);
-    return audioTrack.getAudioSessionId();
+
+    return sessionId;
   }
 
   /**
@@ -515,9 +548,9 @@ public final class AudioTrack {
   }
 
   /**
-   * Releases resources associated with this instance asynchronously. Calling {@link #initialize}
-   * will block until the audio track has been released, so it is safe to initialize immediately
-   * after resetting.
+   * Releases the underlying audio track asynchronously. Calling {@link #initialize} will block
+   * until the audio track has been released, so it is safe to initialize immediately after
+   * resetting. The audio session may remain active until the instance is {@link #release}d.
    */
   public void reset() {
     if (isInitialized()) {
@@ -545,6 +578,29 @@ public final class AudioTrack {
         }
       }.start();
     }
+  }
+
+  /** Releases all resources associated with this instance. */
+  public void release() {
+    reset();
+    releaseKeepSessionIdAudioTrack();
+  }
+
+  /** Releases {@link #keepSessionIdAudioTrack} asynchronously, if it is non-{@code null}. */
+  private void releaseKeepSessionIdAudioTrack() {
+    if (keepSessionIdAudioTrack == null) {
+      return;
+    }
+
+    // AudioTrack.release can take some time, so we call it on a background thread.
+    final android.media.AudioTrack toRelease = keepSessionIdAudioTrack;
+    keepSessionIdAudioTrack = null;
+    new Thread() {
+      @Override
+      public void run() {
+        toRelease.release();
+      }
+    }.start();
   }
 
   /** Returns whether {@link #getCurrentPositionUs} can return the current playback position. */

@@ -82,6 +82,26 @@ public class Eia608Parser {
     0xFB     // 3F: 251 'û' "Latin small letter U with circumflex"
   };
 
+  // Extended Spanish/Miscellaneous and French char set.
+  private static final int[] SPECIAL_ES_FR_CHARACTER_SET = new int[] {
+    // Spanish and misc.
+    0xC1, 0xC9, 0xD3, 0xDA, 0xDC, 0xFC, 0x2018, 0xA1,
+    0x2A, 0x27, 0x2014, 0xA9, 0x2120, 0x2022, 0x201C, 0x201D,
+    // French.
+    0xC0, 0xC2, 0xC7, 0xC8, 0xCA, 0xCB, 0xEB, 0xCE,
+    0xCF, 0xEF, 0xD4, 0xD9, 0xF9, 0xDB, 0xAB, 0xBB
+  };
+
+  //Extended Portuguese and German/Danish char set.
+  private static final int[] SPECIAL_PT_DE_CHARACTER_SET = new int[] {
+    // Portuguese.
+    0xC3, 0xE3, 0xCD, 0xCC, 0xEC, 0xD2, 0xF2, 0xD5,
+    0xF5, 0x7B, 0x7D, 0x5C, 0x5E, 0x5F, 0x7C, 0x7E,
+    // German/Danish.
+    0xC4, 0xE4, 0xD6, 0xF6, 0xDF, 0xA5, 0xA4, 0x2502,
+    0xC5, 0xE5, 0xD8, 0xF8, 0x250C, 0x2510, 0x2514, 0x2518
+  };
+
   private final ParsableBitArray seiBuffer;
   private final StringBuilder stringBuilder;
   private final ArrayList<ClosedCaption> captions;
@@ -134,31 +154,45 @@ public class Eia608Parser {
       }
 
       // Special North American character set.
-      if ((ccData1 == 0x11) && ((ccData2 & 0x70) == 0x30)) {
+      // ccData2 - P|0|1|1|X|X|X|X
+      if ((ccData1 == 0x11 || ccData1 == 0x19)
+          && ((ccData2 & 0x70) == 0x30)) {
         stringBuilder.append(getSpecialChar(ccData2));
+        continue;
+      }
+
+      // Extended Spanish/Miscellaneous and French character set.
+      // ccData2 - P|0|1|X|X|X|X|X
+      if ((ccData1 == 0x12 || ccData1 == 0x1A)
+          && ((ccData2 & 0x60) == 0x20)) {
+        backspace(); // Remove standard equivalent of the special extended char.
+        stringBuilder.append(getExtendedEsFrChar(ccData2));
+        continue;
+      }
+
+      // Extended Portuguese and German/Danish character set.
+      // ccData2 - P|0|1|X|X|X|X|X
+      if ((ccData1 == 0x13 || ccData1 == 0x1B)
+          && ((ccData2 & 0x60) == 0x20)) {
+        backspace(); // Remove standard equivalent of the special extended char.
+        stringBuilder.append(getExtendedPtDeChar(ccData2));
         continue;
       }
 
       // Control character.
       if (ccData1 < 0x20) {
-        if (stringBuilder.length() > 0) {
-          captions.add(new ClosedCaptionText(stringBuilder.toString()));
-          stringBuilder.setLength(0);
-        }
-        captions.add(new ClosedCaptionCtrl(ccData1, ccData2));
+        addCtrl(ccData1, ccData2);
         continue;
       }
 
       // Basic North American character set.
       stringBuilder.append(getChar(ccData1));
-      if (ccData2 != 0) {
+      if (ccData2 >= 0x20) {
         stringBuilder.append(getChar(ccData2));
       }
     }
 
-    if (stringBuilder.length() > 0) {
-      captions.add(new ClosedCaptionText(stringBuilder.toString()));
-    }
+    addBufferedText();
 
     if (captions.isEmpty()) {
       return null;
@@ -166,7 +200,7 @@ public class Eia608Parser {
 
     ClosedCaption[] captionArray = new ClosedCaption[captions.size()];
     captions.toArray(captionArray);
-    return new ClosedCaptionList(sampleHolder.timeUs, sampleHolder.decodeOnly, captionArray);
+    return new ClosedCaptionList(sampleHolder.timeUs, sampleHolder.isDecodeOnly(), captionArray);
   }
 
   private static char getChar(byte ccData) {
@@ -177,6 +211,32 @@ public class Eia608Parser {
   private static char getSpecialChar(byte ccData) {
     int index = ccData & 0xF;
     return (char) SPECIAL_CHARACTER_SET[index];
+  }
+
+  private static char getExtendedEsFrChar(byte ccData) {
+    int index = ccData & 0x1F;
+    return (char) SPECIAL_ES_FR_CHARACTER_SET[index];
+  }
+
+  private static char getExtendedPtDeChar(byte ccData) {
+    int index = ccData & 0x1F;
+    return (char) SPECIAL_PT_DE_CHARACTER_SET[index];
+  }
+
+  private void addBufferedText() {
+    if (stringBuilder.length() > 0) {
+      captions.add(new ClosedCaptionText(stringBuilder.toString()));
+      stringBuilder.setLength(0);
+    }
+  }
+
+  private void addCtrl(byte ccData1, byte ccData2) {
+    addBufferedText();
+    captions.add(new ClosedCaptionCtrl(ccData1, ccData2));
+  }
+
+  private void backspace() {
+    addCtrl((byte) 0x14, ClosedCaptionCtrl.BACKSPACE);
   }
 
   /**

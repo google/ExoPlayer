@@ -15,14 +15,11 @@
  */
 package com.google.android.exoplayer.chunk.parser;
 
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
-
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * Facilitates extraction of media samples from a container format.
@@ -43,7 +40,7 @@ public interface Extractor {
   public static final int RESULT_READ_SAMPLE = 4;
   /**
    * Initialization data was read. The parsed data can be read using {@link #getFormat()} and
-   * {@link #getPsshInfo}.
+   * {@link #getDrmInitData()}.
    */
   public static final int RESULT_READ_INIT = 8;
   /**
@@ -80,17 +77,12 @@ public interface Extractor {
   public MediaFormat getFormat();
 
   /**
-   * Returns the duration of the stream in microseconds, or {@link C#UNKNOWN_TIME_US} if unknown.
-   */
-  public long getDurationUs();
-
-  /**
-   * Returns the pssh information parsed from the stream.
+   * Returns DRM initialization data parsed from the stream.
    *
-   * @return The pssh information. May be null if pssh data has yet to be parsed, or if the stream
-   *     does not contain any pssh data.
+   * @return The DRM initialization data. May be null if the initialization data has yet to be
+   *     parsed, or if the stream does not contain any DRM initialization data.
    */
-  public Map<UUID, byte[]> getPsshInfo();
+  public DrmInitData getDrmInitData();
 
   /**
    * Consumes data from a {@link NonBlockingInputStream}.

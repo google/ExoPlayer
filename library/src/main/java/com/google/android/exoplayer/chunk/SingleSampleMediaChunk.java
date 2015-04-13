@@ -17,13 +17,11 @@ package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.Assertions;
-
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * A {@link MediaChunk} containing a single sample.
@@ -132,7 +130,7 @@ public class SingleSampleMediaChunk extends MediaChunk {
   }
 
   @Override
-  public Map<UUID, byte[]> getPsshInfo() {
+  public DrmInitData getDrmInitData() {
     return null;
   }
 
