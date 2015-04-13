@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * An HTTP specific extension to {@link DataSource}.
  */
@@ -114,6 +113,15 @@ public interface HttpDataSource extends DataSource {
     }
 
   }
+
+  @Override
+  long open(DataSpec dataSpec) throws HttpDataSourceException;
+
+  @Override
+  void close() throws HttpDataSourceException;
+
+  @Override
+  int read(byte[] buffer, int offset, int readLength) throws HttpDataSourceException;
 
   /**
    * When the source is open, returns the url from which data is being read.

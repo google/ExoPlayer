@@ -22,6 +22,7 @@ import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
@@ -62,7 +63,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   private long pendingResetPositionUs;
 
   private TsChunk previousTsLoadable;
-  private HlsChunk currentLoadable;
+  private Chunk currentLoadable;
   private boolean loadingFinished;
 
   private Loader loader;
@@ -284,23 +285,15 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public void onLoadCompleted(Loadable loadable) {
-    try {
-      currentLoadable.consume();
-    } catch (IOException e) {
-      currentLoadableException = e;
-      currentLoadableExceptionCount++;
-      currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
-      currentLoadableExceptionFatal = true;
-    } finally {
-      if (isTsChunk(currentLoadable)) {
-        TsChunk tsChunk = (TsChunk) loadable;
-        loadingFinished = tsChunk.isLastChunk;
-      }
-      if (!currentLoadableExceptionFatal) {
-        clearCurrentLoadable();
-      }
-      maybeStartLoading();
+    chunkSource.onChunkLoadCompleted(currentLoadable);
+    if (isTsChunk(currentLoadable)) {
+      TsChunk tsChunk = (TsChunk) loadable;
+      loadingFinished = tsChunk.isLastChunk;
     }
+    if (!currentLoadableExceptionFatal) {
+      clearCurrentLoadable();
+    }
+    maybeStartLoading();
   }
 
   @Override
@@ -314,7 +307,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public void onLoadError(Loadable loadable, IOException e) {
-    if (chunkSource.onLoadError(currentLoadable, e)) {
+    if (chunkSource.onChunkLoadError(currentLoadable, e)) {
       // Error handled by source.
       clearCurrentLoadable();
     } else {
@@ -417,7 +410,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       return;
     }
 
-    HlsChunk nextLoadable = chunkSource.getChunkOperation(previousTsLoadable,
+    Chunk nextLoadable = chunkSource.getChunkOperation(previousTsLoadable,
         pendingResetPositionUs, downstreamPositionUs);
     if (nextLoadable == null) {
       return;
@@ -429,14 +422,14 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       if (isPendingReset()) {
         pendingResetPositionUs = NO_RESET_PENDING;
       }
-      if (extractors.isEmpty() || extractors.getLast() != previousTsLoadable.extractor) {
-        extractors.addLast(previousTsLoadable.extractor);
+      if (extractors.isEmpty() || extractors.getLast() != previousTsLoadable.extractorWrapper) {
+        extractors.addLast(previousTsLoadable.extractorWrapper);
       }
     }
     loader.startLoading(currentLoadable, this);
   }
 
-  private boolean isTsChunk(HlsChunk chunk) {
+  private boolean isTsChunk(Chunk chunk) {
     return chunk instanceof TsChunk;
   }
 

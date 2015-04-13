@@ -139,11 +139,10 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
       throws IOException {
     ArrayList<Variant> variants = new ArrayList<Variant>();
     ArrayList<Subtitle> subtitles = new ArrayList<Subtitle>();
-    int bandwidth = 0;
-    String[] codecs = null;
+    int bitrate = 0;
+    String codecs = null;
     int width = -1;
     int height = -1;
-    int variantIndex = 0;
 
     boolean expectingStreamInfUrl = false;
     String line;
@@ -163,13 +162,8 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
           // TODO: Support other types of media tag.
         }
       } else if (line.startsWith(STREAM_INF_TAG)) {
-        bandwidth = HlsParserUtil.parseIntAttr(line, BANDWIDTH_ATTR_REGEX, BANDWIDTH_ATTR);
-        String codecsString = HlsParserUtil.parseOptionalStringAttr(line, CODECS_ATTR_REGEX);
-        if (codecsString != null) {
-          codecs = codecsString.split("(\\s*,\\s*)|(\\s*$)");
-        } else {
-          codecs = null;
-        }
+        bitrate = HlsParserUtil.parseIntAttr(line, BANDWIDTH_ATTR_REGEX, BANDWIDTH_ATTR);
+        codecs = HlsParserUtil.parseOptionalStringAttr(line, CODECS_ATTR_REGEX);
         String resolutionString = HlsParserUtil.parseOptionalStringAttr(line,
             RESOLUTION_ATTR_REGEX);
         if (resolutionString != null) {
@@ -182,8 +176,8 @@ public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlayli
         }
         expectingStreamInfUrl = true;
       } else if (!line.startsWith("#") && expectingStreamInfUrl) {
-        variants.add(new Variant(variantIndex++, line, bandwidth, codecs, width, height));
-        bandwidth = 0;
+        variants.add(new Variant(line, bitrate, codecs, width, height));
+        bitrate = 0;
         codecs = null;
         width = -1;
         height = -1;

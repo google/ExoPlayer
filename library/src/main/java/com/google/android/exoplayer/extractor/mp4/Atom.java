@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class Atom {
+/* package*/ abstract class Atom {
 
   /** Size of an atom header, in bytes. */
   public static final int HEADER_SIZE = 8;

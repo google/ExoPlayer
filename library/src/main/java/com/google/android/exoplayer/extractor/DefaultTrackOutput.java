@@ -17,7 +17,7 @@ package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.upstream.BufferPool;
+import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -41,8 +41,11 @@ public final class DefaultTrackOutput implements TrackOutput {
   private volatile long largestParsedTimestampUs;
   private volatile MediaFormat format;
 
-  public DefaultTrackOutput(BufferPool bufferPool) {
-    rollingBuffer = new RollingSampleBuffer(bufferPool);
+  /**
+   * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
+   */
+  public DefaultTrackOutput(Allocator allocator) {
+    rollingBuffer = new RollingSampleBuffer(allocator);
     sampleInfoHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_DISABLED);
     needKeyframe = true;
     lastReadTimeUs = Long.MIN_VALUE;

@@ -18,7 +18,6 @@ package com.google.android.exoplayer.extractor.mp4;
 /**
  * Encapsulates information parsed from a track encryption (tenc) box in an MP4 stream.
  */
-// TODO: Make package private.
 public final class TrackEncryptionBox {
 
   /**

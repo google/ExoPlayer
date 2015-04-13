@@ -13,25 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.hls;
+package com.google.android.exoplayer.util;
 
 /**
- * Variant stream reference.
+ * A {@link Clock} that returns a fixed value specified in the constructor.
  */
-public final class Variant {
+public class FakeClock implements Clock {
 
-  public final int bitrate;
-  public final String url;
-  public final String codecs;
-  public final int width;
-  public final int height;
+  private final long timeMs;
 
-  public Variant(String url, int bitrate, String codecs, int width, int height) {
-    this.bitrate = bitrate;
-    this.url = url;
-    this.codecs = codecs;
-    this.width = width;
-    this.height = height;
+  public FakeClock(long timeMs) {
+    this.timeMs = timeMs;
+  }
+
+  @Override
+  public long elapsedRealtime() {
+    return timeMs;
   }
 
 }

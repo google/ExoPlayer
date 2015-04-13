@@ -15,8 +15,7 @@
  */
 package com.google.android.exoplayer.extractor.mp4;
 
-// TODO: Make package private.
-public final class DefaultSampleValues {
+/* package */ final class DefaultSampleValues {
 
   public final int sampleDescriptionIndex;
   public final int duration;

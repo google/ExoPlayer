@@ -103,6 +103,14 @@ public interface ChunkSource {
   IOException getError();
 
   /**
+   * Invoked when the {@link ChunkSampleSource} has finished loading a chunk obtained from this
+   * source.
+   *
+   * @param chunk The chunk whose load has been completed.
+   */
+  void onChunkLoadCompleted(Chunk chunk);
+
+  /**
    * Invoked when the {@link ChunkSampleSource} encounters an error loading a chunk obtained from
    * this source.
    *

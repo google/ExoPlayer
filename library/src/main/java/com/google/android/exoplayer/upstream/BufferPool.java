@@ -20,23 +20,16 @@ import com.google.android.exoplayer.util.Assertions;
 import java.util.Arrays;
 
 /**
- * An {@link Allocator} that maintains a pool of fixed length byte arrays (buffers).
- * <p>
- * An {@link Allocation} obtained from a {@link BufferPool} consists of the whole number of these
- * buffers. When an {@link Allocation} is released, the underlying buffers are returned to the pool
- * for re-use.
+ * Default implementation of {@link Allocator}.
  */
 public final class BufferPool implements Allocator {
 
   private static final int INITIAL_RECYCLED_BUFFERS_CAPACITY = 100;
 
-  /**
-   * The length in bytes of each individual buffer in the pool.
-   */
-  public final int bufferLength;
+  private final int bufferLength;
 
-  private int allocatedBufferCount;
-  private int recycledBufferCount;
+  private int allocatedCount;
+  private int recycledCount;
   private byte[][] recycledBuffers;
 
   /**
@@ -51,81 +44,42 @@ public final class BufferPool implements Allocator {
   }
 
   @Override
-  public synchronized int getAllocatedSize() {
-    return allocatedBufferCount * bufferLength;
+  public synchronized byte[] allocateBuffer() {
+    allocatedCount++;
+    return recycledCount > 0 ? recycledBuffers[--recycledCount] : new byte[bufferLength];
+  }
+
+  @Override
+  public synchronized void releaseBuffer(byte[] buffer) {
+    // Weak sanity check that the buffer probably originated from this pool.
+    Assertions.checkArgument(buffer.length == bufferLength);
+    allocatedCount--;
+    if (recycledCount == recycledBuffers.length) {
+      recycledBuffers = Arrays.copyOf(recycledBuffers, recycledBuffers.length * 2);
+    }
+    recycledBuffers[recycledCount++] = buffer;
+    // Wake up threads waiting for the allocated size to drop.
+    notifyAll();
   }
 
   @Override
   public synchronized void trim(int targetSize) {
     int targetBufferCount = (targetSize + bufferLength - 1) / bufferLength;
-    int targetRecycledBufferCount = Math.max(0, targetBufferCount - allocatedBufferCount);
-    if (targetRecycledBufferCount < recycledBufferCount) {
-      Arrays.fill(recycledBuffers, targetRecycledBufferCount, recycledBufferCount, null);
-      recycledBufferCount = targetRecycledBufferCount;
+    int targetRecycledBufferCount = Math.max(0, targetBufferCount - allocatedCount);
+    if (targetRecycledBufferCount < recycledCount) {
+      Arrays.fill(recycledBuffers, targetRecycledBufferCount, recycledCount, null);
+      recycledCount = targetRecycledBufferCount;
     }
   }
 
   @Override
-  public synchronized Allocation allocate(int size) {
-    return new AllocationImpl(allocate(size, null));
+  public synchronized int getAllocatedSize() {
+    return allocatedCount * bufferLength;
   }
 
-  /**
-   * Allocates byte arrays whose combined length is at least {@code size}.
-   * <p>
-   * An existing array of byte arrays may be provided to form the start of the allocation.
-   *
-   * @param size The total size required, in bytes.
-   * @param existing Existing byte arrays to use as the start of the allocation. May be null.
-   * @return The allocated byte arrays.
-   */
-  /* package */ synchronized byte[][] allocate(int size, byte[][] existing) {
-    int requiredBufferCount = requiredBufferCount(size);
-    if (existing != null && requiredBufferCount <= existing.length) {
-      // The existing buffers are sufficient.
-      return existing;
-    }
-    // We need to allocate additional buffers.
-    byte[][] buffers = new byte[requiredBufferCount][];
-    int firstNewBufferIndex = 0;
-    if (existing != null) {
-      firstNewBufferIndex = existing.length;
-      System.arraycopy(existing, 0, buffers, 0, firstNewBufferIndex);
-    }
-    // Allocate the new buffers
-    allocatedBufferCount += requiredBufferCount - firstNewBufferIndex;
-    for (int i = firstNewBufferIndex; i < requiredBufferCount; i++) {
-      // Use a recycled buffer if one is available. Else instantiate a new one.
-      buffers[i] = nextBuffer();
-    }
-    return buffers;
-  }
-
-  /**
-   * Obtain a single buffer directly from the pool.
-   * <p>
-   * When the caller has finished with the buffer, it should be returned to the pool by calling
-   * {@link #releaseDirect(byte[])}.
-   *
-   * @return The allocated buffer.
-   */
-  public synchronized byte[] allocateDirect() {
-    allocatedBufferCount++;
-    return nextBuffer();
-  }
-
-  /**
-   * Return a single buffer to the pool.
-   *
-   * @param buffer The buffer being returned.
-   */
-  public synchronized void releaseDirect(byte[] buffer) {
-    // Weak sanity check that the buffer probably originated from this pool.
-    Assertions.checkArgument(buffer.length == bufferLength);
-    allocatedBufferCount--;
-
-    ensureRecycledBufferCapacity(recycledBufferCount + 1);
-    recycledBuffers[recycledBufferCount++] = buffer;
+  @Override
+  public int getBufferLength() {
+    return bufferLength;
   }
 
   /**
@@ -136,84 +90,6 @@ public final class BufferPool implements Allocator {
     while (getAllocatedSize() > limit) {
       wait();
     }
-  }
-
-  /**
-   * Returns the buffers belonging to an allocation to the pool.
-   *
-   * @param allocation The allocation to return.
-   */
-  /* package */ synchronized void release(AllocationImpl allocation) {
-    byte[][] buffers = allocation.getBuffers();
-    allocatedBufferCount -= buffers.length;
-
-    int newRecycledBufferCount = recycledBufferCount + buffers.length;
-    ensureRecycledBufferCapacity(newRecycledBufferCount);
-    System.arraycopy(buffers, 0, recycledBuffers, recycledBufferCount, buffers.length);
-    recycledBufferCount = newRecycledBufferCount;
-  }
-
-  private int requiredBufferCount(long size) {
-    return (int) ((size + bufferLength - 1) / bufferLength);
-  }
-
-  private byte[] nextBuffer() {
-    return recycledBufferCount > 0 ? recycledBuffers[--recycledBufferCount]
-        : new byte[bufferLength];
-  }
-
-  private void ensureRecycledBufferCapacity(int requiredCapacity) {
-    if (recycledBuffers.length < requiredCapacity) {
-      // Expand the capacity of the recycled buffers array.
-      byte[][] newRecycledBuffers = new byte[requiredCapacity * 2][];
-      if (recycledBufferCount > 0) {
-        System.arraycopy(recycledBuffers, 0, newRecycledBuffers, 0, recycledBufferCount);
-      }
-      recycledBuffers = newRecycledBuffers;
-    }
-  }
-
-  private class AllocationImpl implements Allocation {
-
-    private byte[][] buffers;
-
-    public AllocationImpl(byte[][] buffers) {
-      this.buffers = buffers;
-    }
-
-    @Override
-    public void ensureCapacity(int size) {
-      buffers = allocate(size, buffers);
-    }
-
-    @Override
-    public int capacity() {
-      return bufferLength * buffers.length;
-    }
-
-    @Override
-    public byte[][] getBuffers() {
-      return buffers;
-    }
-
-    @Override
-    public int getFragmentOffset(int index) {
-      return 0;
-    }
-
-    @Override
-    public int getFragmentLength(int index) {
-      return bufferLength;
-    }
-
-    @Override
-    public void release() {
-      if (buffers != null) {
-        BufferPool.this.release(this);
-        buffers = null;
-      }
-    }
-
   }
 
 }

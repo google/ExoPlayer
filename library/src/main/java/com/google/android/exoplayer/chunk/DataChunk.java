@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.hls;
+package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -22,17 +22,16 @@ import java.io.IOException;
 import java.util.Arrays;
 
 /**
- * An abstract base class for {@link HlsChunk} implementations where the data should be loaded into
- * a {@code byte[]} before being consumed.
+ * A base class for {@link Chunk} implementations where the data should be loaded into a
+ * {@code byte[]} before being consumed.
  */
-public abstract class DataChunk extends HlsChunk {
+public abstract class DataChunk extends Chunk {
 
   private static final int READ_GRANULARITY = 16 * 1024;
 
   private byte[] data;
   private int limit;
 
-  private volatile boolean loadFinished;
   private volatile boolean loadCanceled;
 
   /**
@@ -41,36 +40,31 @@ public abstract class DataChunk extends HlsChunk {
    *     {@link Integer#MAX_VALUE}. If {@code dataSpec.length == C.LENGTH_UNBOUNDED} then
    *     the length resolved by {@code dataSource.open(dataSpec)} must not exceed
    *     {@link Integer#MAX_VALUE}.
+   * @param type See {@link #type}.
+   * @param trigger See {@link #trigger}.
+   * @param format See {@link #format}.
    * @param data An optional recycled array that can be used as a holder for the data.
    */
-  public DataChunk(DataSource dataSource, DataSpec dataSpec, byte[] data) {
-    super(dataSource, dataSpec);
+  public DataChunk(DataSource dataSource, DataSpec dataSpec, int type, int trigger, Format format,
+      byte[] data) {
+    super(dataSource, dataSpec, type, trigger, format);
     this.data = data;
   }
 
-  @Override
-  public void consume() throws IOException {
-    consume(data, limit);
+  /**
+   * Returns the array in which the data is held.
+   * <p>
+   * This method should be used for recycling the holder only, and not for reading the data.
+   *
+   * @return The array in which the data is held.
+   */
+  public byte[] getDataHolder() {
+    return data;
   }
 
-  /**
-   * Invoked by {@link #consume()}. Implementations should override this method to consume the
-   * loaded data.
-   *
-   * @param data An array containing the data.
-   * @param limit The limit of the data.
-   * @throws IOException If an error occurs consuming the loaded data.
-   */
-  protected abstract void consume(byte[] data, int limit) throws IOException;
-
-  /**
-   * Whether the whole of the chunk has been loaded.
-   *
-   * @return True if the whole of the chunk has been loaded. False otherwise.
-   */
   @Override
-  public boolean isLoadFinished() {
-    return loadFinished;
+  public long bytesLoaded() {
+    return limit;
   }
 
   // Loadable implementation
@@ -98,11 +92,23 @@ public abstract class DataChunk extends HlsChunk {
           limit += bytesRead;
         }
       }
-      loadFinished = !loadCanceled;
+      if (!loadCanceled) {
+        consume(data, limit);
+      }
     } finally {
       dataSource.close();
     }
   }
+
+  /**
+   * Invoked by {@link #load()}. Implementations should override this method to consume the loaded
+   * data.
+   *
+   * @param data An array containing the data.
+   * @param limit The limit of the data.
+   * @throws IOException If an error occurs consuming the loaded data.
+   */
+  protected abstract void consume(byte[] data, int limit) throws IOException;
 
   private void maybeExpandData() {
     if (data == null) {

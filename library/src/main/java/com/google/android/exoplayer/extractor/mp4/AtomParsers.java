@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.List;
 
 /** Utility methods for parsing MP4 format atom payloads according to ISO 14496-12. */
-public final class AtomParsers {
+/* package */ final class AtomParsers {
 
   /** Channel counts for AC-3 audio, indexed by acmod. (See ETSI TS 102 366.) */
   private static final int[] AC3_CHANNEL_COUNTS = new int[] {2, 1, 2, 3, 3, 4, 4, 5};

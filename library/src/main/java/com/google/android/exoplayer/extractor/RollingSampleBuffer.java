@@ -17,7 +17,7 @@ package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.upstream.BufferPool;
+import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableByteArray;
@@ -33,7 +33,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
   private static final int INITIAL_SCRATCH_SIZE = 32;
 
-  private final BufferPool fragmentPool;
+  private final Allocator allocator;
   private final int fragmentLength;
 
   private final InfoQueue infoQueue;
@@ -49,9 +49,12 @@ import java.util.concurrent.LinkedBlockingDeque;
   private byte[] lastFragment;
   private int lastFragmentOffset;
 
-  public RollingSampleBuffer(BufferPool bufferPool) {
-    this.fragmentPool = bufferPool;
-    fragmentLength = bufferPool.bufferLength;
+  /**
+   * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
+   */
+  public RollingSampleBuffer(Allocator allocator) {
+    this.allocator = allocator;
+    fragmentLength = allocator.getBufferLength();
     infoQueue = new InfoQueue();
     dataQueue = new LinkedBlockingDeque<byte[]>();
     extrasHolder = new SampleExtrasHolder();
@@ -67,7 +70,7 @@ import java.util.concurrent.LinkedBlockingDeque;
   public void clear() {
     infoQueue.clear();
     while (!dataQueue.isEmpty()) {
-      fragmentPool.releaseDirect(dataQueue.remove());
+      allocator.releaseBuffer(dataQueue.remove());
     }
     totalBytesDropped = 0;
     totalBytesWritten = 0;
@@ -111,7 +114,7 @@ import java.util.concurrent.LinkedBlockingDeque;
     }
     // Discard the fragments.
     for (int i = 0; i < fragmentDiscardCount; i++) {
-      fragmentPool.releaseDirect(dataQueue.removeLast());
+      allocator.releaseBuffer(dataQueue.removeLast());
     }
     // Update lastFragment and lastFragmentOffset to reflect the new position.
     lastFragment = dataQueue.peekLast();
@@ -306,7 +309,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
   /**
    * Discard any fragments that hold data prior to the specified absolute position, returning
-   * them to the pool.
+   * them to the allocator.
    *
    * @param absolutePosition The absolute position up to which fragments can be discarded.
    */
@@ -314,7 +317,7 @@ import java.util.concurrent.LinkedBlockingDeque;
     int relativePosition = (int) (absolutePosition - totalBytesDropped);
     int fragmentIndex = relativePosition / fragmentLength;
     for (int i = 0; i < fragmentIndex; i++) {
-      fragmentPool.releaseDirect(dataQueue.remove());
+      allocator.releaseBuffer(dataQueue.remove());
       totalBytesDropped += fragmentLength;
     }
   }
@@ -419,7 +422,7 @@ import java.util.concurrent.LinkedBlockingDeque;
   private void ensureSpaceForWrite() {
     if (lastFragmentOffset == fragmentLength) {
       lastFragmentOffset = 0;
-      lastFragment = fragmentPool.allocateDirect();
+      lastFragment = allocator.allocateBuffer();
       dataQueue.add(lastFragment);
     }
   }

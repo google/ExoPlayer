@@ -17,6 +17,7 @@ package com.google.android.exoplayer.util;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DataSpec;
 
 import android.text.TextUtils;
 
@@ -457,6 +458,25 @@ public final class Util {
       // The connection didn't ever have an input stream, or it was closed already.
     } catch (Exception e) {
       // Something went wrong. The device probably isn't using okhttp.
+    }
+  }
+
+  /**
+   * Given a {@link DataSpec} and a number of bytes already loaded, returns a {@link DataSpec}
+   * that represents the remainder of the data.
+   *
+   * @param dataSpec The original {@link DataSpec}.
+   * @param bytesLoaded The number of bytes already loaded.
+   * @return A {@link DataSpec} that represents the remainder of the data.
+   */
+  public static DataSpec getRemainderDataSpec(DataSpec dataSpec, int bytesLoaded) {
+    if (bytesLoaded == 0) {
+      return dataSpec;
+    } else {
+      long remainingLength = dataSpec.length == C.LENGTH_UNBOUNDED ? C.LENGTH_UNBOUNDED
+          : dataSpec.length - bytesLoaded;
+      return new DataSpec(dataSpec.uri, dataSpec.position + bytesLoaded, remainingLength,
+          dataSpec.key, dataSpec.flags);
     }
   }
 

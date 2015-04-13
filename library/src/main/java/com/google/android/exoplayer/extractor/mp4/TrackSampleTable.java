@@ -20,7 +20,7 @@ import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
 /** Sample table for a track in an MP4 file. */
-public final class TrackSampleTable {
+/* package */ final class TrackSampleTable {
 
   /** Sample index when no sample is available. */
   public static final int NO_SAMPLE = -1;

@@ -19,7 +19,6 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.chunk.ChunkExtractorWrapper.SingleTrackOutput;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.DefaultExtractorInput;
-import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.SeekMap;
@@ -28,54 +27,38 @@ import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
-import android.util.Log;
-
 import java.io.IOException;
 
 /**
- * A {@link BaseMediaChunk} that uses an {@link Extractor} to parse sample data.
+ * A {@link Chunk} that uses an {@link Extractor} to parse initialization data for single track.
  */
-public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOutput {
-
-  private static final String TAG = "ContainerMediaChunk";
+public final class InitializationChunk extends Chunk implements SingleTrackOutput {
 
   private final ChunkExtractorWrapper extractorWrapper;
-  private final long sampleOffsetUs;
 
+  // Initialization results. Set by the loader thread and read by any thread that knows loading
+  // has completed. These variables do not need to be volatile, since a memory barrier must occur
+  // for the reading thread to know that loading has completed.
   private MediaFormat mediaFormat;
   private DrmInitData drmInitData;
+  private SeekMap seekMap;
 
   private volatile int bytesLoaded;
   private volatile boolean loadCanceled;
 
   /**
-   * @param dataSource A {@link DataSource} for loading the data.
-   * @param dataSpec Defines the data to be loaded.
+   * Constructor for a chunk of media samples.
+   *
+   * @param dataSource A {@link DataSource} for loading the initialization data.
+   * @param dataSpec Defines the initialization data to be loaded.
    * @param trigger The reason for this chunk being selected.
    * @param format The format of the stream to which this chunk belongs.
-   * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
-   * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
-   * @param chunkIndex The index of the chunk.
-   * @param isLastChunk True if this is the last chunk in the media. False otherwise.
-   * @param sampleOffsetUs An offset to add to the sample timestamps parsed by the extractor.
-   * @param extractorWrapper A wrapped extractor to use for parsing the data.
-   * @param mediaFormat The {@link MediaFormat} of the chunk, if known. May be null if the data is
-   *     known to define its own format.
-   * @param drmInitData The {@link DrmInitData} for the chunk. Null if the media is not drm
-   *     protected. May also be null if the data is known to define its own initialization data.
-   * @param isFormatFinal True if {@code mediaFormat} and {@code drmInitData} are known to be
-   *     correct and final. False if the data may define its own format or initialization data.
+   * @param extractorWrapper A wrapped extractor to use for parsing the initialization data.
    */
-  public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
-      long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk, long sampleOffsetUs,
-      ChunkExtractorWrapper extractorWrapper, MediaFormat mediaFormat, DrmInitData drmInitData,
-      boolean isFormatFinal) {
-    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, isLastChunk,
-        isFormatFinal);
+  public InitializationChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
+      ChunkExtractorWrapper extractorWrapper) {
+    super(dataSource, dataSpec, Chunk.TYPE_MEDIA_INITIALIZATION, trigger, format);
     this.extractorWrapper = extractorWrapper;
-    this.sampleOffsetUs = sampleOffsetUs;
-    this.mediaFormat = mediaFormat;
-    this.drmInitData = drmInitData;
   }
 
   @Override
@@ -83,27 +66,65 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
     return bytesLoaded;
   }
 
-  @Override
-  public void init(DefaultTrackOutput output) {
-    super.init(output);
-    extractorWrapper.init(this);
+  /**
+   * True if a {@link MediaFormat} was parsed from the chunk. False otherwise.
+   * <p>
+   * Should be called after loading has completed.
+   */
+  public boolean hasFormat() {
+    return mediaFormat != null;
   }
 
-  @Override
-  public MediaFormat getMediaFormat() {
+  /**
+   * Returns a {@link MediaFormat} parsed from the chunk, or null.
+   * <p>
+   * Should be called after loading has completed.
+   */
+  public MediaFormat getFormat() {
     return mediaFormat;
   }
 
-  @Override
+  /**
+   * True if a {@link DrmInitData} was parsed from the chunk. False otherwise.
+   * <p>
+   * Should be called after loading has completed.
+   */
+  public boolean hasDrmInitData() {
+    return drmInitData != null;
+  }
+
+  /**
+   * Returns a {@link DrmInitData} parsed from the chunk, or null.
+   * <p>
+   * Should be called after loading has completed.
+   */
   public DrmInitData getDrmInitData() {
     return drmInitData;
+  }
+
+  /**
+   * True if a {@link SeekMap} was parsed from the chunk. False otherwise.
+   * <p>
+   * Should be called after loading has completed.
+   */
+  public boolean hasSeekMap() {
+    return seekMap != null;
+  }
+
+  /**
+   * Returns a {@link SeekMap} parsed from the chunk, or null.
+   * <p>
+   * Should be called after loading has completed.
+   */
+  public SeekMap getSeekMap() {
+    return seekMap;
   }
 
   // SingleTrackOutput implementation.
 
   @Override
   public void seekMap(SeekMap seekMap) {
-    Log.w(TAG, "Ignoring unexpected seekMap");
+    this.seekMap = seekMap;
   }
 
   @Override
@@ -118,17 +139,17 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
 
   @Override
   public int sampleData(ExtractorInput input, int length) throws IOException, InterruptedException {
-    return getOutput().sampleData(input, length);
+    throw new IllegalStateException("Unexpected sample data in initialization chunk");
   }
 
   @Override
   public void sampleData(ParsableByteArray data, int length) {
-    getOutput().sampleData(data, length);
+    throw new IllegalStateException("Unexpected sample data in initialization chunk");
   }
 
   @Override
   public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
-    getOutput().sampleMetadata(timeUs + sampleOffsetUs, flags, size, offset, encryptionKey);
+    throw new IllegalStateException("Unexpected sample data in initialization chunk");
   }
 
   // Loadable implementation.

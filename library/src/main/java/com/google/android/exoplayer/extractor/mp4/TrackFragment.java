@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.extractor.mp4;
 
 import com.google.android.exoplayer.extractor.ExtractorInput;
-import com.google.android.exoplayer.upstream.NonBlockingInputStream;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.IOException;
@@ -24,8 +23,7 @@ import java.io.IOException;
 /**
  * A holder for information corresponding to a single fragment of an mp4 file.
  */
-// TODO: Make package private.
-public final class TrackFragment {
+/* package */ final class TrackFragment {
 
   public int sampleDescriptionIndex;
 
@@ -145,22 +143,6 @@ public final class TrackFragment {
     source.readBytes(sampleEncryptionData.data, 0, sampleEncryptionDataLength);
     sampleEncryptionData.setPosition(0);
     sampleEncryptionDataNeedsFill = false;
-  }
-
-  /**
-   * Fills {@link #sampleEncryptionData} for the current run from the provided source.
-   *
-   * @param source A source from which to read the encryption data.
-   * @return True if the encryption data was filled. False if the source had insufficient data.
-   */
-  public boolean fillEncryptionData(NonBlockingInputStream source) {
-    if (source.getAvailableByteCount() < sampleEncryptionDataLength) {
-      return false;
-    }
-    source.read(sampleEncryptionData.data, 0, sampleEncryptionDataLength);
-    sampleEncryptionData.setPosition(0);
-    sampleEncryptionDataNeedsFill = false;
-    return true;
   }
 
   public long getSamplePresentationTime(int index) {
