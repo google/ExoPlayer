@@ -358,8 +358,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   // Override configureCodec to provide the surface.
   @Override
-  protected void configureCodec(MediaCodec codec, android.media.MediaFormat format,
-      MediaCrypto crypto) {
+  protected void configureCodec(MediaCodec codec, String codecName,
+      android.media.MediaFormat format, MediaCrypto crypto) {
     codec.configure(format, surface, crypto, 0);
     codec.setVideoScalingMode(videoScalingMode);
   }

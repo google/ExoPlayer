@@ -33,12 +33,14 @@ public class MimeTypes {
 
   public static final String AUDIO_MP4 = BASE_TYPE_AUDIO + "/mp4";
   public static final String AUDIO_AAC = BASE_TYPE_AUDIO + "/mp4a-latm";
-  public static final String AUDIO_AC3 = BASE_TYPE_AUDIO + "/ac3";
-  public static final String AUDIO_EC3 = BASE_TYPE_AUDIO + "/eac3";
   public static final String AUDIO_WEBM = BASE_TYPE_AUDIO + "/webm";
   public static final String AUDIO_MPEG = BASE_TYPE_AUDIO + "/mpeg";
   public static final String AUDIO_MPEG_L1 = BASE_TYPE_AUDIO + "/mpeg-L1";
   public static final String AUDIO_MPEG_L2 = BASE_TYPE_AUDIO + "/mpeg-L2";
+
+  public static final String AUDIO_RAW = BASE_TYPE_AUDIO + "/raw";
+  public static final String AUDIO_AC3 = BASE_TYPE_AUDIO + "/ac3";
+  public static final String AUDIO_EC3 = BASE_TYPE_AUDIO + "/eac3";
 
   public static final String AUDIO_VORBIS = BASE_TYPE_AUDIO + "/vorbis";
   public static final String AUDIO_OPUS = BASE_TYPE_AUDIO + "/opus";

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer;
 
+import android.media.AudioFormat;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 
@@ -48,6 +49,12 @@ public final class C {
    */
   @SuppressWarnings("InlinedApi")
   public static final int CRYPTO_MODE_AES_CTR = MediaCodec.CRYPTO_MODE_AES_CTR;
+
+  /**
+   * @see AudioFormat#ENCODING_AC3
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
 
   /**
    * @see MediaExtractor#SAMPLE_FLAG_SYNC

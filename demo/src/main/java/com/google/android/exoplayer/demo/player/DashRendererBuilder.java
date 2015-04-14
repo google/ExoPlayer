@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.demo.player;
 
-import com.google.android.exoplayer.Ac3PassthroughAudioTrackRenderer;
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
@@ -61,6 +61,7 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
+import android.media.AudioFormat;
 import android.media.MediaCodec;
 import android.media.UnsupportedSchemeException;
 import android.os.Handler;
@@ -298,13 +299,8 @@ public class DashRendererBuilder implements RendererBuilder,
       // TODO: There needs to be some logic to filter out non-AC3 tracks when selecting to use AC3.
       boolean useAc3Passthrough = haveAc3Tracks && audioCapabilities != null
           && (audioCapabilities.supportsAc3() || audioCapabilities.supportsEAc3());
-      if (useAc3Passthrough) {
-        audioRenderer =
-            new Ac3PassthroughAudioTrackRenderer(audioSampleSource, mainHandler, player);
-      } else {
-        audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource, drmSessionManager, true,
-            mainHandler, player);
-      }
+      audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource, drmSessionManager, true,
+          mainHandler, player, useAc3Passthrough ? C.ENCODING_AC3 : AudioFormat.ENCODING_DEFAULT);
     }
 
     // Build the text chunk sources.

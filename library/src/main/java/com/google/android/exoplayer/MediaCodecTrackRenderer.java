@@ -289,12 +289,25 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   /**
-   * Configures a newly created {@link MediaCodec}. Sub-classes should
-   * override this method if they wish to configure the codec with a
-   * non-null surface.
-   **/
-  protected void configureCodec(MediaCodec codec, android.media.MediaFormat x, MediaCrypto crypto) {
-    codec.configure(x, null, crypto, 0);
+   * Returns a {@link DecoderInfo} for decoding media in the specified MIME type.
+   *
+   * @param mimeType The type of media to decode.
+   * @param requiresSecureDecoder Whether a secure decoder is needed for decoding {@code mimeType}.
+   * @return {@link DecoderInfo} for decoding media in the specified MIME type, or {@code null} if
+   *     no suitable decoder is available.
+   */
+  protected DecoderInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder)
+      throws DecoderQueryException {
+    return MediaCodecUtil.getDecoderInfo(mimeType, requiresSecureDecoder);
+  }
+
+  /**
+   * Configures a newly created {@link MediaCodec}. Sub-classes should override this method if they
+   * wish to configure the codec with a non-null surface.
+   */
+  protected void configureCodec(MediaCodec codec, String codecName,
+      android.media.MediaFormat format, MediaCrypto crypto) {
+    codec.configure(format, null, crypto, 0);
   }
 
   @SuppressWarnings("deprecation")
@@ -329,7 +342,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
     DecoderInfo decoderInfo = null;
     try {
-      decoderInfo = MediaCodecUtil.getDecoderInfo(mimeType, requiresSecureDecoder);
+      decoderInfo = getDecoderInfo(mimeType, requiresSecureDecoder);
     } catch (DecoderQueryException e) {
       notifyAndThrowDecoderInitError(new DecoderInitializationException(format, e,
           DecoderInitializationException.DECODER_QUERY_ERROR));
@@ -345,7 +358,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     try {
       long codecInitializingTimestamp = SystemClock.elapsedRealtime();
       codec = MediaCodec.createByCodecName(decoderName);
-      configureCodec(codec, format.getFrameworkMediaFormatV16(), mediaCrypto);
+      configureCodec(codec, decoderName, format.getFrameworkMediaFormatV16(), mediaCrypto);
       codec.start();
       long codecInitializedTimestamp = SystemClock.elapsedRealtime();
       notifyDecoderInitialized(decoderName, codecInitializedTimestamp,
