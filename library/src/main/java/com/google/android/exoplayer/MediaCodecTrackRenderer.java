@@ -304,6 +304,11 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   /**
    * Configures a newly created {@link MediaCodec}. Sub-classes should override this method if they
    * wish to configure the codec with a non-null surface.
+   *
+   * @param codec The {@link MediaCodec} to configure.
+   * @param codecName The name of the codec.
+   * @param format The format for which the codec is being configured.
+   * @param crypto For drm protected playbacks, a {@link MediaCrypto} to use for decryption.
    */
   protected void configureCodec(MediaCodec codec, String codecName,
       android.media.MediaFormat format, MediaCrypto crypto) {
