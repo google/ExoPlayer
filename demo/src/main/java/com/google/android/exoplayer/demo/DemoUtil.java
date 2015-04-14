@@ -35,14 +35,11 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Utility methods for the demo application.
  */
 public class DemoUtil {
-
-  public static final UUID WIDEVINE_UUID = new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
 
   public static final int TYPE_DASH = 0;
   public static final int TYPE_SS = 1;

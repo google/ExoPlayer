@@ -40,7 +40,6 @@ import com.google.android.exoplayer.dash.mpd.Representation;
 import com.google.android.exoplayer.dash.mpd.UtcTimingElement;
 import com.google.android.exoplayer.dash.mpd.UtcTimingElementResolver;
 import com.google.android.exoplayer.dash.mpd.UtcTimingElementResolver.UtcTimingCallback;
-import com.google.android.exoplayer.demo.DemoUtil;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilderCallback;
 import com.google.android.exoplayer.drm.DrmSessionManager;
@@ -364,9 +363,9 @@ public class DashRendererBuilder implements RendererBuilder,
     public static Pair<DrmSessionManager, Boolean> getDrmSessionManagerData(DemoPlayer player,
         MediaDrmCallback drmCallback) throws UnsupportedDrmException {
       try {
-        StreamingDrmSessionManager streamingDrmSessionManager = new StreamingDrmSessionManager(
-            DemoUtil.WIDEVINE_UUID, player.getPlaybackLooper(), drmCallback, null,
-            player.getMainHandler(), player);
+        StreamingDrmSessionManager streamingDrmSessionManager =
+            StreamingDrmSessionManager.newWidevineInstance(player.getPlaybackLooper(), drmCallback,
+            null, player.getMainHandler(), player);
         return Pair.create((DrmSessionManager) streamingDrmSessionManager,
             getWidevineSecurityLevel(streamingDrmSessionManager) == SECURITY_LEVEL_1);
       } catch (UnsupportedSchemeException e) {
