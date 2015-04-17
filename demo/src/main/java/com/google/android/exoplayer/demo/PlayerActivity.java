@@ -47,12 +47,14 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.view.accessibility.CaptioningManager;
@@ -131,7 +133,15 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
         return true;
       }
     });
-
+    root.setOnKeyListener(new OnKeyListener() {
+      @Override
+      public boolean onKey(View v, int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE) {
+          return mediaController.dispatchKeyEvent(event);
+        }
+        return false;
+      }
+    });
     audioCapabilitiesReceiver = new AudioCapabilitiesReceiver(getApplicationContext(), this);
 
     shutterView = findViewById(R.id.shutter);
