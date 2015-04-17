@@ -37,10 +37,13 @@ public final class AudioCapabilities {
    * @param maxChannelCount The maximum number of audio channels that can be played simultaneously.
    */
   public AudioCapabilities(int[] supportedEncodings, int maxChannelCount) {
-    this.supportedEncodings = supportedEncodings != null ? supportedEncodings : new int[0];
+    if (supportedEncodings != null) {
+      this.supportedEncodings = Arrays.copyOf(supportedEncodings, supportedEncodings.length);
+      Arrays.sort(this.supportedEncodings);
+    } else {
+      this.supportedEncodings = new int[0];
+    }
     this.maxChannelCount = maxChannelCount;
-
-    Arrays.sort(supportedEncodings);
   }
 
   /**
