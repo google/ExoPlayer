@@ -104,6 +104,7 @@ public final class WebmExtractor implements Extractor {
   private final EbmlReader reader;
   private final VarintReader varintReader;
   private final ParsableByteArray sampleHeaderScratch;
+  private ParsableByteArray vorbisNumPageSamples;
 
   private long segmentContentPosition = UNKNOWN;
   private long segmentContentSize = UNKNOWN;
@@ -466,6 +467,23 @@ public final class WebmExtractor implements Extractor {
 
         while (blockBytesRead < contentSize) {
           blockBytesRead += trackOutput.sampleData(input, contentSize - blockBytesRead);
+        }
+
+        if (CODEC_ID_VORBIS.equals(codecId)) {
+          // Vorbis decoder in android MediaCodec [1] expects the last 4 bytes of the sample to be
+          // the number of samples in the current page. This definition holds good only for Ogg and
+          // irrelevant for WebM. So we always set this to -1 (the decoder will ignore this value if
+          // we set it to -1). The android platform media extractor [2] does the same.
+          // [1] https://android.googlesource.com/platform/frameworks/av/+/lollipop-release/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp#314
+          // [2] https://android.googlesource.com/platform/frameworks/av/+/lollipop-release/media/libstagefright/NuMediaExtractor.cpp#474
+          if (vorbisNumPageSamples == null) {
+            vorbisNumPageSamples =
+                new ParsableByteArray(ByteBuffer.allocate(4).putInt(-1).array());
+          } else {
+            vorbisNumPageSamples.setPosition(0);
+          }
+          trackOutput.sampleData(vorbisNumPageSamples, 4);
+          sampleSize += 4;
         }
 
         trackOutput.sampleMetadata(sampleTimeUs, sampleFlags, sampleSize, 0, null);
