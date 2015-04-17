@@ -93,12 +93,6 @@ public final class AudioTrack {
   /** Returned by {@link #getCurrentPositionUs} when the position is not set. */
   public static final long CURRENT_POSITION_NOT_SET = Long.MIN_VALUE;
 
-  /**
-   * Set to {@code true} to enable a workaround for an issue where an audio effect does not keep its
-   * session active across releasing/initializing a new audio track, on platform API version < 21.
-   */
-  private static final boolean ENABLE_PRE_V21_AUDIO_SESSION_WORKAROUND = false;
-
   /** A minimum length for the {@link android.media.AudioTrack} buffer, in microseconds. */
   private static final long MIN_BUFFER_DURATION_US = 250000;
   /** A maximum length for the {@link android.media.AudioTrack} buffer, in microseconds. */
@@ -136,6 +130,13 @@ public final class AudioTrack {
   private static final int MAX_PLAYHEAD_OFFSET_COUNT = 10;
   private static final int MIN_PLAYHEAD_OFFSET_SAMPLE_INTERVAL_US = 30000;
   private static final int MIN_TIMESTAMP_SAMPLE_INTERVAL_US = 500000;
+
+  /**
+   * Set to {@code true} to enable a workaround for an issue where an audio effect does not keep its
+   * session active across releasing/initializing a new audio track, on platform API version < 21.
+   * The flag must be set before creating the player.
+   */
+  public static boolean enablePreV21AudioSessionWorkaround = false;
 
   private final ConditionVariable releasingConditionVariable;
   private final long[] playheadOffsets;
@@ -281,7 +282,7 @@ public final class AudioTrack {
     checkAudioTrackInitialized();
 
     sessionId = audioTrack.getAudioSessionId();
-    if (ENABLE_PRE_V21_AUDIO_SESSION_WORKAROUND) {
+    if (enablePreV21AudioSessionWorkaround) {
       if (Util.SDK_INT < 21) {
         // The workaround creates an audio track with a one byte buffer on the same session, and
         // does not release it until this object is released, which keeps the session active.
