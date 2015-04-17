@@ -15,13 +15,9 @@
  */
 package com.google.android.exoplayer.audio;
 
-import com.google.android.exoplayer.util.Util;
-
 import android.annotation.TargetApi;
-import android.media.AudioFormat;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Arrays;
 
 /**
  * Represents the set of audio formats a device is capable of playing back.
@@ -29,7 +25,7 @@ import java.util.Set;
 @TargetApi(21)
 public final class AudioCapabilities {
 
-  private final Set<Integer> supportedEncodings;
+  private final int[] supportedEncodings;
   private final int maxChannelCount;
 
   /**
@@ -41,28 +37,20 @@ public final class AudioCapabilities {
    * @param maxChannelCount The maximum number of audio channels that can be played simultaneously.
    */
   public AudioCapabilities(int[] supportedEncodings, int maxChannelCount) {
-    this.supportedEncodings = new HashSet<Integer>();
-    if (supportedEncodings != null) {
-      for (int i : supportedEncodings) {
-        this.supportedEncodings.add(i);
-      }
-    }
+    this.supportedEncodings = supportedEncodings != null ? supportedEncodings : new int[0];
     this.maxChannelCount = maxChannelCount;
+
+    Arrays.sort(supportedEncodings);
   }
 
-  /** Returns whether the device supports playback of AC-3. */
-  public boolean supportsAc3() {
-    return Util.SDK_INT >= 21 && supportedEncodings.contains(AudioFormat.ENCODING_AC3);
-  }
-
-  /** Returns whether the device supports playback of enhanced AC-3. */
-  public boolean supportsEAc3() {
-    return Util.SDK_INT >= 21 && supportedEncodings.contains(AudioFormat.ENCODING_E_AC3);
-  }
-
-  /** Returns whether the device supports playback of 16-bit PCM. */
-  public boolean supportsPcm() {
-    return supportedEncodings.contains(AudioFormat.ENCODING_PCM_16BIT);
+  /**
+   * Returns whether this device supports playback of the specified audio {@code encoding}.
+   *
+   * @param encoding One of {@link android.media.AudioFormat}'s {@code ENCODING_*} constants.
+   * @return Whether this device supports playback the specified audio {@code encoding}.
+   */
+  public boolean supportsEncoding(int encoding) {
+    return Arrays.binarySearch(supportedEncodings, encoding) >= 0;
   }
 
   /** Returns the maximum number of channels the device can play at the same time. */
@@ -79,19 +67,19 @@ public final class AudioCapabilities {
       return false;
     }
     AudioCapabilities audioCapabilities = (AudioCapabilities) other;
-    return supportedEncodings.equals(audioCapabilities.supportedEncodings)
+    return Arrays.equals(supportedEncodings, audioCapabilities.supportedEncodings)
         && maxChannelCount == audioCapabilities.maxChannelCount;
   }
 
   @Override
   public int hashCode() {
-    return maxChannelCount + 31 * supportedEncodings.hashCode();
+    return maxChannelCount + 31 * Arrays.hashCode(supportedEncodings);
   }
 
   @Override
   public String toString() {
     return "AudioCapabilities[maxChannelCount=" + maxChannelCount
-        + ", supportedEncodings=" + supportedEncodings + "]";
+        + ", supportedEncodings=" + Arrays.toString(supportedEncodings) + "]";
   }
 
 }

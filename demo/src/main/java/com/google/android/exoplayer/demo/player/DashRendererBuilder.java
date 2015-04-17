@@ -90,8 +90,17 @@ public class DashRendererBuilder implements RendererBuilder,
   private static final int SECURITY_LEVEL_1 = 1;
   private static final int SECURITY_LEVEL_3 = 3;
 
-  private static final String AC_3_CODEC = "ac-3";
-  private static final String E_AC_3_CODEC = "ec-3";
+  /**
+   * Passthrough audio formats (encodings) in order of decreasing priority.
+   */
+  private static final int[] PASSTHROUGH_ENCODINGS_PRIORITY =
+      new int[] {C.ENCODING_E_AC3, C.ENCODING_AC3};
+  /**
+   * Passthrough audio codecs corresponding to the encodings in
+   * {@link #PASSTHROUGH_ENCODINGS_PRIORITY}.
+   */
+  private static final String[] PASSTHROUGH_CODECS_PRIORITY =
+      new String[] {"ec-3", "ac-3"};
 
   private final String userAgent;
   private final String url;
@@ -252,13 +261,14 @@ public class DashRendererBuilder implements RendererBuilder,
     }
 
     // Build the audio chunk sources.
-    boolean haveAc3Tracks = false;
     List<ChunkSource> audioChunkSourceList = new ArrayList<ChunkSource>();
     List<String> audioTrackNameList = new ArrayList<String>();
+    int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
     if (audioAdaptationSet != null) {
       DataSource audioDataSource = new UriDataSource(userAgent, bandwidthMeter);
       FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
       List<Representation> audioRepresentations = audioAdaptationSet.representations;
+      List<String> codecs = new ArrayList<String>();
       for (int i = 0; i < audioRepresentations.size(); i++) {
         Format format = audioRepresentations.get(i).format;
         audioTrackNameList.add(format.id + " (" + format.numChannels + "ch, " +
@@ -266,16 +276,27 @@ public class DashRendererBuilder implements RendererBuilder,
         audioChunkSourceList.add(new DashChunkSource(manifestFetcher, audioAdaptationSetIndex,
             new int[] {i}, audioDataSource, audioEvaluator, LIVE_EDGE_LATENCY_MS,
             elapsedRealtimeOffset));
-        haveAc3Tracks |= AC_3_CODEC.equals(format.codecs) || E_AC_3_CODEC.equals(format.codecs);
+        codecs.add(format.codecs);
       }
-      // Filter out non-AC-3 tracks if there is an AC-3 track, to avoid having to switch renderers.
-      if (haveAc3Tracks) {
-        for (int i = audioRepresentations.size() - 1; i >= 0; i--) {
-          Format format = audioRepresentations.get(i).format;
-          if (!AC_3_CODEC.equals(format.codecs) && !E_AC_3_CODEC.equals(format.codecs)) {
-            audioTrackNameList.remove(i);
-            audioChunkSourceList.remove(i);
+
+      if (audioCapabilities != null) {
+        // If there are any passthrough audio encodings available, select the highest priority
+        // supported format (e.g. E-AC-3) and remove other tracks.
+        for (int i = 0; i < PASSTHROUGH_CODECS_PRIORITY.length; i++) {
+          String codec = PASSTHROUGH_CODECS_PRIORITY[i];
+          int encoding = PASSTHROUGH_ENCODINGS_PRIORITY[i];
+          if (codecs.indexOf(codec) == -1 || !audioCapabilities.supportsEncoding(encoding)) {
+            continue;
           }
+
+          audioEncoding = encoding;
+          for (int j = audioRepresentations.size() - 1; j >= 0; j--) {
+            if (!audioRepresentations.get(j).format.codecs.equals(codec)) {
+              audioTrackNameList.remove(j);
+              audioChunkSourceList.remove(j);
+            }
+          }
+          break;
         }
       }
     }
@@ -295,11 +316,8 @@ public class DashRendererBuilder implements RendererBuilder,
       SampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
           AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
           DemoPlayer.TYPE_AUDIO);
-      // TODO: There needs to be some logic to filter out non-AC3 tracks when selecting to use AC3.
-      boolean useAc3Passthrough = haveAc3Tracks && audioCapabilities != null
-          && (audioCapabilities.supportsAc3() || audioCapabilities.supportsEAc3());
       audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource, drmSessionManager, true,
-          mainHandler, player, useAc3Passthrough ? C.ENCODING_AC3 : AudioFormat.ENCODING_PCM_16BIT);
+          mainHandler, player, audioEncoding);
     }
 
     // Build the text chunk sources.

@@ -57,6 +57,12 @@ public final class C {
   public static final int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
 
   /**
+   * @see AudioFormat#ENCODING_E_AC3
+   */
+  @SuppressWarnings("InlinedApi")
+  public static final int ENCODING_E_AC3 = AudioFormat.ENCODING_E_AC3;
+
+  /**
    * @see MediaExtractor#SAMPLE_FLAG_SYNC
    */
   @SuppressWarnings("InlinedApi")
