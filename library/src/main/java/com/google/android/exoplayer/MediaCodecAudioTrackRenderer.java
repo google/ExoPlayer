@@ -125,7 +125,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   public MediaCodecAudioTrackRenderer(SampleSource source, DrmSessionManager drmSessionManager,
       boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener) {
     this(source, drmSessionManager, playClearSamplesWithoutKeys, eventHandler, eventListener,
-        AudioFormat.ENCODING_DEFAULT);
+        AudioFormat.ENCODING_PCM_16BIT);
   }
 
   /**

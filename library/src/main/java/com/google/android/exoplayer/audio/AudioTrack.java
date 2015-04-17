@@ -313,10 +313,10 @@ public final class AudioTrack {
 
   /**
    * Reconfigures the audio track to play back media in {@code format}. The encoding is assumed to
-   * be {@link AudioFormat#ENCODING_DEFAULT}.
+   * be {@link AudioFormat#ENCODING_PCM_16BIT}.
    */
   public void reconfigure(MediaFormat format) {
-    reconfigure(format, AudioFormat.ENCODING_DEFAULT, 0);
+    reconfigure(format, AudioFormat.ENCODING_PCM_16BIT, 0);
   }
 
   /**

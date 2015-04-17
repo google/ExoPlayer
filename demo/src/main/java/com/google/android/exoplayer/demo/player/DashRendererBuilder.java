@@ -299,7 +299,7 @@ public class DashRendererBuilder implements RendererBuilder,
       boolean useAc3Passthrough = haveAc3Tracks && audioCapabilities != null
           && (audioCapabilities.supportsAc3() || audioCapabilities.supportsEAc3());
       audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource, drmSessionManager, true,
-          mainHandler, player, useAc3Passthrough ? C.ENCODING_AC3 : AudioFormat.ENCODING_DEFAULT);
+          mainHandler, player, useAc3Passthrough ? C.ENCODING_AC3 : AudioFormat.ENCODING_PCM_16BIT);
     }
 
     // Build the text chunk sources.
