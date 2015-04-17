@@ -37,7 +37,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   @Override
   public void consume(ParsableByteArray seiBuffer, long pesTimeUs, boolean startOfPacket) {
     // Skip the NAL prefix and type.
-    seiBuffer.skip(4);
+    seiBuffer.skipBytes(4);
 
     int b;
     while (seiBuffer.bytesLeft() > 1 /* last byte will be rbsp_trailing_bits */) {
@@ -58,7 +58,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
         output.sampleData(seiBuffer, payloadSize);
         output.sampleMetadata(pesTimeUs, C.SAMPLE_FLAG_SYNC, payloadSize, 0, null);
       } else {
-        seiBuffer.skip(payloadSize);
+        seiBuffer.skipBytes(payloadSize);
       }
     }
   }

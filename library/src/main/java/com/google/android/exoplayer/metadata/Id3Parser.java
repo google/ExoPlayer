@@ -57,7 +57,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
       }
 
       // Skip frame flags.
-      id3Data.skip(2);
+      id3Data.skipBytes(2);
       // Check Frame ID == TXXX.
       if (frameId0 == 'T' && frameId1 == 'X' && frameId2 == 'X' && frameId3 == 'X') {
         int encoding = id3Data.readUnsignedByte();
@@ -168,7 +168,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
       throw new ParserException(String.format(
           "Unexpected ID3 file identifier, expected \"ID3\", actual \"%c%c%c\".", id1, id2, id3));
     }
-    id3Buffer.skip(2); // Skip version.
+    id3Buffer.skipBytes(2); // Skip version.
 
     int flags = id3Buffer.readUnsignedByte();
     int id3Size = id3Buffer.readSynchSafeInt();
@@ -177,7 +177,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
     if ((flags & 0x2) != 0) {
       int extendedHeaderSize = id3Buffer.readSynchSafeInt();
       if (extendedHeaderSize > 4) {
-        id3Buffer.skip(extendedHeaderSize - 4);
+        id3Buffer.skipBytes(extendedHeaderSize - 4);
       }
       id3Size -= extendedHeaderSize;
     }

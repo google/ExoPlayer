@@ -104,7 +104,7 @@ public final class TsExtractor implements Extractor {
     // Skip the adaptation field.
     if (adaptationFieldExists) {
       int adaptationFieldLength = tsPacketBuffer.readUnsignedByte();
-      tsPacketBuffer.skip(adaptationFieldLength);
+      tsPacketBuffer.skipBytes(adaptationFieldLength);
     }
 
     // Read the payload.
@@ -172,7 +172,7 @@ public final class TsExtractor implements Extractor {
       // Skip pointer.
       if (payloadUnitStartIndicator) {
         int pointerField = data.readUnsignedByte();
-        data.skip(pointerField);
+        data.skipBytes(pointerField);
       }
 
       data.readBytes(patScratch, 3);
@@ -180,7 +180,7 @@ public final class TsExtractor implements Extractor {
       int sectionLength = patScratch.readBits(12);
       // transport_stream_id (16), reserved (2), version_number (5), current_next_indicator (1),
       // section_number (8), last_section_number (8)
-      data.skip(5);
+      data.skipBytes(5);
 
       int programCount = (sectionLength - 9) / 4;
       for (int i = 0; i < programCount; i++) {
@@ -212,7 +212,7 @@ public final class TsExtractor implements Extractor {
       // Skip pointer.
       if (payloadUnitStartIndicator) {
         int pointerField = data.readUnsignedByte();
-        data.skip(pointerField);
+        data.skipBytes(pointerField);
       }
 
       data.readBytes(pmtScratch, 3);
@@ -222,14 +222,14 @@ public final class TsExtractor implements Extractor {
       // program_number (16), reserved (2), version_number (5), current_next_indicator (1),
       // section_number (8), last_section_number (8), reserved (3), PCR_PID (13)
       // Skip the rest of the PMT header.
-      data.skip(7);
+      data.skipBytes(7);
 
       data.readBytes(pmtScratch, 2);
       pmtScratch.skipBits(4);
       int programInfoLength = pmtScratch.readBits(12);
 
       // Skip the descriptors.
-      data.skip(programInfoLength);
+      data.skipBytes(programInfoLength);
 
       int entriesSize = sectionLength - 9 /* Size of the rest of the fields before descriptors */
           - programInfoLength - 4 /* CRC size */;
@@ -242,7 +242,7 @@ public final class TsExtractor implements Extractor {
         int esInfoLength = pmtScratch.readBits(12);
 
         // Skip the descriptors.
-        data.skip(esInfoLength);
+        data.skipBytes(esInfoLength);
         entriesSize -= esInfoLength + 5;
 
         if (streamReaders.get(streamType) != null) {
@@ -341,7 +341,7 @@ public final class TsExtractor implements Extractor {
       while (data.bytesLeft() > 0) {
         switch (state) {
           case STATE_FINDING_HEADER:
-            data.skip(data.bytesLeft());
+            data.skipBytes(data.bytesLeft());
             break;
           case STATE_READING_HEADER:
             if (continueRead(data, pesScratch.getData(), HEADER_SIZE)) {
@@ -398,7 +398,7 @@ public final class TsExtractor implements Extractor {
       if (bytesToRead <= 0) {
         return true;
       } else if (target == null) {
-        source.skip(bytesToRead);
+        source.skipBytes(bytesToRead);
       } else {
         source.readBytes(target, bytesRead, bytesToRead);
       }

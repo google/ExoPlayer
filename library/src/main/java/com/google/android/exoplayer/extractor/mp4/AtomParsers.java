@@ -121,7 +121,7 @@ import java.util.List;
     int remainingSamplesPerChunkChanges = stsc.readUnsignedIntToInt() - 1;
     Assertions.checkState(stsc.readInt() == 1, "stsc first chunk must be 1");
     int samplesPerChunk = stsc.readUnsignedIntToInt();
-    stsc.skip(4); // Skip the sample description index.
+    stsc.skipBytes(4); // Skip the sample description index.
     int nextSamplesPerChunkChangeChunkIndex = -1;
     if (remainingSamplesPerChunkChanges > 0) {
       // Store the chunk index when the samples-per-chunk will next change.
@@ -220,7 +220,7 @@ import java.util.List;
         // Change the samples-per-chunk if required.
         if (chunkIndex == nextSamplesPerChunkChangeChunkIndex) {
           samplesPerChunk = stsc.readUnsignedIntToInt();
-          stsc.skip(4); // Skip the sample description index.
+          stsc.skipBytes(4); // Skip the sample description index.
           remainingSamplesPerChunkChanges--;
           if (remainingSamplesPerChunkChanges > 0) {
             nextSamplesPerChunkChangeChunkIndex = stsc.readUnsignedIntToInt() - 1;
@@ -260,7 +260,7 @@ import java.util.List;
     int fullAtom = mvhd.readInt();
     int version = Atom.parseFullAtomVersion(fullAtom);
 
-    mvhd.skip(version == 0 ? 8 : 16);
+    mvhd.skipBytes(version == 0 ? 8 : 16);
 
     return mvhd.readUnsignedInt();
   }
@@ -276,10 +276,10 @@ import java.util.List;
     int fullAtom = tkhd.readInt();
     int version = Atom.parseFullAtomVersion(fullAtom);
 
-    tkhd.skip(version == 0 ? 8 : 16);
+    tkhd.skipBytes(version == 0 ? 8 : 16);
 
     int trackId = tkhd.readInt();
-    tkhd.skip(4);
+    tkhd.skipBytes(4);
 
     boolean durationUnknown = true;
     int durationPosition = tkhd.getPosition();
@@ -292,7 +292,7 @@ import java.util.List;
     }
     long duration;
     if (durationUnknown) {
-      tkhd.skip(durationByteCount);
+      tkhd.skipBytes(durationByteCount);
       duration = -1;
     } else {
       duration = version == 0 ? tkhd.readUnsignedInt() : tkhd.readUnsignedLongToLong();
@@ -323,7 +323,7 @@ import java.util.List;
     int fullAtom = mdhd.readInt();
     int version = Atom.parseFullAtomVersion(fullAtom);
 
-    mdhd.skip(version == 0 ? 8 : 16);
+    mdhd.skipBytes(version == 0 ? 8 : 16);
     return mdhd.readUnsignedInt();
   }
 
@@ -365,11 +365,11 @@ import java.util.List;
       int position, int size, long durationUs) {
     parent.setPosition(position + Atom.HEADER_SIZE);
 
-    parent.skip(24);
+    parent.skipBytes(24);
     int width = parent.readUnsignedShort();
     int height = parent.readUnsignedShort();
     float pixelWidthHeightRatio = 1;
-    parent.skip(50);
+    parent.skipBytes(50);
 
     List<byte[]> initializationData = null;
     TrackEncryptionBox trackEncryptionBox = null;
@@ -434,7 +434,7 @@ import java.util.List;
       if (childAtomType == Atom.TYPE_frma) {
         parent.readInt(); // dataFormat.
       } else if (childAtomType == Atom.TYPE_schm) {
-        parent.skip(4);
+        parent.skipBytes(4);
         parent.readInt(); // schemeType. Expect cenc
         parent.readInt(); // schemeVersion. Expect 0x00010000
       } else if (childAtomType == Atom.TYPE_schi) {
@@ -461,7 +461,7 @@ import java.util.List;
       int childAtomSize = parent.readInt();
       int childAtomType = parent.readInt();
       if (childAtomType == Atom.TYPE_tenc) {
-        parent.skip(4);
+        parent.skipBytes(4);
         int firstInt = parent.readInt();
         boolean defaultIsEncrypted = (firstInt >> 8) == 1;
         int defaultInitVectorSize = firstInt & 0xFF;
@@ -479,10 +479,10 @@ import java.util.List;
       long durationUs) {
     parent.setPosition(position + Atom.HEADER_SIZE);
 
-    parent.skip(24);
+    parent.skipBytes(24);
     int width = parent.readUnsignedShort();
     int height = parent.readUnsignedShort();
-    parent.skip(50);
+    parent.skipBytes(50);
 
     List<byte[]> initializationData = new ArrayList<byte[]>(1);
     int childPosition = parent.getPosition();
@@ -505,10 +505,10 @@ import java.util.List;
   private static Pair<MediaFormat, TrackEncryptionBox> parseAudioSampleEntry(
       ParsableByteArray parent, int atomType, int position, int size, long durationUs) {
     parent.setPosition(position + Atom.HEADER_SIZE);
-    parent.skip(16);
+    parent.skipBytes(16);
     int channelCount = parent.readUnsignedShort();
     int sampleSize = parent.readUnsignedShort();
-    parent.skip(4);
+    parent.skipBytes(4);
     int sampleRate = parent.readUnsignedFixedPoint1616();
     int bitrate = MediaFormat.NO_VALUE;
 
@@ -571,34 +571,34 @@ import java.util.List;
   private static byte[] parseEsdsFromParent(ParsableByteArray parent, int position) {
     parent.setPosition(position + Atom.HEADER_SIZE + 4);
     // Start of the ES_Descriptor (defined in 14496-1)
-    parent.skip(1); // ES_Descriptor tag
+    parent.skipBytes(1); // ES_Descriptor tag
     int varIntByte = parent.readUnsignedByte();
     while (varIntByte > 127) {
       varIntByte = parent.readUnsignedByte();
     }
-    parent.skip(2); // ES_ID
+    parent.skipBytes(2); // ES_ID
 
     int flags = parent.readUnsignedByte();
     if ((flags & 0x80 /* streamDependenceFlag */) != 0) {
-      parent.skip(2);
+      parent.skipBytes(2);
     }
     if ((flags & 0x40 /* URL_Flag */) != 0) {
-      parent.skip(parent.readUnsignedShort());
+      parent.skipBytes(parent.readUnsignedShort());
     }
     if ((flags & 0x20 /* OCRstreamFlag */) != 0) {
-      parent.skip(2);
+      parent.skipBytes(2);
     }
 
     // Start of the DecoderConfigDescriptor (defined in 14496-1)
-    parent.skip(1); // DecoderConfigDescriptor tag
+    parent.skipBytes(1); // DecoderConfigDescriptor tag
     varIntByte = parent.readUnsignedByte();
     while (varIntByte > 127) {
       varIntByte = parent.readUnsignedByte();
     }
-    parent.skip(13);
+    parent.skipBytes(13);
 
     // Start of AudioSpecificConfig (defined in 14496-3)
-    parent.skip(1); // AudioSpecificConfig tag
+    parent.skipBytes(1); // AudioSpecificConfig tag
     varIntByte = parent.readUnsignedByte();
     int varInt = varIntByte & 0x7F;
     while (varIntByte > 127) {

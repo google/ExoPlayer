@@ -56,7 +56,7 @@ import com.google.android.exoplayer.util.Util;
         xingBase = 9;
       }
     }
-    frame.skip(4 + xingBase);
+    frame.skipBytes(4 + xingBase);
     int headerData = frame.readInt();
     if (headerData != XING_HEADER && headerData != INFO_HEADER) {
       return null;
@@ -80,7 +80,7 @@ import com.google.android.exoplayer.util.Util;
     long sizeBytes = frame.readUnsignedIntToInt();
 
     // Read table-of-contents as (flags & 4) == 4.
-    frame.skip(1);
+    frame.skipBytes(1);
     long[] tableOfContents = new long[99];
     for (int i = 0; i < 99; i++) {
       tableOfContents[i] = frame.readUnsignedByte();

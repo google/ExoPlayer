@@ -36,12 +36,12 @@ import com.google.android.exoplayer.util.Util;
     long basePosition = position + mpegAudioHeader.frameSize;
 
     // Read the VBRI header.
-    frame.skip(32);
+    frame.skipBytes(32);
     int headerData = frame.readInt();
     if (headerData != VBRI_HEADER) {
       return null;
     }
-    frame.skip(10);
+    frame.skipBytes(10);
     int numFrames = frame.readInt();
     if (numFrames <= 0) {
       return null;

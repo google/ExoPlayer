@@ -48,7 +48,7 @@ public final class H264Util {
   public static byte[] parseChildNalUnit(ParsableByteArray atom) {
     int length = atom.readUnsignedShort();
     int offset = atom.getPosition();
-    atom.skip(length);
+    atom.skipBytes(length);
     return CodecSpecificDataUtil.buildNalUnit(atom.data, offset, length);
   }
 

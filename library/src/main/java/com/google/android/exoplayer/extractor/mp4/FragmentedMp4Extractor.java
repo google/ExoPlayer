@@ -342,7 +342,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     int fullAtom = saiz.readInt();
     int flags = Atom.parseFullAtomFlags(fullAtom);
     if ((flags & 0x01) == 1) {
-      saiz.skip(8);
+      saiz.skipBytes(8);
     }
     int defaultSampleInfoSize = saiz.readUnsignedByte();
 
@@ -379,9 +379,9 @@ public final class FragmentedMp4Extractor implements Extractor {
     int fullAtom = tfhd.readInt();
     int flags = Atom.parseFullAtomFlags(fullAtom);
 
-    tfhd.skip(4); // trackId
+    tfhd.skipBytes(4); // trackId
     if ((flags & 0x01 /* base_data_offset_present */) != 0) {
-      tfhd.skip(8);
+      tfhd.skipBytes(8);
     }
 
     int defaultSampleDescriptionIndex =
@@ -427,7 +427,7 @@ public final class FragmentedMp4Extractor implements Extractor {
 
     int sampleCount = trun.readUnsignedIntToInt();
     if ((flags & 0x01 /* data_offset_present */) != 0) {
-      trun.skip(4);
+      trun.skipBytes(4);
     }
 
     boolean firstSampleFlagsPresent = (flags & 0x04 /* first_sample_flags_present */) != 0;
@@ -528,7 +528,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     int fullAtom = atom.readInt();
     int version = Atom.parseFullAtomVersion(fullAtom);
 
-    atom.skip(4);
+    atom.skipBytes(4);
     long timescale = atom.readUnsignedInt();
     long earliestPresentationTime;
     long offset = inputPosition;
@@ -540,7 +540,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       offset += atom.readUnsignedLongToLong();
     }
 
-    atom.skip(2);
+    atom.skipBytes(2);
 
     int referenceCount = atom.readUnsignedShort();
     int[] sizes = new int[referenceCount];
@@ -569,7 +569,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       timeUs = Util.scaleLargeTimestamp(time, C.MICROS_PER_SECOND, timescale);
       durationsUs[i] = timeUs - timesUs[i];
 
-      atom.skip(4);
+      atom.skipBytes(4);
       offset += sizes[i];
     }
 
@@ -670,7 +670,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     }
     // Write the subsample encryption data.
     int subsampleCount = sampleEncryptionData.readUnsignedShort();
-    sampleEncryptionData.skip(-2);
+    sampleEncryptionData.skipBytes(-2);
     int subsampleDataLength = 2 + 6 * subsampleCount;
     trackOutput.sampleData(sampleEncryptionData, subsampleDataLength);
     return 1 + vectorSize + subsampleDataLength;
