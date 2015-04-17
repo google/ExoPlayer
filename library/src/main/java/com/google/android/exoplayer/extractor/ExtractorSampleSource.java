@@ -80,6 +80,10 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
   private long lastSeekPositionUs;
   private long pendingResetPositionUs;
 
+  private boolean havePendingNextSampleUs;
+  private long pendingNextSampleUs;
+  private long sampleTimeOffsetUs;
+
   private Loader loader;
   private ExtractingLoadable loadable;
   private IOException currentLoadableException;
@@ -235,6 +239,12 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
     if (sampleQueue.getSample(sampleHolder)) {
       boolean decodeOnly = frameAccurateSeeking && sampleHolder.timeUs < lastSeekPositionUs;
       sampleHolder.flags |= decodeOnly ? C.SAMPLE_FLAG_DECODE_ONLY : 0;
+      if (havePendingNextSampleUs) {
+        // Set the offset to make the timestamp of this sample equal to pendingNextSampleUs.
+        sampleTimeOffsetUs = pendingNextSampleUs - sampleHolder.timeUs;
+        havePendingNextSampleUs = false;
+      }
+      sampleHolder.timeUs += sampleTimeOffsetUs;
       return SAMPLE_READ;
     }
 
@@ -392,16 +402,27 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
       long elapsedMillis = SystemClock.elapsedRealtime() - currentLoadableExceptionTimestamp;
       if (elapsedMillis >= getRetryDelayMillis(currentLoadableExceptionCount)) {
         currentLoadableException = null;
-        if (!prepared || !seekMap.isSeekable()) {
-          // One of two cases applies:
-          // 1. We're not prepared. We don't know whether we're playing an on-demand or a live
-          //    stream. Play it safe and start from scratch.
-          // 2. We're playing a non-seekable stream. Assume it's a live stream. In such cases it's
-          //    best to discard the pending buffer and start from scratch.
+        if (!prepared) {
+          // We don't know whether we're playing an on-demand or a live stream. For a live stream
+          // we need to load from the start, as outlined below. Since we might be playing a live
+          // stream, play it safe and load from the start.
           for (int i = 0; i < sampleQueues.size(); i++) {
             sampleQueues.valueAt(i).clear();
           }
-          loadable = createPreparationLoadable();
+          loadable = createLoadableFromStart();
+        } else if (!seekMap.isSeekable()) {
+          // We're playing a non-seekable stream. Assume it's live, and therefore that the data at
+          // the uri is a continuously shifting window of the latest available media. For this case
+          // there's no way to continue loading from where a previous load finished, and hence it's
+          // necessary to load from the start whenever commencing a new load.
+          for (int i = 0; i < sampleQueues.size(); i++) {
+            sampleQueues.valueAt(i).clear();
+          }
+          loadable = createLoadableFromStart();
+          // To avoid introducing a discontinuity, we shift the sample timestamps so that they will
+          // continue from the current downstream position.
+          pendingNextSampleUs = downstreamPositionUs;
+          havePendingNextSampleUs = true;
         } else {
           // We're playing a seekable on-demand stream. Resume the current loadable, which will
           // request data starting from the point it left off.
@@ -411,11 +432,17 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
       return;
     }
 
+    // We're not retrying, so we're either starting a playback or responding to an explicit seek.
+    // In both cases sampleTimeOffsetUs should be reset to zero, and any pending adjustment to
+    // sample timestamps should be discarded.
+    sampleTimeOffsetUs = 0;
+    havePendingNextSampleUs = false;
+
     if (!prepared) {
-      loadable = createPreparationLoadable();
+      loadable = createLoadableFromStart();
     } else {
       Assertions.checkState(isPendingReset());
-      loadable = createLoadableForPosition(pendingResetPositionUs);
+      loadable = createLoadableFromPositionUs(pendingResetPositionUs);
       pendingResetPositionUs = NO_RESET_PENDING;
     }
     loader.startLoading(loadable, this);
@@ -441,11 +468,11 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
     }
   }
 
-  private ExtractingLoadable createPreparationLoadable() {
+  private ExtractingLoadable createLoadableFromStart() {
     return new ExtractingLoadable(uri, dataSource, extractor, bufferPool, requestedBufferSize, 0);
   }
 
-  private ExtractingLoadable createLoadableForPosition(long positionUs) {
+  private ExtractingLoadable createLoadableFromPositionUs(long positionUs) {
     return new ExtractingLoadable(uri, dataSource, extractor, bufferPool, requestedBufferSize,
         seekMap.getPosition(positionUs));
   }
