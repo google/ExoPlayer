@@ -18,6 +18,7 @@ package com.google.android.exoplayer;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
+import com.google.android.exoplayer.util.AmazonQuirks;
 
 import android.annotation.TargetApi;
 import android.media.MediaCodecInfo;
@@ -71,7 +72,7 @@ public final class MediaCodecUtil {
     if (info == null) {
       return null;
     }
-    return new DecoderInfo(info.first, isAdaptive(info.second));
+    return new DecoderInfo(info.first, isAdaptive(info.second, mimeType)); // AMZN_CHANGE_ONELINE
   }
 
   /**
@@ -225,12 +226,13 @@ public final class MediaCodecUtil {
     return true;
   }
 
-  private static boolean isAdaptive(CodecCapabilities capabilities) {
+  private static boolean isAdaptive(CodecCapabilities capabilities, String mimeType) { // AMZN_CHANGE_ONELINE
     if (Util.SDK_INT >= 19) {
-      return isAdaptiveV19(capabilities);
-    } else {
-      return false;
-    }
+        return isAdaptiveV19(capabilities);
+    } else if (Util.SDK_INT >= 17 && mimeType != null) {             // AMZN_CHANGE_BEGIN
+        return AmazonQuirks.isAdaptive(mimeType);
+    }                                                                // AMZN_CHANGE_END
+    return false;
   }
 
   @TargetApi(19)
