@@ -231,6 +231,10 @@ public final class TsExtractor implements Extractor {
       // Skip the descriptors.
       data.skipBytes(programInfoLength);
 
+      // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
+      // appears intermittently during playback. See b/20261500.
+      Id3Reader id3Reader = new Id3Reader(output.track(TS_STREAM_TYPE_ID3));
+
       int entriesSize = sectionLength - 9 /* Size of the rest of the fields before descriptors */
           - programInfoLength - 4 /* CRC size */;
       while (entriesSize > 0) {
@@ -261,7 +265,7 @@ public final class TsExtractor implements Extractor {
                 seiReader);
             break;
           case TS_STREAM_TYPE_ID3:
-            pesPayloadReader = new Id3Reader(output.track(TS_STREAM_TYPE_ID3));
+            pesPayloadReader = id3Reader;
             break;
         }
 
