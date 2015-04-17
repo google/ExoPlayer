@@ -21,12 +21,22 @@ package com.google.android.exoplayer.extractor;
 public interface SeekMap {
 
   /**
+   * Whether or not the seeking is supported.
+   * <p>
+   * If seeking is not supported then the only valid seek position is the start of the file, and so
+   * {@link #getPosition(long)} will return 0 for all input values.
+   *
+   * @return True if seeking is supported. False otherwise.
+   */
+  boolean isSeekable();
+
+  /**
    * Maps a seek position in microseconds to a corresponding position (byte offset) in the stream
    * from which data can be provided to the extractor.
    *
    * @param timeUs A seek position in microseconds.
    * @return The corresponding position (byte offset) in the stream from which data can be provided
-   *     to the extractor.
+   *     to the extractor, or 0 if {@code #isSeekable()} returns false.
    */
   long getPosition(long timeUs);
 

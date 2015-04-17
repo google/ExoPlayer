@@ -37,25 +37,6 @@ import java.util.Collections;
  */
 public final class Mp3Extractor implements Extractor {
 
-  /**
-   * {@link SeekMap} that also allows mapping from position (byte offset) back to time, which can be
-   * used to work out the new sample basis timestamp after seeking and resynchronization.
-   */
-  /* package */ interface Seeker extends SeekMap {
-
-    /**
-     * Maps a position (byte offset) to a corresponding sample timestamp.
-     *
-     * @param position A seek position (byte offset) relative to the start of the stream.
-     * @return The corresponding timestamp of the next sample to be read, in microseconds.
-     */
-    long getTimeUs(long position);
-
-    /** Returns the duration of the source, in microseconds. */
-    long getDurationUs();
-
-  }
-
   /** The maximum number of bytes to search when synchronizing, before giving up. */
   private static final int MAX_BYTES_TO_SEARCH = 128 * 1024;
 
@@ -286,6 +267,30 @@ public final class Mp3Extractor implements Extractor {
   /** Returns the reading position of {@code bufferingInput} relative to the extractor's stream. */
   private static long getPosition(ExtractorInput extractorInput, BufferingInput bufferingInput) {
     return extractorInput.getPosition() - bufferingInput.getAvailableByteCount();
+  }
+
+  /**
+   * {@link SeekMap} that also allows mapping from position (byte offset) back to time, which can be
+   * used to work out the new sample basis timestamp after seeking and resynchronization.
+   */
+  /* package */ abstract static class Seeker implements SeekMap {
+
+    @Override
+    public final boolean isSeekable() {
+      return true;
+    }
+
+    /**
+     * Maps a position (byte offset) to a corresponding sample timestamp.
+     *
+     * @param position A seek position (byte offset) relative to the start of the stream.
+     * @return The corresponding timestamp of the next sample to be read, in microseconds.
+     */
+    abstract long getTimeUs(long position);
+
+    /** Returns the duration of the source, in microseconds. */
+    abstract long getDurationUs();
+
   }
 
 }

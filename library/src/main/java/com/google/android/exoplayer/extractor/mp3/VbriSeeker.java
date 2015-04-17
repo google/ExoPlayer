@@ -21,7 +21,7 @@ import com.google.android.exoplayer.util.Util;
 /**
  * MP3 seeker that uses metadata from a VBRI header.
  */
-/* package */ final class VbriSeeker implements Mp3Extractor.Seeker {
+/* package */ final class VbriSeeker extends Mp3Extractor.Seeker {
 
   private static final int VBRI_HEADER = Util.getIntegerCodeForString("VBRI");
 

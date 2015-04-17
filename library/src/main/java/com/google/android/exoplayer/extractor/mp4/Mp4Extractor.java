@@ -114,6 +114,11 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   // SeekMap implementation.
 
   @Override
+  public boolean isSeekable() {
+    return true;
+  }
+
+  @Override
   public long getPosition(long timeUs) {
     long earliestSamplePosition = Long.MAX_VALUE;
     for (int trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
@@ -131,6 +136,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     }
     return earliestSamplePosition;
   }
+
+  // Private methods.
 
   private boolean readAtomHeader(ExtractorInput input) throws IOException, InterruptedException {
     if (!input.readFully(atomHeader.data, 0, Atom.HEADER_SIZE, true)) {

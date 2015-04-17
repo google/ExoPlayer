@@ -19,6 +19,7 @@ import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.PositionHolder;
+import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.IOException;
@@ -27,19 +28,23 @@ import java.io.IOException;
  * Facilitates the extraction of AAC samples from elementary audio files formatted as AAC with ADTS
  * headers.
  */
-public class AdtsExtractor implements Extractor {
+public class AdtsExtractor implements Extractor, SeekMap {
 
   private static final int MAX_PACKET_SIZE = 200;
 
-  private final long firstSampleTimestamp;
+  private final long firstSampleTimestampUs;
   private final ParsableByteArray packetBuffer;
 
   // Accessed only by the loading thread.
   private AdtsReader adtsReader;
   private boolean firstPacket;
 
-  public AdtsExtractor(long firstSampleTimestamp) {
-    this.firstSampleTimestamp = firstSampleTimestamp;
+  public AdtsExtractor() {
+    this(0);
+  }
+
+  public AdtsExtractor(long firstSampleTimestampUs) {
+    this.firstSampleTimestampUs = firstSampleTimestampUs;
     packetBuffer = new ParsableByteArray(MAX_PACKET_SIZE);
     firstPacket = true;
   }
@@ -48,11 +53,13 @@ public class AdtsExtractor implements Extractor {
   public void init(ExtractorOutput output) {
     adtsReader = new AdtsReader(output.track(0));
     output.endTracks();
+    output.seekMap(this);
   }
 
   @Override
   public void seek() {
-    throw new UnsupportedOperationException();
+    adtsReader.seek();
+    firstPacket = true;
   }
 
   @Override
@@ -69,9 +76,21 @@ public class AdtsExtractor implements Extractor {
 
     // TODO: Make it possible for adtsReader to consume the dataSource directly, so that it becomes
     // unnecessary to copy the data through packetBuffer.
-    adtsReader.consume(packetBuffer, firstSampleTimestamp, firstPacket);
+    adtsReader.consume(packetBuffer, firstSampleTimestampUs, firstPacket);
     firstPacket = false;
     return RESULT_CONTINUE;
+  }
+
+  // SeekMap implementation.
+
+  @Override
+  public boolean isSeekable() {
+    return false;
+  }
+
+  @Override
+  public long getPosition(long timeUs) {
+    return 0;
   }
 
 }

@@ -71,6 +71,13 @@ public final class ChunkIndex implements SeekMap {
     return Util.binarySearchFloor(timesUs, timeUs, true, true);
   }
 
+  // SeekMap implementation.
+
+  @Override
+  public boolean isSeekable() {
+    return true;
+  }
+
   @Override
   public long getPosition(long timeUs) {
     return offsets[getChunkIndex(timeUs)];

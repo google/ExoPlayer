@@ -22,7 +22,7 @@ import com.google.android.exoplayer.util.Util;
 /**
  * MP3 seeker that uses metadata from a XING header.
  */
-/* package */ final class XingSeeker implements Mp3Extractor.Seeker {
+/* package */ final class XingSeeker extends Mp3Extractor.Seeker {
 
   private static final int XING_HEADER = Util.getIntegerCodeForString("Xing");
   private static final int INFO_HEADER = Util.getIntegerCodeForString("Info");

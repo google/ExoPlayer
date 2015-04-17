@@ -20,7 +20,7 @@ import com.google.android.exoplayer.C;
 /**
  * MP3 seeker that doesn't rely on metadata and seeks assuming the source has a constant bitrate.
  */
-/* package */ final class ConstantBitrateSeeker implements Mp3Extractor.Seeker {
+/* package */ final class ConstantBitrateSeeker extends Mp3Extractor.Seeker {
 
   private static final int MICROSECONDS_PER_SECOND = 1000000;
   private static final int BITS_PER_BYTE = 8;

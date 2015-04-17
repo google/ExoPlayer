@@ -43,10 +43,11 @@ public class DemoUtil {
 
   public static final int TYPE_DASH = 0;
   public static final int TYPE_SS = 1;
-  public static final int TYPE_OTHER = 2;
-  public static final int TYPE_HLS = 3;
-  public static final int TYPE_MP4 = 4;
-  public static final int TYPE_MP3 = 5;
+  public static final int TYPE_HLS = 2;
+  public static final int TYPE_MP4 = 3;
+  public static final int TYPE_MP3 = 4;
+  public static final int TYPE_AAC = 5;
+  public static final int TYPE_OTHER = 6;
 
   private static final CookieManager defaultCookieManager;
 

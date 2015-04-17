@@ -62,6 +62,18 @@ import java.util.Collections;
     state = STATE_FINDING_SYNC;
   }
 
+  /**
+   * Notifies the reader that a seek has occurred.
+   * <p>
+   * The data passed to the next invocation of {@link #consume(ParsableByteArray, long, boolean)}
+   * should not be treated as a continuation of the data passed to previous calls.
+   */
+  public void seek() {
+    state = STATE_FINDING_SYNC;
+    bytesRead = 0;
+    lastByteWasFF = false;
+  }
+
   @Override
   public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
     if (startOfPacket) {
