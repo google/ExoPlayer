@@ -140,12 +140,12 @@ public final class AudioTrack {
 
   private final ConditionVariable releasingConditionVariable;
   private final long[] playheadOffsets;
+  private final AudioTrackUtil audioTrackUtil;
 
   /** Used to keep the audio session active on pre-V21 builds (see {@link #initialize()}). */
   private android.media.AudioTrack keepSessionIdAudioTrack;
 
   private android.media.AudioTrack audioTrack;
-  private AudioTrackUtil audioTrackUtil;
   private int sampleRate;
   private int channelConfig;
   private int encoding;
@@ -186,6 +186,11 @@ public final class AudioTrack {
       } catch (NoSuchMethodException e) {
         // There's no guarantee this method exists. Do nothing.
       }
+    }
+    if (Util.SDK_INT >= 19) {
+      audioTrackUtil = new AudioTrackUtilV19();
+    } else {
+      audioTrackUtil = new AudioTrackUtil();
     }
     playheadOffsets = new long[MAX_PLAYHEAD_OFFSET_COUNT];
     volume = 1.0f;
@@ -302,11 +307,7 @@ public final class AudioTrack {
       }
     }
 
-    if (Util.SDK_INT >= 19) {
-      audioTrackUtil = new AudioTrackUtilV19(audioTrack);
-    } else {
-      audioTrackUtil = new AudioTrackUtil(audioTrack);
-    }
+    audioTrackUtil.reconfigure(audioTrack, isAc3);
     setVolume(volume);
 
     return sessionId;
@@ -322,8 +323,8 @@ public final class AudioTrack {
 
   /**
    * Reconfigures the audio track to play back media in {@code format}. Buffers passed to
-   * {@link #handleBuffer} must using the specified {@code encoding}, which should be a constant
-   * from {@link AudioFormat}.
+   * {@link #handleBuffer} must use the specified {@code encoding}, which should be a constant from
+   * {@link AudioFormat}.
    *
    * @param format Specifies the channel count and sample rate to play back.
    * @param encoding The format in which audio is represented.
@@ -421,6 +422,12 @@ public final class AudioTrack {
       return RESULT_BUFFER_CONSUMED;
     }
 
+    // As a workaround for an issue where an an AC-3 audio track continues to play data written
+    // while it is paused, stop writing so its buffer empties. See [Internal: b/18899620].
+    if (isAc3 && audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PAUSED) {
+      return 0;
+    }
+
     int result = 0;
     if (temporaryBufferSize == 0) {
       if (isAc3 && ac3Bitrate == UNKNOWN_AC3_BITRATE) {
@@ -508,7 +515,8 @@ public final class AudioTrack {
   /** Returns whether the audio track has more data pending that will be played back. */
   public boolean hasPendingData() {
     return isInitialized()
-        && bytesToFrames(submittedBytes) > audioTrackUtil.getPlaybackHeadPosition();
+        && (bytesToFrames(submittedBytes) > audioTrackUtil.getPlaybackHeadPosition()
+            || audioTrackUtil.overrideHasPendingData());
   }
 
   /** Returns whether enough data has been supplied via {@link #handleBuffer} to begin playback. */
@@ -566,7 +574,7 @@ public final class AudioTrack {
       // AudioTrack.release can take some time, so we call it on a background thread.
       final android.media.AudioTrack toRelease = audioTrack;
       audioTrack = null;
-      audioTrackUtil = null;
+      audioTrackUtil.reconfigure(null, false);
       releasingConditionVariable.close();
       new Thread() {
         @Override
@@ -733,15 +741,45 @@ public final class AudioTrack {
    */
   private static class AudioTrackUtil {
 
-    protected final android.media.AudioTrack audioTrack;
-    private final int sampleRate;
-
+    protected android.media.AudioTrack audioTrack;
+    private boolean enablePassthroughWorkaround;
+    private int sampleRate;
     private long lastRawPlaybackHeadPosition;
     private long rawPlaybackHeadWrapCount;
+    private long passthroughWorkaroundPauseOffset;
 
-    public AudioTrackUtil(android.media.AudioTrack audioTrack) {
+    /**
+     * Reconfigures the audio track utility helper to use the specified {@code audioTrack}.
+     *
+     * @param audioTrack The audio track to wrap.
+     * @param enablePassthroughWorkaround Whether to work around an issue where the playback head
+     *     position jumps back to zero on a paused passthrough/direct audio track. See
+     *     [Internal: b/19187573].
+     */
+    public void reconfigure(android.media.AudioTrack audioTrack,
+        boolean enablePassthroughWorkaround) {
       this.audioTrack = audioTrack;
-      this.sampleRate = audioTrack.getSampleRate();
+      this.enablePassthroughWorkaround = enablePassthroughWorkaround;
+      lastRawPlaybackHeadPosition = 0;
+      rawPlaybackHeadWrapCount = 0;
+      passthroughWorkaroundPauseOffset = 0;
+      if (audioTrack != null) {
+        sampleRate = audioTrack.getSampleRate();
+      }
+    }
+
+    /**
+     * Returns whether the audio track should behave as though it has pending data. This is to work
+     * around an issue where AC-3 audio tracks can't be paused, so we empty their buffers when
+     * paused. In this case, they should still behave as if they have pending data, otherwise
+     * writing will never resume.
+     *
+     * @see #handleBuffer
+     */
+    public boolean overrideHasPendingData() {
+      return enablePassthroughWorkaround
+          && audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PAUSED
+          && audioTrack.getPlaybackHeadPosition() == 0;
     }
 
     /**
@@ -755,6 +793,13 @@ public final class AudioTrack {
      */
     public long getPlaybackHeadPosition() {
       long rawPlaybackHeadPosition = 0xFFFFFFFFL & audioTrack.getPlaybackHeadPosition();
+      if (enablePassthroughWorkaround) {
+        if (audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PAUSED
+            && rawPlaybackHeadPosition == 0) {
+          passthroughWorkaroundPauseOffset = lastRawPlaybackHeadPosition;
+        }
+        rawPlaybackHeadPosition += passthroughWorkaroundPauseOffset;
+      }
       if (lastRawPlaybackHeadPosition > rawPlaybackHeadPosition) {
         // The value must have wrapped around.
         rawPlaybackHeadWrapCount++;
@@ -821,9 +866,17 @@ public final class AudioTrack {
     private long lastRawTimestampFramePosition;
     private long lastTimestampFramePosition;
 
-    public AudioTrackUtilV19(android.media.AudioTrack audioTrack) {
-      super(audioTrack);
+    public AudioTrackUtilV19() {
       audioTimestamp = new AudioTimestamp();
+    }
+
+    @Override
+    public void reconfigure(android.media.AudioTrack audioTrack,
+        boolean enablePassthroughWorkaround) {
+      super.reconfigure(audioTrack, enablePassthroughWorkaround);
+      rawTimestampFramePositionWrapCount = 0;
+      lastRawTimestampFramePosition = 0;
+      lastTimestampFramePosition = 0;
     }
 
     @Override
