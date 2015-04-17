@@ -118,7 +118,7 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
       if (headerData != null) {
         sampleSize += headerData.length;
       }
-      getOutput().sampleMetadata(startTimeUs, 0, sampleSize, 0, null);
+      getOutput().sampleMetadata(startTimeUs, C.SAMPLE_FLAG_SYNC, sampleSize, 0, null);
     } finally {
       dataSource.close();
     }
