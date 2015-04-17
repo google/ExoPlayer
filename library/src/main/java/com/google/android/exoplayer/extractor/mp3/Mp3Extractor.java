@@ -248,8 +248,8 @@ public final class Mp3Extractor implements Extractor {
       }
       if (seeker == null) {
         inputBuffer.returnToMark();
-        seeker = new ConstantBitrateSeeker(
-            headerPosition, synchronizedHeader.bitrate * 1000, extractorInput.getLength());
+        seeker = new ConstantBitrateSeeker(headerPosition, synchronizedHeader.bitrate * 1000,
+            extractorInput.getLength());
       } else {
         // Discard the frame that was parsed for seeking metadata.
         inputBuffer.mark();
@@ -273,12 +273,7 @@ public final class Mp3Extractor implements Extractor {
    * {@link SeekMap} that also allows mapping from position (byte offset) back to time, which can be
    * used to work out the new sample basis timestamp after seeking and resynchronization.
    */
-  /* package */ abstract static class Seeker implements SeekMap {
-
-    @Override
-    public final boolean isSeekable() {
-      return true;
-    }
+  /* package */ interface Seeker extends SeekMap {
 
     /**
      * Maps a position (byte offset) to a corresponding sample timestamp.
@@ -286,10 +281,10 @@ public final class Mp3Extractor implements Extractor {
      * @param position A seek position (byte offset) relative to the start of the stream.
      * @return The corresponding timestamp of the next sample to be read, in microseconds.
      */
-    abstract long getTimeUs(long position);
+    long getTimeUs(long position);
 
     /** Returns the duration of the source, in microseconds. */
-    abstract long getDurationUs();
+    long getDurationUs();
 
   }
 

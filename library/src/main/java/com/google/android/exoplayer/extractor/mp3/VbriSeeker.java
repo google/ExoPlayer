@@ -21,15 +21,14 @@ import com.google.android.exoplayer.util.Util;
 /**
  * MP3 seeker that uses metadata from a VBRI header.
  */
-/* package */ final class VbriSeeker extends Mp3Extractor.Seeker {
+/* package */ final class VbriSeeker implements Mp3Extractor.Seeker {
 
   private static final int VBRI_HEADER = Util.getIntegerCodeForString("VBRI");
 
   /**
    * If {@code frame} contains a VBRI header and it is usable for seeking, returns a
-   * {@link Mp3Extractor.Seeker} for seeking in the containing stream. Otherwise, returns
-   * {@code null}, which indicates that the information in the frame was not a VBRI header, or was
-   * unusable for seeking.
+   * {@link VbriSeeker} for seeking in the containing stream. Otherwise, returns {@code null}, which
+   * indicates that the information in the frame was not a VBRI header, or was unusable for seeking.
    */
   public static VbriSeeker create(
       MpegAudioHeader mpegAudioHeader, ParsableByteArray frame, long position) {
@@ -97,6 +96,11 @@ import com.google.android.exoplayer.util.Util;
     this.positions = positions;
     this.basePosition = basePosition;
     this.durationUs = durationUs;
+  }
+
+  @Override
+  public boolean isSeekable() {
+    return true;
   }
 
   @Override

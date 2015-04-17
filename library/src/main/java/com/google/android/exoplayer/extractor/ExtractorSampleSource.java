@@ -42,12 +42,17 @@ import java.io.IOException;
 public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loader.Callback {
 
   /**
-   * The default minimum number of times to retry loading data prior to failing.
+   * The default minimum number of times to retry loading prior to failing for on-demand streams.
    */
-  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
+  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND = 3;
 
-  private static final int BUFFER_LENGTH = 256 * 1024;
+  /**
+   * The default minimum number of times to retry loading prior to failing for live streams.
+   */
+  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE = 6;
 
+  private static final int BUFFER_FRAGMENT_LENGTH = 256 * 1024;
+  private static final int MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA = -1;
   private static final int NO_RESET_PENDING = -1;
 
   private final Extractor extractor;
@@ -94,14 +99,30 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
    */
   public ExtractorSampleSource(Uri uri, DataSource dataSource, Extractor extractor,
       int downstreamRendererCount, int requestedBufferSize) {
+    this(uri, dataSource, extractor, downstreamRendererCount, requestedBufferSize,
+        MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA);
+  }
+
+  /**
+   * @param uri The {@link Uri} of the media stream.
+   * @param dataSource A data source to read the media stream.
+   * @param extractor An {@link Extractor} to extract the media stream.
+   * @param downstreamRendererCount Number of track renderers dependent on this sample source.
+   * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
+   *     The actual allocated size may exceed the value passed in if the implementation requires it.
+   * @param minLoadableRetryCount The minimum number of times that the sample source will retry
+   *     if a loading error occurs.
+   */
+  public ExtractorSampleSource(Uri uri, DataSource dataSource, Extractor extractor,
+      int downstreamRendererCount, int requestedBufferSize, int minLoadableRetryCount) {
     this.uri = uri;
     this.dataSource = dataSource;
     this.extractor = extractor;
-    remainingReleaseCount = downstreamRendererCount;
+    this.remainingReleaseCount = downstreamRendererCount;
     this.requestedBufferSize = requestedBufferSize;
+    this.minLoadableRetryCount = minLoadableRetryCount;
     sampleQueues = new SparseArray<DefaultTrackOutput>();
-    bufferPool = new BufferPool(BUFFER_LENGTH);
-    minLoadableRetryCount = DEFAULT_MIN_LOADABLE_RETRY_COUNT;
+    bufferPool = new BufferPool(BUFFER_FRAGMENT_LENGTH);
     pendingResetPositionUs = NO_RESET_PENDING;
     frameAccurateSeeking = true;
     extractor.init(this);
@@ -132,9 +153,6 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
         trackInfos[i] = new TrackInfo(format.mimeType, format.durationUs);
       }
       prepared = true;
-      if (isPendingReset()) {
-        restartFrom(pendingResetPositionUs);
-      }
       return true;
     } else {
       maybeThrowLoadableException();
@@ -232,6 +250,11 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
   public void seekToUs(long positionUs) {
     Assertions.checkState(prepared);
     Assertions.checkState(enabledTrackCount > 0);
+    if (!seekMap.isSeekable()) {
+      // Treat all seeks into non-seekable media as seeks to the start.
+      positionUs = 0;
+    }
+
     lastSeekPositionUs = positionUs;
     if ((isPendingReset() ? pendingResetPositionUs : downstreamPositionUs) == positionUs) {
       return;
@@ -300,9 +323,9 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
   }
 
   @Override
-  public void onLoadError(Loadable loadable, IOException e) {
+  public void onLoadError(Loadable ignored, IOException e) {
     currentLoadableException = e;
-    currentLoadableExceptionCount++;
+    currentLoadableExceptionCount = loadable.madeProgress() ? 1 : currentLoadableExceptionCount + 1;
     currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
     maybeStartLoading();
   }
@@ -369,28 +392,62 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
       long elapsedMillis = SystemClock.elapsedRealtime() - currentLoadableExceptionTimestamp;
       if (elapsedMillis >= getRetryDelayMillis(currentLoadableExceptionCount)) {
         currentLoadableException = null;
+        if (!prepared || !seekMap.isSeekable()) {
+          // One of two cases applies:
+          // 1. We're not prepared. We don't know whether we're playing an on-demand or a live
+          //    stream. Play it safe and start from scratch.
+          // 2. We're playing a non-seekable stream. Assume it's a live stream. In such cases it's
+          //    best to discard the pending buffer and start from scratch.
+          for (int i = 0; i < sampleQueues.size(); i++) {
+            sampleQueues.valueAt(i).clear();
+          }
+          loadable = createPreparationLoadable();
+        } else {
+          // We're playing a seekable on-demand stream. Resume the current loadable, which will
+          // request data starting from the point it left off.
+        }
         loader.startLoading(loadable, this);
       }
       return;
     }
 
     if (!prepared) {
-      loadable = new ExtractingLoadable(uri, dataSource, extractor, bufferPool, requestedBufferSize,
-          0);
+      loadable = createPreparationLoadable();
     } else {
       Assertions.checkState(isPendingReset());
-      loadable = new ExtractingLoadable(uri, dataSource, extractor, bufferPool, requestedBufferSize,
-          seekMap.getPosition(pendingResetPositionUs));
+      loadable = createLoadableForPosition(pendingResetPositionUs);
       pendingResetPositionUs = NO_RESET_PENDING;
     }
     loader.startLoading(loadable, this);
   }
 
   private void maybeThrowLoadableException() throws IOException {
-    if (currentLoadableException != null && (currentLoadableExceptionFatal
-        || currentLoadableExceptionCount > minLoadableRetryCount)) {
+    if (currentLoadableException == null) {
+      return;
+    }
+    if (currentLoadableExceptionFatal) {
       throw currentLoadableException;
     }
+    int minLoadableRetryCountForMedia;
+    if (minLoadableRetryCount != MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA) {
+      minLoadableRetryCountForMedia = minLoadableRetryCount;
+    } else {
+      minLoadableRetryCountForMedia = seekMap != null && !seekMap.isSeekable()
+          ? DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE
+          : DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND;
+    }
+    if (currentLoadableExceptionCount > minLoadableRetryCountForMedia) {
+      throw currentLoadableException;
+    }
+  }
+
+  private ExtractingLoadable createPreparationLoadable() {
+    return new ExtractingLoadable(uri, dataSource, extractor, bufferPool, requestedBufferSize, 0);
+  }
+
+  private ExtractingLoadable createLoadableForPosition(long positionUs) {
+    return new ExtractingLoadable(uri, dataSource, extractor, bufferPool, requestedBufferSize,
+        seekMap.getPosition(positionUs));
   }
 
   private boolean haveFormatsForAllTracks() {
@@ -452,6 +509,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
     private volatile boolean loadCanceled;
 
     private boolean pendingExtractorSeek;
+    private boolean madeProgress;
 
     public ExtractingLoadable(Uri uri, DataSource dataSource, Extractor extractor,
         BufferPool bufferPool, int bufferPoolSizeLimit, long position) {
@@ -463,6 +521,10 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
       positionHolder = new PositionHolder();
       positionHolder.position = position;
       pendingExtractorSeek = true;
+    }
+
+    public boolean madeProgress() {
+      return madeProgress;
     }
 
     @Override
@@ -498,9 +560,12 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
           }
         } finally {
           if (result == Extractor.RESULT_SEEK) {
+            madeProgress |= true;
             result = Extractor.RESULT_CONTINUE;
           } else if (input != null) {
-            positionHolder.position = input.getPosition();
+            long newPosition = input.getPosition();
+            madeProgress |= newPosition > positionHolder.position;
+            positionHolder.position = newPosition;
           }
           dataSource.close();
         }
