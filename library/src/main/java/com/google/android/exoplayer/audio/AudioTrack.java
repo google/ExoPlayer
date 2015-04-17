@@ -292,8 +292,8 @@ public final class AudioTrack {
         if (keepSessionIdAudioTrack == null) {
           int sampleRate = 4000; // Equal to private android.media.AudioTrack.MIN_SAMPLE_RATE.
           int channelConfig = AudioFormat.CHANNEL_OUT_MONO;
-          int encoding = AudioFormat.ENCODING_PCM_8BIT;
-          int bufferSize = 1; // Use a one byte buffer, as it is not actually used for playback.
+          int encoding = AudioFormat.ENCODING_PCM_16BIT;
+          int bufferSize = 2; // Use a two byte buffer, as it is not actually used for playback.
           keepSessionIdAudioTrack = new android.media.AudioTrack(AudioManager.STREAM_MUSIC,
               sampleRate, channelConfig, encoding, bufferSize, android.media.AudioTrack.MODE_STATIC,
               sessionId);
