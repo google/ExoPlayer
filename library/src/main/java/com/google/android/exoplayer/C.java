@@ -41,6 +41,11 @@ public final class C {
   public static final long MICROS_PER_SECOND = 1000000L;
 
   /**
+   * The number of milliseconds in one second.
+   */
+  public static final long MILLIS_PER_SECOND = 1000L;
+
+  /**
    * Represents an unbounded length of data.
    */
   public static final int LENGTH_UNBOUNDED = -1;
