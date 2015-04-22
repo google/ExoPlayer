@@ -61,7 +61,7 @@ public final class AssetDataSource implements DataSource {
    * @param listener An optional listener. Specify {@code null} for no listener.
    */
   public AssetDataSource(AssetManager assetManager, TransferListener listener) {
-	this.assetManager = assetManager;
+    this.assetManager = assetManager;
     this.listener = listener;
   }
 
@@ -105,19 +105,18 @@ public final class AssetDataSource implements DataSource {
           listener.onBytesTransferred(bytesRead);
         }
       }
-      Log.i("AssetDataSource", "read(). bytesRead = " + bytesRead);
 
       return bytesRead;
     }
   }
 
   @Override
-  public void close() throws FileDataSourceException {
+  public void close() throws AssetDataSourceException {
     if (assetInputStream != null) {
       try {
     	  assetInputStream.close();
       } catch (IOException e) {
-        throw new FileDataSourceException(e);
+        throw new AssetDataSourceException(e);
       } finally {
     	  assetInputStream = null;
 
