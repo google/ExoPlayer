@@ -137,8 +137,8 @@ public final class DataSpec {
 
   @Override
   public String toString() {
-    return "DataSpec[" + uri + ", " + ", " + absoluteStreamPosition + ", " +
-        position + ", " + length + ", " + key + ", " + flags + "]";
+    return "DataSpec[" + uri + ", " + absoluteStreamPosition + ", " + position + ", " + length
+        + ", " + key + ", " + flags + "]";
   }
 
 }
