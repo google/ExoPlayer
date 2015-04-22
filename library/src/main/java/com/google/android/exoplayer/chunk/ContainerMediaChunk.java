@@ -19,7 +19,6 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.chunk.ChunkExtractorWrapper.SingleTrackOutput;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.DefaultExtractorInput;
-import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.SeekMap;
@@ -84,12 +83,6 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
   }
 
   @Override
-  public void init(DefaultTrackOutput output) {
-    super.init(output);
-    extractorWrapper.init(this);
-  }
-
-  @Override
   public MediaFormat getMediaFormat() {
     return mediaFormat;
   }
@@ -149,10 +142,12 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
     DataSpec loadDataSpec = Util.getRemainderDataSpec(dataSpec, bytesLoaded);
     try {
       // Create and open the input.
-      ExtractorInput input = new DefaultExtractorInput(dataSource, dataSpec.absoluteStreamPosition,
-          dataSource.open(loadDataSpec));
-      // Set the target to ourselves.
-      extractorWrapper.init(this);
+      ExtractorInput input = new DefaultExtractorInput(dataSource,
+          loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
+      if (bytesLoaded == 0) {
+        // Set the target to ourselves.
+        extractorWrapper.init(this);
+      }
       // Load and parse the initialization data.
       try {
         int result = Extractor.RESULT_CONTINUE;
@@ -160,7 +155,7 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
           result = extractorWrapper.read(input);
         }
       } finally {
-        bytesLoaded += (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
+        bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
       }
     } finally {
       dataSource.close();

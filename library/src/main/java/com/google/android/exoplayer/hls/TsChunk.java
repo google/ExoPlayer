@@ -99,8 +99,8 @@ public final class TsChunk extends MediaChunk {
     }
 
     try {
-      ExtractorInput input = new DefaultExtractorInput(dataSource, dataSpec.absoluteStreamPosition,
-          dataSource.open(loadDataSpec));
+      ExtractorInput input = new DefaultExtractorInput(dataSource,
+          loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
       if (skipLoadedBytes) {
         input.skipFully(bytesLoaded);
       }

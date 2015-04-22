@@ -170,10 +170,12 @@ public final class InitializationChunk extends Chunk implements SingleTrackOutpu
     DataSpec loadDataSpec = Util.getRemainderDataSpec(dataSpec, bytesLoaded);
     try {
       // Create and open the input.
-      ExtractorInput input = new DefaultExtractorInput(dataSource, dataSpec.absoluteStreamPosition,
-          dataSource.open(loadDataSpec));
-      // Set the target to ourselves.
-      extractorWrapper.init(this);
+      ExtractorInput input = new DefaultExtractorInput(dataSource,
+          loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
+      if (bytesLoaded == 0) {
+        // Set the target to ourselves.
+        extractorWrapper.init(this);
+      }
       // Load and parse the initialization data.
       try {
         int result = Extractor.RESULT_CONTINUE;
@@ -181,7 +183,7 @@ public final class InitializationChunk extends Chunk implements SingleTrackOutpu
           result = extractorWrapper.read(input);
         }
       } finally {
-        bytesLoaded += (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
+        bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
       }
     } finally {
       dataSource.close();
