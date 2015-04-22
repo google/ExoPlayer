@@ -23,6 +23,7 @@ import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.drm.DrmInitData;
+import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -58,7 +59,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
   private final Extractor extractor;
   private final BufferPool bufferPool;
   private final int requestedBufferSize;
-  private final SparseArray<DefaultTrackOutput> sampleQueues;
+  private final SparseArray<InternalTrackOutput> sampleQueues;
   private final int minLoadableRetryCount;
   private final boolean frameAccurateSeeking;
   private final Uri uri;
@@ -93,6 +94,9 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
   private long currentLoadableExceptionTimestamp;
   private boolean loadingFinished;
 
+  private int extractedSampleCount;
+  private int extractedSampleCountAtStartOfLoad;
+
   /**
    * @param uri The {@link Uri} of the media stream.
    * @param dataSource A data source to read the media stream.
@@ -125,7 +129,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
     this.remainingReleaseCount = downstreamRendererCount;
     this.requestedBufferSize = requestedBufferSize;
     this.minLoadableRetryCount = minLoadableRetryCount;
-    sampleQueues = new SparseArray<DefaultTrackOutput>();
+    sampleQueues = new SparseArray<InternalTrackOutput>();
     bufferPool = new BufferPool(BUFFER_FRAGMENT_LENGTH);
     pendingResetPositionUs = NO_RESET_PENDING;
     frameAccurateSeeking = true;
@@ -228,7 +232,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
       return NOTHING_READ;
     }
 
-    DefaultTrackOutput sampleQueue = sampleQueues.valueAt(track);
+    InternalTrackOutput sampleQueue = sampleQueues.valueAt(track);
     if (pendingMediaFormat[track]) {
       formatHolder.format = sampleQueue.getFormat();
       formatHolder.drmInitData = drmInitData;
@@ -335,7 +339,8 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
   @Override
   public void onLoadError(Loadable ignored, IOException e) {
     currentLoadableException = e;
-    currentLoadableExceptionCount = loadable.madeProgress() ? 1 : currentLoadableExceptionCount + 1;
+    currentLoadableExceptionCount = extractedSampleCount > extractedSampleCountAtStartOfLoad ? 1
+        : currentLoadableExceptionCount + 1;
     currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
     maybeStartLoading();
   }
@@ -344,9 +349,9 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
 
   @Override
   public TrackOutput track(int id) {
-    DefaultTrackOutput sampleQueue = sampleQueues.get(id);
+    InternalTrackOutput sampleQueue = sampleQueues.get(id);
     if (sampleQueue == null) {
-      sampleQueue = new DefaultTrackOutput(bufferPool);
+      sampleQueue = new InternalTrackOutput(bufferPool);
       sampleQueues.put(id, sampleQueue);
     }
     return sampleQueue;
@@ -427,6 +432,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
           // We're playing a seekable on-demand stream. Resume the current loadable, which will
           // request data starting from the point it left off.
         }
+        extractedSampleCountAtStartOfLoad = extractedSampleCount;
         loader.startLoading(loadable, this);
       }
       return;
@@ -445,6 +451,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
       loadable = createLoadableFromPositionUs(pendingResetPositionUs);
       pendingResetPositionUs = NO_RESET_PENDING;
     }
+    extractedSampleCountAtStartOfLoad = extractedSampleCount;
     loader.startLoading(loadable, this);
   }
 
@@ -522,6 +529,24 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
   }
 
   /**
+   * Extension of {@link DefaultTrackOutput} that increments a shared counter of the total number
+   * of extracted samples.
+   */
+  private class InternalTrackOutput extends DefaultTrackOutput {
+
+    public InternalTrackOutput(Allocator allocator) {
+      super(allocator);
+    }
+
+    @Override
+    public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
+      super.sampleMetadata(timeUs, flags, size, offset, encryptionKey);
+      extractedSampleCount++;
+    }
+
+  }
+
+  /**
    * Loads the media stream and extracts sample data from it.
    */
   private static class ExtractingLoadable implements Loadable {
@@ -536,7 +561,6 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
     private volatile boolean loadCanceled;
 
     private boolean pendingExtractorSeek;
-    private boolean madeProgress;
 
     public ExtractingLoadable(Uri uri, DataSource dataSource, Extractor extractor,
         BufferPool bufferPool, int bufferPoolSizeLimit, long position) {
@@ -548,10 +572,6 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
       positionHolder = new PositionHolder();
       positionHolder.position = position;
       pendingExtractorSeek = true;
-    }
-
-    public boolean madeProgress() {
-      return madeProgress;
     }
 
     @Override
@@ -587,12 +607,9 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
           }
         } finally {
           if (result == Extractor.RESULT_SEEK) {
-            madeProgress |= true;
             result = Extractor.RESULT_CONTINUE;
           } else if (input != null) {
-            long newPosition = input.getPosition();
-            madeProgress |= newPosition > positionHolder.position;
-            positionHolder.position = newPosition;
+            positionHolder.position = input.getPosition();
           }
           dataSource.close();
         }

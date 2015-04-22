@@ -27,7 +27,7 @@ import java.io.IOException;
  * A {@link TrackOutput} that buffers extracted samples in a queue, and allows for consumption from
  * that queue.
  */
-public final class DefaultTrackOutput implements TrackOutput {
+public class DefaultTrackOutput implements TrackOutput {
 
   private final RollingSampleBuffer rollingBuffer;
   private final SampleHolder sampleInfoHolder;
