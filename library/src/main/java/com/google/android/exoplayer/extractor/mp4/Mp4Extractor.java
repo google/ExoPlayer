@@ -24,7 +24,6 @@ import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.H264Util;
-import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.IOException;
@@ -284,19 +283,29 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     }
     input.skipFully((int) skipAmount);
     sampleSize = track.sampleTable.sizes[sampleIndex];
-    if (track.track.type == Track.TYPE_VIDEO
-        && MimeTypes.VIDEO_H264.equals(track.track.mediaFormat.mimeType)) {
+    if (track.track.nalUnitLengthFieldLength != -1) {
+      // Zero the top three bytes of the array that we'll use to parse nal unit lengths, in case
+      // they're only 1 or 2 bytes long.
+      byte[] nalLengthData = nalLength.data;
+      nalLengthData[0] = 0;
+      nalLengthData[1] = 0;
+      nalLengthData[2] = 0;
+      int nalUnitLengthFieldLength = track.track.nalUnitLengthFieldLength;
+      int nalUnitLengthFieldLengthDiff = 4 - track.track.nalUnitLengthFieldLength;
+      // NAL units are length delimited, but the decoder requires start code delimited units.
+      // Loop until we've written the sample to the track output, replacing length delimiters with
+      // start codes as we encounter them.
       while (sampleBytesWritten < sampleSize) {
-        // NAL units are length delimited, but the decoder requires start code delimited units.
         if (sampleCurrentNalBytesRemaining == 0) {
-          // Read the NAL length so that we know where we find the next NAL unit.
-          input.readFully(nalLength.data, 0, 4);
+          // Read the NAL length so that we know where we find the next one.
+          input.readFully(nalLength.data, nalUnitLengthFieldLengthDiff, nalUnitLengthFieldLength);
           nalLength.setPosition(0);
           sampleCurrentNalBytesRemaining = nalLength.readUnsignedIntToInt();
           // Write a start code for the current NAL unit.
           nalStartCode.setPosition(0);
           track.trackOutput.sampleData(nalStartCode, 4);
           sampleBytesWritten += 4;
+          sampleSize += nalUnitLengthFieldLengthDiff;
         } else {
           // Write the payload of the NAL unit.
           int writtenBytes = track.trackOutput.sampleData(input, sampleCurrentNalBytesRemaining);

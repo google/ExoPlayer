@@ -68,10 +68,9 @@ import java.util.List;
         .getContainerAtomOfType(Atom.TYPE_stbl);
 
     long mediaTimescale = parseMdhd(mdia.getLeafAtomOfType(Atom.TYPE_mdhd).data);
-    Pair<MediaFormat, TrackEncryptionBox[]> sampleDescriptions =
-        parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, durationUs);
-    return new Track(id, trackType, mediaTimescale, durationUs, sampleDescriptions.first,
-          sampleDescriptions.second);
+    StsdDataHolder stsdData = parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, durationUs);
+    return new Track(id, trackType, mediaTimescale, durationUs, stsdData.mediaFormat,
+        stsdData.trackEncryptionBoxes, stsdData.nalUnitLengthFieldLength);
   }
 
   /**
@@ -327,12 +326,10 @@ import java.util.List;
     return mdhd.readUnsignedInt();
   }
 
-  private static Pair<MediaFormat, TrackEncryptionBox[]> parseStsd(
-      ParsableByteArray stsd, long durationUs) {
+  private static StsdDataHolder parseStsd(ParsableByteArray stsd, long durationUs) {
     stsd.setPosition(Atom.FULL_HEADER_SIZE);
     int numberOfEntries = stsd.readInt();
-    MediaFormat mediaFormat = null;
-    TrackEncryptionBox[] trackEncryptionBoxes = new TrackEncryptionBox[numberOfEntries];
+    StsdDataHolder holder = new StsdDataHolder(numberOfEntries);
     for (int i = 0; i < numberOfEntries; i++) {
       int childStartPosition = stsd.getPosition();
       int childAtomSize = stsd.readInt();
@@ -340,29 +337,25 @@ import java.util.List;
       int childAtomType = stsd.readInt();
       if (childAtomType == Atom.TYPE_avc1 || childAtomType == Atom.TYPE_avc3
           || childAtomType == Atom.TYPE_encv) {
-        Pair<MediaFormat, TrackEncryptionBox> avc =
-            parseAvcFromParent(stsd, childStartPosition, childAtomSize, durationUs);
-        mediaFormat = avc.first;
-        trackEncryptionBoxes[i] = avc.second;
+        parseAvcFromParent(stsd, childStartPosition, childAtomSize, durationUs, holder, i);
       } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca
           || childAtomType == Atom.TYPE_ac_3) {
-        Pair<MediaFormat, TrackEncryptionBox> audioSampleEntry = parseAudioSampleEntry(stsd,
-            childAtomType, childStartPosition, childAtomSize, durationUs);
-        mediaFormat = audioSampleEntry.first;
-        trackEncryptionBoxes[i] = audioSampleEntry.second;
+        parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, durationUs,
+            holder, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
-        mediaFormat = MediaFormat.createTtmlFormat();
+        holder.mediaFormat = MediaFormat.createTtmlFormat();
       } else if (childAtomType == Atom.TYPE_mp4v) {
-        mediaFormat = parseMp4vFromParent(stsd, childStartPosition, childAtomSize, durationUs);
+        holder.mediaFormat = parseMp4vFromParent(stsd, childStartPosition, childAtomSize,
+            durationUs);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
-    return Pair.create(mediaFormat, trackEncryptionBoxes);
+    return holder;
   }
 
   /** Returns the media format for an avc1 box. */
-  private static Pair<MediaFormat, TrackEncryptionBox> parseAvcFromParent(ParsableByteArray parent,
-      int position, int size, long durationUs) {
+  private static void parseAvcFromParent(ParsableByteArray parent, int position, int size,
+      long durationUs, StsdDataHolder out, int entryIndex) {
     parent.setPosition(position + Atom.HEADER_SIZE);
 
     parent.skipBytes(24);
@@ -372,7 +365,6 @@ import java.util.List;
     parent.skipBytes(50);
 
     List<byte[]> initializationData = null;
-    TrackEncryptionBox trackEncryptionBox = null;
     int childPosition = parent.getPosition();
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
@@ -385,27 +377,28 @@ import java.util.List;
       Assertions.checkArgument(childAtomSize > 0, "childAtomSize should be positive");
       int childAtomType = parent.readInt();
       if (childAtomType == Atom.TYPE_avcC) {
-        initializationData = parseAvcCFromParent(parent, childStartPosition);
+        Pair<List<byte[]>, Integer> avcCData = parseAvcCFromParent(parent, childStartPosition);
+        initializationData = avcCData.first;
+        out.nalUnitLengthFieldLength = avcCData.second;
       } else if (childAtomType == Atom.TYPE_sinf) {
-        trackEncryptionBox = parseSinfFromParent(parent, childStartPosition, childAtomSize);
+        out.trackEncryptionBoxes[entryIndex] =
+            parseSinfFromParent(parent, childStartPosition, childAtomSize);
       } else if (childAtomType == Atom.TYPE_pasp) {
         pixelWidthHeightRatio = parsePaspFromParent(parent, childStartPosition);
       }
       childPosition += childAtomSize;
     }
 
-    MediaFormat format = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
+    out.mediaFormat = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
         durationUs, width, height, pixelWidthHeightRatio, initializationData);
-    return Pair.create(format, trackEncryptionBox);
   }
 
-  private static List<byte[]> parseAvcCFromParent(ParsableByteArray parent, int position) {
+  private static Pair<List<byte[]>, Integer> parseAvcCFromParent(ParsableByteArray parent,
+      int position) {
     parent.setPosition(position + Atom.HEADER_SIZE + 4);
     // Start of the AVCDecoderConfigurationRecord (defined in 14496-15)
-    int nalUnitLength = (parent.readUnsignedByte() & 0x3) + 1;
-    if (nalUnitLength != 4) {
-      // readSample currently relies on a nalUnitLength of 4.
-      // TODO: Consider handling the case where it isn't.
+    int nalUnitLengthFieldLength = (parent.readUnsignedByte() & 0x3) + 1;
+    if (nalUnitLengthFieldLength == 3) {
       throw new IllegalStateException();
     }
     List<byte[]> initializationData = new ArrayList<byte[]>();
@@ -419,7 +412,7 @@ import java.util.List;
     for (int j = 0; j < numPictureParameterSets; j++) {
       initializationData.add(H264Util.parseChildNalUnit(parent));
     }
-    return initializationData;
+    return Pair.create(initializationData, nalUnitLengthFieldLength);
   }
 
   private static TrackEncryptionBox parseSinfFromParent(ParsableByteArray parent, int position,
@@ -502,8 +495,8 @@ import java.util.List;
         MimeTypes.VIDEO_MP4V, MediaFormat.NO_VALUE, durationUs, width, height, initializationData);
   }
 
-  private static Pair<MediaFormat, TrackEncryptionBox> parseAudioSampleEntry(
-      ParsableByteArray parent, int atomType, int position, int size, long durationUs) {
+  private static void parseAudioSampleEntry(ParsableByteArray parent, int atomType, int position,
+      int size, long durationUs, StsdDataHolder out, int entryIndex) {
     parent.setPosition(position + Atom.HEADER_SIZE);
     parent.skipBytes(16);
     int channelCount = parent.readUnsignedShort();
@@ -513,7 +506,6 @@ import java.util.List;
     int bitrate = MediaFormat.NO_VALUE;
 
     byte[] initializationData = null;
-    TrackEncryptionBox trackEncryptionBox = null;
     int childPosition = parent.getPosition();
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
@@ -531,7 +523,8 @@ import java.util.List;
           sampleRate = audioSpecificConfig.first;
           channelCount = audioSpecificConfig.second;
         } else if (childAtomType == Atom.TYPE_sinf) {
-          trackEncryptionBox = parseSinfFromParent(parent, childStartPosition, childAtomSize);
+          out.trackEncryptionBoxes[entryIndex] = parseSinfFromParent(parent, childStartPosition,
+              childAtomSize);
         }
       } else if (atomType == Atom.TYPE_ac_3 && childAtomType == Atom.TYPE_dac3) {
         // TODO: Choose the right AC-3 track based on the contents of dac3/dec3.
@@ -542,12 +535,10 @@ import java.util.List;
           channelCount = ac3Format.channelCount;
           bitrate = ac3Format.bitrate;
         }
-
-        // TODO: Add support for encrypted AC-3.
-        trackEncryptionBox = null;
+        // TODO: Add support for encryption (by setting out.trackEncryptionBoxes).
       } else if (atomType == Atom.TYPE_ec_3 && childAtomType == Atom.TYPE_dec3) {
         sampleRate = parseEc3SpecificBoxFromParent(parent, childStartPosition);
-        trackEncryptionBox = null;
+        // TODO: Add support for encryption (by setting out.trackEncryptionBoxes).
       }
       childPosition += childAtomSize;
     }
@@ -561,10 +552,9 @@ import java.util.List;
       mimeType = MimeTypes.AUDIO_AAC;
     }
 
-    MediaFormat format = MediaFormat.createAudioFormat(
+    out.mediaFormat = MediaFormat.createAudioFormat(
         mimeType, sampleSize, durationUs, channelCount, sampleRate, bitrate,
         initializationData == null ? null : Collections.singletonList(initializationData));
-    return Pair.create(format, trackEncryptionBox);
   }
 
   /** Returns codec-specific initialization data contained in an esds box. */
@@ -671,6 +661,23 @@ import java.util.List;
       this.channelCount = channelCount;
       this.sampleRate = sampleRate;
       this.bitrate = bitrate;
+    }
+
+  }
+
+  /**
+   * Holds data parsed from an stsd atom and its children.
+   */
+  private static final class StsdDataHolder {
+
+    public final TrackEncryptionBox[] trackEncryptionBoxes;
+
+    public MediaFormat mediaFormat;
+    public int nalUnitLengthFieldLength;
+
+    public StsdDataHolder(int numberOfEntries) {
+      trackEncryptionBoxes = new TrackEncryptionBox[numberOfEntries];
+      nalUnitLengthFieldLength = -1;
     }
 
   }

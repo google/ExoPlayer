@@ -79,14 +79,21 @@ public final class Track {
    */
   public final TrackEncryptionBox[] sampleDescriptionEncryptionBoxes;
 
+  /**
+   * For H264 video tracks, the length in bytes of the NALUnitLength field in each sample. -1 for
+   * other track types.
+   */
+  public final int nalUnitLengthFieldLength;
+
   public Track(int id, int type, long timescale, long durationUs, MediaFormat mediaFormat,
-      TrackEncryptionBox[] sampleDescriptionEncryptionBoxes) {
+      TrackEncryptionBox[] sampleDescriptionEncryptionBoxes, int nalUnitLengthFieldLength) {
     this.id = id;
     this.type = type;
     this.timescale = timescale;
     this.durationUs = durationUs;
     this.mediaFormat = mediaFormat;
     this.sampleDescriptionEncryptionBoxes = sampleDescriptionEncryptionBoxes;
+    this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
   }
 
 }
