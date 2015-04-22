@@ -417,7 +417,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
     public SmoothStreamingFormat(String id, String mimeType, int width, int height,
         int numChannels, int audioSamplingRate, int bitrate, int trackIndex) {
-      super(id, mimeType, width, height, numChannels, audioSamplingRate, bitrate);
+      super(id, mimeType, width, height, -1, numChannels, audioSamplingRate, bitrate);
       this.trackIndex = trackIndex;
     }
 

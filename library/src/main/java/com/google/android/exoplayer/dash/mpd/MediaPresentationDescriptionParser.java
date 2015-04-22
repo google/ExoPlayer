@@ -41,12 +41,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A parser of media presentation description files.
  */
 public class MediaPresentationDescriptionParser extends DefaultHandler
     implements NetworkLoadable.Parser<MediaPresentationDescription> {
+
+  private static final Pattern FRAME_RATE_PATTERN = Pattern.compile("(\\d+)(?:/(\\d+))??");
 
   private final String contentId;
   private final XmlPullParserFactory xmlParserFactory;
@@ -296,6 +300,22 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     int audioSamplingRate = parseInt(xpp, "audioSamplingRate");
     int width = parseInt(xpp, "width");
     int height = parseInt(xpp, "height");
+
+    float frameRate = -1;
+    String frameRateAttribute = xpp.getAttributeValue(null, "frameRate");
+    if (frameRateAttribute != null) {
+      Matcher frameRateMatcher = FRAME_RATE_PATTERN.matcher(frameRateAttribute);
+      if (frameRateMatcher.matches()) {
+        int numerator = Integer.parseInt(frameRateMatcher.group(1));
+        String denominatorString = frameRateMatcher.group(2);
+        if (!TextUtils.isEmpty(denominatorString)) {
+          frameRate = (float) numerator / Integer.parseInt(denominatorString);
+        } else {
+          frameRate = numerator;
+        }
+      }
+    }
+
     mimeType = parseString(xpp, "mimeType", mimeType);
     String codecs = parseString(xpp, "codecs", null);
 
@@ -318,16 +338,16 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       }
     } while (!isEndTag(xpp, "Representation"));
 
-    Format format = buildFormat(id, mimeType, width, height, numChannels, audioSamplingRate,
-        bandwidth, language, codecs);
+    Format format = buildFormat(id, mimeType, width, height, frameRate, numChannels,
+        audioSamplingRate, bandwidth, language, codecs);
     return buildRepresentation(periodStartMs, periodDurationMs, contentId, -1, format,
         segmentBase != null ? segmentBase : new SingleSegmentBase(baseUrl));
   }
 
-  protected Format buildFormat(String id, String mimeType, int width, int height, int numChannels,
-      int audioSamplingRate, int bandwidth, String language, String codecs) {
-    return new Format(id, mimeType, width, height, numChannels, audioSamplingRate, bandwidth,
-        language, codecs);
+  protected Format buildFormat(String id, String mimeType, int width, int height, float frameRate,
+      int numChannels, int audioSamplingRate, int bandwidth, String language, String codecs) {
+    return new Format(id, mimeType, width, height, frameRate, numChannels, audioSamplingRate,
+        bandwidth, language, codecs);
   }
 
   protected Representation buildRepresentation(long periodStartMs, long periodDurationMs,

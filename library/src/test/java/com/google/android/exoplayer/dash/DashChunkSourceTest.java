@@ -65,11 +65,12 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   private static final int TALL_HEIGHT = 200;
   private static final int WIDE_WIDTH = 400;
 
-  private static final Format REGULAR_VIDEO = new Format("1", "video/mp4", 480, 240, -1, -1, 1000);
-  private static final Format TALL_VIDEO = new Format("2", "video/mp4", 100, TALL_HEIGHT, -1, -1,
-      1000);
-  private static final Format WIDE_VIDEO = new Format("3", "video/mp4", WIDE_WIDTH, 50, -1, -1,
-      1000);
+  private static final Format REGULAR_VIDEO =
+      new Format("1", "video/mp4", 480, 240, -1, -1, -1, 1000);
+  private static final Format TALL_VIDEO =
+      new Format("2", "video/mp4", 100, TALL_HEIGHT, -1, -1, -1, 1000);
+  private static final Format WIDE_VIDEO =
+      new Format("3", "video/mp4", WIDE_WIDTH, 50, -1, -1, -1, 1000);
 
   @Mock private DataSource mockDataSource;
   @Mock private ManifestFetcher<MediaPresentationDescription> mockManifestFetcher;

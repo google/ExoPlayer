@@ -676,7 +676,7 @@ public class HlsChunkSource {
 
     public HlsFormat(String id, int width, int height, int bitrate, String codecs,
         int variantIndex) {
-      super(id, MimeTypes.APPLICATION_M3U8, width, height, -1, -1, bitrate, null, codecs);
+      super(id, MimeTypes.APPLICATION_M3U8, width, height, -1, -1, -1, bitrate, null, codecs);
       this.variantIndex = variantIndex;
     }
 

@@ -232,8 +232,8 @@ public class TtmlParser implements SubtitleParser {
    * <a href="http://www.w3.org/TR/ttaf1-dfxp/#timing-value-timeExpression">timeExpression</a>
    *
    * @param time A string that includes the time expression.
-   * @param frameRate The framerate of the stream.
-   * @param subframeRate The sub-framerate of the stream
+   * @param frameRate The frame rate of the stream.
+   * @param subframeRate The sub-frame rate of the stream
    * @param tickRate The tick rate of the stream.
    * @return The parsed timestamp in microseconds.
    * @throws ParserException If the given string does not contain a valid time expression.
