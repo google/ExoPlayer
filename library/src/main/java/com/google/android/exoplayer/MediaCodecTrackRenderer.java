@@ -794,6 +794,15 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   /**
+   * Returns the maximum time to block whilst waiting for a decoded output buffer.
+   *
+   * @return The maximum time to block, in microseconds.
+   */
+  protected long getDequeueOutputBufferTimeoutUs() {
+    return 0;
+  }
+
+  /**
    * @return True if it may be possible to drain more output data. False otherwise.
    * @throws ExoPlaybackException If an error occurs draining the output buffer.
    */
@@ -805,7 +814,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
 
     if (outputIndex < 0) {
-      outputIndex = codec.dequeueOutputBuffer(outputBufferInfo, 0);
+      outputIndex = codec.dequeueOutputBuffer(outputBufferInfo, getDequeueOutputBufferTimeoutUs());
     }
 
     if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
