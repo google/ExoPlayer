@@ -49,7 +49,7 @@ public final class TsExtractor implements Extractor {
   private final ParsableByteArray tsPacketBuffer;
   private final SparseArray<ElementaryStreamReader> streamReaders; // Indexed by streamType
   private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
-  private final long firstSampleTimestamp;
+  private final long firstSampleTimestampUs;
   private final ParsableBitArray tsScratch;
 
   // Accessed only by the loading thread.
@@ -57,8 +57,12 @@ public final class TsExtractor implements Extractor {
   private long timestampOffsetUs;
   private long lastPts;
 
-  public TsExtractor(long firstSampleTimestamp) {
-    this.firstSampleTimestamp = firstSampleTimestamp;
+  public TsExtractor() {
+    this(0);
+  }
+
+  public TsExtractor(long firstSampleTimestampUs) {
+    this.firstSampleTimestampUs = firstSampleTimestampUs;
     tsScratch = new ParsableBitArray(new byte[3]);
     tsPacketBuffer = new ParsableByteArray(TS_PACKET_SIZE);
     streamReaders = new SparseArray<ElementaryStreamReader>();
@@ -138,7 +142,7 @@ public final class TsExtractor implements Extractor {
     long timeUs = (pts * C.MICROS_PER_SECOND) / 90000;
     // If we haven't done the initial timestamp adjustment, do it now.
     if (lastPts == Long.MIN_VALUE) {
-      timestampOffsetUs = firstSampleTimestamp - timeUs;
+      timestampOffsetUs = firstSampleTimestampUs - timeUs;
     }
     // Record the adjusted PTS to adjust for wraparound next time.
     lastPts = pts;
