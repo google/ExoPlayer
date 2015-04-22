@@ -128,7 +128,8 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     void onBandwidthSample(int elapsedMs, long bytes, long bitrateEstimate);
     void onLoadStarted(int sourceId, long length, int type, int trigger, Format format,
         int mediaStartTimeMs, int mediaEndTimeMs);
-    void onLoadCompleted(int sourceId, long bytesLoaded);
+    void onLoadCompleted(int sourceId, long bytesLoaded, int type, int trigger, Format format,
+        int mediaStartTimeMs, int mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs);
     void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
         long initializationDurationMs);
   }
@@ -539,9 +540,11 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   @Override
-  public void onLoadCompleted(int sourceId, long bytesLoaded) {
+  public void onLoadCompleted(int sourceId, long bytesLoaded, int type, int trigger, Format format,
+      int mediaStartTimeMs, int mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs) {
     if (infoListener != null) {
-      infoListener.onLoadCompleted(sourceId, bytesLoaded);
+      infoListener.onLoadCompleted(sourceId, bytesLoaded, type, trigger, format, mediaStartTimeMs,
+          mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs);
     }
   }
 

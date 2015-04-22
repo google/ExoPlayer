@@ -84,6 +84,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   private boolean currentLoadableExceptionFatal;
   private int currentLoadableExceptionCount;
   private long currentLoadableExceptionTimestamp;
+  private long currentLoadStartTimeMs;
 
   public HlsSampleSource(HlsChunkSource chunkSource, boolean frameAccurateSeeking,
       int downstreamRendererCount) {
@@ -316,11 +317,17 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public void onLoadCompleted(Loadable loadable) {
+    long now = SystemClock.elapsedRealtime();
+    long loadDurationMs = now - currentLoadStartTimeMs;
     chunkSource.onChunkLoadCompleted(currentLoadable);
-    notifyLoadCompleted(currentLoadable.bytesLoaded());
     if (isTsChunk(currentLoadable)) {
       TsChunk tsChunk = (TsChunk) loadable;
       loadingFinished = tsChunk.isLastChunk;
+      notifyLoadCompleted(currentLoadable.bytesLoaded(), tsChunk.type, tsChunk.trigger,
+          tsChunk.format, tsChunk.startTimeUs, tsChunk.endTimeUs, now, loadDurationMs);
+    } else {
+      notifyLoadCompleted(currentLoadable.bytesLoaded(), currentLoadable.type,
+          currentLoadable.trigger, currentLoadable.format, -1, -1, now, loadDurationMs);
     }
     if (!currentLoadableExceptionFatal) {
       clearCurrentLoadable();
@@ -450,6 +457,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       return;
     }
 
+    currentLoadStartTimeMs = SystemClock.elapsedRealtime();
     currentLoadable = nextLoadable;
     if (isTsChunk(currentLoadable)) {
       TsChunk tsChunk = (TsChunk) currentLoadable;
@@ -498,12 +506,15 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     }
   }
 
-  private void notifyLoadCompleted(final long bytesLoaded) {
+  private void notifyLoadCompleted(final long bytesLoaded, final int type, final int trigger,
+      final Format format, final long mediaStartTimeUs, final long mediaEndTimeUs,
+      final long elapsedRealtimeMs, final long loadDurationMs) {
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable()  {
         @Override
         public void run() {
-          eventListener.onLoadCompleted(eventSourceId, bytesLoaded);
+          eventListener.onLoadCompleted(eventSourceId, bytesLoaded, type, trigger, format,
+              usToMs(mediaStartTimeUs), usToMs(mediaEndTimeUs), elapsedRealtimeMs, loadDurationMs);
         }
       });
     }

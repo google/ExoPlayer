@@ -84,6 +84,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   private boolean currentLoadableExceptionFatal;
   private int currentLoadableExceptionCount;
   private long currentLoadableExceptionTimestamp;
+  private long currentLoadStartTimeMs;
 
   private MediaFormat downstreamMediaFormat;
   private volatile Format downstreamFormat;
@@ -329,11 +330,18 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public void onLoadCompleted(Loadable loadable) {
+    long now = SystemClock.elapsedRealtime();
+    long loadDurationMs = now - currentLoadStartTimeMs;
     Chunk currentLoadable = currentLoadableHolder.chunk;
     chunkSource.onChunkLoadCompleted(currentLoadable);
-    notifyLoadCompleted(currentLoadable.bytesLoaded());
     if (isMediaChunk(currentLoadable)) {
+      MediaChunk mediaChunk = (MediaChunk) currentLoadable;
+      notifyLoadCompleted(currentLoadable.bytesLoaded(), mediaChunk.type, mediaChunk.trigger,
+          mediaChunk.format, mediaChunk.startTimeUs, mediaChunk.endTimeUs, now, loadDurationMs);
       loadingFinished = ((BaseMediaChunk) currentLoadable).isLastChunk;
+    } else {
+      notifyLoadCompleted(currentLoadable.bytesLoaded(), currentLoadable.type,
+          currentLoadable.trigger, currentLoadable.format, -1, -1, now, loadDurationMs);
     }
     clearCurrentLoadable();
     updateLoadControl();
@@ -525,6 +533,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
       // Nothing to load.
       return;
     }
+    currentLoadStartTimeMs = SystemClock.elapsedRealtime();
     if (isMediaChunk(currentLoadable)) {
       BaseMediaChunk mediaChunk = (BaseMediaChunk) currentLoadable;
       mediaChunk.init(sampleQueue);
@@ -594,12 +603,15 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     }
   }
 
-  private void notifyLoadCompleted(final long bytesLoaded) {
+  private void notifyLoadCompleted(final long bytesLoaded, final int type, final int trigger,
+      final Format format, final long mediaStartTimeUs, final long mediaEndTimeUs,
+      final long elapsedRealtimeMs, final long loadDurationMs) {
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable()  {
         @Override
         public void run() {
-          eventListener.onLoadCompleted(eventSourceId, bytesLoaded);
+          eventListener.onLoadCompleted(eventSourceId, bytesLoaded, type, trigger, format,
+              usToMs(mediaStartTimeUs), usToMs(mediaEndTimeUs), elapsedRealtimeMs, loadDurationMs);
         }
       });
     }

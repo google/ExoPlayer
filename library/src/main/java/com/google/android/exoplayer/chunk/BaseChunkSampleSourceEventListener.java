@@ -48,8 +48,19 @@ public interface BaseChunkSampleSourceEventListener {
    *
    * @param sourceId The id of the reporting {@link SampleSource}.
    * @param bytesLoaded The number of bytes that were loaded.
+   * @param type The type of the loaded data.
+   * @param trigger The reason for the data being loaded.
+   * @param format The particular format to which this data corresponds, or null if the loaded data
+   *     does not correspond to a format.
+   * @param mediaStartTimeMs The media time of the start of the loaded data, or -1 if this load was
+   *     for initialization data.
+   * @param mediaEndTimeMs The media time of the end of the loaded data, or -1 if this load was for
+   *     initialization data.
+   * @param elapsedRealtimeMs {@code elapsedRealtime} timestamp of when the load finished.
+   * @param loadDurationMs Amount of time taken to load the data.
    */
-  void onLoadCompleted(int sourceId, long bytesLoaded);
+   void onLoadCompleted(int sourceId, long bytesLoaded, int type, int trigger, Format format,
+       int mediaStartTimeMs, int mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs);
 
   /**
    * Invoked when the current upstream load operation is canceled.
