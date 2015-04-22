@@ -56,6 +56,8 @@ public final class WebmExtractor implements Extractor {
   private static final int VORBIS_MAX_INPUT_SIZE = 8192;
   private static final int OPUS_MAX_INPUT_SIZE = 5760;
   private static final int ENCRYPTION_IV_SIZE = 8;
+  private static final int TRACK_TYPE_AUDIO = 2;
+  private static final int TRACK_TYPE_VIDEO = 1;
   private static final int UNKNOWN = -1;
 
   private static final int ID_EBML = 0x1A45DFA3;
@@ -73,6 +75,8 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_BLOCK = 0xA1;
   private static final int ID_TRACKS = 0x1654AE6B;
   private static final int ID_TRACK_ENTRY = 0xAE;
+  private static final int ID_TRACK_NUMBER = 0xD7;
+  private static final int ID_TRACK_TYPE = 0x83;
   private static final int ID_CODEC_ID = 0x86;
   private static final int ID_CODEC_PRIVATE = 0x63A2;
   private static final int ID_CODEC_DELAY = 0x56AA;
@@ -110,32 +114,30 @@ public final class WebmExtractor implements Extractor {
   private long segmentContentSize = UNKNOWN;
   private long timecodeScale = 1000000L;
   private long durationUs = C.UNKNOWN_TIME_US;
-  private int pixelWidth = UNKNOWN;
-  private int pixelHeight = UNKNOWN;
-  private int channelCount = UNKNOWN;
-  private int sampleRate = UNKNOWN;
-  private byte[] codecPrivate;
-  private String codecId;
-  private long codecDelayNs;
-  private long seekPreRollNs;
-  private boolean isAudioTrack;
-  private boolean hasContentEncryption;
-  private byte[] encryptionKeyId;
+
+  private TrackFormat trackFormat;  // Used to store the last seen track.
+  private TrackFormat audioTrackFormat;
+  private TrackFormat videoTrackFormat;
+
+  private boolean sentDrmInitData;
+
+  // Cue related elements.
   private long clusterTimecodeUs = UNKNOWN;
   private LongArray cueTimesUs;
   private LongArray cueClusterPositions;
+  private boolean seenClusterPositionForCurrentCuePoint;
 
   // Sample reading state.
   private int blockBytesRead;
   private int sampleState;
   private int sampleSize;
+  private int sampleTrackNumber;
   private int sampleFlags;
   private long sampleTimeUs;
   private boolean sampleRead;
 
   // Extractor outputs.
   private ExtractorOutput extractorOutput;
-  private TrackOutput trackOutput;
 
   public WebmExtractor() {
     this(new DefaultEbmlReader());
@@ -151,8 +153,6 @@ public final class WebmExtractor implements Extractor {
   @Override
   public void init(ExtractorOutput output) {
     extractorOutput = output;
-    trackOutput = output.track(0);
-    extractorOutput.endTracks();
   }
 
   @Override
@@ -199,6 +199,8 @@ public final class WebmExtractor implements Extractor {
       case ID_TIME_CODE:
       case ID_PIXEL_WIDTH:
       case ID_PIXEL_HEIGHT:
+      case ID_TRACK_NUMBER:
+      case ID_TRACK_TYPE:
       case ID_CODEC_DELAY:
       case ID_SEEK_PRE_ROLL:
       case ID_CHANNELS:
@@ -240,11 +242,17 @@ public final class WebmExtractor implements Extractor {
         cueTimesUs = new LongArray();
         cueClusterPositions = new LongArray();
         return;
+      case ID_CUE_POINT:
+        seenClusterPositionForCurrentCuePoint = false;
+        return;
       case ID_CONTENT_ENCODING:
         // TODO: check and fail if more than one content encoding is present.
         return;
       case ID_CONTENT_ENCRYPTION:
-        hasContentEncryption = true;
+        trackFormat.hasContentEncryption = true;
+        return;
+      case ID_TRACK_ENTRY:
+        trackFormat = new TrackFormat();
         return;
       default:
         return;
@@ -257,21 +265,47 @@ public final class WebmExtractor implements Extractor {
         extractorOutput.seekMap(buildCues());
         return;
       case ID_CONTENT_ENCODING:
-        if (!hasContentEncryption) {
+        if (!trackFormat.hasContentEncryption) {
           // We found a ContentEncoding other than Encryption.
           throw new ParserException("Found an unsupported ContentEncoding");
         }
-        if (encryptionKeyId == null) {
+        if (trackFormat.encryptionKeyId == null) {
           throw new ParserException("Encrypted Track found but ContentEncKeyID was not found");
         }
-        extractorOutput.drmInitData(
-            new DrmInitData.Universal(MimeTypes.VIDEO_WEBM, encryptionKeyId));
-        return;
-      case ID_AUDIO:
-        isAudioTrack = true;
+        if (!sentDrmInitData) {
+          extractorOutput.drmInitData(
+              new DrmInitData.Universal(MimeTypes.VIDEO_WEBM, trackFormat.encryptionKeyId));
+          sentDrmInitData = true;
+        }
         return;
       case ID_TRACK_ENTRY:
-        trackOutput.format(isAudioTrack ? buildAudioFormat() : buildVideoFormat());
+        if (trackFormat.number == UNKNOWN || trackFormat.type == UNKNOWN) {
+          throw new ParserException("Mandatory element TrackNumber or TrackType not found");
+        }
+        if ((trackFormat.type == TRACK_TYPE_AUDIO && audioTrackFormat != null)
+            || (trackFormat.type == TRACK_TYPE_VIDEO && videoTrackFormat != null)) {
+          // There is more than 1 audio/video track. Ignore everything but the first.
+          trackFormat = null;
+          return;
+        }
+        if (trackFormat.type == TRACK_TYPE_AUDIO && isCodecSupported(trackFormat.codecId)) {
+          audioTrackFormat = trackFormat;
+          audioTrackFormat.trackOutput = extractorOutput.track(audioTrackFormat.number);
+          audioTrackFormat.trackOutput.format(buildAudioFormat());
+        } else if (trackFormat.type == TRACK_TYPE_VIDEO && isCodecSupported(trackFormat.codecId)) {
+          videoTrackFormat = trackFormat;
+          videoTrackFormat.trackOutput = extractorOutput.track(videoTrackFormat.number);
+          videoTrackFormat.trackOutput.format(buildVideoFormat());
+        } else {
+          // Unsupported track type. Do nothing.
+        }
+        trackFormat = null;
+        return;
+      case ID_TRACKS:
+        if (videoTrackFormat == null && audioTrackFormat == null) {
+          throw new ParserException("No valid tracks were found");
+        }
+        extractorOutput.endTracks();
         return;
       default:
         return;
@@ -296,19 +330,25 @@ public final class WebmExtractor implements Extractor {
         timecodeScale = value;
         return;
       case ID_PIXEL_WIDTH:
-        pixelWidth = (int) value;
+        trackFormat.pixelWidth = (int) value;
         return;
       case ID_PIXEL_HEIGHT:
-        pixelHeight = (int) value;
+        trackFormat.pixelHeight = (int) value;
+        return;
+      case ID_TRACK_NUMBER:
+        trackFormat.number = (int) value;
+        return;
+      case ID_TRACK_TYPE:
+        trackFormat.type = (int) value;
         return;
       case ID_CODEC_DELAY:
-        codecDelayNs = value;
+        trackFormat.codecDelayNs = value;
         return;
       case ID_SEEK_PRE_ROLL:
-        seekPreRollNs = value;
+        trackFormat.seekPreRollNs = value;
         return;
       case ID_CHANNELS:
-        channelCount = (int) value;
+        trackFormat.channelCount = (int) value;
         return;
       case ID_CONTENT_ENCODING_ORDER:
         // This extractor only supports one ContentEncoding element and hence the order has to be 0.
@@ -345,7 +385,13 @@ public final class WebmExtractor implements Extractor {
         cueTimesUs.add(scaleTimecodeToUs(value));
         return;
       case ID_CUE_CLUSTER_POSITION:
-        cueClusterPositions.add(value);
+        if (!seenClusterPositionForCurrentCuePoint) {
+          // If there's more than one video/audio track, then there could be more than one
+          // CueTrackPositions within a single CuePoint. In such a case, ignore all but the first
+          // one (since the cluster position will be quite close for all the tracks).
+          cueClusterPositions.add(value);
+          seenClusterPositionForCurrentCuePoint = true;
+        }
         return;
       case ID_TIME_CODE:
         clusterTimecodeUs = scaleTimecodeToUs(value);
@@ -361,7 +407,7 @@ public final class WebmExtractor implements Extractor {
         durationUs = scaleTimecodeToUs((long) value);
         return;
       case ID_SAMPLING_FREQUENCY:
-        sampleRate = (int) value;
+        trackFormat.sampleRate = (int) value;
         return;
       default:
         return;
@@ -377,11 +423,7 @@ public final class WebmExtractor implements Extractor {
         }
         return;
       case ID_CODEC_ID:
-        // Validate that CodecID is supported.
-        if (!isCodecSupported(value)) {
-          throw new ParserException("CodecID " + value + " not supported");
-        }
-        codecId = value;
+        trackFormat.codecId = value;
         return;
       default:
         return;
@@ -392,12 +434,12 @@ public final class WebmExtractor implements Extractor {
       throws IOException, InterruptedException {
     switch (id) {
       case ID_CODEC_PRIVATE:
-        codecPrivate = new byte[contentSize];
-        input.readFully(codecPrivate, 0, contentSize);
+        trackFormat.codecPrivate = new byte[contentSize];
+        input.readFully(trackFormat.codecPrivate, 0, contentSize);
         return;
       case ID_CONTENT_ENCRYPTION_KEY_ID:
-        encryptionKeyId = new byte[contentSize];
-        input.readFully(encryptionKeyId, 0, contentSize);
+        trackFormat.encryptionKeyId = new byte[contentSize];
+        input.readFully(trackFormat.encryptionKeyId, 0, contentSize);
         return;
       case ID_SIMPLE_BLOCK:
       case ID_BLOCK:
@@ -407,16 +449,33 @@ public final class WebmExtractor implements Extractor {
         // differ only in the way flags are specified.
 
         if (sampleState == SAMPLE_STATE_START) {
-          // Value of trackNumber is not used but needs to be read.
-          varintReader.readUnsignedVarint(input, false, false);
+          sampleTrackNumber = (int) varintReader.readUnsignedVarint(input, false, true);
           blockBytesRead = varintReader.getLastLength();
           sampleState = SAMPLE_STATE_HEADER;
         }
 
+        // Ignore the frame if the track number equals neither the audio track nor the video track.
+        if ((audioTrackFormat != null && videoTrackFormat != null
+                && audioTrackFormat.number != sampleTrackNumber
+                && videoTrackFormat.number != sampleTrackNumber)
+            || (audioTrackFormat != null && videoTrackFormat == null
+                && audioTrackFormat.number != sampleTrackNumber)
+            || (audioTrackFormat == null && videoTrackFormat != null
+                && videoTrackFormat.number != sampleTrackNumber)) {
+          input.skipFully(contentSize - blockBytesRead);
+          sampleState = SAMPLE_STATE_START;
+          return;
+        }
+
+        TrackFormat sampleTrackFormat =
+            (audioTrackFormat != null && sampleTrackNumber == audioTrackFormat.number)
+                ? audioTrackFormat : videoTrackFormat;
+        TrackOutput trackOutput = sampleTrackFormat.trackOutput;
+
         if (sampleState == SAMPLE_STATE_HEADER) {
           byte[] sampleHeaderScratchData = sampleHeaderScratch.data;
           // Next 3 bytes have timecode and flags. If encrypted, the 4th byte is a signal byte.
-          int remainingHeaderLength = hasContentEncryption ? 4 : 3;
+          int remainingHeaderLength = sampleTrackFormat.hasContentEncryption ? 4 : 3;
           input.readFully(sampleHeaderScratchData, 0, remainingHeaderLength);
           blockBytesRead += remainingHeaderLength;
 
@@ -444,7 +503,7 @@ public final class WebmExtractor implements Extractor {
           boolean isEncrypted = false;
 
           // If encrypted, the fourth byte is an encryption signal byte.
-          if (hasContentEncryption) {
+          if (sampleTrackFormat.hasContentEncryption) {
             if ((sampleHeaderScratchData[3] & 0x80) == 0x80) {
               throw new ParserException("Extension bit is set in signal byte");
             }
@@ -469,7 +528,7 @@ public final class WebmExtractor implements Extractor {
           blockBytesRead += trackOutput.sampleData(input, contentSize - blockBytesRead);
         }
 
-        if (CODEC_ID_VORBIS.equals(codecId)) {
+        if (CODEC_ID_VORBIS.equals(sampleTrackFormat.codecId)) {
           // Vorbis decoder in android MediaCodec [1] expects the last 4 bytes of the sample to be
           // the number of samples in the current page. This definition holds good only for Ogg and
           // irrelevant for WebM. So we always set this to -1 (the decoder will ignore this value if
@@ -496,15 +555,15 @@ public final class WebmExtractor implements Extractor {
   }
 
   /**
-   * Builds an video {@link MediaFormat} containing recently gathered Audio information.
+   * Builds an video {@link MediaFormat} containing recently gathered Video information.
    *
    * @return The built {@link MediaFormat}.
    * @throws ParserException If the codec is unsupported.
    */
   private MediaFormat buildVideoFormat() throws ParserException {
-    if (CODEC_ID_VP9.equals(codecId)) {
+    if (videoTrackFormat != null && CODEC_ID_VP9.equals(videoTrackFormat.codecId)) {
       return MediaFormat.createVideoFormat(MimeTypes.VIDEO_VP9, MediaFormat.NO_VALUE, durationUs,
-          pixelWidth, pixelHeight, null);
+          videoTrackFormat.pixelWidth, videoTrackFormat.pixelHeight, null);
     } else {
       throw new ParserException("Unable to build format");
     }
@@ -517,16 +576,20 @@ public final class WebmExtractor implements Extractor {
    * @throws ParserException If the codec is unsupported.
    */
   private MediaFormat buildAudioFormat() throws ParserException {
-    if (CODEC_ID_VORBIS.equals(codecId)) {
+    if (audioTrackFormat != null && CODEC_ID_VORBIS.equals(audioTrackFormat.codecId)) {
       return MediaFormat.createAudioFormat(MimeTypes.AUDIO_VORBIS, VORBIS_MAX_INPUT_SIZE,
-          durationUs, channelCount, sampleRate, parseVorbisCodecPrivate());
-    } else if (CODEC_ID_OPUS.equals(codecId)) {
+          durationUs, audioTrackFormat.channelCount, audioTrackFormat.sampleRate,
+          parseVorbisCodecPrivate());
+    } else if (audioTrackFormat != null && CODEC_ID_OPUS.equals(audioTrackFormat.codecId)) {
       ArrayList<byte[]> opusInitializationData = new ArrayList<byte[]>(3);
-      opusInitializationData.add(codecPrivate);
-      opusInitializationData.add(ByteBuffer.allocate(Long.SIZE).putLong(codecDelayNs).array());
-      opusInitializationData.add(ByteBuffer.allocate(Long.SIZE).putLong(seekPreRollNs).array());
+      opusInitializationData.add(audioTrackFormat.codecPrivate);
+      opusInitializationData.add(
+          ByteBuffer.allocate(Long.SIZE).putLong(audioTrackFormat.codecDelayNs).array());
+      opusInitializationData.add(
+          ByteBuffer.allocate(Long.SIZE).putLong(audioTrackFormat.seekPreRollNs).array());
       return MediaFormat.createAudioFormat(MimeTypes.AUDIO_OPUS, OPUS_MAX_INPUT_SIZE,
-          durationUs, channelCount, sampleRate, opusInitializationData);
+          durationUs, audioTrackFormat.channelCount, audioTrackFormat.sampleRate,
+          opusInitializationData);
     } else {
       throw new ParserException("Unable to build format");
     }
@@ -576,6 +639,7 @@ public final class WebmExtractor implements Extractor {
    */
   private ArrayList<byte[]> parseVorbisCodecPrivate() throws ParserException {
     try {
+      byte[] codecPrivate = audioTrackFormat.codecPrivate;
       if (codecPrivate[0] != 0x02) {
         throw new ParserException("Error parsing vorbis codec private");
       }
@@ -669,6 +733,30 @@ public final class WebmExtractor implements Extractor {
         throws IOException, InterruptedException {
       WebmExtractor.this.binaryElement(id, contentsSize, input);
     }
+
+  }
+
+  private static final class TrackFormat {
+
+    // Common track elements.
+    public String codecId;
+    public int number = UNKNOWN;
+    public int type = UNKNOWN;
+    public boolean hasContentEncryption;
+    public byte[] encryptionKeyId;
+
+    // Video track related elements.
+    public int pixelWidth = UNKNOWN;
+    public int pixelHeight = UNKNOWN;
+
+    // Audio track related elements.
+    public int channelCount = UNKNOWN;
+    public int sampleRate = UNKNOWN;
+    public byte[] codecPrivate;
+    public long codecDelayNs = UNKNOWN;
+    public long seekPreRollNs = UNKNOWN;
+
+    public TrackOutput trackOutput;
 
   }
 
