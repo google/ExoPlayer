@@ -30,7 +30,7 @@ import com.google.android.exoplayer.text.eia608.Eia608TrackRenderer;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer.upstream.UriDataSource;
+import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
 
@@ -79,7 +79,7 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
     Handler mainHandler = player.getMainHandler();
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 
-    DataSource dataSource = new UriDataSource(userAgent, bandwidthMeter);
+    DataSource dataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
     HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter, null,
         HlsChunkSource.ADAPTIVE_MODE_SPLICE);
     HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, true, 3, mainHandler, player,

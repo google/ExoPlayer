@@ -24,19 +24,19 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * A {@link Loadable} for loading an object over the network.
+ * A {@link Loadable} for loading an object from a URI.
  *
  * @param <T> The type of the object being loaded.
  */
-public final class NetworkLoadable<T> implements Loadable {
+public final class UriLoadable<T> implements Loadable {
 
   /**
-   * Parses an object from data loaded over the network.
+   * Parses an object from loaded data.
    */
   public interface Parser<T> {
 
     /**
-     * Parses an object from a network response.
+     * Parses an object from a response.
      *
      * @param connectionUrl The source of the response, after any redirection.
      * @param inputStream An {@link InputStream} from which the response data can be read.
@@ -49,7 +49,7 @@ public final class NetworkLoadable<T> implements Loadable {
   }
 
   private final DataSpec dataSpec;
-  private final HttpDataSource httpDataSource;
+  private final UriDataSource uriDataSource;
   private final Parser<T> parser;
 
   private volatile T result;
@@ -57,11 +57,11 @@ public final class NetworkLoadable<T> implements Loadable {
 
   /**
    * @param url The url from which the object should be loaded.
-   * @param httpDataSource A {@link HttpDataSource} to use when loading the data.
-   * @param parser Parses the object from the network response.
+   * @param uriDataSource A {@link UriDataSource} to use when loading the data.
+   * @param parser Parses the object from the response.
    */
-  public NetworkLoadable(String url, HttpDataSource httpDataSource, Parser<T> parser) {
-    this.httpDataSource = httpDataSource;
+  public UriLoadable(String url, UriDataSource uriDataSource, Parser<T> parser) {
+    this.uriDataSource = uriDataSource;
     this.parser = parser;
     dataSpec = new DataSpec(Uri.parse(url), DataSpec.FLAG_ALLOW_GZIP);
   }
@@ -87,10 +87,10 @@ public final class NetworkLoadable<T> implements Loadable {
 
   @Override
   public final void load() throws IOException, InterruptedException {
-    DataSourceInputStream inputStream = new DataSourceInputStream(httpDataSource, dataSpec);
+    DataSourceInputStream inputStream = new DataSourceInputStream(uriDataSource, dataSpec);
     try {
       inputStream.open();
-      result = parser.parse(httpDataSource.getUrl(), inputStream);
+      result = parser.parse(uriDataSource.getUri(), inputStream);
     } finally {
       inputStream.close();
     }

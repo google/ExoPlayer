@@ -112,7 +112,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
   }
 
   @Override
-  public String getUrl() {
+  public String getUri() {
     return connection == null ? null : connection.getURL().toString();
   }
 

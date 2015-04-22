@@ -18,7 +18,7 @@ package com.google.android.exoplayer.hls;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.hls.HlsMediaPlaylist.Segment;
-import com.google.android.exoplayer.upstream.NetworkLoadable;
+import com.google.android.exoplayer.upstream.UriLoadable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 /**
  * HLS playlists parsing logic.
  */
-public final class HlsPlaylistParser implements NetworkLoadable.Parser<HlsPlaylist> {
+public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> {
 
   private static final String VERSION_TAG = "#EXT-X-VERSION";
   private static final String STREAM_INF_TAG = "#EXT-X-STREAM-INF";

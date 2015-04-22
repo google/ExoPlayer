@@ -52,8 +52,8 @@ import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.upstream.HttpDataSource;
-import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -247,7 +247,7 @@ public class DashRendererBuilder implements RendererBuilder,
       debugRenderer = null;
     } else {
       int[] videoRepresentationIndices = Util.toArray(videoRepresentationIndexList);
-      DataSource videoDataSource = new UriDataSource(userAgent, bandwidthMeter);
+      DataSource videoDataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
       ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher, videoAdaptationSetIndex,
           videoRepresentationIndices, videoDataSource, new AdaptiveEvaluator(bandwidthMeter),
           LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset);
@@ -265,7 +265,7 @@ public class DashRendererBuilder implements RendererBuilder,
     List<String> audioTrackNameList = new ArrayList<String>();
     int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
     if (audioAdaptationSet != null) {
-      DataSource audioDataSource = new UriDataSource(userAgent, bandwidthMeter);
+      DataSource audioDataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
       FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
       List<Representation> audioRepresentations = audioAdaptationSet.representations;
       List<String> codecs = new ArrayList<String>();
@@ -321,7 +321,7 @@ public class DashRendererBuilder implements RendererBuilder,
     }
 
     // Build the text chunk sources.
-    DataSource textDataSource = new UriDataSource(userAgent, bandwidthMeter);
+    DataSource textDataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
     FormatEvaluator textEvaluator = new FormatEvaluator.FixedEvaluator();
     List<ChunkSource> textChunkSourceList = new ArrayList<ChunkSource>();
     List<String> textTrackNameList = new ArrayList<String>();

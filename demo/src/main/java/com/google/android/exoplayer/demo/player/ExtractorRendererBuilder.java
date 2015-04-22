@@ -23,7 +23,7 @@ import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilderCallba
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.upstream.DataSource;
-import com.google.android.exoplayer.upstream.UriDataSource;
+import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 
 import android.media.MediaCodec;
 import android.net.Uri;
@@ -52,7 +52,7 @@ public class ExtractorRendererBuilder implements RendererBuilder {
   @Override
   public void buildRenderers(DemoPlayer player, RendererBuilderCallback callback) {
     // Build the video and audio renderers.
-    DataSource dataSource = new UriDataSource(userAgent, null);
+    DataSource dataSource = new DefaultUriDataSource(userAgent, null);
     ExtractorSampleSource sampleSource = new ExtractorSampleSource(uri, dataSource, extractor, 2,
         BUFFER_SIZE);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,

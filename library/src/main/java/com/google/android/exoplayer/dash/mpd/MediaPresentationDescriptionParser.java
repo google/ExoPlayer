@@ -21,7 +21,7 @@ import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentList;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTemplate;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTimelineElement;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SingleSegmentBase;
-import com.google.android.exoplayer.upstream.NetworkLoadable;
+import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.UriUtil;
@@ -48,7 +48,7 @@ import java.util.regex.Pattern;
  * A parser of media presentation description files.
  */
 public class MediaPresentationDescriptionParser extends DefaultHandler
-    implements NetworkLoadable.Parser<MediaPresentationDescription> {
+    implements UriLoadable.Parser<MediaPresentationDescription> {
 
   private static final Pattern FRAME_RATE_PATTERN = Pattern.compile("(\\d+)(?:/(\\d+))??");
 

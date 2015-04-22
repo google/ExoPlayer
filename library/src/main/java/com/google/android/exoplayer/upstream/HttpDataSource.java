@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * An HTTP specific extension to {@link DataSource}.
  */
-public interface HttpDataSource extends DataSource {
+public interface HttpDataSource extends UriDataSource {
 
   /**
    * A {@link Predicate} that rejects content types often used for pay-walls.
@@ -122,15 +122,6 @@ public interface HttpDataSource extends DataSource {
 
   @Override
   int read(byte[] buffer, int offset, int readLength) throws HttpDataSourceException;
-
-  /**
-   * When the source is open, returns the url from which data is being read.
-   * <p>
-   * If redirection occurred, the url after redirection is the one returned.
-   *
-   * @return When the source is open, the url from which data is being read. Null otherwise.
-   */
-  String getUrl();
 
   /**
    * Sets the value of a request header field. The value will be used for subsequent connections

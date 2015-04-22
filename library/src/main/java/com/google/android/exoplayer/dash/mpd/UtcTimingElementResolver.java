@@ -16,10 +16,10 @@
 package com.google.android.exoplayer.dash.mpd;
 
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.upstream.HttpDataSource;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
-import com.google.android.exoplayer.upstream.NetworkLoadable;
+import com.google.android.exoplayer.upstream.UriDataSource;
+import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
@@ -64,34 +64,34 @@ public class UtcTimingElementResolver implements Loader.Callback {
     void onTimestampError(UtcTimingElement utcTiming, IOException e);
   }
 
-  private final HttpDataSource httpDataSource;
+  private final UriDataSource uriDataSource;
   private final UtcTimingElement timingElement;
   private final long timingElementElapsedRealtime;
   private final UtcTimingCallback callback;
 
   private Loader singleUseLoader;
-  private NetworkLoadable<Long> singleUseLoadable;
+  private UriLoadable<Long> singleUseLoadable;
 
   /**
    * Resolves a {@link UtcTimingElement}.
    *
-   * @param httpDataSource A source to use should network requests be necessary.
+   * @param uriDataSource A source to use should loading from a URI be necessary.
    * @param timingElement The element to resolve.
    * @param timingElementElapsedRealtime The {@link SystemClock#elapsedRealtime()} timestamp at
    *     which the element was obtained. Used if the element contains a timestamp directly.
    * @param callback The callback to invoke on resolution or failure.
    */
-  public static void resolveTimingElement(HttpDataSource httpDataSource,
+  public static void resolveTimingElement(UriDataSource uriDataSource,
       UtcTimingElement timingElement, long timingElementElapsedRealtime,
       UtcTimingCallback callback) {
-    UtcTimingElementResolver resolver = new UtcTimingElementResolver(httpDataSource, timingElement,
+    UtcTimingElementResolver resolver = new UtcTimingElementResolver(uriDataSource, timingElement,
         timingElementElapsedRealtime, callback);
     resolver.resolve();
   }
 
-  private UtcTimingElementResolver(HttpDataSource httpDataSource, UtcTimingElement timingElement,
+  private UtcTimingElementResolver(UriDataSource uriDataSource, UtcTimingElement timingElement,
       long timingElementElapsedRealtime, UtcTimingCallback callback) {
-    this.httpDataSource = httpDataSource;
+    this.uriDataSource = uriDataSource;
     this.timingElement = Assertions.checkNotNull(timingElement);
     this.timingElementElapsedRealtime = timingElementElapsedRealtime;
     this.callback = Assertions.checkNotNull(callback);
@@ -122,9 +122,9 @@ public class UtcTimingElementResolver implements Loader.Callback {
     }
   }
 
-  private void resolveHttp(NetworkLoadable.Parser<Long> parser) {
+  private void resolveHttp(UriLoadable.Parser<Long> parser) {
     singleUseLoader = new Loader("utctiming");
-    singleUseLoadable = new NetworkLoadable<Long>(timingElement.value, httpDataSource, parser);
+    singleUseLoadable = new UriLoadable<Long>(timingElement.value, uriDataSource, parser);
     singleUseLoader.startLoading(singleUseLoadable, this);
   }
 
@@ -150,7 +150,7 @@ public class UtcTimingElementResolver implements Loader.Callback {
     singleUseLoader.release();
   }
 
-  private static class XsDateTimeParser implements NetworkLoadable.Parser<Long> {
+  private static class XsDateTimeParser implements UriLoadable.Parser<Long> {
 
     @Override
     public Long parse(String connectionUrl, InputStream inputStream) throws ParserException,
@@ -165,7 +165,7 @@ public class UtcTimingElementResolver implements Loader.Callback {
 
   }
 
-  private static class Iso8601Parser implements NetworkLoadable.Parser<Long> {
+  private static class Iso8601Parser implements UriLoadable.Parser<Long> {
 
     @Override
     public Long parse(String connectionUrl, InputStream inputStream) throws ParserException,

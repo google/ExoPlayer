@@ -19,7 +19,7 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
-import com.google.android.exoplayer.upstream.NetworkLoadable;
+import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -44,8 +44,7 @@ import java.util.UUID;
  * @see <a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">
  * IIS Smooth Streaming Client Manifest Format</a>
  */
-public class SmoothStreamingManifestParser implements
-    NetworkLoadable.Parser<SmoothStreamingManifest> {
+public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothStreamingManifest> {
 
   private final XmlPullParserFactory xmlParserFactory;
 
