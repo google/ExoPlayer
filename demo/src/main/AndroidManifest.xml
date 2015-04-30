@@ -33,13 +33,23 @@
       android:largeHeap="true"
       android:allowBackup="false">
 
-    <activity android:name="com.google.android.exoplayer.demo.SampleChooserActivity"
+    <activity android:name="com.google.android.exoplayer.demo.ChooserActivity"
         android:configChanges="keyboardHidden"
         android:label="@string/application_name">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
+    </activity>
+
+    <activity android:name="com.google.android.exoplayer.demo.LocalActivity"
+        android:configChanges="keyboardHidden"
+        android:label="@string/application_name">
+    </activity>
+
+    <activity android:name="com.google.android.exoplayer.demo.SampleChooserActivity"
+        android:configChanges="keyboardHidden"
+        android:label="@string/application_name">
     </activity>
 
     <activity android:name="com.google.android.exoplayer.demo.PlayerActivity"

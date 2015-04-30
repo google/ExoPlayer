@@ -47,4 +47,8 @@
 
   <string name="failed">Playback failed</string>
 
+  <string name="local">Local Playback</string>
+
+  <string name="streaming">Streaming Playback</string>
+
 </resources>

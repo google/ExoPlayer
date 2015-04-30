@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<Button android:id = "@+id/local"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/local"
+    android:textColor="#FDF5E6"
+    android:textSize="16sp"/>
+<Button android:id = "@+id/stream"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/streaming"
+    android:textColor="#FDF5E6"
+    android:textSize="16sp"/>
+</LinearLayout>
