@@ -222,10 +222,10 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
     switch (contentType) {
       case DemoUtil.TYPE_SS:
-        return new SmoothStreamingRendererBuilder(userAgent, contentUri.toString(),
+        return new SmoothStreamingRendererBuilder(this, userAgent, contentUri.toString(),
             new SmoothStreamingTestMediaDrmCallback(), debugTextView);
       case DemoUtil.TYPE_DASH:
-        return new DashRendererBuilder(userAgent, contentUri.toString(),
+        return new DashRendererBuilder(this, userAgent, contentUri.toString(),
             new WidevineTestMediaDrmCallback(contentId), debugTextView, audioCapabilities);
       case DemoUtil.TYPE_HLS:
         return new HlsRendererBuilder(userAgent, contentUri.toString(), debugTextView);

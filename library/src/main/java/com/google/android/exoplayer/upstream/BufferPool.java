@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.upstream;
 
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.Util;
 
 import java.util.Arrays;
 
@@ -64,7 +65,7 @@ public final class BufferPool implements Allocator {
 
   @Override
   public synchronized void trim(int targetSize) {
-    int targetBufferCount = (targetSize + bufferLength - 1) / bufferLength;
+    int targetBufferCount = Util.ceilDivide(targetSize, bufferLength);
     int targetRecycledBufferCount = Math.max(0, targetBufferCount - allocatedCount);
     if (targetRecycledBufferCount < recycledCount) {
       Arrays.fill(recycledBuffers, targetRecycledBufferCount, recycledCount, null);

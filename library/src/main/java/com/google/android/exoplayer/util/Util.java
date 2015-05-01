@@ -94,6 +94,25 @@ public final class Util {
   }
 
   /**
+   * Tests whether an {@code items} array contains an object equal to {@code item}, according to
+   * {@link Object#equals(Object)}.
+   * <p>
+   * If {@code item} is null then true is returned if and only if {@code items} contains null.
+   *
+   * @param items The array of items to search.
+   * @param item The item to search for.
+   * @return True if the array contains an object equal to the item being searched for.
+   */
+  public static boolean contains(Object[] items, Object item) {
+    for (int i = 0; i < items.length; i++) {
+      if (Util.areEqual(items[i], item)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Instantiates a new single threaded executor whose thread has the specified name.
    *
    * @param threadName The name of the thread.
@@ -157,6 +176,28 @@ public final class Util {
    */
   public static String toLowerInvariant(String text) {
     return text == null ? null : text.toLowerCase(Locale.US);
+  }
+
+  /**
+   * Divides a {@code numerator} by a {@code denominator}, returning the ceiled result.
+   *
+   * @param numerator The numerator to divide.
+   * @param denominator The denominator to divide by.
+   * @return The ceiled result of the division.
+   */
+  public static int ceilDivide(int numerator, int denominator) {
+    return (numerator + denominator - 1) / denominator;
+  }
+
+  /**
+   * Divides a {@code numerator} by a {@code denominator}, returning the ceiled result.
+   *
+   * @param numerator The numerator to divide.
+   * @param denominator The denominator to divide by.
+   * @return The ceiled result of the division.
+   */
+  public static long ceilDivide(long numerator, long denominator) {
+    return (numerator + denominator - 1) / denominator;
   }
 
   /**

@@ -18,15 +18,16 @@ package com.google.android.exoplayer.demo.player;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
-import com.google.android.exoplayer.MediaCodecUtil;
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSource;
+import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
+import com.google.android.exoplayer.chunk.VideoFormatSelectorUtil;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilderCallback;
 import com.google.android.exoplayer.drm.DrmSessionManager;
@@ -48,13 +49,13 @@ import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.media.MediaCodec;
 import android.media.UnsupportedSchemeException;
 import android.os.Handler;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.UUID;
 
 /**
@@ -69,6 +70,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
   private static final int TEXT_BUFFER_SEGMENTS = 2;
   private static final int LIVE_EDGE_LATENCY_MS = 30000;
 
+  private final Context context;
   private final String userAgent;
   private final String url;
   private final MediaDrmCallback drmCallback;
@@ -78,8 +80,9 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
   private RendererBuilderCallback callback;
   private ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
 
-  public SmoothStreamingRendererBuilder(String userAgent, String url, MediaDrmCallback drmCallback,
-      TextView debugTextView) {
+  public SmoothStreamingRendererBuilder(Context context, String userAgent, String url,
+      MediaDrmCallback drmCallback, TextView debugTextView) {
+    this.context = context;
     this.userAgent = userAgent;
     this.url = url;
     this.drmCallback = drmCallback;
@@ -125,17 +128,9 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     }
 
     // Obtain stream elements for playback.
-    int maxDecodableFrameSize;
-    try {
-      maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
-    } catch (DecoderQueryException e) {
-      callback.onRenderersError(e);
-      return;
-    }
     int audioStreamElementCount = 0;
     int textStreamElementCount = 0;
     int videoStreamElementIndex = -1;
-    ArrayList<Integer> videoTrackIndexList = new ArrayList<Integer>();
     for (int i = 0; i < manifest.streamElements.length; i++) {
       if (manifest.streamElements[i].type == StreamElement.TYPE_AUDIO) {
         audioStreamElementCount++;
@@ -144,26 +139,29 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
       } else if (videoStreamElementIndex == -1
           && manifest.streamElements[i].type == StreamElement.TYPE_VIDEO) {
         videoStreamElementIndex = i;
-        StreamElement streamElement = manifest.streamElements[i];
-        for (int j = 0; j < streamElement.tracks.length; j++) {
-          TrackElement trackElement = streamElement.tracks[j];
-          if (trackElement.maxWidth * trackElement.maxHeight <= maxDecodableFrameSize) {
-            videoTrackIndexList.add(j);
-          } else {
-            // The device isn't capable of playing this stream.
-          }
-        }
+      }
+    }
+
+    // Determine which video tracks we should use for playback.
+    int[] videoTrackIndices = null;
+    if (videoStreamElementIndex != -1) {
+      Format[] formats = getFormats(manifest.streamElements[videoStreamElementIndex].tracks);
+      try {
+        videoTrackIndices = VideoFormatSelectorUtil.selectVideoFormatsForDefaultDisplay(context,
+            formats, null, false);
+      } catch (DecoderQueryException e) {
+        callback.onRenderersError(e);
+        return;
       }
     }
 
     // Build the video renderer.
     final MediaCodecVideoTrackRenderer videoRenderer;
     final TrackRenderer debugRenderer;
-    if (videoTrackIndexList.isEmpty()) {
+    if (videoTrackIndices == null || videoTrackIndices.length == 0) {
       videoRenderer = null;
       debugRenderer = null;
     } else {
-      int[] videoTrackIndices = Util.toArray(videoTrackIndexList);
       DataSource videoDataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
       ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
           videoStreamElementIndex, videoTrackIndices, videoDataSource,
@@ -254,6 +252,17 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     renderers[DemoPlayer.TYPE_TEXT] = textRenderer;
     renderers[DemoPlayer.TYPE_DEBUG] = debugRenderer;
     callback.onRenderers(trackNames, multiTrackChunkSources, renderers);
+  }
+
+  private static Format[] getFormats(TrackElement[] trackElements) {
+    Format[] formats = new Format[trackElements.length];
+    for (int i = 0; i < formats.length; i++) {
+      TrackElement trackElement = trackElements[i];
+      formats[i] = new Format(String.valueOf(i), trackElement.mimeType, trackElement.maxWidth,
+          trackElement.maxHeight, -1, trackElement.numChannels, trackElement.sampleRate,
+          trackElement.bitrate);
+    }
+    return formats;
   }
 
   @TargetApi(18)
