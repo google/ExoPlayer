@@ -180,7 +180,13 @@ import java.util.List;
     return 0x00FFFFFF & fullAtomInt;
   }
 
-  private static String getAtomTypeString(int type) {
+  /**
+   * Converts a numeric atom type to the corresponding four character string.
+   *
+   * @param type The numeric atom type.
+   * @return The corresponding four character string.
+   */
+  public static String getAtomTypeString(int type) {
     return "" + (char) (type >> 24)
         + (char) ((type >> 16) & 0xFF)
         + (char) ((type >> 8) & 0xFF)
