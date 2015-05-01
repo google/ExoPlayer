@@ -233,7 +233,7 @@ import java.util.List;
       return true;
     } catch (RuntimeException e) {
       Log.e(TAG, "Internal runtime error.", e);
-      eventHandler.obtainMessage(MSG_ERROR, new ExoPlaybackException(e)).sendToTarget();
+      eventHandler.obtainMessage(MSG_ERROR, new ExoPlaybackException(e, true)).sendToTarget();
       stopInternal();
       return true;
     }
