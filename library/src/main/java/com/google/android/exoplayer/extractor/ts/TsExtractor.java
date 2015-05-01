@@ -25,6 +25,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 
 import java.io.IOException;
 
@@ -49,7 +50,7 @@ public final class TsExtractor implements Extractor {
   private static final long MAX_PTS = 0x1FFFFFFFFL;
 
   private final ParsableByteArray tsPacketBuffer;
-  private final SparseArray<ElementaryStreamReader> streamReaders; // Indexed by streamType
+  private final SparseBooleanArray streamTypes;
   private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
   private final long firstSampleTimestampUs;
   private final ParsableBitArray tsScratch;
@@ -67,7 +68,7 @@ public final class TsExtractor implements Extractor {
     this.firstSampleTimestampUs = firstSampleTimestampUs;
     tsScratch = new ParsableBitArray(new byte[3]);
     tsPacketBuffer = new ParsableByteArray(TS_PACKET_SIZE);
-    streamReaders = new SparseArray<ElementaryStreamReader>();
+    streamTypes = new SparseBooleanArray();
     tsPayloadReaders = new SparseArray<TsPayloadReader>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
     lastPts = Long.MIN_VALUE;
@@ -255,7 +256,7 @@ public final class TsExtractor implements Extractor {
         data.skipBytes(esInfoLength);
         entriesSize -= esInfoLength + 5;
 
-        if (streamReaders.get(streamType) != null) {
+        if (streamTypes.get(streamType)) {
           continue;
         }
 
@@ -270,7 +271,6 @@ public final class TsExtractor implements Extractor {
             break;
           case TS_STREAM_TYPE_H264:
             SeiReader seiReader = new SeiReader(output.track(TS_STREAM_TYPE_EIA608));
-            streamReaders.put(TS_STREAM_TYPE_EIA608, seiReader);
             pesPayloadReader = new H264Reader(output.track(TS_STREAM_TYPE_H264), seiReader);
             break;
           case TS_STREAM_TYPE_ID3:
@@ -279,7 +279,7 @@ public final class TsExtractor implements Extractor {
         }
 
         if (pesPayloadReader != null) {
-          streamReaders.put(streamType, pesPayloadReader);
+          streamTypes.put(streamType, true);
           tsPayloadReaders.put(elementaryPid, new PesReader(pesPayloadReader));
         }
       }
