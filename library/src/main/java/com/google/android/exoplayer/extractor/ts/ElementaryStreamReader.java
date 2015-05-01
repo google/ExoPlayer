@@ -33,6 +33,15 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   }
 
   /**
+   * Notifies the reader that a seek has occurred.
+   * <p>
+   * Following a call to this method, the data passed to the next invocation of
+   * {@link #consume(ParsableByteArray, long, boolean)} will not be a continuation of the data that
+   * was previously passed. Hence the reader should reset any internal state.
+   */
+  public abstract void seek();
+
+  /**
    * Consumes (possibly partial) payload data.
    *
    * @param data The payload data to consume.

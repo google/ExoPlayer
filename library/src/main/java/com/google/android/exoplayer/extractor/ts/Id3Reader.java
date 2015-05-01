@@ -25,13 +25,21 @@ import com.google.android.exoplayer.util.ParsableByteArray;
  */
 /* package */ class Id3Reader extends ElementaryStreamReader {
 
+  // State that should be reset on seek.
   private boolean writingSample;
+
+  // Per sample state that gets reset at the start of each sample.
   private long sampleTimeUs;
   private int sampleSize;
 
   public Id3Reader(TrackOutput output) {
     super(output);
     output.format(MediaFormat.createId3Format());
+  }
+
+  @Override
+  public void seek() {
+    writingSample = false;
   }
 
   @Override

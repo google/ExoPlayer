@@ -63,22 +63,26 @@ import java.util.List;
     2f
   };
 
+  // State that should not be reset on seek.
+  private boolean hasOutputFormat;
+
+  // State that should be reset on seek.
   private final SeiReader seiReader;
   private final boolean[] prefixFlags;
   private final NalUnitTargetBuffer sps;
   private final NalUnitTargetBuffer pps;
   private final NalUnitTargetBuffer sei;
-  private final ParsableByteArray seiWrapper;
-
-  private boolean hasOutputFormat;
-  private int scratchEscapeCount;
-  private int[] scratchEscapePositions;
-
   private boolean writingSample;
+  private long totalBytesWritten;
+
+  // Per sample state that gets reset at the start of each sample.
   private boolean isKeyframe;
   private long samplePosition;
   private long sampleTimeUs;
-  private long totalBytesWritten;
+
+  // Scratch variables to avoid allocations.
+  private final ParsableByteArray seiWrapper;
+  private int[] scratchEscapePositions;
 
   public H264Reader(TrackOutput output, SeiReader seiReader) {
     super(output);
@@ -89,6 +93,17 @@ import java.util.List;
     sei = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SEI, 128);
     seiWrapper = new ParsableByteArray();
     scratchEscapePositions = new int[10];
+  }
+
+  @Override
+  public void seek() {
+    seiReader.seek();
+    H264Util.clearPrefixFlags(prefixFlags);
+    sps.reset();
+    pps.reset();
+    sei.reset();
+    writingSample = false;
+    totalBytesWritten = 0;
   }
 
   @Override
@@ -128,9 +143,9 @@ import java.util.List;
               writingSample = false;
             }
             writingSample = true;
-            samplePosition = totalBytesWritten - bytesWrittenPastNalUnit;
-            sampleTimeUs = pesTimeUs;
             isKeyframe = false;
+            sampleTimeUs = pesTimeUs;
+            samplePosition = totalBytesWritten - bytesWrittenPastNalUnit;
           } else if (nalUnitType == NAL_UNIT_TYPE_IDR) {
             isKeyframe = true;
           }
@@ -317,7 +332,7 @@ import java.util.List;
    */
   private int unescapeStream(byte[] data, int limit) {
     int position = 0;
-    scratchEscapeCount = 0;
+    int scratchEscapeCount = 0;
     while (position < limit) {
       position = findNextUnescapeIndex(data, position, limit);
       if (position < limit) {
@@ -378,6 +393,17 @@ import java.util.List;
       nalData[3] = (byte) targetType;
     }
 
+    /**
+     * Resets the buffer, clearing any data that it holds.
+     */
+    public void reset() {
+      isFilling = false;
+      isCompleted = false;
+    }
+
+    /**
+     * True if the buffer currently holds a complete NAL unit of the target type.
+     */
     public boolean isCompleted() {
       return isCompleted;
     }

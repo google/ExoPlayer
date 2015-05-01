@@ -58,8 +58,8 @@ public class AdtsExtractor implements Extractor, SeekMap {
 
   @Override
   public void seek() {
-    adtsReader.seek();
     firstPacket = true;
+    adtsReader.seek();
   }
 
   @Override

@@ -135,6 +135,9 @@ import java.util.Locale;
     new Sample("Apple AAC 10s", "https://devimages.apple.com.edgekey.net/"
         + "streaming/examples/bipbop_4x3/gear0/fileSequence0.aac",
         DemoUtil.TYPE_AAC),
+    new Sample("Apple TS 10s", "https://devimages.apple.com.edgekey.net/streaming/examples/"
+        + "bipbop_4x3/gear1/fileSequence0.ts",
+        DemoUtil.TYPE_TS),
     new Sample("Big Buck Bunny (MP4 Video)",
         "http://redirector.c.youtube.com/videoplayback?id=604ed5ce52eda7ee&itag=22&source=youtube"
         + "&sparams=ip,ipbits,expire&ip=0.0.0.0&ipbits=0&expire=19000000000&signature="

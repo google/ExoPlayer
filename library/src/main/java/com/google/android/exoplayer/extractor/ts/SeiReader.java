@@ -35,6 +35,11 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   }
 
   @Override
+  public void seek() {
+    // Do nothing.
+  }
+
+  @Override
   public void consume(ParsableByteArray seiBuffer, long pesTimeUs, boolean startOfPacket) {
     // Skip the NAL prefix and type.
     seiBuffer.skipBytes(4);

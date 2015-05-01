@@ -145,6 +145,17 @@ public final class H264Util {
   }
 
   /**
+   * Clears prefix flags, as used by {@link #findNalUnit(byte[], int, int, boolean[])}.
+   *
+   * @param prefixFlags The flags to clear.
+   */
+  public static void clearPrefixFlags(boolean[] prefixFlags) {
+    prefixFlags[0] = false;
+    prefixFlags[1] = false;
+    prefixFlags[2] = false;
+  }
+
+  /**
    * Reads an unsigned integer into an integer. This method is suitable for use when it can be
    * assumed that the top bit will always be set to zero.
    *
@@ -160,17 +171,6 @@ public final class H264Util {
       throw new IllegalArgumentException("Top bit not zero: " + result);
     }
     return result;
-  }
-
-  /**
-   * Clears prefix flags, as used by {@link #findNalUnit(byte[], int, int, boolean[])}.
-   *
-   * @param prefixFlags The flags to clear.
-   */
-  private static void clearPrefixFlags(boolean[] prefixFlags) {
-    prefixFlags[0] = false;
-    prefixFlags[1] = false;
-    prefixFlags[2] = false;
   }
 
   private H264Util() {

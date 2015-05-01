@@ -58,6 +58,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
     state = STATE_FINDING_SYNC;
   }
 
+  @Override
   public void seek() {
     state = STATE_FINDING_SYNC;
     bytesRead = 0;

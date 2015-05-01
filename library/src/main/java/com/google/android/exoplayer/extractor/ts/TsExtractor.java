@@ -20,6 +20,7 @@ import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.PositionHolder;
+import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -32,7 +33,7 @@ import java.io.IOException;
 /**
  * Facilitates the extraction of data from the MPEG-2 TS container format.
  */
-public final class TsExtractor implements Extractor {
+public final class TsExtractor implements Extractor, SeekMap {
 
   private static final String TAG = "TsExtractor";
 
@@ -74,14 +75,21 @@ public final class TsExtractor implements Extractor {
     lastPts = Long.MIN_VALUE;
   }
 
+  // Extractor implementation.
+
   @Override
   public void init(ExtractorOutput output) {
     this.output = output;
+    output.seekMap(this);
   }
 
   @Override
   public void seek() {
-    throw new UnsupportedOperationException();
+    timestampOffsetUs = 0;
+    lastPts = Long.MIN_VALUE;
+    for (int i = 0; i < tsPayloadReaders.size(); i++) {
+      tsPayloadReaders.valueAt(i).seek();
+    }
   }
 
   @Override
@@ -125,6 +133,20 @@ public final class TsExtractor implements Extractor {
     return RESULT_CONTINUE;
   }
 
+  // SeekMap implementation.
+
+  @Override
+  public boolean isSeekable() {
+    return false;
+  }
+
+  @Override
+  public long getPosition(long timeUs) {
+    return 0;
+  }
+
+  // Internals.
+
   /**
    * Adjusts a PTS value to the corresponding time in microseconds, accounting for PTS wraparound.
    *
@@ -157,6 +179,22 @@ public final class TsExtractor implements Extractor {
    */
   private abstract static class TsPayloadReader {
 
+    /**
+     * Notifies the reader that a seek has occurred.
+     * <p>
+     * Following a call to this method, the data passed to the next invocation of
+     * {@link #consume(ParsableByteArray, boolean, ExtractorOutput)} will not be a continuation of
+     * the data that was previously passed. Hence the reader should reset any internal state.
+     */
+    public abstract void seek();
+
+    /**
+     * Consumes the payload of a TS packet.
+     *
+     * @param data The TS packet. The position will be set to the start of the payload.
+     * @param payloadUnitStartIndicator Whether payloadUnitStartIndicator was set on the TS packet.
+     * @param output The output to which parsed data should be written.
+     */
     public abstract void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
         ExtractorOutput output);
 
@@ -171,6 +209,11 @@ public final class TsExtractor implements Extractor {
 
     public PatReader() {
       patScratch = new ParsableBitArray(new byte[4]);
+    }
+
+    @Override
+    public void seek() {
+      // Do nothing.
     }
 
     @Override
@@ -211,6 +254,11 @@ public final class TsExtractor implements Extractor {
 
     public PmtReader() {
       pmtScratch = new ParsableBitArray(new byte[5]);
+    }
+
+    @Override
+    public void seek() {
+      // Do nothing.
     }
 
     @Override
@@ -311,15 +359,21 @@ public final class TsExtractor implements Extractor {
 
     private boolean ptsFlag;
     private int extendedHeaderLength;
-
     private int payloadSize;
-
     private long timeUs;
 
     public PesReader(ElementaryStreamReader pesPayloadReader) {
       this.pesPayloadReader = pesPayloadReader;
       pesScratch = new ParsableBitArray(new byte[HEADER_SIZE]);
       state = STATE_FINDING_HEADER;
+    }
+
+    @Override
+    public void seek() {
+      state = STATE_FINDING_HEADER;
+      bytesRead = 0;
+      bodyStarted = false;
+      pesPayloadReader.seek();
     }
 
     @Override
