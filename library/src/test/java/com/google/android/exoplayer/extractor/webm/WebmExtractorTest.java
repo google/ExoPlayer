@@ -852,7 +852,7 @@ public class WebmExtractorTest extends InstrumentationTestCase {
 
   }
 
-  /** Used by {@link #createTracksElementWithVideo} to create a Track header with Encryption. */
+  /** Used by {@link #createVideoTrackEntry} to create a Track header with Encryption. */
   private static final class ContentEncodingSettings {
 
     private final int order;
