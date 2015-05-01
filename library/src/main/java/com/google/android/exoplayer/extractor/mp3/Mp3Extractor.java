@@ -258,7 +258,7 @@ public final class Mp3Extractor implements Extractor {
       trackOutput.format(MediaFormat.createAudioFormat(
           MIME_TYPE_BY_LAYER[synchronizedHeader.layerIndex], MAX_FRAME_SIZE_BYTES,
           seeker.getDurationUs(), synchronizedHeader.channels, synchronizedHeader.sampleRate,
-          synchronizedHeader.bitrate * 1000, Collections.<byte[]>emptyList()));
+          Collections.<byte[]>emptyList()));
     }
 
     return headerPosition;

@@ -498,7 +498,6 @@ import java.util.List;
     int sampleSize = parent.readUnsignedShort();
     parent.skipBytes(4);
     int sampleRate = parent.readUnsignedFixedPoint1616();
-    int bitrate = MediaFormat.NO_VALUE;
 
     byte[] initializationData = null;
     int childPosition = parent.getPosition();
@@ -536,7 +535,7 @@ import java.util.List;
     }
 
     out.mediaFormat = MediaFormat.createAudioFormat(
-        MimeTypes.AUDIO_AAC, sampleSize, durationUs, channelCount, sampleRate, bitrate,
+        MimeTypes.AUDIO_AAC, sampleSize, durationUs, channelCount, sampleRate,
         initializationData == null ? null : Collections.singletonList(initializationData));
   }
 
