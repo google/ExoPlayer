@@ -29,7 +29,6 @@ import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
 import com.google.android.exoplayer.text.eia608.Eia608TrackRenderer;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
@@ -45,6 +44,9 @@ import java.util.Map;
  * A {@link RendererBuilder} for HLS.
  */
 public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<HlsPlaylist> {
+
+  private static final int REQUESTED_BUFFER_SIZE = 18 * 1024 * 1024;
+  private static final long REQUESTED_BUFFER_DURATION_MS = 40000;
 
   private final String userAgent;
   private final String url;
@@ -65,7 +67,7 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
     this.callback = callback;
     HlsPlaylistParser parser = new HlsPlaylistParser();
     ManifestFetcher<HlsPlaylist> playlistFetcher =
-        new ManifestFetcher<HlsPlaylist>(url, new DefaultHttpDataSource(userAgent, null), parser);
+        new ManifestFetcher<HlsPlaylist>(url, new DefaultUriDataSource(userAgent, null), parser);
     playlistFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 
@@ -82,8 +84,8 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
     DataSource dataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
     HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter, null,
         HlsChunkSource.ADAPTIVE_MODE_SPLICE);
-    HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, true, 3, mainHandler, player,
-        DemoPlayer.TYPE_VIDEO);
+    HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, true, 3, REQUESTED_BUFFER_SIZE,
+        REQUESTED_BUFFER_DURATION_MS, mainHandler, player, DemoPlayer.TYPE_VIDEO);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
         MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, mainHandler, player, 50);
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);

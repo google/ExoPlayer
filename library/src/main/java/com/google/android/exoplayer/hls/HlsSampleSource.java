@@ -25,6 +25,8 @@ import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.Format;
+import com.google.android.exoplayer.upstream.Allocator;
+import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
@@ -50,12 +52,16 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
+  private static final int BUFFER_FRAGMENT_LENGTH = 256 * 1024;
   private static final int NO_RESET_PENDING = -1;
 
   private final HlsChunkSource chunkSource;
   private final LinkedList<HlsExtractorWrapper> extractors;
+  private final Allocator allocator;
   private final boolean frameAccurateSeeking;
   private final int minLoadableRetryCount;
+  private final int requestedBufferSize;
+  private final long requestedBufferDurationUs;
 
   private final int eventSourceId;
   private final Handler eventHandler;
@@ -87,29 +93,35 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   private long currentLoadStartTimeMs;
 
   public HlsSampleSource(HlsChunkSource chunkSource, boolean frameAccurateSeeking,
-      int downstreamRendererCount) {
-    this(chunkSource, frameAccurateSeeking, downstreamRendererCount, null, null, 0);
+      int downstreamRendererCount, int requestedBufferSize, long requestedBufferDurationMs) {
+    this(chunkSource, frameAccurateSeeking, downstreamRendererCount, requestedBufferSize,
+        requestedBufferDurationMs, null, null, 0);
   }
 
   public HlsSampleSource(HlsChunkSource chunkSource, boolean frameAccurateSeeking,
-      int downstreamRendererCount, Handler eventHandler, EventListener eventListener,
-      int eventSourceId) {
-    this(chunkSource, frameAccurateSeeking, downstreamRendererCount, eventHandler, eventListener,
-        eventSourceId, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
+      int downstreamRendererCount, int requestedBufferSize, long requestedBufferDurationMs,
+      Handler eventHandler, EventListener eventListener, int eventSourceId) {
+    this(chunkSource, frameAccurateSeeking, downstreamRendererCount, requestedBufferSize,
+        requestedBufferDurationMs, eventHandler, eventListener, eventSourceId,
+        DEFAULT_MIN_LOADABLE_RETRY_COUNT);
   }
 
   public HlsSampleSource(HlsChunkSource chunkSource, boolean frameAccurateSeeking,
-      int downstreamRendererCount, Handler eventHandler, EventListener eventListener,
+      int downstreamRendererCount, int requestedBufferSize, long requestedBufferDurationMs,
+      Handler eventHandler, EventListener eventListener,
       int eventSourceId, int minLoadableRetryCount) {
     this.chunkSource = chunkSource;
     this.frameAccurateSeeking = frameAccurateSeeking;
     this.remainingReleaseCount = downstreamRendererCount;
+    this.requestedBufferSize = requestedBufferSize;
+    this.requestedBufferDurationUs = requestedBufferDurationMs * 1000;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
     this.pendingResetPositionUs = NO_RESET_PENDING;
     extractors = new LinkedList<HlsExtractorWrapper>();
+    allocator = new DefaultAllocator(BUFFER_FRAGMENT_LENGTH);
   }
 
   @Override
@@ -179,6 +191,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
         loader.cancelLoading();
       } else {
         clearState();
+        allocator.trim(0);
       }
     }
   }
@@ -342,6 +355,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       restartFrom(pendingResetPositionUs);
     } else {
       clearState();
+      allocator.trim(0);
     }
   }
 
@@ -451,6 +465,13 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       return;
     }
 
+    if (previousTsLoadable != null
+        && (previousTsLoadable.endTimeUs - downstreamPositionUs >= requestedBufferDurationUs
+        || allocator.getTotalBytesAllocated() >= requestedBufferSize)) {
+      // We already have the target amount of data or time buffered.
+      return;
+    }
+
     Chunk nextLoadable = chunkSource.getChunkOperation(previousTsLoadable,
         pendingResetPositionUs, downstreamPositionUs);
     if (nextLoadable == null) {
@@ -464,8 +485,10 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       if (isPendingReset()) {
         pendingResetPositionUs = NO_RESET_PENDING;
       }
-      if (extractors.isEmpty() || extractors.getLast() != tsChunk.extractorWrapper) {
-        extractors.addLast(tsChunk.extractorWrapper);
+      HlsExtractorWrapper extractorWrapper = tsChunk.extractorWrapper;
+      if (extractors.isEmpty() || extractors.getLast() != extractorWrapper) {
+        extractorWrapper.init(allocator);
+        extractors.addLast(extractorWrapper);
       }
       notifyLoadStarted(tsChunk.dataSpec.length, tsChunk.type, tsChunk.trigger, tsChunk.format,
           tsChunk.startTimeUs, tsChunk.endTimeUs);

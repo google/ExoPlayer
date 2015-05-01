@@ -25,7 +25,7 @@ import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
-import com.google.android.exoplayer.upstream.DefaultAllocator;
+import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.util.Assertions;
 
 import android.util.SparseArray;
@@ -41,10 +41,11 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   public final Format format;
   public final long startTimeUs;
 
-  private final DefaultAllocator allocator;
   private final Extractor extractor;
   private final SparseArray<DefaultTrackOutput> sampleQueues;
   private final boolean shouldSpliceIn;
+
+  private Allocator allocator;
 
   private volatile boolean tracksBuilt;
 
@@ -52,16 +53,24 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   private boolean prepared;
   private boolean spliceConfigured;
 
-  public HlsExtractorWrapper(int trigger, Format format, long startTimeUs,
-      DefaultAllocator allocator, Extractor extractor, boolean shouldSpliceIn) {
+  public HlsExtractorWrapper(int trigger, Format format, long startTimeUs, Extractor extractor,
+      boolean shouldSpliceIn) {
     this.trigger = trigger;
     this.format = format;
     this.startTimeUs = startTimeUs;
-    this.allocator = allocator;
     this.extractor = extractor;
     this.shouldSpliceIn = shouldSpliceIn;
     sampleQueues = new SparseArray<DefaultTrackOutput>();
     extractor.init(this);
+  }
+
+  /**
+   * Initializes the wrapper for use.
+   *
+   * @param allocator An allocator for obtaining allocations into which extracted data is written.
+   */
+  public void init(Allocator allocator) {
+    this.allocator = allocator;
   }
 
   /**

@@ -27,7 +27,6 @@ import com.google.android.exoplayer.extractor.ts.TsExtractor;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
-import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -96,16 +95,6 @@ public class HlsChunkSource {
   public static final int ADAPTIVE_MODE_ABRUPT = 3;
 
   /**
-   * The default target buffer size in bytes.
-   */
-  public static final int DEFAULT_TARGET_BUFFER_SIZE = 18 * 1024 * 1024;
-
-  /**
-   * The default target buffer duration in milliseconds.
-   */
-  public static final long DEFAULT_TARGET_BUFFER_DURATION_MS = 40000;
-
-  /**
    * The default minimum duration of media that needs to be buffered for a switch to a higher
    * quality variant to be considered.
    */
@@ -126,7 +115,6 @@ public class HlsChunkSource {
   private static final String AAC_FILE_EXTENSION = ".aac";
   private static final float BANDWIDTH_FRACTION = 0.8f;
 
-  private final DefaultAllocator bufferPool;
   private final DataSource dataSource;
   private final HlsPlaylistParser playlistParser;
   private final List<Variant> variants;
@@ -136,8 +124,6 @@ public class HlsChunkSource {
   private final String baseUri;
   private final int maxWidth;
   private final int maxHeight;
-  private final int targetBufferSize;
-  private final long targetBufferDurationUs;
   private final long minBufferDurationToSwitchUpUs;
   private final long maxBufferDurationToSwitchDownUs;
 
@@ -157,7 +143,6 @@ public class HlsChunkSource {
   public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
       BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode) {
     this(dataSource, playlistUrl, playlist, bandwidthMeter, variantIndices, adaptiveMode,
-        DEFAULT_TARGET_BUFFER_SIZE, DEFAULT_TARGET_BUFFER_DURATION_MS,
         DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS, DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS);
   }
 
@@ -171,10 +156,6 @@ public class HlsChunkSource {
    * @param adaptiveMode The mode for switching from one variant to another. One of
    *     {@link #ADAPTIVE_MODE_NONE}, {@link #ADAPTIVE_MODE_ABRUPT} and
    *     {@link #ADAPTIVE_MODE_SPLICE}.
-   * @param targetBufferSize The targeted buffer size in bytes. The buffer will not be filled more
-   *     than one chunk beyond this amount of data.
-   * @param targetBufferDurationMs The targeted duration of media to buffer ahead of the current
-   *     playback position. The buffer will not be filled more than one chunk beyond this position.
    * @param minBufferDurationToSwitchUpMs The minimum duration of media that needs to be buffered
    *     for a switch to a higher quality variant to be considered.
    * @param maxBufferDurationToSwitchDownMs The maximum duration of media that needs to be buffered
@@ -182,18 +163,14 @@ public class HlsChunkSource {
    */
   public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
       BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode,
-      int targetBufferSize, long targetBufferDurationMs, long minBufferDurationToSwitchUpMs,
-      long maxBufferDurationToSwitchDownMs) {
+      long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs) {
     this.dataSource = dataSource;
     this.bandwidthMeter = bandwidthMeter;
     this.adaptiveMode = adaptiveMode;
-    this.targetBufferSize = targetBufferSize;
-    targetBufferDurationUs = targetBufferDurationMs * 1000;
     minBufferDurationToSwitchUpUs = minBufferDurationToSwitchUpMs * 1000;
     maxBufferDurationToSwitchDownUs = maxBufferDurationToSwitchDownMs * 1000;
     baseUri = playlist.baseUri;
     playlistParser = new HlsPlaylistParser();
-    bufferPool = new DefaultAllocator(256 * 1024);
 
     if (playlist.type == HlsPlaylist.TYPE_MEDIA) {
       variants = Collections.singletonList(new Variant(playlistUrl, 0, null, -1, -1));
@@ -256,13 +233,6 @@ public class HlsChunkSource {
    */
   public Chunk getChunkOperation(TsChunk previousTsChunk, long seekPositionUs,
       long playbackPositionUs) {
-    if (previousTsChunk != null && (previousTsChunk.isLastChunk
-        || previousTsChunk.endTimeUs - playbackPositionUs >= targetBufferDurationUs)
-        || bufferPool.getTotalBytesAllocated() >= targetBufferSize) {
-      // We're either finished, or we have the target amount of data or time buffered.
-      return null;
-    }
-
     int nextFormatIndex;
     boolean switchingVariant;
     boolean switchingVariantSpliced;
@@ -364,8 +334,8 @@ public class HlsChunkSource {
       Extractor extractor = chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)
           ? new AdtsExtractor(startTimeUs)
           : new TsExtractor(startTimeUs);
-      extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, bufferPool,
-          extractor, switchingVariantSpliced);
+      extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
+          switchingVariantSpliced);
     } else {
       extractorWrapper = previousTsChunk.extractorWrapper;
     }
