@@ -40,8 +40,8 @@ import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.Trac
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifestParser;
 import com.google.android.exoplayer.text.TextTrackRenderer;
 import com.google.android.exoplayer.text.ttml.TtmlParser;
-import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
@@ -107,7 +107,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
   @Override
   public void onSingleManifest(SmoothStreamingManifest manifest) {
     Handler mainHandler = player.getMainHandler();
-    LoadControl loadControl = new DefaultLoadControl(new BufferPool(BUFFER_SEGMENT_SIZE));
+    LoadControl loadControl = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter(mainHandler, player);
 
     // Check drm support if necessary.

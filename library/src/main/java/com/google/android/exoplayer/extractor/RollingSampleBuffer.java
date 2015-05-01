@@ -17,6 +17,7 @@ package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.upstream.Allocation;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.Assertions;
@@ -34,10 +35,10 @@ import java.util.concurrent.LinkedBlockingDeque;
   private static final int INITIAL_SCRATCH_SIZE = 32;
 
   private final Allocator allocator;
-  private final int fragmentLength;
+  private final int allocationLength;
 
   private final InfoQueue infoQueue;
-  private final LinkedBlockingDeque<byte[]> dataQueue;
+  private final LinkedBlockingDeque<Allocation> dataQueue;
   private final SampleExtrasHolder extrasHolder;
   private final ParsableByteArray scratch;
 
@@ -46,20 +47,20 @@ import java.util.concurrent.LinkedBlockingDeque;
 
   // Accessed only by the loading thread.
   private long totalBytesWritten;
-  private byte[] lastFragment;
-  private int lastFragmentOffset;
+  private Allocation lastAllocation;
+  private int lastAllocationOffset;
 
   /**
    * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
    */
   public RollingSampleBuffer(Allocator allocator) {
     this.allocator = allocator;
-    fragmentLength = allocator.getBufferLength();
+    allocationLength = allocator.getIndividualAllocationLength();
     infoQueue = new InfoQueue();
-    dataQueue = new LinkedBlockingDeque<byte[]>();
+    dataQueue = new LinkedBlockingDeque<Allocation>();
     extrasHolder = new SampleExtrasHolder();
     scratch = new ParsableByteArray(INITIAL_SCRATCH_SIZE);
-    lastFragmentOffset = fragmentLength;
+    lastAllocationOffset = allocationLength;
   }
 
   // Called by the consuming thread, but only when there is no loading thread.
@@ -70,12 +71,12 @@ import java.util.concurrent.LinkedBlockingDeque;
   public void clear() {
     infoQueue.clear();
     while (!dataQueue.isEmpty()) {
-      allocator.releaseBuffer(dataQueue.remove());
+      allocator.release(dataQueue.remove());
     }
     totalBytesDropped = 0;
     totalBytesWritten = 0;
-    lastFragment = null;
-    lastFragmentOffset = fragmentLength;
+    lastAllocation = null;
+    lastAllocationOffset = allocationLength;
   }
 
   /**
@@ -97,28 +98,28 @@ import java.util.concurrent.LinkedBlockingDeque;
 
   /**
    * Discards data from the write side of the buffer. Data is discarded from the specified absolute
-   * position. Any fragments that are fully discarded are returned to the allocator.
+   * position. Any allocations that are fully discarded are returned to the allocator.
    *
    * @param absolutePosition The absolute position (inclusive) from which to discard data.
    */
   private void dropUpstreamFrom(long absolutePosition) {
     int relativePosition = (int) (absolutePosition - totalBytesDropped);
-    // Calculate the index of the fragment containing the position, and the offset within it.
-    int fragmentIndex = relativePosition / fragmentLength;
-    int fragmentOffset = relativePosition % fragmentLength;
-    // We want to discard any fragments after the one at fragmentIndex.
-    int fragmentDiscardCount = dataQueue.size() - fragmentIndex - 1;
-    if (fragmentOffset == 0) {
-      // If the fragment at fragmentIndex is empty, we should discard that one too.
-      fragmentDiscardCount++;
+    // Calculate the index of the allocation containing the position, and the offset within it.
+    int allocationIndex = relativePosition / allocationLength;
+    int allocationOffset = relativePosition % allocationLength;
+    // We want to discard any allocations after the one at allocationIdnex.
+    int allocationDiscardCount = dataQueue.size() - allocationIndex - 1;
+    if (allocationOffset == 0) {
+      // If the allocation at allocationIndex is empty, we should discard that one too.
+      allocationDiscardCount++;
     }
-    // Discard the fragments.
-    for (int i = 0; i < fragmentDiscardCount; i++) {
-      allocator.releaseBuffer(dataQueue.removeLast());
+    // Discard the allocations.
+    for (int i = 0; i < allocationDiscardCount; i++) {
+      allocator.release(dataQueue.removeLast());
     }
-    // Update lastFragment and lastFragmentOffset to reflect the new position.
-    lastFragment = dataQueue.peekLast();
-    lastFragmentOffset = fragmentOffset == 0 ? fragmentLength : fragmentOffset;
+    // Update lastAllocation and lastAllocationOffset to reflect the new position.
+    lastAllocation = dataQueue.peekLast();
+    lastAllocationOffset = allocationOffset == 0 ? allocationLength : allocationOffset;
   }
 
   // Called by the consuming thread.
@@ -279,9 +280,10 @@ import java.util.concurrent.LinkedBlockingDeque;
     int remaining = length;
     while (remaining > 0) {
       dropDownstreamTo(absolutePosition);
-      int positionInFragment = (int) (absolutePosition - totalBytesDropped);
-      int toCopy = Math.min(remaining, fragmentLength - positionInFragment);
-      target.put(dataQueue.peek(), positionInFragment, toCopy);
+      int positionInAllocation = (int) (absolutePosition - totalBytesDropped);
+      int toCopy = Math.min(remaining, allocationLength - positionInAllocation);
+      Allocation allocation = dataQueue.peek();
+      target.put(allocation.data, allocation.translateOffset(positionInAllocation), toCopy);
       absolutePosition += toCopy;
       remaining -= toCopy;
     }
@@ -299,26 +301,28 @@ import java.util.concurrent.LinkedBlockingDeque;
     int bytesRead = 0;
     while (bytesRead < length) {
       dropDownstreamTo(absolutePosition);
-      int positionInFragment = (int) (absolutePosition - totalBytesDropped);
-      int toCopy = Math.min(length - bytesRead, fragmentLength - positionInFragment);
-      System.arraycopy(dataQueue.peek(), positionInFragment, target, bytesRead, toCopy);
+      int positionInAllocation = (int) (absolutePosition - totalBytesDropped);
+      int toCopy = Math.min(length - bytesRead, allocationLength - positionInAllocation);
+      Allocation allocation = dataQueue.peek();
+      System.arraycopy(allocation.data, allocation.translateOffset(positionInAllocation), target,
+          bytesRead, toCopy);
       absolutePosition += toCopy;
       bytesRead += toCopy;
     }
   }
 
   /**
-   * Discard any fragments that hold data prior to the specified absolute position, returning
+   * Discard any allocations that hold data prior to the specified absolute position, returning
    * them to the allocator.
    *
-   * @param absolutePosition The absolute position up to which fragments can be discarded.
+   * @param absolutePosition The absolute position up to which allocations can be discarded.
    */
   private void dropDownstreamTo(long absolutePosition) {
     int relativePosition = (int) (absolutePosition - totalBytesDropped);
-    int fragmentIndex = relativePosition / fragmentLength;
-    for (int i = 0; i < fragmentIndex; i++) {
-      allocator.releaseBuffer(dataQueue.remove());
-      totalBytesDropped += fragmentLength;
+    int allocationIndex = relativePosition / allocationLength;
+    for (int i = 0; i < allocationIndex; i++) {
+      allocator.release(dataQueue.remove());
+      totalBytesDropped += allocationLength;
     }
   }
 
@@ -353,16 +357,17 @@ import java.util.concurrent.LinkedBlockingDeque;
    */
   public int appendData(DataSource dataSource, int length) throws IOException {
     ensureSpaceForWrite();
-    int remainingFragmentCapacity = fragmentLength - lastFragmentOffset;
-    length = length != C.LENGTH_UNBOUNDED ? Math.min(length, remainingFragmentCapacity)
-        : remainingFragmentCapacity;
+    int remainingAllocationCapacity = allocationLength - lastAllocationOffset;
+    length = length != C.LENGTH_UNBOUNDED ? Math.min(length, remainingAllocationCapacity)
+        : remainingAllocationCapacity;
 
-    int bytesRead = dataSource.read(lastFragment, lastFragmentOffset, length);
+    int bytesRead = dataSource.read(lastAllocation.data,
+        lastAllocation.translateOffset(lastAllocationOffset), length);
     if (bytesRead == C.RESULT_END_OF_INPUT) {
       return C.RESULT_END_OF_INPUT;
     }
 
-    lastFragmentOffset += bytesRead;
+    lastAllocationOffset += bytesRead;
     totalBytesWritten += bytesRead;
     return bytesRead;
   }
@@ -377,9 +382,10 @@ import java.util.concurrent.LinkedBlockingDeque;
    */
   public int appendData(ExtractorInput input, int length) throws IOException, InterruptedException {
     ensureSpaceForWrite();
-    int thisWriteLength = Math.min(length, fragmentLength - lastFragmentOffset);
-    input.readFully(lastFragment, lastFragmentOffset, thisWriteLength);
-    lastFragmentOffset += thisWriteLength;
+    int thisWriteLength = Math.min(length, allocationLength - lastAllocationOffset);
+    input.readFully(lastAllocation.data, lastAllocation.translateOffset(lastAllocationOffset),
+        thisWriteLength);
+    lastAllocationOffset += thisWriteLength;
     totalBytesWritten += thisWriteLength;
     return thisWriteLength;
   }
@@ -394,9 +400,10 @@ import java.util.concurrent.LinkedBlockingDeque;
     int remainingWriteLength = length;
     while (remainingWriteLength > 0) {
       ensureSpaceForWrite();
-      int thisWriteLength = Math.min(remainingWriteLength, fragmentLength - lastFragmentOffset);
-      buffer.readBytes(lastFragment, lastFragmentOffset, thisWriteLength);
-      lastFragmentOffset += thisWriteLength;
+      int thisWriteLength = Math.min(remainingWriteLength, allocationLength - lastAllocationOffset);
+      buffer.readBytes(lastAllocation.data, lastAllocation.translateOffset(lastAllocationOffset),
+          thisWriteLength);
+      lastAllocationOffset += thisWriteLength;
       remainingWriteLength -= thisWriteLength;
     }
     totalBytesWritten += length;
@@ -417,13 +424,13 @@ import java.util.concurrent.LinkedBlockingDeque;
   }
 
   /**
-   * Ensures at least one byte can be written, allocating a new fragment if necessary.
+   * Ensures at least one byte can be written, obtaining an additional allocation if necessary.
    */
   private void ensureSpaceForWrite() {
-    if (lastFragmentOffset == fragmentLength) {
-      lastFragmentOffset = 0;
-      lastFragment = allocator.allocateBuffer();
-      dataQueue.add(lastFragment);
+    if (lastAllocationOffset == allocationLength) {
+      lastAllocationOffset = 0;
+      lastAllocation = allocator.allocate();
+      dataQueue.add(lastAllocation);
     }
   }
 

@@ -24,9 +24,9 @@ import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.upstream.Allocator;
-import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
+import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
@@ -57,7 +57,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
   private static final int NO_RESET_PENDING = -1;
 
   private final Extractor extractor;
-  private final BufferPool bufferPool;
+  private final DefaultAllocator allocator;
   private final int requestedBufferSize;
   private final SparseArray<InternalTrackOutput> sampleQueues;
   private final int minLoadableRetryCount;
@@ -130,7 +130,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
     this.requestedBufferSize = requestedBufferSize;
     this.minLoadableRetryCount = minLoadableRetryCount;
     sampleQueues = new SparseArray<InternalTrackOutput>();
-    bufferPool = new BufferPool(BUFFER_FRAGMENT_LENGTH);
+    allocator = new DefaultAllocator(BUFFER_FRAGMENT_LENGTH);
     pendingResetPositionUs = NO_RESET_PENDING;
     frameAccurateSeeking = true;
     extractor.init(this);
@@ -203,7 +203,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
         loader.cancelLoading();
       } else {
         clearState();
-        bufferPool.trim(0);
+        allocator.trim(0);
       }
     }
   }
@@ -332,7 +332,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
       restartFrom(pendingResetPositionUs);
     } else {
       clearState();
-      bufferPool.trim(0);
+      allocator.trim(0);
     }
   }
 
@@ -351,7 +351,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
   public TrackOutput track(int id) {
     InternalTrackOutput sampleQueue = sampleQueues.get(id);
     if (sampleQueue == null) {
-      sampleQueue = new InternalTrackOutput(bufferPool);
+      sampleQueue = new InternalTrackOutput(allocator);
       sampleQueues.put(id, sampleQueue);
     }
     return sampleQueue;
@@ -476,11 +476,11 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
   }
 
   private ExtractingLoadable createLoadableFromStart() {
-    return new ExtractingLoadable(uri, dataSource, extractor, bufferPool, requestedBufferSize, 0);
+    return new ExtractingLoadable(uri, dataSource, extractor, allocator, requestedBufferSize, 0);
   }
 
   private ExtractingLoadable createLoadableFromPositionUs(long positionUs) {
-    return new ExtractingLoadable(uri, dataSource, extractor, bufferPool, requestedBufferSize,
+    return new ExtractingLoadable(uri, dataSource, extractor, allocator, requestedBufferSize,
         seekMap.getPosition(positionUs));
   }
 
@@ -554,8 +554,8 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
     private final Uri uri;
     private final DataSource dataSource;
     private final Extractor extractor;
-    private final BufferPool bufferPool;
-    private final int bufferPoolSizeLimit;
+    private final DefaultAllocator allocator;
+    private final int requestedBufferSize;
     private final PositionHolder positionHolder;
 
     private volatile boolean loadCanceled;
@@ -563,12 +563,12 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
     private boolean pendingExtractorSeek;
 
     public ExtractingLoadable(Uri uri, DataSource dataSource, Extractor extractor,
-        BufferPool bufferPool, int bufferPoolSizeLimit, long position) {
+        DefaultAllocator allocator, int requestedBufferSize, long position) {
       this.uri = Assertions.checkNotNull(uri);
       this.dataSource = Assertions.checkNotNull(dataSource);
       this.extractor = Assertions.checkNotNull(extractor);
-      this.bufferPool = Assertions.checkNotNull(bufferPool);
-      this.bufferPoolSizeLimit = bufferPoolSizeLimit;
+      this.allocator = Assertions.checkNotNull(allocator);
+      this.requestedBufferSize = requestedBufferSize;
       positionHolder = new PositionHolder();
       positionHolder.position = position;
       pendingExtractorSeek = true;
@@ -601,7 +601,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
           }
           input = new DefaultExtractorInput(dataSource, position, length);
           while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-            bufferPool.blockWhileAllocatedSizeExceeds(bufferPoolSizeLimit);
+            allocator.blockWhileTotalBytesAllocatedExceeds(requestedBufferSize);
             result = extractor.read(input, positionHolder);
             // TODO: Implement throttling to stop us from buffering data too often.
           }

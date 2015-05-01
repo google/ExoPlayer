@@ -25,9 +25,9 @@ import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer.extractor.ts.TsExtractor;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
-import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
+import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -126,7 +126,7 @@ public class HlsChunkSource {
   private static final String AAC_FILE_EXTENSION = ".aac";
   private static final float BANDWIDTH_FRACTION = 0.8f;
 
-  private final BufferPool bufferPool;
+  private final DefaultAllocator bufferPool;
   private final DataSource dataSource;
   private final HlsPlaylistParser playlistParser;
   private final List<Variant> variants;
@@ -193,7 +193,7 @@ public class HlsChunkSource {
     maxBufferDurationToSwitchDownUs = maxBufferDurationToSwitchDownMs * 1000;
     baseUri = playlist.baseUri;
     playlistParser = new HlsPlaylistParser();
-    bufferPool = new BufferPool(256 * 1024);
+    bufferPool = new DefaultAllocator(256 * 1024);
 
     if (playlist.type == HlsPlaylist.TYPE_MEDIA) {
       variants = Collections.singletonList(new Variant(playlistUrl, 0, null, -1, -1));
@@ -258,7 +258,7 @@ public class HlsChunkSource {
       long playbackPositionUs) {
     if (previousTsChunk != null && (previousTsChunk.isLastChunk
         || previousTsChunk.endTimeUs - playbackPositionUs >= targetBufferDurationUs)
-        || bufferPool.getAllocatedSize() >= targetBufferSize) {
+        || bufferPool.getTotalBytesAllocated() >= targetBufferSize) {
       // We're either finished, or we have the target amount of data or time buffered.
       return null;
     }

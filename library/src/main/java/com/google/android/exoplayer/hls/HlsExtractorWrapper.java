@@ -25,7 +25,7 @@ import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
-import com.google.android.exoplayer.upstream.BufferPool;
+import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.util.Assertions;
 
 import android.util.SparseArray;
@@ -41,7 +41,7 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   public final Format format;
   public final long startTimeUs;
 
-  private final BufferPool bufferPool;
+  private final DefaultAllocator allocator;
   private final Extractor extractor;
   private final SparseArray<DefaultTrackOutput> sampleQueues;
   private final boolean shouldSpliceIn;
@@ -52,12 +52,12 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   private boolean prepared;
   private boolean spliceConfigured;
 
-  public HlsExtractorWrapper(int trigger, Format format, long startTimeUs, BufferPool bufferPool,
-      Extractor extractor, boolean shouldSpliceIn) {
+  public HlsExtractorWrapper(int trigger, Format format, long startTimeUs,
+      DefaultAllocator allocator, Extractor extractor, boolean shouldSpliceIn) {
     this.trigger = trigger;
     this.format = format;
     this.startTimeUs = startTimeUs;
-    this.bufferPool = bufferPool;
+    this.allocator = allocator;
     this.extractor = extractor;
     this.shouldSpliceIn = shouldSpliceIn;
     sampleQueues = new SparseArray<DefaultTrackOutput>();
@@ -136,7 +136,7 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   }
 
   /**
-   * Clears queues for all tracks, returning all allocations to the buffer pool.
+   * Clears queues for all tracks, returning all allocations to the allocator.
    */
   public void clear() {
     for (int i = 0; i < sampleQueues.size(); i++) {
@@ -211,7 +211,7 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
 
   @Override
   public TrackOutput track(int id) {
-    DefaultTrackOutput sampleQueue = new DefaultTrackOutput(bufferPool);
+    DefaultTrackOutput sampleQueue = new DefaultTrackOutput(allocator);
     sampleQueues.put(id, sampleQueue);
     return sampleQueue;
   }

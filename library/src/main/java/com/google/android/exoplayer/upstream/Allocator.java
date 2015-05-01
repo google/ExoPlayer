@@ -21,21 +21,21 @@ package com.google.android.exoplayer.upstream;
 public interface Allocator {
 
   /**
-   * Obtain a buffer from the allocator.
+   * Obtain an {@link Allocation}.
    * <p>
-   * When the caller has finished with the buffer, it should be returned by calling
-   * {@link #releaseBuffer(byte[])}.
+   * When the caller has finished with the {@link Allocation}, it should be returned by calling
+   * {@link #release(Allocation)}.
    *
-   * @return The allocated buffer.
+   * @return The {@link Allocation}.
    */
-  byte[] allocateBuffer();
+  Allocation allocate();
 
   /**
-   * Return a buffer to the allocator.
+   * Return an {@link Allocation}.
    *
-   * @param buffer The buffer being returned.
+   * @param allocation The {@link Allocation} being returned.
    */
-  void releaseBuffer(byte[] buffer);
+  void release(Allocation allocation);
 
   /**
    * Hints to the {@link Allocator} that it should make a best effort to release any memory that it
@@ -46,13 +46,13 @@ public interface Allocator {
   void trim(int targetSize);
 
   /**
-   * Returns the total size of all allocated buffers.
+   * Returns the total number of bytes currently allocated.
    */
-  int getAllocatedSize();
+  int getTotalBytesAllocated();
 
   /**
-   * Returns the length of each buffer provided by the allocator.
+   * Returns the length of each individual {@link Allocation}.
    */
-  int getBufferLength();
+  int getIndividualAllocationLength();
 
 }
