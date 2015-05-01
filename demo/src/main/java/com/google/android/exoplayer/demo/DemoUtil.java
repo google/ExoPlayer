@@ -56,19 +56,6 @@ public class DemoUtil {
     defaultCookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
   }
 
-  public static String getUserAgent(Context context) {
-    String versionName;
-    try {
-      String packageName = context.getPackageName();
-      PackageInfo info = context.getPackageManager().getPackageInfo(packageName, 0);
-      versionName = info.versionName;
-    } catch (NameNotFoundException e) {
-      versionName = "?";
-    }
-    return "ExoPlayerDemo/" + versionName + " (Linux;Android " + Build.VERSION.RELEASE +
-        ") " + "ExoPlayerLib/" + ExoPlayerLibraryInfo.VERSION;
-  }
-
   public static byte[] executePost(String url, byte[] data, Map<String, String> requestProperties)
       throws MalformedURLException, IOException {
     HttpURLConnection urlConnection = null;
