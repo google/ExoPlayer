@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.audio;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.SuppressLint;
@@ -371,6 +372,7 @@ public final class AudioTrack {
     ac3Bitrate = UNKNOWN_AC3_BITRATE; // Calculated on receiving the first buffer if isAc3 is true.
     frameSize = 2 * channelCount; // 2 bytes per 16 bit sample * number of channels.
     minBufferSize = android.media.AudioTrack.getMinBufferSize(sampleRate, channelConfig, encoding);
+    Assertions.checkState(minBufferSize != android.media.AudioTrack.ERROR_BAD_VALUE);
 
     if (specifiedBufferSize != 0) {
       bufferSize = specifiedBufferSize;
