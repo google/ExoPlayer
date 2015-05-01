@@ -26,6 +26,7 @@ import android.view.Display;
 import android.view.WindowManager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Selects from possible video formats.
@@ -44,19 +45,20 @@ public final class VideoFormatSelectorUtil {
    * default display.
    *
    * @param context A context.
-   * @param formats The formats from which to select.
+   * @param formatWrappers Wrapped formats from which to select.
    * @param allowedContainerMimeTypes An array of allowed container mime types. Null allows all
    *     mime types.
    * @param filterHdFormats True to filter HD formats. False otherwise.
    * @return An array holding the indices of the selected formats.
    * @throws DecoderQueryException
    */
-  public static int[] selectVideoFormatsForDefaultDisplay(Context context, Format[] formats,
-      String[] allowedContainerMimeTypes, boolean filterHdFormats) throws DecoderQueryException {
+  public static int[] selectVideoFormatsForDefaultDisplay(Context context,
+      List<? extends FormatWrapper> formatWrappers, String[] allowedContainerMimeTypes,
+      boolean filterHdFormats) throws DecoderQueryException {
     WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     Display display = windowManager.getDefaultDisplay();
     Point displaySize = getDisplaySize(display);
-    return selectVideoFormats(formats, allowedContainerMimeTypes, filterHdFormats, true,
+    return selectVideoFormats(formatWrappers, allowedContainerMimeTypes, filterHdFormats, true,
         displaySize.x, displaySize.y);
   }
 
@@ -73,7 +75,7 @@ public final class VideoFormatSelectorUtil {
    *     in pixels that the video can be rendered within the viewport.
    * </ul>
    *
-   * @param formats The formats from which to select.
+   * @param formatWrappers Wrapped formats from which to select.
    * @param allowedContainerMimeTypes An array of allowed container mime types. Null allows all
    *     mime types.
    * @param filterHdFormats True to filter HD formats. False otherwise.
@@ -88,16 +90,17 @@ public final class VideoFormatSelectorUtil {
    * @return An array holding the indices of the selected formats.
    * @throws DecoderQueryException
    */
-  public static int[] selectVideoFormats(Format[] formats, String[] allowedContainerMimeTypes,
-      boolean filterHdFormats, boolean orientationMayChange, int viewportWidth, int viewportHeight)
-      throws DecoderQueryException {
+  public static int[] selectVideoFormats(List<? extends FormatWrapper> formatWrappers,
+      String[] allowedContainerMimeTypes, boolean filterHdFormats, boolean orientationMayChange,
+      int viewportWidth, int viewportHeight) throws DecoderQueryException {
     int maxVideoPixelsToRetain = Integer.MAX_VALUE;
     ArrayList<Integer> selectedIndexList = new ArrayList<Integer>();
     int maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
 
     // First pass to filter out formats that individually fail to meet the selection criteria.
-    for (int i = 0; i < formats.length; i++) {
-      Format format = formats[i];
+    int formatWrapperCount = formatWrappers.size();
+    for (int i = 0; i < formatWrapperCount; i++) {
+      Format format = formatWrappers.get(i).getFormat();
       if (isFormatPlayable(format, allowedContainerMimeTypes, filterHdFormats,
           maxDecodableFrameSize)) {
         // Select the format for now. It may still be filtered in the second pass below.
@@ -122,7 +125,7 @@ public final class VideoFormatSelectorUtil {
     // unnecessarily high resolution given the size at which the video will be displayed within the
     // viewport.
     for (int i = selectedIndexList.size() - 1; i >= 0; i--) {
-      Format format = formats[selectedIndexList.get(i)];
+      Format format = formatWrappers.get(i).getFormat();
       int videoPixels = format.width * format.height;
       if (format.width != -1 && format.height != -1 && videoPixels > maxVideoPixelsToRetain) {
         selectedIndexList.remove(i);

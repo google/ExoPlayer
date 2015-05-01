@@ -23,7 +23,6 @@ import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSource;
-import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
@@ -36,7 +35,6 @@ import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingChunkSource;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
-import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifestParser;
 import com.google.android.exoplayer.text.TextTrackRenderer;
 import com.google.android.exoplayer.text.ttml.TtmlParser;
@@ -56,6 +54,7 @@ import android.os.Handler;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -145,10 +144,9 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     // Determine which video tracks we should use for playback.
     int[] videoTrackIndices = null;
     if (videoStreamElementIndex != -1) {
-      Format[] formats = getFormats(manifest.streamElements[videoStreamElementIndex].tracks);
       try {
         videoTrackIndices = VideoFormatSelectorUtil.selectVideoFormatsForDefaultDisplay(context,
-            formats, null, false);
+            Arrays.asList(manifest.streamElements[videoStreamElementIndex].tracks), null, false);
       } catch (DecoderQueryException e) {
         callback.onRenderersError(e);
         return;
@@ -252,17 +250,6 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     renderers[DemoPlayer.TYPE_TEXT] = textRenderer;
     renderers[DemoPlayer.TYPE_DEBUG] = debugRenderer;
     callback.onRenderers(trackNames, multiTrackChunkSources, renderers);
-  }
-
-  private static Format[] getFormats(TrackElement[] trackElements) {
-    Format[] formats = new Format[trackElements.length];
-    for (int i = 0; i < formats.length; i++) {
-      TrackElement trackElement = trackElements[i];
-      formats[i] = new Format(String.valueOf(i), trackElement.mimeType, trackElement.maxWidth,
-          trackElement.maxHeight, -1, trackElement.numChannels, trackElement.sampleRate,
-          trackElement.bitrate);
-    }
-    return formats;
   }
 
   @TargetApi(18)

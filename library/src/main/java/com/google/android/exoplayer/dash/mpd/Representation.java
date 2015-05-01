@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.dash.mpd;
 
 import com.google.android.exoplayer.chunk.Format;
+import com.google.android.exoplayer.chunk.FormatWrapper;
 import com.google.android.exoplayer.dash.DashSegmentIndex;
 import com.google.android.exoplayer.dash.DashSingleSegmentIndex;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.MultiSegmentBase;
@@ -26,7 +27,7 @@ import android.net.Uri;
 /**
  * A DASH representation.
  */
-public abstract class Representation {
+public abstract class Representation implements FormatWrapper {
 
   /**
    * Identifies the piece of content to which this {@link Representation} belongs.
@@ -103,6 +104,11 @@ public abstract class Representation {
     this.format = format;
     initializationUri = segmentBase.getInitialization(this);
     presentationTimeOffsetUs = segmentBase.getPresentationTimeOffsetUs();
+  }
+
+  @Override
+  public Format getFormat() {
+    return format;
   }
 
   /**

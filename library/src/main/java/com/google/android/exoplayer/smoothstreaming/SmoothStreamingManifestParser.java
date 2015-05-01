@@ -585,11 +585,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
     private static final String KEY_CODEC_PRIVATE_DATA = "CodecPrivateData";
     private static final String KEY_SAMPLING_RATE = "SamplingRate";
     private static final String KEY_CHANNELS = "Channels";
-    private static final String KEY_BITS_PER_SAMPLE = "BitsPerSample";
-    private static final String KEY_PACKET_SIZE = "PacketSize";
-    private static final String KEY_AUDIO_TAG = "AudioTag";
     private static final String KEY_FOUR_CC = "FourCC";
-    private static final String KEY_NAL_UNIT_LENGTH_FIELD = "NALUnitLengthField";
     private static final String KEY_TYPE = "Type";
     private static final String KEY_MAX_WIDTH = "MaxWidth";
     private static final String KEY_MAX_HEIGHT = "MaxHeight";
@@ -599,18 +595,10 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
     private int index;
     private int bitrate;
     private String mimeType;
-    private int profile;
-    private int level;
     private int maxWidth;
     private int maxHeight;
     private int samplingRate;
     private int channels;
-    private int packetSize;
-    private int audioTag;
-    private int bitPerSample;
-
-    private int nalUnitLengthField;
-    private String content;
 
     public TrackElementParser(ElementParser parent, String baseUri) {
       super(parent, baseUri, TAG);
@@ -620,12 +608,10 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
     @Override
     public void parseStartTag(XmlPullParser parser) throws ParserException {
       int type = (Integer) getNormalizedAttribute(KEY_TYPE);
-      content = null;
       String value;
 
       index = parseInt(parser, KEY_INDEX, -1);
       bitrate = parseRequiredInt(parser, KEY_BITRATE);
-      nalUnitLengthField = parseInt(parser, KEY_NAL_UNIT_LENGTH_FIELD, 4);
 
       if (type == StreamElement.TYPE_VIDEO) {
         maxHeight = parseRequiredInt(parser, KEY_MAX_HEIGHT);
@@ -643,15 +629,9 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
       if (type == StreamElement.TYPE_AUDIO) {
         samplingRate = parseRequiredInt(parser, KEY_SAMPLING_RATE);
         channels = parseRequiredInt(parser, KEY_CHANNELS);
-        bitPerSample = parseRequiredInt(parser, KEY_BITS_PER_SAMPLE);
-        packetSize = parseRequiredInt(parser, KEY_PACKET_SIZE);
-        audioTag = parseRequiredInt(parser, KEY_AUDIO_TAG);
       } else {
         samplingRate = -1;
         channels = -1;
-        bitPerSample = -1;
-        packetSize = -1;
-        audioTag = -1;
       }
 
       value = parser.getAttributeValue(null, KEY_CODEC_PRIVATE_DATA);
@@ -662,20 +642,10 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
           csd.add(codecPrivateData);
         } else {
           for (int i = 0; i < split.length; i++) {
-            Pair<Integer, Integer> spsParameters = CodecSpecificDataUtil.parseSpsNalUnit(split[i]);
-            if (spsParameters != null) {
-              profile = spsParameters.first;
-              level = spsParameters.second;
-            }
             csd.add(split[i]);
           }
         }
       }
-    }
-
-    @Override
-    public void parseText(XmlPullParser parser) {
-      content = parser.getText();
     }
 
     @Override
@@ -685,9 +655,8 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
         csdArray = new byte[csd.size()][];
         csd.toArray(csdArray);
       }
-      return new TrackElement(index, bitrate, mimeType, csdArray, profile, level, maxWidth,
-          maxHeight, samplingRate, channels, packetSize, audioTag, bitPerSample, nalUnitLengthField,
-          content);
+      return new TrackElement(index, bitrate, mimeType, csdArray, maxWidth, maxHeight, samplingRate,
+          channels);
     }
 
     private static String fourCCToMimeType(String fourCC) {

@@ -15,23 +15,27 @@
  */
 package com.google.android.exoplayer.hls;
 
+import com.google.android.exoplayer.chunk.Format;
+import com.google.android.exoplayer.chunk.FormatWrapper;
+import com.google.android.exoplayer.util.MimeTypes;
+
 /**
  * Variant stream reference.
  */
-public final class Variant {
+public final class Variant implements FormatWrapper {
 
-  public final int bitrate;
   public final String url;
-  public final String codecs;
-  public final int width;
-  public final int height;
+  public final Format format;
 
-  public Variant(String url, int bitrate, String codecs, int width, int height) {
-    this.bitrate = bitrate;
+  public Variant(int index, String url, int bitrate, String codecs, int width, int height) {
     this.url = url;
-    this.codecs = codecs;
-    this.width = width;
-    this.height = height;
+    format = new Format(Integer.toString(index), MimeTypes.APPLICATION_M3U8, width, height, -1, -1,
+        -1, bitrate, null, codecs);
+  }
+
+  @Override
+  public Format getFormat() {
+    return format;
   }
 
 }

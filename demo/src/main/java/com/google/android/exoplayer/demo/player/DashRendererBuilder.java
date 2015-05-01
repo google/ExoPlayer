@@ -218,10 +218,9 @@ public class DashRendererBuilder implements RendererBuilder,
     // Determine which video representations we should use for playback.
     int[] videoRepresentationIndices = null;
     if (videoAdaptationSet != null) {
-      Format[] formats = getFormats(videoAdaptationSet.representations);
       try {
         videoRepresentationIndices = VideoFormatSelectorUtil.selectVideoFormatsForDefaultDisplay(
-            context, formats, null, filterHdContent);
+            context, videoAdaptationSet.representations, null, filterHdContent);
       } catch (DecoderQueryException e) {
         callback.onRenderersError(e);
         return;
@@ -361,14 +360,6 @@ public class DashRendererBuilder implements RendererBuilder,
     renderers[DemoPlayer.TYPE_TEXT] = textRenderer;
     renderers[DemoPlayer.TYPE_DEBUG] = debugRenderer;
     callback.onRenderers(trackNames, multiTrackChunkSources, renderers);
-  }
-
-  private static Format[] getFormats(List<Representation> representations) {
-    Format[] formats = new Format[representations.size()];
-    for (int i = 0; i < formats.length; i++) {
-      formats[i] = representations.get(i).format;
-    }
-    return formats;
   }
 
   @TargetApi(18)

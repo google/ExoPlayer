@@ -29,7 +29,6 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
 
@@ -118,7 +117,7 @@ public class HlsChunkSource {
   private final DataSource dataSource;
   private final HlsPlaylistParser playlistParser;
   private final List<Variant> variants;
-  private final HlsFormat[] enabledFormats;
+  private final Format[] enabledFormats;
   private final BandwidthMeter bandwidthMeter;
   private final int adaptiveMode;
   private final String baseUri;
@@ -173,7 +172,7 @@ public class HlsChunkSource {
     playlistParser = new HlsPlaylistParser();
 
     if (playlist.type == HlsPlaylist.TYPE_MEDIA) {
-      variants = Collections.singletonList(new Variant(playlistUrl, 0, null, -1, -1));
+      variants = Collections.singletonList(new Variant(0, playlistUrl, 0, null, -1, -1));
       variantIndices = null;
       mediaPlaylists = new HlsMediaPlaylist[1];
       mediaPlaylistBlacklistTimesMs = new long[1];
@@ -194,8 +193,9 @@ public class HlsChunkSource {
     // Select the first variant from the master playlist that's enabled.
     int minEnabledVariantIndex = Integer.MAX_VALUE;
     for (int i = 0; i < enabledFormats.length; i++) {
-      if (enabledFormats[i].variantIndex < minEnabledVariantIndex) {
-        minEnabledVariantIndex = enabledFormats[i].variantIndex;
+      int variantIndex = getVariantIndex(enabledFormats[i]);
+      if (variantIndex < minEnabledVariantIndex) {
+        minEnabledVariantIndex = variantIndex;
         formatIndex = i;
       }
       maxWidth = Math.max(enabledFormats[i].width, maxWidth);
@@ -246,7 +246,7 @@ public class HlsChunkSource {
       switchingVariantSpliced = switchingVariant && adaptiveMode == ADAPTIVE_MODE_SPLICE;
     }
 
-    int variantIndex = enabledFormats[nextFormatIndex].variantIndex;
+    int variantIndex = getVariantIndex(enabledFormats[nextFormatIndex]);
     HlsMediaPlaylist mediaPlaylist = mediaPlaylists[variantIndex];
     if (mediaPlaylist == null) {
       // We don't have the media playlist for the next variant. Request it now.
@@ -432,7 +432,7 @@ public class HlsChunkSource {
   private int getFormatIndexForBandwidth(int bitrate) {
     int lowestQualityEnabledFormatIndex = -1;
     for (int i = 0; i < enabledFormats.length; i++) {
-      int variantIndex = enabledFormats[i].variantIndex;
+      int variantIndex = getVariantIndex(enabledFormats[i]);
       if (mediaPlaylistBlacklistTimesMs[variantIndex] == 0) {
         if (enabledFormats[i].bitrate <= bitrate) {
           return i;
@@ -507,7 +507,7 @@ public class HlsChunkSource {
     durationUs = mediaPlaylist.durationUs;
   }
 
-  private static HlsFormat[] buildEnabledFormats(List<Variant> variants, int[] variantIndices) {
+  private static Format[] buildEnabledFormats(List<Variant> variants, int[] variantIndices) {
     ArrayList<Variant> enabledVariants = new ArrayList<Variant>();
     if (variantIndices != null) {
       for (int i = 0; i < variantIndices.length; i++) {
@@ -522,7 +522,7 @@ public class HlsChunkSource {
     ArrayList<Variant> definiteAudioOnlyVariants = new ArrayList<Variant>();
     for (int i = 0; i < enabledVariants.size(); i++) {
       Variant variant = enabledVariants.get(i);
-      if (variant.height > 0 || variantHasExplicitCodecWithPrefix(variant, "avc")) {
+      if (variant.format.height > 0 || variantHasExplicitCodecWithPrefix(variant, "avc")) {
         definiteVideoVariants.add(variant);
       } else if (variantHasExplicitCodecWithPrefix(variant, "mp4a")) {
         definiteAudioOnlyVariants.add(variant);
@@ -542,12 +542,9 @@ public class HlsChunkSource {
       // Leave the enabled variants unchanged. They're likely either all video or all audio.
     }
 
-    HlsFormat[] enabledFormats = new HlsFormat[enabledVariants.size()];
+    Format[] enabledFormats = new Format[enabledVariants.size()];
     for (int i = 0; i < enabledFormats.length; i++) {
-      Variant variant = enabledVariants.get(i);
-      int variantIndex = variants.indexOf(variant);
-      enabledFormats[i] = new HlsFormat(Integer.toString(variantIndex), variant.width,
-          variant.height, variant.bitrate, variant.codecs, variantIndex);
+      enabledFormats[i] = enabledVariants.get(i).format;
     }
 
     Arrays.sort(enabledFormats, new Format.DecreasingBandwidthComparator());
@@ -555,7 +552,7 @@ public class HlsChunkSource {
   }
 
   private static boolean variantHasExplicitCodecWithPrefix(Variant variant, String prefix) {
-    String codecs = variant.codecs;
+    String codecs = variant.format.codecs;
     if (TextUtils.isEmpty(codecs)) {
       return false;
     }
@@ -585,6 +582,16 @@ public class HlsChunkSource {
         mediaPlaylistBlacklistTimesMs[i] = 0;
       }
     }
+  }
+
+  private int getVariantIndex(Format format) {
+    for (int i = 0; i < variants.size(); i++) {
+      if (format == variants.get(i).format) {
+        return i;
+      }
+    }
+    // Should never happen.
+    throw new IllegalStateException("Invalid format: " + format);
   }
 
   private static class MediaPlaylistChunk extends DataChunk {
@@ -636,18 +643,6 @@ public class HlsChunkSource {
 
     public byte[] getResult() {
       return result;
-    }
-
-  }
-
-  private static final class HlsFormat extends Format {
-
-    public final int variantIndex;
-
-    public HlsFormat(String id, int width, int height, int bitrate, String codecs,
-        int variantIndex) {
-      super(id, MimeTypes.APPLICATION_M3U8, width, height, -1, -1, -1, bitrate, null, codecs);
-      this.variantIndex = variantIndex;
     }
 
   }

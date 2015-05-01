@@ -176,7 +176,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         }
         expectingStreamInfUrl = true;
       } else if (!line.startsWith("#") && expectingStreamInfUrl) {
-        variants.add(new Variant(line, bitrate, codecs, width, height));
+        variants.add(new Variant(variants.size(), line, bitrate, codecs, width, height));
         bitrate = 0;
         codecs = null;
         width = -1;

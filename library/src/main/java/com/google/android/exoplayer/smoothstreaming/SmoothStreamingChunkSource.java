@@ -73,7 +73,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private final SparseArray<ChunkExtractorWrapper> extractorWrappers;
   private final SparseArray<MediaFormat> mediaFormats;
   private final DrmInitData drmInitData;
-  private final SmoothStreamingFormat[] formats;
+  private final Format[] formats;
 
   private SmoothStreamingManifest currentManifest;
   private int currentManifestChunkOffset;
@@ -135,7 +135,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     this.liveEdgeLatencyUs = liveEdgeLatencyMs * 1000;
 
     StreamElement streamElement = getElement(initialManifest);
-    trackInfo = new TrackInfo(streamElement.tracks[0].mimeType, initialManifest.durationUs);
+    trackInfo = new TrackInfo(streamElement.tracks[0].format.mimeType, initialManifest.durationUs);
     evaluation = new Evaluation();
 
     TrackEncryptionBox[] trackEncryptionBoxes = null;
@@ -152,19 +152,16 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     }
 
     int trackCount = trackIndices != null ? trackIndices.length : streamElement.tracks.length;
-    formats = new SmoothStreamingFormat[trackCount];
+    formats = new Format[trackCount];
     extractorWrappers = new SparseArray<ChunkExtractorWrapper>();
     mediaFormats = new SparseArray<MediaFormat>();
     int maxWidth = 0;
     int maxHeight = 0;
     for (int i = 0; i < trackCount; i++) {
       int trackIndex = trackIndices != null ? trackIndices[i] : i;
-      TrackElement trackElement = streamElement.tracks[trackIndex];
-      formats[i] = new SmoothStreamingFormat(String.valueOf(trackIndex), trackElement.mimeType,
-          trackElement.maxWidth, trackElement.maxHeight, trackElement.numChannels,
-          trackElement.sampleRate, trackElement.bitrate, trackIndex);
-      maxWidth = Math.max(maxWidth, trackElement.maxWidth);
-      maxHeight = Math.max(maxHeight, trackElement.maxHeight);
+      formats[i] = streamElement.tracks[trackIndex].format;
+      maxWidth = Math.max(maxWidth, formats[i].width);
+      maxHeight = Math.max(maxHeight, formats[i].height);
 
       MediaFormat mediaFormat = getMediaFormat(streamElement, trackIndex);
       int trackType = streamElement.type == StreamElement.TYPE_VIDEO ? Track.TYPE_VIDEO
@@ -244,7 +241,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
     evaluation.queueSize = queue.size();
     formatEvaluator.evaluate(queue, playbackPositionUs, formats, evaluation);
-    SmoothStreamingFormat selectedFormat = (SmoothStreamingFormat) evaluation.format;
+    Format selectedFormat = evaluation.format;
     out.queueSize = evaluation.queueSize;
 
     if (selectedFormat == null) {
@@ -304,7 +301,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
         : chunkStartTimeUs + streamElement.getChunkDurationUs(chunkIndex);
     int currentAbsoluteChunkIndex = chunkIndex + currentManifestChunkOffset;
 
-    int trackIndex = selectedFormat.trackIndex;
+    int trackIndex = getTrackIndex(selectedFormat);
     Uri uri = streamElement.buildRequestUri(trackIndex, chunkIndex);
     Chunk mediaChunk = newMediaChunk(selectedFormat, uri, null, extractorWrappers.get(trackIndex),
         drmInitData, dataSource, currentAbsoluteChunkIndex, isLastChunk, chunkStartTimeUs,
@@ -352,12 +349,24 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     return manifest.streamElements[streamElementIndex];
   }
 
+  private int getTrackIndex(Format format) {
+    TrackElement[] tracks = currentManifest.streamElements[streamElementIndex].tracks;
+    for (int i = 0; i < tracks.length; i++) {
+      if (format == tracks[i].format) {
+        return i;
+      }
+    }
+    // Should never happen.
+    throw new IllegalStateException("Invalid format: " + format);
+  }
+
   private static MediaFormat getMediaFormat(StreamElement streamElement, int trackIndex) {
     TrackElement trackElement = streamElement.tracks[trackIndex];
-    String mimeType = trackElement.mimeType;
+    Format trackFormat = trackElement.format;
+    String mimeType = trackFormat.mimeType;
     if (streamElement.type == StreamElement.TYPE_VIDEO) {
       MediaFormat format = MediaFormat.createVideoFormat(mimeType, MediaFormat.NO_VALUE,
-          trackElement.maxWidth, trackElement.maxHeight, Arrays.asList(trackElement.csd));
+          trackFormat.width, trackFormat.height, Arrays.asList(trackElement.csd));
       format.setMaxVideoDimensions(streamElement.maxWidth, streamElement.maxHeight);
       return format;
     } else if (streamElement.type == StreamElement.TYPE_AUDIO) {
@@ -366,13 +375,13 @@ public class SmoothStreamingChunkSource implements ChunkSource {
         csd = Arrays.asList(trackElement.csd);
       } else {
         csd = Collections.singletonList(CodecSpecificDataUtil.buildAudioSpecificConfig(
-            trackElement.sampleRate, trackElement.numChannels));
+            trackFormat.audioSamplingRate, trackFormat.numChannels));
       }
       MediaFormat format = MediaFormat.createAudioFormat(mimeType, MediaFormat.NO_VALUE,
-          trackElement.numChannels, trackElement.sampleRate, csd);
+          trackFormat.numChannels, trackFormat.audioSamplingRate, csd);
       return format;
     } else if (streamElement.type == StreamElement.TYPE_TEXT) {
-      return MediaFormat.createFormatForMimeType(streamElement.tracks[trackIndex].mimeType);
+      return MediaFormat.createFormatForMimeType(trackFormat.mimeType);
     }
     return null;
   }
@@ -410,18 +419,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     byte temp = data[firstPosition];
     data[firstPosition] = data[secondPosition];
     data[secondPosition] = temp;
-  }
-
-  private static final class SmoothStreamingFormat extends Format {
-
-    public final int trackIndex;
-
-    public SmoothStreamingFormat(String id, String mimeType, int width, int height,
-        int numChannels, int audioSamplingRate, int bitrate, int trackIndex) {
-      super(id, mimeType, width, height, -1, numChannels, audioSamplingRate, bitrate);
-      this.trackIndex = trackIndex;
-    }
-
   }
 
 }
