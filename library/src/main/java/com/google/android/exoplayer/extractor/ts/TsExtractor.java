@@ -40,6 +40,8 @@ public final class TsExtractor implements Extractor {
   private static final int TS_PAT_PID = 0;
 
   private static final int TS_STREAM_TYPE_AAC = 0x0F;
+  private static final int TS_STREAM_TYPE_ATSC_AC3 = 0x81;
+  private static final int TS_STREAM_TYPE_DVB_AC3 = 0x06;
   private static final int TS_STREAM_TYPE_H264 = 0x1B;
   private static final int TS_STREAM_TYPE_ID3 = 0x15;
   private static final int TS_STREAM_TYPE_EIA608 = 0x100; // 0xFF + 1
@@ -262,11 +264,14 @@ public final class TsExtractor implements Extractor {
           case TS_STREAM_TYPE_AAC:
             pesPayloadReader = new AdtsReader(output.track(TS_STREAM_TYPE_AAC));
             break;
+          case TS_STREAM_TYPE_ATSC_AC3:
+          case TS_STREAM_TYPE_DVB_AC3:
+            pesPayloadReader = new Ac3Reader(output.track(streamType));
+            break;
           case TS_STREAM_TYPE_H264:
             SeiReader seiReader = new SeiReader(output.track(TS_STREAM_TYPE_EIA608));
             streamReaders.put(TS_STREAM_TYPE_EIA608, seiReader);
-            pesPayloadReader = new H264Reader(output.track(TS_STREAM_TYPE_H264),
-                seiReader);
+            pesPayloadReader = new H264Reader(output.track(TS_STREAM_TYPE_H264), seiReader);
             break;
           case TS_STREAM_TYPE_ID3:
             pesPayloadReader = id3Reader;
