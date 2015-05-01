@@ -295,9 +295,11 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     if (builderCallback != null) {
       builderCallback.cancel();
     }
+    videoFormat = null;
+    videoRenderer = null;
+    multiTrackSources = null;
     rendererBuildingState = RENDERER_BUILDING_STATE_BUILDING;
     maybeReportPlayerState();
-    videoFormat = null;
     builderCallback = new InternalRendererBuilderCallback();
     rendererBuilder.buildRenderers(this, builderCallback);
   }
@@ -324,15 +326,15 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
       }
     }
     // Complete preparation.
-    this.videoRenderer = renderers[TYPE_VIDEO];
     this.trackNames = trackNames;
+    this.videoRenderer = renderers[TYPE_VIDEO];
     this.multiTrackSources = multiTrackSources;
-    rendererBuildingState = RENDERER_BUILDING_STATE_BUILT;
     pushSurface(false);
     pushTrackSelection(TYPE_VIDEO, true);
     pushTrackSelection(TYPE_AUDIO, true);
     pushTrackSelection(TYPE_TEXT, true);
     player.prepare(renderers);
+    rendererBuildingState = RENDERER_BUILDING_STATE_BUILT;
   }
 
   /* package */ void onRenderersError(Exception e) {
@@ -571,7 +573,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   private void pushSurface(boolean blockForSurfacePush) {
-    if (rendererBuildingState != RENDERER_BUILDING_STATE_BUILT) {
+    if (videoRenderer == null) {
       return;
     }
 
@@ -585,7 +587,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   private void pushTrackSelection(int type, boolean allowRendererEnable) {
-    if (rendererBuildingState != RENDERER_BUILDING_STATE_BUILT) {
+    if (multiTrackSources == null) {
       return;
     }
 
