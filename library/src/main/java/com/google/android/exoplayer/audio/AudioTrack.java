@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.audio;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.util.Ac3Util;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
@@ -433,11 +434,7 @@ public final class AudioTrack {
     int result = 0;
     if (temporaryBufferSize == 0) {
       if (isAc3 && ac3Bitrate == UNKNOWN_AC3_BITRATE) {
-        // Each AC-3 buffer contains 1536 frames of audio, so the AudioTrack playback position
-        // advances by 1536 per buffer (32 ms at 48 kHz). Calculate the bitrate in kbit/s.
-        int unscaledAc3Bitrate = size * 8 * sampleRate;
-        int divisor = 1000 * 1536;
-        ac3Bitrate = (unscaledAc3Bitrate + divisor / 2) / divisor;
+        ac3Bitrate = Ac3Util.getBitrate(size, sampleRate);
       }
 
       // This is the first time we've seen this {@code buffer}.

@@ -50,10 +50,8 @@ public final class Ac3Util {
     if ((nextByte & 0x04) != 0) {
       channelCount++;
     }
-    // Map bit_rate_code onto a bitrate in bit/s.
-    int bitrate = BITRATES[((nextByte & 0x03) << 3) + (data.readUnsignedByte() >> 5)] * 1000;
     return MediaFormat.createAudioFormat(MimeTypes.AUDIO_AC3, MediaFormat.NO_VALUE,
-        MediaFormat.NO_VALUE, channelCount, sampleRate, bitrate, Collections.<byte[]>emptyList());
+        MediaFormat.NO_VALUE, channelCount, sampleRate, Collections.<byte[]>emptyList());
   }
 
   /**
@@ -91,8 +89,7 @@ public final class Ac3Util {
     data.skipBits(4 * 8);
 
     int fscod = data.readBits(2);
-    int frmsizecod = data.readBits(6);
-    data.skipBits(8); // bsid (5 bits) + bsmod (3 bits)
+    data.skipBits(14); // frmsizecod(6) + bsid (5 bits) + bsmod (3 bits)
     int acmod = data.readBits(3);
     if ((acmod & 0x01) != 0 && acmod != 1) {
       data.skipBits(2); // cmixlev
@@ -106,7 +103,7 @@ public final class Ac3Util {
     boolean lfeon = data.readBit();
     return MediaFormat.createAudioFormat(MimeTypes.AUDIO_AC3, MediaFormat.NO_VALUE,
         MediaFormat.NO_VALUE, CHANNEL_COUNTS[acmod] + (lfeon ? 1 : 0), SAMPLE_RATES[fscod],
-        BITRATES[frmsizecod / 2] * 1000, Collections.<byte[]>emptyList());
+        Collections.<byte[]>emptyList());
   }
 
   /**
@@ -131,6 +128,21 @@ public final class Ac3Util {
     } else { // sampleRate == 48000
       return 4 * bitrate;
     }
+  }
+
+  /**
+   * Returns the bitrate of AC-3 audio given the size of a buffer and the sample rate.
+   *
+   * @param bufferSize Size in bytes of a full buffer of samples.
+   * @param sampleRate Sample rate in hz.
+   * @return Bitrate of the audio stream in kbit/s.
+   */
+  public static int getBitrate(int bufferSize, int sampleRate) {
+    // Each AC-3 buffer contains 1536 frames of audio, so the AudioTrack playback position
+    // advances by 1536 per buffer (32 ms at 48 kHz).
+    int unscaledBitrate = bufferSize * 8 * sampleRate;
+    int divisor = 1000 * 1536;
+    return (unscaledBitrate + divisor / 2) / divisor;
   }
 
   private Ac3Util() {

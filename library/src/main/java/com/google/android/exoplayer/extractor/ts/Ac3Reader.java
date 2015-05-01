@@ -46,6 +46,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   private long frameDurationUs;
   private MediaFormat mediaFormat;
   private int sampleSize;
+  private int bitrate;
 
   // Used when reading the samples.
   private long timeUs;
@@ -149,14 +150,15 @@ import com.google.android.exoplayer.util.ParsableByteArray;
    * Parses the sample header.
    */
   private void parseHeader() {
+    headerScratchBits.setPosition(0);
+    sampleSize = Ac3Util.parseFrameSize(headerScratchBits);
     if (mediaFormat == null) {
       headerScratchBits.setPosition(0);
       mediaFormat = Ac3Util.parseFrameAc3Format(headerScratchBits);
       output.format(mediaFormat);
+      bitrate = Ac3Util.getBitrate(sampleSize, mediaFormat.sampleRate);
     }
-    headerScratchBits.setPosition(0);
-    sampleSize = Ac3Util.parseFrameSize(headerScratchBits);
-    frameDurationUs = (int) (1000000L * 8 * sampleSize / mediaFormat.bitrate);
+    frameDurationUs = (int) (1000L * 8 * sampleSize / bitrate);
   }
 
 }
