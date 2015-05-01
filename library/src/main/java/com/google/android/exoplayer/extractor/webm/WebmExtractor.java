@@ -55,6 +55,7 @@ public final class WebmExtractor implements Extractor {
   private static final int CUES_STATE_BUILT = 2;
 
   private static final String DOC_TYPE_WEBM = "webm";
+  private static final String CODEC_ID_VP8 = "V_VP8";
   private static final String CODEC_ID_VP9 = "V_VP9";
   private static final String CODEC_ID_VORBIS = "A_VORBIS";
   private static final String CODEC_ID_OPUS = "A_OPUS";
@@ -136,6 +137,7 @@ public final class WebmExtractor implements Extractor {
   private int seekEntryId;
   private long seekEntryPosition;
 
+  // Cue related elements.
   private boolean seekForCues;
   private long cuesContentPosition = UNKNOWN;
   private long seekPositionAfterBuildingCues = UNKNOWN;
@@ -640,7 +642,10 @@ public final class WebmExtractor implements Extractor {
    * @throws ParserException If the codec is unsupported.
    */
   private MediaFormat buildVideoFormat() throws ParserException {
-    if (videoTrackFormat != null && CODEC_ID_VP9.equals(videoTrackFormat.codecId)) {
+    if (videoTrackFormat != null && CODEC_ID_VP8.equals(videoTrackFormat.codecId)) {
+      return MediaFormat.createVideoFormat(MimeTypes.VIDEO_VP8, MediaFormat.NO_VALUE, durationUs,
+          videoTrackFormat.pixelWidth, videoTrackFormat.pixelHeight, null);
+    } else if (videoTrackFormat != null && CODEC_ID_VP9.equals(videoTrackFormat.codecId)) {
       return MediaFormat.createVideoFormat(MimeTypes.VIDEO_VP9, MediaFormat.NO_VALUE, durationUs,
           videoTrackFormat.pixelWidth, videoTrackFormat.pixelHeight, null);
     } else {
@@ -793,7 +798,8 @@ public final class WebmExtractor implements Extractor {
   }
 
   private boolean isCodecSupported(String codecId) {
-    return CODEC_ID_VP9.equals(codecId)
+    return CODEC_ID_VP8.equals(codecId)
+        || CODEC_ID_VP9.equals(codecId)
         || CODEC_ID_OPUS.equals(codecId)
         || CODEC_ID_VORBIS.equals(codecId);
   }
