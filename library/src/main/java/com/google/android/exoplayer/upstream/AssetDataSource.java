@@ -15,15 +15,13 @@
  */
 package com.google.android.exoplayer.upstream;
 
+import com.google.android.exoplayer.C;
+
+import android.content.res.AssetManager;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-
-import android.content.res.AssetManager;
-import android.util.Log;
-
-import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.upstream.FileDataSource.FileDataSourceException;
 
 /**
  * A local asset {@link DataSource}.
@@ -41,10 +39,10 @@ public final class AssetDataSource implements DataSource {
 
   }
 
+  private final AssetManager assetManager;
   private final TransferListener listener;
 
   private InputStream assetInputStream;
-  private AssetManager assetManager;
   private long bytesRemaining;
   private boolean opened;
 
@@ -52,7 +50,7 @@ public final class AssetDataSource implements DataSource {
    * Constructs a new {@link DataSource} that retrieves data from a local asset.
    */
   public AssetDataSource(AssetManager assetManager) {
-	  this(assetManager, null);
+    this(assetManager, null);
   }
 
   /**
@@ -69,7 +67,8 @@ public final class AssetDataSource implements DataSource {
   public long open(DataSpec dataSpec) throws AssetDataSourceException {
     try {
       // Lose the '/' prefix in the path or else AssetManager won't find our file
-      assetInputStream = assetManager.open(dataSpec.uri.getPath().substring(1), AssetManager.ACCESS_RANDOM);
+      assetInputStream = assetManager.open(dataSpec.uri.getPath().substring(1),
+          AssetManager.ACCESS_RANDOM);
       assetInputStream.skip(dataSpec.position);
       bytesRemaining = dataSpec.length == C.LENGTH_UNBOUNDED ? assetInputStream.available()
           : dataSpec.length;
@@ -94,7 +93,8 @@ public final class AssetDataSource implements DataSource {
     } else {
       int bytesRead = 0;
       try {
-        bytesRead = assetInputStream.read(buffer, offset, (int) Math.min(bytesRemaining, readLength));
+        bytesRead = assetInputStream.read(buffer, offset,
+            (int) Math.min(bytesRemaining, readLength));
       } catch (IOException e) {
         throw new AssetDataSourceException(e);
       }
@@ -114,12 +114,11 @@ public final class AssetDataSource implements DataSource {
   public void close() throws AssetDataSourceException {
     if (assetInputStream != null) {
       try {
-    	  assetInputStream.close();
+        assetInputStream.close();
       } catch (IOException e) {
         throw new AssetDataSourceException(e);
       } finally {
-    	  assetInputStream = null;
-
+        assetInputStream = null;
         if (opened) {
           opened = false;
           if (listener != null) {
