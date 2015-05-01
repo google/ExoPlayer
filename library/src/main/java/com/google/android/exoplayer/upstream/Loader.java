@@ -99,7 +99,8 @@ public final class Loader {
   }
 
   private static final int MSG_END_OF_SOURCE = 0;
-  private static final int MSG_ERROR = 1;
+  private static final int MSG_IO_EXCEPTION = 1;
+  private static final int MSG_FATAL_ERROR = 2;
 
   private final ExecutorService downloadExecutorService;
 
@@ -242,20 +243,30 @@ public final class Loader {
         }
         sendEmptyMessage(MSG_END_OF_SOURCE);
       } catch (IOException e) {
-        obtainMessage(MSG_ERROR, e).sendToTarget();
+        obtainMessage(MSG_IO_EXCEPTION, e).sendToTarget();
       } catch (InterruptedException e) {
         // The load was canceled.
         Assertions.checkState(loadable.isLoadCanceled());
         sendEmptyMessage(MSG_END_OF_SOURCE);
       } catch (Exception e) {
         // This should never happen, but handle it anyway.
+        Log.e(TAG, "Unexpected exception loading stream", e);
+        obtainMessage(MSG_IO_EXCEPTION, new UnexpectedLoaderException(e)).sendToTarget();
+      } catch (Error e) {
+        // We'd hope that the platform would kill the process if an Error is thrown here, but the
+        // executor may catch the error (b/20616433). Throw it here, but also pass and throw it from
+        // the handler thread so that the process dies even if the executor behaves in this way.
         Log.e(TAG, "Unexpected error loading stream", e);
-        obtainMessage(MSG_ERROR, new UnexpectedLoaderException(e)).sendToTarget();
+        obtainMessage(MSG_FATAL_ERROR, e).sendToTarget();
+        throw e;
       }
     }
 
     @Override
     public void handleMessage(Message msg) {
+      if (msg.what == MSG_FATAL_ERROR) {
+        throw (Error) msg.obj;
+      }
       onFinished();
       if (loadable.isLoadCanceled()) {
         callback.onLoadCanceled(loadable);
@@ -265,7 +276,7 @@ public final class Loader {
         case MSG_END_OF_SOURCE:
           callback.onLoadCompleted(loadable);
           break;
-        case MSG_ERROR:
+        case MSG_IO_EXCEPTION:
           callback.onLoadError(loadable, (IOException) msg.obj);
           break;
       }
