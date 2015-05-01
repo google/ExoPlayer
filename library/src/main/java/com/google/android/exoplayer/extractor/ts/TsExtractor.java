@@ -357,14 +357,14 @@ public final class TsExtractor implements Extractor {
             data.skipBytes(data.bytesLeft());
             break;
           case STATE_READING_HEADER:
-            if (continueRead(data, pesScratch.getData(), HEADER_SIZE)) {
+            if (continueRead(data, pesScratch.data, HEADER_SIZE)) {
               setState(parseHeader() ? STATE_READING_HEADER_EXTENSION : STATE_FINDING_HEADER);
             }
             break;
           case STATE_READING_HEADER_EXTENSION:
             int readLength = Math.min(MAX_HEADER_EXTENSION_SIZE, extendedHeaderLength);
             // Read as much of the extended header as we're interested in, and skip the rest.
-            if (continueRead(data, pesScratch.getData(), readLength)
+            if (continueRead(data, pesScratch.data, readLength)
                 && continueRead(data, null, extendedHeaderLength)) {
               parseHeaderExtension();
               bodyStarted = false;

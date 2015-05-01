@@ -135,7 +135,7 @@ public final class ParsableByteArray {
    * @param length The number of bytes to write.
    */
   public void readBytes(ParsableBitArray bitArray, int length) {
-    readBytes(bitArray.getData(), 0, length);
+    readBytes(bitArray.data, 0, length);
     bitArray.setPosition(0);
   }
 

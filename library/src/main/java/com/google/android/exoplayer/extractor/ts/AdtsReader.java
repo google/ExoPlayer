@@ -89,7 +89,7 @@ import java.util.Collections;
           break;
         case STATE_READING_HEADER:
           int targetLength = hasCrc ? HEADER_SIZE + CRC_SIZE : HEADER_SIZE;
-          if (continueRead(data, adtsScratch.getData(), targetLength)) {
+          if (continueRead(data, adtsScratch.data, targetLength)) {
             parseHeader();
             bytesRead = 0;
             state = STATE_READING_SAMPLE;

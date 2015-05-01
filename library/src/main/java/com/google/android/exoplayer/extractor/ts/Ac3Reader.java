@@ -53,7 +53,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   public Ac3Reader(TrackOutput output) {
     super(output);
     headerScratchBits = new ParsableBitArray(new byte[HEADER_SIZE]);
-    headerScratchBytes = new ParsableByteArray(headerScratchBits.getData());
+    headerScratchBytes = new ParsableByteArray(headerScratchBits.data);
     state = STATE_FINDING_SYNC;
   }
 
