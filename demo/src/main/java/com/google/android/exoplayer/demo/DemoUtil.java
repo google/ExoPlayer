@@ -46,9 +46,10 @@ public class DemoUtil {
   public static final int TYPE_HLS = 2;
   public static final int TYPE_MP4 = 3;
   public static final int TYPE_MP3 = 4;
-  public static final int TYPE_TS = 5;
-  public static final int TYPE_AAC = 6;
-  public static final int TYPE_OTHER = 7;
+  public static final int TYPE_WEBM = 5;
+  public static final int TYPE_TS = 6;
+  public static final int TYPE_AAC = 7;
+  public static final int TYPE_OTHER = 8;
 
   private static final CookieManager defaultCookieManager;
 

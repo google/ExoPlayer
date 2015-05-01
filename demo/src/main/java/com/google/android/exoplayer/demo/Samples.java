@@ -147,6 +147,9 @@ import java.util.Locale;
     new Sample("Google Play (MP3 Audio)",
         "http://storage.googleapis.com/exoplayer-test-media-0/play.mp3",
         DemoUtil.TYPE_MP3),
+    new Sample("Google Glass (WebM Video with Vorbis Audio)",
+        "http://demos.webmproject.org/exoplayer/glass_vp9_vorbis.webm",
+        DemoUtil.TYPE_WEBM),
   };
 
   private Samples() {}

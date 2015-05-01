@@ -31,6 +31,7 @@ import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer.extractor.ts.TsExtractor;
+import com.google.android.exoplayer.extractor.webm.WebmExtractor;
 import com.google.android.exoplayer.metadata.GeobMetadata;
 import com.google.android.exoplayer.metadata.PrivMetadata;
 import com.google.android.exoplayer.metadata.TxxxMetadata;
@@ -242,6 +243,9 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       case DemoUtil.TYPE_AAC:
         return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
             new AdtsExtractor());
+      case DemoUtil.TYPE_WEBM:
+        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+            new WebmExtractor());
       default:
         return new DefaultRendererBuilder(this, contentUri, debugTextView);
     }
