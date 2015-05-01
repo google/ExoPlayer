@@ -313,7 +313,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
   @Override
   public void release() {
     Assertions.checkState(remainingReleaseCount > 0);
-    if (--remainingReleaseCount == 0) {
+    if (--remainingReleaseCount == 0 && loader != null) {
       loader.release();
       loader = null;
     }

@@ -234,7 +234,7 @@ public final class FrameworkSampleSource implements SampleSource {
   @Override
   public void release() {
     Assertions.checkState(remainingReleaseCount > 0);
-    if (--remainingReleaseCount == 0) {
+    if (--remainingReleaseCount == 0 && extractor != null) {
       extractor.release();
       extractor = null;
     }
