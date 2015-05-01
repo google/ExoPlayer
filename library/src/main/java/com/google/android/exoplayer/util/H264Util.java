@@ -173,4 +173,8 @@ public final class H264Util {
     prefixFlags[2] = false;
   }
 
+  private H264Util() {
+    // Prevent instantiation.
+  }
+
 }

@@ -17,6 +17,7 @@ package com.google.android.exoplayer.extractor.mp4;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.util.Ac3Util;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.H264Util;
@@ -32,12 +33,6 @@ import java.util.List;
 
 /** Utility methods for parsing MP4 format atom payloads according to ISO 14496-12. */
 /* package */ final class AtomParsers {
-
-  /** Channel counts for AC-3 audio, indexed by acmod. (See ETSI TS 102 366.) */
-  private static final int[] AC3_CHANNEL_COUNTS = new int[] {2, 1, 2, 3, 3, 4, 4, 5};
-  /** Nominal bitrates for AC-3 audio in kbps, indexed by bit_rate_code. (See ETSI TS 102 366.) */
-  private static final int[] AC3_BITRATES = new int[] {32, 40, 48, 56, 64, 80, 96, 112, 128, 160,
-      192, 224, 256, 320, 384, 448, 512, 576, 640};
 
   /**
    * Parses a trak atom (defined in 14496-12).
@@ -528,32 +523,20 @@ import java.util.List;
         }
       } else if (atomType == Atom.TYPE_ac_3 && childAtomType == Atom.TYPE_dac3) {
         // TODO: Choose the right AC-3 track based on the contents of dac3/dec3.
-        Ac3Format ac3Format =
-            parseAc3SpecificBoxFromParent(parent, childStartPosition);
-        if (ac3Format != null) {
-          sampleRate = ac3Format.sampleRate;
-          channelCount = ac3Format.channelCount;
-          bitrate = ac3Format.bitrate;
-        }
         // TODO: Add support for encryption (by setting out.trackEncryptionBoxes).
-      } else if (atomType == Atom.TYPE_ec_3 && childAtomType == Atom.TYPE_dec3) {
-        sampleRate = parseEc3SpecificBoxFromParent(parent, childStartPosition);
-        // TODO: Add support for encryption (by setting out.trackEncryptionBoxes).
+        parent.setPosition(Atom.HEADER_SIZE + childStartPosition);
+        out.mediaFormat = Ac3Util.parseAnnexFAc3Format(parent);
+        return;
+      } else if  (atomType == Atom.TYPE_ec_3 && childAtomType == Atom.TYPE_dec3) {
+        parent.setPosition(Atom.HEADER_SIZE + childStartPosition);
+        out.mediaFormat = Ac3Util.parseAnnexFEAc3Format(parent);
+        return;
       }
       childPosition += childAtomSize;
     }
 
-    String mimeType;
-    if (atomType == Atom.TYPE_ac_3) {
-      mimeType = MimeTypes.AUDIO_AC3;
-    } else if (atomType == Atom.TYPE_ec_3) {
-      mimeType = MimeTypes.AUDIO_EC3;
-    } else {
-      mimeType = MimeTypes.AUDIO_AAC;
-    }
-
     out.mediaFormat = MediaFormat.createAudioFormat(
-        mimeType, sampleSize, durationUs, channelCount, sampleRate, bitrate,
+        MimeTypes.AUDIO_AAC, sampleSize, durationUs, channelCount, sampleRate, bitrate,
         initializationData == null ? null : Collections.singletonList(initializationData));
   }
 
@@ -601,68 +584,8 @@ import java.util.List;
     return initializationData;
   }
 
-  private static Ac3Format parseAc3SpecificBoxFromParent(ParsableByteArray parent, int position) {
-    // Start of the dac3 atom (defined in ETSI TS 102 366)
-    parent.setPosition(position + Atom.HEADER_SIZE);
-
-    // fscod (sample rate code)
-    int fscod = (parent.readUnsignedByte() & 0xC0) >> 6;
-    int sampleRate;
-    switch (fscod) {
-      case 0:
-        sampleRate = 48000;
-        break;
-      case 1:
-        sampleRate = 44100;
-        break;
-      case 2:
-        sampleRate = 32000;
-        break;
-      default:
-        // TODO: The decoder should not use this stream.
-        return null;
-    }
-
-    int nextByte = parent.readUnsignedByte();
-
-    // Map acmod (audio coding mode) onto a channel count.
-    int channelCount = AC3_CHANNEL_COUNTS[(nextByte & 0x38) >> 3];
-
-    // lfeon (low frequency effects on)
-    if ((nextByte & 0x04) != 0) {
-      channelCount++;
-    }
-
-    // Map bit_rate_code onto a bitrate in kbit/s.
-    int bitrate = AC3_BITRATES[((nextByte & 0x03) << 3) + (parent.readUnsignedByte() >> 5)];
-
-    return new Ac3Format(channelCount, sampleRate, bitrate);
-  }
-
-  private static int parseEc3SpecificBoxFromParent(ParsableByteArray parent, int position) {
-    // Start of the dec3 atom (defined in ETSI TS 102 366)
-    parent.setPosition(position + Atom.HEADER_SIZE);
-    // TODO: Implement parsing for enhanced AC-3 with multiple sub-streams.
-    return 0;
-  }
-
   private AtomParsers() {
     // Prevent instantiation.
-  }
-
-  /** Represents the format for AC-3 audio. */
-  private static final class Ac3Format {
-
-    public final int channelCount;
-    public final int sampleRate;
-    public final int bitrate;
-
-    public Ac3Format(int channelCount, int sampleRate, int bitrate) {
-      this.channelCount = channelCount;
-      this.sampleRate = sampleRate;
-      this.bitrate = bitrate;
-    }
-
   }
 
   /**
