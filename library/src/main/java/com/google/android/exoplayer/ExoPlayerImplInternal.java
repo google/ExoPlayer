@@ -247,7 +247,7 @@ import java.util.List;
   }
 
   private void prepareInternal(TrackRenderer[] renderers) {
-    rebuffering = false;
+    resetInternal();
     this.renderers = renderers;
     for (int i = 0; i < renderers.length; i++) {
       if (renderers[i].isTimeSource()) {
@@ -475,12 +475,13 @@ import java.util.List;
   }
 
   private void stopInternal() {
-    rebuffering = false;
     resetInternal();
+    setState(ExoPlayer.STATE_IDLE);
   }
 
   private void releaseInternal() {
     resetInternal();
+    setState(ExoPlayer.STATE_IDLE);
     synchronized (this) {
       released = true;
       notifyAll();
@@ -490,6 +491,7 @@ import java.util.List;
   private void resetInternal() {
     handler.removeMessages(MSG_DO_SOME_WORK);
     handler.removeMessages(MSG_INCREMENTAL_PREPARE);
+    rebuffering = false;
     mediaClock.stop();
     if (renderers == null) {
       return;
@@ -502,7 +504,6 @@ import java.util.List;
     renderers = null;
     timeSourceTrackRenderer = null;
     enabledRenderers.clear();
-    setState(ExoPlayer.STATE_IDLE);
   }
 
   private void stopAndDisable(TrackRenderer renderer) {
