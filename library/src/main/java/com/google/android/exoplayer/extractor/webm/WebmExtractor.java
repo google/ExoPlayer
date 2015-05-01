@@ -32,6 +32,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -49,6 +50,10 @@ public final class WebmExtractor implements Extractor {
   private static final int SAMPLE_STATE_HEADER = 1;
   private static final int SAMPLE_STATE_DATA = 2;
 
+  private static final int CUES_STATE_NOT_BUILT = 0;
+  private static final int CUES_STATE_BUILDING = 1;
+  private static final int CUES_STATE_BUILT = 2;
+
   private static final String DOC_TYPE_WEBM = "webm";
   private static final String CODEC_ID_VP9 = "V_VP9";
   private static final String CODEC_ID_VORBIS = "A_VORBIS";
@@ -65,6 +70,10 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_DOC_TYPE = 0x4282;
   private static final int ID_DOC_TYPE_READ_VERSION = 0x4285;
   private static final int ID_SEGMENT = 0x18538067;
+  private static final int ID_SEEK_HEAD = 0x114D9B74;
+  private static final int ID_SEEK = 0x4DBB;
+  private static final int ID_SEEK_ID = 0x53AB;
+  private static final int ID_SEEK_POSITION = 0x53AC;
   private static final int ID_INFO = 0x1549A966;
   private static final int ID_TIMECODE_SCALE = 0x2AD7B1;
   private static final int ID_DURATION = 0x4489;
@@ -108,7 +117,8 @@ public final class WebmExtractor implements Extractor {
   private final EbmlReader reader;
   private final VarintReader varintReader;
   private final ParsableByteArray sampleHeaderScratch;
-  private ParsableByteArray vorbisNumPageSamples;
+  private final ParsableByteArray vorbisNumPageSamples;
+  private final ParsableByteArray seekEntryIdBytes;
 
   private long segmentContentPosition = UNKNOWN;
   private long segmentContentSize = UNKNOWN;
@@ -121,7 +131,14 @@ public final class WebmExtractor implements Extractor {
 
   private boolean sentDrmInitData;
 
-  // Cue related elements.
+  // Master seek entry related elements.
+  private int seekEntryId;
+  private long seekEntryPosition;
+
+  private boolean seekForCues;
+  private long cuesContentPosition = UNKNOWN;
+  private long seekPositionAfterBuildingCues = UNKNOWN;
+  private int cuesState = CUES_STATE_NOT_BUILT;
   private long clusterTimecodeUs = UNKNOWN;
   private LongArray cueTimesUs;
   private LongArray cueClusterPositions;
@@ -148,6 +165,8 @@ public final class WebmExtractor implements Extractor {
     this.reader.init(new InnerEbmlReaderOutput());
     varintReader = new VarintReader();
     sampleHeaderScratch = new ParsableByteArray(4);
+    vorbisNumPageSamples = new ParsableByteArray(ByteBuffer.allocate(4).putInt(-1).array());
+    seekEntryIdBytes = new ParsableByteArray(4);
   }
 
   @Override
@@ -167,17 +186,22 @@ public final class WebmExtractor implements Extractor {
   public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException,
       InterruptedException {
     sampleRead = false;
-    boolean inputHasData = true;
-    while (!sampleRead && inputHasData) {
-      inputHasData = reader.read(input);
+    boolean continueReading = true;
+    while (continueReading && !sampleRead) {
+      continueReading = reader.read(input);
+      if (continueReading && maybeSeekForCues(seekPosition, input.getPosition())) {
+        return Extractor.RESULT_SEEK;
+      }
     }
-    return inputHasData ? Extractor.RESULT_CONTINUE : Extractor.RESULT_END_OF_INPUT;
+    return continueReading ? Extractor.RESULT_CONTINUE : Extractor.RESULT_END_OF_INPUT;
   }
 
   /* package */ int getElementType(int id) {
     switch (id) {
       case ID_EBML:
       case ID_SEGMENT:
+      case ID_SEEK_HEAD:
+      case ID_SEEK:
       case ID_INFO:
       case ID_CLUSTER:
       case ID_TRACKS:
@@ -195,6 +219,7 @@ public final class WebmExtractor implements Extractor {
         return EbmlReader.TYPE_MASTER;
       case ID_EBML_READ_VERSION:
       case ID_DOC_TYPE_READ_VERSION:
+      case ID_SEEK_POSITION:
       case ID_TIMECODE_SCALE:
       case ID_TIME_CODE:
       case ID_PIXEL_WIDTH:
@@ -215,6 +240,7 @@ public final class WebmExtractor implements Extractor {
       case ID_DOC_TYPE:
       case ID_CODEC_ID:
         return EbmlReader.TYPE_STRING;
+      case ID_SEEK_ID:
       case ID_CONTENT_ENCRYPTION_KEY_ID:
       case ID_SIMPLE_BLOCK:
       case ID_BLOCK:
@@ -238,12 +264,23 @@ public final class WebmExtractor implements Extractor {
         segmentContentPosition = contentPosition;
         segmentContentSize = contentSize;
         return;
+      case ID_SEEK:
+        seekEntryId = UNKNOWN;
+        seekEntryPosition = UNKNOWN;
+        return;
       case ID_CUES:
         cueTimesUs = new LongArray();
         cueClusterPositions = new LongArray();
         return;
       case ID_CUE_POINT:
         seenClusterPositionForCurrentCuePoint = false;
+        return;
+      case ID_CLUSTER:
+        // If we encounter a Cluster before building Cues, then we should try to build cues first
+        // before parsing the Cluster.
+        if (cuesState == CUES_STATE_NOT_BUILT && cuesContentPosition != UNKNOWN) {
+          seekForCues = true;
+        }
         return;
       case ID_CONTENT_ENCODING:
         // TODO: check and fail if more than one content encoding is present.
@@ -261,8 +298,21 @@ public final class WebmExtractor implements Extractor {
 
   /* package */ void endMasterElement(int id) throws ParserException {
     switch (id) {
+      case ID_SEEK:
+        if (seekEntryId == UNKNOWN || seekEntryPosition == UNKNOWN) {
+          throw new ParserException("Mandatory element SeekID or SeekPosition not found");
+        }
+        if (seekEntryId == ID_CUES) {
+          cuesContentPosition = seekEntryPosition;
+        }
+        return;
       case ID_CUES:
-        extractorOutput.seekMap(buildCues());
+        if (cuesState != CUES_STATE_BUILT) {
+          extractorOutput.seekMap(buildCues());
+          cuesState = CUES_STATE_BUILT;
+        } else {
+          // We have already built the cues. Ignore.
+        }
         return;
       case ID_CONTENT_ENCODING:
         if (!trackFormat.hasContentEncryption) {
@@ -325,6 +375,11 @@ public final class WebmExtractor implements Extractor {
         if (value < 1 || value > 2) {
           throw new ParserException("DocTypeReadVersion " + value + " not supported");
         }
+        return;
+      case ID_SEEK_POSITION:
+        // Seek Position is the relative offset beginning from the Segment. So to get absolute
+        // offset from the beginning of the file, we need to add segmentContentPosition to it.
+        seekEntryPosition = value + segmentContentPosition;
         return;
       case ID_TIMECODE_SCALE:
         timecodeScale = value;
@@ -433,6 +488,12 @@ public final class WebmExtractor implements Extractor {
   /* package */ void binaryElement(int id, int contentSize, ExtractorInput input)
       throws IOException, InterruptedException {
     switch (id) {
+      case ID_SEEK_ID:
+        Arrays.fill(seekEntryIdBytes.data, (byte) 0);
+        input.readFully(seekEntryIdBytes.data, 4 - contentSize, contentSize);
+        seekEntryIdBytes.setPosition(0);
+        seekEntryId = (int) seekEntryIdBytes.readUnsignedInt();
+        return;
       case ID_CODEC_PRIVATE:
         trackFormat.codecPrivate = new byte[contentSize];
         input.readFully(trackFormat.codecPrivate, 0, contentSize);
@@ -535,12 +596,7 @@ public final class WebmExtractor implements Extractor {
           // we set it to -1). The android platform media extractor [2] does the same.
           // [1] https://android.googlesource.com/platform/frameworks/av/+/lollipop-release/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp#314
           // [2] https://android.googlesource.com/platform/frameworks/av/+/lollipop-release/media/libstagefright/NuMediaExtractor.cpp#474
-          if (vorbisNumPageSamples == null) {
-            vorbisNumPageSamples =
-                new ParsableByteArray(ByteBuffer.allocate(4).putInt(-1).array());
-          } else {
-            vorbisNumPageSamples.setPosition(0);
-          }
+          vorbisNumPageSamples.setPosition(0);
           trackOutput.sampleData(vorbisNumPageSamples, 4);
           sampleSize += 4;
         }
@@ -680,6 +736,33 @@ public final class WebmExtractor implements Extractor {
     } catch (ArrayIndexOutOfBoundsException e) {
       throw new ParserException("Error parsing vorbis codec private");
     }
+  }
+
+  /**
+   * Updates the position of the holder to Cues element's position if the extractor configuration
+   * permits use of master seek entry. After building Cues sets the holder's position back to where
+   * it was before.
+   *
+   * @param seekPosition The holder whose position will be updated.
+   * @param currentPosition Current position of the input.
+   * @return true if the seek position was updated, false otherwise.
+   */
+  private boolean maybeSeekForCues(PositionHolder seekPosition, long currentPosition) {
+    if (seekForCues) {
+      seekPositionAfterBuildingCues = currentPosition;
+      seekPosition.position = cuesContentPosition;
+      cuesState = CUES_STATE_BUILDING;
+      seekForCues = false;
+      return true;
+    }
+    // After parsing Cues, Seek back to original position if available. We will not do this unless
+    // we seeked to get to the Cues in the first place.
+    if (cuesState == CUES_STATE_BUILT && seekPositionAfterBuildingCues != UNKNOWN) {
+      seekPosition.position = seekPositionAfterBuildingCues;
+      seekPositionAfterBuildingCues = UNKNOWN;
+      return true;
+    }
+    return false;
   }
 
   private long scaleTimecodeToUs(long unscaledTimecode) {
