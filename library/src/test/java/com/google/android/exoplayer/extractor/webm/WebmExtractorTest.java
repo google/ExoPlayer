@@ -70,55 +70,105 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   private static final int ID_VP9 = 0;
   private static final int ID_OPUS = 1;
   private static final int ID_VORBIS = 2;
+  private static final int ID_DUMMY = 3;
 
   private WebmExtractor extractor;
-  private TestOutput output;
+  private TestExtractorOutput extractorOutput;
+  private TestTrackOutput audioOutput;
+  private TestTrackOutput videoOutput;
 
   @Override
   public void setUp() {
     extractor = new WebmExtractor();
-    output = new TestOutput();
-    extractor.init(output);
+    extractorOutput = new TestExtractorOutput();
+    audioOutput = new TestTrackOutput();
+    videoOutput = new TestTrackOutput();
+    extractor.init(extractorOutput);
   }
 
   @Override
   public void tearDown() {
     extractor = null;
-    output = null;
+    extractorOutput = null;
+    audioOutput = null;
+    videoOutput = null;
   }
 
   public void testReadInitializationSegment() throws IOException, InterruptedException {
-    consume(createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE, ID_VP9, null));
-    assertFormat();
+    consume(
+        createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE,
+            new int[] {ID_VP9}, null));
+    assertVideoFormat();
     assertIndex(new IndexPoint(0, 0, TEST_DURATION_US));
   }
 
   public void testPrepareOpus() throws IOException, InterruptedException {
-    consume(createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE, ID_OPUS, null));
+    consume(
+        createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE,
+            new int[] {ID_OPUS}, null));
     assertAudioFormat(ID_OPUS);
     assertIndex(new IndexPoint(0, 0, TEST_DURATION_US));
   }
 
   public void testPrepareVorbis() throws IOException, InterruptedException {
-    consume(createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE, ID_VORBIS, null));
+    consume(
+        createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE,
+            new int[] {ID_VORBIS}, null));
+    assertAudioFormat(ID_VORBIS);
+    assertIndex(new IndexPoint(0, 0, TEST_DURATION_US));
+  }
+
+  public void testPrepareTwoTracks() throws IOException, InterruptedException {
+    consume(
+        createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE,
+            new int[] {ID_VP9, ID_OPUS}, null));
+    assertEquals(2, extractorOutput.numberOfTracks);
+    assertVideoFormat();
+    assertAudioFormat(ID_OPUS);
+    assertIndex(new IndexPoint(0, 0, TEST_DURATION_US));
+  }
+
+  public void testPrepareThreeTracks() throws IOException, InterruptedException {
+    consume(
+        createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE,
+            new int[] {ID_VP9, ID_DUMMY, ID_OPUS}, null));
+    // Eventhough the input stream has 3 tracks, only 2 of them are supported and will be reported.
+    assertEquals(2, extractorOutput.numberOfTracks);
+    assertVideoFormat();
+    assertAudioFormat(ID_OPUS);
+    assertIndex(new IndexPoint(0, 0, TEST_DURATION_US));
+  }
+
+  public void testPrepareFourTracks() throws IOException, InterruptedException {
+    consume(
+        createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE,
+            new int[] {ID_VP9, ID_VORBIS, ID_VP9, ID_OPUS}, null));
+    // Eventhough the input stream has 4 supported tracks, only the first video and audio track will
+    // be reported.
+    assertEquals(2, extractorOutput.numberOfTracks);
+    assertVideoFormat();
     assertAudioFormat(ID_VORBIS);
     assertIndex(new IndexPoint(0, 0, TEST_DURATION_US));
   }
 
   public void testPrepareContentEncodingEncryption() throws IOException, InterruptedException {
     ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 1, 5, 1);
-    consume(createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE, ID_VP9, settings));
-    assertFormat();
+    consume(
+        createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE,
+            new int[] {ID_VP9}, settings));
+    assertVideoFormat();
     assertIndex(new IndexPoint(0, 0, TEST_DURATION_US));
-    DrmInitData drmInitData = output.drmInitData;
-    assertNotNull(output.drmInitData);
+    DrmInitData drmInitData = extractorOutput.drmInitData;
+    assertNotNull(drmInitData);
     android.test.MoreAsserts.assertEquals(TEST_ENCRYPTION_KEY_ID, drmInitData.get(WIDEVINE_UUID));
     android.test.MoreAsserts.assertEquals(TEST_ENCRYPTION_KEY_ID, drmInitData.get(ZERO_UUID));
   }
 
   public void testPrepareThreeCuePoints() throws IOException, InterruptedException {
-    consume(createInitializationSegment(3, 0, true, DEFAULT_TIMECODE_SCALE, ID_VP9, null));
-    assertFormat();
+    consume(
+        createInitializationSegment(3, 0, true, DEFAULT_TIMECODE_SCALE,
+            new int[] {ID_VP9}, null));
+    assertVideoFormat();
     assertIndex(
         new IndexPoint(0, 0, 10000),
         new IndexPoint(10000, 0, 10000),
@@ -126,8 +176,8 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   }
 
   public void testPrepareCustomTimecodeScale() throws IOException, InterruptedException {
-    consume(createInitializationSegment(3, 0, true, 1000, ID_VP9, null));
-    assertFormat();
+    consume(createInitializationSegment(3, 0, true, 1000, new int[] {ID_VP9}, null));
+    assertVideoFormat();
     assertIndex(
         new IndexPoint(0, 0, 10),
         new IndexPoint(10, 0, 10),
@@ -136,7 +186,9 @@ public class WebmExtractorTest extends InstrumentationTestCase {
 
   public void testPrepareNoCuePoints() throws IOException, InterruptedException {
     try {
-      consume(createInitializationSegment(0, 0, true, DEFAULT_TIMECODE_SCALE, ID_VP9, null));
+      consume(
+          createInitializationSegment(0, 0, true, DEFAULT_TIMECODE_SCALE,
+              new int[] {ID_VP9}, null));
       fail();
     } catch (ParserException exception) {
       assertEquals("Invalid/missing cue points", exception.getMessage());
@@ -145,7 +197,9 @@ public class WebmExtractorTest extends InstrumentationTestCase {
 
   public void testPrepareInvalidDocType() throws IOException, InterruptedException {
     try {
-      consume(createInitializationSegment(1, 0, false, DEFAULT_TIMECODE_SCALE, ID_VP9, null));
+      consume(
+          createInitializationSegment(1, 0, false, DEFAULT_TIMECODE_SCALE,
+              new int[] {ID_VP9}, null));
       fail();
     } catch (ParserException exception) {
       assertEquals("DocType webB not supported", exception.getMessage());
@@ -155,7 +209,9 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   public void testPrepareInvalidContentEncodingOrder() throws IOException, InterruptedException {
     ContentEncodingSettings settings = new ContentEncodingSettings(1, 1, 1, 5, 1);
     try {
-      consume(createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE, ID_VP9, settings));
+      consume(
+          createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE,
+              new int[] {ID_VP9}, settings));
       fail();
     } catch (ParserException exception) {
       assertEquals("ContentEncodingOrder 1 not supported", exception.getMessage());
@@ -165,7 +221,9 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   public void testPrepareInvalidContentEncodingScope() throws IOException, InterruptedException {
     ContentEncodingSettings settings = new ContentEncodingSettings(0, 0, 1, 5, 1);
     try {
-      consume(createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE, ID_VP9, settings));
+      consume(
+          createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE,
+              new int[] {ID_VP9}, settings));
       fail();
     } catch (ParserException exception) {
       assertEquals("ContentEncodingScope 0 not supported", exception.getMessage());
@@ -175,7 +233,9 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   public void testPrepareInvalidContentEncodingType() throws IOException, InterruptedException {
     ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 0, 5, 1);
     try {
-      consume(createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE, ID_VP9, settings));
+      consume(
+          createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE,
+              new int[] {ID_VP9}, settings));
       fail();
     } catch (ParserException exception) {
       assertEquals("ContentEncodingType 0 not supported", exception.getMessage());
@@ -185,7 +245,9 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   public void testPrepareInvalidContentEncAlgo() throws IOException, InterruptedException {
     ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 1, 4, 1);
     try {
-      consume(createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE, ID_VP9, settings));
+      consume(
+          createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE,
+              new int[] {ID_VP9}, settings));
       fail();
     } catch (ParserException exception) {
       assertEquals("ContentEncAlgo 4 not supported", exception.getMessage());
@@ -195,7 +257,9 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   public void testPrepareInvalidAESSettingsCipherMode() throws IOException, InterruptedException {
     ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 1, 5, 0);
     try {
-      consume(createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE, ID_VP9, settings));
+      consume(
+          createInitializationSegment(1, 0, true, DEFAULT_TIMECODE_SCALE,
+              new int[] {ID_VP9}, settings));
       fail();
     } catch (ParserException exception) {
       assertEquals("AESSettingsCipherMode 0 not supported", exception.getMessage());
@@ -203,46 +267,94 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   }
 
   public void testReadSampleKeyframe() throws IOException, InterruptedException {
-    MediaSegment mediaSegment = createMediaSegment(100, 0, 0, true, false, true, false, false);
+    MediaSegment mediaSegment =
+        createMediaSegment(100, 0, 0, true, false, true, false, false, 1);
     byte[] testInputData = joinByteArrays(
         createInitializationSegment(
-            1, mediaSegment.clusterBytes.length, true, DEFAULT_TIMECODE_SCALE, ID_VP9, null),
+            1, mediaSegment.clusterBytes.length, true, DEFAULT_TIMECODE_SCALE,
+            new int[] {ID_VP9}, null),
         mediaSegment.clusterBytes);
     consume(testInputData);
-    assertFormat();
-    assertSample(mediaSegment, 0, true, false, false);
+    assertVideoFormat();
+    assertSample(mediaSegment, 0, true, false, false, videoOutput);
+  }
+
+  public void testReadTwoTrackSamples() throws IOException, InterruptedException {
+    MediaSegment mediaSegmentAudio =
+        createMediaSegment(100, 0, 0, true, false, true, false, false, 2);
+    MediaSegment mediaSegmentVideo =
+        createMediaSegment(100, 0, 0, true, false, true, false, false, 1);
+    byte[] testInputData = joinByteArrays(
+        createInitializationSegment(
+            1, mediaSegmentAudio.clusterBytes.length + mediaSegmentVideo.clusterBytes.length,
+            true, DEFAULT_TIMECODE_SCALE, new int[] {ID_VP9, ID_OPUS}, null),
+        mediaSegmentVideo.clusterBytes, mediaSegmentAudio.clusterBytes);
+    consume(testInputData);
+    assertEquals(2, extractorOutput.numberOfTracks);
+    assertVideoFormat();
+    assertAudioFormat(ID_OPUS);
+    assertSample(mediaSegmentVideo, 0, true, false, false, videoOutput);
+    assertSample(mediaSegmentAudio, 0, true, false, false, audioOutput);
+  }
+
+  public void testReadTwoTrackSamplesWithSkippedTrack() throws IOException, InterruptedException {
+    MediaSegment mediaSegmentAudio =
+        createMediaSegment(100, 0, 0, true, false, true, false, false, 2);
+    MediaSegment mediaSegmentVideo =
+        createMediaSegment(100, 0, 0, true, false, true, false, false, 1);
+    MediaSegment mediaSegmentDummy =
+        createMediaSegment(100, 0, 0, true, false, true, false, false, 17);
+    byte[] testInputData = joinByteArrays(
+        createInitializationSegment(
+            1,
+            mediaSegmentAudio.clusterBytes.length + mediaSegmentVideo.clusterBytes.length
+                + mediaSegmentDummy.clusterBytes.length,
+            true, DEFAULT_TIMECODE_SCALE, new int[] {ID_DUMMY, ID_VP9, ID_OPUS}, null),
+        mediaSegmentVideo.clusterBytes,
+        mediaSegmentDummy.clusterBytes,
+        mediaSegmentAudio.clusterBytes);
+    consume(testInputData);
+    assertEquals(2, extractorOutput.numberOfTracks);
+    assertVideoFormat();
+    assertAudioFormat(ID_OPUS);
+    assertSample(mediaSegmentVideo, 0, true, false, false, videoOutput);
+    assertSample(mediaSegmentAudio, 0, true, false, false, audioOutput);
   }
 
   public void testReadBlock() throws IOException, InterruptedException {
-    MediaSegment mediaSegment = createMediaSegment(100, 0, 0, true, false, false, false, false);
+    MediaSegment mediaSegment =
+        createMediaSegment(100, 0, 0, true, false, false, false, false, 2);
     byte[] testInputData = joinByteArrays(
         createInitializationSegment(
-            1, mediaSegment.clusterBytes.length, true, DEFAULT_TIMECODE_SCALE, ID_OPUS, null),
+            1, mediaSegment.clusterBytes.length, true, DEFAULT_TIMECODE_SCALE,
+            new int[] {ID_OPUS}, null),
         mediaSegment.clusterBytes);
     consume(testInputData);
     assertAudioFormat(ID_OPUS);
-    assertSample(mediaSegment, 0, true, false, false);
+    assertSample(mediaSegment, 0, true, false, false, audioOutput);
   }
 
   public void testReadEncryptedFrame() throws IOException, InterruptedException {
-    MediaSegment mediaSegment = createMediaSegment(100, 0, 0, true, false, true, true, true);
+    MediaSegment mediaSegment = createMediaSegment(100, 0, 0, true, false, true, true, true, 1);
     ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 1, 5, 1);
     byte[] testInputData = joinByteArrays(
         createInitializationSegment(
-            1, mediaSegment.clusterBytes.length, true, DEFAULT_TIMECODE_SCALE, ID_VP9, settings),
+            1, mediaSegment.clusterBytes.length, true, DEFAULT_TIMECODE_SCALE,
+            new int[] {ID_VP9}, settings),
         mediaSegment.clusterBytes);
     consume(testInputData);
-    assertFormat();
-    assertSample(mediaSegment, 0, true, false, true);
+    assertVideoFormat();
+    assertSample(mediaSegment, 0, true, false, true, videoOutput);
   }
 
   public void testReadEncryptedFrameWithInvalidSignalByte()
       throws IOException, InterruptedException {
-    MediaSegment mediaSegment = createMediaSegment(100, 0, 0, true, false, true, true, false);
+    MediaSegment mediaSegment = createMediaSegment(100, 0, 0, true, false, true, true, false, 1);
     ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 1, 5, 1);
     byte[] testInputData = joinByteArrays(
         createInitializationSegment(
-            1, mediaSegment.clusterBytes.length, true, DEFAULT_TIMECODE_SCALE, ID_VP9, settings),
+            1, mediaSegment.clusterBytes.length, true, DEFAULT_TIMECODE_SCALE,
+            new int[] {ID_VP9}, settings),
         mediaSegment.clusterBytes);
     try {
       consume(testInputData);
@@ -253,36 +365,41 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   }
 
   public void testReadSampleInvisible() throws IOException, InterruptedException {
-    MediaSegment mediaSegment = createMediaSegment(100, 12, 13, false, true, true, false, false);
+    MediaSegment mediaSegment =
+        createMediaSegment(100, 12, 13, false, true, true, false, false, 1);
     byte[] testInputData = joinByteArrays(
         createInitializationSegment(
-            1, mediaSegment.clusterBytes.length, true, DEFAULT_TIMECODE_SCALE, ID_VP9, null),
+            1, mediaSegment.clusterBytes.length, true, DEFAULT_TIMECODE_SCALE,
+            new int[] {ID_VP9}, null),
         mediaSegment.clusterBytes);
     consume(testInputData);
-    assertFormat();
-    assertSample(mediaSegment, 25000, false, true, false);
+    assertVideoFormat();
+    assertSample(mediaSegment, 25000, false, true, false, videoOutput);
   }
 
   public void testReadSampleCustomTimescale() throws IOException, InterruptedException {
-    MediaSegment mediaSegment = createMediaSegment(100, 12, 13, false, false, true, false, false);
+    MediaSegment mediaSegment =
+        createMediaSegment(100, 12, 13, false, false, true, false, false, 1);
     byte[] testInputData = joinByteArrays(
         createInitializationSegment(
-            1, mediaSegment.clusterBytes.length, true, 1000, ID_VP9, null),
+            1, mediaSegment.clusterBytes.length, true, 1000, new int[] {ID_VP9}, null),
         mediaSegment.clusterBytes);
     consume(testInputData);
-    assertFormat();
-    assertSample(mediaSegment, 25, false, false, false);
+    assertVideoFormat();
+    assertSample(mediaSegment, 25, false, false, false, videoOutput);
   }
 
   public void testReadSampleNegativeSimpleBlockTimecode() throws IOException, InterruptedException {
-    MediaSegment mediaSegment = createMediaSegment(100, 13, -12, true, true, true, false, false);
+    MediaSegment mediaSegment =
+        createMediaSegment(100, 13, -12, true, true, true, false, false, 1);
     byte[] testInputData = joinByteArrays(
         createInitializationSegment(
-            1, mediaSegment.clusterBytes.length, true, DEFAULT_TIMECODE_SCALE, ID_VP9, null),
+            1, mediaSegment.clusterBytes.length, true, DEFAULT_TIMECODE_SCALE,
+            new int[] {ID_VP9}, null),
         mediaSegment.clusterBytes);
     consume(testInputData);
-    assertFormat();
-    assertSample(mediaSegment, 1000, true, true, false);
+    assertVideoFormat();
+    assertSample(mediaSegment, 1000, true, true, false, videoOutput);
   }
 
   private void consume(byte[] data) throws IOException, InterruptedException {
@@ -301,15 +418,15 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     return input;
   }
 
-  private void assertFormat() {
-    MediaFormat format = output.format;
+  private void assertVideoFormat() {
+    MediaFormat format = videoOutput.format;
     assertEquals(TEST_WIDTH, format.width);
     assertEquals(TEST_HEIGHT, format.height);
     assertEquals(MimeTypes.VIDEO_VP9, format.mimeType);
   }
 
   private void assertAudioFormat(int codecId) {
-    MediaFormat format = output.format;
+    MediaFormat format = audioOutput.format;
     assertEquals(TEST_CHANNEL_COUNT, format.channelCount);
     assertEquals(TEST_SAMPLE_RATE, format.sampleRate);
     if (codecId == ID_OPUS) {
@@ -327,7 +444,7 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   }
 
   private void assertIndex(IndexPoint... indexPoints) {
-    ChunkIndex index = (ChunkIndex) output.seekMap;
+    ChunkIndex index = (ChunkIndex) extractorOutput.seekMap;
     assertEquals(indexPoints.length, index.length);
     for (int i = 0; i < indexPoints.length; i++) {
       IndexPoint indexPoint = indexPoints[i];
@@ -338,8 +455,8 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   }
 
   private void assertSample(MediaSegment mediaSegment, int timeUs, boolean keyframe,
-      boolean invisible, boolean encrypted) {
-    byte[] expectedOutput = mediaSegment.videoBytes;
+      boolean invisible, boolean encrypted, TestTrackOutput output) {
+    byte[] expectedOutput = mediaSegment.data;
     if (encrypted) {
       expectedOutput = joinByteArrays(new byte[] {(byte) TEST_INITIALIZATION_VECTOR.length},
           TEST_INITIALIZATION_VECTOR, expectedOutput);
@@ -353,24 +470,11 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   }
 
   private byte[] createInitializationSegment(int cuePoints, int mediaSegmentSize,
-      boolean docTypeIsWebm, int timecodeScale, int codecId,
+      boolean docTypeIsWebm, int timecodeScale, int[] codecIds,
       ContentEncodingSettings contentEncodingSettings) {
-    byte[] tracksElement = null;
-    switch (codecId) {
-      case ID_VP9:
-        tracksElement = createTracksElementWithVideo(
-            true, TEST_WIDTH, TEST_HEIGHT, contentEncodingSettings);
-        break;
-      case ID_OPUS:
-        tracksElement = createTracksElementWithOpusAudio(TEST_CHANNEL_COUNT);
-        break;
-      case ID_VORBIS:
-        tracksElement = createTracksElementWithVorbisAudio(TEST_CHANNEL_COUNT);
-        break;
-    }
+    byte[] tracksElement = createTracksElement(codecIds, contentEncodingSettings);
     byte[] infoElement = createInfoElement(timecodeScale);
     byte[] cuesElement = createCuesElement(CUE_POINT_ELEMENT_BYTE_SIZE * cuePoints);
-
     int initalizationSegmentSize = infoElement.length + tracksElement.length
         + cuesElement.length + CUE_POINT_ELEMENT_BYTE_SIZE * cuePoints;
     byte[] segmentElement = createSegmentElement(initalizationSegmentSize + mediaSegmentSize);
@@ -382,20 +486,47 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     return bytes;
   }
 
-  private static MediaSegment createMediaSegment(int videoBytesLength, int clusterTimecode,
+  private byte[] createTracksElement(int[] codecIds,
+      ContentEncodingSettings contentEncodingSettings) {
+    byte[] trackBytes = new byte[0];
+    for (int codecId : codecIds) {
+      switch (codecId) {
+        case ID_VP9:
+          trackBytes = joinByteArrays(trackBytes,
+              createVideoTrackEntry(true, TEST_WIDTH, TEST_HEIGHT, contentEncodingSettings));
+          break;
+        case ID_OPUS:
+          trackBytes = joinByteArrays(trackBytes, createOpusAudioTrackEntry(TEST_CHANNEL_COUNT));
+          break;
+        case ID_VORBIS:
+          trackBytes = joinByteArrays(trackBytes, createVorbisAudioTrackEntry(TEST_CHANNEL_COUNT));
+          break;
+        case ID_DUMMY:
+          trackBytes = joinByteArrays(trackBytes, createUnsupportedTrackEntry());
+          break;
+      }
+    }
+    byte[] tracksSize = getIntegerBytes(trackBytes.length);
+    byte[] tracksHeader = createByteArray(
+        0x16, 0x54, 0xAE, 0x6B, // Tracks
+        0x01, 0x00, 0x00, 0x00, tracksSize[0], tracksSize[1], tracksSize[2], tracksSize[3]);
+    return joinByteArrays(tracksHeader, trackBytes);
+  }
+
+  private static MediaSegment createMediaSegment(int dataLength, int clusterTimecode,
       int blockTimecode, boolean keyframe, boolean invisible, boolean simple,
-      boolean encrypted, boolean validSignalByte) {
-    byte[] videoBytes = createVideoBytes(videoBytesLength);
+      boolean encrypted, boolean validSignalByte, int trackNumber) {
+    byte[] data = createFrameData(dataLength);
     byte[] blockBytes;
     if (simple) {
-      blockBytes = createSimpleBlockElement(videoBytes.length, blockTimecode,
-          keyframe, invisible, true, encrypted, validSignalByte);
+      blockBytes = createSimpleBlockElement(data.length, blockTimecode,
+          keyframe, invisible, true, encrypted, validSignalByte, trackNumber);
     } else {
-      blockBytes = createBlockElement(videoBytes.length, blockTimecode, invisible, true);
+      blockBytes = createBlockElement(data.length, blockTimecode, invisible, true, trackNumber);
     }
     byte[] clusterBytes =
-        createClusterElement(blockBytes.length + videoBytes.length, clusterTimecode);
-    return new MediaSegment(joinByteArrays(clusterBytes, blockBytes, videoBytes), videoBytes);
+        createClusterElement(blockBytes.length + data.length, clusterTimecode);
+    return new MediaSegment(joinByteArrays(clusterBytes, blockBytes, data), data);
   }
 
   private static byte[] joinByteArrays(byte[]... byteArrays) {
@@ -443,7 +574,7 @@ public class WebmExtractorTest extends InstrumentationTestCase {
         0x88, 0x40, 0xC3, 0x60, 0x00, 0x00, 0x00, 0x00, 0x00); // size=8 value=9920.0
   }
 
-  private static byte[] createTracksElementWithVideo(
+  private static byte[] createVideoTrackEntry(
       boolean codecIsVp9, int pixelWidth, int pixelHeight,
       ContentEncodingSettings contentEncodingSettings) {
     byte[] widthBytes = getIntegerBytes(pixelWidth);
@@ -455,8 +586,6 @@ public class WebmExtractorTest extends InstrumentationTestCase {
       byte[] algorithmBytes = getIntegerBytes(contentEncodingSettings.algorithm);
       byte[] cipherModeBytes = getIntegerBytes(contentEncodingSettings.aesCipherMode);
       return createByteArray(
-          0x16, 0x54, 0xAE, 0x6B, // Tracks
-          0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x4E, // size=78
           0xAE, // TrackEntry
           0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x45, // size=69
           0x86, // CodecID
@@ -495,10 +624,8 @@ public class WebmExtractorTest extends InstrumentationTestCase {
           0x82, heightBytes[2], heightBytes[3]); // size=2
     } else {
       return createByteArray(
-          0x16, 0x54, 0xAE, 0x6B, // Tracks
-          0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2A, // size=42
           0xAE, // TrackEntry
-          0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x21, // size=33
+          0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1E, // size=30
           0x86, // CodecID
           0x85, 0x56, 0x5F, 0x56, 0x50, codecIsVp9 ? 0x39 : 0x30, // size=5 value=V_VP9/0
           0xD7, // TrackNumber
@@ -514,17 +641,15 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     }
   }
 
-  private static byte[] createTracksElementWithOpusAudio(int channelCount) {
+  private static byte[] createOpusAudioTrackEntry(int channelCount) {
     byte[] channelCountBytes = getIntegerBytes(channelCount);
     return createByteArray(
-        0x16, 0x54, 0xAE, 0x6B, // Tracks
-        0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3F, // size=63
         0xAE, // TrackEntry
         0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x36, // size=54
         0x86, // CodecID
         0x86, 0x41, 0x5F, 0x4F, 0x50, 0x55, 0x53, // size=6 value=A_OPUS
         0xD7, // TrackNumber
-        0x81, 0x01, // size=1 value=1
+        0x81, 0x02, // size=1 value=2
         0x83, // TrackType
         0x81, 0x02, // size=1 value=2
         0x56, 0xAA, // CodecDelay
@@ -541,17 +666,15 @@ public class WebmExtractorTest extends InstrumentationTestCase {
         0x82, 0x00, 0x00); // size=2
   }
 
-  private byte[] createTracksElementWithVorbisAudio(int channelCount) {
+  private byte[] createVorbisAudioTrackEntry(int channelCount) {
     byte[] channelCountBytes = getIntegerBytes(channelCount);
     byte[] tracksElement = createByteArray(
-        0x16, 0x54, 0xAE, 0x6B, // Tracks
-        0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0xA2, // size=4258
         0xAE, // TrackEntry
         0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x99, // size=4249 (42+4207)
         0x86, // CodecID
         0x88, 0x41, 0x5f, 0x56, 0x4f, 0x52, 0x42, 0x49, 0x53, // size=8 value=A_VORBIS
         0xD7, // TrackNumber
-        0x81, 0x01, // size=1 value=1
+        0x81, 0x02, // size=1 value=2
         0x83, // TrackType
         0x81, 0x02, // size=1 value=2
         0xE1, // Audio
@@ -570,6 +693,20 @@ public class WebmExtractorTest extends InstrumentationTestCase {
       fail(); // should never happen
     }
     return joinByteArrays(tracksElement, codecPrivate);
+  }
+
+  private static byte[] createUnsupportedTrackEntry() {
+    return createByteArray(
+        0xAE, // TrackEntry
+        0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, // size=32
+        0x86, // CodecID
+        0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11, // size =17
+        0x44, 0x5f, 0x57, 0x45, 0x42, 0x56, 0x54, 0x54,
+        0x2f, 0x6d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, // value=D_WEBVTT/metadata
+        0xD7, // TrackNumber
+        0x81, 0x03, // size=1 value=3
+        0x83, // TrackType
+        0x81, 0x11); // size=1 value=11
   }
 
   private static byte[] createCuesElement(int size) {
@@ -605,15 +742,16 @@ public class WebmExtractorTest extends InstrumentationTestCase {
 
   private static byte[] createSimpleBlockElement(
       int size, int timecode, boolean keyframe, boolean invisible, boolean noLacing,
-      boolean encrypted, boolean validSignalByte) {
-    byte[] sizeBytes = getIntegerBytes(size + 4 + (encrypted ? 9 : 0));
+      boolean encrypted, boolean validSignalByte, int trackNumber) {
+    byte[] sizeBytes = getIntegerBytes(size + 5 + (encrypted ? 9 : 0));
     byte[] timeBytes = getIntegerBytes(timecode);
+    byte[] trackNumberBytes = getIntegerBytes(trackNumber);
     byte flags = (byte)
         ((keyframe ? 0x80 : 0x00) | (invisible ? 0x08 : 0x00) | (noLacing ? 0x00 : 0x06));
     byte[] simpleBlock = createByteArray(
         0xA3, // SimpleBlock
         0x01, 0x00, 0x00, 0x00, sizeBytes[0], sizeBytes[1], sizeBytes[2], sizeBytes[3],
-        0x81, // Track number value=1
+        0x40, trackNumberBytes[3], // Track number size=2
         timeBytes[2], timeBytes[3], flags); // Timecode and flags
     if (encrypted) {
       simpleBlock = joinByteArrays(
@@ -624,10 +762,11 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   }
 
   private static byte[] createBlockElement(
-      int size, int timecode, boolean invisible, boolean noLacing) {
-    int blockSize = size + 4;
+      int size, int timecode, boolean invisible, boolean noLacing, int trackNumber) {
+    int blockSize = size + 5;
     byte[] blockSizeBytes = getIntegerBytes(blockSize);
     byte[] timeBytes = getIntegerBytes(timecode);
+    byte[] trackNumberBytes = getIntegerBytes(trackNumber);
     int blockElementSize = 1 + 8 + blockSize; // id + size + length of data
     byte[] sizeBytes = getIntegerBytes(blockElementSize);
     byte flags = (byte) ((invisible ? 0x08 : 0x00) | (noLacing ? 0x00 : 0x06));
@@ -637,16 +776,16 @@ public class WebmExtractorTest extends InstrumentationTestCase {
         0xA1, // Block
         0x01, 0x00, 0x00, 0x00,
         blockSizeBytes[0], blockSizeBytes[1], blockSizeBytes[2], blockSizeBytes[3],
-        0x81, // Track number value=1
+        0x40, trackNumberBytes[3], // Track number size=2
         timeBytes[2], timeBytes[3], flags); // Timecode and flags
   }
 
-  private static byte[] createVideoBytes(int size) {
-    byte[] videoBytes = new byte[size];
+  private static byte[] createFrameData(int size) {
+    byte[] data = new byte[size];
     for (int i = 0; i < size; i++) {
-      videoBytes[i] = (byte) i;
+      data[i] = (byte) i;
     }
-    return videoBytes;
+    return data;
   }
 
   private static byte[] getIntegerBytes(int value) {
@@ -669,11 +808,11 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   private static final class MediaSegment {
 
     private final byte[] clusterBytes;
-    private final byte[] videoBytes;
+    private final byte[] data;
 
-    private MediaSegment(byte[] clusterBytes, byte[] videoBytes) {
+    private MediaSegment(byte[] clusterBytes, byte[] data) {
       this.clusterBytes = clusterBytes;
-      this.videoBytes = videoBytes;
+      this.data = data;
     }
 
   }
@@ -713,21 +852,19 @@ public class WebmExtractorTest extends InstrumentationTestCase {
 
   }
 
-  /** Implements {@link ExtractorOutput} and {@link TrackOutput} for test purposes. */
-  public static class TestOutput implements ExtractorOutput, TrackOutput {
+  /** Implements {@link ExtractorOutput} for test purposes. */
+  public class TestExtractorOutput implements ExtractorOutput {
 
     public boolean tracksEnded;
     public SeekMap seekMap;
     public DrmInitData drmInitData;
-
-    public MediaFormat format;
-    private long sampleTimeUs;
-    private int sampleFlags;
-    private byte[] sampleData;
+    public int numberOfTracks;
 
     @Override
     public TrackOutput track(int trackId) {
-      return this;
+      numberOfTracks++;
+      // In the test samples, track number 1 is always video and track number 2 is always audio.
+      return (trackId == 1) ? videoOutput : audioOutput;
     }
 
     @Override
@@ -744,6 +881,16 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     public void drmInitData(DrmInitData drmInitData) {
       this.drmInitData = drmInitData;
     }
+
+  }
+
+  /** Implements {@link TrackOutput} for test purposes. */
+  public static class TestTrackOutput implements TrackOutput {
+
+    public MediaFormat format;
+    private long sampleTimeUs;
+    private int sampleFlags;
+    private byte[] sampleData;
 
     @Override
     public void format(MediaFormat format) {
