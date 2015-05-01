@@ -334,6 +334,19 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     assertSample(mediaSegment, 0, true, false, false, audioOutput);
   }
 
+  public void testReadBlockNonKeyframe() throws IOException, InterruptedException {
+    MediaSegment mediaSegment =
+        createMediaSegment(100, 0, 0, false, false, false, false, false, 1);
+    byte[] testInputData = joinByteArrays(
+        createInitializationSegment(
+            1, mediaSegment.clusterBytes.length, true, DEFAULT_TIMECODE_SCALE,
+            new int[] { ID_VP9 }, null),
+        mediaSegment.clusterBytes);
+    consume(testInputData);
+    assertVideoFormat();
+    assertSample(mediaSegment, 0, false, false, false, videoOutput);
+  }
+
   public void testReadEncryptedFrame() throws IOException, InterruptedException {
     MediaSegment mediaSegment = createMediaSegment(100, 0, 0, true, false, true, true, true, 1);
     ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 1, 5, 1);
@@ -466,7 +479,6 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     assertEquals(keyframe, (output.sampleFlags & C.SAMPLE_FLAG_SYNC) != 0);
     assertEquals(invisible, (output.sampleFlags & C.SAMPLE_FLAG_DECODE_ONLY) != 0);
     assertEquals(encrypted, (output.sampleFlags & C.SAMPLE_FLAG_ENCRYPTED) != 0);
-
   }
 
   private byte[] createInitializationSegment(int cuePoints, int mediaSegmentSize,
@@ -522,7 +534,8 @@ public class WebmExtractorTest extends InstrumentationTestCase {
       blockBytes = createSimpleBlockElement(data.length, blockTimecode,
           keyframe, invisible, true, encrypted, validSignalByte, trackNumber);
     } else {
-      blockBytes = createBlockElement(data.length, blockTimecode, invisible, true, trackNumber);
+      blockBytes = createBlockElement(data.length, blockTimecode,
+          keyframe, invisible, true, trackNumber);
     }
     byte[] clusterBytes =
         createClusterElement(blockBytes.length + data.length, clusterTimecode);
@@ -762,22 +775,29 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   }
 
   private static byte[] createBlockElement(
-      int size, int timecode, boolean invisible, boolean noLacing, int trackNumber) {
+      int size, int timecode, boolean keyframe, boolean invisible, boolean noLacing,
+      int trackNumber) {
     int blockSize = size + 5;
     byte[] blockSizeBytes = getIntegerBytes(blockSize);
     byte[] timeBytes = getIntegerBytes(timecode);
     byte[] trackNumberBytes = getIntegerBytes(trackNumber);
-    int blockElementSize = 1 + 8 + blockSize; // id + size + length of data
-    byte[] sizeBytes = getIntegerBytes(blockElementSize);
+    // Size of blockgroup = id + size + size of reference block + length of data.
+    int blockGroupElementSize = 1 + 8 + (keyframe ? 0 : 3) +  blockSize;
+    byte[] sizeBytes = getIntegerBytes(blockGroupElementSize);
     byte flags = (byte) ((invisible ? 0x08 : 0x00) | (noLacing ? 0x00 : 0x06));
-    return createByteArray(
+    byte[] blockGroupHeader = createByteArray(
         0xA0, // BlockGroup
-        0x01, 0x00, 0x00, 0x00, sizeBytes[0], sizeBytes[1], sizeBytes[2], sizeBytes[3],
+        0x01, 0x00, 0x00, 0x00, sizeBytes[0], sizeBytes[1], sizeBytes[2], sizeBytes[3]);
+    byte[] referenceBlock = keyframe ? new byte[0] : createByteArray(
+        0xFB, // ReferenceBlock
+        0x81, 0x00); // size=1 value=0
+    byte[] blockData = createByteArray(
         0xA1, // Block
         0x01, 0x00, 0x00, 0x00,
         blockSizeBytes[0], blockSizeBytes[1], blockSizeBytes[2], blockSizeBytes[3],
         0x40, trackNumberBytes[3], // Track number size=2
         timeBytes[2], timeBytes[3], flags); // Timecode and flags
+    return joinByteArrays(blockGroupHeader, referenceBlock, blockData);
   }
 
   private static byte[] createFrameData(int size) {

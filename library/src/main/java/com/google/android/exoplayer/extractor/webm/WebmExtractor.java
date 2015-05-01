@@ -82,6 +82,7 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_SIMPLE_BLOCK = 0xA3;
   private static final int ID_BLOCK_GROUP = 0xA0;
   private static final int ID_BLOCK = 0xA1;
+  private static final int ID_REFERENCE_BLOCK = 0xFB;
   private static final int ID_TRACKS = 0x1654AE6B;
   private static final int ID_TRACK_ENTRY = 0xAE;
   private static final int ID_TRACK_NUMBER = 0xD7;
@@ -152,6 +153,7 @@ public final class WebmExtractor implements Extractor {
   private int sampleFlags;
   private long sampleTimeUs;
   private boolean sampleRead;
+  private boolean sampleSeenReferenceBlock;
 
   // Extractor outputs.
   private ExtractorOutput extractorOutput;
@@ -236,6 +238,7 @@ public final class WebmExtractor implements Extractor {
       case ID_CONTENT_ENCRYPTION_AES_SETTINGS_CIPHER_MODE:
       case ID_CUE_TIME:
       case ID_CUE_CLUSTER_POSITION:
+      case ID_REFERENCE_BLOCK:
         return EbmlReader.TYPE_UNSIGNED_INT;
       case ID_DOC_TYPE:
       case ID_CODEC_ID:
@@ -282,6 +285,9 @@ public final class WebmExtractor implements Extractor {
           seekForCues = true;
         }
         return;
+      case ID_BLOCK_GROUP:
+        sampleSeenReferenceBlock = false;
+        return;
       case ID_CONTENT_ENCODING:
         // TODO: check and fail if more than one content encoding is present.
         return;
@@ -313,6 +319,19 @@ public final class WebmExtractor implements Extractor {
         } else {
           // We have already built the cues. Ignore.
         }
+        return;
+      case ID_BLOCK_GROUP:
+        if (sampleState != SAMPLE_STATE_DATA) {
+          // We've skipped this sample (due to incompatible track number).
+          return;
+        }
+        // If the ReferenceBlock element was not found for this sample, then it is a keyframe.
+        if (!sampleSeenReferenceBlock) {
+          sampleFlags |= C.SAMPLE_FLAG_SYNC;
+        }
+        outputSampleMetadata(
+            (audioTrackFormat != null && sampleTrackNumber == audioTrackFormat.number)
+                ? audioTrackFormat.trackOutput : videoTrackFormat.trackOutput);
         return;
       case ID_CONTENT_ENCODING:
         if (!trackFormat.hasContentEncryption) {
@@ -404,6 +423,9 @@ public final class WebmExtractor implements Extractor {
         return;
       case ID_CHANNELS:
         trackFormat.channelCount = (int) value;
+        return;
+      case ID_REFERENCE_BLOCK:
+        sampleSeenReferenceBlock = true;
         return;
       case ID_CONTENT_ENCODING_ORDER:
         // This extractor only supports one ContentEncoding element and hence the order has to be 0.
@@ -551,16 +573,8 @@ public final class WebmExtractor implements Extractor {
             throw new ParserException("Lacing mode not supported: " + lacing);
           }
           boolean isInvisible = (sampleHeaderScratchData[2] & 0x08) == 0x08;
-          boolean isKeyframe;
-          if (id == ID_BLOCK) {
-            // Matroska Block element does not self-sufficiently say whether it is a keyframe. It
-            // depends on the existence of another element (ReferenceBlock) which may occur after
-            // the Block element. Since this extractor uses Block element only for Opus, we set the
-            // keyframe to be true always since all Opus frames are key frames.
-            isKeyframe = true;
-          } else {
-            isKeyframe = (sampleHeaderScratchData[2] & 0x80) == 0x80;
-          }
+          boolean isKeyframe =
+              (id == ID_SIMPLE_BLOCK && (sampleHeaderScratchData[2] & 0x80) == 0x80);
           boolean isEncrypted = false;
 
           // If encrypted, the fourth byte is an encryption signal byte.
@@ -601,13 +615,22 @@ public final class WebmExtractor implements Extractor {
           sampleSize += 4;
         }
 
-        trackOutput.sampleMetadata(sampleTimeUs, sampleFlags, sampleSize, 0, null);
-        sampleState = SAMPLE_STATE_START;
-        sampleRead = true;
+        // For SimpleBlock, we send the metadata here as we have all the information. For Block, we
+        // send the metadata at the end of the BlockGroup element since we'll know if the frame is a
+        // keyframe or not only at that point.
+        if (id == ID_SIMPLE_BLOCK) {
+          outputSampleMetadata(trackOutput);
+        }
         return;
       default:
         throw new IllegalStateException("Unexpected id: " + id);
     }
+  }
+
+  private void outputSampleMetadata(TrackOutput trackOutput) {
+    trackOutput.sampleMetadata(sampleTimeUs, sampleFlags, sampleSize, 0, null);
+    sampleState = SAMPLE_STATE_START;
+    sampleRead = true;
   }
 
   /**
