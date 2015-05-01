@@ -150,8 +150,9 @@ public class HlsChunkSource {
    * @param playlistUrl The playlist URL.
    * @param playlist The hls playlist.
    * @param bandwidthMeter provides an estimate of the currently available bandwidth.
-   * @param variantIndices A subset of variant indices to consider, or null to consider all of the
-   *     variants in the master playlist.
+   * @param variantIndices If {@code playlist} is a {@link HlsMasterPlaylist}, the subset of variant
+   *     indices to consider, or null to consider all of the variants. For other playlist types
+   *     this parameter is ignored.
    * @param adaptiveMode The mode for switching from one variant to another. One of
    *     {@link #ADAPTIVE_MODE_NONE}, {@link #ADAPTIVE_MODE_ABRUPT} and
    *     {@link #ADAPTIVE_MODE_SPLICE}.

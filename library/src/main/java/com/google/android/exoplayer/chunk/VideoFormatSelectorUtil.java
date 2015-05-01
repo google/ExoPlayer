@@ -126,8 +126,8 @@ public final class VideoFormatSelectorUtil {
     // viewport.
     for (int i = selectedIndexList.size() - 1; i >= 0; i--) {
       Format format = formatWrappers.get(i).getFormat();
-      int videoPixels = format.width * format.height;
-      if (format.width != -1 && format.height != -1 && videoPixels > maxVideoPixelsToRetain) {
+      if (format.width != -1 && format.height != -1
+          && format.width * format.height > maxVideoPixelsToRetain) {
         selectedIndexList.remove(i);
       }
     }
