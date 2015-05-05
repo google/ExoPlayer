@@ -51,9 +51,8 @@ import com.google.android.exoplayer.text.webvtt.WebvttParser;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
-import com.google.android.exoplayer.upstream.HttpDataSource;
+import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
 import com.google.android.exoplayer.util.Util;
@@ -112,7 +111,7 @@ public class DashRendererBuilder implements RendererBuilder,
   private DemoPlayer player;
   private RendererBuilderCallback callback;
   private ManifestFetcher<MediaPresentationDescription> manifestFetcher;
-  private HttpDataSource manifestDataSource;
+  private UriDataSource manifestDataSource;
 
   private MediaPresentationDescription manifest;
   private long elapsedRealtimeOffset;
@@ -132,7 +131,7 @@ public class DashRendererBuilder implements RendererBuilder,
     this.player = player;
     this.callback = callback;
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
-    manifestDataSource = new DefaultHttpDataSource(userAgent, null);
+    manifestDataSource = new DefaultUriDataSource(userAgent, null);
     manifestFetcher = new ManifestFetcher<MediaPresentationDescription>(url, manifestDataSource,
         parser);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
