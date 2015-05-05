@@ -20,7 +20,6 @@ import com.google.android.exoplayer.util.Ac3Util;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -333,7 +332,6 @@ public final class AudioTrack {
    * @param specifiedBufferSize A specific size for the playback buffer in bytes, or 0 to use a
    *     size inferred from the format.
    */
-  @SuppressLint("InlinedApi")
   public void reconfigure(MediaFormat format, int encoding, int specifiedBufferSize) {
     int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
     int channelConfig;
@@ -357,7 +355,7 @@ public final class AudioTrack {
     int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
 
     // TODO: Does channelConfig determine channelCount?
-    boolean isAc3 = encoding == AudioFormat.ENCODING_AC3 || encoding == AudioFormat.ENCODING_E_AC3;
+    boolean isAc3 = encoding == C.ENCODING_AC3 || encoding == C.ENCODING_E_AC3;
     if (isInitialized() && this.sampleRate == sampleRate && this.channelConfig == channelConfig
         && !this.isAc3 && !isAc3) {
       // We already have an existing audio track with the correct sample rate and channel config.
