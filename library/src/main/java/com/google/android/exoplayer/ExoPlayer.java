@@ -141,14 +141,6 @@ public interface ExoPlayer {
       return new ExoPlayerImpl(rendererCount, DEFAULT_MIN_BUFFER_MS, DEFAULT_MIN_REBUFFER_MS);
     }
 
-    /**
-     * @deprecated Please use {@link #newInstance(int, int, int)}.
-     */
-    @Deprecated
-    public static ExoPlayer newInstance(int rendererCount, int minRebufferMs) {
-      return new ExoPlayerImpl(rendererCount, DEFAULT_MIN_BUFFER_MS, minRebufferMs);
-    }
-
   }
 
   /**
@@ -160,7 +152,8 @@ public interface ExoPlayer {
      * {@link ExoPlayer#getPlaybackState()} changes.
      *
      * @param playWhenReady Whether playback will proceed when ready.
-     * @param playbackState One of the {@code STATE} constants defined in this class.
+     * @param playbackState One of the {@code STATE} constants defined in the {@link ExoPlayer}
+     *     interface.
      */
     void onPlayerStateChanged(boolean playWhenReady, int playbackState);
     /**
@@ -256,7 +249,7 @@ public interface ExoPlayer {
   /**
    * Returns the current state of the player.
    *
-   * @return One of the {@code STATE} constants defined in this class.
+   * @return One of the {@code STATE} constants defined in this interface.
    */
   public int getPlaybackState();
 

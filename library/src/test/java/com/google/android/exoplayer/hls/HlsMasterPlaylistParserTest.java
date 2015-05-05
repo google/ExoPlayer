@@ -60,45 +60,35 @@ public class HlsMasterPlaylistParserTest extends TestCase {
       assertNotNull(variants);
       assertEquals(5, variants.size());
 
-      assertEquals(0, variants.get(0).index);
-      assertEquals(1280000, variants.get(0).bandwidth);
-      assertNotNull(variants.get(0).codecs);
-      assertEquals(2, variants.get(0).codecs.length);
-      assertEquals("mp4a.40.2", variants.get(0).codecs[0]);
-      assertEquals("avc1.66.30", variants.get(0).codecs[1]);
-      assertEquals(304, variants.get(0).width);
-      assertEquals(128, variants.get(0).height);
+      assertEquals(1280000, variants.get(0).format.bitrate);
+      assertNotNull(variants.get(0).format.codecs);
+      assertEquals("mp4a.40.2,avc1.66.30", variants.get(0).format.codecs);
+      assertEquals(304, variants.get(0).format.width);
+      assertEquals(128, variants.get(0).format.height);
       assertEquals("http://example.com/low.m3u8", variants.get(0).url);
 
-      assertEquals(1, variants.get(1).index);
-      assertEquals(1280000, variants.get(1).bandwidth);
-      assertNotNull(variants.get(1).codecs);
-      assertEquals(2, variants.get(1).codecs.length);
-      assertEquals("mp4a.40.2", variants.get(1).codecs[0]);
-      assertEquals("avc1.66.30", variants.get(1).codecs[1]);
+      assertEquals(1280000, variants.get(1).format.bitrate);
+      assertNotNull(variants.get(1).format.codecs);
+      assertEquals("mp4a.40.2 , avc1.66.30 ", variants.get(1).format.codecs);
       assertEquals("http://example.com/spaces_in_codecs.m3u8", variants.get(1).url);
 
-      assertEquals(2, variants.get(2).index);
-      assertEquals(2560000, variants.get(2).bandwidth);
-      assertEquals(null, variants.get(2).codecs);
-      assertEquals(384, variants.get(2).width);
-      assertEquals(160, variants.get(2).height);
+      assertEquals(2560000, variants.get(2).format.bitrate);
+      assertEquals(null, variants.get(2).format.codecs);
+      assertEquals(384, variants.get(2).format.width);
+      assertEquals(160, variants.get(2).format.height);
       assertEquals("http://example.com/mid.m3u8", variants.get(2).url);
 
-      assertEquals(3, variants.get(3).index);
-      assertEquals(7680000, variants.get(3).bandwidth);
-      assertEquals(null, variants.get(3).codecs);
-      assertEquals(-1, variants.get(3).width);
-      assertEquals(-1, variants.get(3).height);
+      assertEquals(7680000, variants.get(3).format.bitrate);
+      assertEquals(null, variants.get(3).format.codecs);
+      assertEquals(-1, variants.get(3).format.width);
+      assertEquals(-1, variants.get(3).format.height);
       assertEquals("http://example.com/hi.m3u8", variants.get(3).url);
 
-      assertEquals(4, variants.get(4).index);
-      assertEquals(65000, variants.get(4).bandwidth);
-      assertNotNull(variants.get(4).codecs);
-      assertEquals(1, variants.get(4).codecs.length);
-      assertEquals("mp4a.40.5", variants.get(4).codecs[0]);
-      assertEquals(-1, variants.get(4).width);
-      assertEquals(-1, variants.get(4).height);
+      assertEquals(65000, variants.get(4).format.bitrate);
+      assertNotNull(variants.get(4).format.codecs);
+      assertEquals("mp4a.40.5", variants.get(4).format.codecs);
+      assertEquals(-1, variants.get(4).format.width);
+      assertEquals(-1, variants.get(4).format.height);
       assertEquals("http://example.com/audio-only.m3u8", variants.get(4).url);
     } catch (IOException exception) {
       fail(exception.getMessage());

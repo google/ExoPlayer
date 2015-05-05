@@ -353,7 +353,7 @@ public abstract class SegmentBase {
         return DashSegmentIndex.INDEX_UNBOUNDED;
       } else {
         long durationMs = (duration * 1000) / timescale;
-        return startNumber + (int) ((periodDurationMs + durationMs - 1) / durationMs) - 1;
+        return startNumber + (int) Util.ceilDivide(periodDurationMs, durationMs) - 1;
       }
     }
 

@@ -24,11 +24,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * An HTTP specific extension to {@link DataSource}.
  */
-public interface HttpDataSource extends DataSource {
+public interface HttpDataSource extends UriDataSource {
 
   /**
    * A {@link Predicate} that rejects content types often used for pay-walls.
@@ -115,14 +114,14 @@ public interface HttpDataSource extends DataSource {
 
   }
 
-  /**
-   * When the source is open, returns the url from which data is being read.
-   * <p>
-   * If redirection occurred, the url after redirection is the one returned.
-   *
-   * @return When the source is open, the url from which data is being read. Null otherwise.
-   */
-  String getUrl();
+  @Override
+  long open(DataSpec dataSpec) throws HttpDataSourceException;
+
+  @Override
+  void close() throws HttpDataSourceException;
+
+  @Override
+  int read(byte[] buffer, int offset, int readLength) throws HttpDataSourceException;
 
   /**
    * Sets the value of a request header field. The value will be used for subsequent connections

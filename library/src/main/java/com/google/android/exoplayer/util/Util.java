@@ -16,12 +16,19 @@
 package com.google.android.exoplayer.util;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DataSpec;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Build;
 import android.text.TextUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
@@ -87,6 +94,25 @@ public final class Util {
   }
 
   /**
+   * Tests whether an {@code items} array contains an object equal to {@code item}, according to
+   * {@link Object#equals(Object)}.
+   * <p>
+   * If {@code item} is null then true is returned if and only if {@code items} contains null.
+   *
+   * @param items The array of items to search.
+   * @param item The item to search for.
+   * @return True if the array contains an object equal to the item being searched for.
+   */
+  public static boolean contains(Object[] items, Object item) {
+    for (int i = 0; i < items.length; i++) {
+      if (Util.areEqual(items[i], item)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Instantiates a new single threaded executor whose thread has the specified name.
    *
    * @param threadName The name of the thread.
@@ -130,6 +156,19 @@ public final class Util {
   }
 
   /**
+   * Closes an {@link OutputStream}, suppressing any {@link IOException} that may occur.
+   *
+   * @param outputStream The {@link OutputStream} to close.
+   */
+  public static void closeQuietly(OutputStream outputStream) {
+    try {
+      outputStream.close();
+    } catch (IOException e) {
+      // Ignore.
+    }
+  }
+
+  /**
    * Converts text to lower case using {@link Locale#US}.
    *
    * @param text The text to convert.
@@ -137,6 +176,28 @@ public final class Util {
    */
   public static String toLowerInvariant(String text) {
     return text == null ? null : text.toLowerCase(Locale.US);
+  }
+
+  /**
+   * Divides a {@code numerator} by a {@code denominator}, returning the ceiled result.
+   *
+   * @param numerator The numerator to divide.
+   * @param denominator The denominator to divide by.
+   * @return The ceiled result of the division.
+   */
+  public static int ceilDivide(int numerator, int denominator) {
+    return (numerator + denominator - 1) / denominator;
+  }
+
+  /**
+   * Divides a {@code numerator} by a {@code denominator}, returning the ceiled result.
+   *
+   * @param numerator The numerator to divide.
+   * @param denominator The denominator to divide by.
+   * @return The ceiled result of the division.
+   */
+  public static long ceilDivide(long numerator, long denominator) {
+    return (numerator + denominator - 1) / denominator;
   }
 
   /**
@@ -444,6 +505,60 @@ public final class Util {
     } catch (Exception e) {
       // Something went wrong. The device probably isn't using okhttp.
     }
+  }
+
+  /**
+   * Given a {@link DataSpec} and a number of bytes already loaded, returns a {@link DataSpec}
+   * that represents the remainder of the data.
+   *
+   * @param dataSpec The original {@link DataSpec}.
+   * @param bytesLoaded The number of bytes already loaded.
+   * @return A {@link DataSpec} that represents the remainder of the data.
+   */
+  public static DataSpec getRemainderDataSpec(DataSpec dataSpec, int bytesLoaded) {
+    if (bytesLoaded == 0) {
+      return dataSpec;
+    } else {
+      long remainingLength = dataSpec.length == C.LENGTH_UNBOUNDED ? C.LENGTH_UNBOUNDED
+          : dataSpec.length - bytesLoaded;
+      return new DataSpec(dataSpec.uri, dataSpec.position + bytesLoaded, remainingLength,
+          dataSpec.key, dataSpec.flags);
+    }
+  }
+
+  /**
+   * Returns the integer equal to the big-endian concatenation of the characters in {@code string}
+   * as bytes. {@code string} must contain four or fewer characters.
+   */
+  public static int getIntegerCodeForString(String string) {
+    int length = string.length();
+    Assertions.checkArgument(length <= 4);
+    int result = 0;
+    for (int i = 0; i < length; i++) {
+      result <<= 8;
+      result |= string.charAt(i);
+    }
+    return result;
+  }
+
+  /**
+   * Returns a user agent string based on the given application name and the library version.
+   *
+   * @param context A valid context of the calling application.
+   * @param applicationName String that will be prefix'ed to the generated user agent.
+   * @return A user agent string generated using the applicationName and the library version.
+   */
+  public static String getUserAgent(Context context, String applicationName) {
+    String versionName;
+    try {
+      String packageName = context.getPackageName();
+      PackageInfo info = context.getPackageManager().getPackageInfo(packageName, 0);
+      versionName = info.versionName;
+    } catch (NameNotFoundException e) {
+      versionName = "?";
+    }
+    return applicationName + "/" + versionName + " (Linux;Android " + Build.VERSION.RELEASE
+        + ") " + "ExoPlayerLib/" + ExoPlayerLibraryInfo.VERSION;
   }
 
 }

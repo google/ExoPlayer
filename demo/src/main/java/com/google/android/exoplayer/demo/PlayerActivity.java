@@ -20,13 +20,17 @@ import com.google.android.exoplayer.VideoSurfaceView;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
 import com.google.android.exoplayer.demo.player.DashRendererBuilder;
-import com.google.android.exoplayer.demo.player.DefaultRendererBuilder;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
+import com.google.android.exoplayer.demo.player.ExtractorRendererBuilder;
 import com.google.android.exoplayer.demo.player.HlsRendererBuilder;
-import com.google.android.exoplayer.demo.player.Mp4RendererBuilder;
 import com.google.android.exoplayer.demo.player.SmoothStreamingRendererBuilder;
 import com.google.android.exoplayer.demo.player.UnsupportedDrmException;
+import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
+import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
+import com.google.android.exoplayer.extractor.ts.AdtsExtractor;
+import com.google.android.exoplayer.extractor.ts.TsExtractor;
+import com.google.android.exoplayer.extractor.webm.WebmExtractor;
 import com.google.android.exoplayer.metadata.GeobMetadata;
 import com.google.android.exoplayer.metadata.PrivMetadata;
 import com.google.android.exoplayer.metadata.TxxxMetadata;
@@ -45,12 +49,14 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.view.accessibility.CaptioningManager;
@@ -113,7 +119,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
     Intent intent = getIntent();
     contentUri = intent.getData();
-    contentType = intent.getIntExtra(CONTENT_TYPE_EXTRA, DemoUtil.TYPE_OTHER);
+    contentType = intent.getIntExtra(CONTENT_TYPE_EXTRA, -1);
     contentId = intent.getStringExtra(CONTENT_ID_EXTRA);
 
     setContentView(R.layout.player_activity);
@@ -129,7 +135,15 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
         return true;
       }
     });
-
+    root.setOnKeyListener(new OnKeyListener() {
+      @Override
+      public boolean onKey(View v, int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE) {
+          return mediaController.dispatchKeyEvent(event);
+        }
+        return false;
+      }
+    });
     audioCapabilitiesReceiver = new AudioCapabilitiesReceiver(getApplicationContext(), this);
 
     shutterView = findViewById(R.id.shutter);
@@ -206,20 +220,34 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   // Internal methods
 
   private RendererBuilder getRendererBuilder() {
-    String userAgent = DemoUtil.getUserAgent(this);
+    String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
     switch (contentType) {
       case DemoUtil.TYPE_SS:
-        return new SmoothStreamingRendererBuilder(userAgent, contentUri.toString(),
+        return new SmoothStreamingRendererBuilder(this, userAgent, contentUri.toString(),
             new SmoothStreamingTestMediaDrmCallback(), debugTextView);
       case DemoUtil.TYPE_DASH:
-        return new DashRendererBuilder(userAgent, contentUri.toString(),
+        return new DashRendererBuilder(this, userAgent, contentUri.toString(),
             new WidevineTestMediaDrmCallback(contentId), debugTextView, audioCapabilities);
       case DemoUtil.TYPE_HLS:
-        return new HlsRendererBuilder(userAgent, contentUri.toString());
+        return new HlsRendererBuilder(this, userAgent, contentUri.toString(), debugTextView);
+      case DemoUtil.TYPE_M4A: // There are no file format differences between M4A and MP4.
       case DemoUtil.TYPE_MP4:
-        return new Mp4RendererBuilder(contentUri, debugTextView);
+        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+            new Mp4Extractor());
+      case DemoUtil.TYPE_MP3:
+        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+            new Mp3Extractor());
+      case DemoUtil.TYPE_TS:
+        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+            new TsExtractor());
+      case DemoUtil.TYPE_AAC:
+        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+            new AdtsExtractor());
+      case DemoUtil.TYPE_WEBM:
+        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+            new WebmExtractor());
       default:
-        return new DefaultRendererBuilder(this, contentUri, debugTextView);
+        throw new IllegalStateException("Unsupported type: " + contentType);
     }
   }
 

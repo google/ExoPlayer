@@ -200,7 +200,7 @@ public class Eia608Parser {
 
     ClosedCaption[] captionArray = new ClosedCaption[captions.size()];
     captions.toArray(captionArray);
-    return new ClosedCaptionList(sampleHolder.timeUs, sampleHolder.decodeOnly, captionArray);
+    return new ClosedCaptionList(sampleHolder.timeUs, sampleHolder.isDecodeOnly(), captionArray);
   }
 
   private static char getChar(byte ccData) {

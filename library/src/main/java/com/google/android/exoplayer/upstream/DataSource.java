@@ -41,7 +41,7 @@ public interface DataSource {
    *     unresolved. For all other requests, the value returned will be equal to the request's
    *     {@link DataSpec#length}.
    */
-  public long open(DataSpec dataSpec) throws IOException;
+  long open(DataSpec dataSpec) throws IOException;
 
   /**
    * Closes the {@link DataSource}.
@@ -51,7 +51,7 @@ public interface DataSource {
    *
    * @throws IOException If an error occurs closing the source.
    */
-  public void close() throws IOException;
+  void close() throws IOException;
 
   /**
    * Reads up to {@code length} bytes of data and stores them into {@code buffer}, starting at
@@ -63,9 +63,10 @@ public interface DataSource {
    * @param buffer The buffer into which the read data should be stored.
    * @param offset The start offset into {@code buffer} at which data should be written.
    * @param readLength The maximum number of bytes to read.
-   * @return The number of bytes read, or -1 if the end of the opened range is reached.
+   * @return The number of bytes read, or {@link C#RESULT_END_OF_INPUT} if the end of the opened
+   *     range is reached.
    * @throws IOException If an error occurs reading from the source.
    */
-  public int read(byte[] buffer, int offset, int readLength) throws IOException;
+  int read(byte[] buffer, int offset, int readLength) throws IOException;
 
 }

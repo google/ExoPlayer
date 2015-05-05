@@ -18,6 +18,7 @@ package com.google.android.exoplayer.demo;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.audio.AudioTrack;
+import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
 import com.google.android.exoplayer.util.VerboseLogUtil;
 
@@ -91,17 +92,18 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   @Override
-  public void onLoadStarted(int sourceId, String formatId, int trigger, boolean isInitialization,
-      int mediaStartTimeMs, int mediaEndTimeMs, long length) {
+  public void onLoadStarted(int sourceId, long length, int type, int trigger, Format format,
+      int mediaStartTimeMs, int mediaEndTimeMs) {
     loadStartTimeMs[sourceId] = SystemClock.elapsedRealtime();
     if (VerboseLogUtil.isTagEnabled(TAG)) {
-      Log.v(TAG, "loadStart [" + getSessionTimeString() + ", " + sourceId
+      Log.v(TAG, "loadStart [" + getSessionTimeString() + ", " + sourceId + ", " + type
           + ", " + mediaStartTimeMs + ", " + mediaEndTimeMs + "]");
     }
   }
 
   @Override
-  public void onLoadCompleted(int sourceId, long bytesLoaded) {
+  public void onLoadCompleted(int sourceId, long bytesLoaded, int type, int trigger, Format format,
+       int mediaStartTimeMs, int mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs) {
     if (VerboseLogUtil.isTagEnabled(TAG)) {
       long downloadTime = SystemClock.elapsedRealtime() - loadStartTimeMs[sourceId];
       Log.v(TAG, "loadEnd [" + getSessionTimeString() + ", " + sourceId + ", " + downloadTime
@@ -110,27 +112,22 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   @Override
-  public void onVideoFormatEnabled(String formatId, int trigger, int mediaTimeMs) {
-    Log.d(TAG, "videoFormat [" + getSessionTimeString() + ", " + formatId + ", "
+  public void onVideoFormatEnabled(Format format, int trigger, int mediaTimeMs) {
+    Log.d(TAG, "videoFormat [" + getSessionTimeString() + ", " + format.id + ", "
         + Integer.toString(trigger) + "]");
   }
 
   @Override
-  public void onAudioFormatEnabled(String formatId, int trigger, int mediaTimeMs) {
-    Log.d(TAG, "audioFormat [" + getSessionTimeString() + ", " + formatId + ", "
+  public void onAudioFormatEnabled(Format format, int trigger, int mediaTimeMs) {
+    Log.d(TAG, "audioFormat [" + getSessionTimeString() + ", " + format.id + ", "
         + Integer.toString(trigger) + "]");
   }
 
   // DemoPlayer.InternalErrorListener
 
   @Override
-  public void onUpstreamError(int sourceId, IOException e) {
-    printInternalError("upstreamError", e);
-  }
-
-  @Override
-  public void onConsumptionError(int sourceId, IOException e) {
-    printInternalError("consumptionError", e);
+  public void onLoadError(int sourceId, IOException e) {
+    printInternalError("loadError", e);
   }
 
   @Override
@@ -161,6 +158,12 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   @Override
   public void onCryptoError(CryptoException e) {
     printInternalError("cryptoError", e);
+  }
+
+  @Override
+  public void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
+      long initializationDurationMs) {
+    Log.d(TAG, "decoderInitialized [" + getSessionTimeString() + "]");
   }
 
   private void printInternalError(String type, Exception e) {

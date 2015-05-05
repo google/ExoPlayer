@@ -358,8 +358,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   // Override configureCodec to provide the surface.
   @Override
-  protected void configureCodec(MediaCodec codec, android.media.MediaFormat format,
-      MediaCrypto crypto) {
+  protected void configureCodec(MediaCodec codec, String codecName,
+      android.media.MediaFormat format, MediaCrypto crypto) {
     codec.configure(format, surface, crypto, 0);
     codec.setVideoScalingMode(videoScalingMode);
   }
@@ -371,6 +371,13 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     // to be a way to pass a custom key/value pair value through to the output format.
     currentPixelWidthHeightRatio = holder.format.pixelWidthHeightRatio == MediaFormat.NO_VALUE ? 1
         : holder.format.pixelWidthHeightRatio;
+  }
+
+  /**
+   * @return True if the first frame has been rendered (playback has not necessarily begun).
+   */
+  protected final boolean haveRenderedFirstFrame() {
+    return renderedFirstFrame;
   }
 
   @Override
@@ -427,7 +434,6 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
     if (!renderedFirstFrame) {
       renderOutputBufferImmediate(codec, bufferIndex);
-      renderedFirstFrame = true;
       return true;
     }
 
@@ -463,14 +469,14 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     return false;
   }
 
-  private void skipOutputBuffer(MediaCodec codec, int bufferIndex) {
+  protected void skipOutputBuffer(MediaCodec codec, int bufferIndex) {
     TraceUtil.beginSection("skipVideoBuffer");
     codec.releaseOutputBuffer(bufferIndex, false);
     TraceUtil.endSection();
     codecCounters.skippedOutputBufferCount++;
   }
 
-  private void dropOutputBuffer(MediaCodec codec, int bufferIndex) {
+  protected void dropOutputBuffer(MediaCodec codec, int bufferIndex) {
     TraceUtil.beginSection("dropVideoBuffer");
     codec.releaseOutputBuffer(bufferIndex, false);
     TraceUtil.endSection();
@@ -481,22 +487,24 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     }
   }
 
-  private void renderOutputBufferImmediate(MediaCodec codec, int bufferIndex) {
+  protected void renderOutputBufferImmediate(MediaCodec codec, int bufferIndex) {
     maybeNotifyVideoSizeChanged();
     TraceUtil.beginSection("renderVideoBufferImmediate");
     codec.releaseOutputBuffer(bufferIndex, true);
     TraceUtil.endSection();
     codecCounters.renderedOutputBufferCount++;
+    renderedFirstFrame = true;
     maybeNotifyDrawnToSurface();
   }
 
   @TargetApi(21)
-  private void renderOutputBufferTimedV21(MediaCodec codec, int bufferIndex, long releaseTimeNs) {
+  protected void renderOutputBufferTimedV21(MediaCodec codec, int bufferIndex, long releaseTimeNs) {
     maybeNotifyVideoSizeChanged();
     TraceUtil.beginSection("releaseOutputBufferTimed");
     codec.releaseOutputBuffer(bufferIndex, releaseTimeNs);
     TraceUtil.endSection();
     codecCounters.renderedOutputBufferCount++;
+    renderedFirstFrame = true;
     maybeNotifyDrawnToSurface();
   }
 

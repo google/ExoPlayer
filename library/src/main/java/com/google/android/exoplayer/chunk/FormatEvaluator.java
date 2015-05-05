@@ -26,23 +26,6 @@ import java.util.Random;
 public interface FormatEvaluator {
 
   /**
-   * The trigger for the initial format selection.
-   */
-  static final int TRIGGER_INITIAL = 0;
-  /**
-   * The trigger for a format selection that was triggered by the user.
-   */
-  static final int TRIGGER_MANUAL = 1;
-  /**
-   * The trigger for an adaptive format selection.
-   */
-  static final int TRIGGER_ADAPTIVE = 2;
-  /**
-   * Implementations may define custom trigger codes greater than or equal to this value.
-   */
-  static final int TRIGGER_CUSTOM_BASE = 10000;
-
-  /**
    * Enables the evaluator.
    */
   void enable();
@@ -93,7 +76,7 @@ public interface FormatEvaluator {
     public Format format;
 
     public Evaluation() {
-      trigger = TRIGGER_INITIAL;
+      trigger = Chunk.TRIGGER_INITIAL;
     }
 
   }
@@ -146,8 +129,8 @@ public interface FormatEvaluator {
     public void evaluate(List<? extends MediaChunk> queue, long playbackPositionUs,
         Format[] formats, Evaluation evaluation) {
       Format newFormat = formats[random.nextInt(formats.length)];
-      if (evaluation.format != null && !evaluation.format.id.equals(newFormat.id)) {
-        evaluation.trigger = TRIGGER_ADAPTIVE;
+      if (evaluation.format != null && !evaluation.format.equals(newFormat)) {
+        evaluation.trigger = Chunk.TRIGGER_ADAPTIVE;
       }
       evaluation.format = newFormat;
     }
@@ -268,7 +251,7 @@ public interface FormatEvaluator {
         ideal = current;
       }
       if (current != null && ideal != current) {
-        evaluation.trigger = FormatEvaluator.TRIGGER_ADAPTIVE;
+        evaluation.trigger = Chunk.TRIGGER_ADAPTIVE;
       }
       evaluation.format = ideal;
     }

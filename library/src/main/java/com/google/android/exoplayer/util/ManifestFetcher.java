@@ -15,10 +15,10 @@
  */
 package com.google.android.exoplayer.util;
 
-import com.google.android.exoplayer.upstream.HttpDataSource;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
-import com.google.android.exoplayer.upstream.NetworkLoadable;
+import com.google.android.exoplayer.upstream.UriDataSource;
+import com.google.android.exoplayer.upstream.UriLoadable;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -83,8 +83,8 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   }
 
-  private final NetworkLoadable.Parser<T> parser;
-  private final HttpDataSource httpDataSource;
+  private final UriLoadable.Parser<T> parser;
+  private final UriDataSource uriDataSource;
   private final Handler eventHandler;
   private final EventListener eventListener;
 
@@ -92,7 +92,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   private int enabledCount;
   private Loader loader;
-  private NetworkLoadable<T> currentLoadable;
+  private UriLoadable<T> currentLoadable;
 
   private int loadExceptionCount;
   private long loadExceptionTimestamp;
@@ -103,27 +103,27 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   /**
    * @param manifestUrl The manifest location.
-   * @param httpDataSource The {@link HttpDataSource} to use when loading the manifest.
+   * @param uriDataSource The {@link UriDataSource} to use when loading the manifest.
    * @param parser A parser to parse the loaded manifest data.
    */
-  public ManifestFetcher(String manifestUrl, HttpDataSource httpDataSource,
-      NetworkLoadable.Parser<T> parser) {
-    this(manifestUrl, httpDataSource, parser, null, null);
+  public ManifestFetcher(String manifestUrl, UriDataSource uriDataSource,
+      UriLoadable.Parser<T> parser) {
+    this(manifestUrl, uriDataSource, parser, null, null);
   }
 
   /**
    * @param manifestUrl The manifest location.
-   * @param httpDataSource The {@link HttpDataSource} to use when loading the manifest.
+   * @param uriDataSource The {@link UriDataSource} to use when loading the manifest.
    * @param parser A parser to parse the loaded manifest data.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public ManifestFetcher(String manifestUrl, HttpDataSource httpDataSource,
-      NetworkLoadable.Parser<T> parser, Handler eventHandler, EventListener eventListener) {
+  public ManifestFetcher(String manifestUrl, UriDataSource uriDataSource,
+      UriLoadable.Parser<T> parser, Handler eventHandler, EventListener eventListener) {
     this.parser = parser;
     this.manifestUrl = manifestUrl;
-    this.httpDataSource = httpDataSource;
+    this.uriDataSource = uriDataSource;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
   }
@@ -146,7 +146,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
    */
   public void singleLoad(Looper callbackLooper, final ManifestCallback<T> callback) {
     SingleFetchHelper fetchHelper = new SingleFetchHelper(
-        new NetworkLoadable<T>(manifestUrl, httpDataSource, parser), callbackLooper, callback);
+        new UriLoadable<T>(manifestUrl, uriDataSource, parser), callbackLooper, callback);
     fetchHelper.startLoading();
   }
 
@@ -219,7 +219,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       loader = new Loader("manifestLoader");
     }
     if (!loader.isLoading()) {
-      currentLoadable = new NetworkLoadable<T>(manifestUrl, httpDataSource, parser);
+      currentLoadable = new UriLoadable<T>(manifestUrl, uriDataSource, parser);
       loader.startLoading(currentLoadable, this);
       notifyManifestRefreshStarted();
     }
@@ -303,12 +303,12 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   private class SingleFetchHelper implements Loader.Callback {
 
-    private final NetworkLoadable<T> singleUseLoadable;
+    private final UriLoadable<T> singleUseLoadable;
     private final Looper callbackLooper;
     private final ManifestCallback<T> wrappedCallback;
     private final Loader singleUseLoader;
 
-    public SingleFetchHelper(NetworkLoadable<T> singleUseLoadable, Looper callbackLooper,
+    public SingleFetchHelper(UriLoadable<T> singleUseLoadable, Looper callbackLooper,
         ManifestCallback<T> wrappedCallback) {
       this.singleUseLoadable = singleUseLoadable;
       this.callbackLooper = callbackLooper;

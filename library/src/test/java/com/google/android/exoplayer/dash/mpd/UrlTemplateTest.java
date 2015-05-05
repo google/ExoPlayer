@@ -57,7 +57,7 @@ public class UrlTemplateTest extends TestCase {
     String template = "$IllegalId$";
     try {
       UrlTemplate.compile(template);
-      assertTrue(false);
+      fail();
     } catch (IllegalArgumentException e) {
       // Expected.
     }
