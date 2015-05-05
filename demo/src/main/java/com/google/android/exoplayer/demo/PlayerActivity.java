@@ -231,6 +231,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
             new WidevineTestMediaDrmCallback(contentId), debugTextView, audioCapabilities);
       case DemoUtil.TYPE_HLS:
         return new HlsRendererBuilder(this, userAgent, contentUri.toString(), debugTextView);
+      case DemoUtil.TYPE_M4A: // There are no file format differences between M4A and MP4.
       case DemoUtil.TYPE_MP4:
         return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
             new Mp4Extractor());
