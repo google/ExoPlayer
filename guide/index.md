@@ -44,6 +44,10 @@ an ExoPlayer implementation configured to play audio and video using these compo
 
 etc
 
+The start...!
+
+{% sdk_link Test %}
+
 {% highlight java %}
 // 1. Instantiate the player.
 player = ExoPlayer.Factory.newInstance(RENDERER_COUNT);
@@ -60,3 +64,5 @@ player.setPlayWhenReady(true);
 ...
 player.release(); // Don’t forget to release when done!
 {% endhighlight %}
+
+The end!
