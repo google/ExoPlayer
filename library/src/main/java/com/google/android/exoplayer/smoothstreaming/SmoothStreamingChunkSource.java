@@ -248,7 +248,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       out.chunk = null;
       return;
     } else if (out.queueSize == queue.size() && out.chunk != null
-        && out.chunk.format.id.equals(evaluation.format.id)) {
+        && out.chunk.format.equals(evaluation.format)) {
       // We already have a chunk, and the evaluation hasn't changed either the format or the size
       // of the queue. Do nothing.
       return;
@@ -352,7 +352,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private int getTrackIndex(Format format) {
     TrackElement[] tracks = currentManifest.streamElements[streamElementIndex].tracks;
     for (int i = 0; i < tracks.length; i++) {
-      if (format == tracks[i].format) {
+      if (tracks[i].format.equals(format)) {
         return i;
       }
     }

@@ -304,7 +304,7 @@ public class DashChunkSource implements ChunkSource {
       out.chunk = null;
       return;
     } else if (out.queueSize == queue.size() && out.chunk != null
-        && out.chunk.format.id.equals(selectedFormat.id)) {
+        && out.chunk.format.equals(selectedFormat)) {
       // We already have a chunk, and the evaluation hasn't changed either the format or the size
       // of the queue. Leave unchanged.
       return;

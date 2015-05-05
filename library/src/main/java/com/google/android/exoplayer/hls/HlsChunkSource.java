@@ -587,7 +587,7 @@ public class HlsChunkSource {
 
   private int getVariantIndex(Format format) {
     for (int i = 0; i < variants.size(); i++) {
-      if (format == variants.get(i).format) {
+      if (variants.get(i).format.equals(format)) {
         return i;
       }
     }
