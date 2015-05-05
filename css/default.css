@@ -1,26 +1,37 @@
-::selection {
-  background-color: #0099cc;
-  color: #fff; }
-::-webkit-selection {
-  background-color: #0099cc;
-  color: #fff; }
-::-moz-selection {
-  background-color: #0099cc;
-  color: #fff; }
+#table-of-contents {
+  position: relative;
+  float: right;
+  z-index: 99;
+  width: 250px;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 5px;
+  border-color: rgba(0,0,0,0.06);
+  background-color: #ffffff;
+}
 
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background-color:#F9F9F9;
-  -webkit-font-smoothing: antialiased;
-  /* prevent subpixel antialiasing, which thickens the text */
-  /* text-rendering: optimizeLegibility; */
-  /* turned off ligatures due to bug 5945455 */ }
+#table-of-contents-header
+{
+  padding-left: 0.7em;
+  padding-right: 0.7em;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  width: 100%;
+  font-weight: bold;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: rgba(0,0,0,0.06);
+}
 
-body {
-  color: #222;
-  font: 14px/19px Roboto, sans-serif;
-  font-weight: 400;
-  letter-spacing:.1;
-  padding:0 10px; }
+#markdown-toc {
+  padding-left: 0.7em;
+  padding-right: 0.7em;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  width: 100%;
+}
+
+#markdown-toc ul,
+#markdown-toc li {
+  list-style: none;
+}
