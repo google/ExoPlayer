@@ -19,12 +19,15 @@ import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.VideoSurfaceView;
+import com.google.android.exoplayer.ext.opus.LibopusAudioTrackRenderer;
 import com.google.android.exoplayer.ext.vp9.LibvpxVideoTrackRenderer;
 import com.google.android.exoplayer.ext.vp9.VpxDecoderException;
 import com.google.android.exoplayer.ext.vp9.VpxVideoSurfaceView;
-import com.google.android.exoplayer.source.DefaultSampleSource;
-import com.google.android.exoplayer.source.FrameworkSampleExtractor;
+import com.google.android.exoplayer.extractor.ExtractorSampleSource;
+import com.google.android.exoplayer.extractor.webm.WebmExtractor;
+import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.util.PlayerControl;
+import com.google.android.exoplayer.util.Util;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -53,6 +56,7 @@ public class VideoPlayer extends Activity implements OnClickListener,
   public static final String USE_OPENGL_ID_EXTRA = "use_opengl";
 
   private static final int FILE_PICKER_REQUEST = 1;
+  private static final int EXTRACTOR_BUFFER_SIZE = 10 * 1024 * 1024;
 
   private boolean isDash;
   private String manifestUrl;
@@ -150,13 +154,14 @@ public class VideoPlayer extends Activity implements OnClickListener,
       return;
     }
     findViewById(R.id.buttons).setVisibility(View.GONE);
-    player = ExoPlayer.Factory.newInstance(1);
+    player = ExoPlayer.Factory.newInstance(2);
     player.addListener(this);
     mediaController.setMediaPlayer(new PlayerControl(player));
     mediaController.setEnabled(true);
-    Uri uri = Uri.fromFile(new File(filename));
-    DefaultSampleSource sampleSource =
-        new DefaultSampleSource(new FrameworkSampleExtractor(this, uri, null), 2);
+    ExtractorSampleSource sampleSource = new ExtractorSampleSource(
+        Uri.fromFile(new File(filename)),
+        new DefaultUriDataSource(Util.getUserAgent(this, "ExoPlayerExtWebMDemo"), null),
+        new WebmExtractor(), 2, EXTRACTOR_BUFFER_SIZE);
     TrackRenderer videoRenderer =
         new LibvpxVideoTrackRenderer(sampleSource, true, handler, this, 50);
     if (useOpenGL) {
@@ -169,7 +174,8 @@ public class VideoPlayer extends Activity implements OnClickListener,
           videoSurfaceView.getHolder().getSurface());
       vpxVideoSurfaceView.setVisibility(View.GONE);
     }
-    player.prepare(videoRenderer);
+    TrackRenderer audioRenderer = new LibopusAudioTrackRenderer(sampleSource);
+    player.prepare(videoRenderer, audioRenderer);
     player.setPlayWhenReady(true);
   }
 

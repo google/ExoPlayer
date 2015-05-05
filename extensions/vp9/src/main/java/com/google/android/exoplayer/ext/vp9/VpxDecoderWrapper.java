@@ -196,7 +196,9 @@ import java.util.LinkedList;
     }
 
     synchronized (lock) {
-      if (flushDecodedOutputBuffer || inputBuffer.sampleHolder.decodeOnly || decodeResult == 1) {
+      if (flushDecodedOutputBuffer
+          || inputBuffer.sampleHolder.isDecodeOnly()
+          || decodeResult == 1) {
         // In the following cases, we make the output buffer available again rather than queuing it
         // to be consumed:
         // 1) A flush occured whilst we were decoding.

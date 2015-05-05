@@ -29,6 +29,7 @@ import java.nio.ByteBuffer;
   private final long nativeDecoderContext;
 
   static {
+    System.loadLibrary("opus");
     System.loadLibrary("opusJNI");
   }
 

@@ -234,7 +234,7 @@ import java.util.LinkedList;
 
     synchronized (lock) {
       if (flushDecodedOutputBuffer
-          || inputBuffer.sampleHolder.decodeOnly
+          || inputBuffer.sampleHolder.isDecodeOnly()
           || outputBuffer.size == 0) {
         // In the following cases, we make the output buffer available again rather than queuing it
         // to be consumed:

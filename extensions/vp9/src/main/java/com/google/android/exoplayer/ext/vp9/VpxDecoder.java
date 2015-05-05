@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
   private final long vpxDecContext;
 
   static {
+    System.loadLibrary("vpx");
     System.loadLibrary("vpxJNI");
   }
 

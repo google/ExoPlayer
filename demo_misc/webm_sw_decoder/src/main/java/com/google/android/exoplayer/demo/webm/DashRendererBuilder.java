@@ -33,11 +33,11 @@ import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.Representation;
 import com.google.android.exoplayer.ext.opus.LibopusAudioTrackRenderer;
 import com.google.android.exoplayer.ext.vp9.LibvpxVideoTrackRenderer;
-import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer.upstream.UriDataSource;
+import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -80,7 +80,7 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
 
   @Override
   public void onSingleManifest(MediaPresentationDescription manifest) {
-    LoadControl loadControl = new DefaultLoadControl(new BufferPool(BUFFER_SEGMENT_SIZE));
+    LoadControl loadControl = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter(null, null);
 
     // Obtain Representations for playback.
@@ -105,7 +105,7 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
     // Build the video renderer.
     LibvpxVideoTrackRenderer videoRenderer = null;
     if (!videoRepresentationsList.isEmpty()) {
-      DataSource videoDataSource = new UriDataSource(userAgent, bandwidthMeter);
+      DataSource videoDataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
       ChunkSource videoChunkSource;
       String mimeType = videoRepresentations[0].format.mimeType;
       if (mimeType.equals(MimeTypes.VIDEO_WEBM)) {
@@ -124,7 +124,7 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
     MultiTrackChunkSource audioChunkSource = null;
     TrackRenderer audioRenderer = null;
     if (!audioRepresentationsList.isEmpty()) {
-      DataSource audioDataSource = new UriDataSource(userAgent, bandwidthMeter);
+      DataSource audioDataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
       ChunkSource[] audioChunkSources = new ChunkSource[audioRepresentationsList.size()];
       FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
       for (int i = 0; i < audioRepresentationsList.size(); i++) {
