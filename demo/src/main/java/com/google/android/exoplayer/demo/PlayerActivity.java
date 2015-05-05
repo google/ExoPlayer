@@ -20,7 +20,6 @@ import com.google.android.exoplayer.VideoSurfaceView;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
 import com.google.android.exoplayer.demo.player.DashRendererBuilder;
-import com.google.android.exoplayer.demo.player.DefaultRendererBuilder;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.player.ExtractorRendererBuilder;
@@ -120,7 +119,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
     Intent intent = getIntent();
     contentUri = intent.getData();
-    contentType = intent.getIntExtra(CONTENT_TYPE_EXTRA, DemoUtil.TYPE_OTHER);
+    contentType = intent.getIntExtra(CONTENT_TYPE_EXTRA, -1);
     contentId = intent.getStringExtra(CONTENT_ID_EXTRA);
 
     setContentView(R.layout.player_activity);
@@ -248,7 +247,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
         return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
             new WebmExtractor());
       default:
-        return new DefaultRendererBuilder(this, contentUri, debugTextView);
+        throw new IllegalStateException("Unsupported type: " + contentType);
     }
   }
 
