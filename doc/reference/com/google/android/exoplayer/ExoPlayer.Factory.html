@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width" />
+
+<link rel="shortcut icon" type="image/x-icon" href="../../../../../favicon.ico" />
+<title>ExoPlayer.Factory - ExoPlayer | Android Developers</title>
+
+<!-- STYLESHEETS -->
+<link rel="stylesheet"
+href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
+  title="roboto">
+<link href="../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
+
+
+<!-- FULLSCREEN STYLESHEET -->
+<link href="../../../../../assets/css/fullscreen.css" rel="stylesheet" class="fullscreen"
+type="text/css">
+
+
+<!-- JAVASCRIPT -->
+<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+<script src="../../../../../assets/js/android_3p-bundle.js" type="text/javascript"></script>
+<script type="text/javascript">
+  var toRoot = "../../../../../";
+  var metaTags = [];
+  var devsite = false;
+</script>
+<script src="../../../../../assets/js/docs.js?v=3" type="text/javascript"></script>
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-5831155-1', 'android.com');
+  ga('create', 'UA-49880327-2', 'android.com', {'name': 'universal'});  // New tracker);
+  ga('send', 'pageview');
+  ga('universal.send', 'pageview'); // Send page view for new tracker.
+</script>
+
+</head>
+
+<body class="gc-documentation 
+  develop reference" itemscope itemtype="http://schema.org/Article">
+  <div id="doc-api-level" class="" style="display:none"></div>
+  <a name="top"></a>
+
+
+  <div class="wrap clearfix" id="body-content">
+    <div class="col-4" id="side-nav" itemscope itemtype="http://schema.org/SiteNavigationElement">
+      <div id="devdoc-nav">
+
+<a class="totop" href="#top" data-g-event="left-nav-top">to top</a>
+      <div id="api-nav-header">
+        <div id="api-nav-title">ExoPlayerLib APIs</div>
+        </div><!-- end nav header -->
+      <script>
+        var SINCE_DATA = [  ];
+        buildApiLevelSelector();
+      </script>
+                  
+      <div id="swapper">
+        <div id="nav-panels">
+          <div id="resize-packages-nav">
+            <div id="packages-nav" class="scroll-pane">
+
+              <ul>
+                
+    <li class="selected api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/chunk/parser/package-summary.html">com.google.android.exoplayer.chunk.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/chunk/parser/mp4/package-summary.html">com.google.android.exoplayer.chunk.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/chunk/parser/webm/package-summary.html">com.google.android.exoplayer.chunk.parser.webm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/source/package-summary.html">com.google.android.exoplayer.source</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/text/eia608/package-summary.html">com.google.android.exoplayer.text.eia608</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/text/webvtt/package-summary.html">com.google.android.exoplayer.text.webvtt</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/upstream/cache/package-summary.html">com.google.android.exoplayer.upstream.cache</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/util/package-summary.html">com.google.android.exoplayer.util</a></li>
+              </ul><br/>
+
+            </div> <!-- end packages-nav -->
+          </div> <!-- end resize-packages -->
+          <div id="classes-nav" class="scroll-pane">
+
+
+
+            <ul>
+              
+              
+    <li><h2>Interfaces</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.EventListener.html">DefaultLoadControl.EventListener</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.ExoPlayerComponent.html">ExoPlayer.ExoPlayerComponent</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Listener.html">ExoPlayer.Listener</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/LoadControl.html">LoadControl</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecAudioTrackRenderer.EventListener.html">MediaCodecAudioTrackRenderer.EventListener</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.EventListener.html">MediaCodecTrackRenderer.EventListener</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecVideoTrackRenderer.EventListener.html">MediaCodecVideoTrackRenderer.EventListener</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecVideoTrackRenderer.FrameReleaseTimeHelper.html">MediaCodecVideoTrackRenderer.FrameReleaseTimeHelper</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a></li>
+      </ul>
+    </li>
+              
+    <li><h2>Classes</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/C.html">C</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html">CodecCounters</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/CryptoInfo.html">CryptoInfo</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DecoderInfo.html">DecoderInfo</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.html">DefaultLoadControl</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DummyTrackRenderer.html">DummyTrackRenderer</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html">ExoPlayer.Factory</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayerLibraryInfo.html">ExoPlayerLibraryInfo</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecAudioTrackRenderer.html">MediaCodecAudioTrackRenderer</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html">MediaCodecTrackRenderer</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecUtil.html">MediaCodecUtil</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecVideoTrackRenderer.html">MediaCodecVideoTrackRenderer</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormatHolder.html">MediaFormatHolder</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/SmoothFrameReleaseTimeHelper.html">SmoothFrameReleaseTimeHelper</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/TrackInfo.html">TrackInfo</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/VideoSurfaceView.html">VideoSurfaceView</a></li>
+      </ul>
+    </li>
+              
+              
+    <li><h2>Exceptions</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/BehindLiveWindowException.html">BehindLiveWindowException</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlaybackException.html">ExoPlaybackException</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.DecoderInitializationException.html">MediaCodecTrackRenderer.DecoderInitializationException</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecUtil.DecoderQueryException.html">MediaCodecUtil.DecoderQueryException</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ParserException.html">ParserException</a></li>
+      </ul>
+    </li>
+              
+            </ul><br/>
+        
+
+          </div><!-- end classes -->
+        </div><!-- end nav-panels -->
+        <div id="nav-tree" style="display:none" class="scroll-pane">
+          <div id="tree-list"></div>
+        </div><!-- end nav-tree -->
+      </div><!-- end swapper -->
+    </div> <!-- end devdoc-nav -->
+    </div> <!-- end side-nav -->
+    <script type="text/javascript">
+      toggleFullscreen(true);
+      // scroll the selected page into view
+      $(document).ready(function() {
+        scrollIntoView("packages-nav");
+        scrollIntoView("classes-nav");
+        });
+    </script>
+
+     
+
+
+
+<div class="col-12"  id="doc-col">
+
+<div id="api-info-block">
+
+
+
+  
+   
+  
+  
+  
+  
+
+
+<div class="sum-details-links">
+
+Summary:
+
+
+
+
+
+  <a href="#constants">Constants</a>
+  
+
+
+
+
+
+
+
+  &#124; <a href="#pubmethods">Methods</a>
+  
+
+
+
+  &#124; <a href="#inhmethods">Inherited Methods</a>
+
+&#124; <a href="#" onclick="return toggleAllClassInherited()" id="toggleAllClassInherited">[Expand All]</a>
+
+</div><!-- end sum-details-links -->
+<div class="api-level">
+  
+  
+  
+
+</div>
+</div><!-- end api-info-block -->
+
+
+<!-- ======== START OF CLASS DATA ======== -->
+
+<div id="jd-header">
+    public
+    static 
+    final 
+    
+    class
+<h1 itemprop="name">ExoPlayer.Factory</h1>
+
+
+
+  
+    extends <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a><br/>
+  
+  
+  
+
+  
+  
+  
+
+
+    
+
+
+</div><!-- end header -->
+
+<div id="naMessage"></div>
+
+<div id="jd-content" class="api apilevel-">
+<table class="jd-inheritance-table">
+
+
+    <tr>
+         	
+        <td colspan="2" class="jd-inheritance-class-cell"><a href="http://developer.android.com/reference/java/lang/Object.html">java.lang.Object</a></td>
+    </tr>
+    
+
+    <tr>
+        
+            <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
+         	
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.ExoPlayer.Factory</td>
+    </tr>
+    
+
+</table>
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Class Overview</h2>
+<p itemprop="articleBody">A factory for instantiating ExoPlayer instances.
+</p>
+
+
+
+
+
+</div><!-- jd-descr -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Summary</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- =========== ENUM CONSTANT SUMMARY =========== -->
+<table id="constants" class="jd-sumtable"><tr><th colspan="12">Constants</th></tr>
+
+
+    
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html#DEFAULT_MIN_BUFFER_MS">DEFAULT_MIN_BUFFER_MS</a></td>
+        <td class="jd-descrcol" width="100%">
+          The default minimum duration of data that must be buffered for playback to start or resume
+ following a user action such as a seek.
+          
+    
+
+        </td>
+    </tr>
+    
+    
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html#DEFAULT_MIN_REBUFFER_MS">DEFAULT_MIN_REBUFFER_MS</a></td>
+        <td class="jd-descrcol" width="100%">
+          The default minimum duration of data that must be buffered for playback to resume
+ after a player invoked rebuffer (i.e.
+          
+    
+
+        </td>
+    </tr>
+    
+    
+
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
+
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            <a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html#newInstance(int)">newInstance</a></span>(int rendererCount)</nobr>
+        
+        <div class="jd-descrdiv">
+          Obtains an <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> instance.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            <a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html#newInstance(int, int, int)">newInstance</a></span>(int rendererCount, int minBufferMs, int minRebufferMs)</nobr>
+        
+        <div class="jd-descrdiv">
+          Obtains an <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> instance.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            <a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html#newInstance(int, int)">newInstance</a></span>(int rendererCount, int minRebufferMs)</nobr>
+        
+        <div class="jd-descrdiv">
+          <em>
+      This method is deprecated.
+    Please use <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html#newInstance(int, int, int)">newInstance(int, int, int)</a></code>.
+</em>
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+
+</table>
+
+
+
+
+
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="inhmethods" class="jd-sumtable"><tr><th>
+  <a href="#" class="toggle-all" onclick="return toggleAllInherited(this, null)">[Expand]</a>
+  <div style="clear:left;">Inherited Methods</div></th></tr>
+
+
+<tr class="api apilevel-" >
+<td colspan="12">
+  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-java.lang.Object" class="jd-expando-trigger closed"
+          ><img id="inherited-methods-java.lang.Object-trigger"
+          src="../../../../../assets/images/triangle-closed.png"
+          class="jd-expando-trigger-img" /></a>
+From class
+
+  <a href="http://developer.android.com/reference/java/lang/Object.html">java.lang.Object</a>
+
+<div id="inherited-methods-java.lang.Object">
+  <div id="inherited-methods-java.lang.Object-list"
+        class="jd-inheritedlinks">
+  </div>
+  <div id="inherited-methods-java.lang.Object-summary" style="display: none;">
+    <table class="jd-sumtable-expando">
+    
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">clone</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">finalize</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/Class.html">Class</a>&lt;?&gt;</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">getClass</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">hashCode</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">notify</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">notifyAll</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">toString</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">wait</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">wait</span>(long arg0, int arg1)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">wait</span>(long arg0)</nobr>
+        
+  </td></tr>
+
+
+</table>
+  </div>
+</div>
+</td></tr>
+
+
+</table>
+
+
+</div><!-- jd-descr (summary) -->
+
+<!-- Details -->
+
+
+
+
+
+
+
+
+<!-- XML Attributes -->
+
+
+<!-- Enum Values -->
+
+
+<!-- Constants -->
+
+
+<!-- ========= ENUM CONSTANTS DETAIL ======== -->
+<h2>Constants</h2>
+
+
+
+
+<A NAME="DEFAULT_MIN_BUFFER_MS"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        DEFAULT_MIN_BUFFER_MS
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The default minimum duration of data that must be buffered for playback to start or resume
+ following a user action such as a seek.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                500
+                (0x000001f4)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
+<A NAME="DEFAULT_MIN_REBUFFER_MS"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        DEFAULT_MIN_REBUFFER_MS
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The default minimum duration of data that must be buffered for playback to resume
+ after a player invoked rebuffer (i.e. a rebuffer that occurs due to buffer depletion, and
+ not due to a user action such as starting playback or seeking).
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                5000
+                (0x00001388)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
+
+<!-- Fields -->
+
+
+<!-- Public ctors -->
+
+
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<!-- Protected ctors -->
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+<!-- Public methdos -->
+
+<h2>Public Methods</h2>
+
+
+
+<A NAME="newInstance(int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        <a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a>
+      </span>
+      <span class="sympad">newInstance</span>
+      <span class="normal">(int rendererCount)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Obtains an <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> instance.
+ <p>
+ Must be invoked from a thread that has an associated <code><a href="http://developer.android.com/reference/android/os/Looper.html">Looper</a></code>.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>rendererCount</td>
+          <td>The number of <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></code>s that will be passed to
+     <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#prepare(com.google.android.exoplayer.TrackRenderer...)">prepare(TrackRenderer[])</a></code>.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="newInstance(int, int, int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        <a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a>
+      </span>
+      <span class="sympad">newInstance</span>
+      <span class="normal">(int rendererCount, int minBufferMs, int minRebufferMs)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Obtains an <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> instance.
+ <p>
+ Must be invoked from a thread that has an associated <code><a href="http://developer.android.com/reference/android/os/Looper.html">Looper</a></code>.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>rendererCount</td>
+          <td>The number of <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></code>s that will be passed to
+     <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#prepare(com.google.android.exoplayer.TrackRenderer...)">prepare(TrackRenderer[])</a></code>.</td>
+        </tr>
+        <tr>
+          <th>minBufferMs</td>
+          <td>A minimum duration of data that must be buffered for playback to start
+     or resume following a user action such as a seek.</td>
+        </tr>
+        <tr>
+          <th>minRebufferMs</td>
+          <td>A minimum duration of data that must be buffered for playback to resume
+     after a player invoked rebuffer (i.e. a rebuffer that occurs due to buffer depletion, and
+     not due to a user action such as starting playback or seeking).
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="newInstance(int, int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        <a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a>
+      </span>
+      <span class="sympad">newInstance</span>
+      <span class="normal">(int rendererCount, int minRebufferMs)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      <p>
+  <p class="caution"><strong>
+      This method is deprecated.</strong><br/>
+    Please use <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html#newInstance(int, int, int)">newInstance(int, int, int)</a></code>.
+
+  </p>
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+
+
+
+<!-- ========= END OF CLASS DATA ========= -->
+<A NAME="navbar_top"></A>
+
+<div id="footer" class="wrap" >
+        
+<div id="copyright">
+  
+  Except as noted, this content is licensed under <a
+  href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a>.
+</div>
+
+</div> <!-- end footer -->
+
+</div> <!-- jd-content -->
+
+</div><!-- end doc-content -->
+
+</div> <!-- end body-content --> 
+
+
+
+
+
+
+</body>
+</html>

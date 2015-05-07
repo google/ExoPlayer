@@ -1,0 +1,2154 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width" />
+
+<link rel="shortcut icon" type="image/x-icon" href="../../../../../../favicon.ico" />
+<title>Util - ExoPlayer | Android Developers</title>
+
+<!-- STYLESHEETS -->
+<link rel="stylesheet"
+href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
+  title="roboto">
+<link href="../../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
+
+
+<!-- FULLSCREEN STYLESHEET -->
+<link href="../../../../../../assets/css/fullscreen.css" rel="stylesheet" class="fullscreen"
+type="text/css">
+
+
+<!-- JAVASCRIPT -->
+<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+<script src="../../../../../../assets/js/android_3p-bundle.js" type="text/javascript"></script>
+<script type="text/javascript">
+  var toRoot = "../../../../../../";
+  var metaTags = [];
+  var devsite = false;
+</script>
+<script src="../../../../../../assets/js/docs.js?v=3" type="text/javascript"></script>
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-5831155-1', 'android.com');
+  ga('create', 'UA-49880327-2', 'android.com', {'name': 'universal'});  // New tracker);
+  ga('send', 'pageview');
+  ga('universal.send', 'pageview'); // Send page view for new tracker.
+</script>
+
+</head>
+
+<body class="gc-documentation 
+  develop reference" itemscope itemtype="http://schema.org/Article">
+  <div id="doc-api-level" class="" style="display:none"></div>
+  <a name="top"></a>
+
+
+  <div class="wrap clearfix" id="body-content">
+    <div class="col-4" id="side-nav" itemscope itemtype="http://schema.org/SiteNavigationElement">
+      <div id="devdoc-nav">
+
+<a class="totop" href="#top" data-g-event="left-nav-top">to top</a>
+      <div id="api-nav-header">
+        <div id="api-nav-title">ExoPlayerLib APIs</div>
+        </div><!-- end nav header -->
+      <script>
+        var SINCE_DATA = [  ];
+        buildApiLevelSelector();
+      </script>
+                  
+      <div id="swapper">
+        <div id="nav-panels">
+          <div id="resize-packages-nav">
+            <div id="packages-nav" class="scroll-pane">
+
+              <ul>
+                
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/package-summary.html">com.google.android.exoplayer.chunk.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/mp4/package-summary.html">com.google.android.exoplayer.chunk.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/webm/package-summary.html">com.google.android.exoplayer.chunk.parser.webm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/source/package-summary.html">com.google.android.exoplayer.source</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/eia608/package-summary.html">com.google.android.exoplayer.text.eia608</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/webvtt/package-summary.html">com.google.android.exoplayer.text.webvtt</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/upstream/cache/package-summary.html">com.google.android.exoplayer.upstream.cache</a></li>
+    <li class="selected api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/util/package-summary.html">com.google.android.exoplayer.util</a></li>
+              </ul><br/>
+
+            </div> <!-- end packages-nav -->
+          </div> <!-- end resize-packages -->
+          <div id="classes-nav" class="scroll-pane">
+
+
+
+            <ul>
+              
+              
+    <li><h2>Interfaces</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/Clock.html">Clock</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.EventListener.html">ManifestFetcher.EventListener</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.ManifestCallback.html">ManifestFetcher.ManifestCallback</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestParser.html">ManifestParser</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/Predicate.html">Predicate</a></li>
+      </ul>
+    </li>
+              
+    <li><h2>Classes</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/Assertions.html">Assertions</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/CodecSpecificDataUtil.html">CodecSpecificDataUtil</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/LongArray.html">LongArray</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ManifestFetcher.html">ManifestFetcher</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/MimeTypes.html">MimeTypes</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableBitArray.html">ParsableBitArray</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/ParsableByteArray.html">ParsableByteArray</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/PlayerControl.html">PlayerControl</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/PriorityHandlerThread.html">PriorityHandlerThread</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/SlidingPercentile.html">SlidingPercentile</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/SystemClock.html">SystemClock</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/TraceUtil.html">TraceUtil</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html">Util</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/util/VerboseLogUtil.html">VerboseLogUtil</a></li>
+      </ul>
+    </li>
+              
+              
+              
+            </ul><br/>
+        
+
+          </div><!-- end classes -->
+        </div><!-- end nav-panels -->
+        <div id="nav-tree" style="display:none" class="scroll-pane">
+          <div id="tree-list"></div>
+        </div><!-- end nav-tree -->
+      </div><!-- end swapper -->
+    </div> <!-- end devdoc-nav -->
+    </div> <!-- end side-nav -->
+    <script type="text/javascript">
+      toggleFullscreen(true);
+      // scroll the selected page into view
+      $(document).ready(function() {
+        scrollIntoView("packages-nav");
+        scrollIntoView("classes-nav");
+        });
+    </script>
+
+     
+
+
+
+<div class="col-12"  id="doc-col">
+
+<div id="api-info-block">
+
+
+
+  
+   
+  
+  
+  
+  
+
+
+<div class="sum-details-links">
+
+Summary:
+
+
+
+
+
+
+
+  <a href="#lfields">Fields</a>
+  
+
+
+
+
+
+  &#124; <a href="#pubmethods">Methods</a>
+  
+
+
+
+  &#124; <a href="#inhmethods">Inherited Methods</a>
+
+&#124; <a href="#" onclick="return toggleAllClassInherited()" id="toggleAllClassInherited">[Expand All]</a>
+
+</div><!-- end sum-details-links -->
+<div class="api-level">
+  
+  
+  
+
+</div>
+</div><!-- end api-info-block -->
+
+
+<!-- ======== START OF CLASS DATA ======== -->
+
+<div id="jd-header">
+    public
+     
+    final 
+    
+    class
+<h1 itemprop="name">Util</h1>
+
+
+
+  
+    extends <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a><br/>
+  
+  
+  
+
+  
+  
+  
+
+
+    
+
+
+</div><!-- end header -->
+
+<div id="naMessage"></div>
+
+<div id="jd-content" class="api apilevel-">
+<table class="jd-inheritance-table">
+
+
+    <tr>
+         	
+        <td colspan="2" class="jd-inheritance-class-cell"><a href="http://developer.android.com/reference/java/lang/Object.html">java.lang.Object</a></td>
+    </tr>
+    
+
+    <tr>
+        
+            <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
+         	
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.util.Util</td>
+    </tr>
+    
+
+</table>
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Class Overview</h2>
+<p itemprop="articleBody">Miscellaneous utility functions.
+</p>
+
+
+
+
+
+</div><!-- jd-descr -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Summary</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- =========== FIELD SUMMARY =========== -->
+<table id="lfields" class="jd-sumtable"><tr><th colspan="12">Fields</th></tr>
+
+
+    
+      <tr class="alt-color api apilevel-" >
+          <td class="jd-typecol"><nobr>
+          public
+          static
+          final
+          int</nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#SDK_INT">SDK_INT</a></td>
+          <td class="jd-descrcol" width="100%">
+            Like <code><a href="http://developer.android.com/reference/android/os/Build.VERSION.html#SDK_INT">SDK_INT</a></code>, but in a place where it can be conveniently
+ overridden for local testing.
+            
+    
+
+          </td>
+      </tr>
+      
+    
+
+</table>
+
+
+
+
+
+
+
+
+
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
+
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#areEqual(java.lang.Object, java.lang.Object)">areEqual</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> o1, <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> o2)</nobr>
+        
+        <div class="jd-descrdiv">
+          Tests two objects for <code><a href="http://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)">equals(Object)</a></code> equality, handling the case where one or
+ both may be null.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#binarySearchCeil(long[], long, boolean, boolean)">binarySearchCeil</a></span>(long[] a, long key, boolean inclusive, boolean stayInBounds)</nobr>
+        
+        <div class="jd-descrdiv">
+          Returns the index of the smallest value in an array that is greater than (or optionally equal
+ to) a specified key.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            &lt;T&gt;
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#binarySearchCeil(java.util.List<? extends java.lang.Comparable<? super T>>, T, boolean, boolean)">binarySearchCeil</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="http://developer.android.com/reference/java/lang/Comparable.html">Comparable</a>&lt;?&nbsp;super&nbsp;T&gt;&gt; list, T key, boolean inclusive, boolean stayInBounds)</nobr>
+        
+        <div class="jd-descrdiv">
+          Returns the index of the smallest value in an list that is greater than (or optionally equal
+ to) a specified key.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            &lt;T&gt;
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#binarySearchFloor(java.util.List<? extends java.lang.Comparable<? super T>>, T, boolean, boolean)">binarySearchFloor</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="http://developer.android.com/reference/java/lang/Comparable.html">Comparable</a>&lt;?&nbsp;super&nbsp;T&gt;&gt; list, T key, boolean inclusive, boolean stayInBounds)</nobr>
+        
+        <div class="jd-descrdiv">
+          Returns the index of the largest value in an list that is less than (or optionally equal to)
+ a specified key.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#binarySearchFloor(long[], long, boolean, boolean)">binarySearchFloor</a></span>(long[] a, long key, boolean inclusive, boolean stayInBounds)</nobr>
+        
+        <div class="jd-descrdiv">
+          Returns the index of the largest value in an array that is less than (or optionally equal to)
+ a specified key.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#closeQuietly(com.google.android.exoplayer.upstream.DataSource)">closeQuietly</a></span>(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource)</nobr>
+        
+        <div class="jd-descrdiv">
+          Closes a <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a></code>, suppressing any <code><a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a></code> that may occur.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#getMergedUri(android.net.Uri, java.lang.String)">getMergedUri</a></span>(<a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> baseUri, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> stringUri)</nobr>
+        
+        <div class="jd-descrdiv">
+          Merges a uri and a string to produce a new uri.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#isUrlLocalFile(java.net.URL)">isUrlLocalFile</a></span>(<a href="http://developer.android.com/reference/java/net/URL.html">URL</a> url)</nobr>
+        
+        <div class="jd-descrdiv">
+          Returns true if the URL points to a file on the local device
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            <a href="http://developer.android.com/reference/java/util/concurrent/ExecutorService.html">ExecutorService</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#newSingleThreadExecutor(java.lang.String)">newSingleThreadExecutor</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> threadName)</nobr>
+        
+        <div class="jd-descrdiv">
+          Instantiates a new single threaded executor whose thread has the specified name.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            <a href="http://developer.android.com/reference/java/util/concurrent/ScheduledExecutorService.html">ScheduledExecutorService</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#newSingleThreadScheduledExecutor(java.lang.String)">newSingleThreadScheduledExecutor</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> threadName)</nobr>
+        
+        <div class="jd-descrdiv">
+          Instantiates a new single threaded scheduled executor whose thread has the specified name.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#parseBaseUri(java.lang.String)">parseBaseUri</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> uriString)</nobr>
+        
+        <div class="jd-descrdiv">
+          Like <code><a href="http://developer.android.com/reference/android/net/Uri.html#parse(java.lang.String)">parse(String)</a></code>, but discards the part of the uri that follows the final
+ forward slash.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            long</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#parseXsDateTime(java.lang.String)">parseXsDateTime</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> value)</nobr>
+        
+        <div class="jd-descrdiv">
+          Parses an xs:dateTime attribute value, returning the parsed timestamp in milliseconds since
+ the epoch.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            long</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#parseXsDuration(java.lang.String)">parseXsDuration</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> value)</nobr>
+        
+        <div class="jd-descrdiv">
+          Parses an xs:duration attribute value, returning the parsed duration in milliseconds.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            long</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#scaleLargeTimestamp(long, long, long)">scaleLargeTimestamp</a></span>(long timestamp, long multiplier, long divisor)</nobr>
+        
+        <div class="jd-descrdiv">
+          Scales a large timestamp.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            long[]</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#scaleLargeTimestamps(java.util.List<java.lang.Long>, long, long)">scaleLargeTimestamps</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="http://developer.android.com/reference/java/lang/Long.html">Long</a>&gt; timestamps, long multiplier, long divisor)</nobr>
+        
+        <div class="jd-descrdiv">
+          Applies <code><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#scaleLargeTimestamp(long, long, long)">scaleLargeTimestamp(long, long, long)</a></code> to a list of unscaled timestamps.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#scaleLargeTimestampsInPlace(long[], long, long)">scaleLargeTimestampsInPlace</a></span>(long[] timestamps, long multiplier, long divisor)</nobr>
+        
+        <div class="jd-descrdiv">
+          Applies <code><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#scaleLargeTimestamp(long, long, long)">scaleLargeTimestamp(long, long, long)</a></code> to an array of unscaled timestamps.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            int[]</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#toArray(java.util.List<java.lang.Integer>)">toArray</a></span>(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="http://developer.android.com/reference/java/lang/Integer.html">Integer</a>&gt; list)</nobr>
+        
+        <div class="jd-descrdiv">
+          Converts a list of integers to a primitive array.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            static
+            
+            <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#toLowerInvariant(java.lang.String)">toLowerInvariant</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> text)</nobr>
+        
+        <div class="jd-descrdiv">
+          Converts text to lower case using <code><a href="http://developer.android.com/reference/java/util/Locale.html#US">US</a></code>.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+
+</table>
+
+
+
+
+
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="inhmethods" class="jd-sumtable"><tr><th>
+  <a href="#" class="toggle-all" onclick="return toggleAllInherited(this, null)">[Expand]</a>
+  <div style="clear:left;">Inherited Methods</div></th></tr>
+
+
+<tr class="api apilevel-" >
+<td colspan="12">
+  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-java.lang.Object" class="jd-expando-trigger closed"
+          ><img id="inherited-methods-java.lang.Object-trigger"
+          src="../../../../../../assets/images/triangle-closed.png"
+          class="jd-expando-trigger-img" /></a>
+From class
+
+  <a href="http://developer.android.com/reference/java/lang/Object.html">java.lang.Object</a>
+
+<div id="inherited-methods-java.lang.Object">
+  <div id="inherited-methods-java.lang.Object-list"
+        class="jd-inheritedlinks">
+  </div>
+  <div id="inherited-methods-java.lang.Object-summary" style="display: none;">
+    <table class="jd-sumtable-expando">
+    
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">clone</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">finalize</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/Class.html">Class</a>&lt;?&gt;</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">getClass</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">hashCode</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">notify</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">notifyAll</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">toString</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">wait</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">wait</span>(long arg0, int arg1)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">wait</span>(long arg0)</nobr>
+        
+  </td></tr>
+
+
+</table>
+  </div>
+</div>
+</td></tr>
+
+
+</table>
+
+
+</div><!-- jd-descr (summary) -->
+
+<!-- Details -->
+
+
+
+
+
+
+
+
+<!-- XML Attributes -->
+
+
+<!-- Enum Values -->
+
+
+<!-- Constants -->
+
+
+<!-- Fields -->
+
+
+<!-- ========= FIELD DETAIL ======== -->
+<h2>Fields</h2>
+
+
+
+
+<A NAME="SDK_INT"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        SDK_INT
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Like <code><a href="http://developer.android.com/reference/android/os/Build.VERSION.html#SDK_INT">SDK_INT</a></code>, but in a place where it can be conveniently
+ overridden for local testing.
+</p></div>
+
+    
+    </div>
+</div>
+
+
+
+
+<!-- Public ctors -->
+
+
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<!-- Protected ctors -->
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+<!-- Public methdos -->
+
+<h2>Public Methods</h2>
+
+
+
+<A NAME="areEqual(java.lang.Object, java.lang.Object)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        boolean
+      </span>
+      <span class="sympad">areEqual</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> o1, <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> o2)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Tests two objects for <code><a href="http://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)">equals(Object)</a></code> equality, handling the case where one or
+ both may be null.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>o1</td>
+          <td>The first object.</td>
+        </tr>
+        <tr>
+          <th>o2</td>
+          <td>The second object.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li><code>o1 == null ? o2 == null : o1.equals(o2)</code>.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="binarySearchCeil(long[], long, boolean, boolean)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">binarySearchCeil</span>
+      <span class="normal">(long[] a, long key, boolean inclusive, boolean stayInBounds)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the index of the smallest value in an array that is greater than (or optionally equal
+ to) a specified key.
+ <p>
+ The search is performed using a binary search algorithm, and so the array must be sorted.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>a</td>
+          <td>The array to search.</td>
+        </tr>
+        <tr>
+          <th>key</td>
+          <td>The key being searched for.</td>
+        </tr>
+        <tr>
+          <th>inclusive</td>
+          <td>If the key is present in the array, whether to return the corresponding index.
+     If false then the returned index corresponds to the smallest value in the array that is
+     strictly greater than the key.</td>
+        </tr>
+        <tr>
+          <th>stayInBounds</td>
+          <td>If true, then <code>(a.length - 1)</code> will be returned in the case that the
+     key is greater than the largest value in the array. If false then <code>a.length</code> will be
+     returned.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="binarySearchCeil(java.util.List<? extends java.lang.Comparable<? super T>>, T, boolean, boolean)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">binarySearchCeil</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="http://developer.android.com/reference/java/lang/Comparable.html">Comparable</a>&lt;?&nbsp;super&nbsp;T&gt;&gt; list, T key, boolean inclusive, boolean stayInBounds)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the index of the smallest value in an list that is greater than (or optionally equal
+ to) a specified key.
+ <p>
+ The search is performed using a binary search algorithm, and so the list must be sorted.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>list</td>
+          <td>The list to search.</td>
+        </tr>
+        <tr>
+          <th>key</td>
+          <td>The key being searched for.</td>
+        </tr>
+        <tr>
+          <th>inclusive</td>
+          <td>If the key is present in the list, whether to return the corresponding index.
+     If false then the returned index corresponds to the smallest value in the list that is
+     strictly greater than the key.</td>
+        </tr>
+        <tr>
+          <th>stayInBounds</td>
+          <td>If true, then <code>(list.size() - 1)</code> will be returned in the case that
+     the key is greater than the largest value in the list. If false then <code>list.size()</code>
+     will be returned.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="binarySearchFloor(java.util.List<? extends java.lang.Comparable<? super T>>, T, boolean, boolean)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">binarySearchFloor</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;?&nbsp;extends&nbsp;<a href="http://developer.android.com/reference/java/lang/Comparable.html">Comparable</a>&lt;?&nbsp;super&nbsp;T&gt;&gt; list, T key, boolean inclusive, boolean stayInBounds)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the index of the largest value in an list that is less than (or optionally equal to)
+ a specified key.
+ <p>
+ The search is performed using a binary search algorithm, and so the list must be sorted.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>list</td>
+          <td>The list to search.</td>
+        </tr>
+        <tr>
+          <th>key</td>
+          <td>The key being searched for.</td>
+        </tr>
+        <tr>
+          <th>inclusive</td>
+          <td>If the key is present in the list, whether to return the corresponding index.
+     If false then the returned index corresponds to the largest value in the list that is
+     strictly less than the key.</td>
+        </tr>
+        <tr>
+          <th>stayInBounds</td>
+          <td>If true, then 0 will be returned in the case that the key is smaller than
+     the smallest value in the list. If false then -1 will be returned.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="binarySearchFloor(long[], long, boolean, boolean)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">binarySearchFloor</span>
+      <span class="normal">(long[] a, long key, boolean inclusive, boolean stayInBounds)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the index of the largest value in an array that is less than (or optionally equal to)
+ a specified key.
+ <p>
+ The search is performed using a binary search algorithm, and so the array must be sorted.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>a</td>
+          <td>The array to search.</td>
+        </tr>
+        <tr>
+          <th>key</td>
+          <td>The key being searched for.</td>
+        </tr>
+        <tr>
+          <th>inclusive</td>
+          <td>If the key is present in the array, whether to return the corresponding index.
+     If false then the returned index corresponds to the largest value in the array that is
+     strictly less than the key.</td>
+        </tr>
+        <tr>
+          <th>stayInBounds</td>
+          <td>If true, then 0 will be returned in the case that the key is smaller than
+     the smallest value in the array. If false then -1 will be returned.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="closeQuietly(com.google.android.exoplayer.upstream.DataSource)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">closeQuietly</span>
+      <span class="normal">(<a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a> dataSource)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Closes a <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a></code>, suppressing any <code><a href="http://developer.android.com/reference/java/io/IOException.html">IOException</a></code> that may occur.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>dataSource</td>
+          <td>The <code><a href="../../../../../../reference/com/google/android/exoplayer/upstream/DataSource.html">DataSource</a></code> to close.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getMergedUri(android.net.Uri, java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a>
+      </span>
+      <span class="sympad">getMergedUri</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a> baseUri, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> stringUri)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Merges a uri and a string to produce a new uri.
+ <p>
+ The uri is built according to the following rules:
+ <ul>
+ <li>If <code>baseUri</code> is null or if <code>stringUri</code> is absolute, then <code>baseUri</code> is
+ ignored and the uri consists solely of <code>stringUri</code>.
+ <li>If <code>stringUri</code> is null, then the uri consists solely of <code>baseUrl</code>.
+ <li>Otherwise, the uri consists of the concatenation of <code>baseUri</code> and <code>stringUri</code>.
+ </ul></p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>baseUri</td>
+          <td>A uri that can form the base of the merged uri.</td>
+        </tr>
+        <tr>
+          <th>stringUri</td>
+          <td>A relative or absolute uri in string form.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The merged uri.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="isUrlLocalFile(java.net.URL)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        boolean
+      </span>
+      <span class="sympad">isUrlLocalFile</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/net/URL.html">URL</a> url)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns true if the URL points to a file on the local device</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>url</td>
+          <td>The URL to test
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="newSingleThreadExecutor(java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        <a href="http://developer.android.com/reference/java/util/concurrent/ExecutorService.html">ExecutorService</a>
+      </span>
+      <span class="sympad">newSingleThreadExecutor</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> threadName)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Instantiates a new single threaded executor whose thread has the specified name.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>threadName</td>
+          <td>The name of the thread.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The executor.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="newSingleThreadScheduledExecutor(java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        <a href="http://developer.android.com/reference/java/util/concurrent/ScheduledExecutorService.html">ScheduledExecutorService</a>
+      </span>
+      <span class="sympad">newSingleThreadScheduledExecutor</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> threadName)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Instantiates a new single threaded scheduled executor whose thread has the specified name.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>threadName</td>
+          <td>The name of the thread.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The executor.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="parseBaseUri(java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        <a href="http://developer.android.com/reference/android/net/Uri.html">Uri</a>
+      </span>
+      <span class="sympad">parseBaseUri</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> uriString)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Like <code><a href="http://developer.android.com/reference/android/net/Uri.html#parse(java.lang.String)">parse(String)</a></code>, but discards the part of the uri that follows the final
+ forward slash.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>uriString</td>
+          <td>An RFC 2396-compliant, encoded uri.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The parsed base uri.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="parseXsDateTime(java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        long
+      </span>
+      <span class="sympad">parseXsDateTime</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> value)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Parses an xs:dateTime attribute value, returning the parsed timestamp in milliseconds since
+ the epoch.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>value</td>
+          <td>The attribute value to parse.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The parsed timestamp in milliseconds since the epoch.
+</li></ul>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Throws</h5>
+      <table class="jd-tagtable">  
+        <tr>
+            <th><a href="http://developer.android.com/reference/java/text/ParseException.html">ParseException</a></td>
+            <td></td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="parseXsDuration(java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        long
+      </span>
+      <span class="sympad">parseXsDuration</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> value)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Parses an xs:duration attribute value, returning the parsed duration in milliseconds.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>value</td>
+          <td>The attribute value to parse.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The parsed duration in milliseconds.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="scaleLargeTimestamp(long, long, long)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        long
+      </span>
+      <span class="sympad">scaleLargeTimestamp</span>
+      <span class="normal">(long timestamp, long multiplier, long divisor)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Scales a large timestamp.
+ <p>
+ Logically, scaling consists of a multiplication followed by a division. The actual operations
+ performed are designed to minimize the probability of overflow.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>timestamp</td>
+          <td>The timestamp to scale.</td>
+        </tr>
+        <tr>
+          <th>multiplier</td>
+          <td>The multiplier.</td>
+        </tr>
+        <tr>
+          <th>divisor</td>
+          <td>The divisor.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The scaled timestamp.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="scaleLargeTimestamps(java.util.List<java.lang.Long>, long, long)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        long[]
+      </span>
+      <span class="sympad">scaleLargeTimestamps</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="http://developer.android.com/reference/java/lang/Long.html">Long</a>&gt; timestamps, long multiplier, long divisor)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Applies <code><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#scaleLargeTimestamp(long, long, long)">scaleLargeTimestamp(long, long, long)</a></code> to a list of unscaled timestamps.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>timestamps</td>
+          <td>The timestamps to scale.</td>
+        </tr>
+        <tr>
+          <th>multiplier</td>
+          <td>The multiplier.</td>
+        </tr>
+        <tr>
+          <th>divisor</td>
+          <td>The divisor.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The scaled timestamps.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="scaleLargeTimestampsInPlace(long[], long, long)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">scaleLargeTimestampsInPlace</span>
+      <span class="normal">(long[] timestamps, long multiplier, long divisor)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Applies <code><a href="../../../../../../reference/com/google/android/exoplayer/util/Util.html#scaleLargeTimestamp(long, long, long)">scaleLargeTimestamp(long, long, long)</a></code> to an array of unscaled timestamps.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>timestamps</td>
+          <td>The timestamps to scale.</td>
+        </tr>
+        <tr>
+          <th>multiplier</td>
+          <td>The multiplier.</td>
+        </tr>
+        <tr>
+          <th>divisor</td>
+          <td>The divisor.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="toArray(java.util.List<java.lang.Integer>)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        int[]
+      </span>
+      <span class="sympad">toArray</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/util/List.html">List</a>&lt;<a href="http://developer.android.com/reference/java/lang/Integer.html">Integer</a>&gt; list)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Converts a list of integers to a primitive array.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>list</td>
+          <td>A list of integers.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The list in array form, or null if the input list was null.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="toLowerInvariant(java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+         
+         
+         
+        <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
+      </span>
+      <span class="sympad">toLowerInvariant</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> text)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Converts text to lower case using <code><a href="http://developer.android.com/reference/java/util/Locale.html#US">US</a></code>.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>text</td>
+          <td>The text to convert.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The lower case text, or null if <code>text</code> is null.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+
+
+
+<!-- ========= END OF CLASS DATA ========= -->
+<A NAME="navbar_top"></A>
+
+<div id="footer" class="wrap" >
+        
+<div id="copyright">
+  
+  Except as noted, this content is licensed under <a
+  href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a>.
+</div>
+
+</div> <!-- end footer -->
+
+</div> <!-- jd-content -->
+
+</div><!-- end doc-content -->
+
+</div> <!-- end body-content --> 
+
+
+
+
+
+
+</body>
+</html>

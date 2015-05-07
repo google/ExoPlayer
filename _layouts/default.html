@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>{{ page.title }}</title>
+   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto+Condensed">
+   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold" title="roboto">
+   <link rel="stylesheet" href="{{ site.baseurl }}/css/default.css">
+   <link rel="stylesheet" href="{{ site.baseurl }}/css/github-markdown.css">
+   <link rel="stylesheet" href="{{ site.baseurl }}/css/syntax.css">
+   <link rel="stylesheet" href="{{ site.baseurl }}/css/pure-min.css">
+   <!--[if lte IE 8]>
+     <link rel="stylesheet" href="{{ site.baseurl }}/third_party/pure-layout-side-menu/side-menu-old-ie.css">
+   <![endif]-->
+   <!--[if gt IE 8]><!-->
+     <link rel="stylesheet" href="{{ site.baseurl }}/third_party/pure-layout-side-menu/side-menu.css">
+   <!--<![endif]-->
+</head>
+<body>
+
+<div id="layout">
+
+    <!-- Collapsed menu toggle -->
+    <a href="#menu" id="menuLink" class="menu-link">
+        <span></span>
+    </a>
+
+    <!-- Expanded menu -->
+    <div id="menu">
+        <div class="pure-menu">
+            <a class="pure-menu-heading" href="{{ site.baseurl }}">ExoPlayer</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><a href="{{ site.baseurl }}/blog.html" class="pure-menu-link">Blog</a></li>
+                <li class="pure-menu-item"><a href="{{ site.baseurl }}/guide.html" class="pure-menu-link">Developer guide</a></li>
+                <li class="pure-menu-item"><a href="{{ site.baseurl }}/doc/reference" class="pure-menu-link">Class reference</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <article class="markdown-body">
+      <h1>{{ page.title }}</h1>
+      {{ content }}
+    </article>     
+
+</div>
+
+<!-- Javascript for collapsing/expanding the menu -->
+<script src="{{ site.baseurl }}/third_party/pure-layout-side-menu/ui.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,2199 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width" />
+
+<link rel="shortcut icon" type="image/x-icon" href="../../../../../favicon.ico" />
+<title>ExoPlayer - ExoPlayer | Android Developers</title>
+
+<!-- STYLESHEETS -->
+<link rel="stylesheet"
+href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
+  title="roboto">
+<link href="../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
+
+
+<!-- FULLSCREEN STYLESHEET -->
+<link href="../../../../../assets/css/fullscreen.css" rel="stylesheet" class="fullscreen"
+type="text/css">
+
+
+<!-- JAVASCRIPT -->
+<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+<script src="../../../../../assets/js/android_3p-bundle.js" type="text/javascript"></script>
+<script type="text/javascript">
+  var toRoot = "../../../../../";
+  var metaTags = [];
+  var devsite = false;
+</script>
+<script src="../../../../../assets/js/docs.js?v=3" type="text/javascript"></script>
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-5831155-1', 'android.com');
+  ga('create', 'UA-49880327-2', 'android.com', {'name': 'universal'});  // New tracker);
+  ga('send', 'pageview');
+  ga('universal.send', 'pageview'); // Send page view for new tracker.
+</script>
+
+</head>
+
+<body class="gc-documentation 
+  develop reference" itemscope itemtype="http://schema.org/Article">
+  <div id="doc-api-level" class="" style="display:none"></div>
+  <a name="top"></a>
+
+
+  <div class="wrap clearfix" id="body-content">
+    <div class="col-4" id="side-nav" itemscope itemtype="http://schema.org/SiteNavigationElement">
+      <div id="devdoc-nav">
+
+<a class="totop" href="#top" data-g-event="left-nav-top">to top</a>
+      <div id="api-nav-header">
+        <div id="api-nav-title">ExoPlayerLib APIs</div>
+        </div><!-- end nav header -->
+      <script>
+        var SINCE_DATA = [  ];
+        buildApiLevelSelector();
+      </script>
+                  
+      <div id="swapper">
+        <div id="nav-panels">
+          <div id="resize-packages-nav">
+            <div id="packages-nav" class="scroll-pane">
+
+              <ul>
+                
+    <li class="selected api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/chunk/parser/package-summary.html">com.google.android.exoplayer.chunk.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/chunk/parser/mp4/package-summary.html">com.google.android.exoplayer.chunk.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/chunk/parser/webm/package-summary.html">com.google.android.exoplayer.chunk.parser.webm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/source/package-summary.html">com.google.android.exoplayer.source</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/text/eia608/package-summary.html">com.google.android.exoplayer.text.eia608</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/text/webvtt/package-summary.html">com.google.android.exoplayer.text.webvtt</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/upstream/cache/package-summary.html">com.google.android.exoplayer.upstream.cache</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../reference/com/google/android/exoplayer/util/package-summary.html">com.google.android.exoplayer.util</a></li>
+              </ul><br/>
+
+            </div> <!-- end packages-nav -->
+          </div> <!-- end resize-packages -->
+          <div id="classes-nav" class="scroll-pane">
+
+
+
+            <ul>
+              
+              
+    <li><h2>Interfaces</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.EventListener.html">DefaultLoadControl.EventListener</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.ExoPlayerComponent.html">ExoPlayer.ExoPlayerComponent</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Listener.html">ExoPlayer.Listener</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/LoadControl.html">LoadControl</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecAudioTrackRenderer.EventListener.html">MediaCodecAudioTrackRenderer.EventListener</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.EventListener.html">MediaCodecTrackRenderer.EventListener</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecVideoTrackRenderer.EventListener.html">MediaCodecVideoTrackRenderer.EventListener</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecVideoTrackRenderer.FrameReleaseTimeHelper.html">MediaCodecVideoTrackRenderer.FrameReleaseTimeHelper</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a></li>
+      </ul>
+    </li>
+              
+    <li><h2>Classes</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/C.html">C</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/CodecCounters.html">CodecCounters</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/CryptoInfo.html">CryptoInfo</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DecoderInfo.html">DecoderInfo</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DefaultLoadControl.html">DefaultLoadControl</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/DummyTrackRenderer.html">DummyTrackRenderer</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html">ExoPlayer.Factory</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayerLibraryInfo.html">ExoPlayerLibraryInfo</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecAudioTrackRenderer.html">MediaCodecAudioTrackRenderer</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.html">MediaCodecTrackRenderer</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecUtil.html">MediaCodecUtil</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecVideoTrackRenderer.html">MediaCodecVideoTrackRenderer</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormat.html">MediaFormat</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaFormatHolder.html">MediaFormatHolder</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/SampleHolder.html">SampleHolder</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/SmoothFrameReleaseTimeHelper.html">SmoothFrameReleaseTimeHelper</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/TrackInfo.html">TrackInfo</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/VideoSurfaceView.html">VideoSurfaceView</a></li>
+      </ul>
+    </li>
+              
+              
+    <li><h2>Exceptions</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/BehindLiveWindowException.html">BehindLiveWindowException</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlaybackException.html">ExoPlaybackException</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecTrackRenderer.DecoderInitializationException.html">MediaCodecTrackRenderer.DecoderInitializationException</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecUtil.DecoderQueryException.html">MediaCodecUtil.DecoderQueryException</a></li>
+          <li class="api apilevel-"><a href="../../../../../reference/com/google/android/exoplayer/ParserException.html">ParserException</a></li>
+      </ul>
+    </li>
+              
+            </ul><br/>
+        
+
+          </div><!-- end classes -->
+        </div><!-- end nav-panels -->
+        <div id="nav-tree" style="display:none" class="scroll-pane">
+          <div id="tree-list"></div>
+        </div><!-- end nav-tree -->
+      </div><!-- end swapper -->
+    </div> <!-- end devdoc-nav -->
+    </div> <!-- end side-nav -->
+    <script type="text/javascript">
+      toggleFullscreen(true);
+      // scroll the selected page into view
+      $(document).ready(function() {
+        scrollIntoView("packages-nav");
+        scrollIntoView("classes-nav");
+        });
+    </script>
+
+     
+
+
+
+<div class="col-12"  id="doc-col">
+
+<div id="api-info-block">
+
+
+
+
+<div class="sum-details-links">
+
+</div><!-- end sum-details-links -->
+<div class="api-level">
+  
+  
+  
+
+</div>
+</div><!-- end api-info-block -->
+
+
+<!-- ======== START OF CLASS DATA ======== -->
+
+<div id="jd-header">
+    public
+     
+     
+    
+    interface
+<h1 itemprop="name">ExoPlayer</h1>
+
+
+
+  
+  
+  
+
+
+    
+
+
+</div><!-- end header -->
+
+<div id="naMessage"></div>
+
+<div id="jd-content" class="api apilevel-">
+<table class="jd-inheritance-table">
+
+
+    <tr>
+         	
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.ExoPlayer</td>
+    </tr>
+    
+
+</table>
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Class Overview</h2>
+<p itemprop="articleBody">An extensible media player exposing traditional high-level media player functionality, such as
+ the ability to prepare, play, pause and seek.
+
+ <p>Topics covered here are:
+ <ol>
+ <li><a href="#Assumptions">Assumptions and player composition</a>
+ <li><a href="#Threading">Threading model</a>
+ <li><a href="#State">Player state</a>
+ </ol>
+
+ <a name="Assumptions"></a>
+ <h3>Assumptions and player construction</h3>
+
+ <p>The implementation is designed make no assumptions about (and hence impose no restrictions
+ on) the type of the media being played, how and where it is stored, or how it is rendered.
+ Rather than implementing the loading and rendering of media directly, <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> instead
+ delegates this work to one or more <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></code>s, which are injected when the player
+ is prepared. Hence <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> is capable of loading and playing any media for which a
+ <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></code> implementation can be provided.
+
+ <p><code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecAudioTrackRenderer.html">MediaCodecAudioTrackRenderer</a></code> and <code><a href="../../../../../reference/com/google/android/exoplayer/MediaCodecVideoTrackRenderer.html">MediaCodecVideoTrackRenderer</a></code> can be used for
+ the common cases of rendering audio and video. These components in turn require an
+ <i>upstream</i> <code><a href="../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a></code> to be injected through their constructors, where upstream
+ is defined to denote a component that is closer to the source of the media. This pattern of
+ upstream dependency injection is actively encouraged, since it means that the functionality of
+ the player is built up through the composition of components that can easily be exchanged for
+ alternate implementations. For example a <code><a href="../../../../../reference/com/google/android/exoplayer/SampleSource.html">SampleSource</a></code> implementation may require a
+ further upstream data loading component to be injected through its constructor, with different
+ implementations enabling the loading of data from various sources.
+
+ <a name="Threading"></a>
+ <h3>Threading model</h3>
+
+ <p>The figure below shows the <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> threading model.</p>
+ <p align="center"><img src="../../../../../assets_exo/images/exoplayer_threading_model.png"
+     alt="MediaPlayer state diagram"
+     border="0"/></p>
+
+ <ul>
+ <li>It is recommended that instances are created and accessed from a single application thread.
+ An application's main thread is ideal. Accessing an instance from multiple threads is
+ discouraged, however if an application does wish to do this then it may do so provided that it
+ ensures accesses are synchronized.
+ </li>
+ <li>Registered <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Listener.html">ExoPlayer.Listener</a></code>s are invoked on the thread that created the <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code>
+ instance.</li>
+ <li>An internal playback thread is responsible for managing playback and invoking the
+ <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></code>s in order to load and play the media.</li>
+ <li><code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></code> implementations (or any upstream components that they depend on) may
+ use additional background threads (e.g. to load data). These are implementation specific.</li>
+ </ul>
+
+ <a name="State"></a>
+ <h3>Player state</h3>
+
+ <p>The components of an <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code>'s state can be divided into two distinct groups. State
+ accessed by <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#getRendererEnabled(int)">getRendererEnabled(int)</a></code> and <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#getPlayWhenReady()">getPlayWhenReady()</a></code> are only ever
+ changed by invoking the player's methods, and are never changed as a result of operations that
+ have been performed asynchronously by the playback thread. In contrast, the playback state
+ accessed by <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#getPlaybackState()">getPlaybackState()</a></code> is only ever changed as a result of operations
+ completing on the playback thread, as illustrated below.</p>
+ <p align="center"><img src="../../../../../assets_exo/images/exoplayer_state.png"
+     alt="ExoPlayer state"
+     border="0"/></p>
+
+ <p>The possible playback state transitions are shown below. Transitions can be triggered either
+ by changes in the state of the <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></code>s being used, or as a result of
+ <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#prepare(com.google.android.exoplayer.TrackRenderer...)">prepare(TrackRenderer[])</a></code>, <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#stop()">stop()</a></code> or <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#release()">release()</a></code> being invoked.</p>
+ <p align="center"><img src="../../../../../assets_exo/images/exoplayer_playbackstate.png"
+     alt="ExoPlayer playback state transitions"
+     border="0"/></p>
+</p>
+
+
+
+
+
+</div><!-- jd-descr -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Summary</h2>
+
+
+
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<table id="nestedclasses" class="jd-sumtable"><tr><th colspan="12">Nested Classes</th></tr>
+
+
+  
+    <tr class="alt-color api apilevel-" >
+      <td class="jd-typecol"><nobr>
+        
+         
+         
+        
+        interface</nobr></td>
+      <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.ExoPlayerComponent.html">ExoPlayer.ExoPlayerComponent</a></td>
+      <td class="jd-descrcol" width="100%">
+        A component of an <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html">ExoPlayer</a></code> that can receive messages on the playback thread.&nbsp;
+        
+    
+
+      </td>
+    </tr>
+    
+    
+    <tr class=" api apilevel-" >
+      <td class="jd-typecol"><nobr>
+        
+         
+         
+        
+        class</nobr></td>
+      <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html">ExoPlayer.Factory</a></td>
+      <td class="jd-descrcol" width="100%">
+        A factory for instantiating ExoPlayer instances.&nbsp;
+        
+    
+
+      </td>
+    </tr>
+    
+    
+    <tr class="alt-color api apilevel-" >
+      <td class="jd-typecol"><nobr>
+        
+         
+         
+        
+        interface</nobr></td>
+      <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Listener.html">ExoPlayer.Listener</a></td>
+      <td class="jd-descrcol" width="100%">
+        Interface definition for a callback to be notified of changes in player state.&nbsp;
+        
+    
+
+      </td>
+    </tr>
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- =========== ENUM CONSTANT SUMMARY =========== -->
+<table id="constants" class="jd-sumtable"><tr><th colspan="12">Constants</th></tr>
+
+
+    
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#STATE_BUFFERING">STATE_BUFFERING</a></td>
+        <td class="jd-descrcol" width="100%">
+          The player is prepared but not able to immediately play from the current position.
+          
+    
+
+        </td>
+    </tr>
+    
+    
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#STATE_ENDED">STATE_ENDED</a></td>
+        <td class="jd-descrcol" width="100%">
+          The player has finished playing the media.
+          
+    
+
+        </td>
+    </tr>
+    
+    
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#STATE_IDLE">STATE_IDLE</a></td>
+        <td class="jd-descrcol" width="100%">
+          The player is neither prepared or being prepared.
+          
+    
+
+        </td>
+    </tr>
+    
+    
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#STATE_PREPARING">STATE_PREPARING</a></td>
+        <td class="jd-descrcol" width="100%">
+          The player is being prepared.
+          
+    
+
+        </td>
+    </tr>
+    
+    
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol">int</td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#STATE_READY">STATE_READY</a></td>
+        <td class="jd-descrcol" width="100%">
+          The player is prepared and able to immediately play from the current position.
+          
+    
+
+        </td>
+    </tr>
+    
+    
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol">long</td>
+        <td class="jd-linkcol"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#UNKNOWN_TIME">UNKNOWN_TIME</a></td>
+        <td class="jd-descrcol" width="100%">
+          Represents an unknown time or duration.
+          
+    
+
+        </td>
+    </tr>
+    
+    
+
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
+
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#addListener(com.google.android.exoplayer.ExoPlayer.Listener)">addListener</a></span>(<a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Listener.html">ExoPlayer.Listener</a> listener)</nobr>
+        
+        <div class="jd-descrdiv">
+          Register a listener to receive events from the player.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#blockingSendMessage(com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent, int, java.lang.Object)">blockingSendMessage</a></span>(<a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.ExoPlayerComponent.html">ExoPlayer.ExoPlayerComponent</a> target, int messageType, <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> message)</nobr>
+        
+        <div class="jd-descrdiv">
+          Blocking variant of <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#sendMessage(com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent, int, java.lang.Object)">sendMessage(ExoPlayerComponent, int, Object)</a></code> that does not return
+ until after the message has been delivered.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#getBufferedPercentage()">getBufferedPercentage</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Gets an estimate of the percentage into the media up to which data is buffered.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            long</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#getBufferedPosition()">getBufferedPosition</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Gets an estimate of the absolute position in milliseconds up to which data is buffered.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            long</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#getCurrentPosition()">getCurrentPosition</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Gets the current playback position in milliseconds.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            long</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#getDuration()">getDuration</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Gets the duration of the track in milliseconds.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#getPlayWhenReady()">getPlayWhenReady</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Whether playback will proceed when <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#getPlaybackState()">getPlaybackState()</a></code> == <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#STATE_READY">STATE_READY</a></code>.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/android/os/Looper.html">Looper</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#getPlaybackLooper()">getPlaybackLooper</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Gets the <code><a href="http://developer.android.com/reference/android/os/Looper.html">Looper</a></code> associated with the playback thread.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#getPlaybackState()">getPlaybackState</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Returns the current state of the player.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#getRendererEnabled(int)">getRendererEnabled</a></span>(int index)</nobr>
+        
+        <div class="jd-descrdiv">
+          Whether the renderer at the given index is enabled.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#isPlayWhenReadyCommitted()">isPlayWhenReadyCommitted</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Whether the current value of <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#getPlayWhenReady()">getPlayWhenReady()</a></code> has been reflected by the
+ internal playback thread.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#prepare(com.google.android.exoplayer.TrackRenderer...)">prepare</a></span>(<a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer...</a> renderers)</nobr>
+        
+        <div class="jd-descrdiv">
+          Prepares the player for playback.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#release()">release</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Releases the player.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#removeListener(com.google.android.exoplayer.ExoPlayer.Listener)">removeListener</a></span>(<a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Listener.html">ExoPlayer.Listener</a> listener)</nobr>
+        
+        <div class="jd-descrdiv">
+          Unregister a listener.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#seekTo(long)">seekTo</a></span>(long positionMs)</nobr>
+        
+        <div class="jd-descrdiv">
+          Seeks to a position specified in milliseconds.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#sendMessage(com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent, int, java.lang.Object)">sendMessage</a></span>(<a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.ExoPlayerComponent.html">ExoPlayer.ExoPlayerComponent</a> target, int messageType, <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> message)</nobr>
+        
+        <div class="jd-descrdiv">
+          Sends a message to a specified component.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#setPlayWhenReady(boolean)">setPlayWhenReady</a></span>(boolean playWhenReady)</nobr>
+        
+        <div class="jd-descrdiv">
+          Sets whether playback should proceed when <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#getPlaybackState()">getPlaybackState()</a></code> == <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#STATE_READY">STATE_READY</a></code>.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#setRendererEnabled(int, boolean)">setRendererEnabled</a></span>(int index, boolean enabled)</nobr>
+        
+        <div class="jd-descrdiv">
+          Sets whether the renderer at the given index is enabled.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#stop()">stop</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">
+          Stops playback.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+
+</table>
+
+
+
+
+
+
+
+</div><!-- jd-descr (summary) -->
+
+<!-- Details -->
+
+
+
+
+
+
+
+
+<!-- XML Attributes -->
+
+
+<!-- Enum Values -->
+
+
+<!-- Constants -->
+
+
+<!-- ========= ENUM CONSTANTS DETAIL ======== -->
+<h2>Constants</h2>
+
+
+
+
+<A NAME="STATE_BUFFERING"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        STATE_BUFFERING
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The player is prepared but not able to immediately play from the current position. The cause
+ is <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></code> specific, but this state typically occurs when more data needs
+ to be buffered for playback to start.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                3
+                (0x00000003)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
+<A NAME="STATE_ENDED"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        STATE_ENDED
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The player has finished playing the media.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                5
+                (0x00000005)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
+<A NAME="STATE_IDLE"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        STATE_IDLE
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The player is neither prepared or being prepared.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                1
+                (0x00000001)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
+<A NAME="STATE_PREPARING"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        STATE_PREPARING
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The player is being prepared.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                2
+                (0x00000002)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
+<A NAME="STATE_READY"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        int
+      </span>
+        STATE_READY
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The player is prepared and able to immediately play from the current position. The player will
+ be playing if <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#setPlayWhenReady(boolean)">setPlayWhenReady(boolean)</a></code> returns true, and paused otherwise.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                4
+                (0x00000004)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
+<A NAME="UNKNOWN_TIME"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+        static 
+        final 
+        long
+      </span>
+        UNKNOWN_TIME
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Represents an unknown time or duration.
+</p></div>
+
+    
+        <div class="jd-tagdata">
+        <span class="jd-tagtitle">Constant Value: </span>
+        <span>
+            
+                -1
+                (0xffffffffffffffff)
+            
+        </span>
+        </div>
+    
+    </div>
+</div>
+
+
+
+
+<!-- Fields -->
+
+
+<!-- Public ctors -->
+
+
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<!-- Protected ctors -->
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+<!-- Public methdos -->
+
+<h2>Public Methods</h2>
+
+
+
+<A NAME="addListener(com.google.android.exoplayer.ExoPlayer.Listener)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">addListener</span>
+      <span class="normal">(<a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Listener.html">ExoPlayer.Listener</a> listener)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Register a listener to receive events from the player. The listener's methods will be invoked
+ on the thread that was used to construct the player.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>listener</td>
+          <td>The listener to register.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="blockingSendMessage(com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent, int, java.lang.Object)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">blockingSendMessage</span>
+      <span class="normal">(<a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.ExoPlayerComponent.html">ExoPlayer.ExoPlayerComponent</a> target, int messageType, <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> message)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Blocking variant of <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#sendMessage(com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent, int, java.lang.Object)">sendMessage(ExoPlayerComponent, int, Object)</a></code> that does not return
+ until after the message has been delivered.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>target</td>
+          <td>The target to which the message should be delivered.</td>
+        </tr>
+        <tr>
+          <th>messageType</td>
+          <td>An integer that can be used to identify the type of the message.</td>
+        </tr>
+        <tr>
+          <th>message</td>
+          <td>The message object.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getBufferedPercentage()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        int
+      </span>
+      <span class="sympad">getBufferedPercentage</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Gets an estimate of the percentage into the media up to which data is buffered.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>An estimate of the percentage into the media up to which data is buffered. 0 if the
+     duration of the media is not known or if no estimate is available.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getBufferedPosition()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        long
+      </span>
+      <span class="sympad">getBufferedPosition</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Gets an estimate of the absolute position in milliseconds up to which data is buffered.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>An estimate of the absolute position in milliseconds up to which data is buffered,
+     or <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#UNKNOWN_TIME">UNKNOWN_TIME</a></code> if no estimate is available.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getCurrentPosition()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        long
+      </span>
+      <span class="sympad">getCurrentPosition</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Gets the current playback position in milliseconds.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The current playback position in milliseconds.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getDuration()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        long
+      </span>
+      <span class="sympad">getDuration</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Gets the duration of the track in milliseconds.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The duration of the track in milliseconds, or <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#UNKNOWN_TIME">UNKNOWN_TIME</a></code> if the
+     duration is not known.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getPlayWhenReady()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        boolean
+      </span>
+      <span class="sympad">getPlayWhenReady</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Whether playback will proceed when <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#getPlaybackState()">getPlaybackState()</a></code> == <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#STATE_READY">STATE_READY</a></code>.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>Whether playback will proceed when ready.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getPlaybackLooper()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        <a href="http://developer.android.com/reference/android/os/Looper.html">Looper</a>
+      </span>
+      <span class="sympad">getPlaybackLooper</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Gets the <code><a href="http://developer.android.com/reference/android/os/Looper.html">Looper</a></code> associated with the playback thread.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>The <code><a href="http://developer.android.com/reference/android/os/Looper.html">Looper</a></code> associated with the playback thread.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getPlaybackState()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        int
+      </span>
+      <span class="sympad">getPlaybackState</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the current state of the player.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>One of the <code>STATE</code> constants defined in this class.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="getRendererEnabled(int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        boolean
+      </span>
+      <span class="sympad">getRendererEnabled</span>
+      <span class="normal">(int index)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Whether the renderer at the given index is enabled.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>index</td>
+          <td>The index of the renderer.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>Whether the renderer is enabled.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="isPlayWhenReadyCommitted()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        boolean
+      </span>
+      <span class="sympad">isPlayWhenReadyCommitted</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Whether the current value of <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#getPlayWhenReady()">getPlayWhenReady()</a></code> has been reflected by the
+ internal playback thread.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>True if the current value has been reflected. False otherwise.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="prepare(com.google.android.exoplayer.TrackRenderer...)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">prepare</span>
+      <span class="normal">(<a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer...</a> renderers)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Prepares the player for playback.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>renderers</td>
+          <td>The <code><a href="../../../../../reference/com/google/android/exoplayer/TrackRenderer.html">TrackRenderer</a></code>s to use. The number of renderers must match the
+     value that was passed to the <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Factory.html#newInstance(int)">newInstance(int)</a></code> method.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="release()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">release</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Releases the player. This method must be called when the player is no longer required.
+ <p>
+ The player must not be used after calling this method.
+</p></div>
+
+    </div>
+</div>
+
+
+<A NAME="removeListener(com.google.android.exoplayer.ExoPlayer.Listener)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">removeListener</span>
+      <span class="normal">(<a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.Listener.html">ExoPlayer.Listener</a> listener)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Unregister a listener. The listener will no longer receive events from the player.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>listener</td>
+          <td>The listener to unregister.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="seekTo(long)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">seekTo</span>
+      <span class="normal">(long positionMs)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Seeks to a position specified in milliseconds.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>positionMs</td>
+          <td>The seek position.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="sendMessage(com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent, int, java.lang.Object)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">sendMessage</span>
+      <span class="normal">(<a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.ExoPlayerComponent.html">ExoPlayer.ExoPlayerComponent</a> target, int messageType, <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> message)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Sends a message to a specified component. The message is delivered to the component on the
+ playback thread. If the component throws a <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlaybackException.html">ExoPlaybackException</a></code>, then it is
+ propagated out of the player as an error.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>target</td>
+          <td>The target to which the message should be delivered.</td>
+        </tr>
+        <tr>
+          <th>messageType</td>
+          <td>An integer that can be used to identify the type of the message.</td>
+        </tr>
+        <tr>
+          <th>message</td>
+          <td>The message object.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="setPlayWhenReady(boolean)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">setPlayWhenReady</span>
+      <span class="normal">(boolean playWhenReady)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Sets whether playback should proceed when <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#getPlaybackState()">getPlaybackState()</a></code> == <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#STATE_READY">STATE_READY</a></code>.
+ If the player is already in this state, then this method can be used to pause and resume
+ playback.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>playWhenReady</td>
+          <td>Whether playback should proceed when ready.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="setRendererEnabled(int, boolean)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">setRendererEnabled</span>
+      <span class="normal">(int index, boolean enabled)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Sets whether the renderer at the given index is enabled.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>index</td>
+          <td>The index of the renderer.</td>
+        </tr>
+        <tr>
+          <th>enabled</td>
+          <td>Whether the renderer at the given index should be enabled.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="stop()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">stop</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Stops playback. Use <code>setPlayWhenReady(false)</code> rather than this method if the intention
+ is to pause playback.
+ <p>
+ Calling this method will cause the playback state to transition to
+ <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#STATE_IDLE">STATE_IDLE</a></code>. The player instance can still be used, and
+ <code><a href="../../../../../reference/com/google/android/exoplayer/ExoPlayer.html#release()">release()</a></code> must still be called on the player if it's no longer required.
+ <p>
+ Calling this method does not reset the playback position. If this player instance will be used
+ to play another video from its start, then <code>seekTo(0)</code> should be called after stopping
+ the player and before preparing it for the next video.
+</p></div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+
+
+
+<!-- ========= END OF CLASS DATA ========= -->
+<A NAME="navbar_top"></A>
+
+<div id="footer" class="wrap" >
+        
+<div id="copyright">
+  
+  Except as noted, this content is licensed under <a
+  href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a>.
+</div>
+
+</div> <!-- end footer -->
+
+</div> <!-- jd-content -->
+
+</div><!-- end doc-content -->
+
+</div> <!-- end body-content --> 
+
+
+
+
+
+
+</body>
+</html>

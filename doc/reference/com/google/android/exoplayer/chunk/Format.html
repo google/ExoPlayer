@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width" />
+
+<link rel="shortcut icon" type="image/x-icon" href="../../../../../../favicon.ico" />
+<title>Format - ExoPlayer | Android Developers</title>
+
+<!-- STYLESHEETS -->
+<link rel="stylesheet"
+href="http://fonts.googleapis.com/css?family=Roboto+Condensed">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold"
+  title="roboto">
+<link href="../../../../../../assets/css/default.css?v=5" rel="stylesheet" type="text/css">
+
+
+<!-- FULLSCREEN STYLESHEET -->
+<link href="../../../../../../assets/css/fullscreen.css" rel="stylesheet" class="fullscreen"
+type="text/css">
+
+
+<!-- JAVASCRIPT -->
+<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+<script src="../../../../../../assets/js/android_3p-bundle.js" type="text/javascript"></script>
+<script type="text/javascript">
+  var toRoot = "../../../../../../";
+  var metaTags = [];
+  var devsite = false;
+</script>
+<script src="../../../../../../assets/js/docs.js?v=3" type="text/javascript"></script>
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-5831155-1', 'android.com');
+  ga('create', 'UA-49880327-2', 'android.com', {'name': 'universal'});  // New tracker);
+  ga('send', 'pageview');
+  ga('universal.send', 'pageview'); // Send page view for new tracker.
+</script>
+
+</head>
+
+<body class="gc-documentation 
+  develop reference" itemscope itemtype="http://schema.org/Article">
+  <div id="doc-api-level" class="" style="display:none"></div>
+  <a name="top"></a>
+
+
+  <div class="wrap clearfix" id="body-content">
+    <div class="col-4" id="side-nav" itemscope itemtype="http://schema.org/SiteNavigationElement">
+      <div id="devdoc-nav">
+
+<a class="totop" href="#top" data-g-event="left-nav-top">to top</a>
+      <div id="api-nav-header">
+        <div id="api-nav-title">ExoPlayerLib APIs</div>
+        </div><!-- end nav header -->
+      <script>
+        var SINCE_DATA = [  ];
+        buildApiLevelSelector();
+      </script>
+                  
+      <div id="swapper">
+        <div id="nav-panels">
+          <div id="resize-packages-nav">
+            <div id="packages-nav" class="scroll-pane">
+
+              <ul>
+                
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/package-summary.html">com.google.android.exoplayer</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/audio/package-summary.html">com.google.android.exoplayer.audio</a></li>
+    <li class="selected api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/package-summary.html">com.google.android.exoplayer.chunk</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/package-summary.html">com.google.android.exoplayer.chunk.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/mp4/package-summary.html">com.google.android.exoplayer.chunk.parser.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/chunk/parser/webm/package-summary.html">com.google.android.exoplayer.chunk.parser.webm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/dash/package-summary.html">com.google.android.exoplayer.dash</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/dash/mpd/package-summary.html">com.google.android.exoplayer.dash.mpd</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/drm/package-summary.html">com.google.android.exoplayer.drm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/package-summary.html">com.google.android.exoplayer.hls</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/hls/parser/package-summary.html">com.google.android.exoplayer.hls.parser</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/metadata/package-summary.html">com.google.android.exoplayer.metadata</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/mp4/package-summary.html">com.google.android.exoplayer.mp4</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/smoothstreaming/package-summary.html">com.google.android.exoplayer.smoothstreaming</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/source/package-summary.html">com.google.android.exoplayer.source</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/package-summary.html">com.google.android.exoplayer.text</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/eia608/package-summary.html">com.google.android.exoplayer.text.eia608</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/ttml/package-summary.html">com.google.android.exoplayer.text.ttml</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/text/webvtt/package-summary.html">com.google.android.exoplayer.text.webvtt</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/upstream/package-summary.html">com.google.android.exoplayer.upstream</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/upstream/cache/package-summary.html">com.google.android.exoplayer.upstream.cache</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../reference/com/google/android/exoplayer/util/package-summary.html">com.google.android.exoplayer.util</a></li>
+              </ul><br/>
+
+            </div> <!-- end packages-nav -->
+          </div> <!-- end resize-packages -->
+          <div id="classes-nav" class="scroll-pane">
+
+
+
+            <ul>
+              
+              
+    <li><h2>Interfaces</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.EventListener.html">ChunkSampleSource.EventListener</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSource.html">ChunkSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.html">FormatEvaluator</a></li>
+      </ul>
+    </li>
+              
+    <li><h2>Classes</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Chunk.html">Chunk</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkOperationHolder.html">ChunkOperationHolder</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ChunkSampleSource.html">ChunkSampleSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/ContainerMediaChunk.html">ContainerMediaChunk</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.DecreasingBandwidthComparator.html">Format.DecreasingBandwidthComparator</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.AdaptiveEvaluator.html">FormatEvaluator.AdaptiveEvaluator</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.Evaluation.html">FormatEvaluator.Evaluation</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.FixedEvaluator.html">FormatEvaluator.FixedEvaluator</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/FormatEvaluator.RandomEvaluator.html">FormatEvaluator.RandomEvaluator</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MediaChunk.html">MediaChunk</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/MultiTrackChunkSource.html">MultiTrackChunkSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/SingleSampleChunkSource.html">SingleSampleChunkSource</a></li>
+          <li class="api apilevel-"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/SingleSampleMediaChunk.html">SingleSampleMediaChunk</a></li>
+      </ul>
+    </li>
+              
+              
+              
+            </ul><br/>
+        
+
+          </div><!-- end classes -->
+        </div><!-- end nav-panels -->
+        <div id="nav-tree" style="display:none" class="scroll-pane">
+          <div id="tree-list"></div>
+        </div><!-- end nav-tree -->
+      </div><!-- end swapper -->
+    </div> <!-- end devdoc-nav -->
+    </div> <!-- end side-nav -->
+    <script type="text/javascript">
+      toggleFullscreen(true);
+      // scroll the selected page into view
+      $(document).ready(function() {
+        scrollIntoView("packages-nav");
+        scrollIntoView("classes-nav");
+        });
+    </script>
+
+     
+
+
+
+<div class="col-12"  id="doc-col">
+
+<div id="api-info-block">
+
+
+
+  
+   
+  
+  
+  
+  
+
+
+<div class="sum-details-links">
+
+Summary:
+
+  <a href="#nestedclasses">Nested Classes</a>
+  
+
+
+
+
+
+
+
+  &#124; <a href="#lfields">Fields</a>
+  
+
+
+
+  &#124; <a href="#pubctors">Ctors</a>
+  
+
+
+
+  &#124; <a href="#pubmethods">Methods</a>
+  
+
+
+
+  &#124; <a href="#inhmethods">Inherited Methods</a>
+
+&#124; <a href="#" onclick="return toggleAllClassInherited()" id="toggleAllClassInherited">[Expand All]</a>
+
+</div><!-- end sum-details-links -->
+<div class="api-level">
+  
+  
+  
+
+</div>
+</div><!-- end api-info-block -->
+
+
+<!-- ======== START OF CLASS DATA ======== -->
+
+<div id="jd-header">
+    public
+     
+     
+    
+    class
+<h1 itemprop="name">Format</h1>
+
+
+
+  
+    extends <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a><br/>
+  
+  
+  
+
+  
+  
+  
+
+
+    
+
+
+</div><!-- end header -->
+
+<div id="naMessage"></div>
+
+<div id="jd-content" class="api apilevel-">
+<table class="jd-inheritance-table">
+
+
+    <tr>
+         	
+        <td colspan="2" class="jd-inheritance-class-cell"><a href="http://developer.android.com/reference/java/lang/Object.html">java.lang.Object</a></td>
+    </tr>
+    
+
+    <tr>
+        
+            <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
+         	
+        <td colspan="1" class="jd-inheritance-class-cell">com.google.android.exoplayer.chunk.Format</td>
+    </tr>
+    
+
+</table>
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Class Overview</h2>
+<p itemprop="articleBody">Defines the high level format of a media stream.
+</p>
+
+
+
+
+
+</div><!-- jd-descr -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Summary</h2>
+
+
+
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<table id="nestedclasses" class="jd-sumtable"><tr><th colspan="12">Nested Classes</th></tr>
+
+
+  
+    <tr class="alt-color api apilevel-" >
+      <td class="jd-typecol"><nobr>
+        
+         
+         
+        
+        class</nobr></td>
+      <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.DecreasingBandwidthComparator.html">Format.DecreasingBandwidthComparator</a></td>
+      <td class="jd-descrcol" width="100%">
+        Sorts <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html">Format</a></code> objects in order of decreasing bandwidth.&nbsp;
+        
+    
+
+      </td>
+    </tr>
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- =========== FIELD SUMMARY =========== -->
+<table id="lfields" class="jd-sumtable"><tr><th colspan="12">Fields</th></tr>
+
+
+    
+      <tr class="alt-color api apilevel-" >
+          <td class="jd-typecol"><nobr>
+          public
+          
+          final
+          int</nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#audioSamplingRate">audioSamplingRate</a></td>
+          <td class="jd-descrcol" width="100%">
+            The audio sampling rate in Hz, or -1 for non-audio formats.
+            
+    
+
+          </td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+          <td class="jd-typecol"><nobr>
+          public
+          
+          final
+          int</nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#bandwidth">bandwidth</a></td>
+          <td class="jd-descrcol" width="100%">
+            <em>
+      This field is deprecated.
+    Use <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#bitrate">bitrate</a></code>. However note that the units of measurement are different.
+</em>
+            
+    
+
+          </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+          <td class="jd-typecol"><nobr>
+          public
+          
+          final
+          int</nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#bitrate">bitrate</a></td>
+          <td class="jd-descrcol" width="100%">
+            The average bandwidth in bits per second.
+            
+    
+
+          </td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+          <td class="jd-typecol"><nobr>
+          public
+          
+          final
+          <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#codecs">codecs</a></td>
+          <td class="jd-descrcol" width="100%">
+            The codecs used to decode the format, or <code>null</code> if they are not specified.
+            
+    
+
+          </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+          <td class="jd-typecol"><nobr>
+          public
+          
+          final
+          int</nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#height">height</a></td>
+          <td class="jd-descrcol" width="100%">
+            The height of the video in pixels, or -1 for non-video formats.
+            
+    
+
+          </td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+          <td class="jd-typecol"><nobr>
+          public
+          
+          final
+          <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#id">id</a></td>
+          <td class="jd-descrcol" width="100%">
+            An identifier for the format.
+            
+    
+
+          </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+          <td class="jd-typecol"><nobr>
+          public
+          
+          final
+          <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#language">language</a></td>
+          <td class="jd-descrcol" width="100%">
+            The language of the format.
+            
+    
+
+          </td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+          <td class="jd-typecol"><nobr>
+          public
+          
+          final
+          <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#mimeType">mimeType</a></td>
+          <td class="jd-descrcol" width="100%">
+            The mime type of the format.
+            
+    
+
+          </td>
+      </tr>
+      
+    
+      <tr class="alt-color api apilevel-" >
+          <td class="jd-typecol"><nobr>
+          public
+          
+          final
+          int</nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#numChannels">numChannels</a></td>
+          <td class="jd-descrcol" width="100%">
+            The number of audio channels, or -1 for non-audio formats.
+            
+    
+
+          </td>
+      </tr>
+      
+    
+      <tr class=" api apilevel-" >
+          <td class="jd-typecol"><nobr>
+          public
+          
+          final
+          int</nobr></td>
+          <td class="jd-linkcol"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#width">width</a></td>
+          <td class="jd-descrcol" width="100%">
+            The width of the video in pixels, or -1 for non-video formats.
+            
+    
+
+          </td>
+      </tr>
+      
+    
+
+</table>
+
+
+
+
+
+
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<table id="pubctors" class="jd-sumtable"><tr><th colspan="12">Public Constructors</th></tr>
+
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            </nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#Format(java.lang.String, java.lang.String, int, int, int, int, int)">Format</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int width, int height, int numChannels, int audioSamplingRate, int bitrate)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            </nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#Format(java.lang.String, java.lang.String, int, int, int, int, int, java.lang.String)">Format</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int width, int height, int numChannels, int audioSamplingRate, int bitrate, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> language)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            </nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#Format(java.lang.String, java.lang.String, int, int, int, int, int, java.lang.String, java.lang.String)">Format</a></span>(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int width, int height, int numChannels, int audioSamplingRate, int bitrate, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> language, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> codecs)</nobr>
+        
+  </td></tr>
+
+
+
+</table>
+
+
+
+
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
+
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#equals(java.lang.Object)">equals</a></span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> obj)</nobr>
+        
+        <div class="jd-descrdiv">
+          Implements equality based on <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#id">id</a></code> only.
+          
+    
+
+        </div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#hashCode()">hashCode</a></span>()</nobr>
+        
+  </td></tr>
+
+
+
+</table>
+
+
+
+
+
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="inhmethods" class="jd-sumtable"><tr><th>
+  <a href="#" class="toggle-all" onclick="return toggleAllInherited(this, null)">[Expand]</a>
+  <div style="clear:left;">Inherited Methods</div></th></tr>
+
+
+<tr class="api apilevel-" >
+<td colspan="12">
+  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-java.lang.Object" class="jd-expando-trigger closed"
+          ><img id="inherited-methods-java.lang.Object-trigger"
+          src="../../../../../../assets/images/triangle-closed.png"
+          class="jd-expando-trigger-img" /></a>
+From class
+
+  <a href="http://developer.android.com/reference/java/lang/Object.html">java.lang.Object</a>
+
+<div id="inherited-methods-java.lang.Object">
+  <div id="inherited-methods-java.lang.Object-list"
+        class="jd-inheritedlinks">
+  </div>
+  <div id="inherited-methods-java.lang.Object-summary" style="display: none;">
+    <table class="jd-sumtable-expando">
+    
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/Object.html">Object</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">clone</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">equals</span>(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> arg0)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">finalize</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/Class.html">Class</a>&lt;?&gt;</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">getClass</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">hashCode</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">notify</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">notifyAll</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://developer.android.com/reference/java/lang/String.html">String</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">toString</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">wait</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">wait</span>(long arg0, int arg1)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">wait</span>(long arg0)</nobr>
+        
+  </td></tr>
+
+
+</table>
+  </div>
+</div>
+</td></tr>
+
+
+</table>
+
+
+</div><!-- jd-descr (summary) -->
+
+<!-- Details -->
+
+
+
+
+
+
+
+
+<!-- XML Attributes -->
+
+
+<!-- Enum Values -->
+
+
+<!-- Constants -->
+
+
+<!-- Fields -->
+
+
+<!-- ========= FIELD DETAIL ======== -->
+<h2>Fields</h2>
+
+
+
+
+<A NAME="audioSamplingRate"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+        final 
+        int
+      </span>
+        audioSamplingRate
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The audio sampling rate in Hz, or -1 for non-audio formats.
+</p></div>
+
+    
+    </div>
+</div>
+
+
+
+<A NAME="bandwidth"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+        final 
+        int
+      </span>
+        bandwidth
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      <p>
+  <p class="caution"><strong>
+      This field is deprecated.</strong><br/>
+    Use <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#bitrate">bitrate</a></code>. However note that the units of measurement are different.
+
+  </p>
+  <div class="jd-tagdata jd-tagdescr"><p>The average bandwidth in bytes per second.</p></div>
+
+    
+    </div>
+</div>
+
+
+
+<A NAME="bitrate"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+        final 
+        int
+      </span>
+        bitrate
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The average bandwidth in bits per second.
+</p></div>
+
+    
+    </div>
+</div>
+
+
+
+<A NAME="codecs"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+        final 
+        <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
+      </span>
+        codecs
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The codecs used to decode the format, or <code>null</code> if they are not specified.
+</p></div>
+
+    
+    </div>
+</div>
+
+
+
+<A NAME="height"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+        final 
+        int
+      </span>
+        height
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The height of the video in pixels, or -1 for non-video formats.
+</p></div>
+
+    
+    </div>
+</div>
+
+
+
+<A NAME="id"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+        final 
+        <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
+      </span>
+        id
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>An identifier for the format.
+</p></div>
+
+    
+    </div>
+</div>
+
+
+
+<A NAME="language"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+        final 
+        <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
+      </span>
+        language
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The language of the format. Can be null if unknown.
+ <p>
+ The language codes are two-letter lowercase ISO language codes (such as "en") as defined by
+ ISO 639-1.
+</p></div>
+
+    
+    </div>
+</div>
+
+
+
+<A NAME="mimeType"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+        final 
+        <a href="http://developer.android.com/reference/java/lang/String.html">String</a>
+      </span>
+        mimeType
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The mime type of the format.
+</p></div>
+
+    
+    </div>
+</div>
+
+
+
+<A NAME="numChannels"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+        final 
+        int
+      </span>
+        numChannels
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The number of audio channels, or -1 for non-audio formats.
+</p></div>
+
+    
+    </div>
+</div>
+
+
+
+<A NAME="width"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+        final 
+        int
+      </span>
+        width
+    </h4>
+      <div class="api-level">
+        
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>The width of the video in pixels, or -1 for non-video formats.
+</p></div>
+
+    
+    </div>
+</div>
+
+
+
+
+<!-- Public ctors -->
+
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<h2>Public Constructors</h2>
+
+
+
+<A NAME="Format(java.lang.String, java.lang.String, int, int, int, int, int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        
+      </span>
+      <span class="sympad">Format</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int width, int height, int numChannels, int audioSamplingRate, int bitrate)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>id</td>
+          <td>The format identifier.</td>
+        </tr>
+        <tr>
+          <th>mimeType</td>
+          <td>The format mime type.</td>
+        </tr>
+        <tr>
+          <th>width</td>
+          <td>The width of the video in pixels, or -1 for non-video formats.</td>
+        </tr>
+        <tr>
+          <th>height</td>
+          <td>The height of the video in pixels, or -1 for non-video formats.</td>
+        </tr>
+        <tr>
+          <th>numChannels</td>
+          <td>The number of audio channels, or -1 for non-audio formats.</td>
+        </tr>
+        <tr>
+          <th>audioSamplingRate</td>
+          <td>The audio sampling rate in Hz, or -1 for non-audio formats.</td>
+        </tr>
+        <tr>
+          <th>bitrate</td>
+          <td>The average bandwidth of the format in bits per second.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="Format(java.lang.String, java.lang.String, int, int, int, int, int, java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        
+      </span>
+      <span class="sympad">Format</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int width, int height, int numChannels, int audioSamplingRate, int bitrate, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> language)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>id</td>
+          <td>The format identifier.</td>
+        </tr>
+        <tr>
+          <th>mimeType</td>
+          <td>The format mime type.</td>
+        </tr>
+        <tr>
+          <th>width</td>
+          <td>The width of the video in pixels, or -1 for non-video formats.</td>
+        </tr>
+        <tr>
+          <th>height</td>
+          <td>The height of the video in pixels, or -1 for non-video formats.</td>
+        </tr>
+        <tr>
+          <th>numChannels</td>
+          <td>The number of audio channels, or -1 for non-audio formats.</td>
+        </tr>
+        <tr>
+          <th>audioSamplingRate</td>
+          <td>The audio sampling rate in Hz, or -1 for non-audio formats.</td>
+        </tr>
+        <tr>
+          <th>bitrate</td>
+          <td>The average bandwidth of the format in bits per second.</td>
+        </tr>
+        <tr>
+          <th>language</td>
+          <td>The language of the format.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="Format(java.lang.String, java.lang.String, int, int, int, int, int, java.lang.String, java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        
+      </span>
+      <span class="sympad">Format</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/String.html">String</a> id, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> mimeType, int width, int height, int numChannels, int audioSamplingRate, int bitrate, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> language, <a href="http://developer.android.com/reference/java/lang/String.html">String</a> codecs)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>id</td>
+          <td>The format identifier.</td>
+        </tr>
+        <tr>
+          <th>mimeType</td>
+          <td>The format mime type.</td>
+        </tr>
+        <tr>
+          <th>width</td>
+          <td>The width of the video in pixels, or -1 for non-video formats.</td>
+        </tr>
+        <tr>
+          <th>height</td>
+          <td>The height of the video in pixels, or -1 for non-video formats.</td>
+        </tr>
+        <tr>
+          <th>numChannels</td>
+          <td>The number of audio channels, or -1 for non-audio formats.</td>
+        </tr>
+        <tr>
+          <th>audioSamplingRate</td>
+          <td>The audio sampling rate in Hz, or -1 for non-audio formats.</td>
+        </tr>
+        <tr>
+          <th>bitrate</td>
+          <td>The average bandwidth of the format in bits per second.</td>
+        </tr>
+        <tr>
+          <th>language</td>
+          <td>The language of the format.</td>
+        </tr>
+        <tr>
+          <th>codecs</td>
+          <td>The codecs used to decode the format.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<!-- Protected ctors -->
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+<!-- Public methdos -->
+
+<h2>Public Methods</h2>
+
+
+
+<A NAME="equals(java.lang.Object)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        boolean
+      </span>
+      <span class="sympad">equals</span>
+      <span class="normal">(<a href="http://developer.android.com/reference/java/lang/Object.html">Object</a> obj)</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Implements equality based on <code><a href="../../../../../../reference/com/google/android/exoplayer/chunk/Format.html#id">id</a></code> only.
+</p></div>
+
+    </div>
+</div>
+
+
+<A NAME="hashCode()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        int
+      </span>
+      <span class="sympad">hashCode</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div></div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+    
+
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+
+
+
+<!-- ========= END OF CLASS DATA ========= -->
+<A NAME="navbar_top"></A>
+
+<div id="footer" class="wrap" >
+        
+<div id="copyright">
+  
+  Except as noted, this content is licensed under <a
+  href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a>.
+</div>
+
+</div> <!-- end footer -->
+
+</div> <!-- jd-content -->
+
+</div><!-- end doc-content -->
+
+</div> <!-- end body-content --> 
+
+
+
+
+
+
+</body>
+</html>

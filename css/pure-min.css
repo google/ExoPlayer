@@ -1,0 +1,6 @@
+@import url("../third_party/pure-layout-side-menu/pure-min.css");
+
+/* Don't put menu headings into uppercase */
+.pure-menu-heading {
+  text-transform:none
+}
