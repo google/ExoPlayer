@@ -59,7 +59,7 @@ The ExoPlayer library provides `MediaCodecVideoTrackRenderer` as the default imp
 rendering video and `MediaCodecAudioTrackRenderer` for audio. Both implementations make use of
 [`MediaCodec`][] to decode individual media samples. They can handle all audio and video formats
 supported by a given Android device
-(see [Supported Media Formats](http://developer.android.com/guide/appendix/media-formats.html) for
+(see [Supported Media Formats](https://developer.android.com/guide/appendix/media-formats.html) for
 details). The ExoPlayer library also provides an implementation for rendering text called
 `TextTrackRenderer`.
 
@@ -104,7 +104,7 @@ In order to render media formats supported by the Android framework, the 'Framew
 class uses [`MediaExtractor`][] for networking, buffering and sample extraction functionality. By
 doing so, it supports any media container format supported by the version of Android where it is
 running. For more information about media formats supported by Android, see
-[Supported Media Formats](http://developer.android.com/guide/appendix/media-formats.html).
+[Supported Media Formats](https://developer.android.com/guide/appendix/media-formats.html).
 
 
 The diagram in Figure 2 shows the object model for an ExoPlayer implementation using
@@ -196,10 +196,9 @@ MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(
 {% endhighlight %}
 
 In this code, `videoRepresentations` and `audioRepresentation` are 'Representation' objects,
-  each of which describes one of the available media streams. In the DASH
-  model, these streams are parsed from a media presentation description (MPD) file. The ExoPlayer
-  library provides a `MediaPresentationDescriptionParser` class to obtain 'Representation' objects
-  from MPD files.
+each of which describes one of the available media streams. In the DASH model, these streams
+are parsed from a media presentation description (MPD) file. The ExoPlayer library provides a
+`MediaPresentationDescriptionParser` class to obtain 'Representation' objects from MPD files.
 
 The ExoPlayer demo app provides complete implementation of this code in `DashRendererBuilder`. The
 `PlayerActivity` class uses this builder to construct renderers for playing DASH sample videos in
@@ -313,21 +312,21 @@ MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(
 {% endhighlight %}
 
 Note that you must pass a [`Handler`][] object to the renderer, which determines the thread on which
-the listener’s methods are invoked. In most cases, you should use a [`Handler`][] associated with the
-app’s main thread, as is the case in this example.
+the listener’s methods are invoked. In most cases, you should use a [`Handler`][] associated with
+the app’s main thread, as is the case in this example.
 
 Listening to individual components can be useful for adjusting UI based on player events, as in the
-example above. Listening to component events can also be helpful for logging performance metrics. For
-example, `MediaCodecVideoTrackRenderer` notifies its listener of dropped video frames. A developer
-may wish to log such metrics to track playback performance in their app.
+example above. Listening to component events can also be helpful for logging performance metrics.
+For example, `MediaCodecVideoTrackRenderer` notifies its listener of dropped video frames. A
+developer may wish to log such metrics to track playback performance in their app.
 
 Many components also notify their listeners when errors occur. Such errors may or may not cause
 playback to fail. If an error does not cause playback to fail, it may still result in degraded
 performance, and so you may wish to log all errors in order to track playback performance. Note that
-an ExoPlayer instance always notifies its high level listeners of errors that cause playback to fail,
-in addition to the listener of the individual component from which the error originated. Hence, you
-should display error messages to users only from high level listeners. Within individual component
-listeners, you should use error notifications only for informational purposes.
+an ExoPlayer instance always notifies its high level listeners of errors that cause playback to
+fail, in addition to the listener of the individual component from which the error originated.
+Hence, you should display error messages to users only from high level listeners. Within individual
+component listeners, you should use error notifications only for informational purposes.
 
 
 ## Sending messages to components ##
@@ -353,9 +352,9 @@ player.blockingSendMessage(videoRenderer,
     MediaCodecVideoTrackRenderer.MSG_SET_SURFACE, null);
 {% endhighlight %}
 
-You must use a blocking message because the contract of [`surfaceDestroyed()`](http://developer.andr
-oid.com/reference/android/view/SurfaceHolder.Callback.html#surfaceDestroyed) requires that the app
-does not attempt to access the surface after the method returns.
+You must use a blocking message because the contract of [`surfaceDestroyed()`]
+(https://developer.android.com/reference/android/view/SurfaceHolder.Callback.html#surfaceDestroyed)
+requires that the app does not attempt to access the surface after the method returns.
 
 ## Customizing ExoPlayer ##
 
@@ -366,7 +365,7 @@ for app developers to easily replace the default implementations provided by the
 some use cases for building custom components:
 
 * **`TrackRenderer`** - You may want to implement a custom `TrackRenderer` to handle media types
-  other than audio and video. The  `TextTrackRenderer` class within the ExoPlayer library is an
+  other than audio and video. The `TextTrackRenderer` class within the ExoPlayer library is an
   example of how to implement a  custom renderer. You could use the approach it demonstrates to
   render custom  overlays or annotations. Implementing this kind of functionality as a
   `TrackRenderer`  makes it easy to keep the overlays or annotations in sync with the other media
@@ -413,8 +412,8 @@ may support additional schemes such as PlayReady.
 The `StreamingDrmSessionManager` class requires a `MediaDrmCallback` to be injected into its
 constructor, which is responsible for actually making provisioning and key requests. You should
 implement this interface to make network requests to your license server and obtain the required
-keys. The `WidevineTestMediaDrmCallback` class in the ExoPlayer demo app sends requests to a Widevine
-test server.
+keys. The `WidevineTestMediaDrmCallback` class in the ExoPlayer demo app sends requests to a
+Widevine test server.
 
 [`MediaPlayer`]: {{ site.sdkurl }}/android/media/MediaPlayer.html
 [`MediaCodec`]: {{ site.sdkurl }}/android/media/MediaCodec.html
