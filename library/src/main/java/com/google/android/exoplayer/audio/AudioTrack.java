@@ -790,9 +790,15 @@ public final class AudioTrack {
     public long getPlaybackHeadPosition() {
       long rawPlaybackHeadPosition = 0xFFFFFFFFL & audioTrack.getPlaybackHeadPosition();
       if (Util.SDK_INT <= 22 && isPassthrough) {
-        // Work around an issue on platform API versions 21/22 where the playback head position
-        // jumps back to zero on paused passthrough/direct audio tracks. See [Internal: b/19187573].
-        if (audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PAUSED
+        // Work around issues with passthrough/direct AudioTracks on platform API versions 21/22:
+        // - After resetting, the new AudioTrack's playback position continues to increase for a
+        //   short time from the old AudioTrack's position, while in the PLAYSTATE_STOPPED state.
+        // - The playback head position jumps back to zero on paused passthrough/direct audio
+        //   tracks. See [Internal: b/19187573].
+        if (audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_STOPPED) {
+          // Prevent detecting a wrapped position.
+          lastRawPlaybackHeadPosition = rawPlaybackHeadPosition;
+        } else if (audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PAUSED
             && rawPlaybackHeadPosition == 0) {
           passthroughWorkaroundPauseOffset = lastRawPlaybackHeadPosition;
         }
