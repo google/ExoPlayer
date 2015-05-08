@@ -1,0 +1,12 @@
+---
+layout: default
+title: Blog
+---
+
+{% for post in site.posts %}
+  <div class="exo-post">
+    <p style="margin-bottom:0px;font-size:0.8em;"><b>{{ post.date | date_to_string }}</b></p>
+    <a href="{{ post.url | prepend: site.baseurl }}"><h3 style="margin:0px;">{{ post.title }}</h3></a>
+    <p>{{ post.excerpt | remove: '<p>' | remove: '</p>' }} <a href="{{ post.url | prepend: site.baseurl }}">[read more]</a></p>
+  </div>
+{% endfor %}
