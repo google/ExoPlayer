@@ -423,9 +423,11 @@ public final class AudioTrack {
       return RESULT_BUFFER_CONSUMED;
     }
 
-    // As a workaround for an issue where an an AC-3 audio track continues to play data written
-    // while it is paused, stop writing so its buffer empties. See [Internal: b/18899620].
-    if (isAc3 && audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PAUSED) {
+    // As a workaround for an issue on platform API versions 21/22 where an an AC-3 audio track
+    // continues to play data written while it is paused, stop writing so its buffer empties. See
+    // [Internal: b/18899620].
+    if (Util.SDK_INT <= 22 && isAc3
+        && audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PAUSED) {
       return 0;
     }
 
@@ -739,7 +741,7 @@ public final class AudioTrack {
   private static class AudioTrackUtil {
 
     protected android.media.AudioTrack audioTrack;
-    private boolean enablePassthroughWorkaround;
+    private boolean isPassthrough;
     private int sampleRate;
     private long lastRawPlaybackHeadPosition;
     private long rawPlaybackHeadWrapCount;
@@ -749,14 +751,11 @@ public final class AudioTrack {
      * Reconfigures the audio track utility helper to use the specified {@code audioTrack}.
      *
      * @param audioTrack The audio track to wrap.
-     * @param enablePassthroughWorkaround Whether to work around an issue where the playback head
-     *     position jumps back to zero on a paused passthrough/direct audio track. See
-     *     [Internal: b/19187573].
+     * @param isPassthrough Whether the audio track is used for passthrough (e.g. AC-3) playback.
      */
-    public void reconfigure(android.media.AudioTrack audioTrack,
-        boolean enablePassthroughWorkaround) {
+    public void reconfigure(android.media.AudioTrack audioTrack, boolean isPassthrough) {
       this.audioTrack = audioTrack;
-      this.enablePassthroughWorkaround = enablePassthroughWorkaround;
+      this.isPassthrough = isPassthrough;
       lastRawPlaybackHeadPosition = 0;
       rawPlaybackHeadWrapCount = 0;
       passthroughWorkaroundPauseOffset = 0;
@@ -767,14 +766,14 @@ public final class AudioTrack {
 
     /**
      * Returns whether the audio track should behave as though it has pending data. This is to work
-     * around an issue where AC-3 audio tracks can't be paused, so we empty their buffers when
-     * paused. In this case, they should still behave as if they have pending data, otherwise
-     * writing will never resume.
+     * around an issue on platform API versions 21/22 where AC-3 audio tracks can't be paused, so we
+     * empty their buffers when paused. In this case, they should still behave as if they have
+     * pending data, otherwise writing will never resume.
      *
      * @see #handleBuffer
      */
     public boolean overrideHasPendingData() {
-      return enablePassthroughWorkaround
+      return Util.SDK_INT <= 22 && isPassthrough
           && audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PAUSED
           && audioTrack.getPlaybackHeadPosition() == 0;
     }
@@ -790,7 +789,9 @@ public final class AudioTrack {
      */
     public long getPlaybackHeadPosition() {
       long rawPlaybackHeadPosition = 0xFFFFFFFFL & audioTrack.getPlaybackHeadPosition();
-      if (enablePassthroughWorkaround) {
+      if (Util.SDK_INT <= 22 && isPassthrough) {
+        // Work around an issue on platform API versions 21/22 where the playback head position
+        // jumps back to zero on paused passthrough/direct audio tracks. See [Internal: b/19187573].
         if (audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PAUSED
             && rawPlaybackHeadPosition == 0) {
           passthroughWorkaroundPauseOffset = lastRawPlaybackHeadPosition;
@@ -868,9 +869,8 @@ public final class AudioTrack {
     }
 
     @Override
-    public void reconfigure(android.media.AudioTrack audioTrack,
-        boolean enablePassthroughWorkaround) {
-      super.reconfigure(audioTrack, enablePassthroughWorkaround);
+    public void reconfigure(android.media.AudioTrack audioTrack, boolean isPassthrough) {
+      super.reconfigure(audioTrack, isPassthrough);
       rawTimestampFramePositionWrapCount = 0;
       lastRawTimestampFramePosition = 0;
       lastTimestampFramePosition = 0;
