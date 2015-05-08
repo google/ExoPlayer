@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.extractor.ts;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
@@ -43,6 +44,7 @@ public final class TsExtractor implements Extractor, SeekMap {
 
   private static final int TS_STREAM_TYPE_AAC = 0x0F;
   private static final int TS_STREAM_TYPE_ATSC_AC3 = 0x81;
+  private static final int TS_STREAM_TYPE_ATSC_E_AC3 = 0x87;
   private static final int TS_STREAM_TYPE_H264 = 0x1B;
   private static final int TS_STREAM_TYPE_ID3 = 0x15;
   private static final int TS_STREAM_TYPE_EIA608 = 0x100; // 0xFF + 1
@@ -51,6 +53,7 @@ public final class TsExtractor implements Extractor, SeekMap {
 
   private final ParsableByteArray tsPacketBuffer;
   private final SparseBooleanArray streamTypes;
+  private final SparseBooleanArray allowedPassthroughStreamTypes;
   private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
   private final long firstSampleTimestampUs;
   private final ParsableBitArray tsScratch;
@@ -61,14 +64,15 @@ public final class TsExtractor implements Extractor, SeekMap {
   private long lastPts;
 
   public TsExtractor() {
-    this(0);
+    this(0, null);
   }
 
-  public TsExtractor(long firstSampleTimestampUs) {
+  public TsExtractor(long firstSampleTimestampUs, AudioCapabilities audioCapabilities) {
     this.firstSampleTimestampUs = firstSampleTimestampUs;
     tsScratch = new ParsableBitArray(new byte[3]);
     tsPacketBuffer = new ParsableByteArray(TS_PACKET_SIZE);
     streamTypes = new SparseBooleanArray();
+    allowedPassthroughStreamTypes = getPassthroughStreamTypes(audioCapabilities);
     tsPayloadReaders = new SparseArray<TsPayloadReader>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
     lastPts = Long.MIN_VALUE;
@@ -171,6 +175,24 @@ public final class TsExtractor implements Extractor, SeekMap {
     // Record the adjusted PTS to adjust for wraparound next time.
     lastPts = pts;
     return timeUs + timestampOffsetUs;
+  }
+
+  /**
+   * Returns a sparse boolean array of stream types that can be played back based on
+   * {@code audioCapabilities}.
+   */
+  private static SparseBooleanArray getPassthroughStreamTypes(AudioCapabilities audioCapabilities) {
+    SparseBooleanArray streamTypes = new SparseBooleanArray();
+    if (audioCapabilities != null) {
+      if (audioCapabilities.supportsEncoding(C.ENCODING_AC3)) {
+        streamTypes.put(TS_STREAM_TYPE_ATSC_AC3, true);
+      }
+      if (audioCapabilities.supportsEncoding(C.ENCODING_E_AC3)) {
+        // TODO: Uncomment when Ac3Reader supports enhanced AC-3.
+        // streamTypes.put(TS_STREAM_TYPE_ATSC_E_AC3, true);
+      }
+    }
+    return streamTypes;
   }
 
   /**
@@ -313,7 +335,11 @@ public final class TsExtractor implements Extractor, SeekMap {
           case TS_STREAM_TYPE_AAC:
             pesPayloadReader = new AdtsReader(output.track(TS_STREAM_TYPE_AAC));
             break;
+          case TS_STREAM_TYPE_ATSC_E_AC3:
           case TS_STREAM_TYPE_ATSC_AC3:
+            if (!allowedPassthroughStreamTypes.get(streamType)) {
+              continue;
+            }
             pesPayloadReader = new Ac3Reader(output.track(streamType));
             break;
           case TS_STREAM_TYPE_H264:
