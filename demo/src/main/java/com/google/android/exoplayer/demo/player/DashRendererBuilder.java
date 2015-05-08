@@ -59,7 +59,6 @@ import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.media.AudioFormat;
 import android.media.MediaCodec;
 import android.media.UnsupportedSchemeException;
 import android.os.Handler;
@@ -249,7 +248,6 @@ public class DashRendererBuilder implements RendererBuilder,
     // Build the audio chunk sources.
     List<ChunkSource> audioChunkSourceList = new ArrayList<ChunkSource>();
     List<String> audioTrackNameList = new ArrayList<String>();
-    int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
     if (audioAdaptationSet != null) {
       DataSource audioDataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
       FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
@@ -275,7 +273,6 @@ public class DashRendererBuilder implements RendererBuilder,
             continue;
           }
 
-          audioEncoding = encoding;
           for (int j = audioRepresentations.size() - 1; j >= 0; j--) {
             if (!audioRepresentations.get(j).format.codecs.equals(codec)) {
               audioTrackNameList.remove(j);
@@ -303,7 +300,7 @@ public class DashRendererBuilder implements RendererBuilder,
           AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
           DemoPlayer.TYPE_AUDIO);
       audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource, drmSessionManager, true,
-          mainHandler, player, audioEncoding);
+          mainHandler, player);
     }
 
     // Build the text chunk sources.

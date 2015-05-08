@@ -18,6 +18,7 @@ package com.google.android.exoplayer.audio;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Ac3Util;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
@@ -315,24 +316,21 @@ public final class AudioTrack {
   }
 
   /**
-   * Reconfigures the audio track to play back media in {@code format}. The encoding is assumed to
-   * be {@link AudioFormat#ENCODING_PCM_16BIT}.
+   * Reconfigures the audio track to play back media in {@code format}, inferring a buffer size from
+   * the format.
    */
   public void reconfigure(MediaFormat format) {
-    reconfigure(format, AudioFormat.ENCODING_PCM_16BIT, 0);
+    reconfigure(format, 0);
   }
 
   /**
-   * Reconfigures the audio track to play back media in {@code format}. Buffers passed to
-   * {@link #handleBuffer} must use the specified {@code encoding}, which should be a constant from
-   * {@link AudioFormat}.
+   * Reconfigures the audio track to play back media in {@code format}.
    *
    * @param format Specifies the channel count and sample rate to play back.
-   * @param encoding The format in which audio is represented.
    * @param specifiedBufferSize A specific size for the playback buffer in bytes, or 0 to use a
    *     size inferred from the format.
    */
-  public void reconfigure(MediaFormat format, int encoding, int specifiedBufferSize) {
+  public void reconfigure(MediaFormat format, int specifiedBufferSize) {
     int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
     int channelConfig;
     switch (channelCount) {
@@ -353,8 +351,10 @@ public final class AudioTrack {
     }
 
     int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
+    String mimeType = format.getString(MediaFormat.KEY_MIME);
 
     // TODO: Does channelConfig determine channelCount?
+    int encoding = MimeTypes.getEncodingForMimeType(mimeType);
     boolean isAc3 = encoding == C.ENCODING_AC3 || encoding == C.ENCODING_E_AC3;
     if (isInitialized() && this.sampleRate == sampleRate && this.channelConfig == channelConfig
         && !this.isAc3 && !isAc3) {
