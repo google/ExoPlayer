@@ -87,7 +87,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   private long currentLoadStartTimeMs;
 
   private MediaFormat downstreamMediaFormat;
-  private volatile Format downstreamFormat;
+  private Format downstreamFormat;
 
   public ChunkSampleSource(ChunkSource chunkSource, LoadControl loadControl,
       int bufferSizeContribution, boolean frameAccurateSeeking) {
@@ -118,16 +118,6 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     sampleQueue = new DefaultTrackOutput(loadControl.getAllocator());
     state = STATE_UNPREPARED;
     pendingResetPositionUs = NO_RESET_PENDING;
-  }
-
-  /**
-   * Exposes the current downstream format for debugging purposes. Can be called from any thread.
-   *
-   * @return The current downstream format.
-   */
-  @Deprecated
-  public Format getFormat() {
-    return downstreamFormat;
   }
 
   @Override
