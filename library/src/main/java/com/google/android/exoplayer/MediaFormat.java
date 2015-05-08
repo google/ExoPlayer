@@ -114,6 +114,10 @@ public class MediaFormat {
     return createFormatForMimeType(MimeTypes.APPLICATION_TTML);
   }
 
+  public static MediaFormat createTx3GFormat() {
+    return createFormatForMimeType(MimeTypes.TEXT_TX3G);
+  }
+
   public static MediaFormat createFormatForMimeType(String mimeType) {
     return new MediaFormat(mimeType, NO_VALUE, C.UNKNOWN_TIME_US, NO_VALUE, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, null);
