@@ -25,7 +25,6 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
@@ -52,7 +51,7 @@ public class DemoUtil {
   }
 
   public static byte[] executePost(String url, byte[] data, Map<String, String> requestProperties)
-      throws MalformedURLException, IOException {
+      throws IOException {
     HttpURLConnection urlConnection = null;
     try {
       urlConnection = (HttpURLConnection) new URL(url).openConnection();

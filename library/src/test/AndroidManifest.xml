@@ -17,7 +17,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.google.android.exoplayer.tests">
 
-  <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="21"/>
+  <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="22"/>
 
   <application>
     <uses-library android:name="android.test.runner"/>
