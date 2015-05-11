@@ -21,7 +21,7 @@ Read news, hints and tips in the ExoPlayer [blog][].
 The ExoPlayer [developer guide][] provides a wealth of information to help
 you get started.
 
-[ExoPlayer developer guide]: https://google.github.io/ExoPlayer/guide.html
+[developer guide]: https://google.github.io/ExoPlayer/guide.html
 
 ## Reference documentation ##
 
