@@ -1,6 +1,7 @@
 ---
 layout: default
 title: First post
+author: Oliver Woodman
 ---
 
 This is a first paragraph.
