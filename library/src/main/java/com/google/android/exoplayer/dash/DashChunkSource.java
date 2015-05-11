@@ -419,7 +419,9 @@ public class DashChunkSource implements ChunkSource {
             (ChunkIndex) initializationChunk.getSeekMap(),
             initializationChunk.dataSpec.uri.toString());
       }
-      if (initializationChunk.hasDrmInitData()) {
+      // The null check avoids overwriting drmInitData obtained from the manifest with drmInitData
+      // obtained from the stream, as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
+      if (drmInitData == null && initializationChunk.hasDrmInitData()) {
         drmInitData = initializationChunk.getDrmInitData();
       }
     }

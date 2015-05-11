@@ -229,7 +229,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
         return new DashRendererBuilder(this, userAgent, contentUri.toString(),
             new WidevineTestMediaDrmCallback(contentId), debugTextView, audioCapabilities);
       case DemoUtil.TYPE_HLS:
-        return new HlsRendererBuilder(this, userAgent, contentUri.toString(), debugTextView);
+        return new HlsRendererBuilder(this, userAgent, contentUri.toString(), debugTextView,
+            audioCapabilities);
       case DemoUtil.TYPE_M4A: // There are no file format differences between M4A and MP4.
       case DemoUtil.TYPE_MP4:
         return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
@@ -239,7 +240,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
             new Mp3Extractor());
       case DemoUtil.TYPE_TS:
         return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
-            new TsExtractor());
+            new TsExtractor(0, audioCapabilities));
       case DemoUtil.TYPE_AAC:
         return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
             new AdtsExtractor());

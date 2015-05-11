@@ -36,15 +36,36 @@ public final class DefaultUriDataSource implements UriDataSource {
   private UriDataSource dataSource;
 
   /**
-   * Constructs a new data source that delegates to a {@link FileDataSource} for file URIs and an
+   * Constructs a new data source that delegates to a {@link FileDataSource} for file URIs and a
    * {@link DefaultHttpDataSource} for other URIs.
+   * <p>
+   * The constructed instance will not follow cross-protocol redirects (i.e. redirects from HTTP to
+   * HTTPS or vice versa) when fetching remote data. Cross-protocol redirects can be enabled by
+   * using the {@link #DefaultUriDataSource(String, TransferListener, boolean)} constructor and
+   * passing {@code true} as the final argument.
    *
    * @param userAgent The User-Agent string that should be used when requesting remote data.
    * @param transferListener An optional listener.
    */
   public DefaultUriDataSource(String userAgent, TransferListener transferListener) {
+    this(userAgent, transferListener, false);
+  }
+
+  /**
+   * Constructs a new data source that delegates to a {@link FileDataSource} for file URIs and a
+   * {@link DefaultHttpDataSource} for other URIs.
+   *
+   * @param userAgent The User-Agent string that should be used when requesting remote data.
+   * @param transferListener An optional listener.
+   * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
+   *     to HTTPS and vice versa) are enabled when fetching remote data..
+   */
+  public DefaultUriDataSource(String userAgent, TransferListener transferListener,
+      boolean allowCrossProtocolRedirects) {
     this(new FileDataSource(transferListener),
-        new DefaultHttpDataSource(userAgent, null, transferListener));
+        new DefaultHttpDataSource(userAgent, null, transferListener,
+            DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
+            DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS, allowCrossProtocolRedirects));
   }
 
   /**

@@ -264,7 +264,7 @@ import java.util.List;
     boolean prepared = true;
     for (int i = 0; i < renderers.length; i++) {
       if (renderers[i].getState() == TrackRenderer.STATE_UNPREPARED) {
-        int state = renderers[i].prepare();
+        int state = renderers[i].prepare(positionUs);
         if (state == TrackRenderer.STATE_UNPREPARED) {
           prepared = false;
         }

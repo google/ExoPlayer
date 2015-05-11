@@ -19,6 +19,7 @@ import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.chunk.VideoFormatSelectorUtil;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilderCallback;
@@ -56,15 +57,18 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
   private final String userAgent;
   private final String url;
   private final TextView debugTextView;
+  private final AudioCapabilities audioCapabilities;
 
   private DemoPlayer player;
   private RendererBuilderCallback callback;
 
-  public HlsRendererBuilder(Context context, String userAgent, String url, TextView debugTextView) {
+  public HlsRendererBuilder(Context context, String userAgent, String url, TextView debugTextView,
+      AudioCapabilities audioCapabilities) {
     this.context = context;
     this.userAgent = userAgent;
     this.url = url;
     this.debugTextView = debugTextView;
+    this.audioCapabilities = audioCapabilities;
   }
 
   @Override
@@ -101,7 +105,7 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
 
     DataSource dataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
     HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter,
-        variantIndices, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
+        variantIndices, HlsChunkSource.ADAPTIVE_MODE_SPLICE, audioCapabilities);
     HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, true, 3, REQUESTED_BUFFER_SIZE,
         REQUESTED_BUFFER_DURATION_MS, mainHandler, player, DemoPlayer.TYPE_VIDEO);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,

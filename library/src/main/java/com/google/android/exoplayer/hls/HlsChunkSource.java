@@ -17,6 +17,7 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.DataChunk;
@@ -125,6 +126,7 @@ public class HlsChunkSource {
   private final int maxHeight;
   private final long minBufferDurationToSwitchUpUs;
   private final long maxBufferDurationToSwitchDownUs;
+  private final AudioCapabilities audioCapabilities;
 
   /* package */ byte[] scratchSpace;
   /* package */ final HlsMediaPlaylist[] mediaPlaylists;
@@ -140,9 +142,11 @@ public class HlsChunkSource {
   private byte[] encryptionIv;
 
   public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
-      BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode) {
+      BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode,
+      AudioCapabilities audioCapabilities) {
     this(dataSource, playlistUrl, playlist, bandwidthMeter, variantIndices, adaptiveMode,
-        DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS, DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS);
+        DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS, DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS,
+        audioCapabilities);
   }
 
   /**
@@ -160,13 +164,17 @@ public class HlsChunkSource {
    *     for a switch to a higher quality variant to be considered.
    * @param maxBufferDurationToSwitchDownMs The maximum duration of media that needs to be buffered
    *     for a switch to a lower quality variant to be considered.
+   * @param audioCapabilities The audio capabilities for playback on this device, or {@code null} if
+   *     the default capabilities should be assumed.
    */
   public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
       BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode,
-      long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs) {
+      long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs,
+      AudioCapabilities audioCapabilities) {
     this.dataSource = dataSource;
     this.bandwidthMeter = bandwidthMeter;
     this.adaptiveMode = adaptiveMode;
+    this.audioCapabilities = audioCapabilities;
     minBufferDurationToSwitchUpUs = minBufferDurationToSwitchUpMs * 1000;
     maxBufferDurationToSwitchDownUs = maxBufferDurationToSwitchDownMs * 1000;
     baseUri = playlist.baseUri;
@@ -235,16 +243,14 @@ public class HlsChunkSource {
   public Chunk getChunkOperation(TsChunk previousTsChunk, long seekPositionUs,
       long playbackPositionUs) {
     int nextFormatIndex;
-    boolean switchingVariant;
     boolean switchingVariantSpliced;
     if (adaptiveMode == ADAPTIVE_MODE_NONE) {
       nextFormatIndex = formatIndex;
-      switchingVariant = false;
       switchingVariantSpliced = false;
     } else {
       nextFormatIndex = getNextFormatIndex(previousTsChunk, playbackPositionUs);
-      switchingVariant = nextFormatIndex != formatIndex;
-      switchingVariantSpliced = switchingVariant && adaptiveMode == ADAPTIVE_MODE_SPLICE;
+      switchingVariantSpliced = nextFormatIndex != formatIndex
+          && adaptiveMode == ADAPTIVE_MODE_SPLICE;
     }
 
     int variantIndex = getVariantIndex(enabledFormats[nextFormatIndex]);
@@ -331,10 +337,11 @@ public class HlsChunkSource {
 
     // Configure the extractor that will read the chunk.
     HlsExtractorWrapper extractorWrapper;
-    if (previousTsChunk == null || segment.discontinuity || switchingVariant || liveDiscontinuity) {
+    if (previousTsChunk == null || segment.discontinuity || !format.equals(previousTsChunk.format)
+        || liveDiscontinuity) {
       Extractor extractor = chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)
           ? new AdtsExtractor(startTimeUs)
-          : new TsExtractor(startTimeUs);
+          : new TsExtractor(startTimeUs, audioCapabilities);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
           switchingVariantSpliced);
     } else {

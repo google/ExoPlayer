@@ -108,11 +108,12 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * Prepares the renderer. This method is non-blocking, and hence it may be necessary to call it
    * more than once in order to transition the renderer into the prepared state.
    *
+   * @param positionUs The player's current playback position.
    * @return The current state (one of the STATE_* constants), for convenience.
    */
-  /* package */ final int prepare() throws ExoPlaybackException {
+  /* package */ final int prepare(long positionUs) throws ExoPlaybackException {
     Assertions.checkState(state == TrackRenderer.STATE_UNPREPARED);
-    state = doPrepare();
+    state = doPrepare(positionUs);
     Assertions.checkState(state == TrackRenderer.STATE_UNPREPARED ||
         state == TrackRenderer.STATE_PREPARED ||
         state == TrackRenderer.STATE_IGNORE);
@@ -127,11 +128,12 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * This method should return quickly, and should not block if the renderer is currently unable to
    * make any useful progress.
    *
+   * @param positionUs The player's current playback position.
    * @return The new state of the renderer. One of {@link #STATE_UNPREPARED},
    *     {@link #STATE_PREPARED} and {@link #STATE_IGNORE}.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected abstract int doPrepare() throws ExoPlaybackException;
+  protected abstract int doPrepare(long positionUs) throws ExoPlaybackException;
 
   /**
    * Enable the renderer.

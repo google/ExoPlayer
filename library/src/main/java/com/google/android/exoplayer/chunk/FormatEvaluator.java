@@ -84,7 +84,7 @@ public interface FormatEvaluator {
   /**
    * Always selects the first format.
    */
-  public static class FixedEvaluator implements FormatEvaluator {
+  public static final class FixedEvaluator implements FormatEvaluator {
 
     @Override
     public void enable() {
@@ -107,7 +107,7 @@ public interface FormatEvaluator {
   /**
    * Selects randomly between the available formats.
    */
-  public static class RandomEvaluator implements FormatEvaluator {
+  public static final class RandomEvaluator implements FormatEvaluator {
 
     private final Random random;
 
@@ -145,7 +145,7 @@ public interface FormatEvaluator {
    * reference implementation only. It is recommended that application developers implement their
    * own adaptive evaluator to more precisely suit their use case.
    */
-  public static class AdaptiveEvaluator implements FormatEvaluator {
+  public static final class AdaptiveEvaluator implements FormatEvaluator {
 
     public static final int DEFAULT_MAX_INITIAL_BITRATE = 800000;
 
@@ -259,8 +259,9 @@ public interface FormatEvaluator {
     /**
      * Compute the ideal format ignoring buffer health.
      */
-    protected Format determineIdealFormat(Format[] formats, long bitrateEstimate) {
-      long effectiveBitrate = computeEffectiveBitrateEstimate(bitrateEstimate);
+    private Format determineIdealFormat(Format[] formats, long bitrateEstimate) {
+      long effectiveBitrate = bitrateEstimate == BandwidthMeter.NO_ESTIMATE
+          ? maxInitialBitrate : (long) (bitrateEstimate * bandwidthFraction);
       for (int i = 0; i < formats.length; i++) {
         Format format = formats[i];
         if (format.bitrate <= effectiveBitrate) {
@@ -269,14 +270,6 @@ public interface FormatEvaluator {
       }
       // We didn't manage to calculate a suitable format. Return the lowest quality format.
       return formats[formats.length - 1];
-    }
-
-    /**
-     * Apply overhead factor, or default value in absence of estimate.
-     */
-    protected long computeEffectiveBitrateEstimate(long bitrateEstimate) {
-      return bitrateEstimate == BandwidthMeter.NO_ESTIMATE
-          ? maxInitialBitrate : (long) (bitrateEstimate * bandwidthFraction);
     }
 
   }

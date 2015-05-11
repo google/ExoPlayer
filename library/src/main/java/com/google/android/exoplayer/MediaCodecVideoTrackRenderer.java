@@ -381,15 +381,17 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void onOutputFormatChanged(android.media.MediaFormat format) {
-    boolean hasCrop = format.containsKey(KEY_CROP_RIGHT) && format.containsKey(KEY_CROP_LEFT)
-        && format.containsKey(KEY_CROP_BOTTOM) && format.containsKey(KEY_CROP_TOP);
+  protected void onOutputFormatChanged(MediaFormat inputFormat,
+      android.media.MediaFormat outputFormat) {
+    boolean hasCrop = outputFormat.containsKey(KEY_CROP_RIGHT)
+        && outputFormat.containsKey(KEY_CROP_LEFT) && outputFormat.containsKey(KEY_CROP_BOTTOM)
+        && outputFormat.containsKey(KEY_CROP_TOP);
     currentWidth = hasCrop
-        ? format.getInteger(KEY_CROP_RIGHT) - format.getInteger(KEY_CROP_LEFT) + 1
-        : format.getInteger(android.media.MediaFormat.KEY_WIDTH);
+        ? outputFormat.getInteger(KEY_CROP_RIGHT) - outputFormat.getInteger(KEY_CROP_LEFT) + 1
+        : outputFormat.getInteger(android.media.MediaFormat.KEY_WIDTH);
     currentHeight = hasCrop
-        ? format.getInteger(KEY_CROP_BOTTOM) - format.getInteger(KEY_CROP_TOP) + 1
-        : format.getInteger(android.media.MediaFormat.KEY_HEIGHT);
+        ? outputFormat.getInteger(KEY_CROP_BOTTOM) - outputFormat.getInteger(KEY_CROP_TOP) + 1
+        : outputFormat.getInteger(android.media.MediaFormat.KEY_HEIGHT);
   }
 
   @Override

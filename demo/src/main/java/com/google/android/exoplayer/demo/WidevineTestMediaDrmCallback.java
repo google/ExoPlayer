@@ -22,8 +22,6 @@ import android.media.MediaDrm.KeyRequest;
 import android.media.MediaDrm.ProvisionRequest;
 import android.text.TextUtils;
 
-import org.apache.http.client.ClientProtocolException;
-
 import java.io.IOException;
 import java.util.UUID;
 
@@ -43,8 +41,7 @@ public class WidevineTestMediaDrmCallback implements MediaDrmCallback {
   }
 
   @Override
-  public byte[] executeProvisionRequest(UUID uuid, ProvisionRequest request)
-      throws ClientProtocolException, IOException {
+  public byte[] executeProvisionRequest(UUID uuid, ProvisionRequest request) throws IOException {
     String url = request.getDefaultUrl() + "&signedRequest=" + new String(request.getData());
     return DemoUtil.executePost(url, null, null);
   }

@@ -101,7 +101,7 @@ public interface ExoPlayer {
      * The default minimum duration of data that must be buffered for playback to start or resume
      * following a user action such as a seek.
      */
-    public static final int DEFAULT_MIN_BUFFER_MS = 500;
+    public static final int DEFAULT_MIN_BUFFER_MS = 2500;
 
     /**
      * The default minimum duration of data that must be buffered for playback to resume

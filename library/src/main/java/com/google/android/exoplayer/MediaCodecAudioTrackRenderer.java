@@ -21,9 +21,7 @@ import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.annotation.TargetApi;
-import android.media.AudioFormat;
 import android.media.MediaCodec;
-import android.media.MediaFormat;
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
 
@@ -71,7 +69,6 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   private final EventListener eventListener;
   private final AudioTrack audioTrack;
-  private final int encoding;
 
   private int audioSessionId;
   private long currentPositionUs;
@@ -124,50 +121,27 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
    */
   public MediaCodecAudioTrackRenderer(SampleSource source, DrmSessionManager drmSessionManager,
       boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener) {
-    this(source, drmSessionManager, playClearSamplesWithoutKeys, eventHandler, eventListener,
-        AudioFormat.ENCODING_PCM_16BIT);
-  }
-
-  /**
-   * @param source The upstream source from which the renderer obtains samples.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisision. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param encoding One of the {@code AudioFormat.ENCODING_*} constants specifying the audio
-   *     encoding.
-   */
-  public MediaCodecAudioTrackRenderer(SampleSource source, DrmSessionManager drmSessionManager,
-      boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener,
-      int encoding) {
     super(source, drmSessionManager, playClearSamplesWithoutKeys, eventHandler, eventListener);
     this.eventListener = eventListener;
     this.audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     this.audioTrack = new AudioTrack();
-    this.encoding = encoding;
   }
 
   @Override
   protected DecoderInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder)
       throws DecoderQueryException {
-    if (encoding == AudioFormat.ENCODING_AC3 || encoding == AudioFormat.ENCODING_E_AC3) {
+    if (MimeTypes.isPassthroughAudio(mimeType)) {
       return new DecoderInfo(RAW_DECODER_NAME, true);
     }
     return super.getDecoderInfo(mimeType, requiresSecureDecoder);
   }
 
   @Override
-  protected void configureCodec(MediaCodec codec, String codecName, MediaFormat format,
-      android.media.MediaCrypto crypto) {
+  protected void configureCodec(MediaCodec codec, String codecName,
+      android.media.MediaFormat format, android.media.MediaCrypto crypto) {
     if (RAW_DECODER_NAME.equals(codecName)) {
       // Override the MIME type used to configure the codec if we are using a passthrough decoder.
-      String mimeType = format.getString(MediaFormat.KEY_MIME);
+      String mimeType = format.getString(android.media.MediaFormat.KEY_MIME);
       format.setString(android.media.MediaFormat.KEY_MIME, MimeTypes.AUDIO_RAW);
       codec.configure(format, null, crypto, 0);
       format.setString(android.media.MediaFormat.KEY_MIME, mimeType);
@@ -193,8 +167,13 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void onOutputFormatChanged(MediaFormat format) {
-    audioTrack.reconfigure(format, encoding, 0);
+  protected void onOutputFormatChanged(MediaFormat inputFormat,
+      android.media.MediaFormat outputFormat) {
+    if (MimeTypes.isPassthroughAudio(inputFormat.mimeType)) {
+      audioTrack.reconfigure(inputFormat.getFrameworkMediaFormatV16());
+    } else {
+      audioTrack.reconfigure(outputFormat);
+    }
   }
 
   /**
