@@ -10,21 +10,24 @@ SmoothStreaming adaptive playbacks, persistent caching and custom renderers.
 Unlike the MediaPlayer API, ExoPlayer is easy to customize and extend, and
 can be updated through Play Store application updates.
 
+## Blog ##
+
+Read news, hints and tips in the ExoPlayer [blog][].
+
+[blog]: https://google.github.io/ExoPlayer/blog.html
 
 ## Developer guide ##
 
-The [ExoPlayer developer guide][] provides a wealth of information to help you
-get started.
+The ExoPlayer [developer guide][] provides a wealth of information to help
+you get started.
 
-[ExoPlayer developer guide]: http://developer.android.com/guide/topics/media/exoplayer.html
-
+[ExoPlayer developer guide]: https://google.github.io/ExoPlayer/guide.html
 
 ## Reference documentation ##
 
-[Class reference][] (Documents the ExoPlayer library classes).
+The Exoplayer [class reference][] documents the ExoPlayer library classes.
 
-[Class reference]: http://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer/package-summary.html
-
+[class reference]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer/package-summary.html
 
 ## Project branches ##
 
@@ -34,7 +37,6 @@ get started.
 
 [master]: https://github.com/google/ExoPlayer/tree/master
 [dev]: https://github.com/google/ExoPlayer/tree/dev
-
 
 ## Using Eclipse ##
 
