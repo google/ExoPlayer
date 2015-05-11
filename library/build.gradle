@@ -13,7 +13,11 @@
 // limitations under the License.
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'bintray-release'
+apply plugin: "bintray-release"
+
+configurations {
+    deployerJars
+}
 
 configurations {
     deployerJars
