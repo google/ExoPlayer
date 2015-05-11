@@ -423,12 +423,21 @@ public final class AudioTrack {
       return RESULT_BUFFER_CONSUMED;
     }
 
-    // As a workaround for an issue on platform API versions 21/22 where an an AC-3 audio track
-    // continues to play data written while it is paused, stop writing so its buffer empties. See
-    // [Internal: b/18899620].
-    if (Util.SDK_INT <= 22 && isAc3
-        && audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PAUSED) {
-      return 0;
+    // Workarounds for issues with AC-3 passthrough AudioTracks on API versions 21/22:
+    if (Util.SDK_INT <= 22 && isAc3) {
+      // An AC-3 audio track continues to play data written while it is paused. Stop writing so its
+      // buffer empties. See [Internal: b/18899620].
+      if (audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PAUSED) {
+        return 0;
+      }
+
+      // A new AC-3 audio track's playback position continues to increase from the old track's
+      // position for a short time after is has been released. Avoid writing data until the playback
+      // head position actually returns to zero.
+      if (audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_STOPPED
+          && audioTrackUtil.getPlaybackHeadPosition() != 0) {
+        return 0;
+      }
     }
 
     int result = 0;
@@ -639,7 +648,8 @@ public final class AudioTrack {
     }
 
     if (systemClockUs - lastTimestampSampleTimeUs >= MIN_TIMESTAMP_SAMPLE_INTERVAL_US) {
-      audioTimestampSet = audioTrackUtil.updateTimestamp();
+      // Don't use AudioTrack.getTimestamp() on AC-3 tracks, as it gives an incorrect timestamp.
+      audioTimestampSet = !isAc3 && audioTrackUtil.updateTimestamp();
       if (audioTimestampSet) {
         // Perform sanity checks on the timestamp.
         long audioTimestampUs = audioTrackUtil.getTimestampNanoTime() / 1000;
