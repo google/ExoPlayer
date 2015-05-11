@@ -107,7 +107,7 @@ public class SmoothFrameReleaseTimeHelper implements FrameReleaseTimeHelper, Fra
       if (frameCount >= MIN_FRAMES_FOR_ADJUSTMENT) {
         // We're synced and have waited the required number of frames to apply an adjustment.
         // Calculate the average frame time across all the frames we've seen since the last sync.
-        // This will typically give us a framerate at a finer granularity than the frame times
+        // This will typically give us a frame rate at a finer granularity than the frame times
         // themselves (which often only have millisecond granularity).
         long averageFrameTimeNs = (unadjustedFrameTimeNs - syncFrameTimeNs) / frameCount;
         // Project the adjusted frame time forward using the average.

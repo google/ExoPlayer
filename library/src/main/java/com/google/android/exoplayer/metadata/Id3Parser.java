@@ -29,6 +29,11 @@ import java.util.Map;
  */
 public class Id3Parser implements MetadataParser<Map<String, Object>> {
 
+  private static final int ID3_TEXT_ENCODING_ISO_8859_1 = 0;
+  private static final int ID3_TEXT_ENCODING_UTF_16 = 1;
+  private static final int ID3_TEXT_ENCODING_UTF_16BE = 2;
+  private static final int ID3_TEXT_ENCODING_UTF_8 = 3;
+
   @Override
   public boolean canParse(String mimeType) {
     return mimeType.equals(MimeTypes.APPLICATION_ID3);
@@ -52,7 +57,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
       }
 
       // Skip frame flags.
-      id3Data.skip(2);
+      id3Data.skipBytes(2);
       // Check Frame ID == TXXX.
       if (frameId0 == 'T' && frameId1 == 'X' && frameId2 == 'X' && frameId3 == 'X') {
         int encoding = id3Data.readUnsignedByte();
@@ -60,13 +65,48 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
         byte[] frame = new byte[frameSize - 1];
         id3Data.readBytes(frame, 0, frameSize - 1);
 
-        int firstZeroIndex = indexOf(frame, 0, (byte) 0);
+        int firstZeroIndex = indexOfEOS(frame, 0, encoding);
         String description = new String(frame, 0, firstZeroIndex, charset);
-        int valueStartIndex = indexOfNot(frame, firstZeroIndex, (byte) 0);
-        int valueEndIndex = indexOf(frame, valueStartIndex, (byte) 0);
+        int valueStartIndex = firstZeroIndex + delimiterLength(encoding);
+        int valueEndIndex = indexOfEOS(frame, valueStartIndex, encoding);
         String value = new String(frame, valueStartIndex, valueEndIndex - valueStartIndex,
             charset);
         metadata.put(TxxxMetadata.TYPE, new TxxxMetadata(description, value));
+      } else if (frameId0 == 'P' && frameId1 == 'R' && frameId2 == 'I' && frameId3 == 'V') {
+        // Check frame ID == PRIV
+        byte[] frame = new byte[frameSize];
+        id3Data.readBytes(frame, 0, frameSize);
+
+        int firstZeroIndex = indexOf(frame, 0, (byte) 0);
+        String owner = new String(frame, 0, firstZeroIndex, "ISO-8859-1");
+        byte[] privateData = new byte[frameSize - firstZeroIndex - 1];
+        System.arraycopy(frame, firstZeroIndex + 1, privateData, 0, frameSize - firstZeroIndex - 1);
+        metadata.put(PrivMetadata.TYPE, new PrivMetadata(owner, privateData));
+      } else if (frameId0 == 'G' && frameId1 == 'E' && frameId2 == 'O' && frameId3 == 'B') {
+        // Check frame ID == GEOB
+        int encoding = id3Data.readUnsignedByte();
+        String charset = getCharsetName(encoding);
+        byte[] frame = new byte[frameSize - 1];
+        id3Data.readBytes(frame, 0, frameSize - 1);
+
+        int firstZeroIndex = indexOf(frame, 0, (byte) 0);
+        String mimeType = new String(frame, 0, firstZeroIndex, "ISO-8859-1");
+        int filenameStartIndex = firstZeroIndex + 1;
+        int filenameEndIndex = indexOfEOS(frame, filenameStartIndex, encoding);
+        String filename = new String(frame, filenameStartIndex,
+            filenameEndIndex - filenameStartIndex, charset);
+        int descriptionStartIndex = filenameEndIndex + delimiterLength(encoding);
+        int descriptionEndIndex = indexOfEOS(frame, descriptionStartIndex, encoding);
+        String description = new String(frame, descriptionStartIndex,
+            descriptionEndIndex - descriptionStartIndex, charset);
+
+        int objectDataSize = frameSize - 1 /* encoding byte */ - descriptionEndIndex
+            - delimiterLength(encoding);
+        byte[] objectData = new byte[objectDataSize];
+        System.arraycopy(frame, descriptionEndIndex + delimiterLength(encoding), objectData, 0,
+            objectDataSize);
+        metadata.put(GeobMetadata.TYPE, new GeobMetadata(mimeType, filename,
+            description, objectData));
       } else {
         String type = String.format("%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
         byte[] frame = new byte[frameSize];
@@ -89,13 +129,28 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
     return data.length;
   }
 
-  private static int indexOfNot(byte[] data, int fromIndex, byte key) {
-    for (int i = fromIndex; i < data.length; i++) {
-      if (data[i] != key) {
-        return i;
-      }
+  private static int indexOfEOS(byte[] data, int fromIndex, int encodingByte) {
+    int terminationPos = indexOf(data, fromIndex, (byte) 0);
+
+    // For single byte encoding charsets, we are done
+    if (encodingByte == ID3_TEXT_ENCODING_ISO_8859_1 || encodingByte == ID3_TEXT_ENCODING_UTF_8) {
+      return terminationPos;
     }
+
+    // Otherwise, look for a two zero bytes
+    while (terminationPos < data.length - 1) {
+      if (data[terminationPos + 1] == (byte) 0) {
+        return terminationPos;
+      }
+      terminationPos = indexOf(data, terminationPos + 1, (byte) 0);
+    }
+
     return data.length;
+  }
+
+  private static int delimiterLength(int encodingByte) {
+    return (encodingByte == ID3_TEXT_ENCODING_ISO_8859_1
+        || encodingByte == ID3_TEXT_ENCODING_UTF_8) ? 1 : 2;
   }
 
   /**
@@ -113,7 +168,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
       throw new ParserException(String.format(
           "Unexpected ID3 file identifier, expected \"ID3\", actual \"%c%c%c\".", id1, id2, id3));
     }
-    id3Buffer.skip(2); // Skip version.
+    id3Buffer.skipBytes(2); // Skip version.
 
     int flags = id3Buffer.readUnsignedByte();
     int id3Size = id3Buffer.readSynchSafeInt();
@@ -122,7 +177,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
     if ((flags & 0x2) != 0) {
       int extendedHeaderSize = id3Buffer.readSynchSafeInt();
       if (extendedHeaderSize > 4) {
-        id3Buffer.skip(extendedHeaderSize - 4);
+        id3Buffer.skipBytes(extendedHeaderSize - 4);
       }
       id3Size -= extendedHeaderSize;
     }
@@ -142,13 +197,13 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
    */
   private static String getCharsetName(int encodingByte) {
     switch (encodingByte) {
-      case 0:
+      case ID3_TEXT_ENCODING_ISO_8859_1:
         return "ISO-8859-1";
-      case 1:
+      case ID3_TEXT_ENCODING_UTF_16:
         return "UTF-16";
-      case 2:
+      case ID3_TEXT_ENCODING_UTF_16BE:
         return "UTF-16BE";
-      case 3:
+      case ID3_TEXT_ENCODING_UTF_8:
         return "UTF-8";
       default:
         return "ISO-8859-1";

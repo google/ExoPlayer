@@ -37,6 +37,12 @@ public final class ParsableByteArray {
     limit = data.length;
   }
 
+  /** Creates a new instance wrapping {@code data}. */
+  public ParsableByteArray(byte[] data) {
+    this.data = data;
+    limit = data.length;
+  }
+
   /**
    * Creates a new instance that wraps an existing array.
    *
@@ -117,9 +123,7 @@ public final class ParsableByteArray {
    * @throws IllegalArgumentException Thrown if the new position is neither in nor at the end of the
    *     array.
    */
-  // TODO: Rename to skipBytes so that it's clearer how much data is being skipped in code where
-  // both ParsableBitArray and ParsableByteArray are in use.
-  public void skip(int bytes) {
+  public void skipBytes(int bytes) {
     setPosition(position + bytes);
   }
 
@@ -130,10 +134,8 @@ public final class ParsableByteArray {
    * @param bitArray The {@link ParsableBitArray} into which the bytes should be read.
    * @param length The number of bytes to write.
    */
-  // TODO: It's possible to have bitArray directly index into the same array as is being wrapped
-  // by this instance. Decide whether it's worth doing this.
   public void readBytes(ParsableBitArray bitArray, int length) {
-    readBytes(bitArray.getData(), 0, length);
+    readBytes(bitArray.data, 0, length);
     bitArray.setPosition(0);
   }
 
@@ -159,43 +161,55 @@ public final class ParsableByteArray {
 
   /** Reads the next byte as an unsigned value. */
   public int readUnsignedByte() {
-    int result = shiftIntoInt(data, position, 1);
-    position += 1;
-    return result;
+    return (data[position++] & 0xFF);
   }
 
   /** Reads the next two bytes as an unsigned value. */
   public int readUnsignedShort() {
-    int result = shiftIntoInt(data, position, 2);
-    position += 2;
-    return result;
+    return (data[position++] & 0xFF) << 8
+        | (data[position++] & 0xFF);
+  }
+
+  /** Reads the next three bytes as an unsigned value. */
+  public int readUnsignedInt24() {
+    return (data[position++] & 0xFF) << 16
+        | (data[position++] & 0xFF) << 8
+        | (data[position++] & 0xFF);
   }
 
   /** Reads the next four bytes as an unsigned value. */
   public long readUnsignedInt() {
-    long result = shiftIntoLong(data, position, 4);
-    position += 4;
-    return result;
+    return (data[position++] & 0xFFL) << 24
+        | (data[position++] & 0xFFL) << 16
+        | (data[position++] & 0xFFL) << 8
+        | (data[position++] & 0xFFL);
   }
 
   /** Reads the next four bytes as a signed value. */
   public int readInt() {
-    int result = shiftIntoInt(data, position, 4);
-    position += 4;
-    return result;
+    return (data[position++] & 0xFF) << 24
+        | (data[position++] & 0xFF) << 16
+        | (data[position++] & 0xFF) << 8
+        | (data[position++] & 0xFF);
   }
 
   /** Reads the next eight bytes as a signed value. */
   public long readLong() {
-    long result = shiftIntoLong(data, position, 8);
-    position += 8;
-    return result;
+    return (data[position++] & 0xFFL) << 56
+        | (data[position++] & 0xFFL) << 48
+        | (data[position++] & 0xFFL) << 40
+        | (data[position++] & 0xFFL) << 32
+        | (data[position++] & 0xFFL) << 24
+        | (data[position++] & 0xFFL) << 16
+        | (data[position++] & 0xFFL) << 8
+        | (data[position++] & 0xFFL);
   }
 
   /** Reads the next four bytes, returning the integer portion of the fixed point 16.16 integer. */
   public int readUnsignedFixedPoint1616() {
-    int result = shiftIntoInt(data, position, 2);
-    position += 4;
+    int result = (data[position++] & 0xFF) << 8
+        | (data[position++] & 0xFF);
+    position += 2; // Skip the non-integer portion.
     return result;
   }
 
@@ -218,13 +232,12 @@ public final class ParsableByteArray {
   /**
    * Reads the next four bytes as an unsigned integer into an integer, if the top bit is a zero.
    *
-   * @throws IllegalArgumentException Thrown if the top bit of the input data is set.
+   * @throws IllegalStateException Thrown if the top bit of the input data is set.
    */
   public int readUnsignedIntToInt() {
-    int result = shiftIntoInt(data, position, 4);
-    position += 4;
+    int result = readInt();
     if (result < 0) {
-      throw new IllegalArgumentException("Top bit not zero: " + result);
+      throw new IllegalStateException("Top bit not zero: " + result);
     }
     return result;
   }
@@ -232,33 +245,12 @@ public final class ParsableByteArray {
   /**
    * Reads the next eight bytes as an unsigned long into a long, if the top bit is a zero.
    *
-   * @throws IllegalArgumentException Thrown if the top bit of the input data is set.
+   * @throws IllegalStateException Thrown if the top bit of the input data is set.
    */
   public long readUnsignedLongToLong() {
-    long result = shiftIntoLong(data, position, 8);
-    position += 8;
+    long result = readLong();
     if (result < 0) {
-      throw new IllegalArgumentException("Top bit not zero: " + result);
-    }
-    return result;
-  }
-
-  /** Reads {@code length} bytes into an int at {@code offset} in {@code bytes}. */
-  private static int shiftIntoInt(byte[] bytes, int offset, int length) {
-    int result = 0xFF & bytes[offset];
-    for (int i = offset + 1; i < offset + length; i++) {
-      result <<= 8;
-      result |= 0xFF & bytes[i];
-    }
-    return result;
-  }
-
-  /** Reads {@code length} bytes into a long at {@code offset} in {@code bytes}. */
-  private static long shiftIntoLong(byte[] bytes, int offset, int length) {
-    long result = 0xFF & bytes[offset];
-    for (int i = offset + 1; i < offset + length; i++) {
-      result <<= 8;
-      result |= 0xFF & bytes[i];
+      throw new IllegalStateException("Top bit not zero: " + result);
     }
     return result;
   }

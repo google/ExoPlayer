@@ -15,42 +15,27 @@
  */
 package com.google.android.exoplayer.hls;
 
-import java.util.Comparator;
+import com.google.android.exoplayer.chunk.Format;
+import com.google.android.exoplayer.chunk.FormatWrapper;
+import com.google.android.exoplayer.util.MimeTypes;
 
 /**
  * Variant stream reference.
  */
-public final class Variant {
+public final class Variant implements FormatWrapper {
 
-  /**
-   * Sorts {@link Variant} objects in order of decreasing bandwidth.
-   * <p>
-   * When two {@link Variant}s have the same bandwidth, the one with the lowest index comes first.
-   */
-  public static final class DecreasingBandwidthComparator implements Comparator<Variant> {
+  public final String url;
+  public final Format format;
 
-    @Override
-    public int compare(Variant a, Variant b) {
-      int bandwidthDifference = b.bandwidth - a.bandwidth;
-      return bandwidthDifference != 0 ? bandwidthDifference : a.index - b.index;
-    }
-
+  public Variant(int index, String url, int bitrate, String codecs, int width, int height) {
+    this.url = url;
+    format = new Format(Integer.toString(index), MimeTypes.APPLICATION_M3U8, width, height, -1, -1,
+        -1, bitrate, null, codecs);
   }
 
-  public final int index;
-  public final int bandwidth;
-  public final String url;
-  public final String[] codecs;
-  public final int width;
-  public final int height;
-
-  public Variant(int index, String url, int bandwidth, String[] codecs, int width, int height) {
-    this.index = index;
-    this.bandwidth = bandwidth;
-    this.url = url;
-    this.codecs = codecs;
-    this.width = width;
-    this.height = height;
+  @Override
+  public Format getFormat() {
+    return format;
   }
 
 }

@@ -98,13 +98,18 @@ public class SingleSampleChunkSource implements ChunkSource {
   }
 
   @Override
+  public void onChunkLoadCompleted(Chunk chunk) {
+    // Do nothing.
+  }
+
+  @Override
   public void onChunkLoadError(Chunk chunk, Exception e) {
     // Do nothing.
   }
 
   private SingleSampleMediaChunk initChunk() {
-    return new SingleSampleMediaChunk(dataSource, dataSpec, format, 0, 0, durationUs, -1,
-        mediaFormat);
+    return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_UNSPECIFIED, format, 0,
+        durationUs, 0, true, mediaFormat, null, null);
   }
 
 }

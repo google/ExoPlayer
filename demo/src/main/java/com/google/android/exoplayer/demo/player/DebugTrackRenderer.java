@@ -18,7 +18,6 @@ package com.google.android.exoplayer.demo.player;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaCodecTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
-import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.Format;
 
 import android.widget.TextView;
@@ -30,21 +29,17 @@ import android.widget.TextView;
 /* package */ class DebugTrackRenderer extends TrackRenderer implements Runnable {
 
   private final TextView textView;
+  private final DemoPlayer player;
   private final MediaCodecTrackRenderer renderer;
-  private final ChunkSampleSource videoSampleSource;
 
   private volatile boolean pendingFailure;
   private volatile long currentPositionUs;
 
-  public DebugTrackRenderer(TextView textView, MediaCodecTrackRenderer renderer) {
-    this(textView, renderer, null);
-  }
-
-  public DebugTrackRenderer(TextView textView, MediaCodecTrackRenderer renderer,
-      ChunkSampleSource videoSampleSource) {
+  public DebugTrackRenderer(TextView textView, DemoPlayer player,
+      MediaCodecTrackRenderer renderer) {
     this.textView = textView;
+    this.player = player;
     this.renderer = renderer;
-    this.videoSampleSource = videoSampleSource;
   }
 
   public void injectFailure() {
@@ -82,13 +77,13 @@ import android.widget.TextView;
   }
 
   private String getRenderString() {
-    return "ms(" + (currentPositionUs / 1000) + "), " + getQualityString()
-        + ", " + renderer.codecCounters.getDebugString();
+    return getQualityString() + " " + renderer.codecCounters.getDebugString();
   }
 
   private String getQualityString() {
-    Format format = videoSampleSource == null ? null : videoSampleSource.getFormat();
-    return format == null ? "null" : "height(" + format.height + "), itag(" + format.id + ")";
+    Format format = player.getVideoFormat();
+    return format == null ? "id:? br:? h:?"
+        : "id:" + format.id + " br:" + format.bitrate + " h:" + format.height;
   }
 
   @Override
