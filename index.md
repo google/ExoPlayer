@@ -10,16 +10,16 @@ SmoothStreaming adaptive playbacks, persistent caching and custom renderers. Unl
 API, ExoPlayer is easy to customize and extend, and can be updated through Play Store application
 updates.
 
-### Blog ###
+## Blog ##
 
 Read news, hints and tips in the ExoPlayer [blog]({{ site.baseurl }}/blog.html).
 
-### Developer guide ###
+## Developer guide ##
 
 The [ExoPlayer developer guide]({{ site.baseurl }}/guide.html) provides a wealth of information to
 help you get started.
 
-### Reference documentation ###
+## Reference documentation ##
 
 ExoPlayer's [class reference pages]({{ site.baseurl }}/doc/reference) document the ExoPlayer library
 classes.
@@ -33,7 +33,7 @@ classes.
 [master]: https://github.com/google/ExoPlayer/tree/master
 [dev]: https://github.com/google/ExoPlayer/tree/dev
 
-### Using Eclipse ###
+## Using Eclipse ##
 
 The repository includes Eclipse projects for both the ExoPlayer library and its
 accompanying demo application. To get started:
@@ -49,7 +49,7 @@ accompanying demo application. To get started:
 
 [Android SDK]: http://developer.android.com/sdk/index.html
 
-### Using Gradle ###
+## Using Gradle ##
 
 ExoPlayer can also be built using Gradle. You can include it as a dependent project and build from
 source. e.g.
