@@ -243,16 +243,14 @@ public class HlsChunkSource {
   public Chunk getChunkOperation(TsChunk previousTsChunk, long seekPositionUs,
       long playbackPositionUs) {
     int nextFormatIndex;
-    boolean switchingVariant;
     boolean switchingVariantSpliced;
     if (adaptiveMode == ADAPTIVE_MODE_NONE) {
       nextFormatIndex = formatIndex;
-      switchingVariant = false;
       switchingVariantSpliced = false;
     } else {
       nextFormatIndex = getNextFormatIndex(previousTsChunk, playbackPositionUs);
-      switchingVariant = nextFormatIndex != formatIndex;
-      switchingVariantSpliced = switchingVariant && adaptiveMode == ADAPTIVE_MODE_SPLICE;
+      switchingVariantSpliced = nextFormatIndex != formatIndex
+          && adaptiveMode == ADAPTIVE_MODE_SPLICE;
     }
 
     int variantIndex = getVariantIndex(enabledFormats[nextFormatIndex]);
@@ -339,7 +337,8 @@ public class HlsChunkSource {
 
     // Configure the extractor that will read the chunk.
     HlsExtractorWrapper extractorWrapper;
-    if (previousTsChunk == null || segment.discontinuity || switchingVariant || liveDiscontinuity) {
+    if (previousTsChunk == null || segment.discontinuity || !format.equals(previousTsChunk.format)
+        || liveDiscontinuity) {
       Extractor extractor = chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)
           ? new AdtsExtractor(startTimeUs)
           : new TsExtractor(startTimeUs, audioCapabilities);
