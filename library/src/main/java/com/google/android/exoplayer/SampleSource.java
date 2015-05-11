@@ -57,10 +57,11 @@ public interface SampleSource {
    * and formats). If insufficient data is available then the call will return {@code false} rather
    * than block. The method can be called repeatedly until the return value indicates success.
    *
+   * @param positionUs The player's current playback position.
    * @return True if the source was prepared successfully, false otherwise.
    * @throws IOException If an error occurred preparing the source.
    */
-  public boolean prepare() throws IOException;
+  public boolean prepare(long positionUs) throws IOException;
 
   /**
    * Returns the number of tracks exposed by the source.

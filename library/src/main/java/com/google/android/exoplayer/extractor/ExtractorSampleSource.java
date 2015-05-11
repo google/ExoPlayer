@@ -138,7 +138,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
   }
 
   @Override
-  public boolean prepare() throws IOException {
+  public boolean prepare(long positionUs) throws IOException {
     if (prepared) {
       return true;
     }

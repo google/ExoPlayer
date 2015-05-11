@@ -579,7 +579,7 @@ public class Mp4ExtractorTest extends TestCase {
           try {
             switch (message.what) {
               case MSG_PREPARE:
-                if (!source.prepare()) {
+                if (!source.prepare(0)) {
                   sendEmptyMessage(MSG_PREPARE);
                 } else {
                   // Select the video track and get its metadata.

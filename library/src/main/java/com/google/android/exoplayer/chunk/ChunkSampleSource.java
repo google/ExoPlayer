@@ -121,7 +121,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   }
 
   @Override
-  public boolean prepare() {
+  public boolean prepare(long positionUs) {
     Assertions.checkState(state == STATE_UNPREPARED);
     loader = new Loader("Loader:" + chunkSource.getTrackInfo().mimeType);
     state = STATE_PREPARED;

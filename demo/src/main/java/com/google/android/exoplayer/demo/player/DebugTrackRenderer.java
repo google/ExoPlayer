@@ -57,7 +57,7 @@ import android.widget.TextView;
   }
 
   @Override
-  protected int doPrepare() throws ExoPlaybackException {
+  protected int doPrepare(long positionUs) throws ExoPlaybackException {
     maybeFail();
     return STATE_PREPARED;
   }

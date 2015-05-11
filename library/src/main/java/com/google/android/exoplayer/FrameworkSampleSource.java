@@ -128,7 +128,7 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public boolean prepare() throws IOException {
+  public boolean prepare(long positionUs) throws IOException {
     if (!prepared) {
       extractor = new MediaExtractor();
       if (context != null) {
