@@ -26,25 +26,7 @@ import android.os.Handler;
  * Counts transferred bytes while transfers are open and creates a bandwidth sample and updated
  * bandwidth estimate each time a transfer ends.
  */
-public class DefaultBandwidthMeter implements BandwidthMeter, TransferListener {
-
-  /**
-   * Interface definition for a callback to be notified of {@link DefaultBandwidthMeter} events.
-   */
-  public interface EventListener {
-
-    /**
-     * Invoked periodically to indicate that bytes have been transferred.
-     *
-     * @param elapsedMs The time taken to transfer the bytes, in milliseconds.
-     * @param bytes The number of bytes transferred.
-     * @param bitrate The estimated bitrate in bits/sec, or {@link #NO_ESTIMATE} if no estimate
-     *     is available. Note that this estimate is typically derived from more information than
-     *     {@code bytes} and {@code elapsedMs}.
-     */
-    void onBandwidthSample(int elapsedMs, long bytes, long bitrate);
-
-  }
+public class DefaultBandwidthMeter implements BandwidthMeter {
 
   private static final int DEFAULT_MAX_WEIGHT = 2000;
 
