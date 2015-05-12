@@ -4,7 +4,7 @@
 
 #menu li.pure-menu-selected a:hover,
 #menu li.pure-menu-selected a:focus {
-    background: none;
+    background: none !important;
 }
 
 #menu .pure-menu-heading {
