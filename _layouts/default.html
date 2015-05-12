@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto+Condensed">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:light,regular,medium,thin,italic,mediumitalic,bold" title="roboto">
   <link rel="stylesheet" href="{{ site.baseurl }}/css/default.css">
+  <link rel="stylesheet" href="{{ site.baseurl }}/css/side-menu.css">
   <link rel="stylesheet" href="{{ site.baseurl }}/css/github-markdown.css">
   <link rel="stylesheet" href="{{ site.baseurl }}/css/syntax.css">
   <link rel="stylesheet" href="{{ site.baseurl }}/css/pure-min.css">
@@ -30,9 +31,15 @@
         <div class="pure-menu">
             <a class="pure-menu-heading" href="{{ site.baseurl }}">ExoPlayer</a>
             <ul class="pure-menu-list">
-                <li class="pure-menu-item"><a href="{{ site.baseurl }}/news.html" class="pure-menu-link">News</a></li>
-                <li class="pure-menu-item"><a href="{{ site.baseurl }}/guide.html" class="pure-menu-link">Developer guide</a></li>
-                <li class="pure-menu-item"><a href="{{ site.baseurl }}/doc/reference" class="pure-menu-link">Class reference</a></li>
+              {% assign pages = site.pages | sort:"weight"  %}
+              {% for node in pages %}
+                {% if page.url == node.url %}
+                  <li class="pure-menu-item pure-menu-selected"><a href="{{ site.baseurl }}{{ node.url }}" class="pure-menu-link">{{ node.title }}</a></li>
+                {% else %}
+                  <li class="pure-menu-item"><a href="{{ site.baseurl }}{{ node.url }}" class="pure-menu-link">{{ node.title }}</a></li>
+                {% endif %}
+              {% endfor %}
+              <li class="pure-menu-item"><a href="{{ site.baseurl }}/doc/reference" class="pure-menu-link">Class reference</a></li>
             </ul>
         </div>
     </div>

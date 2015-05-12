@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Developer guide
+weight: 1
 ---
 
 <div id="table-of-contents">
