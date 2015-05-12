@@ -27,7 +27,7 @@ started.
 
 The [class reference][] documents the ExoPlayer library classes.
 
-[class reference]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer/package-summary.html
+[class reference]: https://google.github.io/ExoPlayer/doc/reference
 
 ## Project branches ##
 
