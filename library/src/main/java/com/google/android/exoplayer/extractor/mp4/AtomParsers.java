@@ -339,6 +339,8 @@ import java.util.List;
             holder, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
         holder.mediaFormat = MediaFormat.createTtmlFormat();
+      } else if (childAtomType == Atom.TYPE_tx3g) {
+        holder.mediaFormat = MediaFormat.createTx3GFormat();
       } else if (childAtomType == Atom.TYPE_mp4v) {
         holder.mediaFormat = parseMp4vFromParent(stsd, childStartPosition, childAtomSize,
             durationUs);
