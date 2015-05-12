@@ -56,7 +56,7 @@ android.libraryVariants.all { variant ->
 
 android.libraryVariants.all { variant ->
     task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
-        title = "$name $version API"
+        title = "ExoPlayer library"
         description "Generates Javadoc for $variant.name."
         source = variant.javaCompile.source
         classpath = files(variant.javaCompile.classpath.files, project.android.getBootClasspath())
