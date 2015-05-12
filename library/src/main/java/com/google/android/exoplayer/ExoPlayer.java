@@ -52,7 +52,7 @@ import android.os.Looper;
  * <h3>Threading model</h3>
  *
  * <p>The figure below shows the {@link ExoPlayer} threading model.</p>
- * <p align="center"><img src="../../../../../doc_src/images/exoplayer_threading_model.png"
+ * <p align="center"><img src="../../../../../images/exoplayer_threading_model.png"
  *     alt="MediaPlayer state diagram"
  *     border="0"/></p>
  *
@@ -79,14 +79,14 @@ import android.os.Looper;
  * have been performed asynchronously by the playback thread. In contrast, the playback state
  * accessed by {@link #getPlaybackState()} is only ever changed as a result of operations
  * completing on the playback thread, as illustrated below.</p>
- * <p align="center"><img src="../../../../../doc_src/images/exoplayer_state.png"
+ * <p align="center"><img src="../../../../../images/exoplayer_state.png"
  *     alt="ExoPlayer state"
  *     border="0"/></p>
  *
  * <p>The possible playback state transitions are shown below. Transitions can be triggered either
  * by changes in the state of the {@link TrackRenderer}s being used, or as a result of
  * {@link #prepare(TrackRenderer[])}, {@link #stop()} or {@link #release()} being invoked.</p>
- * <p align="center"><img src="../../../../../doc_src/images/exoplayer_playbackstate.png"
+ * <p align="center"><img src="../../../../../images/exoplayer_playbackstate.png"
  *     alt="ExoPlayer playback state transitions"
  *     border="0"/></p>
  */
@@ -101,7 +101,7 @@ public interface ExoPlayer {
      * The default minimum duration of data that must be buffered for playback to start or resume
      * following a user action such as a seek.
      */
-    public static final int DEFAULT_MIN_BUFFER_MS = 500;
+    public static final int DEFAULT_MIN_BUFFER_MS = 2500;
 
     /**
      * The default minimum duration of data that must be buffered for playback to resume
@@ -141,14 +141,6 @@ public interface ExoPlayer {
       return new ExoPlayerImpl(rendererCount, DEFAULT_MIN_BUFFER_MS, DEFAULT_MIN_REBUFFER_MS);
     }
 
-    /**
-     * @deprecated Please use {@link #newInstance(int, int, int)}.
-     */
-    @Deprecated
-    public static ExoPlayer newInstance(int rendererCount, int minRebufferMs) {
-      return new ExoPlayerImpl(rendererCount, DEFAULT_MIN_BUFFER_MS, minRebufferMs);
-    }
-
   }
 
   /**
@@ -160,7 +152,8 @@ public interface ExoPlayer {
      * {@link ExoPlayer#getPlaybackState()} changes.
      *
      * @param playWhenReady Whether playback will proceed when ready.
-     * @param playbackState One of the {@code STATE} constants defined in this class.
+     * @param playbackState One of the {@code STATE} constants defined in the {@link ExoPlayer}
+     *     interface.
      */
     void onPlayerStateChanged(boolean playWhenReady, int playbackState);
     /**
@@ -256,7 +249,7 @@ public interface ExoPlayer {
   /**
    * Returns the current state of the player.
    *
-   * @return One of the {@code STATE} constants defined in this class.
+   * @return One of the {@code STATE} constants defined in this interface.
    */
   public int getPlaybackState();
 

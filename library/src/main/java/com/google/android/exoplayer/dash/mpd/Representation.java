@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.dash.mpd;
 
 import com.google.android.exoplayer.chunk.Format;
+import com.google.android.exoplayer.chunk.FormatWrapper;
 import com.google.android.exoplayer.dash.DashSegmentIndex;
 import com.google.android.exoplayer.dash.DashSingleSegmentIndex;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.MultiSegmentBase;
@@ -26,7 +27,7 @@ import android.net.Uri;
 /**
  * A DASH representation.
  */
-public abstract class Representation {
+public abstract class Representation implements FormatWrapper {
 
   /**
    * Identifies the piece of content to which this {@link Representation} belongs.
@@ -105,6 +106,11 @@ public abstract class Representation {
     presentationTimeOffsetUs = segmentBase.getPresentationTimeOffsetUs();
   }
 
+  @Override
+  public Format getFormat() {
+    return format;
+  }
+
   /**
    * Gets a {@link RangedUri} defining the location of the representation's initialization data.
    * May be null if no initialization data exists.
@@ -147,7 +153,7 @@ public abstract class Representation {
   public static class SingleSegmentRepresentation extends Representation {
 
     /**
-     * The {@link Uri} of the single segment.
+     * The uri of the single segment.
      */
     public final Uri uri;
 
@@ -174,7 +180,7 @@ public abstract class Representation {
      * @param contentLength The content length, or -1 if unknown.
      */
     public static SingleSegmentRepresentation newInstance(long periodStartMs, long periodDurationMs,
-        String contentId, long revisionId, Format format, Uri uri, long initializationStart,
+        String contentId, long revisionId, Format format, String uri, long initializationStart,
         long initializationEnd, long indexStart, long indexEnd, long contentLength) {
       RangedUri rangedUri = new RangedUri(uri, null, initializationStart,
           initializationEnd - initializationStart + 1);
@@ -197,13 +203,13 @@ public abstract class Representation {
     public SingleSegmentRepresentation(long periodStartMs, long periodDurationMs, String contentId,
         long revisionId, Format format, SingleSegmentBase segmentBase, long contentLength) {
       super(periodStartMs, periodDurationMs, contentId, revisionId, format, segmentBase);
-      this.uri = segmentBase.uri;
+      this.uri = Uri.parse(segmentBase.uri);
       this.indexUri = segmentBase.getIndex();
       this.contentLength = contentLength;
       // If we have an index uri then the index is defined externally, and we shouldn't return one
       // directly. If we don't, then we can't do better than an index defining a single segment.
       segmentIndex = indexUri != null ? null : new DashSingleSegmentIndex(periodStartMs * 1000,
-          periodDurationMs * 1000, new RangedUri(uri, null, 0, -1));
+          periodDurationMs * 1000, new RangedUri(segmentBase.uri, null, 0, -1));
     }
 
     @Override

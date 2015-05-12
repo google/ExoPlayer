@@ -20,6 +20,7 @@ import java.io.IOException;
 /**
  * Thrown when the length of some data does not match an expected length.
  */
+@Deprecated
 public final class UnexpectedLengthException extends IOException {
 
   /**

@@ -123,16 +123,31 @@ import java.util.Locale;
     new Sample("Apple AAC media playlist",
         "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear0/"
         + "prog_index.m3u8", DemoUtil.TYPE_HLS),
+    new Sample("Apple ID3 metadata", "http://devimages.apple.com/samplecode/adDemo/ad.m3u8",
+        DemoUtil.TYPE_HLS),
   };
 
   public static final Sample[] MISC = new Sample[] {
     new Sample("Dizzy", "http://html5demos.com/assets/dizzy.mp4",
-        DemoUtil.TYPE_OTHER),
-    new Sample("Dizzy (https->http redirect)", "https://goo.gl/MtUDEj",
-        DemoUtil.TYPE_OTHER),
+        DemoUtil.TYPE_MP4),
     new Sample("Apple AAC 10s", "https://devimages.apple.com.edgekey.net/"
         + "streaming/examples/bipbop_4x3/gear0/fileSequence0.aac",
-        DemoUtil.TYPE_OTHER),
+        DemoUtil.TYPE_AAC),
+    new Sample("Apple TS 10s", "https://devimages.apple.com.edgekey.net/streaming/examples/"
+        + "bipbop_4x3/gear1/fileSequence0.ts",
+        DemoUtil.TYPE_TS),
+    new Sample("Big Buck Bunny (MP4 Video)",
+        "http://redirector.c.youtube.com/videoplayback?id=604ed5ce52eda7ee&itag=22&source=youtube&"
+        + "sparams=ip,ipbits,expire,source,id&ip=0.0.0.0&ipbits=0&expire=19000000000&signature="
+        + "513F28C7FDCBEC60A66C86C9A393556C99DC47FB.04C88036EEE12565A1ED864A875A58F15D8B5300"
+        + "&key=ik0",
+        DemoUtil.TYPE_MP4),
+    new Sample("Google Play (MP3 Audio)",
+        "http://storage.googleapis.com/exoplayer-test-media-0/play.mp3",
+        DemoUtil.TYPE_MP3),
+    new Sample("Google Glass (WebM Video with Vorbis Audio)",
+        "http://demos.webmproject.org/exoplayer/glass_vp9_vorbis.webm",
+        DemoUtil.TYPE_WEBM),
   };
 
   private Samples() {}

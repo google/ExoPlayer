@@ -358,8 +358,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   // Override configureCodec to provide the surface.
   @Override
-  protected void configureCodec(MediaCodec codec, android.media.MediaFormat format,
-      MediaCrypto crypto) {
+  protected void configureCodec(MediaCodec codec, String codecName,
+      android.media.MediaFormat format, MediaCrypto crypto) {
     codec.configure(format, surface, crypto, 0);
     codec.setVideoScalingMode(videoScalingMode);
   }
@@ -373,16 +373,25 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
         : holder.format.pixelWidthHeightRatio;
   }
 
+  /**
+   * @return True if the first frame has been rendered (playback has not necessarily begun).
+   */
+  protected final boolean haveRenderedFirstFrame() {
+    return renderedFirstFrame;
+  }
+
   @Override
-  protected void onOutputFormatChanged(android.media.MediaFormat format) {
-    boolean hasCrop = format.containsKey(KEY_CROP_RIGHT) && format.containsKey(KEY_CROP_LEFT)
-        && format.containsKey(KEY_CROP_BOTTOM) && format.containsKey(KEY_CROP_TOP);
+  protected void onOutputFormatChanged(MediaFormat inputFormat,
+      android.media.MediaFormat outputFormat) {
+    boolean hasCrop = outputFormat.containsKey(KEY_CROP_RIGHT)
+        && outputFormat.containsKey(KEY_CROP_LEFT) && outputFormat.containsKey(KEY_CROP_BOTTOM)
+        && outputFormat.containsKey(KEY_CROP_TOP);
     currentWidth = hasCrop
-        ? format.getInteger(KEY_CROP_RIGHT) - format.getInteger(KEY_CROP_LEFT) + 1
-        : format.getInteger(android.media.MediaFormat.KEY_WIDTH);
+        ? outputFormat.getInteger(KEY_CROP_RIGHT) - outputFormat.getInteger(KEY_CROP_LEFT) + 1
+        : outputFormat.getInteger(android.media.MediaFormat.KEY_WIDTH);
     currentHeight = hasCrop
-        ? format.getInteger(KEY_CROP_BOTTOM) - format.getInteger(KEY_CROP_TOP) + 1
-        : format.getInteger(android.media.MediaFormat.KEY_HEIGHT);
+        ? outputFormat.getInteger(KEY_CROP_BOTTOM) - outputFormat.getInteger(KEY_CROP_TOP) + 1
+        : outputFormat.getInteger(android.media.MediaFormat.KEY_HEIGHT);
   }
 
   @Override
@@ -427,7 +436,6 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
     if (!renderedFirstFrame) {
       renderOutputBufferImmediate(codec, bufferIndex);
-      renderedFirstFrame = true;
       return true;
     }
 
@@ -463,14 +471,14 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     return false;
   }
 
-  private void skipOutputBuffer(MediaCodec codec, int bufferIndex) {
+  protected void skipOutputBuffer(MediaCodec codec, int bufferIndex) {
     TraceUtil.beginSection("skipVideoBuffer");
     codec.releaseOutputBuffer(bufferIndex, false);
     TraceUtil.endSection();
     codecCounters.skippedOutputBufferCount++;
   }
 
-  private void dropOutputBuffer(MediaCodec codec, int bufferIndex) {
+  protected void dropOutputBuffer(MediaCodec codec, int bufferIndex) {
     TraceUtil.beginSection("dropVideoBuffer");
     codec.releaseOutputBuffer(bufferIndex, false);
     TraceUtil.endSection();
@@ -481,22 +489,24 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     }
   }
 
-  private void renderOutputBufferImmediate(MediaCodec codec, int bufferIndex) {
+  protected void renderOutputBufferImmediate(MediaCodec codec, int bufferIndex) {
     maybeNotifyVideoSizeChanged();
     TraceUtil.beginSection("renderVideoBufferImmediate");
     codec.releaseOutputBuffer(bufferIndex, true);
     TraceUtil.endSection();
     codecCounters.renderedOutputBufferCount++;
+    renderedFirstFrame = true;
     maybeNotifyDrawnToSurface();
   }
 
   @TargetApi(21)
-  private void renderOutputBufferTimedV21(MediaCodec codec, int bufferIndex, long releaseTimeNs) {
+  protected void renderOutputBufferTimedV21(MediaCodec codec, int bufferIndex, long releaseTimeNs) {
     maybeNotifyVideoSizeChanged();
     TraceUtil.beginSection("releaseOutputBufferTimed");
     codec.releaseOutputBuffer(bufferIndex, releaseTimeNs);
     TraceUtil.endSection();
     codecCounters.renderedOutputBufferCount++;
+    renderedFirstFrame = true;
     maybeNotifyDrawnToSurface();
   }
 

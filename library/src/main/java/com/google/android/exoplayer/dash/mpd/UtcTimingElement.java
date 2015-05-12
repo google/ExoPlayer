@@ -28,4 +28,9 @@ public class UtcTimingElement {
     this.value = value;
   }
 
+  @Override
+  public String toString() {
+    return schemeIdUri + ", " + value;
+  }
+
 }

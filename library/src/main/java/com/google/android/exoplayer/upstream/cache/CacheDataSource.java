@@ -22,7 +22,6 @@ import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.FileDataSource;
 import com.google.android.exoplayer.upstream.TeeDataSource;
 import com.google.android.exoplayer.upstream.cache.CacheDataSink.CacheDataSinkException;
-import com.google.android.exoplayer.util.Assertions;
 
 import android.net.Uri;
 import android.util.Log;
@@ -64,6 +63,7 @@ public final class CacheDataSource implements DataSource {
 
   private DataSource currentDataSource;
   private Uri uri;
+  private int flags;
   private String key;
   private long readPosition;
   private long bytesRemaining;
@@ -125,9 +125,9 @@ public final class CacheDataSource implements DataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws IOException {
-    Assertions.checkState(dataSpec.uriIsFullStream);
     try {
       uri = dataSpec.uri;
+      flags = dataSpec.flags;
       key = dataSpec.key;
       readPosition = dataSpec.position;
       bytesRemaining = dataSpec.length;
@@ -201,19 +201,19 @@ public final class CacheDataSource implements DataSource {
         // The data is locked in the cache, or we're ignoring the cache. Bypass the cache and read
         // from upstream.
         currentDataSource = upstreamDataSource;
-        dataSpec = new DataSpec(uri, readPosition, bytesRemaining, key);
+        dataSpec = new DataSpec(uri, readPosition, bytesRemaining, key, flags);
       } else if (span.isCached) {
         // Data is cached, read from cache.
         Uri fileUri = Uri.fromFile(span.file);
         long filePosition = readPosition - span.position;
         long length = Math.min(span.length - filePosition, bytesRemaining);
-        dataSpec = new DataSpec(fileUri, readPosition, length, key, filePosition);
+        dataSpec = new DataSpec(fileUri, readPosition, filePosition, length, key, flags);
         currentDataSource = cacheReadDataSource;
       } else {
         // Data is not cached, and data is not locked, read from upstream with cache backing.
         lockedSpan = span;
         long length = span.isOpenEnded() ? bytesRemaining : Math.min(span.length, bytesRemaining);
-        dataSpec = new DataSpec(uri, readPosition, length, key);
+        dataSpec = new DataSpec(uri, readPosition, length, key, flags);
         currentDataSource = cacheWriteDataSource != null ? cacheWriteDataSource
             : upstreamDataSource;
       }

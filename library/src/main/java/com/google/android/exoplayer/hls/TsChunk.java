@@ -15,77 +15,59 @@
  */
 package com.google.android.exoplayer.hls;
 
-import com.google.android.exoplayer.hls.parser.HlsExtractor;
+import com.google.android.exoplayer.chunk.Format;
+import com.google.android.exoplayer.chunk.MediaChunk;
+import com.google.android.exoplayer.extractor.DefaultExtractorInput;
+import com.google.android.exoplayer.extractor.Extractor;
+import com.google.android.exoplayer.extractor.ExtractorInput;
+import com.google.android.exoplayer.upstream.Aes128DataSource;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
+import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
 
 /**
- * A MPEG2TS chunk.
+ * An MPEG2TS chunk.
  */
-public final class TsChunk extends HlsChunk {
-
-  private static final byte[] SCRATCH_SPACE = new byte[4096];
+public final class TsChunk extends MediaChunk {
 
   /**
-   * The index of the variant in the master playlist.
+   * The wrapped extractor into which this chunk is being consumed.
    */
-  public final int variantIndex;
-  /**
-   * The start time of the media contained by the chunk.
-   */
-  public final long startTimeUs;
-  /**
-   * The end time of the media contained by the chunk.
-   */
-  public final long endTimeUs;
-  /**
-   * The chunk index.
-   */
-  public final int chunkIndex;
-  /**
-   * True if this is the last chunk in the media. False otherwise.
-   */
-  public final boolean isLastChunk;
-  /**
-   * The extractor into which this chunk is being consumed.
-   */
-  public final HlsExtractor extractor;
+  public final HlsExtractorWrapper extractorWrapper;
 
-  private int loadPosition;
-  private volatile boolean loadFinished;
+  private final boolean isEncrypted;
+
+  private int bytesLoaded;
   private volatile boolean loadCanceled;
 
   /**
    * @param dataSource A {@link DataSource} for loading the data.
    * @param dataSpec Defines the data to be loaded.
-   * @param extractor An extractor to parse samples from the data.
-   * @param variantIndex The index of the variant in the master playlist.
+   * @param trigger The reason for this chunk being selected.
+   * @param format The format of the stream to which this chunk belongs.
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
    * @param isLastChunk True if this is the last chunk in the media. False otherwise.
+   * @param extractorWrapper A wrapped extractor to parse samples from the data.
+   * @param encryptionKey For AES encryption chunks, the encryption key.
+   * @param encryptionIv For AES encryption chunks, the encryption initialization vector.
    */
-  public TsChunk(DataSource dataSource, DataSpec dataSpec, HlsExtractor extractor,
-      int variantIndex, long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk) {
-    super(dataSource, dataSpec);
-    this.extractor = extractor;
-    this.variantIndex = variantIndex;
-    this.startTimeUs = startTimeUs;
-    this.endTimeUs = endTimeUs;
-    this.chunkIndex = chunkIndex;
-    this.isLastChunk = isLastChunk;
+  public TsChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
+      long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk,
+      HlsExtractorWrapper extractorWrapper, byte[] encryptionKey, byte[] encryptionIv) {
+    super(buildDataSource(dataSource, encryptionKey, encryptionIv), dataSpec, trigger, format,
+        startTimeUs, endTimeUs, chunkIndex, isLastChunk);
+    this.extractorWrapper = extractorWrapper;
+    // Note: this.dataSource and dataSource may be different.
+    this.isEncrypted = this.dataSource instanceof Aes128DataSource;
   }
 
   @Override
-  public void consume() throws IOException {
-    // Do nothing.
-  }
-
-  @Override
-  public boolean isLoadFinished() {
-    return loadFinished;
+  public long bytesLoaded() {
+    return bytesLoaded;
   }
 
   // Loadable implementation
@@ -102,33 +84,51 @@ public final class TsChunk extends HlsChunk {
 
   @Override
   public void load() throws IOException, InterruptedException {
+    // If we previously fed part of this chunk to the extractor, we need to skip it this time. For
+    // encrypted content we need to skip the data by reading it through the source, so as to ensure
+    // correct decryption of the remainder of the chunk. For clear content, we can request the
+    // remainder of the chunk directly.
+    DataSpec loadDataSpec;
+    boolean skipLoadedBytes;
+    if (isEncrypted) {
+      loadDataSpec = dataSpec;
+      skipLoadedBytes = bytesLoaded != 0;
+    } else {
+      loadDataSpec = Util.getRemainderDataSpec(dataSpec, bytesLoaded);
+      skipLoadedBytes = false;
+    }
+
     try {
-      dataSource.open(dataSpec);
-      int bytesRead = 0;
-      int bytesSkipped = 0;
-      // If we previously fed part of this chunk to the extractor, skip it this time.
-      // TODO: Ideally we'd construct a dataSpec that only loads the remainder of the data here,
-      // rather than loading the whole chunk again and then skipping data we previously loaded. To
-      // do this is straightforward for non-encrypted content, but more complicated for content
-      // encrypted with AES, for which we'll need to modify the way that decryption is performed.
-      while (bytesRead != -1 && !loadCanceled && bytesSkipped < loadPosition) {
-        int skipLength = Math.min(loadPosition - bytesSkipped, SCRATCH_SPACE.length);
-        bytesRead = dataSource.read(SCRATCH_SPACE, 0, skipLength);
-        if (bytesRead != -1) {
-          bytesSkipped += bytesRead;
-        }
+      ExtractorInput input = new DefaultExtractorInput(dataSource,
+          loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
+      if (skipLoadedBytes) {
+        input.skipFully(bytesLoaded);
       }
-      // Feed the remaining data into the extractor.
-      while (bytesRead != -1 && !loadCanceled) {
-        bytesRead = extractor.read(dataSource);
-        if (bytesRead != -1) {
-          loadPosition += bytesRead;
+      try {
+        int result = Extractor.RESULT_CONTINUE;
+        while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
+          result = extractorWrapper.read(input);
         }
+      } finally {
+        bytesLoaded = (int) (input.getPosition() - dataSpec.absoluteStreamPosition);
       }
-      loadFinished = !loadCanceled;
     } finally {
       dataSource.close();
     }
+  }
+
+  // Private methods
+
+  /**
+   * If the content is encrypted, returns an {@link Aes128DataSource} that wraps the original in
+   * order to decrypt the loaded data. Else returns the original.
+   */
+  private static DataSource buildDataSource(DataSource dataSource, byte[] encryptionKey,
+      byte[] encryptionIv) {
+    if (encryptionKey == null || encryptionIv == null) {
+      return dataSource;
+    }
+    return new Aes128DataSource(dataSource, encryptionKey, encryptionIv);
   }
 
 }

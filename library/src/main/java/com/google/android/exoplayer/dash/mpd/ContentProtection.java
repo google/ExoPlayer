@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.dash.mpd;
 
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
 import java.util.Arrays;
@@ -46,7 +47,7 @@ public class ContentProtection {
    * @param data Protection scheme specific initialization data. May be null.
    */
   public ContentProtection(String schemeUriId, UUID uuid, byte[] data) {
-    this.schemeUriId = schemeUriId;
+    this.schemeUriId = Assertions.checkNotNull(schemeUriId);
     this.uuid = uuid;
     this.data = data;
   }

@@ -17,13 +17,22 @@ package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.VideoSurfaceView;
+import com.google.android.exoplayer.audio.AudioCapabilities;
+import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
 import com.google.android.exoplayer.demo.player.DashRendererBuilder;
-import com.google.android.exoplayer.demo.player.DefaultRendererBuilder;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
+import com.google.android.exoplayer.demo.player.ExtractorRendererBuilder;
 import com.google.android.exoplayer.demo.player.HlsRendererBuilder;
 import com.google.android.exoplayer.demo.player.SmoothStreamingRendererBuilder;
 import com.google.android.exoplayer.demo.player.UnsupportedDrmException;
+import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
+import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
+import com.google.android.exoplayer.extractor.ts.AdtsExtractor;
+import com.google.android.exoplayer.extractor.ts.TsExtractor;
+import com.google.android.exoplayer.extractor.webm.WebmExtractor;
+import com.google.android.exoplayer.metadata.GeobMetadata;
+import com.google.android.exoplayer.metadata.PrivMetadata;
 import com.google.android.exoplayer.metadata.TxxxMetadata;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.SubtitleView;
@@ -40,12 +49,14 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.view.accessibility.CaptioningManager;
@@ -62,7 +73,8 @@ import java.util.Map;
  * An activity that plays media using {@link DemoPlayer}.
  */
 public class PlayerActivity extends Activity implements SurfaceHolder.Callback, OnClickListener,
-    DemoPlayer.Listener, DemoPlayer.TextListener, DemoPlayer.Id3MetadataListener {
+    DemoPlayer.Listener, DemoPlayer.TextListener, DemoPlayer.Id3MetadataListener,
+    AudioCapabilitiesReceiver.Listener {
 
   public static final String CONTENT_TYPE_EXTRA = "content_type";
   public static final String CONTENT_ID_EXTRA = "content_id";
@@ -96,6 +108,9 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private int contentType;
   private String contentId;
 
+  private AudioCapabilitiesReceiver audioCapabilitiesReceiver;
+  private AudioCapabilities audioCapabilities;
+
   // Activity lifecycle
 
   @Override
@@ -104,7 +119,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
     Intent intent = getIntent();
     contentUri = intent.getData();
-    contentType = intent.getIntExtra(CONTENT_TYPE_EXTRA, DemoUtil.TYPE_OTHER);
+    contentType = intent.getIntExtra(CONTENT_TYPE_EXTRA, -1);
     contentId = intent.getStringExtra(CONTENT_ID_EXTRA);
 
     setContentView(R.layout.player_activity);
@@ -120,6 +135,16 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
         return true;
       }
     });
+    root.setOnKeyListener(new OnKeyListener() {
+      @Override
+      public boolean onKey(View v, int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE) {
+          return mediaController.dispatchKeyEvent(event);
+        }
+        return false;
+      }
+    });
+    audioCapabilitiesReceiver = new AudioCapabilitiesReceiver(getApplicationContext(), this);
 
     shutterView = findViewById(R.id.shutter);
     debugRootView = findViewById(R.id.controls_root);
@@ -146,11 +171,9 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   public void onResume() {
     super.onResume();
     configureSubtitleView();
-    if (player == null) {
-      preparePlayer();
-    } else if (player != null) {
-      player.setBackgrounded(false);
-    }
+
+    // The player will be prepared on receiving audio capabilities.
+    audioCapabilitiesReceiver.register();
   }
 
   @Override
@@ -161,6 +184,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     } else {
       player.setBackgrounded(true);
     }
+    audioCapabilitiesReceiver.unregister();
     shutterView.setVisibility(View.VISIBLE);
   }
 
@@ -179,21 +203,52 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     }
   }
 
+  // AudioCapabilitiesReceiver.Listener methods
+
+  @Override
+  public void onAudioCapabilitiesChanged(AudioCapabilities audioCapabilities) {
+    boolean audioCapabilitiesChanged = !audioCapabilities.equals(this.audioCapabilities);
+    if (player == null || audioCapabilitiesChanged) {
+      this.audioCapabilities = audioCapabilities;
+      releasePlayer();
+      preparePlayer();
+    } else if (player != null) {
+      player.setBackgrounded(false);
+    }
+  }
+
   // Internal methods
 
   private RendererBuilder getRendererBuilder() {
-    String userAgent = DemoUtil.getUserAgent(this);
+    String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
     switch (contentType) {
       case DemoUtil.TYPE_SS:
-        return new SmoothStreamingRendererBuilder(userAgent, contentUri.toString(), contentId,
+        return new SmoothStreamingRendererBuilder(this, userAgent, contentUri.toString(),
             new SmoothStreamingTestMediaDrmCallback(), debugTextView);
       case DemoUtil.TYPE_DASH:
-        return new DashRendererBuilder(userAgent, contentUri.toString(), contentId,
-            new WidevineTestMediaDrmCallback(contentId), debugTextView);
+        return new DashRendererBuilder(this, userAgent, contentUri.toString(),
+            new WidevineTestMediaDrmCallback(contentId), debugTextView, audioCapabilities);
       case DemoUtil.TYPE_HLS:
-        return new HlsRendererBuilder(userAgent, contentUri.toString(), contentId);
+        return new HlsRendererBuilder(this, userAgent, contentUri.toString(), debugTextView,
+            audioCapabilities);
+      case DemoUtil.TYPE_M4A: // There are no file format differences between M4A and MP4.
+      case DemoUtil.TYPE_MP4:
+        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+            new Mp4Extractor());
+      case DemoUtil.TYPE_MP3:
+        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+            new Mp3Extractor());
+      case DemoUtil.TYPE_TS:
+        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+            new TsExtractor(0, audioCapabilities));
+      case DemoUtil.TYPE_AAC:
+        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+            new AdtsExtractor());
+      case DemoUtil.TYPE_WEBM:
+        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+            new WebmExtractor());
       default:
-        return new DefaultRendererBuilder(this, contentUri, debugTextView);
+        throw new IllegalStateException("Unsupported type: " + contentType);
     }
   }
 
@@ -425,11 +480,22 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   @Override
   public void onId3Metadata(Map<String, Object> metadata) {
-    for (int i = 0; i < metadata.size(); i++) {
-      if (metadata.containsKey(TxxxMetadata.TYPE)) {
-        TxxxMetadata txxxMetadata = (TxxxMetadata) metadata.get(TxxxMetadata.TYPE);
-        Log.i(TAG, String.format("ID3 TimedMetadata: description=%s, value=%s",
-            txxxMetadata.description, txxxMetadata.value));
+    for (Map.Entry<String, Object> entry : metadata.entrySet()) {
+      if (TxxxMetadata.TYPE.equals(entry.getKey())) {
+        TxxxMetadata txxxMetadata = (TxxxMetadata) entry.getValue();
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: description=%s, value=%s",
+            TxxxMetadata.TYPE, txxxMetadata.description, txxxMetadata.value));
+      } else if (PrivMetadata.TYPE.equals(entry.getKey())) {
+        PrivMetadata privMetadata = (PrivMetadata) entry.getValue();
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: owner=%s",
+            PrivMetadata.TYPE, privMetadata.owner));
+      } else if (GeobMetadata.TYPE.equals(entry.getKey())) {
+        GeobMetadata geobMetadata = (GeobMetadata) entry.getValue();
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: mimeType=%s, filename=%s, description=%s",
+            GeobMetadata.TYPE, geobMetadata.mimeType, geobMetadata.filename,
+            geobMetadata.description));
+      } else {
+        Log.i(TAG, String.format("ID3 TimedMetadata %s", entry.getKey()));
       }
     }
   }

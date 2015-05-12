@@ -15,13 +15,23 @@
  */
 package com.google.android.exoplayer.util;
 
+import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DataSpec;
 
-import android.net.Uri;
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Build;
 import android.text.TextUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.Arrays;
@@ -58,6 +68,8 @@ public final class Util {
       Pattern.compile("^(-)?P(([0-9]*)Y)?(([0-9]*)M)?(([0-9]*)D)?"
           + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
 
+  private static final long MAX_BYTES_TO_DRAIN = 2048;
+
   private Util() {}
 
   /**
@@ -79,6 +91,25 @@ public final class Util {
    */
   public static boolean areEqual(Object o1, Object o2) {
     return o1 == null ? o2 == null : o1.equals(o2);
+  }
+
+  /**
+   * Tests whether an {@code items} array contains an object equal to {@code item}, according to
+   * {@link Object#equals(Object)}.
+   * <p>
+   * If {@code item} is null then true is returned if and only if {@code items} contains null.
+   *
+   * @param items The array of items to search.
+   * @param item The item to search for.
+   * @return True if the array contains an object equal to the item being searched for.
+   */
+  public static boolean contains(Object[] items, Object item) {
+    for (int i = 0; i < items.length; i++) {
+      if (Util.areEqual(items[i], item)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -125,6 +156,19 @@ public final class Util {
   }
 
   /**
+   * Closes an {@link OutputStream}, suppressing any {@link IOException} that may occur.
+   *
+   * @param outputStream The {@link OutputStream} to close.
+   */
+  public static void closeQuietly(OutputStream outputStream) {
+    try {
+      outputStream.close();
+    } catch (IOException e) {
+      // Ignore.
+    }
+  }
+
+  /**
    * Converts text to lower case using {@link Locale#US}.
    *
    * @param text The text to convert.
@@ -135,51 +179,25 @@ public final class Util {
   }
 
   /**
-   * Like {@link Uri#parse(String)}, but discards the part of the uri that follows the final
-   * forward slash.
+   * Divides a {@code numerator} by a {@code denominator}, returning the ceiled result.
    *
-   * @param uriString An RFC 2396-compliant, encoded uri.
-   * @return The parsed base uri.
+   * @param numerator The numerator to divide.
+   * @param denominator The denominator to divide by.
+   * @return The ceiled result of the division.
    */
-  public static Uri parseBaseUri(String uriString) {
-    return Uri.parse(uriString.substring(0, uriString.lastIndexOf('/')));
+  public static int ceilDivide(int numerator, int denominator) {
+    return (numerator + denominator - 1) / denominator;
   }
 
   /**
-   * Merges a uri and a string to produce a new uri.
-   * <p>
-   * The uri is built according to the following rules:
-   * <ul>
-   * <li>If {@code baseUri} is null or if {@code stringUri} is absolute, then {@code baseUri} is
-   * ignored and the uri consists solely of {@code stringUri}.
-   * <li>If {@code stringUri} is null, then the uri consists solely of {@code baseUrl}.
-   * <li>Otherwise, the uri consists of the concatenation of {@code baseUri} and {@code stringUri}.
-   * </ul>
+   * Divides a {@code numerator} by a {@code denominator}, returning the ceiled result.
    *
-   * @param baseUri A uri that can form the base of the merged uri.
-   * @param stringUri A relative or absolute uri in string form.
-   * @return The merged uri.
+   * @param numerator The numerator to divide.
+   * @param denominator The denominator to divide by.
+   * @return The ceiled result of the division.
    */
-  public static Uri getMergedUri(Uri baseUri, String stringUri) {
-    if (stringUri == null) {
-      return baseUri;
-    }
-    if (baseUri == null) {
-      return Uri.parse(stringUri);
-    }
-    if (stringUri.startsWith("/")) {
-      stringUri = stringUri.substring(1);
-      return new Uri.Builder()
-          .scheme(baseUri.getScheme())
-          .authority(baseUri.getAuthority())
-          .appendEncodedPath(stringUri)
-          .build();
-    }
-    Uri uri = Uri.parse(stringUri);
-    if (uri.isAbsolute()) {
-      return uri;
-    }
-    return Uri.withAppendedPath(baseUri, stringUri);
+  public static long ceilDivide(long numerator, long denominator) {
+    return (numerator + denominator - 1) / denominator;
   }
 
   /**
@@ -443,6 +461,104 @@ public final class Util {
       intArray[i] = list.get(i);
     }
     return intArray;
+  }
+
+  /**
+   * On platform API levels 19 and 20, okhttp's implementation of {@link InputStream#close} can
+   * block for a long time if the stream has a lot of data remaining. Call this method before
+   * closing the input stream to make a best effort to cause the input stream to encounter an
+   * unexpected end of input, working around this issue. On other platform API levels, the method
+   * does nothing.
+   *
+   * @param connection The connection whose {@link InputStream} should be terminated.
+   * @param bytesRemaining The number of bytes remaining to be read from the input stream if its
+   *     length is known. {@link C#LENGTH_UNBOUNDED} otherwise.
+   */
+  public static void maybeTerminateInputStream(HttpURLConnection connection, long bytesRemaining) {
+    if (SDK_INT != 19 && SDK_INT != 20) {
+      return;
+    }
+
+    try {
+      InputStream inputStream = connection.getInputStream();
+      if (bytesRemaining == C.LENGTH_UNBOUNDED) {
+        // If the input stream has already ended, do nothing. The socket may be re-used.
+        if (inputStream.read() == -1) {
+          return;
+        }
+      } else if (bytesRemaining <= MAX_BYTES_TO_DRAIN) {
+        // There isn't much data left. Prefer to allow it to drain, which may allow the socket to be
+        // re-used.
+        return;
+      }
+      String className = inputStream.getClass().getName();
+      if (className.equals("com.android.okhttp.internal.http.HttpTransport$ChunkedInputStream")
+          || className.equals(
+              "com.android.okhttp.internal.http.HttpTransport$FixedLengthInputStream")) {
+        Class<?> superclass = inputStream.getClass().getSuperclass();
+        Method unexpectedEndOfInput = superclass.getDeclaredMethod("unexpectedEndOfInput");
+        unexpectedEndOfInput.setAccessible(true);
+        unexpectedEndOfInput.invoke(inputStream);
+      }
+    } catch (IOException e) {
+      // The connection didn't ever have an input stream, or it was closed already.
+    } catch (Exception e) {
+      // Something went wrong. The device probably isn't using okhttp.
+    }
+  }
+
+  /**
+   * Given a {@link DataSpec} and a number of bytes already loaded, returns a {@link DataSpec}
+   * that represents the remainder of the data.
+   *
+   * @param dataSpec The original {@link DataSpec}.
+   * @param bytesLoaded The number of bytes already loaded.
+   * @return A {@link DataSpec} that represents the remainder of the data.
+   */
+  public static DataSpec getRemainderDataSpec(DataSpec dataSpec, int bytesLoaded) {
+    if (bytesLoaded == 0) {
+      return dataSpec;
+    } else {
+      long remainingLength = dataSpec.length == C.LENGTH_UNBOUNDED ? C.LENGTH_UNBOUNDED
+          : dataSpec.length - bytesLoaded;
+      return new DataSpec(dataSpec.uri, dataSpec.position + bytesLoaded, remainingLength,
+          dataSpec.key, dataSpec.flags);
+    }
+  }
+
+  /**
+   * Returns the integer equal to the big-endian concatenation of the characters in {@code string}
+   * as bytes. {@code string} must contain four or fewer characters.
+   */
+  public static int getIntegerCodeForString(String string) {
+    int length = string.length();
+    Assertions.checkArgument(length <= 4);
+    int result = 0;
+    for (int i = 0; i < length; i++) {
+      result <<= 8;
+      result |= string.charAt(i);
+    }
+    return result;
+  }
+
+  /**
+   * Returns a user agent string based on the given application name and the library version.
+   *
+   * @param context A valid context of the calling application.
+   * @param applicationName String that will be prefix'ed to the generated user agent.
+   * @return A user agent string generated using the applicationName and the library version.
+   */
+  public static String getUserAgent(Context context, String applicationName) {
+    String versionName;
+    try {
+      String packageName = context.getPackageName();
+      PackageInfo info = context.getPackageManager().getPackageInfo(packageName, 0);
+      versionName = info.versionName;
+    } catch (NameNotFoundException e) {
+      versionName = "?";
+    }
+    return applicationName + "/" + versionName + " (Linux;Android " + Build.VERSION.RELEASE
+        + ") " + "ExoPlayerLib/" + ExoPlayerLibraryInfo.VERSION;
   }
 
 }
