@@ -10,7 +10,7 @@ import java.io.OutputStream;
 /**
  * High-performance persistent cache for media (should be)
  */
-public class SuperCache {
+public final class SuperCache {
     private static final int INDEX_MEDIA = 1;
     private static final int INDEX_META = 2;
 
@@ -36,34 +36,69 @@ public class SuperCache {
         return new MediaUnit(key);
     }
 
-    public class MediaUnit {
+    public final class MediaUnit {
         private final static String STATUS_DONE = "RDY";
 
         private boolean isFinished;
         private InputStream inputStream;
         private OutputStream outputStream;
-        private DiskLruCache.Snapshot snapshot;
-        private DiskLruCache.Editor editor;
         private String key;
+        private DiskLruCache.Editor editor;
+        private DiskLruCache.Snapshot snapshot;
 
         public MediaUnit(String key) throws IOException {
             this.key = key;
-            DiskLruCache.Snapshot snapshot = diskLruCache.get(key);
+            snapshot = diskLruCache.get(key);
             if (snapshot == null) {
                 //Entry doesn't exist
                 //Create new one
-                DiskLruCache.Editor editor = diskLruCache.edit(key);
+                editor = diskLruCache.edit(key);
                 isFinished = false;
                 outputStream = editor.newOutputStream(INDEX_MEDIA);
             } else {
-                inputStream = snapshot.getInputStream(INDEX_MEDIA);
                 String status = snapshot.getString(INDEX_META);
                 isFinished = status.equals(STATUS_DONE);
                 if (!isFinished) {
                     inputStream = null;
                     diskLruCache.remove(key);
+                } else {
+                    inputStream = snapshot.getInputStream(INDEX_MEDIA);
                 }
             }
         }
+
+        public OutputStream getOutputStream() {
+            return outputStream;
+        }
+
+        public InputStream getInputStream() {
+            return inputStream;
+        }
+
+        public boolean isFinished() {
+            return isFinished;
+        }
+
+        /**
+         * Call after all data is written to cache
+         */
+        public void setFinished() {
+            if (!isFinished){
+                isFinished = true;
+                try {
+                    snapshot = diskLruCache.get(key);
+                    inputStream = snapshot.getInputStream(INDEX_MEDIA);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                catch (NullPointerException e){
+                    //Invalid operation?
+                }
+            }
+        }
+    }
+
+    public interface SuperCacheable{
+        void setSuperCache(SuperCache superCache);
     }
 }
