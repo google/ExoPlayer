@@ -1,6 +1,6 @@
 # Release notes #
 
-### Current dev branch (from r1.3.1) ###
+### Latest dev branch (from r1.3.1) ###
 
 * TBC
 
