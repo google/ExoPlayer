@@ -28,7 +28,7 @@ import android.os.Handler;
  */
 public class DefaultBandwidthMeter implements BandwidthMeter {
 
-  private static final int DEFAULT_MAX_WEIGHT = 2000;
+  public static final int DEFAULT_MAX_WEIGHT = 2000;
 
   private final Handler eventHandler;
   private final EventListener eventListener;

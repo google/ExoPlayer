@@ -130,7 +130,7 @@ public class DashRendererBuilder implements RendererBuilder,
     this.player = player;
     this.callback = callback;
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
-    manifestDataSource = new DefaultUriDataSource(userAgent, null);
+    manifestDataSource = new DefaultUriDataSource(context, userAgent);
     manifestFetcher = new ManifestFetcher<MediaPresentationDescription>(url, manifestDataSource,
         parser);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
@@ -232,10 +232,10 @@ public class DashRendererBuilder implements RendererBuilder,
       videoRenderer = null;
       debugRenderer = null;
     } else {
-      DataSource videoDataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
-      ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher, videoAdaptationSetIndex,
-          videoRepresentationIndices, videoDataSource, new AdaptiveEvaluator(bandwidthMeter),
-          LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset);
+      DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+      ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher,
+          videoAdaptationSetIndex, videoRepresentationIndices, videoDataSource,
+          new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset);
       ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
           VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
           DemoPlayer.TYPE_VIDEO);
@@ -249,7 +249,7 @@ public class DashRendererBuilder implements RendererBuilder,
     List<ChunkSource> audioChunkSourceList = new ArrayList<ChunkSource>();
     List<String> audioTrackNameList = new ArrayList<String>();
     if (audioAdaptationSet != null) {
-      DataSource audioDataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
+      DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
       List<Representation> audioRepresentations = audioAdaptationSet.representations;
       List<String> codecs = new ArrayList<String>();
@@ -304,7 +304,7 @@ public class DashRendererBuilder implements RendererBuilder,
     }
 
     // Build the text chunk sources.
-    DataSource textDataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
+    DataSource textDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
     FormatEvaluator textEvaluator = new FormatEvaluator.FixedEvaluator();
     List<ChunkSource> textChunkSourceList = new ArrayList<ChunkSource>();
     List<String> textTrackNameList = new ArrayList<String>();

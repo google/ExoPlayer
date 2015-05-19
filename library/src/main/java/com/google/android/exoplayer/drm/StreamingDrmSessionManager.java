@@ -214,6 +214,18 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   /**
+   * Provides access to {@link MediaDrm#setPropertyString(String, String)}.
+   * <p>
+   * This method may be called when the manager is in any state.
+   * 
+   * @param key The property to write.
+   * @param value The value to write.
+   */
+  public final void setPropertyString(String key, String value) {
+    mediaDrm.setPropertyString(key, value);
+  }
+
+  /**
    * Provides access to {@link MediaDrm#getPropertyByteArray(String)}.
    * <p>
    * This method may be called when the manager is in any state.
@@ -223,6 +235,18 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
    */
   public final byte[] getPropertyByteArray(String key) {
     return mediaDrm.getPropertyByteArray(key);
+  }
+
+  /**
+   * Provides access to {@link MediaDrm#setPropertyByteArray(String, byte[])}.
+   * <p>
+   * This method may be called when the manager is in any state.
+   *
+   * @param key The property to write.
+   * @param value The value to write.
+   */
+  public final void setPropertyByteArray(String key, byte[] value) {
+    mediaDrm.setPropertyByteArray(key, value);
   }
 
   @Override

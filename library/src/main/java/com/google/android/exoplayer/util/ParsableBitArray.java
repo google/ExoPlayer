@@ -99,21 +99,11 @@ public final class ParsableBitArray {
    * @return An integer whose bottom n bits hold the read data.
    */
   public int readBits(int n) {
-    return (int) readBitsLong(n);
-  }
-
-  /**
-   * Reads up to 64 bits.
-   *
-   * @param n The number of bits to read.
-   * @return A long whose bottom n bits hold the read data.
-   */
-  public long readBitsLong(int n) {
     if (n == 0) {
       return 0;
     }
 
-    long retval = 0;
+    int retval = 0;
 
     // While n >= 8, read whole bytes.
     while (n >= 8) {

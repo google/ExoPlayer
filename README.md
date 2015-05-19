@@ -16,18 +16,16 @@ Read news, hints and tips on the [news][] page.
 
 [news]: https://google.github.io/ExoPlayer/news.html
 
-## Developer guide ##
+## Documentation ##
 
-The [developer guide][] provides a wealth of information to help you get
+* The [developer guide][] provides a wealth of information to help you get
 started.
+* The [class reference][] documents the ExoPlayer library classes.
+* The [release notes][] document the major changes in each release.
 
 [developer guide]: https://google.github.io/ExoPlayer/guide.html
-
-## Reference documentation ##
-
-The [class reference][] documents the ExoPlayer library classes.
-
 [class reference]: https://google.github.io/ExoPlayer/doc/reference
+[release notes]: https://github.com/google/ExoPlayer/blob/dev/RELEASENOTES.md
 
 ## Project branches ##
 

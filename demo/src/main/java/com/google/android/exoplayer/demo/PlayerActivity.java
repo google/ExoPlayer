@@ -233,19 +233,19 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
             audioCapabilities);
       case DemoUtil.TYPE_M4A: // There are no file format differences between M4A and MP4.
       case DemoUtil.TYPE_MP4:
-        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+        return new ExtractorRendererBuilder(this, userAgent, contentUri, debugTextView,
             new Mp4Extractor());
       case DemoUtil.TYPE_MP3:
-        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+        return new ExtractorRendererBuilder(this, userAgent, contentUri, debugTextView,
             new Mp3Extractor());
       case DemoUtil.TYPE_TS:
-        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+        return new ExtractorRendererBuilder(this, userAgent, contentUri, debugTextView,
             new TsExtractor(0, audioCapabilities));
       case DemoUtil.TYPE_AAC:
-        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+        return new ExtractorRendererBuilder(this, userAgent, contentUri, debugTextView,
             new AdtsExtractor());
       case DemoUtil.TYPE_WEBM:
-        return new ExtractorRendererBuilder(userAgent, contentUri, debugTextView,
+        return new ExtractorRendererBuilder(this, userAgent, contentUri, debugTextView,
             new WebmExtractor());
       default:
         throw new IllegalStateException("Unsupported type: " + contentType);

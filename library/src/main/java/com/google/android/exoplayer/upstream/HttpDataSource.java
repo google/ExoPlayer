@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An HTTP specific extension to {@link DataSource}.
+ * An HTTP specific extension to {@link UriDataSource}.
  */
 public interface HttpDataSource extends UriDataSource {
 

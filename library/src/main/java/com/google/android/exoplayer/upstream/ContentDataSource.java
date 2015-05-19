@@ -16,63 +16,73 @@
 package com.google.android.exoplayer.upstream;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.util.Assertions;
+
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.res.AssetFileDescriptor;
 
 import java.io.EOFException;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.InputStream;
 
 /**
- * A local file {@link UriDataSource}.
+ * A content URI {@link UriDataSource}.
  */
-public final class FileDataSource implements UriDataSource {
+public final class ContentDataSource implements UriDataSource {
 
   /**
-   * Thrown when IOException is encountered during local file read operation.
+   * Thrown when an {@link IOException} is encountered reading from a content URI.
    */
-  public static class FileDataSourceException extends IOException {
+  public static class ContentDataSourceException extends IOException {
 
-    public FileDataSourceException(IOException cause) {
+    public ContentDataSourceException(IOException cause) {
       super(cause);
     }
 
   }
 
+  private final ContentResolver resolver;
   private final TransferListener listener;
 
-  private RandomAccessFile file;
+  private InputStream inputStream;
   private String uriString;
   private long bytesRemaining;
   private boolean opened;
 
   /**
-   * Constructs a new {@link DataSource} that retrieves data from a file.
+   * Constructs a new {@link DataSource} that retrieves data from a content provider.
    */
-  public FileDataSource() {
-    this(null);
+  public ContentDataSource(Context context) {
+    this(context, null);
   }
 
   /**
-   * Constructs a new {@link DataSource} that retrieves data from a file.
+   * Constructs a new {@link DataSource} that retrieves data from a content provider.
    *
    * @param listener An optional listener. Specify {@code null} for no listener.
    */
-  public FileDataSource(TransferListener listener) {
+  public ContentDataSource(Context context, TransferListener listener) {
+    this.resolver = context.getContentResolver();
     this.listener = listener;
   }
 
   @Override
-  public long open(DataSpec dataSpec) throws FileDataSourceException {
+  public long open(DataSpec dataSpec) throws ContentDataSourceException {
     try {
       uriString = dataSpec.uri.toString();
-      file = new RandomAccessFile(dataSpec.uri.getPath(), "r");
-      file.seek(dataSpec.position);
-      bytesRemaining = dataSpec.length == C.LENGTH_UNBOUNDED ? file.length() - dataSpec.position
+      AssetFileDescriptor assetFd = resolver.openAssetFileDescriptor(dataSpec.uri, "r");
+      inputStream = new FileInputStream(assetFd.getFileDescriptor());
+      long skipped = inputStream.skip(dataSpec.position);
+      Assertions.checkState(skipped == dataSpec.position);
+      bytesRemaining = dataSpec.length == C.LENGTH_UNBOUNDED ? inputStream.available()
           : dataSpec.length;
       if (bytesRemaining < 0) {
         throw new EOFException();
       }
     } catch (IOException e) {
-      throw new FileDataSourceException(e);
+      throw new ContentDataSourceException(e);
     }
 
     opened = true;
@@ -84,15 +94,15 @@ public final class FileDataSource implements UriDataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) throws FileDataSourceException {
+  public int read(byte[] buffer, int offset, int readLength) throws ContentDataSourceException {
     if (bytesRemaining == 0) {
       return -1;
     } else {
       int bytesRead = 0;
       try {
-        bytesRead = file.read(buffer, offset, (int) Math.min(bytesRemaining, readLength));
+        bytesRead = inputStream.read(buffer, offset, (int) Math.min(bytesRemaining, readLength));
       } catch (IOException e) {
-        throw new FileDataSourceException(e);
+        throw new ContentDataSourceException(e);
       }
 
       if (bytesRead > 0) {
@@ -112,15 +122,15 @@ public final class FileDataSource implements UriDataSource {
   }
 
   @Override
-  public void close() throws FileDataSourceException {
+  public void close() throws ContentDataSourceException {
     uriString = null;
-    if (file != null) {
+    if (inputStream != null) {
       try {
-        file.close();
+        inputStream.close();
       } catch (IOException e) {
-        throw new FileDataSourceException(e);
+        throw new ContentDataSourceException(e);
       } finally {
-        file = null;
+        inputStream = null;
         if (opened) {
           opened = false;
           if (listener != null) {
