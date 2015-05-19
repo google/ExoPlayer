@@ -32,8 +32,8 @@ public final class SuperCache {
         return new MediaUnit(key);
     }
 
-    public MediaUnit put(String key) throws IOException {
-        return new MediaUnit(key);
+    public interface SuperCacheable {
+        void setSuperCache(SuperCache superCache);
     }
 
     public final class MediaUnit {
@@ -83,22 +83,17 @@ public final class SuperCache {
          * Call after all data is written to cache
          */
         public void setFinished() {
-            if (!isFinished){
+            if (!isFinished) {
                 isFinished = true;
                 try {
                     snapshot = diskLruCache.get(key);
                     inputStream = snapshot.getInputStream(INDEX_MEDIA);
                 } catch (IOException e) {
                     e.printStackTrace();
-                }
-                catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     //Invalid operation?
                 }
             }
         }
-    }
-
-    public interface SuperCacheable{
-        void setSuperCache(SuperCache superCache);
     }
 }
