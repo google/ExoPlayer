@@ -52,16 +52,17 @@ public final class TsExtractor implements Extractor, SeekMap {
   private static final long MAX_PTS = 0x1FFFFFFFFL;
 
   private final ParsableByteArray tsPacketBuffer;
-  private final SparseBooleanArray streamTypes;
-  private final SparseBooleanArray allowedPassthroughStreamTypes;
-  private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
-  private final long firstSampleTimestampUs;
   private final ParsableBitArray tsScratch;
+  private final long firstSampleTimestampUs;
+  /* package */ final SparseBooleanArray streamTypes;
+  /* package */ final SparseBooleanArray allowedPassthroughStreamTypes;
+  /* package */ final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
 
   // Accessed only by the loading thread.
   private ExtractorOutput output;
   private long timestampOffsetUs;
   private long lastPts;
+  /* package */ Id3Reader id3Reader;
 
   public TsExtractor() {
     this(0, null);
@@ -307,9 +308,11 @@ public final class TsExtractor implements Extractor, SeekMap {
       // Skip the descriptors.
       data.skipBytes(programInfoLength);
 
-      // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
-      // appears intermittently during playback. See b/20261500.
-      Id3Reader id3Reader = new Id3Reader(output.track(TS_STREAM_TYPE_ID3));
+      if (id3Reader == null) {
+        // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
+        // appears intermittently during playback. See b/20261500.
+        id3Reader = new Id3Reader(output.track(TS_STREAM_TYPE_ID3));
+      }
 
       int entriesSize = sectionLength - 9 /* Size of the rest of the fields before descriptors */
           - programInfoLength - 4 /* CRC size */;
