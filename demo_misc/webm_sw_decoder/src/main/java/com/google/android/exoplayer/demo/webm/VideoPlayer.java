@@ -160,7 +160,7 @@ public class VideoPlayer extends Activity implements OnClickListener,
     mediaController.setEnabled(true);
     ExtractorSampleSource sampleSource = new ExtractorSampleSource(
         Uri.fromFile(new File(filename)),
-        new DefaultUriDataSource(Util.getUserAgent(this, "ExoPlayerExtWebMDemo"), null),
+        new DefaultUriDataSource(this, Util.getUserAgent(this, "ExoPlayerExtWebMDemo")),
         new WebmExtractor(), 2, EXTRACTOR_BUFFER_SIZE);
     TrackRenderer videoRenderer =
         new LibvpxVideoTrackRenderer(sampleSource, true, handler, this, 50);

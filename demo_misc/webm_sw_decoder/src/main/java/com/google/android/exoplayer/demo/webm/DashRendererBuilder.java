@@ -54,9 +54,9 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
   private static final int VIDEO_BUFFER_SEGMENTS = 200;
   private static final int AUDIO_BUFFER_SEGMENTS = 60;
 
-  private String manifestUrl;
-  private String userAgent;
-  private VideoPlayer player;
+  private final String manifestUrl;
+  private final String userAgent;
+  private final VideoPlayer player;
 
   public DashRendererBuilder(String manifestUrl, String userAgent, VideoPlayer player) {
     this.manifestUrl = manifestUrl;
@@ -105,7 +105,7 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
     // Build the video renderer.
     LibvpxVideoTrackRenderer videoRenderer = null;
     if (!videoRepresentationsList.isEmpty()) {
-      DataSource videoDataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
+      DataSource videoDataSource = new DefaultUriDataSource(player, bandwidthMeter, userAgent);
       ChunkSource videoChunkSource;
       String mimeType = videoRepresentations[0].format.mimeType;
       if (mimeType.equals(MimeTypes.VIDEO_WEBM)) {
@@ -124,7 +124,7 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
     MultiTrackChunkSource audioChunkSource = null;
     TrackRenderer audioRenderer = null;
     if (!audioRepresentationsList.isEmpty()) {
-      DataSource audioDataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
+      DataSource audioDataSource = new DefaultUriDataSource(player, bandwidthMeter, userAgent);
       ChunkSource[] audioChunkSources = new ChunkSource[audioRepresentationsList.size()];
       FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
       for (int i = 0; i < audioRepresentationsList.size(); i++) {
