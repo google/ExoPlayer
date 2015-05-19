@@ -31,7 +31,7 @@ import java.io.InputStream;
 public final class AssetDataSource implements UriDataSource {
 
   /**
-   * Thrown when IOException is encountered during local asset read operation.
+   * Thrown when an {@link IOException} is encountered reading a local asset.
    */
   public static final class AssetDataSourceException extends IOException {
 
@@ -45,7 +45,7 @@ public final class AssetDataSource implements UriDataSource {
   private final TransferListener listener;
 
   private String uriString;
-  private InputStream assetInputStream;
+  private InputStream inputStream;
   private long bytesRemaining;
   private boolean opened;
 
@@ -76,10 +76,11 @@ public final class AssetDataSource implements UriDataSource {
       } else if (path.startsWith("/")) {
         path = path.substring(1);
       }
-      assetInputStream = assetManager.open(path, AssetManager.ACCESS_RANDOM);
-      long skipped = assetInputStream.skip(dataSpec.position);
+      uriString = dataSpec.uri.toString();
+      inputStream = assetManager.open(path, AssetManager.ACCESS_RANDOM);
+      long skipped = inputStream.skip(dataSpec.position);
       Assertions.checkState(skipped == dataSpec.position);
-      bytesRemaining = dataSpec.length == C.LENGTH_UNBOUNDED ? assetInputStream.available()
+      bytesRemaining = dataSpec.length == C.LENGTH_UNBOUNDED ? inputStream.available()
           : dataSpec.length;
       if (bytesRemaining < 0) {
         throw new EOFException();
@@ -102,8 +103,7 @@ public final class AssetDataSource implements UriDataSource {
     } else {
       int bytesRead = 0;
       try {
-        bytesRead = assetInputStream.read(buffer, offset,
-            (int) Math.min(bytesRemaining, readLength));
+        bytesRead = inputStream.read(buffer, offset, (int) Math.min(bytesRemaining, readLength));
       } catch (IOException e) {
         throw new AssetDataSourceException(e);
       }
@@ -126,13 +126,14 @@ public final class AssetDataSource implements UriDataSource {
 
   @Override
   public void close() throws AssetDataSourceException {
-    if (assetInputStream != null) {
+    uriString = null;
+    if (inputStream != null) {
       try {
-        assetInputStream.close();
+        inputStream.close();
       } catch (IOException e) {
         throw new AssetDataSourceException(e);
       } finally {
-        assetInputStream = null;
+        inputStream = null;
         if (opened) {
           opened = false;
           if (listener != null) {

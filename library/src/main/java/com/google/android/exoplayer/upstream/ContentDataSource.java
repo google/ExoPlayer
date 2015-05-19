@@ -15,25 +15,25 @@
  */
 package com.google.android.exoplayer.upstream;
 
+import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.util.Assertions;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 
-import com.google.android.exoplayer.C;
-
-import java.io.FileDescriptor;
+import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * This calll is support content uri and file uri (e.q. content:// , file://). 
- * {@link DataSource}.
+ * A content URI {@link UriDataSource}.
  */
 public final class ContentDataSource implements UriDataSource {
-  static private final String TAG = "ContentDataSource";
+
   /**
-   * Thrown when IOException is encountered during local asset read operation.
+   * Thrown when an {@link IOException} is encountered reading from a content URI.
    */
   public static class ContentDataSourceException extends IOException {
 
@@ -43,11 +43,11 @@ public final class ContentDataSource implements UriDataSource {
 
   }
 
+  private final ContentResolver resolver;
   private final TransferListener listener;
 
   private InputStream inputStream;
-  private Context context;
-  private String uri;
+  private String uriString;
   private long bytesRemaining;
   private boolean opened;
 
@@ -64,23 +64,25 @@ public final class ContentDataSource implements UriDataSource {
    * @param listener An optional listener. Specify {@code null} for no listener.
    */
   public ContentDataSource(Context context, TransferListener listener) {
-    this.context = context;
+    this.resolver = context.getContentResolver();
     this.listener = listener;
   }
 
   @Override
-  public long open(DataSpec dataSpec) throws IOException {
+  public long open(DataSpec dataSpec) throws ContentDataSourceException {
     try {
-      uri = dataSpec.uri.toString();
-      inputStream = new FileInputStream(getFileDescriptor(context, dataSpec));
-      inputStream.skip(dataSpec.position);
+      uriString = dataSpec.uri.toString();
+      AssetFileDescriptor assetFd = resolver.openAssetFileDescriptor(dataSpec.uri, "r");
+      inputStream = new FileInputStream(assetFd.getFileDescriptor());
+      long skipped = inputStream.skip(dataSpec.position);
+      Assertions.checkState(skipped == dataSpec.position);
       bytesRemaining = dataSpec.length == C.LENGTH_UNBOUNDED ? inputStream.available()
           : dataSpec.length;
       if (bytesRemaining < 0) {
-        throw new IOException();
+        throw new EOFException();
       }
     } catch (IOException e) {
-      throw new IOException(e);
+      throw new ContentDataSourceException(e);
     }
 
     opened = true;
@@ -92,7 +94,7 @@ public final class ContentDataSource implements UriDataSource {
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) throws IOException {
+  public int read(byte[] buffer, int offset, int readLength) throws ContentDataSourceException {
     if (bytesRemaining == 0) {
       return -1;
     } else {
@@ -100,7 +102,7 @@ public final class ContentDataSource implements UriDataSource {
       try {
         bytesRead = inputStream.read(buffer, offset, (int) Math.min(bytesRemaining, readLength));
       } catch (IOException e) {
-        throw new IOException(e);
+        throw new ContentDataSourceException(e);
       }
 
       if (bytesRead > 0) {
@@ -116,11 +118,12 @@ public final class ContentDataSource implements UriDataSource {
 
   @Override
   public String getUri() {
-    return uri;
+    return uriString;
   }
 
   @Override
   public void close() throws ContentDataSourceException {
+    uriString = null;
     if (inputStream != null) {
       try {
         inputStream.close();
@@ -128,8 +131,6 @@ public final class ContentDataSource implements UriDataSource {
         throw new ContentDataSourceException(e);
       } finally {
         inputStream = null;
-        uri = null;
-
         if (opened) {
           opened = false;
           if (listener != null) {
@@ -140,17 +141,4 @@ public final class ContentDataSource implements UriDataSource {
     }
   }
 
-  /**
-   * query the fileDescriptor from conten resolver.
-   *
-   */
-  private static FileDescriptor getFileDescriptor(Context context, DataSpec dataSpec) throws IOException {
-    try {
-      ContentResolver resolver = context.getContentResolver();
-      AssetFileDescriptor fd = resolver.openAssetFileDescriptor(dataSpec.uri, "r");
-      return fd.getFileDescriptor();
-    } catch (IOException e) {
-      throw new IOException(e);
-    }
-  }
 }

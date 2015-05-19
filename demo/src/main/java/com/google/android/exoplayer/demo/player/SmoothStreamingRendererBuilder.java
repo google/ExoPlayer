@@ -92,8 +92,12 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
   public void buildRenderers(DemoPlayer player, RendererBuilderCallback callback) {
     this.player = player;
     this.callback = callback;
+    String manifestUrl = url;
+    if (!manifestUrl.endsWith("/Manifest")) {
+      manifestUrl += "/Manifest";
+    }
     SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
-    manifestFetcher = new ManifestFetcher<SmoothStreamingManifest>(url + "/Manifest",
+    manifestFetcher = new ManifestFetcher<SmoothStreamingManifest>(manifestUrl,
         new DefaultHttpDataSource(userAgent, null), parser);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }

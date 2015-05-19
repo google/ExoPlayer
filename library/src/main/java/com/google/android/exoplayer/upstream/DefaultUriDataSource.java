@@ -18,6 +18,7 @@ package com.google.android.exoplayer.upstream;
 import com.google.android.exoplayer.util.Assertions;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import java.io.IOException;
 
@@ -26,8 +27,11 @@ import java.io.IOException;
  *
  * <ul>
  * <li>http(s): For fetching data over HTTP and HTTPS (e.g. https://www.something.com/media.mp4).
- * <li>file: For fetching data from a local file (e.g. file:///path/to/media/media.mp4).
+ * <li>file: For fetching data from a local file (e.g. file:///path/to/media/media.mp4, or just
+ *     /path/to/media/media.mp4 because the implementation assumes that a URI without a scheme is a
+ *     local file URI).
  * <li>asset: For fetching data from an asset in the application's apk (e.g. asset:///media.mp4).
+ * <li>content: For fetching data from a content URI (e.g. content://authority/path/123).
  * </ul>
  */
 public final class DefaultUriDataSource implements UriDataSource {
@@ -56,10 +60,12 @@ public final class DefaultUriDataSource implements UriDataSource {
   private static final String SCHEME_HTTPS = "https";
   private static final String SCHEME_FILE = "file";
   private static final String SCHEME_ASSET = "asset";
+  private static final String SCHEME_CONTENT = "content";
 
   private final UriDataSource httpDataSource;
   private final UriDataSource fileDataSource;
   private final UriDataSource assetDataSource;
+  private final UriDataSource contentDataSource;
 
   /**
    * {@code null} if no data source is open. Otherwise, equal to {@link #fileDataSource} if the open
@@ -127,6 +133,7 @@ public final class DefaultUriDataSource implements UriDataSource {
     this.httpDataSource = Assertions.checkNotNull(httpDataSource);
     this.fileDataSource = new FileDataSource(listener);
     this.assetDataSource = new AssetDataSource(context, listener);
+    this.contentDataSource = new ContentDataSource(context, listener);
   }
 
   @Override
@@ -136,7 +143,7 @@ public final class DefaultUriDataSource implements UriDataSource {
     String scheme = dataSpec.uri.getScheme();
     if (SCHEME_HTTP.equals(scheme) || SCHEME_HTTPS.equals(scheme)) {
       dataSource = httpDataSource;
-    } else if (SCHEME_FILE.equals(scheme)) {
+    } else if (SCHEME_FILE.equals(scheme) || TextUtils.isEmpty(scheme)) {
       if (dataSpec.uri.getPath().startsWith("/android_asset/")) {
         dataSource = assetDataSource;
       } else {
@@ -144,6 +151,8 @@ public final class DefaultUriDataSource implements UriDataSource {
       }
     } else if (SCHEME_ASSET.equals(scheme)) {
       dataSource = assetDataSource;
+    } else if (SCHEME_CONTENT.equals(scheme)) {
+      dataSource = contentDataSource;
     } else {
       throw new UnsupportedSchemeException(scheme);
     }
