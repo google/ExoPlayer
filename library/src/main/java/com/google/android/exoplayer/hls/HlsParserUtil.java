@@ -51,7 +51,7 @@ import java.util.regex.Pattern;
 
   public static String parseOptionalStringAttr(String line, Pattern pattern) {
     Matcher matcher = pattern.matcher(line);
-    if (matcher.find() && matcher.groupCount() == 1) {
+    if (matcher.find()) {
       return matcher.group(1);
     }
     return null;
@@ -59,7 +59,7 @@ import java.util.regex.Pattern;
 
   public static boolean parseOptionalBooleanAttr(String line, Pattern pattern) {
     Matcher matcher = pattern.matcher(line);
-    if (matcher.find() && matcher.groupCount() == 1) {
+    if (matcher.find()) {
       return BOOLEAN_YES.equals(matcher.group(1));
     }
     return false;
