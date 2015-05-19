@@ -18,6 +18,7 @@ package com.google.android.exoplayer.upstream;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 
+import android.content.Context;
 import android.content.res.AssetManager;
 
 import java.io.EOFException;
@@ -32,7 +33,7 @@ public final class AssetDataSource implements UriDataSource {
   /**
    * Thrown when IOException is encountered during local asset read operation.
    */
-  public static class AssetDataSourceException extends IOException {
+  public static final class AssetDataSourceException extends IOException {
 
     public AssetDataSourceException(IOException cause) {
       super(cause);
@@ -51,8 +52,8 @@ public final class AssetDataSource implements UriDataSource {
   /**
    * Constructs a new {@link DataSource} that retrieves data from a local asset.
    */
-  public AssetDataSource(AssetManager assetManager) {
-    this(assetManager, null);
+  public AssetDataSource(Context context) {
+    this(context, null);
   }
 
   /**
@@ -60,8 +61,8 @@ public final class AssetDataSource implements UriDataSource {
    *
    * @param listener An optional listener. Specify {@code null} for no listener.
    */
-  public AssetDataSource(AssetManager assetManager, TransferListener listener) {
-    this.assetManager = assetManager;
+  public AssetDataSource(Context context, TransferListener listener) {
+    this.assetManager = context.getAssets();
     this.listener = listener;
   }
 
