@@ -175,6 +175,15 @@ public final class Mp3Extractor implements Extractor {
   }
 
   private long synchronize(ExtractorInput extractorInput) throws IOException, InterruptedException {
+    if (extractorInput.getPosition() == 0) {
+      // Before preparation completes, retrying loads from the start, so clear any buffered data.
+      inputBuffer.reset();
+    } else {
+      // After preparation completes, retrying resumes loading from the old position, so return to
+      // the start of buffered data to parse it again.
+      inputBuffer.returnToMark();
+    }
+
     long startPosition = getPosition(extractorInput, inputBuffer);
 
     // Skip any ID3 header at the start of the file.
@@ -198,6 +207,7 @@ public final class Mp3Extractor implements Extractor {
     inputBuffer.mark();
     long headerPosition = startPosition;
     int validFrameCount = 0;
+    int candidateSynchronizedHeaderData = 0;
     while (true) {
       if (headerPosition - startPosition >= MAX_BYTES_TO_SEARCH) {
         throw new ParserException("Searched too many bytes while resynchronizing.");
@@ -210,11 +220,11 @@ public final class Mp3Extractor implements Extractor {
       scratch.setPosition(0);
       int headerData = scratch.readInt();
       int frameSize;
-      if ((synchronizedHeaderData != 0
-          && (headerData & HEADER_MASK) != (synchronizedHeaderData & HEADER_MASK))
+      if ((candidateSynchronizedHeaderData != 0
+          && (headerData & HEADER_MASK) != (candidateSynchronizedHeaderData & HEADER_MASK))
           || (frameSize = MpegAudioHeader.getFrameSize(headerData)) == -1) {
         validFrameCount = 0;
-        synchronizedHeaderData = 0;
+        candidateSynchronizedHeaderData = 0;
 
         // Try reading a header starting at the next byte.
         inputBuffer.returnToMark();
@@ -226,7 +236,7 @@ public final class Mp3Extractor implements Extractor {
 
       if (validFrameCount == 0) {
         MpegAudioHeader.populateHeader(headerData, synchronizedHeader);
-        synchronizedHeaderData = headerData;
+        candidateSynchronizedHeaderData = headerData;
       }
 
       // The header was valid and matching (if appropriate). Check another or end synchronization.
@@ -241,6 +251,7 @@ public final class Mp3Extractor implements Extractor {
 
     // The input buffer read position is now synchronized.
     inputBuffer.returnToMark();
+    synchronizedHeaderData = candidateSynchronizedHeaderData;
     if (seeker == null) {
       setupSeeker(extractorInput, headerPosition);
       extractorOutput.seekMap(seeker);
