@@ -35,7 +35,8 @@ import com.google.android.exoplayer.metadata.GeobMetadata;
 import com.google.android.exoplayer.metadata.PrivMetadata;
 import com.google.android.exoplayer.metadata.TxxxMetadata;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
-import com.google.android.exoplayer.text.SubtitleView;
+import com.google.android.exoplayer.text.Cue;
+import com.google.android.exoplayer.text.SubtitleLayout;
 import com.google.android.exoplayer.util.Util;
 import com.google.android.exoplayer.util.VerboseLogUtil;
 
@@ -43,12 +44,10 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,7 +57,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
-import android.view.WindowManager;
 import android.view.accessibility.CaptioningManager;
 import android.widget.Button;
 import android.widget.MediaController;
@@ -67,13 +65,14 @@ import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.List;
 import java.util.Map;
 
 /**
  * An activity that plays media using {@link DemoPlayer}.
  */
 public class PlayerActivity extends Activity implements SurfaceHolder.Callback, OnClickListener,
-    DemoPlayer.Listener, DemoPlayer.TextListener, DemoPlayer.Id3MetadataListener,
+    DemoPlayer.Listener, DemoPlayer.CaptionListener, DemoPlayer.Id3MetadataListener,
     AudioCapabilitiesReceiver.Listener {
 
   public static final String CONTENT_TYPE_EXTRA = "content_type";
@@ -81,7 +80,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   private static final String TAG = "PlayerActivity";
 
-  private static final float CAPTION_LINE_HEIGHT_RATIO = 0.0533f;
   private static final int MENU_GROUP_TRACKS = 1;
   private static final int ID_OFFSET = 2;
 
@@ -92,7 +90,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private VideoSurfaceView surfaceView;
   private TextView debugTextView;
   private TextView playerStateTextView;
-  private SubtitleView subtitleView;
+  private SubtitleLayout subtitleLayout;
   private Button videoButton;
   private Button audioButton;
   private Button textButton;
@@ -154,7 +152,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     debugTextView = (TextView) findViewById(R.id.debug_text_view);
 
     playerStateTextView = (TextView) findViewById(R.id.player_state_view);
-    subtitleView = (SubtitleView) findViewById(R.id.subtitles);
+    subtitleLayout = (SubtitleLayout) findViewById(R.id.subtitles);
 
     mediaController = new MediaController(this);
     mediaController.setAnchorView(root);
@@ -256,7 +254,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (player == null) {
       player = new DemoPlayer(getRendererBuilder());
       player.addListener(this);
-      player.setTextListener(this);
+      player.setCaptionListener(this);
       player.setMetadataListener(this);
       player.seekTo(playerPosition);
       playerNeedsPrepare = true;
@@ -464,16 +462,11 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     debugRootView.setVisibility(View.VISIBLE);
   }
 
-  // DemoPlayer.TextListener implementation
+  // DemoPlayer.CaptionListener implementation
 
   @Override
-  public void onText(String text) {
-    if (TextUtils.isEmpty(text)) {
-      subtitleView.setVisibility(View.INVISIBLE);
-    } else {
-      subtitleView.setVisibility(View.VISIBLE);
-      subtitleView.setText(text);
-    }
+  public void onCues(List<Cue> cues) {
+    subtitleLayout.setCues(cues);
   }
 
   // DemoPlayer.MetadataListener implementation
@@ -523,24 +516,16 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   private void configureSubtitleView() {
     CaptionStyleCompat captionStyle;
-    float captionTextSize = getCaptionFontSize();
+    float captionFontScale;
     if (Util.SDK_INT >= 19) {
       captionStyle = getUserCaptionStyleV19();
-      captionTextSize *= getUserCaptionFontScaleV19();
+      captionFontScale = getUserCaptionFontScaleV19();
     } else {
       captionStyle = CaptionStyleCompat.DEFAULT;
+      captionFontScale = 1.0f;
     }
-    subtitleView.setStyle(captionStyle);
-    subtitleView.setTextSize(captionTextSize);
-  }
-
-  private float getCaptionFontSize() {
-    Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE))
-        .getDefaultDisplay();
-    Point displaySize = new Point();
-    display.getSize(displaySize);
-    return Math.max(getResources().getDimension(R.dimen.subtitle_minimum_font_size),
-        CAPTION_LINE_HEIGHT_RATIO * Math.min(displaySize.x, displaySize.y));
+    subtitleLayout.setStyle(captionStyle);
+    subtitleLayout.setFontScale(captionFontScale);
   }
 
   @TargetApi(19)

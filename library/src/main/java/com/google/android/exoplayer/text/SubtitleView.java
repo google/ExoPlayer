@@ -28,6 +28,7 @@ import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.text.Layout.Alignment;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.util.AttributeSet;
@@ -35,10 +36,7 @@ import android.util.DisplayMetrics;
 import android.view.View;
 
 /**
- * A view for rendering captions.
- * <p>
- * The caption style and text size can be configured using {@link #setStyle(CaptionStyleCompat)} and
- * {@link #setTextSize(float)} respectively.
+ * A view for rendering a single caption.
  */
 public class SubtitleView extends View {
 
@@ -52,11 +50,6 @@ public class SubtitleView extends View {
    */
   private final RectF lineBounds = new RectF();
 
-  /**
-   * Reusable string builder used for holding text.
-   */
-  private final StringBuilder textBuilder = new StringBuilder();
-
   // Styled dimensions.
   private final float cornerRadius;
   private final float outlineWidth;
@@ -65,6 +58,8 @@ public class SubtitleView extends View {
 
   private TextPaint textPaint;
   private Paint paint;
+
+  private CharSequence text;
 
   private int foregroundColor;
   private int backgroundColor;
@@ -75,9 +70,14 @@ public class SubtitleView extends View {
   private int lastMeasuredWidth;
   private StaticLayout layout;
 
+  private Alignment alignment;
   private float spacingMult;
   private float spacingAdd;
   private int innerPaddingX;
+
+  public SubtitleView(Context context) {
+    this(context, null);
+  }
 
   public SubtitleView(Context context, AttributeSet attrs) {
     this(context, attrs, 0);
@@ -107,6 +107,8 @@ public class SubtitleView extends View {
     textPaint.setAntiAlias(true);
     textPaint.setSubpixelText(true);
 
+    alignment = Alignment.ALIGN_CENTER;
+
     paint = new Paint();
     paint.setAntiAlias(true);
 
@@ -114,10 +116,6 @@ public class SubtitleView extends View {
     setText(text);
     setTextSize(textSize);
     setStyle(CaptionStyleCompat.DEFAULT);
-  }
-
-  public SubtitleView(Context context) {
-    this(context, null);
   }
 
   @Override
@@ -132,8 +130,7 @@ public class SubtitleView extends View {
    * @param text The text to display.
    */
   public void setText(CharSequence text) {
-    textBuilder.setLength(0);
-    textBuilder.append(text);
+    this.text = text;
     forceUpdate(true);
   }
 
@@ -148,6 +145,15 @@ public class SubtitleView extends View {
       innerPaddingX = (int) (size * INNER_PADDING_RATIO + 0.5f);
       forceUpdate(true);
     }
+  }
+
+  /**
+   * Sets the text alignment.
+   *
+   * @param textAlignment The text alignment.
+   */
+  public void setTextAlignment(Alignment textAlignment) {
+    alignment = textAlignment;
   }
 
   /**
@@ -227,8 +233,7 @@ public class SubtitleView extends View {
 
     hasMeasurements = true;
     lastMeasuredWidth = maxWidth;
-    layout = new StaticLayout(textBuilder, textPaint, maxWidth, null, spacingMult, spacingAdd,
-        true);
+    layout = new StaticLayout(text, textPaint, maxWidth, alignment, spacingMult, spacingAdd, true);
     return true;
   }
 

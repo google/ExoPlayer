@@ -31,6 +31,7 @@ import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
+import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.TextRenderer;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.util.PlayerControl;
@@ -41,6 +42,8 @@ import android.os.Looper;
 import android.view.Surface;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -140,8 +143,8 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   /**
    * A listener for receiving notifications of timed text.
    */
-  public interface TextListener {
-    void onText(String text);
+  public interface CaptionListener {
+    void onCues(List<Cue> cues);
   }
 
   /**
@@ -193,7 +196,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   private int[] selectedTracks;
   private boolean backgrounded;
 
-  private TextListener textListener;
+  private CaptionListener captionListener;
   private Id3MetadataListener id3MetadataListener;
   private InternalErrorListener internalErrorListener;
   private InfoListener infoListener;
@@ -232,8 +235,8 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     infoListener = listener;
   }
 
-  public void setTextListener(TextListener listener) {
-    textListener = listener;
+  public void setCaptionListener(CaptionListener listener) {
+    captionListener = listener;
   }
 
   public void setMetadataListener(Id3MetadataListener listener) {
@@ -268,8 +271,8 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     }
     selectedTracks[type] = index;
     pushTrackSelection(type, true);
-    if (type == TYPE_TEXT && index == DISABLED_TRACK && textListener != null) {
-      textListener.onText(null);
+    if (type == TYPE_TEXT && index == DISABLED_TRACK && captionListener != null) {
+      captionListener.onCues(Collections.<Cue>emptyList());
     }
   }
 
@@ -509,8 +512,8 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   @Override
-  public void onText(String text) {
-    processText(text);
+  public void onCues(List<Cue> cues) {
+    processCues(cues);
   }
 
   @Override
@@ -617,11 +620,11 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     }
   }
 
-  /* package */ void processText(String text) {
-    if (textListener == null || selectedTracks[TYPE_TEXT] == DISABLED_TRACK) {
+  /* package */ void processCues(List<Cue> cues) {
+    if (captionListener == null || selectedTracks[TYPE_TEXT] == DISABLED_TRACK) {
       return;
     }
-    textListener.onText(text);
+    captionListener.onCues(cues);
   }
 
   private class InternalRendererBuilderCallback implements RendererBuilderCallback {

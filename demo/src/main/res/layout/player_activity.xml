@@ -26,14 +26,12 @@
       android:layout_height="match_parent"
       android:layout_gravity="center"/>
 
-  <com.google.android.exoplayer.text.SubtitleView android:id="@+id/subtitles"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="bottom|center_horizontal"
+  <com.google.android.exoplayer.text.SubtitleLayout android:id="@+id/subtitles"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
       android:layout_marginLeft="16dp"
       android:layout_marginRight="16dp"
-      android:layout_marginBottom="32dp"
-      android:visibility="invisible"/>
+      android:layout_marginBottom="32dp"/>
 
   <View android:id="@+id/shutter"
       android:layout_width="match_parent"

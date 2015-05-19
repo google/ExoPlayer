@@ -5,6 +5,7 @@
 * Add option to TsExtractor to allow non-IDR keyframes.
 * Added MulticastDataSource for connecting to multicast streams.
 * (WorkInProgress) - First steps to supporting seeking in DASH DVR window.
+* (WorkInProgress) - First steps to supporting styled + positioned subtitles.
 
 ### r1.3.2 (from r1.3.1) ###
 

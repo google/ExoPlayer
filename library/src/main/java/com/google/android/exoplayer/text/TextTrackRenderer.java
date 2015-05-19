@@ -30,6 +30,8 @@ import android.os.Looper;
 import android.os.Message;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A {@link TrackRenderer} for textual subtitles. The actual rendering of each line of text to a
@@ -255,34 +257,36 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   }
 
   private void updateTextRenderer(long positionUs) {
-    String text = subtitle.getText(positionUs);
+    List<Cue> cues = subtitle.getCues(positionUs);
     if (textRendererHandler != null) {
-      textRendererHandler.obtainMessage(MSG_UPDATE_OVERLAY, text).sendToTarget();
+      textRendererHandler.obtainMessage(MSG_UPDATE_OVERLAY, cues).sendToTarget();
     } else {
-      invokeRendererInternal(text);
+      invokeRendererInternalCues(cues);
     }
   }
 
   private void clearTextRenderer() {
     if (textRendererHandler != null) {
-      textRendererHandler.obtainMessage(MSG_UPDATE_OVERLAY, null).sendToTarget();
+      textRendererHandler.obtainMessage(MSG_UPDATE_OVERLAY, Collections.<Cue>emptyList())
+          .sendToTarget();
     } else {
-      invokeRendererInternal(null);
+      invokeRendererInternalCues(Collections.<Cue>emptyList());
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public boolean handleMessage(Message msg) {
     switch (msg.what) {
       case MSG_UPDATE_OVERLAY:
-        invokeRendererInternal((String) msg.obj);
+        invokeRendererInternalCues((List<Cue>) msg.obj);
         return true;
     }
     return false;
   }
 
-  private void invokeRendererInternal(String text) {
-    textRenderer.onText(text);
+  private void invokeRendererInternalCues(List<Cue> cues) {
+    textRenderer.onCues(cues);
   }
 
 }
