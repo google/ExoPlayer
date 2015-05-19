@@ -532,11 +532,11 @@ public final class TsExtractor implements Extractor, SeekMap {
       timeUs = 0;
       if (ptsFlag) {
         pesScratch.skipBits(4); // '0010'
-        long pts = pesScratch.readBitsLong(3) << 30;
+        long pts = (long) pesScratch.readBits(3) << 30;
         pesScratch.skipBits(1); // marker_bit
-        pts |= pesScratch.readBitsLong(15) << 15;
+        pts |= pesScratch.readBits(15) << 15;
         pesScratch.skipBits(1); // marker_bit
-        pts |= pesScratch.readBitsLong(15);
+        pts |= pesScratch.readBits(15);
         pesScratch.skipBits(1); // marker_bit
         timeUs = ptsToTimeUs(pts);
       }
