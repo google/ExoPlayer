@@ -45,6 +45,9 @@ public final class Mp3Extractor implements Extractor {
   private static final int ID3_TAG = Util.getIntegerCodeForString("ID3");
   private static final String[] MIME_TYPE_BY_LAYER =
       new String[] {MimeTypes.AUDIO_MPEG_L1, MimeTypes.AUDIO_MPEG_L2, MimeTypes.AUDIO_MPEG};
+  private static final int XING_HEADER = Util.getIntegerCodeForString("Xing");
+  private static final int INFO_HEADER = Util.getIntegerCodeForString("Info");
+  private static final int VBRI_HEADER = Util.getIntegerCodeForString("VBRI");
 
   /**
    * Theoretical maximum frame size for an MPEG audio stream, which occurs when playing a Layer 2
@@ -239,21 +242,7 @@ public final class Mp3Extractor implements Extractor {
     // The input buffer read position is now synchronized.
     inputBuffer.returnToMark();
     if (seeker == null) {
-      ParsableByteArray frame =
-          inputBuffer.getParsableByteArray(extractorInput, synchronizedHeader.frameSize);
-      seeker = XingSeeker.create(synchronizedHeader, frame, headerPosition,
-          extractorInput.getLength());
-      if (seeker == null) {
-        seeker = VbriSeeker.create(synchronizedHeader, frame, headerPosition);
-      }
-      if (seeker == null) {
-        inputBuffer.returnToMark();
-        seeker = new ConstantBitrateSeeker(headerPosition, synchronizedHeader.bitrate * 1000,
-            extractorInput.getLength());
-      } else {
-        // Discard the frame that was parsed for seeking metadata.
-        inputBuffer.mark();
-      }
+      setupSeeker(extractorInput, headerPosition);
       extractorOutput.seekMap(seeker);
       trackOutput.format(MediaFormat.createAudioFormat(
           MIME_TYPE_BY_LAYER[synchronizedHeader.layerIndex], MAX_FRAME_SIZE_BYTES,
@@ -262,6 +251,93 @@ public final class Mp3Extractor implements Extractor {
     }
 
     return headerPosition;
+  }
+
+  /**
+   * Sets {@link #seeker} to seek using metadata from {@link #inputBuffer}, which should have its
+   * position set to the start of the first frame in the stream. On returning,
+   * {@link #inputBuffer}'s position and mark will be set to the start of the first frame of audio.
+   *
+   * @param extractorInput Source of data for {@link #inputBuffer}.
+   * @param headerPosition Position (byte offset) of the synchronized header in the stream.
+   * @throws IOException Thrown if there was an error reading from the stream. Not expected if the
+   *     next two frames were already read during synchronization.
+   * @throws InterruptedException Thrown if reading from the stream was interrupted. Not expected if
+   *     the next two frames were already read during synchronization.
+   */
+  private void setupSeeker(ExtractorInput extractorInput, long headerPosition)
+      throws IOException, InterruptedException {
+    // Try to set up seeking based on a XING or VBRI header.
+    if (parseSeekerFrame(extractorInput, headerPosition, extractorInput.getLength())) {
+      // Discard the parsed header so we start reading from the first audio frame.
+      inputBuffer.mark();
+      if (seeker != null) {
+        return;
+      }
+
+      // If there was a header but it was not usable, synchronize to the next frame so we don't
+      // use an invalid bitrate for CBR seeking. This read is guaranteed to succeed if the frame was
+      // already read during synchronization.
+      inputBuffer.read(extractorInput, scratch.data, 0, 4);
+      scratch.setPosition(0);
+      headerPosition += synchronizedHeader.frameSize;
+      MpegAudioHeader.populateHeader(scratch.readInt(), synchronizedHeader);
+    }
+
+    inputBuffer.returnToMark();
+    seeker = new ConstantBitrateSeeker(headerPosition, synchronizedHeader.bitrate * 1000,
+        extractorInput.getLength());
+  }
+
+  /**
+   * Consumes the frame at {@link #inputBuffer}'s current position, advancing it to the next frame.
+   * The mark is not modified. {@link #seeker} will be assigned based on seeking metadata in the
+   * frame. If there is no seeking metadata, returns {@code false} and sets {@link #seeker} to null.
+   * If seeking metadata is present and unusable, returns {@code true} and sets {@link #seeker} to
+   * null. Otherwise, returns {@code true} and assigns {@link #seeker}.
+   */
+  private boolean parseSeekerFrame(ExtractorInput extractorInput, long headerPosition,
+      long inputLength) throws IOException, InterruptedException {
+    // Read the first frame so it can be parsed for seeking metadata.
+    inputBuffer.mark();
+    seeker = null;
+    ParsableByteArray frame =
+        inputBuffer.getParsableByteArray(extractorInput, synchronizedHeader.frameSize);
+
+    // Check if there is a XING header.
+    int xingBase;
+    if ((synchronizedHeader.version & 1) == 1) {
+      // MPEG 1.
+      if (synchronizedHeader.channels != 1) {
+        xingBase = 32;
+      } else {
+        xingBase = 17;
+      }
+    } else {
+      // MPEG 2 or 2.5.
+      if (synchronizedHeader.channels != 1) {
+        xingBase = 17;
+      } else {
+        xingBase = 9;
+      }
+    }
+    frame.setPosition(4 + xingBase);
+    int headerData = frame.readInt();
+    if (headerData == XING_HEADER || headerData == INFO_HEADER) {
+      seeker = XingSeeker.create(synchronizedHeader, frame, headerPosition, inputLength);
+      return true;
+    }
+
+    // Check if there is a VBRI header.
+    frame.setPosition(36); // MPEG audio header (4 bytes) + 32 bytes.
+    headerData = frame.readInt();
+    if (headerData == VBRI_HEADER) {
+      seeker = VbriSeeker.create(synchronizedHeader, frame, headerPosition);
+      return true;
+    }
+
+    // Neither header is present.
+    return false;
   }
 
   /** Returns the reading position of {@code bufferingInput} relative to the extractor's stream. */
