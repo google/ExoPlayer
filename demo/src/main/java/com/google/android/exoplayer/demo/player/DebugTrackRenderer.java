@@ -19,6 +19,7 @@ import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaCodecTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.Format;
+import com.google.android.exoplayer.upstream.BandwidthMeter;
 
 import android.widget.TextView;
 
@@ -31,15 +32,22 @@ import android.widget.TextView;
   private final TextView textView;
   private final DemoPlayer player;
   private final MediaCodecTrackRenderer renderer;
+  private final BandwidthMeter bandwidthMeter;
 
   private volatile boolean pendingFailure;
   private volatile long currentPositionUs;
 
   public DebugTrackRenderer(TextView textView, DemoPlayer player,
       MediaCodecTrackRenderer renderer) {
+    this(textView, player, renderer, null);
+  }
+
+  public DebugTrackRenderer(TextView textView, DemoPlayer player, MediaCodecTrackRenderer renderer,
+      BandwidthMeter bandwidthMeter) {
     this.textView = textView;
     this.player = player;
     this.renderer = renderer;
+    this.bandwidthMeter = bandwidthMeter;
   }
 
   public void injectFailure() {
@@ -77,13 +85,27 @@ import android.widget.TextView;
   }
 
   private String getRenderString() {
-    return getQualityString() + " " + renderer.codecCounters.getDebugString();
+    return getTimeString() + " " + getQualityString() + " " + getBandwidthString() + " "
+        + renderer.codecCounters.getDebugString();
+  }
+
+  private String getTimeString() {
+    return "ms(" + (currentPositionUs / 1000) + ")";
   }
 
   private String getQualityString() {
     Format format = player.getVideoFormat();
     return format == null ? "id:? br:? h:?"
         : "id:" + format.id + " br:" + format.bitrate + " h:" + format.height;
+  }
+
+  private String getBandwidthString() {
+    if (bandwidthMeter == null
+        || bandwidthMeter.getBitrateEstimate() == BandwidthMeter.NO_ESTIMATE) {
+      return "bw:?";
+    } else {
+      return "bw:" + (bandwidthMeter.getBitrateEstimate() / 1000);
+    }
   }
 
   @Override

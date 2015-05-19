@@ -23,6 +23,7 @@ import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilderCallba
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 
 import android.content.Context;
@@ -55,7 +56,9 @@ public class ExtractorRendererBuilder implements RendererBuilder {
   @Override
   public void buildRenderers(DemoPlayer player, RendererBuilderCallback callback) {
     // Build the video and audio renderers.
-    DataSource dataSource = new DefaultUriDataSource(context, userAgent);
+    DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter(player.getMainHandler(),
+        null);
+    DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
     ExtractorSampleSource sampleSource = new ExtractorSampleSource(uri, dataSource, extractor, 2,
         BUFFER_SIZE);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
@@ -66,7 +69,7 @@ public class ExtractorRendererBuilder implements RendererBuilder {
 
     // Build the debug renderer.
     TrackRenderer debugRenderer = debugTextView != null
-        ? new DebugTrackRenderer(debugTextView, player, videoRenderer) : null;
+        ? new DebugTrackRenderer(debugTextView, player, videoRenderer, bandwidthMeter) : null;
 
     // Invoke the callback.
     TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];

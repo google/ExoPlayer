@@ -17,6 +17,7 @@ package com.google.android.exoplayer.dash;
 
 import com.google.android.exoplayer.BehindLiveWindowException;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.Chunk;
@@ -50,6 +51,8 @@ import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.SystemClock;
 
+import android.os.Handler;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,6 +65,20 @@ import java.util.List;
  * This implementation currently supports fMP4, webm, and webvtt.
  */
 public class DashChunkSource implements ChunkSource {
+
+  /**
+   * Interface definition for a callback to be notified of {@link DashChunkSource} events.
+   */
+  public interface EventListener {
+
+    /**
+     * Invoked when the available seek range of the stream has changed.
+     *
+     * @param seekRange The range which specifies available content that can be seeked to.
+     */
+    public void onSeekRangeChanged(TimeRange seekRange);
+
+  }
 
   /**
    * Thrown when an AdaptationSet is missing from the MPD.
@@ -78,6 +95,9 @@ public class DashChunkSource implements ChunkSource {
    * Specifies that we should process all tracks.
    */
   public static final int USE_ALL_TRACKS = -1;
+
+  private final Handler eventHandler;
+  private final EventListener eventListener;
 
   private final TrackInfo trackInfo;
   private final DataSource dataSource;
@@ -99,6 +119,10 @@ public class DashChunkSource implements ChunkSource {
 
   private DrmInitData drmInitData;
   private MediaPresentationDescription currentManifest;
+  private TimeRange seekRange;
+  private long[] seekRangeValues;
+  private int firstAvailableSegmentNum;
+  private int lastAvailableSegmentNum;
   private boolean finishedCurrentManifest;
 
   private boolean lastChunkWasInitialization;
@@ -142,7 +166,7 @@ public class DashChunkSource implements ChunkSource {
   public DashChunkSource(MediaPresentationDescription manifest, int adaptationSetIndex,
       int[] representationIndices, DataSource dataSource, FormatEvaluator formatEvaluator) {
     this(null, manifest, adaptationSetIndex, representationIndices, dataSource, formatEvaluator,
-        new SystemClock(), 0, 0);
+        new SystemClock(), 0, 0, null, null);
   }
 
   /**
@@ -167,19 +191,24 @@ public class DashChunkSource implements ChunkSource {
    * @param elapsedRealtimeOffsetMs If known, an estimate of the instantaneous difference between
    *    server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds, specified
    *    as the server's unix time minus the local elapsed time. It unknown, set to 0.
+   * @param eventHandler A handler to use when delivering events to {@code EventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public DashChunkSource(ManifestFetcher<MediaPresentationDescription> manifestFetcher,
       int adaptationSetIndex, int[] representationIndices, DataSource dataSource,
-      FormatEvaluator formatEvaluator, long liveEdgeLatencyMs, long elapsedRealtimeOffsetMs) {
+      FormatEvaluator formatEvaluator, long liveEdgeLatencyMs, long elapsedRealtimeOffsetMs,
+      Handler eventHandler, EventListener eventListener) {
     this(manifestFetcher, manifestFetcher.getManifest(), adaptationSetIndex, representationIndices,
         dataSource, formatEvaluator, new SystemClock(), liveEdgeLatencyMs * 1000,
-        elapsedRealtimeOffsetMs * 1000);
+        elapsedRealtimeOffsetMs * 1000, eventHandler, eventListener);
   }
 
   /* package */ DashChunkSource(ManifestFetcher<MediaPresentationDescription> manifestFetcher,
       MediaPresentationDescription initialManifest, int adaptationSetIndex,
       int[] representationIndices, DataSource dataSource, FormatEvaluator formatEvaluator,
-      Clock systemClock, long liveEdgeLatencyUs, long elapsedRealtimeOffsetUs) {
+      Clock systemClock, long liveEdgeLatencyUs, long elapsedRealtimeOffsetUs,
+      Handler eventHandler, EventListener eventListener) {
     this.manifestFetcher = manifestFetcher;
     this.currentManifest = initialManifest;
     this.adaptationSetIndex = adaptationSetIndex;
@@ -189,8 +218,11 @@ public class DashChunkSource implements ChunkSource {
     this.systemClock = systemClock;
     this.liveEdgeLatencyUs = liveEdgeLatencyUs;
     this.elapsedRealtimeOffsetUs = elapsedRealtimeOffsetUs;
+    this.eventHandler = eventHandler;
+    this.eventListener = eventListener;
     this.evaluation = new Evaluation();
     this.headerBuilder = new StringBuilder();
+    this.seekRangeValues = new long[2];
 
     drmInitData = getDrmInitData(currentManifest, adaptationSetIndex);
     Representation[] representations = getFilteredRepresentations(currentManifest,
@@ -229,11 +261,26 @@ public class DashChunkSource implements ChunkSource {
     return trackInfo;
   }
 
+  // VisibleForTesting
+  /* package */ TimeRange getSeekRange() {
+    return seekRange;
+  }
+
   @Override
   public void enable() {
     evaluator.enable();
     if (manifestFetcher != null) {
       manifestFetcher.enable();
+    }
+    DashSegmentIndex segmentIndex =
+        representationHolders.get(formats[0].id).representation.getIndex();
+    if (segmentIndex == null) {
+      seekRange = new TimeRange(TimeRange.TYPE_SNAPSHOT, 0, currentManifest.duration * 1000);
+      notifySeekRangeChanged(seekRange);
+    } else {
+      long nowUs = getNowUs();
+      updateAvailableSegmentBounds(segmentIndex, nowUs);
+      updateSeekRange(segmentIndex, nowUs);
     }
   }
 
@@ -243,6 +290,7 @@ public class DashChunkSource implements ChunkSource {
     if (manifestFetcher != null) {
       manifestFetcher.disable();
     }
+    seekRange = null;
   }
 
   @Override
@@ -268,6 +316,10 @@ public class DashChunkSource implements ChunkSource {
       }
       currentManifest = newManifest;
       finishedCurrentManifest = false;
+
+      long nowUs = getNowUs();
+      updateAvailableSegmentBounds(newRepresentations[0].getIndex(), nowUs);
+      updateSeekRange(newRepresentations[0].getIndex(), nowUs);
     }
 
     // TODO: This is a temporary hack to avoid constantly refreshing the MPD in cases where
@@ -334,36 +386,21 @@ public class DashChunkSource implements ChunkSource {
       return;
     }
 
-    long nowUs;
-    if (elapsedRealtimeOffsetUs != 0) {
-      nowUs = (systemClock.elapsedRealtime() * 1000) + elapsedRealtimeOffsetUs;
-    } else {
-      nowUs = System.currentTimeMillis() * 1000;
-    }
-
-    int firstAvailableSegmentNum = segmentIndex.getFirstSegmentNum();
-    int lastAvailableSegmentNum = segmentIndex.getLastSegmentNum();
-    boolean indexUnbounded = lastAvailableSegmentNum == DashSegmentIndex.INDEX_UNBOUNDED;
-    if (indexUnbounded) {
-      // The index is itself unbounded. We need to use the current time to calculate the range of
-      // available segments.
-      long liveEdgeTimestampUs = nowUs - currentManifest.availabilityStartTime * 1000;
-      if (currentManifest.timeShiftBufferDepth != -1) {
-        long bufferDepthUs = currentManifest.timeShiftBufferDepth * 1000;
-        firstAvailableSegmentNum = Math.max(firstAvailableSegmentNum,
-            segmentIndex.getSegmentNum(liveEdgeTimestampUs - bufferDepthUs));
-      }
-      // getSegmentNum(liveEdgeTimestampUs) will not be completed yet, so subtract one to get the
-      // index of the last completed segment.
-      lastAvailableSegmentNum = segmentIndex.getSegmentNum(liveEdgeTimestampUs) - 1;
-    }
-
     int segmentNum;
+    boolean indexUnbounded = segmentIndex.getLastSegmentNum() == DashSegmentIndex.INDEX_UNBOUNDED;
     if (queue.isEmpty()) {
       if (currentManifest.dynamic) {
-        seekPositionUs = getLiveSeekPosition(nowUs, indexUnbounded, segmentIndex.isExplicit());
+        seekRangeValues = seekRange.getCurrentBoundsUs(seekRangeValues);
+        seekPositionUs = Math.max(seekPositionUs, seekRangeValues[0]);
+        seekPositionUs = Math.min(seekPositionUs, seekRangeValues[1]);
       }
       segmentNum = segmentIndex.getSegmentNum(seekPositionUs);
+
+      // if the index is unbounded then the result of getSegmentNum isn't clamped to ensure that
+      // it doesn't exceed the last available segment. Clamp it here.
+      if (indexUnbounded) {
+        segmentNum = Math.min(segmentNum, lastAvailableSegmentNum);
+      }
     } else {
       MediaChunk previous = queue.get(out.queueSize - 1);
       segmentNum = previous.isLastChunk ? -1
@@ -432,6 +469,59 @@ public class DashChunkSource implements ChunkSource {
     // Do nothing.
   }
 
+  private void updateAvailableSegmentBounds(DashSegmentIndex segmentIndex, long nowUs) {
+    int indexFirstAvailableSegmentNum = segmentIndex.getFirstSegmentNum();
+    int indexLastAvailableSegmentNum = segmentIndex.getLastSegmentNum();
+    if (indexLastAvailableSegmentNum == DashSegmentIndex.INDEX_UNBOUNDED) {
+      // The index is itself unbounded. We need to use the current time to calculate the range of
+      // available segments.
+      long liveEdgeTimestampUs = nowUs - currentManifest.availabilityStartTime * 1000;
+      if (currentManifest.timeShiftBufferDepth != -1) {
+        long bufferDepthUs = currentManifest.timeShiftBufferDepth * 1000;
+        indexFirstAvailableSegmentNum = Math.max(indexFirstAvailableSegmentNum,
+            segmentIndex.getSegmentNum(liveEdgeTimestampUs - bufferDepthUs));
+      }
+      // getSegmentNum(liveEdgeTimestampUs) will not be completed yet, so subtract one to get the
+      // index of the last completed segment.
+      indexLastAvailableSegmentNum = segmentIndex.getSegmentNum(liveEdgeTimestampUs) - 1;
+    }
+    firstAvailableSegmentNum = indexFirstAvailableSegmentNum;
+    lastAvailableSegmentNum = indexLastAvailableSegmentNum;
+  }
+
+  private void updateSeekRange(DashSegmentIndex segmentIndex, long nowUs) {
+    long earliestSeekPosition = segmentIndex.getTimeUs(firstAvailableSegmentNum);
+    long latestSeekPosition = segmentIndex.getTimeUs(lastAvailableSegmentNum)
+        + segmentIndex.getDurationUs(lastAvailableSegmentNum);
+    if (currentManifest.dynamic) {
+      long liveEdgeTimestampUs;
+      if (segmentIndex.getLastSegmentNum() == DashSegmentIndex.INDEX_UNBOUNDED) {
+        liveEdgeTimestampUs = nowUs - currentManifest.availabilityStartTime * 1000;
+      } else {
+        liveEdgeTimestampUs = segmentIndex.getTimeUs(segmentIndex.getLastSegmentNum())
+            + segmentIndex.getDurationUs(segmentIndex.getLastSegmentNum());
+        if (!segmentIndex.isExplicit()) {
+          // Some segments defined by the index may not be available yet. Bound the calculated live
+          // edge based on the elapsed time since the manifest became available.
+          liveEdgeTimestampUs = Math.min(liveEdgeTimestampUs,
+              nowUs - currentManifest.availabilityStartTime * 1000);
+        }
+      }
+
+      // it's possible that the live edge latency actually puts our latest position before
+      // the earliest position in the case of a DVR-like stream that's just starting up, so
+      // in that case just return the earliest position instead
+      latestSeekPosition = Math.max(earliestSeekPosition, liveEdgeTimestampUs - liveEdgeLatencyUs);
+    }
+
+    TimeRange newSeekRange = new TimeRange(TimeRange.TYPE_SNAPSHOT, earliestSeekPosition,
+        latestSeekPosition);
+    if (seekRange == null || !seekRange.equals(newSeekRange)) {
+      seekRange = newSeekRange;
+      notifySeekRangeChanged(seekRange);
+    }
+  }
+
   private static boolean mimeTypeIsWebm(String mimeType) {
     return mimeType.startsWith(MimeTypes.VIDEO_WEBM) || mimeType.startsWith(MimeTypes.AUDIO_WEBM);
   }
@@ -491,36 +581,12 @@ public class DashChunkSource implements ChunkSource {
     }
   }
 
-  /**
-   * For live playbacks, determines the seek position that snaps playback to be
-   * {@link #liveEdgeLatencyUs} behind the live edge of the current manifest
-   *
-   * @param nowUs An estimate of the current server time, in microseconds.
-   * @param indexUnbounded True if the segment index for this source is unbounded. False otherwise.
-   * @param indexExplicit True if the segment index is explicit. False otherwise.
-   * @return The seek position in microseconds.
-   */
-  private long getLiveSeekPosition(long nowUs, boolean indexUnbounded, boolean indexExplicit) {
-    long liveEdgeTimestampUs;
-    if (indexUnbounded) {
-      liveEdgeTimestampUs = nowUs - currentManifest.availabilityStartTime * 1000;
+  private long getNowUs() {
+    if (elapsedRealtimeOffsetUs != 0) {
+      return (systemClock.elapsedRealtime() * 1000) + elapsedRealtimeOffsetUs;
     } else {
-      liveEdgeTimestampUs = Long.MIN_VALUE;
-      for (RepresentationHolder representationHolder : representationHolders.values()) {
-        DashSegmentIndex segmentIndex = representationHolder.segmentIndex;
-        int lastSegmentNum = segmentIndex.getLastSegmentNum();
-        long indexLiveEdgeTimestampUs = segmentIndex.getTimeUs(lastSegmentNum)
-            + segmentIndex.getDurationUs(lastSegmentNum);
-        liveEdgeTimestampUs = Math.max(liveEdgeTimestampUs, indexLiveEdgeTimestampUs);
-      }
-      if (!indexExplicit) {
-        // Some segments defined by the index may not be available yet. Bound the calculated live
-        // edge based on the elapsed time since the manifest became available.
-        liveEdgeTimestampUs = Math.min(liveEdgeTimestampUs,
-            nowUs - currentManifest.availabilityStartTime * 1000);
-      }
+      return System.currentTimeMillis() * 1000;
     }
-    return liveEdgeTimestampUs - liveEdgeLatencyUs;
   }
 
   private static Representation[] getFilteredRepresentations(MediaPresentationDescription manifest,
@@ -569,6 +635,17 @@ public class DashChunkSource implements ChunkSource {
     long duration = firstRepresentation.periodDurationMs - firstRepresentation.periodStartMs;
     return new MediaPresentationDescription(-1, duration, -1, false, -1, -1, null,
         Collections.singletonList(period));
+  }
+
+  private void notifySeekRangeChanged(final TimeRange seekRange) {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          eventListener.onSeekRangeChanged(seekRange);
+        }
+      });
+    }
   }
 
   private static class RepresentationHolder {

@@ -21,11 +21,13 @@ import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
+import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
+import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
@@ -50,7 +52,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventListener,
     HlsSampleSource.EventListener, DefaultBandwidthMeter.EventListener,
     MediaCodecVideoTrackRenderer.EventListener, MediaCodecAudioTrackRenderer.EventListener,
-    StreamingDrmSessionManager.EventListener, TextRenderer {
+    StreamingDrmSessionManager.EventListener, DashChunkSource.EventListener, TextRenderer {
 
   /**
    * Builds renderers for the player.
@@ -132,6 +134,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
         int mediaStartTimeMs, int mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs);
     void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
         long initializationDurationMs);
+    void onSeekRangeChanged(TimeRange seekRange);
   }
 
   /**
@@ -508,6 +511,13 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   @Override
   public void onText(String text) {
     processText(text);
+  }
+
+  @Override
+  public void onSeekRangeChanged(TimeRange seekRange) {
+    if (infoListener != null) {
+      infoListener.onSeekRangeChanged(seekRange);
+    }
   }
 
   /* package */ MetadataTrackRenderer.MetadataRenderer<Map<String, Object>>

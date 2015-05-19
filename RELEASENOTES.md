@@ -1,6 +1,12 @@
 # Release notes #
 
-### r1.3.2 ###
+### Current dev branch (from r1.3.2) ###
+
+* Add option to TsExtractor to allow non-IDR keyframes.
+* Added MulticastDataSource for connecting to multicast streams.
+* (WorkInProgress) - First steps to supporting seeking in DASH DVR window.
+
+### r1.3.2 (from r1.3.1) ###
 
 * DataSource improvements: `DefaultUriDataSource` now handles http://, https://, file://, asset://
   and content:// URIs automatically. It also handles file:///android_asset/* URIs, and file paths
