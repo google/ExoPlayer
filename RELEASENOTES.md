@@ -1,6 +1,6 @@
 # Release notes #
 
-### Latest dev branch (from r1.3.1) ###
+### r1.3.2 ###
 
 * DataSource improvements: `DefaultUriDataSource` now handles http://, https://, file://, asset://
   and content:// URIs automatically. It also handles file:///android_asset/* URIs, and file paths
