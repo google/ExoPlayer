@@ -92,8 +92,12 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
   public void buildRenderers(DemoPlayer player, RendererBuilderCallback callback) {
     this.player = player;
     this.callback = callback;
+    String manifestUrl = url;
+    if (!manifestUrl.endsWith("/Manifest")) {
+      manifestUrl += "/Manifest";
+    }
     SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
-    manifestFetcher = new ManifestFetcher<SmoothStreamingManifest>(url + "/Manifest",
+    manifestFetcher = new ManifestFetcher<SmoothStreamingManifest>(manifestUrl,
         new DefaultHttpDataSource(userAgent, null), parser);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
@@ -160,7 +164,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
       videoRenderer = null;
       debugRenderer = null;
     } else {
-      DataSource videoDataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
+      DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
           videoStreamElementIndex, videoTrackIndices, videoDataSource,
           new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
@@ -184,7 +188,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     } else {
       audioTrackNames = new String[audioStreamElementCount];
       ChunkSource[] audioChunkSources = new ChunkSource[audioStreamElementCount];
-      DataSource audioDataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
+      DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       FormatEvaluator audioFormatEvaluator = new FormatEvaluator.FixedEvaluator();
       audioStreamElementCount = 0;
       for (int i = 0; i < manifest.streamElements.length; i++) {
@@ -215,7 +219,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     } else {
       textTrackNames = new String[textStreamElementCount];
       ChunkSource[] textChunkSources = new ChunkSource[textStreamElementCount];
-      DataSource ttmlDataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
+      DataSource ttmlDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       FormatEvaluator ttmlFormatEvaluator = new FormatEvaluator.FixedEvaluator();
       textStreamElementCount = 0;
       for (int i = 0; i < manifest.streamElements.length; i++) {

@@ -25,6 +25,7 @@ import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 
+import android.content.Context;
 import android.media.MediaCodec;
 import android.net.Uri;
 import android.widget.TextView;
@@ -36,13 +37,15 @@ public class ExtractorRendererBuilder implements RendererBuilder {
 
   private static final int BUFFER_SIZE = 10 * 1024 * 1024;
 
+  private final Context context;
   private final String userAgent;
   private final Uri uri;
   private final TextView debugTextView;
   private final Extractor extractor;
 
-  public ExtractorRendererBuilder(String userAgent, Uri uri, TextView debugTextView,
-      Extractor extractor) {
+  public ExtractorRendererBuilder(Context context, String userAgent, Uri uri,
+      TextView debugTextView, Extractor extractor) {
+    this.context = context;
     this.userAgent = userAgent;
     this.uri = uri;
     this.debugTextView = debugTextView;
@@ -52,7 +55,7 @@ public class ExtractorRendererBuilder implements RendererBuilder {
   @Override
   public void buildRenderers(DemoPlayer player, RendererBuilderCallback callback) {
     // Build the video and audio renderers.
-    DataSource dataSource = new DefaultUriDataSource(userAgent, null);
+    DataSource dataSource = new DefaultUriDataSource(context, userAgent);
     ExtractorSampleSource sampleSource = new ExtractorSampleSource(uri, dataSource, extractor, 2,
         BUFFER_SIZE);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,

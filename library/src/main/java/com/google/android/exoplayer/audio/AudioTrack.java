@@ -574,6 +574,7 @@ public final class AudioTrack {
       submittedBytes = 0;
       temporaryBufferSize = 0;
       startMediaTimeUs = START_NOT_SET;
+      latencyUs = 0;
       resetSyncParams();
       int playState = audioTrack.getPlayState();
       if (playState == android.media.AudioTrack.PLAYSTATE_PLAYING) {
@@ -647,9 +648,10 @@ public final class AudioTrack {
       }
     }
 
-    if (systemClockUs - lastTimestampSampleTimeUs >= MIN_TIMESTAMP_SAMPLE_INTERVAL_US) {
-      // Don't use AudioTrack.getTimestamp() on AC-3 tracks, as it gives an incorrect timestamp.
-      audioTimestampSet = !isAc3 && audioTrackUtil.updateTimestamp();
+    // Don't sample the timestamp and latency if this is an AC-3 passthrough AudioTrack, as the
+    // returned values cause audio/video synchronization to be incorrect.
+    if (!isAc3 && systemClockUs - lastTimestampSampleTimeUs >= MIN_TIMESTAMP_SAMPLE_INTERVAL_US) {
+      audioTimestampSet = audioTrackUtil.updateTimestamp();
       if (audioTimestampSet) {
         // Perform sanity checks on the timestamp.
         long audioTimestampUs = audioTrackUtil.getTimestampNanoTime() / 1000;
