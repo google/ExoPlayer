@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.upstream;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.util.Assertions;
 
 import android.content.res.AssetManager;
 
@@ -24,9 +25,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * A local asset {@link DataSource}.
+ * A local asset {@link UriDataSource}.
  */
-public final class AssetDataSource implements DataSource {
+public final class AssetDataSource implements UriDataSource {
 
   /**
    * Thrown when IOException is encountered during local asset read operation.
@@ -42,6 +43,7 @@ public final class AssetDataSource implements DataSource {
   private final AssetManager assetManager;
   private final TransferListener listener;
 
+  private String uriString;
   private InputStream assetInputStream;
   private long bytesRemaining;
   private boolean opened;
@@ -66,10 +68,16 @@ public final class AssetDataSource implements DataSource {
   @Override
   public long open(DataSpec dataSpec) throws AssetDataSourceException {
     try {
-      // Lose the '/' prefix in the path or else AssetManager won't find our file
-      assetInputStream = assetManager.open(dataSpec.uri.getPath().substring(1),
-          AssetManager.ACCESS_RANDOM);
-      assetInputStream.skip(dataSpec.position);
+      uriString = dataSpec.uri.toString();
+      String path = dataSpec.uri.getPath();
+      if (path.startsWith("/android_asset/")) {
+        path = path.substring(15);
+      } else if (path.startsWith("/")) {
+        path = path.substring(1);
+      }
+      assetInputStream = assetManager.open(path, AssetManager.ACCESS_RANDOM);
+      long skipped = assetInputStream.skip(dataSpec.position);
+      Assertions.checkState(skipped == dataSpec.position);
       bytesRemaining = dataSpec.length == C.LENGTH_UNBOUNDED ? assetInputStream.available()
           : dataSpec.length;
       if (bytesRemaining < 0) {
@@ -108,6 +116,11 @@ public final class AssetDataSource implements DataSource {
 
       return bytesRead;
     }
+  }
+
+  @Override
+  public String getUri() {
+    return uriString;
   }
 
   @Override

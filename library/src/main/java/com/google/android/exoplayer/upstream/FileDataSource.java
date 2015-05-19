@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 /**
- * A local file {@link DataSource}.
+ * A local file {@link UriDataSource}.
  */
 public final class FileDataSource implements UriDataSource {
 

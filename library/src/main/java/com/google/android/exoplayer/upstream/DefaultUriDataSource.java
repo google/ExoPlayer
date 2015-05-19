@@ -100,8 +100,11 @@ public final class DefaultUriDataSource implements UriDataSource {
   @Override
   public void close() throws IOException {
     if (dataSource != null) {
-      dataSource.close();
-      dataSource = null;
+      try {
+        dataSource.close();
+      } finally {
+        dataSource = null;
+      }
     }
   }
 
