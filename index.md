@@ -13,59 +13,23 @@ be updated through Play Store application updates.
 
 Read news, hints and tips on the [news]({{ site.baseurl }}/news.html) page.
 
-## Developer guide ##
+## Documentation ##
 
-The [developer guide]({{ site.baseurl }}/guide.html) provides a wealth of information to help you
-get started.
+* The [developer guide][] provides a wealth of information to help you get started.
+* The [class reference][] documents the ExoPlayer library classes.
+* The [release notes][] document the major changes in each release.
 
-## Reference documentation ##
+[developer guide]: https://google.github.io/ExoPlayer/guide.html
+[class reference]: https://google.github.io/ExoPlayer/doc/reference
+[release notes]: https://github.com/google/ExoPlayer/blob/dev/RELEASENOTES.md
 
-The [class reference]({{ site.baseurl }}/doc/reference) documents the ExoPlayer library classes.
+## Source code ##
 
-## Project branches ##
+* Source code can be found in the [ExoPlayer project][] on GitHub.
+* The [master][] branch holds the most recent minor release.
+* Most development work happens on the [dev][] branch.
+* Additional development branches may be established for major features.
 
-  * The [master][] branch holds the most recent minor release.
-  * Most development work happens on the [dev][] branch.
-  * Additional development branches may be established for major features.
-
+[ExoPlayer project]: https://github.com/google/ExoPlayer/tree/master
 [master]: https://github.com/google/ExoPlayer/tree/master
 [dev]: https://github.com/google/ExoPlayer/tree/dev
-
-## Using Eclipse ##
-
-The repository includes Eclipse projects for both the ExoPlayer library and its
-accompanying demo application. To get started:
-
-  1. Install Eclipse and setup the [Android SDK][].
-
-  1. Open Eclipse and navigate to File->Import->General->Existing Projects into
-     Workspace.
-
-  1. Select the root directory of the repository.
-
-  1. Import the ExoPlayerDemo and ExoPlayerLib projects.
-
-[Android SDK]: http://developer.android.com/sdk/index.html
-
-## Using Gradle ##
-
-ExoPlayer can also be built using Gradle. You can include it as a dependent project and build from
-source. e.g.
-
-{% highlight text %}
-// settings.gradle
-include ':app', ':..:ExoPlayer:library'
-
-// app/build.gradle
-dependencies {
-    compile project(':..:ExoPlayer:library')
-}
-{% endhighlight %}
-
-If you want to use ExoPlayer as a jar, run:
-
-{% highlight text %}
-./gradlew jarRelease
-{% endhighlight %}
-
-and copy library.jar to the libs-folder of your new project.
