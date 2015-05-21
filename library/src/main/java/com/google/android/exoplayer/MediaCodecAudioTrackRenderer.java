@@ -15,16 +15,16 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.audio.AudioTrack;
-import com.google.android.exoplayer.drm.DrmSessionManager;
-import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.MimeTypes;
-
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
+
+import com.google.android.exoplayer.audio.AudioTrack;
+import com.google.android.exoplayer.drm.DrmSessionManager;
+import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.MimeTypes;
 
 import java.nio.ByteBuffer;
 
@@ -63,10 +63,11 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   private long currentPositionUs;
 
-  public MediaCodecAudioTrackRenderer(SampleSource source, float speed) {
-      this(source, null, true);
-      this.audioTrack.setPlaybackSpeed(speed);
-  }
+    public MediaCodecAudioTrackRenderer(SampleSource source, int streamType, float speed) {
+        this(source, null, true);
+        this.audioTrack.setPlaybackSpeed(speed);
+        this.audioTrack.setStreamType(streamType);
+    }
 
   /**
    * @param source The upstream source from which the renderer obtains samples.

@@ -15,10 +15,6 @@
  */
 package com.google.android.exoplayer.audio;
 
-import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.Util;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.AudioFormat;
@@ -27,6 +23,10 @@ import android.media.AudioTimestamp;
 import android.media.MediaFormat;
 import android.os.ConditionVariable;
 import android.util.Log;
+
+import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.Util;
 
 import org.vinuxproject.sonic.Sonic;
 
@@ -155,6 +155,9 @@ public final class AudioTrack {
   /** Bitrate measured in kilobits per second, if {@link #isAc3} is true. */
   private int ac3Bitrate;
 
+  private int streamType = AudioManager.STREAM_MUSIC;
+
+
   /** Constructs an audio track using the default minimum buffer size multiplier. */
   public AudioTrack() {
     this(DEFAULT_MIN_BUFFER_MULTIPLICATION_FACTOR);
@@ -181,6 +184,10 @@ public final class AudioTrack {
     playheadOffsets = new long[MAX_PLAYHEAD_OFFSET_COUNT];
     volume = 1.0f;
     startMediaTimeState = START_NOT_SET;
+  }
+
+  public void setStreamType(final int streamType) {
+      this.streamType = streamType;
   }
 
   /**
@@ -257,7 +264,7 @@ public final class AudioTrack {
    * @return The newVOICE_CALLre-used) session identifier.
    */
   public int initialize(int sessionId) throws InitializationException {
-      return initialize(sessionId, AudioManager.STREAM_MUSIC);
+      return initialize(sessionId, streamType);
   }
 
   /**
