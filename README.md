@@ -74,3 +74,11 @@ If you want to use ExoPlayer as a jar, run:
 ```
 
 and copy library.jar to the libs-folder of your new project.
+
+Since v1.2.3, the project is also on [jCenter](https://bintray.com/google/exoplayer/exoplayer/view), use it with :
+
+```groovy
+compile 'com.google.android.exoplayer:exoplayer:r1.x.x'
+```
+
+*Replace `x.x` with the latest version*
