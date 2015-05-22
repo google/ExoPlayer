@@ -131,8 +131,7 @@ public class DashRendererBuilder implements RendererBuilder,
     this.callback = callback;
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
     manifestDataSource = new DefaultUriDataSource(context, userAgent);
-    manifestFetcher = new ManifestFetcher<>(url, manifestDataSource,
-        parser);
+    manifestFetcher = new ManifestFetcher<>(url, manifestDataSource, parser);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 

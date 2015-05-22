@@ -54,7 +54,6 @@ public class WebvttSubtitleTest extends TestCase {
   }
   private WebvttSubtitle overlappingSubtitle = new WebvttSubtitle(overlappingSubtitleCues, 0);
 
-  @SuppressWarnings("unused")
   private ArrayList<WebvttCue> nestedSubtitleCues = new ArrayList<>();
   {
     WebvttCue firstCue = new WebvttCue(1000000, 4000000, FIRST_SUBTITLE_STRING);

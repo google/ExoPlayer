@@ -38,9 +38,19 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    sourceSets {
+        androidTest {
+            assets.srcDirs = ['src/test/assets']
+            java.srcDirs = ['src/test/java']
+        }
+    }
 }
 
 dependencies {
+    androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
+    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
+    androidTestCompile 'org.mockito:mockito-core:1.9.5'
 }
 
 android.libraryVariants.all { variant ->

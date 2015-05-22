@@ -70,7 +70,7 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
    */
   public void init(Allocator allocator) {
     this.allocator = allocator;
-    this.extractor.init(this);
+    extractor.init(this);
   }
 
   /**

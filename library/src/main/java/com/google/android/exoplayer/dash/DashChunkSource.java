@@ -101,7 +101,7 @@ public class DashChunkSource implements ChunkSource {
 
   private final TrackInfo trackInfo;
   private final DataSource dataSource;
-  private final FormatEvaluator evaluator;
+  private final FormatEvaluator formatEvaluator;
   private final Evaluation evaluation;
   private final Clock systemClock;
   private final StringBuilder headerBuilder;
@@ -117,13 +117,14 @@ public class DashChunkSource implements ChunkSource {
   private final int adaptationSetIndex;
   private final int[] representationIndices;
 
-  private DrmInitData drmInitData;
   private MediaPresentationDescription currentManifest;
+  private boolean finishedCurrentManifest;
+
+  private DrmInitData drmInitData;
   private TimeRange seekRange;
   private long[] seekRangeValues;
   private int firstAvailableSegmentNum;
   private int lastAvailableSegmentNum;
-  private boolean finishedCurrentManifest;
 
   private boolean lastChunkWasInitialization;
   private IOException fatalError;
@@ -214,7 +215,7 @@ public class DashChunkSource implements ChunkSource {
     this.adaptationSetIndex = adaptationSetIndex;
     this.representationIndices = representationIndices;
     this.dataSource = dataSource;
-    this.evaluator = formatEvaluator;
+    this.formatEvaluator = formatEvaluator;
     this.systemClock = systemClock;
     this.liveEdgeLatencyUs = liveEdgeLatencyUs;
     this.elapsedRealtimeOffsetUs = elapsedRealtimeOffsetUs;
@@ -268,7 +269,8 @@ public class DashChunkSource implements ChunkSource {
 
   @Override
   public void enable() {
-    evaluator.enable();
+    fatalError = null;
+    formatEvaluator.enable();
     if (manifestFetcher != null) {
       manifestFetcher.enable();
     }
@@ -286,7 +288,7 @@ public class DashChunkSource implements ChunkSource {
 
   @Override
   public void disable(List<? extends MediaChunk> queue) {
-    evaluator.disable();
+    formatEvaluator.disable();
     if (manifestFetcher != null) {
       manifestFetcher.disable();
     }
@@ -347,7 +349,7 @@ public class DashChunkSource implements ChunkSource {
 
     evaluation.queueSize = queue.size();
     if (evaluation.format == null || !lastChunkWasInitialization) {
-      evaluator.evaluate(queue, playbackPositionUs, formats, evaluation);
+      formatEvaluator.evaluate(queue, playbackPositionUs, formats, evaluation);
     }
     Format selectedFormat = evaluation.format;
     out.queueSize = evaluation.queueSize;
@@ -361,6 +363,9 @@ public class DashChunkSource implements ChunkSource {
       // of the queue. Leave unchanged.
       return;
     }
+
+    // In all cases where we return before instantiating a new chunk, we want out.chunk to be null.
+    out.chunk = null;
 
     RepresentationHolder representationHolder = representationHolders.get(selectedFormat.id);
     Representation selectedRepresentation = representationHolder.representation;
@@ -426,7 +431,7 @@ public class DashChunkSource implements ChunkSource {
     }
 
     if (segmentNum == -1) {
-      out.chunk = null;
+      // We've reached the end of the stream.
       return;
     }
 

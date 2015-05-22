@@ -92,7 +92,8 @@ public final class CacheSpan implements Comparable<CacheSpan> {
     return new CacheSpan(key, position, file.length(), true, lastAccessTimestamp, file);
   }
 
-  private CacheSpan(String key, long position, long length, boolean isCached,
+  // Visible for testing.
+  CacheSpan(String key, long position, long length, boolean isCached,
       long lastAccessTimestamp, File file) {
     this.key = key;
     this.position = position;
