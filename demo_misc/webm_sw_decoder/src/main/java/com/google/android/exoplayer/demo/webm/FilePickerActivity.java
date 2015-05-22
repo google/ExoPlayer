@@ -53,8 +53,8 @@ public class FilePickerActivity extends ListActivity {
 
   private void setDirectory(File directory) {
     currentPathView.setText(getString(R.string.current_path, directory.getAbsolutePath()));
-    listItems = new ArrayList<String>();
-    itemPaths = new ArrayList<File>();
+    listItems = new ArrayList<>();
+    itemPaths = new ArrayList<>();
     File[] files = directory.listFiles();
 
     if (!directory.getAbsolutePath().equals(root.getAbsolutePath())) {
@@ -77,7 +77,7 @@ public class FilePickerActivity extends ListActivity {
       }
     }
 
-    setListAdapter(new ArrayAdapter<String>(this, R.layout.rows, listItems));
+    setListAdapter(new ArrayAdapter<>(this, R.layout.rows, listItems));
   }
 
   @Override

@@ -52,8 +52,8 @@ import java.util.LinkedList;
   public VpxDecoderWrapper(boolean outputRgb) {
     lock = new Object();
     this.outputRgb = outputRgb;
-    queuedInputBuffers = new LinkedList<InputBuffer>();
-    queuedOutputBuffers = new LinkedList<OutputBuffer>();
+    queuedInputBuffers = new LinkedList<>();
+    queuedOutputBuffers = new LinkedList<>();
     availableInputBuffers = new InputBuffer[NUM_BUFFERS];
     availableOutputBuffers = new OutputBuffer[NUM_BUFFERS];
     availableInputBufferCount = NUM_BUFFERS;

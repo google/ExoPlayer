@@ -67,8 +67,7 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
   public void build() {
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
     ManifestFetcher<MediaPresentationDescription> manifestFetcher =
-        new ManifestFetcher<MediaPresentationDescription>(manifestUrl,
-            new DefaultHttpDataSource(userAgent, null), parser);
+        new ManifestFetcher<>(manifestUrl, new DefaultHttpDataSource(userAgent, null), parser);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 
@@ -84,8 +83,8 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter(null, null);
 
     // Obtain Representations for playback.
-    ArrayList<Representation> audioRepresentationsList = new ArrayList<Representation>();
-    ArrayList<Representation> videoRepresentationsList = new ArrayList<Representation>();
+    ArrayList<Representation> audioRepresentationsList = new ArrayList<>();
+    ArrayList<Representation> videoRepresentationsList = new ArrayList<>();
     Period period = manifest.periods.get(0);
     for (int i = 0; i < period.adaptationSets.size(); i++) {
       AdaptationSet adaptationSet = period.adaptationSets.get(i);
