@@ -665,7 +665,7 @@ public final class WebmExtractor implements Extractor {
           durationUs, audioTrackFormat.channelCount, audioTrackFormat.sampleRate,
           parseVorbisCodecPrivate());
     } else if (audioTrackFormat != null && CODEC_ID_OPUS.equals(audioTrackFormat.codecId)) {
-      ArrayList<byte[]> opusInitializationData = new ArrayList<byte[]>(3);
+      ArrayList<byte[]> opusInitializationData = new ArrayList<>(3);
       opusInitializationData.add(audioTrackFormat.codecPrivate);
       opusInitializationData.add(
           ByteBuffer.allocate(Long.SIZE).putLong(audioTrackFormat.codecDelayNs).array());
@@ -757,7 +757,7 @@ public final class WebmExtractor implements Extractor {
       }
       byte[] vorbisBooks = new byte[codecPrivate.length - offset];
       System.arraycopy(codecPrivate, offset, vorbisBooks, 0, codecPrivate.length - offset);
-      ArrayList<byte[]> initializationData = new ArrayList<byte[]>(2);
+      ArrayList<byte[]> initializationData = new ArrayList<>(2);
       initializationData.add(vorbisInfo);
       initializationData.add(vorbisBooks);
       return initializationData;

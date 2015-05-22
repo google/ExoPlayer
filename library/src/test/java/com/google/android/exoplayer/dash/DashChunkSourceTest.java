@@ -383,7 +383,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   }
 
   private static MediaPresentationDescription generateVodMpd() {
-    List<Representation> representations = new ArrayList<Representation>();
+    List<Representation> representations = new ArrayList<>();
 
     SingleSegmentBase segmentBase1 = new SingleSegmentBase("https://example.com/1.mp4");
     Representation representation1 =
@@ -399,10 +399,10 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   }
 
   private static MediaPresentationDescription generateLiveMpdWithTimeline(long startTime) {
-    List<Representation> representations = new ArrayList<Representation>();
+    List<Representation> representations = new ArrayList<>();
 
-    List<SegmentTimelineElement> segmentTimeline = new ArrayList<SegmentTimelineElement>();
-    List<RangedUri> mediaSegments = new ArrayList<RangedUri>();
+    List<SegmentTimelineElement> segmentTimeline = new ArrayList<>();
+    List<RangedUri> mediaSegments = new ArrayList<>();
     long byteStart = 0;
     for (int i = 0; i < LIVE_SEGMENT_COUNT; i++) {
       segmentTimeline.add(new SegmentTimelineElement(startTime, LIVE_SEGMENT_DURATION_MS));
@@ -423,7 +423,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
 
   private static MediaPresentationDescription generateLiveMpdWithTemplate(
       boolean limitTimeshiftBuffer) {
-    List<Representation> representations = new ArrayList<Representation>();
+    List<Representation> representations = new ArrayList<>();
 
     UrlTemplate initializationTemplate = null;
     UrlTemplate mediaTemplate = UrlTemplate.compile("$RepresentationID$/$Number$");
@@ -464,7 +464,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
       long seekPositionMs, long seekRangeStartMs, long seekRangeEndMs, long chunkStartTimeMs,
       long chunkEndTimeMs) {
     DashChunkSource chunkSource = setupLiveEdgeTimelineTest(startTimeMs, liveEdgeLatencyMs);
-    List<MediaChunk> queue = new ArrayList<MediaChunk>();
+    List<MediaChunk> queue = new ArrayList<>();
     ChunkOperationHolder out = new ChunkOperationHolder();
     chunkSource.getChunkOperation(queue, seekPositionMs * 1000, 0, out);
     TimeRange seekRange = chunkSource.getSeekRange();
@@ -482,7 +482,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
       long chunkEndTimeMs, boolean limitTimeshiftBuffer) {
     DashChunkSource chunkSource = setupLiveEdgeTemplateTest(startTimeMs, liveEdgeLatencyMs,
         limitTimeshiftBuffer);
-    List<MediaChunk> queue = new ArrayList<MediaChunk>();
+    List<MediaChunk> queue = new ArrayList<>();
     ChunkOperationHolder out = new ChunkOperationHolder();
     chunkSource.getChunkOperation(queue, seekPositionMs * 1000, 0, out);
     TimeRange seekRange = chunkSource.getSeekRange();

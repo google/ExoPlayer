@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.dash;
 
 import com.google.android.exoplayer.BehindLiveWindowException;
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.TrackInfo;
@@ -43,7 +44,6 @@ import com.google.android.exoplayer.extractor.ChunkIndex;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer.extractor.webm.WebmExtractor;
-import com.google.android.exoplayer.text.webvtt.WebvttParser;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.Clock;
@@ -101,7 +101,7 @@ public class DashChunkSource implements ChunkSource {
 
   private final TrackInfo trackInfo;
   private final DataSource dataSource;
-  private final FormatEvaluator evaluator;
+  private final FormatEvaluator formatEvaluator;
   private final Evaluation evaluation;
   private final Clock systemClock;
   private final StringBuilder headerBuilder;
@@ -117,13 +117,14 @@ public class DashChunkSource implements ChunkSource {
   private final int adaptationSetIndex;
   private final int[] representationIndices;
 
-  private DrmInitData drmInitData;
   private MediaPresentationDescription currentManifest;
+  private boolean finishedCurrentManifest;
+
+  private DrmInitData drmInitData;
   private TimeRange seekRange;
   private long[] seekRangeValues;
   private int firstAvailableSegmentNum;
   private int lastAvailableSegmentNum;
-  private boolean finishedCurrentManifest;
 
   private boolean lastChunkWasInitialization;
   private IOException fatalError;
@@ -214,7 +215,7 @@ public class DashChunkSource implements ChunkSource {
     this.adaptationSetIndex = adaptationSetIndex;
     this.representationIndices = representationIndices;
     this.dataSource = dataSource;
-    this.evaluator = formatEvaluator;
+    this.formatEvaluator = formatEvaluator;
     this.systemClock = systemClock;
     this.liveEdgeLatencyUs = liveEdgeLatencyUs;
     this.elapsedRealtimeOffsetUs = elapsedRealtimeOffsetUs;
@@ -232,7 +233,7 @@ public class DashChunkSource implements ChunkSource {
     this.trackInfo = new TrackInfo(representations[0].format.mimeType, periodDurationUs);
 
     this.formats = new Format[representations.length];
-    this.representationHolders = new HashMap<String, RepresentationHolder>();
+    this.representationHolders = new HashMap<>();
     int maxWidth = 0;
     int maxHeight = 0;
     for (int i = 0; i < representations.length; i++) {
@@ -268,7 +269,8 @@ public class DashChunkSource implements ChunkSource {
 
   @Override
   public void enable() {
-    evaluator.enable();
+    fatalError = null;
+    formatEvaluator.enable();
     if (manifestFetcher != null) {
       manifestFetcher.enable();
     }
@@ -286,7 +288,7 @@ public class DashChunkSource implements ChunkSource {
 
   @Override
   public void disable(List<? extends MediaChunk> queue) {
-    evaluator.disable();
+    formatEvaluator.disable();
     if (manifestFetcher != null) {
       manifestFetcher.disable();
     }
@@ -347,7 +349,7 @@ public class DashChunkSource implements ChunkSource {
 
     evaluation.queueSize = queue.size();
     if (evaluation.format == null || !lastChunkWasInitialization) {
-      evaluator.evaluate(queue, playbackPositionUs, formats, evaluation);
+      formatEvaluator.evaluate(queue, playbackPositionUs, formats, evaluation);
     }
     Format selectedFormat = evaluation.format;
     out.queueSize = evaluation.queueSize;
@@ -361,6 +363,9 @@ public class DashChunkSource implements ChunkSource {
       // of the queue. Leave unchanged.
       return;
     }
+
+    // In all cases where we return before instantiating a new chunk, we want out.chunk to be null.
+    out.chunk = null;
 
     RepresentationHolder representationHolder = representationHolders.get(selectedFormat.id);
     Representation selectedRepresentation = representationHolder.representation;
@@ -426,7 +431,7 @@ public class DashChunkSource implements ChunkSource {
     }
 
     if (segmentNum == -1) {
-      out.chunk = null;
+      // We've reached the end of the stream.
       return;
     }
 
@@ -566,8 +571,9 @@ public class DashChunkSource implements ChunkSource {
       if (representationHolder.vttHeaderOffsetUs != presentationTimeOffsetUs) {
         // Update the VTT header.
         headerBuilder.setLength(0);
-        headerBuilder.append(WebvttParser.EXO_HEADER).append("=")
-            .append(WebvttParser.OFFSET).append(presentationTimeOffsetUs).append("\n");
+        headerBuilder.append(C.WEBVTT_EXO_HEADER).append("=")
+            .append(C.WEBVTT_EXO_HEADER_OFFSET).append(presentationTimeOffsetUs)
+            .append("\n");
         representationHolder.vttHeader = headerBuilder.toString().getBytes();
         representationHolder.vttHeaderOffsetUs = presentationTimeOffsetUs;
       }

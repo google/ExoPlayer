@@ -88,7 +88,7 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
     formatHolder = new MediaFormatHolder();
     sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
     captionStringBuilder = new StringBuilder();
-    pendingCaptionLists = new TreeSet<ClosedCaptionList>();
+    pendingCaptionLists = new TreeSet<>();
   }
 
   @Override
@@ -230,8 +230,11 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
   }
 
   private void invokeRendererInternal(String cueText) {
-    Cue cue = new Cue(cueText);
-    textRenderer.onCues(Collections.singletonList(cue));
+    if (cueText == null) {
+      textRenderer.onCues(Collections.<Cue>emptyList());
+    } else {
+      textRenderer.onCues(Collections.singletonList(new Cue(cueText)));
+    }
   }
 
   private void maybeParsePendingSample() {

@@ -516,7 +516,7 @@ public class HlsChunkSource {
   }
 
   private static Format[] buildEnabledFormats(List<Variant> variants, int[] variantIndices) {
-    ArrayList<Variant> enabledVariants = new ArrayList<Variant>();
+    ArrayList<Variant> enabledVariants = new ArrayList<>();
     if (variantIndices != null) {
       for (int i = 0; i < variantIndices.length; i++) {
         enabledVariants.add(variants.get(variantIndices[i]));
@@ -526,8 +526,8 @@ public class HlsChunkSource {
       enabledVariants.addAll(variants);
     }
 
-    ArrayList<Variant> definiteVideoVariants = new ArrayList<Variant>();
-    ArrayList<Variant> definiteAudioOnlyVariants = new ArrayList<Variant>();
+    ArrayList<Variant> definiteVideoVariants = new ArrayList<>();
+    ArrayList<Variant> definiteAudioOnlyVariants = new ArrayList<>();
     for (int i = 0; i < enabledVariants.size(); i++) {
       Variant variant = enabledVariants.get(i);
       if (variant.format.height > 0 || variantHasExplicitCodecWithPrefix(variant, "avc")) {

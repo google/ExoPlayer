@@ -105,7 +105,7 @@ public class TtmlParser implements SubtitleParser {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
       xmlParser.setInput(inputStream, inputEncoding);
       TtmlSubtitle ttmlSubtitle = null;
-      LinkedList<TtmlNode> nodeStack = new LinkedList<TtmlNode>();
+      LinkedList<TtmlNode> nodeStack = new LinkedList<>();
       int unsupportedNodeDepth = 0;
       int eventType = xmlParser.getEventType();
       while (eventType != XmlPullParser.END_DOCUMENT) {

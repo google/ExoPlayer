@@ -85,7 +85,7 @@ public final class TsExtractor implements Extractor, SeekMap {
     tsPacketBuffer = new ParsableByteArray(TS_PACKET_SIZE);
     streamTypes = new SparseBooleanArray();
     allowedPassthroughStreamTypes = getPassthroughStreamTypes(audioCapabilities);
-    tsPayloadReaders = new SparseArray<TsPayloadReader>();
+    tsPayloadReaders = new SparseArray<>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
     lastPts = Long.MIN_VALUE;
   }

@@ -110,7 +110,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     nalLength = new ParsableByteArray(4);
     encryptionSignalByte = new ParsableByteArray(1);
     extendedTypeScratch = new byte[16];
-    containerAtoms = new Stack<ContainerAtom>();
+    containerAtoms = new Stack<>();
     fragmentRun = new TrackFragment();
     parserState = STATE_READING_ATOM_HEADER;
   }

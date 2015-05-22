@@ -224,7 +224,7 @@ import java.util.List;
     byte[] ppsData = new byte[pps.nalLength];
     System.arraycopy(sps.nalData, 0, spsData, 0, sps.nalLength);
     System.arraycopy(pps.nalData, 0, ppsData, 0, pps.nalLength);
-    List<byte[]> initializationData = new ArrayList<byte[]>();
+    List<byte[]> initializationData = new ArrayList<>();
     initializationData.add(spsData);
     initializationData.add(ppsData);
 

@@ -40,22 +40,7 @@ import java.util.regex.Pattern;
  */
 public class WebvttParser implements SubtitleParser {
 
-  static final String TAG = "WebvttParser";
-
-  /**
-   * This parser allows a custom header to be prepended to the WebVTT data, in the form of a text
-   * line starting with this string.
-   *
-   * @hide
-   */
-  public static final String EXO_HEADER = "EXO-HEADER";
-  /**
-   * A {@code OFFSET + value} element can be added to the custom header to specify an offset time
-   * (in microseconds) that should be subtracted from the embedded MPEGTS value.
-   *
-   * @hide
-   */
-  public static final String OFFSET = "OFFSET:";
+  private static final String TAG = "WebvttParser";
 
   private static final long SAMPLING_RATE = 90;
 
@@ -73,7 +58,8 @@ public class WebvttParser implements SubtitleParser {
   private static final String WEBVTT_CUE_SETTING_STRING = "\\S*:\\S*";
   private static final Pattern WEBVTT_CUE_SETTING = Pattern.compile(WEBVTT_CUE_SETTING_STRING);
 
-  private static final Pattern MEDIA_TIMESTAMP_OFFSET = Pattern.compile(OFFSET + "\\d+");
+  private static final Pattern MEDIA_TIMESTAMP_OFFSET =
+      Pattern.compile(C.WEBVTT_EXO_HEADER_OFFSET + "\\d+");
   private static final Pattern MEDIA_TIMESTAMP = Pattern.compile("MPEGTS:\\d+");
 
   private static final String NON_NUMERIC_STRING = ".*[^0-9].*";
@@ -95,7 +81,7 @@ public class WebvttParser implements SubtitleParser {
   @Override
   public WebvttSubtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
       throws IOException {
-    ArrayList<WebvttCue> subtitles = new ArrayList<WebvttCue>();
+    ArrayList<WebvttCue> subtitles = new ArrayList<>();
     long mediaTimestampUs = startTimeUs;
     long mediaTimestampOffsetUs = 0;
 
@@ -108,7 +94,7 @@ public class WebvttParser implements SubtitleParser {
       throw new ParserException("Expected WEBVTT or EXO-HEADER. Got null");
     }
 
-    if (line.startsWith(EXO_HEADER)) {
+    if (line.startsWith(C.WEBVTT_EXO_HEADER)) {
       // parse the timestamp offset, if present
       Matcher matcher = MEDIA_TIMESTAMP_OFFSET.matcher(line);
       if (matcher.find()) {

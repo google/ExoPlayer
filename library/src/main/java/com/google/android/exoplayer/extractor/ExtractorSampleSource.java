@@ -130,7 +130,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
     this.remainingReleaseCount = downstreamRendererCount;
     this.requestedBufferSize = requestedBufferSize;
     this.minLoadableRetryCount = minLoadableRetryCount;
-    sampleQueues = new SparseArray<InternalTrackOutput>();
+    sampleQueues = new SparseArray<>();
     allocator = new DefaultAllocator(BUFFER_FRAGMENT_LENGTH);
     pendingResetPositionUs = NO_RESET_PENDING;
     frameAccurateSeeking = true;

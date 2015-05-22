@@ -71,7 +71,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   public Mp4Extractor() {
     atomHeader = new ParsableByteArray(Atom.LONG_HEADER_SIZE);
-    containerAtoms = new Stack<Atom.ContainerAtom>();
+    containerAtoms = new Stack<>();
     nalStartCode = new ParsableByteArray(H264Util.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
     parserState = STATE_READING_ATOM_HEADER;
@@ -216,7 +216,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   /** Updates the stored track metadata to reflect the contents of the specified moov atom. */
   private void processMoovAtom(ContainerAtom moov) {
-    List<Mp4Track> tracks = new ArrayList<Mp4Track>();
+    List<Mp4Track> tracks = new ArrayList<>();
     long earliestSampleOffset = Long.MAX_VALUE;
     for (int i = 0; i < moov.containerChildren.size(); i++) {
       Atom.ContainerAtom atom = moov.containerChildren.get(i);

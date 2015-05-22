@@ -113,7 +113,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     this.eventSourceId = eventSourceId;
     this.minLoadableRetryCount = minLoadableRetryCount;
     currentLoadableHolder = new ChunkOperationHolder();
-    mediaChunks = new LinkedList<BaseMediaChunk>();
+    mediaChunks = new LinkedList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
     sampleQueue = new DefaultTrackOutput(loadControl.getAllocator());
     state = STATE_UNPREPARED;

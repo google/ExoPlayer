@@ -127,8 +127,8 @@ public class DefaultLoadControl implements LoadControl {
     this.allocator = allocator;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
-    this.loaders = new ArrayList<Object>();
-    this.loaderStates = new HashMap<Object, LoaderState>();
+    this.loaders = new ArrayList<>();
+    this.loaderStates = new HashMap<>();
     this.lowWatermarkUs = lowWatermarkMs * 1000L;
     this.highWatermarkUs = highWatermarkMs * 1000L;
     this.lowBufferLoad = lowBufferLoad;

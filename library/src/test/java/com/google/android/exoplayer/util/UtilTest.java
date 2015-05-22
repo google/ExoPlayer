@@ -53,7 +53,7 @@ public class UtilTest extends TestCase {
   }
 
   public void testListBinarySearchFloor() {
-    List<Integer> values = new ArrayList<Integer>();
+    List<Integer> values = new ArrayList<>();
     assertEquals(-1, Util.binarySearchFloor(values, 0, false, false));
     assertEquals(0, Util.binarySearchFloor(values, 0, false, true));
 
@@ -107,7 +107,7 @@ public class UtilTest extends TestCase {
   }
 
   public void testListBinarySearchCeil() {
-    List<Integer> values = new ArrayList<Integer>();
+    List<Integer> values = new ArrayList<>();
     assertEquals(0, Util.binarySearchCeil(values, 0, false, false));
     assertEquals(-1, Util.binarySearchCeil(values, 0, false, true));
 

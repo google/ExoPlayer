@@ -121,7 +121,7 @@ public class MediaFormat {
     channelCount = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_CHANNEL_COUNT);
     sampleRate = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_SAMPLE_RATE);
     pixelWidthHeightRatio = getOptionalFloatV16(format, KEY_PIXEL_WIDTH_HEIGHT_RATIO);
-    initializationData = new ArrayList<byte[]>();
+    initializationData = new ArrayList<>();
     for (int i = 0; format.containsKey("csd-" + i); i++) {
       ByteBuffer buffer = format.getByteBuffer("csd-" + i);
       byte[] data = new byte[buffer.limit()];

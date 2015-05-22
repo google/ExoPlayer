@@ -267,7 +267,7 @@ public class Mp4ExtractorTest extends TestCase {
 
   private static byte[] getStsc() {
     int samplesPerChunk = -1;
-    List<Integer> samplesInChunkChangeIndices = new ArrayList<Integer>();
+    List<Integer> samplesInChunkChangeIndices = new ArrayList<>();
     for (int i = 0; i < SAMPLES_IN_CHUNK.length; i++) {
       if (SAMPLES_IN_CHUNK[i] != samplesPerChunk) {
         samplesInChunkChangeIndices.add(i);

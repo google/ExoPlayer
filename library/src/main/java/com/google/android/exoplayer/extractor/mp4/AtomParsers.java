@@ -396,7 +396,7 @@ import java.util.List;
     if (nalUnitLengthFieldLength == 3) {
       throw new IllegalStateException();
     }
-    List<byte[]> initializationData = new ArrayList<byte[]>();
+    List<byte[]> initializationData = new ArrayList<>();
     // TODO: We should try and parse these using CodecSpecificDataUtil.parseSpsNalUnit, and
     // expose the AVC profile and level somewhere useful; Most likely in MediaFormat.
     int numSequenceParameterSets = parent.readUnsignedByte() & 0x1F;
@@ -472,7 +472,7 @@ import java.util.List;
     int height = parent.readUnsignedShort();
     parent.skipBytes(50);
 
-    List<byte[]> initializationData = new ArrayList<byte[]>(1);
+    List<byte[]> initializationData = new ArrayList<>(1);
     int childPosition = parent.getPosition();
     while (childPosition - position < size) {
       parent.setPosition(childPosition);

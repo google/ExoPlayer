@@ -67,7 +67,7 @@ public class SlidingPercentile {
   public SlidingPercentile(int maxWeight) {
     this.maxWeight = maxWeight;
     recycledSamples = new Sample[MAX_RECYCLED_SAMPLES];
-    samples = new ArrayList<Sample>();
+    samples = new ArrayList<>();
     currentSortOrder = SORT_ORDER_NONE;
   }
 

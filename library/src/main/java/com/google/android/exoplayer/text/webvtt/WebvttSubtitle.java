@@ -100,7 +100,7 @@ public class WebvttSubtitle implements Subtitle {
     for (int i = 0; i < numCues; i++) {
       if ((cueTimesUs[i * 2] <= timeUs) && (timeUs < cueTimesUs[i * 2 + 1])) {
         if (list == null) {
-          list = new ArrayList<Cue>();
+          list = new ArrayList<>();
         }
         WebvttCue cue = cues.get(i);
         if (cue.isNormalCue()) {
