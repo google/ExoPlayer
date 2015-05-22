@@ -74,7 +74,7 @@ publish {
     userOrg = 'google'
     groupId = 'com.google.android.exoplayer'
     artifactId = 'exoplayer'
-    version = 'r1.3.2'
+    version = 'r1.3.3'
     description = 'The ExoPlayer library.'
     website = 'https://github.com/google/ExoPlayer'
 }
