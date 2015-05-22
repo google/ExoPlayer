@@ -36,28 +36,6 @@ import java.io.IOException;
  */
 public final class DefaultUriDataSource implements UriDataSource {
 
-  /**
-   * Thrown when a {@link DefaultUriDataSource} is opened for a URI with an unsupported scheme.
-   */
-  public static final class UnsupportedSchemeException extends IOException {
-
-    /**
-     * The unsupported scheme.
-     */
-    public final String scheme;
-
-    /**
-     * @param scheme The unsupported scheme.
-     */
-    public UnsupportedSchemeException(String scheme) {
-      super("Unsupported URI scheme: " + scheme);
-      this.scheme = scheme;
-    }
-
-  }
-
-  private static final String SCHEME_HTTP = "http";
-  private static final String SCHEME_HTTPS = "https";
   private static final String SCHEME_FILE = "file";
   private static final String SCHEME_ASSET = "asset";
   private static final String SCHEME_CONTENT = "content";
@@ -141,9 +119,7 @@ public final class DefaultUriDataSource implements UriDataSource {
     Assertions.checkState(dataSource == null);
     // Choose the correct source for the scheme.
     String scheme = dataSpec.uri.getScheme();
-    if (SCHEME_HTTP.equals(scheme) || SCHEME_HTTPS.equals(scheme)) {
-      dataSource = httpDataSource;
-    } else if (SCHEME_FILE.equals(scheme) || TextUtils.isEmpty(scheme)) {
+    if (SCHEME_FILE.equals(scheme) || TextUtils.isEmpty(scheme)) {
       if (dataSpec.uri.getPath().startsWith("/android_asset/")) {
         dataSource = assetDataSource;
       } else {
@@ -154,7 +130,7 @@ public final class DefaultUriDataSource implements UriDataSource {
     } else if (SCHEME_CONTENT.equals(scheme)) {
       dataSource = contentDataSource;
     } else {
-      throw new UnsupportedSchemeException(scheme);
+      dataSource = httpDataSource;
     }
     // Open the source and return.
     return dataSource.open(dataSpec);

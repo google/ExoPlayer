@@ -55,7 +55,7 @@ accompanying demo application. To get started:
 
 ## Using Gradle ##
 
-ExoPlayer can also be built using Gradle. You can include it as a dependent project and build from source. e.g.
+ExoPlayer can also be built using Gradle. You can include it as a dependent project and build from source:
 
 ```
 // settings.gradle
@@ -74,3 +74,11 @@ If you want to use ExoPlayer as a jar, run:
 ```
 
 and copy library.jar to the libs-folder of your new project.
+
+The project is also available on [jCenter](https://bintray.com/google/exoplayer/exoplayer/view):
+
+```
+compile 'com.google.android.exoplayer:exoplayer:rX.X.X'
+```
+
+Where `rX.X.X` should be replaced with the desired version.

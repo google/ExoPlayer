@@ -1,5 +1,10 @@
 # Release notes #
 
+### r1.3.3 ###
+
+* HLS: Fix failure when playing HLS AAC streams.
+* Misc bug fixes.
+
 ### r1.3.2 ###
 
 * DataSource improvements: `DefaultUriDataSource` now handles http://, https://, file://, asset://
