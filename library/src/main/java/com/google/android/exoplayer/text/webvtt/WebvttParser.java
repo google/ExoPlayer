@@ -81,7 +81,7 @@ public class WebvttParser implements SubtitleParser {
   @Override
   public WebvttSubtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
       throws IOException {
-    ArrayList<WebvttCue> subtitles = new ArrayList<WebvttCue>();
+    ArrayList<WebvttCue> subtitles = new ArrayList<>();
     long mediaTimestampUs = startTimeUs;
     long mediaTimestampOffsetUs = 0;
 

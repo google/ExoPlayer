@@ -52,7 +52,7 @@ public abstract class DrmInitData {
 
     public Mapped(String mimeType) {
       super(mimeType);
-      schemeData = new HashMap<UUID, byte[]>();
+      schemeData = new HashMap<>();
     }
 
     @Override

@@ -139,7 +139,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
       EventListener eventListener) throws UnsupportedSchemeException {
     HashMap<String, String> optionalKeyRequestParameters;
     if (!TextUtils.isEmpty(customData)) {
-      optionalKeyRequestParameters = new HashMap<String, String>();
+      optionalKeyRequestParameters = new HashMap<>();
       optionalKeyRequestParameters.put(PLAYREADY_CUSTOM_DATA_KEY, customData);
     } else {
       optionalKeyRequestParameters = null;

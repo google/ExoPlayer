@@ -62,7 +62,7 @@ public final class NetworkLock {
   private int highestPriority;
 
   private NetworkLock() {
-    queue = new PriorityQueue<Integer>();
+    queue = new PriorityQueue<>();
     highestPriority = Integer.MAX_VALUE;
   }
 

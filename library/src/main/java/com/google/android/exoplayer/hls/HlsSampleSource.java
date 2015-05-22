@@ -120,7 +120,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
     this.pendingResetPositionUs = NO_RESET_PENDING;
-    extractors = new LinkedList<HlsExtractorWrapper>();
+    extractors = new LinkedList<>();
     allocator = new DefaultAllocator(BUFFER_FRAGMENT_LENGTH);
   }
 

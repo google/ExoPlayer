@@ -122,8 +122,8 @@ import java.util.List;
     public ContainerAtom(int type, long endByteOffset) {
       super(type);
 
-      leafChildren = new ArrayList<LeafAtom>();
-      containerChildren = new ArrayList<ContainerAtom>();
+      leafChildren = new ArrayList<>();
+      containerChildren = new ArrayList<>();
       this.endByteOffset = endByteOffset;
     }
 

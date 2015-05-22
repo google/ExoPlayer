@@ -153,8 +153,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
     int trackCount = trackIndices != null ? trackIndices.length : streamElement.tracks.length;
     formats = new Format[trackCount];
-    extractorWrappers = new SparseArray<ChunkExtractorWrapper>();
-    mediaFormats = new SparseArray<MediaFormat>();
+    extractorWrappers = new SparseArray<>();
+    mediaFormats = new SparseArray<>();
     int maxWidth = 0;
     int maxHeight = 0;
     for (int i = 0; i < trackCount; i++) {

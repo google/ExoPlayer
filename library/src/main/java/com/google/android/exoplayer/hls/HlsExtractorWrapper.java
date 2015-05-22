@@ -60,7 +60,7 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
     this.startTimeUs = startTimeUs;
     this.extractor = extractor;
     this.shouldSpliceIn = shouldSpliceIn;
-    sampleQueues = new SparseArray<DefaultTrackOutput>();
+    sampleQueues = new SparseArray<>();
   }
 
   /**

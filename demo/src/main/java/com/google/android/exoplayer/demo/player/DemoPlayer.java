@@ -207,7 +207,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     player.addListener(this);
     playerControl = new PlayerControl(player);
     mainHandler = new Handler();
-    listeners = new CopyOnWriteArrayList<Listener>();
+    listeners = new CopyOnWriteArrayList<>();
     lastReportedPlaybackState = STATE_IDLE;
     rendererBuildingState = RENDERER_BUILDING_STATE_IDLE;
     selectedTracks = new int[RENDERER_COUNT];

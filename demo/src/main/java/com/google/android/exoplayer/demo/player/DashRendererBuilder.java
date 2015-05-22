@@ -131,7 +131,7 @@ public class DashRendererBuilder implements RendererBuilder,
     this.callback = callback;
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
     manifestDataSource = new DefaultUriDataSource(context, userAgent);
-    manifestFetcher = new ManifestFetcher<MediaPresentationDescription>(url, manifestDataSource,
+    manifestFetcher = new ManifestFetcher<>(url, manifestDataSource,
         parser);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
@@ -247,13 +247,13 @@ public class DashRendererBuilder implements RendererBuilder,
     }
 
     // Build the audio chunk sources.
-    List<ChunkSource> audioChunkSourceList = new ArrayList<ChunkSource>();
-    List<String> audioTrackNameList = new ArrayList<String>();
+    List<ChunkSource> audioChunkSourceList = new ArrayList<>();
+    List<String> audioTrackNameList = new ArrayList<>();
     if (audioAdaptationSet != null) {
       DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
       List<Representation> audioRepresentations = audioAdaptationSet.representations;
-      List<String> codecs = new ArrayList<String>();
+      List<String> codecs = new ArrayList<>();
       for (int i = 0; i < audioRepresentations.size(); i++) {
         Format format = audioRepresentations.get(i).format;
         audioTrackNameList.add(format.id + " (" + format.numChannels + "ch, " +
@@ -307,8 +307,8 @@ public class DashRendererBuilder implements RendererBuilder,
     // Build the text chunk sources.
     DataSource textDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
     FormatEvaluator textEvaluator = new FormatEvaluator.FixedEvaluator();
-    List<ChunkSource> textChunkSourceList = new ArrayList<ChunkSource>();
-    List<String> textTrackNameList = new ArrayList<String>();
+    List<ChunkSource> textChunkSourceList = new ArrayList<>();
+    List<String> textTrackNameList = new ArrayList<>();
     for (int i = 0; i < period.adaptationSets.size(); i++) {
       AdaptationSet adaptationSet = period.adaptationSets.get(i);
       if (adaptationSet.type == AdaptationSet.TYPE_TEXT) {

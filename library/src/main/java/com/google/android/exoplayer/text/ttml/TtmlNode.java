@@ -76,7 +76,7 @@ import java.util.TreeSet;
 
   public void addChild(TtmlNode child) {
     if (children == null) {
-      children = new ArrayList<TtmlNode>();
+      children = new ArrayList<>();
     }
     children.add(child);
   }
@@ -93,7 +93,7 @@ import java.util.TreeSet;
   }
 
   public long[] getEventTimesUs() {
-    TreeSet<Long> eventTimeSet = new TreeSet<Long>();
+    TreeSet<Long> eventTimeSet = new TreeSet<>();
     getEventTimes(eventTimeSet, false);
     long[] eventTimes = new long[eventTimeSet.size()];
     Iterator<Long> eventTimeIterator = eventTimeSet.iterator();

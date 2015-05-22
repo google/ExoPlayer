@@ -57,7 +57,7 @@ import java.util.concurrent.LinkedBlockingDeque;
     this.allocator = allocator;
     allocationLength = allocator.getIndividualAllocationLength();
     infoQueue = new InfoQueue();
-    dataQueue = new LinkedBlockingDeque<Allocation>();
+    dataQueue = new LinkedBlockingDeque<>();
     extrasHolder = new SampleExtrasHolder();
     scratch = new ParsableByteArray(INITIAL_SCRATCH_SIZE);
     lastAllocationOffset = allocationLength;

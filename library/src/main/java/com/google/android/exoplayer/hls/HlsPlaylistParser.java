@@ -106,7 +106,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
   public HlsPlaylist parse(String connectionUrl, InputStream inputStream)
       throws IOException, ParserException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-    Queue<String> extraLines = new LinkedList<String>();
+    Queue<String> extraLines = new LinkedList<>();
     String line;
     try {
       while ((line = reader.readLine()) != null) {
@@ -137,8 +137,8 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
 
   private static HlsMasterPlaylist parseMasterPlaylist(LineIterator iterator, String baseUri)
       throws IOException {
-    ArrayList<Variant> variants = new ArrayList<Variant>();
-    ArrayList<Subtitle> subtitles = new ArrayList<Subtitle>();
+    ArrayList<Variant> variants = new ArrayList<>();
+    ArrayList<Subtitle> subtitles = new ArrayList<>();
     int bitrate = 0;
     String codecs = null;
     int width = -1;
@@ -202,7 +202,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
     int targetDurationSecs = 0;
     int version = 1; // Default version == 1.
     boolean live = true;
-    List<Segment> segments = new ArrayList<Segment>();
+    List<Segment> segments = new ArrayList<>();
 
     double segmentDurationSecs = 0.0;
     boolean segmentDiscontinuity = false;

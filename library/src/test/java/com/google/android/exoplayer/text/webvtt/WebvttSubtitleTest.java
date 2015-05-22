@@ -34,7 +34,7 @@ public class WebvttSubtitleTest extends TestCase {
 
   private WebvttSubtitle emptySubtitle = new WebvttSubtitle(new ArrayList<WebvttCue>(), 0);
 
-  private ArrayList<WebvttCue> simpleSubtitleCues = new ArrayList<WebvttCue>();
+  private ArrayList<WebvttCue> simpleSubtitleCues = new ArrayList<>();
   {
     WebvttCue firstCue = new WebvttCue(1000000, 2000000, FIRST_SUBTITLE_STRING);
     simpleSubtitleCues.add(firstCue);
@@ -44,7 +44,7 @@ public class WebvttSubtitleTest extends TestCase {
   }
   private WebvttSubtitle simpleSubtitle = new WebvttSubtitle(simpleSubtitleCues, 0);
 
-  private ArrayList<WebvttCue> overlappingSubtitleCues = new ArrayList<WebvttCue>();
+  private ArrayList<WebvttCue> overlappingSubtitleCues = new ArrayList<>();
   {
     WebvttCue firstCue = new WebvttCue(1000000, 3000000, FIRST_SUBTITLE_STRING);
     overlappingSubtitleCues.add(firstCue);
@@ -54,7 +54,8 @@ public class WebvttSubtitleTest extends TestCase {
   }
   private WebvttSubtitle overlappingSubtitle = new WebvttSubtitle(overlappingSubtitleCues, 0);
 
-  private ArrayList<WebvttCue> nestedSubtitleCues = new ArrayList<WebvttCue>();
+  @SuppressWarnings("unused")
+  private ArrayList<WebvttCue> nestedSubtitleCues = new ArrayList<>();
   {
     WebvttCue firstCue = new WebvttCue(1000000, 4000000, FIRST_SUBTITLE_STRING);
     nestedSubtitleCues.add(firstCue);

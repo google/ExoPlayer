@@ -42,7 +42,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
   @Override
   public Map<String, Object> parse(byte[] data, int size)
       throws UnsupportedEncodingException, ParserException {
-    Map<String, Object> metadata = new HashMap<String, Object>();
+    Map<String, Object> metadata = new HashMap<>();
     ParsableByteArray id3Data = new ParsableByteArray(data, size);
     int id3Size = parseId3Header(id3Data);
 

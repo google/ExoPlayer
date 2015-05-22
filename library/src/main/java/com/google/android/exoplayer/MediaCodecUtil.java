@@ -53,7 +53,7 @@ public class MediaCodecUtil {
   private static final String TAG = "MediaCodecUtil";
 
   private static final HashMap<CodecKey, Pair<String, CodecCapabilities>> codecs =
-      new HashMap<CodecKey, Pair<String, CodecCapabilities>>();
+      new HashMap<>();
 
   /**
    * Get information about the decoder that will be used for a given mime type.

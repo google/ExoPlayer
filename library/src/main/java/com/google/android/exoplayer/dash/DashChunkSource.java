@@ -232,7 +232,7 @@ public class DashChunkSource implements ChunkSource {
     this.trackInfo = new TrackInfo(representations[0].format.mimeType, periodDurationUs);
 
     this.formats = new Format[representations.length];
-    this.representationHolders = new HashMap<String, RepresentationHolder>();
+    this.representationHolders = new HashMap<>();
     int maxWidth = 0;
     int maxHeight = 0;
     for (int i = 0; i < representations.length; i++) {

@@ -132,7 +132,7 @@ public final class CodecSpecificDataUtil {
       // data does not consist of NAL start code delimited units.
       return null;
     }
-    List<Integer> starts = new ArrayList<Integer>();
+    List<Integer> starts = new ArrayList<>();
     int nalUnitIndex = 0;
     do {
       starts.add(nalUnitIndex);

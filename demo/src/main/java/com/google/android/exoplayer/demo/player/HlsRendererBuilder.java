@@ -76,7 +76,7 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
     this.player = player;
     this.callback = callback;
     HlsPlaylistParser parser = new HlsPlaylistParser();
-    ManifestFetcher<HlsPlaylist> playlistFetcher = new ManifestFetcher<HlsPlaylist>(url,
+    ManifestFetcher<HlsPlaylist> playlistFetcher = new ManifestFetcher<>(url,
         new DefaultUriDataSource(context, userAgent), parser);
     playlistFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
@@ -113,7 +113,7 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
 
     MetadataTrackRenderer<Map<String, Object>> id3Renderer =
-        new MetadataTrackRenderer<Map<String, Object>>(sampleSource, new Id3Parser(),
+        new MetadataTrackRenderer<>(sampleSource, new Id3Parser(),
             player.getId3MetadataRenderer(), mainHandler.getLooper());
 
     Eia608TrackRenderer closedCaptionRenderer = new Eia608TrackRenderer(sampleSource, player,

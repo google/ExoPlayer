@@ -88,7 +88,7 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
     formatHolder = new MediaFormatHolder();
     sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
     captionStringBuilder = new StringBuilder();
-    pendingCaptionLists = new TreeSet<ClosedCaptionList>();
+    pendingCaptionLists = new TreeSet<>();
   }
 
   @Override

@@ -112,7 +112,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         : -1;
     UtcTimingElement utcTiming = null;
 
-    List<Period> periods = new ArrayList<Period>();
+    List<Period> periods = new ArrayList<>();
     do {
       xpp.next();
       if (isStartTag(xpp, "BaseURL")) {
@@ -152,7 +152,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     long startMs = parseDuration(xpp, "start", 0);
     long durationMs = parseDuration(xpp, "duration", mpdDurationMs);
     SegmentBase segmentBase = null;
-    List<AdaptationSet> adaptationSets = new ArrayList<AdaptationSet>();
+    List<AdaptationSet> adaptationSets = new ArrayList<>();
     do {
       xpp.next();
       if (isStartTag(xpp, "BaseURL")) {
@@ -188,7 +188,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
     int id = -1;
     ContentProtectionsBuilder contentProtectionsBuilder = new ContentProtectionsBuilder();
-    List<Representation> representations = new ArrayList<Representation>();
+    List<Representation> representations = new ArrayList<>();
     do {
       xpp.next();
       if (isStartTag(xpp, "BaseURL")) {
@@ -432,7 +432,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         timeline = parseSegmentTimeline(xpp);
       } else if (isStartTag(xpp, "SegmentURL")) {
         if (segments == null) {
-          segments = new ArrayList<RangedUri>();
+          segments = new ArrayList<>();
         }
         segments.add(parseSegmentUrl(xpp, baseUrl));
       }
@@ -499,7 +499,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
   protected List<SegmentTimelineElement> parseSegmentTimeline(XmlPullParser xpp)
       throws XmlPullParserException, IOException {
-    List<SegmentTimelineElement> segmentTimeline = new ArrayList<SegmentTimelineElement>();
+    List<SegmentTimelineElement> segmentTimeline = new ArrayList<>();
     long elapsedTime = 0;
     do {
       xpp.next();
@@ -642,7 +642,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
      */
     public void addAdaptationSetProtection(ContentProtection contentProtection) {
       if (adaptationSetProtections == null) {
-        adaptationSetProtections = new ArrayList<ContentProtection>();
+        adaptationSetProtections = new ArrayList<>();
       }
       maybeAddContentProtection(adaptationSetProtections, contentProtection);
     }
@@ -654,7 +654,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
      */
     public void addRepresentationProtection(ContentProtection contentProtection) {
       if (currentRepresentationProtections == null) {
-        currentRepresentationProtections = new ArrayList<ContentProtection>();
+        currentRepresentationProtections = new ArrayList<>();
       }
       maybeAddContentProtection(currentRepresentationProtections, contentProtection);
     }

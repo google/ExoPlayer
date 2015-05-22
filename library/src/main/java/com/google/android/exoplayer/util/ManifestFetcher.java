@@ -146,7 +146,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
    */
   public void singleLoad(Looper callbackLooper, final ManifestCallback<T> callback) {
     SingleFetchHelper fetchHelper = new SingleFetchHelper(
-        new UriLoadable<T>(manifestUrl, uriDataSource, parser), callbackLooper, callback);
+        new UriLoadable<>(manifestUrl, uriDataSource, parser), callbackLooper, callback);
     fetchHelper.startLoading();
   }
 
@@ -219,7 +219,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       loader = new Loader("manifestLoader");
     }
     if (!loader.isLoading()) {
-      currentLoadable = new UriLoadable<T>(manifestUrl, uriDataSource, parser);
+      currentLoadable = new UriLoadable<>(manifestUrl, uriDataSource, parser);
       loader.startLoading(currentLoadable, this);
       notifyManifestRefreshStarted();
     }

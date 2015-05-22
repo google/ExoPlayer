@@ -49,7 +49,7 @@ public final class SubtitleLayout extends ViewGroup {
 
   public SubtitleLayout(Context context, AttributeSet attrs) {
     super(context, attrs);
-    subtitleViews = new ArrayList<SubtitleView>();
+    subtitleViews = new ArrayList<>();
     fontScale = 1;
     captionStyle = CaptionStyleCompat.DEFAULT;
   }
