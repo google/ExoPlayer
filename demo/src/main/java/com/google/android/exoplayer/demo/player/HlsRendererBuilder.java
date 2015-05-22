@@ -121,7 +121,7 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
 
     // Build the debug renderer.
     TrackRenderer debugRenderer = debugTextView != null
-        ? new DebugTrackRenderer(debugTextView, player, videoRenderer) : null;
+        ? new DebugTrackRenderer(debugTextView, player, videoRenderer, bandwidthMeter) : null;
 
     TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
     renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;

@@ -68,6 +68,10 @@ public abstract class Chunk implements Loadable {
    */
   public static final int TRIGGER_ADAPTIVE = 3;
   /**
+   * Value of {@link #trigger} for a load triggered whilst in a trick play mode.
+   */
+  public static final int TRIGGER_TRICK_PLAY = 4;
+  /**
    * Implementations may define custom {@link #trigger} codes greater than or equal to this value.
    */
   public static final int TRIGGER_CUSTOM_BASE = 10000;

@@ -13,20 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.text;
+package com.google.android.exoplayer;
 
-import java.util.List;
+import junit.framework.TestCase;
 
 /**
- * An interface for components that render text.
+ * Unit test for {@link TimeRange}.
  */
-public interface TextRenderer {
+public class TimeRangeTest extends TestCase {
 
-  /**
-   * Invoked each time there is a change in the {@link Cue}s to be rendered.
-   *
-   * @param cues The {@link Cue}s to be rendered, or an empty list if no cues are to be rendered.
-   */
-  void onCues(List<Cue> cues);
+  public void testEquals() {
+    TimeRange timeRange1 = new TimeRange(TimeRange.TYPE_SNAPSHOT, 0, 30000000);
+    assertTrue(timeRange1.equals(timeRange1));
+    
+    TimeRange timeRange2 = new TimeRange(TimeRange.TYPE_SNAPSHOT, 0, 30000000);
+    assertTrue(timeRange1.equals(timeRange2));
+    
+    TimeRange timeRange3 = new TimeRange(TimeRange.TYPE_SNAPSHOT, 0, 60000000);
+    assertFalse(timeRange1.equals(timeRange3));
+  }
 
 }

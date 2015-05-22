@@ -217,7 +217,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
    * Provides access to {@link MediaDrm#setPropertyString(String, String)}.
    * <p>
    * This method may be called when the manager is in any state.
-   * 
+   *
    * @param key The property to write.
    * @param value The value to write.
    */

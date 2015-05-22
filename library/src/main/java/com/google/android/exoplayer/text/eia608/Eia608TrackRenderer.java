@@ -21,6 +21,7 @@ import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.TextRenderer;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
@@ -31,6 +32,7 @@ import android.os.Looper;
 import android.os.Message;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.TreeSet;
 
 /**
@@ -227,8 +229,9 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
     return false;
   }
 
-  private void invokeRendererInternal(String text) {
-    textRenderer.onText(text);
+  private void invokeRendererInternal(String cueText) {
+    Cue cue = new Cue(cueText);
+    textRenderer.onCues(Collections.singletonList(cue));
   }
 
   private void maybeParsePendingSample() {

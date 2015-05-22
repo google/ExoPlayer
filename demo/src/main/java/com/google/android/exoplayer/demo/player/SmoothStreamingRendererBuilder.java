@@ -174,7 +174,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
       videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource, drmSessionManager, true,
           MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, mainHandler, player, 50);
       debugRenderer = debugTextView != null
-          ? new DebugTrackRenderer(debugTextView, player, videoRenderer) : null;
+          ? new DebugTrackRenderer(debugTextView, player, videoRenderer, bandwidthMeter) : null;
     }
 
     // Build the audio renderer.
