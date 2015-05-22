@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.dash;
 
 import com.google.android.exoplayer.BehindLiveWindowException;
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.TrackInfo;
@@ -43,7 +44,6 @@ import com.google.android.exoplayer.extractor.ChunkIndex;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer.extractor.webm.WebmExtractor;
-import com.google.android.exoplayer.text.webvtt.WebvttParser;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.Clock;
@@ -566,8 +566,9 @@ public class DashChunkSource implements ChunkSource {
       if (representationHolder.vttHeaderOffsetUs != presentationTimeOffsetUs) {
         // Update the VTT header.
         headerBuilder.setLength(0);
-        headerBuilder.append(WebvttParser.EXO_HEADER).append("=")
-            .append(WebvttParser.OFFSET).append(presentationTimeOffsetUs).append("\n");
+        headerBuilder.append(C.WEBVTT_EXO_HEADER).append("=")
+            .append(C.WEBVTT_EXO_HEADER_OFFSET).append(presentationTimeOffsetUs)
+            .append("\n");
         representationHolder.vttHeader = headerBuilder.toString().getBytes();
         representationHolder.vttHeaderOffsetUs = presentationTimeOffsetUs;
       }
