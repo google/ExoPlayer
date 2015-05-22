@@ -72,7 +72,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
   private static final Pattern CODECS_ATTR_REGEX =
       Pattern.compile(CODECS_ATTR + "=\"(.+?)\"");
   private static final Pattern RESOLUTION_ATTR_REGEX =
-      Pattern.compile(RESOLUTION_ATTR + "=(\\d+(\\.\\d+)?x\\d+(\\.\\d+)?)");
+      Pattern.compile(RESOLUTION_ATTR + "=(\\d+x\\d+)");
   private static final Pattern MEDIA_DURATION_REGEX =
       Pattern.compile(MEDIA_DURATION_TAG + ":([\\d.]+),");
   private static final Pattern MEDIA_SEQUENCE_REGEX =
@@ -168,12 +168,12 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
             RESOLUTION_ATTR_REGEX);
         if (resolutionString != null) {
           String[] widthAndHeight = resolutionString.split("x");
-          width = Math.round(Float.parseFloat(widthAndHeight[0]));
+          width = Integer.parseInt(widthAndHeight[0]);
           if (width <= 0) {
             // Width was invalid.
             width = -1;
           }
-          height = Math.round(Float.parseFloat(widthAndHeight[1]));
+          height = Integer.parseInt(widthAndHeight[1]);
           if (height <= 0) {
             // Height was invalid.
             height = -1;
