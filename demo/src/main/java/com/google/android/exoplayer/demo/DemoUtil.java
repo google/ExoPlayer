@@ -15,13 +15,6 @@
  */
 package com.google.android.exoplayer.demo;
 
-import com.google.android.exoplayer.ExoPlayerLibraryInfo;
-
-import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Build;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,7 +25,6 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
@@ -46,10 +38,10 @@ public class DemoUtil {
   public static final int TYPE_HLS = 2;
   public static final int TYPE_MP4 = 3;
   public static final int TYPE_MP3 = 4;
-  public static final int TYPE_WEBM = 5;
-  public static final int TYPE_TS = 6;
-  public static final int TYPE_AAC = 7;
-  public static final int TYPE_OTHER = 8;
+  public static final int TYPE_M4A = 5;
+  public static final int TYPE_WEBM = 6;
+  public static final int TYPE_TS = 7;
+  public static final int TYPE_AAC = 8;
 
   private static final CookieManager defaultCookieManager;
 
@@ -59,7 +51,7 @@ public class DemoUtil {
   }
 
   public static byte[] executePost(String url, byte[] data, Map<String, String> requestProperties)
-      throws MalformedURLException, IOException {
+      throws IOException {
     HttpURLConnection urlConnection = null;
     try {
       urlConnection = (HttpURLConnection) new URL(url).openConnection();

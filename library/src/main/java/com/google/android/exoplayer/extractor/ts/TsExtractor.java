@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.extractor.ts;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
@@ -43,7 +44,7 @@ public final class TsExtractor implements Extractor, SeekMap {
 
   private static final int TS_STREAM_TYPE_AAC = 0x0F;
   private static final int TS_STREAM_TYPE_ATSC_AC3 = 0x81;
-  private static final int TS_STREAM_TYPE_DVB_AC3 = 0x06;
+  private static final int TS_STREAM_TYPE_ATSC_E_AC3 = 0x87;
   private static final int TS_STREAM_TYPE_H264 = 0x1B;
   private static final int TS_STREAM_TYPE_ID3 = 0x15;
   private static final int TS_STREAM_TYPE_EIA608 = 0x100; // 0xFF + 1
@@ -51,26 +52,40 @@ public final class TsExtractor implements Extractor, SeekMap {
   private static final long MAX_PTS = 0x1FFFFFFFFL;
 
   private final ParsableByteArray tsPacketBuffer;
-  private final SparseBooleanArray streamTypes;
-  private final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
-  private final long firstSampleTimestampUs;
   private final ParsableBitArray tsScratch;
+  private final boolean idrKeyframesOnly;
+  private final long firstSampleTimestampUs;
+  /* package */ final SparseBooleanArray streamTypes;
+  /* package */ final SparseBooleanArray allowedPassthroughStreamTypes;
+  /* package */ final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
 
   // Accessed only by the loading thread.
   private ExtractorOutput output;
   private long timestampOffsetUs;
   private long lastPts;
+  /* package */ Id3Reader id3Reader;
 
   public TsExtractor() {
     this(0);
   }
 
   public TsExtractor(long firstSampleTimestampUs) {
+    this(firstSampleTimestampUs, null);
+  }
+
+  public TsExtractor(long firstSampleTimestampUs, AudioCapabilities audioCapabilities) {
+    this(firstSampleTimestampUs, audioCapabilities, true);
+  }
+
+  public TsExtractor(long firstSampleTimestampUs, AudioCapabilities audioCapabilities,
+      boolean idrKeyframesOnly) {
     this.firstSampleTimestampUs = firstSampleTimestampUs;
+    this.idrKeyframesOnly = idrKeyframesOnly;
     tsScratch = new ParsableBitArray(new byte[3]);
     tsPacketBuffer = new ParsableByteArray(TS_PACKET_SIZE);
     streamTypes = new SparseBooleanArray();
-    tsPayloadReaders = new SparseArray<TsPayloadReader>();
+    allowedPassthroughStreamTypes = getPassthroughStreamTypes(audioCapabilities);
+    tsPayloadReaders = new SparseArray<>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
     lastPts = Long.MIN_VALUE;
   }
@@ -99,6 +114,8 @@ public final class TsExtractor implements Extractor, SeekMap {
       return RESULT_END_OF_INPUT;
     }
 
+    // Note: see ISO/IEC 13818-1, section 2.4.3.2 for detailed information on the format of
+    // the header.
     tsPacketBuffer.setPosition(0);
     tsPacketBuffer.setLimit(TS_PACKET_SIZE);
     int syncByte = tsPacketBuffer.readUnsignedByte();
@@ -172,6 +189,24 @@ public final class TsExtractor implements Extractor, SeekMap {
     // Record the adjusted PTS to adjust for wraparound next time.
     lastPts = pts;
     return timeUs + timestampOffsetUs;
+  }
+
+  /**
+   * Returns a sparse boolean array of stream types that can be played back based on
+   * {@code audioCapabilities}.
+   */
+  private static SparseBooleanArray getPassthroughStreamTypes(AudioCapabilities audioCapabilities) {
+    SparseBooleanArray streamTypes = new SparseBooleanArray();
+    if (audioCapabilities != null) {
+      if (audioCapabilities.supportsEncoding(C.ENCODING_AC3)) {
+        streamTypes.put(TS_STREAM_TYPE_ATSC_AC3, true);
+      }
+      if (audioCapabilities.supportsEncoding(C.ENCODING_E_AC3)) {
+        // TODO: Uncomment when Ac3Reader supports enhanced AC-3.
+        // streamTypes.put(TS_STREAM_TYPE_ATSC_E_AC3, true);
+      }
+    }
+    return streamTypes;
   }
 
   /**
@@ -270,6 +305,8 @@ public final class TsExtractor implements Extractor, SeekMap {
         data.skipBytes(pointerField);
       }
 
+      // Note: see ISO/IEC 13818-1, section 2.4.4.8 for detailed information on the format of
+      // the header.
       data.readBytes(pmtScratch, 3);
       pmtScratch.skipBits(12); // table_id (8), section_syntax_indicator (1), '0' (1), reserved (2)
       int sectionLength = pmtScratch.readBits(12);
@@ -286,9 +323,11 @@ public final class TsExtractor implements Extractor, SeekMap {
       // Skip the descriptors.
       data.skipBytes(programInfoLength);
 
-      // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
-      // appears intermittently during playback. See b/20261500.
-      Id3Reader id3Reader = new Id3Reader(output.track(TS_STREAM_TYPE_ID3));
+      if (id3Reader == null) {
+        // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
+        // appears intermittently during playback. See b/20261500.
+        id3Reader = new Id3Reader(output.track(TS_STREAM_TYPE_ID3));
+      }
 
       int entriesSize = sectionLength - 9 /* Size of the rest of the fields before descriptors */
           - programInfoLength - 4 /* CRC size */;
@@ -308,18 +347,23 @@ public final class TsExtractor implements Extractor, SeekMap {
           continue;
         }
 
+        // TODO: Detect and read DVB AC-3 streams with Ac3Reader.
         ElementaryStreamReader pesPayloadReader = null;
         switch (streamType) {
           case TS_STREAM_TYPE_AAC:
             pesPayloadReader = new AdtsReader(output.track(TS_STREAM_TYPE_AAC));
             break;
+          case TS_STREAM_TYPE_ATSC_E_AC3:
           case TS_STREAM_TYPE_ATSC_AC3:
-          case TS_STREAM_TYPE_DVB_AC3:
+            if (!allowedPassthroughStreamTypes.get(streamType)) {
+              continue;
+            }
             pesPayloadReader = new Ac3Reader(output.track(streamType));
             break;
           case TS_STREAM_TYPE_H264:
             SeiReader seiReader = new SeiReader(output.track(TS_STREAM_TYPE_EIA608));
-            pesPayloadReader = new H264Reader(output.track(TS_STREAM_TYPE_H264), seiReader);
+            pesPayloadReader = new H264Reader(output.track(TS_STREAM_TYPE_H264), seiReader,
+                idrKeyframesOnly);
             break;
           case TS_STREAM_TYPE_ID3:
             pesPayloadReader = id3Reader;
@@ -474,6 +518,8 @@ public final class TsExtractor implements Extractor, SeekMap {
     }
 
     private boolean parseHeader() {
+      // Note: see ISO/IEC 13818-1, section 2.4.3.6 for detailed information on the format of
+      // the header.
       pesScratch.setPosition(0);
       int startCodePrefix = pesScratch.readBits(24);
       if (startCodePrefix != 0x000001) {
@@ -506,12 +552,12 @@ public final class TsExtractor implements Extractor, SeekMap {
       pesScratch.setPosition(0);
       timeUs = 0;
       if (ptsFlag) {
-        pesScratch.skipBits(4); // '0010'
-        long pts = pesScratch.readBitsLong(3) << 30;
+        pesScratch.skipBits(4); // '0010' or '0011'
+        long pts = (long) pesScratch.readBits(3) << 30;
         pesScratch.skipBits(1); // marker_bit
-        pts |= pesScratch.readBitsLong(15) << 15;
+        pts |= pesScratch.readBits(15) << 15;
         pesScratch.skipBits(1); // marker_bit
-        pts |= pesScratch.readBitsLong(15);
+        pts |= pesScratch.readBits(15);
         pesScratch.skipBits(1); // marker_bit
         timeUs = ptsToTimeUs(pts);
       }

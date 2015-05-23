@@ -58,7 +58,10 @@ public class DataSourceInputStream extends InputStream {
 
   @Override
   public int read() throws IOException {
-    read(singleByteArray);
+    int length = read(singleByteArray);
+    if (length == -1) {
+      return -1;
+    }
     return singleByteArray[0] & 0xFF;
   }
 

@@ -24,10 +24,12 @@ import com.google.android.exoplayer.dash.mpd.SegmentBase.SingleSegmentBase;
 import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
 
 import android.text.TextUtils;
+import android.util.Base64;
 
 import org.xml.sax.helpers.DefaultHandler;
 import org.xmlpull.v1.XmlPullParser;
@@ -41,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -109,7 +112,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         : -1;
     UtcTimingElement utcTiming = null;
 
-    List<Period> periods = new ArrayList<Period>();
+    List<Period> periods = new ArrayList<>();
     do {
       xpp.next();
       if (isStartTag(xpp, "BaseURL")) {
@@ -149,7 +152,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     long startMs = parseDuration(xpp, "start", 0);
     long durationMs = parseDuration(xpp, "duration", mpdDurationMs);
     SegmentBase segmentBase = null;
-    List<AdaptationSet> adaptationSets = new ArrayList<AdaptationSet>();
+    List<AdaptationSet> adaptationSets = new ArrayList<>();
     do {
       xpp.next();
       if (isStartTag(xpp, "BaseURL")) {
@@ -185,7 +188,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
     int id = -1;
     ContentProtectionsBuilder contentProtectionsBuilder = new ContentProtectionsBuilder();
-    List<Representation> representations = new ArrayList<Representation>();
+    List<Representation> representations = new ArrayList<>();
     do {
       xpp.next();
       if (isStartTag(xpp, "BaseURL")) {
@@ -270,11 +273,27 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   protected ContentProtection parseContentProtection(XmlPullParser xpp)
       throws XmlPullParserException, IOException {
     String schemeIdUri = xpp.getAttributeValue(null, "schemeIdUri");
-    return buildContentProtection(schemeIdUri);
+    UUID uuid = null;
+    byte[] data = null;
+    do {
+      xpp.next();
+      // The cenc:pssh element is defined in 23001-7:2015
+      if (isStartTag(xpp, "cenc:pssh") && xpp.next() == XmlPullParser.TEXT) {
+        byte[] decodedData = Base64.decode(xpp.getText(), Base64.DEFAULT);
+        ParsableByteArray psshAtom = new ParsableByteArray(decodedData);
+        psshAtom.skipBytes(12);
+        uuid = new UUID(psshAtom.readLong(), psshAtom.readLong());
+        int dataSize = psshAtom.readInt();
+        data = new byte[dataSize];
+        psshAtom.readBytes(data, 0, dataSize);
+      }
+    } while (!isEndTag(xpp, "ContentProtection"));
+
+    return buildContentProtection(schemeIdUri, uuid, data);
   }
 
-  protected ContentProtection buildContentProtection(String schemeIdUri) {
-    return new ContentProtection(schemeIdUri, null, null);
+  protected ContentProtection buildContentProtection(String schemeIdUri, UUID uuid, byte[] data) {
+    return new ContentProtection(schemeIdUri, uuid, data);
   }
 
   /**
@@ -413,7 +432,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         timeline = parseSegmentTimeline(xpp);
       } else if (isStartTag(xpp, "SegmentURL")) {
         if (segments == null) {
-          segments = new ArrayList<RangedUri>();
+          segments = new ArrayList<>();
         }
         segments.add(parseSegmentUrl(xpp, baseUrl));
       }
@@ -480,7 +499,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
   protected List<SegmentTimelineElement> parseSegmentTimeline(XmlPullParser xpp)
       throws XmlPullParserException, IOException {
-    List<SegmentTimelineElement> segmentTimeline = new ArrayList<SegmentTimelineElement>();
+    List<SegmentTimelineElement> segmentTimeline = new ArrayList<>();
     long elapsedTime = 0;
     do {
       xpp.next();
@@ -623,7 +642,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
      */
     public void addAdaptationSetProtection(ContentProtection contentProtection) {
       if (adaptationSetProtections == null) {
-        adaptationSetProtections = new ArrayList<ContentProtection>();
+        adaptationSetProtections = new ArrayList<>();
       }
       maybeAddContentProtection(adaptationSetProtections, contentProtection);
     }
@@ -635,7 +654,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
      */
     public void addRepresentationProtection(ContentProtection contentProtection) {
       if (currentRepresentationProtections == null) {
-        currentRepresentationProtections = new ArrayList<ContentProtection>();
+        currentRepresentationProtections = new ArrayList<>();
       }
       maybeAddContentProtection(currentRepresentationProtections, contentProtection);
     }

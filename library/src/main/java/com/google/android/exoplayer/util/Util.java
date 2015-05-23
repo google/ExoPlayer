@@ -542,6 +542,22 @@ public final class Util {
   }
 
   /**
+   * Returns a hex string representation of the data provided.
+   *
+   * @param data The byte array containing the data to be turned into a hex string.
+   * @param beginIndex The begin index, inclusive.
+   * @param endIndex The end index, exclusive.
+   * @return A string containing the hex representation of the data provided.
+   */
+  public static String getHexStringFromBytes(byte[] data, int beginIndex, int endIndex) {
+    StringBuffer dataStringBuffer = new StringBuffer(endIndex - beginIndex);
+    for (int i = beginIndex; i < endIndex; i++) {
+      dataStringBuffer.append(String.format("%02X", data[i]));
+    }
+    return dataStringBuffer.toString();
+  }
+
+  /**
    * Returns a user agent string based on the given application name and the library version.
    *
    * @param context A valid context of the calling application.

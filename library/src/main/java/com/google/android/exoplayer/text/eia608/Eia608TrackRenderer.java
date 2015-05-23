@@ -21,6 +21,7 @@ import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.TextRenderer;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
@@ -31,6 +32,7 @@ import android.os.Looper;
 import android.os.Message;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.TreeSet;
 
 /**
@@ -86,13 +88,13 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
     formatHolder = new MediaFormatHolder();
     sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
     captionStringBuilder = new StringBuilder();
-    pendingCaptionLists = new TreeSet<ClosedCaptionList>();
+    pendingCaptionLists = new TreeSet<>();
   }
 
   @Override
-  protected int doPrepare() throws ExoPlaybackException {
+  protected int doPrepare(long positionUs) throws ExoPlaybackException {
     try {
-      boolean sourcePrepared = source.prepare();
+      boolean sourcePrepared = source.prepare(positionUs);
       if (!sourcePrepared) {
         return TrackRenderer.STATE_UNPREPARED;
       }
@@ -227,8 +229,12 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
     return false;
   }
 
-  private void invokeRendererInternal(String text) {
-    textRenderer.onText(text);
+  private void invokeRendererInternal(String cueText) {
+    if (cueText == null) {
+      textRenderer.onCues(Collections.<Cue>emptyList());
+    } else {
+      textRenderer.onCues(Collections.singletonList(new Cue(cueText)));
+    }
   }
 
   private void maybeParsePendingSample() {

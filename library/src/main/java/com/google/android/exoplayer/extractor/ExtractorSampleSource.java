@@ -72,6 +72,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
   private boolean prepared;
   private int enabledTrackCount;
   private TrackInfo[] trackInfos;
+  private long maxTrackDurationUs;
   private boolean[] pendingMediaFormat;
   private boolean[] pendingDiscontinuities;
   private boolean[] trackEnabledStates;
@@ -129,7 +130,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
     this.remainingReleaseCount = downstreamRendererCount;
     this.requestedBufferSize = requestedBufferSize;
     this.minLoadableRetryCount = minLoadableRetryCount;
-    sampleQueues = new SparseArray<InternalTrackOutput>();
+    sampleQueues = new SparseArray<>();
     allocator = new DefaultAllocator(BUFFER_FRAGMENT_LENGTH);
     pendingResetPositionUs = NO_RESET_PENDING;
     frameAccurateSeeking = true;
@@ -137,7 +138,7 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
   }
 
   @Override
-  public boolean prepare() throws IOException {
+  public boolean prepare(long positionUs) throws IOException {
     if (prepared) {
       return true;
     }
@@ -156,9 +157,13 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
       pendingDiscontinuities = new boolean[trackCount];
       pendingMediaFormat = new boolean[trackCount];
       trackInfos = new TrackInfo[trackCount];
+      maxTrackDurationUs = C.UNKNOWN_TIME_US;
       for (int i = 0; i < trackCount; i++) {
         MediaFormat format = sampleQueues.valueAt(i).getFormat();
         trackInfos[i] = new TrackInfo(format.mimeType, format.durationUs);
+        if (format.durationUs != C.UNKNOWN_TIME_US && format.durationUs > maxTrackDurationUs) {
+          maxTrackDurationUs = format.durationUs;
+        }
       }
       prepared = true;
       return true;
@@ -448,6 +453,11 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
       loadable = createLoadableFromStart();
     } else {
       Assertions.checkState(isPendingReset());
+      if (maxTrackDurationUs != C.UNKNOWN_TIME_US && pendingResetPositionUs >= maxTrackDurationUs) {
+        loadingFinished = true;
+        pendingResetPositionUs = NO_RESET_PENDING;
+        return;
+      }
       loadable = createLoadableFromPositionUs(pendingResetPositionUs);
       pendingResetPositionUs = NO_RESET_PENDING;
     }

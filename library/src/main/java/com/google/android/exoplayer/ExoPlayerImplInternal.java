@@ -99,7 +99,7 @@ import java.util.List;
     this.bufferedPositionUs = TrackRenderer.UNKNOWN_TIME_US;
 
     mediaClock = new MediaClock();
-    enabledRenderers = new ArrayList<TrackRenderer>(rendererEnabledFlags.length);
+    enabledRenderers = new ArrayList<>(rendererEnabledFlags.length);
     // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
     // not normally change to this priority" is incorrect.
     internalPlaybackThread = new PriorityHandlerThread(getClass().getSimpleName() + ":Handler",
@@ -264,7 +264,7 @@ import java.util.List;
     boolean prepared = true;
     for (int i = 0; i < renderers.length; i++) {
       if (renderers[i].getState() == TrackRenderer.STATE_UNPREPARED) {
-        int state = renderers[i].prepare();
+        int state = renderers[i].prepare(positionUs);
         if (state == TrackRenderer.STATE_UNPREPARED) {
           prepared = false;
         }

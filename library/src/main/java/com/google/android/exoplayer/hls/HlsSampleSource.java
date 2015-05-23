@@ -120,20 +120,17 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
     this.pendingResetPositionUs = NO_RESET_PENDING;
-    extractors = new LinkedList<HlsExtractorWrapper>();
+    extractors = new LinkedList<>();
     allocator = new DefaultAllocator(BUFFER_FRAGMENT_LENGTH);
   }
 
   @Override
-  public boolean prepare() throws IOException {
+  public boolean prepare(long positionUs) throws IOException {
     if (prepared) {
       return true;
     }
-    if (loader == null) {
-      loader = new Loader("Loader:HLS");
-    }
-    continueBufferingInternal();
     if (!extractors.isEmpty()) {
+      // We're not prepared, but we might have loaded what we need.
       HlsExtractorWrapper extractor = extractors.getFirst();
       if (extractor.isPrepared()) {
         trackCount = extractor.getTrackCount();
@@ -146,12 +143,23 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
           trackInfos[i] = new TrackInfo(format.mimeType, chunkSource.getDurationUs());
         }
         prepared = true;
+        return true;
       }
     }
-    if (!prepared) {
-      maybeThrowLoadableException();
+    // We're not prepared and we haven't loaded what we need.
+    if (loader == null) {
+      loader = new Loader("Loader:HLS");
     }
-    return prepared;
+    if (!loader.isLoading()) {
+      // We're going to have to start loading a chunk to get what we need for preparation. We should
+      // attempt to load the chunk at positionUs, so that we'll already be loading the correct chunk
+      // in the common case where the renderer is subsequently enabled at this position.
+      pendingResetPositionUs = positionUs;
+      downstreamPositionUs = positionUs;
+    }
+    maybeStartLoading();
+    maybeThrowLoadableException();
+    return false;
   }
 
   @Override
@@ -345,7 +353,12 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     if (!currentLoadableExceptionFatal) {
       clearCurrentLoadable();
     }
-    maybeStartLoading();
+    if (enabledTrackCount > 0) {
+      maybeStartLoading();
+    } else {
+      clearState();
+      allocator.trim(0);
+    }
   }
 
   @Override

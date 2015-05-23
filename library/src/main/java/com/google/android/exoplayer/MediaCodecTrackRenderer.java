@@ -236,16 +236,16 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     codecCounters = new CodecCounters();
     sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_DISABLED);
     formatHolder = new MediaFormatHolder();
-    decodeOnlyPresentationTimestamps = new ArrayList<Long>();
+    decodeOnlyPresentationTimestamps = new ArrayList<>();
     outputBufferInfo = new MediaCodec.BufferInfo();
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     codecReinitializationState = REINITIALIZATION_STATE_NONE;
   }
 
   @Override
-  protected int doPrepare() throws ExoPlaybackException {
+  protected int doPrepare(long positionUs) throws ExoPlaybackException {
     try {
-      boolean sourcePrepared = source.prepare();
+      boolean sourcePrepared = source.prepare(positionUs);
       if (!sourcePrepared) {
         return TrackRenderer.STATE_UNPREPARED;
       }
@@ -742,9 +742,11 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    * <p>
    * The default implementation is a no-op.
    *
-   * @param format The new output format.
+   * @param inputFormat The format of media input to the codec.
+   * @param outputFormat The new output format.
    */
-  protected void onOutputFormatChanged(android.media.MediaFormat format) {
+  protected void onOutputFormatChanged(MediaFormat inputFormat,
+      android.media.MediaFormat outputFormat) {
     // Do nothing.
   }
 
@@ -818,7 +820,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
 
     if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-      onOutputFormatChanged(codec.getOutputFormat());
+      onOutputFormatChanged(format, codec.getOutputFormat());
       codecCounters.outputFormatChangedCount++;
       return true;
     } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {

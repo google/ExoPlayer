@@ -38,7 +38,7 @@ public class SmoothStreamingTestMediaDrmCallback implements MediaDrmCallback {
       "http://playready.directtaps.net/pr/svc/rightsmanager.asmx";
   private static final Map<String, String> KEY_REQUEST_PROPERTIES;
   static {
-    HashMap<String, String> keyRequestProperties = new HashMap<String, String>();
+    HashMap<String, String> keyRequestProperties = new HashMap<>();
     keyRequestProperties.put("Content-Type", "text/xml");
     keyRequestProperties.put("SOAPAction",
         "http://schemas.microsoft.com/DRM/2007/03/protocols/AcquireLicense");

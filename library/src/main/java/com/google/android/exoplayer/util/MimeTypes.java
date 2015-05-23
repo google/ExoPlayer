@@ -15,6 +15,11 @@
  */
 package com.google.android.exoplayer.util;
 
+import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.audio.AudioCapabilities;
+
+import android.media.AudioFormat;
+
 /**
  * Defines common MIME types and helper methods.
  */
@@ -117,6 +122,39 @@ public class MimeTypes {
    */
   public static boolean isTtml(String mimeType) {
     return mimeType.equals(APPLICATION_TTML);
+  }
+
+  /**
+   * Returns the output audio encoding that will result from processing input in {@code mimeType}.
+   * For non-passthrough audio formats, this is always {@link AudioFormat#ENCODING_PCM_16BIT}. For
+   * passthrough formats it will be one of {@link AudioFormat}'s other {@code ENCODING_*} constants.
+   * For non-audio formats, {@link AudioFormat#ENCODING_INVALID} will be returned.
+   *
+   * @param mimeType The MIME type of media that will be decoded (or passed through).
+   * @return The corresponding {@link AudioFormat} encoding.
+   */
+  public static int getEncodingForMimeType(String mimeType) {
+    if (AUDIO_AC3.equals(mimeType)) {
+      return C.ENCODING_AC3;
+    }
+    if (AUDIO_EC3.equals(mimeType)) {
+      return C.ENCODING_E_AC3;
+    }
+
+    // All other audio formats will be decoded to 16-bit PCM.
+    return isAudio(mimeType) ? AudioFormat.ENCODING_PCM_16BIT : AudioFormat.ENCODING_INVALID;
+  }
+
+  /**
+   * Returns whether the specified {@code mimeType} represents audio that can be played via
+   * passthrough if the device supports it.
+   *
+   * @param mimeType The MIME type of input media.
+   * @return Whether the audio can be played via passthrough. If this method returns {@code true},
+   *     it is still necessary to check the {@link AudioCapabilities} for device support.
+   */
+  public static boolean isPassthroughAudio(String mimeType) {
+    return AUDIO_AC3.equals(mimeType) || AUDIO_EC3.equals(mimeType);
   }
 
 }

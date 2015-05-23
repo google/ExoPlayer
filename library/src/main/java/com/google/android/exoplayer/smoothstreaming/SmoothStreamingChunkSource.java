@@ -59,14 +59,11 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private static final int MINIMUM_MANIFEST_REFRESH_PERIOD_MS = 5000;
   private static final int INITIALIZATION_VECTOR_SIZE = 8;
 
-  private final ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
-  private final int streamElementIndex;
   private final TrackInfo trackInfo;
   private final DataSource dataSource;
   private final FormatEvaluator formatEvaluator;
   private final Evaluation evaluation;
   private final long liveEdgeLatencyUs;
-
   private final int maxWidth;
   private final int maxHeight;
 
@@ -74,6 +71,9 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private final SparseArray<MediaFormat> mediaFormats;
   private final DrmInitData drmInitData;
   private final Format[] formats;
+
+  private final ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
+  private final int streamElementIndex;
 
   private SmoothStreamingManifest currentManifest;
   private int currentManifestChunkOffset;
@@ -153,8 +153,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
     int trackCount = trackIndices != null ? trackIndices.length : streamElement.tracks.length;
     formats = new Format[trackCount];
-    extractorWrappers = new SparseArray<ChunkExtractorWrapper>();
-    mediaFormats = new SparseArray<MediaFormat>();
+    extractorWrappers = new SparseArray<>();
+    mediaFormats = new SparseArray<>();
     int maxWidth = 0;
     int maxHeight = 0;
     for (int i = 0; i < trackCount; i++) {
@@ -174,8 +174,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       extractorWrappers.put(trackIndex, new ChunkExtractorWrapper(extractor));
       mediaFormats.put(trackIndex, mediaFormat);
     }
-    this.maxHeight = maxHeight;
     this.maxWidth = maxWidth;
+    this.maxHeight = maxHeight;
     Arrays.sort(formats, new DecreasingBandwidthComparator());
   }
 
@@ -194,6 +194,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   @Override
   public void enable() {
     fatalError = null;
+    formatEvaluator.enable();
     if (manifestFetcher != null) {
       manifestFetcher.enable();
     }
@@ -201,6 +202,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
   @Override
   public void disable(List<? extends MediaChunk> queue) {
+    formatEvaluator.disable();
     if (manifestFetcher != null) {
       manifestFetcher.disable();
     }
@@ -248,14 +250,13 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       out.chunk = null;
       return;
     } else if (out.queueSize == queue.size() && out.chunk != null
-        && out.chunk.format.id.equals(evaluation.format.id)) {
+        && out.chunk.format.equals(selectedFormat)) {
       // We already have a chunk, and the evaluation hasn't changed either the format or the size
-      // of the queue. Do nothing.
+      // of the queue. Leave unchanged.
       return;
     }
 
-    // In all cases where we return before instantiating a new chunk at the bottom of this method,
-    // we want out.chunk to be null.
+    // In all cases where we return before instantiating a new chunk, we want out.chunk to be null.
     out.chunk = null;
 
     StreamElement streamElement = getElement(currentManifest);
@@ -290,7 +291,9 @@ public class SmoothStreamingChunkSource implements ChunkSource {
         // but continue to return the final chunk.
         finishedCurrentManifest = true;
       }
-    } else if (chunkIndex == -1) {
+    }
+
+    if (chunkIndex == -1) {
       // We've reached the end of the stream.
       return;
     }
@@ -352,7 +355,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private int getTrackIndex(Format format) {
     TrackElement[] tracks = currentManifest.streamElements[streamElementIndex].tracks;
     for (int i = 0; i < tracks.length; i++) {
-      if (format == tracks[i].format) {
+      if (tracks[i].format.equals(format)) {
         return i;
       }
     }

@@ -45,27 +45,27 @@ import java.util.Locale;
   public static final Sample[] YOUTUBE_DASH_MP4 = new Sample[] {
     new Sample("Google Glass",
         "http://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?"
-        + "as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,as&ip=0.0.0.0&"
-        + "ipbits=0&expire=19000000000&signature=255F6B3C07C753C88708C07EA31B7A1A10703C8D."
-        + "2D6A28B21F921D0B245CDCF36F7EB54A2B5ABFC2&key=ik0", DemoUtil.TYPE_DASH),
+        + "as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&"
+        + "ipbits=0&expire=19000000000&signature=51AF5F39AB0CEC3E5497CD9C900EBFEAECCCB5C7."
+        + "8506521BFC350652163895D4C26DEE124209AA9E&key=ik0", DemoUtil.TYPE_DASH),
     new Sample("Google Play",
         "http://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?"
-        + "as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0&"
-        + "expire=19000000000&signature=7181C59D0252B285D593E1B61D985D5B7C98DE2A."
-        + "5B445837F55A40E0F28AACAA047982E372D177E2&key=ik0", DemoUtil.TYPE_DASH),
+        + "as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&"
+        + "ipbits=0&expire=19000000000&signature=A2716F75795F5D2AF0E88962FFCD10DB79384F29."
+        + "84308FF04844498CE6FBCE4731507882B8307798&key=ik0", DemoUtil.TYPE_DASH),
   };
 
   public static final Sample[] YOUTUBE_DASH_WEBM = new Sample[] {
     new Sample("Google Glass",
         "http://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?"
-        + "as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0&"
-        + "expire=19000000000&signature=A3EC7EE53ABE601B357F7CAB8B54AD0702CA85A7."
-        + "446E9C38E47E3EDAF39E0163C390FF83A7944918&key=ik0", DemoUtil.TYPE_DASH),
+        + "as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&"
+        + "ipbits=0&expire=19000000000&signature=249B04F79E984D7F86B4D8DB48AE6FAF41C17AB3."
+        + "7B9F0EC0505E1566E59B8E488E9419F253DDF413&key=ik0", DemoUtil.TYPE_DASH),
     new Sample("Google Play",
         "http://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?"
-        + "as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0&"
-        + "expire=19000000000&signature=B752B262C6D7262EC4E4EB67901E5D8F7058A81D."
-        + "C0358CE1E335417D9A8D88FF192F0D5D8F6DA1B6&key=ik0", DemoUtil.TYPE_DASH),
+        + "as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&"
+        + "ipbits=0&expire=19000000000&signature=B1C2A74783AC1CC4865EB312D7DD2D48230CC9FD."
+        + "BD153B9882175F1F94BFE5141A5482313EA38E8D&key=ik0", DemoUtil.TYPE_DASH),
   };
 
   public static final Sample[] SMOOTHSTREAMING = new Sample[] {
@@ -80,34 +80,34 @@ import java.util.Locale;
   public static final Sample[] WIDEVINE_GTS = new Sample[] {
     new Sample("WV: HDCP not specified", "d286538032258a1c",
         "http://www.youtube.com/api/manifest/dash/id/d286538032258a1c/source/youtube?"
-        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
-        + "&expire=19000000000&signature=41EA40A027A125A16292E0A5E3277A3B5FA9B938."
-        + "0BB075C396FFDDC97E526E8F77DC26FF9667D0D6&key=ik0", DemoUtil.TYPE_DASH),
+        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0"
+        + "&ipbits=0&expire=19000000000&signature=477CF7D478BE26C205045D507E9358F85F84C065."
+        + "8971631EB657BC33EC2F48A2FF4211956760C3E9&key=ik0", DemoUtil.TYPE_DASH),
     new Sample("WV: HDCP not required", "48fcc369939ac96c",
         "http://www.youtube.com/api/manifest/dash/id/48fcc369939ac96c/source/youtube?"
-        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
-        + "&expire=19000000000&signature=315911BDCEED0FB0C763455BDCC97449DAAFA9E8."
-        + "5B41E2EB411F797097A359D6671D2CDE26272373&key=ik0", DemoUtil.TYPE_DASH),
+        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0"
+        + "&ipbits=0&expire=19000000000&signature=171DAE48D00B5BE7434BC1A9F84DAE0463C7EA7A."
+        + "0925B4DBB5605BEE9F5D088C48F25F5108E96191&key=ik0", DemoUtil.TYPE_DASH),
     new Sample("WV: HDCP required", "e06c39f1151da3df",
         "http://www.youtube.com/api/manifest/dash/id/e06c39f1151da3df/source/youtube?"
-        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
-        + "&expire=19000000000&signature=A47A1E13E7243BD567601A75F79B34644D0DC592."
-        + "B09589A34FA23527EFC1552907754BB8033870BD&key=ik0", DemoUtil.TYPE_DASH),
+        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0"
+        + "&ipbits=0&expire=19000000000&signature=8D3B8AF4E3F72B7F127C8D0D39B7AFCF37B30519."
+        + "A118BADEBF3582AD2CC257B0EE6E579C6955D8AA&key=ik0", DemoUtil.TYPE_DASH),
     new Sample("WV: Secure video path required", "0894c7c8719b28a0",
         "http://www.youtube.com/api/manifest/dash/id/0894c7c8719b28a0/source/youtube?"
-        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
-        + "&expire=19000000000&signature=2847EE498970F6B45176766CD2802FEB4D4CB7B2."
-        + "A1CA51EC40A1C1039BA800C41500DD448C03EEDA&key=ik0", DemoUtil.TYPE_DASH),
+        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0"
+        + "&ipbits=0&expire=19000000000&signature=A41D835C7387885A4A820628F57E481E00095931."
+        + "9D50DBEEB5E37344647EE11BDA129A7FCDE8B7B9&key=ik0", DemoUtil.TYPE_DASH),
     new Sample("WV: HDCP + secure video path required", "efd045b1eb61888a",
-        "http://www.youtube.com/api/manifest/dash/id/efd045b1eb61888a/source/youtube?"
-        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
-        + "&expire=19000000000&signature=61611F115EEEC7BADE5536827343FFFE2D83D14F."
-        + "2FDF4BFA502FB5865C5C86401314BDDEA4799BD0&key=ik0", DemoUtil.TYPE_DASH),
+        "http://www.youtube.com/api/manifest/dash/id/efd045b1eb61888a/source/youtube"
+        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0"
+        + "&ipbits=0&expire=19000000000&signature=A97C9032C9D0C74F1643DB17C178873887C229E4."
+        + "0A657BF6F23C8BC1538F276137383478330B76DE&key=ik0", DemoUtil.TYPE_DASH),
     new Sample("WV: 30s license duration (fails at ~30s)", "f9a34cab7b05881a",
         "http://www.youtube.com/api/manifest/dash/id/f9a34cab7b05881a/source/youtube?"
-        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,as&ip=0.0.0.0&ipbits=0"
-        + "&expire=19000000000&signature=88DC53943385CED8CF9F37ADD9E9843E3BF621E6."
-        + "22727BB612D24AA4FACE4EF62726F9461A9BF57A&key=ik0", DemoUtil.TYPE_DASH),
+        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0"
+        + "&ipbits=0&expire=19000000000&signature=80648A12A7D5FC1FA02B52B4250E4EB74CF0C5FD."
+        + "66A261130CA137AA5C541EA9CED2DBF240829EE6&key=ik0", DemoUtil.TYPE_DASH),
   };
 
   public static final Sample[] HLS = new Sample[] {
@@ -130,8 +130,6 @@ import java.util.Locale;
   public static final Sample[] MISC = new Sample[] {
     new Sample("Dizzy", "http://html5demos.com/assets/dizzy.mp4",
         DemoUtil.TYPE_MP4),
-    new Sample("Dizzy (https->http redirect)", "https://goo.gl/MtUDEj",
-        DemoUtil.TYPE_MP4),
     new Sample("Apple AAC 10s", "https://devimages.apple.com.edgekey.net/"
         + "streaming/examples/bipbop_4x3/gear0/fileSequence0.aac",
         DemoUtil.TYPE_AAC),
@@ -139,9 +137,9 @@ import java.util.Locale;
         + "bipbop_4x3/gear1/fileSequence0.ts",
         DemoUtil.TYPE_TS),
     new Sample("Big Buck Bunny (MP4 Video)",
-        "http://redirector.c.youtube.com/videoplayback?id=604ed5ce52eda7ee&itag=22&source=youtube"
-        + "&sparams=ip,ipbits,expire&ip=0.0.0.0&ipbits=0&expire=19000000000&signature="
-        + "2E853B992F6CAB9D28CA3BEBD84A6F26709A8A55.94344B0D8BA83A7417AAD24DACC8C71A9A878ECE"
+        "http://redirector.c.youtube.com/videoplayback?id=604ed5ce52eda7ee&itag=22&source=youtube&"
+        + "sparams=ip,ipbits,expire,source,id&ip=0.0.0.0&ipbits=0&expire=19000000000&signature="
+        + "513F28C7FDCBEC60A66C86C9A393556C99DC47FB.04C88036EEE12565A1ED864A875A58F15D8B5300"
         + "&key=ik0",
         DemoUtil.TYPE_MP4),
     new Sample("Google Play (MP3 Audio)",

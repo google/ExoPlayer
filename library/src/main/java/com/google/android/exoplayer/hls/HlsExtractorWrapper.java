@@ -60,8 +60,7 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
     this.startTimeUs = startTimeUs;
     this.extractor = extractor;
     this.shouldSpliceIn = shouldSpliceIn;
-    sampleQueues = new SparseArray<DefaultTrackOutput>();
-    extractor.init(this);
+    sampleQueues = new SparseArray<>();
   }
 
   /**
@@ -71,6 +70,7 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
    */
   public void init(Allocator allocator) {
     this.allocator = allocator;
+    extractor.init(this);
   }
 
   /**

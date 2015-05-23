@@ -55,7 +55,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     Log.i(TAG, "Init " + ExoPlayerLibraryInfo.VERSION);
     this.playWhenReady = false;
     this.playbackState = STATE_IDLE;
-    this.listeners = new CopyOnWriteArraySet<Listener>();
+    this.listeners = new CopyOnWriteArraySet<>();
     this.rendererEnabledFlags = new boolean[rendererCount];
     for (int i = 0; i < rendererEnabledFlags.length; i++) {
       rendererEnabledFlags[i] = true;

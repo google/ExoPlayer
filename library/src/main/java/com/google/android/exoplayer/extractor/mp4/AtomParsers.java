@@ -396,7 +396,7 @@ import java.util.List;
     if (nalUnitLengthFieldLength == 3) {
       throw new IllegalStateException();
     }
-    List<byte[]> initializationData = new ArrayList<byte[]>();
+    List<byte[]> initializationData = new ArrayList<>();
     // TODO: We should try and parse these using CodecSpecificDataUtil.parseSpsNalUnit, and
     // expose the AVC profile and level somewhere useful; Most likely in MediaFormat.
     int numSequenceParameterSets = parent.readUnsignedByte() & 0x1F;
@@ -472,7 +472,7 @@ import java.util.List;
     int height = parent.readUnsignedShort();
     parent.skipBytes(50);
 
-    List<byte[]> initializationData = new ArrayList<byte[]>(1);
+    List<byte[]> initializationData = new ArrayList<>(1);
     int childPosition = parent.getPosition();
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
@@ -534,8 +534,18 @@ import java.util.List;
       childPosition += childAtomSize;
     }
 
-    out.mediaFormat = MediaFormat.createAudioFormat(
-        MimeTypes.AUDIO_AAC, sampleSize, durationUs, channelCount, sampleRate,
+    // Set the MIME type for ac-3/ec-3 atoms even if the dac3/dec3 child atom is missing.
+    String mimeType;
+    if (atomType == Atom.TYPE_ac_3) {
+      mimeType = MimeTypes.AUDIO_AC3;
+    } else if (atomType == Atom.TYPE_ec_3) {
+      mimeType = MimeTypes.AUDIO_EC3;
+    } else {
+      mimeType = MimeTypes.AUDIO_AAC;
+    }
+
+    out.mediaFormat = MediaFormat.createAudioFormat(mimeType, sampleSize, durationUs, channelCount,
+        sampleRate,
         initializationData == null ? null : Collections.singletonList(initializationData));
   }
 
