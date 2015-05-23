@@ -95,8 +95,7 @@ import java.util.List;
     }
 
     this.state = ExoPlayer.STATE_IDLE;
-    this.durationUs = TrackRenderer.UNKNOWN_TIME_US;
-    this.bufferedPositionUs = TrackRenderer.UNKNOWN_TIME_US;
+    resetPositions();
 
     mediaClock = new MediaClock();
     enabledRenderers = new ArrayList<>(rendererEnabledFlags.length);
@@ -247,6 +246,7 @@ import java.util.List;
   }
 
   private void prepareInternal(TrackRenderer[] renderers) {
+    resetPositions();
     resetInternal();
     this.renderers = renderers;
     for (int i = 0; i < renderers.length; i++) {
@@ -475,11 +475,13 @@ import java.util.List;
   }
 
   private void stopInternal() {
+    resetPositions();
     resetInternal();
     setState(ExoPlayer.STATE_IDLE);
   }
 
   private void releaseInternal() {
+    resetPositions();
     resetInternal();
     setState(ExoPlayer.STATE_IDLE);
     synchronized (this) {
@@ -504,6 +506,12 @@ import java.util.List;
     renderers = null;
     timeSourceTrackRenderer = null;
     enabledRenderers.clear();
+  }
+
+  private void resetPositions() {
+    this.positionUs = 0;
+    this.durationUs = TrackRenderer.UNKNOWN_TIME_US;
+    this.bufferedPositionUs = TrackRenderer.UNKNOWN_TIME_US;
   }
 
   private void stopAndDisable(TrackRenderer renderer) {
