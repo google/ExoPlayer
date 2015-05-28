@@ -134,8 +134,7 @@ public class MediaCodecUtil {
     for (int i = 0; i < numberOfCodecs; i++) {
       MediaCodecInfo info = mediaCodecList.getCodecInfoAt(i);
       String codecName = info.getName();
-      if (!info.isEncoder() && codecName.startsWith("OMX.")
-          && (secureDecodersExplicit || !codecName.endsWith(".secure"))) {
+      if (isCodecUsableDecoder(info, codecName, secureDecodersExplicit)) {
         String[] supportedTypes = info.getSupportedTypes();
         for (int j = 0; j < supportedTypes.length; j++) {
           String supportedType = supportedTypes[j];
@@ -164,6 +163,28 @@ public class MediaCodecUtil {
       }
     }
     return null;
+  }
+
+  /**
+   * Returns whether the specified codec is usable for decoding on the current device.
+   */
+  private static boolean isCodecUsableDecoder(MediaCodecInfo info, String name,
+      boolean secureDecodersExplicit) {
+    if (info.isEncoder() || !name.startsWith("OMX.")
+        || (!secureDecodersExplicit && name.endsWith(".secure"))) {
+      return false;
+    }
+
+    // Workaround an issue where creating a particular MP3 decoder on some HTC devices on platform
+    // API version 16 crashes mediaserver.
+    if (Util.SDK_INT == 16
+        && ("dlxu".equals(Util.PRODUCT) // HTC Butterfly
+            || "protou".equals(Util.PRODUCT)) // HTC Desire X
+        && name.equals("OMX.qcom.audio.decoder.mp3")) {
+      return false;
+    }
+
+    return true;
   }
 
   private static boolean isAdaptive(CodecCapabilities capabilities) {
