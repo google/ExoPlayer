@@ -27,7 +27,6 @@ import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
-import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
@@ -55,7 +54,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventListener,
     HlsSampleSource.EventListener, DefaultBandwidthMeter.EventListener,
     MediaCodecVideoTrackRenderer.EventListener, MediaCodecAudioTrackRenderer.EventListener,
-    StreamingDrmSessionManager.EventListener, DashChunkSource.EventListener, TextRenderer {
+    StreamingDrmSessionManager.EventListener, TextRenderer {
 
   /**
    * Builds renderers for the player.
@@ -514,13 +513,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   @Override
   public void onCues(List<Cue> cues) {
     processCues(cues);
-  }
-
-  @Override
-  public void onSeekRangeChanged(TimeRange seekRange) {
-    if (infoListener != null) {
-      infoListener.onSeekRangeChanged(seekRange);
-    }
   }
 
   /* package */ MetadataTrackRenderer.MetadataRenderer<Map<String, Object>>

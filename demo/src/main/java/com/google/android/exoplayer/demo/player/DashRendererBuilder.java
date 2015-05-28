@@ -234,8 +234,7 @@ public class DashRendererBuilder implements RendererBuilder,
       DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher,
           videoAdaptationSetIndex, videoRepresentationIndices, videoDataSource,
-          new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset,
-          mainHandler, player);
+          new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset);
       ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
           VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
           DemoPlayer.TYPE_VIDEO);
@@ -259,7 +258,7 @@ public class DashRendererBuilder implements RendererBuilder,
             format.audioSamplingRate + "Hz)");
         audioChunkSourceList.add(new DashChunkSource(manifestFetcher, audioAdaptationSetIndex,
             new int[] {i}, audioDataSource, audioEvaluator, LIVE_EDGE_LATENCY_MS,
-            elapsedRealtimeOffset, mainHandler, player));
+            elapsedRealtimeOffset));
         codecs.add(format.codecs);
       }
 
@@ -316,8 +315,7 @@ public class DashRendererBuilder implements RendererBuilder,
           Representation representation = representations.get(j);
           textTrackNameList.add(representation.format.id);
           textChunkSourceList.add(new DashChunkSource(manifestFetcher, i, new int[] {j},
-              textDataSource, textEvaluator, LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset,
-              mainHandler, player));
+              textDataSource, textEvaluator, LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset));
         }
       }
     }
