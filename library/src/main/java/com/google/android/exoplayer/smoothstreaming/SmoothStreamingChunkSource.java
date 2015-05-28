@@ -217,11 +217,22 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     SmoothStreamingManifest newManifest = manifestFetcher.getManifest();
     if (currentManifest != newManifest && newManifest != null) {
       StreamElement currentElement = getElement(currentManifest);
+      int currentElementChunkCount = currentElement.chunkCount;
       StreamElement newElement = getElement(newManifest);
-      if (newElement.chunkCount == 0) {
-        currentManifestChunkOffset += currentElement.chunkCount;
-      } else if (currentElement.chunkCount > 0) {
-        currentManifestChunkOffset += currentElement.getChunkIndex(newElement.getStartTimeUs(0));
+      if (currentElementChunkCount == 0 || newElement.chunkCount == 0) {
+        // There's no overlap between the old and new elements because at least one is empty.
+        currentManifestChunkOffset += currentElementChunkCount;
+      } else {
+        long currentElementEndTimeUs = currentElement.getStartTimeUs(currentElementChunkCount - 1)
+            + currentElement.getChunkDurationUs(currentElementChunkCount - 1);
+        long newElementStartTimeUs = newElement.getStartTimeUs(0);
+        if (currentElementEndTimeUs <= newElementStartTimeUs) {
+          // There's no overlap between the old and new elements.
+          currentManifestChunkOffset += currentElementChunkCount;
+        } else {
+          // The new element overlaps with the old one.
+          currentManifestChunkOffset += currentElement.getChunkIndex(newElementStartTimeUs);
+        }
       }
       currentManifest = newManifest;
       finishedCurrentManifest = false;

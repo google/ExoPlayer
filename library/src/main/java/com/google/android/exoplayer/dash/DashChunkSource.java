@@ -309,10 +309,26 @@ public class DashChunkSource implements ChunkSource {
         RepresentationHolder representationHolder =
             representationHolders.get(representation.format.id);
         DashSegmentIndex oldIndex = representationHolder.segmentIndex;
+        int oldIndexLastSegmentNum = oldIndex.getLastSegmentNum();
+        long oldIndexEndTimeUs = oldIndex.getTimeUs(oldIndexLastSegmentNum)
+            + oldIndex.getDurationUs(oldIndexLastSegmentNum);
         DashSegmentIndex newIndex = representation.getIndex();
-        int newFirstSegmentNum = newIndex.getFirstSegmentNum();
-        int segmentNumShift = oldIndex.getSegmentNum(newIndex.getTimeUs(newFirstSegmentNum))
-            - newFirstSegmentNum;
+        int newIndexFirstSegmentNum = newIndex.getFirstSegmentNum();
+        long newIndexStartTimeUs = newIndex.getTimeUs(newIndexFirstSegmentNum);
+        if (oldIndexEndTimeUs < newIndexStartTimeUs) {
+          // There's a gap between the old manifest and the new one which means we've slipped behind
+          // the live window and can't proceed.
+          fatalError = new BehindLiveWindowException();
+          return;
+        }
+        int segmentNumShift;
+        if (oldIndexEndTimeUs == newIndexStartTimeUs) {
+          // The new manifest continues where the old one ended, with no overlap.
+          segmentNumShift = oldIndex.getLastSegmentNum() + 1 - newIndexFirstSegmentNum;
+        } else {
+          // The new manifest overlaps with the old one.
+          segmentNumShift = oldIndex.getSegmentNum(newIndexStartTimeUs) - newIndexFirstSegmentNum;
+        }
         representationHolder.segmentNumShift += segmentNumShift;
         representationHolder.segmentIndex = newIndex;
       }
