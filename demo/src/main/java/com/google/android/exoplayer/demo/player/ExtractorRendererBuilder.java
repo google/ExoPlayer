@@ -29,7 +29,6 @@ import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import android.content.Context;
 import android.media.MediaCodec;
 import android.net.Uri;
-import android.widget.TextView;
 
 /**
  * A {@link RendererBuilder} for streams that can be read using an {@link Extractor}.
@@ -41,15 +40,12 @@ public class ExtractorRendererBuilder implements RendererBuilder {
   private final Context context;
   private final String userAgent;
   private final Uri uri;
-  private final TextView debugTextView;
   private final Extractor extractor;
 
-  public ExtractorRendererBuilder(Context context, String userAgent, Uri uri,
-      TextView debugTextView, Extractor extractor) {
+  public ExtractorRendererBuilder(Context context, String userAgent, Uri uri, Extractor extractor) {
     this.context = context;
     this.userAgent = userAgent;
     this.uri = uri;
-    this.debugTextView = debugTextView;
     this.extractor = extractor;
   }
 
@@ -67,16 +63,11 @@ public class ExtractorRendererBuilder implements RendererBuilder {
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource,
         null, true, player.getMainHandler(), player);
 
-    // Build the debug renderer.
-    TrackRenderer debugRenderer = debugTextView != null
-        ? new DebugTrackRenderer(debugTextView, player, videoRenderer, bandwidthMeter) : null;
-
     // Invoke the callback.
     TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
     renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
     renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
-    renderers[DemoPlayer.TYPE_DEBUG] = debugRenderer;
-    callback.onRenderers(null, null, renderers);
+    callback.onRenderers(null, null, renderers, bandwidthMeter);
   }
 
 }

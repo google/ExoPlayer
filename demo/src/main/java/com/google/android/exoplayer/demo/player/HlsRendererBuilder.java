@@ -43,7 +43,6 @@ import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
 import android.content.Context;
 import android.media.MediaCodec;
 import android.os.Handler;
-import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.Map;
@@ -59,18 +58,16 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
   private final Context context;
   private final String userAgent;
   private final String url;
-  private final TextView debugTextView;
   private final AudioCapabilities audioCapabilities;
 
   private DemoPlayer player;
   private RendererBuilderCallback callback;
 
-  public HlsRendererBuilder(Context context, String userAgent, String url, TextView debugTextView,
+  public HlsRendererBuilder(Context context, String userAgent, String url,
       AudioCapabilities audioCapabilities) {
     this.context = context;
     this.userAgent = userAgent;
     this.url = url;
-    this.debugTextView = debugTextView;
     this.audioCapabilities = audioCapabilities;
   }
 
@@ -117,23 +114,17 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
 
     MetadataTrackRenderer<Map<String, Object>> id3Renderer =
-        new MetadataTrackRenderer<>(sampleSource, new Id3Parser(),
-            player.getId3MetadataRenderer(), mainHandler.getLooper());
+        new MetadataTrackRenderer<>(sampleSource, new Id3Parser(), player, mainHandler.getLooper());
 
     Eia608TrackRenderer closedCaptionRenderer = new Eia608TrackRenderer(sampleSource, player,
         mainHandler.getLooper());
 
-    // Build the debug renderer.
-    TrackRenderer debugRenderer = debugTextView != null
-        ? new DebugTrackRenderer(debugTextView, player, videoRenderer, bandwidthMeter) : null;
-
     TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
     renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
     renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
-    renderers[DemoPlayer.TYPE_TIMED_METADATA] = id3Renderer;
+    renderers[DemoPlayer.TYPE_METADATA] = id3Renderer;
     renderers[DemoPlayer.TYPE_TEXT] = closedCaptionRenderer;
-    renderers[DemoPlayer.TYPE_DEBUG] = debugRenderer;
-    callback.onRenderers(null, null, renderers);
+    callback.onRenderers(null, null, renderers, bandwidthMeter);
   }
 
 }

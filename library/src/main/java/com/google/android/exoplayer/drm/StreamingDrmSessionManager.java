@@ -110,11 +110,11 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @throws UnsupportedSchemeException If the specified DRM scheme is not supported.
+   * @throws UnsupportedDrmException If the specified DRM scheme is not supported.
    */
   public static StreamingDrmSessionManager newWidevineInstance(Looper playbackLooper,
       MediaDrmCallback callback, HashMap<String, String> optionalKeyRequestParameters,
-      Handler eventHandler, EventListener eventListener) throws UnsupportedSchemeException {
+      Handler eventHandler, EventListener eventListener) throws UnsupportedDrmException {
     return new StreamingDrmSessionManager(WIDEVINE_UUID, playbackLooper, callback,
         optionalKeyRequestParameters, eventHandler, eventListener);
   }
@@ -132,11 +132,11 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @throws UnsupportedSchemeException If the specified DRM scheme is not supported.
+   * @throws UnsupportedDrmException If the specified DRM scheme is not supported.
    */
   public static StreamingDrmSessionManager newPlayReadyInstance(Looper playbackLooper,
       MediaDrmCallback callback, String customData, Handler eventHandler,
-      EventListener eventListener) throws UnsupportedSchemeException {
+      EventListener eventListener) throws UnsupportedDrmException {
     HashMap<String, String> optionalKeyRequestParameters;
     if (!TextUtils.isEmpty(customData)) {
       optionalKeyRequestParameters = new HashMap<>();
@@ -158,17 +158,23 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @throws UnsupportedSchemeException If the specified DRM scheme is not supported.
+   * @throws UnsupportedDrmException If the specified DRM scheme is not supported.
    */
   public StreamingDrmSessionManager(UUID uuid, Looper playbackLooper, MediaDrmCallback callback,
       HashMap<String, String> optionalKeyRequestParameters, Handler eventHandler,
-      EventListener eventListener) throws UnsupportedSchemeException {
+      EventListener eventListener) throws UnsupportedDrmException {
     this.uuid = uuid;
     this.callback = callback;
     this.optionalKeyRequestParameters = optionalKeyRequestParameters;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
-    mediaDrm = new MediaDrm(uuid);
+    try {
+      mediaDrm = new MediaDrm(uuid);
+    } catch (UnsupportedSchemeException e) {
+      throw new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME, e);
+    } catch (Exception e) {
+      throw new UnsupportedDrmException(UnsupportedDrmException.REASON_INSTANTIATION_ERROR, e);
+    }
     mediaDrm.setOnEventListener(new MediaDrmEventListener());
     mediaDrmHandler = new MediaDrmHandler(playbackLooper);
     postResponseHandler = new PostResponseHandler(playbackLooper);
@@ -176,12 +182,12 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   @Override
-  public int getState() {
+  public final int getState() {
     return state;
   }
 
   @Override
-  public MediaCrypto getMediaCrypto() {
+  public final MediaCrypto getMediaCrypto() {
     if (state != STATE_OPENED && state != STATE_OPENED_WITH_KEYS) {
       throw new IllegalStateException();
     }
@@ -197,7 +203,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   @Override
-  public Exception getError() {
+  public final Exception getError() {
     return state == STATE_ERROR ? lastException : null;
   }
 
@@ -250,7 +256,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   @Override
-  public void open(DrmInitData drmInitData) {
+  public final void open(DrmInitData drmInitData) {
     if (++openCount != 1) {
       return;
     }
@@ -272,7 +278,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   @Override
-  public void close() {
+  public final void close() {
     if (--openCount != 0) {
       return;
     }
