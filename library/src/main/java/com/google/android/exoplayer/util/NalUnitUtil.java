@@ -18,11 +18,11 @@ package com.google.android.exoplayer.util;
 import java.nio.ByteBuffer;
 
 /**
- * Utility methods for handling H264 data.
+ * Utility methods for handling H.264/AVC and H.265/HEVC NAL units.
  */
-public final class H264Util {
+public final class NalUnitUtil {
 
-  /** Four initial bytes that must prefix H.264/AVC NAL units for decoding. */
+  /** Four initial bytes that must prefix NAL units for decoding. */
   public static final byte[] NAL_START_CODE = new byte[] {0, 0, 0, 1};
 
   /**
@@ -173,7 +173,7 @@ public final class H264Util {
     return result;
   }
 
-  private H264Util() {
+  private NalUnitUtil() {
     // Prevent instantiation.
   }
 

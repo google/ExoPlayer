@@ -23,7 +23,7 @@ import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.H264Util;
+import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.IOException;
@@ -72,7 +72,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   public Mp4Extractor() {
     atomHeader = new ParsableByteArray(Atom.LONG_HEADER_SIZE);
     containerAtoms = new Stack<>();
-    nalStartCode = new ParsableByteArray(H264Util.NAL_START_CODE);
+    nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
     parserState = STATE_READING_ATOM_HEADER;
   }

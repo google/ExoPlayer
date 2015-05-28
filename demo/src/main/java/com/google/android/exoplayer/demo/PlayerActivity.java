@@ -25,7 +25,7 @@ import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.player.ExtractorRendererBuilder;
 import com.google.android.exoplayer.demo.player.HlsRendererBuilder;
 import com.google.android.exoplayer.demo.player.SmoothStreamingRendererBuilder;
-import com.google.android.exoplayer.demo.player.UnsupportedDrmException;
+import com.google.android.exoplayer.drm.UnsupportedDrmException;
 import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer.extractor.ts.AdtsExtractor;
@@ -37,6 +37,7 @@ import com.google.android.exoplayer.metadata.TxxxMetadata;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleLayout;
+import com.google.android.exoplayer.util.DebugTextViewHelper;
 import com.google.android.exoplayer.util.Util;
 import com.google.android.exoplayer.util.VerboseLogUtil;
 
@@ -65,6 +66,9 @@ import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.util.List;
 import java.util.Map;
 
@@ -75,13 +79,29 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     DemoPlayer.Listener, DemoPlayer.CaptionListener, DemoPlayer.Id3MetadataListener,
     AudioCapabilitiesReceiver.Listener {
 
+  public static final int TYPE_DASH = 0;
+  public static final int TYPE_SS = 1;
+  public static final int TYPE_HLS = 2;
+  public static final int TYPE_MP4 = 3;
+  public static final int TYPE_MP3 = 4;
+  public static final int TYPE_FMP4 = 5;
+  public static final int TYPE_WEBM = 6;
+  public static final int TYPE_TS = 7;
+  public static final int TYPE_AAC = 8;
+  public static final int TYPE_M4A = 9;
+
   public static final String CONTENT_TYPE_EXTRA = "content_type";
   public static final String CONTENT_ID_EXTRA = "content_id";
 
   private static final String TAG = "PlayerActivity";
-
   private static final int MENU_GROUP_TRACKS = 1;
   private static final int ID_OFFSET = 2;
+
+  private static final CookieManager defaultCookieManager;
+  static {
+    defaultCookieManager = new CookieManager();
+    defaultCookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
+  }
 
   private EventLogger eventLogger;
   private MediaController mediaController;
@@ -97,6 +117,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private Button retryButton;
 
   private DemoPlayer player;
+  private DebugTextViewHelper debugViewHelper;
   private boolean playerNeedsPrepare;
 
   private long playerPosition;
@@ -162,7 +183,10 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     audioButton = (Button) findViewById(R.id.audio_controls);
     textButton = (Button) findViewById(R.id.text_controls);
 
-    DemoUtil.setDefaultCookieManager();
+    CookieHandler currentHandler = CookieHandler.getDefault();
+    if (currentHandler != defaultCookieManager) {
+      CookieHandler.setDefault(defaultCookieManager);
+    }
   }
 
   @Override
@@ -220,31 +244,26 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private RendererBuilder getRendererBuilder() {
     String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
     switch (contentType) {
-      case DemoUtil.TYPE_SS:
+      case TYPE_SS:
         return new SmoothStreamingRendererBuilder(this, userAgent, contentUri.toString(),
-            new SmoothStreamingTestMediaDrmCallback(), debugTextView);
-      case DemoUtil.TYPE_DASH:
+            new SmoothStreamingTestMediaDrmCallback());
+      case TYPE_DASH:
         return new DashRendererBuilder(this, userAgent, contentUri.toString(),
-            new WidevineTestMediaDrmCallback(contentId), debugTextView, audioCapabilities);
-      case DemoUtil.TYPE_HLS:
-        return new HlsRendererBuilder(this, userAgent, contentUri.toString(), debugTextView,
-            audioCapabilities);
-      case DemoUtil.TYPE_M4A: // There are no file format differences between M4A and MP4.
-      case DemoUtil.TYPE_MP4:
-        return new ExtractorRendererBuilder(this, userAgent, contentUri, debugTextView,
-            new Mp4Extractor());
-      case DemoUtil.TYPE_MP3:
-        return new ExtractorRendererBuilder(this, userAgent, contentUri, debugTextView,
-            new Mp3Extractor());
-      case DemoUtil.TYPE_TS:
-        return new ExtractorRendererBuilder(this, userAgent, contentUri, debugTextView,
+            new WidevineTestMediaDrmCallback(contentId), audioCapabilities);
+      case TYPE_HLS:
+        return new HlsRendererBuilder(this, userAgent, contentUri.toString(), audioCapabilities);
+      case TYPE_M4A: // There are no file format differences between M4A and MP4.
+      case TYPE_MP4:
+        return new ExtractorRendererBuilder(this, userAgent, contentUri, new Mp4Extractor());
+      case TYPE_MP3:
+        return new ExtractorRendererBuilder(this, userAgent, contentUri, new Mp3Extractor());
+      case TYPE_TS:
+        return new ExtractorRendererBuilder(this, userAgent, contentUri,
             new TsExtractor(0, audioCapabilities));
-      case DemoUtil.TYPE_AAC:
-        return new ExtractorRendererBuilder(this, userAgent, contentUri, debugTextView,
-            new AdtsExtractor());
-      case DemoUtil.TYPE_WEBM:
-        return new ExtractorRendererBuilder(this, userAgent, contentUri, debugTextView,
-            new WebmExtractor());
+      case TYPE_AAC:
+        return new ExtractorRendererBuilder(this, userAgent, contentUri, new AdtsExtractor());
+      case TYPE_WEBM:
+        return new ExtractorRendererBuilder(this, userAgent, contentUri, new WebmExtractor());
       default:
         throw new IllegalStateException("Unsupported type: " + contentType);
     }
@@ -265,6 +284,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       player.addListener(eventLogger);
       player.setInfoListener(eventLogger);
       player.setInternalErrorListener(eventLogger);
+      debugViewHelper = new DebugTextViewHelper(player, debugTextView);
+      debugViewHelper.start();
     }
     if (playerNeedsPrepare) {
       player.prepare();
@@ -277,6 +298,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   private void releasePlayer() {
     if (player != null) {
+      debugViewHelper.stop();
+      debugViewHelper = null;
       playerPosition = player.getCurrentPosition();
       player.release();
       player = null;
@@ -322,11 +345,9 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (e instanceof UnsupportedDrmException) {
       // Special case DRM failures.
       UnsupportedDrmException unsupportedDrmException = (UnsupportedDrmException) e;
-      int stringId = unsupportedDrmException.reason == UnsupportedDrmException.REASON_NO_DRM
-          ? R.string.drm_error_not_supported
+      int stringId = Util.SDK_INT < 18 ? R.string.drm_error_not_supported
           : unsupportedDrmException.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
-          ? R.string.drm_error_unsupported_scheme
-          : R.string.drm_error_unknown;
+              ? R.string.drm_error_unsupported_scheme : R.string.drm_error_unknown;
       Toast.makeText(getApplicationContext(), stringId, Toast.LENGTH_LONG).show();
     }
     playerNeedsPrepare = true;

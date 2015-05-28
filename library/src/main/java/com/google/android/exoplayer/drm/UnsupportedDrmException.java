@@ -13,16 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.demo.player;
+package com.google.android.exoplayer.drm;
 
 /**
- * Exception thrown when the required level of DRM is not supported.
+ * Thrown when the requested DRM scheme is not supported.
  */
 public final class UnsupportedDrmException extends Exception {
 
-  public static final int REASON_NO_DRM = 0;
+  /**
+   * The requested DRM scheme is unsupported by the device.
+   */
   public static final int REASON_UNSUPPORTED_SCHEME = 1;
-  public static final int REASON_UNKNOWN = 2;
+  /**
+   * There device advertises support for the requested DRM scheme, but there was an error
+   * instantiating it. The cause can be retrieved using {@link #getCause()}.
+   */
+  public static final int REASON_INSTANTIATION_ERROR = 2;
 
   public final int reason;
 
