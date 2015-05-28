@@ -20,9 +20,9 @@ import junit.framework.TestCase;
 import java.util.Arrays;
 
 /**
- * Tests for {@link H264Util}.
+ * Tests for {@link NalUnitUtil}.
  */
-public class H264UtilTest extends TestCase {
+public class NalUnitUtilTest extends TestCase {
 
   private static final int TEST_PARTIAL_NAL_POSITION = 4;
   private static final int TEST_NAL_POSITION = 10;
@@ -31,19 +31,19 @@ public class H264UtilTest extends TestCase {
     byte[] data = buildTestData();
 
     // Should find NAL unit.
-    int result = H264Util.findNalUnit(data, 0, data.length, null);
+    int result = NalUnitUtil.findNalUnit(data, 0, data.length, null);
     assertEquals(TEST_NAL_POSITION, result);
     // Should find NAL unit whose prefix ends one byte before the limit.
-    result = H264Util.findNalUnit(data, 0, TEST_NAL_POSITION + 4, null);
+    result = NalUnitUtil.findNalUnit(data, 0, TEST_NAL_POSITION + 4, null);
     assertEquals(TEST_NAL_POSITION, result);
     // Shouldn't find NAL unit whose prefix ends at the limit (since the limit is exclusive).
-    result = H264Util.findNalUnit(data, 0, TEST_NAL_POSITION + 3, null);
+    result = NalUnitUtil.findNalUnit(data, 0, TEST_NAL_POSITION + 3, null);
     assertEquals(TEST_NAL_POSITION + 3, result);
     // Should find NAL unit whose prefix starts at the offset.
-    result = H264Util.findNalUnit(data, TEST_NAL_POSITION, data.length, null);
+    result = NalUnitUtil.findNalUnit(data, TEST_NAL_POSITION, data.length, null);
     assertEquals(TEST_NAL_POSITION, result);
     // Shouldn't find NAL unit whose prefix starts one byte past the offset.
-    result = H264Util.findNalUnit(data, TEST_NAL_POSITION + 1, data.length, null);
+    result = NalUnitUtil.findNalUnit(data, TEST_NAL_POSITION + 1, data.length, null);
     assertEquals(data.length, result);
   }
 
@@ -54,9 +54,9 @@ public class H264UtilTest extends TestCase {
     boolean[] prefixFlags = new boolean[3];
     byte[] data1 = Arrays.copyOfRange(data, 0, TEST_NAL_POSITION + 1);
     byte[] data2 = Arrays.copyOfRange(data, TEST_NAL_POSITION + 1, data.length);
-    int result = H264Util.findNalUnit(data1, 0, data1.length, prefixFlags);
+    int result = NalUnitUtil.findNalUnit(data1, 0, data1.length, prefixFlags);
     assertEquals(data1.length, result);
-    result = H264Util.findNalUnit(data2, 0, data2.length, prefixFlags);
+    result = NalUnitUtil.findNalUnit(data2, 0, data2.length, prefixFlags);
     assertEquals(-1, result);
     assertPrefixFlagsCleared(prefixFlags);
 
@@ -64,9 +64,9 @@ public class H264UtilTest extends TestCase {
     prefixFlags = new boolean[3];
     data1 = Arrays.copyOfRange(data, 0, TEST_NAL_POSITION + 3);
     data2 = Arrays.copyOfRange(data, TEST_NAL_POSITION + 3, data.length);
-    result = H264Util.findNalUnit(data1, 0, data1.length, prefixFlags);
+    result = NalUnitUtil.findNalUnit(data1, 0, data1.length, prefixFlags);
     assertEquals(data1.length, result);
-    result = H264Util.findNalUnit(data2, 0, data2.length, prefixFlags);
+    result = NalUnitUtil.findNalUnit(data2, 0, data2.length, prefixFlags);
     assertEquals(-3, result);
     assertPrefixFlagsCleared(prefixFlags);
 
@@ -75,11 +75,11 @@ public class H264UtilTest extends TestCase {
     data1 = Arrays.copyOfRange(data, 0, TEST_NAL_POSITION + 1);
     data2 = Arrays.copyOfRange(data, TEST_NAL_POSITION + 1, TEST_NAL_POSITION + 2);
     byte[] data3 = Arrays.copyOfRange(data, TEST_NAL_POSITION + 2, data.length);
-    result = H264Util.findNalUnit(data1, 0, data1.length, prefixFlags);
+    result = NalUnitUtil.findNalUnit(data1, 0, data1.length, prefixFlags);
     assertEquals(data1.length, result);
-    result = H264Util.findNalUnit(data2, 0, data2.length, prefixFlags);
+    result = NalUnitUtil.findNalUnit(data2, 0, data2.length, prefixFlags);
     assertEquals(data2.length, result);
-    result = H264Util.findNalUnit(data3, 0, data3.length, prefixFlags);
+    result = NalUnitUtil.findNalUnit(data3, 0, data3.length, prefixFlags);
     assertEquals(-2, result);
     assertPrefixFlagsCleared(prefixFlags);
 
@@ -89,13 +89,13 @@ public class H264UtilTest extends TestCase {
     data2 = Arrays.copyOfRange(data, TEST_NAL_POSITION + 1, TEST_NAL_POSITION + 2);
     data3 = Arrays.copyOfRange(data, TEST_NAL_POSITION + 2, TEST_NAL_POSITION + 3);
     byte[] data4 = Arrays.copyOfRange(data, TEST_NAL_POSITION + 2, data.length);
-    result = H264Util.findNalUnit(data1, 0, data1.length, prefixFlags);
+    result = NalUnitUtil.findNalUnit(data1, 0, data1.length, prefixFlags);
     assertEquals(data1.length, result);
-    result = H264Util.findNalUnit(data2, 0, data2.length, prefixFlags);
+    result = NalUnitUtil.findNalUnit(data2, 0, data2.length, prefixFlags);
     assertEquals(data2.length, result);
-    result = H264Util.findNalUnit(data3, 0, data3.length, prefixFlags);
+    result = NalUnitUtil.findNalUnit(data3, 0, data3.length, prefixFlags);
     assertEquals(data3.length, result);
-    result = H264Util.findNalUnit(data4, 0, data4.length, prefixFlags);
+    result = NalUnitUtil.findNalUnit(data4, 0, data4.length, prefixFlags);
     assertEquals(-3, result);
     assertPrefixFlagsCleared(prefixFlags);
 
@@ -103,9 +103,9 @@ public class H264UtilTest extends TestCase {
     prefixFlags = new boolean[3];
     data1 = Arrays.copyOfRange(data, 0, TEST_PARTIAL_NAL_POSITION + 2);
     data2 = Arrays.copyOfRange(data, TEST_PARTIAL_NAL_POSITION + 2, data.length);
-    result = H264Util.findNalUnit(data1, 0, data1.length, prefixFlags);
+    result = NalUnitUtil.findNalUnit(data1, 0, data1.length, prefixFlags);
     assertEquals(data1.length, result);
-    result = H264Util.findNalUnit(data2, 0, data2.length, prefixFlags);
+    result = NalUnitUtil.findNalUnit(data2, 0, data2.length, prefixFlags);
     assertEquals(4, result);
     assertPrefixFlagsCleared(prefixFlags);
   }

@@ -19,8 +19,8 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.H264Util;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -104,7 +104,7 @@ import java.util.List;
   @Override
   public void seek() {
     seiReader.seek();
-    H264Util.clearPrefixFlags(prefixFlags);
+    NalUnitUtil.clearPrefixFlags(prefixFlags);
     sps.reset();
     pps.reset();
     sei.reset();
@@ -128,7 +128,7 @@ import java.util.List;
 
       // Scan the appended data, processing NAL units as they are encountered
       while (offset < limit) {
-        int nextNalUnitOffset = H264Util.findNalUnit(dataArray, offset, limit, prefixFlags);
+        int nextNalUnitOffset = NalUnitUtil.findNalUnit(dataArray, offset, limit, prefixFlags);
         if (nextNalUnitOffset < limit) {
           // We've seen the start of a NAL unit.
 
@@ -139,7 +139,7 @@ import java.util.List;
             feedNalUnitTargetBuffersData(dataArray, offset, nextNalUnitOffset);
           }
 
-          int nalUnitType = H264Util.getNalUnitType(dataArray, nextNalUnitOffset);
+          int nalUnitType = NalUnitUtil.getNalUnitType(dataArray, nextNalUnitOffset);
           int bytesWrittenPastNalUnit = limit - nextNalUnitOffset;
           switch (nalUnitType) {
             case NAL_UNIT_TYPE_IDR:

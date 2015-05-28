@@ -26,8 +26,8 @@ import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer.extractor.mp4.Atom.LeafAtom;
 import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.H264Util;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
@@ -106,7 +106,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   public FragmentedMp4Extractor(int workaroundFlags) {
     this.workaroundFlags = workaroundFlags;
     atomHeader = new ParsableByteArray(Atom.HEADER_SIZE);
-    nalStartCode = new ParsableByteArray(H264Util.NAL_START_CODE);
+    nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
     encryptionSignalByte = new ParsableByteArray(1);
     extendedTypeScratch = new byte[16];
