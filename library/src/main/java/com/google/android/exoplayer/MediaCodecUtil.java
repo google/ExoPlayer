@@ -139,7 +139,12 @@ public class MediaCodecUtil {
         for (int j = 0; j < supportedTypes.length; j++) {
           String supportedType = supportedTypes[j];
           if (supportedType.equalsIgnoreCase(mimeType)) {
-            CodecCapabilities capabilities = info.getCapabilitiesForType(supportedType);
+            CodecCapabilities capabilities = getCapabilitiesForType(info, supportedType);
+
+            //We can't get capabilities successfully, try next one.
+            if (capabilities == null) {
+              continue;
+            }
             boolean secure = mediaCodecList.isSecurePlaybackSupported(key.mimeType, capabilities);
             if (!secureDecodersExplicit) {
               // Cache variants for both insecure and (if we think it's supported) secure playback.
@@ -164,6 +169,19 @@ public class MediaCodecUtil {
     }
     return null;
   }
+  
+  /**
+   * Some device will report IllegalArgumentException state exception.
+   * We catch this exception and select next suitable decoder.
+   * 
+   */
+  static private CodecCapabilities getCapabilitiesForType(MediaCodecInfo info, String supportedType) {
+    try {
+      return info.getCapabilitiesForType(supportedType);
+    } catch(IllegalArgumentException e) {
+      return null;
+    }
+  }
 
   /**
    * Returns whether the specified codec is usable for decoding on the current device.
@@ -177,12 +195,13 @@ public class MediaCodecUtil {
 
     // Workaround an issue where creating a particular MP3 decoder on some HTC devices on platform
     // API version 16 crashes mediaserver.
-    if (Util.SDK_INT == 16
+    // We may not make a black list for all devices, need to find another way.
+    /*if (Util.SDK_INT == 16
         && ("dlxu".equals(Util.PRODUCT) // HTC Butterfly
             || "protou".equals(Util.PRODUCT)) // HTC Desire X
         && name.equals("OMX.qcom.audio.decoder.mp3")) {
       return false;
-    }
+    }*/
 
     return true;
   }
