@@ -178,8 +178,8 @@ public class MediaCodecUtil {
     // Workaround an issue where creating a particular MP3 decoder on some HTC devices on platform
     // API version 16 crashes mediaserver.
     if (Util.SDK_INT == 16
-        && ("dlxu".equals(Util.PRODUCT) // HTC Butterfly
-            || "protou".equals(Util.PRODUCT)) // HTC Desire X
+        && ("dlxu".equals(Util.DEVICE) // HTC Butterfly
+            || "protou".equals(Util.DEVICE)) // HTC Desire X
         && name.equals("OMX.qcom.audio.decoder.mp3")) {
       return false;
     }

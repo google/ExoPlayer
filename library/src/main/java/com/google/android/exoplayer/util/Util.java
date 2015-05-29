@@ -62,10 +62,10 @@ public final class Util {
   public static final int SDK_INT = android.os.Build.VERSION.SDK_INT;
 
   /**
-   * Like {@link android.os.Build#PRODUCT}, but in a place where it can be conveniently overridden
+   * Like {@link android.os.Build#DEVICE}, but in a place where it can be conveniently overridden
    * for local testing.
    */
-  public static final String PRODUCT = android.os.Build.PRODUCT;
+  public static final String DEVICE = android.os.Build.DEVICE;
 
   private static final Pattern XS_DATE_TIME_PATTERN = Pattern.compile(
       "(\\d\\d\\d\\d)\\-(\\d\\d)\\-(\\d\\d)[Tt]"
