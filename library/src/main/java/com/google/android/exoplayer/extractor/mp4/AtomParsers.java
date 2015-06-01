@@ -340,6 +340,8 @@ import java.util.List;
             holder, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
         holder.mediaFormat = MediaFormat.createTtmlFormat();
+      } else if (childAtomType == Atom.TYPE_tx3g) {
+        holder.mediaFormat = MediaFormat.createTx3GFormat();
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
