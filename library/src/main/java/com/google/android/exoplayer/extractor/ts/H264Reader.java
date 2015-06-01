@@ -77,7 +77,7 @@ import java.util.List;
   private final NalUnitTargetBuffer sps;
   private final NalUnitTargetBuffer pps;
   private final NalUnitTargetBuffer sei;
-  private boolean writingSample;
+  private boolean foundFirstSample;
   private long totalBytesWritten;
 
   // Per sample state that gets reset at the start of each sample.
@@ -111,7 +111,7 @@ import java.util.List;
     if (ifrParserBuffer != null) {
       ifrParserBuffer.reset();
     }
-    writingSample = false;
+    foundFirstSample = false;
     totalBytesWritten = 0;
   }
 
@@ -146,7 +146,7 @@ import java.util.List;
               isKeyframe = true;
               break;
             case NAL_UNIT_TYPE_AUD:
-              if (writingSample) {
+              if (foundFirstSample) {
                 if (ifrParserBuffer != null && ifrParserBuffer.isCompleted()) {
                   int sliceType = ifrParserBuffer.getSliceType();
                   isKeyframe |= (sliceType == FRAME_TYPE_I || sliceType == FRAME_TYPE_ALL_I);
@@ -158,9 +158,8 @@ import java.util.List;
                 int flags = isKeyframe ? C.SAMPLE_FLAG_SYNC : 0;
                 int size = (int) (totalBytesWritten - samplePosition) - bytesWrittenPastNalUnit;
                 output.sampleMetadata(sampleTimeUs, flags, size, bytesWrittenPastNalUnit, null);
-                writingSample = false;
               }
-              writingSample = true;
+              foundFirstSample = true;
               samplePosition = totalBytesWritten - bytesWrittenPastNalUnit;
               sampleTimeUs = pesTimeUs;
               isKeyframe = false;
@@ -215,6 +214,7 @@ import java.util.List;
     if (sei.endNalUnit(discardPadding)) {
       int unescapedLength = unescapeStream(sei.nalData, sei.nalLength);
       seiWrapper.reset(sei.nalData, unescapedLength);
+      seiWrapper.setPosition(4); // NAL prefix and nal_unit() header.
       seiReader.consume(seiWrapper, pesTimeUs, true);
     }
   }
@@ -385,7 +385,7 @@ import java.util.List;
     return unescapedLength;
   }
 
-  private int findNextUnescapeIndex(byte[] bytes, int offset, int limit) {
+  private static int findNextUnescapeIndex(byte[] bytes, int offset, int limit) {
     for (int i = offset; i < limit - 2; i++) {
       if (bytes[i] == 0x00 && bytes[i + 1] == 0x00 && bytes[i + 2] == 0x03) {
         return i;

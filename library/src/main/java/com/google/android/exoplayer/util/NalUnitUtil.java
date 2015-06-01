@@ -65,6 +65,18 @@ public final class NalUnitUtil {
   }
 
   /**
+   * Gets the type of the H.265 NAL unit in {@code data} that starts at {@code offset}.
+   *
+   * @param data The data to search.
+   * @param offset The start offset of a NAL unit. Must lie between {@code -3} (inclusive) and
+   *     {@code data.length - 3} (exclusive).
+   * @return The type of the unit.
+   */
+  public static int getH265NalUnitType(byte[] data, int offset) {
+    return (data[offset + 3] & 0x7E) >> 1;
+  }
+
+  /**
    * Finds the first NAL unit in {@code data}.
    * <p>
    * If {@code prefixFlags} is null then the first four bytes of a NAL unit must be entirely
