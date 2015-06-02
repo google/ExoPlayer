@@ -53,12 +53,12 @@ public class MimeTypes {
   public static final String AUDIO_OPUS = BASE_TYPE_AUDIO + "/opus";
 
   public static final String TEXT_VTT = BASE_TYPE_TEXT + "/vtt";
-  public static final String TEXT_TX3G = BASE_TYPE_TEXT + "/tx3g";
 
   public static final String APPLICATION_ID3 = BASE_TYPE_APPLICATION + "/id3";
   public static final String APPLICATION_EIA608 = BASE_TYPE_APPLICATION + "/eia-608";
   public static final String APPLICATION_TTML = BASE_TYPE_APPLICATION + "/ttml+xml";
   public static final String APPLICATION_M3U8 = BASE_TYPE_APPLICATION + "/x-mpegURL";
+  public static final String APPLICATION_TX3G = BASE_TYPE_APPLICATION + "/x-quicktime-tx3g";
 
   private MimeTypes() {}
 

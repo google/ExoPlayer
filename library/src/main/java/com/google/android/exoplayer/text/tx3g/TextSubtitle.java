@@ -22,7 +22,7 @@ import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.Subtitle;
 
 /**
- * A representation of a TTML subtitle.
+ * A representation of a tx3g subtitle.
  */
 public final class TextSubtitle implements Subtitle {
   static String TAG = "TextSubtitle";
@@ -47,7 +47,6 @@ public final class TextSubtitle implements Subtitle {
 
   @Override
   public int getEventTimeCount() {
-    //LOG.I(TAG,"getEventTimeCount() = " + text.size());
     return text.size();
   }
 
@@ -55,7 +54,6 @@ public final class TextSubtitle implements Subtitle {
   public long getEventTime(int index) {
     if (index > text.size() - 1) return -1;
 
-    //LOG.I(TAG,"getEventTime(" + index + ") = " + text.get(index).getStartTimePos());
     return text.get(index).getStartTimePos();
   }
 
@@ -77,6 +75,7 @@ public final class TextSubtitle implements Subtitle {
   }
 
   private int findTheClosed(long timeUs) {
+    //TODO : Time complexity is O(n),not good solution.
 
     int length = text.size();
     for (int i = 0; i < length ; i++) {

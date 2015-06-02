@@ -20,61 +20,29 @@ import java.util.Comparator;
 
 class SubtitleData implements Comparable <SubtitleData>, Comparator<SubtitleData> {
 
-  private long mStartTimePosUs;
-  private long mEndTimePosUs;
-  private String strSubtitle;
+  public final long startTimePosUs;
+  public final String strSubtitle;
 
-  SubtitleData()
+  SubtitleData(long startTimePosUs, String strSubtitle)
   {
-    mStartTimePosUs = 0l;
-    mEndTimePosUs = 0l;
-    strSubtitle = "";
-  }
-
-  protected void setStartTimePos(long time)
-  {
-    mStartTimePosUs = time;
-  }
-
-  protected void setEndTimePos(long time)
-  {
-    mEndTimePosUs = time;
-  }
-
-  protected void setSubtitleText(String text)
-  {
-    strSubtitle = text;
-  }
-
-  protected long getStartTimePos()
-  {
-    return mStartTimePosUs;
-  }
-
-  protected long getEndTimePos()
-  {
-    return mEndTimePosUs;
-  }
-
-  protected String getsubtitleText()
-  {
-    return strSubtitle;
+    this.startTimePosUs = startTimePosUs;
+    this.strSubtitle = strSubtitle;
   }
 
   @Override
   public int compare(SubtitleData o1 , SubtitleData o2) {
-    if (o1.getStartTimePos() < o2.getStartTimePos())
+    if (o1.startTimePosUs < o2.startTimePosUs)
       return -1;
-    if (o1.getStartTimePos() > o2.getStartTimePos())
+    if (o1.startTimePosUs > o2.startTimePosUs)
       return 1;
     return 0;
   }
 
   @Override
   public int compareTo(SubtitleData another) {
-    if (getStartTimePos() < another.getStartTimePos())
+    if (startTimePosUs < another.startTimePosUs)
       return -1;
-    if (getStartTimePos() > another.getStartTimePos())
+    if (startTimePosUs > another.startTimePosUs)
       return 1;
     return 0;
   }

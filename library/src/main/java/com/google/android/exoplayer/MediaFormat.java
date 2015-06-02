@@ -107,7 +107,7 @@ public class MediaFormat {
   }
 
   public static MediaFormat createTx3GFormat() {
-    return createFormatForMimeType(MimeTypes.TEXT_TX3G);
+    return createFormatForMimeType(MimeTypes.APPLICATION_TX3G);
   }
 
   public static MediaFormat createFormatForMimeType(String mimeType) {

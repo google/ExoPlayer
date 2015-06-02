@@ -30,38 +30,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A simple Text parser that supports Tx3g presentation profile.
- * <p>
- * Supported features in this parser are:
- * <ul>
- *   <li>content
- *   <li>core
- *   <li>presentation
- *   <li>profile
- *   <li>structure
- *   <li>time-offset
- *   <li>timing
- *   <li>tickRate
- *   <li>time-clock-with-frames
- *   <li>time-clock
- *   <li>time-offset-with-frames
- *   <li>time-offset-with-ticks
- * </ul>
- * </p>
- * @see <a href="http://www.w3.org/TR/ttaf1-dfxp/">TTML specification</a>
+ * A simple Text parser that supports tx3g atom.
+ *
+ * Only support to parse a single text track at this version ,
+ * since ExtractorSampleSource does not handle multiple audio/video tracks.
+ *
  */
 public class TextParser implements SubtitleParser {
   private static final String TAG = "TextParser";
 
+  private final List<SubtitleData> subtitleList;
 
-  private final List<SubtitleData> mSubtitleList;
-
-  /**
-   * Equivalent to {@code TtmlParser(true)}.
-   */
   public TextParser() {
     Log.i(TAG,"TextParser ");
-    mSubtitleList = new LinkedList<SubtitleData>();
+    subtitleList = new LinkedList<SubtitleData>();
   }
 
 
@@ -74,29 +56,27 @@ public class TextParser implements SubtitleParser {
     text = (text == null) ? "" : text;
     Log.i(TAG,"parse(" + text + "," + startTimeUs + ")" );
 
-    SubtitleData cue = new SubtitleData();
-    cue.setSubtitleText(text);
-    cue.setStartTimePos(startTimeUs);
-    mSubtitleList.add(cue);
+    SubtitleData cue = new SubtitleData(startTimeUs, text);
 
-    Collections.sort(mSubtitleList, new Comparator<SubtitleData>() {
+    subtitleList.add(cue);
+
+    Collections.sort(subtitleList, new Comparator<SubtitleData>() {
       @Override
       public int compare(SubtitleData o1 , SubtitleData o2) {
-        if (o1.getStartTimePos() < o2.getStartTimePos())
+        if (o1.startTimePosUs < o2.startTimePosUs)
           return -1;
-        if (o1.getStartTimePos() > o2.getStartTimePos())
+        if (o1.startTimePosUs > o2.startTimePosUs)
           return 1;
         return 0;
       }
     });
-    TextSubtitle textSubtitle = new TextSubtitle(mSubtitleList);
+    TextSubtitle textSubtitle = new TextSubtitle(subtitleList);
     return textSubtitle;
   }
 
   @Override
   public boolean canParse(String mimeType) {
-    boolean rtn = MimeTypes.TEXT_TX3G.equals(mimeType);
-    Log.i(TAG,"canParse " + mimeType + "," + rtn);
+    boolean rtn = MimeTypes.APPLICATION_TX3G.equals(mimeType);
     return rtn;
   }
 }
