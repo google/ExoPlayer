@@ -54,10 +54,18 @@ public class TextParser implements SubtitleParser {
 
     SubtitleData cue = new SubtitleData(startTimeUs, text);
 
-    while (subtitleList.size() > MAX_SUBTITLE_COUNT) {
-      subtitleList.remove(0);
-    }
+    //try to resize the list.
+    if (subtitleList.size() > 0) {
+      long lastTimeUs = subtitleList.get(subtitleList.size() - 1).startTimePosUs;
+      if (startTimeUs < lastTimeUs) {
+        //when forward seek
+        subtitleList.clear();
+      }
 
+      while (subtitleList.size() > MAX_SUBTITLE_COUNT) {
+        subtitleList.remove(0);
+      }
+    }
     subtitleList.add(cue);
 
     Collections.sort(subtitleList, new Comparator<SubtitleData>() {
