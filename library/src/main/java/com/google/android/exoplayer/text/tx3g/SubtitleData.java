@@ -18,15 +18,18 @@ package com.google.android.exoplayer.text.tx3g;
 
 import java.util.Comparator;
 
+/**
+ * A representation of a single tx3g.
+ */
 class SubtitleData implements Comparable <SubtitleData>, Comparator<SubtitleData> {
 
   public final long startTimePosUs;
-  public final String strSubtitle;
+  public final String subtitle;
 
-  SubtitleData(long startTimePosUs, String strSubtitle)
+  SubtitleData(long startTimePosUs, String subtitle)
   {
     this.startTimePosUs = startTimePosUs;
-    this.strSubtitle = strSubtitle;
+    this.subtitle = subtitle;
   }
 
   @Override

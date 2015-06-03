@@ -34,7 +34,7 @@ public final class TextSubtitle implements Subtitle {
 
   @Override
   public long getStartTime() {
-    return text.get(0).getStartTimePos();
+    return text.get(0).startTimePosUs;
   }
 
   @Override
@@ -54,12 +54,12 @@ public final class TextSubtitle implements Subtitle {
   public long getEventTime(int index) {
     if (index > text.size() - 1) return -1;
 
-    return text.get(index).getStartTimePos();
+    return text.get(index).startTimePosUs;
   }
 
   @Override
   public long getLastEventTime() {
-    return text.get(0).getStartTimePos();
+    return text.get(0).startTimePosUs;
   }
 
   @Override
@@ -68,7 +68,7 @@ public final class TextSubtitle implements Subtitle {
     List<Cue> list = new ArrayList<>();
     if (index == -1) return null;
 
-    String str = text.get(index).getsubtitleText();
+    String str = text.get(index).subtitle;
 
     list.add(new Cue(str));
     return list;
@@ -80,10 +80,10 @@ public final class TextSubtitle implements Subtitle {
     int length = text.size();
     for (int i = 0; i < length ; i++) {
       SubtitleData data = text.get(i);
-      boolean bCheckFront = data.getStartTimePos() <= timeUs ;
+      boolean bCheckFront = data.startTimePosUs <= timeUs ;
       boolean bCheckEnd = false;
       if (i + 1  < length) {
-        bCheckEnd = text.get(i + 1).getStartTimePos() > timeUs ;
+        bCheckEnd = text.get(i + 1).startTimePosUs > timeUs ;
       } else if (i + 1 == length) {
         bCheckEnd = true;
       }

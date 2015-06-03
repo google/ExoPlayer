@@ -19,8 +19,6 @@ import com.google.android.exoplayer.text.Subtitle;
 import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.MimeTypes;
 
-import android.util.Log;
-
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,12 +38,11 @@ public class TextParser implements SubtitleParser {
   private static final String TAG = "TextParser";
 
   private final List<SubtitleData> subtitleList;
-
+  private static final int MAX_SUBTITLE_COUNT = 4;
   public TextParser() {
-    Log.i(TAG,"TextParser ");
+
     subtitleList = new LinkedList<SubtitleData>();
   }
-
 
   @Override
   public Subtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
@@ -54,9 +51,12 @@ public class TextParser implements SubtitleParser {
     DataInputStream in  = new DataInputStream(inputStream);
     String text = in.readUTF();
     text = (text == null) ? "" : text;
-    Log.i(TAG,"parse(" + text + "," + startTimeUs + ")" );
 
     SubtitleData cue = new SubtitleData(startTimeUs, text);
+
+    while (subtitleList.size() > MAX_SUBTITLE_COUNT) {
+      subtitleList.remove(0);
+    }
 
     subtitleList.add(cue);
 
@@ -70,13 +70,11 @@ public class TextParser implements SubtitleParser {
         return 0;
       }
     });
-    TextSubtitle textSubtitle = new TextSubtitle(subtitleList);
-    return textSubtitle;
+    return new TextSubtitle(subtitleList);
   }
 
   @Override
   public boolean canParse(String mimeType) {
-    boolean rtn = MimeTypes.APPLICATION_TX3G.equals(mimeType);
-    return rtn;
+    return MimeTypes.APPLICATION_TX3G.equals(mimeType);
   }
 }
