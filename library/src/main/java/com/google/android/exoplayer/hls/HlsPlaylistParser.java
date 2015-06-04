@@ -38,6 +38,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
 
   private static final String VERSION_TAG = "#EXT-X-VERSION";
   private static final String STREAM_INF_TAG = "#EXT-X-STREAM-INF";
+  private static final String IFRAME_STREAM_INF_TAG = "#EXT-X-I-FRAME-STREAM-INF";
   private static final String MEDIA_TAG = "#EXT-X-MEDIA";
   private static final String DISCONTINUITY_TAG = "#EXT-X-DISCONTINUITY";
   private static final String MEDIA_DURATION_TAG = "#EXTINF";
@@ -46,6 +47,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
   private static final String ENDLIST_TAG = "#EXT-X-ENDLIST";
   private static final String KEY_TAG = "#EXT-X-KEY";
   private static final String BYTERANGE_TAG = "#EXT-X-BYTERANGE";
+  private static final String IFRAME_TAG = "#EXT-X-I-FRAMES-ONLY";
 
   private static final String BANDWIDTH_ATTR = "BANDWIDTH";
   private static final String CODECS_ATTR = "CODECS";
@@ -68,43 +70,43 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
   private static final String METHOD_AES128 = "AES-128";
 
   private static final Pattern BANDWIDTH_ATTR_REGEX =
-      Pattern.compile(BANDWIDTH_ATTR + "=(\\d+)\\b");
+          Pattern.compile(BANDWIDTH_ATTR + "=(\\d+)\\b");
   private static final Pattern CODECS_ATTR_REGEX =
-      Pattern.compile(CODECS_ATTR + "=\"(.+?)\"");
+          Pattern.compile(CODECS_ATTR + "=\"(.+?)\"");
   private static final Pattern RESOLUTION_ATTR_REGEX =
-      Pattern.compile(RESOLUTION_ATTR + "=(\\d+x\\d+)");
+          Pattern.compile(RESOLUTION_ATTR + "=(\\d+x\\d+)");
   private static final Pattern MEDIA_DURATION_REGEX =
-      Pattern.compile(MEDIA_DURATION_TAG + ":([\\d.]+),");
+          Pattern.compile(MEDIA_DURATION_TAG + ":([\\d.]+),");
   private static final Pattern MEDIA_SEQUENCE_REGEX =
-      Pattern.compile(MEDIA_SEQUENCE_TAG + ":(\\d+)\\b");
+          Pattern.compile(MEDIA_SEQUENCE_TAG + ":(\\d+)\\b");
   private static final Pattern TARGET_DURATION_REGEX =
-      Pattern.compile(TARGET_DURATION_TAG + ":(\\d+)\\b");
+          Pattern.compile(TARGET_DURATION_TAG + ":(\\d+)\\b");
   private static final Pattern VERSION_REGEX =
-      Pattern.compile(VERSION_TAG + ":(\\d+)\\b");
+          Pattern.compile(VERSION_TAG + ":(\\d+)\\b");
   private static final Pattern BYTERANGE_REGEX =
-      Pattern.compile(BYTERANGE_TAG + ":(\\d+(?:@\\d+)?)\\b");
+          Pattern.compile(BYTERANGE_TAG + ":(\\d+(?:@\\d+)?)\\b");
 
   private static final Pattern METHOD_ATTR_REGEX =
-      Pattern.compile(METHOD_ATTR + "=(" + METHOD_NONE + "|" + METHOD_AES128 + ")");
+          Pattern.compile(METHOD_ATTR + "=(" + METHOD_NONE + "|" + METHOD_AES128 + ")");
   private static final Pattern URI_ATTR_REGEX =
-      Pattern.compile(URI_ATTR + "=\"(.+)\"");
+          Pattern.compile(URI_ATTR + "=\"(.+)\"");
   private static final Pattern IV_ATTR_REGEX =
-      Pattern.compile(IV_ATTR + "=([^,.*]+)");
+          Pattern.compile(IV_ATTR + "=([^,.*]+)");
   private static final Pattern TYPE_ATTR_REGEX =
-      Pattern.compile(TYPE_ATTR + "=(" + AUDIO_TYPE + "|" + VIDEO_TYPE + "|" + SUBTITLES_TYPE + "|"
-          + CLOSED_CAPTIONS_TYPE + ")");
+          Pattern.compile(TYPE_ATTR + "=(" + AUDIO_TYPE + "|" + VIDEO_TYPE + "|" + SUBTITLES_TYPE + "|"
+                  + CLOSED_CAPTIONS_TYPE + ")");
   private static final Pattern LANGUAGE_ATTR_REGEX =
-      Pattern.compile(LANGUAGE_ATTR + "=\"(.+?)\"");
+          Pattern.compile(LANGUAGE_ATTR + "=\"(.+?)\"");
   private static final Pattern NAME_ATTR_REGEX =
-      Pattern.compile(NAME_ATTR + "=\"(.+?)\"");
+          Pattern.compile(NAME_ATTR + "=\"(.+?)\"");
   private static final Pattern AUTOSELECT_ATTR_REGEX =
-      HlsParserUtil.compileBooleanAttrPattern(AUTOSELECT_ATTR);
+          HlsParserUtil.compileBooleanAttrPattern(AUTOSELECT_ATTR);
   private static final Pattern DEFAULT_ATTR_REGEX =
-      HlsParserUtil.compileBooleanAttrPattern(DEFAULT_ATTR);
+          HlsParserUtil.compileBooleanAttrPattern(DEFAULT_ATTR);
 
   @Override
   public HlsPlaylist parse(String connectionUrl, InputStream inputStream)
-      throws IOException, ParserException {
+          throws IOException, ParserException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
     Queue<String> extraLines = new LinkedList<>();
     String line;
@@ -113,16 +115,17 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         line = line.trim();
         if (line.isEmpty()) {
           // Do nothing.
-        } else if (line.startsWith(STREAM_INF_TAG)) {
+        } else if (line.startsWith(STREAM_INF_TAG) || line.startsWith(IFRAME_STREAM_INF_TAG)) {
           extraLines.add(line);
           return parseMasterPlaylist(new LineIterator(extraLines, reader), connectionUrl);
         } else if (line.startsWith(TARGET_DURATION_TAG)
-            || line.startsWith(MEDIA_SEQUENCE_TAG)
-            || line.startsWith(MEDIA_DURATION_TAG)
-            || line.startsWith(KEY_TAG)
-            || line.startsWith(BYTERANGE_TAG)
-            || line.equals(DISCONTINUITY_TAG)
-            || line.equals(ENDLIST_TAG)) {
+                || line.startsWith(MEDIA_SEQUENCE_TAG)
+                || line.startsWith(IFRAME_TAG)
+                || line.startsWith(MEDIA_DURATION_TAG)
+                || line.startsWith(KEY_TAG)
+                || line.startsWith(BYTERANGE_TAG)
+                || line.equals(DISCONTINUITY_TAG)
+                || line.equals(ENDLIST_TAG)) {
           extraLines.add(line);
           return parseMediaPlaylist(new LineIterator(extraLines, reader), connectionUrl);
         } else {
@@ -136,13 +139,14 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
   }
 
   private static HlsMasterPlaylist parseMasterPlaylist(LineIterator iterator, String baseUri)
-      throws IOException {
+          throws IOException {
     ArrayList<Variant> variants = new ArrayList<>();
     ArrayList<Subtitle> subtitles = new ArrayList<>();
     int bitrate = 0;
     String codecs = null;
     int width = -1;
     int height = -1;
+    boolean iframe = false;
 
     boolean expectingStreamInfUrl = false;
     String line;
@@ -161,11 +165,14 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         } else {
           // TODO: Support other types of media tag.
         }
-      } else if (line.startsWith(STREAM_INF_TAG)) {
+      } else if (line.startsWith(STREAM_INF_TAG) || line.startsWith(IFRAME_STREAM_INF_TAG)) {
+        if(line.startsWith(IFRAME_STREAM_INF_TAG)){
+          iframe = true;
+        }
         bitrate = HlsParserUtil.parseIntAttr(line, BANDWIDTH_ATTR_REGEX, BANDWIDTH_ATTR);
         codecs = HlsParserUtil.parseOptionalStringAttr(line, CODECS_ATTR_REGEX);
         String resolutionString = HlsParserUtil.parseOptionalStringAttr(line,
-            RESOLUTION_ATTR_REGEX);
+                RESOLUTION_ATTR_REGEX);
         if (resolutionString != null) {
           String[] widthAndHeight = resolutionString.split("x");
           width = Integer.parseInt(widthAndHeight[0]);
@@ -184,24 +191,27 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         }
         expectingStreamInfUrl = true;
       } else if (!line.startsWith("#") && expectingStreamInfUrl) {
-        variants.add(new Variant(variants.size(), line, bitrate, codecs, width, height));
+        if(!iframe)
+          variants.add(new Variant(variants.size(), line, bitrate, codecs, width, height));
         bitrate = 0;
         codecs = null;
         width = -1;
         height = -1;
+        iframe = false;
         expectingStreamInfUrl = false;
       }
     }
     return new HlsMasterPlaylist(baseUri, Collections.unmodifiableList(variants),
-        Collections.unmodifiableList(subtitles));
+            Collections.unmodifiableList(subtitles));
   }
 
   private static HlsMediaPlaylist parseMediaPlaylist(LineIterator iterator, String baseUri)
-      throws IOException {
+          throws IOException {
     int mediaSequence = 0;
     int targetDurationSecs = 0;
     int version = 1; // Default version == 1.
     boolean live = true;
+    boolean iframe = false;
     List<Segment> segments = new ArrayList<>();
 
     double segmentDurationSecs = 0.0;
@@ -220,15 +230,17 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
       line = iterator.next();
       if (line.startsWith(TARGET_DURATION_TAG)) {
         targetDurationSecs = HlsParserUtil.parseIntAttr(line, TARGET_DURATION_REGEX,
-            TARGET_DURATION_TAG);
+                TARGET_DURATION_TAG);
       } else if (line.startsWith(MEDIA_SEQUENCE_TAG)) {
         mediaSequence = HlsParserUtil.parseIntAttr(line, MEDIA_SEQUENCE_REGEX, MEDIA_SEQUENCE_TAG);
         segmentMediaSequence = mediaSequence;
+      } else if(line.startsWith(IFRAME_TAG)) {
+        iframe = true;
       } else if (line.startsWith(VERSION_TAG)) {
         version = HlsParserUtil.parseIntAttr(line, VERSION_REGEX, VERSION_TAG);
       } else if (line.startsWith(MEDIA_DURATION_TAG)) {
         segmentDurationSecs = HlsParserUtil.parseDoubleAttr(line, MEDIA_DURATION_REGEX,
-            MEDIA_DURATION_TAG);
+                MEDIA_DURATION_TAG);
       } else if (line.startsWith(KEY_TAG)) {
         String method = HlsParserUtil.parseStringAttr(line, METHOD_ATTR_REGEX, METHOD_ATTR);
         isEncrypted = METHOD_AES128.equals(method);
@@ -262,8 +274,8 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
           segmentByterangeOffset = 0;
         }
         segments.add(new Segment(line, segmentDurationSecs, segmentDiscontinuity,
-            segmentStartTimeUs, isEncrypted, encryptionKeyUri, segmentEncryptionIV,
-            segmentByterangeOffset, segmentByterangeLength));
+                segmentStartTimeUs, isEncrypted, encryptionKeyUri, segmentEncryptionIV,
+                segmentByterangeOffset, segmentByterangeLength));
         segmentStartTimeUs += (long) (segmentDurationSecs * C.MICROS_PER_SECOND);
         segmentDiscontinuity = false;
         segmentDurationSecs = 0.0;
@@ -276,8 +288,8 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         break;
       }
     }
-    return new HlsMediaPlaylist(baseUri, mediaSequence, targetDurationSecs, version, live,
-        Collections.unmodifiableList(segments));
+    return new HlsMediaPlaylist(baseUri, mediaSequence, targetDurationSecs, version, live, iframe,
+            Collections.unmodifiableList(segments));
   }
 
   private static class LineIterator {
