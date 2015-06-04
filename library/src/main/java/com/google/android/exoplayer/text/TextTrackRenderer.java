@@ -55,10 +55,10 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   private boolean inputStreamEnded;
 
   private Subtitle subtitle;
+  private Subtitle nextSubtitle;
   private SubtitleParserHelper parserHelper;
   private HandlerThread parserThread;
   private int nextSubtitleEventIndex;
-  private boolean textRendererNeedsUpdate;
 
   /**
    * @param source A source from which samples containing subtitle data can be read.
@@ -122,14 +122,10 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
     inputStreamEnded = false;
     currentPositionUs = positionUs;
     source.seekToUs(positionUs);
-    if (subtitle != null && (positionUs < subtitle.getStartTime()
-        || subtitle.getLastEventTime() <= positionUs)) {
-      subtitle = null;
-    }
+    subtitle = null;
+    nextSubtitle = null;
     parserHelper.flush();
     clearTextRenderer();
-    syncNextEventIndex(positionUs);
-    textRendererNeedsUpdate = subtitle != null;
   }
 
   @Override
@@ -141,49 +137,49 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
       throw new ExoPlaybackException(e);
     }
 
-    if (parserHelper.isParsing()) {
-      return;
-    }
-
-    Subtitle dequeuedSubtitle = null;
-    if (subtitle == null) {
+    if (nextSubtitle == null) {
       try {
-        dequeuedSubtitle = parserHelper.getAndClearResult();
+        nextSubtitle = parserHelper.getAndClearResult();
       } catch (IOException e) {
         throw new ExoPlaybackException(e);
       }
     }
 
-    if (subtitle == null && dequeuedSubtitle != null) {
-      // We've dequeued a new subtitle. Sync the event index and update the subtitle.
-      subtitle = dequeuedSubtitle;
-      syncNextEventIndex(positionUs);
-      textRendererNeedsUpdate = true;
-    } else if (subtitle != null) {
+    boolean textRendererNeedsUpdate = false;
+    long subtitleNextEventTimeUs = Long.MAX_VALUE;
+    if (subtitle != null) {
       // We're iterating through the events in a subtitle. Set textRendererNeedsUpdate if we
       // advance to the next event.
-      long nextEventTimeUs = getNextEventTime();
-      while (nextEventTimeUs <= positionUs) {
+      subtitleNextEventTimeUs = getNextEventTime();
+      while (subtitleNextEventTimeUs <= positionUs) {
         nextSubtitleEventIndex++;
-        nextEventTimeUs = getNextEventTime();
+        subtitleNextEventTimeUs = getNextEventTime();
         textRendererNeedsUpdate = true;
-      }
-      if (nextEventTimeUs == Long.MAX_VALUE) {
-        // We've finished processing the subtitle.
-        subtitle = null;
       }
     }
 
-    // We don't have a subtitle. Try and read the next one from the source, and if we succeed then
-    // sync and set textRendererNeedsUpdate.
-    if (!inputStreamEnded && subtitle == null) {
+    if (subtitleNextEventTimeUs == Long.MAX_VALUE && nextSubtitle != null
+        && nextSubtitle.getStartTime() <= positionUs) {
+      // Advance to the next subtitle. Sync the next event index and trigger an update.
+      subtitle = nextSubtitle;
+      nextSubtitle = null;
+      nextSubtitleEventIndex = subtitle.getNextEventTimeIndex(positionUs);
+      textRendererNeedsUpdate = true;
+    }
+
+    if (textRendererNeedsUpdate && getState() == TrackRenderer.STATE_STARTED) {
+      // textRendererNeedsUpdate is set and we're playing. Update the renderer.
+      updateTextRenderer(subtitle.getCues(positionUs));
+    }
+
+    if (!inputStreamEnded && nextSubtitle == null && !parserHelper.isParsing()) {
+      // Try and read the next subtitle from the source.
       try {
         SampleHolder sampleHolder = parserHelper.getSampleHolder();
         sampleHolder.clearData();
         int result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
         if (result == SampleSource.SAMPLE_READ) {
           parserHelper.startParseOperation();
-          textRendererNeedsUpdate = false;
         } else if (result == SampleSource.END_OF_STREAM) {
           inputStreamEnded = true;
         }
@@ -191,21 +187,12 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
         throw new ExoPlaybackException(e);
       }
     }
-
-    // Update the text renderer if we're both playing and textRendererNeedsUpdate is set.
-    if (textRendererNeedsUpdate && getState() == TrackRenderer.STATE_STARTED) {
-      textRendererNeedsUpdate = false;
-      if (subtitle == null) {
-        clearTextRenderer();
-      } else {
-        updateTextRenderer(positionUs);
-      }
-    }
   }
 
   @Override
   protected void onDisabled() {
     subtitle = null;
+    nextSubtitle = null;
     parserThread.quit();
     parserThread = null;
     parserHelper = null;
@@ -236,7 +223,7 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
 
   @Override
   protected boolean isEnded() {
-    return inputStreamEnded && subtitle == null;
+    return inputStreamEnded && (subtitle == null || getNextEventTime() == Long.MAX_VALUE);
   }
 
   @Override
@@ -246,18 +233,13 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
     return true;
   }
 
-  private void syncNextEventIndex(long positionUs) {
-    nextSubtitleEventIndex = subtitle == null ? -1 : subtitle.getNextEventTimeIndex(positionUs);
-  }
-
   private long getNextEventTime() {
     return ((nextSubtitleEventIndex == -1)
         || (nextSubtitleEventIndex >= subtitle.getEventTimeCount())) ? Long.MAX_VALUE
         : (subtitle.getEventTime(nextSubtitleEventIndex));
   }
 
-  private void updateTextRenderer(long positionUs) {
-    List<Cue> cues = subtitle.getCues(positionUs);
+  private void updateTextRenderer(List<Cue> cues) {
     if (textRendererHandler != null) {
       textRendererHandler.obtainMessage(MSG_UPDATE_OVERLAY, cues).sendToTarget();
     } else {
@@ -266,12 +248,7 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   }
 
   private void clearTextRenderer() {
-    if (textRendererHandler != null) {
-      textRendererHandler.obtainMessage(MSG_UPDATE_OVERLAY, Collections.<Cue>emptyList())
-          .sendToTarget();
-    } else {
-      invokeRendererInternalCues(Collections.<Cue>emptyList());
-    }
+    updateTextRenderer(Collections.<Cue>emptyList());
   }
 
   @SuppressWarnings("unchecked")

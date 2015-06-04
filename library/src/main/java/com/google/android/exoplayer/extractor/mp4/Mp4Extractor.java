@@ -225,8 +225,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       }
 
       Track track = AtomParsers.parseTrak(atom, moov.getLeafAtomOfType(Atom.TYPE_mvhd));
-      if (track == null || (track.type != Track.TYPE_AUDIO && track.type != Track.TYPE_VIDEO &&
-        track.type != Track.TYPE_TEXT)) {
+      if (track == null || track.mediaFormat == null || (track.type != Track.TYPE_AUDIO
+          && track.type != Track.TYPE_VIDEO && track.type != Track.TYPE_TEXT)) {
         continue;
       }
 
