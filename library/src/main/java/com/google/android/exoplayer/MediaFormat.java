@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.SuppressLint;
@@ -94,20 +93,8 @@ public class MediaFormat {
         channelCount, sampleRate, initializationData);
   }
 
-  public static MediaFormat createId3Format() {
-    return createFormatForMimeType(MimeTypes.APPLICATION_ID3);
-  }
-
-  public static MediaFormat createEia608Format() {
-    return createFormatForMimeType(MimeTypes.APPLICATION_EIA608);
-  }
-
-  public static MediaFormat createTtmlFormat() {
-    return createFormatForMimeType(MimeTypes.APPLICATION_TTML);
-  }
-
-  public static MediaFormat createTx3GFormat() {
-    return createFormatForMimeType(MimeTypes.APPLICATION_TX3G);
+  public static MediaFormat createTextFormat(String mimeType) {
+    return createFormatForMimeType(mimeType);
   }
 
   public static MediaFormat createFormatForMimeType(String mimeType) {
