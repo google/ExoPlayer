@@ -27,7 +27,7 @@ import java.io.InputStream;
 /**
  * A {@link SubtitleParser} for tx3g.
  * <p>
- * Currently only supports parsing of a single text track
+ * Currently only supports parsing of a single text track.
  */
 public final class Tx3gParser implements SubtitleParser {
 
