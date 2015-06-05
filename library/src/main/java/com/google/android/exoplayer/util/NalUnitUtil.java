@@ -25,6 +25,29 @@ public final class NalUnitUtil {
   /** Four initial bytes that must prefix NAL units for decoding. */
   public static final byte[] NAL_START_CODE = new byte[] {0, 0, 0, 1};
 
+  /** Value for aspect_ratio_idc indicating an extended aspect ratio, in H.264 and H.265 SPSs. */
+  public static final int EXTENDED_SAR = 0xFF;
+  /** Aspect ratios indexed by aspect_ratio_idc, in H.264 and H.265 SPSs. */
+  public static final float[] ASPECT_RATIO_IDC_VALUES = new float[] {
+    1f /* Unspecified. Assume square */,
+    1f,
+    12f / 11f,
+    10f / 11f,
+    16f / 11f,
+    40f / 33f,
+    24f / 11f,
+    20f / 11f,
+    32f / 11f,
+    80f / 33f,
+    18f / 11f,
+    15f / 11f,
+    64f / 33f,
+    160f / 99f,
+    4f / 3f,
+    3f / 2f,
+    2f
+  };
+
   /**
    * Replaces length prefixes of NAL units in {@code buffer} with start code prefixes, within the
    * {@code size} bytes preceding the buffer's position.
@@ -79,7 +102,7 @@ public final class NalUnitUtil {
   /**
    * Finds the first NAL unit in {@code data}.
    * <p>
-   * If {@code prefixFlags} is null then the first four bytes of a NAL unit must be entirely
+   * If {@code prefixFlags} is null then the first three bytes of a NAL unit must be entirely
    * contained within the part of the array being searched in order for it to be found.
    * <p>
    * When {@code prefixFlags} is non-null, this method supports finding NAL units whose first four
@@ -121,9 +144,8 @@ public final class NalUnitUtil {
     }
 
     int limit = endOffset - 1;
-    // We're looking for the NAL unit start code prefix 0x000001, followed by a byte that matches
-    // the specified type. The value of i tracks the index of the third byte in the four bytes
-    // being examined.
+    // We're looking for the NAL unit start code prefix 0x000001. The value of i tracks the index of
+    // the third byte.
     for (int i = startOffset + 2; i < limit; i += 3) {
       if ((data[i] & 0xFE) != 0) {
         // There isn't a NAL prefix here, or at the next two positions. Do nothing and let the
@@ -146,10 +168,10 @@ public final class NalUnitUtil {
           ? (data[endOffset - 3] == 0 && data[endOffset - 2] == 0 && data[endOffset - 1] == 1)
           : length == 2 ? (prefixFlags[2] && data[endOffset - 2] == 0 && data[endOffset - 1] == 1)
           : (prefixFlags[1] && data[endOffset - 1] == 1);
-      // True if the last three bytes in the data seen so far are {0,0}.
+      // True if the last two bytes in the data seen so far are {0,0}.
       prefixFlags[1] = length > 1 ? data[endOffset - 2] == 0 && data[endOffset - 1] == 0
           : prefixFlags[2] && data[endOffset - 1] == 0;
-      // True if the last three bytes in the data seen so far are {0}.
+      // True if the last byte in the data seen so far is {0}.
       prefixFlags[2] = data[endOffset - 1] == 0;
     }
 
