@@ -19,6 +19,7 @@ import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.TraceUtil;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
@@ -362,9 +363,15 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     codecIsAdaptive = decoderInfo.adaptive;
     try {
       long codecInitializingTimestamp = SystemClock.elapsedRealtime();
+      TraceUtil.beginSection("createByCodecName(" + decoderName + ")");
       codec = MediaCodec.createByCodecName(decoderName);
+      TraceUtil.endSection();
+      TraceUtil.beginSection("configureCodec");
       configureCodec(codec, decoderName, format.getFrameworkMediaFormatV16(), mediaCrypto);
+      TraceUtil.endSection();
+      TraceUtil.beginSection("codec.start()");
       codec.start();
+      TraceUtil.endSection();
       long codecInitializedTimestamp = SystemClock.elapsedRealtime();
       notifyDecoderInitialized(decoderName, codecInitializedTimestamp,
           codecInitializedTimestamp - codecInitializingTimestamp);
@@ -499,10 +506,12 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         maybeInitCodec();
       }
       if (codec != null) {
+        TraceUtil.beginSection("drainAndFeed");
         while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
         if (feedInputBuffer(true)) {
           while (feedInputBuffer(false)) {}
         }
+        TraceUtil.endSection();
       }
       codecCounters.ensureUpdated();
     } catch (IOException e) {
