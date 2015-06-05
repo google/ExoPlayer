@@ -17,9 +17,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.google.android.exoplayer">
 
+  <!-- For streaming media over the network. -->
   <uses-permission android:name="android.permission.INTERNET"/>
-  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+  <!-- For reading media from external storage. -->
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+  <!-- For writing media to external storage. -->
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
   <!--
