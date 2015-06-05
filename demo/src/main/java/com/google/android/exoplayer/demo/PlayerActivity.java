@@ -27,6 +27,7 @@ import com.google.android.exoplayer.demo.player.HlsRendererBuilder;
 import com.google.android.exoplayer.demo.player.SmoothStreamingRendererBuilder;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
 import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
+import com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer.extractor.ts.TsExtractor;
@@ -262,6 +263,9 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
             new TsExtractor(0, audioCapabilities));
       case TYPE_AAC:
         return new ExtractorRendererBuilder(this, userAgent, contentUri, new AdtsExtractor());
+      case TYPE_FMP4:
+        return new ExtractorRendererBuilder(this, userAgent, contentUri,
+            new FragmentedMp4Extractor());
       case TYPE_WEBM:
         return new ExtractorRendererBuilder(this, userAgent, contentUri, new WebmExtractor());
       default:
