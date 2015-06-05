@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.util;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
  * Utility methods for handling H.264/AVC and H.265/HEVC NAL units.
@@ -47,6 +48,61 @@ public final class NalUnitUtil {
     3f / 2f,
     2f
   };
+
+  private static final Object scratchEscapePositionsLock = new Object();
+
+  /**
+   * Temporary store for positions of escape codes in {@link #unescapeStream(byte[], int)}. Guarded
+   * by {@link #scratchEscapePositionsLock}.
+   */
+  private static int[] scratchEscapePositions = new int[10];
+
+  /**
+   * Unescapes {@code data} up to the specified limit, replacing occurrences of [0, 0, 3] with
+   * [0, 0]. The unescaped data is returned in-place, with the return value indicating its length.
+   * <p>
+   * Executions of this method are mutually exclusive, so it should not be called with very large
+   * buffers.
+   *
+   * @param data The data to unescape.
+   * @param limit The limit (exclusive) of the data to unescape.
+   * @return The length of the unescaped data.
+   */
+  public static int unescapeStream(byte[] data, int limit) {
+    synchronized (scratchEscapePositionsLock) {
+      int position = 0;
+      int scratchEscapeCount = 0;
+      while (position < limit) {
+        position = findNextUnescapeIndex(data, position, limit);
+        if (position < limit) {
+          if (scratchEscapePositions.length <= scratchEscapeCount) {
+            // Grow scratchEscapePositions to hold a larger number of positions.
+            scratchEscapePositions = Arrays.copyOf(scratchEscapePositions,
+                scratchEscapePositions.length * 2);
+          }
+          scratchEscapePositions[scratchEscapeCount++] = position;
+          position += 3;
+        }
+      }
+
+      int unescapedLength = limit - scratchEscapeCount;
+      int escapedPosition = 0; // The position being read from.
+      int unescapedPosition = 0; // The position being written to.
+      for (int i = 0; i < scratchEscapeCount; i++) {
+        int nextEscapePosition = scratchEscapePositions[i];
+        int copyLength = nextEscapePosition - escapedPosition;
+        System.arraycopy(data, escapedPosition, data, unescapedPosition, copyLength);
+        unescapedPosition += copyLength;
+        data[unescapedPosition++] = 0;
+        data[unescapedPosition++] = 0;
+        escapedPosition += copyLength + 3;
+      }
+
+      int remainingLength = unescapedLength - unescapedPosition;
+      System.arraycopy(data, escapedPosition, data, unescapedPosition, remainingLength);
+      return unescapedLength;
+    }
+  }
 
   /**
    * Replaces length prefixes of NAL units in {@code buffer} with start code prefixes, within the
@@ -187,6 +243,15 @@ public final class NalUnitUtil {
     prefixFlags[0] = false;
     prefixFlags[1] = false;
     prefixFlags[2] = false;
+  }
+
+  private static int findNextUnescapeIndex(byte[] bytes, int offset, int limit) {
+    for (int i = offset; i < limit - 2; i++) {
+      if (bytes[i] == 0x00 && bytes[i + 1] == 0x00 && bytes[i + 2] == 0x03) {
+        return i;
+      }
+    }
+    return limit;
   }
 
   /**

@@ -66,7 +66,6 @@ import java.util.List;
 
   // Scratch variables to avoid allocations.
   private final ParsableByteArray seiWrapper;
-  private int[] scratchEscapePositions;
 
   public H264Reader(TrackOutput output, SeiReader seiReader, boolean idrKeyframesOnly) {
     super(output);
@@ -77,7 +76,6 @@ import java.util.List;
     pps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_PPS, 128);
     sei = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SEI, 128);
     seiWrapper = new ParsableByteArray();
-    scratchEscapePositions = new int[10];
   }
 
   @Override
@@ -191,7 +189,7 @@ import java.util.List;
     sps.endNalUnit(discardPadding);
     pps.endNalUnit(discardPadding);
     if (sei.endNalUnit(discardPadding)) {
-      int unescapedLength = unescapeStream(sei.nalData, sei.nalLength);
+      int unescapedLength = NalUnitUtil.unescapeStream(sei.nalData, sei.nalLength);
       seiWrapper.reset(sei.nalData, unescapedLength);
       seiWrapper.setPosition(4); // NAL prefix and nal_unit() header.
       seiReader.consume(seiWrapper, pesTimeUs, true);
@@ -208,7 +206,7 @@ import java.util.List;
     initializationData.add(ppsData);
 
     // Unescape and then parse the SPS unit.
-    unescapeStream(sps.nalData, sps.nalLength);
+    NalUnitUtil.unescapeStream(sps.nalData, sps.nalLength);
     ParsableBitArray bitArray = new ParsableBitArray(sps.nalData);
     bitArray.skipBits(32); // NAL header
     int profileIdc = bitArray.readBits(8);
@@ -320,57 +318,6 @@ import java.util.List;
       }
       lastScale = (nextScale == 0) ? lastScale : nextScale;
     }
-  }
-
-  /**
-   * Unescapes {@code data} up to the specified limit, replacing occurrences of [0, 0, 3] with
-   * [0, 0]. The unescaped data is returned in-place, with the return value indicating its length.
-   * <p>
-   * See ISO/IEC 14496-10:2005(E) page 36 for more information.
-   *
-   * @param data The data to unescape.
-   * @param limit The limit (exclusive) of the data to unescape.
-   * @return The length of the unescaped data.
-   */
-  private int unescapeStream(byte[] data, int limit) {
-    int position = 0;
-    int scratchEscapeCount = 0;
-    while (position < limit) {
-      position = findNextUnescapeIndex(data, position, limit);
-      if (position < limit) {
-        if (scratchEscapePositions.length <= scratchEscapeCount) {
-          // Grow scratchEscapePositions to hold a larger number of positions.
-          scratchEscapePositions = Arrays.copyOf(scratchEscapePositions,
-              scratchEscapePositions.length * 2);
-        }
-        scratchEscapePositions[scratchEscapeCount++] = position;
-        position += 3;
-      }
-    }
-
-    int unescapedLength = limit - scratchEscapeCount;
-    int escapedPosition = 0; // The position being read from.
-    int unescapedPosition = 0; // The position being written to.
-    for (int i = 0; i < scratchEscapeCount; i++) {
-      int nextEscapePosition = scratchEscapePositions[i];
-      int copyLength = nextEscapePosition - escapedPosition;
-      System.arraycopy(data, escapedPosition, data, unescapedPosition, copyLength);
-      escapedPosition += copyLength + 3;
-      unescapedPosition += copyLength + 2;
-    }
-
-    int remainingLength = unescapedLength - unescapedPosition;
-    System.arraycopy(data, escapedPosition, data, unescapedPosition, remainingLength);
-    return unescapedLength;
-  }
-
-  private static int findNextUnescapeIndex(byte[] bytes, int offset, int limit) {
-    for (int i = offset; i < limit - 2; i++) {
-      if (bytes[i] == 0x00 && bytes[i + 1] == 0x00 && bytes[i + 2] == 0x03) {
-        return i;
-      }
-    }
-    return limit;
   }
 
   /**

@@ -25,7 +25,6 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.util.Log;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -71,7 +70,6 @@ import java.util.Collections;
 
   // Scratch variables to avoid allocations.
   private final ParsableByteArray seiWrapper;
-  private int[] scratchEscapePositions;
 
   public H265Reader(TrackOutput output, SeiReader seiReader) {
     super(output);
@@ -83,7 +81,6 @@ import java.util.Collections;
     prefixSei = new NalUnitTargetBuffer(PREFIX_SEI_NUT, 128);
     suffixSei = new NalUnitTargetBuffer(SUFFIX_SEI_NUT, 128);
     seiWrapper = new ParsableByteArray();
-    scratchEscapePositions = new int[10];
   }
 
   @Override
@@ -189,7 +186,7 @@ import java.util.Collections;
     sps.endNalUnit(discardPadding);
     pps.endNalUnit(discardPadding);
     if (prefixSei.endNalUnit(discardPadding)) {
-      int unescapedLength = unescapeStream(prefixSei.nalData, prefixSei.nalLength);
+      int unescapedLength = NalUnitUtil.unescapeStream(prefixSei.nalData, prefixSei.nalLength);
       seiWrapper.reset(prefixSei.nalData, unescapedLength);
 
       // Skip the NAL prefix and type.
@@ -197,7 +194,7 @@ import java.util.Collections;
       seiReader.consume(seiWrapper, pesTimeUs, true);
     }
     if (suffixSei.endNalUnit(discardPadding)) {
-      int unescapedLength = unescapeStream(suffixSei.nalData, suffixSei.nalLength);
+      int unescapedLength = NalUnitUtil.unescapeStream(suffixSei.nalData, suffixSei.nalLength);
       seiWrapper.reset(suffixSei.nalData, unescapedLength);
 
       // Skip the NAL prefix and type.
@@ -215,7 +212,7 @@ import java.util.Collections;
     System.arraycopy(pps.nalData, 0, csd, vps.nalLength + sps.nalLength, pps.nalLength);
 
     // Unescape and then parse the SPS NAL unit, as per H.265/HEVC (2014) 7.3.2.2.1.
-    unescapeStream(sps.nalData, sps.nalLength);
+    NalUnitUtil.unescapeStream(sps.nalData, sps.nalLength);
     ParsableBitArray bitArray = new ParsableBitArray(sps.nalData);
     bitArray.skipBits(40 + 4); // NAL header, sps_video_parameter_set_id
     int maxSubLayersMinus1 = bitArray.readBits(3);
@@ -337,56 +334,6 @@ import java.util.Collections;
         }
       }
     }
-  }
-
-  // TODO: Deduplicate with H264Reader.
-  /**
-   * Unescapes {@code data} up to the specified limit, replacing occurrences of [0, 0, 3] with
-   * [0, 0]. The unescaped data is returned in-place, with the return value indicating its length.
-   *
-   * @param data The data to unescape.
-   * @param limit The limit (exclusive) of the data to unescape.
-   * @return The length of the unescaped data.
-   */
-  private int unescapeStream(byte[] data, int limit) {
-    int position = 0;
-    int scratchEscapeCount = 0;
-    while (position < limit) {
-      position = findNextUnescapeIndex(data, position, limit);
-      if (position < limit) {
-        if (scratchEscapePositions.length <= scratchEscapeCount) {
-          // Grow scratchEscapePositions to hold a larger number of positions.
-          scratchEscapePositions = Arrays.copyOf(scratchEscapePositions,
-              scratchEscapePositions.length * 2);
-        }
-        scratchEscapePositions[scratchEscapeCount++] = position;
-        position += 3;
-      }
-    }
-
-    int unescapedLength = limit - scratchEscapeCount;
-    int escapedPosition = 0; // The position being read from.
-    int unescapedPosition = 0; // The position being written to.
-    for (int i = 0; i < scratchEscapeCount; i++) {
-      int nextEscapePosition = scratchEscapePositions[i];
-      int copyLength = nextEscapePosition - escapedPosition;
-      System.arraycopy(data, escapedPosition, data, unescapedPosition, copyLength);
-      escapedPosition += copyLength + 3;
-      unescapedPosition += copyLength + 2;
-    }
-
-    int remainingLength = unescapedLength - unescapedPosition;
-    System.arraycopy(data, escapedPosition, data, unescapedPosition, remainingLength);
-    return unescapedLength;
-  }
-
-  private static int findNextUnescapeIndex(byte[] bytes, int offset, int limit) {
-    for (int i = offset; i < limit - 2; i++) {
-      if (bytes[i] == 0x00 && bytes[i + 1] == 0x00 && bytes[i + 2] == 0x03) {
-        return i;
-      }
-    }
-    return limit;
   }
 
   /** Returns whether the NAL unit is a random access point. */
