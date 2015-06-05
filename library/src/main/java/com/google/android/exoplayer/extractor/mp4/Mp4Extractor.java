@@ -360,8 +360,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         || atom == Atom.TYPE_avc1 || atom == Atom.TYPE_avcC || atom == Atom.TYPE_mp4a
         || atom == Atom.TYPE_esds || atom == Atom.TYPE_stts || atom == Atom.TYPE_stss
         || atom == Atom.TYPE_ctts || atom == Atom.TYPE_stsc || atom == Atom.TYPE_stsz
-        || atom == Atom.TYPE_stco || atom == Atom.TYPE_co64 || atom == Atom.TYPE_tkhd
-        || atom == Atom.TYPE_tx3g;
+        || atom == Atom.TYPE_stco || atom == Atom.TYPE_co64 || atom == Atom.TYPE_tkhd;
   }
 
   /** Returns whether the extractor should parse a container atom with type {@code atom}. */
