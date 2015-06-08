@@ -225,9 +225,9 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
       downstreamFormat = currentChunk.format;
     }
 
-    if (haveSamples || currentChunk.isFormatFinal) {
+    if (haveSamples || currentChunk.isMediaFormatFinal) {
       MediaFormat mediaFormat = currentChunk.getMediaFormat();
-      if (mediaFormat != null && !mediaFormat.equals(downstreamMediaFormat, true)) {
+      if (!mediaFormat.equals(downstreamMediaFormat, true)) {
         chunkSource.getMaxVideoDimensions(mediaFormat);
         formatHolder.format = mediaFormat;
         formatHolder.drmInitData = currentChunk.getDrmInitData();

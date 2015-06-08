@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.upstream;
 
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.TraceUtil;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.SuppressLint;
@@ -204,7 +205,9 @@ public final class Loader {
       try {
         executorThread = Thread.currentThread();
         if (!loadable.isLoadCanceled()) {
+          TraceUtil.beginSection(loadable.getClass().getSimpleName() + ".load()");
           loadable.load();
+          TraceUtil.endSection();
         }
         sendEmptyMessage(MSG_END_OF_SOURCE);
       } catch (IOException e) {

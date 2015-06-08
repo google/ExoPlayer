@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.util;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
  * Utility methods for handling H.264/AVC and H.265/HEVC NAL units.
@@ -24,6 +25,84 @@ public final class NalUnitUtil {
 
   /** Four initial bytes that must prefix NAL units for decoding. */
   public static final byte[] NAL_START_CODE = new byte[] {0, 0, 0, 1};
+
+  /** Value for aspect_ratio_idc indicating an extended aspect ratio, in H.264 and H.265 SPSs. */
+  public static final int EXTENDED_SAR = 0xFF;
+  /** Aspect ratios indexed by aspect_ratio_idc, in H.264 and H.265 SPSs. */
+  public static final float[] ASPECT_RATIO_IDC_VALUES = new float[] {
+    1f /* Unspecified. Assume square */,
+    1f,
+    12f / 11f,
+    10f / 11f,
+    16f / 11f,
+    40f / 33f,
+    24f / 11f,
+    20f / 11f,
+    32f / 11f,
+    80f / 33f,
+    18f / 11f,
+    15f / 11f,
+    64f / 33f,
+    160f / 99f,
+    4f / 3f,
+    3f / 2f,
+    2f
+  };
+
+  private static final Object scratchEscapePositionsLock = new Object();
+
+  /**
+   * Temporary store for positions of escape codes in {@link #unescapeStream(byte[], int)}. Guarded
+   * by {@link #scratchEscapePositionsLock}.
+   */
+  private static int[] scratchEscapePositions = new int[10];
+
+  /**
+   * Unescapes {@code data} up to the specified limit, replacing occurrences of [0, 0, 3] with
+   * [0, 0]. The unescaped data is returned in-place, with the return value indicating its length.
+   * <p>
+   * Executions of this method are mutually exclusive, so it should not be called with very large
+   * buffers.
+   *
+   * @param data The data to unescape.
+   * @param limit The limit (exclusive) of the data to unescape.
+   * @return The length of the unescaped data.
+   */
+  public static int unescapeStream(byte[] data, int limit) {
+    synchronized (scratchEscapePositionsLock) {
+      int position = 0;
+      int scratchEscapeCount = 0;
+      while (position < limit) {
+        position = findNextUnescapeIndex(data, position, limit);
+        if (position < limit) {
+          if (scratchEscapePositions.length <= scratchEscapeCount) {
+            // Grow scratchEscapePositions to hold a larger number of positions.
+            scratchEscapePositions = Arrays.copyOf(scratchEscapePositions,
+                scratchEscapePositions.length * 2);
+          }
+          scratchEscapePositions[scratchEscapeCount++] = position;
+          position += 3;
+        }
+      }
+
+      int unescapedLength = limit - scratchEscapeCount;
+      int escapedPosition = 0; // The position being read from.
+      int unescapedPosition = 0; // The position being written to.
+      for (int i = 0; i < scratchEscapeCount; i++) {
+        int nextEscapePosition = scratchEscapePositions[i];
+        int copyLength = nextEscapePosition - escapedPosition;
+        System.arraycopy(data, escapedPosition, data, unescapedPosition, copyLength);
+        unescapedPosition += copyLength;
+        data[unescapedPosition++] = 0;
+        data[unescapedPosition++] = 0;
+        escapedPosition += copyLength + 3;
+      }
+
+      int remainingLength = unescapedLength - unescapedPosition;
+      System.arraycopy(data, escapedPosition, data, unescapedPosition, remainingLength);
+      return unescapedLength;
+    }
+  }
 
   /**
    * Replaces length prefixes of NAL units in {@code buffer} with start code prefixes, within the
@@ -79,7 +158,7 @@ public final class NalUnitUtil {
   /**
    * Finds the first NAL unit in {@code data}.
    * <p>
-   * If {@code prefixFlags} is null then the first four bytes of a NAL unit must be entirely
+   * If {@code prefixFlags} is null then the first three bytes of a NAL unit must be entirely
    * contained within the part of the array being searched in order for it to be found.
    * <p>
    * When {@code prefixFlags} is non-null, this method supports finding NAL units whose first four
@@ -121,9 +200,8 @@ public final class NalUnitUtil {
     }
 
     int limit = endOffset - 1;
-    // We're looking for the NAL unit start code prefix 0x000001, followed by a byte that matches
-    // the specified type. The value of i tracks the index of the third byte in the four bytes
-    // being examined.
+    // We're looking for the NAL unit start code prefix 0x000001. The value of i tracks the index of
+    // the third byte.
     for (int i = startOffset + 2; i < limit; i += 3) {
       if ((data[i] & 0xFE) != 0) {
         // There isn't a NAL prefix here, or at the next two positions. Do nothing and let the
@@ -146,10 +224,10 @@ public final class NalUnitUtil {
           ? (data[endOffset - 3] == 0 && data[endOffset - 2] == 0 && data[endOffset - 1] == 1)
           : length == 2 ? (prefixFlags[2] && data[endOffset - 2] == 0 && data[endOffset - 1] == 1)
           : (prefixFlags[1] && data[endOffset - 1] == 1);
-      // True if the last three bytes in the data seen so far are {0,0}.
+      // True if the last two bytes in the data seen so far are {0,0}.
       prefixFlags[1] = length > 1 ? data[endOffset - 2] == 0 && data[endOffset - 1] == 0
           : prefixFlags[2] && data[endOffset - 1] == 0;
-      // True if the last three bytes in the data seen so far are {0}.
+      // True if the last byte in the data seen so far is {0}.
       prefixFlags[2] = data[endOffset - 1] == 0;
     }
 
@@ -165,6 +243,15 @@ public final class NalUnitUtil {
     prefixFlags[0] = false;
     prefixFlags[1] = false;
     prefixFlags[2] = false;
+  }
+
+  private static int findNextUnescapeIndex(byte[] bytes, int offset, int limit) {
+    for (int i = offset; i < limit - 2; i++) {
+      if (bytes[i] == 0x00 && bytes[i + 1] == 0x00 && bytes[i + 2] == 0x03) {
+        return i;
+      }
+    }
+    return limit;
   }
 
   /**

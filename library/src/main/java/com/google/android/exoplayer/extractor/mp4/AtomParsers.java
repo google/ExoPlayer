@@ -339,7 +339,9 @@ import java.util.List;
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, durationUs,
             holder, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
-        holder.mediaFormat = MediaFormat.createTtmlFormat();
+        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML);
+      } else if (childAtomType == Atom.TYPE_tx3g) {
+        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TX3G);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }

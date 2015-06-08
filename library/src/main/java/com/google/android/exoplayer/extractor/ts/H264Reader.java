@@ -18,7 +18,6 @@ package com.google.android.exoplayer.extractor.ts;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.extractor.TrackOutput;
-import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableBitArray;
@@ -46,26 +45,6 @@ import java.util.List;
   private static final int NAL_UNIT_TYPE_SPS = 7; // Sequence parameter set
   private static final int NAL_UNIT_TYPE_PPS = 8; // Picture parameter set
   private static final int NAL_UNIT_TYPE_AUD = 9; // Access unit delimiter
-  private static final int EXTENDED_SAR = 0xFF;
-  private static final float[] ASPECT_RATIO_IDC_VALUES = new float[] {
-    1f /* Unspecified. Assume square */,
-    1f,
-    12f / 11f,
-    10f / 11f,
-    16f / 11f,
-    40f / 33f,
-    24f / 11f,
-    20f / 11f,
-    32f / 11f,
-    80f / 33f,
-    18f / 11f,
-    15f / 11f,
-    64f / 33f,
-    160f / 99f,
-    4f / 3f,
-    3f / 2f,
-    2f
-  };
 
   // State that should not be reset on seek.
   private boolean hasOutputFormat;
@@ -87,7 +66,6 @@ import java.util.List;
 
   // Scratch variables to avoid allocations.
   private final ParsableByteArray seiWrapper;
-  private int[] scratchEscapePositions;
 
   public H264Reader(TrackOutput output, SeiReader seiReader, boolean idrKeyframesOnly) {
     super(output);
@@ -98,7 +76,6 @@ import java.util.List;
     pps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_PPS, 128);
     sei = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SEI, 128);
     seiWrapper = new ParsableByteArray();
-    scratchEscapePositions = new int[10];
   }
 
   @Override
@@ -172,7 +149,7 @@ import java.util.List;
           // Notify the start of the next NAL unit.
           feedNalUnitTargetBuffersStart(nalUnitType);
           // Continue scanning the data.
-          offset = nextNalUnitOffset + 4;
+          offset = nextNalUnitOffset + 3;
         } else {
           feedNalUnitTargetBuffersData(dataArray, offset, limit);
           offset = limit;
@@ -212,7 +189,7 @@ import java.util.List;
     sps.endNalUnit(discardPadding);
     pps.endNalUnit(discardPadding);
     if (sei.endNalUnit(discardPadding)) {
-      int unescapedLength = unescapeStream(sei.nalData, sei.nalLength);
+      int unescapedLength = NalUnitUtil.unescapeStream(sei.nalData, sei.nalLength);
       seiWrapper.reset(sei.nalData, unescapedLength);
       seiWrapper.setPosition(4); // NAL prefix and nal_unit() header.
       seiReader.consume(seiWrapper, pesTimeUs, true);
@@ -229,7 +206,7 @@ import java.util.List;
     initializationData.add(ppsData);
 
     // Unescape and then parse the SPS unit.
-    unescapeStream(sps.nalData, sps.nalLength);
+    NalUnitUtil.unescapeStream(sps.nalData, sps.nalLength);
     ParsableBitArray bitArray = new ParsableBitArray(sps.nalData);
     bitArray.skipBits(32); // NAL header
     int profileIdc = bitArray.readBits(8);
@@ -312,14 +289,14 @@ import java.util.List;
       boolean aspectRatioInfoPresentFlag = bitArray.readBit();
       if (aspectRatioInfoPresentFlag) {
         int aspectRatioIdc = bitArray.readBits(8);
-        if (aspectRatioIdc == EXTENDED_SAR) {
+        if (aspectRatioIdc == NalUnitUtil.EXTENDED_SAR) {
           int sarWidth = bitArray.readBits(16);
           int sarHeight = bitArray.readBits(16);
           if (sarWidth != 0 && sarHeight != 0) {
             pixelWidthHeightRatio = (float) sarWidth / sarHeight;
           }
-        } else if (aspectRatioIdc < ASPECT_RATIO_IDC_VALUES.length) {
-          pixelWidthHeightRatio = ASPECT_RATIO_IDC_VALUES[aspectRatioIdc];
+        } else if (aspectRatioIdc < NalUnitUtil.ASPECT_RATIO_IDC_VALUES.length) {
+          pixelWidthHeightRatio = NalUnitUtil.ASPECT_RATIO_IDC_VALUES[aspectRatioIdc];
         } else {
           Log.w(TAG, "Unexpected aspect_ratio_idc value: " + aspectRatioIdc);
         }
@@ -341,147 +318,6 @@ import java.util.List;
       }
       lastScale = (nextScale == 0) ? lastScale : nextScale;
     }
-  }
-
-  /**
-   * Unescapes {@code data} up to the specified limit, replacing occurrences of [0, 0, 3] with
-   * [0, 0]. The unescaped data is returned in-place, with the return value indicating its length.
-   * <p>
-   * See ISO/IEC 14496-10:2005(E) page 36 for more information.
-   *
-   * @param data The data to unescape.
-   * @param limit The limit (exclusive) of the data to unescape.
-   * @return The length of the unescaped data.
-   */
-  private int unescapeStream(byte[] data, int limit) {
-    int position = 0;
-    int scratchEscapeCount = 0;
-    while (position < limit) {
-      position = findNextUnescapeIndex(data, position, limit);
-      if (position < limit) {
-        if (scratchEscapePositions.length <= scratchEscapeCount) {
-          // Grow scratchEscapePositions to hold a larger number of positions.
-          scratchEscapePositions = Arrays.copyOf(scratchEscapePositions,
-              scratchEscapePositions.length * 2);
-        }
-        scratchEscapePositions[scratchEscapeCount++] = position;
-        position += 3;
-      }
-    }
-
-    int unescapedLength = limit - scratchEscapeCount;
-    int escapedPosition = 0; // The position being read from.
-    int unescapedPosition = 0; // The position being written to.
-    for (int i = 0; i < scratchEscapeCount; i++) {
-      int nextEscapePosition = scratchEscapePositions[i];
-      int copyLength = nextEscapePosition - escapedPosition;
-      System.arraycopy(data, escapedPosition, data, unescapedPosition, copyLength);
-      escapedPosition += copyLength + 3;
-      unescapedPosition += copyLength + 2;
-    }
-
-    int remainingLength = unescapedLength - unescapedPosition;
-    System.arraycopy(data, escapedPosition, data, unescapedPosition, remainingLength);
-    return unescapedLength;
-  }
-
-  private static int findNextUnescapeIndex(byte[] bytes, int offset, int limit) {
-    for (int i = offset; i < limit - 2; i++) {
-      if (bytes[i] == 0x00 && bytes[i + 1] == 0x00 && bytes[i + 2] == 0x03) {
-        return i;
-      }
-    }
-    return limit;
-  }
-
-  /**
-   * A buffer that fills itself with data corresponding to a specific NAL unit, as it is
-   * encountered in the stream.
-   */
-  private static final class NalUnitTargetBuffer {
-
-    private final int targetType;
-
-    private boolean isFilling;
-    private boolean isCompleted;
-
-    public byte[] nalData;
-    public int nalLength;
-
-    public NalUnitTargetBuffer(int targetType, int initialCapacity) {
-      this.targetType = targetType;
-      // Initialize data, writing the known NAL prefix into the first four bytes.
-      nalData = new byte[4 + initialCapacity];
-      nalData[2] = 1;
-      nalData[3] = (byte) targetType;
-    }
-
-    /**
-     * Resets the buffer, clearing any data that it holds.
-     */
-    public void reset() {
-      isFilling = false;
-      isCompleted = false;
-    }
-
-    /**
-     * True if the buffer currently holds a complete NAL unit of the target type.
-     */
-    public boolean isCompleted() {
-      return isCompleted;
-    }
-
-    /**
-     * Invoked to indicate that a NAL unit has started.
-     *
-     * @param type The type of the NAL unit.
-     */
-    public void startNalUnit(int type) {
-      Assertions.checkState(!isFilling);
-      isFilling = type == targetType;
-      if (isFilling) {
-        // Length is initially the length of the NAL prefix.
-        nalLength = 4;
-        isCompleted = false;
-      }
-    }
-
-    /**
-     * Invoked to pass stream data. The data passed should not include 4 byte NAL unit prefixes.
-     *
-     * @param data Holds the data being passed.
-     * @param offset The offset of the data in {@code data}.
-     * @param limit The limit (exclusive) of the data in {@code data}.
-     */
-    public void appendToNalUnit(byte[] data, int offset, int limit) {
-      if (!isFilling) {
-        return;
-      }
-      int readLength = limit - offset;
-      if (nalData.length < nalLength + readLength) {
-        nalData = Arrays.copyOf(nalData, (nalLength + readLength) * 2);
-      }
-      System.arraycopy(data, offset, nalData, nalLength, readLength);
-      nalLength += readLength;
-    }
-
-    /**
-     * Invoked to indicate that a NAL unit has ended.
-     *
-     * @param discardPadding The number of excess bytes that were passed to
-     *     {@link #appendToNalUnit(byte[], int, int)}, which should be discarded.
-     * @return True if the ended NAL unit is of the target type. False otherwise.
-     */
-    public boolean endNalUnit(int discardPadding) {
-      if (!isFilling) {
-        return false;
-      }
-      nalLength -= discardPadding;
-      isFilling = false;
-      isCompleted = true;
-      return true;
-    }
-
   }
 
   /**

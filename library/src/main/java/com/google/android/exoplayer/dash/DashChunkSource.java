@@ -503,8 +503,8 @@ public class DashChunkSource implements ChunkSource {
         representationHolder.vttHeaderOffsetUs = presentationTimeOffsetUs;
       }
       return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_INITIAL,
-          representation.format, startTimeUs, endTimeUs, absoluteSegmentNum, isLastSegment, null,
-          null, representationHolder.vttHeader);
+          representation.format, startTimeUs, endTimeUs, absoluteSegmentNum, isLastSegment,
+          MediaFormat.createTextFormat(MimeTypes.TEXT_VTT), null, representationHolder.vttHeader);
     } else {
       return new ContainerMediaChunk(dataSource, dataSpec, trigger, representation.format,
           startTimeUs, endTimeUs, absoluteSegmentNum, isLastSegment, 0,

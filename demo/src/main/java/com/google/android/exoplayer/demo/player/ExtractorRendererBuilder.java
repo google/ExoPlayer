@@ -22,6 +22,8 @@ import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilderCallback;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
+import com.google.android.exoplayer.text.TextTrackRenderer;
+import com.google.android.exoplayer.text.tx3g.Tx3gParser;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
@@ -62,11 +64,14 @@ public class ExtractorRendererBuilder implements RendererBuilder {
         player, 50);
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource,
         null, true, player.getMainHandler(), player);
+    TrackRenderer textRenderer = new TextTrackRenderer(sampleSource, player,
+        player.getMainHandler().getLooper(), new Tx3gParser());
 
     // Invoke the callback.
     TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
     renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
     renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
+    renderers[DemoPlayer.TYPE_TEXT] = textRenderer;
     callback.onRenderers(null, null, renderers, bandwidthMeter);
   }
 

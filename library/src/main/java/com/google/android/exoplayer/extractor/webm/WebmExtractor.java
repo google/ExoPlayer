@@ -25,14 +25,20 @@ import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.TrackOutput;
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.LongArray;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableByteArray;
+
+import android.util.Pair;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -55,10 +61,14 @@ public final class WebmExtractor implements Extractor {
   private static final int CUES_STATE_BUILT = 2;
 
   private static final String DOC_TYPE_WEBM = "webm";
+  private static final String DOC_TYPE_MATROSKA = "matroska";
   private static final String CODEC_ID_VP8 = "V_VP8";
   private static final String CODEC_ID_VP9 = "V_VP9";
+  private static final String CODEC_ID_H264 = "V_MPEG4/ISO/AVC";
   private static final String CODEC_ID_VORBIS = "A_VORBIS";
   private static final String CODEC_ID_OPUS = "A_OPUS";
+  private static final String CODEC_ID_AAC = "A_AAC";
+  private static final String CODEC_ID_AC3 = "A_AC3";
   private static final int VORBIS_MAX_INPUT_SIZE = 8192;
   private static final int OPUS_MAX_INPUT_SIZE = 5760;
   private static final int ENCRYPTION_IV_SIZE = 8;
@@ -118,6 +128,10 @@ public final class WebmExtractor implements Extractor {
 
   private final EbmlReader reader;
   private final VarintReader varintReader;
+
+  // Temporary arrays.
+  private final ParsableByteArray nalStartCode;
+  private final ParsableByteArray nalLength;
   private final ParsableByteArray sampleHeaderScratch;
   private final ParsableByteArray vorbisNumPageSamples;
   private final ParsableByteArray seekEntryIdBytes;
@@ -151,6 +165,7 @@ public final class WebmExtractor implements Extractor {
   private int blockBytesRead;
   private int sampleState;
   private int sampleSize;
+  private int sampleCurrentNalBytesRemaining;
   private int sampleTrackNumber;
   private int sampleFlags;
   private long sampleTimeUs;
@@ -171,6 +186,8 @@ public final class WebmExtractor implements Extractor {
     sampleHeaderScratch = new ParsableByteArray(4);
     vorbisNumPageSamples = new ParsableByteArray(ByteBuffer.allocate(4).putInt(-1).array());
     seekEntryIdBytes = new ParsableByteArray(4);
+    nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
+    nalLength = new ParsableByteArray(4);
   }
 
   @Override
@@ -184,6 +201,7 @@ public final class WebmExtractor implements Extractor {
     sampleState = SAMPLE_STATE_START;
     reader.reset();
     varintReader.reset();
+    sampleCurrentNalBytesRemaining = 0;
   }
 
   @Override
@@ -362,11 +380,11 @@ public final class WebmExtractor implements Extractor {
         if (trackFormat.type == TRACK_TYPE_AUDIO && isCodecSupported(trackFormat.codecId)) {
           audioTrackFormat = trackFormat;
           audioTrackFormat.trackOutput = extractorOutput.track(audioTrackFormat.number);
-          audioTrackFormat.trackOutput.format(buildAudioFormat());
+          audioTrackFormat.trackOutput.format(audioTrackFormat.getMediaFormat(durationUs));
         } else if (trackFormat.type == TRACK_TYPE_VIDEO && isCodecSupported(trackFormat.codecId)) {
           videoTrackFormat = trackFormat;
           videoTrackFormat.trackOutput = extractorOutput.track(videoTrackFormat.number);
-          videoTrackFormat.trackOutput.format(buildVideoFormat());
+          videoTrackFormat.trackOutput.format(videoTrackFormat.getMediaFormat(durationUs));
         } else {
           // Unsupported track type. Do nothing.
         }
@@ -496,8 +514,8 @@ public final class WebmExtractor implements Extractor {
   /* package */ void stringElement(int id, String value) throws ParserException {
     switch (id) {
       case ID_DOC_TYPE:
-        // Validate that DocType is supported. This extractor only supports "webm".
-        if (!DOC_TYPE_WEBM.equals(value)) {
+        // Validate that DocType is supported.
+        if (!DOC_TYPE_WEBM.equals(value) && !DOC_TYPE_MATROSKA.equals(value)) {
           throw new ParserException("DocType " + value + " not supported");
         }
         return;
@@ -601,8 +619,42 @@ public final class WebmExtractor implements Extractor {
           sampleState = SAMPLE_STATE_DATA;
         }
 
-        while (blockBytesRead < contentSize) {
-          blockBytesRead += trackOutput.sampleData(input, contentSize - blockBytesRead);
+        if (CODEC_ID_H264.equals(sampleTrackFormat.codecId)) {
+          // TODO: Deduplicate with Mp4Extractor.
+
+          // Zero the top three bytes of the array that we'll use to parse nal unit lengths, in case
+          // they're only 1 or 2 bytes long.
+          byte[] nalLengthData = nalLength.data;
+          nalLengthData[0] = 0;
+          nalLengthData[1] = 0;
+          nalLengthData[2] = 0;
+          int nalUnitLengthFieldLength = sampleTrackFormat.nalUnitLengthFieldLength;
+          int nalUnitLengthFieldLengthDiff = 4 - sampleTrackFormat.nalUnitLengthFieldLength;
+          // NAL units are length delimited, but the decoder requires start code delimited units.
+          // Loop until we've written the sample to the track output, replacing length delimiters
+          // with start codes as we encounter them.
+          while (blockBytesRead < contentSize) {
+            if (sampleCurrentNalBytesRemaining == 0) {
+              // Read the NAL length so that we know where we find the next one.
+              input.readFully(nalLengthData, nalUnitLengthFieldLengthDiff,
+                  nalUnitLengthFieldLength);
+              blockBytesRead += nalUnitLengthFieldLength;
+              nalLength.setPosition(0);
+              sampleCurrentNalBytesRemaining = nalLength.readUnsignedIntToInt();
+              // Write a start code for the current NAL unit.
+              nalStartCode.setPosition(0);
+              trackOutput.sampleData(nalStartCode, 4);
+            } else {
+              // Write the payload of the NAL unit.
+              int writtenBytes = trackOutput.sampleData(input, sampleCurrentNalBytesRemaining);
+              blockBytesRead += writtenBytes;
+              sampleCurrentNalBytesRemaining -= writtenBytes;
+            }
+          }
+        } else {
+          while (blockBytesRead < contentSize) {
+            blockBytesRead += trackOutput.sampleData(input, contentSize - blockBytesRead);
+          }
         }
 
         if (CODEC_ID_VORBIS.equals(sampleTrackFormat.codecId)) {
@@ -633,50 +685,6 @@ public final class WebmExtractor implements Extractor {
     trackOutput.sampleMetadata(sampleTimeUs, sampleFlags, sampleSize, 0, null);
     sampleState = SAMPLE_STATE_START;
     sampleRead = true;
-  }
-
-  /**
-   * Builds an video {@link MediaFormat} containing recently gathered Video information.
-   *
-   * @return The built {@link MediaFormat}.
-   * @throws ParserException If the codec is unsupported.
-   */
-  private MediaFormat buildVideoFormat() throws ParserException {
-    if (videoTrackFormat != null && CODEC_ID_VP8.equals(videoTrackFormat.codecId)) {
-      return MediaFormat.createVideoFormat(MimeTypes.VIDEO_VP8, MediaFormat.NO_VALUE, durationUs,
-          videoTrackFormat.pixelWidth, videoTrackFormat.pixelHeight, null);
-    } else if (videoTrackFormat != null && CODEC_ID_VP9.equals(videoTrackFormat.codecId)) {
-      return MediaFormat.createVideoFormat(MimeTypes.VIDEO_VP9, MediaFormat.NO_VALUE, durationUs,
-          videoTrackFormat.pixelWidth, videoTrackFormat.pixelHeight, null);
-    } else {
-      throw new ParserException("Unable to build format");
-    }
-  }
-
-  /**
-   * Builds an audio {@link MediaFormat} containing recently gathered Audio information.
-   *
-   * @return The built {@link MediaFormat}.
-   * @throws ParserException If the codec is unsupported.
-   */
-  private MediaFormat buildAudioFormat() throws ParserException {
-    if (audioTrackFormat != null && CODEC_ID_VORBIS.equals(audioTrackFormat.codecId)) {
-      return MediaFormat.createAudioFormat(MimeTypes.AUDIO_VORBIS, VORBIS_MAX_INPUT_SIZE,
-          durationUs, audioTrackFormat.channelCount, audioTrackFormat.sampleRate,
-          parseVorbisCodecPrivate());
-    } else if (audioTrackFormat != null && CODEC_ID_OPUS.equals(audioTrackFormat.codecId)) {
-      ArrayList<byte[]> opusInitializationData = new ArrayList<>(3);
-      opusInitializationData.add(audioTrackFormat.codecPrivate);
-      opusInitializationData.add(
-          ByteBuffer.allocate(Long.SIZE).putLong(audioTrackFormat.codecDelayNs).array());
-      opusInitializationData.add(
-          ByteBuffer.allocate(Long.SIZE).putLong(audioTrackFormat.seekPreRollNs).array());
-      return MediaFormat.createAudioFormat(MimeTypes.AUDIO_OPUS, OPUS_MAX_INPUT_SIZE,
-          durationUs, audioTrackFormat.channelCount, audioTrackFormat.sampleRate,
-          opusInitializationData);
-    } else {
-      throw new ParserException("Unable to build format");
-    }
   }
 
   /**
@@ -716,57 +724,6 @@ public final class WebmExtractor implements Extractor {
   }
 
   /**
-   * Builds initialization data for a {@link MediaFormat} from Vorbis codec private data.
-   *
-   * @return The initialization data for the {@link MediaFormat}.
-   * @throws ParserException If the initialization data could not be built.
-   */
-  private ArrayList<byte[]> parseVorbisCodecPrivate() throws ParserException {
-    try {
-      byte[] codecPrivate = audioTrackFormat.codecPrivate;
-      if (codecPrivate[0] != 0x02) {
-        throw new ParserException("Error parsing vorbis codec private");
-      }
-      int offset = 1;
-      int vorbisInfoLength = 0;
-      while (codecPrivate[offset] == (byte) 0xFF) {
-        vorbisInfoLength += 0xFF;
-        offset++;
-      }
-      vorbisInfoLength += codecPrivate[offset++];
-
-      int vorbisSkipLength = 0;
-      while (codecPrivate[offset] == (byte) 0xFF) {
-        vorbisSkipLength += 0xFF;
-        offset++;
-      }
-      vorbisSkipLength += codecPrivate[offset++];
-
-      if (codecPrivate[offset] != 0x01) {
-        throw new ParserException("Error parsing vorbis codec private");
-      }
-      byte[] vorbisInfo = new byte[vorbisInfoLength];
-      System.arraycopy(codecPrivate, offset, vorbisInfo, 0, vorbisInfoLength);
-      offset += vorbisInfoLength;
-      if (codecPrivate[offset] != 0x03) {
-        throw new ParserException("Error parsing vorbis codec private");
-      }
-      offset += vorbisSkipLength;
-      if (codecPrivate[offset] != 0x05) {
-        throw new ParserException("Error parsing vorbis codec private");
-      }
-      byte[] vorbisBooks = new byte[codecPrivate.length - offset];
-      System.arraycopy(codecPrivate, offset, vorbisBooks, 0, codecPrivate.length - offset);
-      ArrayList<byte[]> initializationData = new ArrayList<>(2);
-      initializationData.add(vorbisInfo);
-      initializationData.add(vorbisBooks);
-      return initializationData;
-    } catch (ArrayIndexOutOfBoundsException e) {
-      throw new ParserException("Error parsing vorbis codec private");
-    }
-  }
-
-  /**
    * Updates the position of the holder to Cues element's position if the extractor configuration
    * permits use of master seek entry. After building Cues sets the holder's position back to where
    * it was before.
@@ -800,8 +757,11 @@ public final class WebmExtractor implements Extractor {
   private boolean isCodecSupported(String codecId) {
     return CODEC_ID_VP8.equals(codecId)
         || CODEC_ID_VP9.equals(codecId)
+        || CODEC_ID_H264.equals(codecId)
         || CODEC_ID_OPUS.equals(codecId)
-        || CODEC_ID_VORBIS.equals(codecId);
+        || CODEC_ID_VORBIS.equals(codecId)
+        || CODEC_ID_AAC.equals(codecId)
+        || CODEC_ID_AC3.equals(codecId);
   }
 
   /**
@@ -856,19 +816,153 @@ public final class WebmExtractor implements Extractor {
     public int type = UNKNOWN;
     public boolean hasContentEncryption;
     public byte[] encryptionKeyId;
+    public byte[] codecPrivate;
 
     // Video track related elements.
     public int pixelWidth = UNKNOWN;
     public int pixelHeight = UNKNOWN;
+    public int nalUnitLengthFieldLength = UNKNOWN;
 
     // Audio track related elements.
     public int channelCount = UNKNOWN;
     public int sampleRate = UNKNOWN;
-    public byte[] codecPrivate;
     public long codecDelayNs = UNKNOWN;
     public long seekPreRollNs = UNKNOWN;
 
     public TrackOutput trackOutput;
+
+    /** Returns a {@link MediaFormat} built using the information in this instance. */
+    public MediaFormat getMediaFormat(long durationUs) throws ParserException {
+      String mimeType;
+      List<byte[]> initializationData = null;
+      int maxInputSize = UNKNOWN;
+      switch (codecId) {
+        case CODEC_ID_VP8:
+          mimeType = MimeTypes.VIDEO_VP8;
+          break;
+        case CODEC_ID_VP9:
+          mimeType = MimeTypes.VIDEO_VP9;
+          break;
+        case CODEC_ID_H264:
+          mimeType = MimeTypes.VIDEO_H264;
+          Pair<List<byte[]>, Integer> h264Data = parseH264CodecPrivate(
+              new ParsableByteArray(codecPrivate));
+          initializationData = h264Data.first;
+          nalUnitLengthFieldLength = h264Data.second;
+          break;
+        case CODEC_ID_VORBIS:
+          mimeType = MimeTypes.AUDIO_VORBIS;
+          maxInputSize = VORBIS_MAX_INPUT_SIZE;
+          initializationData = parseVorbisCodecPrivate(codecPrivate);
+          break;
+        case CODEC_ID_OPUS:
+          mimeType = MimeTypes.AUDIO_OPUS;
+          maxInputSize = OPUS_MAX_INPUT_SIZE;
+          initializationData = new ArrayList<>(3);
+          initializationData.add(codecPrivate);
+          initializationData.add(ByteBuffer.allocate(Long.SIZE).putLong(codecDelayNs).array());
+          initializationData.add(ByteBuffer.allocate(Long.SIZE).putLong(seekPreRollNs).array());
+          break;
+        case CODEC_ID_AAC:
+          mimeType = MimeTypes.AUDIO_AAC;
+          initializationData = Collections.singletonList(codecPrivate);
+          break;
+        case CODEC_ID_AC3:
+          mimeType = MimeTypes.AUDIO_AC3;
+          break;
+        default:
+          throw new ParserException("Unrecognized codec identifier.");
+      }
+
+      if (MimeTypes.isAudio(mimeType)) {
+        return MediaFormat.createAudioFormat(mimeType, maxInputSize, durationUs, channelCount,
+            sampleRate, initializationData);
+      } else if (MimeTypes.isVideo(mimeType)) {
+        return MediaFormat.createVideoFormat(mimeType, maxInputSize, durationUs, pixelWidth,
+            pixelHeight, initializationData);
+      } else {
+        throw new ParserException("Unexpected MIME type.");
+      }
+    }
+
+    /**
+     * Builds initialization data for a {@link MediaFormat} from H.264 codec private data.
+     *
+     * @return The initialization data for the {@link MediaFormat}.
+     * @throws ParserException If the initialization data could not be built.
+     */
+    private static Pair<List<byte[]>, Integer> parseH264CodecPrivate(ParsableByteArray buffer)
+        throws ParserException {
+      try {
+        // TODO: Deduplicate with AtomParsers.parseAvcCFromParent.
+        buffer.setPosition(4);
+        int nalUnitLengthFieldLength = (buffer.readUnsignedByte() & 0x03) + 1;
+        Assertions.checkState(nalUnitLengthFieldLength != 3);
+        List<byte[]> initializationData = new ArrayList<>();
+        int numSequenceParameterSets = buffer.readUnsignedByte() & 0x1F;
+        for (int i = 0; i < numSequenceParameterSets; i++) {
+          initializationData.add(NalUnitUtil.parseChildNalUnit(buffer));
+        }
+        int numPictureParameterSets = buffer.readUnsignedByte();
+        for (int j = 0; j < numPictureParameterSets; j++) {
+          initializationData.add(NalUnitUtil.parseChildNalUnit(buffer));
+        }
+        return Pair.create(initializationData, nalUnitLengthFieldLength);
+      } catch (ArrayIndexOutOfBoundsException e) {
+        throw new ParserException("Error parsing vorbis codec private");
+      }
+    }
+
+    /**
+     * Builds initialization data for a {@link MediaFormat} from Vorbis codec private data.
+     *
+     * @return The initialization data for the {@link MediaFormat}.
+     * @throws ParserException If the initialization data could not be built.
+     */
+    private static List<byte[]> parseVorbisCodecPrivate(byte[] codecPrivate)
+        throws ParserException {
+      try {
+        if (codecPrivate[0] != 0x02) {
+          throw new ParserException("Error parsing vorbis codec private");
+        }
+        int offset = 1;
+        int vorbisInfoLength = 0;
+        while (codecPrivate[offset] == (byte) 0xFF) {
+          vorbisInfoLength += 0xFF;
+          offset++;
+        }
+        vorbisInfoLength += codecPrivate[offset++];
+
+        int vorbisSkipLength = 0;
+        while (codecPrivate[offset] == (byte) 0xFF) {
+          vorbisSkipLength += 0xFF;
+          offset++;
+        }
+        vorbisSkipLength += codecPrivate[offset++];
+
+        if (codecPrivate[offset] != 0x01) {
+          throw new ParserException("Error parsing vorbis codec private");
+        }
+        byte[] vorbisInfo = new byte[vorbisInfoLength];
+        System.arraycopy(codecPrivate, offset, vorbisInfo, 0, vorbisInfoLength);
+        offset += vorbisInfoLength;
+        if (codecPrivate[offset] != 0x03) {
+          throw new ParserException("Error parsing vorbis codec private");
+        }
+        offset += vorbisSkipLength;
+        if (codecPrivate[offset] != 0x05) {
+          throw new ParserException("Error parsing vorbis codec private");
+        }
+        byte[] vorbisBooks = new byte[codecPrivate.length - offset];
+        System.arraycopy(codecPrivate, offset, vorbisBooks, 0, codecPrivate.length - offset);
+        List<byte[]> initializationData = new ArrayList<>(2);
+        initializationData.add(vorbisInfo);
+        initializationData.add(vorbisBooks);
+        return initializationData;
+      } catch (ArrayIndexOutOfBoundsException e) {
+        throw new ParserException("Error parsing vorbis codec private");
+      }
+    }
 
   }
 
