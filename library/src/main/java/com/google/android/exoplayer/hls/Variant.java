@@ -28,6 +28,10 @@ public final class Variant implements FormatWrapper {
   public final Format format;
 
   public Variant(int index, String url, int bitrate, String codecs, int width, int height) {
+    this(index,url,bitrate,codecs,width,height,false);
+  }
+
+  public Variant(int index, String url, int bitrate, String codecs, int width, int height, boolean iframe) {
     this.url = url;
     format = new Format(Integer.toString(index), MimeTypes.APPLICATION_M3U8, width, height, -1, -1,
         -1, bitrate, null, codecs);

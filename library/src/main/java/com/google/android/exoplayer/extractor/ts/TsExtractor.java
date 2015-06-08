@@ -123,7 +123,6 @@ public final class TsExtractor implements Extractor, SeekMap {
     if (syncByte != TS_SYNC_BYTE) {
       return RESULT_CONTINUE;
     }
-
     tsPacketBuffer.readBytes(tsScratch, 3);
     tsScratch.skipBits(1); // transport_error_indicator
     boolean payloadUnitStartIndicator = tsScratch.readBit();
@@ -352,7 +351,7 @@ public final class TsExtractor implements Extractor, SeekMap {
         ElementaryStreamReader pesPayloadReader = null;
         switch (streamType) {
           case TS_STREAM_TYPE_AAC:
-            pesPayloadReader = new AdtsReader(output.track(TS_STREAM_TYPE_AAC));
+            //pesPayloadReader = new AdtsReader(output.track(TS_STREAM_TYPE_AAC));
             break;
           case TS_STREAM_TYPE_ATSC_E_AC3:
           case TS_STREAM_TYPE_ATSC_AC3:
@@ -563,7 +562,7 @@ public final class TsExtractor implements Extractor, SeekMap {
         pesScratch.skipBits(1); // marker_bit
         pts |= pesScratch.readBits(15);
         pesScratch.skipBits(1); // marker_bit
-        timeUs = ptsToTimeUs(pts);
+        timeUs = ptsToTimeUs(pts) + 1000;
       }
     }
 

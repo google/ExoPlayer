@@ -25,6 +25,7 @@ import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.Surface;
 
 import java.nio.ByteBuffer;
@@ -254,6 +255,11 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
+  protected boolean isTimeSource() {
+    return true;
+  }
+
+  @Override
   protected boolean handlesMimeType(String mimeType) {
     return MimeTypes.isVideo(mimeType) && super.handlesMimeType(mimeType);
   }
@@ -428,13 +434,15 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       adjustedReleaseTimeNs = unadjustedFrameReleaseTimeNs;
     }
 
+    bufferInfo.presentationTimeUs += 1000 * 1000;
+    //Log.d("Time 2", Long.toString(bufferInfo.presentationTimeUs));
     if (earlyUs < -30000) {
       // We're more than 30ms late rendering the frame.
       dropOutputBuffer(codec, bufferIndex);
       return true;
     }
 
-    if (!renderedFirstFrame) {
+    if (!renderedFirstFrame || true) {
       renderOutputBufferImmediate(codec, bufferIndex);
       return true;
     }

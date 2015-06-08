@@ -24,11 +24,17 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
 
   public final List<Variant> variants;
   public final List<Subtitle> subtitles;
+  public final List<IFrame> iframes;
 
   public HlsMasterPlaylist(String baseUri, List<Variant> variants, List<Subtitle> subtitles) {
+    this(baseUri, variants, subtitles, null);
+  }
+
+  public HlsMasterPlaylist(String baseUri, List<Variant> variants, List<Subtitle> subtitles, List<IFrame> iframes) {
     super(baseUri, HlsPlaylist.TYPE_MASTER);
     this.variants = variants;
     this.subtitles = subtitles;
+    this.iframes = iframes;
   }
 
 }

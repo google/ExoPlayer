@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.hls;
 
+import android.util.Log;
+
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.hls.HlsMediaPlaylist.Segment;
@@ -115,7 +117,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         line = line.trim();
         if (line.isEmpty()) {
           // Do nothing.
-        } else if (line.startsWith(STREAM_INF_TAG) || line.startsWith(IFRAME_STREAM_INF_TAG)) {
+        } else if (line.startsWith(STREAM_INF_TAG)) {
           extraLines.add(line);
           return parseMasterPlaylist(new LineIterator(extraLines, reader), connectionUrl);
         } else if (line.startsWith(TARGET_DURATION_TAG)
@@ -142,11 +144,11 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
           throws IOException {
     ArrayList<Variant> variants = new ArrayList<>();
     ArrayList<Subtitle> subtitles = new ArrayList<>();
+    ArrayList<IFrame> iframes = new ArrayList<>();
     int bitrate = 0;
     String codecs = null;
     int width = -1;
     int height = -1;
-    boolean iframe = false;
 
     boolean expectingStreamInfUrl = false;
     String line;
@@ -165,10 +167,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         } else {
           // TODO: Support other types of media tag.
         }
-      } else if (line.startsWith(STREAM_INF_TAG) || line.startsWith(IFRAME_STREAM_INF_TAG)) {
-        if(line.startsWith(IFRAME_STREAM_INF_TAG)){
-          iframe = true;
-        }
+      } else if (line.startsWith(STREAM_INF_TAG)) {
         bitrate = HlsParserUtil.parseIntAttr(line, BANDWIDTH_ATTR_REGEX, BANDWIDTH_ATTR);
         codecs = HlsParserUtil.parseOptionalStringAttr(line, CODECS_ATTR_REGEX);
         String resolutionString = HlsParserUtil.parseOptionalStringAttr(line,
@@ -190,19 +189,24 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
           height = -1;
         }
         expectingStreamInfUrl = true;
+      } else if(line.startsWith(IFRAME_STREAM_INF_TAG)){
+        //TODO: Handle iframes
+        String uri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX, URI_ATTR);
+        int bandwidth = HlsParserUtil.parseIntAttr(line, BANDWIDTH_ATTR_REGEX, BANDWIDTH_ATTR);
+
+        iframes.add(new IFrame(uri, bandwidth, variants.size()-1));
+
       } else if (!line.startsWith("#") && expectingStreamInfUrl) {
-        if(!iframe)
-          variants.add(new Variant(variants.size(), line, bitrate, codecs, width, height));
+        variants.add(new Variant(variants.size(), line, bitrate, codecs, width, height));
         bitrate = 0;
         codecs = null;
         width = -1;
         height = -1;
-        iframe = false;
         expectingStreamInfUrl = false;
       }
     }
     return new HlsMasterPlaylist(baseUri, Collections.unmodifiableList(variants),
-            Collections.unmodifiableList(subtitles));
+            Collections.unmodifiableList(subtitles), Collections.unmodifiableList(iframes));
   }
 
   private static HlsMediaPlaylist parseMediaPlaylist(LineIterator iterator, String baseUri)
@@ -275,7 +279,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         }
         segments.add(new Segment(line, segmentDurationSecs, segmentDiscontinuity,
                 segmentStartTimeUs, isEncrypted, encryptionKeyUri, segmentEncryptionIV,
-                segmentByterangeOffset, segmentByterangeLength));
+                segmentByterangeOffset, segmentByterangeLength, iframe));
         segmentStartTimeUs += (long) (segmentDurationSecs * C.MICROS_PER_SECOND);
         segmentDiscontinuity = false;
         segmentDurationSecs = 0.0;

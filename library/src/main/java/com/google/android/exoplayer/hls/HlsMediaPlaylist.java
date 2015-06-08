@@ -38,10 +38,17 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     public final String encryptionIV;
     public final int byterangeOffset;
     public final int byterangeLength;
+    public final boolean iframe;
 
     public Segment(String uri, double durationSecs, boolean discontinuity, long startTimeUs,
                    boolean isEncrypted, String encryptionKeyUri, String encryptionIV, int byterangeOffset,
-                   int byterangeLength) {
+                   int byterangeLength){
+      this(uri,durationSecs,discontinuity,startTimeUs, isEncrypted, encryptionKeyUri, encryptionIV, byterangeOffset, byterangeLength, false);
+    }
+
+    public Segment(String uri, double durationSecs, boolean discontinuity, long startTimeUs,
+                   boolean isEncrypted, String encryptionKeyUri, String encryptionIV, int byterangeOffset,
+                   int byterangeLength, boolean iframe) {
       this.url = uri;
       this.durationSecs = durationSecs;
       this.discontinuity = discontinuity;
@@ -51,6 +58,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       this.encryptionIV = encryptionIV;
       this.byterangeOffset = byterangeOffset;
       this.byterangeLength = byterangeLength;
+      this.iframe = iframe;
     }
 
     @Override

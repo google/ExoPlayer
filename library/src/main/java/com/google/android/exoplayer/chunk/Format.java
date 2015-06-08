@@ -82,6 +82,12 @@ public class Format {
   public final String codecs;
 
   /**
+   * Indicator if only intra frames are to be played
+   */
+
+  public final boolean iframe;
+
+  /**
    * The language of the format. Can be null if unknown.
    * <p>
    * The language codes are two-letter lowercase ISO language codes (such as "en") as defined by
@@ -138,7 +144,11 @@ public class Format {
    * @param codecs The codecs used to decode the format.
    */
   public Format(String id, String mimeType, int width, int height, float frameRate, int numChannels,
-      int audioSamplingRate, int bitrate, String language, String codecs) {
+                int audioSamplingRate, int bitrate, String language, String codecs) {
+      this(id,mimeType,width,height,frameRate,numChannels,audioSamplingRate,bitrate,language,codecs,false);
+  }
+  public Format(String id, String mimeType, int width, int height, float frameRate, int numChannels,
+                int audioSamplingRate, int bitrate, String language, String codecs, boolean iframe) {
     this.id = Assertions.checkNotNull(id);
     this.mimeType = mimeType;
     this.width = width;
@@ -149,6 +159,7 @@ public class Format {
     this.bitrate = bitrate;
     this.language = language;
     this.codecs = codecs;
+    this.iframe = iframe;
   }
 
   @Override
