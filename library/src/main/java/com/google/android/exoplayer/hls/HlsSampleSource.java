@@ -362,11 +362,8 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     if (!currentLoadableExceptionFatal) {
       clearCurrentLoadable();
     }
-    if (enabledTrackCount > 0) {
+    if (enabledTrackCount > 0 || !prepared) {
       maybeStartLoading();
-    } else {
-      clearState();
-      loadControl.trimAllocator();
     }
   }
 
