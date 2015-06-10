@@ -438,7 +438,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       adjustedReleaseTimeNs = unadjustedFrameReleaseTimeNs;
     }
 
-    Log.d("BP", Long.toString(bufferInfo.presentationTimeUs));
+    //Log.d("BP", Long.toString(bufferInfo.presentationTimeUs));
 
     if (earlyUs < -30000 && !iframe) {
       // We're more than 30ms late rendering the frame.

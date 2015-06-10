@@ -117,7 +117,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         line = line.trim();
         if (line.isEmpty()) {
           // Do nothing.
-        } else if (line.startsWith(STREAM_INF_TAG)) {
+        } else if (line.startsWith(STREAM_INF_TAG) || line.startsWith(IFRAME_STREAM_INF_TAG)) {
           extraLines.add(line);
           return parseMasterPlaylist(new LineIterator(extraLines, reader), connectionUrl);
         } else if (line.startsWith(TARGET_DURATION_TAG)
@@ -143,14 +143,15 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
   private static HlsMasterPlaylist parseMasterPlaylist(LineIterator iterator, String baseUri)
           throws IOException {
     ArrayList<Variant> variants = new ArrayList<>();
+    Variant curr_variant;
     ArrayList<Subtitle> subtitles = new ArrayList<>();
-    ArrayList<IFrame> iframes = new ArrayList<>();
     int bitrate = 0;
     String codecs = null;
     int width = -1;
     int height = -1;
 
     boolean expectingStreamInfUrl = false;
+    boolean expectingIframe = false;
     String line;
     while (iterator.hasNext()) {
       line = iterator.next();
@@ -191,10 +192,11 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         expectingStreamInfUrl = true;
       } else if(line.startsWith(IFRAME_STREAM_INF_TAG)){
         //TODO: Handle iframes
+        Log.d("IFRAME", "FOUND IFRAME");
         String uri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX, URI_ATTR);
         int bandwidth = HlsParserUtil.parseIntAttr(line, BANDWIDTH_ATTR_REGEX, BANDWIDTH_ATTR);
 
-        iframes.add(new IFrame(uri, bandwidth, variants.size()-1));
+        variants.get(variants.size()-1).iframe = new IFrame(uri, bandwidth);
 
       } else if (!line.startsWith("#") && expectingStreamInfUrl) {
         variants.add(new Variant(variants.size(), line, bitrate, codecs, width, height));
@@ -206,7 +208,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
       }
     }
     return new HlsMasterPlaylist(baseUri, Collections.unmodifiableList(variants),
-            Collections.unmodifiableList(subtitles), Collections.unmodifiableList(iframes));
+            Collections.unmodifiableList(subtitles));
   }
 
   private static HlsMediaPlaylist parseMediaPlaylist(LineIterator iterator, String baseUri)

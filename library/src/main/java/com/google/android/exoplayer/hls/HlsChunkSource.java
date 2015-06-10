@@ -142,6 +142,7 @@ public class HlsChunkSource {
   private byte[] encryptionIv;
 
   private boolean iframe;
+  private boolean trick_play;
 
   public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
       BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode,
@@ -182,6 +183,7 @@ public class HlsChunkSource {
     baseUri = playlist.baseUri;
     playlistParser = new HlsPlaylistParser();
     this.iframe = false;
+    this.trick_play = false;
 
     if (playlist.type == HlsPlaylist.TYPE_MEDIA) {
       variants = Collections.singletonList(new Variant(0, playlistUrl, 0, null, -1, -1));

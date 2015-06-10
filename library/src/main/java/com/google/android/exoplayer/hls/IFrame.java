@@ -7,11 +7,9 @@ public final class IFrame {
 
     public final String uri;
     public final int bitrate;
-    public final int variantId;
 
-    public IFrame(String uri, int bitrate, int variantId){
+    public IFrame(String uri, int bitrate){
         this.uri = uri;
         this.bitrate = bitrate;
-        this.variantId = variantId;
     }
 }
