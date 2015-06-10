@@ -39,9 +39,11 @@ public class MediaPresentationDescription {
 
   public final UtcTimingElement utcTiming;
 
+  public final String location;
+
   public MediaPresentationDescription(long availabilityStartTime, long duration, long minBufferTime,
       boolean dynamic, long minUpdatePeriod, long timeShiftBufferDepth, UtcTimingElement utcTiming,
-      List<Period> periods) {
+      List<Period> periods, String location) {
     this.availabilityStartTime = availabilityStartTime;
     this.duration = duration;
     this.minBufferTime = minBufferTime;
@@ -50,6 +52,7 @@ public class MediaPresentationDescription {
     this.timeShiftBufferDepth = timeShiftBufferDepth;
     this.utcTiming = utcTiming;
     this.periods = Collections.unmodifiableList(periods);
+    this.location = location;
   }
 
 }

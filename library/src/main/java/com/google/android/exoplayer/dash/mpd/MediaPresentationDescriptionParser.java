@@ -111,6 +111,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     long timeShiftBufferDepthMs = (dynamic) ? parseDuration(xpp, "timeShiftBufferDepth", -1)
         : -1;
     UtcTimingElement utcTiming = null;
+    String location = null;
 
     List<Period> periods = new ArrayList<>();
     do {
@@ -121,19 +122,21 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         utcTiming = parseUtcTiming(xpp);
       } else if (isStartTag(xpp, "Period")) {
         periods.add(parsePeriod(xpp, baseUrl, durationMs));
+      } else if (isStartTag(xpp, "Location")) {
+          location = xpp.nextText();
       }
     } while (!isEndTag(xpp, "MPD"));
 
     return buildMediaPresentationDescription(availabilityStartTime, durationMs, minBufferTimeMs,
-        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, utcTiming, periods);
+        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, utcTiming, periods, location);
   }
 
   protected MediaPresentationDescription buildMediaPresentationDescription(
       long availabilityStartTime, long durationMs, long minBufferTimeMs, boolean dynamic,
       long minUpdateTimeMs, long timeShiftBufferDepthMs, UtcTimingElement utcTiming,
-      List<Period> periods) {
+      List<Period> periods, String location) {
     return new MediaPresentationDescription(availabilityStartTime, durationMs, minBufferTimeMs,
-        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, utcTiming, periods);
+        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, utcTiming, periods, location);
   }
 
   protected UtcTimingElement parseUtcTiming(XmlPullParser xpp) {
