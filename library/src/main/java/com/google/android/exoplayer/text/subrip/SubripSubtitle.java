@@ -28,27 +28,20 @@ import java.util.List;
  */
 /* package */ final class SubripSubtitle implements Subtitle {
 
-  private final List<SubripCue> cues;
-  private final int numCues;
   private final long startTimeUs;
+
+  private final Cue[] cues;
   private final long[] cueTimesUs;
 
   /**
-   * @param cues A list of the cues in this subtitle.
-   * @param startTimeUs The start time of the subtitle.
+   * @param startTimeUs The start time of the subtitle, in microseconds.
+   * @param cues The cues in the subtitle.
+   * @param cueTimesUs Interleaved cue start and end times, in microseconds.
    */
-  public SubripSubtitle(List<SubripCue> cues, long startTimeUs) {
-    this.cues = cues;
+  public SubripSubtitle(long startTimeUs, Cue[] cues, long[] cueTimesUs) {
     this.startTimeUs = startTimeUs;
-
-    numCues = cues.size();
-    cueTimesUs = new long[2 * numCues];
-    for (int cueIndex = 0; cueIndex < numCues; cueIndex++) {
-      SubripCue cue = cues.get(cueIndex);
-      int arrayIndex = cueIndex * 2;
-      cueTimesUs[arrayIndex] = cue.startTime;
-      cueTimesUs[arrayIndex + 1] = cue.endTime;
-    }
+    this.cues = cues;
+    this.cueTimesUs = cueTimesUs;
   }
 
   @Override
@@ -58,7 +51,6 @@ import java.util.List;
 
   @Override
   public int getNextEventTimeIndex(long timeUs) {
-    Assertions.checkArgument(timeUs >= 0);
     int index = Util.binarySearchCeil(cueTimesUs, timeUs, false, false);
     return index < cueTimesUs.length ? index : -1;
   }
@@ -90,7 +82,7 @@ import java.util.List;
       // timeUs is earlier than the start of the first cue, or corresponds to a gap between cues.
       return Collections.<Cue>emptyList();
     } else {
-      return Collections.singletonList((Cue) cues.get(index / 2));
+      return Collections.singletonList(cues[index / 2]);
     }
   }
 

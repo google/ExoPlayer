@@ -17,8 +17,10 @@ package com.google.android.exoplayer.text.subrip;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.Util;
 
 import android.text.Html;
 import android.text.Spanned;
@@ -52,7 +54,8 @@ public final class SubripParser implements SubtitleParser {
   @Override
   public SubripSubtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
           throws IOException {
-    ArrayList<SubripCue> cues = new ArrayList<>();
+    ArrayList<Cue> cues = new ArrayList<>();
+    ArrayList<Long> cueTimesUs = new ArrayList<>();
     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, C.UTF8_NAME));
     String currentLine;
 
@@ -65,13 +68,11 @@ public final class SubripParser implements SubtitleParser {
       }
 
       // Read and parse the timing line.
-      long cueStartTimeUs;
-      long cueEndTimeUs;
       currentLine = reader.readLine();
       Matcher matcher = SUBRIP_TIMING_LINE.matcher(currentLine);
       if (matcher.find()) {
-        cueStartTimeUs = parseTimestampUs(matcher.group(1)) + startTimeUs;
-        cueEndTimeUs = parseTimestampUs(matcher.group(2)) + startTimeUs;
+        cueTimesUs.add(startTimeUs + parseTimestampUs(matcher.group(1)));
+        cueTimesUs.add(startTimeUs + parseTimestampUs(matcher.group(2)));
       } else {
         throw new ParserException("Expected timing line: " + currentLine);
       }
@@ -86,14 +87,16 @@ public final class SubripParser implements SubtitleParser {
       }
 
       Spanned text = Html.fromHtml(textBuilder.toString());
-      SubripCue cue = new SubripCue(cueStartTimeUs, cueEndTimeUs, text);
-      cues.add(cue);
+      cues.add(new Cue(text));
     }
 
     reader.close();
     inputStream.close();
-    SubripSubtitle subtitle = new SubripSubtitle(cues, startTimeUs);
-    return subtitle;
+
+    Cue[] cuesArray = new Cue[cues.size()];
+    cues.toArray(cuesArray);
+    long[] cueTimesUsArray = Util.toLongArray(cueTimesUs);
+    return new SubripSubtitle(startTimeUs, cuesArray, cueTimesUsArray);
   }
 
   @Override

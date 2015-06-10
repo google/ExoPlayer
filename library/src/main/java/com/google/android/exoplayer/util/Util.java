@@ -459,7 +459,7 @@ public final class Util {
    * @param list A list of integers.
    * @return The list in array form, or null if the input list was null.
    */
-  public static int[] toArray(List<Integer> list) {
+  public static int[] toIntArray(List<Integer> list) {
     if (list == null) {
       return null;
     }
@@ -469,6 +469,24 @@ public final class Util {
       intArray[i] = list.get(i);
     }
     return intArray;
+  }
+
+  /**
+   * Converts a list of longs to a primitive array.
+   *
+   * @param list A list of longs.
+   * @return The list in array form, or null if the input list was null.
+   */
+  public static long[] toLongArray(List<Long> list) {
+    if (list == null) {
+      return null;
+    }
+    int length = list.size();
+    long[] longArray = new long[length];
+    for (int i = 0; i < length; i++) {
+      longArray[i] = list.get(i);
+    }
+    return longArray;
   }
 
   /**
