@@ -15,9 +15,9 @@
  */
 package com.google.android.exoplayer.text.subrip;
 
-import android.test.InstrumentationTestCase;
-
 import com.google.android.exoplayer.C;
+
+import android.test.InstrumentationTestCase;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,13 +34,10 @@ public class SubripParserTest extends InstrumentationTestCase {
     SubripParser parser = new SubripParser();
     InputStream inputStream =
         getInstrumentation().getContext().getResources().getAssets().open(EMPTY_SUBRIP_FILE);
-
-    try {
-      parser.parse(inputStream, C.UTF8_NAME, 0);
-      fail("Expected IOException");
-    } catch (IOException expected) {
-      // Do nothing.
-    }
+    SubripSubtitle subtitle = parser.parse(inputStream, C.UTF8_NAME, 0);
+    // Assert that the subtitle is empty.
+    assertEquals(0, subtitle.getEventTimeCount());
+    assertTrue(subtitle.getCues(0).isEmpty());
   }
 
   public void testParseTypicalSubripFile() throws IOException {
@@ -49,22 +46,21 @@ public class SubripParserTest extends InstrumentationTestCase {
         getInstrumentation().getContext().getResources().getAssets().open(TYPICAL_SUBRIP_FILE);
     SubripSubtitle subtitle = parser.parse(inputStream, C.UTF8_NAME, 0);
 
-    // test start time and event count
-    long startTimeUs = 0;
-    assertEquals(startTimeUs, subtitle.getStartTime());
+    // Test start time and event count.
+    assertEquals(0, subtitle.getStartTime());
     assertEquals(4, subtitle.getEventTimeCount());
 
-    // test first cue
-    assertEquals(startTimeUs, subtitle.getEventTime(0));
+    // Test first cue.
+    assertEquals(0, subtitle.getEventTime(0));
     assertEquals("This is the first subtitle.",
         subtitle.getCues(subtitle.getEventTime(0)).get(0).text.toString());
-    assertEquals(startTimeUs + 1234000, subtitle.getEventTime(1));
+    assertEquals(1234000, subtitle.getEventTime(1));
 
-    // test second cue
-    assertEquals(startTimeUs + 2345000, subtitle.getEventTime(2));
+    // Test second cue.
+    assertEquals(2345000, subtitle.getEventTime(2));
     assertEquals("This is the second subtitle.\nSecond subtitle with second line.",
         subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString());
-    assertEquals(startTimeUs + 3456000, subtitle.getEventTime(3));
+    assertEquals(3456000, subtitle.getEventTime(3));
   }
 
 }
