@@ -15,13 +15,14 @@
  */
 package com.google.android.exoplayer.text.subrip;
 
-import android.text.Html;
-
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.MimeTypes;
+
+import android.text.Html;
+import android.text.Spanned;
+import android.text.TextUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,93 +33,66 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A simple SRT parser.
+ * A simple SubRip parser.
  * <p/>
- *
- * @see <a href="https://en.wikipedia.org/wiki/SubRip">Wikipedia on SRT</a>
+ * @see <a href="https://en.wikipedia.org/wiki/SubRip">Wikipedia on SubRip</a>
  */
 public final class SubripParser implements SubtitleParser {
 
-  private static final String TAG = "SubRipParser";
-
-  private static final String SUBRIP_POSITION_STRING = "^(\\d)$";
-  private static final Pattern SUBRIP_POSITION = Pattern.compile(SUBRIP_POSITION_STRING);
-
-  private static final String SUBRIP_CUE_IDENTIFIER_STRING = "^(.*)\\s-->\\s(.*)$";
-  private static final Pattern SUBRIP_CUE_IDENTIFIER =
-          Pattern.compile(SUBRIP_CUE_IDENTIFIER_STRING);
-
-  private static final String SUBRIP_TIMESTAMP_STRING = "(\\d+:)?[0-5]\\d:[0-5]\\d:[0-5]\\d,\\d{3}";
-  // private static final Pattern SUBRIP_TIMESTAMP = Pattern.compile(SUBRIP_TIMESTAMP_STRING);
+  private static final Pattern SUBRIP_TIMING_LINE = Pattern.compile("(.*)\\s+-->\\s+(.*)");
+  private static final Pattern SUBRIP_TIMESTAMP =
+      Pattern.compile("(?:(\\d+):)?(\\d+):(\\d+),(\\d+)");
 
   private final StringBuilder textBuilder;
 
-  private final boolean strictParsing;
-
   public SubripParser() {
-    this(true);
-  }
-
-  public SubripParser(boolean strictParsing) {
-    this.strictParsing = strictParsing;
-
     textBuilder = new StringBuilder();
   }
 
   @Override
   public SubripSubtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
           throws IOException {
-    ArrayList<SubripCue> subtitles = new ArrayList<>();
+    ArrayList<SubripCue> cues = new ArrayList<>();
+    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, C.UTF8_NAME));
+    String currentLine;
 
-    // file should not be empty
-    if (inputStream.available() == 0) {
-      throw new ParserException("File is empty?");
-    }
-
-    BufferedReader subripData = new BufferedReader(new InputStreamReader(inputStream, C.UTF8_NAME));
-    String line;
-
-
-    // process the cues and text
-    while ((line = subripData.readLine()) != null) {
-      long startTime = Cue.UNSET_VALUE;
-      long endTime = Cue.UNSET_VALUE;
-      CharSequence text = null;
-      int position = Cue.UNSET_VALUE;
-
-      Matcher matcher = SUBRIP_POSITION.matcher(line);
-      if (matcher.matches()) {
-        position = Integer.parseInt(matcher.group());
+    while ((currentLine = reader.readLine()) != null) {
+      // Parse the numeric counter as a sanity check.
+      try {
+        Integer.parseInt(currentLine);
+      } catch (NumberFormatException e) {
+        throw new ParserException("Expected numeric counter: " + currentLine);
       }
 
-      line = subripData.readLine();
-
-      // parse cue time
-      matcher = SUBRIP_CUE_IDENTIFIER.matcher(line);
-      if (!matcher.find()) {
-        throw new ParserException("Expected cue start time: " + line);
+      // Read and parse the timing line.
+      long cueStartTimeUs;
+      long cueEndTimeUs;
+      currentLine = reader.readLine();
+      Matcher matcher = SUBRIP_TIMING_LINE.matcher(currentLine);
+      if (matcher.find()) {
+        cueStartTimeUs = parseTimestampUs(matcher.group(1)) + startTimeUs;
+        cueEndTimeUs = parseTimestampUs(matcher.group(2)) + startTimeUs;
       } else {
-        startTime = parseTimestampUs(matcher.group(1)) + startTimeUs;
-        endTime = parseTimestampUs(matcher.group(2)) + startTimeUs;
+        throw new ParserException("Expected timing line: " + currentLine);
       }
 
-      // parse text
+      // Read and parse the text.
       textBuilder.setLength(0);
-      while (((line = subripData.readLine()) != null) && (!line.isEmpty())) {
+      while (!TextUtils.isEmpty(currentLine = reader.readLine())) {
         if (textBuilder.length() > 0) {
           textBuilder.append("<br>");
         }
-        textBuilder.append(line.trim());
+        textBuilder.append(currentLine.trim());
       }
-      text = Html.fromHtml(textBuilder.toString());
 
-      SubripCue cue = new SubripCue(startTime, endTime, position, text);
-      subtitles.add(cue);
+      Spanned text = Html.fromHtml(textBuilder.toString());
+      SubripCue cue = new SubripCue(cueStartTimeUs, cueEndTimeUs, text);
+      cues.add(cue);
     }
 
-    subripData.close();
+    reader.close();
     inputStream.close();
-    SubripSubtitle subtitle = new SubripSubtitle(subtitles, startTimeUs);
+    SubripSubtitle subtitle = new SubripSubtitle(cues, startTimeUs);
     return subtitle;
   }
 
@@ -127,23 +101,16 @@ public final class SubripParser implements SubtitleParser {
     return MimeTypes.APPLICATION_SUBRIP.equals(mimeType);
   }
 
-  private void handleNoncompliantLine(String line) throws ParserException {
-    if (strictParsing) {
-      throw new ParserException("Unexpected line: " + line);
-    }
-  }
-
   private static long parseTimestampUs(String s) throws NumberFormatException {
-    if (!s.matches(SUBRIP_TIMESTAMP_STRING)) {
+    Matcher matcher = SUBRIP_TIMESTAMP.matcher(s);
+    if (!matcher.matches()) {
       throw new NumberFormatException("has invalid format");
     }
-
-    String[] parts = s.split(",", 2);
-    long value = 0;
-    for (String group : parts[0].split(":")) {
-      value = value * 60 + Long.parseLong(group);
-    }
-    return (value * 1000 + Long.parseLong(parts[1])) * 1000;
+    long timestampMs = Long.parseLong(matcher.group(1)) * 60 * 60 * 1000;
+    timestampMs += Long.parseLong(matcher.group(2)) * 60 * 1000;
+    timestampMs += Long.parseLong(matcher.group(3)) * 1000;
+    timestampMs += Long.parseLong(matcher.group(4));
+    return timestampMs * 1000;
   }
 
 }

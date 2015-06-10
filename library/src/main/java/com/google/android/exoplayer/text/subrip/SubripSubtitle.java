@@ -15,15 +15,11 @@
  */
 package com.google.android.exoplayer.text.subrip;
 
-import android.text.SpannableStringBuilder;
-
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.Subtitle;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,7 +32,6 @@ import java.util.List;
   private final int numCues;
   private final long startTimeUs;
   private final long[] cueTimesUs;
-  private final long[] sortedCueTimesUs;
 
   /**
    * @param cues A list of the cues in this subtitle.
@@ -44,19 +39,16 @@ import java.util.List;
    */
   public SubripSubtitle(List<SubripCue> cues, long startTimeUs) {
     this.cues = cues;
-    numCues = cues.size();
     this.startTimeUs = startTimeUs;
 
-    this.cueTimesUs = new long[2 * numCues];
+    numCues = cues.size();
+    cueTimesUs = new long[2 * numCues];
     for (int cueIndex = 0; cueIndex < numCues; cueIndex++) {
       SubripCue cue = cues.get(cueIndex);
       int arrayIndex = cueIndex * 2;
       cueTimesUs[arrayIndex] = cue.startTime;
       cueTimesUs[arrayIndex + 1] = cue.endTime;
     }
-
-    this.sortedCueTimesUs = Arrays.copyOf(cueTimesUs, cueTimesUs.length);
-    Arrays.sort(sortedCueTimesUs);
   }
 
   @Override
@@ -67,20 +59,20 @@ import java.util.List;
   @Override
   public int getNextEventTimeIndex(long timeUs) {
     Assertions.checkArgument(timeUs >= 0);
-    int index = Util.binarySearchCeil(sortedCueTimesUs, timeUs, false, false);
-    return index < sortedCueTimesUs.length ? index : -1;
+    int index = Util.binarySearchCeil(cueTimesUs, timeUs, false, false);
+    return index < cueTimesUs.length ? index : -1;
   }
 
   @Override
   public int getEventTimeCount() {
-    return sortedCueTimesUs.length;
+    return cueTimesUs.length;
   }
 
   @Override
   public long getEventTime(int index) {
     Assertions.checkArgument(index >= 0);
-    Assertions.checkArgument(index < sortedCueTimesUs.length);
-    return sortedCueTimesUs[index];
+    Assertions.checkArgument(index < cueTimesUs.length);
+    return cueTimesUs[index];
   }
 
   @Override
@@ -88,50 +80,17 @@ import java.util.List;
     if (getEventTimeCount() == 0) {
       return -1;
     }
-    return sortedCueTimesUs[sortedCueTimesUs.length - 1];
+    return cueTimesUs[cueTimesUs.length - 1];
   }
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    ArrayList<Cue> list = null;
-    SubripCue firstNormalCue = null;
-    SpannableStringBuilder normalCueTextBuilder = null;
-
-    for (int i = 0; i < numCues; i++) {
-      if ((cueTimesUs[i * 2] <= timeUs) && (timeUs < cueTimesUs[i * 2 + 1])) {
-        if (list == null) {
-          list = new ArrayList<>();
-        }
-        SubripCue cue = cues.get(i);
-        if (cue.isNormalCue()) {
-          // we want to merge all of the normal cues into a single cue to ensure they are drawn
-          // correctly (i.e. don't overlap) and to emulate roll-up, but only if there are multiple
-          // normal cues, otherwise we can just append the single normal cue
-          if (firstNormalCue == null) {
-            firstNormalCue = cue;
-          } else if (normalCueTextBuilder == null) {
-            normalCueTextBuilder = new SpannableStringBuilder();
-            normalCueTextBuilder.append(firstNormalCue.text).append("\n").append(cue.text);
-          } else {
-            normalCueTextBuilder.append("\n").append(cue.text);
-          }
-        } else {
-          list.add(cue);
-        }
-      }
-    }
-    if (normalCueTextBuilder != null) {
-      // there were multiple normal cues, so create a new cue with all of the text
-      list.add(new SubripCue(normalCueTextBuilder));
-    } else if (firstNormalCue != null) {
-      // there was only a single normal cue, so just add it to the list
-      list.add(firstNormalCue);
-    }
-
-    if (list != null) {
-      return list;
-    } else {
+    int index = Util.binarySearchFloor(cueTimesUs, timeUs, true, false);
+    if (index == -1 || index % 2 == 1) {
+      // timeUs is earlier than the start of the first cue, or corresponds to a gap between cues.
       return Collections.<Cue>emptyList();
+    } else {
+      return Collections.singletonList((Cue) cues.get(index / 2));
     }
   }
 

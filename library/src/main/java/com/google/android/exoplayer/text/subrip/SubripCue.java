@@ -25,24 +25,10 @@ import com.google.android.exoplayer.text.Cue;
   public final long startTime;
   public final long endTime;
 
-  public SubripCue(CharSequence text) {
-    this(Cue.UNSET_VALUE, Cue.UNSET_VALUE, Cue.UNSET_VALUE,text);
-  }
-
-  public SubripCue(long startTime, long endTime, int position, CharSequence text) {
-    super(text, Cue.UNSET_VALUE, position, null, Cue.UNSET_VALUE);
+  public SubripCue(long startTime, long endTime, CharSequence text) {
+    super(text);
     this.startTime = startTime;
     this.endTime = endTime;
-  }
-
-  /**
-   * Returns whether or not this cue should be placed in the default position and rolled-up with
-   * the other "normal" cues.
-   *
-   * @return True if this cue should be placed in the default position; false otherwise.
-   */
-  public boolean isNormalCue() {
-    return (line == UNSET_VALUE && position == UNSET_VALUE);
   }
 
 }
