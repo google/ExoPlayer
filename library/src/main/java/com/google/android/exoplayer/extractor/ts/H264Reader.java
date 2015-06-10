@@ -160,7 +160,15 @@ import java.util.List;
 
   @Override
   public void packetFinished() {
-    // Do nothing.
+    if (ifrParserBuffer != null && foundFirstSample) {
+      if (isKeyframe && !hasOutputFormat && sps.isCompleted() && pps.isCompleted()) {
+        parseMediaFormat(sps, pps);
+      }
+      int flags = isKeyframe ? C.SAMPLE_FLAG_SYNC : 0;
+      int size = (int) (totalBytesWritten - samplePosition);
+      output.sampleMetadata(sampleTimeUs, flags, size, 0, null);
+      foundFirstSample = false;
+    }
   }
 
   private void feedNalUnitTargetBuffersStart(int nalUnitType) {

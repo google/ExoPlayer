@@ -121,6 +121,10 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     extractors = new LinkedList<>();
   }
 
+  public boolean getIframe(){
+    return this.chunkSource.getIframe();
+  }
+
   @Override
   public boolean prepare(long positionUs) throws IOException {
     if (prepared) {
@@ -362,7 +366,7 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     if (!currentLoadableExceptionFatal) {
       clearCurrentLoadable();
     }
-    if (enabledTrackCount > 0) {
+    if (enabledTrackCount > 0 || !prepared) {
       maybeStartLoading();
     } else {
       clearState();

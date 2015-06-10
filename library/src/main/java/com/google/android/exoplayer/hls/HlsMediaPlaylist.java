@@ -96,4 +96,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
   }
 
+  public boolean getIframe(){
+    return this.iframe;
+  }
+
 }

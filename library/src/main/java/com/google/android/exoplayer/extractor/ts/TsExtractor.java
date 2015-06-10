@@ -66,6 +66,8 @@ public final class TsExtractor implements Extractor, SeekMap {
   private long lastPts;
   /* package */ Id3Reader id3Reader;
 
+  private boolean iframe;
+
   public TsExtractor() {
     this(0);
   }
@@ -80,6 +82,11 @@ public final class TsExtractor implements Extractor, SeekMap {
 
   public TsExtractor(long firstSampleTimestampUs, AudioCapabilities audioCapabilities,
       boolean idrKeyframesOnly) {
+    this(firstSampleTimestampUs, audioCapabilities, idrKeyframesOnly, false);
+  }
+
+  public TsExtractor(long firstSampleTimestampUs, AudioCapabilities audioCapabilities,
+                     boolean idrKeyframesOnly, boolean iframe) {
     this.firstSampleTimestampUs = firstSampleTimestampUs;
     this.idrKeyframesOnly = idrKeyframesOnly;
     tsScratch = new ParsableBitArray(new byte[3]);
@@ -89,6 +96,7 @@ public final class TsExtractor implements Extractor, SeekMap {
     tsPayloadReaders = new SparseArray<>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
     lastPts = Long.MIN_VALUE;
+    this.iframe = iframe;
   }
 
   // Extractor implementation.
@@ -351,7 +359,7 @@ public final class TsExtractor implements Extractor, SeekMap {
         ElementaryStreamReader pesPayloadReader = null;
         switch (streamType) {
           case TS_STREAM_TYPE_AAC:
-            //pesPayloadReader = new AdtsReader(output.track(TS_STREAM_TYPE_AAC));
+            if(!iframe)pesPayloadReader = new AdtsReader(output.track(TS_STREAM_TYPE_AAC));
             break;
           case TS_STREAM_TYPE_ATSC_E_AC3:
           case TS_STREAM_TYPE_ATSC_AC3:

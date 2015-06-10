@@ -18,6 +18,7 @@ package com.google.android.exoplayer;
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.drm.DrmSessionManager;
+import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.annotation.TargetApi;
@@ -73,6 +74,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   private int audioSessionId;
   private long currentPositionUs;
 
+  private boolean iframe;
+
   /**
    * @param source The upstream source from which the renderer obtains samples.
    */
@@ -125,6 +128,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
     this.eventListener = eventListener;
     this.audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     this.audioTrack = new AudioTrack();
+    this.iframe = ((HlsSampleSource) source).getIframe();
   }
 
   @Override
@@ -152,7 +156,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected boolean isTimeSource() {
-    return false;
+    return !iframe;
   }
 
   @Override

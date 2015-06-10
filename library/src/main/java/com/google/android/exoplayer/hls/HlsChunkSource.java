@@ -141,6 +141,8 @@ public class HlsChunkSource {
   private String encryptionIvString;
   private byte[] encryptionIv;
 
+  private boolean iframe;
+
   public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
       BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode,
       AudioCapabilities audioCapabilities) {
@@ -179,6 +181,7 @@ public class HlsChunkSource {
     maxBufferDurationToSwitchDownUs = maxBufferDurationToSwitchDownMs * 1000;
     baseUri = playlist.baseUri;
     playlistParser = new HlsPlaylistParser();
+    this.iframe = false;
 
     if (playlist.type == HlsPlaylist.TYPE_MEDIA) {
       variants = Collections.singletonList(new Variant(0, playlistUrl, 0, null, -1, -1));
@@ -229,6 +232,10 @@ public class HlsChunkSource {
    */
   public void getMaxVideoDimensions(MediaFormat out) {
     out.setMaxVideoDimensions(maxWidth, maxHeight);
+  }
+
+  public boolean getIframe(){
+    return this.iframe;
   }
 
   /**
@@ -341,7 +348,7 @@ public class HlsChunkSource {
         || liveDiscontinuity) {
       Extractor extractor = chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)
           ? new AdtsExtractor(startTimeUs)
-          : new TsExtractor(startTimeUs, audioCapabilities);
+          : new TsExtractor(startTimeUs, audioCapabilities, true, iframe);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
           switchingVariantSpliced);
     } else {
@@ -511,6 +518,7 @@ public class HlsChunkSource {
   /* package */ void setMediaPlaylist(int variantIndex, HlsMediaPlaylist mediaPlaylist) {
     lastMediaPlaylistLoadTimesMs[variantIndex] = SystemClock.elapsedRealtime();
     mediaPlaylists[variantIndex] = mediaPlaylist;
+    this.iframe = mediaPlaylist.getIframe();
     live |= mediaPlaylist.live;
     durationUs = mediaPlaylist.durationUs;
   }

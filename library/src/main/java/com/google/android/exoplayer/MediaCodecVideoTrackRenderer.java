@@ -16,6 +16,7 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.drm.DrmSessionManager;
+import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.TraceUtil;
 import com.google.android.exoplayer.util.Util;
@@ -137,6 +138,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   private int lastReportedHeight;
   private float lastReportedPixelWidthHeightRatio;
 
+  private boolean iframe;
+
   /**
    * @param source The upstream source from which the renderer obtains samples.
    * @param videoScalingMode The scaling mode to pass to
@@ -245,6 +248,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     this.frameReleaseTimeHelper = frameReleaseTimeHelper;
     this.eventListener = eventListener;
     this.maxDroppedFrameCountToNotify = maxDroppedFrameCountToNotify;
+    this.iframe = ((HlsSampleSource) source).getIframe();
     joiningDeadlineUs = -1;
     currentWidth = -1;
     currentHeight = -1;
@@ -256,7 +260,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected boolean isTimeSource() {
-    return true;
+    return iframe;
   }
 
   @Override
@@ -434,15 +438,15 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       adjustedReleaseTimeNs = unadjustedFrameReleaseTimeNs;
     }
 
-    bufferInfo.presentationTimeUs += 1000 * 1000;
-    //Log.d("Time 2", Long.toString(bufferInfo.presentationTimeUs));
-    if (earlyUs < -30000) {
+    Log.d("BP", Long.toString(bufferInfo.presentationTimeUs));
+
+    if (earlyUs < -30000 && !iframe) {
       // We're more than 30ms late rendering the frame.
       dropOutputBuffer(codec, bufferIndex);
       return true;
     }
 
-    if (!renderedFirstFrame || true) {
+    if (!renderedFirstFrame || iframe) {
       renderOutputBufferImmediate(codec, bufferIndex);
       return true;
     }

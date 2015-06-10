@@ -50,26 +50,8 @@ public class SampleChooserActivity extends Activity {
     ListView sampleList = (ListView) findViewById(R.id.sample_list);
     final SampleAdapter sampleAdapter = new SampleAdapter(this);
 
-    sampleAdapter.add(new Header("YouTube DASH"));
-    sampleAdapter.addAll((Object[]) Samples.YOUTUBE_DASH_MP4);
-    sampleAdapter.add(new Header("Widevine GTS DASH"));
-    sampleAdapter.addAll((Object[]) Samples.WIDEVINE_GTS);
-    sampleAdapter.add(new Header("SmoothStreaming"));
-    sampleAdapter.addAll((Object[]) Samples.SMOOTHSTREAMING);
     sampleAdapter.add(new Header("HLS"));
     sampleAdapter.addAll((Object[]) Samples.HLS);
-    sampleAdapter.add(new Header("Misc"));
-    sampleAdapter.addAll((Object[]) Samples.MISC);
-
-    // Add WebM samples if the device has a VP9 decoder.
-    try {
-      if (MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_VP9, false) != null) {
-        sampleAdapter.add(new Header("YouTube WebM DASH (Experimental)"));
-        sampleAdapter.addAll((Object[]) Samples.YOUTUBE_DASH_WEBM);
-      }
-    } catch (DecoderQueryException e) {
-      Log.e(TAG, "Failed to query vp9 decoder", e);
-    }
 
     sampleList.setAdapter(sampleAdapter);
     sampleList.setOnItemClickListener(new OnItemClickListener() {
@@ -85,9 +67,9 @@ public class SampleChooserActivity extends Activity {
 
   private void onSampleSelected(Sample sample) {
     Intent mpdIntent = new Intent(this, PlayerActivity.class)
-        .setData(Uri.parse(sample.uri))
-        .putExtra(PlayerActivity.CONTENT_ID_EXTRA, sample.contentId)
-        .putExtra(PlayerActivity.CONTENT_TYPE_EXTRA, sample.type);
+            .setData(Uri.parse(sample.uri))
+            .putExtra(PlayerActivity.CONTENT_ID_EXTRA, sample.contentId)
+            .putExtra(PlayerActivity.CONTENT_TYPE_EXTRA, sample.type);
     startActivity(mpdIntent);
   }
 
@@ -102,7 +84,7 @@ public class SampleChooserActivity extends Activity {
       View view = convertView;
       if (view == null) {
         int layoutId = getItemViewType(position) == 1 ? android.R.layout.simple_list_item_1
-            : R.layout.sample_chooser_inline_header;
+                : R.layout.sample_chooser_inline_header;
         view = LayoutInflater.from(getContext()).inflate(layoutId, null, false);
       }
       Object item = getItem(position);

@@ -179,6 +179,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
     this.dataSpec = dataSpec;
+    Log.d("Connection", dataSpec.uri.toString());
     this.bytesRead = 0;
     this.bytesSkipped = 0;
     try {
@@ -371,7 +372,11 @@ public class DefaultHttpDataSource implements HttpDataSource {
    */
   private HttpURLConnection configureConnection(URL url, long position, long length,
       boolean allowGzip) throws IOException {
+    System.setProperty("http.maxConnections", "5");
+    System.setProperty("http.keepAlive", "true");
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    connection.setRequestProperty("Connection", "Keep-Alive");
+    connection.setRequestProperty("Keep-Alive", "header");
     connection.setConnectTimeout(connectTimeoutMillis);
     connection.setReadTimeout(readTimeoutMillis);
     connection.setDoOutput(false);

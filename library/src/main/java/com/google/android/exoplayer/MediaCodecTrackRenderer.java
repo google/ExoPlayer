@@ -182,7 +182,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
   private final DrmSessionManager drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
-  private final SampleSource source;
+  protected final SampleSource source;
   private final SampleHolder sampleHolder;
   private final MediaFormatHolder formatHolder;
   private final List<Long> decodeOnlyPresentationTimestamps;
