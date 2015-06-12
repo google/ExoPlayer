@@ -19,8 +19,8 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleParser;
+import com.google.android.exoplayer.util.LongArray;
 import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.Util;
 
 import android.text.Html;
 import android.text.Spanned;
@@ -36,8 +36,6 @@ import java.util.regex.Pattern;
 
 /**
  * A simple SubRip parser.
- * <p/>
- * @see <a href="https://en.wikipedia.org/wiki/SubRip">Wikipedia on SubRip</a>
  */
 public final class SubripParser implements SubtitleParser {
 
@@ -53,9 +51,9 @@ public final class SubripParser implements SubtitleParser {
 
   @Override
   public SubripSubtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
-          throws IOException {
+      throws IOException {
     ArrayList<Cue> cues = new ArrayList<>();
-    ArrayList<Long> cueTimesUs = new ArrayList<>();
+    LongArray cueTimesUs = new LongArray();
     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, C.UTF8_NAME));
     String currentLine;
 
@@ -90,12 +88,9 @@ public final class SubripParser implements SubtitleParser {
       cues.add(new Cue(text));
     }
 
-    reader.close();
-    inputStream.close();
-
     Cue[] cuesArray = new Cue[cues.size()];
     cues.toArray(cuesArray);
-    long[] cueTimesUsArray = Util.toLongArray(cueTimesUs);
+    long[] cueTimesUsArray = cueTimesUs.toArray();
     return new SubripSubtitle(startTimeUs, cuesArray, cueTimesUsArray);
   }
 

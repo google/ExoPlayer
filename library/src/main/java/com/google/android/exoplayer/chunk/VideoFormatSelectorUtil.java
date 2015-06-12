@@ -132,7 +132,7 @@ public final class VideoFormatSelectorUtil {
       }
     }
 
-    return Util.toIntArray(selectedIndexList);
+    return Util.toArray(selectedIndexList);
   }
 
   /**

@@ -59,7 +59,7 @@ public class WebvttParser implements SubtitleParser {
   private static final Pattern WEBVTT_CUE_SETTING = Pattern.compile(WEBVTT_CUE_SETTING_STRING);
 
   private static final Pattern MEDIA_TIMESTAMP_OFFSET =
-      Pattern.compile(C.WEBVTT_EXO_HEADER_OFFSET + "\\d+");
+      Pattern.compile(C.WEBVTT_EXO_HEADER_OFFSET + "\\-?\\d+");
   private static final Pattern MEDIA_TIMESTAMP = Pattern.compile("MPEGTS:\\d+");
 
   private static final String NON_NUMERIC_STRING = ".*[^0-9].*";
@@ -135,7 +135,7 @@ public class WebvttParser implements SubtitleParser {
           throw new ParserException("X-TIMESTAMP-MAP doesn't contain media timestamp: " + line);
         } else {
           mediaTimestampUs = (Long.parseLong(timestampMatcher.group().substring(7)) * 1000)
-              / SAMPLING_RATE - mediaTimestampOffsetUs;
+              / SAMPLING_RATE + mediaTimestampOffsetUs;
         }
         mediaTimestampUs = getAdjustedStartTime(mediaTimestampUs);
       }
@@ -237,10 +237,7 @@ public class WebvttParser implements SubtitleParser {
       subtitles.add(cue);
     }
 
-    webvttData.close();
-    inputStream.close();
-    WebvttSubtitle subtitle = new WebvttSubtitle(subtitles, mediaTimestampUs);
-    return subtitle;
+    return new WebvttSubtitle(subtitles, mediaTimestampUs);
   }
 
   @Override

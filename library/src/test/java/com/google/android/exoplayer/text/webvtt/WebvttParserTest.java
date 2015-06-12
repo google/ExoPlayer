@@ -30,6 +30,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
   private static final String TYPICAL_WEBVTT_FILE = "webvtt/typical";
   private static final String TYPICAL_WITH_IDS_WEBVTT_FILE = "webvtt/typical_with_identifiers";
   private static final String TYPICAL_WITH_TAGS_WEBVTT_FILE = "webvtt/typical_with_tags";
+  private static final String LIVE_TYPICAL_WEBVTT_FILE = "webvtt/live_typical";
   private static final String EMPTY_WEBVTT_FILE = "webvtt/empty";
 
   public void testParseNullWebvttFile() throws IOException {
@@ -129,6 +130,30 @@ public class WebvttParserTest extends InstrumentationTestCase {
     assertEquals("This is the <fourth> &subtitle.",
         subtitle.getCues(subtitle.getEventTime(6)).get(0).text.toString());
     assertEquals(startTimeUs + 7000000, subtitle.getEventTime(7));
+  }
+
+  public void testParseLiveTypicalWebvttFile() throws IOException {
+    WebvttParser parser = new WebvttParser();
+    InputStream inputStream =
+        getInstrumentation().getContext().getResources().getAssets().open(LIVE_TYPICAL_WEBVTT_FILE);
+    WebvttSubtitle subtitle = parser.parse(inputStream, C.UTF8_NAME, 0);
+
+    // test start time and event count
+    long startTimeUs = 0;
+    assertEquals(startTimeUs, subtitle.getStartTime());
+    assertEquals(4, subtitle.getEventTimeCount());
+
+    // test first cue
+    assertEquals(startTimeUs, subtitle.getEventTime(0));
+    assertEquals("This is the first subtitle.",
+        subtitle.getCues(subtitle.getEventTime(0)).get(0).text.toString());
+    assertEquals(startTimeUs + 1234000, subtitle.getEventTime(1));
+
+    // test second cue
+    assertEquals(startTimeUs + 2345000, subtitle.getEventTime(2));
+    assertEquals("This is the second subtitle.",
+        subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString());
+    assertEquals(startTimeUs + 3456000, subtitle.getEventTime(3));
   }
 
 }

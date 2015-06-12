@@ -35,12 +35,8 @@ public final class Tx3gParser implements SubtitleParser {
   public Subtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
       throws IOException {
     DataInputStream dataInputStream  = new DataInputStream(inputStream);
-    try {
-      String cueText = dataInputStream.readUTF();
-      return new Tx3gSubtitle(startTimeUs, new Cue(cueText));
-    } finally {
-      dataInputStream.close();
-    }
+    String cueText = dataInputStream.readUTF();
+    return new Tx3gSubtitle(startTimeUs, new Cue(cueText));
   }
 
   @Override

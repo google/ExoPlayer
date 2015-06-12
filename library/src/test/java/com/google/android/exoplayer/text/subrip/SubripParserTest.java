@@ -25,7 +25,7 @@ import java.io.InputStream;
 /**
  * Unit test for {@link SubripParser}.
  */
-public class SubripParserTest extends InstrumentationTestCase {
+public final class SubripParserTest extends InstrumentationTestCase {
 
   private static final String TYPICAL_SUBRIP_FILE = "subrip/typical";
   private static final String EMPTY_SUBRIP_FILE = "subrip/empty";
