@@ -153,6 +153,11 @@ public class DefaultHttpDataSource implements HttpDataSource {
   }
 
   @Override
+  public Map<String, List<String>> getResponseHeaders() {
+    return connection == null ? null : connection.getHeaderFields();
+  }
+
+  @Override
   public void setRequestProperty(String name, String value) {
     Assertions.checkNotNull(name);
     Assertions.checkNotNull(value);
