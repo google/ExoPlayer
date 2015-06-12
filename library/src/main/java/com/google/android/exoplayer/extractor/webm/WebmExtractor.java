@@ -168,6 +168,7 @@ public final class WebmExtractor implements Extractor {
   private int sampleCurrentNalBytesRemaining;
   private int sampleTrackNumber;
   private int sampleFlags;
+  private byte[] sampleEncryptionKeyId;
   private long sampleTimeUs;
   private boolean sampleRead;
   private boolean sampleSeenReferenceBlock;
@@ -608,6 +609,7 @@ public final class WebmExtractor implements Extractor {
           sampleFlags = (isKeyframe ? C.SAMPLE_FLAG_SYNC : 0)
               | (isInvisible ? C.SAMPLE_FLAG_DECODE_ONLY : 0)
               | (isEncrypted ? C.SAMPLE_FLAG_ENCRYPTED : 0);
+          sampleEncryptionKeyId = sampleTrackFormat.encryptionKeyId;
           sampleSize = contentSize - blockBytesRead;
           if (isEncrypted) {
             // Write the vector size.
@@ -682,7 +684,7 @@ public final class WebmExtractor implements Extractor {
   }
 
   private void outputSampleMetadata(TrackOutput trackOutput) {
-    trackOutput.sampleMetadata(sampleTimeUs, sampleFlags, sampleSize, 0, null);
+    trackOutput.sampleMetadata(sampleTimeUs, sampleFlags, sampleSize, 0, sampleEncryptionKeyId);
     sampleState = SAMPLE_STATE_START;
     sampleRead = true;
   }
