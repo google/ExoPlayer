@@ -99,7 +99,7 @@ import java.util.Locale;
         + "&ipbits=0&expire=19000000000&signature=A41D835C7387885A4A820628F57E481E00095931."
         + "9D50DBEEB5E37344647EE11BDA129A7FCDE8B7B9&key=ik0", PlayerActivity.TYPE_DASH),
     new Sample("WV: HDCP + secure video path required", "efd045b1eb61888a",
-        "http://www.youtube.com/api/manifest/dash/id/efd045b1eb61888a/source/youtube"
+        "http://www.youtube.com/api/manifest/dash/id/efd045b1eb61888a/source/youtube?"
         + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0"
         + "&ipbits=0&expire=19000000000&signature=A97C9032C9D0C74F1643DB17C178873887C229E4."
         + "0A657BF6F23C8BC1538F276137383478330B76DE&key=ik0", PlayerActivity.TYPE_DASH),
