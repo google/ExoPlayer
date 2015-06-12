@@ -20,6 +20,7 @@ import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.TextRenderer;
@@ -52,7 +53,7 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
   // The maximum duration that captions are parsed ahead of the current position.
   private static final int MAX_SAMPLE_READAHEAD_US = 5000000;
 
-  private final SampleSource source;
+  private final SampleSourceReader source;
   private final Eia608Parser eia608Parser;
   private final TextRenderer textRenderer;
   private final Handler textRendererHandler;
@@ -81,7 +82,7 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
    */
   public Eia608TrackRenderer(SampleSource source, TextRenderer textRenderer,
       Looper textRendererLooper) {
-    this.source = Assertions.checkNotNull(source);
+    this.source = source.register();
     this.textRenderer = Assertions.checkNotNull(textRenderer);
     textRendererHandler = textRendererLooper == null ? null : new Handler(textRendererLooper, this);
     eia608Parser = new Eia608Parser();

@@ -21,6 +21,7 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
@@ -39,7 +40,7 @@ import java.util.LinkedList;
 /**
  * A {@link SampleSource} for HLS streams.
  */
-public class HlsSampleSource implements SampleSource, Loader.Callback {
+public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader.Callback {
 
   /**
    * Interface definition for a callback to be notified of {@link HlsSampleSource} events.
@@ -91,34 +92,36 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   private long currentLoadStartTimeMs;
 
   public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, boolean frameAccurateSeeking, int downstreamRendererCount) {
-    this(chunkSource, loadControl, bufferSizeContribution, frameAccurateSeeking,
-        downstreamRendererCount, null, null, 0);
+      int bufferSizeContribution, boolean frameAccurateSeeking) {
+    this(chunkSource, loadControl, bufferSizeContribution, frameAccurateSeeking, null, null, 0);
   }
 
   public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, boolean frameAccurateSeeking, int downstreamRendererCount,
-      Handler eventHandler, EventListener eventListener, int eventSourceId) {
-    this(chunkSource, loadControl, bufferSizeContribution, frameAccurateSeeking,
-        downstreamRendererCount, eventHandler, eventListener, eventSourceId,
-        DEFAULT_MIN_LOADABLE_RETRY_COUNT);
+      int bufferSizeContribution, boolean frameAccurateSeeking, Handler eventHandler,
+      EventListener eventListener, int eventSourceId) {
+    this(chunkSource, loadControl, bufferSizeContribution, frameAccurateSeeking, eventHandler,
+        eventListener, eventSourceId, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
   }
 
   public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, boolean frameAccurateSeeking, int downstreamRendererCount,
-      Handler eventHandler, EventListener eventListener, int eventSourceId,
-      int minLoadableRetryCount) {
+      int bufferSizeContribution, boolean frameAccurateSeeking, Handler eventHandler,
+      EventListener eventListener, int eventSourceId, int minLoadableRetryCount) {
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
     this.bufferSizeContribution = bufferSizeContribution;
     this.frameAccurateSeeking = frameAccurateSeeking;
-    this.remainingReleaseCount = downstreamRendererCount;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
     this.pendingResetPositionUs = NO_RESET_PENDING;
     extractors = new LinkedList<>();
+  }
+
+  @Override
+  public SampleSourceReader register() {
+    remainingReleaseCount++;
+    return this;
   }
 
   @Override

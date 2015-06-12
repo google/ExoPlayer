@@ -570,7 +570,7 @@ public class Mp4ExtractorTest extends TestCase {
     @Override
     public void run() {
       final ExtractorSampleSource source = new ExtractorSampleSource(FAKE_URI, dataSource,
-          new Mp4Extractor(), 1, 2 * 1024 * 1024);
+          new Mp4Extractor(), 2 * 1024 * 1024);
       Looper.prepare();
       handler = new Handler() {
 

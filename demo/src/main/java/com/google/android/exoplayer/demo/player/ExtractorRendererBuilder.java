@@ -57,7 +57,7 @@ public class ExtractorRendererBuilder implements RendererBuilder {
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter(player.getMainHandler(),
         null);
     DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-    ExtractorSampleSource sampleSource = new ExtractorSampleSource(uri, dataSource, extractor, 2,
+    ExtractorSampleSource sampleSource = new ExtractorSampleSource(uri, dataSource, extractor,
         BUFFER_SIZE);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
         null, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, player.getMainHandler(),

@@ -108,7 +108,7 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
     HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter,
         variantIndices, HlsChunkSource.ADAPTIVE_MODE_SPLICE, audioCapabilities);
     HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, loadControl,
-        BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, 3, mainHandler, player, DemoPlayer.TYPE_VIDEO);
+        BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player, DemoPlayer.TYPE_VIDEO);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
         MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, mainHandler, player, 50);
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);

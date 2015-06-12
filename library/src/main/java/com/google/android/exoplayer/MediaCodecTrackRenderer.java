@@ -16,6 +16,7 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.Assertions;
@@ -182,7 +183,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
   private final DrmSessionManager drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
-  private final SampleSource source;
+  private final SampleSourceReader source;
   private final SampleHolder sampleHolder;
   private final MediaFormatHolder formatHolder;
   private final List<Long> decodeOnlyPresentationTimestamps;
@@ -229,7 +230,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   public MediaCodecTrackRenderer(SampleSource source, DrmSessionManager drmSessionManager,
       boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener) {
     Assertions.checkState(Util.SDK_INT >= 16);
-    this.source = source;
+    this.source = source.register();
     this.drmSessionManager = drmSessionManager;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
     this.eventHandler = eventHandler;

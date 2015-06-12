@@ -20,6 +20,7 @@ import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.ext.vp9.VpxDecoderWrapper.InputBuffer;
 import com.google.android.exoplayer.ext.vp9.VpxDecoderWrapper.OutputBuffer;
@@ -90,7 +91,7 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
   public static final int MSG_SET_SURFACE = 1;
   public static final int MSG_SET_VPX_SURFACE_VIEW = 2;
 
-  private final SampleSource source;
+  private final SampleSourceReader source;
   private final boolean scaleToFit;
   private final Handler eventHandler;
   private final EventListener eventListener;
@@ -141,7 +142,7 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
    */
   public LibvpxVideoTrackRenderer(SampleSource source, boolean scaleToFit,
       Handler eventHandler, EventListener eventListener, int maxDroppedFrameCountToNotify) {
-    this.source = source;
+    this.source = source.register();
     this.scaleToFit = scaleToFit;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;

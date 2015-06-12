@@ -19,6 +19,7 @@ import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.util.Assertions;
 
@@ -54,7 +55,7 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
 
   private static final int MSG_INVOKE_RENDERER = 0;
 
-  private final SampleSource source;
+  private final SampleSourceReader source;
   private final MetadataParser<T> metadataParser;
   private final MetadataRenderer<T> metadataRenderer;
   private final Handler metadataHandler;
@@ -80,7 +81,7 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
    */
   public MetadataTrackRenderer(SampleSource source, MetadataParser<T> metadataParser,
       MetadataRenderer<T> metadataRenderer, Looper metadataRendererLooper) {
-    this.source = Assertions.checkNotNull(source);
+    this.source = source.register();
     this.metadataParser = Assertions.checkNotNull(metadataParser);
     this.metadataRenderer = Assertions.checkNotNull(metadataRenderer);
     this.metadataHandler = metadataRendererLooper == null ? null

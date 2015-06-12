@@ -20,6 +20,7 @@ import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.ext.opus.OpusDecoderWrapper.InputBuffer;
@@ -74,7 +75,7 @@ public class LibopusAudioTrackRenderer extends TrackRenderer {
    */
   public static final int MSG_SET_VOLUME = 1;
 
-  private final SampleSource source;
+  private final SampleSourceReader source;
   private final Handler eventHandler;
   private final EventListener eventListener;
   private final MediaFormatHolder formatHolder;
@@ -109,7 +110,7 @@ public class LibopusAudioTrackRenderer extends TrackRenderer {
    */
   public LibopusAudioTrackRenderer(SampleSource source, Handler eventHandler,
       EventListener eventListener) {
-    this.source = source;
+    this.source = source.register();
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
