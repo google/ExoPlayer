@@ -246,7 +246,7 @@ import java.util.List;
     }
   }
 
-  private void prepareInternal(TrackRenderer[] renderers) {
+  private void prepareInternal(TrackRenderer[] renderers) throws ExoPlaybackException {
     resetInternal();
     this.renderers = renderers;
     for (int i = 0; i < renderers.length; i++) {
@@ -256,7 +256,7 @@ import java.util.List;
       }
     }
     setState(ExoPlayer.STATE_PREPARING);
-    handler.sendEmptyMessage(MSG_INCREMENTAL_PREPARE);
+    incrementalPrepareInternal();
   }
 
   private void incrementalPrepareInternal() throws ExoPlaybackException {
