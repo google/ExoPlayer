@@ -23,6 +23,7 @@ import com.google.android.exoplayer.upstream.UriLoadable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Pair;
 
 import java.io.IOException;
@@ -80,6 +81,20 @@ public class ManifestFetcher<T> implements Loader.Callback {
      * @param e The cause of the failure.
      */
     void onSingleManifestError(IOException e);
+
+  }
+
+  /**
+   * Interface for manifests that are able to specify that subsequent loads should use a different
+   * URL.
+   */
+  public interface RedirectingManifest {
+
+    /**
+     * Returns the URL from which subsequent manifests should be requested, or null to continue
+     * using the current URL.
+     */
+    public String getNextManifestUrl();
 
   }
 
@@ -236,6 +251,14 @@ public class ManifestFetcher<T> implements Loader.Callback {
     manifestLoadTimestamp = SystemClock.elapsedRealtime();
     loadExceptionCount = 0;
     loadException = null;
+
+    if (manifest instanceof RedirectingManifest) {
+      RedirectingManifest redirectingManifest = (RedirectingManifest) manifest;
+      String nextLocation = redirectingManifest.getNextManifestUrl();
+      if (!TextUtils.isEmpty(nextLocation)) {
+        manifestUrl = nextLocation;
+      }
+    }
 
     notifyManifestRefreshed();
   }

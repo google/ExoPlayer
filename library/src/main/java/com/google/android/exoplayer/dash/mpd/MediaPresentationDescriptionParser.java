@@ -123,20 +123,20 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       } else if (isStartTag(xpp, "Period")) {
         periods.add(parsePeriod(xpp, baseUrl, durationMs));
       } else if (isStartTag(xpp, "Location")) {
-          location = xpp.nextText();
+        location = xpp.nextText();
       }
     } while (!isEndTag(xpp, "MPD"));
 
     return buildMediaPresentationDescription(availabilityStartTime, durationMs, minBufferTimeMs,
-        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, utcTiming, periods, location);
+        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, utcTiming, location, periods);
   }
 
   protected MediaPresentationDescription buildMediaPresentationDescription(
       long availabilityStartTime, long durationMs, long minBufferTimeMs, boolean dynamic,
       long minUpdateTimeMs, long timeShiftBufferDepthMs, UtcTimingElement utcTiming,
-      List<Period> periods, String location) {
+      String location, List<Period> periods) {
     return new MediaPresentationDescription(availabilityStartTime, durationMs, minBufferTimeMs,
-        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, utcTiming, periods, location);
+        dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, utcTiming, location, periods);
   }
 
   protected UtcTimingElement parseUtcTiming(XmlPullParser xpp) {

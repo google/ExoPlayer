@@ -248,7 +248,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
     long duration = (live) ? TrackRenderer.UNKNOWN_TIME_US
         : firstRepresentation.periodDurationMs - firstRepresentation.periodStartMs;
     return new MediaPresentationDescription(AVAILABILITY_START_TIME, duration, -1, live, -1, -1,
-        null, Collections.singletonList(period));
+        null, null, Collections.singletonList(period));
   }
 
   private static MediaPresentationDescription generateVodMpd() {
