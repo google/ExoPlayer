@@ -646,6 +646,7 @@ public final class WebmExtractor implements Extractor {
               // Write a start code for the current NAL unit.
               nalStartCode.setPosition(0);
               trackOutput.sampleData(nalStartCode, 4);
+              sampleSize += nalUnitLengthFieldLengthDiff;
             } else {
               // Write the payload of the NAL unit.
               int writtenBytes = trackOutput.sampleData(input, sampleCurrentNalBytesRemaining);
