@@ -298,6 +298,10 @@ public class DashChunkSource implements ChunkSource {
 
     if (finishedCurrentManifest && (android.os.SystemClock.elapsedRealtime()
         > manifestFetcher.getManifestLoadTimestamp() + minUpdatePeriod)) {
+      String newManifestURL = currentManifest.location;
+      if (newManifestURL != null) {
+          manifestFetcher.updateManifestUrl(newManifestURL);
+      }
       manifestFetcher.requestRefresh();
     }
   }
@@ -589,7 +593,7 @@ public class DashChunkSource implements ChunkSource {
         firstRepresentation.periodDurationMs, Collections.singletonList(adaptationSet));
     long duration = firstRepresentation.periodDurationMs - firstRepresentation.periodStartMs;
     return new MediaPresentationDescription(-1, duration, -1, false, -1, -1, null,
-        Collections.singletonList(period));
+        Collections.singletonList(period), null);
   }
 
   private static class RepresentationHolder {
