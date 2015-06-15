@@ -58,7 +58,7 @@ public class MediaPresentationDescription implements RedirectingManifest {
   }
 
   @Override
-  public String getNextManifestUrl() {
+  public String getNextManifestUri() {
     return location;
   }
 
