@@ -202,11 +202,11 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     enabledTrackCount--;
     trackEnabledStates[track] = false;
     pendingDiscontinuities[track] = false;
-    if (loadControlRegistered) {
-      loadControl.unregister(this);
-      loadControlRegistered = false;
-    }
     if (enabledTrackCount == 0) {
+      if (loadControlRegistered) {
+        loadControl.unregister(this);
+        loadControlRegistered = false;
+      }
       if (loader.isLoading()) {
         loader.cancelLoading();
       } else {
