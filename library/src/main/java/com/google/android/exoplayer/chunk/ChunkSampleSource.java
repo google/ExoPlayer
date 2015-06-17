@@ -21,6 +21,7 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
@@ -40,7 +41,7 @@ import java.util.List;
  * A {@link SampleSource} that loads media in {@link Chunk}s, which are themselves obtained from a
  * {@link ChunkSource}.
  */
-public class ChunkSampleSource implements SampleSource, Loader.Callback {
+public class ChunkSampleSource implements SampleSource, SampleSourceReader, Loader.Callback {
 
   /**
    * Interface definition for a callback to be notified of {@link ChunkSampleSource} events.
@@ -52,9 +53,10 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
-  private static final int STATE_UNPREPARED = 0;
-  private static final int STATE_PREPARED = 1;
-  private static final int STATE_ENABLED = 2;
+  private static final int STATE_IDLE = 0;
+  private static final int STATE_INITIALIZED = 1;
+  private static final int STATE_PREPARED = 2;
+  private static final int STATE_ENABLED = 3;
 
   private static final int NO_RESET_PENDING = -1;
 
@@ -116,13 +118,23 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     mediaChunks = new LinkedList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
     sampleQueue = new DefaultTrackOutput(loadControl.getAllocator());
-    state = STATE_UNPREPARED;
+    state = STATE_IDLE;
     pendingResetPositionUs = NO_RESET_PENDING;
   }
 
   @Override
+  public SampleSourceReader register() {
+    Assertions.checkState(state == STATE_IDLE);
+    state = STATE_INITIALIZED;
+    return this;
+  }
+
+  @Override
   public boolean prepare(long positionUs) {
-    Assertions.checkState(state == STATE_UNPREPARED);
+    Assertions.checkState(state == STATE_INITIALIZED || state == STATE_PREPARED);
+    if (state == STATE_PREPARED) {
+      return true;
+    }
     loader = new Loader("Loader:" + chunkSource.getTrackInfo().mimeType);
     state = STATE_PREPARED;
     return true;
@@ -130,13 +142,13 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public int getTrackCount() {
-    Assertions.checkState(state != STATE_UNPREPARED);
+    Assertions.checkState(state == STATE_PREPARED || state == STATE_ENABLED);
     return 1;
   }
 
   @Override
   public TrackInfo getTrackInfo(int track) {
-    Assertions.checkState(state != STATE_UNPREPARED);
+    Assertions.checkState(state == STATE_PREPARED || state == STATE_ENABLED);
     Assertions.checkState(track == 0);
     return chunkSource.getTrackInfo();
   }
@@ -315,7 +327,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
       loader.release();
       loader = null;
     }
-    state = STATE_UNPREPARED;
+    state = STATE_IDLE;
   }
 
   @Override

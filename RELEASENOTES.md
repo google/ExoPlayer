@@ -7,6 +7,7 @@
 * Support for H.265 in MPEG-TS streams on supported devices.
 * Add option to TsExtractor to allow non-IDR keyframes.
 * Added MulticastDataSource for connecting to multicast streams.
+* DASH: Support Mpd.Location element.
 * (WorkInProgress) - First steps to supporting seeking in DASH DVR window.
 * (WorkInProgress) - First steps to supporting styled + positioned subtitles.
 * Misc bug fixes.

@@ -19,6 +19,7 @@ import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.util.Assertions;
 
@@ -44,7 +45,7 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
 
   private final Handler textRendererHandler;
   private final TextRenderer textRenderer;
-  private final SampleSource source;
+  private final SampleSourceReader source;
   private final MediaFormatHolder formatHolder;
   private final SubtitleParser[] subtitleParsers;
 
@@ -73,7 +74,7 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
    */
   public TextTrackRenderer(SampleSource source, TextRenderer textRenderer,
       Looper textRendererLooper, SubtitleParser... subtitleParsers) {
-    this.source = Assertions.checkNotNull(source);
+    this.source = source.register();
     this.textRenderer = Assertions.checkNotNull(textRenderer);
     this.textRendererHandler = textRendererLooper == null ? null
         : new Handler(textRendererLooper, this);

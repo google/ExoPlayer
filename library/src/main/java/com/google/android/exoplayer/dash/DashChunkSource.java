@@ -165,8 +165,8 @@ public class DashChunkSource implements ChunkSource {
    *     note that the value sets an upper bound on the length of media that the player can buffer.
    *     Hence a small value may increase the probability of rebuffering and playback failures.
    * @param elapsedRealtimeOffsetMs If known, an estimate of the instantaneous difference between
-   *    server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds, specified
-   *    as the server's unix time minus the local elapsed time. It unknown, set to 0.
+   *     server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds, specified
+   *     as the server's unix time minus the local elapsed time. It unknown, set to 0.
    */
   public DashChunkSource(ManifestFetcher<MediaPresentationDescription> manifestFetcher,
       int adaptationSetIndex, int[] representationIndices, DataSource dataSource,
@@ -491,23 +491,23 @@ public class DashChunkSource implements ChunkSource {
     DataSpec dataSpec = new DataSpec(segmentUri.getUri(), segmentUri.start, segmentUri.length,
         representation.getCacheKey());
 
-    long presentationTimeOffsetUs = representation.presentationTimeOffsetUs;
+    long sampleOffsetUs = -1 * representation.presentationTimeOffsetUs;
     if (representation.format.mimeType.equals(MimeTypes.TEXT_VTT)) {
-      if (representationHolder.vttHeaderOffsetUs != presentationTimeOffsetUs) {
+      if (representationHolder.vttHeaderOffsetUs != sampleOffsetUs) {
         // Update the VTT header.
         headerBuilder.setLength(0);
         headerBuilder.append(C.WEBVTT_EXO_HEADER).append("=")
-            .append(C.WEBVTT_EXO_HEADER_OFFSET).append(presentationTimeOffsetUs)
+            .append(C.WEBVTT_EXO_HEADER_OFFSET).append(sampleOffsetUs)
             .append("\n");
         representationHolder.vttHeader = headerBuilder.toString().getBytes();
-        representationHolder.vttHeaderOffsetUs = presentationTimeOffsetUs;
+        representationHolder.vttHeaderOffsetUs = sampleOffsetUs;
       }
       return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_INITIAL,
           representation.format, startTimeUs, endTimeUs, absoluteSegmentNum, isLastSegment,
           MediaFormat.createTextFormat(MimeTypes.TEXT_VTT), null, representationHolder.vttHeader);
     } else {
       return new ContainerMediaChunk(dataSource, dataSpec, trigger, representation.format,
-          startTimeUs, endTimeUs, absoluteSegmentNum, isLastSegment, 0,
+          startTimeUs, endTimeUs, absoluteSegmentNum, isLastSegment, sampleOffsetUs,
           representationHolder.extractorWrapper, representationHolder.format, drmInitData, true);
     }
   }
@@ -588,7 +588,7 @@ public class DashChunkSource implements ChunkSource {
     Period period = new Period(null, firstRepresentation.periodStartMs,
         firstRepresentation.periodDurationMs, Collections.singletonList(adaptationSet));
     long duration = firstRepresentation.periodDurationMs - firstRepresentation.periodStartMs;
-    return new MediaPresentationDescription(-1, duration, -1, false, -1, -1, null,
+    return new MediaPresentationDescription(-1, duration, -1, false, -1, -1, null, null,
         Collections.singletonList(period));
   }
 

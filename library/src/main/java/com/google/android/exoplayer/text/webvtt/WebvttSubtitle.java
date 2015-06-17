@@ -44,18 +44,17 @@ public class WebvttSubtitle implements Subtitle {
    */
   public WebvttSubtitle(List<WebvttCue> cues, long startTimeUs) {
     this.cues = cues;
-    numCues = cues.size();
     this.startTimeUs = startTimeUs;
 
-    this.cueTimesUs = new long[2 * numCues];
+    numCues = cues.size();
+    cueTimesUs = new long[2 * numCues];
     for (int cueIndex = 0; cueIndex < numCues; cueIndex++) {
       WebvttCue cue = cues.get(cueIndex);
       int arrayIndex = cueIndex * 2;
       cueTimesUs[arrayIndex] = cue.startTime;
       cueTimesUs[arrayIndex + 1] = cue.endTime;
     }
-
-    this.sortedCueTimesUs = Arrays.copyOf(cueTimesUs, cueTimesUs.length);
+    sortedCueTimesUs = Arrays.copyOf(cueTimesUs, cueTimesUs.length);
     Arrays.sort(sortedCueTimesUs);
   }
 

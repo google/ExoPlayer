@@ -20,6 +20,7 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.drm.DrmInitData;
@@ -40,7 +41,8 @@ import java.io.IOException;
 /**
  * A {@link SampleSource} that extracts sample data using an {@link Extractor}
  */
-public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loader.Callback {
+public class ExtractorSampleSource implements SampleSource, SampleSourceReader, ExtractorOutput,
+    Loader.Callback {
 
   /**
    * The default minimum number of times to retry loading prior to failing for on-demand streams.
@@ -102,32 +104,28 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
    * @param uri The {@link Uri} of the media stream.
    * @param dataSource A data source to read the media stream.
    * @param extractor An {@link Extractor} to extract the media stream.
-   * @param downstreamRendererCount Number of track renderers dependent on this sample source.
    * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
    *     The actual allocated size may exceed the value passed in if the implementation requires it.
    */
   public ExtractorSampleSource(Uri uri, DataSource dataSource, Extractor extractor,
-      int downstreamRendererCount, int requestedBufferSize) {
-    this(uri, dataSource, extractor, downstreamRendererCount, requestedBufferSize,
-        MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA);
+      int requestedBufferSize) {
+    this(uri, dataSource, extractor, requestedBufferSize, MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA);
   }
 
   /**
    * @param uri The {@link Uri} of the media stream.
    * @param dataSource A data source to read the media stream.
    * @param extractor An {@link Extractor} to extract the media stream.
-   * @param downstreamRendererCount Number of track renderers dependent on this sample source.
    * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
    *     The actual allocated size may exceed the value passed in if the implementation requires it.
    * @param minLoadableRetryCount The minimum number of times that the sample source will retry
    *     if a loading error occurs.
    */
   public ExtractorSampleSource(Uri uri, DataSource dataSource, Extractor extractor,
-      int downstreamRendererCount, int requestedBufferSize, int minLoadableRetryCount) {
+      int requestedBufferSize, int minLoadableRetryCount) {
     this.uri = uri;
     this.dataSource = dataSource;
     this.extractor = extractor;
-    this.remainingReleaseCount = downstreamRendererCount;
     this.requestedBufferSize = requestedBufferSize;
     this.minLoadableRetryCount = minLoadableRetryCount;
     sampleQueues = new SparseArray<>();
@@ -135,6 +133,12 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
     pendingResetPositionUs = NO_RESET_PENDING;
     frameAccurateSeeking = true;
     extractor.init(this);
+  }
+
+  @Override
+  public SampleSourceReader register() {
+    remainingReleaseCount++;
+    return this;
   }
 
   @Override
@@ -148,9 +152,6 @@ public class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loa
 
     continueBufferingInternal();
 
-    // TODO: Support non-seekable content? Or at least avoid getting stuck here if a seekMap doesn't
-    // arrive (we may end up filling the sample buffers whilst we're still not prepared, and then
-    // getting stuck).
     if (seekMap != null && tracksBuilt && haveFormatsForAllTracks()) {
       int trackCount = sampleQueues.size();
       trackEnabledStates = new boolean[trackCount];

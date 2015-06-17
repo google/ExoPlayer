@@ -145,4 +145,11 @@ public interface HttpDataSource extends UriDataSource {
    */
   void clearAllRequestProperties();
 
+  /**
+   * Gets the headers provided in the response.
+   *
+   * @return The response headers, or {@code null} if response headers are unavailable.
+   */
+  Map<String, List<String>> getResponseHeaders();
+
 }
