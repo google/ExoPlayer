@@ -37,6 +37,10 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
+import com.google.android.exoplayer.upstream.cache.Cache;
+import com.google.android.exoplayer.upstream.cache.CacheDataSource;
+import com.google.android.exoplayer.upstream.cache.LeastRecentlyUsedCacheEvictor;
+import com.google.android.exoplayer.upstream.cache.SimpleCache;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
 
@@ -44,6 +48,7 @@ import android.content.Context;
 import android.media.MediaCodec;
 import android.os.Handler;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -104,8 +109,11 @@ public class HlsRendererBuilder implements RendererBuilder, ManifestCallback<Hls
       }
     }
 
+    Cache cache = new SimpleCache(context.getCacheDir(), new LeastRecentlyUsedCacheEvictor(1024 * 1024 * 10));
+
     DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-    HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter,
+    CacheDataSource cacheDataSource = new CacheDataSource(cache, dataSource, false, false);
+    HlsChunkSource chunkSource = new HlsChunkSource(cacheDataSource, url, manifest, bandwidthMeter,
         variantIndices, HlsChunkSource.ADAPTIVE_MODE_SPLICE, audioCapabilities);
     HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, loadControl,
         BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, 3, mainHandler, player, DemoPlayer.TYPE_VIDEO);
