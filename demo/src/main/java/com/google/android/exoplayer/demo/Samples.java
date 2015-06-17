@@ -48,7 +48,9 @@ import java.util.Locale;
             new Sample("IFRAME TEST",
                     "https://us-west.lts2.seagate.com/lyvecamtest/HLS-example-streams/iframe_index2.m3u8", PlayerActivity.TYPE_HLS),
             new Sample("IFRAME TEST",
-                    "http://130.211.242.171/239955_back/video/1433828834chunklist.m3u8", PlayerActivity.TYPE_HLS),
+                    "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/iframe_index.m3u8", PlayerActivity.TYPE_HLS),
+            new Sample("Vevo Live",
+                    "http://vevoplaylist-live.hls.adaptive.level3.net/vevo/ch1/appleman.m3u8", PlayerActivity.TYPE_HLS),
             new Sample("Apple master playlist",
                     "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/"
                             + "bipbop_4x3_variant.m3u8", PlayerActivity.TYPE_HLS),
