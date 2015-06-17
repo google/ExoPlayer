@@ -32,6 +32,7 @@ import com.google.android.exoplayer.util.Assertions;
 
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -89,6 +90,8 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
   private int currentLoadableExceptionCount;
   private long currentLoadableExceptionTimestamp;
   private long currentLoadStartTimeMs;
+
+  int counter = 0;
 
   public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
       int bufferSizeContribution, boolean frameAccurateSeeking, int downstreamRendererCount) {
@@ -260,6 +263,8 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       return NOTHING_READ;
     }
 
+    //Log.d("Extractor", "Read");
+
     HlsExtractorWrapper extractor = getCurrentExtractor();
 
     if (downstreamFormat == null || !downstreamFormat.equals(extractor.format)) {
@@ -294,7 +299,13 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
       return FORMAT_READ;
     }
 
-    if (extractor.getSample(track, sampleHolder)) {
+    if(sampleHolder.isSyncFrame()){
+      counter = 0;
+    } else {
+      counter++;
+    }
+
+    if (extractor.getSample(track, sampleHolder) && (sampleHolder.isSyncFrame())) {
       boolean decodeOnly = frameAccurateSeeking && sampleHolder.timeUs < lastSeekPositionUs;
       sampleHolder.flags |= decodeOnly ? C.SAMPLE_FLAG_DECODE_ONLY : 0;
       return SAMPLE_READ;
@@ -368,9 +379,6 @@ public class HlsSampleSource implements SampleSource, Loader.Callback {
     }
     if (enabledTrackCount > 0 || !prepared) {
       maybeStartLoading();
-    } else {
-      clearState();
-      loadControl.trimAllocator();
     }
   }
 

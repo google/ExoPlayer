@@ -156,7 +156,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected boolean isTimeSource() {
-    return !iframe;
+    return false;//!iframe;
   }
 
   @Override

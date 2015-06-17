@@ -260,7 +260,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected boolean isTimeSource() {
-    return iframe;
+    return true;//iframe;
   }
 
   @Override
@@ -439,15 +439,32 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     }
 
     //Log.d("BP", Long.toString(bufferInfo.presentationTimeUs));
+//    if (earlyUs < -30000 && !iframe) {
+//      // We're more than 30ms late rendering the frame.
+//      dropOutputBuffer(codec, bufferIndex);
+//      return true;
+//    }
 
-    if (earlyUs < -30000 && !iframe) {
-      // We're more than 30ms late rendering the frame.
-      dropOutputBuffer(codec, bufferIndex);
-      return true;
-    }
+    //Log.d("Render", Long.toString(earlyUs));
 
-    if (!renderedFirstFrame || iframe) {
-      renderOutputBufferImmediate(codec, bufferIndex);
+    if (!renderedFirstFrame || iframe || true) {
+        if(iframe){
+          if(earlyUs < 1000000){
+            renderOutputBufferImmediate(codec, bufferIndex);
+            return true;
+          } else {
+            try {
+              // Subtracting 10000 rather than 11000 ensures the sleep time will be at least 1ms.
+              Thread.sleep(200);
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+            }
+            renderOutputBufferImmediate(codec, bufferIndex);
+            return true;
+          }
+        } else {
+          renderOutputBufferImmediate(codec, bufferIndex);
+        }
       return true;
     }
 
