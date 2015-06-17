@@ -192,12 +192,9 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         expectingStreamInfUrl = true;
       } else if(line.startsWith(IFRAME_STREAM_INF_TAG)){
         //TODO: Handle iframes
-        Log.d("IFRAME", "FOUND IFRAME");
         String uri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX, URI_ATTR);
         int bandwidth = HlsParserUtil.parseIntAttr(line, BANDWIDTH_ATTR_REGEX, BANDWIDTH_ATTR);
-
         variants.get(variants.size()-1).iframe = new IFrame(uri, bandwidth);
-
       } else if (!line.startsWith("#") && expectingStreamInfUrl) {
         variants.add(new Variant(variants.size(), line, bitrate, codecs, width, height));
         bitrate = 0;
