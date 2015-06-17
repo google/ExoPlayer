@@ -240,6 +240,11 @@ public class HlsChunkSource {
     return this.iframe;
   }
 
+  public String getChunkKey(String uri, long offset, long length){
+    String key_data = (uri + Long.toString(offset) + Long.toString(length));
+    return Util.getHexStringFromBytes(key_data.getBytes(), 0, key_data.length());
+  }
+
   /**
    * Returns the next {@link Chunk} that should be loaded.
    *
@@ -323,8 +328,7 @@ public class HlsChunkSource {
     }
 
     // Configure the data source and spec for the chunk.
-    DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength,
-        null);
+    DataSpec dataSpec = new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength, getChunkKey(chunkUri.toString(), segment.byterangeOffset, segment.byterangeLength));
 
     // Compute start and end times, and the sequence number of the next chunk.
     long startTimeUs;
