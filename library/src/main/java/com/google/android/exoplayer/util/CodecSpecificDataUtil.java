@@ -71,14 +71,16 @@ public final class CodecSpecificDataUtil {
               ((audioSpecificConfig[byteOffset + 1] >> 7) & 0x1);
       Assertions.checkState(frequencyIndex < 13);
       int sampleRate = AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE[frequencyIndex];
-      int channelCount = (audioSpecificConfig[byteOffset + 1] >> 3) & 0xF;
+      int channelCount = AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE[
+              (audioSpecificConfig[byteOffset + 1] >> 3) & 0xF];
       return Pair.create(sampleRate, channelCount);
     } else {
       int frequencyIndex = (audioSpecificConfig[1] & 0x1E) >> 1;
       Assertions.checkState(frequencyIndex < 13);
       int sampleRate = AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE[frequencyIndex];
-      int channelCount = (audioSpecificConfig[1] & 0x01) << 2 |
-              ((audioSpecificConfig[2] >> 6) & 0x03);
+      int channelCount = AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE[
+              (audioSpecificConfig[1] & 0x01) << 3 |
+              ((audioSpecificConfig[2] >> 5) & 0x07)];
       return Pair.create(sampleRate, channelCount);
     }
   }
@@ -88,11 +90,17 @@ public final class CodecSpecificDataUtil {
    *
    * @param audioObjectType The audio object type.
    * @param sampleRateIndex The sample rate index.
-   * @param channelConfig The channel configuration.
+   * @param numChannels The channel configuration.
    * @return The AudioSpecificConfig.
    */
   public static byte[] buildAudioSpecificConfig(int audioObjectType, int sampleRateIndex,
-      int channelConfig) {
+      int numChannels) {
+    int channelConfig = -1;
+    for (int i = 0; i < AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE.length; ++i) {
+      if (numChannels == AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE[i]) {
+        channelConfig = i;
+      }
+    }
     if (audioObjectType < 31) {
       byte[] audioSpecificConfig = new byte[2];
       audioSpecificConfig[0] = (byte) ((audioObjectType << 3) & 0xF8 |
@@ -108,8 +116,8 @@ public final class CodecSpecificDataUtil {
                                        (audioObjectTypeExt >> 3) & 0x07);
       audioSpecificConfig[1] = (byte) ((audioObjectTypeExt << 5) & 0xE0 |
                                        (sampleRateIndex    << 1) & 0x1E |
-                                       (channelConfig      >> 2) & 0x01);
-      audioSpecificConfig[2] = (byte) ((channelConfig << 6) & 0xC0);
+                                       (channelConfig      >> 3) & 0x01);
+      audioSpecificConfig[2] = (byte) ((channelConfig << 5) & 0xE0);
       return audioSpecificConfig;
     }
   }
