@@ -77,15 +77,15 @@ public class TtmlParser implements SubtitleParser {
   private final boolean strictParsing;
 
   /**
-   * Equivalent to {@code TtmlParser(true)}.
+   * Equivalent to {@code TtmlParser(false)}.
    */
   public TtmlParser() {
-    this(true);
+    this(false);
   }
 
   /**
    * @param strictParsing If true, {@link #parse(InputStream, String, long)} will throw a
-   *     {@link ParserException} if the stream contains invalid ttml. If false, the parser will
+   *     {@link ParserException} if the stream contains invalid data. If false, the parser will
    *     make a best effort to ignore minor errors in the stream. Note however that a
    *     {@link ParserException} will still be thrown when this is not possible.
    */

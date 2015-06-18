@@ -68,13 +68,21 @@ public class WebvttParser implements SubtitleParser {
 
   private final boolean strictParsing;
 
+  /**
+   * Equivalent to {@code WebvttParser(false)}.
+   */
   public WebvttParser() {
-    this(true);
+    this(false);
   }
 
+  /**
+   * @param strictParsing If true, {@link #parse(InputStream, String, long)} will throw a
+   *     {@link ParserException} if the stream contains invalid data. If false, the parser will
+   *     make a best effort to ignore minor errors in the stream. Note however that a
+   *     {@link ParserException} will still be thrown when this is not possible.
+   */
   public WebvttParser(boolean strictParsing) {
     this.strictParsing = strictParsing;
-
     textBuilder = new StringBuilder();
   }
 
