@@ -63,7 +63,6 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
   private final SampleHolder sampleHolder;
 
   private int trackIndex;
-  private long currentPositionUs;
   private boolean inputStreamEnded;
 
   private long pendingMetadataTimestamp;
@@ -112,17 +111,16 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
   @Override
   protected void onEnabled(long positionUs, boolean joining) {
     source.enable(trackIndex, positionUs);
-    seekToInternal(positionUs);
+    seekToInternal();
   }
 
   @Override
   protected void seekTo(long positionUs) throws ExoPlaybackException {
     source.seekToUs(positionUs);
-    seekToInternal(positionUs);
+    seekToInternal();
   }
 
-  private void seekToInternal(long positionUs) {
-    currentPositionUs = positionUs;
+  private void seekToInternal() {
     pendingMetadata = null;
     inputStreamEnded = false;
   }
@@ -130,7 +128,6 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
   @Override
   protected void doSomeWork(long positionUs, long elapsedRealtimeUs)
       throws ExoPlaybackException {
-    currentPositionUs = positionUs;
     try {
       source.continueBuffering(positionUs);
     } catch (IOException e) {
@@ -152,7 +149,7 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
       }
     }
 
-    if (pendingMetadata != null && pendingMetadataTimestamp <= currentPositionUs) {
+    if (pendingMetadata != null && pendingMetadataTimestamp <= positionUs) {
       invokeRenderer(pendingMetadata);
       pendingMetadata = null;
     }
@@ -167,11 +164,6 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
   @Override
   protected long getDurationUs() {
     return source.getTrackInfo(trackIndex).durationUs;
-  }
-
-  @Override
-  protected long getCurrentPositionUs() {
-    return currentPositionUs;
   }
 
   @Override

@@ -59,9 +59,4 @@ public class DummyTrackRenderer extends TrackRenderer {
     throw new IllegalStateException();
   }
 
-  @Override
-  protected long getCurrentPositionUs() {
-    throw new IllegalStateException();
-  }
-
 }

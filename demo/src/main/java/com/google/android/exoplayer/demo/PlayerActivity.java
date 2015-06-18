@@ -268,6 +268,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
         return new ExtractorRendererBuilder(this, userAgent, contentUri,
             new FragmentedMp4Extractor());
       case TYPE_WEBM:
+      case TYPE_MKV:
         return new ExtractorRendererBuilder(this, userAgent, contentUri, new WebmExtractor());
       default:
         throw new IllegalStateException("Unsupported type: " + contentType);
@@ -377,7 +378,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   }
 
   private boolean haveTracks(int type) {
-    return player != null && player.getTracks(type) != null;
+    return player != null && player.getTrackCount(type) > 0;
   }
 
   public void showVideoPopup(View v) {
@@ -440,8 +441,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (player == null) {
       return;
     }
-    String[] tracks = player.getTracks(trackType);
-    if (tracks == null) {
+    int trackCount = player.getTrackCount(trackType);
+    if (trackCount == 0) {
       return;
     }
     popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
@@ -455,11 +456,11 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     Menu menu = popup.getMenu();
     // ID_OFFSET ensures we avoid clashing with Menu.NONE (which equals 0)
     menu.add(MENU_GROUP_TRACKS, DemoPlayer.DISABLED_TRACK + ID_OFFSET, Menu.NONE, R.string.off);
-    if (tracks.length == 1 && TextUtils.isEmpty(tracks[0])) {
+    if (trackCount == 1 && TextUtils.isEmpty(player.getTrackName(trackType, 0))) {
       menu.add(MENU_GROUP_TRACKS, DemoPlayer.PRIMARY_TRACK + ID_OFFSET, Menu.NONE, R.string.on);
     } else {
-      for (int i = 0; i < tracks.length; i++) {
-        menu.add(MENU_GROUP_TRACKS, i + ID_OFFSET, Menu.NONE, tracks[i]);
+      for (int i = 0; i < trackCount; i++) {
+        menu.add(MENU_GROUP_TRACKS, i + ID_OFFSET, Menu.NONE, player.getTrackName(trackType, i));
       }
     }
     menu.setGroupCheckable(MENU_GROUP_TRACKS, true, true);

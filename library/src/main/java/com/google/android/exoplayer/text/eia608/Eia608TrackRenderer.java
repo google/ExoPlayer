@@ -63,7 +63,6 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
   private final TreeSet<ClosedCaptionList> pendingCaptionLists;
 
   private int trackIndex;
-  private long currentPositionUs;
   private boolean inputStreamEnded;
 
   private int captionMode;
@@ -114,17 +113,16 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
   @Override
   protected void onEnabled(long positionUs, boolean joining) {
     source.enable(trackIndex, positionUs);
-    seekToInternal(positionUs);
+    seekToInternal();
   }
 
   @Override
   protected void seekTo(long positionUs) throws ExoPlaybackException {
     source.seekToUs(positionUs);
-    seekToInternal(positionUs);
+    seekToInternal();
   }
 
-  private void seekToInternal(long positionUs) {
-    currentPositionUs = positionUs;
+  private void seekToInternal() {
     inputStreamEnded = false;
     pendingCaptionLists.clear();
     clearPendingSample();
@@ -134,9 +132,7 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
   }
 
   @Override
-  protected void doSomeWork(long positionUs, long elapsedRealtimeUs)
-      throws ExoPlaybackException {
-    currentPositionUs = positionUs;
+  protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     try {
       source.continueBuffering(positionUs);
     } catch (IOException e) {
@@ -144,7 +140,7 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
     }
 
     if (isSamplePending()) {
-      maybeParsePendingSample();
+      maybeParsePendingSample(positionUs);
     }
 
     int result = inputStreamEnded ? SampleSource.END_OF_STREAM : SampleSource.SAMPLE_READ;
@@ -152,7 +148,7 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
       try {
         result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
         if (result == SampleSource.SAMPLE_READ) {
-          maybeParsePendingSample();
+          maybeParsePendingSample(positionUs);
         } else if (result == SampleSource.END_OF_STREAM) {
           inputStreamEnded = true;
         }
@@ -162,7 +158,7 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
     }
 
     while (!pendingCaptionLists.isEmpty()) {
-      if (pendingCaptionLists.first().timeUs > currentPositionUs) {
+      if (pendingCaptionLists.first().timeUs > positionUs) {
         // We're too early to render any of the pending caption lists.
         return;
       }
@@ -184,11 +180,6 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
   @Override
   protected long getDurationUs() {
     return source.getTrackInfo(trackIndex).durationUs;
-  }
-
-  @Override
-  protected long getCurrentPositionUs() {
-    return currentPositionUs;
   }
 
   @Override
@@ -238,8 +229,8 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
     }
   }
 
-  private void maybeParsePendingSample() {
-    if (sampleHolder.timeUs > currentPositionUs + MAX_SAMPLE_READAHEAD_US) {
+  private void maybeParsePendingSample(long positionUs) {
+    if (sampleHolder.timeUs > positionUs + MAX_SAMPLE_READAHEAD_US) {
       // We're too early to parse the sample.
       return;
     }

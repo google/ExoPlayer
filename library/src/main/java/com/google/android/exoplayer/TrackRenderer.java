@@ -81,18 +81,15 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   private int state;
 
   /**
-   * A time source renderer is a renderer that, when started, advances its own playback position.
-   * This means that {@link #getCurrentPositionUs()} will return increasing positions independently
-   * to increasing values being passed to {@link #doSomeWork(long, long)}. A player may have at most
-   * one time source renderer. If provided, the player will use such a renderer as its source of
-   * time during playback.
-   * <p>
-   * This method may be called when the renderer is in any state.
+   * If the renderer advances its own playback position then this method returns a corresponding
+   * {@link MediaClock}. If provided, the player will use the returned {@link MediaClock} as its
+   * source of time during playback. A player may have at most one renderer that returns a
+   * {@link MediaClock} from this method.
    *
-   * @return True if the renderer should be considered a time source. False otherwise.
+   * @return The {@link MediaClock} tracking the playback position of the renderer, or null.
    */
-  protected boolean isTimeSource() {
-    return false;
+  protected MediaClock getMediaClock() {
+    return null;
   }
 
   /**
@@ -311,16 +308,6 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    *     or {@link #UNKNOWN_TIME_US} if the duration is not known.
    */
   protected abstract long getDurationUs();
-
-  /**
-   * Returns the current playback position.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}
-   *
-   * @return The current playback position in microseconds.
-   */
-  protected abstract long getCurrentPositionUs();
 
   /**
    * Returns an estimate of the absolute position in microseconds up to which data is buffered.

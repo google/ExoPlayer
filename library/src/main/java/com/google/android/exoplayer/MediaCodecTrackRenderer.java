@@ -212,7 +212,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
   private boolean waitingForFirstSyncFrame;
-  private long currentPositionUs;
 
   /**
    * @param source The upstream source from which the renderer obtains samples.
@@ -283,11 +282,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   @Override
   protected void onEnabled(long positionUs, boolean joining) {
     source.enable(trackIndex, positionUs);
-    sourceState = SOURCE_STATE_NOT_READY;
-    inputStreamEnded = false;
-    outputStreamEnded = false;
-    waitingForKeys = false;
-    currentPositionUs = positionUs;
+    seekToInternal();
   }
 
   /**
@@ -458,26 +453,22 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected long getCurrentPositionUs() {
-    return currentPositionUs;
-  }
-
-  @Override
   protected long getDurationUs() {
     return source.getTrackInfo(trackIndex).durationUs;
   }
 
   @Override
   protected long getBufferedPositionUs() {
-    long sourceBufferedPosition = source.getBufferedPositionUs();
-    return sourceBufferedPosition == UNKNOWN_TIME_US || sourceBufferedPosition == END_OF_TRACK_US
-        ? sourceBufferedPosition : Math.max(sourceBufferedPosition, getCurrentPositionUs());
+    return source.getBufferedPositionUs();
   }
 
   @Override
   protected void seekTo(long positionUs) throws ExoPlaybackException {
-    currentPositionUs = positionUs;
     source.seekToUs(positionUs);
+    seekToInternal();
+  }
+
+  private void seekToInternal() {
     sourceState = SOURCE_STATE_NOT_READY;
     inputStreamEnded = false;
     outputStreamEnded = false;
@@ -499,9 +490,9 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       sourceState = source.continueBuffering(positionUs)
           ? (sourceState == SOURCE_STATE_NOT_READY ? SOURCE_STATE_READY : sourceState)
           : SOURCE_STATE_NOT_READY;
-      checkForDiscontinuity();
+      checkForDiscontinuity(positionUs);
       if (format == null) {
-        readFormat();
+        readFormat(positionUs);
       }
       if (codec == null && shouldInitCodec()) {
         maybeInitCodec();
@@ -509,8 +500,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       if (codec != null) {
         TraceUtil.beginSection("drainAndFeed");
         while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
-        if (feedInputBuffer(true)) {
-          while (feedInputBuffer(false)) {}
+        if (feedInputBuffer(positionUs, true)) {
+          while (feedInputBuffer(positionUs, false)) {}
         }
         TraceUtil.endSection();
       }
@@ -520,18 +511,18 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
   }
 
-  private void readFormat() throws IOException, ExoPlaybackException {
-    int result = source.readData(trackIndex, currentPositionUs, formatHolder, sampleHolder, false);
+  private void readFormat(long positionUs) throws IOException, ExoPlaybackException {
+    int result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
     if (result == SampleSource.FORMAT_READ) {
       onInputFormatChanged(formatHolder);
     }
   }
 
-  private void checkForDiscontinuity() throws IOException, ExoPlaybackException {
+  private void checkForDiscontinuity(long positionUs) throws IOException, ExoPlaybackException {
     if (codec == null) {
       return;
     }
-    int result = source.readData(trackIndex, currentPositionUs, formatHolder, sampleHolder, true);
+    int result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, true);
     if (result == SampleSource.DISCONTINUITY_READ) {
       flushCodec();
     }
@@ -561,13 +552,16 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   /**
+   * @param positionUs The current media time in microseconds, measured at the start of the
+   *     current iteration of the rendering loop.
    * @param firstFeed True if this is the first call to this method from the current invocation of
    *     {@link #doSomeWork(long, long)}. False otherwise.
    * @return True if it may be possible to feed more input data. False otherwise.
    * @throws IOException If an error occurs reading data from the upstream source.
    * @throws ExoPlaybackException If an error occurs feeding the input buffer.
    */
-  private boolean feedInputBuffer(boolean firstFeed) throws IOException, ExoPlaybackException {
+  private boolean feedInputBuffer(long positionUs, boolean firstFeed)
+      throws IOException, ExoPlaybackException {
     if (inputStreamEnded
         || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
       // The input stream has ended, or we need to re-initialize the codec but are still waiting
@@ -607,7 +601,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         }
         codecReconfigurationState = RECONFIGURATION_STATE_QUEUE_PENDING;
       }
-      result = source.readData(trackIndex, currentPositionUs, formatHolder, sampleHolder, false);
+      result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
       if (firstFeed && sourceState == SOURCE_STATE_READY && result == SampleSource.NOTHING_READ) {
         sourceState = SOURCE_STATE_READY_READ_MAY_FAIL;
       }
@@ -857,8 +851,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         outputBufferInfo, outputIndex, decodeOnlyIndex != -1)) {
       if (decodeOnlyIndex != -1) {
         decodeOnlyPresentationTimestamps.remove(decodeOnlyIndex);
-      } else {
-        currentPositionUs = outputBufferInfo.presentationTimeUs;
       }
       outputIndex = -1;
       return true;

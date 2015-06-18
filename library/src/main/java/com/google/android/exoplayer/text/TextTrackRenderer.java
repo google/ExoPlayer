@@ -52,7 +52,6 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   private int parserIndex;
   private int trackIndex;
 
-  private long currentPositionUs;
   private boolean inputStreamEnded;
 
   private Subtitle subtitle;
@@ -110,18 +109,17 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
     parserThread = new HandlerThread("textParser");
     parserThread.start();
     parserHelper = new SubtitleParserHelper(parserThread.getLooper(), subtitleParsers[parserIndex]);
-    seekToInternal(positionUs);
+    seekToInternal();
   }
 
   @Override
   protected void seekTo(long positionUs) {
     source.seekToUs(positionUs);
-    seekToInternal(positionUs);
+    seekToInternal();
   }
 
-  private void seekToInternal(long positionUs) {
+  private void seekToInternal() {
     inputStreamEnded = false;
-    currentPositionUs = positionUs;
     subtitle = null;
     nextSubtitle = null;
     parserHelper.flush();
@@ -130,7 +128,6 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
 
   @Override
   protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
-    currentPositionUs = positionUs;
     try {
       source.continueBuffering(positionUs);
     } catch (IOException e) {
@@ -203,11 +200,6 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   @Override
   protected void onReleased() {
     source.release();
-  }
-
-  @Override
-  protected long getCurrentPositionUs() {
-    return currentPositionUs;
   }
 
   @Override

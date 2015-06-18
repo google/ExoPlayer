@@ -111,7 +111,6 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
   private boolean outputRgb;
 
   private int trackIndex;
-  private long currentPositionUs;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private boolean sourceIsReady;
@@ -181,9 +180,9 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
     }
     try {
       sourceIsReady = source.continueBuffering(positionUs);
-      checkForDiscontinuity();
+      checkForDiscontinuity(positionUs);
       if (format == null) {
-        readFormat();
+        readFormat(positionUs);
       } else {
         // TODO: Add support for dynamic switching between one type of surface to another.
         // Create the decoder.
@@ -194,7 +193,7 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
         processOutputBuffer(positionUs, elapsedRealtimeUs);
 
         // Queue input buffers.
-        while (feedInputBuffer()) {}
+        while (feedInputBuffer(positionUs)) {}
       }
     } catch (VpxDecoderException e) {
       notifyDecoderError(e);
@@ -226,7 +225,7 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
     long elapsedSinceStartOfLoop = SystemClock.elapsedRealtime() * 1000 - elapsedRealtimeUs;
     long timeToRenderUs = outputBuffer.timestampUs - positionUs - elapsedSinceStartOfLoop;
 
-    if (timeToRenderUs < -30000 || outputBuffer.timestampUs < currentPositionUs) {
+    if (timeToRenderUs < -30000 || outputBuffer.timestampUs < positionUs) {
       // Drop frame if we are too late.
       droppedFrameCount++;
       if (droppedFrameCount == maxDroppedFrameCountToNotify) {
@@ -276,7 +275,6 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
   }
 
   private void releaseOutputBuffer() throws VpxDecoderException {
-    currentPositionUs = outputBuffer.timestampUs;
     decoder.releaseOutputBuffer(outputBuffer);
     outputBuffer = null;
   }
@@ -296,7 +294,7 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
     surface.unlockCanvasAndPost(canvas);
   }
 
-  private boolean feedInputBuffer() throws IOException, VpxDecoderException {
+  private boolean feedInputBuffer(long positionUs) throws IOException, VpxDecoderException {
     if (inputStreamEnded) {
       return false;
     }
@@ -308,8 +306,8 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
       }
     }
 
-    int result = source.readData(trackIndex, currentPositionUs, formatHolder,
-        inputBuffer.sampleHolder, false);
+    int result = source.readData(trackIndex, positionUs, formatHolder, inputBuffer.sampleHolder,
+        false);
     if (result == SampleSource.NOTHING_READ) {
       return false;
     }
@@ -336,11 +334,11 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
     return true;
   }
 
-  private void checkForDiscontinuity() throws IOException {
+  private void checkForDiscontinuity(long positionUs) throws IOException {
     if (decoder == null) {
       return;
     }
-    int result = source.readData(trackIndex, currentPositionUs, formatHolder, null, true);
+    int result = source.readData(trackIndex, positionUs, formatHolder, null, true);
     if (result == SampleSource.DISCONTINUITY_READ) {
       flushDecoder();
     }
@@ -368,35 +366,27 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected long getCurrentPositionUs() {
-    return currentPositionUs;
-  }
-
-  @Override
   protected long getBufferedPositionUs() {
-    long sourceBufferedPosition = source.getBufferedPositionUs();
-    return sourceBufferedPosition == UNKNOWN_TIME_US || sourceBufferedPosition == END_OF_TRACK_US
-        ? sourceBufferedPosition : Math.max(sourceBufferedPosition, getCurrentPositionUs());
+    return source.getBufferedPositionUs();
   }
 
   @Override
   protected void seekTo(long positionUs) throws ExoPlaybackException {
-    currentPositionUs = positionUs;
     source.seekToUs(positionUs);
-    inputStreamEnded = false;
-    outputStreamEnded = false;
-    renderedFirstFrame = false;
-    sourceIsReady = false;
+    seekToInternal();
   }
 
   @Override
   protected void onEnabled(long positionUs, boolean joining) {
     source.enable(trackIndex, positionUs);
+    seekToInternal();
+  }
+
+  private void seekToInternal() {
     sourceIsReady = false;
     inputStreamEnded = false;
     outputStreamEnded = false;
     renderedFirstFrame = false;
-    currentPositionUs = positionUs;
   }
 
   @Override
@@ -427,8 +417,8 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
     source.disable(trackIndex);
   }
 
-  private void readFormat() throws IOException {
-    int result = source.readData(trackIndex, currentPositionUs, formatHolder, null, false);
+  private void readFormat(long positionUs) throws IOException {
+    int result = source.readData(trackIndex, positionUs, formatHolder, null, false);
     if (result == SampleSource.FORMAT_READ) {
       format = formatHolder.format;
     }

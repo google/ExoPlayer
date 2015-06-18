@@ -263,8 +263,12 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     pushSurface(true);
   }
 
-  public String[] getTracks(int type) {
-    return trackNames == null ? null : trackNames[type];
+  public int getTrackCount(int type) {
+    return !player.getRendererHasMedia(type) ? 0 : trackNames[type].length;
+  }
+
+  public String getTrackName(int type, int index) {
+    return trackNames[type][index];
   }
 
   public int getSelectedTrackIndex(int type) {
@@ -323,15 +327,16 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     if (multiTrackSources == null) {
       multiTrackSources = new MultiTrackChunkSource[RENDERER_COUNT];
     }
-    for (int i = 0; i < RENDERER_COUNT; i++) {
-      if (renderers[i] == null) {
+    for (int rendererIndex = 0; rendererIndex < RENDERER_COUNT; rendererIndex++) {
+      if (renderers[rendererIndex] == null) {
         // Convert a null renderer to a dummy renderer.
-        renderers[i] = new DummyTrackRenderer();
-      } else if (trackNames[i] == null) {
-        // We have a renderer so we must have at least one track, but the names are unknown.
-        // Initialize the correct number of null track names.
-        int trackCount = multiTrackSources[i] == null ? 1 : multiTrackSources[i].getTrackCount();
-        trackNames[i] = new String[trackCount];
+        renderers[rendererIndex] = new DummyTrackRenderer();
+      }
+      if (trackNames[rendererIndex] == null) {
+        // Convert a null trackNames to an array of suitable length.
+        int trackCount = multiTrackSources[rendererIndex] != null
+            ? multiTrackSources[rendererIndex].getTrackCount() : 1;
+        trackNames[rendererIndex] = new String[trackCount];
       }
     }
     // Complete preparation.

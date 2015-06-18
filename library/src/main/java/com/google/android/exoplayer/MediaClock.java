@@ -15,65 +15,14 @@
  */
 package com.google.android.exoplayer;
 
-import android.os.SystemClock;
-
 /**
- * A simple clock for tracking the progression of media time. The clock can be started, stopped and
- * its time can be set and retrieved. When started, this clock is based on
- * {@link SystemClock#elapsedRealtime()}.
+ * Tracks the progression of media time.
  */
-/* package */ class MediaClock {
-
-  private boolean started;
+public interface MediaClock {
 
   /**
-   * The media time when the clock was last set or stopped.
+   * @return The current media position in microseconds.
    */
-  private long positionUs;
-
-  /**
-   * The difference between {@link SystemClock#elapsedRealtime()} and {@link #positionUs}
-   * when the clock was last set or started.
-   */
-  private long deltaUs;
-
-  /**
-   * Starts the clock. Does nothing if the clock is already started.
-   */
-  public void start() {
-    if (!started) {
-      started = true;
-      deltaUs = elapsedRealtimeMinus(positionUs);
-    }
-  }
-
-  /**
-   * Stops the clock. Does nothing if the clock is already stopped.
-   */
-  public void stop() {
-    if (started) {
-      positionUs = elapsedRealtimeMinus(deltaUs);
-      started = false;
-    }
-  }
-
-  /**
-   * @param timeUs The position to set in microseconds.
-   */
-  public void setPositionUs(long timeUs) {
-    this.positionUs = timeUs;
-    deltaUs = elapsedRealtimeMinus(timeUs);
-  }
-
-  /**
-   * @return The current position in microseconds.
-   */
-  public long getPositionUs() {
-    return started ? elapsedRealtimeMinus(deltaUs) : positionUs;
-  }
-
-  private long elapsedRealtimeMinus(long toSubtractUs) {
-    return SystemClock.elapsedRealtime() * 1000 - toSubtractUs;
-  }
+  long getPositionUs();
 
 }

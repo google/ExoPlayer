@@ -17,6 +17,7 @@ package com.google.android.exoplayer.ext.opus;
 
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
+import com.google.android.exoplayer.MediaClock;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleSource;
@@ -38,7 +39,7 @@ import java.util.List;
  *
  * @author vigneshv@google.com (Vignesh Venkatasubramanian)
  */
-public class LibopusAudioTrackRenderer extends TrackRenderer {
+public class LibopusAudioTrackRenderer extends TrackRenderer implements MediaClock {
 
   /**
    * Interface definition for a callback to be notified of {@link LibopusAudioTrackRenderer} events.
@@ -87,6 +88,7 @@ public class LibopusAudioTrackRenderer extends TrackRenderer {
 
   private int trackIndex;
   private long currentPositionUs;
+  private boolean allowPositionDiscontinuity;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private boolean sourceIsReady;
@@ -119,8 +121,8 @@ public class LibopusAudioTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected boolean isTimeSource() {
-    return true;
+  protected MediaClock getMediaClock() {
+    return this;
   }
 
   @Override
@@ -237,7 +239,7 @@ public class LibopusAudioTrackRenderer extends TrackRenderer {
 
     // If we are out of sync, allow currentPositionUs to jump backwards.
     if ((handleBufferResult & AudioTrack.RESULT_POSITION_DISCONTINUITY) != 0) {
-      currentPositionUs = Long.MIN_VALUE;
+      allowPositionDiscontinuity = true;
     }
 
     // Release the buffer if it was consumed.
@@ -323,26 +325,31 @@ public class LibopusAudioTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected long getCurrentPositionUs() {
-    long audioTrackCurrentPositionUs = audioTrack.getCurrentPositionUs(isEnded());
-    if (audioTrackCurrentPositionUs != AudioTrack.CURRENT_POSITION_NOT_SET) {
-      // Make sure we don't ever report time moving backwards.
-      currentPositionUs = Math.max(currentPositionUs, audioTrackCurrentPositionUs);
+  public long getPositionUs() {
+    long newCurrentPositionUs = audioTrack.getCurrentPositionUs(isEnded());
+    if (newCurrentPositionUs != AudioTrack.CURRENT_POSITION_NOT_SET) {
+      currentPositionUs = allowPositionDiscontinuity ? newCurrentPositionUs
+          : Math.max(currentPositionUs, newCurrentPositionUs);
+      allowPositionDiscontinuity = false;
     }
     return currentPositionUs;
   }
 
   @Override
   protected long getBufferedPositionUs() {
-    long sourceBufferedPosition = source.getBufferedPositionUs();
-    return sourceBufferedPosition == UNKNOWN_TIME_US || sourceBufferedPosition == END_OF_TRACK_US
-        ? sourceBufferedPosition : Math.max(sourceBufferedPosition, getCurrentPositionUs());
+    return source.getBufferedPositionUs();
   }
 
   @Override
   protected void seekTo(long positionUs) throws ExoPlaybackException {
+    source.seekToUs(positionUs);
+    seekToInternal(positionUs);
+  }
+
+  private void seekToInternal(long positionUs) {
     audioTrack.reset();
     currentPositionUs = positionUs;
+    allowPositionDiscontinuity = true;
     source.seekToUs(positionUs);
     inputStreamEnded = false;
     outputStreamEnded = false;
@@ -352,10 +359,7 @@ public class LibopusAudioTrackRenderer extends TrackRenderer {
   @Override
   protected void onEnabled(long positionUs, boolean joining) {
     source.enable(trackIndex, positionUs);
-    sourceIsReady = false;
-    inputStreamEnded = false;
-    outputStreamEnded = false;
-    currentPositionUs = Long.MIN_VALUE;
+    seekToInternal(positionUs);
   }
 
   @Override
