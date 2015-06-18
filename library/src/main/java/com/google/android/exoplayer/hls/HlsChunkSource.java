@@ -303,7 +303,7 @@ public class HlsChunkSource {
       Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
       if (!keyUri.equals(encryptionKeyUri)) {
         // Encryption is specified and the key has changed.
-        Chunk toReturn = newEncryptionKeyChunk(keyUri, segment.encryptionIV);
+        Chunk toReturn = newEncryptionKeyChunk(keyUri, segment.encryptionIV, variantIndex);
         return toReturn;
       }
       if (!Util.areEqual(segment.encryptionIV, encryptionIvString)) {
@@ -381,23 +381,35 @@ public class HlsChunkSource {
    * @return True if the error was handled by the source. False otherwise.
    */
   public boolean onChunkLoadError(Chunk chunk, IOException e) {
-    if (chunk.bytesLoaded() == 0 && (chunk instanceof MediaPlaylistChunk)
+    if (chunk.bytesLoaded() == 0
+        && (chunk instanceof TsChunk || chunk instanceof MediaPlaylistChunk
+            || chunk instanceof EncryptionKeyChunk)
         && (e instanceof InvalidResponseCodeException)) {
       InvalidResponseCodeException responseCodeException = (InvalidResponseCodeException) e;
       int responseCode = responseCodeException.responseCode;
       if (responseCode == 404 || responseCode == 410) {
-        MediaPlaylistChunk playlistChunk = (MediaPlaylistChunk) chunk;
-        mediaPlaylistBlacklistTimesMs[playlistChunk.variantIndex] = SystemClock.elapsedRealtime();
+        int variantIndex;
+        if (chunk instanceof TsChunk) {
+          TsChunk tsChunk = (TsChunk) chunk;
+          variantIndex = getVariantIndex(tsChunk.format);
+        } else if (chunk instanceof MediaPlaylistChunk) {
+          MediaPlaylistChunk playlistChunk = (MediaPlaylistChunk) chunk;
+          variantIndex = playlistChunk.variantIndex;
+        } else {
+          EncryptionKeyChunk encryptionChunk = (EncryptionKeyChunk) chunk;
+          variantIndex = encryptionChunk.variantIndex;
+        }
+        mediaPlaylistBlacklistTimesMs[variantIndex] = SystemClock.elapsedRealtime();
         if (!allPlaylistsBlacklisted()) {
           // We've handled the 404/410 by blacklisting the playlist.
           Log.w(TAG, "Blacklisted playlist (" + responseCode + "): "
-              + playlistChunk.dataSpec.uri);
+              + chunk.dataSpec.uri);
           return true;
         } else {
           // This was the last non-blacklisted playlist. Don't blacklist it.
           Log.w(TAG, "Final playlist not blacklisted (" + responseCode + "): "
-              + playlistChunk.dataSpec.uri);
-          mediaPlaylistBlacklistTimesMs[playlistChunk.variantIndex] = 0;
+              + chunk.dataSpec.uri);
+          mediaPlaylistBlacklistTimesMs[variantIndex] = 0;
           return false;
         }
       }
@@ -476,9 +488,9 @@ public class HlsChunkSource {
         mediaPlaylistUri.toString());
   }
 
-  private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv) {
+  private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv, int variantIndex) {
     DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNBOUNDED, null, DataSpec.FLAG_ALLOW_GZIP);
-    return new EncryptionKeyChunk(dataSource, dataSpec, scratchSpace, iv);
+    return new EncryptionKeyChunk(dataSource, dataSpec, scratchSpace, iv, variantIndex);
   }
 
   /* package */ void setEncryptionData(Uri keyUri, String iv, byte[] secretKey) {
@@ -635,13 +647,15 @@ public class HlsChunkSource {
   private static class EncryptionKeyChunk extends DataChunk {
 
     public final String iv;
+    public final int variantIndex;
 
     private byte[] result;
 
     public EncryptionKeyChunk(DataSource dataSource, DataSpec dataSpec, byte[] scratchSpace,
-        String iv) {
+        String iv, int variantIndex) {
       super(dataSource, dataSpec, Chunk.TYPE_DRM, Chunk.TRIGGER_UNSPECIFIED, null, scratchSpace);
       this.iv = iv;
+      this.variantIndex = variantIndex;
     }
 
     @Override
