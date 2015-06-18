@@ -83,7 +83,6 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   private Loader loader;
   private boolean loadingFinished;
   private IOException currentLoadableException;
-  private boolean currentLoadableExceptionFatal;
   private int currentLoadableExceptionCount;
   private long currentLoadableExceptionTimestamp;
   private long currentLoadStartTimeMs;
@@ -294,8 +293,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   }
 
   private void maybeThrowLoadableException() throws IOException {
-    if (currentLoadableException != null && (currentLoadableExceptionFatal
-        || currentLoadableExceptionCount > minLoadableRetryCount)) {
+    if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
       throw currentLoadableException;
     }
     if (sampleQueue.isEmpty() && currentLoadableHolder.chunk == null) {
@@ -406,16 +404,9 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   private void clearCurrentLoadableException() {
     currentLoadableException = null;
     currentLoadableExceptionCount = 0;
-    currentLoadableExceptionFatal = false;
   }
 
   private void updateLoadControl() {
-    if (currentLoadableExceptionFatal) {
-      // We've failed, but we still need to update the control with our current state.
-      loadControl.update(this, downstreamPositionUs, -1, false, true);
-      return;
-    }
-
     long now = SystemClock.elapsedRealtime();
     long nextLoadPositionUs = getNextLoadPositionUs();
     boolean isBackedOff = currentLoadableException != null;

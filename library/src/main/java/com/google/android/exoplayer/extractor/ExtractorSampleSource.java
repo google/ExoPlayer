@@ -91,7 +91,6 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
   private Loader loader;
   private ExtractingLoadable loadable;
   private IOException currentLoadableException;
-  private boolean currentLoadableExceptionFatal;
   // TODO: Set this back to 0 in the correct place (some place indicative of making progress).
   private int currentLoadableExceptionCount;
   private long currentLoadableExceptionTimestamp;
@@ -404,7 +403,7 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
   }
 
   private void maybeStartLoading() {
-    if (currentLoadableExceptionFatal || loadingFinished || loader.isLoading()) {
+    if (loadingFinished || loader.isLoading()) {
       return;
     }
 
@@ -470,9 +469,6 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
     if (currentLoadableException == null) {
       return;
     }
-    if (currentLoadableExceptionFatal) {
-      throw currentLoadableException;
-    }
     int minLoadableRetryCountForMedia;
     if (minLoadableRetryCount != MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA) {
       minLoadableRetryCountForMedia = minLoadableRetryCount;
@@ -528,7 +524,6 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
     loadable = null;
     currentLoadableException = null;
     currentLoadableExceptionCount = 0;
-    currentLoadableExceptionFatal = false;
   }
 
   private boolean isPendingReset() {

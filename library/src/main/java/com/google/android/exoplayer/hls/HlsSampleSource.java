@@ -86,7 +86,6 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
 
   private Loader loader;
   private IOException currentLoadableException;
-  private boolean currentLoadableExceptionFatal;
   private int currentLoadableExceptionCount;
   private long currentLoadableExceptionTimestamp;
   private long currentLoadStartTimeMs;
@@ -362,9 +361,7 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
       notifyLoadCompleted(currentLoadable.bytesLoaded(), currentLoadable.type,
           currentLoadable.trigger, currentLoadable.format, -1, -1, now, loadDurationMs);
     }
-    if (!currentLoadableExceptionFatal) {
-      clearCurrentLoadable();
-    }
+    clearCurrentLoadable();
     if (enabledTrackCount > 0 || !prepared) {
       maybeStartLoading();
     }
@@ -439,8 +436,7 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
   }
 
   private void maybeThrowLoadableException() throws IOException {
-    if (currentLoadableException != null && (currentLoadableExceptionFatal
-        || currentLoadableExceptionCount > minLoadableRetryCount)) {
+    if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
       throw currentLoadableException;
     }
   }
@@ -469,16 +465,9 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     currentLoadable = null;
     currentLoadableException = null;
     currentLoadableExceptionCount = 0;
-    currentLoadableExceptionFatal = false;
   }
 
   private void maybeStartLoading() {
-    if (currentLoadableExceptionFatal) {
-      // We've failed, but we still need to update the control with our current state.
-      loadControl.update(this, downstreamPositionUs, -1, false, true);
-      return;
-    }
-
     long now = SystemClock.elapsedRealtime();
     long nextLoadPositionUs = getNextLoadPositionUs();
     boolean isBackedOff = currentLoadableException != null;
