@@ -52,9 +52,9 @@ import java.util.concurrent.TimeUnit;
  */
 public final class WebmExtractor implements Extractor {
 
-  private static final int SAMPLE_STATE_START = 0;
-  private static final int SAMPLE_STATE_HEADER = 1;
-  private static final int SAMPLE_STATE_DATA = 2;
+  private static final int BLOCK_STATE_START = 0;
+  private static final int BLOCK_STATE_HEADER = 1;
+  private static final int BLOCK_STATE_DATA = 2;
 
   private static final int CUES_STATE_NOT_BUILT = 0;
   private static final int CUES_STATE_BUILDING = 1;
@@ -98,6 +98,7 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_TRACK_ENTRY = 0xAE;
   private static final int ID_TRACK_NUMBER = 0xD7;
   private static final int ID_TRACK_TYPE = 0x83;
+  private static final int ID_DEFAULT_DURATION = 0x23E383;
   private static final int ID_CODEC_ID = 0x86;
   private static final int ID_CODEC_PRIVATE = 0x63A2;
   private static final int ID_CODEC_DELAY = 0x56AA;
@@ -125,6 +126,7 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_CUE_CLUSTER_POSITION = 0xF1;
 
   private static final int LACING_NONE = 0;
+  private static final int LACING_FIXED_SIZE = 2;
 
   private final EbmlReader reader;
   private final VarintReader varintReader;
@@ -132,7 +134,7 @@ public final class WebmExtractor implements Extractor {
   // Temporary arrays.
   private final ParsableByteArray nalStartCode;
   private final ParsableByteArray nalLength;
-  private final ParsableByteArray sampleHeaderScratch;
+  private final ParsableByteArray scratch;
   private final ParsableByteArray vorbisNumPageSamples;
   private final ParsableByteArray seekEntryIdBytes;
 
@@ -161,15 +163,22 @@ public final class WebmExtractor implements Extractor {
   private LongArray cueClusterPositions;
   private boolean seenClusterPositionForCurrentCuePoint;
 
+  // Block reading state.
+  private int blockState;
+  private long blockTimeUs;
+  private int blockLacingSampleIndex;
+  private int blockLacingSampleCount;
+  private int blockLacingSampleSize;
+  private int blockTrackNumber;
+  private int blockTrackNumberLength;
+  private int blockFlags;
+  private byte[] blockEncryptionKeyId;
+
   // Sample reading state.
-  private int blockBytesRead;
-  private int sampleState;
-  private int sampleSize;
+  private int sampleBytesRead;
+  private boolean sampleEncryptionDataRead;
   private int sampleCurrentNalBytesRemaining;
-  private int sampleTrackNumber;
-  private int sampleFlags;
-  private byte[] sampleEncryptionKeyId;
-  private long sampleTimeUs;
+  private int sampleBytesWritten;
   private boolean sampleRead;
   private boolean sampleSeenReferenceBlock;
 
@@ -184,7 +193,7 @@ public final class WebmExtractor implements Extractor {
     this.reader = reader;
     this.reader.init(new InnerEbmlReaderOutput());
     varintReader = new VarintReader();
-    sampleHeaderScratch = new ParsableByteArray(4);
+    scratch = new ParsableByteArray(4);
     vorbisNumPageSamples = new ParsableByteArray(ByteBuffer.allocate(4).putInt(-1).array());
     seekEntryIdBytes = new ParsableByteArray(4);
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
@@ -199,10 +208,13 @@ public final class WebmExtractor implements Extractor {
   @Override
   public void seek() {
     clusterTimecodeUs = UNKNOWN;
-    sampleState = SAMPLE_STATE_START;
+    blockState = BLOCK_STATE_START;
     reader.reset();
     varintReader.reset();
     sampleCurrentNalBytesRemaining = 0;
+    sampleBytesRead = 0;
+    sampleBytesWritten = 0;
+    sampleEncryptionDataRead = false;
   }
 
   @Override
@@ -249,6 +261,7 @@ public final class WebmExtractor implements Extractor {
       case ID_PIXEL_HEIGHT:
       case ID_TRACK_NUMBER:
       case ID_TRACK_TYPE:
+      case ID_DEFAULT_DURATION:
       case ID_CODEC_DELAY:
       case ID_SEEK_PRE_ROLL:
       case ID_CHANNELS:
@@ -342,17 +355,18 @@ public final class WebmExtractor implements Extractor {
         }
         return;
       case ID_BLOCK_GROUP:
-        if (sampleState != SAMPLE_STATE_DATA) {
-          // We've skipped this sample (due to incompatible track number).
+        if (blockState != BLOCK_STATE_DATA) {
+          // We've skipped this block (due to incompatible track number).
           return;
         }
         // If the ReferenceBlock element was not found for this sample, then it is a keyframe.
         if (!sampleSeenReferenceBlock) {
-          sampleFlags |= C.SAMPLE_FLAG_SYNC;
+          blockFlags |= C.SAMPLE_FLAG_SYNC;
         }
         outputSampleMetadata(
-            (audioTrackFormat != null && sampleTrackNumber == audioTrackFormat.number)
-                ? audioTrackFormat.trackOutput : videoTrackFormat.trackOutput);
+            (audioTrackFormat != null && blockTrackNumber == audioTrackFormat.number)
+                ? audioTrackFormat.trackOutput : videoTrackFormat.trackOutput, blockTimeUs);
+        blockState = BLOCK_STATE_START;
         return;
       case ID_CONTENT_ENCODING:
         if (!trackFormat.hasContentEncryption) {
@@ -436,6 +450,9 @@ public final class WebmExtractor implements Extractor {
       case ID_TRACK_TYPE:
         trackFormat.type = (int) value;
         return;
+      case ID_DEFAULT_DURATION:
+        trackFormat.defaultSampleDurationNs = (int) value;
+        break;
       case ID_CODEC_DELAY:
         trackFormat.codecDelayNs = value;
         return;
@@ -552,142 +569,182 @@ public final class WebmExtractor implements Extractor {
         // for info about how data is organized in SimpleBlock and Block elements respectively. They
         // differ only in the way flags are specified.
 
-        if (sampleState == SAMPLE_STATE_START) {
-          sampleTrackNumber = (int) varintReader.readUnsignedVarint(input, false, true);
-          blockBytesRead = varintReader.getLastLength();
-          sampleState = SAMPLE_STATE_HEADER;
+        if (blockState == BLOCK_STATE_START) {
+          blockTrackNumber = (int) varintReader.readUnsignedVarint(input, false, true);
+          blockTrackNumberLength = varintReader.getLastLength();
+          blockState = BLOCK_STATE_HEADER;
+          scratch.reset();
         }
 
-        // Ignore the frame if the track number equals neither the audio track nor the video track.
+        // Ignore the block if the track number equals neither the audio track nor the video track.
         if ((audioTrackFormat != null && videoTrackFormat != null
-                && audioTrackFormat.number != sampleTrackNumber
-                && videoTrackFormat.number != sampleTrackNumber)
+                && audioTrackFormat.number != blockTrackNumber
+                && videoTrackFormat.number != blockTrackNumber)
             || (audioTrackFormat != null && videoTrackFormat == null
-                && audioTrackFormat.number != sampleTrackNumber)
+                && audioTrackFormat.number != blockTrackNumber)
             || (audioTrackFormat == null && videoTrackFormat != null
-                && videoTrackFormat.number != sampleTrackNumber)) {
-          input.skipFully(contentSize - blockBytesRead);
-          sampleState = SAMPLE_STATE_START;
+                && videoTrackFormat.number != blockTrackNumber)) {
+          input.skipFully(contentSize - blockTrackNumberLength);
+          blockState = BLOCK_STATE_START;
           return;
         }
 
         TrackFormat sampleTrackFormat =
-            (audioTrackFormat != null && sampleTrackNumber == audioTrackFormat.number)
+            (audioTrackFormat != null && blockTrackNumber == audioTrackFormat.number)
                 ? audioTrackFormat : videoTrackFormat;
         TrackOutput trackOutput = sampleTrackFormat.trackOutput;
 
-        if (sampleState == SAMPLE_STATE_HEADER) {
-          byte[] sampleHeaderScratchData = sampleHeaderScratch.data;
-          // Next 3 bytes have timecode and flags. If encrypted, the 4th byte is a signal byte.
-          int remainingHeaderLength = sampleTrackFormat.hasContentEncryption ? 4 : 3;
-          input.readFully(sampleHeaderScratchData, 0, remainingHeaderLength);
-          blockBytesRead += remainingHeaderLength;
+        if (blockState == BLOCK_STATE_HEADER) {
+          // Read the relative timecode (2 bytes) and flags (1 byte).
+          readScratch(input, 3);
+          int lacing = (scratch.data[2] & 0x06) >> 1;
+          if (lacing == LACING_NONE) {
+            blockLacingSampleCount = 1;
+            blockLacingSampleSize = contentSize - blockTrackNumberLength - 3;
+          } else if (lacing == LACING_FIXED_SIZE) {
+            if (id != ID_SIMPLE_BLOCK) {
+              throw new ParserException("Lacing only supported in SimpleBlocks.");
+            }
 
-          // First two bytes are the relative timecode.
-          int timecode = (sampleHeaderScratchData[0] << 8)
-              | (sampleHeaderScratchData[1] & 0xFF);
-          sampleTimeUs = clusterTimecodeUs + scaleTimecodeToUs(timecode);
-
-          // Third byte contains the lacing value and some flags.
-          int lacing = (sampleHeaderScratchData[2] & 0x06) >> 1;
-          if (lacing != LACING_NONE) {
+            // Read the sample count (1 byte).
+            readScratch(input, 4);
+            blockLacingSampleCount = (scratch.data[3] & 0xFF) + 1;
+            blockLacingSampleSize =
+                (contentSize - blockTrackNumberLength - 4) / blockLacingSampleCount;
+          } else {
             throw new ParserException("Lacing mode not supported: " + lacing);
           }
-          boolean isInvisible = (sampleHeaderScratchData[2] & 0x08) == 0x08;
-          boolean isKeyframe =
-              (id == ID_SIMPLE_BLOCK && (sampleHeaderScratchData[2] & 0x80) == 0x80);
-          boolean isEncrypted = false;
 
-          // If encrypted, the fourth byte is an encryption signal byte.
-          if (sampleTrackFormat.hasContentEncryption) {
-            if ((sampleHeaderScratchData[3] & 0x80) == 0x80) {
-              throw new ParserException("Extension bit is set in signal byte");
-            }
-            isEncrypted = (sampleHeaderScratchData[3] & 0x01) == 0x01;
-          }
-
-          sampleFlags = (isKeyframe ? C.SAMPLE_FLAG_SYNC : 0)
-              | (isInvisible ? C.SAMPLE_FLAG_DECODE_ONLY : 0)
-              | (isEncrypted ? C.SAMPLE_FLAG_ENCRYPTED : 0);
-          sampleEncryptionKeyId = sampleTrackFormat.encryptionKeyId;
-          sampleSize = contentSize - blockBytesRead;
-          if (isEncrypted) {
-            // Write the vector size.
-            sampleHeaderScratch.data[0] = (byte) ENCRYPTION_IV_SIZE;
-            sampleHeaderScratch.setPosition(0);
-            trackOutput.sampleData(sampleHeaderScratch, 1);
-            sampleSize++;
-          }
-          sampleState = SAMPLE_STATE_DATA;
+          int timecode = (scratch.data[0] << 8) | (scratch.data[1] & 0xFF);
+          blockTimeUs = clusterTimecodeUs + scaleTimecodeToUs(timecode);
+          boolean isInvisible = (scratch.data[2] & 0x08) == 0x08;
+          boolean isKeyframe = (id == ID_SIMPLE_BLOCK && (scratch.data[2] & 0x80) == 0x80);
+          blockFlags = (isKeyframe ? C.SAMPLE_FLAG_SYNC : 0)
+              | (isInvisible ? C.SAMPLE_FLAG_DECODE_ONLY : 0);
+          blockEncryptionKeyId = sampleTrackFormat.encryptionKeyId;
+          blockState = BLOCK_STATE_DATA;
+          blockLacingSampleIndex = 0;
         }
 
-        if (CODEC_ID_H264.equals(sampleTrackFormat.codecId)) {
-          // TODO: Deduplicate with Mp4Extractor.
-
-          // Zero the top three bytes of the array that we'll use to parse nal unit lengths, in case
-          // they're only 1 or 2 bytes long.
-          byte[] nalLengthData = nalLength.data;
-          nalLengthData[0] = 0;
-          nalLengthData[1] = 0;
-          nalLengthData[2] = 0;
-          int nalUnitLengthFieldLength = sampleTrackFormat.nalUnitLengthFieldLength;
-          int nalUnitLengthFieldLengthDiff = 4 - sampleTrackFormat.nalUnitLengthFieldLength;
-          // NAL units are length delimited, but the decoder requires start code delimited units.
-          // Loop until we've written the sample to the track output, replacing length delimiters
-          // with start codes as we encounter them.
-          while (blockBytesRead < contentSize) {
-            if (sampleCurrentNalBytesRemaining == 0) {
-              // Read the NAL length so that we know where we find the next one.
-              input.readFully(nalLengthData, nalUnitLengthFieldLengthDiff,
-                  nalUnitLengthFieldLength);
-              blockBytesRead += nalUnitLengthFieldLength;
-              nalLength.setPosition(0);
-              sampleCurrentNalBytesRemaining = nalLength.readUnsignedIntToInt();
-              // Write a start code for the current NAL unit.
-              nalStartCode.setPosition(0);
-              trackOutput.sampleData(nalStartCode, 4);
-              sampleSize += nalUnitLengthFieldLengthDiff;
-            } else {
-              // Write the payload of the NAL unit.
-              int writtenBytes = trackOutput.sampleData(input, sampleCurrentNalBytesRemaining);
-              blockBytesRead += writtenBytes;
-              sampleCurrentNalBytesRemaining -= writtenBytes;
-            }
-          }
-        } else {
-          while (blockBytesRead < contentSize) {
-            blockBytesRead += trackOutput.sampleData(input, contentSize - blockBytesRead);
-          }
-        }
-
-        if (CODEC_ID_VORBIS.equals(sampleTrackFormat.codecId)) {
-          // Vorbis decoder in android MediaCodec [1] expects the last 4 bytes of the sample to be
-          // the number of samples in the current page. This definition holds good only for Ogg and
-          // irrelevant for WebM. So we always set this to -1 (the decoder will ignore this value if
-          // we set it to -1). The android platform media extractor [2] does the same.
-          // [1] https://android.googlesource.com/platform/frameworks/av/+/lollipop-release/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp#314
-          // [2] https://android.googlesource.com/platform/frameworks/av/+/lollipop-release/media/libstagefright/NuMediaExtractor.cpp#474
-          vorbisNumPageSamples.setPosition(0);
-          trackOutput.sampleData(vorbisNumPageSamples, 4);
-          sampleSize += 4;
-        }
-
-        // For SimpleBlock, we send the metadata here as we have all the information. For Block, we
-        // send the metadata at the end of the BlockGroup element since we'll know if the frame is a
-        // keyframe or not only at that point.
         if (id == ID_SIMPLE_BLOCK) {
-          outputSampleMetadata(trackOutput);
+          // For SimpleBlock, we have metadata for each sample here.
+          while (blockLacingSampleIndex < blockLacingSampleCount) {
+            writeSampleData(input, trackOutput, sampleTrackFormat, blockLacingSampleSize);
+            long sampleTimeUs = this.blockTimeUs
+                + (blockLacingSampleIndex * sampleTrackFormat.defaultSampleDurationNs) / 1000;
+            outputSampleMetadata(trackOutput, sampleTimeUs);
+            blockLacingSampleIndex++;
+          }
+          blockState = BLOCK_STATE_START;
+        } else {
+          // For Block, we send the metadata at the end of the BlockGroup element since we'll know
+          // if the sample is a keyframe or not only at that point.
+          writeSampleData(input, trackOutput, sampleTrackFormat, blockLacingSampleSize);
         }
+
         return;
       default:
-        throw new IllegalStateException("Unexpected id: " + id);
+        throw new ParserException("Unexpected id: " + id);
     }
   }
 
-  private void outputSampleMetadata(TrackOutput trackOutput) {
-    trackOutput.sampleMetadata(sampleTimeUs, sampleFlags, sampleSize, 0, sampleEncryptionKeyId);
-    sampleState = SAMPLE_STATE_START;
+  private void outputSampleMetadata(TrackOutput trackOutput, long timeUs) {
+    trackOutput.sampleMetadata(timeUs, blockFlags, sampleBytesWritten, 0, blockEncryptionKeyId);
     sampleRead = true;
+    sampleBytesRead = 0;
+    sampleBytesWritten = 0;
+    sampleEncryptionDataRead = false;
+  }
+
+  /**
+   * Ensures {@link #scratch} contains at least {@code requiredLength} bytes of data, reading from
+   * the extractor input if necessary.
+   */
+  private void readScratch(ExtractorInput input, int requiredLength)
+      throws IOException, InterruptedException {
+    if (scratch.limit() >= requiredLength) {
+      return;
+    }
+    input.readFully(scratch.data, scratch.limit(), requiredLength - scratch.limit());
+    scratch.setLimit(requiredLength);
+  }
+
+  private void writeSampleData(ExtractorInput input, TrackOutput output, TrackFormat format,
+      int size) throws IOException, InterruptedException {
+    // Read the sample's encryption signal byte and set the IV size if necessary.
+    if (format.hasContentEncryption && !sampleEncryptionDataRead) {
+      // Clear the encrypted flag.
+      blockFlags &= ~C.SAMPLE_FLAG_ENCRYPTED;
+      input.readFully(scratch.data, 0, 1);
+      sampleBytesRead++;
+      if ((scratch.data[0] & 0x80) == 0x80) {
+        throw new ParserException("Extension bit is set in signal byte");
+      }
+      sampleEncryptionDataRead = true;
+
+      // If the sample is encrypted, write the IV size instead of the signal byte, and set the flag.
+      if ((scratch.data[0] & 0x01) == 0x01) {
+        scratch.data[0] = (byte) ENCRYPTION_IV_SIZE;
+        scratch.setPosition(0);
+        output.sampleData(scratch, 1);
+        sampleBytesWritten++;
+        blockFlags |= C.SAMPLE_FLAG_ENCRYPTED;
+      }
+    }
+
+    if (CODEC_ID_H264.equals(format.codecId)) {
+      // TODO: Deduplicate with Mp4Extractor.
+
+      // Zero the top three bytes of the array that we'll use to parse nal unit lengths, in case
+      // they're only 1 or 2 bytes long.
+      byte[] nalLengthData = nalLength.data;
+      nalLengthData[0] = 0;
+      nalLengthData[1] = 0;
+      nalLengthData[2] = 0;
+      int nalUnitLengthFieldLength = format.nalUnitLengthFieldLength;
+      int nalUnitLengthFieldLengthDiff = 4 - format.nalUnitLengthFieldLength;
+      // NAL units are length delimited, but the decoder requires start code delimited units.
+      // Loop until we've written the sample to the track output, replacing length delimiters with
+      // start codes as we encounter them.
+      while (sampleBytesRead < size) {
+        if (sampleCurrentNalBytesRemaining == 0) {
+          // Read the NAL length so that we know where we find the next one.
+          input.readFully(nalLengthData, nalUnitLengthFieldLengthDiff,
+              nalUnitLengthFieldLength);
+          nalLength.setPosition(0);
+          sampleCurrentNalBytesRemaining = nalLength.readUnsignedIntToInt();
+          // Write a start code for the current NAL unit.
+          nalStartCode.setPosition(0);
+          output.sampleData(nalStartCode, 4);
+          sampleBytesRead += nalUnitLengthFieldLength;
+          sampleBytesWritten += 4;
+        } else {
+          // Write the payload of the NAL unit.
+          int writtenBytes = output.sampleData(input, sampleCurrentNalBytesRemaining);
+          sampleCurrentNalBytesRemaining -= writtenBytes;
+          sampleBytesRead += writtenBytes;
+          sampleBytesWritten += writtenBytes;
+        }
+      }
+    } else {
+      while (sampleBytesRead < size) {
+        int writtenBytes = output.sampleData(input, size - sampleBytesRead);
+        sampleBytesRead += writtenBytes;
+        sampleBytesWritten += writtenBytes;
+      }
+    }
+
+    if (CODEC_ID_VORBIS.equals(format.codecId)) {
+      // Vorbis decoder in android MediaCodec [1] expects the last 4 bytes of the sample to be the
+      // number of samples in the current page. This definition holds good only for Ogg and
+      // irrelevant for WebM. So we always set this to -1 (the decoder will ignore this value if we
+      // set it to -1). The android platform media extractor [2] does the same.
+      // [1] https://android.googlesource.com/platform/frameworks/av/+/lollipop-release/media/libstagefright/codecs/vorbis/dec/SoftVorbis.cpp#314
+      // [2] https://android.googlesource.com/platform/frameworks/av/+/lollipop-release/media/libstagefright/NuMediaExtractor.cpp#474
+      vorbisNumPageSamples.setPosition(0);
+      output.sampleData(vorbisNumPageSamples, 4);
+      sampleBytesWritten += 4;
+    }
   }
 
   /**
@@ -817,6 +874,7 @@ public final class WebmExtractor implements Extractor {
     public String codecId;
     public int number = UNKNOWN;
     public int type = UNKNOWN;
+    public int defaultSampleDurationNs = UNKNOWN;
     public boolean hasContentEncryption;
     public byte[] encryptionKeyId;
     public byte[] codecPrivate;

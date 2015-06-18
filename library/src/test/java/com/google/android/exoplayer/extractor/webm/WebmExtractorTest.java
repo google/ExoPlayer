@@ -37,9 +37,13 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.net.Uri;
 import android.test.InstrumentationTestCase;
+import android.test.MoreAsserts;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.UUID;
 
 /**
@@ -59,9 +63,16 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   private static final int TEST_VORBIS_INFO_SIZE = 30;
   private static final int TEST_VORBIS_BOOKS_SIZE = 4140;
   private static final byte[] TEST_OPUS_CODEC_PRIVATE = new byte[] {0, 0};
+  private static final int TEST_DEFAULT_DURATION_NS = 33 * 1000 * 1000;
+  private static final byte[] TEST_H264_CODEC_PRIVATE = StreamBuilder.createByteArray(0x01, 0x4D,
+      0x40, 0x1E, 0xFF, 0xE1, 0x00, 0x17, 0x67, 0x4D, 0x40, 0x1E, 0xE8, 0x80, 0x50, 0x17, 0xFC,
+      0xB8, 0x08, 0x80, 0x00, 0x01, 0xF4, 0x80, 0x00, 0x75, 0x30, 0x07, 0x8B, 0x16, 0x89, 0x01,
+      0x00, 0x04, 0x68, 0xEB, 0xEF, 0x20);
+
   private static final UUID WIDEVINE_UUID = new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
   private static final UUID ZERO_UUID = new UUID(0, 0);
   private static final String WEBM_DOC_TYPE = "webm";
+  private static final String MATROSKA_DOC_TYPE = "matroska";
 
   private WebmExtractor extractor;
   private TestExtractorOutput extractorOutput;
@@ -122,6 +133,19 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     consume(data);
 
     assertAudioFormat(MimeTypes.AUDIO_VORBIS);
+    assertIndex(new IndexPoint(0, 0, TEST_DURATION_US));
+  }
+
+  public void testPrepareH264() throws IOException, InterruptedException {
+    byte[] data = new StreamBuilder()
+        .setHeader(MATROSKA_DOC_TYPE)
+        .setInfo(DEFAULT_TIMECODE_SCALE, TEST_DURATION_US)
+        .addH264Track(TEST_WIDTH, TEST_HEIGHT, TEST_H264_CODEC_PRIVATE)
+        .build(1);
+
+    consume(data);
+
+    assertH264VideoFormat();
     assertIndex(new IndexPoint(0, 0, TEST_DURATION_US));
   }
 
@@ -257,6 +281,17 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     consume(data);
   }
 
+  public void testAcceptsMatroskaDocType() throws IOException, InterruptedException {
+    byte[] data = new StreamBuilder()
+        .setHeader(MATROSKA_DOC_TYPE)
+        .setInfo(DEFAULT_TIMECODE_SCALE, TEST_DURATION_US)
+        .addVp9Track(TEST_WIDTH, TEST_HEIGHT, null)
+        .build(1);
+
+    // No exception is thrown.
+    consume(data);
+  }
+
   public void testPrepareInvalidDocType() throws IOException, InterruptedException {
     byte[] data = new StreamBuilder()
         .setHeader("webB")
@@ -359,7 +394,7 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     consume(data);
 
     assertVp9VideoFormat();
-    assertSample(media, 0, true, false, false, videoOutput);
+    assertSample(media, 0, true, false, null, videoOutput);
   }
 
   public void testReadTwoTrackSamples() throws IOException, InterruptedException {
@@ -381,8 +416,8 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     assertEquals(2, extractorOutput.numberOfTracks);
     assertVp9VideoFormat();
     assertAudioFormat(MimeTypes.AUDIO_OPUS);
-    assertSample(media, 0, true, false, false, videoOutput);
-    assertSample(media, 0, true, false, false, audioOutput);
+    assertSample(media, 0, true, false, null, videoOutput);
+    assertSample(media, 0, true, false, null, audioOutput);
   }
 
   public void testReadTwoTrackSamplesWithSkippedTrack() throws IOException, InterruptedException {
@@ -407,8 +442,8 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     assertEquals(2, extractorOutput.numberOfTracks);
     assertVp9VideoFormat();
     assertAudioFormat(MimeTypes.AUDIO_OPUS);
-    assertSample(media, 0, true, false, false, videoOutput);
-    assertSample(media, 0, true, false, false, audioOutput);
+    assertSample(media, 0, true, false, null, videoOutput);
+    assertSample(media, 0, true, false, null, audioOutput);
   }
 
   public void testReadBlock() throws IOException, InterruptedException {
@@ -425,7 +460,7 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     consume(data);
 
     assertAudioFormat(MimeTypes.AUDIO_OPUS);
-    assertSample(media, 0, true, false, false, audioOutput);
+    assertSample(media, 0, true, false, null, audioOutput);
   }
 
   public void testReadBlockNonKeyframe() throws IOException, InterruptedException {
@@ -441,7 +476,7 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     consume(data);
 
     assertVp9VideoFormat();
-    assertSample(media, 0, false, false, false, videoOutput);
+    assertSample(media, 0, false, false, null, videoOutput);
   }
 
   public void testReadEncryptedFrame() throws IOException, InterruptedException {
@@ -459,7 +494,7 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     consume(data);
 
     assertVp9VideoFormat();
-    assertSample(media, 0, true, false, true, videoOutput);
+    assertSample(media, 0, true, false, TEST_ENCRYPTION_KEY_ID, videoOutput);
   }
 
   public void testReadEncryptedFrameWithInvalidSignalByte()
@@ -496,7 +531,7 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     consume(data);
 
     assertVp9VideoFormat();
-    assertSample(media, 25000, false, true, false, videoOutput);
+    assertSample(media, 25000, false, true, null, videoOutput);
   }
 
   public void testReadSampleCustomTimescale() throws IOException, InterruptedException {
@@ -512,7 +547,7 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     consume(data);
 
     assertVp9VideoFormat();
-    assertSample(media, 25, false, false, false, videoOutput);
+    assertSample(media, 25, false, false, null, videoOutput);
   }
 
   public void testReadSampleNegativeSimpleBlockTimecode() throws IOException, InterruptedException {
@@ -528,7 +563,28 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     consume(data);
 
     assertVp9VideoFormat();
-    assertSample(media, 1000, true, true, false, videoOutput);
+    assertSample(media, 1000, true, true, null, videoOutput);
+  }
+
+  public void testReadSampleWithLacing() throws IOException, InterruptedException {
+    byte[] media = createFrameData(100);
+    byte[] data = new StreamBuilder()
+        .setHeader(WEBM_DOC_TYPE)
+        .setInfo(DEFAULT_TIMECODE_SCALE, TEST_DURATION_US)
+        .addOpusTrack(TEST_CHANNEL_COUNT, TEST_SAMPLE_RATE, TEST_CODEC_DELAY, TEST_SEEK_PRE_ROLL,
+            TEST_OPUS_CODEC_PRIVATE, TEST_DEFAULT_DURATION_NS)
+        .addSimpleBlockMediaWithFixedSizeLacing(2 /* trackNumber */, 0 /* clusterTimecode */,
+            0 /* blockTimecode */, 20, media)
+        .build(1);
+
+    consume(data);
+
+    assertAudioFormat(MimeTypes.AUDIO_OPUS);
+    for (int i = 0; i < 20; i++) {
+      long expectedTimeUs = i * TEST_DEFAULT_DURATION_NS / 1000;
+      assertSample(Arrays.copyOfRange(media, i * 5, i * 5 + 5), expectedTimeUs, true, false, null,
+          audioOutput);
+    }
   }
 
   private void consume(byte[] data) throws IOException, InterruptedException {
@@ -552,6 +608,13 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     assertEquals(TEST_WIDTH, format.width);
     assertEquals(TEST_HEIGHT, format.height);
     assertEquals(MimeTypes.VIDEO_VP9, format.mimeType);
+  }
+
+  private void assertH264VideoFormat() {
+    MediaFormat format = videoOutput.format;
+    assertEquals(TEST_WIDTH, format.width);
+    assertEquals(TEST_HEIGHT, format.height);
+    assertEquals(MimeTypes.VIDEO_H264, format.mimeType);
   }
 
   private void assertAudioFormat(String expectedMimeType) {
@@ -583,18 +646,18 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     }
   }
 
-  private void assertSample(byte[] expectedMedia, int timeUs, boolean keyframe,
-      boolean invisible, boolean encrypted, TestTrackOutput output) {
-    if (encrypted) {
+  private void assertSample(byte[] expectedMedia, long timeUs, boolean keyframe, boolean invisible,
+      byte[] encryptionKey, TestTrackOutput output) {
+    if (encryptionKey != null) {
       expectedMedia = StreamBuilder.joinByteArrays(
           new byte[] {(byte) StreamBuilder.TEST_INITIALIZATION_VECTOR.length},
           StreamBuilder.TEST_INITIALIZATION_VECTOR, expectedMedia);
     }
-    android.test.MoreAsserts.assertEquals(expectedMedia, output.sampleData);
-    assertEquals(timeUs, output.sampleTimeUs);
-    assertEquals(keyframe, (output.sampleFlags & C.SAMPLE_FLAG_SYNC) != 0);
-    assertEquals(invisible, (output.sampleFlags & C.SAMPLE_FLAG_DECODE_ONLY) != 0);
-    assertEquals(encrypted, (output.sampleFlags & C.SAMPLE_FLAG_ENCRYPTED) != 0);
+    int flags = 0;
+    flags |= keyframe ? C.SAMPLE_FLAG_SYNC : 0;
+    flags |= invisible ? C.SAMPLE_FLAG_DECODE_ONLY : 0;
+    flags |= encryptionKey != null ? C.SAMPLE_FLAG_ENCRYPTED : 0;
+    output.assertNextSample(expectedMedia, timeUs, flags, encryptionKey);
   }
 
   private byte[] getVorbisCodecPrivate() {
@@ -666,10 +729,21 @@ public class WebmExtractorTest extends InstrumentationTestCase {
   /** Implements {@link TrackOutput} for test purposes. */
   public static class TestTrackOutput implements TrackOutput {
 
+    private final Queue<byte[]> sampleData;
+    private final Queue<Long> sampleTimesUs;
+    private final Queue<Integer> sampleFlags;
+    private final Queue<Integer> sampleSizes;
+    private final Queue<byte[]> sampleEncryptionKeys;
     public MediaFormat format;
-    private long sampleTimeUs;
-    private int sampleFlags;
-    private byte[] sampleData;
+    private byte[] currentSampleData;
+
+    public TestTrackOutput() {
+      sampleData = new LinkedList<byte[]>();
+      sampleTimesUs = new LinkedList<Long>();
+      sampleFlags = new LinkedList<Integer>();
+      sampleSizes = new LinkedList<Integer>();
+      sampleEncryptionKeys = new LinkedList<byte[]>();
+    }
 
     @Override
     public void format(MediaFormat format) {
@@ -681,8 +755,8 @@ public class WebmExtractorTest extends InstrumentationTestCase {
         InterruptedException {
       byte[] newData = new byte[length];
       input.readFully(newData, 0, length);
-      sampleData =
-          sampleData == null ? newData : StreamBuilder.joinByteArrays(sampleData, newData);
+      currentSampleData = currentSampleData == null
+          ? newData : StreamBuilder.joinByteArrays(currentSampleData, newData);
       return length;
     }
 
@@ -690,14 +764,31 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     public void sampleData(ParsableByteArray data, int length) {
       byte[] newData = new byte[length];
       data.readBytes(newData, 0, length);
-      sampleData =
-          sampleData == null ? newData : StreamBuilder.joinByteArrays(sampleData, newData);
+      currentSampleData = currentSampleData == null
+          ? newData : StreamBuilder.joinByteArrays(currentSampleData, newData);
     }
 
     @Override
     public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
-      this.sampleTimeUs = timeUs;
-      this.sampleFlags = flags;
+      sampleData.add(currentSampleData);
+      sampleTimesUs.add(timeUs);
+      sampleFlags.add(flags);
+      sampleSizes.add(size);
+      sampleEncryptionKeys.add(encryptionKey);
+      currentSampleData = null;
+    }
+
+    public void assertNextSample(byte[] data, Long timeUs, Integer flags, byte[] encryptionKey) {
+      assertEquals((Integer) data.length, sampleSizes.poll());
+      MoreAsserts.assertEquals(data, sampleData.poll());
+      assertEquals(timeUs, sampleTimesUs.poll());
+      assertEquals(flags, sampleFlags.poll());
+      byte[] sampleEncryptionKey = sampleEncryptionKeys.poll();
+      if (encryptionKey == null) {
+        assertEquals(null, sampleEncryptionKey);
+      } else {
+        MoreAsserts.assertEquals(encryptionKey, sampleEncryptionKey);
+      }
     }
 
   }

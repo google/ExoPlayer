@@ -47,6 +47,14 @@ import java.util.List;
 
   }
 
+  public static byte[] createByteArray(int... intArray) {
+    byte[] byteArray = new byte[intArray.length];
+    for (int i = 0; i < byteArray.length; i++) {
+      byteArray[i] = (byte) intArray[i];
+    }
+    return byteArray;
+  }
+
   public static byte[] joinByteArrays(byte[]... byteArrays) {
     int length = 0;
     for (byte[] byteArray : byteArrays) {
@@ -94,16 +102,28 @@ import java.util.List;
     return this;
   }
 
+  public StreamBuilder addH264Track(int width, int height, byte[] codecPrivate) {
+    trackEntries.add(createVideoTrackEntry("V_MPEG4/ISO/AVC", width, height, null, codecPrivate));
+    return this;
+  }
+
   public StreamBuilder addOpusTrack(int channelCount, int sampleRate, int codecDelay,
       int seekPreRoll, byte[] codecPrivate) {
     trackEntries.add(createAudioTrackEntry("A_OPUS", channelCount, sampleRate, codecPrivate,
-        codecDelay, seekPreRoll));
+        codecDelay, seekPreRoll, NO_VALUE));
+    return this;
+  }
+
+  public StreamBuilder addOpusTrack(int channelCount, int sampleRate, int codecDelay,
+      int seekPreRoll, byte[] codecPrivate, int defaultDurationNs) {
+    trackEntries.add(createAudioTrackEntry("A_OPUS", channelCount, sampleRate, codecPrivate,
+        codecDelay, seekPreRoll, defaultDurationNs));
     return this;
   }
 
   public StreamBuilder addVorbisTrack(int channelCount, int sampleRate, byte[] codecPrivate) {
     trackEntries.add(createAudioTrackEntry("A_VORBIS", channelCount, sampleRate, codecPrivate,
-        NO_VALUE, NO_VALUE));
+        NO_VALUE, NO_VALUE, NO_VALUE));
     return this;
   }
 
@@ -120,7 +140,7 @@ import java.util.List;
       byte[] data) {
     byte flags = (byte) ((keyframe ? 0x80 : 0x00) | (invisible ? 0x08 : 0x00));
     EbmlElement simpleBlockElement = createSimpleBlock(trackNumber, blockTimecode, flags,
-        true, validSignalByte, data);
+        true, validSignalByte, 1, data);
     mediaSegments.add(createCluster(clusterTimecode, simpleBlockElement));
     return this;
   }
@@ -130,7 +150,15 @@ import java.util.List;
       int blockTimecode, boolean keyframe, boolean invisible, byte[] data) {
     byte flags = (byte) ((keyframe ? 0x80 : 0x00) | (invisible ? 0x08 : 0x00));
     EbmlElement simpleBlockElement = createSimpleBlock(trackNumber, blockTimecode, flags,
-        false, true, data);
+        false, true, 1, data);
+    mediaSegments.add(createCluster(clusterTimecode, simpleBlockElement));
+    return this;
+  }
+
+  public StreamBuilder addSimpleBlockMediaWithFixedSizeLacing(int trackNumber, int clusterTimecode,
+      int blockTimecode, int lacingFrameCount, byte[] data) {
+    EbmlElement simpleBlockElement = createSimpleBlock(trackNumber, blockTimecode,
+        0x80 /* flags = keyframe */, false, true, lacingFrameCount, data);
     mediaSegments.add(createCluster(clusterTimecode, simpleBlockElement));
     return this;
   }
@@ -248,7 +276,7 @@ import java.util.List;
   }
 
   private static EbmlElement createAudioTrackEntry(String codecId, int channelCount, int sampleRate,
-      byte[] codecPrivate, int codecDelay, int seekPreRoll) {
+      byte[] codecPrivate, int codecDelay, int seekPreRoll, int defaultDurationNs) {
     byte channelCountByte = (byte) (channelCount & 0xFF);
     byte[] sampleRateDoubleBytes = getLongBytes(Double.doubleToLongBits(sampleRate));
     return element(0xAE, // TrackEntry
@@ -262,6 +290,9 @@ import java.util.List;
         element(0xE1, // Audio
             element(0x9F, channelCountByte), // Channels
             element(0xB5, sampleRateDoubleBytes)), // SamplingFrequency
+        // DefaultDuration
+        defaultDurationNs != NO_VALUE ? element(0x23E383, getIntegerBytes(defaultDurationNs))
+            : empty(),
         element(0x63A2, codecPrivate)); // CodecPrivate
   }
 
@@ -272,12 +303,20 @@ import java.util.List;
   }
 
   private static EbmlElement createSimpleBlock(int trackNumber, int timecode, int flags,
-      boolean encrypted, boolean validSignalByte, byte[] data) {
+      boolean encrypted, boolean validSignalByte, int lacingFrameCount, byte[] data) {
     byte[] trackNumberBytes = getIntegerBytes(trackNumber);
     byte[] timeBytes = getIntegerBytes(timecode);
-    byte[] simpleBlockBytes = createByteArray(
+    byte[] simpleBlockBytes;
+    if (lacingFrameCount > 1) {
+      flags |= 0x04; // Fixed-size lacing
+      simpleBlockBytes = createByteArray(
+          0x40, trackNumberBytes[3], // Track number size=2
+          timeBytes[2], timeBytes[3], flags, lacingFrameCount - 1); // Timecode, flags and lacing.
+    } else {
+      simpleBlockBytes = createByteArray(
           0x40, trackNumberBytes[3], // Track number size=2
           timeBytes[2], timeBytes[3], flags); // Timecode and flags
+    }
     if (encrypted) {
       simpleBlockBytes = joinByteArrays(
           simpleBlockBytes, createByteArray(validSignalByte ? 0x01 : 0x80),
@@ -300,14 +339,6 @@ import java.util.List;
     return element(0xA0, // BlockGroup
         referenceBlock,
         block);
-  }
-
-  private static byte[] createByteArray(int... intArray) {
-    byte[] byteArray = new byte[intArray.length];
-    for (int i = 0; i < byteArray.length; i++) {
-      byteArray[i] = (byte) intArray[i];
-    }
-    return byteArray;
   }
 
   private static byte[] getIntegerBytes(int value) {
