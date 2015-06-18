@@ -738,11 +738,11 @@ public class WebmExtractorTest extends InstrumentationTestCase {
     private byte[] currentSampleData;
 
     public TestTrackOutput() {
-      sampleData = new LinkedList<byte[]>();
-      sampleTimesUs = new LinkedList<Long>();
-      sampleFlags = new LinkedList<Integer>();
-      sampleSizes = new LinkedList<Integer>();
-      sampleEncryptionKeys = new LinkedList<byte[]>();
+      sampleData = new LinkedList<>();
+      sampleTimesUs = new LinkedList<>();
+      sampleFlags = new LinkedList<>();
+      sampleSizes = new LinkedList<>();
+      sampleEncryptionKeys = new LinkedList<>();
     }
 
     @Override
