@@ -44,8 +44,8 @@ import java.util.TreeSet;
   public static final String TAG_SMPTE_INFORMATION = "smpte:information";
 
   public final String tag;
-  public final boolean isTextNode;
   public final String text;
+  public final boolean isTextNode;
   public final long startTimeUs;
   public final long endTimeUs;
 
