@@ -29,6 +29,7 @@ import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
+import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer.MetadataRenderer;
@@ -58,7 +59,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventListener,
     HlsSampleSource.EventListener, DefaultBandwidthMeter.EventListener,
     MediaCodecVideoTrackRenderer.EventListener, MediaCodecAudioTrackRenderer.EventListener,
-    StreamingDrmSessionManager.EventListener, TextRenderer,
+    StreamingDrmSessionManager.EventListener, DashChunkSource.EventListener, TextRenderer,
     MetadataRenderer<Map<String, Object>>, DebugTextViewHelper.Provider {
 
   /**
@@ -549,6 +550,13 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   public void onMetadata(Map<String, Object> metadata) {
     if (id3MetadataListener != null && selectedTracks[TYPE_METADATA] != DISABLED_TRACK) {
       id3MetadataListener.onId3Metadata(metadata);
+    }
+  }
+
+  @Override
+  public void onSeekRangeChanged(TimeRange seekRange) {
+    if (infoListener != null) {
+      infoListener.onSeekRangeChanged(seekRange);
     }
   }
 
