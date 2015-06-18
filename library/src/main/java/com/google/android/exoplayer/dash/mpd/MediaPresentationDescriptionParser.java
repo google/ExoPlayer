@@ -185,11 +185,14 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   protected AdaptationSet parseAdaptationSet(XmlPullParser xpp, String baseUrl, long periodStartMs,
       long periodDurationMs, SegmentBase segmentBase) throws XmlPullParserException, IOException {
 
+    int id = parseInt(xpp, "id", -1);
     String mimeType = xpp.getAttributeValue(null, "mimeType");
     String language = xpp.getAttributeValue(null, "lang");
-    int contentType = parseAdaptationSetTypeFromMimeType(mimeType);
+    int contentType = parseAdaptationSetType(xpp.getAttributeValue(null, "contentType"));
+    if (contentType == AdaptationSet.TYPE_UNKNOWN) {
+      contentType = parseAdaptationSetTypeFromMimeType(xpp.getAttributeValue(null, "mimeType"));
+    }
 
-    int id = -1;
     ContentProtectionsBuilder contentProtectionsBuilder = new ContentProtectionsBuilder();
     List<Representation> representations = new ArrayList<>();
     do {
@@ -199,7 +202,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       } else if (isStartTag(xpp, "ContentProtection")) {
         contentProtectionsBuilder.addAdaptationSetProtection(parseContentProtection(xpp));
       } else if (isStartTag(xpp, "ContentComponent")) {
-        id = Integer.parseInt(xpp.getAttributeValue(null, "id"));
+        language = checkLanguageConsistency(language, xpp.getAttributeValue(null, "lang"));
         contentType = checkAdaptationSetTypeConsistency(contentType,
             parseAdaptationSetType(xpp.getAttributeValue(null, "contentType")));
       } else if (isStartTag(xpp, "Representation")) {
@@ -243,28 +246,6 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         : MimeTypes.isVideo(mimeType) ? AdaptationSet.TYPE_VIDEO
         : MimeTypes.isText(mimeType) || MimeTypes.isTtml(mimeType) ? AdaptationSet.TYPE_TEXT
         : AdaptationSet.TYPE_UNKNOWN;
-  }
-
-  /**
-   * Checks two adaptation set types for consistency, returning the consistent type, or throwing an
-   * {@link IllegalStateException} if the types are inconsistent.
-   * <p>
-   * Two types are consistent if they are equal, or if one is {@link AdaptationSet#TYPE_UNKNOWN}.
-   * Where one of the types is {@link AdaptationSet#TYPE_UNKNOWN}, the other is returned.
-   *
-   * @param firstType The first type.
-   * @param secondType The second type.
-   * @return The consistent type.
-   */
-  private int checkAdaptationSetTypeConsistency(int firstType, int secondType) {
-    if (firstType == AdaptationSet.TYPE_UNKNOWN) {
-      return secondType;
-    } else if (secondType == AdaptationSet.TYPE_UNKNOWN) {
-      return firstType;
-    } else {
-      Assertions.checkState(firstType == secondType);
-      return firstType;
-    }
   }
 
   /**
@@ -560,6 +541,49 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   }
 
   // Utility methods.
+
+  /**
+   * Checks two languages for consistency, returning the consistent language, or throwing an
+   * {@link IllegalStateException} if the languages are inconsistent.
+   * <p>
+   * Two languages are consistent if they are equal, or if one is null.
+   *
+   * @param firstLanguage The first language.
+   * @param secondLanguage The second language.
+   * @return The consistent language.
+   */
+  private static String checkLanguageConsistency(String firstLanguage, String secondLanguage) {
+    if (firstLanguage == null) {
+      return secondLanguage;
+    } else if (secondLanguage == null) {
+      return firstLanguage;
+    } else {
+      Assertions.checkState(firstLanguage.equals(secondLanguage));
+      return firstLanguage;
+    }
+  }
+
+  /**
+   * Checks two adaptation set types for consistency, returning the consistent type, or throwing an
+   * {@link IllegalStateException} if the types are inconsistent.
+   * <p>
+   * Two types are consistent if they are equal, or if one is {@link AdaptationSet#TYPE_UNKNOWN}.
+   * Where one of the types is {@link AdaptationSet#TYPE_UNKNOWN}, the other is returned.
+   *
+   * @param firstType The first type.
+   * @param secondType The second type.
+   * @return The consistent type.
+   */
+  private static int checkAdaptationSetTypeConsistency(int firstType, int secondType) {
+    if (firstType == AdaptationSet.TYPE_UNKNOWN) {
+      return secondType;
+    } else if (secondType == AdaptationSet.TYPE_UNKNOWN) {
+      return firstType;
+    } else {
+      Assertions.checkState(firstType == secondType);
+      return firstType;
+    }
+  }
 
   protected static boolean isEndTag(XmlPullParser xpp, String name) throws XmlPullParserException {
     return xpp.getEventType() == XmlPullParser.END_TAG && name.equals(xpp.getName());
