@@ -102,10 +102,13 @@ import java.util.List;
     int fixedSampleSize = stsz.readUnsignedIntToInt();
     int sampleCount = stsz.readUnsignedIntToInt();
 
+    long[] offsets = new long[sampleCount];
     int[] sizes = new int[sampleCount];
     long[] timestamps = new long[sampleCount];
-    long[] offsets = new long[sampleCount];
     int[] flags = new int[sampleCount];
+    if (sampleCount == 0) {
+      return new TrackSampleTable(offsets, sizes, timestamps, flags);
+    }
 
     // Prepare to read chunk offsets.
     chunkOffsets.setPosition(Atom.FULL_HEADER_SIZE);
