@@ -21,10 +21,10 @@ import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentList;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTemplate;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTimelineElement;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SingleSegmentBase;
+import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
 
@@ -258,22 +258,20 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       throws XmlPullParserException, IOException {
     String schemeIdUri = xpp.getAttributeValue(null, "schemeIdUri");
     UUID uuid = null;
-    byte[] data = null;
+    byte[] psshAtom = null;
     do {
       xpp.next();
       // The cenc:pssh element is defined in 23001-7:2015
       if (isStartTag(xpp, "cenc:pssh") && xpp.next() == XmlPullParser.TEXT) {
-        byte[] decodedData = Base64.decode(xpp.getText(), Base64.DEFAULT);
-        ParsableByteArray psshAtom = new ParsableByteArray(decodedData);
-        psshAtom.skipBytes(12);
-        uuid = new UUID(psshAtom.readLong(), psshAtom.readLong());
-        int dataSize = psshAtom.readInt();
-        data = new byte[dataSize];
-        psshAtom.readBytes(data, 0, dataSize);
+        psshAtom = Base64.decode(xpp.getText(), Base64.DEFAULT);
+        uuid = PsshAtomUtil.parseUuid(psshAtom);
+        if (uuid == null) {
+          throw new ParserException("Invalid pssh atom in cenc:pssh element");
+        }
       }
     } while (!isEndTag(xpp, "ContentProtection"));
 
-    return buildContentProtection(schemeIdUri, uuid, data);
+    return buildContentProtection(schemeIdUri, uuid, psshAtom);
   }
 
   protected ContentProtection buildContentProtection(String schemeIdUri, UUID uuid, byte[] data) {

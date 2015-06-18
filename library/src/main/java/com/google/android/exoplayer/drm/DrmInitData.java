@@ -70,15 +70,6 @@ public abstract class DrmInitData {
       schemeData.put(schemeUuid, data);
     }
 
-    /**
-     * Inserts scheme specific initialization data.
-     *
-     * @param data A mapping from scheme UUID to initialization data.
-     */
-    public void putAll(Map<UUID, byte[]> data) {
-      schemeData.putAll(data);
-    }
-
   }
 
   /**

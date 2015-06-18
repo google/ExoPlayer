@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.smoothstreaming;
 
 import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
@@ -423,7 +424,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
 
     @Override
     public Object build() {
-      return new ProtectionElement(uuid, initData);
+      return new ProtectionElement(uuid, PsshAtomUtil.buildPsshAtom(uuid, initData));
     }
 
   }

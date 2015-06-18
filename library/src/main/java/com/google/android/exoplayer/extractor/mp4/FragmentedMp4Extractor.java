@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
-import java.util.UUID;
 
 /**
  * Facilitates the extraction of data from the fragmented mp4 container format.
@@ -250,16 +249,11 @@ public final class FragmentedMp4Extractor implements Extractor {
     for (int i = 0; i < moovChildrenSize; i++) {
       LeafAtom child = moovChildren.get(i);
       if (child.type == Atom.TYPE_pssh) {
-        ParsableByteArray psshAtom = child.data;
-        psshAtom.setPosition(Atom.FULL_HEADER_SIZE);
-        UUID uuid = new UUID(psshAtom.readLong(), psshAtom.readLong());
-        int dataSize = psshAtom.readInt();
-        byte[] data = new byte[dataSize];
-        psshAtom.readBytes(data, 0, dataSize);
         if (drmInitData == null) {
           drmInitData = new DrmInitData.Mapped(MimeTypes.VIDEO_MP4);
         }
-        drmInitData.put(uuid, data);
+        byte[] psshData = child.data.data;
+        drmInitData.put(PsshAtomUtil.parseUuid(psshData), psshData);
       }
     }
     if (drmInitData != null) {
