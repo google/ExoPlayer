@@ -5,9 +5,11 @@
 * Support for extracting Matroska streams (implemented by WebmExtractor).
 * Support for tx3g captions in MP4 streams.
 * Support for H.265 in MPEG-TS streams on supported devices.
+* HLS: Improved robustness against missing chunks and variants.
+* TTML: Improved handling of whitespace.
+* DASH: Support Mpd.Location element.
 * Add option to TsExtractor to allow non-IDR keyframes.
 * Added MulticastDataSource for connecting to multicast streams.
-* DASH: Support Mpd.Location element.
 * (WorkInProgress) - First steps to supporting seeking in DASH DVR window.
 * (WorkInProgress) - First steps to supporting styled + positioned subtitles.
 * Misc bug fixes.
