@@ -65,7 +65,7 @@ public final class TtmlSubtitle implements Subtitle {
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    String cueText = root.getText(timeUs - startTimeUs);
+    CharSequence cueText = root.getText(timeUs - startTimeUs);
     if (cueText == null) {
       return Collections.<Cue>emptyList();
     } else {
