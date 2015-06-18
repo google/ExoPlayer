@@ -87,9 +87,10 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   public static final int TYPE_MP3 = 4;
   public static final int TYPE_FMP4 = 5;
   public static final int TYPE_WEBM = 6;
-  public static final int TYPE_TS = 7;
-  public static final int TYPE_AAC = 8;
-  public static final int TYPE_M4A = 9;
+  public static final int TYPE_MKV = 7;
+  public static final int TYPE_TS = 8;
+  public static final int TYPE_AAC = 9;
+  public static final int TYPE_M4A = 10;
 
   public static final String CONTENT_TYPE_EXTRA = "content_type";
   public static final String CONTENT_ID_EXTRA = "content_id";

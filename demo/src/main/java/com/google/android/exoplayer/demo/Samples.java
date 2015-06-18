@@ -136,6 +136,8 @@ import java.util.Locale;
     new Sample("Apple TS 10s", "https://devimages.apple.com.edgekey.net/streaming/examples/"
         + "bipbop_4x3/gear1/fileSequence0.ts",
         PlayerActivity.TYPE_TS),
+    new Sample("Android screens (Matroska)", "http://storage.googleapis.com/exoplayer-test-media-1/"
+        + "mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv", PlayerActivity.TYPE_MKV),
     new Sample("Big Buck Bunny (MP4 Video)",
         "http://redirector.c.youtube.com/videoplayback?id=604ed5ce52eda7ee&itag=22&source=youtube&"
         + "sparams=ip,ipbits,expire,source,id&ip=0.0.0.0&ipbits=0&expire=19000000000&signature="
