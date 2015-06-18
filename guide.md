@@ -246,7 +246,7 @@ class in the demo app.
 ExoPlayer supports HLS adaptive playbacks through use of `HlsSampleSource`, which loads chunks of
 media data from which individual samples can be extracted. A `HlsSampleSource` requires a
 `HlsChunkSource` to be injected through its constructor, which is responsible for providing media
-chunks from which to load and read samples. A `HlsSampleSource` requires a `DataSource` to be
+chunks from which to load and read samples. A `HlsChunkSource` requires a `DataSource` to be
 injected through its constructor, through which the media data can be loaded.
 
 A typical object model for an ExoPlayer configured for HLS adaptive playbacks is shown in Figure
