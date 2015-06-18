@@ -278,15 +278,11 @@ import java.util.List;
     }
 
     long durationUs = 0;
-    boolean isEnded = true;
+    boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
     for (int i = 0; i < renderers.length; i++) {
       TrackRenderer renderer = renderers[i];
-      if (rendererEnabledFlags[i] && renderer.getState() == TrackRenderer.STATE_PREPARED) {
-        renderer.enable(positionUs, false);
-        enabledRenderers.add(renderer);
-        isEnded = isEnded && renderer.isEnded();
-        allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded(renderer);
+      if (renderer.getState() == TrackRenderer.STATE_PREPARED) {
         if (durationUs == TrackRenderer.UNKNOWN_TIME_US) {
           // We've already encountered a track for which the duration is unknown, so the media
           // duration is unknown regardless of the duration of this track.
@@ -300,11 +296,18 @@ import java.util.List;
             durationUs = Math.max(durationUs, trackDurationUs);
           }
         }
+        if (rendererEnabledFlags[i]) {
+          renderer.enable(positionUs, false);
+          enabledRenderers.add(renderer);
+          allRenderersEnded = allRenderersEnded && renderer.isEnded();
+          allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded(renderer);
+        }
       }
     }
     this.durationUs = durationUs;
 
-    if (isEnded) {
+    if (allRenderersEnded
+        && (durationUs == TrackRenderer.UNKNOWN_TIME_US || durationUs <= positionUs)) {
       // We don't expect this case, but handle it anyway.
       setState(ExoPlayer.STATE_ENDED);
     } else {
@@ -390,7 +393,7 @@ import java.util.List;
     long operationStartTimeMs = SystemClock.elapsedRealtime();
     long bufferedPositionUs = durationUs != TrackRenderer.UNKNOWN_TIME_US ? durationUs
         : Long.MAX_VALUE;
-    boolean isEnded = true;
+    boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
     updatePositionUs();
     for (int i = 0; i < enabledRenderers.size(); i++) {
@@ -399,7 +402,7 @@ import java.util.List;
       // invoked again. The minimum of these values should then be used as the delay before the next
       // invocation of this method.
       renderer.doSomeWork(positionUs, elapsedRealtimeUs);
-      isEnded = isEnded && renderer.isEnded();
+      allRenderersEnded = allRenderersEnded && renderer.isEnded();
       allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded(renderer);
 
       if (bufferedPositionUs == TrackRenderer.UNKNOWN_TIME_US) {
@@ -422,7 +425,8 @@ import java.util.List;
     }
     this.bufferedPositionUs = bufferedPositionUs;
 
-    if (isEnded) {
+    if (allRenderersEnded
+        && (durationUs == TrackRenderer.UNKNOWN_TIME_US || durationUs <= positionUs)) {
       setState(ExoPlayer.STATE_ENDED);
       stopRenderers();
     } else if (state == ExoPlayer.STATE_BUFFERING && allRenderersReadyOrEnded) {
