@@ -122,7 +122,6 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   private void seekToInternal(long positionUs) {
     inputStreamEnded = false;
     currentPositionUs = positionUs;
-    source.seekToUs(positionUs);
     subtitle = null;
     nextSubtitle = null;
     parserHelper.flush();
