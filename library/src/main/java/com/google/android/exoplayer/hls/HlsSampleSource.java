@@ -353,18 +353,17 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
 
   @Override
   public void onLoadCompleted(Loadable loadable) {
+    Assertions.checkState(loadable == currentLoadable);
     long now = SystemClock.elapsedRealtime();
     long loadDurationMs = now - currentLoadStartTimeMs;
-    if (currentTsLoadable != null) {
-      previousTsLoadable = currentTsLoadable;
-      currentTsLoadable = null;
-    }
     chunkSource.onChunkLoadCompleted(currentLoadable);
     if (isTsChunk(currentLoadable)) {
-      TsChunk tsChunk = (TsChunk) loadable;
-      loadingFinished = tsChunk.isLastChunk;
-      notifyLoadCompleted(currentLoadable.bytesLoaded(), tsChunk.type, tsChunk.trigger,
-          tsChunk.format, tsChunk.startTimeUs, tsChunk.endTimeUs, now, loadDurationMs);
+      Assertions.checkState(currentLoadable == currentTsLoadable);
+      loadingFinished = currentTsLoadable.isLastChunk;
+      previousTsLoadable = currentTsLoadable;
+      notifyLoadCompleted(currentLoadable.bytesLoaded(), currentTsLoadable.type,
+          currentTsLoadable.trigger, currentTsLoadable.format, currentTsLoadable.startTimeUs,
+          currentTsLoadable.endTimeUs, now, loadDurationMs);
     } else {
       notifyLoadCompleted(currentLoadable.bytesLoaded(), currentLoadable.type,
           currentLoadable.trigger, currentLoadable.format, -1, -1, now, loadDurationMs);
@@ -534,10 +533,10 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
   private long getNextLoadPositionUs() {
     if (isPendingReset()) {
       return pendingResetPositionUs;
-    } else if (loader.isLoading()) {
-      return currentTsLoadable.isLastChunk ? -1 : currentTsLoadable.endTimeUs;
     } else {
-      return previousTsLoadable.isLastChunk ? -1 : previousTsLoadable.endTimeUs;
+      return currentTsLoadable != null
+          ? (currentTsLoadable.isLastChunk ? -1 : currentTsLoadable.endTimeUs)
+          : (previousTsLoadable.isLastChunk ? -1 : previousTsLoadable.endTimeUs);
     }
   }
 
