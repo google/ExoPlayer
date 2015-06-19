@@ -130,7 +130,7 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     }
     if (!extractors.isEmpty()) {
       // We're not prepared, but we might have loaded what we need.
-      HlsExtractorWrapper extractor = extractors.getFirst();
+      HlsExtractorWrapper extractor = getCurrentExtractor();
       if (extractor.isPrepared()) {
         trackCount = extractor.getTrackCount();
         trackEnabledStates = new boolean[trackCount];
@@ -221,7 +221,7 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     Assertions.checkState(enabledTrackCount > 0);
     downstreamPositionUs = playbackPositionUs;
     if (!extractors.isEmpty()) {
-      discardSamplesForDisabledTracks(extractors.getFirst(), downstreamPositionUs);
+      discardSamplesForDisabledTracks(getCurrentExtractor(), downstreamPositionUs);
     }
     return loadingFinished || continueBufferingInternal();
   }
