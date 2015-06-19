@@ -80,9 +80,10 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
   private long lastSeekPositionUs;
   private long pendingResetPositionUs;
 
-  private TsChunk previousTsLoadable;
-  private Chunk currentLoadable;
   private boolean loadingFinished;
+  private Chunk currentLoadable;
+  private TsChunk currentTsLoadable;
+  private TsChunk previousTsLoadable;
 
   private Loader loader;
   private IOException currentLoadableException;
@@ -259,6 +260,10 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     }
 
     HlsExtractorWrapper extractor = getCurrentExtractor();
+    if (!extractor.isPrepared()) {
+      maybeThrowLoadableException();
+      return NOTHING_READ;
+    }
 
     if (downstreamFormat == null || !downstreamFormat.equals(extractor.format)) {
       // Notify a change in the downstream format.
@@ -277,11 +282,10 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
       // We're finished reading from the extractor for this particular track, so advance to the
       // next one for the current read.
       extractor = extractors.get(++extractorIndex);
-    }
-
-    if (!extractor.isPrepared()) {
-      maybeThrowLoadableException();
-      return NOTHING_READ;
+      if (!extractor.isPrepared()) {
+        maybeThrowLoadableException();
+        return NOTHING_READ;
+      }
     }
 
     MediaFormat mediaFormat = extractor.getMediaFormat(track);
@@ -351,6 +355,10 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
   public void onLoadCompleted(Loadable loadable) {
     long now = SystemClock.elapsedRealtime();
     long loadDurationMs = now - currentLoadStartTimeMs;
+    if (currentTsLoadable != null) {
+      previousTsLoadable = currentTsLoadable;
+      currentTsLoadable = null;
+    }
     chunkSource.onChunkLoadCompleted(currentLoadable);
     if (isTsChunk(currentLoadable)) {
       TsChunk tsChunk = (TsChunk) loadable;
@@ -462,6 +470,7 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
   }
 
   private void clearCurrentLoadable() {
+    currentTsLoadable = null;
     currentLoadable = null;
     currentLoadableException = null;
     currentLoadableExceptionCount = 0;
@@ -510,7 +519,7 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
       }
       notifyLoadStarted(tsChunk.dataSpec.length, tsChunk.type, tsChunk.trigger, tsChunk.format,
           tsChunk.startTimeUs, tsChunk.endTimeUs);
-      previousTsLoadable = tsChunk;
+      currentTsLoadable = tsChunk;
     } else {
       notifyLoadStarted(currentLoadable.dataSpec.length, currentLoadable.type,
           currentLoadable.trigger, currentLoadable.format, -1, -1);
@@ -525,6 +534,8 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
   private long getNextLoadPositionUs() {
     if (isPendingReset()) {
       return pendingResetPositionUs;
+    } else if (loader.isLoading()) {
+      return currentTsLoadable.isLastChunk ? -1 : currentTsLoadable.endTimeUs;
     } else {
       return previousTsLoadable.isLastChunk ? -1 : previousTsLoadable.endTimeUs;
     }

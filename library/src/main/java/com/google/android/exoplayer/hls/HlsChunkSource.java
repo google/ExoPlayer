@@ -264,7 +264,8 @@ public class HlsChunkSource {
       switchingVariantSpliced = false;
     } else {
       nextVariantIndex = getNextVariantIndex(previousTsChunk, playbackPositionUs);
-      switchingVariantSpliced = nextVariantIndex != selectedVariantIndex
+      switchingVariantSpliced = previousTsChunk != null
+          && !variants[nextVariantIndex].format.equals(previousTsChunk.format)
           && adaptiveMode == ADAPTIVE_MODE_SPLICE;
     }
 
