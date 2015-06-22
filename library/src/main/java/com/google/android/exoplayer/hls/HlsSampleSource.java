@@ -389,6 +389,9 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
   public void onLoadError(Loadable loadable, IOException e) {
     if (chunkSource.onChunkLoadError(currentLoadable, e)) {
       // Error handled by source.
+      if (previousTsLoadable == null && !isPendingReset()) {
+        pendingResetPositionUs = currentTsLoadable.startTimeUs;
+      }
       clearCurrentLoadable();
     } else {
       currentLoadableException = e;
