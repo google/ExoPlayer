@@ -187,9 +187,10 @@ public class HlsChunkSource {
 
     if (playlist.type == HlsPlaylist.TYPE_MEDIA) {
       variants = new Variant[] {new Variant(0, playlistUrl, 0, null, -1, -1)};
-      variantPlaylists = new HlsMediaPlaylist[] {(HlsMediaPlaylist) playlist};
+      variantPlaylists = new HlsMediaPlaylist[1];
       variantLastPlaylistLoadTimesMs = new long[1];
       variantBlacklistTimes = new long[1];
+      setMediaPlaylist(0, (HlsMediaPlaylist) playlist);
       // We won't be adapting between different variants.
       maxWidth = -1;
       maxHeight = -1;
