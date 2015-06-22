@@ -390,7 +390,7 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     if (chunkSource.onChunkLoadError(currentLoadable, e)) {
       // Error handled by source.
       if (previousTsLoadable == null && !isPendingReset()) {
-        pendingResetPositionUs = currentTsLoadable.startTimeUs;
+        pendingResetPositionUs = lastSeekPositionUs;
       }
       clearCurrentLoadable();
     } else {
