@@ -522,7 +522,7 @@ public class HlsChunkSource {
     return new EncryptionKeyChunk(dataSource, dataSpec, scratchSpace, iv, variantIndex);
   }
 
-  /* package */ void setEncryptionData(Uri keyUri, String iv, byte[] secretKey) {
+  private void setEncryptionData(Uri keyUri, String iv, byte[] secretKey) {
     String trimmedIv;
     if (iv.toLowerCase(Locale.getDefault()).startsWith("0x")) {
       trimmedIv = iv.substring(2);
@@ -549,7 +549,7 @@ public class HlsChunkSource {
     encryptionIv = null;
   }
 
-  /* package */ void setMediaPlaylist(int variantIndex, HlsMediaPlaylist mediaPlaylist) {
+  private void setMediaPlaylist(int variantIndex, HlsMediaPlaylist mediaPlaylist) {
     variantLastPlaylistLoadTimesMs[variantIndex] = SystemClock.elapsedRealtime();
     variantPlaylists[variantIndex] = mediaPlaylist;
     live |= mediaPlaylist.live;
