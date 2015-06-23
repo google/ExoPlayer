@@ -37,7 +37,7 @@ import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTemplate;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTimelineElement;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SingleSegmentBase;
 import com.google.android.exoplayer.dash.mpd.UrlTemplate;
-import com.google.android.exoplayer.testutil.Util;
+import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.FakeClock;
 import com.google.android.exoplayer.util.ManifestFetcher;
@@ -86,7 +86,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
 
   @Override
   public void setUp() throws Exception {
-    Util.setUpMockito(this);
+    TestUtil.setUpMockito(this);
   }
 
   public void testMaxVideoDimensions() {

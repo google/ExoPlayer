@@ -126,7 +126,9 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_CUE_CLUSTER_POSITION = 0xF1;
 
   private static final int LACING_NONE = 0;
+  private static final int LACING_XIPH = 1;
   private static final int LACING_FIXED_SIZE = 2;
+  private static final int LACING_EBML = 3;
 
   private final EbmlReader reader;
   private final VarintReader varintReader;
@@ -168,7 +170,7 @@ public final class WebmExtractor implements Extractor {
   private long blockTimeUs;
   private int blockLacingSampleIndex;
   private int blockLacingSampleCount;
-  private int blockLacingSampleSize;
+  private int[] blockLacingSampleSizes;
   private int blockTrackNumber;
   private int blockTrackNumberLength;
   private int blockFlags;
@@ -600,8 +602,9 @@ public final class WebmExtractor implements Extractor {
           int lacing = (scratch.data[2] & 0x06) >> 1;
           if (lacing == LACING_NONE) {
             blockLacingSampleCount = 1;
-            blockLacingSampleSize = contentSize - blockTrackNumberLength - 3;
-          } else if (lacing == LACING_FIXED_SIZE) {
+            blockLacingSampleSizes = ensureArrayCapacity(blockLacingSampleSizes, 1);
+            blockLacingSampleSizes[0] = contentSize - blockTrackNumberLength - 3;
+          } else {
             if (id != ID_SIMPLE_BLOCK) {
               throw new ParserException("Lacing only supported in SimpleBlocks.");
             }
@@ -609,10 +612,69 @@ public final class WebmExtractor implements Extractor {
             // Read the sample count (1 byte).
             readScratch(input, 4);
             blockLacingSampleCount = (scratch.data[3] & 0xFF) + 1;
-            blockLacingSampleSize =
-                (contentSize - blockTrackNumberLength - 4) / blockLacingSampleCount;
-          } else {
-            throw new ParserException("Lacing mode not supported: " + lacing);
+            blockLacingSampleSizes =
+                ensureArrayCapacity(blockLacingSampleSizes, blockLacingSampleCount);
+            if (lacing == LACING_FIXED_SIZE) {
+              int blockLacingSampleSize =
+                  (contentSize - blockTrackNumberLength - 4) / blockLacingSampleCount;
+              Arrays.fill(blockLacingSampleSizes, 0, blockLacingSampleCount, blockLacingSampleSize);
+            } else if (lacing == LACING_XIPH) {
+              int totalSamplesSize = 0;
+              int headerSize = 4;
+              for (int sampleIndex = 0; sampleIndex < blockLacingSampleCount - 1; sampleIndex++) {
+                blockLacingSampleSizes[sampleIndex] = 0;
+                int byteValue;
+                do {
+                  readScratch(input, ++headerSize);
+                  byteValue = scratch.data[headerSize - 1] & 0xFF;
+                  blockLacingSampleSizes[sampleIndex] += byteValue;
+                } while (byteValue == 0xFF);
+                totalSamplesSize += blockLacingSampleSizes[sampleIndex];
+              }
+              blockLacingSampleSizes[blockLacingSampleCount - 1] =
+                  contentSize - blockTrackNumberLength - headerSize - totalSamplesSize;
+            } else if (lacing == LACING_EBML) {
+              int totalSamplesSize = 0;
+              int headerSize = 4;
+              for (int sampleIndex = 0; sampleIndex < blockLacingSampleCount - 1; sampleIndex++) {
+                blockLacingSampleSizes[sampleIndex] = 0;
+                readScratch(input, ++headerSize);
+                if (scratch.data[headerSize - 1] == 0) {
+                  throw new ParserException("No valid varint length mask found");
+                }
+                long readValue = 0;
+                for (int i = 0; i < 8; i++) {
+                  int lengthMask = 1 << (7 - i);
+                  if ((scratch.data[headerSize - 1] & lengthMask) != 0) {
+                    int readPosition = headerSize - 1;
+                    headerSize += i;
+                    readScratch(input, headerSize);
+                    readValue = (scratch.data[readPosition++] & 0xFF) & ~lengthMask;
+                    while (readPosition < headerSize) {
+                      readValue <<= 8;
+                      readValue |= (scratch.data[readPosition++] & 0xFF);
+                    }
+                    // The first read value is the first size. Later values are signed offsets.
+                    if (sampleIndex > 0) {
+                      readValue -= (1L << 6 + i * 7) - 1;
+                    }
+                    break;
+                  }
+                }
+                if (readValue < Integer.MIN_VALUE || readValue > Integer.MAX_VALUE) {
+                  throw new ParserException("EBML lacing sample size out of range.");
+                }
+                int intReadValue = (int) readValue;
+                blockLacingSampleSizes[sampleIndex] = sampleIndex == 0
+                    ? intReadValue : blockLacingSampleSizes[sampleIndex - 1] + intReadValue;
+                totalSamplesSize += blockLacingSampleSizes[sampleIndex];
+              }
+              blockLacingSampleSizes[blockLacingSampleCount - 1] =
+                  contentSize - blockTrackNumberLength - headerSize - totalSamplesSize;
+            } else {
+              // Lacing is always in the range 0--3.
+              throw new IllegalStateException("Unexpected lacing value: " + lacing);
+            }
           }
 
           int timecode = (scratch.data[0] << 8) | (scratch.data[1] & 0xFF);
@@ -629,7 +691,8 @@ public final class WebmExtractor implements Extractor {
         if (id == ID_SIMPLE_BLOCK) {
           // For SimpleBlock, we have metadata for each sample here.
           while (blockLacingSampleIndex < blockLacingSampleCount) {
-            writeSampleData(input, trackOutput, sampleTrackFormat, blockLacingSampleSize);
+            writeSampleData(input, trackOutput, sampleTrackFormat,
+                blockLacingSampleSizes[blockLacingSampleIndex]);
             long sampleTimeUs = this.blockTimeUs
                 + (blockLacingSampleIndex * sampleTrackFormat.defaultSampleDurationNs) / 1000;
             outputSampleMetadata(trackOutput, sampleTimeUs);
@@ -639,7 +702,7 @@ public final class WebmExtractor implements Extractor {
         } else {
           // For Block, we send the metadata at the end of the BlockGroup element since we'll know
           // if the sample is a keyframe or not only at that point.
-          writeSampleData(input, trackOutput, sampleTrackFormat, blockLacingSampleSize);
+          writeSampleData(input, trackOutput, sampleTrackFormat, blockLacingSampleSizes[0]);
         }
 
         return;
@@ -664,6 +727,10 @@ public final class WebmExtractor implements Extractor {
       throws IOException, InterruptedException {
     if (scratch.limit() >= requiredLength) {
       return;
+    }
+    if (scratch.capacity() < requiredLength) {
+      scratch.reset(Arrays.copyOf(scratch.data, Math.max(scratch.data.length * 2, requiredLength)),
+          scratch.limit());
     }
     input.readFully(scratch.data, scratch.limit(), requiredLength - scratch.limit());
     scratch.setLimit(requiredLength);
@@ -814,7 +881,7 @@ public final class WebmExtractor implements Extractor {
     return TimeUnit.NANOSECONDS.toMicros(unscaledTimecode * timecodeScale);
   }
 
-  private boolean isCodecSupported(String codecId) {
+  private static boolean isCodecSupported(String codecId) {
     return CODEC_ID_VP8.equals(codecId)
         || CODEC_ID_VP9.equals(codecId)
         || CODEC_ID_H264.equals(codecId)
@@ -822,6 +889,21 @@ public final class WebmExtractor implements Extractor {
         || CODEC_ID_VORBIS.equals(codecId)
         || CODEC_ID_AAC.equals(codecId)
         || CODEC_ID_AC3.equals(codecId);
+  }
+
+  /**
+   * Returns an array that can store (at least) {@code length} elements, which will be either a new
+   * array or {@code array} if it's not null and large enough.
+   */
+  private static int[] ensureArrayCapacity(int[] array, int length) {
+    if (array == null) {
+      return new int[length];
+    } else if (array.length >= length) {
+      return array;
+    } else {
+      // Double the size to avoid allocating constantly if the required length increases gradually.
+      return new int[Math.max(array.length * 2, length)];
+    }
   }
 
   /**

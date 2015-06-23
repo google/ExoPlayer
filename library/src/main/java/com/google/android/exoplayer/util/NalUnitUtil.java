@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.util;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
@@ -102,23 +101,6 @@ public final class NalUnitUtil {
       System.arraycopy(data, escapedPosition, data, unescapedPosition, remainingLength);
       return unescapedLength;
     }
-  }
-
-  /**
-   * Replaces length prefixes of NAL units in {@code buffer} with start code prefixes, within the
-   * {@code size} bytes preceding the buffer's position.
-   */
-  public static void replaceLengthPrefixesWithAvcStartCodes(ByteBuffer buffer, int size) {
-    int sampleOffset = buffer.position() - size;
-    int position = sampleOffset;
-    while (position < sampleOffset + size) {
-      buffer.position(position);
-      int length = readUnsignedIntToInt(buffer);
-      buffer.position(position);
-      buffer.put(NAL_START_CODE);
-      position += length + 4;
-    }
-    buffer.position(sampleOffset + size);
   }
 
   /**
@@ -252,24 +234,6 @@ public final class NalUnitUtil {
       }
     }
     return limit;
-  }
-
-  /**
-   * Reads an unsigned integer into an integer. This method is suitable for use when it can be
-   * assumed that the top bit will always be set to zero.
-   *
-   * @throws IllegalArgumentException If the top bit of the input data is set.
-   */
-  private static int readUnsignedIntToInt(ByteBuffer data) {
-    int result = 0xFF & data.get();
-    for (int i = 1; i < 4; i++) {
-      result <<= 8;
-      result |= 0xFF & data.get();
-    }
-    if (result < 0) {
-      throw new IllegalArgumentException("Top bit not zero: " + result);
-    }
-    return result;
   }
 
   private NalUnitUtil() {

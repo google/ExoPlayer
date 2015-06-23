@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.extractor.webm;
 
+import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.util.Assertions;
 
 import java.nio.ByteBuffer;
@@ -45,28 +46,6 @@ import java.util.List;
       this.aesCipherMode = aesCipherMode;
     }
 
-  }
-
-  public static byte[] createByteArray(int... intArray) {
-    byte[] byteArray = new byte[intArray.length];
-    for (int i = 0; i < byteArray.length; i++) {
-      byteArray[i] = (byte) intArray[i];
-    }
-    return byteArray;
-  }
-
-  public static byte[] joinByteArrays(byte[]... byteArrays) {
-    int length = 0;
-    for (byte[] byteArray : byteArrays) {
-      length += byteArray.length;
-    }
-    byte[] joined = new byte[length];
-    length = 0;
-    for (byte[] byteArray : byteArrays) {
-      System.arraycopy(byteArray, 0, joined, length, byteArray.length);
-      length += byteArray.length;
-    }
-    return joined;
   }
 
   public static final byte[] TEST_ENCRYPTION_KEY_ID = { 0x00, 0x01, 0x02, 0x03 };
@@ -159,6 +138,14 @@ import java.util.List;
       int blockTimecode, int lacingFrameCount, byte[] data) {
     EbmlElement simpleBlockElement = createSimpleBlock(trackNumber, blockTimecode,
         0x80 /* flags = keyframe */, false, true, lacingFrameCount, data);
+    mediaSegments.add(createCluster(clusterTimecode, simpleBlockElement));
+    return this;
+  }
+
+  public StreamBuilder addSimpleBlockMediaWithXiphLacing(int trackNumber, int clusterTimecode,
+      int blockTimecode, byte[] data, int... lacingFrameSizes) {
+    EbmlElement simpleBlockElement = createSimpleBlock(trackNumber, blockTimecode,
+        0x80 /* flags = keyframe */, false, true, data, lacingFrameSizes);
     mediaSegments.add(createCluster(clusterTimecode, simpleBlockElement));
     return this;
   }
@@ -309,32 +296,66 @@ import java.util.List;
     byte[] simpleBlockBytes;
     if (lacingFrameCount > 1) {
       flags |= 0x04; // Fixed-size lacing
-      simpleBlockBytes = createByteArray(
+      simpleBlockBytes = TestUtil.createByteArray(
           0x40, trackNumberBytes[3], // Track number size=2
           timeBytes[2], timeBytes[3], flags, lacingFrameCount - 1); // Timecode, flags and lacing.
     } else {
-      simpleBlockBytes = createByteArray(
+      simpleBlockBytes = TestUtil.createByteArray(
           0x40, trackNumberBytes[3], // Track number size=2
           timeBytes[2], timeBytes[3], flags); // Timecode and flags
     }
     if (encrypted) {
-      simpleBlockBytes = joinByteArrays(
-          simpleBlockBytes, createByteArray(validSignalByte ? 0x01 : 0x80),
+      simpleBlockBytes = TestUtil.joinByteArrays(
+          simpleBlockBytes, TestUtil.createByteArray(validSignalByte ? 0x01 : 0x80),
           Arrays.copyOfRange(TEST_INITIALIZATION_VECTOR, 0, 8));
     }
     return element(0xA3, // SimpleBlock
-        joinByteArrays(simpleBlockBytes, data));
+        TestUtil.joinByteArrays(simpleBlockBytes, data));
+  }
+
+  private static EbmlElement createSimpleBlock(int trackNumber, int timecode, int flags,
+      boolean encrypted, boolean validSignalByte, byte[] data, int... xiphLacingSampleSizes) {
+    byte[] trackNumberBytes = getIntegerBytes(trackNumber);
+    byte[] timeBytes = getIntegerBytes(timecode);
+    byte[] simpleBlockBytes;
+    flags |= 0x02; // Xiph lacing
+    simpleBlockBytes = TestUtil.createByteArray(
+        0x40, trackNumberBytes[3], // Track number size=2
+        timeBytes[2], timeBytes[3], // Timecode
+        flags, xiphLacingSampleSizes.length - 1); // Flags and lacing.
+    int lacingBufferSize = 0;
+    for (int sampleIndex = 0; sampleIndex < xiphLacingSampleSizes.length - 1; sampleIndex++) {
+      lacingBufferSize += (xiphLacingSampleSizes[sampleIndex] + 254) / 255;
+    }
+    ByteBuffer lacingBytes = ByteBuffer.allocate(lacingBufferSize);
+    for (int sampleIndex = 0; sampleIndex < xiphLacingSampleSizes.length - 1; sampleIndex++) {
+      int sampleSize = xiphLacingSampleSizes[sampleIndex];
+      while (sampleSize > 255) {
+        sampleSize -= 255;
+        lacingBytes.put((byte) 0xFF);
+      }
+      lacingBytes.put((byte) sampleSize);
+    }
+    simpleBlockBytes = TestUtil.joinByteArrays(simpleBlockBytes, lacingBytes.array());
+
+    if (encrypted) {
+      simpleBlockBytes = TestUtil.joinByteArrays(
+          simpleBlockBytes, TestUtil.createByteArray(validSignalByte ? 0x01 : 0x80),
+          Arrays.copyOfRange(TEST_INITIALIZATION_VECTOR, 0, 8));
+    }
+    return element(0xA3, // SimpleBlock
+        TestUtil.joinByteArrays(simpleBlockBytes, data));
   }
 
   private static EbmlElement createBlock(int trackNumber, int timecode, boolean keyframe, int flags,
       byte[] data) {
     byte[] trackNumberBytes = getIntegerBytes(trackNumber);
     byte[] timeBytes = getIntegerBytes(timecode);
-    byte[] blockBytes = createByteArray(
+    byte[] blockBytes = TestUtil.createByteArray(
         0x40, trackNumberBytes[3], // Track number size=2
         timeBytes[2], timeBytes[3], flags); // Timecode and flags
     EbmlElement block = element(0xA1, // Block
-        joinByteArrays(blockBytes, data));
+        TestUtil.joinByteArrays(blockBytes, data));
     EbmlElement referenceBlock = keyframe ? empty() : element(0xFB, (byte) 0x00); // ReferenceBlock
     return element(0xA0, // BlockGroup
         referenceBlock,
@@ -342,7 +363,7 @@ import java.util.List;
   }
 
   private static byte[] getIntegerBytes(int value) {
-    return createByteArray(
+    return TestUtil.createByteArray(
         (value & 0xFF000000) >> 24,
         (value & 0x00FF0000) >> 16,
         (value & 0x0000FF00) >> 8,
