@@ -18,9 +18,6 @@ package com.google.android.exoplayer.drm;
 import android.annotation.TargetApi;
 import android.media.MediaCrypto;
 
-import java.util.Map;
-import java.util.UUID;
-
 /**
  * Manages a DRM session.
  */
@@ -36,7 +33,7 @@ public interface DrmSessionManager {
    */
   public static final int STATE_CLOSED = 1;
   /**
-   * The session is being opened (i.e. {@link #open(Map, String)} has been called, but the session
+   * The session is being opened (i.e. {@link #open(DrmInitData)} has been called, but the session
    * is not yet open).
    */
   public static final int STATE_OPENING = 2;
@@ -52,11 +49,9 @@ public interface DrmSessionManager {
   /**
    * Opens the session, possibly asynchronously.
    *
-   * @param drmInitData Initialization data for the drm schemes supported by the media, keyed by
-   *     scheme UUID.
-   * @param mimeType The mimeType of the media.
+   * @param drmInitData DRM initialization data.
    */
-  void open(Map<UUID, byte[]> drmInitData, String mimeType);
+  void open(DrmInitData drmInitData);
 
   /**
    * Closes the session.

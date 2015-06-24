@@ -15,13 +15,13 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
-import android.media.MediaFormat;
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
 
@@ -61,6 +61,11 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
    * should be a {@link Float} with 0 being silence and 1 being unity gain.
    */
   public static final int MSG_SET_VOLUME = 1;
+
+  /**
+   * The name for the raw (passthrough) decoder OMX component.
+   */
+  private static final String RAW_DECODER_NAME = "OMX.google.raw.decoder";
 
   private final EventListener eventListener;
   private final AudioTrack audioTrack;
@@ -123,6 +128,29 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
+  protected DecoderInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder)
+      throws DecoderQueryException {
+    if (MimeTypes.isPassthroughAudio(mimeType)) {
+      return new DecoderInfo(RAW_DECODER_NAME, true);
+    }
+    return super.getDecoderInfo(mimeType, requiresSecureDecoder);
+  }
+
+  @Override
+  protected void configureCodec(MediaCodec codec, String codecName,
+      android.media.MediaFormat format, android.media.MediaCrypto crypto) {
+    if (RAW_DECODER_NAME.equals(codecName)) {
+      // Override the MIME type used to configure the codec if we are using a passthrough decoder.
+      String mimeType = format.getString(android.media.MediaFormat.KEY_MIME);
+      format.setString(android.media.MediaFormat.KEY_MIME, MimeTypes.AUDIO_RAW);
+      codec.configure(format, null, crypto, 0);
+      format.setString(android.media.MediaFormat.KEY_MIME, mimeType);
+    } else {
+      codec.configure(format, null, crypto, 0);
+    }
+  }
+
+  @Override
   protected boolean isTimeSource() {
     return true;
   }
@@ -139,8 +167,13 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void onOutputFormatChanged(MediaFormat format) {
-    audioTrack.reconfigure(format);
+  protected void onOutputFormatChanged(MediaFormat inputFormat,
+      android.media.MediaFormat outputFormat) {
+    if (MimeTypes.isPassthroughAudio(inputFormat.mimeType)) {
+      audioTrack.reconfigure(inputFormat.getFrameworkMediaFormatV16());
+    } else {
+      audioTrack.reconfigure(outputFormat);
+    }
   }
 
   /**
@@ -202,7 +235,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   protected void onDisabled() {
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     try {
-      audioTrack.reset();
+      audioTrack.release();
     } finally {
       super.onDisabled();
     }

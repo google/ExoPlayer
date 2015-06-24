@@ -90,9 +90,9 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
   }
 
   @Override
-  protected int doPrepare() throws ExoPlaybackException {
+  protected int doPrepare(long positionUs) throws ExoPlaybackException {
     try {
-      boolean sourcePrepared = source.prepare();
+      boolean sourcePrepared = source.prepare(positionUs);
       if (!sourcePrepared) {
         return TrackRenderer.STATE_UNPREPARED;
       }
@@ -316,6 +316,11 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
         return;
       case ClosedCaptionCtrl.CARRIAGE_RETURN:
         maybeAppendNewline();
+        return;
+      case ClosedCaptionCtrl.BACKSPACE:
+        if (captionStringBuilder.length() > 0) {
+          captionStringBuilder.setLength(captionStringBuilder.length() - 1);
+        }
         return;
     }
   }

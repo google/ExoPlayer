@@ -20,7 +20,7 @@ package com.google.android.exoplayer.util;
  */
 public final class ParsableBitArray {
 
-  private byte[] data;
+  public byte[] data;
 
   // The offset within the data, stored as the current byte offset, and the bit offset within that
   // byte (from 0 to 7).
@@ -48,15 +48,6 @@ public final class ParsableBitArray {
     this.data = data;
     byteOffset = 0;
     bitOffset = 0;
-  }
-
-  /**
-   * Gets the backing byte array.
-   *
-   * @return The backing byte array.
-   */
-  public byte[] getData() {
-    return data;
   }
 
   /**
@@ -108,21 +99,11 @@ public final class ParsableBitArray {
    * @return An integer whose bottom n bits hold the read data.
    */
   public int readBits(int n) {
-    return (int) readBitsLong(n);
-  }
-
-  /**
-   * Reads up to 64 bits.
-   *
-   * @param n The number of bits to read.
-   * @return A long whose bottom n bits hold the read data.
-   */
-  public long readBitsLong(int n) {
     if (n == 0) {
       return 0;
     }
 
-    long retval = 0;
+    int retval = 0;
 
     // While n >= 8, read whole bytes.
     while (n >= 8) {

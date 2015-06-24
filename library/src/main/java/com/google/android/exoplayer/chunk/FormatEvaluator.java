@@ -26,23 +26,6 @@ import java.util.Random;
 public interface FormatEvaluator {
 
   /**
-   * The trigger for the initial format selection.
-   */
-  static final int TRIGGER_INITIAL = 0;
-  /**
-   * The trigger for a format selection that was triggered by the user.
-   */
-  static final int TRIGGER_MANUAL = 1;
-  /**
-   * The trigger for an adaptive format selection.
-   */
-  static final int TRIGGER_ADAPTIVE = 2;
-  /**
-   * Implementations may define custom trigger codes greater than or equal to this value.
-   */
-  static final int TRIGGER_CUSTOM_BASE = 10000;
-
-  /**
    * Enables the evaluator.
    */
   void enable();
@@ -93,7 +76,7 @@ public interface FormatEvaluator {
     public Format format;
 
     public Evaluation() {
-      trigger = TRIGGER_INITIAL;
+      trigger = Chunk.TRIGGER_INITIAL;
     }
 
   }
@@ -101,7 +84,7 @@ public interface FormatEvaluator {
   /**
    * Always selects the first format.
    */
-  public static class FixedEvaluator implements FormatEvaluator {
+  public static final class FixedEvaluator implements FormatEvaluator {
 
     @Override
     public void enable() {
@@ -124,7 +107,7 @@ public interface FormatEvaluator {
   /**
    * Selects randomly between the available formats.
    */
-  public static class RandomEvaluator implements FormatEvaluator {
+  public static final class RandomEvaluator implements FormatEvaluator {
 
     private final Random random;
 
@@ -146,8 +129,8 @@ public interface FormatEvaluator {
     public void evaluate(List<? extends MediaChunk> queue, long playbackPositionUs,
         Format[] formats, Evaluation evaluation) {
       Format newFormat = formats[random.nextInt(formats.length)];
-      if (evaluation.format != null && !evaluation.format.id.equals(newFormat.id)) {
-        evaluation.trigger = TRIGGER_ADAPTIVE;
+      if (evaluation.format != null && !evaluation.format.equals(newFormat)) {
+        evaluation.trigger = Chunk.TRIGGER_ADAPTIVE;
       }
       evaluation.format = newFormat;
     }
@@ -162,7 +145,7 @@ public interface FormatEvaluator {
    * reference implementation only. It is recommended that application developers implement their
    * own adaptive evaluator to more precisely suit their use case.
    */
-  public static class AdaptiveEvaluator implements FormatEvaluator {
+  public static final class AdaptiveEvaluator implements FormatEvaluator {
 
     public static final int DEFAULT_MAX_INITIAL_BITRATE = 800000;
 
@@ -268,7 +251,7 @@ public interface FormatEvaluator {
         ideal = current;
       }
       if (current != null && ideal != current) {
-        evaluation.trigger = FormatEvaluator.TRIGGER_ADAPTIVE;
+        evaluation.trigger = Chunk.TRIGGER_ADAPTIVE;
       }
       evaluation.format = ideal;
     }
@@ -276,8 +259,9 @@ public interface FormatEvaluator {
     /**
      * Compute the ideal format ignoring buffer health.
      */
-    protected Format determineIdealFormat(Format[] formats, long bitrateEstimate) {
-      long effectiveBitrate = computeEffectiveBitrateEstimate(bitrateEstimate);
+    private Format determineIdealFormat(Format[] formats, long bitrateEstimate) {
+      long effectiveBitrate = bitrateEstimate == BandwidthMeter.NO_ESTIMATE
+          ? maxInitialBitrate : (long) (bitrateEstimate * bandwidthFraction);
       for (int i = 0; i < formats.length; i++) {
         Format format = formats[i];
         if (format.bitrate <= effectiveBitrate) {
@@ -286,14 +270,6 @@ public interface FormatEvaluator {
       }
       // We didn't manage to calculate a suitable format. Return the lowest quality format.
       return formats[formats.length - 1];
-    }
-
-    /**
-     * Apply overhead factor, or default value in absence of estimate.
-     */
-    protected long computeEffectiveBitrateEstimate(long bitrateEstimate) {
-      return bitrateEstimate == BandwidthMeter.NO_ESTIMATE
-          ? maxInitialBitrate : (long) (bitrateEstimate * bandwidthFraction);
     }
 
   }
