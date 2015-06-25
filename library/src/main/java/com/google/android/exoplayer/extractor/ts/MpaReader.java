@@ -171,7 +171,7 @@ import java.util.Collections;
                     break;
                 case STATE_READING_HEADER:
                     int targetLength = hasCrc ? HEADER_SIZE + CRC_SIZE : HEADER_SIZE;
-                    if (continueRead(data, mpaScratch.getData(), targetLength)) {
+                    if (continueRead(data, mpaScratch.data, targetLength)) {
                         parseHeader();
                         bytesRead = targetLength;
                         state = STATE_READING_SAMPLE;
@@ -287,7 +287,16 @@ import java.util.Collections;
 
         mpaScratch.setPosition(0);
 
-        ParsableByteArray header = new ParsableByteArray(mpaScratch.getData(),headerLength);
+        ParsableByteArray header = new ParsableByteArray(mpaScratch.data,headerLength);
         output.sampleData(header, headerLength);
+    }
+
+    /* (non-Javadoc)
+     * @see com.google.android.exoplayer.extractor.ts.ElementaryStreamReader#seek()
+     */
+    @Override
+    public void seek() {
+      // TODO(olly): Auto-generated method stub
+
     }
 }
