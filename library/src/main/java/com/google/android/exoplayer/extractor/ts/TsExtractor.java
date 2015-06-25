@@ -42,6 +42,8 @@ public final class TsExtractor implements Extractor, SeekMap {
   private static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
   private static final int TS_PAT_PID = 0;
 
+  private static final int TS_STREAM_TYPE_MPA = 0x03;
+  private static final int TS_STREAM_TYPE_MPA_LSF = 0x04;
   private static final int TS_STREAM_TYPE_AAC = 0x0F;
   private static final int TS_STREAM_TYPE_ATSC_AC3 = 0x81;
   private static final int TS_STREAM_TYPE_ATSC_E_AC3 = 0x87;
@@ -351,6 +353,12 @@ public final class TsExtractor implements Extractor, SeekMap {
         // TODO: Detect and read DVB AC-3 streams with Ac3Reader.
         ElementaryStreamReader pesPayloadReader = null;
         switch (streamType) {
+          case TS_STREAM_TYPE_MPA:
+            pesPayloadReader = new MpaReader(output.track(TS_STREAM_TYPE_MPA));
+            break;
+          case TS_STREAM_TYPE_MPA_LSF:
+            pesPayloadReader = new MpaReader(output.track(TS_STREAM_TYPE_MPA_LSF));
+            break;
           case TS_STREAM_TYPE_AAC:
             pesPayloadReader = new AdtsReader(output.track(TS_STREAM_TYPE_AAC));
             break;
