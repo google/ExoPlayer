@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor.mp3;
 
 /** Parsed MPEG audio frame header. */
-/* package */ final class MpegAudioHeader {
+public final class MpegAudioHeader {
 
   private static final int[] SAMPLING_RATE_V1 = {44100, 48000, 32000};
   private static final int[] BITRATE_V1_L1 =
