@@ -130,7 +130,7 @@ import java.util.Collections;
    * Locates the next sync word, advancing the position to the byte that immediately follows it.
    * If a sync word was not located, the position is advanced to the limit.
    *
-   * @param pesBuffer The buffer whose position should be advanced.
+   * @param pesBuffer The buffer in which to search for the sync word.
    * @return True if a sync word position was found. False otherwise.
    */
   private boolean skipToNextSync(ParsableByteArray pesBuffer) {
