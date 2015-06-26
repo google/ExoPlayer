@@ -596,8 +596,8 @@ import java.util.List;
       handler.sendEmptyMessage(MSG_DO_SOME_WORK);
     } else {
       if (renderer == rendererMediaClockSource) {
-        // We've been using timeSourceTrackRenderer to advance the current position, but it's
-        // being disabled. Sync mediaClock so that it can take over timing responsibilities.
+        // We've been using rendererMediaClockSource to advance the current position, but it's being
+        // disabled. Sync standaloneMediaClock so that it can take over timing responsibilities.
         standaloneMediaClock.setPositionUs(rendererMediaClock.getPositionUs());
       }
       ensureStopped(renderer);
