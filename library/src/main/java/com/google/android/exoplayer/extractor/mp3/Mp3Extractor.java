@@ -43,7 +43,7 @@ public final class Mp3Extractor implements Extractor {
   /** Mask that includes the audio header values that must match between frames. */
   private static final int HEADER_MASK = 0xFFFE0C00;
   private static final int ID3_TAG = Util.getIntegerCodeForString("ID3");
-  private static final String[] MIME_TYPE_BY_LAYER =
+  public static final String[] MIME_TYPE_BY_LAYER =
       new String[] {MimeTypes.AUDIO_MPEG_L1, MimeTypes.AUDIO_MPEG_L2, MimeTypes.AUDIO_MPEG};
   private static final int XING_HEADER = Util.getIntegerCodeForString("Xing");
   private static final int INFO_HEADER = Util.getIntegerCodeForString("Info");
@@ -55,7 +55,7 @@ public final class Mp3Extractor implements Extractor {
    * 160000 bit/s / (8000 sample/s * 8 bit/byte) + 1 padding byte/frame = 2881 byte/frame.
    * The next power of two size is 4 KiB.
    */
-  private static final int MAX_FRAME_SIZE_BYTES = 4096;
+  public static final int MAX_FRAME_SIZE_BYTES = 4096;
 
   private final BufferingInput inputBuffer;
   private final ParsableByteArray scratch;
