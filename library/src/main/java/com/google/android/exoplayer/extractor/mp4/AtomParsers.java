@@ -471,8 +471,7 @@ import java.util.List;
       }
     }
 
-    List<byte[]> initializationData = csdLength == 0 ? Collections.<byte[]>emptyList()
-        : Collections.singletonList(buffer);
+    List<byte[]> initializationData = csdLength == 0 ? null : Collections.singletonList(buffer);
     return Pair.create(initializationData, lengthSizeMinusOne + 1);
   }
 
@@ -628,6 +627,10 @@ import java.util.List;
     int objectTypeIndication = parent.readUnsignedByte();
     String mimeType;
     switch (objectTypeIndication) {
+      case 0x6B:
+        mimeType = MimeTypes.AUDIO_MPEG;
+        // Don't extract codec-specific data for MPEG audio tracks, as it is not needed.
+        return Pair.create(mimeType, null);
       case 0x20:
         mimeType = MimeTypes.VIDEO_MP4V;
         break;
@@ -639,9 +642,6 @@ import java.util.List;
         break;
       case 0x40:
         mimeType = MimeTypes.AUDIO_AAC;
-        break;
-      case 0x6B:
-        mimeType = MimeTypes.AUDIO_MPEG;
         break;
       case 0xA5:
         mimeType = MimeTypes.AUDIO_AC3;
