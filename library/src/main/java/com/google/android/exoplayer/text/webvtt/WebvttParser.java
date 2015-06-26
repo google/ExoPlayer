@@ -44,6 +44,10 @@ public class WebvttParser implements SubtitleParser {
 
   private static final long SAMPLING_RATE = 90;
 
+  private static final String WEBVTT_FILE_HEADER_STRING = "^\uFEFF?WEBVTT((\\u0020|\u0009).*)?$";
+  private static final Pattern WEBVTT_FILE_HEADER =
+      Pattern.compile(WEBVTT_FILE_HEADER_STRING);
+
   private static final String WEBVTT_METADATA_HEADER_STRING = "\\S*[:=]\\S*";
   private static final Pattern WEBVTT_METADATA_HEADER =
       Pattern.compile(WEBVTT_METADATA_HEADER_STRING);
@@ -116,7 +120,7 @@ public class WebvttParser implements SubtitleParser {
       }
     }
 
-    if (!line.equals("WEBVTT") && !line.equals("\uFEFFWEBVTT")) {
+    if (!WEBVTT_FILE_HEADER.matcher(line).matches()) {
       throw new ParserException("Expected WEBVTT. Got " + line);
     }
 
