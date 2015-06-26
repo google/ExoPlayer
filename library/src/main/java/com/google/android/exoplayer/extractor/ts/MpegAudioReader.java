@@ -21,8 +21,6 @@ import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.MpegAudioHeader;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
-import java.util.Collections;
-
 /**
  * Parses a continuous MPEG Audio byte stream and extracts individual frames.
  */
@@ -164,7 +162,7 @@ import java.util.Collections;
       frameDurationUs = (C.MICROS_PER_SECOND * header.samplesPerFrame) / header.sampleRate;
       MediaFormat mediaFormat = MediaFormat.createAudioFormat(header.mimeType,
           MpegAudioHeader.MAX_FRAME_SIZE_BYTES, C.UNKNOWN_TIME_US, header.channels,
-          header.sampleRate, Collections.<byte[]>emptyList());
+          header.sampleRate, null);
       output.format(mediaFormat);
       hasOutputFormat = true;
     }

@@ -30,7 +30,6 @@ import com.google.android.exoplayer.util.Util;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.util.Collections;
 
 /**
  * Extracts data from an MP3 file.
@@ -247,7 +246,7 @@ public final class Mp3Extractor implements Extractor {
       extractorOutput.seekMap(seeker);
       trackOutput.format(MediaFormat.createAudioFormat(synchronizedHeader.mimeType,
           MpegAudioHeader.MAX_FRAME_SIZE_BYTES, seeker.getDurationUs(), synchronizedHeader.channels,
-          synchronizedHeader.sampleRate, Collections.<byte[]>emptyList()));
+          synchronizedHeader.sampleRate, null));
     }
 
     return headerPosition;
