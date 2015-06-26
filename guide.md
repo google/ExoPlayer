@@ -276,7 +276,7 @@ DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 DataSource dataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
 HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter,
     variantIndices, HlsChunkSource.ADAPTIVE_MODE_SPLICE, audioCapabilities);
-HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, true, 3, REQUESTED_BUFFER_SIZE,
+HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, true, 2, REQUESTED_BUFFER_SIZE,
     REQUESTED_BUFFER_DURATION_MS);
 MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
     MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
