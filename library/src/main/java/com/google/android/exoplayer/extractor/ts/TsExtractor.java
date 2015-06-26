@@ -354,10 +354,10 @@ public final class TsExtractor implements Extractor, SeekMap {
         ElementaryStreamReader pesPayloadReader = null;
         switch (streamType) {
           case TS_STREAM_TYPE_MPA:
-            pesPayloadReader = new MpaReader(output.track(TS_STREAM_TYPE_MPA));
+            pesPayloadReader = new MpegAudioReader(output.track(TS_STREAM_TYPE_MPA));
             break;
           case TS_STREAM_TYPE_MPA_LSF:
-            pesPayloadReader = new MpaReader(output.track(TS_STREAM_TYPE_MPA_LSF));
+            pesPayloadReader = new MpegAudioReader(output.track(TS_STREAM_TYPE_MPA_LSF));
             break;
           case TS_STREAM_TYPE_AAC:
             pesPayloadReader = new AdtsReader(output.track(TS_STREAM_TYPE_AAC));

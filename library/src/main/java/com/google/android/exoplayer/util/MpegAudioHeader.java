@@ -13,11 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.extractor.mp3;
+package com.google.android.exoplayer.util;
 
-/** Parsed MPEG audio frame header. */
+/**
+ * Representation of an MPEG audio frame header.
+ */
 public final class MpegAudioHeader {
 
+  /**
+   * Theoretical maximum frame size for an MPEG audio stream, which occurs when playing a Layer 2
+   * MPEG 2.5 audio stream at 16 kb/s (with padding). The size is 1152 sample/frame *
+   * 160000 bit/s / (8000 sample/s * 8 bit/byte) + 1 padding byte/frame = 2881 byte/frame.
+   * The next power of two size is 4 KiB.
+   */
+  public static final int MAX_FRAME_SIZE_BYTES = 4096;
+
+  private static final String[] MIME_TYPE_BY_LAYER =
+      new String[] {MimeTypes.AUDIO_MPEG_L1, MimeTypes.AUDIO_MPEG_L2, MimeTypes.AUDIO_MPEG};
   private static final int[] SAMPLING_RATE_V1 = {44100, 48000, 32000};
   private static final int[] BITRATE_V1_L1 =
       {32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448};
@@ -30,7 +42,9 @@ public final class MpegAudioHeader {
   private static final int[] BITRATE_V2 =
       {8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160};
 
-  /** Returns the size of the frame associated with {@code header}, or -1 if it is invalid. */
+  /**
+   * Returns the size of the frame associated with {@code header}, or -1 if it is invalid.
+   */
   public static int getFrameSize(int header) {
     if ((header & 0xFFE00000) != 0xFFE00000) {
       return -1;
@@ -92,35 +106,37 @@ public final class MpegAudioHeader {
   }
 
   /**
-   * Returns the header represented by {@code header}, if it is valid; {@code null} otherwise.
+   * Parses {@code headerData}, populating {@code header} with the parsed data.
    *
    * @param headerData Header data to parse.
    * @param header Header to populate with data from {@code headerData}.
+   * @return True if the header was populated. False otherwise, indicating that {@code headerData}
+   *     is not a valid MPEG audio header.
    */
-  public static void populateHeader(int headerData, MpegAudioHeader header) {
+  public static boolean populateHeader(int headerData, MpegAudioHeader header) {
     if ((headerData & 0xFFE00000) != 0xFFE00000) {
-      return;
+      return false;
     }
 
     int version = (headerData >>> 19) & 3;
     if (version == 1) {
-      return;
+      return false;
     }
 
     int layer = (headerData >>> 17) & 3;
     if (layer == 0) {
-      return;
+      return false;
     }
 
     int bitrateIndex = (headerData >>> 12) & 15;
     if (bitrateIndex == 0 || bitrateIndex == 0xF) {
       // Disallow "free" bitrate.
-      return;
+      return false;
     }
 
     int samplingRateIndex = (headerData >>> 10) & 3;
     if (samplingRateIndex == 3) {
-      return;
+      return false;
     }
 
     int sampleRate = SAMPLING_RATE_V1[samplingRateIndex];
@@ -154,16 +170,16 @@ public final class MpegAudioHeader {
       }
     }
 
+    String mimeType = MIME_TYPE_BY_LAYER[3 - layer];
     int channels = ((headerData >> 6) & 3) == 3 ? 1 : 2;
-    int layerIndex = 3 - layer;
-    header.setValues(
-        version, layerIndex, frameSize, sampleRate, channels, bitrate, samplesPerFrame);
+    header.setValues(version, mimeType, frameSize, sampleRate, channels, bitrate, samplesPerFrame);
+    return true;
   }
 
   /** MPEG audio header version. */
   public int version;
-  /** MPEG audio layer index, starting at zero. */
-  public int layerIndex;
+  /** The mime type. */
+  public String mimeType;
   /** Size of the frame associated with this header, in bytes. */
   public int frameSize;
   /** Sample rate in samples per second. */
@@ -175,10 +191,10 @@ public final class MpegAudioHeader {
   /** Number of samples stored in the frame. */
   public int samplesPerFrame;
 
-  private void setValues(int version, int layerIndex, int frameSize, int sampleRate, int channels,
-      int bitrate, int samplesPerFrame) {
+  private void setValues(int version, String mimeType, int frameSize,
+      int sampleRate, int channels, int bitrate, int samplesPerFrame) {
     this.version = version;
-    this.layerIndex = layerIndex;
+    this.mimeType = mimeType;
     this.frameSize = frameSize;
     this.sampleRate = sampleRate;
     this.channels = channels;
