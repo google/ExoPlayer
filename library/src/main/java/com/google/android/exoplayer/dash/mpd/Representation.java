@@ -266,12 +266,12 @@ public abstract class Representation implements FormatWrapper {
 
     @Override
     public int getSegmentNum(long timeUs) {
-      return segmentBase.getSegmentNum(timeUs);
+      return segmentBase.getSegmentNum(timeUs - periodStartMs * 1000);
     }
 
     @Override
     public long getTimeUs(int segmentIndex) {
-      return segmentBase.getSegmentTimeUs(segmentIndex);
+      return segmentBase.getSegmentTimeUs(segmentIndex) + periodStartMs * 1000;
     }
 
     @Override

@@ -531,7 +531,8 @@ public class DashChunkSource implements ChunkSource {
       if (initializationChunk.hasSeekMap()) {
         representationHolder.segmentIndex = new DashWrappingSegmentIndex(
             (ChunkIndex) initializationChunk.getSeekMap(),
-            initializationChunk.dataSpec.uri.toString());
+            initializationChunk.dataSpec.uri.toString(),
+            representationHolder.representation.periodStartMs * 1000);
       }
       // The null check avoids overwriting drmInitData obtained from the manifest with drmInitData
       // obtained from the stream, as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
@@ -638,7 +639,8 @@ public class DashChunkSource implements ChunkSource {
     DataSpec dataSpec = new DataSpec(segmentUri.getUri(), segmentUri.start, segmentUri.length,
         representation.getCacheKey());
 
-    long sampleOffsetUs = -1 * representation.presentationTimeOffsetUs;
+    long sampleOffsetUs = representation.periodStartMs * 1000
+        - representation.presentationTimeOffsetUs;
     if (representation.format.mimeType.equals(MimeTypes.TEXT_VTT)) {
       if (representationHolder.vttHeaderOffsetUs != sampleOffsetUs) {
         // Update the VTT header.
