@@ -5,7 +5,9 @@
 * Support for extracting Matroska streams (implemented by WebmExtractor).
 * Support for tx3g captions in MP4 streams.
 * Support for H.265 in MPEG-TS streams on supported devices.
+* HLS: Added support for MPEG audio (e.g. MP3).
 * HLS: Improved robustness against missing chunks and variants.
+* MP4: Added support for embedded MPEG audio (e.g. MP3).
 * TTML: Improved handling of whitespace.
 * DASH: Support Mpd.Location element.
 * Add option to TsExtractor to allow non-IDR keyframes.
