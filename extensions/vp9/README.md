@@ -35,7 +35,7 @@ NDK_PATH="<path to Android NDK>"
 ```
 cd "${VP9_EXT_PATH}/jni" && \
 git clone https://chromium.googlesource.com/webm/libvpx libvpx && \
-git clone http://git.chromium.org/external/libyuv.git libyuv
+git clone https://git.chromium.org/external/libyuv.git libyuv
 ```
 
 * Run a script that generates necessary configuration files for libvpx
