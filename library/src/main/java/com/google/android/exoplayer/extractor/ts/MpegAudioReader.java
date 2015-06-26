@@ -18,8 +18,7 @@ package com.google.android.exoplayer.extractor.ts;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.extractor.TrackOutput;
-import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
-import com.google.android.exoplayer.extractor.mp3.MpegAudioHeader;
+import com.google.android.exoplayer.util.MpegAudioHeader;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.util.Collections;
@@ -27,7 +26,7 @@ import java.util.Collections;
 /**
  * Parses a continuous MPEG Audio byte stream and extracts individual frames.
  */
-/* package */ public class MpaReader extends ElementaryStreamReader {
+/* package */ class MpegAudioReader extends ElementaryStreamReader {
 
   private static final int STATE_FINDING_HEADER = 0;
   private static final int STATE_READING_HEADER = 1;
@@ -36,33 +35,35 @@ import java.util.Collections;
   private static final int HEADER_SIZE = 4;
 
   private final ParsableByteArray headerScratch;
+  private final MpegAudioHeader header;
 
   private int state;
-  private int bytesRead;
+  private int frameBytesRead;
+  private boolean hasOutputFormat;
 
-  // Used to find the header.
+  // Used when finding the frame header.
   private boolean lastByteWasFF;
 
-  // Used when parsing the header.
-  private boolean hasOutputFormat;
+  // Parsed from the frame header.
   private long frameDurationUs;
-  private int sampleSize;
+  private int frameSize;
 
-  // Used when reading the samples.
+  // The timestamp to attach to the next sample in the current packet.
   private long timeUs;
 
-  public MpaReader(TrackOutput output) {
+  public MpegAudioReader(TrackOutput output) {
     super(output);
     state = STATE_FINDING_HEADER;
     // The first byte of an MPEG Audio frame header is always 0xFF.
     headerScratch = new ParsableByteArray(4);
     headerScratch.data[0] = (byte) 0xFF;
+    header = new MpegAudioHeader();
   }
 
   @Override
   public void seek() {
     state = STATE_FINDING_HEADER;
-    bytesRead = 0;
+    frameBytesRead = 0;
     lastByteWasFF = false;
   }
 
@@ -74,19 +75,13 @@ import java.util.Collections;
     while (data.bytesLeft() > 0) {
       switch (state) {
         case STATE_FINDING_HEADER:
-          if (findHeader(data)) {
-            state = STATE_READING_HEADER;
-          }
+          findHeader(data);
           break;
         case STATE_READING_HEADER:
-          if (readHeaderRemainder(data)) {
-            state = STATE_READING_FRAME;
-          }
+          readHeaderRemainder(data);
           break;
         case STATE_READING_FRAME:
-          if (readFrame(data)) {
-            state = STATE_FINDING_HEADER;
-          }
+          readFrameRemainder(data);
           break;
       }
     }
@@ -100,78 +95,83 @@ import java.util.Collections;
   /**
    * Attempts to locate the start of the next frame header.
    * <p>
-   * If a frame header is located then true is returned. The first two bytes of the header will have
-   * been written into {@link #headerScratch}, and the position of the source will have been
-   * advanced to the byte that immediately follows these two bytes.
+   * If a frame header is located then the state is changed to {@link #STATE_READING_HEADER}, the
+   * first two bytes of the header are written into {@link #headerScratch}, and the position of the
+   * source is advanced to the byte that immediately follows these two bytes.
    * <p>
-   * If a frame header is not located then the position of the source will have been advanced to the
-   * limit, and the method should be called again with the next source to continue the search.
+   * If a frame header is not located then the position of the source is advanced to the limit, and
+   * the method should be called again with the next source to continue the search.
    *
    * @param source The source from which to read.
-   * @return True if the frame header was located. False otherwise.
    */
-  private boolean findHeader(ParsableByteArray source) {
-    byte[] mpaData = source.data;
+  private void findHeader(ParsableByteArray source) {
+    byte[] data = source.data;
     int startOffset = source.getPosition();
     int endOffset = source.limit();
     for (int i = startOffset; i < endOffset; i++) {
-      boolean byteIsFF = (mpaData[i] & 0xFF) == 0xFF;
-      boolean found = lastByteWasFF && (mpaData[i] & 0xF0) == 0xF0;
+      boolean byteIsFF = (data[i] & 0xFF) == 0xFF;
+      boolean found = lastByteWasFF && (data[i] & 0xE0) == 0xE0;
       lastByteWasFF = byteIsFF;
       if (found) {
         source.setPosition(i + 1);
         // Reset lastByteWasFF for next time.
         lastByteWasFF = false;
-        headerScratch.data[0] = (byte) 0xFF;
-        headerScratch.data[1] = mpaData[i];
-        bytesRead = 2;
-        return true;
+        headerScratch.data[1] = data[i];
+        frameBytesRead = 2;
+        state = STATE_READING_HEADER;
+        return;
       }
     }
     source.setPosition(endOffset);
-    return false;
   }
 
   /**
    * Attempts to read the remaining two bytes of the frame header.
    * <p>
-   * If a frame header is read in full then true is returned. The media format will have been output
-   * if this has not previously occurred, the four header bytes will have been output as sample
-   * data, and the position of the source will have been advanced to the byte that immediately
+   * If a frame header is read in full then the state is changed to {@link #STATE_READING_FRAME},
+   * the media format is output if this has not previously occurred, the four header bytes are
+   * output as sample data, and the position of the source is advanced to the byte that immediately
    * follows the header.
    * <p>
-   * If a frame header is not read in full then the position of the source will have been advanced
-   * to the limit, and the method should be called again with the next source to continue the read.
+   * If a frame header is read in full but cannot be parsed then the state is changed to
+   * {@link #STATE_READING_HEADER}.
+   * <p>
+   * If a frame header is not read in full then the position of the source is advanced to the limit,
+   * and the method should be called again with the next source to continue the read.
    *
    * @param source The source from which to read.
-   * @return True if the frame header was read in full. False otherwise.
    */
-  private boolean readHeaderRemainder(ParsableByteArray source) {
-    int bytesToRead = Math.min(source.bytesLeft(), HEADER_SIZE - bytesRead);
-    source.readBytes(headerScratch.data, bytesRead, bytesToRead);
-    bytesRead += bytesToRead;
-    if (bytesRead < HEADER_SIZE) {
-      return false;
+  private void readHeaderRemainder(ParsableByteArray source) {
+    int bytesToRead = Math.min(source.bytesLeft(), HEADER_SIZE - frameBytesRead);
+    source.readBytes(headerScratch.data, frameBytesRead, bytesToRead);
+    frameBytesRead += bytesToRead;
+    if (frameBytesRead < HEADER_SIZE) {
+      // We haven't read the whole header yet.
+      return;
     }
 
+    headerScratch.setPosition(0);
+    boolean parsedHeader = MpegAudioHeader.populateHeader(headerScratch.readInt(), header);
+    if (!parsedHeader) {
+      // We thought we'd located a frame header, but we hadn't.
+      frameBytesRead = 0;
+      state = STATE_READING_HEADER;
+      return;
+    }
+
+    frameSize = header.frameSize;
     if (!hasOutputFormat) {
-      headerScratch.setPosition(0);
-      int headerInt = headerScratch.readInt();
-      MpegAudioHeader synchronizedHeader = new MpegAudioHeader();
-      MpegAudioHeader.populateHeader(headerInt, synchronizedHeader);
-      MediaFormat mediaFormat = MediaFormat.createAudioFormat(
-          Mp3Extractor.MIME_TYPE_BY_LAYER[synchronizedHeader.layerIndex], Mp3Extractor.MAX_FRAME_SIZE_BYTES,
-          C.UNKNOWN_TIME_US, synchronizedHeader.channels, synchronizedHeader.sampleRate,
-          Collections.<byte[]>emptyList());
+      frameDurationUs = (C.MICROS_PER_SECOND * header.samplesPerFrame) / header.sampleRate;
+      MediaFormat mediaFormat = MediaFormat.createAudioFormat(header.mimeType,
+          MpegAudioHeader.MAX_FRAME_SIZE_BYTES, C.UNKNOWN_TIME_US, header.channels,
+          header.sampleRate, Collections.<byte[]>emptyList());
       output.format(mediaFormat);
       hasOutputFormat = true;
-      frameDurationUs = (C.MICROS_PER_SECOND * synchronizedHeader.samplesPerFrame) / mediaFormat.sampleRate;
-      sampleSize = synchronizedHeader.frameSize;
     }
 
     headerScratch.setPosition(0);
     output.sampleData(headerScratch, HEADER_SIZE);
-    return true;
+    state = STATE_READING_FRAME;
   }
 
   /**
@@ -185,20 +185,20 @@ import java.util.Collections;
    * limit, and the method should be called again with the next source to continue the read.
    *
    * @param source The source from which to read.
-   * @return True if the frame was read in full. False otherwise.
    */
-  private boolean readFrame(ParsableByteArray source) {
-    int bytesToRead = Math.min(source.bytesLeft(), sampleSize - bytesRead);
+  private void readFrameRemainder(ParsableByteArray source) {
+    int bytesToRead = Math.min(source.bytesLeft(), frameSize - frameBytesRead);
     output.sampleData(source, bytesToRead);
-    bytesRead += bytesToRead;
-    if (bytesRead < sampleSize) {
-      return false;
+    frameBytesRead += bytesToRead;
+    if (frameBytesRead < frameSize) {
+      // We haven't read the whole of the frame yet.
+      return;
     }
 
-    output.sampleMetadata(timeUs, C.SAMPLE_FLAG_SYNC, sampleSize, 0, null);
+    output.sampleMetadata(timeUs, C.SAMPLE_FLAG_SYNC, frameSize, 0, null);
     timeUs += frameDurationUs;
-    bytesRead = 0;
-    return true;
+    frameBytesRead = 0;
+    state = STATE_FINDING_HEADER;
   }
 
 }
