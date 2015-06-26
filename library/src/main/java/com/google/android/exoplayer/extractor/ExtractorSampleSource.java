@@ -194,6 +194,7 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
     if (enabledTrackCount == 1) {
       seekToUs(positionUs);
     }
+    pendingDiscontinuities[track] = false;
   }
 
   @Override
@@ -202,8 +203,8 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
     Assertions.checkState(trackEnabledStates[track]);
     enabledTrackCount--;
     trackEnabledStates[track] = false;
-    pendingDiscontinuities[track] = false;
     if (enabledTrackCount == 0) {
+      downstreamPositionUs = Long.MIN_VALUE;
       if (loader.isLoading()) {
         loader.cancelLoading();
       } else {
@@ -274,12 +275,12 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
       positionUs = 0;
     }
 
+    long currentPositionUs = isPendingReset() ? pendingResetPositionUs : downstreamPositionUs;
+    downstreamPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
-    if ((isPendingReset() ? pendingResetPositionUs : downstreamPositionUs) == positionUs) {
+    if (currentPositionUs == positionUs) {
       return;
     }
-
-    downstreamPositionUs = positionUs;
 
     // If we're not pending a reset, see if we can seek within the sample queues.
     boolean seekInsideBuffer = !isPendingReset();

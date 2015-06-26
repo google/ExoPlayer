@@ -163,6 +163,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
     downstreamMediaFormat = null;
     downstreamPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
+    pendingDiscontinuity = false;
     restartFrom(positionUs);
   }
 
@@ -170,7 +171,6 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   public void disable(int track) {
     Assertions.checkState(state == STATE_ENABLED);
     Assertions.checkState(track == 0);
-    pendingDiscontinuity = false;
     state = STATE_PREPARED;
     try {
       chunkSource.disable(mediaChunks);
@@ -269,12 +269,14 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   @Override
   public void seekToUs(long positionUs) {
     Assertions.checkState(state == STATE_ENABLED);
+
+    long currentPositionUs = isPendingReset() ? pendingResetPositionUs : downstreamPositionUs;
+    downstreamPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
-    if ((isPendingReset() ? pendingResetPositionUs : downstreamPositionUs) == positionUs) {
+    if (currentPositionUs == positionUs) {
       return;
     }
 
-    downstreamPositionUs = positionUs;
     // If we're not pending a reset, see if we can seek within the sample queue.
     boolean seekInsideBuffer = !isPendingReset() && sampleQueue.skipToKeyframeBefore(positionUs);
     if (seekInsideBuffer) {

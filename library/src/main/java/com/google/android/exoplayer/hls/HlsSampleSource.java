@@ -193,6 +193,7 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     if (enabledTrackCount == 1) {
       seekToUs(positionUs);
     }
+    pendingDiscontinuities[track] = false;
   }
 
   @Override
@@ -201,8 +202,8 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     Assertions.checkState(trackEnabledStates[track]);
     enabledTrackCount--;
     trackEnabledStates[track] = false;
-    pendingDiscontinuities[track] = false;
     if (enabledTrackCount == 0) {
+      downstreamPositionUs = Long.MIN_VALUE;
       if (loadControlRegistered) {
         loadControl.unregister(this);
         loadControlRegistered = false;
@@ -314,8 +315,11 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
   public void seekToUs(long positionUs) {
     Assertions.checkState(prepared);
     Assertions.checkState(enabledTrackCount > 0);
+
+    long currentPositionUs = isPendingReset() ? pendingResetPositionUs : downstreamPositionUs;
+    downstreamPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
-    if ((isPendingReset() ? pendingResetPositionUs : downstreamPositionUs) == positionUs) {
+    if (currentPositionUs == positionUs) {
       return;
     }
 
