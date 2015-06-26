@@ -388,7 +388,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       if (trackElement.csd != null) {
         csd = Arrays.asList(trackElement.csd);
       } else {
-        csd = Collections.singletonList(CodecSpecificDataUtil.buildAudioSpecificConfig(
+        csd = Collections.singletonList(CodecSpecificDataUtil.buildAacAudioSpecificConfig(
             trackFormat.audioSamplingRate, trackFormat.numChannels));
       }
       MediaFormat format = MediaFormat.createAudioFormat(mimeType, MediaFormat.NO_VALUE,
