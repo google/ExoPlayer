@@ -20,8 +20,10 @@ import com.google.android.exoplayer.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.text.TextUtils;
@@ -79,6 +81,17 @@ public final class Util {
   private static final long MAX_BYTES_TO_DRAIN = 2048;
 
   private Util() {}
+
+  /**
+   * Returns whether the device is an AndroidTV.
+   *
+   * @param context A context.
+   * @return True if the device is an AndroidTV. False otherwise.
+   */
+  @SuppressLint("InlinedApi")
+  public static boolean isAndroidTv(Context context) {
+    return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LEANBACK);
+  }
 
   /**
    * Returns true if the URL points to a file on the local device
