@@ -68,7 +68,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   private static final String RAW_DECODER_NAME = "OMX.google.raw.decoder";
 
   private final EventListener eventListener;
-  private final AudioTrack audioTrack;
+  protected final AudioTrack audioTrack;
 
   private int audioSessionId;
   private long currentPositionUs;
@@ -294,6 +294,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
 
     // If we are out of sync, allow currentPositionUs to jump backwards.
     if ((handleBufferResult & AudioTrack.RESULT_POSITION_DISCONTINUITY) != 0) {
+      handleDiscontinuity();
       allowPositionDiscontinuity = true;
     }
 
@@ -307,6 +308,10 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
     return false;
   }
 
+  protected void handleDiscontinuity() {
+    // Do nothing
+  }
+
   @Override
   public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
     if (messageType == MSG_SET_VOLUME) {
@@ -318,7 +323,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
 
   private void notifyAudioTrackInitializationError(final AudioTrack.InitializationException e) {
     if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
+      eventHandler.post(new Runnable() {
         @Override
         public void run() {
           eventListener.onAudioTrackInitializationError(e);
