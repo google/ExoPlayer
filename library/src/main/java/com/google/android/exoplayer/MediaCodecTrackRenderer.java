@@ -835,22 +835,31 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       return false;
     }
 
-    if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-      if (codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
-        // We're waiting to re-initialize the codec, and have now received all final output buffers.
-        releaseCodec();
-        maybeInitCodec();
-      } else {
-        outputStreamEnded = true;
-      }
-      return false;
+    int decodeOnlyIndex = getDecodeOnlyIndex(outputBufferInfo.presentationTimeUs);
+    boolean isEndOfStream = (outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0;
+
+    boolean processedOutputBuffer;
+    if (isEndOfStream && outputBufferInfo.size == 0) {
+      // Empty buffer indicating the end of the stream.
+      codec.releaseOutputBuffer(outputIndex, false);
+      processedOutputBuffer = true;
+    } else {
+      processedOutputBuffer = processOutputBuffer(positionUs, elapsedRealtimeUs, codec,
+          outputBuffers[outputIndex], outputBufferInfo, outputIndex, decodeOnlyIndex != -1);
     }
 
-    int decodeOnlyIndex = getDecodeOnlyIndex(outputBufferInfo.presentationTimeUs);
-    if (processOutputBuffer(positionUs, elapsedRealtimeUs, codec, outputBuffers[outputIndex],
-        outputBufferInfo, outputIndex, decodeOnlyIndex != -1)) {
+    if (processedOutputBuffer) {
       if (decodeOnlyIndex != -1) {
         decodeOnlyPresentationTimestamps.remove(decodeOnlyIndex);
+      }
+      if (isEndOfStream) {
+        if (codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
+          // We're waiting to re-initialize the codec, and have now processed all final buffers.
+          releaseCodec();
+          maybeInitCodec();
+        } else {
+          outputStreamEnded = true;
+        }
       }
       outputIndex = -1;
       return true;
