@@ -18,276 +18,187 @@ package com.google.android.exoplayer.extractor.ts;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.extractor.TrackOutput;
-import com.google.android.exoplayer.util.CodecSpecificDataUtil;
-import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.ParsableBitArray;
+import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
+import com.google.android.exoplayer.extractor.mp3.MpegAudioHeader;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
-import android.util.Pair;
 
 import java.util.Collections;
 
 /**
-   * Parses a continuous MPEG Audio byte stream and extracts individual
-   * frames.
-   */
+ * Parses a continuous MPEG Audio byte stream and extracts individual frames.
+ */
 /* package */ public class MpaReader extends ElementaryStreamReader {
 
-    private static final int STATE_FINDING_SYNC = 0;
-    private static final int STATE_READING_HEADER = 1;
-    private static final int STATE_READING_SAMPLE = 2;
+  private static final int STATE_FINDING_HEADER = 0;
+  private static final int STATE_READING_HEADER = 1;
+  private static final int STATE_READING_FRAME = 2;
 
-    private static final int HEADER_SIZE = 4;
-    private static final int CRC_SIZE = 2;
+  private static final int HEADER_SIZE = 4;
 
-    private final ParsableBitArray mpaScratch;
+  private final ParsableByteArray headerScratch;
 
-    private int state;
-    private int bytesRead;
+  private int state;
+  private int bytesRead;
 
-    // Used to find the header.
-    private boolean hasCrc;
+  // Used to find the header.
+  private boolean lastByteWasFF;
 
-    // Used when parsing the header.
-    private boolean hasOutputFormat;
-    private long frameDurationUs;
-    private int sampleSize;
+  // Used when parsing the header.
+  private boolean hasOutputFormat;
+  private long frameDurationUs;
+  private int sampleSize;
 
-    // Used when reading the samples.
-    private long timeUs;
+  // Used when reading the samples.
+  private long timeUs;
 
-    //
-    /**
-     * sampling rates in hertz:
-     *
-     *     @index MPEG Version ID
-     *     @index sampling rate index
-     */
+  public MpaReader(TrackOutput output) {
+    super(output);
+    state = STATE_FINDING_HEADER;
+    // The first byte of an MPEG Audio frame header is always 0xFF.
+    headerScratch = new ParsableByteArray(4);
+    headerScratch.data[0] = (byte) 0xFF;
+  }
 
-    private static final int[][] MPA_SAMPLING_RATES = new int[][] {
-            {11025, 12000,  8000},    // MPEG 2.5
-            {    0,     0,     0},    // reserved
-            {22050, 24000, 16000},    // MPEG 2
-            {44100, 48000, 32000}     // MPEG 1
-    };
+  @Override
+  public void seek() {
+    state = STATE_FINDING_HEADER;
+    bytesRead = 0;
+    lastByteWasFF = false;
+  }
 
-    /**
-     * bitrates:
-     *
-     *     @index LSF
-     *     @index Layer
-     *     @index bitrate index
-     */
+  @Override
+  public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
+    if (startOfPacket) {
+      timeUs = pesTimeUs;
+    }
+    while (data.bytesLeft() > 0) {
+      switch (state) {
+        case STATE_FINDING_HEADER:
+          if (findHeader(data)) {
+            state = STATE_READING_HEADER;
+          }
+          break;
+        case STATE_READING_HEADER:
+          if (readHeaderRemainder(data)) {
+            state = STATE_READING_FRAME;
+          }
+          break;
+        case STATE_READING_FRAME:
+          if (readFrame(data)) {
+            state = STATE_FINDING_HEADER;
+          }
+          break;
+      }
+    }
+  }
 
-    private static final int[][][] MPA_BITRATES = new int[][][] {
-            { // MPEG 1
-                    // Layer1
-                    {  0,  32,  64,  96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448},
-                    // Layer2
-                    {  0,  32,  48,  56,  64,  80,  96, 112, 128, 160, 192, 224, 256, 320, 384},
-                    // Layer3
-                    {  0,  32,  40,  48,  56,  64,  80,  96, 112, 128, 160, 192, 224, 256, 320}
-            },
-            { // MPEG 2, 2.5
-                    // Layer1
-                    {  0,  32,  48,  56,  64,  80,  96, 112, 128, 144, 160, 176, 192, 224, 256},
-                    // Layer2
-                    {  0,   8,  16,  24,  32,  40,  48,  56,  64,  80,  96, 112, 128, 144, 160},
-                    // Layer3
-                    {  0,   8,  16,  24,  32,  40,  48,  56,  64,  80,  96, 112, 128, 144, 160}
-            }
-    };
+  @Override
+  public void packetFinished() {
+    // Do nothing.
+  }
 
-    /**
-     * Samples per Frame:
-     *
-     *  @index LSF
-     *  @index Layer
-     */
+  /**
+   * Attempts to locate the start of the next frame header.
+   * <p>
+   * If a frame header is located then true is returned. The first two bytes of the header will have
+   * been written into {@link #headerScratch}, and the position of the source will have been
+   * advanced to the byte that immediately follows these two bytes.
+   * <p>
+   * If a frame header is not located then the position of the source will have been advanced to the
+   * limit, and the method should be called again with the next source to continue the search.
+   *
+   * @param source The source from which to read.
+   * @return True if the frame header was located. False otherwise.
+   */
+  private boolean findHeader(ParsableByteArray source) {
+    byte[] mpaData = source.data;
+    int startOffset = source.getPosition();
+    int endOffset = source.limit();
+    for (int i = startOffset; i < endOffset; i++) {
+      boolean byteIsFF = (mpaData[i] & 0xFF) == 0xFF;
+      boolean found = lastByteWasFF && (mpaData[i] & 0xF0) == 0xF0;
+      lastByteWasFF = byteIsFF;
+      if (found) {
+        source.setPosition(i + 1);
+        // Reset lastByteWasFF for next time.
+        lastByteWasFF = false;
+        headerScratch.data[0] = (byte) 0xFF;
+        headerScratch.data[1] = mpaData[i];
+        bytesRead = 2;
+        return true;
+      }
+    }
+    source.setPosition(endOffset);
+    return false;
+  }
 
-    private static final int[][] MPA_SAMPLES_PER_FRAME = new int[][] {
-            {           // MPEG 1
-                    384,   // Layer1
-                    1152,   // Layer2
-                    1152    // Layer3
-            },
-            {           // MPEG 2, 2.5
-                    384,   // Layer1
-                    1152,   // Layer2
-                    576    // Layer3
-            }
-    };
-
-    /**
-     * Coefficients (samples per frame / 8):
-     *
-     * @index = LSF
-     * @index = Layer
-     */
-
-    private static final int[][] MPA_COEFFICIENTS = new int[][] {
-            {           // MPEG 1
-                    12,    // Layer1
-                    144,    // Layer2
-                    144     // Layer3
-            },
-            {           // MPEG 2, 2.5
-                    12,    // Layer1
-                    144,    // Layer2
-                    72     // Layer3
-            }
-    };
-
-    /**
-     * slot size per layer:
-     *
-     * @index = Layer
-     */
-
-    private static final int[] MPA_SLOT_SIZE = new int[] {
-            4,          // Layer1
-            1,          // Layer2
-            1           // Layer3
-    };
-
-    public MpaReader(TrackOutput output) {
-        super(output);
-        mpaScratch = new ParsableBitArray(new byte[HEADER_SIZE + CRC_SIZE]);
-        state = STATE_FINDING_SYNC;
+  /**
+   * Attempts to read the remaining two bytes of the frame header.
+   * <p>
+   * If a frame header is read in full then true is returned. The media format will have been output
+   * if this has not previously occurred, the four header bytes will have been output as sample
+   * data, and the position of the source will have been advanced to the byte that immediately
+   * follows the header.
+   * <p>
+   * If a frame header is not read in full then the position of the source will have been advanced
+   * to the limit, and the method should be called again with the next source to continue the read.
+   *
+   * @param source The source from which to read.
+   * @return True if the frame header was read in full. False otherwise.
+   */
+  private boolean readHeaderRemainder(ParsableByteArray source) {
+    int bytesToRead = Math.min(source.bytesLeft(), HEADER_SIZE - bytesRead);
+    source.readBytes(headerScratch.data, bytesRead, bytesToRead);
+    bytesRead += bytesToRead;
+    if (bytesRead < HEADER_SIZE) {
+      return false;
     }
 
-    @Override
-    public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
-        if (startOfPacket) {
-            timeUs = pesTimeUs;
-        }
-        while (data.bytesLeft() > 0) {
-            switch (state) {
-                case STATE_FINDING_SYNC:
-                    if (skipToNextSync(data)) {
-                        bytesRead = 0;
-                        state = STATE_READING_HEADER;
-                    }
-                    break;
-                case STATE_READING_HEADER:
-                    int targetLength = hasCrc ? HEADER_SIZE + CRC_SIZE : HEADER_SIZE;
-                    if (continueRead(data, mpaScratch.getData(), targetLength)) {
-                        parseHeader();
-                        bytesRead = targetLength;
-                        state = STATE_READING_SAMPLE;
-                    }
-                    break;
-                case STATE_READING_SAMPLE:
-                    int bytesToRead = Math.min(data.bytesLeft(), sampleSize - bytesRead);
-                    output.sampleData(data, bytesToRead);
-                    bytesRead += bytesToRead;
-                    if (bytesRead == sampleSize) {
-                        output.sampleMetadata(timeUs, C.SAMPLE_FLAG_SYNC, sampleSize, 0, null);
-                        timeUs += frameDurationUs;
-                        bytesRead = 0;
-                        state = STATE_FINDING_SYNC;
-                    }
-                    break;
-            }
-        }
+    if (!hasOutputFormat) {
+      headerScratch.setPosition(0);
+      int headerInt = headerScratch.readInt();
+      MpegAudioHeader synchronizedHeader = new MpegAudioHeader();
+      MpegAudioHeader.populateHeader(headerInt, synchronizedHeader);
+      MediaFormat mediaFormat = MediaFormat.createAudioFormat(
+          Mp3Extractor.MIME_TYPE_BY_LAYER[synchronizedHeader.layerIndex], Mp3Extractor.MAX_FRAME_SIZE_BYTES,
+          C.UNKNOWN_TIME_US, synchronizedHeader.channels, synchronizedHeader.sampleRate,
+          Collections.<byte[]>emptyList());
+      output.format(mediaFormat);
+      hasOutputFormat = true;
+      frameDurationUs = (C.MICROS_PER_SECOND * synchronizedHeader.samplesPerFrame) / mediaFormat.sampleRate;
+      sampleSize = synchronizedHeader.frameSize;
     }
 
-    @Override
-    public void packetFinished() {
-        // Do nothing.
+    headerScratch.setPosition(0);
+    output.sampleData(headerScratch, HEADER_SIZE);
+    return true;
+  }
+
+  /**
+   * Attempts to read the remainder of the frame.
+   * <p>
+   * If a frame is read in full then true is returned. The frame will have been output, and the
+   * position of the source will have been advanced to the byte that immediately follows the end of
+   * the frame.
+   * <p>
+   * If a frame is not read in full then the position of the source will have been advanced to the
+   * limit, and the method should be called again with the next source to continue the read.
+   *
+   * @param source The source from which to read.
+   * @return True if the frame was read in full. False otherwise.
+   */
+  private boolean readFrame(ParsableByteArray source) {
+    int bytesToRead = Math.min(source.bytesLeft(), sampleSize - bytesRead);
+    output.sampleData(source, bytesToRead);
+    bytesRead += bytesToRead;
+    if (bytesRead < sampleSize) {
+      return false;
     }
 
-    /**
-     * Continues a read from the provided {@code source} into a given {@code target}. It's assumed
-     * that the data should be written into {@code target} starting from an offset of zero.
-     *
-     * @param source The source from which to read.
-     * @param target The target into which data is to be read.
-     * @param targetLength The target length of the read.
-     * @return Whether the target length was reached.
-     */
-    private boolean continueRead(ParsableByteArray source, byte[] target, int targetLength) {
-        int bytesToRead = Math.min(source.bytesLeft(), targetLength - bytesRead);
-        source.readBytes(target, bytesRead, bytesToRead);
-        bytesRead += bytesToRead;
-        return bytesRead == targetLength;
-    }
+    output.sampleMetadata(timeUs, C.SAMPLE_FLAG_SYNC, sampleSize, 0, null);
+    timeUs += frameDurationUs;
+    bytesRead = 0;
+    return true;
+  }
 
-    /**
-     * Locates the next sync word, advancing the position to the byte that immediately follows it.
-     * If a sync word was not located, the position is advanced to the limit.
-     *
-     * @param pesBuffer The buffer whose position should be advanced.
-     * @return True if a sync word position was found. False otherwise.
-     */
-    private boolean skipToNextSync(ParsableByteArray pesBuffer) {
-        byte[] mpaData = pesBuffer.data;
-        int startOffset = pesBuffer.getPosition();
-        int endOffset = pesBuffer.limit();
-        for (int i = startOffset; i < endOffset - 1; i++) {
-            int syncBits = ((mpaData[i] & 0xFF) << 8 ) | (mpaData[i + 1] & 0xFF);
-            if ((syncBits & 0xFFF0) == 0xFFF0) {
-                hasCrc = (mpaData[i + 1] & 0x1) == 0;
-                pesBuffer.setPosition(i);
-                return true;
-            }
-        }
-        pesBuffer.setPosition(endOffset);
-        return false;
-    }
-
-    /**
-     * Calculates MPEG Audio frame size
-     *
-     * @param layer The MPEG layer
-     * @param LSF Low Sample rate Format (MPEG 2)
-     * @param bitrate The bitrate in bits per second
-     * @param samplesPerSec The sampling rate in hertz
-     * @param -paddingSize
-     * @return Frame size in bytes
-     */
-    private static int CalcMpaFrameSize (int layer, int LSF, int bitrate, int samplesPerSec, int paddingSize) {
-        return (int)(Math.floor(MPA_COEFFICIENTS[LSF][layer] * bitrate / samplesPerSec) + paddingSize) * MPA_SLOT_SIZE[layer];
-    }
-
-    /**
-     * Parses the sample header.
-     */
-    private void parseHeader() {
-        int headerLength = hasCrc ? HEADER_SIZE + CRC_SIZE : HEADER_SIZE;
-
-        if (!hasOutputFormat) {
-            mpaScratch.setPosition(0);
-            mpaScratch.skipBits(12);
-            int isLSF = (!mpaScratch.readBit()) ? 1 : 0;
-            int layer = mpaScratch.readBits(2) ^ 3;
-            mpaScratch.skipBits(1);
-            int audioObjectType = 32 + layer;
-            int bitRate = MPA_BITRATES[isLSF][layer][mpaScratch.readBits(4)];
-            int sampleRate = MPA_SAMPLING_RATES[3 - isLSF][mpaScratch.readBits(2)];
-            int sampleRateIndex = CodecSpecificDataUtil.getSampleRateIndex(sampleRate);
-            int paddingBit = (mpaScratch.readBit()) ? 1 : 0;
-            mpaScratch.skipBits(1);
-            int channelConfig = mpaScratch.readBits(2) == 3 ? 1 : 2;
-
-            byte[] audioSpecificConfig = CodecSpecificDataUtil.buildAudioSpecificConfig(
-                    audioObjectType, sampleRateIndex, channelConfig);
-            Pair<Integer, Integer> audioParams = CodecSpecificDataUtil.parseAudioSpecificConfig(
-                    audioSpecificConfig);
-
-            // need to investigate how to detect if the mpeg decoder supports Layers other than Layer III
-            MediaFormat mediaFormat = MediaFormat.createAudioFormat(/*isLSF == 1 ?*/ MimeTypes.AUDIO_MPEG/* : MimeTypes.AUDIO_MP1L2*/,
-                    MediaFormat.NO_VALUE, audioParams.second, audioParams.first,
-                    Collections.singletonList(audioSpecificConfig));
-            output.format(mediaFormat);
-            hasOutputFormat = true;
-            frameDurationUs = (C.MICROS_PER_SECOND * MPA_SAMPLES_PER_FRAME[isLSF][layer]) / mediaFormat.sampleRate;
-            sampleSize = CalcMpaFrameSize(layer, isLSF, bitRate * 1000, sampleRate, paddingBit);
-        }
-
-        mpaScratch.setPosition(0);
-
-        ParsableByteArray header = new ParsableByteArray(mpaScratch.getData(),headerLength);
-        output.sampleData(header, headerLength);
-    }
 }
