@@ -22,6 +22,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -108,7 +109,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
         metadata.put(GeobMetadata.TYPE, new GeobMetadata(mimeType, filename,
             description, objectData));
       } else {
-        String type = String.format("%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
+        String type = String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
         byte[] frame = new byte[frameSize];
         id3Data.readBytes(frame, 0, frameSize);
         metadata.put(type, frame);
@@ -165,7 +166,7 @@ public class Id3Parser implements MetadataParser<Map<String, Object>> {
     int id2 = id3Buffer.readUnsignedByte();
     int id3 = id3Buffer.readUnsignedByte();
     if (id1 != 'I' || id2 != 'D' || id3 != '3') {
-      throw new ParserException(String.format(
+      throw new ParserException(String.format(Locale.US,
           "Unexpected ID3 file identifier, expected \"ID3\", actual \"%c%c%c\".", id1, id2, id3));
     }
     id3Buffer.skipBytes(2); // Skip version.
