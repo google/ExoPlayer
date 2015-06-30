@@ -97,7 +97,7 @@ public final class SubtitleLayout extends ViewGroup {
    */
   public void setFontScale(float scale) {
     fontScale = scale;
-    updateSubtitlesTextSize();
+    updateSubtitlesTextSize(getHeight());
 
     for (SubtitleView subtitleView : subtitleViews) {
       subtitleView.setTextSize(textSize);
@@ -125,7 +125,7 @@ public final class SubtitleLayout extends ViewGroup {
     int height = MeasureSpec.getSize(heightMeasureSpec);
     setMeasuredDimension(width, height);
 
-    updateSubtitlesTextSize();
+    updateSubtitlesTextSize(height);
 
     for (int i = 0; i < viewsInUse; i++) {
       subtitleViews.get(i).setTextSize(textSize);
@@ -175,8 +175,8 @@ public final class SubtitleLayout extends ViewGroup {
     }
   }
 
-  private void updateSubtitlesTextSize() {
-    textSize = LINE_HEIGHT_RATIO * getHeight() * fontScale;
+  private void updateSubtitlesTextSize(int height) {
+    textSize = LINE_HEIGHT_RATIO * height * fontScale;
   }
 
   private SubtitleView createSubtitleView() {
