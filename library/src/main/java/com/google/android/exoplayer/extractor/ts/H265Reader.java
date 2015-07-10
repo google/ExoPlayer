@@ -35,17 +35,16 @@ import java.util.Collections;
   private static final String TAG = "H265Reader";
 
   // nal_unit_type values from H.265/HEVC (2014) Table 7-1.
+  private static final int RASL_R = 9;
   private static final int BLA_W_LP = 16;
   private static final int BLA_W_RADL = 17;
   private static final int BLA_N_LP = 18;
   private static final int IDR_W_RADL = 19;
   private static final int IDR_N_LP = 20;
   private static final int CRA_NUT = 21;
-
   private static final int VPS_NUT = 32;
   private static final int SPS_NUT = 33;
   private static final int PPS_NUT = 34;
-
   private static final int PREFIX_SEI_NUT = 39;
   private static final int SUFFIX_SEI_NUT = 40;
 
@@ -122,10 +121,7 @@ import java.util.Collections;
 
           int nalUnitType = NalUnitUtil.getH265NalUnitType(dataArray, nextNalUnitOffset);
           int bytesWrittenPastNalUnit = limit - nextNalUnitOffset;
-          isKeyframe |= isRandomAccessPoint(nalUnitType);
-
-          // Output sample data for VCL NAL units.
-          if (isInVcl(nalUnitType)) {
+          if (isFirstSliceSegmentInPic(dataArray, nextNalUnitOffset)) {
             if (foundFirstSample) {
               if (isKeyframe && !hasOutputFormat && vps.isCompleted() && sps.isCompleted()
                   && pps.isCompleted()) {
@@ -138,7 +134,7 @@ import java.util.Collections;
             foundFirstSample = true;
             samplePosition = totalBytesWritten - bytesWrittenPastNalUnit;
             sampleTimeUs = pesTimeUs;
-            isKeyframe = false;
+            isKeyframe = isRandomAccessPoint(nalUnitType);
           }
 
           // If the length to the start of the unit is negative then we wrote too many bytes to the
@@ -325,7 +321,7 @@ import java.util.Collections;
         } else {
           int coefNum = Math.min(64, 1 << (4 + sizeId << 1));
           if (sizeId > 1) {
-            // scaling_list_dc_coef_minus8[sizeId − 2][matrixId]
+            // scaling_list_dc_coef_minus8[sizeId - 2][matrixId]
             bitArray.readSignedExpGolombCodedInt();
           }
           for (int i = 0; i < coefNum; i++) {
@@ -334,17 +330,6 @@ import java.util.Collections;
         }
       }
     }
-  }
-
-  /** Returns whether the NAL unit is a random access point. */
-  private static boolean isRandomAccessPoint(int nalUnitType) {
-    return nalUnitType == BLA_W_LP || nalUnitType == BLA_W_RADL || nalUnitType == BLA_N_LP
-        || nalUnitType == IDR_W_RADL || nalUnitType == IDR_N_LP || nalUnitType == CRA_NUT;
-  }
-
-  /** Returns whether the NAL unit is in the video coding layer. */
-  private static boolean isInVcl(int nalUnitType) {
-    return nalUnitType <= VPS_NUT;
   }
 
   /**
@@ -386,6 +371,32 @@ import java.util.Collections;
         }
       }
     }
+  }
+
+  /**
+   * Returns whether the NAL unit is a random access point.
+   */
+  private static boolean isRandomAccessPoint(int nalUnitType) {
+    return nalUnitType == BLA_W_LP || nalUnitType == BLA_W_RADL || nalUnitType == BLA_N_LP
+        || nalUnitType == IDR_W_RADL || nalUnitType == IDR_N_LP || nalUnitType == CRA_NUT;
+  }
+
+  /**
+   * Returns whether the NAL unit in {@code data} starting at {@code offset} contains the first
+   * slice in a picture.
+   *
+   * @param data The data to read.
+   * @param offset The start offset of a NAL unit. Must lie between {@code -3} (inclusive) and
+   *     {@code data.length - 3} (exclusive).
+   * @return Whether the NAL unit contains the first slice in a picture.
+   */
+  public static boolean isFirstSliceSegmentInPic(byte[] data, int offset) {
+    int nalUnitType = NalUnitUtil.getH265NalUnitType(data, offset);
+    // Check the flag in NAL units that contain a slice_segment_layer_rbsp RBSP.
+    if ((nalUnitType <= RASL_R) || (nalUnitType >= BLA_W_LP && nalUnitType <= CRA_NUT)) {
+      return (data[offset + 5] & 0x80) != 0;
+    }
+    return false;
   }
 
 }
