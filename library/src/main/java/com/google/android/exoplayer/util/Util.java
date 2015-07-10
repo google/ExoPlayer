@@ -69,6 +69,12 @@ public final class Util {
    */
   public static final String DEVICE = android.os.Build.DEVICE;
 
+  /**
+   * Like {@link android.os.Build#MANUFACTURER}, but in a place where it can be conveniently
+   * overridden for local testing.
+   */
+  public static final String MANUFACTURER = android.os.Build.MANUFACTURER;
+
   private static final Pattern XS_DATE_TIME_PATTERN = Pattern.compile(
       "(\\d\\d\\d\\d)\\-(\\d\\d)\\-(\\d\\d)[Tt]"
       + "(\\d\\d):(\\d\\d):(\\d\\d)(\\.(\\d+))?"
