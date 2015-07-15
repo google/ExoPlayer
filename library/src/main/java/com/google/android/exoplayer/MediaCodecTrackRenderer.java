@@ -195,6 +195,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private DrmInitData drmInitData;
   private MediaCodec codec;
   private boolean codecIsAdaptive;
+  private boolean codecNeedsEndOfStreamWorkaround;
   private ByteBuffer[] inputBuffers;
   private ByteBuffer[] outputBuffers;
   private long codecHotswapTimeMs;
@@ -357,6 +358,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
     String decoderName = decoderInfo.name;
     codecIsAdaptive = decoderInfo.adaptive;
+    codecNeedsEndOfStreamWorkaround = codecNeedsEndOfStreamWorkaround(decoderName);
     try {
       long codecInitializingTimestamp = SystemClock.elapsedRealtime();
       TraceUtil.beginSection("createByCodecName(" + decoderName + ")");
@@ -432,6 +434,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       codecReconfigured = false;
       codecHasQueuedBuffers = false;
       codecIsAdaptive = false;
+      codecNeedsEndOfStreamWorkaround = false;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
       codecReinitializationState = REINITIALIZATION_STATE_NONE;
       codecCounters.codecReleaseCount++;
@@ -581,8 +584,12 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     if (codecReinitializationState == REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM) {
       // We need to re-initialize the codec. Send an end of stream signal to the existing codec so
       // that it outputs any remaining buffers before we release it.
-      codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-      inputIndex = -1;
+      if (codecNeedsEndOfStreamWorkaround) {
+        // Do nothing.
+      } else {
+        codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+        inputIndex = -1;
+      }
       codecReinitializationState = REINITIALIZATION_STATE_WAIT_END_OF_STREAM;
       return false;
     }
@@ -634,8 +641,12 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       }
       inputStreamEnded = true;
       try {
-        codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-        inputIndex = -1;
+        if (codecNeedsEndOfStreamWorkaround) {
+          // Do nothing.
+        } else {
+          codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+          inputIndex = -1;
+        }
       } catch (CryptoException e) {
         notifyCryptoError(e);
         throw new ExoPlaybackException(e);
@@ -832,34 +843,24 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       codecCounters.outputBuffersChangedCount++;
       return true;
     } else if (outputIndex < 0) {
+      if (codecNeedsEndOfStreamWorkaround && (inputStreamEnded
+          || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM)) {
+        processEndOfStream();
+        return true;
+      }
+      return false;
+    }
+
+    if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
+      processEndOfStream();
       return false;
     }
 
     int decodeOnlyIndex = getDecodeOnlyIndex(outputBufferInfo.presentationTimeUs);
-    boolean isEndOfStream = (outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0;
-
-    boolean processedOutputBuffer;
-    if (isEndOfStream && outputBufferInfo.size == 0) {
-      // Empty buffer indicating the end of the stream.
-      codec.releaseOutputBuffer(outputIndex, false);
-      processedOutputBuffer = true;
-    } else {
-      processedOutputBuffer = processOutputBuffer(positionUs, elapsedRealtimeUs, codec,
-          outputBuffers[outputIndex], outputBufferInfo, outputIndex, decodeOnlyIndex != -1);
-    }
-
-    if (processedOutputBuffer) {
+    if (processOutputBuffer(positionUs, elapsedRealtimeUs, codec, outputBuffers[outputIndex],
+        outputBufferInfo, outputIndex, decodeOnlyIndex != -1)) {
       if (decodeOnlyIndex != -1) {
         decodeOnlyPresentationTimestamps.remove(decodeOnlyIndex);
-      }
-      if (isEndOfStream) {
-        if (codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
-          // We're waiting to re-initialize the codec, and have now processed all final buffers.
-          releaseCodec();
-          maybeInitCodec();
-        } else {
-          outputStreamEnded = true;
-        }
       }
       outputIndex = -1;
       return true;
@@ -878,6 +879,21 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   protected abstract boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs,
       MediaCodec codec, ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo, int bufferIndex,
       boolean shouldSkip) throws ExoPlaybackException;
+
+  /**
+   * Processes an end of stream signal.
+   *
+   * @throws ExoPlaybackException If an error occurs processing the signal.
+   */
+  private void processEndOfStream() throws ExoPlaybackException {
+    if (codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
+      // We're waiting to re-initialize the codec, and have now processed all final buffers.
+      releaseCodec();
+      maybeInitCodec();
+    } else {
+      outputStreamEnded = true;
+    }
+  }
 
   private void notifyDecoderInitializationError(final DecoderInitializationException e) {
     if (eventHandler != null && eventListener != null) {
@@ -922,6 +938,22 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       }
     }
     return -1;
+  }
+
+  /**
+   * Returns whether the decoder is known to handle {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM}
+   * incorrectly on the host device.
+   * <p>
+   * If true is returned, the renderer will work around the issue by approximating end of stream
+   * behavior without involvement of the underlying decoder.
+   *
+   * @param name The name of the decoder.
+   * @return True if the decoder is known to handle {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM}
+   *     incorrectly on the host device. False otherwise.
+   */
+  private static boolean codecNeedsEndOfStreamWorkaround(String name) {
+    return Util.SDK_INT <= 17 && "ht7s3".equals(Util.DEVICE) // Tesco HUDL
+        && "OMX.rk.video_decoder.avc".equals(name);
   }
 
 }
