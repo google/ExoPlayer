@@ -70,9 +70,9 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   public static final long UNKNOWN_TIME_US = C.UNKNOWN_TIME_US; // -1
   /**
    * Represents a time or duration that should match the duration of the longest track whose
-   * duration is known.
+   * duration is known. Equal to {@link C#MATCH_LONGEST_US}.
    */
-  public static final long MATCH_LONGEST_US = -2;
+  public static final long MATCH_LONGEST_US = C.MATCH_LONGEST_US; // -2
   /**
    * Represents the time of the end of the track.
    */

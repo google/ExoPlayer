@@ -30,6 +30,12 @@ public final class C {
   public static final long UNKNOWN_TIME_US = -1L;
 
   /**
+   * Represents a microsecond duration whose exact value is unknown, but which should match the
+   * longest of some other known durations.
+   */
+  public static final long MATCH_LONGEST_US = -2L;
+
+  /**
    * The number of microseconds in one second.
    */
   public static final long MICROS_PER_SECOND = 1000000L;

@@ -26,14 +26,17 @@ public final class TrackInfo {
   public final String mimeType;
 
   /**
-   * The duration in microseconds, or {@link C#UNKNOWN_TIME_US} if the duration is unknown.
+   * The duration in microseconds, or {@link C#UNKNOWN_TIME_US} if the duration is unknown, or
+   * {@link C#MATCH_LONGEST_US} if the duration should match the duration of the longest track whose
+   * duration is known.
    */
   public final long durationUs;
 
   /**
    * @param mimeType The mime type.
    * @param durationUs The duration in microseconds, or {@link C#UNKNOWN_TIME_US} if the duration
-   *     is unknown.
+   *     is unknown, or {@link C#MATCH_LONGEST_US} if the duration should match the duration of the
+   *     longest track whose duration is known.
    */
   public TrackInfo(String mimeType, long durationUs) {
     this.mimeType = mimeType;
