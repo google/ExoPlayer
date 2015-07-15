@@ -68,7 +68,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   private static final String RAW_DECODER_NAME = "OMX.google.raw.decoder";
 
   private final EventListener eventListener;
-  protected final AudioTrack audioTrack;
+  private final AudioTrack audioTrack;
 
   private int audioSessionId;
   private long currentPositionUs;
