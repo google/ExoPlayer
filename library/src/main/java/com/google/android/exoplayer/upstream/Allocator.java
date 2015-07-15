@@ -46,6 +46,15 @@ public interface Allocator {
   void trim(int targetSize);
 
   /**
+   * Blocks execution until the number of bytes allocated is not greater than the limit, or the
+   * thread is interrupted.
+   *
+   * @param limit The limit in bytes.
+   * @throws InterruptedException If the thread is interrupted.
+   */
+  void blockWhileTotalBytesAllocatedExceeds(int limit) throws InterruptedException;
+
+  /**
    * Returns the total number of bytes currently allocated.
    */
   int getTotalBytesAllocated();
