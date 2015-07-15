@@ -528,7 +528,9 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     if (rangeText != null) {
       String[] rangeTextArray = rangeText.split("-");
       rangeStart = Long.parseLong(rangeTextArray[0]);
-      rangeLength = Long.parseLong(rangeTextArray[1]) - rangeStart + 1;
+      if (rangeTextArray.length == 2) {
+        rangeLength = Long.parseLong(rangeTextArray[1]) - rangeStart + 1;
+      }
     }
     return buildRangedUri(baseUrl, urlText, rangeStart, rangeLength);
   }
