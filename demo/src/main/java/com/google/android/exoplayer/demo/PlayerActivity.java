@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer.demo;
 
+import com.google.android.exoplayer.AspectRatioFrameLayout;
 import com.google.android.exoplayer.ExoPlayer;
-import com.google.android.exoplayer.VideoSurfaceView;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
 import com.google.android.exoplayer.demo.player.DashRendererBuilder;
@@ -55,6 +55,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
@@ -109,7 +110,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private MediaController mediaController;
   private View debugRootView;
   private View shutterView;
-  private VideoSurfaceView surfaceView;
+  private AspectRatioFrameLayout videoFrame;
+  private SurfaceView surfaceView;
   private TextView debugTextView;
   private TextView playerStateTextView;
   private SubtitleLayout subtitleLayout;
@@ -170,7 +172,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     shutterView = findViewById(R.id.shutter);
     debugRootView = findViewById(R.id.controls_root);
 
-    surfaceView = (VideoSurfaceView) findViewById(R.id.surface_view);
+    videoFrame = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
+    surfaceView = (SurfaceView) findViewById(R.id.surface_view);
     surfaceView.getHolder().addCallback(this);
     debugTextView = (TextView) findViewById(R.id.debug_text_view);
 
@@ -364,7 +367,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   @Override
   public void onVideoSizeChanged(int width, int height, float pixelWidthAspectRatio) {
     shutterView.setVisibility(View.GONE);
-    surfaceView.setVideoWidthHeightRatio(
+    videoFrame.setAspectRatio(
         height == 0 ? 1 : (width * pixelWidthAspectRatio) / height);
   }
 
