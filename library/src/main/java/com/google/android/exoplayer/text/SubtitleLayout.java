@@ -32,7 +32,13 @@ public final class SubtitleLayout extends ViewGroup {
    * Use the same line height ratio as WebVtt to match the display with the preview.
    * WebVtt specifies line height as 5.3% of the viewport height.
    */
-  private static final float LINE_HEIGHT_RATIO = 0.0533f;
+  private static final float LINE_HEIGHT_FRACTION = 0.0533f;
+
+  /**
+   * The default bottom padding to apply when {@link Cue#line} is {@link Cue#UNSET_VALUE}, as a
+   * fraction of the viewport height.
+   */
+  private static final float DEFAULT_BOTTOM_PADDING_FRACTION = 0.08f;
 
   private final List<SubtitleView> subtitleViews;
 
@@ -145,7 +151,8 @@ public final class SubtitleLayout extends ViewGroup {
 
       int viewLeft = (width - subtitleView.getMeasuredWidth()) / 2;
       int viewRight = viewLeft + subtitleView.getMeasuredWidth();
-      int viewTop = bottom - subtitleView.getMeasuredHeight();
+      int viewTop = bottom - subtitleView.getMeasuredHeight()
+          - (int) (height * DEFAULT_BOTTOM_PADDING_FRACTION);
       int viewBottom = bottom;
 
       if (subtitleCue.alignment != null) {
@@ -176,7 +183,7 @@ public final class SubtitleLayout extends ViewGroup {
   }
 
   private void updateSubtitlesTextSize(int height) {
-    textSize = LINE_HEIGHT_RATIO * height * fontScale;
+    textSize = LINE_HEIGHT_FRACTION * height * fontScale;
   }
 
   private SubtitleView createSubtitleView() {
