@@ -297,7 +297,7 @@ public final class WebmExtractor implements Extractor {
       throws ParserException {
     switch (id) {
       case ID_SEGMENT:
-        if (segmentContentPosition != UNKNOWN) {
+        if (segmentContentPosition != UNKNOWN && segmentContentPosition != contentPosition) {
           throw new ParserException("Multiple Segment elements not supported");
         }
         segmentContentPosition = contentPosition;

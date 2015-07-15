@@ -92,6 +92,21 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     assertIndex(new IndexPoint(0, 0, TEST_DURATION_US));
   }
 
+  public void testReadSegmentTwice() throws IOException, InterruptedException {
+    byte[] data = new StreamBuilder()
+        .setHeader(WEBM_DOC_TYPE)
+        .setInfo(DEFAULT_TIMECODE_SCALE, TEST_DURATION_US)
+        .addVp9Track(TEST_WIDTH, TEST_HEIGHT, null)
+        .build(1);
+
+    TestUtil.consumeTestData(extractor, data);
+    extractor.seek();
+    TestUtil.consumeTestData(extractor, data);
+
+    assertVp9VideoFormat();
+    assertIndex(new IndexPoint(0, 0, TEST_DURATION_US));
+  }
+
   public void testPrepareOpus() throws IOException, InterruptedException {
     byte[] data = new StreamBuilder()
         .setHeader(WEBM_DOC_TYPE)
