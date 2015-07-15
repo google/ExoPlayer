@@ -205,7 +205,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
   }
 
   public void testPrepareContentEncodingEncryption() throws IOException, InterruptedException {
-    ContentEncodingSettings settings = new StreamBuilder.ContentEncodingSettings(0, 1, 1, 5, 1);
+    ContentEncodingSettings settings = new StreamBuilder.ContentEncodingSettings(0, 1, 5, 1);
     byte[] data = new StreamBuilder()
         .setHeader(WEBM_DOC_TYPE)
         .setInfo(DEFAULT_TIMECODE_SCALE, TEST_DURATION_US)
@@ -305,7 +305,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
   }
 
   public void testPrepareInvalidContentEncodingOrder() throws IOException, InterruptedException {
-    ContentEncodingSettings settings = new ContentEncodingSettings(1, 1, 1, 5, 1);
+    ContentEncodingSettings settings = new ContentEncodingSettings(1, 1, 5, 1);
     byte[] data = new StreamBuilder()
         .setHeader(WEBM_DOC_TYPE)
         .setInfo(DEFAULT_TIMECODE_SCALE, TEST_DURATION_US)
@@ -320,7 +320,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
   }
 
   public void testPrepareInvalidContentEncodingScope() throws IOException, InterruptedException {
-    ContentEncodingSettings settings = new ContentEncodingSettings(0, 0, 1, 5, 1);
+    ContentEncodingSettings settings = new ContentEncodingSettings(0, 0, 5, 1);
     byte[] data = new StreamBuilder()
         .setHeader(WEBM_DOC_TYPE)
         .setInfo(DEFAULT_TIMECODE_SCALE, TEST_DURATION_US)
@@ -334,8 +334,9 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     }
   }
 
-  public void testPrepareInvalidContentEncodingType() throws IOException, InterruptedException {
-    ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 0, 5, 1);
+  public void testPrepareInvalidContentCompAlgo()
+      throws IOException, InterruptedException {
+    ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 0, new byte[0]);
     byte[] data = new StreamBuilder()
         .setHeader(WEBM_DOC_TYPE)
         .setInfo(DEFAULT_TIMECODE_SCALE, TEST_DURATION_US)
@@ -345,12 +346,12 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
       TestUtil.consumeTestData(extractor, data);
       fail();
     } catch (ParserException exception) {
-      assertEquals("ContentEncodingType 0 not supported", exception.getMessage());
+      assertEquals("ContentCompAlgo 0 not supported", exception.getMessage());
     }
   }
 
   public void testPrepareInvalidContentEncAlgo() throws IOException, InterruptedException {
-    ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 1, 4, 1);
+    ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 4, 1);
     byte[] data = new StreamBuilder()
         .setHeader(WEBM_DOC_TYPE)
         .setInfo(DEFAULT_TIMECODE_SCALE, TEST_DURATION_US)
@@ -365,7 +366,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
   }
 
   public void testPrepareInvalidAESSettingsCipherMode() throws IOException, InterruptedException {
-    ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 1, 5, 0);
+    ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 5, 0);
     byte[] data = new StreamBuilder()
         .setHeader(WEBM_DOC_TYPE)
         .setInfo(DEFAULT_TIMECODE_SCALE, TEST_DURATION_US)
@@ -393,6 +394,44 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
 
     assertVp9VideoFormat();
     assertSample(0, media, 0, true, false, null, getVideoOutput());
+  }
+
+  public void testReadSampleKeyframeStripped() throws IOException, InterruptedException {
+    byte[] strippedBytes = new byte[] {-1, -1};
+    ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 3, strippedBytes);
+    byte[] sampleBytes = createFrameData(100);
+    byte[] unstrippedSampleBytes = TestUtil.joinByteArrays(strippedBytes, sampleBytes);
+    byte[] data = new StreamBuilder()
+        .setHeader(WEBM_DOC_TYPE)
+        .setInfo(DEFAULT_TIMECODE_SCALE, TEST_DURATION_US)
+        .addVp9Track(TEST_WIDTH, TEST_HEIGHT, settings)
+        .addSimpleBlockMedia(1 /* trackNumber */, 0 /* clusterTimecode */, 0 /* blockTimecode */,
+            true /* keyframe */, false /* invisible */, sampleBytes)
+        .build(1);
+
+    TestUtil.consumeTestData(extractor, data);
+
+    assertVp9VideoFormat();
+    assertSample(0, unstrippedSampleBytes, 0, true, false, null, getVideoOutput());
+  }
+
+  public void testReadSampleKeyframeManyBytesStripped() throws IOException, InterruptedException {
+    byte[] strippedBytes = createFrameData(100);
+    ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 3, strippedBytes);
+    byte[] sampleBytes = createFrameData(5);
+    byte[] unstrippedSampleBytes = TestUtil.joinByteArrays(strippedBytes, sampleBytes);
+    byte[] data = new StreamBuilder()
+        .setHeader(WEBM_DOC_TYPE)
+        .setInfo(DEFAULT_TIMECODE_SCALE, TEST_DURATION_US)
+        .addVp9Track(TEST_WIDTH, TEST_HEIGHT, settings)
+        .addSimpleBlockMedia(1 /* trackNumber */, 0 /* clusterTimecode */, 0 /* blockTimecode */,
+            true /* keyframe */, false /* invisible */, sampleBytes)
+        .build(1);
+
+    TestUtil.consumeTestData(extractor, data);
+
+    assertVp9VideoFormat();
+    assertSample(0, unstrippedSampleBytes, 0, true, false, null, getVideoOutput());
   }
 
   public void testReadTwoTrackSamples() throws IOException, InterruptedException {
@@ -479,7 +518,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
 
   public void testReadEncryptedFrame() throws IOException, InterruptedException {
     byte[] media = createFrameData(100);
-    ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 1, 5, 1);
+    ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 5, 1);
     byte[] data = new StreamBuilder()
         .setHeader(WEBM_DOC_TYPE)
         .setInfo(DEFAULT_TIMECODE_SCALE, TEST_DURATION_US)
@@ -498,7 +537,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
   public void testReadEncryptedFrameWithInvalidSignalByte()
       throws IOException, InterruptedException {
     byte[] media = createFrameData(100);
-    ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 1, 5, 1);
+    ContentEncodingSettings settings = new ContentEncodingSettings(0, 1, 5, 1);
     byte[] data = new StreamBuilder()
         .setHeader(WEBM_DOC_TYPE)
         .setInfo(DEFAULT_TIMECODE_SCALE, TEST_DURATION_US)
