@@ -145,8 +145,6 @@ public final class AudioTrack {
   private static final int MIN_PLAYHEAD_OFFSET_SAMPLE_INTERVAL_US = 30000;
   private static final int MIN_TIMESTAMP_SAMPLE_INTERVAL_US = 500000;
 
-  private static final int DEFAULT_TIMESCALE_PERCENT = 100;
-
   /**
    * Whether to enable a workaround for an issue where an audio effect does not keep its session
    * active across releasing/initializing a new audio track, on platform API version < 21.
@@ -193,7 +191,6 @@ public final class AudioTrack {
   private long resumeSystemTimeUs;
   private long latencyUs;
   private float volume;
-  private int timeScalePercent;
 
   private byte[] temporaryBuffer;
   private int temporaryBufferOffset;
@@ -221,7 +218,6 @@ public final class AudioTrack {
     }
     playheadOffsets = new long[MAX_PLAYHEAD_OFFSET_COUNT];
     volume = 1.0f;
-    timeScalePercent = DEFAULT_TIMESCALE_PERCENT;
     startMediaTimeState = START_NOT_SET;
   }
 
@@ -481,7 +477,7 @@ public final class AudioTrack {
       } else {
         // Sanity check that bufferStartTime is consistent with the expected value.
         long expectedBufferStartTime = startMediaTimeUs
-            + (framesToDurationUs(bytesToFrames(submittedBytes)) * timeScalePercent) / 100;
+            + framesToDurationUs(bytesToFrames(submittedBytes));
         if (startMediaTimeState == START_IN_SYNC
             && Math.abs(expectedBufferStartTime - bufferStartTime) > 200000) {
           Log.e(TAG, "Discontinuity detected [expected " + expectedBufferStartTime + ", got "
@@ -588,15 +584,6 @@ public final class AudioTrack {
       resetSyncParams();
       audioTrack.pause();
     }
-  }
-
-  /**
-   * Updates the timescale percent for reporting current time
-   *
-   * @param timeScalePercent The new percent multiplier
-   */
-  public void setTimeScalePercent(int timeScalePercent) {
-    this.timeScalePercent = timeScalePercent;
   }
 
   /**
