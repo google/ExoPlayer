@@ -25,6 +25,7 @@ import com.google.android.exoplayer.ext.vp9.VpxDecoderException;
 import com.google.android.exoplayer.ext.vp9.VpxVideoSurfaceView;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.extractor.webm.WebmExtractor;
+import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.util.PlayerControl;
 import com.google.android.exoplayer.util.Util;
@@ -56,7 +57,9 @@ public class VideoPlayer extends Activity implements OnClickListener,
   public static final String USE_OPENGL_ID_EXTRA = "use_opengl";
 
   private static final int FILE_PICKER_REQUEST = 1;
-  private static final int EXTRACTOR_BUFFER_SIZE = 10 * 1024 * 1024;
+  private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
+  private static final int BUFFER_SEGMENT_COUNT = 160;
+
 
   private boolean isDash;
   private String manifestUrl;
@@ -161,7 +164,8 @@ public class VideoPlayer extends Activity implements OnClickListener,
     ExtractorSampleSource sampleSource = new ExtractorSampleSource(
         Uri.fromFile(new File(filename)),
         new DefaultUriDataSource(this, Util.getUserAgent(this, "ExoPlayerExtWebMDemo")),
-        new WebmExtractor(), EXTRACTOR_BUFFER_SIZE);
+        new WebmExtractor(), new DefaultAllocator(BUFFER_SEGMENT_SIZE),
+        BUFFER_SEGMENT_SIZE * BUFFER_SEGMENT_COUNT);
     TrackRenderer videoRenderer =
         new LibvpxVideoTrackRenderer(sampleSource, true, handler, this, 50);
     if (useOpenGL) {

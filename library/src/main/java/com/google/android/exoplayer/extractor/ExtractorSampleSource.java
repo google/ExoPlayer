@@ -54,12 +54,11 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE = 6;
 
-  private static final int BUFFER_FRAGMENT_LENGTH = 256 * 1024;
   private static final int MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA = -1;
   private static final int NO_RESET_PENDING = -1;
 
   private final Extractor extractor;
-  private final DefaultAllocator allocator;
+  private final Allocator allocator;
   private final int requestedBufferSize;
   private final SparseArray<InternalTrackOutput> sampleQueues;
   private final int minLoadableRetryCount;
@@ -106,9 +105,24 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
    * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
    *     The actual allocated size may exceed the value passed in if the implementation requires it.
    */
+  @Deprecated
   public ExtractorSampleSource(Uri uri, DataSource dataSource, Extractor extractor,
       int requestedBufferSize) {
-    this(uri, dataSource, extractor, requestedBufferSize, MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA);
+    this(uri, dataSource, extractor, new DefaultAllocator(64 * 1024), requestedBufferSize);
+  }
+
+  /**
+   * @param uri The {@link Uri} of the media stream.
+   * @param dataSource A data source to read the media stream.
+   * @param extractor An {@link Extractor} to extract the media stream.
+   * @param allocator An {@link Allocator} from which to obtain memory allocations.
+   * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
+   *     The actual allocated size may exceed the value passed in if the implementation requires it.
+   */
+  public ExtractorSampleSource(Uri uri, DataSource dataSource, Extractor extractor,
+      Allocator allocator, int requestedBufferSize) {
+    this(uri, dataSource, extractor, allocator, requestedBufferSize,
+        MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA);
   }
 
   /**
@@ -120,15 +134,32 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
    * @param minLoadableRetryCount The minimum number of times that the sample source will retry
    *     if a loading error occurs.
    */
+  @Deprecated
   public ExtractorSampleSource(Uri uri, DataSource dataSource, Extractor extractor,
       int requestedBufferSize, int minLoadableRetryCount) {
+    this(uri, dataSource, extractor, new DefaultAllocator(64 * 1024), requestedBufferSize,
+        minLoadableRetryCount);
+  }
+
+  /**
+   * @param uri The {@link Uri} of the media stream.
+   * @param dataSource A data source to read the media stream.
+   * @param extractor An {@link Extractor} to extract the media stream.
+   * @param allocator An {@link Allocator} from which to obtain memory allocations.
+   * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
+   *     The actual allocated size may exceed the value passed in if the implementation requires it.
+   * @param minLoadableRetryCount The minimum number of times that the sample source will retry
+   *     if a loading error occurs.
+   */
+  public ExtractorSampleSource(Uri uri, DataSource dataSource, Extractor extractor,
+      Allocator allocator, int requestedBufferSize, int minLoadableRetryCount) {
     this.uri = uri;
     this.dataSource = dataSource;
     this.extractor = extractor;
+    this.allocator = allocator;
     this.requestedBufferSize = requestedBufferSize;
     this.minLoadableRetryCount = minLoadableRetryCount;
     sampleQueues = new SparseArray<>();
-    allocator = new DefaultAllocator(BUFFER_FRAGMENT_LENGTH);
     pendingResetPositionUs = NO_RESET_PENDING;
     frameAccurateSeeking = true;
     extractor.init(this);
@@ -561,7 +592,7 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
     private final Uri uri;
     private final DataSource dataSource;
     private final Extractor extractor;
-    private final DefaultAllocator allocator;
+    private final Allocator allocator;
     private final int requestedBufferSize;
     private final PositionHolder positionHolder;
 
@@ -570,7 +601,7 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
     private boolean pendingExtractorSeek;
 
     public ExtractingLoadable(Uri uri, DataSource dataSource, Extractor extractor,
-        DefaultAllocator allocator, int requestedBufferSize, long position) {
+        Allocator allocator, int requestedBufferSize, long position) {
       this.uri = Assertions.checkNotNull(uri);
       this.dataSource = Assertions.checkNotNull(dataSource);
       this.extractor = Assertions.checkNotNull(extractor);

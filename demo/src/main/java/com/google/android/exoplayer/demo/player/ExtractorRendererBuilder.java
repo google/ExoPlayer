@@ -24,7 +24,9 @@ import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.text.TextTrackRenderer;
 import com.google.android.exoplayer.text.tx3g.Tx3gParser;
+import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 
@@ -37,7 +39,8 @@ import android.net.Uri;
  */
 public class ExtractorRendererBuilder implements RendererBuilder {
 
-  private static final int BUFFER_SIZE = 10 * 1024 * 1024;
+  private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
+  private static final int BUFFER_SEGMENT_COUNT = 160;
 
   private final Context context;
   private final String userAgent;
@@ -53,12 +56,14 @@ public class ExtractorRendererBuilder implements RendererBuilder {
 
   @Override
   public void buildRenderers(DemoPlayer player, RendererBuilderCallback callback) {
+    Allocator allocator = new DefaultAllocator(BUFFER_SEGMENT_SIZE);
+
     // Build the video and audio renderers.
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter(player.getMainHandler(),
         null);
     DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
     ExtractorSampleSource sampleSource = new ExtractorSampleSource(uri, dataSource, extractor,
-        BUFFER_SIZE);
+        allocator, BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
         null, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, player.getMainHandler(),
         player, 50);

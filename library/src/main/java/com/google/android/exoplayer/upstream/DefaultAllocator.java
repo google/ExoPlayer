@@ -143,19 +143,16 @@ public final class DefaultAllocator implements Allocator {
   }
 
   @Override
-  public int getIndividualAllocationLength() {
-    return individualAllocationSize;
-  }
-
-  /**
-   * Blocks execution until the allocated number of bytes allocated is not greater than the
-   * threshold, or the thread is interrupted.
-   */
   public synchronized void blockWhileTotalBytesAllocatedExceeds(int limit)
       throws InterruptedException {
     while (getTotalBytesAllocated() > limit) {
       wait();
     }
+  }
+
+  @Override
+  public int getIndividualAllocationLength() {
+    return individualAllocationSize;
   }
 
 }
