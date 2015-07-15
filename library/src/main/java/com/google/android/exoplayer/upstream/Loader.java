@@ -232,54 +232,42 @@ public final class Loader {
     }
 
     @Override
-    public void run(){
-      try
-      {
-          executorThread = Thread.currentThread();
-          if (delayMs > 0)
-          {
-              Thread.sleep(delayMs);
-          }
-          if (!loadable.isLoadCanceled())
-          {
-              loadable.load();
-          }
-          passEmptyMessage(MSG_END_OF_SOURCE);
-      }
-      catch (IOException e)
-      {
-          obtainMessage(MSG_IO_EXCEPTION, e).sendToTarget();
-      }
-      catch (InterruptedException e)
-      {
-          // The load was canceled.
-          Assertions.checkState(loadable.isLoadCanceled());
-          passEmptyMessage(MSG_END_OF_SOURCE);
-      }
-      catch (Exception e)
-      {
-          // This should never happen, but handle it anyway.
-          Log.e(TAG, "Unexpected exception loading stream", e);
-          obtainMessage(MSG_IO_EXCEPTION, new UnexpectedLoaderException(e)).sendToTarget();
-      }
-      catch (Error e)
-      {
-          // We'd hope that the platform would kill the process if an Error is thrown here, but the
-          // executor may catch the error (b/20616433). Throw it here, but also pass and throw it from
-          // the handler thread so that the process dies even if the executor behaves in this way.
-          Log.e(TAG, "Unexpected error loading stream", e);
-          obtainMessage(MSG_FATAL_ERROR, e).sendToTarget();
-          throw e;
+    public void run() {
+      try {
+        executorThread = Thread.currentThread();
+        if (delayMs > 0) {
+          Thread.sleep(delayMs);
+        }
+        if (!loadable.isLoadCanceled()) {
+          loadable.load();
+        }
+        passEmptyMessage(MSG_END_OF_SOURCE);
+      } catch (IOException e) {
+        obtainMessage(MSG_IO_EXCEPTION, e).sendToTarget();
+      } catch (InterruptedException e) {
+        // The load was canceled.
+        Assertions.checkState(loadable.isLoadCanceled());
+        passEmptyMessage(MSG_END_OF_SOURCE);
+      } catch (Exception e) {
+        // This should never happen, but handle it anyway.
+        Log.e(TAG, "Unexpected exception loading stream", e);
+        obtainMessage(MSG_IO_EXCEPTION, new UnexpectedLoaderException(e)).sendToTarget();
+      } catch (Error e) {
+        // We'd hope that the platform would kill the process if an Error is thrown here, but the
+        // executor may catch the error (b/20616433). Throw it here, but also pass and throw it from
+        // the handler thread so that the process dies even if the executor behaves in this way.
+        Log.e(TAG, "Unexpected error loading stream", e);
+        obtainMessage(MSG_FATAL_ERROR, e).sendToTarget();
+        throw e;
       }
     }
-
+    
     private void passEmptyMessage(int what){
-      if (getLooper().getThread().getState() != Thread.State.TERMINATED)
-      {
-          sendEmptyMessage(what);
+      if (getLooper().getThread().getState() != Thread.State.TERMINATED){
+        sendEmptyMessage(what);
       }
     }
-
+    
     @Override
     public void handleMessage(Message msg) {
       if (msg.what == MSG_FATAL_ERROR) {
