@@ -191,6 +191,7 @@ import java.util.LinkedList;
     } else {
       SampleHolder sampleHolder = inputBuffer.sampleHolder;
       outputBuffer.timestampUs = sampleHolder.timeUs;
+      outputBuffer.flags = 0;
       sampleHolder.data.position(sampleHolder.data.position() - sampleHolder.size);
       decodeResult = decoder.decode(sampleHolder.data, sampleHolder.size, outputBuffer, outputRgb);
     }
