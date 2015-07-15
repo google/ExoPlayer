@@ -28,7 +28,7 @@ import java.util.List;
  */
 /* package */ final class StreamBuilder {
 
-  /** Used by {@link #addVp9Track} to create a Track header with Encryption. */
+  /** Used by {@link #addVp9Track} to create a track header with encryption/compression. */
   public static final class ContentEncodingSettings {
 
     private final int order;
@@ -36,14 +36,24 @@ import java.util.List;
     private final int type;
     private final int algorithm;
     private final int aesCipherMode;
+    private final byte[] strippedBytes;
 
-    public ContentEncodingSettings(int order, int scope, int type, int algorithm,
-        int aesCipherMode) {
+    public ContentEncodingSettings(int order, int scope, int algorithm, int aesCipherMode) {
       this.order = order;
       this.scope = scope;
-      this.type = type;
+      this.type = 1; // Encryption
       this.algorithm = algorithm;
       this.aesCipherMode = aesCipherMode;
+      this.strippedBytes = null;
+    }
+
+    public ContentEncodingSettings(int order, int scope, int algorithm, byte[] strippedBytes) {
+      this.order = order;
+      this.scope = scope;
+      this.type = 0; // Compression
+      this.algorithm = algorithm;
+      this.aesCipherMode = 0;
+      this.strippedBytes = strippedBytes;
     }
 
   }
@@ -225,6 +235,23 @@ import java.util.List;
     byte[] heightBytes = getIntegerBytes(pixelHeight);
     EbmlElement contentEncodingSettingsElement;
     if (contentEncodingSettings != null) {
+      EbmlElement encryptionOrCompressionElement;
+      if (contentEncodingSettings.type == 0) {
+        encryptionOrCompressionElement = element(0x5034, // ContentCompression
+            element(0x4254, (byte) (contentEncodingSettings.algorithm & 0xFF)), // ContentCompAlgo
+            element(0x4255, contentEncodingSettings.strippedBytes)); // ContentCompSettings
+      } else if (contentEncodingSettings.type == 1) {
+        encryptionOrCompressionElement = element(0x5035, // ContentEncryption
+            // ContentEncAlgo
+            element(0x47E1, (byte) (contentEncodingSettings.algorithm & 0xFF)),
+            element(0x47E2, TEST_ENCRYPTION_KEY_ID), // ContentEncKeyID
+            element(0x47E7, // ContentEncAESSettings
+                // AESSettingsCipherMode
+                element(0x47E8, (byte) (contentEncodingSettings.aesCipherMode & 0xFF))));
+      } else {
+        throw new IllegalArgumentException("Unexpected encoding type.");
+      }
+
       contentEncodingSettingsElement =
           element(0x6D80, // ContentEncodings
             element(0x6240, // ContentEncoding
@@ -234,13 +261,7 @@ import java.util.List;
                 element(0x5032, (byte) (contentEncodingSettings.scope & 0xFF)),
                 // ContentEncodingType
                 element(0x5033, (byte) (contentEncodingSettings.type & 0xFF)),
-                element(0x5035, // ContentEncryption
-                    // ContentEncAlgo
-                    element(0x47E1, (byte) (contentEncodingSettings.algorithm & 0xFF)),
-                    element(0x47E2, TEST_ENCRYPTION_KEY_ID), // ContentEncKeyID
-                    element(0x47E7, // ContentEncAESSettings
-                        // AESSettingsCipherMode
-                        element(0x47E8, (byte) (contentEncodingSettings.aesCipherMode & 0xFF))))));
+                encryptionOrCompressionElement));
     } else {
       contentEncodingSettingsElement = empty();
     }

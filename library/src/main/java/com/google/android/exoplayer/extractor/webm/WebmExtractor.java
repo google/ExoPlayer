@@ -113,7 +113,9 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_CONTENT_ENCODING = 0x6240;
   private static final int ID_CONTENT_ENCODING_ORDER = 0x5031;
   private static final int ID_CONTENT_ENCODING_SCOPE = 0x5032;
-  private static final int ID_CONTENT_ENCODING_TYPE = 0x5033;
+  private static final int ID_CONTENT_COMPRESSION = 0x5034;
+  private static final int ID_CONTENT_COMPRESSION_ALGORITHM = 0x4254;
+  private static final int ID_CONTENT_COMPRESSION_SETTINGS = 0x4255;
   private static final int ID_CONTENT_ENCRYPTION = 0x5035;
   private static final int ID_CONTENT_ENCRYPTION_ALGORITHM = 0x47E1;
   private static final int ID_CONTENT_ENCRYPTION_KEY_ID = 0x47E2;
@@ -139,6 +141,7 @@ public final class WebmExtractor implements Extractor {
   private final ParsableByteArray scratch;
   private final ParsableByteArray vorbisNumPageSamples;
   private final ParsableByteArray seekEntryIdBytes;
+  private final ParsableByteArray sampleStrippedBytes;
 
   private long segmentContentPosition = UNKNOWN;
   private long segmentContentSize = UNKNOWN;
@@ -178,7 +181,7 @@ public final class WebmExtractor implements Extractor {
 
   // Sample reading state.
   private int sampleBytesRead;
-  private boolean sampleEncryptionDataRead;
+  private boolean sampleEncodingHandled;
   private int sampleCurrentNalBytesRemaining;
   private int sampleBytesWritten;
   private boolean sampleRead;
@@ -200,6 +203,7 @@ public final class WebmExtractor implements Extractor {
     seekEntryIdBytes = new ParsableByteArray(4);
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
+    sampleStrippedBytes = new ParsableByteArray();
   }
 
   @Override
@@ -213,10 +217,7 @@ public final class WebmExtractor implements Extractor {
     blockState = BLOCK_STATE_START;
     reader.reset();
     varintReader.reset();
-    sampleCurrentNalBytesRemaining = 0;
-    sampleBytesRead = 0;
-    sampleBytesWritten = 0;
-    sampleEncryptionDataRead = false;
+    resetSample();
   }
 
   @Override
@@ -247,6 +248,7 @@ public final class WebmExtractor implements Extractor {
       case ID_VIDEO:
       case ID_CONTENT_ENCODINGS:
       case ID_CONTENT_ENCODING:
+      case ID_CONTENT_COMPRESSION:
       case ID_CONTENT_ENCRYPTION:
       case ID_CONTENT_ENCRYPTION_AES_SETTINGS:
       case ID_CUES:
@@ -269,7 +271,7 @@ public final class WebmExtractor implements Extractor {
       case ID_CHANNELS:
       case ID_CONTENT_ENCODING_ORDER:
       case ID_CONTENT_ENCODING_SCOPE:
-      case ID_CONTENT_ENCODING_TYPE:
+      case ID_CONTENT_COMPRESSION_ALGORITHM:
       case ID_CONTENT_ENCRYPTION_ALGORITHM:
       case ID_CONTENT_ENCRYPTION_AES_SETTINGS_CIPHER_MODE:
       case ID_CUE_TIME:
@@ -280,6 +282,7 @@ public final class WebmExtractor implements Extractor {
       case ID_CODEC_ID:
         return EbmlReader.TYPE_STRING;
       case ID_SEEK_ID:
+      case ID_CONTENT_COMPRESSION_SETTINGS:
       case ID_CONTENT_ENCRYPTION_KEY_ID:
       case ID_SIMPLE_BLOCK:
       case ID_BLOCK:
@@ -371,17 +374,20 @@ public final class WebmExtractor implements Extractor {
         blockState = BLOCK_STATE_START;
         return;
       case ID_CONTENT_ENCODING:
-        if (!trackFormat.hasContentEncryption) {
-          // We found a ContentEncoding other than Encryption.
-          throw new ParserException("Found an unsupported ContentEncoding");
+        if (trackFormat.hasContentEncryption) {
+          if (trackFormat.encryptionKeyId == null) {
+            throw new ParserException("Encrypted Track found but ContentEncKeyID was not found");
+          }
+          if (!sentDrmInitData) {
+            extractorOutput.drmInitData(
+                new DrmInitData.Universal(MimeTypes.VIDEO_WEBM, trackFormat.encryptionKeyId));
+            sentDrmInitData = true;
+          }
         }
-        if (trackFormat.encryptionKeyId == null) {
-          throw new ParserException("Encrypted Track found but ContentEncKeyID was not found");
-        }
-        if (!sentDrmInitData) {
-          extractorOutput.drmInitData(
-              new DrmInitData.Universal(MimeTypes.VIDEO_WEBM, trackFormat.encryptionKeyId));
-          sentDrmInitData = true;
+        return;
+      case ID_CONTENT_ENCODINGS:
+        if (trackFormat.hasContentEncryption && trackFormat.sampleStrippedBytes != null) {
+          throw new ParserException("Combining encryption and compression is not supported");
         }
         return;
       case ID_TRACK_ENTRY:
@@ -474,16 +480,15 @@ public final class WebmExtractor implements Extractor {
         }
         return;
       case ID_CONTENT_ENCODING_SCOPE:
-        // This extractor only supports the scope of all frames (since that's the only scope used
-        // for Encryption).
+        // This extractor only supports the scope of all frames.
         if (value != 1) {
           throw new ParserException("ContentEncodingScope " + value + " not supported");
         }
         return;
-      case ID_CONTENT_ENCODING_TYPE:
-        // This extractor only supports Encrypted ContentEncodingType.
-        if (value != 1) {
-          throw new ParserException("ContentEncodingType " + value + " not supported");
+      case ID_CONTENT_COMPRESSION_ALGORITHM:
+        // This extractor only supports header stripping.
+        if (value != 3) {
+          throw new ParserException("ContentCompAlgo " + value + " not supported");
         }
         return;
       case ID_CONTENT_ENCRYPTION_ALGORITHM:
@@ -559,6 +564,11 @@ public final class WebmExtractor implements Extractor {
       case ID_CODEC_PRIVATE:
         trackFormat.codecPrivate = new byte[contentSize];
         input.readFully(trackFormat.codecPrivate, 0, contentSize);
+        return;
+      case ID_CONTENT_COMPRESSION_SETTINGS:
+        // This extractor only supports header stripping, so the payload is the stripped bytes.
+        trackFormat.sampleStrippedBytes = new byte[contentSize];
+        input.readFully(trackFormat.sampleStrippedBytes, 0, contentSize);
         return;
       case ID_CONTENT_ENCRYPTION_KEY_ID:
         trackFormat.encryptionKeyId = new byte[contentSize];
@@ -714,9 +724,15 @@ public final class WebmExtractor implements Extractor {
   private void outputSampleMetadata(TrackOutput trackOutput, long timeUs) {
     trackOutput.sampleMetadata(timeUs, blockFlags, sampleBytesWritten, 0, blockEncryptionKeyId);
     sampleRead = true;
+    resetSample();
+  }
+
+  private void resetSample() {
     sampleBytesRead = 0;
     sampleBytesWritten = 0;
-    sampleEncryptionDataRead = false;
+    sampleCurrentNalBytesRemaining = 0;
+    sampleEncodingHandled = false;
+    sampleStrippedBytes.reset();
   }
 
   /**
@@ -738,26 +754,30 @@ public final class WebmExtractor implements Extractor {
 
   private void writeSampleData(ExtractorInput input, TrackOutput output, TrackFormat format,
       int size) throws IOException, InterruptedException {
-    // Read the sample's encryption signal byte and set the IV size if necessary.
-    if (format.hasContentEncryption && !sampleEncryptionDataRead) {
-      // Clear the encrypted flag.
-      blockFlags &= ~C.SAMPLE_FLAG_ENCRYPTED;
-      input.readFully(scratch.data, 0, 1);
-      sampleBytesRead++;
-      if ((scratch.data[0] & 0x80) == 0x80) {
-        throw new ParserException("Extension bit is set in signal byte");
+    if (!sampleEncodingHandled) {
+      if (format.hasContentEncryption) {
+        // If the sample is encrypted, read its encryption signal byte and set the IV size.
+        // Clear the encrypted flag.
+        blockFlags &= ~C.SAMPLE_FLAG_ENCRYPTED;
+        input.readFully(scratch.data, 0, 1);
+        sampleBytesRead++;
+        if ((scratch.data[0] & 0x80) == 0x80) {
+          throw new ParserException("Extension bit is set in signal byte");
+        }
+        if ((scratch.data[0] & 0x01) == 0x01) {
+          scratch.data[0] = (byte) ENCRYPTION_IV_SIZE;
+          scratch.setPosition(0);
+          output.sampleData(scratch, 1);
+          sampleBytesWritten++;
+          blockFlags |= C.SAMPLE_FLAG_ENCRYPTED;
+        }
+      } else if (format.sampleStrippedBytes != null) {
+        // If the sample has header stripping, prepare to read/output the stripped bytes first.
+        sampleStrippedBytes.reset(format.sampleStrippedBytes, format.sampleStrippedBytes.length);
       }
-      sampleEncryptionDataRead = true;
-
-      // If the sample is encrypted, write the IV size instead of the signal byte, and set the flag.
-      if ((scratch.data[0] & 0x01) == 0x01) {
-        scratch.data[0] = (byte) ENCRYPTION_IV_SIZE;
-        scratch.setPosition(0);
-        output.sampleData(scratch, 1);
-        sampleBytesWritten++;
-        blockFlags |= C.SAMPLE_FLAG_ENCRYPTED;
-      }
+      sampleEncodingHandled = true;
     }
+    size += sampleStrippedBytes.limit();
 
     if (CODEC_ID_H264.equals(format.codecId)) {
       // TODO: Deduplicate with Mp4Extractor.
@@ -776,28 +796,23 @@ public final class WebmExtractor implements Extractor {
       while (sampleBytesRead < size) {
         if (sampleCurrentNalBytesRemaining == 0) {
           // Read the NAL length so that we know where we find the next one.
-          input.readFully(nalLengthData, nalUnitLengthFieldLengthDiff,
+          readToTarget(input, nalLengthData, nalUnitLengthFieldLengthDiff,
               nalUnitLengthFieldLength);
           nalLength.setPosition(0);
           sampleCurrentNalBytesRemaining = nalLength.readUnsignedIntToInt();
           // Write a start code for the current NAL unit.
           nalStartCode.setPosition(0);
           output.sampleData(nalStartCode, 4);
-          sampleBytesRead += nalUnitLengthFieldLength;
           sampleBytesWritten += 4;
         } else {
           // Write the payload of the NAL unit.
-          int writtenBytes = output.sampleData(input, sampleCurrentNalBytesRemaining);
-          sampleCurrentNalBytesRemaining -= writtenBytes;
-          sampleBytesRead += writtenBytes;
-          sampleBytesWritten += writtenBytes;
+          sampleCurrentNalBytesRemaining -=
+              readToOutput(input, output, sampleCurrentNalBytesRemaining);
         }
       }
     } else {
       while (sampleBytesRead < size) {
-        int writtenBytes = output.sampleData(input, size - sampleBytesRead);
-        sampleBytesRead += writtenBytes;
-        sampleBytesWritten += writtenBytes;
+        readToOutput(input, output, size - sampleBytesRead);
       }
     }
 
@@ -812,6 +827,39 @@ public final class WebmExtractor implements Extractor {
       output.sampleData(vorbisNumPageSamples, 4);
       sampleBytesWritten += 4;
     }
+  }
+
+  /**
+   * Writes {@code length} bytes of sample data into {@code target} at {@code offset}, consisting of
+   * pending {@link #sampleStrippedBytes} and any remaining data read from {@code input}.
+   */
+  private void readToTarget(ExtractorInput input, byte[] target, int offset, int length)
+      throws IOException, InterruptedException {
+    int pendingStrippedBytes = Math.min(length, sampleStrippedBytes.bytesLeft());
+    input.readFully(target, offset + pendingStrippedBytes, length - pendingStrippedBytes);
+    if (pendingStrippedBytes > 0) {
+      sampleStrippedBytes.readBytes(target, offset, pendingStrippedBytes);
+    }
+    sampleBytesRead += length;
+  }
+
+  /**
+   * Outputs up to {@code length} bytes of sample data to {@code output}, consisting of either
+   * {@link #sampleStrippedBytes} or data read from {@code input}.
+   */
+  private int readToOutput(ExtractorInput input, TrackOutput output, int length)
+      throws IOException, InterruptedException {
+    int bytesRead;
+    int strippedBytesLeft = sampleStrippedBytes.bytesLeft();
+    if (strippedBytesLeft > 0) {
+      bytesRead = Math.min(length, strippedBytesLeft);
+      output.sampleData(sampleStrippedBytes, bytesRead);
+    } else {
+      bytesRead = output.sampleData(input, length);
+    }
+    sampleBytesRead += bytesRead;
+    sampleBytesWritten += bytesRead;
+    return bytesRead;
   }
 
   /**
@@ -958,6 +1006,7 @@ public final class WebmExtractor implements Extractor {
     public int type = UNKNOWN;
     public int defaultSampleDurationNs = UNKNOWN;
     public boolean hasContentEncryption;
+    public byte[] sampleStrippedBytes;
     public byte[] encryptionKeyId;
     public byte[] codecPrivate;
 
