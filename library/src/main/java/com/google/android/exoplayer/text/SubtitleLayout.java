@@ -16,9 +16,9 @@
 package com.google.android.exoplayer.text;
 
 import android.content.Context;
-import android.text.Layout.Alignment;
+import android.graphics.Canvas;
 import android.util.AttributeSet;
-import android.view.ViewGroup;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,28 +26,13 @@ import java.util.List;
 /**
  * A view for rendering rich-formatted captions.
  */
-public final class SubtitleLayout extends ViewGroup {
+public final class SubtitleLayout extends View {
 
-  /**
-   * Use the same line height ratio as WebVtt to match the display with the preview.
-   * WebVtt specifies line height as 5.3% of the viewport height.
-   */
-  private static final float LINE_HEIGHT_FRACTION = 0.0533f;
+  private final List<CuePainter> painters;
 
-  /**
-   * The default bottom padding to apply when {@link Cue#line} is {@link Cue#UNSET_VALUE}, as a
-   * fraction of the viewport height.
-   */
-  private static final float DEFAULT_BOTTOM_PADDING_FRACTION = 0.08f;
-
-  private final List<SubtitleView> subtitleViews;
-
-  private List<Cue> subtitleCues;
-  private int viewsInUse;
-
+  private List<Cue> cues;
   private float fontScale;
-  private float textSize;
-  private CaptionStyleCompat captionStyle;
+  private CaptionStyleCompat style;
 
   public SubtitleLayout(Context context) {
     this(context, null);
@@ -55,9 +40,9 @@ public final class SubtitleLayout extends ViewGroup {
 
   public SubtitleLayout(Context context, AttributeSet attrs) {
     super(context, attrs);
-    subtitleViews = new ArrayList<>();
+    painters = new ArrayList<>();
     fontScale = 1;
-    captionStyle = CaptionStyleCompat.DEFAULT;
+    style = CaptionStyleCompat.DEFAULT;
   }
 
   /**
@@ -66,131 +51,54 @@ public final class SubtitleLayout extends ViewGroup {
    * @param cues The cues to display.
    */
   public void setCues(List<Cue> cues) {
-    subtitleCues = cues;
-    int size = (cues == null) ? 0 : cues.size();
-
-    // create new subtitle views if necessary
-    if (size > subtitleViews.size()) {
-      for (int i = subtitleViews.size(); i < size; i++) {
-        SubtitleView newView = createSubtitleView();
-        subtitleViews.add(newView);
-      }
+    if (this.cues == cues) {
+      return;
     }
-
-    // add the views we currently need, if necessary
-    for (int i = viewsInUse; i < size; i++) {
-      addView(subtitleViews.get(i));
+    this.cues = cues;
+    // Ensure we have sufficient painters.
+    int cueCount = (cues == null) ? 0 : cues.size();
+    while (painters.size() < cueCount) {
+      painters.add(new CuePainter(getContext()));
     }
-
-    // remove the views we don't currently need, if necessary
-    for (int i = size; i < viewsInUse; i++) {
-      removeView(subtitleViews.get(i));
-    }
-
-    viewsInUse = size;
-
-    for (int i = 0; i < size; i++) {
-      subtitleViews.get(i).setText(cues.get(i).text);
-    }
-
-    requestLayout();
+    // Invalidate to trigger drawing.
+    invalidate();
   }
 
   /**
    * Sets the scale of the font.
    *
-   * @param scale The scale of the font.
+   * @param fontScale The scale of the font.
    */
-  public void setFontScale(float scale) {
-    fontScale = scale;
-    updateSubtitlesTextSize(getHeight());
-
-    for (SubtitleView subtitleView : subtitleViews) {
-      subtitleView.setTextSize(textSize);
+  public void setFontScale(float fontScale) {
+    if (this.fontScale == fontScale) {
+      return;
     }
-    requestLayout();
+    this.fontScale = fontScale;
+    // Invalidate to trigger drawing.
+    invalidate();
   }
 
   /**
    * Configures the view according to the given style.
    *
-   * @param captionStyle A style for the view.
+   * @param style A style for the view.
    */
-  public void setStyle(CaptionStyleCompat captionStyle) {
-    this.captionStyle = captionStyle;
-
-    for (SubtitleView subtitleView : subtitleViews) {
-      subtitleView.setStyle(captionStyle);
+  public void setStyle(CaptionStyleCompat style) {
+    if (this.style == style) {
+      return;
     }
-    requestLayout();
+    this.style = style;
+    // Invalidate to trigger drawing.
+    invalidate();
   }
 
   @Override
-  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    int width = MeasureSpec.getSize(widthMeasureSpec);
-    int height = MeasureSpec.getSize(heightMeasureSpec);
-    setMeasuredDimension(width, height);
-
-    updateSubtitlesTextSize(height);
-
-    for (int i = 0; i < viewsInUse; i++) {
-      subtitleViews.get(i).setTextSize(textSize);
-      subtitleViews.get(i).measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST),
-          MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
+  public void dispatchDraw(Canvas canvas) {
+    int cueCount = (cues == null) ? 0 : cues.size();
+    for (int i = 0; i < cueCount; i++) {
+      painters.get(i).draw(cues.get(i), style, fontScale, canvas, getLeft(), getTop(), getRight(),
+          getBottom());
     }
-  }
-
-  @Override
-  protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-    int width = right - left;
-    int height = bottom - top;
-
-    for (int i = 0; i < viewsInUse; i++) {
-      SubtitleView subtitleView = subtitleViews.get(i);
-      Cue subtitleCue = subtitleCues.get(i);
-
-      int viewLeft = (width - subtitleView.getMeasuredWidth()) / 2;
-      int viewRight = viewLeft + subtitleView.getMeasuredWidth();
-      int viewTop = bottom - subtitleView.getMeasuredHeight()
-          - (int) (height * DEFAULT_BOTTOM_PADDING_FRACTION);
-      int viewBottom = bottom;
-
-      if (subtitleCue.alignment != null) {
-        subtitleView.setTextAlignment(subtitleCue.alignment);
-      } else {
-        subtitleView.setTextAlignment(Alignment.ALIGN_CENTER);
-      }
-      if (subtitleCue.position != Cue.UNSET_VALUE) {
-        if (subtitleCue.alignment == Alignment.ALIGN_OPPOSITE) {
-          viewRight = (int) ((width * (double) subtitleCue.position) / 100) + left;
-          viewLeft = Math.max(viewRight - subtitleView.getMeasuredWidth(), left);
-        } else {
-          viewLeft = (int) ((width * (double) subtitleCue.position) / 100) + left;
-          viewRight = Math.min(viewLeft + subtitleView.getMeasuredWidth(), right);
-        }
-      }
-      if (subtitleCue.line != Cue.UNSET_VALUE) {
-        viewTop = (int) (height * (double) subtitleCue.line / 100) + top;
-        viewBottom = viewTop + subtitleView.getMeasuredHeight();
-        if (viewBottom > bottom) {
-          viewTop = bottom - subtitleView.getMeasuredHeight();
-          viewBottom = bottom;
-        }
-      }
-
-      subtitleView.layout(viewLeft, viewTop, viewRight, viewBottom);
-    }
-  }
-
-  private void updateSubtitlesTextSize(int height) {
-    textSize = LINE_HEIGHT_FRACTION * height * fontScale;
-  }
-
-  private SubtitleView createSubtitleView() {
-    SubtitleView view = new SubtitleView(getContext());
-    view.setStyle(captionStyle);
-    view.setTextSize(textSize);
-    return view;
   }
 
 }
