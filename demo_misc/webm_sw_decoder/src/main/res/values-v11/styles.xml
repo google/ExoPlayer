@@ -16,11 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <style name="RootTheme" parent="android:Theme"/>
-
-  <style name="PlayerTheme" parent="@style/RootTheme">
-    <item name="android:windowNoTitle">true</item>
-    <item name="android:windowBackground">@android:color/black</item>
-  </style>
+  <style name="RootTheme" parent="android:Theme.Holo"/>
 
 </resources>
