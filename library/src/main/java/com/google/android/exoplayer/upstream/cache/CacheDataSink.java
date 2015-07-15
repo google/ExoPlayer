@@ -15,9 +15,11 @@
  */
 package com.google.android.exoplayer.upstream.cache;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.upstream.DataSink;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.Util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -63,6 +65,9 @@ public class CacheDataSink implements DataSink {
 
   @Override
   public DataSink open(DataSpec dataSpec) throws CacheDataSinkException {
+    // TODO: Support caching for unbounded requests. See TODO in {@link CacheDataSource} for
+    // more details.
+    Assertions.checkState(dataSpec.length != C.LENGTH_UNBOUNDED);
     try {
       this.dataSpec = dataSpec;
       dataSpecBytesWritten = 0;
@@ -111,11 +116,23 @@ public class CacheDataSink implements DataSink {
   }
 
   private void closeCurrentOutputStream() throws IOException {
-    if (outputStream != null) {
+    if (outputStream == null) {
+      return;
+    }
+
+    boolean success = false;
+    try {
       outputStream.flush();
-      outputStream.close();
+      outputStream.getFD().sync();
+      success = true;
+    } finally {
+      Util.closeQuietly(outputStream);
+      if (success) {
+        cache.commitFile(file);
+      } else {
+        file.delete();
+      }
       outputStream = null;
-      cache.commitFile(file);
       file = null;
     }
   }

@@ -52,7 +52,7 @@ import android.os.Looper;
  * <h3>Threading model</h3>
  *
  * <p>The figure below shows the {@link ExoPlayer} threading model.</p>
- * <p align="center"><img src="../../../../../doc_src/images/exoplayer_threading_model.png"
+ * <p align="center"><img src="../../../../../images/exoplayer_threading_model.png"
  *     alt="MediaPlayer state diagram"
  *     border="0"/></p>
  *
@@ -79,14 +79,14 @@ import android.os.Looper;
  * have been performed asynchronously by the playback thread. In contrast, the playback state
  * accessed by {@link #getPlaybackState()} is only ever changed as a result of operations
  * completing on the playback thread, as illustrated below.</p>
- * <p align="center"><img src="../../../../../doc_src/images/exoplayer_state.png"
+ * <p align="center"><img src="../../../../../images/exoplayer_state.png"
  *     alt="ExoPlayer state"
  *     border="0"/></p>
  *
  * <p>The possible playback state transitions are shown below. Transitions can be triggered either
  * by changes in the state of the {@link TrackRenderer}s being used, or as a result of
  * {@link #prepare(TrackRenderer[])}, {@link #stop()} or {@link #release()} being invoked.</p>
- * <p align="center"><img src="../../../../../doc_src/images/exoplayer_playbackstate.png"
+ * <p align="center"><img src="../../../../../images/exoplayer_playbackstate.png"
  *     alt="ExoPlayer playback state transitions"
  *     border="0"/></p>
  */
@@ -101,7 +101,7 @@ public interface ExoPlayer {
      * The default minimum duration of data that must be buffered for playback to start or resume
      * following a user action such as a seek.
      */
-    public static final int DEFAULT_MIN_BUFFER_MS = 500;
+    public static final int DEFAULT_MIN_BUFFER_MS = 2500;
 
     /**
      * The default minimum duration of data that must be buffered for playback to resume
@@ -141,14 +141,6 @@ public interface ExoPlayer {
       return new ExoPlayerImpl(rendererCount, DEFAULT_MIN_BUFFER_MS, DEFAULT_MIN_REBUFFER_MS);
     }
 
-    /**
-     * @deprecated Please use {@link #newInstance(int, int, int)}.
-     */
-    @Deprecated
-    public static ExoPlayer newInstance(int rendererCount, int minRebufferMs) {
-      return new ExoPlayerImpl(rendererCount, DEFAULT_MIN_BUFFER_MS, minRebufferMs);
-    }
-
   }
 
   /**
@@ -160,7 +152,8 @@ public interface ExoPlayer {
      * {@link ExoPlayer#getPlaybackState()} changes.
      *
      * @param playWhenReady Whether playback will proceed when ready.
-     * @param playbackState One of the {@code STATE} constants defined in this class.
+     * @param playbackState One of the {@code STATE} constants defined in the {@link ExoPlayer}
+     *     interface.
      */
     void onPlayerStateChanged(boolean playWhenReady, int playbackState);
     /**
@@ -229,7 +222,7 @@ public interface ExoPlayer {
   /**
    * Represents an unknown time or duration.
    */
-  public static final int UNKNOWN_TIME = -1;
+  public static final long UNKNOWN_TIME = -1;
 
   /**
    * Gets the {@link Looper} associated with the playback thread.
@@ -256,7 +249,7 @@ public interface ExoPlayer {
   /**
    * Returns the current state of the player.
    *
-   * @return One of the {@code STATE} constants defined in this class.
+   * @return One of the {@code STATE} constants defined in this interface.
    */
   public int getPlaybackState();
 
@@ -313,17 +306,19 @@ public interface ExoPlayer {
    *
    * @param positionMs The seek position.
    */
-  public void seekTo(int positionMs);
+  public void seekTo(long positionMs);
 
   /**
-   * Stops playback.
+   * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention
+   * is to pause playback.
    * <p>
    * Calling this method will cause the playback state to transition to
-   * {@link ExoPlayer#STATE_IDLE}. Note that the player instance can still be used, and that
-   * {@link ExoPlayer#release()} must still be called on the player should it no longer be required.
+   * {@link ExoPlayer#STATE_IDLE}. The player instance can still be used, and
+   * {@link ExoPlayer#release()} must still be called on the player if it's no longer required.
    * <p>
-   * Use {@code setPlayWhenReady(false)} rather than this method if the intention is to pause
-   * playback.
+   * Calling this method does not reset the playback position. If this player instance will be used
+   * to play another video from its start, then {@code seekTo(0)} should be called after stopping
+   * the player and before preparing it for the next video.
    */
   public void stop();
 
@@ -361,14 +356,14 @@ public interface ExoPlayer {
    * @return The duration of the track in milliseconds, or {@link ExoPlayer#UNKNOWN_TIME} if the
    *     duration is not known.
    */
-  public int getDuration();
+  public long getDuration();
 
   /**
    * Gets the current playback position in milliseconds.
    *
    * @return The current playback position in milliseconds.
    */
-  public int getCurrentPosition();
+  public long getCurrentPosition();
 
   /**
    * Gets an estimate of the absolute position in milliseconds up to which data is buffered.
@@ -376,7 +371,7 @@ public interface ExoPlayer {
    * @return An estimate of the absolute position in milliseconds up to which data is buffered,
    *     or {@link ExoPlayer#UNKNOWN_TIME} if no estimate is available.
    */
-  public int getBufferedPosition();
+  public long getBufferedPosition();
 
   /**
    * Gets an estimate of the percentage into the media up to which data is buffered.

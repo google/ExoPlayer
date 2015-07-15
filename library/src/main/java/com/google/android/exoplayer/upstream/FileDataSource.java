@@ -15,13 +15,16 @@
  */
 package com.google.android.exoplayer.upstream;
 
+import com.google.android.exoplayer.C;
+
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
 /**
- * A local file {@link DataSource}.
+ * A local file {@link UriDataSource}.
  */
-public final class FileDataSource implements DataSource {
+public final class FileDataSource implements UriDataSource {
 
   /**
    * Thrown when IOException is encountered during local file read operation.
@@ -34,21 +37,50 @@ public final class FileDataSource implements DataSource {
 
   }
 
+  private final TransferListener listener;
+
   private RandomAccessFile file;
+  private String uriString;
   private long bytesRemaining;
+  private boolean opened;
+
+  /**
+   * Constructs a new {@link DataSource} that retrieves data from a file.
+   */
+  public FileDataSource() {
+    this(null);
+  }
+
+  /**
+   * Constructs a new {@link DataSource} that retrieves data from a file.
+   *
+   * @param listener An optional listener. Specify {@code null} for no listener.
+   */
+  public FileDataSource(TransferListener listener) {
+    this.listener = listener;
+  }
 
   @Override
   public long open(DataSpec dataSpec) throws FileDataSourceException {
     try {
+      uriString = dataSpec.uri.toString();
       file = new RandomAccessFile(dataSpec.uri.getPath(), "r");
       file.seek(dataSpec.position);
-      bytesRemaining = dataSpec.length == DataSpec.LENGTH_UNBOUNDED
-          ? file.length() - dataSpec.position
+      bytesRemaining = dataSpec.length == C.LENGTH_UNBOUNDED ? file.length() - dataSpec.position
           : dataSpec.length;
-      return bytesRemaining;
+      if (bytesRemaining < 0) {
+        throw new EOFException();
+      }
     } catch (IOException e) {
       throw new FileDataSourceException(e);
     }
+
+    opened = true;
+    if (listener != null) {
+      listener.onTransferStart();
+    }
+
+    return bytesRemaining;
   }
 
   @Override
@@ -62,20 +94,40 @@ public final class FileDataSource implements DataSource {
       } catch (IOException e) {
         throw new FileDataSourceException(e);
       }
-      bytesRemaining -= bytesRead;
+
+      if (bytesRead > 0) {
+        bytesRemaining -= bytesRead;
+        if (listener != null) {
+          listener.onBytesTransferred(bytesRead);
+        }
+      }
+
       return bytesRead;
     }
   }
 
   @Override
+  public String getUri() {
+    return uriString;
+  }
+
+  @Override
   public void close() throws FileDataSourceException {
+    uriString = null;
     if (file != null) {
       try {
         file.close();
       } catch (IOException e) {
         throw new FileDataSourceException(e);
+      } finally {
+        file = null;
+        if (opened) {
+          opened = false;
+          if (listener != null) {
+            listener.onTransferEnd();
+          }
+        }
       }
-      file = null;
     }
   }
 

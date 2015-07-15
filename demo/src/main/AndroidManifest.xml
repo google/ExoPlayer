@@ -16,8 +16,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.google.android.exoplayer.demo"
-    android:versionCode="1010"
-    android:versionName="1.0.10"
+    android:versionCode="1303"
+    android:versionName="1.3.3"
     android:theme="@style/RootTheme">
 
   <uses-permission android:name="android.permission.INTERNET"/>
@@ -25,11 +25,13 @@
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
-  <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="19"/>
+  <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="22"/>
 
   <application
       android:label="@string/application_name"
-      android:allowBackup="true">
+      android:icon="@drawable/ic_launcher"
+      android:largeHeap="true"
+      android:allowBackup="false">
 
     <activity android:name="com.google.android.exoplayer.demo.SampleChooserActivity"
         android:configChanges="keyboardHidden"
@@ -40,12 +42,7 @@
       </intent-filter>
     </activity>
 
-    <activity android:name="com.google.android.exoplayer.demo.simple.SimplePlayerActivity"
-        android:configChanges="keyboardHidden|orientation|screenSize"
-        android:label="@string/application_name"
-        android:theme="@style/PlayerTheme"/>
-
-    <activity android:name="com.google.android.exoplayer.demo.full.FullPlayerActivity"
+    <activity android:name="com.google.android.exoplayer.demo.PlayerActivity"
         android:configChanges="keyboardHidden|orientation|screenSize"
         android:label="@string/application_name"
         android:theme="@style/PlayerTheme"/>

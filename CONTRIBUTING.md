@@ -1,11 +1,13 @@
-# How to contribute #
+# How to Contribute #
 
 We'd love to hear your feedback. Please open new issues describing any bugs,
 feature requests or suggestions that you have.
 
-We are not actively looking to accept patches to this project at the current
-time, however in some cases we may do so. For such cases, please see the
-agreement below.
+We will also consider high quality pull requests. These should normally merge
+into the [dev][] branch rather than master. To contribute in this way you must
+first submit a Contributor License Agreement, as described below.
+
+[dev]: https://github.com/google/ExoPlayer/tree/dev
 
 
 ## Contributor License Agreement ##

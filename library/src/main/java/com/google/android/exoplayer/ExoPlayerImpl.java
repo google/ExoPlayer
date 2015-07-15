@@ -53,6 +53,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @SuppressLint("HandlerLeak")
   public ExoPlayerImpl(int rendererCount, int minBufferMs, int minRebufferMs) {
     Log.i(TAG, "Init " + ExoPlayerLibraryInfo.VERSION);
+    this.playWhenReady = false;
     this.playbackState = STATE_IDLE;
     this.listeners = new CopyOnWriteArraySet<Listener>();
     this.rendererEnabledFlags = new boolean[rendererCount];
@@ -130,7 +131,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void seekTo(int positionMs) {
+  public void seekTo(long positionMs) {
     internalPlayer.seekTo(positionMs);
   }
 
@@ -156,26 +157,26 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public int getDuration() {
+  public long getDuration() {
     return internalPlayer.getDuration();
   }
 
   @Override
-  public int getCurrentPosition() {
+  public long getCurrentPosition() {
     return internalPlayer.getCurrentPosition();
   }
 
   @Override
-  public int getBufferedPosition() {
+  public long getBufferedPosition() {
     return internalPlayer.getBufferedPosition();
   }
 
   @Override
   public int getBufferedPercentage() {
-    int bufferedPosition = getBufferedPosition();
-    int duration = getDuration();
+    long bufferedPosition = getBufferedPosition();
+    long duration = getDuration();
     return bufferedPosition == ExoPlayer.UNKNOWN_TIME || duration == ExoPlayer.UNKNOWN_TIME ? 0
-        : (duration == 0 ? 100 : (bufferedPosition * 100) / duration);
+        : (int) (duration == 0 ? 100 : (bufferedPosition * 100) / duration);
   }
 
   // Not private so it can be called from an inner class without going through a thunk method.

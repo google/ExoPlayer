@@ -20,7 +20,7 @@ import com.google.android.exoplayer.util.Assertions;
 import java.util.Comparator;
 
 /**
- * A format definition for streams.
+ * Defines the high level format of a media stream.
  */
 public class Format {
 
@@ -47,57 +47,108 @@ public class Format {
   public final String mimeType;
 
   /**
-   * The width of the video in pixels, or -1 for non-video formats.
-   */
-  public final int width;
-
-  /**
-   * The height of the video in pixels, or -1 for non-video formats.
-   */
-  public final int height;
-
-  /**
-   * The number of audio channels, or -1 for non-audio formats.
-   */
-  public final int numChannels;
-
-  /**
-   * The audio sampling rate in Hz, or -1 for non-audio formats.
-   */
-  public final int audioSamplingRate;
-
-  /**
    * The average bandwidth in bits per second.
    */
   public final int bitrate;
 
   /**
-   * The average bandwidth in bytes per second.
-   *
-   * @deprecated Use {@link #bitrate}. However note that the units of measurement are different.
+   * The width of the video in pixels, or -1 if unknown or not applicable.
    */
-  @Deprecated
-  public final int bandwidth;
+  public final int width;
+
+  /**
+   * The height of the video in pixels, or -1 if unknown or not applicable.
+   */
+  public final int height;
+
+  /**
+   * The video frame rate in frames per second, or -1 if unknown or not applicable.
+   */
+  public final float frameRate;
+
+  /**
+   * The number of audio channels, or -1 if unknown or not applicable.
+   */
+  public final int numChannels;
+
+  /**
+   * The audio sampling rate in Hz, or -1 if unknown or not applicable.
+   */
+  public final int audioSamplingRate;
+
+  /**
+   * The codecs used to decode the format. Can be {@code null} if unknown.
+   */
+  public final String codecs;
+
+  /**
+   * The language of the format. Can be null if unknown.
+   * <p>
+   * The language codes are two-letter lowercase ISO language codes (such as "en") as defined by
+   * ISO 639-1.
+   */
+  public final String language;
 
   /**
    * @param id The format identifier.
    * @param mimeType The format mime type.
-   * @param width The width of the video in pixels, or -1 for non-video formats.
-   * @param height The height of the video in pixels, or -1 for non-video formats.
-   * @param numChannels The number of audio channels, or -1 for non-audio formats.
-   * @param audioSamplingRate The audio sampling rate in Hz, or -1 for non-audio formats.
+   * @param width The width of the video in pixels, or -1 if unknown or not applicable.
+   * @param height The height of the video in pixels, or -1 if unknown or not applicable.
+   * @param frameRate The frame rate of the video in frames per second, or -1 if unknown or not
+   *     applicable.
+   * @param numChannels The number of audio channels, or -1 if unknown or not applicable.
+   * @param audioSamplingRate The audio sampling rate in Hz, or -1 if unknown or not applicable.
    * @param bitrate The average bandwidth of the format in bits per second.
    */
-  public Format(String id, String mimeType, int width, int height, int numChannels,
+  public Format(String id, String mimeType, int width, int height, float frameRate, int numChannels,
       int audioSamplingRate, int bitrate) {
+    this(id, mimeType, width, height, frameRate, numChannels, audioSamplingRate, bitrate, null);
+  }
+
+  /**
+   * @param id The format identifier.
+   * @param mimeType The format mime type.
+   * @param width The width of the video in pixels, or -1 if unknown or not applicable.
+   * @param height The height of the video in pixels, or -1 if unknown or not applicable.
+   * @param frameRate The frame rate of the video in frames per second, or -1 if unknown or not
+   *     applicable.
+   * @param numChannels The number of audio channels, or -1 if unknown or not applicable.
+   * @param audioSamplingRate The audio sampling rate in Hz, or -1 if unknown or not applicable.
+   * @param bitrate The average bandwidth of the format in bits per second.
+   * @param language The language of the format.
+   */
+  public Format(String id, String mimeType, int width, int height, float frameRate, int numChannels,
+      int audioSamplingRate, int bitrate, String language) {
+    this(id, mimeType, width, height, frameRate, numChannels, audioSamplingRate, bitrate, language,
+        null);
+  }
+
+
+  /**
+   * @param id The format identifier.
+   * @param mimeType The format mime type.
+   * @param width The width of the video in pixels, or -1 if unknown or not applicable.
+   * @param height The height of the video in pixels, or -1 if unknown or not applicable.
+   * @param frameRate The frame rate of the video in frames per second, or -1 if unknown or not
+   *     applicable.
+   * @param numChannels The number of audio channels, or -1 if unknown or not applicable.
+   * @param audioSamplingRate The audio sampling rate in Hz, or -1 if unknown or not applicable.
+   * @param bitrate The average bandwidth of the format in bits per second.
+   * @param language The language of the format.
+   * @param codecs The codecs used to decode the format.
+   */
+  public Format(String id, String mimeType, int width, int height, float frameRate, int numChannels,
+      int audioSamplingRate, int bitrate, String language, String codecs) {
     this.id = Assertions.checkNotNull(id);
     this.mimeType = mimeType;
     this.width = width;
     this.height = height;
+    this.frameRate = frameRate;
     this.numChannels = numChannels;
     this.audioSamplingRate = audioSamplingRate;
     this.bitrate = bitrate;
-    this.bandwidth = bitrate / 8;
+    this.language = language;
+    this.codecs = codecs;
   }
 
   @Override

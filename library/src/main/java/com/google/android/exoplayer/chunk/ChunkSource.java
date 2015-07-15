@@ -45,6 +45,8 @@ public interface ChunkSource {
    * the supplied {@link MediaFormat}. Other implementations do nothing.
    * <p>
    * Only called when the source is enabled.
+   *
+   * @param out The {@link MediaFormat} on which the maximum video dimensions should be set.
    */
   void getMaxVideoDimensions(MediaFormat out);
 
@@ -99,6 +101,14 @@ public interface ChunkSource {
    * @return An {@link IOException}, or null.
    */
   IOException getError();
+
+  /**
+   * Invoked when the {@link ChunkSampleSource} has finished loading a chunk obtained from this
+   * source.
+   *
+   * @param chunk The chunk whose load has been completed.
+   */
+  void onChunkLoadCompleted(Chunk chunk);
 
   /**
    * Invoked when the {@link ChunkSampleSource} encounters an error loading a chunk obtained from

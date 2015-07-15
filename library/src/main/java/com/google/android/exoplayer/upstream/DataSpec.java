@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.upstream;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Assertions;
 
 import android.net.Uri;
@@ -25,32 +26,35 @@ import android.net.Uri;
 public final class DataSpec {
 
   /**
-   * A permitted value of {@link #length}. A {@link DataSpec} defined with this length represents
-   * the region of media data that starts at its {@link #position} and extends to the end of the
-   * data whose location is defined by its {@link #uri}.
+   * Permits an underlying network stack to request that the server use gzip compression.
+   * <p>
+   * Should not typically be set if the data being requested is already compressed (e.g. most audio
+   * and video requests). May be set when requesting other data.
+   * <p>
+   * When a {@link DataSource} is used to request data with this flag set, and if the
+   * {@link DataSource} does make a network request, then the value returned from
+   * {@link DataSource#open(DataSpec)} will typically be {@link C#LENGTH_UNBOUNDED}. The data read
+   * from {@link DataSource#read(byte[], int, int)} will be the decompressed data.
    */
-  public static final int LENGTH_UNBOUNDED = -1;
+  public static final int FLAG_ALLOW_GZIP = 1;
 
   /**
    * Identifies the source from which data should be read.
    */
   public final Uri uri;
   /**
-   * True if the data at {@link #uri} is the full stream. False otherwise. An example where this
-   * may be false is if {@link #uri} defines the location of a cached part of the stream.
-   */
-  public final boolean uriIsFullStream;
-  /**
    * The absolute position of the data in the full stream.
    */
   public final long absoluteStreamPosition;
   /**
-   * The position of the data when read from {@link #uri}. Always equal to
-   * {@link #absoluteStreamPosition} if {@link #uriIsFullStream}.
+   * The position of the data when read from {@link #uri}.
+   * <p>
+   * Always equal to {@link #absoluteStreamPosition} unless the {@link #uri} defines the location
+   * of a subset of the underyling data.
    */
   public final long position;
   /**
-   * The length of the data. Greater than zero, or equal to {@link #LENGTH_UNBOUNDED}.
+   * The length of the data. Greater than zero, or equal to {@link C#LENGTH_UNBOUNDED}.
    */
   public final long length;
   /**
@@ -58,9 +62,32 @@ public final class DataSpec {
    * {@link DataSpec} is not intended to be used in conjunction with a cache.
    */
   public final String key;
+  /**
+   * Request flags. Currently {@link #FLAG_ALLOW_GZIP} is the only supported flag.
+   */
+  public final int flags;
 
   /**
-   * Construct a {@link DataSpec} for which {@link #uriIsFullStream} is true.
+   * Construct a {@link DataSpec} for the given uri and with {@link #key} set to null.
+   *
+   * @param uri {@link #uri}.
+   */
+  public DataSpec(Uri uri) {
+    this(uri, 0);
+  }
+
+  /**
+   * Construct a {@link DataSpec} for the given uri and with {@link #key} set to null.
+   *
+   * @param uri {@link #uri}.
+   * @param flags {@link #flags}.
+   */
+  public DataSpec(Uri uri, int flags) {
+    this(uri, 0, C.LENGTH_UNBOUNDED, null, flags);
+  }
+
+  /**
+   * Construct a {@link DataSpec} where {@link #position} equals {@link #absoluteStreamPosition}.
    *
    * @param uri {@link #uri}.
    * @param absoluteStreamPosition {@link #absoluteStreamPosition}, equal to {@link #position}.
@@ -68,50 +95,50 @@ public final class DataSpec {
    * @param key {@link #key}.
    */
   public DataSpec(Uri uri, long absoluteStreamPosition, long length, String key) {
-    this(uri, absoluteStreamPosition, length, key, absoluteStreamPosition, true);
+    this(uri, absoluteStreamPosition, absoluteStreamPosition, length, key, 0);
   }
 
   /**
-   * Construct a {@link DataSpec} for which {@link #uriIsFullStream} is false.
+   * Construct a {@link DataSpec} where {@link #position} equals {@link #absoluteStreamPosition}.
    *
    * @param uri {@link #uri}.
-   * @param absoluteStreamPosition {@link #absoluteStreamPosition}.
+   * @param absoluteStreamPosition {@link #absoluteStreamPosition}, equal to {@link #position}.
    * @param length {@link #length}.
    * @param key {@link #key}.
-   * @param position {@link #position}.
+   * @param flags {@link #flags}.
    */
-  public DataSpec(Uri uri, long absoluteStreamPosition, long length, String key, long position) {
-    this(uri, absoluteStreamPosition, length, key, position, false);
+  public DataSpec(Uri uri, long absoluteStreamPosition, long length, String key, int flags) {
+    this(uri, absoluteStreamPosition, absoluteStreamPosition, length, key, flags);
   }
 
   /**
-   * Construct a {@link DataSpec}.
+   * Construct a {@link DataSpec} where {@link #position} may differ from
+   * {@link #absoluteStreamPosition}.
    *
    * @param uri {@link #uri}.
    * @param absoluteStreamPosition {@link #absoluteStreamPosition}.
+   * @param position {@link #position}.
    * @param length {@link #length}.
    * @param key {@link #key}.
-   * @param position {@link #position}.
-   * @param uriIsFullStream {@link #uriIsFullStream}.
+   * @param flags {@link #flags}.
    */
-  public DataSpec(Uri uri, long absoluteStreamPosition, long length, String key, long position,
-      boolean uriIsFullStream) {
+  public DataSpec(Uri uri, long absoluteStreamPosition, long position, long length, String key,
+      int flags) {
     Assertions.checkArgument(absoluteStreamPosition >= 0);
     Assertions.checkArgument(position >= 0);
-    Assertions.checkArgument(length > 0 || length == LENGTH_UNBOUNDED);
-    Assertions.checkArgument(absoluteStreamPosition == position || !uriIsFullStream);
+    Assertions.checkArgument(length > 0 || length == C.LENGTH_UNBOUNDED);
     this.uri = uri;
-    this.uriIsFullStream = uriIsFullStream;
     this.absoluteStreamPosition = absoluteStreamPosition;
     this.position = position;
     this.length = length;
     this.key = key;
+    this.flags = flags;
   }
 
   @Override
   public String toString() {
-    return "DataSpec[" + uri + ", " + uriIsFullStream + ", " + absoluteStreamPosition + ", " +
-        position + ", " + length + ", " + key + "]";
+    return "DataSpec[" + uri + ", " + absoluteStreamPosition + ", " + position + ", " + length
+        + ", " + key + ", " + flags + "]";
   }
 
 }

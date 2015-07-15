@@ -15,20 +15,38 @@
  */
 package com.google.android.exoplayer.util;
 
+import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DataSpec;
 
-import android.net.Uri;
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Build;
+import android.text.TextUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Miscellaneous utility functions.
@@ -40,6 +58,17 @@ public final class Util {
    * overridden for local testing.
    */
   public static final int SDK_INT = android.os.Build.VERSION.SDK_INT;
+
+  private static final Pattern XS_DATE_TIME_PATTERN = Pattern.compile(
+      "(\\d\\d\\d\\d)\\-(\\d\\d)\\-(\\d\\d)[Tt]"
+      + "(\\d\\d):(\\d\\d):(\\d\\d)(\\.(\\d+))?"
+      + "([Zz]|((\\+|\\-)(\\d\\d):(\\d\\d)))?");
+
+  private static final Pattern XS_DURATION_PATTERN =
+      Pattern.compile("^(-)?P(([0-9]*)Y)?(([0-9]*)M)?(([0-9]*)D)?"
+          + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
+
+  private static final long MAX_BYTES_TO_DRAIN = 2048;
 
   private Util() {}
 
@@ -62,6 +91,25 @@ public final class Util {
    */
   public static boolean areEqual(Object o1, Object o2) {
     return o1 == null ? o2 == null : o1.equals(o2);
+  }
+
+  /**
+   * Tests whether an {@code items} array contains an object equal to {@code item}, according to
+   * {@link Object#equals(Object)}.
+   * <p>
+   * If {@code item} is null then true is returned if and only if {@code items} contains null.
+   *
+   * @param items The array of items to search.
+   * @param item The item to search for.
+   * @return True if the array contains an object equal to the item being searched for.
+   */
+  public static boolean contains(Object[] items, Object item) {
+    for (int i = 0; i < items.length; i++) {
+      if (Util.areEqual(items[i], item)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -108,6 +156,19 @@ public final class Util {
   }
 
   /**
+   * Closes an {@link OutputStream}, suppressing any {@link IOException} that may occur.
+   *
+   * @param outputStream The {@link OutputStream} to close.
+   */
+  public static void closeQuietly(OutputStream outputStream) {
+    try {
+      outputStream.close();
+    } catch (IOException e) {
+      // Ignore.
+    }
+  }
+
+  /**
    * Converts text to lower case using {@link Locale#US}.
    *
    * @param text The text to convert.
@@ -118,14 +179,25 @@ public final class Util {
   }
 
   /**
-   * Like {@link Uri#parse(String)}, but discards the part of the uri that follows the final
-   * forward slash.
+   * Divides a {@code numerator} by a {@code denominator}, returning the ceiled result.
    *
-   * @param uriString An RFC 2396-compliant, encoded uri.
-   * @return The parsed base uri.
+   * @param numerator The numerator to divide.
+   * @param denominator The denominator to divide by.
+   * @return The ceiled result of the division.
    */
-  public static Uri parseBaseUri(String uriString) {
-    return Uri.parse(uriString.substring(0, uriString.lastIndexOf('/')));
+  public static int ceilDivide(int numerator, int denominator) {
+    return (numerator + denominator - 1) / denominator;
+  }
+
+  /**
+   * Divides a {@code numerator} by a {@code denominator}, returning the ceiled result.
+   *
+   * @param numerator The numerator to divide.
+   * @param denominator The denominator to divide by.
+   * @return The ceiled result of the division.
+   */
+  public static long ceilDivide(long numerator, long denominator) {
+    return (numerator + denominator - 1) / denominator;
   }
 
   /**
@@ -210,6 +282,283 @@ public final class Util {
     int index = Collections.binarySearch(list, key);
     index = index < 0 ? ~index : (inclusive ? index : (index + 1));
     return stayInBounds ? Math.min(list.size() - 1, index) : index;
+  }
+
+  /**
+   * Parses an xs:duration attribute value, returning the parsed duration in milliseconds.
+   *
+   * @param value The attribute value to parse.
+   * @return The parsed duration in milliseconds.
+   */
+  public static long parseXsDuration(String value) {
+    Matcher matcher = XS_DURATION_PATTERN.matcher(value);
+    if (matcher.matches()) {
+      boolean negated = !TextUtils.isEmpty(matcher.group(1));
+      // Durations containing years and months aren't completely defined. We assume there are
+      // 30.4368 days in a month, and 365.242 days in a year.
+      String years = matcher.group(3);
+      double durationSeconds = (years != null) ? Double.parseDouble(years) * 31556908 : 0;
+      String months = matcher.group(5);
+      durationSeconds += (months != null) ? Double.parseDouble(months) * 2629739 : 0;
+      String days = matcher.group(7);
+      durationSeconds += (days != null) ? Double.parseDouble(days) * 86400 : 0;
+      String hours = matcher.group(10);
+      durationSeconds += (hours != null) ? Double.parseDouble(hours) * 3600 : 0;
+      String minutes = matcher.group(12);
+      durationSeconds += (minutes != null) ? Double.parseDouble(minutes) * 60 : 0;
+      String seconds = matcher.group(14);
+      durationSeconds += (seconds != null) ? Double.parseDouble(seconds) : 0;
+      long durationMillis = (long) (durationSeconds * 1000);
+      return negated ? -durationMillis : durationMillis;
+    } else {
+      return (long) (Double.parseDouble(value) * 3600 * 1000);
+    }
+  }
+
+  /**
+   * Parses an xs:dateTime attribute value, returning the parsed timestamp in milliseconds since
+   * the epoch.
+   *
+   * @param value The attribute value to parse.
+   * @return The parsed timestamp in milliseconds since the epoch.
+   */
+  public static long parseXsDateTime(String value) throws ParseException {
+    Matcher matcher = XS_DATE_TIME_PATTERN.matcher(value);
+    if (!matcher.matches()) {
+      throw new ParseException("Invalid date/time format: " + value, 0);
+    }
+
+    int timezoneShift;
+    if (matcher.group(9) == null) {
+      // No time zone specified.
+      timezoneShift = 0;
+    } else if (matcher.group(9).equalsIgnoreCase("Z")) {
+      timezoneShift = 0;
+    } else {
+      timezoneShift = ((Integer.parseInt(matcher.group(12)) * 60
+          + Integer.parseInt(matcher.group(13))));
+      if (matcher.group(11).equals("-")) {
+        timezoneShift *= -1;
+      }
+    }
+
+    Calendar dateTime = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+
+    dateTime.clear();
+    // Note: The month value is 0-based, hence the -1 on group(2)
+    dateTime.set(Integer.parseInt(matcher.group(1)),
+                 Integer.parseInt(matcher.group(2)) - 1,
+                 Integer.parseInt(matcher.group(3)),
+                 Integer.parseInt(matcher.group(4)),
+                 Integer.parseInt(matcher.group(5)),
+                 Integer.parseInt(matcher.group(6)));
+    if (!TextUtils.isEmpty(matcher.group(8))) {
+      final BigDecimal bd = new BigDecimal("0." + matcher.group(8));
+      // we care only for milliseconds, so movePointRight(3)
+      dateTime.set(Calendar.MILLISECOND, bd.movePointRight(3).intValue());
+    }
+
+    long time = dateTime.getTimeInMillis();
+    if (timezoneShift != 0) {
+      time -= timezoneShift * 60000;
+    }
+
+    return time;
+  }
+
+  /**
+   * Scales a large timestamp.
+   * <p>
+   * Logically, scaling consists of a multiplication followed by a division. The actual operations
+   * performed are designed to minimize the probability of overflow.
+   *
+   * @param timestamp The timestamp to scale.
+   * @param multiplier The multiplier.
+   * @param divisor The divisor.
+   * @return The scaled timestamp.
+   */
+  public static long scaleLargeTimestamp(long timestamp, long multiplier, long divisor) {
+    if (divisor >= multiplier && (divisor % multiplier) == 0) {
+      long divisionFactor = divisor / multiplier;
+      return timestamp / divisionFactor;
+    } else if (divisor < multiplier && (multiplier % divisor) == 0) {
+      long multiplicationFactor = multiplier / divisor;
+      return timestamp * multiplicationFactor;
+    } else {
+      double multiplicationFactor = (double) multiplier / divisor;
+      return (long) (timestamp * multiplicationFactor);
+    }
+  }
+
+  /**
+   * Applies {@link #scaleLargeTimestamp(long, long, long)} to a list of unscaled timestamps.
+   *
+   * @param timestamps The timestamps to scale.
+   * @param multiplier The multiplier.
+   * @param divisor The divisor.
+   * @return The scaled timestamps.
+   */
+  public static long[] scaleLargeTimestamps(List<Long> timestamps, long multiplier, long divisor) {
+    long[] scaledTimestamps = new long[timestamps.size()];
+    if (divisor >= multiplier && (divisor % multiplier) == 0) {
+      long divisionFactor = divisor / multiplier;
+      for (int i = 0; i < scaledTimestamps.length; i++) {
+        scaledTimestamps[i] = timestamps.get(i) / divisionFactor;
+      }
+    } else if (divisor < multiplier && (multiplier % divisor) == 0) {
+      long multiplicationFactor = multiplier / divisor;
+      for (int i = 0; i < scaledTimestamps.length; i++) {
+        scaledTimestamps[i] = timestamps.get(i) * multiplicationFactor;
+      }
+    } else {
+      double multiplicationFactor = (double) multiplier / divisor;
+      for (int i = 0; i < scaledTimestamps.length; i++) {
+        scaledTimestamps[i] = (long) (timestamps.get(i) * multiplicationFactor);
+      }
+    }
+    return scaledTimestamps;
+  }
+
+  /**
+   * Applies {@link #scaleLargeTimestamp(long, long, long)} to an array of unscaled timestamps.
+   *
+   * @param timestamps The timestamps to scale.
+   * @param multiplier The multiplier.
+   * @param divisor The divisor.
+   */
+  public static void scaleLargeTimestampsInPlace(long[] timestamps, long multiplier, long divisor) {
+    if (divisor >= multiplier && (divisor % multiplier) == 0) {
+      long divisionFactor = divisor / multiplier;
+      for (int i = 0; i < timestamps.length; i++) {
+        timestamps[i] /= divisionFactor;
+      }
+    } else if (divisor < multiplier && (multiplier % divisor) == 0) {
+      long multiplicationFactor = multiplier / divisor;
+      for (int i = 0; i < timestamps.length; i++) {
+        timestamps[i] *= multiplicationFactor;
+      }
+    } else {
+      double multiplicationFactor = (double) multiplier / divisor;
+      for (int i = 0; i < timestamps.length; i++) {
+        timestamps[i] = (long) (timestamps[i] * multiplicationFactor);
+      }
+    }
+  }
+
+  /**
+   * Converts a list of integers to a primitive array.
+   *
+   * @param list A list of integers.
+   * @return The list in array form, or null if the input list was null.
+   */
+  public static int[] toArray(List<Integer> list) {
+    if (list == null) {
+      return null;
+    }
+    int length = list.size();
+    int[] intArray = new int[length];
+    for (int i = 0; i < length; i++) {
+      intArray[i] = list.get(i);
+    }
+    return intArray;
+  }
+
+  /**
+   * On platform API levels 19 and 20, okhttp's implementation of {@link InputStream#close} can
+   * block for a long time if the stream has a lot of data remaining. Call this method before
+   * closing the input stream to make a best effort to cause the input stream to encounter an
+   * unexpected end of input, working around this issue. On other platform API levels, the method
+   * does nothing.
+   *
+   * @param connection The connection whose {@link InputStream} should be terminated.
+   * @param bytesRemaining The number of bytes remaining to be read from the input stream if its
+   *     length is known. {@link C#LENGTH_UNBOUNDED} otherwise.
+   */
+  public static void maybeTerminateInputStream(HttpURLConnection connection, long bytesRemaining) {
+    if (SDK_INT != 19 && SDK_INT != 20) {
+      return;
+    }
+
+    try {
+      InputStream inputStream = connection.getInputStream();
+      if (bytesRemaining == C.LENGTH_UNBOUNDED) {
+        // If the input stream has already ended, do nothing. The socket may be re-used.
+        if (inputStream.read() == -1) {
+          return;
+        }
+      } else if (bytesRemaining <= MAX_BYTES_TO_DRAIN) {
+        // There isn't much data left. Prefer to allow it to drain, which may allow the socket to be
+        // re-used.
+        return;
+      }
+      String className = inputStream.getClass().getName();
+      if (className.equals("com.android.okhttp.internal.http.HttpTransport$ChunkedInputStream")
+          || className.equals(
+              "com.android.okhttp.internal.http.HttpTransport$FixedLengthInputStream")) {
+        Class<?> superclass = inputStream.getClass().getSuperclass();
+        Method unexpectedEndOfInput = superclass.getDeclaredMethod("unexpectedEndOfInput");
+        unexpectedEndOfInput.setAccessible(true);
+        unexpectedEndOfInput.invoke(inputStream);
+      }
+    } catch (IOException e) {
+      // The connection didn't ever have an input stream, or it was closed already.
+    } catch (Exception e) {
+      // Something went wrong. The device probably isn't using okhttp.
+    }
+  }
+
+  /**
+   * Given a {@link DataSpec} and a number of bytes already loaded, returns a {@link DataSpec}
+   * that represents the remainder of the data.
+   *
+   * @param dataSpec The original {@link DataSpec}.
+   * @param bytesLoaded The number of bytes already loaded.
+   * @return A {@link DataSpec} that represents the remainder of the data.
+   */
+  public static DataSpec getRemainderDataSpec(DataSpec dataSpec, int bytesLoaded) {
+    if (bytesLoaded == 0) {
+      return dataSpec;
+    } else {
+      long remainingLength = dataSpec.length == C.LENGTH_UNBOUNDED ? C.LENGTH_UNBOUNDED
+          : dataSpec.length - bytesLoaded;
+      return new DataSpec(dataSpec.uri, dataSpec.position + bytesLoaded, remainingLength,
+          dataSpec.key, dataSpec.flags);
+    }
+  }
+
+  /**
+   * Returns the integer equal to the big-endian concatenation of the characters in {@code string}
+   * as bytes. {@code string} must contain four or fewer characters.
+   */
+  public static int getIntegerCodeForString(String string) {
+    int length = string.length();
+    Assertions.checkArgument(length <= 4);
+    int result = 0;
+    for (int i = 0; i < length; i++) {
+      result <<= 8;
+      result |= string.charAt(i);
+    }
+    return result;
+  }
+
+  /**
+   * Returns a user agent string based on the given application name and the library version.
+   *
+   * @param context A valid context of the calling application.
+   * @param applicationName String that will be prefix'ed to the generated user agent.
+   * @return A user agent string generated using the applicationName and the library version.
+   */
+  public static String getUserAgent(Context context, String applicationName) {
+    String versionName;
+    try {
+      String packageName = context.getPackageName();
+      PackageInfo info = context.getPackageManager().getPackageInfo(packageName, 0);
+      versionName = info.versionName;
+    } catch (NameNotFoundException e) {
+      versionName = "?";
+    }
+    return applicationName + "/" + versionName + " (Linux;Android " + Build.VERSION.RELEASE
+        + ") " + "ExoPlayerLib/" + ExoPlayerLibraryInfo.VERSION;
   }
 
 }

@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer.dash.mpd;
 
-import android.net.Uri;
+import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.dash.DashSegmentIndex;
+import com.google.android.exoplayer.util.Util;
 
 import java.util.List;
 
@@ -53,6 +55,15 @@ public abstract class SegmentBase {
   }
 
   /**
+   * Gets the presentation time offset, in microseconds.
+   *
+   * @return The presentation time offset, in microseconds.
+   */
+  public long getPresentationTimeOffsetUs() {
+    return Util.scaleLargeTimestamp(presentationTimeOffset, C.MICROS_PER_SECOND, timescale);
+  }
+
+  /**
    * A {@link SegmentBase} that defines a single segment.
    */
   public static class SingleSegmentBase extends SegmentBase {
@@ -60,7 +71,7 @@ public abstract class SegmentBase {
     /**
      * The uri of the segment.
      */
-    public final Uri uri;
+    public final String uri;
 
     /* package */ final long indexStart;
     /* package */ final long indexLength;
@@ -76,15 +87,22 @@ public abstract class SegmentBase {
      * @param indexLength The length of the index data in bytes.
      */
     public SingleSegmentBase(RangedUri initialization, long timescale, long presentationTimeOffset,
-        Uri uri, long indexStart, long indexLength) {
+        String uri, long indexStart, long indexLength) {
       super(initialization, timescale, presentationTimeOffset);
       this.uri = uri;
       this.indexStart = indexStart;
       this.indexLength = indexLength;
     }
 
+    /**
+     * @param uri The uri of the segment.
+     */
+    public SingleSegmentBase(String uri) {
+      this(null, 1, 0, uri, 0, -1);
+    }
+
     public RangedUri getIndex() {
-      return new RangedUri(uri, null, indexStart, indexLength);
+      return indexLength <= 0 ? null : new RangedUri(uri, null, indexStart, indexLength);
     }
 
   }
@@ -124,29 +142,55 @@ public abstract class SegmentBase {
       this.segmentTimeline = segmentTimeline;
     }
 
-    public final int getSegmentNum(long timeUs) {
-      // TODO: Optimize this
-      int index = startNumber;
-      while (index + 1 <= getLastSegmentNum()) {
-        if (getSegmentTimeUs(index + 1) <= timeUs) {
-          index++;
-        } else {
-          return index;
+    /**
+     * @see DashSegmentIndex#getSegmentNum(long)
+     */
+    public int getSegmentNum(long timeUs) {
+      final int firstSegmentNum = getFirstSegmentNum();
+      int lowIndex = firstSegmentNum;
+      int highIndex = getLastSegmentNum();
+      if (segmentTimeline == null) {
+        // All segments are of equal duration (with the possible exception of the last one).
+        long durationUs = (duration * C.MICROS_PER_SECOND) / timescale;
+        int segmentNum = startNumber + (int) (timeUs / durationUs);
+        // Ensure we stay within bounds.
+        return segmentNum < lowIndex ? lowIndex
+            : highIndex != DashSegmentIndex.INDEX_UNBOUNDED && segmentNum > highIndex ? highIndex
+            : segmentNum;
+      } else {
+        // The high index cannot be unbounded. Identify the segment using binary search.
+        while (lowIndex <= highIndex) {
+          int midIndex = (lowIndex + highIndex) / 2;
+          long midTimeUs = getSegmentTimeUs(midIndex);
+          if (midTimeUs < timeUs) {
+            lowIndex = midIndex + 1;
+          } else if (midTimeUs > timeUs) {
+            highIndex = midIndex - 1;
+          } else {
+            return midIndex;
+          }
         }
+        return lowIndex == firstSegmentNum ? lowIndex : highIndex;
       }
-      return index;
     }
 
+    /**
+     * @see DashSegmentIndex#getDurationUs(int)
+     */
     public final long getSegmentDurationUs(int sequenceNumber) {
       if (segmentTimeline != null) {
-        return (segmentTimeline.get(sequenceNumber - startNumber).duration * 1000000) / timescale;
+        long duration = segmentTimeline.get(sequenceNumber - startNumber).duration;
+        return (duration * C.MICROS_PER_SECOND) / timescale;
       } else {
         return sequenceNumber == getLastSegmentNum()
-            ? (periodDurationMs * 1000) - getSegmentTimeUs(sequenceNumber)
-            : ((duration * 1000000L) / timescale);
+            ? ((periodDurationMs * 1000) - getSegmentTimeUs(sequenceNumber))
+            : ((duration * C.MICROS_PER_SECOND) / timescale);
       }
     }
 
+    /**
+     * @see DashSegmentIndex#getTimeUs(int)
+     */
     public final long getSegmentTimeUs(int sequenceNumber) {
       long unscaledSegmentTime;
       if (segmentTimeline != null) {
@@ -155,16 +199,35 @@ public abstract class SegmentBase {
       } else {
         unscaledSegmentTime = (sequenceNumber - startNumber) * duration;
       }
-      return (unscaledSegmentTime * 1000000) / timescale;
+      return Util.scaleLargeTimestamp(unscaledSegmentTime, C.MICROS_PER_SECOND, timescale);
     }
 
+    /**
+     * Returns a {@link RangedUri} defining the location of a segment for the given index in the
+     * given representation.
+     *
+     * @see DashSegmentIndex#getSegmentUrl(int)
+     */
     public abstract RangedUri getSegmentUrl(Representation representation, int index);
 
+    /**
+     * @see DashSegmentIndex#getFirstSegmentNum()
+     */
     public int getFirstSegmentNum() {
       return startNumber;
     }
 
+    /**
+     * @see DashSegmentIndex#getLastSegmentNum()
+     */
     public abstract int getLastSegmentNum();
+
+    /**
+     * @see DashSegmentIndex#isExplicit()
+     */
+    public boolean isExplicit() {
+      return segmentTimeline != null;
+    }
 
   }
 
@@ -209,6 +272,11 @@ public abstract class SegmentBase {
       return startNumber + mediaSegments.size() - 1;
     }
 
+    @Override
+    public boolean isExplicit() {
+      return true;
+    }
+
   }
 
   /**
@@ -219,7 +287,7 @@ public abstract class SegmentBase {
     /* package */ final UrlTemplate initializationTemplate;
     /* package */ final UrlTemplate mediaTemplate;
 
-    private final Uri baseUrl;
+    private final String baseUrl;
 
     /**
      * @param initialization A {@link RangedUri} corresponding to initialization data, if such data
@@ -245,7 +313,7 @@ public abstract class SegmentBase {
     public SegmentTemplate(RangedUri initialization, long timescale, long presentationTimeOffset,
         long periodDurationMs, int startNumber, long duration,
         List<SegmentTimelineElement> segmentTimeline, UrlTemplate initializationTemplate,
-        UrlTemplate mediaTemplate, Uri baseUrl) {
+        UrlTemplate mediaTemplate, String baseUrl) {
       super(initialization, timescale, presentationTimeOffset, periodDurationMs, startNumber,
           duration, segmentTimeline);
       this.initializationTemplate = initializationTemplate;
@@ -281,9 +349,11 @@ public abstract class SegmentBase {
     public int getLastSegmentNum() {
       if (segmentTimeline != null) {
         return segmentTimeline.size() + startNumber - 1;
+      } else if (periodDurationMs == -1) {
+        return DashSegmentIndex.INDEX_UNBOUNDED;
       } else {
         long durationMs = (duration * 1000) / timescale;
-        return startNumber + (int) (periodDurationMs / durationMs);
+        return startNumber + (int) Util.ceilDivide(periodDurationMs, durationMs) - 1;
       }
     }
 

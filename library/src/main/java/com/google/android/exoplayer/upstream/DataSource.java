@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.upstream;
 
+import com.google.android.exoplayer.C;
+
 import java.io.IOException;
 
 /**
@@ -34,11 +36,12 @@ public interface DataSource {
    * @param dataSpec Defines the data to be read.
    * @throws IOException If an error occurs opening the source.
    * @return The number of bytes that can be read from the opened source. For unbounded requests
-   *     (i.e. requests where {@link DataSpec#length} equals {@link DataSpec#LENGTH_UNBOUNDED})
-   *     this value is the resolved length of the request. For all other requests, the value
-   *     returned will be equal to the request's {@link DataSpec#length}.
+   *     (i.e. requests where {@link DataSpec#length} equals {@link C#LENGTH_UNBOUNDED}) this value
+   *     is the resolved length of the request, or {@link C#LENGTH_UNBOUNDED} if the length is still
+   *     unresolved. For all other requests, the value returned will be equal to the request's
+   *     {@link DataSpec#length}.
    */
-  public long open(DataSpec dataSpec) throws IOException;
+  long open(DataSpec dataSpec) throws IOException;
 
   /**
    * Closes the {@link DataSource}.
@@ -48,19 +51,22 @@ public interface DataSource {
    *
    * @throws IOException If an error occurs closing the source.
    */
-  public void close() throws IOException;
+  void close() throws IOException;
 
   /**
    * Reads up to {@code length} bytes of data and stores them into {@code buffer}, starting at
-   * index {@code offset}. This method blocks until at least one byte of data can be read, the end
-   * of the opened range is detected, or an exception is thrown.
+   * index {@code offset}.
+   * <p>
+   * This method blocks until at least one byte of data can be read, the end of the opened range is
+   * detected, or an exception is thrown.
    *
    * @param buffer The buffer into which the read data should be stored.
    * @param offset The start offset into {@code buffer} at which data should be written.
    * @param readLength The maximum number of bytes to read.
-   * @return The actual number of bytes read, or -1 if the end of the opened range is reached.
+   * @return The number of bytes read, or {@link C#RESULT_END_OF_INPUT} if the end of the opened
+   *     range is reached.
    * @throws IOException If an error occurs reading from the source.
    */
-  public int read(byte[] buffer, int offset, int readLength) throws IOException;
+  int read(byte[] buffer, int offset, int readLength) throws IOException;
 
 }

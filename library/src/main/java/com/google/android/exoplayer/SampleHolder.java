@@ -23,10 +23,19 @@ import java.nio.ByteBuffer;
 public final class SampleHolder {
 
   /**
-   * Whether a {@link SampleSource} is permitted to replace {@link #data} if its current value is
-   * null or of insufficient size to hold the sample.
+   * Disallows buffer replacement.
    */
-  public final boolean allowDataBufferReplacement;
+  public static final int BUFFER_REPLACEMENT_MODE_DISABLED = 0;
+
+  /**
+   * Allows buffer replacement using {@link ByteBuffer#allocate(int)}.
+   */
+  public static final int BUFFER_REPLACEMENT_MODE_NORMAL = 1;
+
+  /**
+   * Allows buffer replacement using {@link ByteBuffer#allocateDirect(int)}.
+   */
+  public static final int BUFFER_REPLACEMENT_MODE_DIRECT = 2;
 
   public final CryptoInfo cryptoInfo;
 
@@ -41,9 +50,8 @@ public final class SampleHolder {
   public int size;
 
   /**
-   * Flags that accompany the sample. A combination of
-   * {@link android.media.MediaExtractor#SAMPLE_FLAG_SYNC} and
-   * {@link android.media.MediaExtractor#SAMPLE_FLAG_ENCRYPTED}
+   * Flags that accompany the sample. A combination of {@link C#SAMPLE_FLAG_SYNC},
+   * {@link C#SAMPLE_FLAG_ENCRYPTED} and {@link C#SAMPLE_FLAG_DECODE_ONLY}.
    */
   public int flags;
 
@@ -52,17 +60,64 @@ public final class SampleHolder {
    */
   public long timeUs;
 
-  /**
-   * If true then the sample should be decoded, but should not be presented.
-   */
-  public boolean decodeOnly;
+  private final int bufferReplacementMode;
 
   /**
-   * @param allowDataBufferReplacement See {@link #allowDataBufferReplacement}.
+   * @param bufferReplacementMode Determines the behavior of {@link #replaceBuffer(int)}. One of
+   *     {@link #BUFFER_REPLACEMENT_MODE_DISABLED}, {@link #BUFFER_REPLACEMENT_MODE_NORMAL} and
+   *     {@link #BUFFER_REPLACEMENT_MODE_DIRECT}.
    */
-  public SampleHolder(boolean allowDataBufferReplacement) {
+  public SampleHolder(int bufferReplacementMode) {
     this.cryptoInfo = new CryptoInfo();
-    this.allowDataBufferReplacement = allowDataBufferReplacement;
+    this.bufferReplacementMode = bufferReplacementMode;
+  }
+
+  /**
+   * Attempts to replace {@link #data} with a {@link ByteBuffer} of the specified capacity.
+   *
+   * @param capacity The capacity of the replacement buffer, in bytes.
+   * @return True if the buffer was replaced. False otherwise.
+   */
+  public boolean replaceBuffer(int capacity) {
+    switch (bufferReplacementMode) {
+      case BUFFER_REPLACEMENT_MODE_NORMAL:
+        data = ByteBuffer.allocate(capacity);
+        return true;
+      case BUFFER_REPLACEMENT_MODE_DIRECT:
+        data = ByteBuffer.allocateDirect(capacity);
+        return true;
+    }
+    return false;
+  }
+
+  /**
+   * Returns whether {@link #flags} has {@link C#SAMPLE_FLAG_ENCRYPTED} set.
+   */
+  public boolean isEncrypted() {
+    return (flags & C.SAMPLE_FLAG_ENCRYPTED) != 0;
+  }
+
+  /**
+   * Returns whether {@link #flags} has {@link C#SAMPLE_FLAG_DECODE_ONLY} set.
+   */
+  public boolean isDecodeOnly() {
+    return (flags & C.SAMPLE_FLAG_DECODE_ONLY) != 0;
+  }
+
+  /**
+   * Returns whether {@link #flags} has {@link C#SAMPLE_FLAG_SYNC} set.
+   */
+  public boolean isSyncFrame() {
+    return (flags & C.SAMPLE_FLAG_SYNC) != 0;
+  }
+
+  /**
+   * Clears {@link #data}. Does nothing if {@link #data} is null.
+   */
+  public void clearData() {
+    if (data != null) {
+      data.clear();
+    }
   }
 
 }

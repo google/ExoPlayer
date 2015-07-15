@@ -15,56 +15,43 @@
  */
 package com.google.android.exoplayer.demo;
 
-import com.google.android.exoplayer.ExoPlayerLibraryInfo;
-
-import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Build;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Utility methods for the demo application.
  */
 public class DemoUtil {
 
-  public static final UUID WIDEVINE_UUID = new UUID(0xEDEF8BA979D64ACEL, 0xA3C827DCD51D21EDL);
+  public static final int TYPE_DASH = 0;
+  public static final int TYPE_SS = 1;
+  public static final int TYPE_HLS = 2;
+  public static final int TYPE_MP4 = 3;
+  public static final int TYPE_MP3 = 4;
+  public static final int TYPE_M4A = 5;
+  public static final int TYPE_WEBM = 6;
+  public static final int TYPE_TS = 7;
+  public static final int TYPE_AAC = 8;
 
-  public static final String CONTENT_TYPE_EXTRA = "content_type";
-  public static final String CONTENT_ID_EXTRA = "content_id";
+  private static final CookieManager defaultCookieManager;
 
-  public static final int TYPE_DASH_VOD = 0;
-  public static final int TYPE_SS_VOD = 1;
-  public static final int TYPE_OTHER = 2;
-
-  public static final boolean EXPOSE_EXPERIMENTAL_FEATURES = false;
-
-  public static String getUserAgent(Context context) {
-    String versionName;
-    try {
-      String packageName = context.getPackageName();
-      PackageInfo info = context.getPackageManager().getPackageInfo(packageName, 0);
-      versionName = info.versionName;
-    } catch (NameNotFoundException e) {
-      versionName = "?";
-    }
-    return "ExoPlayerDemo/" + versionName + " (Linux;Android " + Build.VERSION.RELEASE +
-        ") " + "ExoPlayerLib/" + ExoPlayerLibraryInfo.VERSION;
+  static {
+    defaultCookieManager = new CookieManager();
+    defaultCookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
   }
 
   public static byte[] executePost(String url, byte[] data, Map<String, String> requestProperties)
-      throws MalformedURLException, IOException {
+      throws IOException {
     HttpURLConnection urlConnection = null;
     try {
       urlConnection = (HttpURLConnection) new URL(url).openConnection();
@@ -103,6 +90,13 @@ public class DemoUtil {
     inputStream.close();
     bytes = bos.toByteArray();
     return bytes;
+  }
+
+  public static void setDefaultCookieManager() {
+    CookieHandler currentHandler = CookieHandler.getDefault();
+    if (currentHandler != defaultCookieManager) {
+      CookieHandler.setDefault(defaultCookieManager);
+    }
   }
 
 }
