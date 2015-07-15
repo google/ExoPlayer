@@ -68,9 +68,11 @@ public final class WebmExtractor implements Extractor {
   private static final String CODEC_ID_VORBIS = "A_VORBIS";
   private static final String CODEC_ID_OPUS = "A_OPUS";
   private static final String CODEC_ID_AAC = "A_AAC";
+  private static final String CODEC_ID_MP3 = "A_MPEG/L3";
   private static final String CODEC_ID_AC3 = "A_AC3";
   private static final int VORBIS_MAX_INPUT_SIZE = 8192;
   private static final int OPUS_MAX_INPUT_SIZE = 5760;
+  private static final int MP3_MAX_INPUT_SIZE = 4096;
   private static final int ENCRYPTION_IV_SIZE = 8;
   private static final int TRACK_TYPE_AUDIO = 2;
   private static final int TRACK_TYPE_VIDEO = 1;
@@ -936,6 +938,7 @@ public final class WebmExtractor implements Extractor {
         || CODEC_ID_OPUS.equals(codecId)
         || CODEC_ID_VORBIS.equals(codecId)
         || CODEC_ID_AAC.equals(codecId)
+        || CODEC_ID_MP3.equals(codecId)
         || CODEC_ID_AC3.equals(codecId);
   }
 
@@ -1058,6 +1061,10 @@ public final class WebmExtractor implements Extractor {
         case CODEC_ID_AAC:
           mimeType = MimeTypes.AUDIO_AAC;
           initializationData = Collections.singletonList(codecPrivate);
+          break;
+        case CODEC_ID_MP3:
+          maxInputSize = MP3_MAX_INPUT_SIZE;
+          mimeType = MimeTypes.AUDIO_MPEG;
           break;
         case CODEC_ID_AC3:
           mimeType = MimeTypes.AUDIO_AC3;
