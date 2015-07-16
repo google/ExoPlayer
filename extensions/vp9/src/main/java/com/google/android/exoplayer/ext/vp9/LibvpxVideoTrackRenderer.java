@@ -179,7 +179,7 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
       return;
     }
     try {
-      sourceIsReady = source.continueBuffering(positionUs);
+      sourceIsReady = source.continueBuffering(trackIndex, positionUs);
       checkForDiscontinuity(positionUs);
       if (format == null) {
         readFormat(positionUs);

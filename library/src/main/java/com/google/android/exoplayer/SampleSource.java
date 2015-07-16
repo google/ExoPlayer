@@ -117,14 +117,15 @@ public interface SampleSource {
     public void disable(int track);
 
     /**
-     * Indicates to the source that it should still be buffering data.
+     * Indicates to the source that it should still be buffering data for the specified track.
      *
+     * @param track The track to continue buffering.
      * @param positionUs The current playback position.
-     * @return True if the source has available samples, or if the end of the stream has been
+     * @return True if the track has available samples, or if the end of the stream has been
      *     reached. False if more data needs to be buffered for samples to become available.
      * @throws IOException If an error occurred reading from the source.
      */
-    public boolean continueBuffering(long positionUs) throws IOException;
+    public boolean continueBuffering(int track, long positionUs) throws IOException;
 
     /**
      * Attempts to read either a sample, a new format or or a discontinuity from the source.

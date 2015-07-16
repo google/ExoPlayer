@@ -129,7 +129,7 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   @Override
   protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     try {
-      source.continueBuffering(positionUs);
+      source.continueBuffering(trackIndex, positionUs);
     } catch (IOException e) {
       throw new ExoPlaybackException(e);
     }
