@@ -174,7 +174,7 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
   }
 
   @Override
-  public boolean continueBuffering(long positionUs) {
+  public boolean continueBuffering(int track, long positionUs) {
     // MediaExtractor takes care of buffering and blocks until it has samples, so we can always
     // return true here. Although note that the blocking behavior is itself as bug, as per the
     // TODO further up this file. This method will need to return something else as part of fixing

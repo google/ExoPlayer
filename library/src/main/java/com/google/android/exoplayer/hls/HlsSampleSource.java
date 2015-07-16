@@ -218,26 +218,32 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
   }
 
   @Override
-  public boolean continueBuffering(long playbackPositionUs) throws IOException {
+  public boolean continueBuffering(int track, long playbackPositionUs) throws IOException {
     Assertions.checkState(prepared);
-    Assertions.checkState(enabledTrackCount > 0);
+    Assertions.checkState(trackEnabledStates[track]);
     downstreamPositionUs = playbackPositionUs;
     if (!extractors.isEmpty()) {
       discardSamplesForDisabledTracks(getCurrentExtractor(), downstreamPositionUs);
     }
-    return loadingFinished || continueBufferingInternal();
-  }
-
-  private boolean continueBufferingInternal() throws IOException {
+    if (loadingFinished) {
+      return true;
+    }
     maybeStartLoading();
     if (isPendingReset() || extractors.isEmpty()) {
       return false;
     }
-    boolean haveSamples = prepared && haveSamplesForEnabledTracks(getCurrentExtractor());
-    if (!haveSamples) {
-      maybeThrowLoadableException();
+
+    for (int extractorIndex = 0; extractorIndex < extractors.size(); extractorIndex++) {
+      HlsExtractorWrapper extractor = extractors.get(extractorIndex);
+      if (!extractor.isPrepared()) {
+        break;
+      }
+      if (extractor.hasSamples(track)) {
+        return true;
+      }
     }
-    return haveSamples;
+    maybeThrowLoadableException();
+    return false;
   }
 
   @Override

@@ -153,7 +153,7 @@ public class LibopusAudioTrackRenderer extends TrackRenderer implements MediaClo
       return;
     }
     try {
-      sourceIsReady = source.continueBuffering(positionUs);
+      sourceIsReady = source.continueBuffering(trackIndex, positionUs);
       checkForDiscontinuity();
       if (format == null) {
         readFormat();

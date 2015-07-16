@@ -180,7 +180,7 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
       loader = new Loader("Loader:ExtractorSampleSource");
     }
 
-    continueBufferingInternal();
+    maybeStartLoading();
 
     if (seekMap != null && tracksBuilt && haveFormatsForAllTracks()) {
       int trackCount = sampleQueues.size();
@@ -246,12 +246,23 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
   }
 
   @Override
-  public boolean continueBuffering(long playbackPositionUs) throws IOException {
+  public boolean continueBuffering(int track, long playbackPositionUs) throws IOException {
     Assertions.checkState(prepared);
-    Assertions.checkState(enabledTrackCount > 0);
+    Assertions.checkState(trackEnabledStates[track]);
     downstreamPositionUs = playbackPositionUs;
     discardSamplesForDisabledTracks(downstreamPositionUs);
-    return loadingFinished || continueBufferingInternal();
+    if (loadingFinished) {
+      return true;
+    }
+    maybeStartLoading();
+    if (isPendingReset()) {
+      return false;
+    }
+    if (sampleQueues.valueAt(track).isEmpty()) {
+      maybeThrowLoadableException();
+      return false;
+    }
+    return true;
   }
 
   @Override
@@ -411,18 +422,6 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
 
   // Internal stuff.
 
-  private boolean continueBufferingInternal() throws IOException {
-    maybeStartLoading();
-    if (isPendingReset()) {
-      return false;
-    }
-    boolean haveSamples = prepared && haveSampleForOneEnabledTrack();
-    if (!haveSamples) {
-      maybeThrowLoadableException();
-    }
-    return haveSamples;
-  }
-
   private void restartFrom(long positionUs) {
     pendingResetPositionUs = positionUs;
     loadingFinished = false;
@@ -530,15 +529,6 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
       }
     }
     return true;
-  }
-
-  private boolean haveSampleForOneEnabledTrack() {
-    for (int i = 0; i < trackEnabledStates.length; i++) {
-      if (trackEnabledStates[i] && !sampleQueues.valueAt(i).isEmpty()) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private void discardSamplesForDisabledTracks(long timeUs) {

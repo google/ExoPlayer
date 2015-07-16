@@ -188,8 +188,9 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   }
 
   @Override
-  public boolean continueBuffering(long positionUs) throws IOException {
+  public boolean continueBuffering(int track, long positionUs) throws IOException {
     Assertions.checkState(state == STATE_ENABLED);
+    Assertions.checkState(track == 0);
     downstreamPositionUs = positionUs;
     chunkSource.continueBuffering(positionUs);
     updateLoadControl();
