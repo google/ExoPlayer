@@ -24,7 +24,7 @@ import com.google.android.exoplayer.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.testutil.FakeDataSource;
-import com.google.android.exoplayer.testutil.Util;
+import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -52,7 +52,7 @@ public class BufferingInputTest extends InstrumentationTestCase {
 
   @Override
   public void setUp() throws Exception {
-    Util.setUpMockito(this);
+    TestUtil.setUpMockito(this);
 
     FakeDataSource.Builder builder = new FakeDataSource.Builder();
     builder.appendReadData(STREAM_DATA);

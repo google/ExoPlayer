@@ -21,6 +21,7 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
@@ -40,7 +41,7 @@ import java.util.List;
  * A {@link SampleSource} that loads media in {@link Chunk}s, which are themselves obtained from a
  * {@link ChunkSource}.
  */
-public class ChunkSampleSource implements SampleSource, Loader.Callback {
+public class ChunkSampleSource implements SampleSource, SampleSourceReader, Loader.Callback {
 
   /**
    * Interface definition for a callback to be notified of {@link ChunkSampleSource} events.
@@ -52,9 +53,10 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
-  private static final int STATE_UNPREPARED = 0;
-  private static final int STATE_PREPARED = 1;
-  private static final int STATE_ENABLED = 2;
+  private static final int STATE_IDLE = 0;
+  private static final int STATE_INITIALIZED = 1;
+  private static final int STATE_PREPARED = 2;
+  private static final int STATE_ENABLED = 3;
 
   private static final int NO_RESET_PENDING = -1;
 
@@ -81,7 +83,6 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   private Loader loader;
   private boolean loadingFinished;
   private IOException currentLoadableException;
-  private boolean currentLoadableExceptionFatal;
   private int currentLoadableExceptionCount;
   private long currentLoadableExceptionTimestamp;
   private long currentLoadStartTimeMs;
@@ -113,16 +114,26 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     this.eventSourceId = eventSourceId;
     this.minLoadableRetryCount = minLoadableRetryCount;
     currentLoadableHolder = new ChunkOperationHolder();
-    mediaChunks = new LinkedList<BaseMediaChunk>();
+    mediaChunks = new LinkedList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
     sampleQueue = new DefaultTrackOutput(loadControl.getAllocator());
-    state = STATE_UNPREPARED;
+    state = STATE_IDLE;
     pendingResetPositionUs = NO_RESET_PENDING;
   }
 
   @Override
+  public SampleSourceReader register() {
+    Assertions.checkState(state == STATE_IDLE);
+    state = STATE_INITIALIZED;
+    return this;
+  }
+
+  @Override
   public boolean prepare(long positionUs) {
-    Assertions.checkState(state == STATE_UNPREPARED);
+    Assertions.checkState(state == STATE_INITIALIZED || state == STATE_PREPARED);
+    if (state == STATE_PREPARED) {
+      return true;
+    }
     loader = new Loader("Loader:" + chunkSource.getTrackInfo().mimeType);
     state = STATE_PREPARED;
     return true;
@@ -130,13 +141,13 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public int getTrackCount() {
-    Assertions.checkState(state != STATE_UNPREPARED);
+    Assertions.checkState(state == STATE_PREPARED || state == STATE_ENABLED);
     return 1;
   }
 
   @Override
   public TrackInfo getTrackInfo(int track) {
-    Assertions.checkState(state != STATE_UNPREPARED);
+    Assertions.checkState(state == STATE_PREPARED || state == STATE_ENABLED);
     Assertions.checkState(track == 0);
     return chunkSource.getTrackInfo();
   }
@@ -152,6 +163,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     downstreamMediaFormat = null;
     downstreamPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
+    pendingDiscontinuity = false;
     restartFrom(positionUs);
   }
 
@@ -159,7 +171,6 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   public void disable(int track) {
     Assertions.checkState(state == STATE_ENABLED);
     Assertions.checkState(track == 0);
-    pendingDiscontinuity = false;
     state = STATE_PREPARED;
     try {
       chunkSource.disable(mediaChunks);
@@ -177,8 +188,9 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   }
 
   @Override
-  public boolean continueBuffering(long positionUs) throws IOException {
+  public boolean continueBuffering(int track, long positionUs) throws IOException {
     Assertions.checkState(state == STATE_ENABLED);
+    Assertions.checkState(track == 0);
     downstreamPositionUs = positionUs;
     chunkSource.continueBuffering(positionUs);
     updateLoadControl();
@@ -225,9 +237,9 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
       downstreamFormat = currentChunk.format;
     }
 
-    if (haveSamples || currentChunk.isFormatFinal) {
+    if (haveSamples || currentChunk.isMediaFormatFinal) {
       MediaFormat mediaFormat = currentChunk.getMediaFormat();
-      if (mediaFormat != null && !mediaFormat.equals(downstreamMediaFormat, true)) {
+      if (!mediaFormat.equals(downstreamMediaFormat, true)) {
         chunkSource.getMaxVideoDimensions(mediaFormat);
         formatHolder.format = mediaFormat;
         formatHolder.drmInitData = currentChunk.getDrmInitData();
@@ -258,12 +270,14 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   @Override
   public void seekToUs(long positionUs) {
     Assertions.checkState(state == STATE_ENABLED);
+
+    long currentPositionUs = isPendingReset() ? pendingResetPositionUs : downstreamPositionUs;
+    downstreamPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
-    if ((isPendingReset() ? pendingResetPositionUs : downstreamPositionUs) == positionUs) {
+    if (currentPositionUs == positionUs) {
       return;
     }
 
-    downstreamPositionUs = positionUs;
     // If we're not pending a reset, see if we can seek within the sample queue.
     boolean seekInsideBuffer = !isPendingReset() && sampleQueue.skipToKeyframeBefore(positionUs);
     if (seekInsideBuffer) {
@@ -282,8 +296,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   }
 
   private void maybeThrowLoadableException() throws IOException {
-    if (currentLoadableException != null && (currentLoadableExceptionFatal
-        || currentLoadableExceptionCount > minLoadableRetryCount)) {
+    if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
       throw currentLoadableException;
     }
     if (sampleQueue.isEmpty() && currentLoadableHolder.chunk == null) {
@@ -315,7 +328,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
       loader.release();
       loader = null;
     }
-    state = STATE_UNPREPARED;
+    state = STATE_IDLE;
   }
 
   @Override
@@ -394,16 +407,9 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   private void clearCurrentLoadableException() {
     currentLoadableException = null;
     currentLoadableExceptionCount = 0;
-    currentLoadableExceptionFatal = false;
   }
 
   private void updateLoadControl() {
-    if (currentLoadableExceptionFatal) {
-      // We've failed, but we still need to update the control with our current state.
-      loadControl.update(this, downstreamPositionUs, -1, false, true);
-      return;
-    }
-
     long now = SystemClock.elapsedRealtime();
     long nextLoadPositionUs = getNextLoadPositionUs();
     boolean isBackedOff = currentLoadableException != null;

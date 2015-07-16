@@ -17,35 +17,26 @@ package com.google.android.exoplayer.extractor.mp4;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.MediaFormatHolder;
-import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.SampleSource;
-import com.google.android.exoplayer.extractor.ExtractorSampleSource;
-import com.google.android.exoplayer.upstream.ByteArrayDataSource;
-import com.google.android.exoplayer.upstream.DataSource;
-import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.extractor.SeekMap;
+import com.google.android.exoplayer.testutil.FakeExtractorOutput;
+import com.google.android.exoplayer.testutil.FakeTrackOutput;
+import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 
 import junit.framework.TestCase;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * Tests for {@link Mp4Extractor}.
  */
 @TargetApi(16)
-public class Mp4ExtractorTest extends TestCase {
+public final class Mp4ExtractorTest extends TestCase {
 
   /** String of hexadecimal bytes containing the video stsd payload from an AVC video. */
   private static final byte[] VIDEO_STSD_PAYLOAD = getByteArray(
@@ -94,159 +85,122 @@ public class Mp4ExtractorTest extends TestCase {
   /** Video frame sizes in bytes, including a very large sample. */
   private static final int[] SAMPLE_SIZES = {100, 20, 20, 44, 100, 1 * 1024 * 1024};
   /** Indices of key-frames. */
-  private static final int[] SYNCHRONIZATION_SAMPLE_INDICES = {0, 4, 5};
+  private static final boolean[] SAMPLE_IS_SYNC = {true, false, false, false, true, true};
   /** Indices of video frame chunk offsets. */
   private static final int[] CHUNK_OFFSETS = {1080, 2000, 3000, 4000};
   /** Numbers of video frames in each chunk. */
   private static final int[] SAMPLES_IN_CHUNK = {2, 2, 1, 1};
   /** The mdat box must be large enough to avoid reading chunk sample data out of bounds. */
   private static final int MDAT_SIZE = 10 * 1024 * 1024;
-  /** Fake HTTP URI that can't be opened. */
-  private static final Uri FAKE_URI = Uri.parse("http://");
   /** Empty byte array. */
   private static final byte[] EMPTY = new byte[0];
 
+  private Mp4Extractor extractor;
+  private FakeExtractorOutput extractorOutput;
+
+  @Override
+  public void setUp() {
+    extractor = new Mp4Extractor();
+    extractorOutput = new FakeExtractorOutput();
+    extractor.init(extractorOutput);
+  }
+
+  @Override
+  public void tearDown() {
+    extractor = null;
+    extractorOutput = null;
+  }
+
   public void testParsesValidMp4File() throws Exception {
-    // Given an extractor with an AVC/AAC file
-    Mp4ExtractorWrapper extractor =
-        prepareSampleExtractor(getFakeDataSource(true /* includeStss */, false /* mp4vFormat */));
+    TestUtil.consumeTestData(extractor,
+        getTestInputData(true /* includeStss */, false /* mp4vFormat */));
 
-    // The MIME type and metadata are set correctly.
-    assertEquals(MimeTypes.VIDEO_H264, extractor.mediaFormats[0].mimeType);
-    assertEquals(MimeTypes.AUDIO_AAC, extractor.mediaFormats[1].mimeType);
+    // The seek map is correct.
+    assertSeekMap(extractorOutput.seekMap, true);
 
-    assertEquals(VIDEO_WIDTH, extractor.selectedTrackMediaFormat.width);
-    assertEquals(VIDEO_HEIGHT, extractor.selectedTrackMediaFormat.height);
+    // The video and audio formats are set correctly.
+    assertEquals(2, extractorOutput.trackOutputs.size());
+    MediaFormat videoFormat = extractorOutput.trackOutputs.get(0).format;
+    MediaFormat audioFormat = extractorOutput.trackOutputs.get(1).format;
+    assertEquals(MimeTypes.VIDEO_H264, videoFormat.mimeType);
+    assertEquals(VIDEO_WIDTH, videoFormat.width);
+    assertEquals(VIDEO_HEIGHT, videoFormat.height);
+    assertEquals(MimeTypes.AUDIO_AAC, audioFormat.mimeType);
+
+    // The timestamps and sizes are set correctly.
+    FakeTrackOutput videoTrackOutput = extractorOutput.trackOutputs.get(0);
+    videoTrackOutput.assertSampleCount(SAMPLE_TIMESTAMPS.length);
+    for (int i = 0; i < SAMPLE_TIMESTAMPS.length; i++) {
+      byte[] sampleData = getOutputSampleData(i, true);
+      int sampleFlags = SAMPLE_IS_SYNC[i] ? C.SAMPLE_FLAG_SYNC : 0;
+      long sampleTimestampUs = getVideoTimestampUs(SAMPLE_TIMESTAMPS[i]);
+      videoTrackOutput.assertSample(i, sampleData, sampleTimestampUs, sampleFlags, null);
+    }
+  }
+
+  public void testParsesValidMp4FileWithoutStss() throws Exception {
+    TestUtil.consumeTestData(extractor,
+        getTestInputData(false /* includeStss */, false /* mp4vFormat */));
+
+    // The seek map is correct.
+    assertSeekMap(extractorOutput.seekMap, false);
+
+    // The timestamps and sizes are set correctly, and all samples are synchronization samples.
+    FakeTrackOutput videoTrackOutput = extractorOutput.trackOutputs.get(0);
+    videoTrackOutput.assertSampleCount(SAMPLE_TIMESTAMPS.length);
+    for (int i = 0; i < SAMPLE_TIMESTAMPS.length; i++) {
+      byte[] sampleData = getOutputSampleData(i, true);
+      int sampleFlags = C.SAMPLE_FLAG_SYNC;
+      long sampleTimestampUs = getVideoTimestampUs(SAMPLE_TIMESTAMPS[i]);
+      videoTrackOutput.assertSample(i, sampleData, sampleTimestampUs, sampleFlags, null);
+    }
   }
 
   public void testParsesValidMp4vFile() throws Exception {
-    // Given an extractor with an mp4v file
-    Mp4ExtractorWrapper extractor =
-        prepareSampleExtractor(getFakeDataSource(true /* includeStss */, true /* mp4vFormat */));
+    TestUtil.consumeTestData(extractor,
+        getTestInputData(true /* includeStss */, true /* mp4vFormat */));
 
-    // The MIME type and metadata are set correctly.
-    assertEquals(MimeTypes.VIDEO_MP4V, extractor.selectedTrackMediaFormat.mimeType);
-    assertEquals(VIDEO_MP4V_WIDTH, extractor.selectedTrackMediaFormat.width);
-    assertEquals(VIDEO_MP4V_HEIGHT, extractor.selectedTrackMediaFormat.height);
-  }
+    // The seek map is correct.
+    assertSeekMap(extractorOutput.seekMap, true);
 
-  public void testSampleTimestampsMatch() throws Exception {
-    // Given an extractor
-    Mp4ExtractorWrapper extractor =
-        prepareSampleExtractor(getFakeDataSource(true /* includeStss */, false /* mp4vFormat */));
+    // The video and audio formats are set correctly.
+    assertEquals(2, extractorOutput.trackOutputs.size());
+    MediaFormat videoFormat = extractorOutput.trackOutputs.get(0).format;
+    MediaFormat audioFormat = extractorOutput.trackOutputs.get(1).format;
+    assertEquals(MimeTypes.VIDEO_MP4V, videoFormat.mimeType);
+    assertEquals(VIDEO_MP4V_WIDTH, videoFormat.width);
+    assertEquals(VIDEO_MP4V_HEIGHT, videoFormat.height);
+    assertEquals(MimeTypes.AUDIO_AAC, audioFormat.mimeType);
 
-    // The timestamps are set correctly.
-    SampleHolder sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
+    // The timestamps and sizes are set correctly.
+    FakeTrackOutput videoTrackOutput = extractorOutput.trackOutputs.get(0);
+    videoTrackOutput.assertSampleCount(SAMPLE_TIMESTAMPS.length);
     for (int i = 0; i < SAMPLE_TIMESTAMPS.length; i++) {
-      extractor.readSample(0, sampleHolder);
-      assertEquals(getVideoTimestampUs(SAMPLE_TIMESTAMPS[i]), sampleHolder.timeUs);
+      byte[] sampleData = getOutputSampleData(i, false);
+      int sampleFlags = SAMPLE_IS_SYNC[i] ? C.SAMPLE_FLAG_SYNC : 0;
+      long sampleTimestampUs = getVideoTimestampUs(SAMPLE_TIMESTAMPS[i]);
+      videoTrackOutput.assertSample(i, sampleData, sampleTimestampUs, sampleFlags, null);
     }
-    assertEquals(SampleSource.END_OF_STREAM, extractor.readSample(0, sampleHolder));
   }
 
-  public void testSeekToStart() throws Exception {
-    // When seeking to the start
-    int timestampTimeUnits = SAMPLE_TIMESTAMPS[0];
-    long sampleTimestampUs =
-        getTimestampUsResultingFromSeek(getVideoTimestampUs(timestampTimeUnits));
-
-    // The timestamp is at the start.
-    assertEquals(getVideoTimestampUs(timestampTimeUnits), sampleTimestampUs);
-  }
-
-  public void testSeekToEnd() throws Exception {
-    // When seeking to the end
-    int timestampTimeUnits = SAMPLE_TIMESTAMPS[SAMPLE_TIMESTAMPS.length - 1];
-    long sampleTimestampUs =
-        getTimestampUsResultingFromSeek(getVideoTimestampUs(timestampTimeUnits));
-
-    // The timestamp is at the end.
-    assertEquals(getVideoTimestampUs(timestampTimeUnits), sampleTimestampUs);
-  }
-
-  public void testSeekToNearStart() throws Exception {
-    // When seeking to just after the start
-    int timestampTimeUnits = SAMPLE_TIMESTAMPS[0];
-    long sampleTimestampUs =
-        getTimestampUsResultingFromSeek(getVideoTimestampUs(timestampTimeUnits) + 1);
-
-    // The timestamp is at the start.
-    assertEquals(getVideoTimestampUs(timestampTimeUnits), sampleTimestampUs);
-  }
-
-  public void testSeekToBeforeLastSynchronizationSample() throws Exception {
-    // When seeking to just after the start
-    long sampleTimestampUs =
-        getTimestampUsResultingFromSeek(getVideoTimestampUs(SAMPLE_TIMESTAMPS[4]) - 1);
-
-    // The timestamp is at the start.
-    assertEquals(getVideoTimestampUs(SAMPLE_TIMESTAMPS[0]), sampleTimestampUs);
-  }
-
-  public void testAllSamplesAreSynchronizationSamplesWhenStssIsMissing() throws Exception {
-    // Given an extractor without an stss box
-    Mp4ExtractorWrapper extractor =
-        prepareSampleExtractor(getFakeDataSource(false /* includeStss */, false /* mp4vFormat */));
-    // All samples are synchronization samples.
-    SampleHolder sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
-    int sampleIndex = 0;
-    while (true) {
-      int result = extractor.readSample(0, sampleHolder);
-      if (result == SampleSource.SAMPLE_READ) {
-        assertTrue(sampleHolder.isSyncFrame());
-        sampleHolder.clearData();
-        sampleIndex++;
-      } else if (result == SampleSource.END_OF_STREAM) {
-        break;
+  private static void assertSeekMap(SeekMap seekMap, boolean haveStss) {
+    assertNotNull(seekMap);
+    int expectedSeekPosition = getSampleOffset(0);
+    for (int i = 0; i < SAMPLE_TIMESTAMPS.length; i++) {
+      // Seek to just before the current sample.
+      long seekPositionUs = getVideoTimestampUs(SAMPLE_TIMESTAMPS[i]) - 1;
+      assertEquals(expectedSeekPosition, seekMap.getPosition(seekPositionUs));
+      // If the current sample is a sync sample, the expected seek position will change.
+      if (SAMPLE_IS_SYNC[i] || !haveStss) {
+        expectedSeekPosition = getSampleOffset(i);
       }
+      // Seek to the current sample.
+      seekPositionUs = getVideoTimestampUs(SAMPLE_TIMESTAMPS[i]);
+      assertEquals(expectedSeekPosition, seekMap.getPosition(seekPositionUs));
+      // Seek to just after the current sample.
+      seekPositionUs = getVideoTimestampUs(SAMPLE_TIMESTAMPS[i]) + 1;
+      assertEquals(expectedSeekPosition, seekMap.getPosition(seekPositionUs));
     }
-    assertTrue(sampleIndex == SAMPLE_SIZES.length);
-  }
-
-  public void testReadAllSamplesSucceeds() throws Exception {
-    // Given an extractor
-    Mp4ExtractorWrapper extractor =
-        prepareSampleExtractor(getFakeDataSource(true /* includeStss */, false /* mp4vFormat */));
-
-    // The sample sizes are set correctly.
-    SampleHolder sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
-    int sampleIndex = 0;
-    while (true) {
-      int result = extractor.readSample(0, sampleHolder);
-      if (result == SampleSource.SAMPLE_READ) {
-        assertEquals(SAMPLE_SIZES[sampleIndex], sampleHolder.size);
-        sampleHolder.clearData();
-        sampleIndex++;
-      } else if (result == SampleSource.END_OF_STREAM) {
-        break;
-      }
-    }
-    assertEquals(SAMPLE_SIZES.length, sampleIndex);
-  }
-
-  /** Returns the sample time read after seeking to {@code timestampTimeUnits}. */
-  private static long getTimestampUsResultingFromSeek(long timestampTimeUnits) throws Exception {
-    Mp4ExtractorWrapper extractor =
-        prepareSampleExtractor(getFakeDataSource(true /* includeStss */, false /* mp4vFormat */));
-
-    extractor.seekTo(timestampTimeUnits);
-
-    SampleHolder sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
-    while (true) {
-      int result = extractor.readSample(0, sampleHolder);
-      if (result == SampleSource.SAMPLE_READ) {
-        return sampleHolder.timeUs;
-      } else if (result == SampleSource.END_OF_STREAM) {
-        return -1;
-      }
-    }
-  }
-
-  private static Mp4ExtractorWrapper prepareSampleExtractor(DataSource dataSource)
-      throws Exception {
-    Mp4ExtractorWrapper extractor = new Mp4ExtractorWrapper(dataSource);
-    extractor.prepare();
-    return extractor;
   }
 
   /** Returns a video timestamp in microseconds corresponding to {@code timeUnits}. */
@@ -267,7 +221,7 @@ public class Mp4ExtractorTest extends TestCase {
 
   private static byte[] getStsc() {
     int samplesPerChunk = -1;
-    List<Integer> samplesInChunkChangeIndices = new ArrayList<Integer>();
+    List<Integer> samplesInChunkChangeIndices = new ArrayList<>();
     for (int i = 0; i < SAMPLES_IN_CHUNK.length; i++) {
       if (SAMPLES_IN_CHUNK[i] != samplesPerChunk) {
         samplesInChunkChangeIndices.add(i);
@@ -300,12 +254,20 @@ public class Mp4ExtractorTest extends TestCase {
   }
 
   private static byte[] getStss() {
-    byte[] result = new byte[4 + 4 + 4 * SYNCHRONIZATION_SAMPLE_INDICES.length];
+    int synchronizationSampleCount = 0;
+    for (int i = 0; i < SAMPLE_IS_SYNC.length; i++) {
+      if (SAMPLE_IS_SYNC[i]) {
+        synchronizationSampleCount++;
+      }
+    }
+    byte[] result = new byte[4 + 4 + 4 * synchronizationSampleCount];
     ByteBuffer buffer = ByteBuffer.wrap(result);
     buffer.putInt(0); // Version (skipped)
-    buffer.putInt(SYNCHRONIZATION_SAMPLE_INDICES.length);
-    for (int synchronizationSampleIndex : SYNCHRONIZATION_SAMPLE_INDICES) {
-      buffer.putInt(synchronizationSampleIndex + 1);
+    buffer.putInt(synchronizationSampleCount);
+    for (int i = 0; i < SAMPLE_IS_SYNC.length; i++) {
+      if (SAMPLE_IS_SYNC[i]) {
+        buffer.putInt(i + 1);
+      }
     }
     return result;
   }
@@ -342,23 +304,64 @@ public class Mp4ExtractorTest extends TestCase {
     return result;
   }
 
-  private static byte[] getMdat(int mdatOffset) {
+  private static byte[] getMdat(int mdatOffset, boolean isH264) {
     ByteBuffer mdat = ByteBuffer.allocate(MDAT_SIZE);
     int sampleIndex = 0;
     for (int chunk = 0; chunk < CHUNK_OFFSETS.length; chunk++) {
-      int sampleOffset = CHUNK_OFFSETS[chunk];
+      mdat.position(CHUNK_OFFSETS[chunk] - mdatOffset);
       for (int sample = 0; sample < SAMPLES_IN_CHUNK[chunk]; sample++) {
-        int sampleSize = SAMPLE_SIZES[sampleIndex++];
-        mdat.putInt(sampleOffset - mdatOffset, sampleSize);
-        sampleOffset += sampleSize;
+        mdat.put(getInputSampleData(sampleIndex++, isH264));
       }
     }
     return mdat.array();
   }
 
-  private static final DataSource getFakeDataSource(boolean includeStss, boolean mp4vFormat) {
-    return new ByteArrayDataSource(includeStss
-        ? getTestMp4File(mp4vFormat) : getTestMp4FileWithoutSynchronizationData(mp4vFormat));
+  private static byte[] getInputSampleData(int index, boolean isH264) {
+    ByteBuffer sample = ByteBuffer.allocate(SAMPLE_SIZES[index]);
+    for (int i = 0; i < SAMPLE_SIZES[index]; i++) {
+      sample.put((byte) i);
+    }
+    if (isH264) {
+      // First four bytes should specify the remaining length of the sample. This assumes that the
+      // sample consists of a single length delimited NAL unit.
+      sample.position(0);
+      sample.putInt(SAMPLE_SIZES[index] - 4);
+    }
+    return sample.array();
+  }
+
+  private static byte[] getOutputSampleData(int index, boolean isH264) {
+    byte[] sampleData = getInputSampleData(index, isH264);
+    if (isH264) {
+      // The output sample should begin with a NAL start code.
+      sampleData[0] = 0;
+      sampleData[1] = 0;
+      sampleData[2] = 0;
+      sampleData[3] = 1;
+    }
+    return sampleData;
+  }
+
+  private static int getSampleOffset(int index) {
+    int sampleCount = 0;
+    int chunkIndex = 0;
+    int samplesLeftInChunk = SAMPLES_IN_CHUNK[chunkIndex];
+    int offsetInChunk = 0;
+    while (sampleCount < index) {
+      offsetInChunk += SAMPLE_SIZES[sampleCount++];
+      samplesLeftInChunk--;
+      if (samplesLeftInChunk == 0) {
+        chunkIndex++;
+        samplesLeftInChunk = SAMPLES_IN_CHUNK[chunkIndex];
+        offsetInChunk = 0;
+      }
+    }
+    return CHUNK_OFFSETS[chunkIndex] + offsetInChunk;
+  }
+
+  private static final byte[] getTestInputData(boolean includeStss, boolean mp4vFormat) {
+    return includeStss ? getTestMp4File(mp4vFormat)
+        : getTestMp4FileWithoutSynchronizationData(mp4vFormat);
   }
 
   /** Gets a valid MP4 file with audio/video tracks and synchronization data. */
@@ -396,7 +399,7 @@ public class Mp4ExtractorTest extends TestCase {
                             atom(Atom.TYPE_stsc, getStsc()),
                             atom(Atom.TYPE_stsz, getStsz()),
                             atom(Atom.TYPE_stco, getStco())))))),
-        atom(Atom.TYPE_mdat, getMdat(mp4vFormat ? 1048 : 1038)));
+        atom(Atom.TYPE_mdat, getMdat(mp4vFormat ? 1048 : 1038, !mp4vFormat)));
   }
 
   /** Gets a valid MP4 file with audio/video tracks and without a synchronization table. */
@@ -432,7 +435,7 @@ public class Mp4ExtractorTest extends TestCase {
                             atom(Atom.TYPE_stsc, getStsc()),
                             atom(Atom.TYPE_stsz, getStsz()),
                             atom(Atom.TYPE_stco, getStco())))))),
-        atom(Atom.TYPE_mdat, getMdat(mp4vFormat ? 992 : 982)));
+        atom(Atom.TYPE_mdat, getMdat(mp4vFormat ? 992 : 982, !mp4vFormat)));
   }
 
   private static Mp4Atom atom(int type, Mp4Atom... containedMp4Atoms) {
@@ -452,7 +455,9 @@ public class Mp4ExtractorTest extends TestCase {
     return result;
   }
 
-  /** MP4 atom that can be serialized as a byte array. */
+  /**
+   * MP4 atom that can be serialized as a byte array.
+   */
   private static final class Mp4Atom {
 
     public static byte[] serialize(Mp4Atom... atoms) {
@@ -508,124 +513,6 @@ public class Mp4ExtractorTest extends TestCase {
           atom.getData(byteBuffer);
         }
       }
-    }
-
-  }
-
-  /**
-   * Creates a {@link Mp4Extractor} on a separate thread with a looper, so that it can use a handler
-   * for loading, and provides blocking operations like {@link #seekTo} and {@link #readSample}.
-   */
-  private static final class Mp4ExtractorWrapper extends Thread {
-
-    private static final int MSG_PREPARE = 0;
-    private static final int MSG_SEEK_TO = 1;
-    private static final int MSG_READ_SAMPLE = 2;
-    private final DataSource dataSource;
-
-    // Written by the handler's thread and read by the main thread.
-    public volatile MediaFormat[] mediaFormats;
-    public volatile MediaFormat selectedTrackMediaFormat;
-    private volatile Handler handler;
-    private volatile int readSampleResult;
-    private volatile Exception exception;
-    private volatile CountDownLatch pendingOperationLatch;
-
-    public Mp4ExtractorWrapper(DataSource dataSource) {
-      super("Mp4ExtractorTest");
-      this.dataSource = Assertions.checkNotNull(dataSource);
-      pendingOperationLatch = new CountDownLatch(1);
-      start();
-    }
-
-    public void prepare() throws Exception {
-      // Block until the handler has been created.
-      pendingOperationLatch.await();
-
-      // Block until the extractor has been prepared.
-      pendingOperationLatch = new CountDownLatch(1);
-      handler.sendEmptyMessage(MSG_PREPARE);
-      pendingOperationLatch.await();
-      if (exception != null) {
-        throw exception;
-      }
-    }
-
-    public void seekTo(long timestampUs) {
-      handler.obtainMessage(MSG_SEEK_TO, timestampUs).sendToTarget();
-    }
-
-    public int readSample(int trackIndex, SampleHolder sampleHolder) throws Exception {
-      // Block until the extractor has completed readSample.
-      pendingOperationLatch = new CountDownLatch(1);
-      handler.obtainMessage(MSG_READ_SAMPLE, trackIndex, 0, sampleHolder).sendToTarget();
-      pendingOperationLatch.await();
-      if (exception != null) {
-        throw exception;
-      }
-      return readSampleResult;
-    }
-
-    @SuppressLint("HandlerLeak")
-    @Override
-    public void run() {
-      final ExtractorSampleSource source = new ExtractorSampleSource(FAKE_URI, dataSource,
-          new Mp4Extractor(), 1, 2 * 1024 * 1024);
-      Looper.prepare();
-      handler = new Handler() {
-
-        @Override
-        public void handleMessage(Message message) {
-          try {
-            switch (message.what) {
-              case MSG_PREPARE:
-                if (!source.prepare(0)) {
-                  sendEmptyMessage(MSG_PREPARE);
-                } else {
-                  // Select the video track and get its metadata.
-                  mediaFormats = new MediaFormat[source.getTrackCount()];
-                  MediaFormatHolder mediaFormatHolder = new MediaFormatHolder();
-                  for (int track = 0; track < source.getTrackCount(); track++) {
-                    source.enable(track, 0);
-                    source.readData(track, 0, mediaFormatHolder, null, false);
-                    MediaFormat mediaFormat = mediaFormatHolder.format;
-                    mediaFormats[track] = mediaFormat;
-                    if (MimeTypes.isVideo(mediaFormat.mimeType)) {
-                      selectedTrackMediaFormat = mediaFormat;
-                    } else {
-                      source.disable(track);
-                    }
-                  }
-                  pendingOperationLatch.countDown();
-                }
-                break;
-              case MSG_SEEK_TO:
-                long timestampUs = (Long) message.obj;
-                source.seekToUs(timestampUs);
-                break;
-              case MSG_READ_SAMPLE:
-                int trackIndex = message.arg1;
-                SampleHolder sampleHolder = (SampleHolder) message.obj;
-                sampleHolder.clearData();
-                readSampleResult = source.readData(trackIndex, 0, null, sampleHolder, false);
-                if (readSampleResult == SampleSource.NOTHING_READ) {
-                  Message.obtain(message).sendToTarget();
-                  return;
-                }
-                pendingOperationLatch.countDown();
-                break;
-            }
-          } catch (Exception e) {
-            exception = e;
-            pendingOperationLatch.countDown();
-          }
-        }
-      };
-
-      // Unblock waiting for the handler.
-      pendingOperationLatch.countDown();
-
-      Looper.loop();
     }
 
   }

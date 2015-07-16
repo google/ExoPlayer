@@ -39,7 +39,8 @@ import java.util.List;
   public static final int TYPE_ftyp = Util.getIntegerCodeForString("ftyp");
   public static final int TYPE_avc1 = Util.getIntegerCodeForString("avc1");
   public static final int TYPE_avc3 = Util.getIntegerCodeForString("avc3");
-  public static final int TYPE_esds = Util.getIntegerCodeForString("esds");
+  public static final int TYPE_hvc1 = Util.getIntegerCodeForString("hvc1");
+  public static final int TYPE_hev1 = Util.getIntegerCodeForString("hev1");
   public static final int TYPE_mdat = Util.getIntegerCodeForString("mdat");
   public static final int TYPE_mp4a = Util.getIntegerCodeForString("mp4a");
   public static final int TYPE_ac_3 = Util.getIntegerCodeForString("ac-3");
@@ -58,6 +59,8 @@ import java.util.List;
   public static final int TYPE_minf = Util.getIntegerCodeForString("minf");
   public static final int TYPE_stbl = Util.getIntegerCodeForString("stbl");
   public static final int TYPE_avcC = Util.getIntegerCodeForString("avcC");
+  public static final int TYPE_hvcC = Util.getIntegerCodeForString("hvcC");
+  public static final int TYPE_esds = Util.getIntegerCodeForString("esds");
   public static final int TYPE_moof = Util.getIntegerCodeForString("moof");
   public static final int TYPE_traf = Util.getIntegerCodeForString("traf");
   public static final int TYPE_mvex = Util.getIntegerCodeForString("mvex");
@@ -88,6 +91,7 @@ import java.util.List;
   public static final int TYPE_stsz = Util.getIntegerCodeForString("stsz");
   public static final int TYPE_stco = Util.getIntegerCodeForString("stco");
   public static final int TYPE_co64 = Util.getIntegerCodeForString("co64");
+  public static final int TYPE_tx3g = Util.getIntegerCodeForString("tx3g");
 
   public final int type;
 
@@ -122,8 +126,8 @@ import java.util.List;
     public ContainerAtom(int type, long endByteOffset) {
       super(type);
 
-      leafChildren = new ArrayList<LeafAtom>();
-      containerChildren = new ArrayList<ContainerAtom>();
+      leafChildren = new ArrayList<>();
+      containerChildren = new ArrayList<>();
       this.endByteOffset = endByteOffset;
     }
 

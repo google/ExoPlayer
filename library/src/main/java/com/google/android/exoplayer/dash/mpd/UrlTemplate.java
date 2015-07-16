@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.dash.mpd;
 
+import java.util.Locale;
+
 /**
  * A template from which URLs can be built.
  * <p>
@@ -85,11 +87,11 @@ public final class UrlTemplate {
       if (identifiers[i] == REPRESENTATION_ID) {
         builder.append(representationId);
       } else if (identifiers[i] == NUMBER_ID) {
-        builder.append(String.format(identifierFormatTags[i], segmentNumber));
+        builder.append(String.format(Locale.US, identifierFormatTags[i], segmentNumber));
       } else if (identifiers[i] == BANDWIDTH_ID) {
-        builder.append(String.format(identifierFormatTags[i], bandwidth));
+        builder.append(String.format(Locale.US, identifierFormatTags[i], bandwidth));
       } else if (identifiers[i] == TIME_ID) {
-        builder.append(String.format(identifierFormatTags[i], time));
+        builder.append(String.format(Locale.US, identifierFormatTags[i], time));
       }
     }
     builder.append(urlPieces[identifierCount]);

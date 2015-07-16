@@ -33,6 +33,7 @@ public class MimeTypes {
   public static final String VIDEO_MP4 = BASE_TYPE_VIDEO + "/mp4";
   public static final String VIDEO_WEBM = BASE_TYPE_VIDEO + "/webm";
   public static final String VIDEO_H264 = BASE_TYPE_VIDEO + "/avc";
+  public static final String VIDEO_H265 = BASE_TYPE_VIDEO + "/hevc";
   public static final String VIDEO_VP8 = BASE_TYPE_VIDEO + "/x-vnd.on2.vp8";
   public static final String VIDEO_VP9 = BASE_TYPE_VIDEO + "/x-vnd.on2.vp9";
   public static final String VIDEO_MP4V = BASE_TYPE_VIDEO + "/mp4v-es";
@@ -55,8 +56,10 @@ public class MimeTypes {
 
   public static final String APPLICATION_ID3 = BASE_TYPE_APPLICATION + "/id3";
   public static final String APPLICATION_EIA608 = BASE_TYPE_APPLICATION + "/eia-608";
+  public static final String APPLICATION_SUBRIP = BASE_TYPE_APPLICATION + "/x-subrip";
   public static final String APPLICATION_TTML = BASE_TYPE_APPLICATION + "/ttml+xml";
   public static final String APPLICATION_M3U8 = BASE_TYPE_APPLICATION + "/x-mpegURL";
+  public static final String APPLICATION_TX3G = BASE_TYPE_APPLICATION + "/x-quicktime-tx3g";
 
   private MimeTypes() {}
 

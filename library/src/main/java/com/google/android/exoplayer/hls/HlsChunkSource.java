@@ -43,7 +43,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -117,8 +117,6 @@ public class HlsChunkSource {
 
   private final DataSource dataSource;
   private final HlsPlaylistParser playlistParser;
-  private final List<Variant> variants;
-  private final Format[] enabledFormats;
   private final BandwidthMeter bandwidthMeter;
   private final int adaptiveMode;
   private final String baseUri;
@@ -128,14 +126,21 @@ public class HlsChunkSource {
   private final long maxBufferDurationToSwitchDownUs;
   private final AudioCapabilities audioCapabilities;
 
-  /* package */ byte[] scratchSpace;
-  /* package */ final HlsMediaPlaylist[] mediaPlaylists;
-  /* package */ final long[] mediaPlaylistBlacklistTimesMs;
-  /* package */ final long[] lastMediaPlaylistLoadTimesMs;
-  /* package */ boolean live;
-  /* package */ long durationUs;
+  // A list of variants considered during playback, ordered by decreasing bandwidth. The following
+  // three arrays are of the same length and are ordered in the same way (i.e. variantPlaylists[i],
+  // variantLastPlaylistLoadTimesMs[i] and variantBlacklistTimes[i] all correspond to variants[i]).
+  private final Variant[] variants;
+  private final HlsMediaPlaylist[] variantPlaylists;
+  private final long[] variantLastPlaylistLoadTimesMs;
+  private final long[] variantBlacklistTimes;
 
-  private int formatIndex;
+  // The index in variants of the currently selected variant.
+  private int selectedVariantIndex;
+
+  private byte[] scratchSpace;
+  private boolean live;
+  private long durationUs;
+
   private Uri encryptionKeyUri;
   private byte[] encryptionKey;
   private String encryptionIvString;
@@ -181,38 +186,45 @@ public class HlsChunkSource {
     playlistParser = new HlsPlaylistParser();
 
     if (playlist.type == HlsPlaylist.TYPE_MEDIA) {
-      variants = Collections.singletonList(new Variant(0, playlistUrl, 0, null, -1, -1));
-      variantIndices = null;
-      mediaPlaylists = new HlsMediaPlaylist[1];
-      mediaPlaylistBlacklistTimesMs = new long[1];
-      lastMediaPlaylistLoadTimesMs = new long[1];
+      variants = new Variant[] {new Variant(0, playlistUrl, 0, null, -1, -1)};
+      variantPlaylists = new HlsMediaPlaylist[1];
+      variantLastPlaylistLoadTimesMs = new long[1];
+      variantBlacklistTimes = new long[1];
       setMediaPlaylist(0, (HlsMediaPlaylist) playlist);
+      // We won't be adapting between different variants.
+      maxWidth = -1;
+      maxHeight = -1;
     } else {
-      variants = ((HlsMasterPlaylist) playlist).variants;
-      int variantCount = variants.size();
-      mediaPlaylists = new HlsMediaPlaylist[variantCount];
-      mediaPlaylistBlacklistTimesMs = new long[variantCount];
-      lastMediaPlaylistLoadTimesMs = new long[variantCount];
-    }
-
-    enabledFormats = buildEnabledFormats(variants, variantIndices);
-
-    int maxWidth = -1;
-    int maxHeight = -1;
-    // Select the first variant from the master playlist that's enabled.
-    int minEnabledVariantIndex = Integer.MAX_VALUE;
-    for (int i = 0; i < enabledFormats.length; i++) {
-      int variantIndex = getVariantIndex(enabledFormats[i]);
-      if (variantIndex < minEnabledVariantIndex) {
-        minEnabledVariantIndex = variantIndex;
-        formatIndex = i;
+      List<Variant> masterPlaylistVariants = ((HlsMasterPlaylist) playlist).variants;
+      variants = buildOrderedVariants(masterPlaylistVariants, variantIndices);
+      variantPlaylists = new HlsMediaPlaylist[variants.length];
+      variantLastPlaylistLoadTimesMs = new long[variants.length];
+      variantBlacklistTimes = new long[variants.length];
+      int maxWidth = -1;
+      int maxHeight = -1;
+      // Select the variant that comes first in their original order in the master playlist.
+      int minOriginalVariantIndex = Integer.MAX_VALUE;
+      for (int i = 0; i < variants.length; i++) {
+        int originalVariantIndex = masterPlaylistVariants.indexOf(variants[i]);
+        if (originalVariantIndex < minOriginalVariantIndex) {
+          minOriginalVariantIndex = originalVariantIndex;
+          selectedVariantIndex = i;
+        }
+        Format variantFormat = variants[i].format;
+        maxWidth = Math.max(variantFormat.width, maxWidth);
+        maxHeight = Math.max(variantFormat.height, maxHeight);
       }
-      maxWidth = Math.max(enabledFormats[i].width, maxWidth);
-      maxHeight = Math.max(enabledFormats[i].height, maxHeight);
+      if (variants.length <= 1 || adaptiveMode == ADAPTIVE_MODE_NONE) {
+        // We won't be adapting between different variants.
+        this.maxWidth = -1;
+        this.maxHeight = -1;
+      } else {
+        // We will be adapting between different variants.
+        // TODO: We should allow the default values to be passed through the constructor.
+        this.maxWidth = maxWidth > 0 ? maxWidth : 1920;
+        this.maxHeight = maxHeight > 0 ? maxHeight : 1080;
+      }
     }
-    // TODO: We should allow the default values to be passed through the constructor.
-    this.maxWidth = maxWidth > 0 ? maxWidth : 1920;
-    this.maxHeight = maxHeight > 0 ? maxHeight : 1080;
   }
 
   public long getDurationUs() {
@@ -228,6 +240,10 @@ public class HlsChunkSource {
    * @param out The {@link MediaFormat} on which the maximum video dimensions should be set.
    */
   public void getMaxVideoDimensions(MediaFormat out) {
+    if (maxWidth == -1 || maxHeight == -1) {
+      // Not adaptive.
+      return;
+    }
     out.setMaxVideoDimensions(maxWidth, maxHeight);
   }
 
@@ -242,36 +258,36 @@ public class HlsChunkSource {
    */
   public Chunk getChunkOperation(TsChunk previousTsChunk, long seekPositionUs,
       long playbackPositionUs) {
-    int nextFormatIndex;
+    int nextVariantIndex;
     boolean switchingVariantSpliced;
     if (adaptiveMode == ADAPTIVE_MODE_NONE) {
-      nextFormatIndex = formatIndex;
+      nextVariantIndex = selectedVariantIndex;
       switchingVariantSpliced = false;
     } else {
-      nextFormatIndex = getNextFormatIndex(previousTsChunk, playbackPositionUs);
-      switchingVariantSpliced = nextFormatIndex != formatIndex
+      nextVariantIndex = getNextVariantIndex(previousTsChunk, playbackPositionUs);
+      switchingVariantSpliced = previousTsChunk != null
+          && !variants[nextVariantIndex].format.equals(previousTsChunk.format)
           && adaptiveMode == ADAPTIVE_MODE_SPLICE;
     }
 
-    int variantIndex = getVariantIndex(enabledFormats[nextFormatIndex]);
-    HlsMediaPlaylist mediaPlaylist = mediaPlaylists[variantIndex];
+    HlsMediaPlaylist mediaPlaylist = variantPlaylists[nextVariantIndex];
     if (mediaPlaylist == null) {
       // We don't have the media playlist for the next variant. Request it now.
-      return newMediaPlaylistChunk(variantIndex);
+      return newMediaPlaylistChunk(nextVariantIndex);
     }
 
-    formatIndex = nextFormatIndex;
+    selectedVariantIndex = nextVariantIndex;
     int chunkMediaSequence = 0;
     boolean liveDiscontinuity = false;
     if (live) {
       if (previousTsChunk == null) {
-        chunkMediaSequence = getLiveStartChunkMediaSequence(variantIndex);
+        chunkMediaSequence = getLiveStartChunkMediaSequence(nextVariantIndex);
       } else {
         chunkMediaSequence = switchingVariantSpliced
             ? previousTsChunk.chunkIndex : previousTsChunk.chunkIndex + 1;
         if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
           // If the chunk is no longer in the playlist. Skip ahead and start again.
-          chunkMediaSequence = getLiveStartChunkMediaSequence(variantIndex);
+          chunkMediaSequence = getLiveStartChunkMediaSequence(nextVariantIndex);
           liveDiscontinuity = true;
         }
       }
@@ -288,8 +304,8 @@ public class HlsChunkSource {
 
     int chunkIndex = chunkMediaSequence - mediaPlaylist.mediaSequence;
     if (chunkIndex >= mediaPlaylist.segments.size()) {
-      if (mediaPlaylist.live && shouldRerequestMediaPlaylist(variantIndex)) {
-        return newMediaPlaylistChunk(variantIndex);
+      if (mediaPlaylist.live && shouldRerequestMediaPlaylist(nextVariantIndex)) {
+        return newMediaPlaylistChunk(nextVariantIndex);
       } else {
         return null;
       }
@@ -303,7 +319,7 @@ public class HlsChunkSource {
       Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
       if (!keyUri.equals(encryptionKeyUri)) {
         // Encryption is specified and the key has changed.
-        Chunk toReturn = newEncryptionKeyChunk(keyUri, segment.encryptionIV);
+        Chunk toReturn = newEncryptionKeyChunk(keyUri, segment.encryptionIV, selectedVariantIndex);
         return toReturn;
       }
       if (!Util.areEqual(segment.encryptionIV, encryptionIvString)) {
@@ -333,7 +349,7 @@ public class HlsChunkSource {
     long endTimeUs = startTimeUs + (long) (segment.durationSecs * C.MICROS_PER_SECOND);
     boolean isLastChunk = !mediaPlaylist.live && chunkIndex == mediaPlaylist.segments.size() - 1;
     int trigger = Chunk.TRIGGER_UNSPECIFIED;
-    Format format = enabledFormats[formatIndex];
+    Format format = variants[selectedVariantIndex].format;
 
     // Configure the extractor that will read the chunk.
     HlsExtractorWrapper extractorWrapper;
@@ -381,23 +397,41 @@ public class HlsChunkSource {
    * @return True if the error was handled by the source. False otherwise.
    */
   public boolean onChunkLoadError(Chunk chunk, IOException e) {
-    if (chunk.bytesLoaded() == 0 && (chunk instanceof MediaPlaylistChunk)
+    if (chunk.bytesLoaded() == 0
+        && (chunk instanceof TsChunk || chunk instanceof MediaPlaylistChunk
+            || chunk instanceof EncryptionKeyChunk)
         && (e instanceof InvalidResponseCodeException)) {
       InvalidResponseCodeException responseCodeException = (InvalidResponseCodeException) e;
       int responseCode = responseCodeException.responseCode;
       if (responseCode == 404 || responseCode == 410) {
-        MediaPlaylistChunk playlistChunk = (MediaPlaylistChunk) chunk;
-        mediaPlaylistBlacklistTimesMs[playlistChunk.variantIndex] = SystemClock.elapsedRealtime();
-        if (!allPlaylistsBlacklisted()) {
-          // We've handled the 404/410 by blacklisting the playlist.
-          Log.w(TAG, "Blacklisted playlist (" + responseCode + "): "
-              + playlistChunk.dataSpec.uri);
+        int variantIndex;
+        if (chunk instanceof TsChunk) {
+          TsChunk tsChunk = (TsChunk) chunk;
+          variantIndex = getVariantIndex(tsChunk.format);
+        } else if (chunk instanceof MediaPlaylistChunk) {
+          MediaPlaylistChunk playlistChunk = (MediaPlaylistChunk) chunk;
+          variantIndex = playlistChunk.variantIndex;
+        } else {
+          EncryptionKeyChunk encryptionChunk = (EncryptionKeyChunk) chunk;
+          variantIndex = encryptionChunk.variantIndex;
+        }
+        boolean alreadyBlacklisted = variantBlacklistTimes[variantIndex] != 0;
+        variantBlacklistTimes[variantIndex] = SystemClock.elapsedRealtime();
+        if (alreadyBlacklisted) {
+          // The playlist was already blacklisted.
+          Log.w(TAG, "Already blacklisted variant (" + responseCode + "): "
+              + chunk.dataSpec.uri);
+          return false;
+        } else if (!allVariantsBlacklisted()) {
+          // We've handled the 404/410 by blacklisting the variant.
+          Log.w(TAG, "Blacklisted variant (" + responseCode + "): "
+              + chunk.dataSpec.uri);
           return true;
         } else {
           // This was the last non-blacklisted playlist. Don't blacklist it.
-          Log.w(TAG, "Final playlist not blacklisted (" + responseCode + "): "
-              + playlistChunk.dataSpec.uri);
-          mediaPlaylistBlacklistTimesMs[playlistChunk.variantIndex] = 0;
+          Log.w(TAG, "Final variant not blacklisted (" + responseCode + "): "
+              + chunk.dataSpec.uri);
+          variantBlacklistTimes[variantIndex] = 0;
           return false;
         }
       }
@@ -405,83 +439,90 @@ public class HlsChunkSource {
     return false;
   }
 
-  private int getNextFormatIndex(TsChunk previousTsChunk, long playbackPositionUs) {
-    clearStaleBlacklistedPlaylists();
+  private int getNextVariantIndex(TsChunk previousTsChunk, long playbackPositionUs) {
+    clearStaleBlacklistedVariants();
+    long bitrateEstimate = bandwidthMeter.getBitrateEstimate();
+    if (variantBlacklistTimes[selectedVariantIndex] != 0) {
+      // The current variant has been blacklisted, so we have no choice but to re-evaluate.
+      return getVariantIndexForBandwidth(bitrateEstimate);
+    }
     if (previousTsChunk == null) {
       // Don't consider switching if we don't have a previous chunk.
-      return formatIndex;
+      return selectedVariantIndex;
     }
-    long bitrateEstimate = bandwidthMeter.getBitrateEstimate();
     if (bitrateEstimate == BandwidthMeter.NO_ESTIMATE) {
       // Don't consider switching if we don't have a bandwidth estimate.
-      return formatIndex;
+      return selectedVariantIndex;
     }
-    int idealFormatIndex = getFormatIndexForBandwidth(
-        (int) (bitrateEstimate * BANDWIDTH_FRACTION));
-    if (idealFormatIndex == formatIndex) {
-      // We're already using the ideal format.
-      return formatIndex;
+    int idealIndex = getVariantIndexForBandwidth(bitrateEstimate);
+    if (idealIndex == selectedVariantIndex) {
+      // We're already using the ideal variant.
+      return selectedVariantIndex;
     }
-    // We're not using the ideal format for the available bandwidth, but only switch if the
+    // We're not using the ideal variant for the available bandwidth, but only switch if the
     // conditions are appropriate.
     long bufferedPositionUs = adaptiveMode == ADAPTIVE_MODE_SPLICE ? previousTsChunk.startTimeUs
         : previousTsChunk.endTimeUs;
     long bufferedUs = bufferedPositionUs - playbackPositionUs;
-    if (mediaPlaylistBlacklistTimesMs[formatIndex] != 0
-        || (idealFormatIndex > formatIndex && bufferedUs < maxBufferDurationToSwitchDownUs)
-        || (idealFormatIndex < formatIndex && bufferedUs > minBufferDurationToSwitchUpUs)) {
-      // Switch format.
-      return idealFormatIndex;
+    if (variantBlacklistTimes[selectedVariantIndex] != 0
+        || (idealIndex > selectedVariantIndex && bufferedUs < maxBufferDurationToSwitchDownUs)
+        || (idealIndex < selectedVariantIndex && bufferedUs > minBufferDurationToSwitchUpUs)) {
+      // Switch variant.
+      return idealIndex;
     }
-    // Stick with the current format for now.
-    return formatIndex;
+    // Stick with the current variant for now.
+    return selectedVariantIndex;
   }
 
-  private int getFormatIndexForBandwidth(int bitrate) {
-    int lowestQualityEnabledFormatIndex = -1;
-    for (int i = 0; i < enabledFormats.length; i++) {
-      int variantIndex = getVariantIndex(enabledFormats[i]);
-      if (mediaPlaylistBlacklistTimesMs[variantIndex] == 0) {
-        if (enabledFormats[i].bitrate <= bitrate) {
+  private int getVariantIndexForBandwidth(long bitrateEstimate) {
+    if (bitrateEstimate == BandwidthMeter.NO_ESTIMATE) {
+      // Select the lowest quality.
+      bitrateEstimate = 0;
+    }
+    int effectiveBitrate = (int) (bitrateEstimate * BANDWIDTH_FRACTION);
+    int lowestQualityEnabledVariantIndex = -1;
+    for (int i = 0; i < variants.length; i++) {
+      if (variantBlacklistTimes[i] == 0) {
+        if (variants[i].format.bitrate <= effectiveBitrate) {
           return i;
         }
-        lowestQualityEnabledFormatIndex = i;
+        lowestQualityEnabledVariantIndex = i;
       }
     }
-    // At least one format should always be enabled.
-    Assertions.checkState(lowestQualityEnabledFormatIndex != -1);
-    return lowestQualityEnabledFormatIndex;
+    // At least one variant should always be enabled.
+    Assertions.checkState(lowestQualityEnabledVariantIndex != -1);
+    return lowestQualityEnabledVariantIndex;
   }
 
-  private boolean shouldRerequestMediaPlaylist(int variantIndex) {
+  private boolean shouldRerequestMediaPlaylist(int nextVariantIndex) {
     // Don't re-request media playlist more often than one-half of the target duration.
-    HlsMediaPlaylist mediaPlaylist = mediaPlaylists[variantIndex];
+    HlsMediaPlaylist mediaPlaylist = variantPlaylists[nextVariantIndex];
     long timeSinceLastMediaPlaylistLoadMs =
-        SystemClock.elapsedRealtime() - lastMediaPlaylistLoadTimesMs[variantIndex];
+        SystemClock.elapsedRealtime() - variantLastPlaylistLoadTimesMs[nextVariantIndex];
     return timeSinceLastMediaPlaylistLoadMs >= (mediaPlaylist.targetDurationSecs * 1000) / 2;
   }
 
   private int getLiveStartChunkMediaSequence(int variantIndex) {
     // For live start playback from the third chunk from the end.
-    HlsMediaPlaylist mediaPlaylist = mediaPlaylists[variantIndex];
+    HlsMediaPlaylist mediaPlaylist = variantPlaylists[variantIndex];
     int chunkIndex = mediaPlaylist.segments.size() > 3 ? mediaPlaylist.segments.size() - 3 : 0;
     return chunkIndex + mediaPlaylist.mediaSequence;
   }
 
   private MediaPlaylistChunk newMediaPlaylistChunk(int variantIndex) {
-    Uri mediaPlaylistUri = UriUtil.resolveToUri(baseUri, variants.get(variantIndex).url);
+    Uri mediaPlaylistUri = UriUtil.resolveToUri(baseUri, variants[variantIndex].url);
     DataSpec dataSpec = new DataSpec(mediaPlaylistUri, 0, C.LENGTH_UNBOUNDED, null,
         DataSpec.FLAG_ALLOW_GZIP);
     return new MediaPlaylistChunk(dataSource, dataSpec, scratchSpace, playlistParser, variantIndex,
         mediaPlaylistUri.toString());
   }
 
-  private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv) {
+  private EncryptionKeyChunk newEncryptionKeyChunk(Uri keyUri, String iv, int variantIndex) {
     DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNBOUNDED, null, DataSpec.FLAG_ALLOW_GZIP);
-    return new EncryptionKeyChunk(dataSource, dataSpec, scratchSpace, iv);
+    return new EncryptionKeyChunk(dataSource, dataSpec, scratchSpace, iv, variantIndex);
   }
 
-  /* package */ void setEncryptionData(Uri keyUri, String iv, byte[] secretKey) {
+  private void setEncryptionData(Uri keyUri, String iv, byte[] secretKey) {
     String trimmedIv;
     if (iv.toLowerCase(Locale.getDefault()).startsWith("0x")) {
       trimmedIv = iv.substring(2);
@@ -508,28 +549,37 @@ public class HlsChunkSource {
     encryptionIv = null;
   }
 
-  /* package */ void setMediaPlaylist(int variantIndex, HlsMediaPlaylist mediaPlaylist) {
-    lastMediaPlaylistLoadTimesMs[variantIndex] = SystemClock.elapsedRealtime();
-    mediaPlaylists[variantIndex] = mediaPlaylist;
+  private void setMediaPlaylist(int variantIndex, HlsMediaPlaylist mediaPlaylist) {
+    variantLastPlaylistLoadTimesMs[variantIndex] = SystemClock.elapsedRealtime();
+    variantPlaylists[variantIndex] = mediaPlaylist;
     live |= mediaPlaylist.live;
     durationUs = mediaPlaylist.durationUs;
   }
 
-  private static Format[] buildEnabledFormats(List<Variant> variants, int[] variantIndices) {
-    ArrayList<Variant> enabledVariants = new ArrayList<Variant>();
-    if (variantIndices != null) {
-      for (int i = 0; i < variantIndices.length; i++) {
-        enabledVariants.add(variants.get(variantIndices[i]));
+  /**
+   * Selects a list of variants to use, returning them in order of decreasing bandwidth.
+   *
+   * @param originalVariants The original list of variants.
+   * @param originalVariantIndices Indices of variants that in the original list that can be
+   *     considered, or null to allow all variants to be considered.
+   * @return The set of enabled variants in decreasing bandwidth order.
+   */
+  private static Variant[] buildOrderedVariants(List<Variant> originalVariants,
+      int[] originalVariantIndices) {
+    ArrayList<Variant> enabledVariantList = new ArrayList<>();
+    if (originalVariantIndices != null) {
+      for (int i = 0; i < originalVariantIndices.length; i++) {
+        enabledVariantList.add(originalVariants.get(originalVariantIndices[i]));
       }
     } else {
       // If variantIndices is null then all variants are initially considered.
-      enabledVariants.addAll(variants);
+      enabledVariantList.addAll(originalVariants);
     }
 
-    ArrayList<Variant> definiteVideoVariants = new ArrayList<Variant>();
-    ArrayList<Variant> definiteAudioOnlyVariants = new ArrayList<Variant>();
-    for (int i = 0; i < enabledVariants.size(); i++) {
-      Variant variant = enabledVariants.get(i);
+    ArrayList<Variant> definiteVideoVariants = new ArrayList<>();
+    ArrayList<Variant> definiteAudioOnlyVariants = new ArrayList<>();
+    for (int i = 0; i < enabledVariantList.size(); i++) {
+      Variant variant = enabledVariantList.get(i);
       if (variant.format.height > 0 || variantHasExplicitCodecWithPrefix(variant, "avc")) {
         definiteVideoVariants.add(variant);
       } else if (variantHasExplicitCodecWithPrefix(variant, "mp4a")) {
@@ -541,22 +591,27 @@ public class HlsChunkSource {
       // We've identified some variants as definitely containing video. Assume variants within the
       // master playlist are marked consistently, and hence that we have the full set. Filter out
       // any other variants, which are likely to be audio only.
-      enabledVariants = definiteVideoVariants;
-    } else if (definiteAudioOnlyVariants.size() < enabledVariants.size()) {
+      enabledVariantList = definiteVideoVariants;
+    } else if (definiteAudioOnlyVariants.size() < enabledVariantList.size()) {
       // We've identified some variants, but not all, as being audio only. Filter them out to leave
       // the remaining variants, which are likely to contain video.
-      enabledVariants.removeAll(definiteAudioOnlyVariants);
+      enabledVariantList.removeAll(definiteAudioOnlyVariants);
     } else {
       // Leave the enabled variants unchanged. They're likely either all video or all audio.
     }
 
-    Format[] enabledFormats = new Format[enabledVariants.size()];
-    for (int i = 0; i < enabledFormats.length; i++) {
-      enabledFormats[i] = enabledVariants.get(i).format;
-    }
+    Variant[] enabledVariants = new Variant[enabledVariantList.size()];
+    enabledVariantList.toArray(enabledVariants);
+    Arrays.sort(enabledVariants, new Comparator<Variant>() {
+      private final Comparator<Format> formatComparator =
+          new Format.DecreasingBandwidthComparator();
+      @Override
+      public int compare(Variant first, Variant second) {
+        return formatComparator.compare(first.format, second.format);
+      }
+    });
 
-    Arrays.sort(enabledFormats, new Format.DecreasingBandwidthComparator());
-    return enabledFormats;
+    return enabledVariants;
   }
 
   private static boolean variantHasExplicitCodecWithPrefix(Variant variant, String prefix) {
@@ -573,28 +628,28 @@ public class HlsChunkSource {
     return false;
   }
 
-  private boolean allPlaylistsBlacklisted() {
-    for (int i = 0; i < mediaPlaylistBlacklistTimesMs.length; i++) {
-      if (mediaPlaylistBlacklistTimesMs[i] == 0) {
+  private boolean allVariantsBlacklisted() {
+    for (int i = 0; i < variantBlacklistTimes.length; i++) {
+      if (variantBlacklistTimes[i] == 0) {
         return false;
       }
     }
     return true;
   }
 
-  private void clearStaleBlacklistedPlaylists() {
+  private void clearStaleBlacklistedVariants() {
     long currentTime = SystemClock.elapsedRealtime();
-    for (int i = 0; i < mediaPlaylistBlacklistTimesMs.length; i++) {
-      if (mediaPlaylistBlacklistTimesMs[i] != 0
-          && currentTime - mediaPlaylistBlacklistTimesMs[i] > DEFAULT_PLAYLIST_BLACKLIST_MS) {
-        mediaPlaylistBlacklistTimesMs[i] = 0;
+    for (int i = 0; i < variantBlacklistTimes.length; i++) {
+      if (variantBlacklistTimes[i] != 0
+          && currentTime - variantBlacklistTimes[i] > DEFAULT_PLAYLIST_BLACKLIST_MS) {
+        variantBlacklistTimes[i] = 0;
       }
     }
   }
 
   private int getVariantIndex(Format format) {
-    for (int i = 0; i < variants.size(); i++) {
-      if (variants.get(i).format.equals(format)) {
+    for (int i = 0; i < variants.length; i++) {
+      if (variants[i].format.equals(format)) {
         return i;
       }
     }
@@ -635,13 +690,15 @@ public class HlsChunkSource {
   private static class EncryptionKeyChunk extends DataChunk {
 
     public final String iv;
+    public final int variantIndex;
 
     private byte[] result;
 
     public EncryptionKeyChunk(DataSource dataSource, DataSpec dataSpec, byte[] scratchSpace,
-        String iv) {
+        String iv, int variantIndex) {
       super(dataSource, dataSpec, Chunk.TYPE_DRM, Chunk.TRIGGER_UNSPECIFIED, null, scratchSpace);
       this.iv = iv;
+      this.variantIndex = variantIndex;
     }
 
     @Override

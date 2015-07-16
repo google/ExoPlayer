@@ -23,6 +23,7 @@ import com.google.android.exoplayer.upstream.UriLoadable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Pair;
 
 import java.io.IOException;
@@ -83,12 +84,26 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   }
 
+  /**
+   * Interface for manifests that are able to specify that subsequent loads should use a different
+   * URI.
+   */
+  public interface RedirectingManifest {
+
+    /**
+     * Returns the URI from which subsequent manifests should be requested, or null to continue
+     * using the current URI.
+     */
+    public String getNextManifestUri();
+
+  }
+
   private final UriLoadable.Parser<T> parser;
   private final UriDataSource uriDataSource;
   private final Handler eventHandler;
   private final EventListener eventListener;
 
-  /* package */ volatile String manifestUrl;
+  /* package */ volatile String manifestUri;
 
   private int enabledCount;
   private Loader loader;
@@ -102,27 +117,27 @@ public class ManifestFetcher<T> implements Loader.Callback {
   private volatile long manifestLoadTimestamp;
 
   /**
-   * @param manifestUrl The manifest location.
+   * @param manifestUri The manifest location.
    * @param uriDataSource The {@link UriDataSource} to use when loading the manifest.
    * @param parser A parser to parse the loaded manifest data.
    */
-  public ManifestFetcher(String manifestUrl, UriDataSource uriDataSource,
+  public ManifestFetcher(String manifestUri, UriDataSource uriDataSource,
       UriLoadable.Parser<T> parser) {
-    this(manifestUrl, uriDataSource, parser, null, null);
+    this(manifestUri, uriDataSource, parser, null, null);
   }
 
   /**
-   * @param manifestUrl The manifest location.
+   * @param manifestUri The manifest location.
    * @param uriDataSource The {@link UriDataSource} to use when loading the manifest.
    * @param parser A parser to parse the loaded manifest data.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public ManifestFetcher(String manifestUrl, UriDataSource uriDataSource,
+  public ManifestFetcher(String manifestUri, UriDataSource uriDataSource,
       UriLoadable.Parser<T> parser, Handler eventHandler, EventListener eventListener) {
     this.parser = parser;
-    this.manifestUrl = manifestUrl;
+    this.manifestUri = manifestUri;
     this.uriDataSource = uriDataSource;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
@@ -131,10 +146,10 @@ public class ManifestFetcher<T> implements Loader.Callback {
   /**
    * Updates the manifest location.
    *
-   * @param manifestUrl The manifest location.
+   * @param manifestUri The manifest location.
    */
-  public void updateManifestUrl(String manifestUrl) {
-    this.manifestUrl = manifestUrl;
+  public void updateManifestUri(String manifestUri) {
+    this.manifestUri = manifestUri;
   }
 
   /**
@@ -146,7 +161,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
    */
   public void singleLoad(Looper callbackLooper, final ManifestCallback<T> callback) {
     SingleFetchHelper fetchHelper = new SingleFetchHelper(
-        new UriLoadable<T>(manifestUrl, uriDataSource, parser), callbackLooper, callback);
+        new UriLoadable<>(manifestUri, uriDataSource, parser), callbackLooper, callback);
     fetchHelper.startLoading();
   }
 
@@ -219,7 +234,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
       loader = new Loader("manifestLoader");
     }
     if (!loader.isLoading()) {
-      currentLoadable = new UriLoadable<T>(manifestUrl, uriDataSource, parser);
+      currentLoadable = new UriLoadable<>(manifestUri, uriDataSource, parser);
       loader.startLoading(currentLoadable, this);
       notifyManifestRefreshStarted();
     }
@@ -236,6 +251,14 @@ public class ManifestFetcher<T> implements Loader.Callback {
     manifestLoadTimestamp = SystemClock.elapsedRealtime();
     loadExceptionCount = 0;
     loadException = null;
+
+    if (manifest instanceof RedirectingManifest) {
+      RedirectingManifest redirectingManifest = (RedirectingManifest) manifest;
+      String nextLocation = redirectingManifest.getNextManifestUri();
+      if (!TextUtils.isEmpty(nextLocation)) {
+        manifestUri = nextLocation;
+      }
+    }
 
     notifyManifestRefreshed();
   }

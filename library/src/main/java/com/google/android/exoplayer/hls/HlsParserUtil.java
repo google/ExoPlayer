@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
     if (matcher.find() && matcher.groupCount() == 1) {
       return matcher.group(1);
     }
-    throw new ParserException(String.format("Couldn't match %s tag in %s", tag, line));
+    throw new ParserException("Couldn't match " + tag + " tag in " + line);
   }
 
   public static int parseIntAttr(String line, Pattern pattern, String tag)

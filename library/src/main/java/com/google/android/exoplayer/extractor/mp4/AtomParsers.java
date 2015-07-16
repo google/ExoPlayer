@@ -20,8 +20,8 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.util.Ac3Util;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
-import com.google.android.exoplayer.util.H264Util;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
@@ -64,8 +64,9 @@ import java.util.List;
 
     long mediaTimescale = parseMdhd(mdia.getLeafAtomOfType(Atom.TYPE_mdhd).data);
     StsdDataHolder stsdData = parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, durationUs);
-    return new Track(id, trackType, mediaTimescale, durationUs, stsdData.mediaFormat,
-        stsdData.trackEncryptionBoxes, stsdData.nalUnitLengthFieldLength);
+    return stsdData.mediaFormat == null ? null
+        : new Track(id, trackType, mediaTimescale, durationUs, stsdData.mediaFormat,
+            stsdData.trackEncryptionBoxes, stsdData.nalUnitLengthFieldLength);
   }
 
   /**
@@ -102,10 +103,13 @@ import java.util.List;
     int fixedSampleSize = stsz.readUnsignedIntToInt();
     int sampleCount = stsz.readUnsignedIntToInt();
 
+    long[] offsets = new long[sampleCount];
     int[] sizes = new int[sampleCount];
     long[] timestamps = new long[sampleCount];
-    long[] offsets = new long[sampleCount];
     int[] flags = new int[sampleCount];
+    if (sampleCount == 0) {
+      return new TrackSampleTable(offsets, sizes, timestamps, flags);
+    }
 
     // Prepare to read chunk offsets.
     chunkOffsets.setPosition(Atom.FULL_HEADER_SIZE);
@@ -331,25 +335,24 @@ import java.util.List;
       Assertions.checkArgument(childAtomSize > 0, "childAtomSize should be positive");
       int childAtomType = stsd.readInt();
       if (childAtomType == Atom.TYPE_avc1 || childAtomType == Atom.TYPE_avc3
-          || childAtomType == Atom.TYPE_encv) {
-        parseAvcFromParent(stsd, childStartPosition, childAtomSize, durationUs, holder, i);
+          || childAtomType == Atom.TYPE_encv || childAtomType == Atom.TYPE_mp4v
+          || childAtomType == Atom.TYPE_hvc1 || childAtomType == Atom.TYPE_hev1) {
+        parseVideoSampleEntry(stsd, childStartPosition, childAtomSize, durationUs, holder, i);
       } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca
           || childAtomType == Atom.TYPE_ac_3) {
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, durationUs,
             holder, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
-        holder.mediaFormat = MediaFormat.createTtmlFormat();
-      } else if (childAtomType == Atom.TYPE_mp4v) {
-        holder.mediaFormat = parseMp4vFromParent(stsd, childStartPosition, childAtomSize,
-            durationUs);
+        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML);
+      } else if (childAtomType == Atom.TYPE_tx3g) {
+        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TX3G);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
     return holder;
   }
 
-  /** Returns the media format for an avc1 box. */
-  private static void parseAvcFromParent(ParsableByteArray parent, int position, int size,
+  private static void parseVideoSampleEntry(ParsableByteArray parent, int position, int size,
       long durationUs, StsdDataHolder out, int entryIndex) {
     parent.setPosition(position + Atom.HEADER_SIZE);
 
@@ -361,6 +364,7 @@ import java.util.List;
 
     List<byte[]> initializationData = null;
     int childPosition = parent.getPosition();
+    String mimeType = null;
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
       int childStartPosition = parent.getPosition();
@@ -372,9 +376,23 @@ import java.util.List;
       Assertions.checkArgument(childAtomSize > 0, "childAtomSize should be positive");
       int childAtomType = parent.readInt();
       if (childAtomType == Atom.TYPE_avcC) {
+        Assertions.checkState(mimeType == null);
+        mimeType = MimeTypes.VIDEO_H264;
         Pair<List<byte[]>, Integer> avcCData = parseAvcCFromParent(parent, childStartPosition);
         initializationData = avcCData.first;
         out.nalUnitLengthFieldLength = avcCData.second;
+      } else if (childAtomType == Atom.TYPE_hvcC) {
+        Assertions.checkState(mimeType == null);
+        mimeType = MimeTypes.VIDEO_H265;
+        Pair<List<byte[]>, Integer> hvcCData = parseHvcCFromParent(parent, childStartPosition);
+        initializationData = hvcCData.first;
+        out.nalUnitLengthFieldLength = hvcCData.second;
+      } else if (childAtomType == Atom.TYPE_esds) {
+        Assertions.checkState(mimeType == null);
+        Pair<String, byte[]> mimeTypeAndInitializationData =
+            parseEsdsFromParent(parent, childStartPosition);
+        mimeType = mimeTypeAndInitializationData.first;
+        initializationData = Collections.singletonList(mimeTypeAndInitializationData.second);
       } else if (childAtomType == Atom.TYPE_sinf) {
         out.trackEncryptionBoxes[entryIndex] =
             parseSinfFromParent(parent, childStartPosition, childAtomSize);
@@ -384,8 +402,13 @@ import java.util.List;
       childPosition += childAtomSize;
     }
 
-    out.mediaFormat = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
-        durationUs, width, height, pixelWidthHeightRatio, initializationData);
+    // If the media type was not recognized, ignore the track.
+    if (mimeType == null) {
+      return;
+    }
+
+    out.mediaFormat = MediaFormat.createVideoFormat(mimeType, MediaFormat.NO_VALUE, durationUs,
+        width, height, pixelWidthHeightRatio, initializationData);
   }
 
   private static Pair<List<byte[]>, Integer> parseAvcCFromParent(ParsableByteArray parent,
@@ -396,18 +419,60 @@ import java.util.List;
     if (nalUnitLengthFieldLength == 3) {
       throw new IllegalStateException();
     }
-    List<byte[]> initializationData = new ArrayList<byte[]>();
+    List<byte[]> initializationData = new ArrayList<>();
     // TODO: We should try and parse these using CodecSpecificDataUtil.parseSpsNalUnit, and
     // expose the AVC profile and level somewhere useful; Most likely in MediaFormat.
     int numSequenceParameterSets = parent.readUnsignedByte() & 0x1F;
     for (int j = 0; j < numSequenceParameterSets; j++) {
-      initializationData.add(H264Util.parseChildNalUnit(parent));
+      initializationData.add(NalUnitUtil.parseChildNalUnit(parent));
     }
     int numPictureParameterSets = parent.readUnsignedByte();
     for (int j = 0; j < numPictureParameterSets; j++) {
-      initializationData.add(H264Util.parseChildNalUnit(parent));
+      initializationData.add(NalUnitUtil.parseChildNalUnit(parent));
     }
     return Pair.create(initializationData, nalUnitLengthFieldLength);
+  }
+
+  private static Pair<List<byte[]>, Integer> parseHvcCFromParent(ParsableByteArray parent,
+      int position) {
+    // Skip to the NAL unit length size field.
+    parent.setPosition(position + Atom.HEADER_SIZE + 21);
+    int lengthSizeMinusOne = parent.readUnsignedByte() & 0x03;
+
+    // Calculate the combined size of all VPS/SPS/PPS bitstreams.
+    int numberOfArrays = parent.readUnsignedByte();
+    int csdLength = 0;
+    int csdStartPosition = parent.getPosition();
+    for (int i = 0; i < numberOfArrays; i++) {
+      parent.skipBytes(1); // completeness (1), nal_unit_type (7)
+      int numberOfNalUnits = parent.readUnsignedShort();
+      for (int j = 0; j < numberOfNalUnits; j++) {
+        int nalUnitLength = parent.readUnsignedShort();
+        csdLength += 4 + nalUnitLength; // Start code and NAL unit.
+        parent.skipBytes(nalUnitLength);
+      }
+    }
+
+    // Concatenate the codec-specific data into a single buffer.
+    parent.setPosition(csdStartPosition);
+    byte[] buffer = new byte[csdLength];
+    int bufferPosition = 0;
+    for (int i = 0; i < numberOfArrays; i++) {
+      parent.skipBytes(1); // completeness (1), nal_unit_type (7)
+      int numberOfNalUnits = parent.readUnsignedShort();
+      for (int j = 0; j < numberOfNalUnits; j++) {
+        int nalUnitLength = parent.readUnsignedShort();
+        System.arraycopy(NalUnitUtil.NAL_START_CODE, 0, buffer, bufferPosition,
+            NalUnitUtil.NAL_START_CODE.length);
+        bufferPosition += NalUnitUtil.NAL_START_CODE.length;
+        System.arraycopy(parent.data, parent.getPosition(), buffer, bufferPosition, nalUnitLength);
+        bufferPosition += nalUnitLength;
+        parent.skipBytes(nalUnitLength);
+      }
+    }
+
+    List<byte[]> initializationData = csdLength == 0 ? null : Collections.singletonList(buffer);
+    return Pair.create(initializationData, lengthSizeMinusOne + 1);
   }
 
   private static TrackEncryptionBox parseSinfFromParent(ParsableByteArray parent, int position,
@@ -462,34 +527,6 @@ import java.util.List;
     return null;
   }
 
-  /** Returns the media format for an mp4v box. */
-  private static MediaFormat parseMp4vFromParent(ParsableByteArray parent, int position, int size,
-      long durationUs) {
-    parent.setPosition(position + Atom.HEADER_SIZE);
-
-    parent.skipBytes(24);
-    int width = parent.readUnsignedShort();
-    int height = parent.readUnsignedShort();
-    parent.skipBytes(50);
-
-    List<byte[]> initializationData = new ArrayList<byte[]>(1);
-    int childPosition = parent.getPosition();
-    while (childPosition - position < size) {
-      parent.setPosition(childPosition);
-      int childStartPosition = parent.getPosition();
-      int childAtomSize = parent.readInt();
-      Assertions.checkArgument(childAtomSize > 0, "childAtomSize should be positive");
-      int childAtomType = parent.readInt();
-      if (childAtomType == Atom.TYPE_esds) {
-        initializationData.add(parseEsdsFromParent(parent, childStartPosition));
-      }
-      childPosition += childAtomSize;
-    }
-
-    return MediaFormat.createVideoFormat(
-        MimeTypes.VIDEO_MP4V, MediaFormat.NO_VALUE, durationUs, width, height, initializationData);
-  }
-
   private static void parseAudioSampleEntry(ParsableByteArray parent, int atomType, int position,
       int size, long durationUs, StsdDataHolder out, int entryIndex) {
     parent.setPosition(position + Atom.HEADER_SIZE);
@@ -498,6 +535,14 @@ import java.util.List;
     int sampleSize = parent.readUnsignedShort();
     parent.skipBytes(4);
     int sampleRate = parent.readUnsignedFixedPoint1616();
+
+    // If the atom type determines a MIME type, set it immediately.
+    String mimeType = null;
+    if (atomType == Atom.TYPE_ac_3) {
+      mimeType = MimeTypes.AUDIO_AC3;
+    } else if (atomType == Atom.TYPE_ec_3) {
+      mimeType = MimeTypes.AUDIO_EC3;
+    }
 
     byte[] initializationData = null;
     int childPosition = parent.getPosition();
@@ -509,13 +554,18 @@ import java.util.List;
       int childAtomType = parent.readInt();
       if (atomType == Atom.TYPE_mp4a || atomType == Atom.TYPE_enca) {
         if (childAtomType == Atom.TYPE_esds) {
-          initializationData = parseEsdsFromParent(parent, childStartPosition);
-          // TODO: Do we really need to do this? See [Internal: b/10903778]
-          // Update sampleRate and channelCount from the AudioSpecificConfig initialization data.
-          Pair<Integer, Integer> audioSpecificConfig =
-              CodecSpecificDataUtil.parseAudioSpecificConfig(initializationData);
-          sampleRate = audioSpecificConfig.first;
-          channelCount = audioSpecificConfig.second;
+          Pair<String, byte[]> mimeTypeAndInitializationData =
+              parseEsdsFromParent(parent, childStartPosition);
+          mimeType = mimeTypeAndInitializationData.first;
+          initializationData = mimeTypeAndInitializationData.second;
+          if (MimeTypes.AUDIO_AAC.equals(mimeType)) {
+            // TODO: Do we really need to do this? See [Internal: b/10903778]
+            // Update sampleRate and channelCount from the AudioSpecificConfig initialization data.
+            Pair<Integer, Integer> audioSpecificConfig =
+                CodecSpecificDataUtil.parseAacAudioSpecificConfig(initializationData);
+            sampleRate = audioSpecificConfig.first;
+            channelCount = audioSpecificConfig.second;
+          }
         } else if (childAtomType == Atom.TYPE_sinf) {
           out.trackEncryptionBoxes[entryIndex] = parseSinfFromParent(parent, childStartPosition,
               childAtomSize);
@@ -534,14 +584,9 @@ import java.util.List;
       childPosition += childAtomSize;
     }
 
-    // Set the MIME type for ac-3/ec-3 atoms even if the dac3/dec3 child atom is missing.
-    String mimeType;
-    if (atomType == Atom.TYPE_ac_3) {
-      mimeType = MimeTypes.AUDIO_AC3;
-    } else if (atomType == Atom.TYPE_ec_3) {
-      mimeType = MimeTypes.AUDIO_EC3;
-    } else {
-      mimeType = MimeTypes.AUDIO_AAC;
+    // If the media type was not recognized, ignore the track.
+    if (mimeType == null) {
+      return;
     }
 
     out.mediaFormat = MediaFormat.createAudioFormat(mimeType, sampleSize, durationUs, channelCount,
@@ -550,7 +595,7 @@ import java.util.List;
   }
 
   /** Returns codec-specific initialization data contained in an esds box. */
-  private static byte[] parseEsdsFromParent(ParsableByteArray parent, int position) {
+  private static Pair<String, byte[]> parseEsdsFromParent(ParsableByteArray parent, int position) {
     parent.setPosition(position + Atom.HEADER_SIZE + 4);
     // Start of the ES_Descriptor (defined in 14496-1)
     parent.skipBytes(1); // ES_Descriptor tag
@@ -577,9 +622,41 @@ import java.util.List;
     while (varIntByte > 127) {
       varIntByte = parent.readUnsignedByte();
     }
-    parent.skipBytes(13);
 
-    // Start of AudioSpecificConfig (defined in 14496-3)
+    // Set the MIME type based on the object type indication (14496-1 table 5).
+    int objectTypeIndication = parent.readUnsignedByte();
+    String mimeType;
+    switch (objectTypeIndication) {
+      case 0x6B:
+        mimeType = MimeTypes.AUDIO_MPEG;
+        // Don't extract codec-specific data for MPEG audio tracks, as it is not needed.
+        return Pair.create(mimeType, null);
+      case 0x20:
+        mimeType = MimeTypes.VIDEO_MP4V;
+        break;
+      case 0x21:
+        mimeType = MimeTypes.VIDEO_H264;
+        break;
+      case 0x23:
+        mimeType = MimeTypes.VIDEO_H265;
+        break;
+      case 0x40:
+        mimeType = MimeTypes.AUDIO_AAC;
+        break;
+      case 0xA5:
+        mimeType = MimeTypes.AUDIO_AC3;
+        break;
+      case 0xA6:
+        mimeType = MimeTypes.AUDIO_EC3;
+        break;
+      default:
+        mimeType = null;
+        break;
+    }
+
+    parent.skipBytes(12);
+
+    // Start of the AudioSpecificConfig.
     parent.skipBytes(1); // AudioSpecificConfig tag
     varIntByte = parent.readUnsignedByte();
     int varInt = varIntByte & 0x7F;
@@ -590,7 +667,7 @@ import java.util.List;
     }
     byte[] initializationData = new byte[varInt];
     parent.readBytes(initializationData, 0, varInt);
-    return initializationData;
+    return Pair.create(mimeType, initializationData);
   }
 
   private AtomParsers() {

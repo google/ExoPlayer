@@ -1,0 +1,210 @@
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.google.android.exoplayer.ext.vp9;
+
+import com.google.android.exoplayer.ext.vp9.VpxDecoderWrapper.OutputBuffer;
+
+import android.opengl.GLES20;
+import android.opengl.GLSurfaceView;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
+
+/**
+ * GLSurfaceView.Renderer implementation that can render YUV Frames returned by libvpx after
+ * decoding. It does the YUV to RGB color conversion in the Fragment Shader.
+ */
+/* package */ class VpxRenderer implements GLSurfaceView.Renderer {
+
+  private static final String VERTEX_SHADER =
+      "varying vec2 interp_tc;\n"
+      + "attribute vec4 in_pos;\n"
+      + "attribute vec2 in_tc;\n"
+      + "void main() {\n"
+      + "  gl_Position = in_pos;\n"
+      + "  interp_tc = in_tc;\n"
+      + "}\n";
+  private static final String[] TEXTURE_UNIFORMS = {"y_tex", "u_tex", "v_tex"};
+  private static final String FRAGMENT_SHADER =
+      "precision mediump float;\n"
+      + "varying vec2 interp_tc;\n"
+      + "uniform sampler2D y_tex;\n"
+      + "uniform sampler2D u_tex;\n"
+      + "uniform sampler2D v_tex;\n"
+      + "void main() {\n"
+      + "  float y = 1.164 * (texture2D(y_tex, interp_tc).r - 0.0625);\n"
+      + "  float u = texture2D(u_tex, interp_tc).r - 0.5;\n"
+      + "  float v = texture2D(v_tex, interp_tc).r - 0.5;\n"
+      + "  gl_FragColor = vec4(y + 1.596 * v, "
+      + "                      y - 0.391 * u - 0.813 * v, "
+      + "                      y + 2.018 * u, "
+      + "                      1.0);\n"
+      + "}\n";
+  private static final FloatBuffer TEXTURE_VERTICES = nativeFloatBuffer(
+      -1.0f, 1.0f,
+      -1.0f, -1.0f,
+      1.0f, 1.0f,
+      1.0f, -1.0f);
+  private final int[] yuvTextures = new int[3];
+
+  private int program;
+  private int texLocation;
+  private FloatBuffer textureCoords;
+  private volatile OutputBuffer outputBuffer;
+  private int previousWidth;
+  private int previousStride;
+
+  public VpxRenderer() {
+    previousWidth = -1;
+    previousStride = -1;
+  }
+
+  /**
+   * Set a frame to be rendered. This should be followed by a call to
+   * VpxVideoSurfaceView.requestRender() to actually render the frame.
+   *
+   * @param outputBuffer OutputBuffer containing the YUV Frame to be rendered
+   */
+  public void setFrame(OutputBuffer outputBuffer) {
+    this.outputBuffer = outputBuffer;
+  }
+
+  @Override
+  public void onSurfaceCreated(GL10 unused, EGLConfig config) {
+    // Create the GL program.
+    program = GLES20.glCreateProgram();
+
+    // Add the vertex and fragment shaders.
+    addShader(GLES20.GL_VERTEX_SHADER, VERTEX_SHADER, program);
+    addShader(GLES20.GL_FRAGMENT_SHADER, FRAGMENT_SHADER, program);
+
+    // Link the GL program.
+    GLES20.glLinkProgram(program);
+    int[] result = new int[] {
+        GLES20.GL_FALSE
+    };
+    result[0] = GLES20.GL_FALSE;
+    GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, result, 0);
+    abortUnless(result[0] == GLES20.GL_TRUE, GLES20.glGetProgramInfoLog(program));
+    GLES20.glUseProgram(program);
+    int posLocation = GLES20.glGetAttribLocation(program, "in_pos");
+    GLES20.glEnableVertexAttribArray(posLocation);
+    GLES20.glVertexAttribPointer(
+        posLocation, 2, GLES20.GL_FLOAT, false, 0, TEXTURE_VERTICES);
+    texLocation = GLES20.glGetAttribLocation(program, "in_tc");
+    GLES20.glEnableVertexAttribArray(texLocation);
+    setupTextures();
+    checkNoGLES2Error();
+  }
+
+  @Override
+  public void onSurfaceChanged(GL10 unused, int width, int height) {
+    GLES20.glViewport(0, 0, width, height);
+  }
+
+  @Override
+  public void onDrawFrame(GL10 unused) {
+    OutputBuffer outputBuffer = this.outputBuffer;
+    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+    if (outputBuffer == null) {
+      // Nothing to render yet.
+      return;
+    }
+    for (int i = 0; i < 3; i++) {
+      int h = (i == 0) ? outputBuffer.height : (outputBuffer.height + 1) / 2;
+      GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + i);
+      GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, yuvTextures[i]);
+      GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 1);
+      GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE, outputBuffer.yuvStrides[i],
+          h, 0, GLES20.GL_LUMINANCE, GLES20.GL_UNSIGNED_BYTE, outputBuffer.yuvPlanes[i]);
+    }
+    // Set cropping of stride if either width or stride has changed.
+    if (previousWidth != outputBuffer.width || previousStride != outputBuffer.yuvStrides[0]) {
+      float crop = (float) outputBuffer.width / outputBuffer.yuvStrides[0];
+      textureCoords = nativeFloatBuffer(
+          0.0f, 0.0f,
+          0.0f, 1.0f,
+          crop, 0.0f,
+          crop, 1.0f);
+      GLES20.glVertexAttribPointer(
+          texLocation, 2, GLES20.GL_FLOAT, false, 0, textureCoords);
+      previousWidth = outputBuffer.width;
+      previousStride = outputBuffer.yuvStrides[0];
+    }
+    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+    checkNoGLES2Error();
+  }
+
+  private void addShader(int type, String source, int program) {
+    int[] result = new int[] {
+        GLES20.GL_FALSE
+    };
+    int shader = GLES20.glCreateShader(type);
+    GLES20.glShaderSource(shader, source);
+    GLES20.glCompileShader(shader);
+    GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, result, 0);
+    abortUnless(result[0] == GLES20.GL_TRUE,
+        GLES20.glGetShaderInfoLog(shader) + ", source: " + source);
+    GLES20.glAttachShader(program, shader);
+    GLES20.glDeleteShader(shader);
+
+    checkNoGLES2Error();
+  }
+
+  private void setupTextures() {
+    GLES20.glGenTextures(3, yuvTextures, 0);
+    for (int i = 0; i < 3; i++)  {
+      GLES20.glUniform1i(GLES20.glGetUniformLocation(program, TEXTURE_UNIFORMS[i]), i);
+      GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + i);
+      GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, yuvTextures[i]);
+      GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
+          GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+      GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
+          GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+      GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
+          GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+      GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D,
+          GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+    }
+    checkNoGLES2Error();
+  }
+
+  private void abortUnless(boolean condition, String msg) {
+    if (!condition) {
+      throw new RuntimeException(msg);
+    }
+  }
+
+  private void checkNoGLES2Error() {
+    int error = GLES20.glGetError();
+    if (error != GLES20.GL_NO_ERROR) {
+      throw new RuntimeException("GLES20 error: " + error);
+    }
+  }
+
+  private static FloatBuffer nativeFloatBuffer(float... array) {
+    FloatBuffer buffer = ByteBuffer.allocateDirect(array.length * 4).order(
+        ByteOrder.nativeOrder()).asFloatBuffer();
+    buffer.put(array);
+    buffer.flip();
+    return buffer;
+  }
+
+}

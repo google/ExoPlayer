@@ -26,8 +26,8 @@ import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer.extractor.mp4.Atom.LeafAtom;
 import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.H264Util;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
-import java.util.UUID;
 
 /**
  * Facilitates the extraction of data from the fragmented mp4 container format.
@@ -106,11 +105,11 @@ public final class FragmentedMp4Extractor implements Extractor {
   public FragmentedMp4Extractor(int workaroundFlags) {
     this.workaroundFlags = workaroundFlags;
     atomHeader = new ParsableByteArray(Atom.HEADER_SIZE);
-    nalStartCode = new ParsableByteArray(H264Util.NAL_START_CODE);
+    nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
     encryptionSignalByte = new ParsableByteArray(1);
     extendedTypeScratch = new byte[16];
-    containerAtoms = new Stack<ContainerAtom>();
+    containerAtoms = new Stack<>();
     fragmentRun = new TrackFragment();
     parserState = STATE_READING_ATOM_HEADER;
   }
@@ -250,16 +249,11 @@ public final class FragmentedMp4Extractor implements Extractor {
     for (int i = 0; i < moovChildrenSize; i++) {
       LeafAtom child = moovChildren.get(i);
       if (child.type == Atom.TYPE_pssh) {
-        ParsableByteArray psshAtom = child.data;
-        psshAtom.setPosition(Atom.FULL_HEADER_SIZE);
-        UUID uuid = new UUID(psshAtom.readLong(), psshAtom.readLong());
-        int dataSize = psshAtom.readInt();
-        byte[] data = new byte[dataSize];
-        psshAtom.readBytes(data, 0, dataSize);
         if (drmInitData == null) {
           drmInitData = new DrmInitData.Mapped(MimeTypes.VIDEO_MP4);
         }
-        drmInitData.put(uuid, data);
+        byte[] psshData = child.data.data;
+        drmInitData.put(PsshAtomUtil.parseUuid(psshData), psshData);
       }
     }
     if (drmInitData != null) {

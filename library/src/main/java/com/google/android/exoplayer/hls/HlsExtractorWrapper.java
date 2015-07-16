@@ -60,7 +60,7 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
     this.startTimeUs = startTimeUs;
     this.extractor = extractor;
     this.shouldSpliceIn = shouldSpliceIn;
-    sampleQueues = new SparseArray<DefaultTrackOutput>();
+    sampleQueues = new SparseArray<>();
   }
 
   /**
@@ -70,61 +70,7 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
    */
   public void init(Allocator allocator) {
     this.allocator = allocator;
-    this.extractor.init(this);
-  }
-
-  /**
-   * Attempts to configure a splice from this extractor to the next.
-   * <p>
-   * The splice is performed such that for each track the samples read from the next extractor
-   * start with a keyframe, and continue from where the samples read from this extractor finish.
-   * A successful splice may discard samples from either or both extractors.
-   * <p>
-   * Splice configuration may fail if the next extractor is not yet in a state that allows the
-   * splice to be performed. Calling this method is a noop if the splice has already been
-   * configured. Hence this method should be called repeatedly during the window within which a
-   * splice can be performed.
-   *
-   * @param nextExtractor The extractor being spliced to.
-   */
-  public final void configureSpliceTo(HlsExtractorWrapper nextExtractor) {
-    if (spliceConfigured || !nextExtractor.shouldSpliceIn || !nextExtractor.isPrepared()) {
-      // The splice is already configured, or the next extractor doesn't want to be spliced in, or
-      // the next extractor isn't ready to be spliced in.
-      return;
-    }
-    boolean spliceConfigured = true;
-    int trackCount = getTrackCount();
-    for (int i = 0; i < trackCount; i++) {
-      DefaultTrackOutput currentSampleQueue = sampleQueues.valueAt(i);
-      DefaultTrackOutput nextSampleQueue = nextExtractor.sampleQueues.valueAt(i);
-      spliceConfigured &= currentSampleQueue.configureSpliceTo(nextSampleQueue);
-    }
-    this.spliceConfigured = spliceConfigured;
-    return;
-  }
-
-  /**
-   * Gets the number of available tracks.
-   * <p>
-   * This method should only be called after the extractor has been prepared.
-   *
-   * @return The number of available tracks.
-   */
-  public int getTrackCount() {
-    return sampleQueues.size();
-  }
-
-  /**
-   * Gets the {@link MediaFormat} of the specified track.
-   * <p>
-   * This method must only be called after the extractor has been prepared.
-   *
-   * @param track The track index.
-   * @return The corresponding format.
-   */
-  public MediaFormat getMediaFormat(int track) {
-    return sampleQueues.valueAt(track).getFormat();
+    extractor.init(this);
   }
 
   /**
@@ -168,7 +114,68 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   }
 
   /**
+   * Attempts to configure a splice from this extractor to the next.
+   * <p>
+   * The splice is performed such that for each track the samples read from the next extractor
+   * start with a keyframe, and continue from where the samples read from this extractor finish.
+   * A successful splice may discard samples from either or both extractors.
+   * <p>
+   * Splice configuration may fail if the next extractor is not yet in a state that allows the
+   * splice to be performed. Calling this method is a noop if the splice has already been
+   * configured. Hence this method should be called repeatedly during the window within which a
+   * splice can be performed.
+   * <p>
+   * This method must only be called after the extractor has been prepared.
+   *
+   * @param nextExtractor The extractor being spliced to.
+   */
+  public final void configureSpliceTo(HlsExtractorWrapper nextExtractor) {
+    Assertions.checkState(isPrepared());
+    if (spliceConfigured || !nextExtractor.shouldSpliceIn || !nextExtractor.isPrepared()) {
+      // The splice is already configured, or the next extractor doesn't want to be spliced in, or
+      // the next extractor isn't ready to be spliced in.
+      return;
+    }
+    boolean spliceConfigured = true;
+    int trackCount = getTrackCount();
+    for (int i = 0; i < trackCount; i++) {
+      DefaultTrackOutput currentSampleQueue = sampleQueues.valueAt(i);
+      DefaultTrackOutput nextSampleQueue = nextExtractor.sampleQueues.valueAt(i);
+      spliceConfigured &= currentSampleQueue.configureSpliceTo(nextSampleQueue);
+    }
+    this.spliceConfigured = spliceConfigured;
+    return;
+  }
+
+  /**
+   * Gets the number of available tracks.
+   * <p>
+   * This method must only be called after the extractor has been prepared.
+   *
+   * @return The number of available tracks.
+   */
+  public int getTrackCount() {
+    Assertions.checkState(isPrepared());
+    return sampleQueues.size();
+  }
+
+  /**
+   * Gets the {@link MediaFormat} of the specified track.
+   * <p>
+   * This method must only be called after the extractor has been prepared.
+   *
+   * @param track The track index.
+   * @return The corresponding format.
+   */
+  public MediaFormat getMediaFormat(int track) {
+    Assertions.checkState(isPrepared());
+    return sampleQueues.valueAt(track).getFormat();
+  }
+
+  /**
    * Gets the next sample for the specified track.
+   * <p>
+   * This method must only be called after the extractor has been prepared.
    *
    * @param track The track from which to read.
    * @param holder A {@link SampleHolder} into which the sample should be read.
@@ -181,6 +188,8 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
 
   /**
    * Discards samples for the specified track up to the specified time.
+   * <p>
+   * This method must only be called after the extractor has been prepared.
    *
    * @param track The track from which samples should be discarded.
    * @param timeUs The time up to which samples should be discarded, in microseconds.
@@ -193,6 +202,8 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   /**
    * Whether samples are available for reading from {@link #getSample(int, SampleHolder)} for the
    * specified track.
+   * <p>
+   * This method must only be called after the extractor has been prepared.
    *
    * @return True if samples are available for reading from {@link #getSample(int, SampleHolder)}
    *     for the specified track. False otherwise.

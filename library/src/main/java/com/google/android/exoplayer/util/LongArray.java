@@ -20,7 +20,7 @@ import java.util.Arrays;
 /**
  * An append-only, auto-growing {@code long[]}.
  */
-public class LongArray {
+public final class LongArray {
 
   private static final int DEFAULT_INITIAL_CAPACITY = 32;
 
@@ -72,6 +72,15 @@ public class LongArray {
    */
   public int size() {
     return size;
+  }
+
+  /**
+   * Copies the current values into a newly allocated primitive array.
+   *
+   * @return The primitive array containing the copied values.
+   */
+  public long[] toArray() {
+    return Arrays.copyOf(values, size);
   }
 
 }

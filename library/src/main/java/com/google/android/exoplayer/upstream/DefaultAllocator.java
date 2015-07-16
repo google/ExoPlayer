@@ -25,41 +25,72 @@ import java.util.Arrays;
  */
 public final class DefaultAllocator implements Allocator {
 
-  private static final int INITIAL_RECYCLED_ALLOCATION_CAPACITY = 100;
+  private static final int AVAILABLE_EXTRA_CAPACITY = 100;
 
   private final int individualAllocationSize;
+  private final byte[] initialAllocationBlock;
 
   private int allocatedCount;
-  private int recycledCount;
-  private Allocation[] recycledAllocations;
+  private int availableCount;
+  private Allocation[] availableAllocations;
 
   /**
-   * Constructs an empty pool.
+   * Constructs an initially empty pool.
    *
    * @param individualAllocationSize The length of each individual allocation.
    */
   public DefaultAllocator(int individualAllocationSize) {
+    this(individualAllocationSize, 0);
+  }
+
+  /**
+   * Constructs a pool with some {@link Allocation}s created up front.
+   * <p>
+   * Note: Initial {@link Allocation}s will never be discarded by {@link #trim(int)}.
+   *
+   * @param individualAllocationSize The length of each individual allocation.
+   * @param initialAllocationCount The number of allocations to create up front.
+   */
+  public DefaultAllocator(int individualAllocationSize, int initialAllocationCount) {
     Assertions.checkArgument(individualAllocationSize > 0);
+    Assertions.checkArgument(initialAllocationCount >= 0);
     this.individualAllocationSize = individualAllocationSize;
-    this.recycledAllocations = new Allocation[INITIAL_RECYCLED_ALLOCATION_CAPACITY];
+    this.availableCount = initialAllocationCount;
+    this.availableAllocations = new Allocation[initialAllocationCount + AVAILABLE_EXTRA_CAPACITY];
+    if (initialAllocationCount > 0) {
+      initialAllocationBlock = new byte[initialAllocationCount * individualAllocationSize];
+      for (int i = 0; i < initialAllocationCount; i++) {
+        int allocationOffset = i * individualAllocationSize;
+        availableAllocations[i] = new Allocation(initialAllocationBlock, allocationOffset);
+      }
+    } else {
+      initialAllocationBlock = null;
+    }
   }
 
   @Override
   public synchronized Allocation allocate() {
     allocatedCount++;
-    return recycledCount > 0 ? recycledAllocations[--recycledCount]
-        : new Allocation(new byte[individualAllocationSize], 0);
+    Allocation allocation;
+    if (availableCount > 0) {
+      allocation = availableAllocations[--availableCount];
+      availableAllocations[availableCount] = null;
+    } else {
+      allocation = new Allocation(new byte[individualAllocationSize], 0);
+    }
+    return allocation;
   }
 
   @Override
   public synchronized void release(Allocation allocation) {
     // Weak sanity check that the allocation probably originated from this pool.
-    Assertions.checkArgument(allocation.data.length == individualAllocationSize);
+    Assertions.checkArgument(allocation.data == initialAllocationBlock
+        || allocation.data.length == individualAllocationSize);
     allocatedCount--;
-    if (recycledCount == recycledAllocations.length) {
-      recycledAllocations = Arrays.copyOf(recycledAllocations, recycledAllocations.length * 2);
+    if (availableCount == availableAllocations.length) {
+      availableAllocations = Arrays.copyOf(availableAllocations, availableAllocations.length * 2);
     }
-    recycledAllocations[recycledCount++] = allocation;
+    availableAllocations[availableCount++] = allocation;
     // Wake up threads waiting for the allocated size to drop.
     notifyAll();
   }
@@ -67,11 +98,43 @@ public final class DefaultAllocator implements Allocator {
   @Override
   public synchronized void trim(int targetSize) {
     int targetAllocationCount = Util.ceilDivide(targetSize, individualAllocationSize);
-    int targetRecycledAllocationCount = Math.max(0, targetAllocationCount - allocatedCount);
-    if (targetRecycledAllocationCount < recycledCount) {
-      Arrays.fill(recycledAllocations, targetRecycledAllocationCount, recycledCount, null);
-      recycledCount = targetRecycledAllocationCount;
+    int targetAvailableCount = Math.max(0, targetAllocationCount - allocatedCount);
+    if (targetAvailableCount >= availableCount) {
+      // We're already at or below the target.
+      return;
     }
+
+    if (initialAllocationBlock != null) {
+      // Some allocations are backed by an initial block. We need to make sure that we hold onto all
+      // such allocations. Re-order the available allocations so that the ones backed by the initial
+      // block come first.
+      int lowIndex = 0;
+      int highIndex = availableCount - 1;
+      while (lowIndex <= highIndex) {
+        Allocation lowAllocation = availableAllocations[lowIndex];
+        if (lowAllocation.data == initialAllocationBlock) {
+          lowIndex++;
+        } else {
+          Allocation highAllocation = availableAllocations[lowIndex];
+          if (highAllocation.data != initialAllocationBlock) {
+            highIndex--;
+          } else {
+            availableAllocations[lowIndex++] = highAllocation;
+            availableAllocations[highIndex--] = lowAllocation;
+          }
+        }
+      }
+      // lowIndex is the index of the first allocation not backed by an initial block.
+      targetAvailableCount = Math.max(targetAvailableCount, lowIndex);
+      if (targetAvailableCount >= availableCount) {
+        // We're already at or below the target.
+        return;
+      }
+    }
+
+    // Discard allocations beyond the target.
+    Arrays.fill(availableAllocations, targetAvailableCount, availableCount, null);
+    availableCount = targetAvailableCount;
   }
 
   @Override
@@ -80,19 +143,16 @@ public final class DefaultAllocator implements Allocator {
   }
 
   @Override
-  public int getIndividualAllocationLength() {
-    return individualAllocationSize;
-  }
-
-  /**
-   * Blocks execution until the allocated number of bytes allocated is not greater than the
-   * threshold, or the thread is interrupted.
-   */
   public synchronized void blockWhileTotalBytesAllocatedExceeds(int limit)
       throws InterruptedException {
     while (getTotalBytesAllocated() > limit) {
       wait();
     }
+  }
+
+  @Override
+  public int getIndividualAllocationLength() {
+    return individualAllocationSize;
   }
 
 }

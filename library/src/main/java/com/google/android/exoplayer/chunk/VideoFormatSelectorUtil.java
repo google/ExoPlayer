@@ -94,7 +94,7 @@ public final class VideoFormatSelectorUtil {
       String[] allowedContainerMimeTypes, boolean filterHdFormats, boolean orientationMayChange,
       int viewportWidth, int viewportHeight) throws DecoderQueryException {
     int maxVideoPixelsToRetain = Integer.MAX_VALUE;
-    ArrayList<Integer> selectedIndexList = new ArrayList<Integer>();
+    ArrayList<Integer> selectedIndexList = new ArrayList<>();
     int maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
 
     // First pass to filter out formats that individually fail to meet the selection criteria.

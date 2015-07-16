@@ -169,7 +169,7 @@ public final class FakeDataSource implements DataSource {
     private boolean simulateUnknownLength;
 
     public Builder() {
-      segments = new ArrayList<Segment>();
+      segments = new ArrayList<>();
     }
 
     /**

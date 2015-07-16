@@ -32,6 +32,7 @@ import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilderCallba
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.drm.MediaDrmCallback;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
+import com.google.android.exoplayer.drm.UnsupportedDrmException;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingChunkSource;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
@@ -46,16 +47,12 @@ import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.Util;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaCodec;
-import android.media.UnsupportedSchemeException;
 import android.os.Handler;
-import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.UUID;
 
 /**
  * A {@link RendererBuilder} for SmoothStreaming.
@@ -73,19 +70,17 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
   private final String userAgent;
   private final String url;
   private final MediaDrmCallback drmCallback;
-  private final TextView debugTextView;
 
   private DemoPlayer player;
   private RendererBuilderCallback callback;
   private ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
 
   public SmoothStreamingRendererBuilder(Context context, String userAgent, String url,
-      MediaDrmCallback drmCallback, TextView debugTextView) {
+      MediaDrmCallback drmCallback) {
     this.context = context;
     this.userAgent = userAgent;
     this.url = url;
     this.drmCallback = drmCallback;
-    this.debugTextView = debugTextView;
   }
 
   @Override
@@ -97,7 +92,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
       manifestUrl += "/Manifest";
     }
     SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
-    manifestFetcher = new ManifestFetcher<SmoothStreamingManifest>(manifestUrl,
+    manifestFetcher = new ManifestFetcher<>(manifestUrl,
         new DefaultHttpDataSource(userAgent, null), parser);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
@@ -118,12 +113,12 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     if (manifest.protectionElement != null) {
       if (Util.SDK_INT < 18) {
         callback.onRenderersError(
-            new UnsupportedDrmException(UnsupportedDrmException.REASON_NO_DRM));
+            new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME));
         return;
       }
       try {
-        drmSessionManager = V18Compat.getDrmSessionManager(manifest.protectionElement.uuid, player,
-            drmCallback);
+        drmSessionManager = new StreamingDrmSessionManager(manifest.protectionElement.uuid,
+            player.getPlaybackLooper(), drmCallback, null, player.getMainHandler(), player);
       } catch (UnsupportedDrmException e) {
         callback.onRenderersError(e);
         return;
@@ -159,10 +154,8 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
 
     // Build the video renderer.
     final MediaCodecVideoTrackRenderer videoRenderer;
-    final TrackRenderer debugRenderer;
     if (videoTrackIndices == null || videoTrackIndices.length == 0) {
       videoRenderer = null;
-      debugRenderer = null;
     } else {
       DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
@@ -173,8 +166,6 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
           DemoPlayer.TYPE_VIDEO);
       videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource, drmSessionManager, true,
           MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, mainHandler, player, 50);
-      debugRenderer = debugTextView != null
-          ? new DebugTrackRenderer(debugTextView, player, videoRenderer) : null;
     }
 
     // Build the audio renderer.
@@ -252,25 +243,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder,
     renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
     renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
     renderers[DemoPlayer.TYPE_TEXT] = textRenderer;
-    renderers[DemoPlayer.TYPE_DEBUG] = debugRenderer;
-    callback.onRenderers(trackNames, multiTrackChunkSources, renderers);
-  }
-
-  @TargetApi(18)
-  private static class V18Compat {
-
-    public static DrmSessionManager getDrmSessionManager(UUID uuid, DemoPlayer player,
-        MediaDrmCallback drmCallback) throws UnsupportedDrmException {
-      try {
-        return new StreamingDrmSessionManager(uuid, player.getPlaybackLooper(), drmCallback, null,
-            player.getMainHandler(), player);
-      } catch (UnsupportedSchemeException e) {
-        throw new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME);
-      } catch (Exception e) {
-        throw new UnsupportedDrmException(UnsupportedDrmException.REASON_UNKNOWN, e);
-      }
-    }
-
+    callback.onRenderers(trackNames, multiTrackChunkSources, renderers, bandwidthMeter);
   }
 
 }

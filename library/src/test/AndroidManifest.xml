@@ -15,16 +15,19 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.google.android.exoplayer.tests">
 
   <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="22"/>
 
-  <application>
+  <application android:debuggable="true"
+      android:allowBackup="false"
+      tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
     <uses-library android:name="android.test.runner"/>
   </application>
 
   <instrumentation
-      android:targetPackage="com.google.android.exoplayer.demo"
+      android:targetPackage="com.google.android.exoplayer.tests"
       android:name="android.test.InstrumentationTestRunner"/>
 
 </manifest>

@@ -15,13 +15,15 @@
  */
 package com.google.android.exoplayer.dash.mpd;
 
+import com.google.android.exoplayer.util.ManifestFetcher.RedirectingManifest;
+
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Represents a DASH media presentation description (mpd).
  */
-public class MediaPresentationDescription {
+public class MediaPresentationDescription implements RedirectingManifest {
 
   public final long availabilityStartTime;
 
@@ -35,13 +37,15 @@ public class MediaPresentationDescription {
 
   public final long timeShiftBufferDepth;
 
-  public final List<Period> periods;
-
   public final UtcTimingElement utcTiming;
+
+  public final String location;
+
+  public final List<Period> periods;
 
   public MediaPresentationDescription(long availabilityStartTime, long duration, long minBufferTime,
       boolean dynamic, long minUpdatePeriod, long timeShiftBufferDepth, UtcTimingElement utcTiming,
-      List<Period> periods) {
+      String location, List<Period> periods) {
     this.availabilityStartTime = availabilityStartTime;
     this.duration = duration;
     this.minBufferTime = minBufferTime;
@@ -49,7 +53,13 @@ public class MediaPresentationDescription {
     this.minUpdatePeriod = minUpdatePeriod;
     this.timeShiftBufferDepth = timeShiftBufferDepth;
     this.utcTiming = utcTiming;
+    this.location = location;
     this.periods = Collections.unmodifiableList(periods);
+  }
+
+  @Override
+  public String getNextManifestUri() {
+    return location;
   }
 
 }

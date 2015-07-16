@@ -24,13 +24,12 @@ import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
-import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.MpegAudioHeader;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.util.Collections;
 
 /**
  * Extracts data from an MP3 file.
@@ -43,19 +42,9 @@ public final class Mp3Extractor implements Extractor {
   /** Mask that includes the audio header values that must match between frames. */
   private static final int HEADER_MASK = 0xFFFE0C00;
   private static final int ID3_TAG = Util.getIntegerCodeForString("ID3");
-  private static final String[] MIME_TYPE_BY_LAYER =
-      new String[] {MimeTypes.AUDIO_MPEG_L1, MimeTypes.AUDIO_MPEG_L2, MimeTypes.AUDIO_MPEG};
   private static final int XING_HEADER = Util.getIntegerCodeForString("Xing");
   private static final int INFO_HEADER = Util.getIntegerCodeForString("Info");
   private static final int VBRI_HEADER = Util.getIntegerCodeForString("VBRI");
-
-  /**
-   * Theoretical maximum frame size for an MPEG audio stream, which occurs when playing a Layer 2
-   * MPEG 2.5 audio stream at 16 kb/s (with padding). The size is 1152 sample/frame *
-   * 160000 bit/s / (8000 sample/s * 8 bit/byte) + 1 padding byte/frame = 2881 byte/frame.
-   * The next power of two size is 4 KiB.
-   */
-  private static final int MAX_FRAME_SIZE_BYTES = 4096;
 
   private final BufferingInput inputBuffer;
   private final ParsableByteArray scratch;
@@ -74,7 +63,7 @@ public final class Mp3Extractor implements Extractor {
 
   /** Constructs a new {@link Mp3Extractor}. */
   public Mp3Extractor() {
-    inputBuffer = new BufferingInput(MAX_FRAME_SIZE_BYTES * 3);
+    inputBuffer = new BufferingInput(MpegAudioHeader.MAX_FRAME_SIZE_BYTES * 3);
     scratch = new ParsableByteArray(4);
     synchronizedHeader = new MpegAudioHeader();
   }
@@ -255,10 +244,9 @@ public final class Mp3Extractor implements Extractor {
     if (seeker == null) {
       setupSeeker(extractorInput, headerPosition);
       extractorOutput.seekMap(seeker);
-      trackOutput.format(MediaFormat.createAudioFormat(
-          MIME_TYPE_BY_LAYER[synchronizedHeader.layerIndex], MAX_FRAME_SIZE_BYTES,
-          seeker.getDurationUs(), synchronizedHeader.channels, synchronizedHeader.sampleRate,
-          Collections.<byte[]>emptyList()));
+      trackOutput.format(MediaFormat.createAudioFormat(synchronizedHeader.mimeType,
+          MpegAudioHeader.MAX_FRAME_SIZE_BYTES, seeker.getDurationUs(), synchronizedHeader.channels,
+          synchronizedHeader.sampleRate, null));
     }
 
     return headerPosition;

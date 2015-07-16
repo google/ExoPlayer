@@ -15,33 +15,46 @@
  */
 package com.google.android.exoplayer.text.webvtt;
 
+import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.Subtitle;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
+import android.text.SpannableStringBuilder;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A representation of a WebVTT subtitle.
  */
 public class WebvttSubtitle implements Subtitle {
 
-  private final String[] cueText;
+  private final List<WebvttCue> cues;
+  private final int numCues;
   private final long startTimeUs;
   private final long[] cueTimesUs;
   private final long[] sortedCueTimesUs;
 
   /**
-   * @param cueText Text to be displayed during each cue.
+   * @param cues A list of the cues in this subtitle.
    * @param startTimeUs The start time of the subtitle.
-   * @param cueTimesUs Cue event times, where cueTimesUs[2 * i] and cueTimesUs[(2 * i) + 1] are
-   *     the start and end times, respectively, corresponding to cueText[i].
    */
-  public WebvttSubtitle(String[] cueText, long startTimeUs, long[] cueTimesUs) {
-    this.cueText = cueText;
+  public WebvttSubtitle(List<WebvttCue> cues, long startTimeUs) {
+    this.cues = cues;
     this.startTimeUs = startTimeUs;
-    this.cueTimesUs = cueTimesUs;
-    this.sortedCueTimesUs = Arrays.copyOf(cueTimesUs, cueTimesUs.length);
+
+    numCues = cues.size();
+    cueTimesUs = new long[2 * numCues];
+    for (int cueIndex = 0; cueIndex < numCues; cueIndex++) {
+      WebvttCue cue = cues.get(cueIndex);
+      int arrayIndex = cueIndex * 2;
+      cueTimesUs[arrayIndex] = cue.startTime;
+      cueTimesUs[arrayIndex + 1] = cue.endTime;
+    }
+    sortedCueTimesUs = Arrays.copyOf(cueTimesUs, cueTimesUs.length);
     Arrays.sort(sortedCueTimesUs);
   }
 
@@ -78,22 +91,47 @@ public class WebvttSubtitle implements Subtitle {
   }
 
   @Override
-  public String getText(long timeUs) {
-    StringBuilder stringBuilder = new StringBuilder();
+  public List<Cue> getCues(long timeUs) {
+    ArrayList<Cue> list = null;
+    WebvttCue firstNormalCue = null;
+    SpannableStringBuilder normalCueTextBuilder = null;
 
-    for (int i = 0; i < cueTimesUs.length; i += 2) {
-      if ((cueTimesUs[i] <= timeUs) && (timeUs < cueTimesUs[i + 1])) {
-        stringBuilder.append(cueText[i / 2]);
+    for (int i = 0; i < numCues; i++) {
+      if ((cueTimesUs[i * 2] <= timeUs) && (timeUs < cueTimesUs[i * 2 + 1])) {
+        if (list == null) {
+          list = new ArrayList<>();
+        }
+        WebvttCue cue = cues.get(i);
+        if (cue.isNormalCue()) {
+          // we want to merge all of the normal cues into a single cue to ensure they are drawn
+          // correctly (i.e. don't overlap) and to emulate roll-up, but only if there are multiple
+          // normal cues, otherwise we can just append the single normal cue
+          if (firstNormalCue == null) {
+            firstNormalCue = cue;
+          } else if (normalCueTextBuilder == null) {
+            normalCueTextBuilder = new SpannableStringBuilder();
+            normalCueTextBuilder.append(firstNormalCue.text).append("\n").append(cue.text);
+          } else {
+            normalCueTextBuilder.append("\n").append(cue.text);
+          }
+        } else {
+          list.add(cue);
+        }
       }
     }
-
-    int stringLength = stringBuilder.length();
-    if (stringLength > 0 && stringBuilder.charAt(stringLength - 1) == '\n') {
-      // Adjust the length to remove the trailing newline character.
-      stringLength -= 1;
+    if (normalCueTextBuilder != null) {
+      // there were multiple normal cues, so create a new cue with all of the text
+      list.add(new WebvttCue(normalCueTextBuilder));
+    } else if (firstNormalCue != null) {
+      // there was only a single normal cue, so just add it to the list
+      list.add(firstNormalCue);
     }
 
-    return stringLength == 0 ? null : stringBuilder.substring(0, stringLength);
+    if (list != null) {
+      return list;
+    } else {
+      return Collections.<Cue>emptyList();
+    }
   }
 
 }

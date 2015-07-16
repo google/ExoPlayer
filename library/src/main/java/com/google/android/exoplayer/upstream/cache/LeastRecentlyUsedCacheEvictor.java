@@ -30,7 +30,7 @@ public class LeastRecentlyUsedCacheEvictor implements CacheEvictor, Comparator<C
 
   public LeastRecentlyUsedCacheEvictor(long maxBytes) {
     this.maxBytes = maxBytes;
-    this.leastRecentlyUsed = new TreeSet<CacheSpan>(this);
+    this.leastRecentlyUsed = new TreeSet<>(this);
   }
 
   @Override

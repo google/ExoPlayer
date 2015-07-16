@@ -52,7 +52,7 @@ public abstract class DrmInitData {
 
     public Mapped(String mimeType) {
       super(mimeType);
-      schemeData = new HashMap<UUID, byte[]>();
+      schemeData = new HashMap<>();
     }
 
     @Override
@@ -68,15 +68,6 @@ public abstract class DrmInitData {
      */
     public void put(UUID schemeUuid, byte[] data) {
       schemeData.put(schemeUuid, data);
-    }
-
-    /**
-     * Inserts scheme specific initialization data.
-     *
-     * @param data A mapping from scheme UUID to initialization data.
-     */
-    public void putAll(Map<UUID, byte[]> data) {
-      schemeData.putAll(data);
     }
 
   }
