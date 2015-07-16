@@ -150,10 +150,11 @@ ExoPlayer built to play MP4 streams. The following code shows how the `TrackRend
 constructed.
 
 {% highlight java %}
-DataSource dataSource = new DefaultUriDataSource(userAgent, null);
+Allocator allocator = new DefaultAllocator(BUFFER_SEGMENT_SIZE);
+DataSource dataSource = new DefaultUriDataSource(context, null, userAgent);
 Mp4Extractor extractor = new Mp4Extractor();
 ExtractorSampleSource sampleSource = new ExtractorSampleSource(
-    uri, dataSource, extractor, 2, BUFFER_SIZE);
+    uri, dataSource, extractor, allocator, BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE);
 MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(
     sampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
 MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
@@ -213,7 +214,7 @@ int[] videoRepresentationIndices = VideoFormatSelectorUtil.selectVideoFormatsFor
     context, videoAdaptationSet.representations, null, filterHdContent);
 
 // Build the video renderer.
-DataSource videoDataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
+DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
 ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher, videoAdaptationSetIndex,
     videoRepresentationIndices, videoDataSource, new AdaptiveEvaluator(bandwidthMeter),
     LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset, null, null);
@@ -223,7 +224,7 @@ MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(vi
     MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
 
 // Build the audio renderer.
-DataSource audioDataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
+DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
 ChunkSource audioChunkSource = new DashChunkSource(manifestFetcher, audioAdaptationSetIndex,
     null, audioDataSource, new FixedEvaluator(), LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset, null,
     null);
@@ -272,12 +273,13 @@ if (manifest instanceof HlsMasterPlaylist) {
 }
 
 // Build the renderers
+LoadControl loadControl = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
 DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-DataSource dataSource = new DefaultUriDataSource(userAgent, bandwidthMeter);
+DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
 HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter,
     variantIndices, HlsChunkSource.ADAPTIVE_MODE_SPLICE, audioCapabilities);
-HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, true, 2, REQUESTED_BUFFER_SIZE,
-    REQUESTED_BUFFER_DURATION_MS);
+HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, loadControl,
+    BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
 MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
     MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
 MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
@@ -323,13 +325,7 @@ public void onVideoSizeChanged(int width, int height, float pixelWidthAspectRati
 {% endhighlight %}
 
 The `RendererBuilder` classes in the ExoPlayer demo app inject the `DemoPlayer` as the listener to
-each component, for example in the `DashRendererBuilder` class:
-
-{% highlight java %}
-MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(
-    sampleSource, null, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000,
-    null, <strong>player.getMainHandler(), player</strong>, 50);
-{% endhighlight %}
+each component.
 
 Note that you must pass a `Handler` object to the renderer, which determines the thread on which
 the listener’s methods are invoked. In most cases, you should use a `Handler` associated with the
