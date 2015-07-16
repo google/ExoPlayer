@@ -15,9 +15,11 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
+import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
@@ -48,6 +50,7 @@ import java.util.UUID;
  * <li>Playing media whose container format is unknown and so needs to be inferred automatically.
  * </li>
  * </ul>
+ * <p>
  * Over time we hope to enhance {@link ExtractorSampleSource} to support these use cases, and hence
  * make use of this class unnecessary.
  */
@@ -55,7 +58,7 @@ import java.util.UUID;
 // through use of a background thread, or through changes to the framework's MediaExtractor API).
 @Deprecated
 @TargetApi(16)
-public final class FrameworkSampleSource implements SampleSource {
+public final class FrameworkSampleSource implements SampleSource, SampleSourceReader {
 
   private static final int ALLOWED_FLAGS_MASK = C.SAMPLE_FLAG_SYNC | C.SAMPLE_FLAG_ENCRYPTED;
 
@@ -88,17 +91,12 @@ public final class FrameworkSampleSource implements SampleSource {
    * @param context Context for resolving {@code uri}.
    * @param uri The content URI from which to extract data.
    * @param headers Headers to send with requests for data.
-   * @param downstreamRendererCount Number of track renderers dependent on this sample source.
    */
-  public FrameworkSampleSource(Context context, Uri uri, Map<String, String> headers,
-      int downstreamRendererCount) {
+  public FrameworkSampleSource(Context context, Uri uri, Map<String, String> headers) {
     Assertions.checkState(Util.SDK_INT >= 16);
-    this.remainingReleaseCount = downstreamRendererCount;
-
     this.context = Assertions.checkNotNull(context);
     this.uri = Assertions.checkNotNull(uri);
     this.headers = headers;
-
     fileDescriptor = null;
     fileDescriptorOffset = 0;
     fileDescriptorLength = 0;
@@ -109,22 +107,24 @@ public final class FrameworkSampleSource implements SampleSource {
    * The caller is responsible for releasing the file descriptor.
    *
    * @param fileDescriptor File descriptor from which to read.
-   * @param offset The offset in bytes into the file where the data to be extracted starts.
-   * @param length The length in bytes of the data to be extracted.
-   * @param downstreamRendererCount Number of track renderers dependent on this sample source.
+   * @param fileDescriptorOffset The offset in bytes where the data to be extracted starts.
+   * @param fileDescriptorLength The length in bytes of the data to be extracted.
    */
-  public FrameworkSampleSource(FileDescriptor fileDescriptor, long offset, long length,
-      int downstreamRendererCount) {
+  public FrameworkSampleSource(FileDescriptor fileDescriptor, long fileDescriptorOffset,
+      long fileDescriptorLength) {
     Assertions.checkState(Util.SDK_INT >= 16);
-    this.remainingReleaseCount = downstreamRendererCount;
-
+    this.fileDescriptor = Assertions.checkNotNull(fileDescriptor);
+    this.fileDescriptorOffset = fileDescriptorOffset;
+    this.fileDescriptorLength = fileDescriptorLength;
     context = null;
     uri = null;
     headers = null;
+  }
 
-    this.fileDescriptor = Assertions.checkNotNull(fileDescriptor);
-    fileDescriptorOffset = offset;
-    fileDescriptorLength = length;
+  @Override
+  public SampleSourceReader register() {
+    remainingReleaseCount++;
+    return this;
   }
 
   @Override
@@ -174,7 +174,7 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public boolean continueBuffering(long positionUs) {
+  public boolean continueBuffering(int track, long positionUs) {
     // MediaExtractor takes care of buffering and blocks until it has samples, so we can always
     // return true here. Although note that the blocking behavior is itself as bug, as per the
     // TODO further up this file. This method will need to return something else as part of fixing
@@ -267,7 +267,10 @@ public final class FrameworkSampleSource implements SampleSource {
       return null;
     }
     DrmInitData.Mapped drmInitData = new DrmInitData.Mapped(MimeTypes.VIDEO_MP4);
-    drmInitData.putAll(psshInfo);
+    for (UUID uuid : psshInfo.keySet()) {
+      byte[] psshAtom = PsshAtomUtil.buildPsshAtom(uuid, psshInfo.get(uuid));
+      drmInitData.put(uuid, psshAtom);
+    }
     return drmInitData;
   }
 

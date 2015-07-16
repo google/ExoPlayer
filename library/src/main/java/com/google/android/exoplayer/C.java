@@ -30,6 +30,12 @@ public final class C {
   public static final long UNKNOWN_TIME_US = -1L;
 
   /**
+   * Represents a microsecond duration whose exact value is unknown, but which should match the
+   * longest of some other known durations.
+   */
+  public static final long MATCH_LONGEST_US = -2L;
+
+  /**
    * The number of microseconds in one second.
    */
   public static final long MICROS_PER_SECOND = 1000000L;
@@ -83,6 +89,22 @@ public final class C {
    * A return value for methods where the end of an input was encountered.
    */
   public static final int RESULT_END_OF_INPUT = -1;
+
+  /**
+   * A prefix for custom ExoPlayer WebVTT headers.
+   *
+   * @hide
+   */
+  public static final String WEBVTT_EXO_HEADER = "EXO-HEADER";
+
+  /**
+   * An element of a custom ExoPlayer WebVTT header. An {@code WEBVTT_OFFSET + value} element can
+   * be added to a custom ExoPlayer WebVTT header to specify an offset time (in microseconds) that
+   * should be added to the embedded MPEGTS value.
+   *
+   * @hide
+   */
+  public static final String WEBVTT_EXO_HEADER_OFFSET = "OFFSET:";
 
   private C() {}
 

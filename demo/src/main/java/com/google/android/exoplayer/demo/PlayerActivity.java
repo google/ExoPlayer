@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer.demo;
 
+import com.google.android.exoplayer.AspectRatioFrameLayout;
 import com.google.android.exoplayer.ExoPlayer;
-import com.google.android.exoplayer.VideoSurfaceView;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
 import com.google.android.exoplayer.demo.player.DashRendererBuilder;
@@ -25,8 +25,9 @@ import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.player.ExtractorRendererBuilder;
 import com.google.android.exoplayer.demo.player.HlsRendererBuilder;
 import com.google.android.exoplayer.demo.player.SmoothStreamingRendererBuilder;
-import com.google.android.exoplayer.demo.player.UnsupportedDrmException;
+import com.google.android.exoplayer.drm.UnsupportedDrmException;
 import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
+import com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer.extractor.ts.TsExtractor;
@@ -35,7 +36,9 @@ import com.google.android.exoplayer.metadata.GeobMetadata;
 import com.google.android.exoplayer.metadata.PrivMetadata;
 import com.google.android.exoplayer.metadata.TxxxMetadata;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
-import com.google.android.exoplayer.text.SubtitleView;
+import com.google.android.exoplayer.text.Cue;
+import com.google.android.exoplayer.text.SubtitleLayout;
+import com.google.android.exoplayer.util.DebugTextViewHelper;
 import com.google.android.exoplayer.util.Util;
 import com.google.android.exoplayer.util.VerboseLogUtil;
 
@@ -43,22 +46,20 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
-import android.view.WindowManager;
 import android.view.accessibility.CaptioningManager;
 import android.widget.Button;
 import android.widget.MediaController;
@@ -67,38 +68,60 @@ import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.util.List;
 import java.util.Map;
 
 /**
  * An activity that plays media using {@link DemoPlayer}.
  */
 public class PlayerActivity extends Activity implements SurfaceHolder.Callback, OnClickListener,
-    DemoPlayer.Listener, DemoPlayer.TextListener, DemoPlayer.Id3MetadataListener,
+    DemoPlayer.Listener, DemoPlayer.CaptionListener, DemoPlayer.Id3MetadataListener,
     AudioCapabilitiesReceiver.Listener {
+
+  public static final int TYPE_DASH = 0;
+  public static final int TYPE_SS = 1;
+  public static final int TYPE_HLS = 2;
+  public static final int TYPE_MP4 = 3;
+  public static final int TYPE_MP3 = 4;
+  public static final int TYPE_FMP4 = 5;
+  public static final int TYPE_WEBM = 6;
+  public static final int TYPE_MKV = 7;
+  public static final int TYPE_TS = 8;
+  public static final int TYPE_AAC = 9;
+  public static final int TYPE_M4A = 10;
 
   public static final String CONTENT_TYPE_EXTRA = "content_type";
   public static final String CONTENT_ID_EXTRA = "content_id";
 
   private static final String TAG = "PlayerActivity";
-
-  private static final float CAPTION_LINE_HEIGHT_RATIO = 0.0533f;
   private static final int MENU_GROUP_TRACKS = 1;
   private static final int ID_OFFSET = 2;
+
+  private static final CookieManager defaultCookieManager;
+  static {
+    defaultCookieManager = new CookieManager();
+    defaultCookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
+  }
 
   private EventLogger eventLogger;
   private MediaController mediaController;
   private View debugRootView;
   private View shutterView;
-  private VideoSurfaceView surfaceView;
+  private AspectRatioFrameLayout videoFrame;
+  private SurfaceView surfaceView;
   private TextView debugTextView;
   private TextView playerStateTextView;
-  private SubtitleView subtitleView;
+  private SubtitleLayout subtitleLayout;
   private Button videoButton;
   private Button audioButton;
   private Button textButton;
   private Button retryButton;
 
   private DemoPlayer player;
+  private DebugTextViewHelper debugViewHelper;
   private boolean playerNeedsPrepare;
 
   private long playerPosition;
@@ -149,12 +172,13 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     shutterView = findViewById(R.id.shutter);
     debugRootView = findViewById(R.id.controls_root);
 
-    surfaceView = (VideoSurfaceView) findViewById(R.id.surface_view);
+    videoFrame = (AspectRatioFrameLayout) findViewById(R.id.video_frame);
+    surfaceView = (SurfaceView) findViewById(R.id.surface_view);
     surfaceView.getHolder().addCallback(this);
     debugTextView = (TextView) findViewById(R.id.debug_text_view);
 
     playerStateTextView = (TextView) findViewById(R.id.player_state_view);
-    subtitleView = (SubtitleView) findViewById(R.id.subtitles);
+    subtitleLayout = (SubtitleLayout) findViewById(R.id.subtitles);
 
     mediaController = new MediaController(this);
     mediaController.setAnchorView(root);
@@ -164,7 +188,10 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     audioButton = (Button) findViewById(R.id.audio_controls);
     textButton = (Button) findViewById(R.id.text_controls);
 
-    DemoUtil.setDefaultCookieManager();
+    CookieHandler currentHandler = CookieHandler.getDefault();
+    if (currentHandler != defaultCookieManager) {
+      CookieHandler.setDefault(defaultCookieManager);
+    }
   }
 
   @Override
@@ -222,31 +249,30 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private RendererBuilder getRendererBuilder() {
     String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
     switch (contentType) {
-      case DemoUtil.TYPE_SS:
+      case TYPE_SS:
         return new SmoothStreamingRendererBuilder(this, userAgent, contentUri.toString(),
-            new SmoothStreamingTestMediaDrmCallback(), debugTextView);
-      case DemoUtil.TYPE_DASH:
+            new SmoothStreamingTestMediaDrmCallback());
+      case TYPE_DASH:
         return new DashRendererBuilder(this, userAgent, contentUri.toString(),
-            new WidevineTestMediaDrmCallback(contentId), debugTextView, audioCapabilities);
-      case DemoUtil.TYPE_HLS:
-        return new HlsRendererBuilder(this, userAgent, contentUri.toString(), debugTextView,
-            audioCapabilities);
-      case DemoUtil.TYPE_M4A: // There are no file format differences between M4A and MP4.
-      case DemoUtil.TYPE_MP4:
-        return new ExtractorRendererBuilder(this, userAgent, contentUri, debugTextView,
-            new Mp4Extractor());
-      case DemoUtil.TYPE_MP3:
-        return new ExtractorRendererBuilder(this, userAgent, contentUri, debugTextView,
-            new Mp3Extractor());
-      case DemoUtil.TYPE_TS:
-        return new ExtractorRendererBuilder(this, userAgent, contentUri, debugTextView,
+            new WidevineTestMediaDrmCallback(contentId), audioCapabilities);
+      case TYPE_HLS:
+        return new HlsRendererBuilder(this, userAgent, contentUri.toString(), audioCapabilities);
+      case TYPE_M4A: // There are no file format differences between M4A and MP4.
+      case TYPE_MP4:
+        return new ExtractorRendererBuilder(this, userAgent, contentUri, new Mp4Extractor());
+      case TYPE_MP3:
+        return new ExtractorRendererBuilder(this, userAgent, contentUri, new Mp3Extractor());
+      case TYPE_TS:
+        return new ExtractorRendererBuilder(this, userAgent, contentUri,
             new TsExtractor(0, audioCapabilities));
-      case DemoUtil.TYPE_AAC:
-        return new ExtractorRendererBuilder(this, userAgent, contentUri, debugTextView,
-            new AdtsExtractor());
-      case DemoUtil.TYPE_WEBM:
-        return new ExtractorRendererBuilder(this, userAgent, contentUri, debugTextView,
-            new WebmExtractor());
+      case TYPE_AAC:
+        return new ExtractorRendererBuilder(this, userAgent, contentUri, new AdtsExtractor());
+      case TYPE_FMP4:
+        return new ExtractorRendererBuilder(this, userAgent, contentUri,
+            new FragmentedMp4Extractor());
+      case TYPE_WEBM:
+      case TYPE_MKV:
+        return new ExtractorRendererBuilder(this, userAgent, contentUri, new WebmExtractor());
       default:
         throw new IllegalStateException("Unsupported type: " + contentType);
     }
@@ -256,7 +282,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (player == null) {
       player = new DemoPlayer(getRendererBuilder());
       player.addListener(this);
-      player.setTextListener(this);
+      player.setCaptionListener(this);
       player.setMetadataListener(this);
       player.seekTo(playerPosition);
       playerNeedsPrepare = true;
@@ -267,6 +293,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       player.addListener(eventLogger);
       player.setInfoListener(eventLogger);
       player.setInternalErrorListener(eventLogger);
+      debugViewHelper = new DebugTextViewHelper(player, debugTextView);
+      debugViewHelper.start();
     }
     if (playerNeedsPrepare) {
       player.prepare();
@@ -279,6 +307,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   private void releasePlayer() {
     if (player != null) {
+      debugViewHelper.stop();
+      debugViewHelper = null;
       playerPosition = player.getCurrentPosition();
       player.release();
       player = null;
@@ -324,11 +354,9 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (e instanceof UnsupportedDrmException) {
       // Special case DRM failures.
       UnsupportedDrmException unsupportedDrmException = (UnsupportedDrmException) e;
-      int stringId = unsupportedDrmException.reason == UnsupportedDrmException.REASON_NO_DRM
-          ? R.string.drm_error_not_supported
+      int stringId = Util.SDK_INT < 18 ? R.string.drm_error_not_supported
           : unsupportedDrmException.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
-          ? R.string.drm_error_unsupported_scheme
-          : R.string.drm_error_unknown;
+              ? R.string.drm_error_unsupported_scheme : R.string.drm_error_unknown;
       Toast.makeText(getApplicationContext(), stringId, Toast.LENGTH_LONG).show();
     }
     playerNeedsPrepare = true;
@@ -339,7 +367,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   @Override
   public void onVideoSizeChanged(int width, int height, float pixelWidthAspectRatio) {
     shutterView.setVisibility(View.GONE);
-    surfaceView.setVideoWidthHeightRatio(
+    videoFrame.setAspectRatio(
         height == 0 ? 1 : (width * pixelWidthAspectRatio) / height);
   }
 
@@ -353,7 +381,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   }
 
   private boolean haveTracks(int type) {
-    return player != null && player.getTracks(type) != null;
+    return player != null && player.getTrackCount(type) > 0;
   }
 
   public void showVideoPopup(View v) {
@@ -416,8 +444,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (player == null) {
       return;
     }
-    String[] tracks = player.getTracks(trackType);
-    if (tracks == null) {
+    int trackCount = player.getTrackCount(trackType);
+    if (trackCount == 0) {
       return;
     }
     popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
@@ -431,11 +459,11 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     Menu menu = popup.getMenu();
     // ID_OFFSET ensures we avoid clashing with Menu.NONE (which equals 0)
     menu.add(MENU_GROUP_TRACKS, DemoPlayer.DISABLED_TRACK + ID_OFFSET, Menu.NONE, R.string.off);
-    if (tracks.length == 1 && TextUtils.isEmpty(tracks[0])) {
+    if (trackCount == 1 && TextUtils.isEmpty(player.getTrackName(trackType, 0))) {
       menu.add(MENU_GROUP_TRACKS, DemoPlayer.PRIMARY_TRACK + ID_OFFSET, Menu.NONE, R.string.on);
     } else {
-      for (int i = 0; i < tracks.length; i++) {
-        menu.add(MENU_GROUP_TRACKS, i + ID_OFFSET, Menu.NONE, tracks[i]);
+      for (int i = 0; i < trackCount; i++) {
+        menu.add(MENU_GROUP_TRACKS, i + ID_OFFSET, Menu.NONE, player.getTrackName(trackType, i));
       }
     }
     menu.setGroupCheckable(MENU_GROUP_TRACKS, true, true);
@@ -464,16 +492,11 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     debugRootView.setVisibility(View.VISIBLE);
   }
 
-  // DemoPlayer.TextListener implementation
+  // DemoPlayer.CaptionListener implementation
 
   @Override
-  public void onText(String text) {
-    if (TextUtils.isEmpty(text)) {
-      subtitleView.setVisibility(View.INVISIBLE);
-    } else {
-      subtitleView.setVisibility(View.VISIBLE);
-      subtitleView.setText(text);
-    }
+  public void onCues(List<Cue> cues) {
+    subtitleLayout.setCues(cues);
   }
 
   // DemoPlayer.MetadataListener implementation
@@ -523,24 +546,16 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   private void configureSubtitleView() {
     CaptionStyleCompat captionStyle;
-    float captionTextSize = getCaptionFontSize();
+    float captionFontScale;
     if (Util.SDK_INT >= 19) {
       captionStyle = getUserCaptionStyleV19();
-      captionTextSize *= getUserCaptionFontScaleV19();
+      captionFontScale = getUserCaptionFontScaleV19();
     } else {
       captionStyle = CaptionStyleCompat.DEFAULT;
+      captionFontScale = 1.0f;
     }
-    subtitleView.setStyle(captionStyle);
-    subtitleView.setTextSize(captionTextSize);
-  }
-
-  private float getCaptionFontSize() {
-    Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE))
-        .getDefaultDisplay();
-    Point displaySize = new Point();
-    display.getSize(displaySize);
-    return Math.max(getResources().getDimension(R.dimen.subtitle_minimum_font_size),
-        CAPTION_LINE_HEIGHT_RATIO * Math.min(displaySize.x, displaySize.y));
+    subtitleLayout.setStyle(captionStyle);
+    subtitleLayout.setFontScale(captionFontScale);
   }
 
   @TargetApi(19)

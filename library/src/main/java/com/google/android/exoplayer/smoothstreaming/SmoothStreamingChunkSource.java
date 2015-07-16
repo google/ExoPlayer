@@ -59,14 +59,11 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private static final int MINIMUM_MANIFEST_REFRESH_PERIOD_MS = 5000;
   private static final int INITIALIZATION_VECTOR_SIZE = 8;
 
-  private final ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
-  private final int streamElementIndex;
   private final TrackInfo trackInfo;
   private final DataSource dataSource;
   private final FormatEvaluator formatEvaluator;
   private final Evaluation evaluation;
   private final long liveEdgeLatencyUs;
-
   private final int maxWidth;
   private final int maxHeight;
 
@@ -74,6 +71,9 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private final SparseArray<MediaFormat> mediaFormats;
   private final DrmInitData drmInitData;
   private final Format[] formats;
+
+  private final ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
+  private final int streamElementIndex;
 
   private SmoothStreamingManifest currentManifest;
   private int currentManifestChunkOffset;
@@ -153,8 +153,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
     int trackCount = trackIndices != null ? trackIndices.length : streamElement.tracks.length;
     formats = new Format[trackCount];
-    extractorWrappers = new SparseArray<ChunkExtractorWrapper>();
-    mediaFormats = new SparseArray<MediaFormat>();
+    extractorWrappers = new SparseArray<>();
+    mediaFormats = new SparseArray<>();
     int maxWidth = 0;
     int maxHeight = 0;
     for (int i = 0; i < trackCount; i++) {
@@ -174,8 +174,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       extractorWrappers.put(trackIndex, new ChunkExtractorWrapper(extractor));
       mediaFormats.put(trackIndex, mediaFormat);
     }
-    this.maxHeight = maxHeight;
     this.maxWidth = maxWidth;
+    this.maxHeight = maxHeight;
     Arrays.sort(formats, new DecreasingBandwidthComparator());
   }
 
@@ -194,6 +194,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   @Override
   public void enable() {
     fatalError = null;
+    formatEvaluator.enable();
     if (manifestFetcher != null) {
       manifestFetcher.enable();
     }
@@ -201,6 +202,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
   @Override
   public void disable(List<? extends MediaChunk> queue) {
+    formatEvaluator.disable();
     if (manifestFetcher != null) {
       manifestFetcher.disable();
     }
@@ -215,11 +217,22 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     SmoothStreamingManifest newManifest = manifestFetcher.getManifest();
     if (currentManifest != newManifest && newManifest != null) {
       StreamElement currentElement = getElement(currentManifest);
+      int currentElementChunkCount = currentElement.chunkCount;
       StreamElement newElement = getElement(newManifest);
-      if (newElement.chunkCount == 0) {
-        currentManifestChunkOffset += currentElement.chunkCount;
-      } else if (currentElement.chunkCount > 0) {
-        currentManifestChunkOffset += currentElement.getChunkIndex(newElement.getStartTimeUs(0));
+      if (currentElementChunkCount == 0 || newElement.chunkCount == 0) {
+        // There's no overlap between the old and new elements because at least one is empty.
+        currentManifestChunkOffset += currentElementChunkCount;
+      } else {
+        long currentElementEndTimeUs = currentElement.getStartTimeUs(currentElementChunkCount - 1)
+            + currentElement.getChunkDurationUs(currentElementChunkCount - 1);
+        long newElementStartTimeUs = newElement.getStartTimeUs(0);
+        if (currentElementEndTimeUs <= newElementStartTimeUs) {
+          // There's no overlap between the old and new elements.
+          currentManifestChunkOffset += currentElementChunkCount;
+        } else {
+          // The new element overlaps with the old one.
+          currentManifestChunkOffset += currentElement.getChunkIndex(newElementStartTimeUs);
+        }
       }
       currentManifest = newManifest;
       finishedCurrentManifest = false;
@@ -248,14 +261,13 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       out.chunk = null;
       return;
     } else if (out.queueSize == queue.size() && out.chunk != null
-        && out.chunk.format.equals(evaluation.format)) {
+        && out.chunk.format.equals(selectedFormat)) {
       // We already have a chunk, and the evaluation hasn't changed either the format or the size
-      // of the queue. Do nothing.
+      // of the queue. Leave unchanged.
       return;
     }
 
-    // In all cases where we return before instantiating a new chunk at the bottom of this method,
-    // we want out.chunk to be null.
+    // In all cases where we return before instantiating a new chunk, we want out.chunk to be null.
     out.chunk = null;
 
     StreamElement streamElement = getElement(currentManifest);
@@ -290,7 +302,9 @@ public class SmoothStreamingChunkSource implements ChunkSource {
         // but continue to return the final chunk.
         finishedCurrentManifest = true;
       }
-    } else if (chunkIndex == -1) {
+    }
+
+    if (chunkIndex == -1) {
       // We've reached the end of the stream.
       return;
     }
@@ -374,14 +388,14 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       if (trackElement.csd != null) {
         csd = Arrays.asList(trackElement.csd);
       } else {
-        csd = Collections.singletonList(CodecSpecificDataUtil.buildAudioSpecificConfig(
+        csd = Collections.singletonList(CodecSpecificDataUtil.buildAacAudioSpecificConfig(
             trackFormat.audioSamplingRate, trackFormat.numChannels));
       }
       MediaFormat format = MediaFormat.createAudioFormat(mimeType, MediaFormat.NO_VALUE,
           trackFormat.numChannels, trackFormat.audioSamplingRate, csd);
       return format;
     } else if (streamElement.type == StreamElement.TYPE_TEXT) {
-      return MediaFormat.createFormatForMimeType(trackFormat.mimeType);
+      return MediaFormat.createTextFormat(trackFormat.mimeType);
     }
     return null;
   }

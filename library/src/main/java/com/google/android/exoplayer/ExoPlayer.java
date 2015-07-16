@@ -262,20 +262,30 @@ public interface ExoPlayer {
   public void prepare(TrackRenderer... renderers);
 
   /**
+   * Returns whether the renderer at the given index has media to play.
+   * <p>
+   * Always returns false whilst the player is in the {@link #STATE_PREPARING} state.
+   *
+   * @param rendererIndex The index of the renderer.
+   * @return True if the renderer has media to play, false otherwise.
+   */
+  public boolean getRendererHasMedia(int rendererIndex);
+
+  /**
    * Sets whether the renderer at the given index is enabled.
    *
-   * @param index The index of the renderer.
+   * @param rendererIndex The index of the renderer.
    * @param enabled Whether the renderer at the given index should be enabled.
    */
-  public void setRendererEnabled(int index, boolean enabled);
+  public void setRendererEnabled(int rendererIndex, boolean enabled);
 
   /**
    * Whether the renderer at the given index is enabled.
    *
-   * @param index The index of the renderer.
+   * @param rendererIndex The index of the renderer.
    * @return Whether the renderer is enabled.
    */
-  public boolean getRendererEnabled(int index);
+  public boolean getRendererEnabled(int rendererIndex);
 
   /**
    * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.

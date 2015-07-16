@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.text;
 
+import java.util.List;
+
 /**
  * A subtitle that contains textual data associated with time indices.
  */
@@ -39,8 +41,8 @@ public interface Subtitle {
   public int getNextEventTimeIndex(long timeUs);
 
   /**
-   * Gets the number of event times, where events are defined as points in time at which the text
-   * returned by {@link #getText(long)} changes.
+   * Gets the number of event times, where events are defined as points in time at which the cues
+   * returned by {@link #getCues(long)} changes.
    *
    * @return The number of event times.
    */
@@ -62,11 +64,11 @@ public interface Subtitle {
   public long getLastEventTime();
 
   /**
-   * Retrieve the subtitle text that should be displayed at a given time.
+   * Retrieve the subtitle cues that should be displayed at a given time.
    *
    * @param timeUs The time in microseconds.
-   * @return The text that should be displayed, or null.
+   * @return A list of cues that should be displayed, possibly empty.
    */
-  public String getText(long timeUs);
+  public List<Cue> getCues(long timeUs);
 
 }

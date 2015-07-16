@@ -109,7 +109,7 @@ public class Eia608Parser {
   /* package */ Eia608Parser() {
     seiBuffer = new ParsableBitArray();
     stringBuilder = new StringBuilder();
-    captions = new ArrayList<ClosedCaption>();
+    captions = new ArrayList<>();
   }
 
   /* package */ boolean canParse(String mimeType) {

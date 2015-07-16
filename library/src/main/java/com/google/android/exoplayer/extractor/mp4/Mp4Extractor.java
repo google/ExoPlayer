@@ -23,7 +23,7 @@ import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.H264Util;
+import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.IOException;
@@ -71,8 +71,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   public Mp4Extractor() {
     atomHeader = new ParsableByteArray(Atom.LONG_HEADER_SIZE);
-    containerAtoms = new Stack<Atom.ContainerAtom>();
-    nalStartCode = new ParsableByteArray(H264Util.NAL_START_CODE);
+    containerAtoms = new Stack<>();
+    nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
     parserState = STATE_READING_ATOM_HEADER;
   }
@@ -216,7 +216,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   /** Updates the stored track metadata to reflect the contents of the specified moov atom. */
   private void processMoovAtom(ContainerAtom moov) {
-    List<Mp4Track> tracks = new ArrayList<Mp4Track>();
+    List<Mp4Track> tracks = new ArrayList<>();
     long earliestSampleOffset = Long.MAX_VALUE;
     for (int i = 0; i < moov.containerChildren.size(); i++) {
       Atom.ContainerAtom atom = moov.containerChildren.get(i);
@@ -225,7 +225,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       }
 
       Track track = AtomParsers.parseTrak(atom, moov.getLeafAtomOfType(Atom.TYPE_mvhd));
-      if (track == null || (track.type != Track.TYPE_AUDIO && track.type != Track.TYPE_VIDEO)) {
+      if (track == null || (track.type != Track.TYPE_AUDIO && track.type != Track.TYPE_VIDEO
+          && track.type != Track.TYPE_TEXT)) {
         continue;
       }
 

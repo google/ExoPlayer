@@ -50,9 +50,9 @@ public class SimpleCache implements Cache {
   public SimpleCache(File cacheDir, CacheEvictor evictor) {
     this.cacheDir = cacheDir;
     this.evictor = evictor;
-    this.lockedSpans = new HashMap<String, CacheSpan>();
-    this.cachedSpans = new HashMap<String, TreeSet<CacheSpan>>();
-    this.listeners = new HashMap<String, ArrayList<Listener>>();
+    this.lockedSpans = new HashMap<>();
+    this.cachedSpans = new HashMap<>();
+    this.listeners = new HashMap<>();
     // Start cache initialization.
     final ConditionVariable conditionVariable = new ConditionVariable();
     new Thread() {
@@ -71,7 +71,7 @@ public class SimpleCache implements Cache {
   public synchronized NavigableSet<CacheSpan> addListener(String key, Listener listener) {
     ArrayList<Listener> listenersForKey = listeners.get(key);
     if (listenersForKey == null) {
-      listenersForKey = new ArrayList<Listener>();
+      listenersForKey = new ArrayList<>();
       listeners.put(key, listenersForKey);
     }
     listenersForKey.add(listener);
@@ -92,12 +92,12 @@ public class SimpleCache implements Cache {
   @Override
   public synchronized NavigableSet<CacheSpan> getCachedSpans(String key) {
     TreeSet<CacheSpan> spansForKey = cachedSpans.get(key);
-    return spansForKey == null ? null : new TreeSet<CacheSpan>(spansForKey);
+    return spansForKey == null ? null : new TreeSet<>(spansForKey);
   }
 
   @Override
   public synchronized Set<String> getKeys() {
-    return new HashSet<String>(cachedSpans.keySet());
+    return new HashSet<>(cachedSpans.keySet());
   }
 
   @Override
@@ -263,7 +263,7 @@ public class SimpleCache implements Cache {
   private void addSpan(CacheSpan span) {
     TreeSet<CacheSpan> spansForKey = cachedSpans.get(span.key);
     if (spansForKey == null) {
-      spansForKey = new TreeSet<CacheSpan>();
+      spansForKey = new TreeSet<>();
       cachedSpans.put(span.key, spansForKey);
     }
     spansForKey.add(span);

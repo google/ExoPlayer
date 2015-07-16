@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.SuppressLint;
@@ -94,16 +93,8 @@ public class MediaFormat {
         channelCount, sampleRate, initializationData);
   }
 
-  public static MediaFormat createId3Format() {
-    return createFormatForMimeType(MimeTypes.APPLICATION_ID3);
-  }
-
-  public static MediaFormat createEia608Format() {
-    return createFormatForMimeType(MimeTypes.APPLICATION_EIA608);
-  }
-
-  public static MediaFormat createTtmlFormat() {
-    return createFormatForMimeType(MimeTypes.APPLICATION_TTML);
+  public static MediaFormat createTextFormat(String mimeType) {
+    return createFormatForMimeType(mimeType);
   }
 
   public static MediaFormat createFormatForMimeType(String mimeType) {
@@ -121,7 +112,7 @@ public class MediaFormat {
     channelCount = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_CHANNEL_COUNT);
     sampleRate = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_SAMPLE_RATE);
     pixelWidthHeightRatio = getOptionalFloatV16(format, KEY_PIXEL_WIDTH_HEIGHT_RATIO);
-    initializationData = new ArrayList<byte[]>();
+    initializationData = new ArrayList<>();
     for (int i = 0; format.containsKey("csd-" + i); i++) {
       ByteBuffer buffer = format.getByteBuffer("csd-" + i);
       byte[] data = new byte[buffer.limit()];

@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer.drm;
 
+import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
+import com.google.android.exoplayer.util.Util;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.DeniedByServerException;
@@ -96,7 +99,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   private MediaCrypto mediaCrypto;
   private Exception lastException;
   private String mimeType;
-  private byte[] schemePsshData;
+  private byte[] schemeData;
   private byte[] sessionId;
 
   /**
@@ -110,11 +113,11 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @throws UnsupportedSchemeException If the specified DRM scheme is not supported.
+   * @throws UnsupportedDrmException If the specified DRM scheme is not supported.
    */
   public static StreamingDrmSessionManager newWidevineInstance(Looper playbackLooper,
       MediaDrmCallback callback, HashMap<String, String> optionalKeyRequestParameters,
-      Handler eventHandler, EventListener eventListener) throws UnsupportedSchemeException {
+      Handler eventHandler, EventListener eventListener) throws UnsupportedDrmException {
     return new StreamingDrmSessionManager(WIDEVINE_UUID, playbackLooper, callback,
         optionalKeyRequestParameters, eventHandler, eventListener);
   }
@@ -132,14 +135,14 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @throws UnsupportedSchemeException If the specified DRM scheme is not supported.
+   * @throws UnsupportedDrmException If the specified DRM scheme is not supported.
    */
   public static StreamingDrmSessionManager newPlayReadyInstance(Looper playbackLooper,
       MediaDrmCallback callback, String customData, Handler eventHandler,
-      EventListener eventListener) throws UnsupportedSchemeException {
+      EventListener eventListener) throws UnsupportedDrmException {
     HashMap<String, String> optionalKeyRequestParameters;
     if (!TextUtils.isEmpty(customData)) {
-      optionalKeyRequestParameters = new HashMap<String, String>();
+      optionalKeyRequestParameters = new HashMap<>();
       optionalKeyRequestParameters.put(PLAYREADY_CUSTOM_DATA_KEY, customData);
     } else {
       optionalKeyRequestParameters = null;
@@ -158,17 +161,23 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @throws UnsupportedSchemeException If the specified DRM scheme is not supported.
+   * @throws UnsupportedDrmException If the specified DRM scheme is not supported.
    */
   public StreamingDrmSessionManager(UUID uuid, Looper playbackLooper, MediaDrmCallback callback,
       HashMap<String, String> optionalKeyRequestParameters, Handler eventHandler,
-      EventListener eventListener) throws UnsupportedSchemeException {
+      EventListener eventListener) throws UnsupportedDrmException {
     this.uuid = uuid;
     this.callback = callback;
     this.optionalKeyRequestParameters = optionalKeyRequestParameters;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
-    mediaDrm = new MediaDrm(uuid);
+    try {
+      mediaDrm = new MediaDrm(uuid);
+    } catch (UnsupportedSchemeException e) {
+      throw new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME, e);
+    } catch (Exception e) {
+      throw new UnsupportedDrmException(UnsupportedDrmException.REASON_INSTANTIATION_ERROR, e);
+    }
     mediaDrm.setOnEventListener(new MediaDrmEventListener());
     mediaDrmHandler = new MediaDrmHandler(playbackLooper);
     postResponseHandler = new PostResponseHandler(playbackLooper);
@@ -176,12 +185,12 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   @Override
-  public int getState() {
+  public final int getState() {
     return state;
   }
 
   @Override
-  public MediaCrypto getMediaCrypto() {
+  public final MediaCrypto getMediaCrypto() {
     if (state != STATE_OPENED && state != STATE_OPENED_WITH_KEYS) {
       throw new IllegalStateException();
     }
@@ -197,7 +206,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   @Override
-  public Exception getError() {
+  public final Exception getError() {
     return state == STATE_ERROR ? lastException : null;
   }
 
@@ -217,7 +226,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
    * Provides access to {@link MediaDrm#setPropertyString(String, String)}.
    * <p>
    * This method may be called when the manager is in any state.
-   * 
+   *
    * @param key The property to write.
    * @param value The value to write.
    */
@@ -250,7 +259,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   @Override
-  public void open(DrmInitData drmInitData) {
+  public final void open(DrmInitData drmInitData) {
     if (++openCount != 1) {
       return;
     }
@@ -259,12 +268,21 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
       requestHandlerThread.start();
       postRequestHandler = new PostRequestHandler(requestHandlerThread.getLooper());
     }
-    if (this.schemePsshData == null) {
+    if (schemeData == null) {
       mimeType = drmInitData.mimeType;
-      schemePsshData = drmInitData.get(uuid);
-      if (schemePsshData == null) {
+      schemeData = drmInitData.get(uuid);
+      if (schemeData == null) {
         onError(new IllegalStateException("Media does not support uuid: " + uuid));
         return;
+      }
+      if (Util.SDK_INT < 21) {
+        // Prior to L the Widevine CDM required data to be extracted from the PSSH atom.
+        byte[] psshData = PsshAtomUtil.parseSchemeSpecificData(schemeData, WIDEVINE_UUID);
+        if (psshData == null) {
+          // Extraction failed. schemeData isn't a Widevine PSSH atom, so leave it unchanged.
+        } else {
+          schemeData = psshData;
+        }
       }
     }
     state = STATE_OPENING;
@@ -272,7 +290,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   @Override
-  public void close() {
+  public final void close() {
     if (--openCount != 0) {
       return;
     }
@@ -284,7 +302,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
     postRequestHandler = null;
     requestHandlerThread.quit();
     requestHandlerThread = null;
-    schemePsshData = null;
+    schemeData = null;
     mediaCrypto = null;
     lastException = null;
     if (sessionId != null) {
@@ -346,7 +364,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   private void postKeyRequest() {
     KeyRequest keyRequest;
     try {
-      keyRequest = mediaDrm.getKeyRequest(sessionId, schemePsshData, mimeType,
+      keyRequest = mediaDrm.getKeyRequest(sessionId, schemeData, mimeType,
           MediaDrm.KEY_TYPE_STREAMING, optionalKeyRequestParameters);
       postRequestHandler.obtainMessage(MSG_KEYS, keyRequest).sendToTarget();
     } catch (NotProvisionedException e) {

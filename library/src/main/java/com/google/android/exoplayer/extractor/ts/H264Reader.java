@@ -18,9 +18,8 @@ package com.google.android.exoplayer.extractor.ts;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.extractor.TrackOutput;
-import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.H264Util;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -37,31 +36,15 @@ import java.util.List;
 
   private static final String TAG = "H264Reader";
 
-  private static final int NAL_UNIT_TYPE_IDR = 5;
-  private static final int NAL_UNIT_TYPE_SEI = 6;
-  private static final int NAL_UNIT_TYPE_SPS = 7;
-  private static final int NAL_UNIT_TYPE_PPS = 8;
-  private static final int NAL_UNIT_TYPE_AUD = 9;
-  private static final int EXTENDED_SAR = 0xFF;
-  private static final float[] ASPECT_RATIO_IDC_VALUES = new float[] {
-    1f /* Unspecified. Assume square */,
-    1f,
-    12f / 11f,
-    10f / 11f,
-    16f / 11f,
-    40f / 33f,
-    24f / 11f,
-    20f / 11f,
-    32f / 11f,
-    80f / 33f,
-    18f / 11f,
-    15f / 11f,
-    64f / 33f,
-    160f / 99f,
-    4f / 3f,
-    3f / 2f,
-    2f
-  };
+  private static final int FRAME_TYPE_I = 2;
+  private static final int FRAME_TYPE_ALL_I = 7;
+
+  private static final int NAL_UNIT_TYPE_IFR = 1; // Coded slice of a non-IDR picture
+  private static final int NAL_UNIT_TYPE_IDR = 5; // Coded slice of an IDR picture
+  private static final int NAL_UNIT_TYPE_SEI = 6; // Supplemental enhancement information
+  private static final int NAL_UNIT_TYPE_SPS = 7; // Sequence parameter set
+  private static final int NAL_UNIT_TYPE_PPS = 8; // Picture parameter set
+  private static final int NAL_UNIT_TYPE_AUD = 9; // Access unit delimiter
 
   // State that should not be reset on seek.
   private boolean hasOutputFormat;
@@ -69,10 +52,11 @@ import java.util.List;
   // State that should be reset on seek.
   private final SeiReader seiReader;
   private final boolean[] prefixFlags;
+  private final IfrParserBuffer ifrParserBuffer;
   private final NalUnitTargetBuffer sps;
   private final NalUnitTargetBuffer pps;
   private final NalUnitTargetBuffer sei;
-  private boolean writingSample;
+  private boolean foundFirstSample;
   private long totalBytesWritten;
 
   // Per sample state that gets reset at the start of each sample.
@@ -82,27 +66,29 @@ import java.util.List;
 
   // Scratch variables to avoid allocations.
   private final ParsableByteArray seiWrapper;
-  private int[] scratchEscapePositions;
 
-  public H264Reader(TrackOutput output, SeiReader seiReader) {
+  public H264Reader(TrackOutput output, SeiReader seiReader, boolean idrKeyframesOnly) {
     super(output);
     this.seiReader = seiReader;
     prefixFlags = new boolean[3];
+    ifrParserBuffer = (idrKeyframesOnly) ? null : new IfrParserBuffer();
     sps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SPS, 128);
     pps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_PPS, 128);
     sei = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SEI, 128);
     seiWrapper = new ParsableByteArray();
-    scratchEscapePositions = new int[10];
   }
 
   @Override
   public void seek() {
     seiReader.seek();
-    H264Util.clearPrefixFlags(prefixFlags);
+    NalUnitUtil.clearPrefixFlags(prefixFlags);
     sps.reset();
     pps.reset();
     sei.reset();
-    writingSample = false;
+    if (ifrParserBuffer != null) {
+      ifrParserBuffer.reset();
+    }
+    foundFirstSample = false;
     totalBytesWritten = 0;
   }
 
@@ -119,7 +105,7 @@ import java.util.List;
 
       // Scan the appended data, processing NAL units as they are encountered
       while (offset < limit) {
-        int nextNalUnitOffset = H264Util.findNalUnit(dataArray, offset, limit, prefixFlags);
+        int nextNalUnitOffset = NalUnitUtil.findNalUnit(dataArray, offset, limit, prefixFlags);
         if (nextNalUnitOffset < limit) {
           // We've seen the start of a NAL unit.
 
@@ -130,24 +116,31 @@ import java.util.List;
             feedNalUnitTargetBuffersData(dataArray, offset, nextNalUnitOffset);
           }
 
-          int nalUnitType = H264Util.getNalUnitType(dataArray, nextNalUnitOffset);
+          int nalUnitType = NalUnitUtil.getNalUnitType(dataArray, nextNalUnitOffset);
           int bytesWrittenPastNalUnit = limit - nextNalUnitOffset;
-          if (nalUnitType == NAL_UNIT_TYPE_AUD) {
-            if (writingSample) {
-              if (isKeyframe && !hasOutputFormat && sps.isCompleted() && pps.isCompleted()) {
-                parseMediaFormat(sps, pps);
+          switch (nalUnitType) {
+            case NAL_UNIT_TYPE_IDR:
+              isKeyframe = true;
+              break;
+            case NAL_UNIT_TYPE_AUD:
+              if (foundFirstSample) {
+                if (ifrParserBuffer != null && ifrParserBuffer.isCompleted()) {
+                  int sliceType = ifrParserBuffer.getSliceType();
+                  isKeyframe |= (sliceType == FRAME_TYPE_I || sliceType == FRAME_TYPE_ALL_I);
+                  ifrParserBuffer.reset();
+                }
+                if (isKeyframe && !hasOutputFormat && sps.isCompleted() && pps.isCompleted()) {
+                  parseMediaFormat(sps, pps);
+                }
+                int flags = isKeyframe ? C.SAMPLE_FLAG_SYNC : 0;
+                int size = (int) (totalBytesWritten - samplePosition) - bytesWrittenPastNalUnit;
+                output.sampleMetadata(sampleTimeUs, flags, size, bytesWrittenPastNalUnit, null);
               }
-              int flags = isKeyframe ? C.SAMPLE_FLAG_SYNC : 0;
-              int size = (int) (totalBytesWritten - samplePosition) - bytesWrittenPastNalUnit;
-              output.sampleMetadata(sampleTimeUs, flags, size, bytesWrittenPastNalUnit, null);
-              writingSample = false;
-            }
-            writingSample = true;
-            isKeyframe = false;
-            sampleTimeUs = pesTimeUs;
-            samplePosition = totalBytesWritten - bytesWrittenPastNalUnit;
-          } else if (nalUnitType == NAL_UNIT_TYPE_IDR) {
-            isKeyframe = true;
+              foundFirstSample = true;
+              samplePosition = totalBytesWritten - bytesWrittenPastNalUnit;
+              sampleTimeUs = pesTimeUs;
+              isKeyframe = false;
+              break;
           }
 
           // If the length to the start of the unit is negative then we wrote too many bytes to the
@@ -156,7 +149,7 @@ import java.util.List;
           // Notify the start of the next NAL unit.
           feedNalUnitTargetBuffersStart(nalUnitType);
           // Continue scanning the data.
-          offset = nextNalUnitOffset + 4;
+          offset = nextNalUnitOffset + 3;
         } else {
           feedNalUnitTargetBuffersData(dataArray, offset, limit);
           offset = limit;
@@ -171,6 +164,9 @@ import java.util.List;
   }
 
   private void feedNalUnitTargetBuffersStart(int nalUnitType) {
+    if (ifrParserBuffer != null) {
+      ifrParserBuffer.startNalUnit(nalUnitType);
+    }
     if (!hasOutputFormat) {
       sps.startNalUnit(nalUnitType);
       pps.startNalUnit(nalUnitType);
@@ -179,6 +175,9 @@ import java.util.List;
   }
 
   private void feedNalUnitTargetBuffersData(byte[] dataArray, int offset, int limit) {
+    if (ifrParserBuffer != null) {
+      ifrParserBuffer.appendToNalUnit(dataArray, offset, limit);
+    }
     if (!hasOutputFormat) {
       sps.appendToNalUnit(dataArray, offset, limit);
       pps.appendToNalUnit(dataArray, offset, limit);
@@ -190,8 +189,9 @@ import java.util.List;
     sps.endNalUnit(discardPadding);
     pps.endNalUnit(discardPadding);
     if (sei.endNalUnit(discardPadding)) {
-      int unescapedLength = unescapeStream(sei.nalData, sei.nalLength);
+      int unescapedLength = NalUnitUtil.unescapeStream(sei.nalData, sei.nalLength);
       seiWrapper.reset(sei.nalData, unescapedLength);
+      seiWrapper.setPosition(4); // NAL prefix and nal_unit() header.
       seiReader.consume(seiWrapper, pesTimeUs, true);
     }
   }
@@ -201,12 +201,12 @@ import java.util.List;
     byte[] ppsData = new byte[pps.nalLength];
     System.arraycopy(sps.nalData, 0, spsData, 0, sps.nalLength);
     System.arraycopy(pps.nalData, 0, ppsData, 0, pps.nalLength);
-    List<byte[]> initializationData = new ArrayList<byte[]>();
+    List<byte[]> initializationData = new ArrayList<>();
     initializationData.add(spsData);
     initializationData.add(ppsData);
 
     // Unescape and then parse the SPS unit.
-    unescapeStream(sps.nalData, sps.nalLength);
+    NalUnitUtil.unescapeStream(sps.nalData, sps.nalLength);
     ParsableBitArray bitArray = new ParsableBitArray(sps.nalData);
     bitArray.skipBits(32); // NAL header
     int profileIdc = bitArray.readBits(8);
@@ -289,14 +289,14 @@ import java.util.List;
       boolean aspectRatioInfoPresentFlag = bitArray.readBit();
       if (aspectRatioInfoPresentFlag) {
         int aspectRatioIdc = bitArray.readBits(8);
-        if (aspectRatioIdc == EXTENDED_SAR) {
+        if (aspectRatioIdc == NalUnitUtil.EXTENDED_SAR) {
           int sarWidth = bitArray.readBits(16);
           int sarHeight = bitArray.readBits(16);
           if (sarWidth != 0 && sarHeight != 0) {
             pixelWidthHeightRatio = (float) sarWidth / sarHeight;
           }
-        } else if (aspectRatioIdc < ASPECT_RATIO_IDC_VALUES.length) {
-          pixelWidthHeightRatio = ASPECT_RATIO_IDC_VALUES[aspectRatioIdc];
+        } else if (aspectRatioIdc < NalUnitUtil.ASPECT_RATIO_IDC_VALUES.length) {
+          pixelWidthHeightRatio = NalUnitUtil.ASPECT_RATIO_IDC_VALUES[aspectRatioIdc];
         } else {
           Log.w(TAG, "Unexpected aspect_ratio_idc value: " + aspectRatioIdc);
         }
@@ -321,76 +321,24 @@ import java.util.List;
   }
 
   /**
-   * Unescapes {@code data} up to the specified limit, replacing occurrences of [0, 0, 3] with
-   * [0, 0]. The unescaped data is returned in-place, with the return value indicating its length.
-   * <p>
-   * See ISO/IEC 14496-10:2005(E) page 36 for more information.
-   *
-   * @param data The data to unescape.
-   * @param limit The limit (exclusive) of the data to unescape.
-   * @return The length of the unescaped data.
+   * A buffer specifically for IFR units that can be used to parse the IFR's slice type.
    */
-  private int unescapeStream(byte[] data, int limit) {
-    int position = 0;
-    int scratchEscapeCount = 0;
-    while (position < limit) {
-      position = findNextUnescapeIndex(data, position, limit);
-      if (position < limit) {
-        if (scratchEscapePositions.length <= scratchEscapeCount) {
-          // Grow scratchEscapePositions to hold a larger number of positions.
-          scratchEscapePositions = Arrays.copyOf(scratchEscapePositions,
-              scratchEscapePositions.length * 2);
-        }
-        scratchEscapePositions[scratchEscapeCount++] = position;
-        position += 3;
-      }
-    }
+  private static final class IfrParserBuffer {
 
-    int unescapedLength = limit - scratchEscapeCount;
-    int escapedPosition = 0; // The position being read from.
-    int unescapedPosition = 0; // The position being written to.
-    for (int i = 0; i < scratchEscapeCount; i++) {
-      int nextEscapePosition = scratchEscapePositions[i];
-      int copyLength = nextEscapePosition - escapedPosition;
-      System.arraycopy(data, escapedPosition, data, unescapedPosition, copyLength);
-      escapedPosition += copyLength + 3;
-      unescapedPosition += copyLength + 2;
-    }
+    private static final int DEFAULT_BUFFER_SIZE = 128;
+    private static final int NOT_SET = -1;
 
-    int remainingLength = unescapedLength - unescapedPosition;
-    System.arraycopy(data, escapedPosition, data, unescapedPosition, remainingLength);
-    return unescapedLength;
-  }
+    private final ParsableBitArray scratchSliceType;
 
-  private int findNextUnescapeIndex(byte[] bytes, int offset, int limit) {
-    for (int i = offset; i < limit - 2; i++) {
-      if (bytes[i] == 0x00 && bytes[i + 1] == 0x00 && bytes[i + 2] == 0x03) {
-        return i;
-      }
-    }
-    return limit;
-  }
-
-  /**
-   * A buffer that fills itself with data corresponding to a specific NAL unit, as it is
-   * encountered in the stream.
-   */
-  private static final class NalUnitTargetBuffer {
-
-    private final int targetType;
-
+    private byte[] ifrData;
+    private int ifrLength;
     private boolean isFilling;
-    private boolean isCompleted;
+    private int sliceType;
 
-    public byte[] nalData;
-    public int nalLength;
-
-    public NalUnitTargetBuffer(int targetType, int initialCapacity) {
-      this.targetType = targetType;
-      // Initialize data, writing the known NAL prefix into the first four bytes.
-      nalData = new byte[4 + initialCapacity];
-      nalData[2] = 1;
-      nalData[3] = (byte) targetType;
+    public IfrParserBuffer() {
+      ifrData = new byte[DEFAULT_BUFFER_SIZE];
+      scratchSliceType = new ParsableBitArray(ifrData);
+      reset();
     }
 
     /**
@@ -398,28 +346,25 @@ import java.util.List;
      */
     public void reset() {
       isFilling = false;
-      isCompleted = false;
+      ifrLength = 0;
+      sliceType = NOT_SET;
     }
 
     /**
-     * True if the buffer currently holds a complete NAL unit of the target type.
+     * True if enough data was added to the buffer that the slice type was determined.
      */
     public boolean isCompleted() {
-      return isCompleted;
+      return sliceType != NOT_SET;
     }
 
     /**
-     * Invoked to indicate that a NAL unit has started.
-     *
-     * @param type The type of the NAL unit.
+     * Invoked to indicate that a NAL unit has started, and if it is an IFR then the buffer will
+     * start.
      */
-    public void startNalUnit(int type) {
-      Assertions.checkState(!isFilling);
-      isFilling = type == targetType;
-      if (isFilling) {
-        // Length is initially the length of the NAL prefix.
-        nalLength = 4;
-        isCompleted = false;
+    public void startNalUnit(int nalUnitType) {
+      if (nalUnitType == NAL_UNIT_TYPE_IFR) {
+        reset();
+        isFilling = true;
       }
     }
 
@@ -435,28 +380,37 @@ import java.util.List;
         return;
       }
       int readLength = limit - offset;
-      if (nalData.length < nalLength + readLength) {
-        nalData = Arrays.copyOf(nalData, (nalLength + readLength) * 2);
+      if (ifrData.length < ifrLength + readLength) {
+        ifrData = Arrays.copyOf(ifrData, (ifrLength + readLength) * 2);
       }
-      System.arraycopy(data, offset, nalData, nalLength, readLength);
-      nalLength += readLength;
+      System.arraycopy(data, offset, ifrData, ifrLength, readLength);
+      ifrLength += readLength;
+
+      scratchSliceType.reset(ifrData, ifrLength);
+      // first_mb_in_slice
+      int len = scratchSliceType.peekExpGolombCodedNumLength();
+      if ((len == -1) || (len > scratchSliceType.bitsLeft())) {
+        // Not enough yet
+        return;
+      }
+
+      scratchSliceType.skipBits(len);
+      // slice_type
+      len = scratchSliceType.peekExpGolombCodedNumLength();
+      if ((len == -1) || (len > scratchSliceType.bitsLeft())) {
+        // Not enough yet
+        return;
+      }
+      sliceType = scratchSliceType.readUnsignedExpGolombCodedInt();
+
+      isFilling = false;
     }
 
     /**
-     * Invoked to indicate that a NAL unit has ended.
-     *
-     * @param discardPadding The number of excess bytes that were passed to
-     *     {@link #appendToNalUnit(byte[], int, int)}, which should be discarded.
-     * @return True if the ended NAL unit is of the target type. False otherwise.
+     * @return the slice type of the IFR.
      */
-    public boolean endNalUnit(int discardPadding) {
-      if (!isFilling) {
-        return false;
-      }
-      nalLength -= discardPadding;
-      isFilling = false;
-      isCompleted = true;
-      return true;
+    public int getSliceType() {
+      return sliceType;
     }
 
   }

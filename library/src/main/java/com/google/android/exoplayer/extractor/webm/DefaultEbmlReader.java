@@ -37,7 +37,7 @@ import java.util.Stack;
   private static final int VALID_FLOAT64_ELEMENT_SIZE_BYTES = 8;
 
   private final byte[] scratch = new byte[8];
-  private final Stack<MasterElement> masterElementsStack = new Stack<MasterElement>();
+  private final Stack<MasterElement> masterElementsStack = new Stack<>();
   private final VarintReader varintReader = new VarintReader();
 
   private EbmlReaderOutput output;

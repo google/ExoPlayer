@@ -18,6 +18,7 @@ package com.google.android.exoplayer.extractor.ts;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.extractor.TrackOutput;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 /**
@@ -34,7 +35,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
   public Id3Reader(TrackOutput output) {
     super(output);
-    output.format(MediaFormat.createId3Format());
+    output.format(MediaFormat.createTextFormat(MimeTypes.APPLICATION_ID3));
   }
 
   @Override

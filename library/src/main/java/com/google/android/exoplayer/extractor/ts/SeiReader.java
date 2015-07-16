@@ -19,6 +19,7 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.text.eia608.Eia608Parser;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 /**
@@ -31,7 +32,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
   public SeiReader(TrackOutput output) {
     super(output);
-    output.format(MediaFormat.createEia608Format());
+    output.format(MediaFormat.createTextFormat(MimeTypes.APPLICATION_EIA608));
   }
 
   @Override
@@ -41,9 +42,6 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
   @Override
   public void consume(ParsableByteArray seiBuffer, long pesTimeUs, boolean startOfPacket) {
-    // Skip the NAL prefix and type.
-    seiBuffer.skipBytes(4);
-
     int b;
     while (seiBuffer.bytesLeft() > 1 /* last byte will be rbsp_trailing_bits */) {
       // Parse payload type.

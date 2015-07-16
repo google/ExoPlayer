@@ -21,6 +21,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
+import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
@@ -33,6 +34,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private final Handler eventHandler;
   private final ExoPlayerImplInternal internalPlayer;
   private final CopyOnWriteArraySet<Listener> listeners;
+  private final boolean[] rendererHasMediaFlags;
   private final boolean[] rendererEnabledFlags;
 
   private boolean playWhenReady;
@@ -55,7 +57,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
     Log.i(TAG, "Init " + ExoPlayerLibraryInfo.VERSION);
     this.playWhenReady = false;
     this.playbackState = STATE_IDLE;
-    this.listeners = new CopyOnWriteArraySet<Listener>();
+    this.listeners = new CopyOnWriteArraySet<>();
+    this.rendererHasMediaFlags = new boolean[rendererCount];
     this.rendererEnabledFlags = new boolean[rendererCount];
     for (int i = 0; i < rendererEnabledFlags.length; i++) {
       rendererEnabledFlags[i] = true;
@@ -92,20 +95,26 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void prepare(TrackRenderer... renderers) {
+    Arrays.fill(rendererHasMediaFlags, false);
     internalPlayer.prepare(renderers);
   }
 
   @Override
-  public void setRendererEnabled(int index, boolean enabled) {
-    if (rendererEnabledFlags[index] != enabled) {
-      rendererEnabledFlags[index] = enabled;
-      internalPlayer.setRendererEnabled(index, enabled);
+  public boolean getRendererHasMedia(int rendererIndex) {
+    return rendererHasMediaFlags[rendererIndex];
+  }
+
+  @Override
+  public void setRendererEnabled(int rendererIndex, boolean enabled) {
+    if (rendererEnabledFlags[rendererIndex] != enabled) {
+      rendererEnabledFlags[rendererIndex] = enabled;
+      internalPlayer.setRendererEnabled(rendererIndex, enabled);
     }
   }
 
   @Override
-  public boolean getRendererEnabled(int index) {
-    return rendererEnabledFlags[index];
+  public boolean getRendererEnabled(int rendererIndex) {
+    return rendererEnabledFlags[rendererIndex];
   }
 
   @Override
@@ -182,6 +191,16 @@ import java.util.concurrent.CopyOnWriteArraySet;
   // Not private so it can be called from an inner class without going through a thunk method.
   /* package */ void handleEvent(Message msg) {
     switch (msg.what) {
+      case ExoPlayerImplInternal.MSG_PREPARED: {
+        boolean[] rendererHasMediaFlags = (boolean[]) msg.obj;
+        System.arraycopy(rendererHasMediaFlags, 0, this.rendererHasMediaFlags, 0,
+            rendererHasMediaFlags.length);
+        playbackState = msg.arg1;
+        for (Listener listener : listeners) {
+          listener.onPlayerStateChanged(playWhenReady, playbackState);
+        }
+        break;
+      }
       case ExoPlayerImplInternal.MSG_STATE_CHANGED: {
         playbackState = msg.arg1;
         for (Listener listener : listeners) {

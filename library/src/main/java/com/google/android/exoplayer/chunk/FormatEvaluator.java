@@ -115,6 +115,13 @@ public interface FormatEvaluator {
       this.random = new Random();
     }
 
+    /**
+     * @param seed A seed for the underlying random number generator.
+     */
+    public RandomEvaluator(int seed) {
+      this.random = new Random(seed);
+    }
+
     @Override
     public void enable() {
       // Do nothing.

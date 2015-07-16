@@ -16,9 +16,11 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.TraceUtil;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
@@ -181,7 +183,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
   private final DrmSessionManager drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
-  private final SampleSource source;
+  private final SampleSourceReader source;
   private final SampleHolder sampleHolder;
   private final MediaFormatHolder formatHolder;
   private final List<Long> decodeOnlyPresentationTimestamps;
@@ -193,6 +195,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private DrmInitData drmInitData;
   private MediaCodec codec;
   private boolean codecIsAdaptive;
+  private boolean codecNeedsEndOfStreamWorkaround;
   private ByteBuffer[] inputBuffers;
   private ByteBuffer[] outputBuffers;
   private long codecHotswapTimeMs;
@@ -210,7 +213,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
   private boolean waitingForFirstSyncFrame;
-  private long currentPositionUs;
 
   /**
    * @param source The upstream source from which the renderer obtains samples.
@@ -228,7 +230,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   public MediaCodecTrackRenderer(SampleSource source, DrmSessionManager drmSessionManager,
       boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener) {
     Assertions.checkState(Util.SDK_INT >= 16);
-    this.source = source;
+    this.source = source.register();
     this.drmSessionManager = drmSessionManager;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
     this.eventHandler = eventHandler;
@@ -236,7 +238,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     codecCounters = new CodecCounters();
     sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_DISABLED);
     formatHolder = new MediaFormatHolder();
-    decodeOnlyPresentationTimestamps = new ArrayList<Long>();
+    decodeOnlyPresentationTimestamps = new ArrayList<>();
     outputBufferInfo = new MediaCodec.BufferInfo();
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     codecReinitializationState = REINITIALIZATION_STATE_NONE;
@@ -281,11 +283,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   @Override
   protected void onEnabled(long positionUs, boolean joining) {
     source.enable(trackIndex, positionUs);
-    sourceState = SOURCE_STATE_NOT_READY;
-    inputStreamEnded = false;
-    outputStreamEnded = false;
-    waitingForKeys = false;
-    currentPositionUs = positionUs;
+    seekToInternal();
   }
 
   /**
@@ -360,11 +358,18 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
     String decoderName = decoderInfo.name;
     codecIsAdaptive = decoderInfo.adaptive;
+    codecNeedsEndOfStreamWorkaround = codecNeedsEndOfStreamWorkaround(decoderName);
     try {
       long codecInitializingTimestamp = SystemClock.elapsedRealtime();
+      TraceUtil.beginSection("createByCodecName(" + decoderName + ")");
       codec = MediaCodec.createByCodecName(decoderName);
+      TraceUtil.endSection();
+      TraceUtil.beginSection("configureCodec");
       configureCodec(codec, decoderName, format.getFrameworkMediaFormatV16(), mediaCrypto);
+      TraceUtil.endSection();
+      TraceUtil.beginSection("codec.start()");
       codec.start();
+      TraceUtil.endSection();
       long codecInitializedTimestamp = SystemClock.elapsedRealtime();
       notifyDecoderInitialized(decoderName, codecInitializedTimestamp,
           codecInitializedTimestamp - codecInitializingTimestamp);
@@ -429,6 +434,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       codecReconfigured = false;
       codecHasQueuedBuffers = false;
       codecIsAdaptive = false;
+      codecNeedsEndOfStreamWorkaround = false;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
       codecReinitializationState = REINITIALIZATION_STATE_NONE;
       codecCounters.codecReleaseCount++;
@@ -450,26 +456,22 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected long getCurrentPositionUs() {
-    return currentPositionUs;
-  }
-
-  @Override
   protected long getDurationUs() {
     return source.getTrackInfo(trackIndex).durationUs;
   }
 
   @Override
   protected long getBufferedPositionUs() {
-    long sourceBufferedPosition = source.getBufferedPositionUs();
-    return sourceBufferedPosition == UNKNOWN_TIME_US || sourceBufferedPosition == END_OF_TRACK_US
-        ? sourceBufferedPosition : Math.max(sourceBufferedPosition, getCurrentPositionUs());
+    return source.getBufferedPositionUs();
   }
 
   @Override
   protected void seekTo(long positionUs) throws ExoPlaybackException {
-    currentPositionUs = positionUs;
     source.seekToUs(positionUs);
+    seekToInternal();
+  }
+
+  private void seekToInternal() {
     sourceState = SOURCE_STATE_NOT_READY;
     inputStreamEnded = false;
     outputStreamEnded = false;
@@ -488,21 +490,23 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   @Override
   protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     try {
-      sourceState = source.continueBuffering(positionUs)
+      sourceState = source.continueBuffering(trackIndex, positionUs)
           ? (sourceState == SOURCE_STATE_NOT_READY ? SOURCE_STATE_READY : sourceState)
           : SOURCE_STATE_NOT_READY;
-      checkForDiscontinuity();
+      checkForDiscontinuity(positionUs);
       if (format == null) {
-        readFormat();
+        readFormat(positionUs);
       }
       if (codec == null && shouldInitCodec()) {
         maybeInitCodec();
       }
       if (codec != null) {
+        TraceUtil.beginSection("drainAndFeed");
         while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
-        if (feedInputBuffer(true)) {
-          while (feedInputBuffer(false)) {}
+        if (feedInputBuffer(positionUs, true)) {
+          while (feedInputBuffer(positionUs, false)) {}
         }
+        TraceUtil.endSection();
       }
       codecCounters.ensureUpdated();
     } catch (IOException e) {
@@ -510,18 +514,18 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     }
   }
 
-  private void readFormat() throws IOException, ExoPlaybackException {
-    int result = source.readData(trackIndex, currentPositionUs, formatHolder, sampleHolder, false);
+  private void readFormat(long positionUs) throws IOException, ExoPlaybackException {
+    int result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
     if (result == SampleSource.FORMAT_READ) {
       onInputFormatChanged(formatHolder);
     }
   }
 
-  private void checkForDiscontinuity() throws IOException, ExoPlaybackException {
+  private void checkForDiscontinuity(long positionUs) throws IOException, ExoPlaybackException {
     if (codec == null) {
       return;
     }
-    int result = source.readData(trackIndex, currentPositionUs, formatHolder, sampleHolder, true);
+    int result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, true);
     if (result == SampleSource.DISCONTINUITY_READ) {
       flushCodec();
     }
@@ -551,13 +555,16 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   /**
+   * @param positionUs The current media time in microseconds, measured at the start of the
+   *     current iteration of the rendering loop.
    * @param firstFeed True if this is the first call to this method from the current invocation of
    *     {@link #doSomeWork(long, long)}. False otherwise.
    * @return True if it may be possible to feed more input data. False otherwise.
    * @throws IOException If an error occurs reading data from the upstream source.
    * @throws ExoPlaybackException If an error occurs feeding the input buffer.
    */
-  private boolean feedInputBuffer(boolean firstFeed) throws IOException, ExoPlaybackException {
+  private boolean feedInputBuffer(long positionUs, boolean firstFeed)
+      throws IOException, ExoPlaybackException {
     if (inputStreamEnded
         || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
       // The input stream has ended, or we need to re-initialize the codec but are still waiting
@@ -577,8 +584,12 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     if (codecReinitializationState == REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM) {
       // We need to re-initialize the codec. Send an end of stream signal to the existing codec so
       // that it outputs any remaining buffers before we release it.
-      codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-      inputIndex = -1;
+      if (codecNeedsEndOfStreamWorkaround) {
+        // Do nothing.
+      } else {
+        codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+        inputIndex = -1;
+      }
       codecReinitializationState = REINITIALIZATION_STATE_WAIT_END_OF_STREAM;
       return false;
     }
@@ -597,7 +608,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         }
         codecReconfigurationState = RECONFIGURATION_STATE_QUEUE_PENDING;
       }
-      result = source.readData(trackIndex, currentPositionUs, formatHolder, sampleHolder, false);
+      result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
       if (firstFeed && sourceState == SOURCE_STATE_READY && result == SampleSource.NOTHING_READ) {
         sourceState = SOURCE_STATE_READY_READ_MAY_FAIL;
       }
@@ -630,8 +641,12 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       }
       inputStreamEnded = true;
       try {
-        codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-        inputIndex = -1;
+        if (codecNeedsEndOfStreamWorkaround) {
+          // Do nothing.
+        } else {
+          codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+          inputIndex = -1;
+        }
       } catch (CryptoException e) {
         notifyCryptoError(e);
         throw new ExoPlaybackException(e);
@@ -828,17 +843,16 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       codecCounters.outputBuffersChangedCount++;
       return true;
     } else if (outputIndex < 0) {
+      if (codecNeedsEndOfStreamWorkaround && (inputStreamEnded
+          || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM)) {
+        processEndOfStream();
+        return true;
+      }
       return false;
     }
 
     if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-      if (codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
-        // We're waiting to re-initialize the codec, and have now received all final output buffers.
-        releaseCodec();
-        maybeInitCodec();
-      } else {
-        outputStreamEnded = true;
-      }
+      processEndOfStream();
       return false;
     }
 
@@ -847,8 +861,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         outputBufferInfo, outputIndex, decodeOnlyIndex != -1)) {
       if (decodeOnlyIndex != -1) {
         decodeOnlyPresentationTimestamps.remove(decodeOnlyIndex);
-      } else {
-        currentPositionUs = outputBufferInfo.presentationTimeUs;
       }
       outputIndex = -1;
       return true;
@@ -867,6 +879,21 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   protected abstract boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs,
       MediaCodec codec, ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo, int bufferIndex,
       boolean shouldSkip) throws ExoPlaybackException;
+
+  /**
+   * Processes an end of stream signal.
+   *
+   * @throws ExoPlaybackException If an error occurs processing the signal.
+   */
+  private void processEndOfStream() throws ExoPlaybackException {
+    if (codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
+      // We're waiting to re-initialize the codec, and have now processed all final buffers.
+      releaseCodec();
+      maybeInitCodec();
+    } else {
+      outputStreamEnded = true;
+    }
+  }
 
   private void notifyDecoderInitializationError(final DecoderInitializationException e) {
     if (eventHandler != null && eventListener != null) {
@@ -911,6 +938,22 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
       }
     }
     return -1;
+  }
+
+  /**
+   * Returns whether the decoder is known to handle {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM}
+   * incorrectly on the host device.
+   * <p>
+   * If true is returned, the renderer will work around the issue by approximating end of stream
+   * behavior without involvement of the underlying decoder.
+   *
+   * @param name The name of the decoder.
+   * @return True if the decoder is known to handle {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM}
+   *     incorrectly on the host device. False otherwise.
+   */
+  private static boolean codecNeedsEndOfStreamWorkaround(String name) {
+    return Util.SDK_INT <= 17 && "ht7s3".equals(Util.DEVICE) // Tesco HUDL
+        && "OMX.rk.video_decoder.avc".equals(name);
   }
 
 }

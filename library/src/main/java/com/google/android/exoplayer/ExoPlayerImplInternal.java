@@ -40,9 +40,10 @@ import java.util.List;
   private static final String TAG = "ExoPlayerImplInternal";
 
   // External messages
-  public static final int MSG_STATE_CHANGED = 1;
-  public static final int MSG_SET_PLAY_WHEN_READY_ACK = 2;
-  public static final int MSG_ERROR = 3;
+  public static final int MSG_PREPARED = 1;
+  public static final int MSG_STATE_CHANGED = 2;
+  public static final int MSG_SET_PLAY_WHEN_READY_ACK = 3;
+  public static final int MSG_ERROR = 4;
 
   // Internal messages
   private static final int MSG_PREPARE = 1;
@@ -62,14 +63,15 @@ import java.util.List;
   private final Handler handler;
   private final HandlerThread internalPlaybackThread;
   private final Handler eventHandler;
-  private final MediaClock mediaClock;
+  private final StandaloneMediaClock standaloneMediaClock;
   private final boolean[] rendererEnabledFlags;
   private final long minBufferUs;
   private final long minRebufferUs;
 
   private final List<TrackRenderer> enabledRenderers;
   private TrackRenderer[] renderers;
-  private TrackRenderer timeSourceTrackRenderer;
+  private TrackRenderer rendererMediaClockSource;
+  private MediaClock rendererMediaClock;
 
   private boolean released;
   private boolean playWhenReady;
@@ -98,8 +100,8 @@ import java.util.List;
     this.durationUs = TrackRenderer.UNKNOWN_TIME_US;
     this.bufferedPositionUs = TrackRenderer.UNKNOWN_TIME_US;
 
-    mediaClock = new MediaClock();
-    enabledRenderers = new ArrayList<TrackRenderer>(rendererEnabledFlags.length);
+    standaloneMediaClock = new StandaloneMediaClock();
+    enabledRenderers = new ArrayList<>(rendererEnabledFlags.length);
     // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
     // not normally change to this priority" is incorrect.
     internalPlaybackThread = new PriorityHandlerThread(getClass().getSimpleName() + ":Handler",
@@ -246,17 +248,19 @@ import java.util.List;
     }
   }
 
-  private void prepareInternal(TrackRenderer[] renderers) {
+  private void prepareInternal(TrackRenderer[] renderers) throws ExoPlaybackException {
     resetInternal();
     this.renderers = renderers;
     for (int i = 0; i < renderers.length; i++) {
-      if (renderers[i].isTimeSource()) {
-        Assertions.checkState(timeSourceTrackRenderer == null);
-        timeSourceTrackRenderer = renderers[i];
+      MediaClock mediaClock = renderers[i].getMediaClock();
+      if (mediaClock != null) {
+        Assertions.checkState(rendererMediaClock == null);
+        rendererMediaClock = mediaClock;
+        rendererMediaClockSource = renderers[i];
       }
     }
     setState(ExoPlayer.STATE_PREPARING);
-    handler.sendEmptyMessage(MSG_INCREMENTAL_PREPARE);
+    incrementalPrepareInternal();
   }
 
   private void incrementalPrepareInternal() throws ExoPlaybackException {
@@ -278,15 +282,13 @@ import java.util.List;
     }
 
     long durationUs = 0;
-    boolean isEnded = true;
+    boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
-    for (int i = 0; i < renderers.length; i++) {
-      TrackRenderer renderer = renderers[i];
-      if (rendererEnabledFlags[i] && renderer.getState() == TrackRenderer.STATE_PREPARED) {
-        renderer.enable(positionUs, false);
-        enabledRenderers.add(renderer);
-        isEnded = isEnded && renderer.isEnded();
-        allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded(renderer);
+    boolean[] rendererHasMediaFlags = new boolean[renderers.length];
+    for (int rendererIndex = 0; rendererIndex < renderers.length; rendererIndex++) {
+      TrackRenderer renderer = renderers[rendererIndex];
+      rendererHasMediaFlags[rendererIndex] = renderer.getState() == TrackRenderer.STATE_PREPARED;
+      if (rendererHasMediaFlags[rendererIndex]) {
         if (durationUs == TrackRenderer.UNKNOWN_TIME_US) {
           // We've already encountered a track for which the duration is unknown, so the media
           // duration is unknown regardless of the duration of this track.
@@ -300,20 +302,32 @@ import java.util.List;
             durationUs = Math.max(durationUs, trackDurationUs);
           }
         }
+        if (rendererEnabledFlags[rendererIndex]) {
+          renderer.enable(positionUs, false);
+          enabledRenderers.add(renderer);
+          allRenderersEnded = allRenderersEnded && renderer.isEnded();
+          allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded(renderer);
+        }
       }
     }
     this.durationUs = durationUs;
 
-    if (isEnded) {
+    if (allRenderersEnded
+        && (durationUs == TrackRenderer.UNKNOWN_TIME_US || durationUs <= positionUs)) {
       // We don't expect this case, but handle it anyway.
-      setState(ExoPlayer.STATE_ENDED);
+      state = ExoPlayer.STATE_ENDED;
     } else {
-      setState(allRenderersReadyOrEnded ? ExoPlayer.STATE_READY : ExoPlayer.STATE_BUFFERING);
-      if (playWhenReady && state == ExoPlayer.STATE_READY) {
-        startRenderers();
-      }
+      state = allRenderersReadyOrEnded ? ExoPlayer.STATE_READY : ExoPlayer.STATE_BUFFERING;
     }
 
+    // Fire an event indicating that the player has been prepared, passing the initial state and
+    // renderer media flags.
+    eventHandler.obtainMessage(MSG_PREPARED, state, 0, rendererHasMediaFlags).sendToTarget();
+
+    // Start the renderers if required, and schedule the first piece of work.
+    if (playWhenReady && state == ExoPlayer.STATE_READY) {
+      startRenderers();
+    }
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
@@ -361,26 +375,26 @@ import java.util.List;
 
   private void startRenderers() throws ExoPlaybackException {
     rebuffering = false;
-    mediaClock.start();
+    standaloneMediaClock.start();
     for (int i = 0; i < enabledRenderers.size(); i++) {
       enabledRenderers.get(i).start();
     }
   }
 
   private void stopRenderers() throws ExoPlaybackException {
-    mediaClock.stop();
+    standaloneMediaClock.stop();
     for (int i = 0; i < enabledRenderers.size(); i++) {
       ensureStopped(enabledRenderers.get(i));
     }
   }
 
   private void updatePositionUs() {
-    if (timeSourceTrackRenderer != null && enabledRenderers.contains(timeSourceTrackRenderer)
-        && !timeSourceTrackRenderer.isEnded()) {
-      positionUs = timeSourceTrackRenderer.getCurrentPositionUs();
-      mediaClock.setPositionUs(positionUs);
+    if (rendererMediaClock != null && enabledRenderers.contains(rendererMediaClockSource)
+        && !rendererMediaClockSource.isEnded()) {
+      positionUs = rendererMediaClock.getPositionUs();
+      standaloneMediaClock.setPositionUs(positionUs);
     } else {
-      positionUs = mediaClock.getPositionUs();
+      positionUs = standaloneMediaClock.getPositionUs();
     }
     elapsedRealtimeUs = SystemClock.elapsedRealtime() * 1000;
   }
@@ -390,7 +404,7 @@ import java.util.List;
     long operationStartTimeMs = SystemClock.elapsedRealtime();
     long bufferedPositionUs = durationUs != TrackRenderer.UNKNOWN_TIME_US ? durationUs
         : Long.MAX_VALUE;
-    boolean isEnded = true;
+    boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
     updatePositionUs();
     for (int i = 0; i < enabledRenderers.size(); i++) {
@@ -399,7 +413,7 @@ import java.util.List;
       // invoked again. The minimum of these values should then be used as the delay before the next
       // invocation of this method.
       renderer.doSomeWork(positionUs, elapsedRealtimeUs);
-      isEnded = isEnded && renderer.isEnded();
+      allRenderersEnded = allRenderersEnded && renderer.isEnded();
       allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded(renderer);
 
       if (bufferedPositionUs == TrackRenderer.UNKNOWN_TIME_US) {
@@ -422,7 +436,8 @@ import java.util.List;
     }
     this.bufferedPositionUs = bufferedPositionUs;
 
-    if (isEnded) {
+    if (allRenderersEnded
+        && (durationUs == TrackRenderer.UNKNOWN_TIME_US || durationUs <= positionUs)) {
       setState(ExoPlayer.STATE_ENDED);
       stopRenderers();
     } else if (state == ExoPlayer.STATE_BUFFERING && allRenderersReadyOrEnded) {
@@ -460,8 +475,8 @@ import java.util.List;
   private void seekToInternal(long positionMs) throws ExoPlaybackException {
     rebuffering = false;
     positionUs = positionMs * 1000L;
-    mediaClock.stop();
-    mediaClock.setPositionUs(positionUs);
+    standaloneMediaClock.stop();
+    standaloneMediaClock.setPositionUs(positionUs);
     if (state == ExoPlayer.STATE_IDLE || state == ExoPlayer.STATE_PREPARING) {
       return;
     }
@@ -492,7 +507,7 @@ import java.util.List;
     handler.removeMessages(MSG_DO_SOME_WORK);
     handler.removeMessages(MSG_INCREMENTAL_PREPARE);
     rebuffering = false;
-    mediaClock.stop();
+    standaloneMediaClock.stop();
     if (renderers == null) {
       return;
     }
@@ -502,7 +517,8 @@ import java.util.List;
       release(renderer);
     }
     renderers = null;
-    timeSourceTrackRenderer = null;
+    rendererMediaClock = null;
+    rendererMediaClockSource = null;
     enabledRenderers.clear();
   }
 
@@ -551,18 +567,18 @@ import java.util.List;
     }
   }
 
-  private void setRendererEnabledInternal(int index, boolean enabled)
+  private void setRendererEnabledInternal(int rendererIndex, boolean enabled)
       throws ExoPlaybackException {
-    if (rendererEnabledFlags[index] == enabled) {
+    if (rendererEnabledFlags[rendererIndex] == enabled) {
       return;
     }
 
-    rendererEnabledFlags[index] = enabled;
+    rendererEnabledFlags[rendererIndex] = enabled;
     if (state == ExoPlayer.STATE_IDLE || state == ExoPlayer.STATE_PREPARING) {
       return;
     }
 
-    TrackRenderer renderer = renderers[index];
+    TrackRenderer renderer = renderers[rendererIndex];
     int rendererState = renderer.getState();
     if (rendererState != TrackRenderer.STATE_PREPARED &&
         rendererState != TrackRenderer.STATE_ENABLED &&
@@ -579,10 +595,10 @@ import java.util.List;
       }
       handler.sendEmptyMessage(MSG_DO_SOME_WORK);
     } else {
-      if (renderer == timeSourceTrackRenderer) {
-        // We've been using timeSourceTrackRenderer to advance the current position, but it's
-        // being disabled. Sync mediaClock so that it can take over timing responsibilities.
-        mediaClock.setPositionUs(renderer.getCurrentPositionUs());
+      if (renderer == rendererMediaClockSource) {
+        // We've been using rendererMediaClockSource to advance the current position, but it's being
+        // disabled. Sync standaloneMediaClock so that it can take over timing responsibilities.
+        standaloneMediaClock.setPositionUs(rendererMediaClock.getPositionUs());
       }
       ensureStopped(renderer);
       enabledRenderers.remove(renderer);

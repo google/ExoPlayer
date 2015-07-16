@@ -37,7 +37,7 @@ public class MediaFormatTest extends TestCase {
 
     byte[] initData1 = new byte[] {1, 2, 3};
     byte[] initData2 = new byte[] {4, 5, 6};
-    List<byte[]> initData = new ArrayList<byte[]>();
+    List<byte[]> initData = new ArrayList<>();
     initData.add(initData1);
     initData.add(initData2);
 
