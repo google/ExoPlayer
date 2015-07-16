@@ -145,7 +145,9 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
           inputStreamEnded = true;
         }
       } catch (IOException e) {
-        throw new ExoPlaybackException(e);
+        // TODO: This should be propagated, but in the current design propagation may occur too
+        // early. See [Internal b/22291244].
+        // throw new ExoPlaybackException(e);
       }
     }
 
