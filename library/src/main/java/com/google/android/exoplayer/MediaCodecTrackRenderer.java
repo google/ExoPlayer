@@ -490,7 +490,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   @Override
   protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     try {
-      sourceState = source.continueBuffering(positionUs)
+      sourceState = source.continueBuffering(trackIndex, positionUs)
           ? (sourceState == SOURCE_STATE_NOT_READY ? SOURCE_STATE_READY : sourceState)
           : SOURCE_STATE_NOT_READY;
       checkForDiscontinuity(positionUs);
