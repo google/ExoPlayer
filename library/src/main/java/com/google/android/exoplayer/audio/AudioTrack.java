@@ -88,7 +88,7 @@ public final class AudioTrack {
    * Thrown when {@link android.media.AudioTrack#getTimestamp} returns a spurious timestamp, if
    * {@code AudioTrack#failOnSpuriousAudioTimestamp} is set.
    */
-  private static final class InvalidAudioTrackTimestampException extends RuntimeException {
+  public static final class InvalidAudioTrackTimestampException extends RuntimeException {
 
     public InvalidAudioTrackTimestampException(String message) {
       super(message);
