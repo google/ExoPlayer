@@ -99,7 +99,8 @@ public final class Loader {
   }
 
   private static final int MSG_END_OF_SOURCE = 0;
-  private static final int MSG_ERROR = 1;
+  private static final int MSG_IO_EXCEPTION = 1;
+  private static final int MSG_FATAL_ERROR = 2;
 
   private final ExecutorService downloadExecutorService;
 
@@ -128,6 +129,21 @@ public final class Loader {
   }
 
   /**
+   * Invokes {@link #startLoading(Looper, Loadable, Callback)}, using the {@link Looper}
+   * associated with the calling thread. Loading is delayed by {@code delayMs}.
+   *
+   * @param loadable The {@link Loadable} to load.
+   * @param callback A callback to invoke when the load ends.
+   * @param delayMs Number of milliseconds to wait before calling {@link Loadable#load()}.
+   * @throws IllegalStateException If the calling thread does not have an associated {@link Looper}.
+   */
+  public void startLoading(Loadable loadable, Callback callback, int delayMs) {
+    Looper myLooper = Looper.myLooper();
+    Assertions.checkState(myLooper != null);
+    startLoading(myLooper, loadable, callback, delayMs);
+  }
+
+  /**
    * Start loading a {@link Loadable}.
    * <p>
    * A {@link Loader} instance can only load one {@link Loadable} at a time, and so this method
@@ -138,9 +154,24 @@ public final class Loader {
    * @param callback A callback to invoke when the load ends.
    */
   public void startLoading(Looper looper, Loadable loadable, Callback callback) {
+    startLoading(looper, loadable, callback, 0);
+  }
+
+  /**
+   * Start loading a {@link Loadable} after {@code delayMs} has elapsed.
+   * <p>
+   * A {@link Loader} instance can only load one {@link Loadable} at a time, and so this method
+   * must not be called when another load is in progress.
+   *
+   * @param looper The looper of the thread on which the callback should be invoked.
+   * @param loadable The {@link Loadable} to load.
+   * @param callback A callback to invoke when the load ends.
+   * @param delayMs Number of milliseconds to wait before calling {@link Loadable#load()}.
+   */
+  public void startLoading(Looper looper, Loadable loadable, Callback callback, int delayMs) {
     Assertions.checkState(!loading);
     loading = true;
-    currentTask = new LoadTask(looper, loadable, callback);
+    currentTask = new LoadTask(looper, loadable, callback, delayMs);
     downloadExecutorService.submit(currentTask);
   }
 
@@ -182,13 +213,15 @@ public final class Loader {
 
     private final Loadable loadable;
     private final Loader.Callback callback;
+    private final int delayMs;
 
     private volatile Thread executorThread;
 
-    public LoadTask(Looper looper, Loadable loadable, Loader.Callback callback) {
+    public LoadTask(Looper looper, Loadable loadable, Loader.Callback callback, int delayMs) {
       super(looper);
       this.loadable = loadable;
       this.callback = callback;
+      this.delayMs = delayMs;
     }
 
     public void quit() {
@@ -202,25 +235,38 @@ public final class Loader {
     public void run() {
       try {
         executorThread = Thread.currentThread();
+        if (delayMs > 0) {
+          Thread.sleep(delayMs);
+        }
         if (!loadable.isLoadCanceled()) {
           loadable.load();
         }
         sendEmptyMessage(MSG_END_OF_SOURCE);
       } catch (IOException e) {
-        obtainMessage(MSG_ERROR, e).sendToTarget();
+        obtainMessage(MSG_IO_EXCEPTION, e).sendToTarget();
       } catch (InterruptedException e) {
         // The load was canceled.
         Assertions.checkState(loadable.isLoadCanceled());
         sendEmptyMessage(MSG_END_OF_SOURCE);
       } catch (Exception e) {
         // This should never happen, but handle it anyway.
+        Log.e(TAG, "Unexpected exception loading stream", e);
+        obtainMessage(MSG_IO_EXCEPTION, new UnexpectedLoaderException(e)).sendToTarget();
+      } catch (Error e) {
+        // We'd hope that the platform would kill the process if an Error is thrown here, but the
+        // executor may catch the error (b/20616433). Throw it here, but also pass and throw it from
+        // the handler thread so that the process dies even if the executor behaves in this way.
         Log.e(TAG, "Unexpected error loading stream", e);
-        obtainMessage(MSG_ERROR, new UnexpectedLoaderException(e)).sendToTarget();
+        obtainMessage(MSG_FATAL_ERROR, e).sendToTarget();
+        throw e;
       }
     }
 
     @Override
     public void handleMessage(Message msg) {
+      if (msg.what == MSG_FATAL_ERROR) {
+        throw (Error) msg.obj;
+      }
       onFinished();
       if (loadable.isLoadCanceled()) {
         callback.onLoadCanceled(loadable);
@@ -230,7 +276,7 @@ public final class Loader {
         case MSG_END_OF_SOURCE:
           callback.onLoadCompleted(loadable);
           break;
-        case MSG_ERROR:
+        case MSG_IO_EXCEPTION:
           callback.onLoadError(loadable, (IOException) msg.obj);
           break;
       }

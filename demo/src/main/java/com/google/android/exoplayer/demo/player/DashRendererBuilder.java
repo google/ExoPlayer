@@ -15,27 +15,31 @@
  */
 package com.google.android.exoplayer.demo.player;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
-import com.google.android.exoplayer.MediaCodecUtil;
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSource;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
+import com.google.android.exoplayer.chunk.VideoFormatSelectorUtil;
 import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescriptionParser;
 import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.Representation;
-import com.google.android.exoplayer.demo.DemoUtil;
+import com.google.android.exoplayer.dash.mpd.UtcTimingElement;
+import com.google.android.exoplayer.dash.mpd.UtcTimingElementResolver;
+import com.google.android.exoplayer.dash.mpd.UtcTimingElementResolver.UtcTimingCallback;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilderCallback;
 import com.google.android.exoplayer.drm.DrmSessionManager;
@@ -44,19 +48,21 @@ import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.text.TextTrackRenderer;
 import com.google.android.exoplayer.text.ttml.TtmlParser;
 import com.google.android.exoplayer.text.webvtt.WebvttParser;
-import com.google.android.exoplayer.upstream.BufferPool;
 import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
-import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.media.MediaCodec;
 import android.media.UnsupportedSchemeException;
 import android.os.Handler;
+import android.util.Log;
 import android.util.Pair;
 import android.widget.TextView;
 
@@ -68,7 +74,9 @@ import java.util.List;
  * A {@link RendererBuilder} for DASH.
  */
 public class DashRendererBuilder implements RendererBuilder,
-    ManifestCallback<MediaPresentationDescription> {
+    ManifestCallback<MediaPresentationDescription>, UtcTimingCallback {
+
+  private static final String TAG = "DashRendererBuilder";
 
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
   private static final int VIDEO_BUFFER_SEGMENTS = 200;
@@ -80,26 +88,41 @@ public class DashRendererBuilder implements RendererBuilder,
   private static final int SECURITY_LEVEL_1 = 1;
   private static final int SECURITY_LEVEL_3 = 3;
 
-  private static final String AC_3_CODEC = "ac-3";
-  private static final String E_AC_3_CODEC = "ec-3";
+  /**
+   * Passthrough audio formats (encodings) in order of decreasing priority.
+   */
+  private static final int[] PASSTHROUGH_ENCODINGS_PRIORITY =
+      new int[] {C.ENCODING_E_AC3, C.ENCODING_AC3};
+  /**
+   * Passthrough audio codecs corresponding to the encodings in
+   * {@link #PASSTHROUGH_ENCODINGS_PRIORITY}.
+   */
+  private static final String[] PASSTHROUGH_CODECS_PRIORITY =
+      new String[] {"ec-3", "ac-3"};
 
+  private final Context context;
   private final String userAgent;
   private final String url;
-  private final String contentId;
   private final MediaDrmCallback drmCallback;
   private final TextView debugTextView;
+  private final AudioCapabilities audioCapabilities;
 
   private DemoPlayer player;
   private RendererBuilderCallback callback;
   private ManifestFetcher<MediaPresentationDescription> manifestFetcher;
+  private UriDataSource manifestDataSource;
 
-  public DashRendererBuilder(String userAgent, String url, String contentId,
-      MediaDrmCallback drmCallback, TextView debugTextView) {
+  private MediaPresentationDescription manifest;
+  private long elapsedRealtimeOffset;
+
+  public DashRendererBuilder(Context context, String userAgent, String url,
+      MediaDrmCallback drmCallback, TextView debugTextView, AudioCapabilities audioCapabilities) {
+    this.context = context;
     this.userAgent = userAgent;
     this.url = url;
-    this.contentId = contentId;
     this.drmCallback = drmCallback;
     this.debugTextView = debugTextView;
+    this.audioCapabilities = audioCapabilities;
   }
 
   @Override
@@ -107,21 +130,45 @@ public class DashRendererBuilder implements RendererBuilder,
     this.player = player;
     this.callback = callback;
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
-    manifestFetcher = new ManifestFetcher<MediaPresentationDescription>(parser, contentId, url,
-        userAgent);
+    manifestDataSource = new DefaultUriDataSource(context, userAgent);
+    manifestFetcher = new ManifestFetcher<MediaPresentationDescription>(url, manifestDataSource,
+        parser);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 
   @Override
-  public void onManifestError(String contentId, IOException e) {
+  public void onSingleManifest(MediaPresentationDescription manifest) {
+    this.manifest = manifest;
+    if (manifest.dynamic && manifest.utcTiming != null) {
+      UtcTimingElementResolver.resolveTimingElement(manifestDataSource, manifest.utcTiming,
+          manifestFetcher.getManifestLoadTimestamp(), this);
+    } else {
+      buildRenderers();
+    }
+  }
+
+  @Override
+  public void onSingleManifestError(IOException e) {
     callback.onRenderersError(e);
   }
 
   @Override
-  public void onManifest(String contentId, MediaPresentationDescription manifest) {
+  public void onTimestampResolved(UtcTimingElement utcTiming, long elapsedRealtimeOffset) {
+    this.elapsedRealtimeOffset = elapsedRealtimeOffset;
+    buildRenderers();
+  }
+
+  @Override
+  public void onTimestampError(UtcTimingElement utcTiming, IOException e) {
+    Log.e(TAG, "Failed to resolve UtcTiming element [" + utcTiming + "]", e);
+    // Be optimistic and continue in the hope that the device clock is correct.
+    buildRenderers();
+  }
+
+  private void buildRenderers() {
     Period period = manifest.periods.get(0);
     Handler mainHandler = player.getMainHandler();
-    LoadControl loadControl = new DefaultLoadControl(new BufferPool(BUFFER_SEGMENT_SIZE));
+    LoadControl loadControl = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter(mainHandler, player);
 
     boolean hasContentProtection = false;
@@ -167,76 +214,72 @@ public class DashRendererBuilder implements RendererBuilder,
     }
 
     // Determine which video representations we should use for playback.
-    ArrayList<Integer> videoRepresentationIndexList = new ArrayList<Integer>();
+    int[] videoRepresentationIndices = null;
     if (videoAdaptationSet != null) {
-      int maxDecodableFrameSize;
       try {
-        maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
+        videoRepresentationIndices = VideoFormatSelectorUtil.selectVideoFormatsForDefaultDisplay(
+            context, videoAdaptationSet.representations, null, filterHdContent);
       } catch (DecoderQueryException e) {
         callback.onRenderersError(e);
         return;
-      }
-      List<Representation> videoRepresentations = videoAdaptationSet.representations;
-      for (int i = 0; i < videoRepresentations.size(); i++) {
-        Format format = videoRepresentations.get(i).format;
-        if (filterHdContent && (format.width >= 1280 || format.height >= 720)) {
-          // Filtering HD content
-        } else if (format.width * format.height > maxDecodableFrameSize) {
-          // Filtering stream that device cannot play
-        } else if (!format.mimeType.equals(MimeTypes.VIDEO_MP4)
-            && !format.mimeType.equals(MimeTypes.VIDEO_WEBM)) {
-          // Filtering unsupported mime type
-        } else {
-          videoRepresentationIndexList.add(i);
-        }
       }
     }
 
     // Build the video renderer.
     final MediaCodecVideoTrackRenderer videoRenderer;
     final TrackRenderer debugRenderer;
-    if (videoRepresentationIndexList.isEmpty()) {
+    if (videoRepresentationIndices == null || videoRepresentationIndices.length == 0) {
       videoRenderer = null;
       debugRenderer = null;
     } else {
-      int[] videoRepresentationIndices = Util.toArray(videoRepresentationIndexList);
-      DataSource videoDataSource = new UriDataSource(userAgent, bandwidthMeter);
-      ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher, videoAdaptationSetIndex,
-          videoRepresentationIndices, videoDataSource, new AdaptiveEvaluator(bandwidthMeter),
-          LIVE_EDGE_LATENCY_MS);
+      DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+      ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher,
+          videoAdaptationSetIndex, videoRepresentationIndices, videoDataSource,
+          new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset);
       ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
           VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
           DemoPlayer.TYPE_VIDEO);
       videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource, drmSessionManager, true,
           MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, mainHandler, player, 50);
       debugRenderer = debugTextView != null
-          ? new DebugTrackRenderer(debugTextView, videoRenderer, videoSampleSource) : null;
+          ? new DebugTrackRenderer(debugTextView, player, videoRenderer) : null;
     }
 
     // Build the audio chunk sources.
-    boolean haveAc3Tracks = false;
     List<ChunkSource> audioChunkSourceList = new ArrayList<ChunkSource>();
     List<String> audioTrackNameList = new ArrayList<String>();
     if (audioAdaptationSet != null) {
-      DataSource audioDataSource = new UriDataSource(userAgent, bandwidthMeter);
+      DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
       List<Representation> audioRepresentations = audioAdaptationSet.representations;
+      List<String> codecs = new ArrayList<String>();
       for (int i = 0; i < audioRepresentations.size(); i++) {
         Format format = audioRepresentations.get(i).format;
         audioTrackNameList.add(format.id + " (" + format.numChannels + "ch, " +
             format.audioSamplingRate + "Hz)");
         audioChunkSourceList.add(new DashChunkSource(manifestFetcher, audioAdaptationSetIndex,
-            new int[] {i}, audioDataSource, audioEvaluator, LIVE_EDGE_LATENCY_MS));
-        haveAc3Tracks |= AC_3_CODEC.equals(format.codecs) || E_AC_3_CODEC.equals(format.codecs);
+            new int[] {i}, audioDataSource, audioEvaluator, LIVE_EDGE_LATENCY_MS,
+            elapsedRealtimeOffset));
+        codecs.add(format.codecs);
       }
-      // Filter out non-AC-3 tracks if there is an AC-3 track, to avoid having to switch renderers.
-      if (haveAc3Tracks) {
-        for (int i = audioRepresentations.size() - 1; i >= 0; i--) {
-          Format format = audioRepresentations.get(i).format;
-          if (!AC_3_CODEC.equals(format.codecs) && !E_AC_3_CODEC.equals(format.codecs)) {
-            audioTrackNameList.remove(i);
-            audioChunkSourceList.remove(i);
+
+      if (audioCapabilities != null) {
+        // If there are any passthrough audio encodings available, select the highest priority
+        // supported format (e.g. E-AC-3) and remove other tracks.
+        for (int i = 0; i < PASSTHROUGH_CODECS_PRIORITY.length; i++) {
+          String codec = PASSTHROUGH_CODECS_PRIORITY[i];
+          int encoding = PASSTHROUGH_ENCODINGS_PRIORITY[i];
+          if (codecs.indexOf(codec) == -1 || !audioCapabilities.supportsEncoding(encoding)) {
+            continue;
           }
+
+          for (int j = audioRepresentations.size() - 1; j >= 0; j--) {
+            if (!audioRepresentations.get(j).format.codecs.equals(codec)) {
+              audioTrackNameList.remove(j);
+              audioChunkSourceList.remove(j);
+            }
+          }
+          break;
         }
       }
     }
@@ -261,7 +304,7 @@ public class DashRendererBuilder implements RendererBuilder,
     }
 
     // Build the text chunk sources.
-    DataSource textDataSource = new UriDataSource(userAgent, bandwidthMeter);
+    DataSource textDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
     FormatEvaluator textEvaluator = new FormatEvaluator.FixedEvaluator();
     List<ChunkSource> textChunkSourceList = new ArrayList<ChunkSource>();
     List<String> textTrackNameList = new ArrayList<String>();
@@ -273,7 +316,7 @@ public class DashRendererBuilder implements RendererBuilder,
           Representation representation = representations.get(j);
           textTrackNameList.add(representation.format.id);
           textChunkSourceList.add(new DashChunkSource(manifestFetcher, i, new int[] {j},
-              textDataSource, textEvaluator, LIVE_EDGE_LATENCY_MS));
+              textDataSource, textEvaluator, LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset));
         }
       }
     }
@@ -321,9 +364,9 @@ public class DashRendererBuilder implements RendererBuilder,
     public static Pair<DrmSessionManager, Boolean> getDrmSessionManagerData(DemoPlayer player,
         MediaDrmCallback drmCallback) throws UnsupportedDrmException {
       try {
-        StreamingDrmSessionManager streamingDrmSessionManager = new StreamingDrmSessionManager(
-            DemoUtil.WIDEVINE_UUID, player.getPlaybackLooper(), drmCallback, null,
-            player.getMainHandler(), player);
+        StreamingDrmSessionManager streamingDrmSessionManager =
+            StreamingDrmSessionManager.newWidevineInstance(player.getPlaybackLooper(), drmCallback,
+            null, player.getMainHandler(), player);
         return Pair.create((DrmSessionManager) streamingDrmSessionManager,
             getWidevineSecurityLevel(streamingDrmSessionManager) == SECURITY_LEVEL_1);
       } catch (UnsupportedSchemeException e) {

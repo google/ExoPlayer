@@ -16,7 +16,10 @@
 package com.google.android.exoplayer.smoothstreaming;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.chunk.Format;
+import com.google.android.exoplayer.chunk.FormatWrapper;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
@@ -123,50 +126,21 @@ public class SmoothStreamingManifest {
   /**
    * Represents a QualityLevel element.
    */
-  public static class TrackElement {
+  public static class TrackElement implements FormatWrapper {
 
-    // Required for all
-    public final int index;
-    public final int bitrate;
-
-    // Audio-video
+    public final Format format;
     public final byte[][] csd;
-    public final int profile;
-    public final int level;
-    public final String mimeType;
 
-    // Video-only
-    public final int maxWidth;
-    public final int maxHeight;
-
-    // Audio-only
-    public final int sampleRate;
-    public final int numChannels;
-    public final int packetSize;
-    public final int audioTag;
-    public final int bitPerSample;
-
-    public final int nalUnitLengthField;
-    public final String content;
-
-    public TrackElement(int index, int bitrate, String mimeType, byte[][] csd, int profile,
-        int level, int maxWidth, int maxHeight, int sampleRate, int channels, int packetSize,
-        int audioTag, int bitPerSample, int nalUnitLengthField, String content) {
-      this.index = index;
-      this.bitrate = bitrate;
-      this.mimeType = mimeType;
+    public TrackElement(int index, int bitrate, String mimeType, byte[][] csd, int maxWidth,
+        int maxHeight, int sampleRate, int numChannels) {
       this.csd = csd;
-      this.profile = profile;
-      this.level = level;
-      this.maxWidth = maxWidth;
-      this.maxHeight = maxHeight;
-      this.sampleRate = sampleRate;
-      this.numChannels = channels;
-      this.packetSize = packetSize;
-      this.audioTag = audioTag;
-      this.bitPerSample = bitPerSample;
-      this.nalUnitLengthField = nalUnitLengthField;
-      this.content = content;
+      format = new Format(String.valueOf(index), mimeType, maxWidth, maxHeight, -1, numChannels,
+          sampleRate, bitrate);
+    }
+
+    @Override
+    public Format getFormat() {
+      return format;
     }
 
   }
@@ -197,14 +171,14 @@ public class SmoothStreamingManifest {
     public final TrackElement[] tracks;
     public final int chunkCount;
 
-    private final Uri baseUri;
+    private final String baseUri;
     private final String chunkTemplate;
 
     private final List<Long> chunkStartTimes;
     private final long[] chunkStartTimesUs;
     private final long lastChunkDurationUs;
 
-    public StreamElement(Uri baseUri, String chunkTemplate, int type, String subType,
+    public StreamElement(String baseUri, String chunkTemplate, int type, String subType,
         long timescale, String name, int qualityLevels, int maxWidth, int maxHeight,
         int displayWidth, int displayHeight, String language, TrackElement[] tracks,
         List<Long> chunkStartTimes, long lastChunkDuration) {
@@ -272,9 +246,9 @@ public class SmoothStreamingManifest {
       Assertions.checkState(chunkStartTimes != null);
       Assertions.checkState(chunkIndex < chunkStartTimes.size());
       String chunkUrl = chunkTemplate
-          .replace(URL_PLACEHOLDER_BITRATE, Integer.toString(tracks[track].bitrate))
+          .replace(URL_PLACEHOLDER_BITRATE, Integer.toString(tracks[track].format.bitrate))
           .replace(URL_PLACEHOLDER_START_TIME, chunkStartTimes.get(chunkIndex).toString());
-      return Util.getMergedUri(baseUri, chunkUrl);
+      return UriUtil.resolveToUri(baseUri, chunkUrl);
     }
 
   }

@@ -80,9 +80,9 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
   }
 
   @Override
-  protected int doPrepare() throws ExoPlaybackException {
+  protected int doPrepare(long positionUs) throws ExoPlaybackException {
     try {
-      boolean sourcePrepared = source.prepare();
+      boolean sourcePrepared = source.prepare(positionUs);
       if (!sourcePrepared) {
         return TrackRenderer.STATE_UNPREPARED;
       }
@@ -179,7 +179,7 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
         SampleHolder sampleHolder = parserHelper.getSampleHolder();
         sampleHolder.clearData();
         int result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
-        if (result == SampleSource.SAMPLE_READ && !sampleHolder.decodeOnly) {
+        if (result == SampleSource.SAMPLE_READ) {
           parserHelper.startParseOperation();
           textRendererNeedsUpdate = false;
         } else if (result == SampleSource.END_OF_STREAM) {

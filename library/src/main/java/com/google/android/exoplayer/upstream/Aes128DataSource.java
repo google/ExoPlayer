@@ -34,20 +34,24 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * A {@link DataSource} that decrypts the data read from an upstream source, encrypted with AES-128
  * with a 128-bit key and PKCS7 padding.
- *
  */
 public class Aes128DataSource implements DataSource {
 
   private final DataSource upstream;
-  private final byte[] secretKey;
-  private final byte[] iv;
+  private final byte[] encryptionKey;
+  private final byte[] encryptionIv;
 
   private CipherInputStream cipherInputStream;
 
-  public Aes128DataSource(byte[] secretKey, byte[] iv, DataSource upstream) {
+  /**
+   * @param upstream The upstream {@link DataSource}.
+   * @param encryptionKey The encryption key.
+   * @param encryptionIv The encryption initialization vector.
+   */
+  public Aes128DataSource(DataSource upstream, byte[] encryptionKey, byte[] encryptionIv) {
     this.upstream = upstream;
-    this.secretKey = secretKey;
-    this.iv = iv;
+    this.encryptionKey = encryptionKey;
+    this.encryptionIv = encryptionIv;
   }
 
   @Override
@@ -61,8 +65,8 @@ public class Aes128DataSource implements DataSource {
       throw new RuntimeException(e);
     }
 
-    Key cipherKey = new SecretKeySpec(secretKey, "AES");
-    AlgorithmParameterSpec cipherIV = new IvParameterSpec(iv);
+    Key cipherKey = new SecretKeySpec(encryptionKey, "AES");
+    AlgorithmParameterSpec cipherIV = new IvParameterSpec(encryptionIv);
 
     try {
       cipher.init(Cipher.DECRYPT_MODE, cipherKey, cipherIV);

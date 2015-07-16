@@ -20,18 +20,32 @@ package com.google.android.exoplayer;
  * <p>
  * Where possible, the cause returned by {@link #getCause()} will indicate the reason for failure.
  */
-public class ExoPlaybackException extends Exception {
+public final class ExoPlaybackException extends Exception {
+
+  /**
+   * True if the cause (i.e. the {@link Throwable} returned by {@link #getCause()}) was only caught
+   * by a fail-safe at the top level of the player. False otherwise.
+   */
+  public final boolean caughtAtTopLevel;
 
   public ExoPlaybackException(String message) {
     super(message);
+    caughtAtTopLevel = false;
   }
 
   public ExoPlaybackException(Throwable cause) {
     super(cause);
+    caughtAtTopLevel = false;
   }
 
   public ExoPlaybackException(String message, Throwable cause) {
     super(message, cause);
+    caughtAtTopLevel = false;
+  }
+
+  /* package */ ExoPlaybackException(Throwable cause, boolean caughtAtTopLevel) {
+    super(cause);
+    this.caughtAtTopLevel = caughtAtTopLevel;
   }
 
 }
