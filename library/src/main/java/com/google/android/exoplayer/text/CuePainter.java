@@ -135,6 +135,11 @@ import android.util.Log;
    */
   public void draw(Cue cue, CaptionStyleCompat style, float fontScale, Canvas canvas,
       int cueBoxLeft, int cueBoxTop, int cueBoxRight, int cueBoxBottom) {
+    if (TextUtils.isEmpty(cue.text)) {
+      // Nothing to draw;
+      return;
+    }
+
     if (TextUtils.equals(cueText, cue.text)
         && cuePosition == cue.position
         && Util.areEqual(cueAlignment, cue.alignment)
