@@ -1,7 +1,5 @@
 # Release notes #
 
-### Current dev branch (from r1.4.0) ###
-
 ### r1.4.0 ###
 
 * Support for extracting Matroska streams (implemented by WebmExtractor).
