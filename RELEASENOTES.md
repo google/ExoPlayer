@@ -1,5 +1,9 @@
 # Release notes #
 
+### r1.4.1 ###
+
+* HLS: Fix premature playback failures that could occur in some cases.
+
 ### r1.4.0 ###
 
 * Support for extracting Matroska streams (implemented by WebmExtractor).
