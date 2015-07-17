@@ -1,6 +1,12 @@
 # Release notes #
 
-### Current dev branch (from r1.4.0) ###
+### Current dev branch (from r1.4.1) ###
+
+* [Nothing yet!]
+
+### r1.4.1 ###
+
+* HLS: Fix premature playback failures that could occur in some cases.
 
 ### r1.4.0 ###
 
