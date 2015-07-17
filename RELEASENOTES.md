@@ -2,7 +2,7 @@
 
 ### Current dev branch (from r1.4.1) ###
 
-* [Nothing yet!]
+* Added MulticastDataSource for connecting to multicast streams.
 
 ### r1.4.1 ###
 
