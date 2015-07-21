@@ -24,12 +24,14 @@ import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.PositionHolder;
+import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.LongArray;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableByteArray;
+import com.google.android.exoplayer.util.Util;
 
 import android.util.Pair;
 
@@ -39,7 +41,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * An extractor to facilitate data retrieval from the WebM container format.
@@ -83,6 +84,7 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_DOC_TYPE = 0x4282;
   private static final int ID_DOC_TYPE_READ_VERSION = 0x4285;
   private static final int ID_SEGMENT = 0x18538067;
+  private static final int ID_SEGMENT_INFO = 0x1549A966;
   private static final int ID_SEEK_HEAD = 0x114D9B74;
   private static final int ID_SEEK = 0x4DBB;
   private static final int ID_SEEK_ID = 0x53AB;
@@ -147,7 +149,8 @@ public final class WebmExtractor implements Extractor {
 
   private long segmentContentPosition = UNKNOWN;
   private long segmentContentSize = UNKNOWN;
-  private long timecodeScale = 1000000L;
+  private long timecodeScale = C.UNKNOWN_TIME_US;
+  private long durationTimecode = C.UNKNOWN_TIME_US;
   private long durationUs = C.UNKNOWN_TIME_US;
 
   private TrackFormat trackFormat;  // Used to store the last seen track.
@@ -320,10 +323,17 @@ public final class WebmExtractor implements Extractor {
         seenClusterPositionForCurrentCuePoint = false;
         return;
       case ID_CLUSTER:
-        // If we encounter a Cluster before building Cues, then we should try to build cues first
-        // before parsing the Cluster.
-        if (cuesState == CUES_STATE_NOT_BUILT && cuesContentPosition != UNKNOWN) {
-          seekForCues = true;
+        if (cuesState == CUES_STATE_NOT_BUILT) {
+          // We need to build cues before parsing the cluster.
+          if (cuesContentPosition != UNKNOWN) {
+            // We know where the Cues element is located. Seek to request it.
+            seekForCues = true;
+          } else {
+            // We don't know where the Cues element is located. It's most likely omitted. Allow
+            // playback, but disable seeking.
+            extractorOutput.seekMap(SeekMap.UNSEEKABLE);
+            cuesState = CUES_STATE_BUILT;
+          }
         }
         return;
       case ID_BLOCK_GROUP:
@@ -345,6 +355,15 @@ public final class WebmExtractor implements Extractor {
 
   /* package */ void endMasterElement(int id) throws ParserException {
     switch (id) {
+      case ID_SEGMENT_INFO:
+        if (timecodeScale == C.UNKNOWN_TIME_US) {
+          // timecodeScale was omitted. Use the default value.
+          timecodeScale = 1000000;
+        }
+        if (durationTimecode != C.UNKNOWN_TIME_US) {
+          durationUs = scaleTimecodeToUs(durationTimecode);
+        }
+        return;
       case ID_SEEK:
         if (seekEntryId == UNKNOWN || seekEntryPosition == UNKNOWN) {
           throw new ParserException("Mandatory element SeekID or SeekPosition not found");
@@ -355,7 +374,7 @@ public final class WebmExtractor implements Extractor {
         return;
       case ID_CUES:
         if (cuesState != CUES_STATE_BUILT) {
-          extractorOutput.seekMap(buildCues());
+          extractorOutput.seekMap(buildSeekMap());
           cuesState = CUES_STATE_BUILT;
         } else {
           // We have already built the cues. Ignore.
@@ -528,7 +547,7 @@ public final class WebmExtractor implements Extractor {
   /* package */ void floatElement(int id, double value) {
     switch (id) {
       case ID_DURATION:
-        durationUs = scaleTimecodeToUs((long) value);
+        durationTimecode = (long) value;
         return;
       case ID_SAMPLING_FREQUENCY:
         trackFormat.sampleRate = (int) value;
@@ -865,19 +884,19 @@ public final class WebmExtractor implements Extractor {
   }
 
   /**
-   * Builds a {@link ChunkIndex} containing recently gathered Cues information.
+   * Builds a {@link SeekMap} from the recently gathered Cues information.
    *
-   * @return The built {@link ChunkIndex}.
-   * @throws ParserException If the index could not be built.
+   * @return The built {@link SeekMap}. May be {@link SeekMap#UNSEEKABLE} if cues information was
+   *     missing or incomplete.
    */
-  private ChunkIndex buildCues() throws ParserException {
-    if (segmentContentPosition == UNKNOWN) {
-      throw new ParserException("Segment start/end offsets unknown");
-    } else if (durationUs == C.UNKNOWN_TIME_US) {
-      throw new ParserException("Duration unknown");
-    } else if (cueTimesUs == null || cueClusterPositions == null
-        || cueTimesUs.size() == 0 || cueTimesUs.size() != cueClusterPositions.size()) {
-      throw new ParserException("Invalid/missing cue points");
+  private SeekMap buildSeekMap() {
+    if (segmentContentPosition == UNKNOWN || durationUs == C.UNKNOWN_TIME_US
+        || cueTimesUs == null || cueTimesUs.size() == 0
+        || cueClusterPositions == null || cueClusterPositions.size() != cueTimesUs.size()) {
+      // Cues information is missing or incomplete.
+      cueTimesUs = null;
+      cueClusterPositions = null;
+      return SeekMap.UNSEEKABLE;
     }
     int cuePointsSize = cueTimesUs.size();
     int[] sizes = new int[cuePointsSize];
@@ -927,8 +946,11 @@ public final class WebmExtractor implements Extractor {
     return false;
   }
 
-  private long scaleTimecodeToUs(long unscaledTimecode) {
-    return TimeUnit.NANOSECONDS.toMicros(unscaledTimecode * timecodeScale);
+  private long scaleTimecodeToUs(long unscaledTimecode) throws ParserException {
+    if (timecodeScale == C.UNKNOWN_TIME_US) {
+      throw new ParserException("Can't scale timecode prior to timecodeScale being set.");
+    }
+    return Util.scaleLargeTimestamp(unscaledTimecode, timecodeScale, 1000);
   }
 
   private static boolean isCodecSupported(String codecId) {
@@ -984,7 +1006,7 @@ public final class WebmExtractor implements Extractor {
     }
 
     @Override
-    public void floatElement(int id, double value) {
+    public void floatElement(int id, double value) throws ParserException {
       WebmExtractor.this.floatElement(id, value);
     }
 
