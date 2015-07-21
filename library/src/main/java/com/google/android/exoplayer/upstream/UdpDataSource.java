@@ -19,24 +19,26 @@ import com.google.android.exoplayer.C;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 
 /**
- * A multicast {@link DataSource}.
+ * A UDP {@link DataSource}.
  */
-public class MulticastDataSource implements UriDataSource {
+public class UdpDataSource implements UriDataSource {
 
   /**
-   * Thrown when an error is encountered when trying to read from a {@link MulticastDataSource}.
+   * Thrown when an error is encountered when trying to read from a {@link UdpDataSource}.
    */
-  public static final class MulticastDataSourceException extends IOException {
+  public static final class UdpDataSourceException extends IOException {
 
-    public MulticastDataSourceException(String message) {
+    public UdpDataSourceException(String message) {
       super(message);
     }
 
-    public MulticastDataSourceException(IOException cause) {
+    public UdpDataSourceException(IOException cause) {
       super(cause);
     }
 
@@ -50,18 +52,21 @@ public class MulticastDataSource implements UriDataSource {
   private final DatagramPacket packet;
 
   private DataSpec dataSpec;
-  private MulticastSocket socket;
+  private DatagramSocket socket;
+  private MulticastSocket multicastSocket;
+  private InetAddress address;
+  private InetSocketAddress socketAddress;
   private boolean opened;
 
   private int packetsReceived;
   private byte[] packetBuffer;
   private int packetRemaining;
 
-  public MulticastDataSource(TransferListener transferListener) {
+  public UdpDataSource(TransferListener transferListener) {
     this(transferListener, DEFAULT_MAX_PACKET_SIZE);
   }
 
-  public MulticastDataSource(TransferListener transferListener, int maxPacketSize) {
+  public UdpDataSource(TransferListener transferListener, int maxPacketSize) {
     this.transferListener = transferListener;
 
     packetBuffer = new byte[maxPacketSize];
@@ -69,17 +74,25 @@ public class MulticastDataSource implements UriDataSource {
   }
 
   @Override
-  public long open(DataSpec dataSpec) throws MulticastDataSourceException {
+  public long open(DataSpec dataSpec) throws UdpDataSourceException {
     this.dataSpec = dataSpec;
     String uri = dataSpec.uri.toString();
     String host = uri.substring(0, uri.indexOf(':'));
     int port = Integer.parseInt(uri.substring(uri.indexOf(':') + 1));
 
     try {
-      socket = new MulticastSocket(port);
-      socket.joinGroup(InetAddress.getByName(host));
+      address = InetAddress.getByName(host);
+      socketAddress = new InetSocketAddress(address, port);
+
+      if (address.isMulticastAddress()) {
+        multicastSocket = new MulticastSocket(socketAddress);
+        multicastSocket.joinGroup(address);
+        socket = multicastSocket;
+      } else {
+        socket = new DatagramSocket(socketAddress);
+      }
     } catch (IOException e) {
-      throw new MulticastDataSourceException(e);
+      throw new UdpDataSourceException(e);
     }
 
     opened = true;
@@ -89,18 +102,30 @@ public class MulticastDataSource implements UriDataSource {
 
   @Override
   public void close() {
-    if (opened) {
+    if (multicastSocket != null) {
+      try {
+        multicastSocket.leaveGroup(address);
+      } catch (IOException e) {
+        // Do nothing
+      }
+      multicastSocket = null;
+    }
+    if (socket != null) {
       socket.close();
       socket = null;
-      transferListener.onTransferEnd();
-      packetRemaining = 0;
-      packetsReceived = 0;
+    }
+    address = null;
+    socketAddress = null;
+    packetRemaining = 0;
+    packetsReceived = 0;
+    if (opened) {
       opened = false;
+      transferListener.onTransferEnd();
     }
   }
 
   @Override
-  public int read(byte[] buffer, int offset, int readLength) throws MulticastDataSourceException {
+  public int read(byte[] buffer, int offset, int readLength) throws UdpDataSourceException {
     // if we've read all the data, get another packet
     if (packetRemaining == 0) {
       if (packetsReceived == TRANSFER_LISTENER_PACKET_INTERVAL) {
@@ -112,7 +137,7 @@ public class MulticastDataSource implements UriDataSource {
       try {
         socket.receive(packet);
       } catch (IOException e) {
-        throw new MulticastDataSourceException(e);
+        throw new UdpDataSourceException(e);
       }
 
       packetRemaining = packet.getLength();
