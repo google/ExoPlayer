@@ -34,7 +34,7 @@ import java.io.IOException;
 /**
  * Facilitates the extraction of data from the MPEG-2 TS container format.
  */
-public final class TsExtractor implements Extractor, SeekMap {
+public final class TsExtractor implements Extractor {
 
   private static final String TAG = "TsExtractor";
 
@@ -98,7 +98,7 @@ public final class TsExtractor implements Extractor, SeekMap {
   @Override
   public void init(ExtractorOutput output) {
     this.output = output;
-    output.seekMap(this);
+    output.seekMap(SeekMap.UNSEEKABLE);
   }
 
   @Override
@@ -151,18 +151,6 @@ public final class TsExtractor implements Extractor, SeekMap {
     }
 
     return RESULT_CONTINUE;
-  }
-
-  // SeekMap implementation.
-
-  @Override
-  public boolean isSeekable() {
-    return false;
-  }
-
-  @Override
-  public long getPosition(long timeUs) {
-    return 0;
   }
 
   // Internals.

@@ -28,7 +28,7 @@ import java.io.IOException;
  * Facilitates the extraction of AAC samples from elementary audio files formatted as AAC with ADTS
  * headers.
  */
-public class AdtsExtractor implements Extractor, SeekMap {
+public class AdtsExtractor implements Extractor {
 
   private static final int MAX_PACKET_SIZE = 200;
 
@@ -53,7 +53,7 @@ public class AdtsExtractor implements Extractor, SeekMap {
   public void init(ExtractorOutput output) {
     adtsReader = new AdtsReader(output.track(0));
     output.endTracks();
-    output.seekMap(this);
+    output.seekMap(SeekMap.UNSEEKABLE);
   }
 
   @Override
@@ -79,18 +79,6 @@ public class AdtsExtractor implements Extractor, SeekMap {
     adtsReader.consume(packetBuffer, firstSampleTimestampUs, firstPacket);
     firstPacket = false;
     return RESULT_CONTINUE;
-  }
-
-  // SeekMap implementation.
-
-  @Override
-  public boolean isSeekable() {
-    return false;
-  }
-
-  @Override
-  public long getPosition(long timeUs) {
-    return 0;
   }
 
 }

@@ -21,6 +21,23 @@ package com.google.android.exoplayer.extractor;
 public interface SeekMap {
 
   /**
+   * A {@link SeekMap} that does not support seeking.
+   */
+  public static final SeekMap UNSEEKABLE = new SeekMap() {
+
+    @Override
+    public boolean isSeekable() {
+      return false;
+    }
+
+    @Override
+    public long getPosition(long timeUs) {
+      return 0;
+    }
+
+  };
+
+  /**
    * Whether or not the seeking is supported.
    * <p>
    * If seeking is not supported then the only valid seek position is the start of the file, and so
