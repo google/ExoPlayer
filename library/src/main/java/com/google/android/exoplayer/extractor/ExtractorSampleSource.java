@@ -18,6 +18,7 @@ package com.google.android.exoplayer.extractor;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSource.SampleSourceReader;
@@ -36,10 +37,35 @@ import android.net.Uri;
 import android.os.SystemClock;
 import android.util.SparseArray;
 
+import java.io.EOFException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
- * A {@link SampleSource} that extracts sample data using an {@link Extractor}
+ * A {@link SampleSource} that extracts sample data using an {@link Extractor}.
+ *
+ * <p>If no {@link Extractor} instances are passed to the constructor, the input stream container
+ * format will be detected automatically from the following supported formats:
+ *
+ * <ul>
+ * <li>Fragmented MP4
+ * ({@link com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor})</li>
+ * <li>Unfragmented MP4, including M4A
+ * ({@link com.google.android.exoplayer.extractor.mp4.Mp4Extractor})</li>
+ * <li>Matroska, including WebM
+ * ({@link com.google.android.exoplayer.extractor.webm.WebmExtractor})</li>
+ * <li>MP3 ({@link com.google.android.exoplayer.extractor.mp3.Mp3Extractor})</li>
+ * <li>AAC ({@link com.google.android.exoplayer.extractor.ts.AdtsExtractor})</li>
+ * <li>MPEG TS ({@link com.google.android.exoplayer.extractor.ts.TsExtractor}</li>
+ * </ul>
+ *
+ * <p>Seeking in AAC and MPEG TS streams is not supported.
+ *
+ * <p>To override the default extractors, pass one or more {@link Extractor} instances to the
+ * constructor. When reading a new stream, the first {@link Extractor} that returns {@code true}
+ * from {@link Extractor#sniff(ExtractorInput)} will be used.
  */
 public class ExtractorSampleSource implements SampleSource, SampleSourceReader, ExtractorOutput,
     Loader.Callback {
@@ -57,7 +83,61 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
   private static final int MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA = -1;
   private static final int NO_RESET_PENDING = -1;
 
-  private final Extractor extractor;
+  /**
+   * Default extractor classes in priority order. They are referred to indirectly so that it is
+   * possible to remove unused extractors.
+   */
+  private static final List<Class<? extends Extractor>> DEFAULT_EXTRACTOR_CLASSES;
+  static {
+    DEFAULT_EXTRACTOR_CLASSES = new ArrayList<>();
+    // Load extractors using reflection so that they can be deleted cleanly.
+    // Class.forName(<class name>) appears for each extractor so that automated tools like proguard
+    // can detect the use of reflection (see http://proguard.sourceforge.net/FAQ.html#forname).
+    try {
+      DEFAULT_EXTRACTOR_CLASSES.add(
+          Class.forName("com.google.android.exoplayer.extractor.webm.WebmExtractor")
+              .asSubclass(Extractor.class));
+    } catch (ClassNotFoundException e) {
+      // Extractor not found.
+    }
+    try {
+      DEFAULT_EXTRACTOR_CLASSES.add(
+          Class.forName("com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor")
+              .asSubclass(Extractor.class));
+    } catch (ClassNotFoundException e) {
+      // Extractor not found.
+    }
+    try {
+      DEFAULT_EXTRACTOR_CLASSES.add(
+          Class.forName("com.google.android.exoplayer.extractor.mp4.Mp4Extractor")
+              .asSubclass(Extractor.class));
+    } catch (ClassNotFoundException e) {
+      // Extractor not found.
+    }
+    try {
+      DEFAULT_EXTRACTOR_CLASSES.add(
+          Class.forName("com.google.android.exoplayer.extractor.mp3.Mp3Extractor")
+              .asSubclass(Extractor.class));
+    } catch (ClassNotFoundException e) {
+      // Extractor not found.
+    }
+    try {
+      DEFAULT_EXTRACTOR_CLASSES.add(
+          Class.forName("com.google.android.exoplayer.extractor.ts.AdtsExtractor")
+              .asSubclass(Extractor.class));
+    } catch (ClassNotFoundException e) {
+      // Extractor not found.
+    }
+    try {
+      DEFAULT_EXTRACTOR_CLASSES.add(
+          Class.forName("com.google.android.exoplayer.extractor.ts.TsExtractor")
+              .asSubclass(Extractor.class));
+    } catch (ClassNotFoundException e) {
+      // Extractor not found.
+    }
+  }
+
+  private final ExtractorHolder extractorHolder;
   private final Allocator allocator;
   private final int requestedBufferSize;
   private final SparseArray<InternalTrackOutput> sampleQueues;
@@ -101,68 +181,81 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
   /**
    * @param uri The {@link Uri} of the media stream.
    * @param dataSource A data source to read the media stream.
-   * @param extractor An {@link Extractor} to extract the media stream.
    * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
    *     The actual allocated size may exceed the value passed in if the implementation requires it.
+   * @param extractors {@link Extractor}s to extract the media stream, in order of decreasing
+   *     priority. If omitted, the default extractors will be used.
    */
   @Deprecated
-  public ExtractorSampleSource(Uri uri, DataSource dataSource, Extractor extractor,
-      int requestedBufferSize) {
-    this(uri, dataSource, extractor, new DefaultAllocator(64 * 1024), requestedBufferSize);
+  public ExtractorSampleSource(Uri uri, DataSource dataSource, int requestedBufferSize,
+      Extractor... extractors) {
+    this(uri, dataSource, new DefaultAllocator(64 * 1024), requestedBufferSize, extractors);
   }
 
   /**
    * @param uri The {@link Uri} of the media stream.
    * @param dataSource A data source to read the media stream.
-   * @param extractor An {@link Extractor} to extract the media stream.
    * @param allocator An {@link Allocator} from which to obtain memory allocations.
    * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
    *     The actual allocated size may exceed the value passed in if the implementation requires it.
+   * @param extractors {@link Extractor}s to extract the media stream, in order of decreasing
+   *     priority. If omitted, the default extractors will be used.
    */
-  public ExtractorSampleSource(Uri uri, DataSource dataSource, Extractor extractor,
-      Allocator allocator, int requestedBufferSize) {
-    this(uri, dataSource, extractor, allocator, requestedBufferSize,
-        MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA);
+  public ExtractorSampleSource(Uri uri, DataSource dataSource, Allocator allocator,
+      int requestedBufferSize, Extractor... extractors) {
+    this(uri, dataSource, allocator, requestedBufferSize, MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA,
+        extractors);
   }
 
   /**
    * @param uri The {@link Uri} of the media stream.
    * @param dataSource A data source to read the media stream.
-   * @param extractor An {@link Extractor} to extract the media stream.
    * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
    *     The actual allocated size may exceed the value passed in if the implementation requires it.
    * @param minLoadableRetryCount The minimum number of times that the sample source will retry
    *     if a loading error occurs.
+   * @param extractors {@link Extractor}s to extract the media stream, in order of decreasing
+   *     priority. If omitted, the default extractors will be used.
    */
   @Deprecated
-  public ExtractorSampleSource(Uri uri, DataSource dataSource, Extractor extractor,
-      int requestedBufferSize, int minLoadableRetryCount) {
-    this(uri, dataSource, extractor, new DefaultAllocator(64 * 1024), requestedBufferSize,
-        minLoadableRetryCount);
+  public ExtractorSampleSource(Uri uri, DataSource dataSource, int requestedBufferSize,
+      int minLoadableRetryCount, Extractor... extractors) {
+    this(uri, dataSource, new DefaultAllocator(64 * 1024), requestedBufferSize,
+        minLoadableRetryCount, extractors);
   }
 
   /**
    * @param uri The {@link Uri} of the media stream.
    * @param dataSource A data source to read the media stream.
-   * @param extractor An {@link Extractor} to extract the media stream.
    * @param allocator An {@link Allocator} from which to obtain memory allocations.
    * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
    *     The actual allocated size may exceed the value passed in if the implementation requires it.
    * @param minLoadableRetryCount The minimum number of times that the sample source will retry
    *     if a loading error occurs.
+   * @param extractors {@link Extractor}s to extract the media stream, in order of decreasing
+   *     priority. If omitted, the default extractors will be used.
    */
-  public ExtractorSampleSource(Uri uri, DataSource dataSource, Extractor extractor,
-      Allocator allocator, int requestedBufferSize, int minLoadableRetryCount) {
+  public ExtractorSampleSource(Uri uri, DataSource dataSource, Allocator allocator,
+      int requestedBufferSize, int minLoadableRetryCount, Extractor... extractors) {
     this.uri = uri;
     this.dataSource = dataSource;
-    this.extractor = extractor;
     this.allocator = allocator;
     this.requestedBufferSize = requestedBufferSize;
     this.minLoadableRetryCount = minLoadableRetryCount;
+    if (extractors == null || extractors.length == 0) {
+      extractors = new Extractor[DEFAULT_EXTRACTOR_CLASSES.size()];
+      for (int i = 0; i < extractors.length; i++) {
+        try {
+          extractors[i] = DEFAULT_EXTRACTOR_CLASSES.get(i).newInstance();
+        } catch (ReflectiveOperationException e) {
+          throw new IllegalStateException("Unexpected error creating default extractor", e);
+        }
+      }
+    }
+    extractorHolder = new ExtractorHolder(extractors, this);
     sampleQueues = new SparseArray<>();
     pendingResetPositionUs = NO_RESET_PENDING;
     frameAccurateSeeking = true;
-    extractor.init(this);
   }
 
   @Override
@@ -508,11 +601,12 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
   }
 
   private ExtractingLoadable createLoadableFromStart() {
-    return new ExtractingLoadable(uri, dataSource, extractor, allocator, requestedBufferSize, 0);
+    return new ExtractingLoadable(uri, dataSource, extractorHolder, allocator, requestedBufferSize,
+        0);
   }
 
   private ExtractingLoadable createLoadableFromPositionUs(long positionUs) {
-    return new ExtractingLoadable(uri, dataSource, extractor, allocator, requestedBufferSize,
+    return new ExtractingLoadable(uri, dataSource, extractorHolder, allocator, requestedBufferSize,
         seekMap.getPosition(positionUs));
   }
 
@@ -575,7 +669,7 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
 
     private final Uri uri;
     private final DataSource dataSource;
-    private final Extractor extractor;
+    private final ExtractorHolder extractorHolder;
     private final Allocator allocator;
     private final int requestedBufferSize;
     private final PositionHolder positionHolder;
@@ -584,11 +678,11 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
 
     private boolean pendingExtractorSeek;
 
-    public ExtractingLoadable(Uri uri, DataSource dataSource, Extractor extractor,
+    public ExtractingLoadable(Uri uri, DataSource dataSource, ExtractorHolder extractorHolder,
         Allocator allocator, int requestedBufferSize, long position) {
       this.uri = Assertions.checkNotNull(uri);
       this.dataSource = Assertions.checkNotNull(dataSource);
-      this.extractor = Assertions.checkNotNull(extractor);
+      this.extractorHolder = Assertions.checkNotNull(extractorHolder);
       this.allocator = Assertions.checkNotNull(allocator);
       this.requestedBufferSize = requestedBufferSize;
       positionHolder = new PositionHolder();
@@ -608,10 +702,6 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
 
     @Override
     public void load() throws IOException, InterruptedException {
-      if (pendingExtractorSeek) {
-        extractor.seek();
-        pendingExtractorSeek = false;
-      }
       int result = Extractor.RESULT_CONTINUE;
       while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
         ExtractorInput input = null;
@@ -622,6 +712,11 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
             length += position;
           }
           input = new DefaultExtractorInput(dataSource, position, length);
+          Extractor extractor = extractorHolder.selectExtractor(input);
+          if (pendingExtractorSeek) {
+            extractor.seek();
+            pendingExtractorSeek = false;
+          }
           while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
             allocator.blockWhileTotalBytesAllocatedExceeds(requestedBufferSize);
             result = extractor.read(input, positionHolder);
@@ -636,6 +731,71 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
           dataSource.close();
         }
       }
+    }
+
+  }
+
+  /**
+   * Stores a list of extractors and a selected extractor when the format has been detected.
+   */
+  private static final class ExtractorHolder {
+
+    private final Extractor[] extractors;
+    private final ExtractorOutput extractorOutput;
+    private Extractor extractor;
+
+    /**
+     * Creates a holder that will select an extractor and initialize it using the specified output.
+     *
+     * @param extractors One or more extractors to choose from.
+     * @param extractorOutput The output that will be used to initialize the selected extractor.
+     */
+    public ExtractorHolder(Extractor[] extractors, ExtractorOutput extractorOutput) {
+      this.extractors = extractors;
+      this.extractorOutput = extractorOutput;
+    }
+
+    /**
+     * Returns an initialized extractor for reading {@code input}, and returns the same extractor on
+     * later calls.
+     *
+     * @param input The {@link ExtractorInput} from which data should be read.
+     * @throws UnrecognizedInputFormatException Thrown if the input format could not be detected.
+     * @throws IOException Thrown if the input could not be read.
+     * @throws InterruptedException Thrown if the thread was interrupted.
+     */
+    public Extractor selectExtractor(ExtractorInput input)
+        throws UnrecognizedInputFormatException, IOException, InterruptedException {
+      if (extractor != null) {
+        return extractor;
+      }
+      for (Extractor extractor : extractors) {
+        try {
+          if (extractor.sniff(input)) {
+            this.extractor = extractor;
+            break;
+          }
+        } catch (EOFException e) {
+          // Do nothing.
+        }
+        input.resetPeekPosition();
+      }
+      if (extractor == null) {
+        throw new UnrecognizedInputFormatException(extractors);
+      }
+      extractor.init(extractorOutput);
+      return extractor;
+    }
+
+  }
+
+  /**
+   * Thrown if the input format could not recognized by {@link Extractor#sniff(ExtractorInput)}.
+   */
+  private static final class UnrecognizedInputFormatException extends ParserException {
+
+    public UnrecognizedInputFormatException(Extractor[] extractors) {
+      super("None of the extractors " + Arrays.toString(extractors) + " could read the stream.");
     }
 
   }

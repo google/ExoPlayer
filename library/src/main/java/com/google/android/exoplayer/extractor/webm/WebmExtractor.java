@@ -212,6 +212,11 @@ public final class WebmExtractor implements Extractor {
   }
 
   @Override
+  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+    return new Sniffer().sniff(input);
+  }
+
+  @Override
   public void init(ExtractorOutput output) {
     extractorOutput = output;
   }

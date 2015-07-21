@@ -26,12 +26,6 @@ import com.google.android.exoplayer.demo.player.ExtractorRendererBuilder;
 import com.google.android.exoplayer.demo.player.HlsRendererBuilder;
 import com.google.android.exoplayer.demo.player.SmoothStreamingRendererBuilder;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
-import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
-import com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor;
-import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
-import com.google.android.exoplayer.extractor.ts.AdtsExtractor;
-import com.google.android.exoplayer.extractor.ts.TsExtractor;
-import com.google.android.exoplayer.extractor.webm.WebmExtractor;
 import com.google.android.exoplayer.metadata.GeobMetadata;
 import com.google.android.exoplayer.metadata.PrivMetadata;
 import com.google.android.exoplayer.metadata.TxxxMetadata;
@@ -84,14 +78,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   public static final int TYPE_DASH = 0;
   public static final int TYPE_SS = 1;
   public static final int TYPE_HLS = 2;
-  public static final int TYPE_MP4 = 3;
-  public static final int TYPE_MP3 = 4;
-  public static final int TYPE_FMP4 = 5;
-  public static final int TYPE_WEBM = 6;
-  public static final int TYPE_MKV = 7;
-  public static final int TYPE_TS = 8;
-  public static final int TYPE_AAC = 9;
-  public static final int TYPE_M4A = 10;
+  public static final int TYPE_OTHER = 3;
 
   public static final String CONTENT_TYPE_EXTRA = "content_type";
   public static final String CONTENT_ID_EXTRA = "content_id";
@@ -257,22 +244,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
             new WidevineTestMediaDrmCallback(contentId), audioCapabilities);
       case TYPE_HLS:
         return new HlsRendererBuilder(this, userAgent, contentUri.toString(), audioCapabilities);
-      case TYPE_M4A: // There are no file format differences between M4A and MP4.
-      case TYPE_MP4:
-        return new ExtractorRendererBuilder(this, userAgent, contentUri, new Mp4Extractor());
-      case TYPE_MP3:
-        return new ExtractorRendererBuilder(this, userAgent, contentUri, new Mp3Extractor());
-      case TYPE_TS:
-        return new ExtractorRendererBuilder(this, userAgent, contentUri,
-            new TsExtractor(0, audioCapabilities));
-      case TYPE_AAC:
-        return new ExtractorRendererBuilder(this, userAgent, contentUri, new AdtsExtractor());
-      case TYPE_FMP4:
-        return new ExtractorRendererBuilder(this, userAgent, contentUri,
-            new FragmentedMp4Extractor());
-      case TYPE_WEBM:
-      case TYPE_MKV:
-        return new ExtractorRendererBuilder(this, userAgent, contentUri, new WebmExtractor());
+      case TYPE_OTHER:
+        return new ExtractorRendererBuilder(this, userAgent, contentUri);
       default:
         throw new IllegalStateException("Unsupported type: " + contentType);
     }

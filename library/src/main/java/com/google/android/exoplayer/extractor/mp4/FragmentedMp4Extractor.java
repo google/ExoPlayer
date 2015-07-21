@@ -114,6 +114,11 @@ public final class FragmentedMp4Extractor implements Extractor {
     parserState = STATE_READING_ATOM_HEADER;
   }
 
+  @Override
+  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+    return Sniffer.sniffFragmented(input);
+  }
+
   /**
    * Sideloads track information into the extractor.
    * <p>

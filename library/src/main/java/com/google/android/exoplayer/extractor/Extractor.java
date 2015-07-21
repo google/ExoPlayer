@@ -50,6 +50,15 @@ public interface Extractor {
   void init(ExtractorOutput output);
 
   /**
+   * Returns whether this extractor can extract samples from the {@link ExtractorInput}, which must
+   * provide data from the start of the stream.
+   *
+   * @throws IOException If an error occurred reading from the input.
+   * @throws InterruptedException If the thread was interrupted.
+   */
+  boolean sniff(ExtractorInput input) throws IOException, InterruptedException;
+
+  /**
    * Extracts data read from a provided {@link ExtractorInput}.
    * <p>
    * A single call to this method will block until some progress has been made, but will not block

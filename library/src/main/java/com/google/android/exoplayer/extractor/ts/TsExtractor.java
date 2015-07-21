@@ -96,6 +96,19 @@ public final class TsExtractor implements Extractor {
   // Extractor implementation.
 
   @Override
+  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+    byte[] scratch = new byte[1];
+    for (int i = 0; i < 5; i++) {
+      input.peekFully(scratch, 0, 1);
+      if ((scratch[0] & 0xFF) != 0x47) {
+        return false;
+      }
+      input.advancePeekPosition(TS_PACKET_SIZE - 1);
+    }
+    return true;
+  }
+
+  @Override
   public void init(ExtractorOutput output) {
     this.output = output;
     output.seekMap(SeekMap.UNSEEKABLE);

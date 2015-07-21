@@ -18,7 +18,6 @@ package com.google.android.exoplayer;
 import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
-import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -39,19 +38,12 @@ import java.util.UUID;
  * <p>
  * Warning - This class is marked as deprecated because there are known device specific issues
  * associated with its use, including playbacks not starting, playbacks stuttering and other
- * miscellaneous failures. For mp4, m4a, mp3, webm, mpeg-ts and aac playbacks it is strongly
- * recommended to use {@link ExtractorSampleSource} instead, along with the corresponding extractor
- * (e.g. {@link Mp4Extractor} for mp4 playbacks). Where this is not possible this class can still be
- * used, but please be aware of the associated risks. Valid use cases of this class that are not
- * yet supported by {@link ExtractorSampleSource} include:
- * <ul>
- * <li>Playing a container format for which an ExoPlayer extractor does not yet exist (e.g. ogg).
- * </li>
- * <li>Playing media whose container format is unknown and so needs to be inferred automatically.
- * </li>
- * </ul>
+ * miscellaneous failures. For mp4, m4a, mp3, webm, mkv, mpeg-ts and aac playbacks it is strongly
+ * recommended to use {@link ExtractorSampleSource} instead. Where this is not possible this class
+ * can still be used, but please be aware of the associated risks. Playing container formats for
+ * which an ExoPlayer extractor does not yet exist (e.g. ogg) is a valid use case of this class.
  * <p>
- * Over time we hope to enhance {@link ExtractorSampleSource} to support these use cases, and hence
+ * Over time we hope to enhance {@link ExtractorSampleSource} to support more formats, and hence
  * make use of this class unnecessary.
  */
 // TODO: This implementation needs to be fixed so that its methods are non-blocking (either

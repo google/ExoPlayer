@@ -167,8 +167,8 @@ public class VideoPlayer extends Activity implements OnClickListener,
     ExtractorSampleSource sampleSource = new ExtractorSampleSource(
         Uri.fromFile(new File(filename)),
         new DefaultUriDataSource(this, Util.getUserAgent(this, "ExoPlayerExtWebMDemo")),
-        new WebmExtractor(), new DefaultAllocator(BUFFER_SEGMENT_SIZE),
-        BUFFER_SEGMENT_SIZE * BUFFER_SEGMENT_COUNT);
+        new DefaultAllocator(BUFFER_SEGMENT_SIZE), BUFFER_SEGMENT_SIZE * BUFFER_SEGMENT_COUNT,
+        new WebmExtractor());
     TrackRenderer videoRenderer =
         new LibvpxVideoTrackRenderer(sampleSource, true, handler, this, 50);
     if (useOpenGL) {
