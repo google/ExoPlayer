@@ -37,7 +37,9 @@ import java.io.IOException;
 public final class Mp3Extractor implements Extractor {
 
   /** The maximum number of bytes to search when synchronizing, before giving up. */
-  private static final int MAX_BYTES_TO_SEARCH = 128 * 1024;
+  private static final int MAX_SYNC_BYTES = 128 * 1024;
+  /** The maximum number of bytes to read when sniffing, excluding the header, before giving up. */
+  private static final int MAX_SNIFF_BYTES = 4 * 1024;
 
   /** Mask that includes the audio header values that must match between frames. */
   private static final int HEADER_MASK = 0xFFFE0C00;
@@ -66,6 +68,61 @@ public final class Mp3Extractor implements Extractor {
     inputBuffer = new BufferingInput(MpegAudioHeader.MAX_FRAME_SIZE_BYTES * 3);
     scratch = new ParsableByteArray(4);
     synchronizedHeader = new MpegAudioHeader();
+  }
+
+  @Override
+  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+    ParsableByteArray scratch = new ParsableByteArray(4);
+    int startPosition = 0;
+    input.peekFully(scratch.data, 0, 3);
+    if (scratch.readUnsignedInt24() == ID3_TAG) {
+      input.advancePeekPosition(3);
+      input.peekFully(scratch.data, 0, 4);
+      int headerLength = ((scratch.data[0] & 0x7F) << 21) | ((scratch.data[1] & 0x7F) << 14)
+          | ((scratch.data[2] & 0x7F) << 7) | (scratch.data[3] & 0x7F);
+      input.advancePeekPosition(headerLength);
+      startPosition = 3 + 3 + 4 + headerLength;
+    } else {
+      input.resetPeekPosition();
+    }
+
+    // Try to find four consecutive valid MPEG audio frames.
+    int headerPosition = startPosition;
+    int validFrameCount = 0;
+    int candidateSynchronizedHeaderData = 0;
+    while (true) {
+      if (headerPosition - startPosition >= MAX_SNIFF_BYTES) {
+        return false;
+      }
+
+      input.peekFully(scratch.data, 0, 4);
+      scratch.setPosition(0);
+      int headerData = scratch.readInt();
+      int frameSize;
+      if ((candidateSynchronizedHeaderData != 0
+          && (headerData & HEADER_MASK) != (candidateSynchronizedHeaderData & HEADER_MASK))
+          || (frameSize = MpegAudioHeader.getFrameSize(headerData)) == -1) {
+        validFrameCount = 0;
+        candidateSynchronizedHeaderData = 0;
+
+        // Try reading a header starting at the next byte.
+        input.resetPeekPosition();
+        input.advancePeekPosition(++headerPosition);
+        continue;
+      }
+
+      if (validFrameCount == 0) {
+        candidateSynchronizedHeaderData = headerData;
+      }
+
+      // The header was valid and matching (if appropriate). Check another or end synchronization.
+      if (++validFrameCount == 4) {
+        return true;
+      }
+
+      // Look for more headers.
+      input.advancePeekPosition(frameSize - 4);
+    }
   }
 
   @Override
@@ -167,6 +224,7 @@ public final class Mp3Extractor implements Extractor {
   }
 
   private long synchronize(ExtractorInput extractorInput) throws IOException, InterruptedException {
+    // TODO: Use peekFully instead of a buffering input, and deduplicate with sniff().
     if (extractorInput.getPosition() == 0) {
       // Before preparation completes, retrying loads from the start, so clear any buffered data.
       inputBuffer.reset();
@@ -201,7 +259,7 @@ public final class Mp3Extractor implements Extractor {
     int validFrameCount = 0;
     int candidateSynchronizedHeaderData = 0;
     while (true) {
-      if (headerPosition - startPosition >= MAX_BYTES_TO_SEARCH) {
+      if (headerPosition - startPosition >= MAX_SYNC_BYTES) {
         throw new ParserException("Searched too many bytes while resynchronizing.");
       }
 

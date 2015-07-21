@@ -44,13 +44,11 @@ public class ExtractorRendererBuilder implements RendererBuilder {
   private final Context context;
   private final String userAgent;
   private final Uri uri;
-  private final Extractor extractor;
 
-  public ExtractorRendererBuilder(Context context, String userAgent, Uri uri, Extractor extractor) {
+  public ExtractorRendererBuilder(Context context, String userAgent, Uri uri) {
     this.context = context;
     this.userAgent = userAgent;
     this.uri = uri;
-    this.extractor = extractor;
   }
 
   @Override
@@ -61,8 +59,8 @@ public class ExtractorRendererBuilder implements RendererBuilder {
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter(player.getMainHandler(),
         null);
     DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-    ExtractorSampleSource sampleSource = new ExtractorSampleSource(uri, dataSource, extractor,
-        allocator, BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE);
+    ExtractorSampleSource sampleSource = new ExtractorSampleSource(uri, dataSource, allocator,
+        BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
         null, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, player.getMainHandler(),
         player, 50);

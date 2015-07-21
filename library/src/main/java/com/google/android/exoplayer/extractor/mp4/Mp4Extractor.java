@@ -78,6 +78,11 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   }
 
   @Override
+  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+    return Sniffer.sniffUnfragmented(input);
+  }
+
+  @Override
   public void init(ExtractorOutput output) {
     extractorOutput = output;
   }
