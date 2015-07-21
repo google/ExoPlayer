@@ -76,6 +76,7 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
   private final long fileDescriptorOffset;
   private final long fileDescriptorLength;
 
+  private IOException preparationError;
   private MediaExtractor extractor;
   private TrackInfo[] trackInfos;
   private boolean prepared;
@@ -128,13 +129,22 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
   }
 
   @Override
-  public boolean prepare(long positionUs) throws IOException {
+  public boolean prepare(long positionUs) {
     if (!prepared) {
+      if (preparationError != null) {
+        return false;
+      }
+
       extractor = new MediaExtractor();
-      if (context != null) {
-        extractor.setDataSource(context, uri, headers);
-      } else {
-        extractor.setDataSource(fileDescriptor, fileDescriptorOffset, fileDescriptorLength);
+      try {
+        if (context != null) {
+          extractor.setDataSource(context, uri, headers);
+        } else {
+          extractor.setDataSource(fileDescriptor, fileDescriptorOffset, fileDescriptorLength);
+        }
+      } catch (IOException e) {
+        preparationError = e;
+        return false;
       }
 
       trackStates = new int[extractor.getTrackCount()];
@@ -230,6 +240,13 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
     extractor.unselectTrack(track);
     pendingDiscontinuities[track] = false;
     trackStates[track] = TRACK_STATE_DISABLED;
+  }
+
+  @Override
+  public void maybeThrowError() throws IOException {
+    if (preparationError != null) {
+      throw preparationError;
+    }
   }
 
   @Override

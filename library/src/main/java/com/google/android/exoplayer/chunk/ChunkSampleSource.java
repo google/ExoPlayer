@@ -188,23 +188,18 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   }
 
   @Override
-  public boolean continueBuffering(int track, long positionUs) throws IOException {
+  public boolean continueBuffering(int track, long positionUs) {
     Assertions.checkState(state == STATE_ENABLED);
     Assertions.checkState(track == 0);
     downstreamPositionUs = positionUs;
     chunkSource.continueBuffering(positionUs);
     updateLoadControl();
-
-    boolean haveSamples = !sampleQueue.isEmpty();
-    if (!haveSamples) {
-      maybeThrowLoadableException();
-    }
-    return loadingFinished || haveSamples;
+    return loadingFinished || !sampleQueue.isEmpty();
   }
 
   @Override
   public int readData(int track, long positionUs, MediaFormatHolder formatHolder,
-      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) throws IOException {
+      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
     Assertions.checkState(state == STATE_ENABLED);
     Assertions.checkState(track == 0);
     downstreamPositionUs = positionUs;
@@ -219,7 +214,6 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
     }
 
     if (isPendingReset()) {
-      maybeThrowLoadableException();
       return NOTHING_READ;
     }
 
@@ -252,7 +246,6 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
       if (loadingFinished) {
         return END_OF_STREAM;
       }
-      maybeThrowLoadableException();
       return NOTHING_READ;
     }
 
@@ -263,7 +256,6 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
       return SAMPLE_READ;
     }
 
-    maybeThrowLoadableException();
     return NOTHING_READ;
   }
 
@@ -295,15 +287,12 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
     pendingDiscontinuity = true;
   }
 
-  private void maybeThrowLoadableException() throws IOException {
+  @Override
+  public void maybeThrowError() throws IOException {
     if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
       throw currentLoadableException;
-    }
-    if (sampleQueue.isEmpty() && currentLoadableHolder.chunk == null) {
-      IOException chunkSourceException = chunkSource.getError();
-      if (chunkSourceException != null) {
-        throw chunkSourceException;
-      }
+    } else if (currentLoadableHolder.chunk == null) {
+      chunkSource.maybeThrowError();
     }
   }
 

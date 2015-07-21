@@ -125,7 +125,7 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
   }
 
   @Override
-  public boolean prepare(long positionUs) throws IOException {
+  public boolean prepare(long positionUs) {
     if (prepared) {
       return true;
     }
@@ -162,7 +162,6 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
       downstreamPositionUs = positionUs;
     }
     maybeStartLoading();
-    maybeThrowLoadableException();
     return false;
   }
 
@@ -218,7 +217,7 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
   }
 
   @Override
-  public boolean continueBuffering(int track, long playbackPositionUs) throws IOException {
+  public boolean continueBuffering(int track, long playbackPositionUs) {
     Assertions.checkState(prepared);
     Assertions.checkState(trackEnabledStates[track]);
     downstreamPositionUs = playbackPositionUs;
@@ -232,7 +231,6 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     if (isPendingReset() || extractors.isEmpty()) {
       return false;
     }
-
     for (int extractorIndex = 0; extractorIndex < extractors.size(); extractorIndex++) {
       HlsExtractorWrapper extractor = extractors.get(extractorIndex);
       if (!extractor.isPrepared()) {
@@ -242,13 +240,12 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
         return true;
       }
     }
-    maybeThrowLoadableException();
     return false;
   }
 
   @Override
   public int readData(int track, long playbackPositionUs, MediaFormatHolder formatHolder,
-      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) throws IOException {
+      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
     Assertions.checkState(prepared);
     downstreamPositionUs = playbackPositionUs;
 
@@ -262,13 +259,11 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     }
 
     if (isPendingReset()) {
-      maybeThrowLoadableException();
       return NOTHING_READ;
     }
 
     HlsExtractorWrapper extractor = getCurrentExtractor();
     if (!extractor.isPrepared()) {
-      maybeThrowLoadableException();
       return NOTHING_READ;
     }
 
@@ -290,7 +285,6 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
       // next one for the current read.
       extractor = extractors.get(++extractorIndex);
       if (!extractor.isPrepared()) {
-        maybeThrowLoadableException();
         return NOTHING_READ;
       }
     }
@@ -313,8 +307,14 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
       return END_OF_STREAM;
     }
 
-    maybeThrowLoadableException();
     return NOTHING_READ;
+  }
+
+  @Override
+  public void maybeThrowError() throws IOException {
+    if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
+      throw currentLoadableException;
+    }
   }
 
   @Override
@@ -360,6 +360,8 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
       loader = null;
     }
   }
+
+  // Loader.Callback implementation.
 
   @Override
   public void onLoadCompleted(Loadable loadable) {
@@ -412,6 +414,8 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     maybeStartLoading();
   }
 
+  // Internal stuff.
+
   /**
    * Gets the current extractor from which samples should be read.
    * <p>
@@ -453,12 +457,6 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
       }
     }
     return false;
-  }
-
-  private void maybeThrowLoadableException() throws IOException {
-    if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
-      throw currentLoadableException;
-    }
   }
 
   private void restartFrom(long positionUs) {

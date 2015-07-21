@@ -172,7 +172,7 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
   }
 
   @Override
-  public boolean prepare(long positionUs) throws IOException {
+  public boolean prepare(long positionUs) {
     if (prepared) {
       return true;
     }
@@ -198,10 +198,9 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
       }
       prepared = true;
       return true;
-    } else {
-      maybeThrowLoadableException();
-      return false;
     }
+
+    return false;
   }
 
   @Override
@@ -246,7 +245,7 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
   }
 
   @Override
-  public boolean continueBuffering(int track, long playbackPositionUs) throws IOException {
+  public boolean continueBuffering(int track, long playbackPositionUs) {
     Assertions.checkState(prepared);
     Assertions.checkState(trackEnabledStates[track]);
     downstreamPositionUs = playbackPositionUs;
@@ -258,16 +257,12 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
     if (isPendingReset()) {
       return false;
     }
-    if (sampleQueues.valueAt(track).isEmpty()) {
-      maybeThrowLoadableException();
-      return false;
-    }
-    return true;
+    return !sampleQueues.valueAt(track).isEmpty();
   }
 
   @Override
   public int readData(int track, long playbackPositionUs, MediaFormatHolder formatHolder,
-      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) throws IOException {
+      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
     downstreamPositionUs = playbackPositionUs;
 
     if (pendingDiscontinuities[track]) {
@@ -276,7 +271,6 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
     }
 
     if (onlyReadDiscontinuity || isPendingReset()) {
-      maybeThrowLoadableException();
       return NOTHING_READ;
     }
 
@@ -304,8 +298,25 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
       return END_OF_STREAM;
     }
 
-    maybeThrowLoadableException();
     return NOTHING_READ;
+  }
+
+  @Override
+  public void maybeThrowError() throws IOException {
+    if (currentLoadableException == null) {
+      return;
+    }
+    int minLoadableRetryCountForMedia;
+    if (minLoadableRetryCount != MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA) {
+      minLoadableRetryCountForMedia = minLoadableRetryCount;
+    } else {
+      minLoadableRetryCountForMedia = seekMap != null && !seekMap.isSeekable()
+          ? DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE
+          : DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND;
+    }
+    if (currentLoadableExceptionCount > minLoadableRetryCountForMedia) {
+      throw currentLoadableException;
+    }
   }
 
   @Override
@@ -494,23 +505,6 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
     }
     extractedSampleCountAtStartOfLoad = extractedSampleCount;
     loader.startLoading(loadable, this);
-  }
-
-  private void maybeThrowLoadableException() throws IOException {
-    if (currentLoadableException == null) {
-      return;
-    }
-    int minLoadableRetryCountForMedia;
-    if (minLoadableRetryCount != MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA) {
-      minLoadableRetryCountForMedia = minLoadableRetryCount;
-    } else {
-      minLoadableRetryCountForMedia = seekMap != null && !seekMap.isSeekable()
-          ? DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE
-          : DEFAULT_MIN_LOADABLE_RETRY_COUNT_ON_DEMAND;
-    }
-    if (currentLoadableExceptionCount > minLoadableRetryCountForMedia) {
-      throw currentLoadableException;
-    }
   }
 
   private ExtractingLoadable createLoadableFromStart() {

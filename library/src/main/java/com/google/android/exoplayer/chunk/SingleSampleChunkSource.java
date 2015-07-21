@@ -21,7 +21,6 @@ import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -94,8 +93,8 @@ public class SingleSampleChunkSource implements ChunkSource {
   }
 
   @Override
-  public IOException getError() {
-    return null;
+  public void maybeThrowError() {
+    // Do nothing.
   }
 
   @Override

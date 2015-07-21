@@ -90,16 +90,13 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
   }
 
   @Override
-  protected int doPrepare(long positionUs) throws ExoPlaybackException {
-    try {
-      boolean sourcePrepared = source.prepare(positionUs);
-      if (!sourcePrepared) {
-        return TrackRenderer.STATE_UNPREPARED;
-      }
-    } catch (IOException e) {
-      throw new ExoPlaybackException(e);
+  protected int doPrepare(long positionUs) {
+    boolean sourcePrepared = source.prepare(positionUs);
+    if (!sourcePrepared) {
+      return TrackRenderer.STATE_UNPREPARED;
     }
-    for (int i = 0; i < source.getTrackCount(); i++) {
+    int trackCount = source.getTrackCount();
+    for (int i = 0; i < trackCount; i++) {
       if (metadataParser.canParse(source.getTrackInfo(i).mimeType)) {
         trackIndex = i;
         return TrackRenderer.STATE_PREPARED;
@@ -128,34 +125,35 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
   @Override
   protected void doSomeWork(long positionUs, long elapsedRealtimeUs)
       throws ExoPlaybackException {
-    try {
-      source.continueBuffering(trackIndex, positionUs);
-    } catch (IOException e) {
-      // TODO: This should be propagated, but in the current design propagation may occur too
-      // early. See [Internal b/22291244].
-      // throw new ExoPlaybackException(e);
-    }
+    source.continueBuffering(trackIndex, positionUs);
 
     if (!inputStreamEnded && pendingMetadata == null) {
-      try {
         int result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
         if (result == SampleSource.SAMPLE_READ) {
           pendingMetadataTimestamp = sampleHolder.timeUs;
-          pendingMetadata = metadataParser.parse(sampleHolder.data.array(), sampleHolder.size);
+          try {
+            pendingMetadata = metadataParser.parse(sampleHolder.data.array(), sampleHolder.size);
+          } catch (IOException e) {
+            throw new ExoPlaybackException(e);
+          }
           sampleHolder.data.clear();
         } else if (result == SampleSource.END_OF_STREAM) {
           inputStreamEnded = true;
         }
-      } catch (IOException e) {
-        // TODO: This should be propagated, but in the current design propagation may occur too
-        // early. See [Internal b/22291244].
-        // throw new ExoPlaybackException(e);
-      }
     }
 
     if (pendingMetadata != null && pendingMetadataTimestamp <= positionUs) {
       invokeRenderer(pendingMetadata);
       pendingMetadata = null;
+    }
+  }
+
+  @Override
+  protected void maybeThrowError() throws ExoPlaybackException {
+    try {
+      source.maybeThrowError();
+    } catch (IOException e) {
+      throw new ExoPlaybackException(e);
     }
   }
 

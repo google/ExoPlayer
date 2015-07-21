@@ -324,9 +324,12 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   }
 
   @Override
-  public IOException getError() {
-    return fatalError != null ? fatalError
-        : (manifestFetcher != null ? manifestFetcher.getError() : null);
+  public void maybeThrowError() throws IOException {
+    if (fatalError != null) {
+      throw fatalError;
+    } else {
+      manifestFetcher.maybeThrowError();
+    }
   }
 
   @Override
