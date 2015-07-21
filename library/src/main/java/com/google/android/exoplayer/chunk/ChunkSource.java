@@ -94,13 +94,12 @@ public interface ChunkSource {
       long playbackPositionUs, ChunkOperationHolder out);
 
   /**
-   * If the {@link ChunkSource} is currently unable to provide chunks through
-   * {@link ChunkSource#getChunkOperation}, then this method returns the underlying cause. Returns
-   * null otherwise.
+   * If the source is currently having difficulty providing chunks, then this method throws the
+   * underlying error. Otherwise does nothing.
    *
-   * @return An {@link IOException}, or null.
+   * @throws IOException The underlying error.
    */
-  IOException getError();
+  void maybeThrowError() throws IOException;
 
   /**
    * Invoked when the {@link ChunkSampleSource} has finished loading a chunk obtained from this

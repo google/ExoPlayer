@@ -245,17 +245,13 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected int doPrepare(long positionUs) throws ExoPlaybackException {
-    try {
-      boolean sourcePrepared = source.prepare(positionUs);
-      if (!sourcePrepared) {
-        return TrackRenderer.STATE_UNPREPARED;
-      }
-    } catch (IOException e) {
-      throw new ExoPlaybackException(e);
+  protected int doPrepare(long positionUs) {
+    boolean sourcePrepared = source.prepare(positionUs);
+    if (!sourcePrepared) {
+      return TrackRenderer.STATE_UNPREPARED;
     }
-
-    for (int i = 0; i < source.getTrackCount(); i++) {
+    int trackCount = source.getTrackCount();
+    for (int i = 0; i < trackCount; i++) {
       // TODO: Right now this is getting the mime types of the container format
       // (e.g. audio/mp4 and video/mp4 for fragmented mp4). It needs to be getting the mime types
       // of the actual samples (e.g. audio/mp4a-latm and video/avc).
@@ -264,7 +260,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         return TrackRenderer.STATE_PREPARED;
       }
     }
-
     return TrackRenderer.STATE_IGNORE;
   }
 
@@ -489,39 +484,35 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
   @Override
   protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
-    try {
-      sourceState = source.continueBuffering(trackIndex, positionUs)
-          ? (sourceState == SOURCE_STATE_NOT_READY ? SOURCE_STATE_READY : sourceState)
-          : SOURCE_STATE_NOT_READY;
-      checkForDiscontinuity(positionUs);
-      if (format == null) {
-        readFormat(positionUs);
-      }
-      if (codec == null && shouldInitCodec()) {
-        maybeInitCodec();
-      }
-      if (codec != null) {
-        TraceUtil.beginSection("drainAndFeed");
-        while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
-        if (feedInputBuffer(positionUs, true)) {
-          while (feedInputBuffer(positionUs, false)) {}
-        }
-        TraceUtil.endSection();
-      }
-      codecCounters.ensureUpdated();
-    } catch (IOException e) {
-      throw new ExoPlaybackException(e);
+    sourceState = source.continueBuffering(trackIndex, positionUs)
+        ? (sourceState == SOURCE_STATE_NOT_READY ? SOURCE_STATE_READY : sourceState)
+        : SOURCE_STATE_NOT_READY;
+    checkForDiscontinuity(positionUs);
+    if (format == null) {
+      readFormat(positionUs);
     }
+    if (codec == null && shouldInitCodec()) {
+      maybeInitCodec();
+    }
+    if (codec != null) {
+      TraceUtil.beginSection("drainAndFeed");
+      while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
+      if (feedInputBuffer(positionUs, true)) {
+        while (feedInputBuffer(positionUs, false)) {}
+      }
+      TraceUtil.endSection();
+    }
+    codecCounters.ensureUpdated();
   }
 
-  private void readFormat(long positionUs) throws IOException, ExoPlaybackException {
+  private void readFormat(long positionUs) throws ExoPlaybackException {
     int result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
     if (result == SampleSource.FORMAT_READ) {
       onInputFormatChanged(formatHolder);
     }
   }
 
-  private void checkForDiscontinuity(long positionUs) throws IOException, ExoPlaybackException {
+  private void checkForDiscontinuity(long positionUs) throws ExoPlaybackException {
     if (codec == null) {
       return;
     }
@@ -560,11 +551,9 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    * @param firstFeed True if this is the first call to this method from the current invocation of
    *     {@link #doSomeWork(long, long)}. False otherwise.
    * @return True if it may be possible to feed more input data. False otherwise.
-   * @throws IOException If an error occurs reading data from the upstream source.
    * @throws ExoPlaybackException If an error occurs feeding the input buffer.
    */
-  private boolean feedInputBuffer(long positionUs, boolean firstFeed)
-      throws IOException, ExoPlaybackException {
+  private boolean feedInputBuffer(long positionUs, boolean firstFeed) throws ExoPlaybackException {
     if (inputStreamEnded
         || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
       // The input stream has ended, or we need to re-initialize the codec but are still waiting
@@ -783,6 +772,15 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   protected boolean canReconfigureCodec(MediaCodec codec, boolean codecIsAdaptive,
       MediaFormat oldFormat, MediaFormat newFormat) {
     return false;
+  }
+
+  @Override
+  protected void maybeThrowError() throws ExoPlaybackException {
+    try {
+      source.maybeThrowError();
+    } catch (IOException e) {
+      throw new ExoPlaybackException(e);
+    }
   }
 
   @Override

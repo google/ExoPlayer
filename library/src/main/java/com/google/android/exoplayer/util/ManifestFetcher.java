@@ -186,17 +186,17 @@ public class ManifestFetcher<T> implements Loader.Callback {
   }
 
   /**
-   * Gets the error that affected the most recent attempt to load the manifest, or null if the
-   * most recent attempt was successful.
+   * Throws the error that affected the most recent attempt to load the manifest. Does nothing if
+   * the most recent attempt was successful.
    *
-   * @return The error, or null if the most recent attempt was successful.
+   * @throws IOException The error that affected the most recent attempt to load the manifest.
    */
-  public IOException getError() {
-    if (loadExceptionCount <= 1) {
-      // Don't report an exception until at least 1 retry attempt has been made.
-      return null;
+  public void maybeThrowError() throws IOException {
+    // Don't throw an exception until at least 1 retry attempt has been made.
+    if (loadException == null || loadExceptionCount <= 1) {
+      return;
     }
-    return loadException;
+    throw loadException;
   }
 
   /**

@@ -89,8 +89,8 @@ public class MultiTrackChunkSource implements ChunkSource, ExoPlayerComponent {
   }
 
   @Override
-  public IOException getError() {
-    return null;
+  public void maybeThrowError() throws IOException {
+    selectedSource.maybeThrowError();
   }
 
   @Override

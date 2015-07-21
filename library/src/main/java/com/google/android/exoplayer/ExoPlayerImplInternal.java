@@ -266,10 +266,12 @@ import java.util.List;
   private void incrementalPrepareInternal() throws ExoPlaybackException {
     long operationStartTimeMs = SystemClock.elapsedRealtime();
     boolean prepared = true;
-    for (int i = 0; i < renderers.length; i++) {
-      if (renderers[i].getState() == TrackRenderer.STATE_UNPREPARED) {
-        int state = renderers[i].prepare(positionUs);
+    for (int rendererIndex = 0; rendererIndex < renderers.length; rendererIndex++) {
+      TrackRenderer renderer = renderers[rendererIndex];
+      if (renderer.getState() == TrackRenderer.STATE_UNPREPARED) {
+        int state = renderer.prepare(positionUs);
         if (state == TrackRenderer.STATE_UNPREPARED) {
+          renderer.maybeThrowError();
           prepared = false;
         }
       }
@@ -414,7 +416,14 @@ import java.util.List;
       // invocation of this method.
       renderer.doSomeWork(positionUs, elapsedRealtimeUs);
       allRenderersEnded = allRenderersEnded && renderer.isEnded();
-      allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded(renderer);
+
+      // Determine whether the renderer is ready (or ended). If it's not, throw an error that's
+      // preventing the renderer from making progress, if such an error exists.
+      boolean rendererReadyOrEnded = rendererReadyOrEnded(renderer);
+      if (!rendererReadyOrEnded) {
+        renderer.maybeThrowError();
+      }
+      allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded;
 
       if (bufferedPositionUs == TrackRenderer.UNKNOWN_TIME_US) {
         // We've already encountered a track for which the buffered position is unknown. Hence the
