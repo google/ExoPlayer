@@ -426,7 +426,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
 
     // Update the control with our current state, and determine whether we're the next loader.
     boolean nextLoader = loadControl.update(this, downstreamPositionUs, nextLoadPositionUs,
-        loadingOrBackedOff, false);
+        loadingOrBackedOff);
 
     if (isBackedOff) {
       long elapsedMillis = now - currentLoadableExceptionTimestamp;
