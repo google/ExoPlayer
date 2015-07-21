@@ -272,13 +272,13 @@ public class DefaultHttpDataSource implements HttpDataSource {
         }
       }
     } finally {
+      inputStream = null;
+      closeConnection();
       if (opened) {
         opened = false;
         if (listener != null) {
           listener.onTransferEnd();
         }
-        inputStream = null;
-        closeConnection();
       }
     }
   }
