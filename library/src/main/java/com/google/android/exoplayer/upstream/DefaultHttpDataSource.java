@@ -270,7 +270,6 @@ public class DefaultHttpDataSource implements HttpDataSource {
         } catch (IOException e) {
           throw new HttpDataSourceException(e, dataSpec);
         }
-        inputStream = null;
       }
     } finally {
       if (opened) {
@@ -278,6 +277,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
         if (listener != null) {
           listener.onTransferEnd();
         }
+        inputStream = null;
         closeConnection();
       }
     }
