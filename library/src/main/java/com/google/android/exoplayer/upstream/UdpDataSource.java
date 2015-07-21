@@ -44,11 +44,12 @@ public class UdpDataSource implements UriDataSource {
 
   }
 
+  /**
+   * The default maximum datagram packet size, in bytes.
+   */
   public static final int DEFAULT_MAX_PACKET_SIZE = 2000;
 
-  public static final int TRANSFER_LISTENER_PACKET_INTERVAL = 1000;
-
-  private final TransferListener transferListener;
+  private final TransferListener listener;
   private final DatagramPacket packet;
 
   private DataSpec dataSpec;
@@ -58,17 +59,22 @@ public class UdpDataSource implements UriDataSource {
   private InetSocketAddress socketAddress;
   private boolean opened;
 
-  private int packetsReceived;
   private byte[] packetBuffer;
   private int packetRemaining;
 
-  public UdpDataSource(TransferListener transferListener) {
-    this(transferListener, DEFAULT_MAX_PACKET_SIZE);
+  /**
+   * @param listener An optional listener.
+   */
+  public UdpDataSource(TransferListener listener) {
+    this(listener, DEFAULT_MAX_PACKET_SIZE);
   }
 
-  public UdpDataSource(TransferListener transferListener, int maxPacketSize) {
-    this.transferListener = transferListener;
-
+  /**
+   * @param listener An optional listener.
+   * @param maxPacketSize The maximum datagram packet size, in bytes.
+   */
+  public UdpDataSource(TransferListener listener, int maxPacketSize) {
+    this.listener = listener;
     packetBuffer = new byte[maxPacketSize];
     packet = new DatagramPacket(packetBuffer, 0, maxPacketSize);
   }
@@ -83,7 +89,6 @@ public class UdpDataSource implements UriDataSource {
     try {
       address = InetAddress.getByName(host);
       socketAddress = new InetSocketAddress(address, port);
-
       if (address.isMulticastAddress()) {
         multicastSocket = new MulticastSocket(socketAddress);
         multicastSocket.joinGroup(address);
@@ -96,8 +101,33 @@ public class UdpDataSource implements UriDataSource {
     }
 
     opened = true;
-    transferListener.onTransferStart();
+    if (listener != null) {
+      listener.onTransferStart();
+    }
     return C.LENGTH_UNBOUNDED;
+  }
+
+  @Override
+  public int read(byte[] buffer, int offset, int readLength) throws UdpDataSourceException {
+    if (packetRemaining == 0) {
+      // We've read all of the data from the current packet. Get another.
+      try {
+        socket.receive(packet);
+      } catch (IOException e) {
+        throw new UdpDataSourceException(e);
+      }
+
+      packetRemaining = packet.getLength();
+      if (listener != null) {
+        listener.onBytesTransferred(packetRemaining);
+      }
+    }
+
+    int packetOffset = packet.getLength() - packetRemaining;
+    int bytesToRead = Math.min(packetRemaining, readLength);
+    System.arraycopy(packetBuffer, packetOffset, buffer, offset, bytesToRead);
+    packetRemaining -= bytesToRead;
+    return bytesToRead;
   }
 
   @Override
@@ -106,7 +136,7 @@ public class UdpDataSource implements UriDataSource {
       try {
         multicastSocket.leaveGroup(address);
       } catch (IOException e) {
-        // Do nothing
+        // Do nothing.
       }
       multicastSocket = null;
     }
@@ -117,44 +147,12 @@ public class UdpDataSource implements UriDataSource {
     address = null;
     socketAddress = null;
     packetRemaining = 0;
-    packetsReceived = 0;
     if (opened) {
       opened = false;
-      transferListener.onTransferEnd();
-    }
-  }
-
-  @Override
-  public int read(byte[] buffer, int offset, int readLength) throws UdpDataSourceException {
-    // if we've read all the data, get another packet
-    if (packetRemaining == 0) {
-      if (packetsReceived == TRANSFER_LISTENER_PACKET_INTERVAL) {
-        transferListener.onTransferEnd();
-        transferListener.onTransferStart();
-        packetsReceived = 0;
+      if (listener != null) {
+        listener.onTransferEnd();
       }
-
-      try {
-        socket.receive(packet);
-      } catch (IOException e) {
-        throw new UdpDataSourceException(e);
-      }
-
-      packetRemaining = packet.getLength();
-      transferListener.onBytesTransferred(packetRemaining);
-      packetsReceived++;
     }
-
-    // don't try to read too much
-    if (packetRemaining < readLength) {
-      readLength = packetRemaining;
-    }
-
-    int packetOffset = packet.getLength() - packetRemaining;
-    System.arraycopy(packetBuffer, packetOffset, buffer, offset, readLength);
-    packetRemaining -= readLength;
-
-    return readLength;
   }
 
   @Override
