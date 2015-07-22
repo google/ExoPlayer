@@ -102,7 +102,7 @@ import java.io.IOException;
         atomSize = buffer.readLong();
       }
       // Check the atom size is large enough to include its header.
-      if (atomSize <= headerSize || atomSize > Integer.MAX_VALUE) {
+      if (atomSize < headerSize || atomSize > Integer.MAX_VALUE) {
         return false;
       }
       // Stop searching if reading this atom would exceed the search limit.
@@ -129,7 +129,7 @@ import java.io.IOException;
       } else if (atomType == Atom.TYPE_moof) {
         foundFragment = true;
         break;
-      } else {
+      } else if (atomDataSize != 0) {
         input.advancePeekPosition(atomDataSize);
       }
       bytesSearched += atomSize;
