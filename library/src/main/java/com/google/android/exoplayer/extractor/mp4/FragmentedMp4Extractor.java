@@ -697,7 +697,7 @@ public final class FragmentedMp4Extractor implements Extractor {
         || atom == Atom.TYPE_trun || atom == Atom.TYPE_mvex || atom == Atom.TYPE_mdia
         || atom == Atom.TYPE_minf || atom == Atom.TYPE_stbl || atom == Atom.TYPE_pssh
         || atom == Atom.TYPE_saiz || atom == Atom.TYPE_uuid || atom == Atom.TYPE_senc
-        || atom == Atom.TYPE_pasp;
+        || atom == Atom.TYPE_pasp || atom == Atom.TYPE_s263;
   }
 
   /** Returns whether the extractor should parse a container atom with type {@code atom}. */
