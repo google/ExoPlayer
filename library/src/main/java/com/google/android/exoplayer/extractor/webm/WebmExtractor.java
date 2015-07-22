@@ -66,6 +66,7 @@ public final class WebmExtractor implements Extractor {
   private static final String CODEC_ID_VP8 = "V_VP8";
   private static final String CODEC_ID_VP9 = "V_VP9";
   private static final String CODEC_ID_H264 = "V_MPEG4/ISO/AVC";
+  private static final String CODEC_ID_H265 = "V_MPEGH/ISO/HEVC";
   private static final String CODEC_ID_VORBIS = "A_VORBIS";
   private static final String CODEC_ID_OPUS = "A_OPUS";
   private static final String CODEC_ID_AAC = "A_AAC";
@@ -805,7 +806,7 @@ public final class WebmExtractor implements Extractor {
     }
     size += sampleStrippedBytes.limit();
 
-    if (CODEC_ID_H264.equals(format.codecId)) {
+    if (CODEC_ID_H264.equals(format.codecId) || CODEC_ID_H265.equals(format.codecId)) {
       // TODO: Deduplicate with Mp4Extractor.
 
       // Zero the top three bytes of the array that we'll use to parse nal unit lengths, in case
@@ -962,6 +963,7 @@ public final class WebmExtractor implements Extractor {
     return CODEC_ID_VP8.equals(codecId)
         || CODEC_ID_VP9.equals(codecId)
         || CODEC_ID_H264.equals(codecId)
+        || CODEC_ID_H265.equals(codecId)
         || CODEC_ID_OPUS.equals(codecId)
         || CODEC_ID_VORBIS.equals(codecId)
         || CODEC_ID_AAC.equals(codecId)
@@ -1072,6 +1074,13 @@ public final class WebmExtractor implements Extractor {
           initializationData = h264Data.first;
           nalUnitLengthFieldLength = h264Data.second;
           break;
+        case CODEC_ID_H265:
+          mimeType = MimeTypes.VIDEO_H265;
+          Pair<List<byte[]>, Integer> hevcData = parseHEVCCodecPrivate(
+              new ParsableByteArray(codecPrivate));
+          initializationData = hevcData.first;
+          nalUnitLengthFieldLength = hevcData.second;
+          break;
         case CODEC_ID_VORBIS:
           mimeType = MimeTypes.AUDIO_VORBIS;
           maxInputSize = VORBIS_MAX_INPUT_SIZE;
@@ -1134,6 +1143,58 @@ public final class WebmExtractor implements Extractor {
           initializationData.add(NalUnitUtil.parseChildNalUnit(buffer));
         }
         return Pair.create(initializationData, nalUnitLengthFieldLength);
+      } catch (ArrayIndexOutOfBoundsException e) {
+        throw new ParserException("Error parsing vorbis codec private");
+      }
+    }
+
+    /**
+     * Builds initialization data for a {@link MediaFormat} from H.265 (HEVC) codec private data.
+     *
+     * @return The initialization data for the {@link MediaFormat}.
+     * @throws ParserException If the initialization data could not be built.
+     */
+    private static Pair<List<byte[]>, Integer> parseHEVCCodecPrivate(ParsableByteArray parent)
+        throws ParserException {
+      try {
+        // TODO: Deduplicate with AtomParsers.parseAvcCFromParent.
+        parent.setPosition(21);
+        int lengthSizeMinusOne = parent.readUnsignedByte() & 0x03;
+
+        // Calculate the combined size of all VPS/SPS/PPS bitstreams.
+        int numberOfArrays = parent.readUnsignedByte();
+        int csdLength = 0;
+        int csdStartPosition = parent.getPosition();
+        for (int i = 0; i < numberOfArrays; i++) {
+          parent.skipBytes(1); // completeness (1), nal_unit_type (7)
+          int numberOfNalUnits = parent.readUnsignedShort();
+          for (int j = 0; j < numberOfNalUnits; j++) {
+            int nalUnitLength = parent.readUnsignedShort();
+            csdLength += 4 + nalUnitLength; // Start code and NAL unit.
+            parent.skipBytes(nalUnitLength);
+          }
+        }
+
+        // Concatenate the codec-specific data into a single buffer.
+        parent.setPosition(csdStartPosition);
+        byte[] buffer = new byte[csdLength];
+        int bufferPosition = 0;
+        for (int i = 0; i < numberOfArrays; i++) {
+          parent.skipBytes(1); // completeness (1), nal_unit_type (7)
+          int numberOfNalUnits = parent.readUnsignedShort();
+          for (int j = 0; j < numberOfNalUnits; j++) {
+            int nalUnitLength = parent.readUnsignedShort();
+            System.arraycopy(NalUnitUtil.NAL_START_CODE, 0, buffer, bufferPosition,
+                NalUnitUtil.NAL_START_CODE.length);
+            bufferPosition += NalUnitUtil.NAL_START_CODE.length;
+            System.arraycopy(parent.data, parent.getPosition(), buffer, bufferPosition, nalUnitLength);
+            bufferPosition += nalUnitLength;
+            parent.skipBytes(nalUnitLength);
+          }
+        }
+
+        List<byte[]> initializationData = csdLength == 0 ? null : Collections.singletonList(buffer);
+        return Pair.create(initializationData, lengthSizeMinusOne + 1);
       } catch (ArrayIndexOutOfBoundsException e) {
         throw new ParserException("Error parsing vorbis codec private");
       }
