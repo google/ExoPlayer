@@ -76,11 +76,13 @@ import java.io.IOException;
         return false;
       }
       long size = readUint(input);
-      if (size <= 0 || size > Integer.MAX_VALUE) {
+      if (size < 0 || size > Integer.MAX_VALUE) {
         return false;
       }
-      input.advancePeekPosition((int) size);
-      peekLength += size;
+      if (size != 0) {
+        input.advancePeekPosition((int) size);
+        peekLength += size;
+      }
     }
     return peekLength == headerStart + headerSize;
   }

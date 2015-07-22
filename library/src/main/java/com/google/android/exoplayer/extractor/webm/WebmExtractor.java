@@ -1187,7 +1187,8 @@ public final class WebmExtractor implements Extractor {
             System.arraycopy(NalUnitUtil.NAL_START_CODE, 0, buffer, bufferPosition,
                 NalUnitUtil.NAL_START_CODE.length);
             bufferPosition += NalUnitUtil.NAL_START_CODE.length;
-            System.arraycopy(parent.data, parent.getPosition(), buffer, bufferPosition, nalUnitLength);
+            System.arraycopy(parent.data, parent.getPosition(), buffer, bufferPosition,
+                nalUnitLength);
             bufferPosition += nalUnitLength;
             parent.skipBytes(nalUnitLength);
           }
