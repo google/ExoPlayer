@@ -37,6 +37,7 @@ public class MimeTypes {
   public static final String VIDEO_VP8 = BASE_TYPE_VIDEO + "/x-vnd.on2.vp8";
   public static final String VIDEO_VP9 = BASE_TYPE_VIDEO + "/x-vnd.on2.vp9";
   public static final String VIDEO_MP4V = BASE_TYPE_VIDEO + "/mp4v-es";
+  public static final String VIDEO_H263 = BASE_TYPE_VIDEO + "/3gpp";
 
   public static final String AUDIO_MP4 = BASE_TYPE_AUDIO + "/mp4";
   public static final String AUDIO_AAC = BASE_TYPE_AUDIO + "/mp4a-latm";

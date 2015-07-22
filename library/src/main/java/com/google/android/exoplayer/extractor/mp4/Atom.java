@@ -92,6 +92,8 @@ import java.util.List;
   public static final int TYPE_stco = Util.getIntegerCodeForString("stco");
   public static final int TYPE_co64 = Util.getIntegerCodeForString("co64");
   public static final int TYPE_tx3g = Util.getIntegerCodeForString("tx3g");
+  public static final int TYPE_s263 = Util.getIntegerCodeForString("s263");
+  public static final int TYPE_d263 = Util.getIntegerCodeForString("d263");
 
   public final int type;
 
