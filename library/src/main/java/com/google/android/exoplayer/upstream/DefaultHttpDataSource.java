@@ -27,6 +27,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.NoRouteToHostException;
 import java.net.ProtocolException;
@@ -329,6 +330,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
    */
   private HttpURLConnection makeConnection(DataSpec dataSpec) throws IOException {
     URL url = new URL(dataSpec.uri.toString());
+    byte[] postBody = dataSpec.postBody;
     long position = dataSpec.position;
     long length = dataSpec.length;
     boolean allowGzip = (dataSpec.flags & DataSpec.FLAG_ALLOW_GZIP) != 0;
@@ -336,24 +338,27 @@ public class DefaultHttpDataSource implements HttpDataSource {
     if (!allowCrossProtocolRedirects) {
       // HttpURLConnection disallows cross-protocol redirects, but otherwise performs redirection
       // automatically. This is the behavior we want, so use it.
-      HttpURLConnection connection = configureConnection(url, position, length, allowGzip);
-      connection.connect();
+      HttpURLConnection connection = makeConnection(
+          url, postBody, position, length, allowGzip, true /* followRedirects */);
       return connection;
     }
 
     // We need to handle redirects ourselves to allow cross-protocol redirects.
     int redirectCount = 0;
     while (redirectCount++ <= MAX_REDIRECTS) {
-      HttpURLConnection connection = configureConnection(url, position, length, allowGzip);
-      connection.setInstanceFollowRedirects(false);
-      connection.connect();
+      HttpURLConnection connection = makeConnection(
+          url, postBody, position, length, allowGzip, false /* followRedirects */);
       int responseCode = connection.getResponseCode();
       if (responseCode == HttpURLConnection.HTTP_MULT_CHOICE
           || responseCode == HttpURLConnection.HTTP_MOVED_PERM
           || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
           || responseCode == HttpURLConnection.HTTP_SEE_OTHER
-          || responseCode == 307 /* HTTP_TEMP_REDIRECT */
-          || responseCode == 308 /* HTTP_PERM_REDIRECT */) {
+          || (postBody == null
+              && (responseCode == 307 /* HTTP_TEMP_REDIRECT */
+                  || responseCode == 308 /* HTTP_PERM_REDIRECT */))) {
+        // For 300, 301, 302, and 303 POST requests follow the redirect and are transformed into
+        // GET requests. For 307 and 308 POST requests are not redirected.
+        postBody = null;
         String location = connection.getHeaderField("Location");
         connection.disconnect();
         url = handleRedirect(url, location);
@@ -367,19 +372,20 @@ public class DefaultHttpDataSource implements HttpDataSource {
   }
 
   /**
-   * Configures a connection, but does not open it.
+   * Configures a connection and opens it.
    *
    * @param url The url to connect to.
+   * @param postBody The body data for a POST request.
    * @param position The byte offset of the requested data.
    * @param length The length of the requested data, or {@link C#LENGTH_UNBOUNDED}.
    * @param allowGzip Whether to allow the use of gzip.
+   * @param followRedirects Whether to follow redirects.
    */
-  private HttpURLConnection configureConnection(URL url, long position, long length,
-      boolean allowGzip) throws IOException {
+  private HttpURLConnection makeConnection(URL url, byte[] postBody, long position,
+      long length, boolean allowGzip, boolean followRedirects) throws IOException {
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.setConnectTimeout(connectTimeoutMillis);
     connection.setReadTimeout(readTimeoutMillis);
-    connection.setDoOutput(false);
     synchronized (requestProperties) {
       for (Map.Entry<String, String> property : requestProperties.entrySet()) {
         connection.setRequestProperty(property.getKey(), property.getValue());
@@ -395,6 +401,17 @@ public class DefaultHttpDataSource implements HttpDataSource {
     connection.setRequestProperty("User-Agent", userAgent);
     if (!allowGzip) {
       connection.setRequestProperty("Accept-Encoding", "identity");
+    }
+    connection.setInstanceFollowRedirects(followRedirects);
+    connection.setDoOutput(postBody != null);
+    if (postBody != null) {
+      connection.setFixedLengthStreamingMode(postBody.length);
+      connection.connect();
+      OutputStream os = connection.getOutputStream();
+      os.write(postBody);
+      os.close();
+    } else {
+      connection.connect();
     }
     return connection;
   }

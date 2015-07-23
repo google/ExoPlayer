@@ -20,6 +20,8 @@ import com.google.android.exoplayer.util.Assertions;
 
 import android.net.Uri;
 
+import java.util.Arrays;
+
 /**
  * Defines a region of media data.
  */
@@ -42,6 +44,10 @@ public final class DataSpec {
    * Identifies the source from which data should be read.
    */
   public final Uri uri;
+  /**
+   * Body for a POST request, null otherwise.
+   */
+  public final byte[] postBody;
   /**
    * The absolute position of the data in the full stream.
    */
@@ -124,10 +130,28 @@ public final class DataSpec {
    */
   public DataSpec(Uri uri, long absoluteStreamPosition, long position, long length, String key,
       int flags) {
+    this(uri, null, absoluteStreamPosition, position, length, key, flags);
+  }
+
+  /**
+   * Construct a {@link DataSpec} where {@link #position} may differ from
+   * {@link #absoluteStreamPosition}.
+   *
+   * @param uri {@link #uri}.
+   * @param postBody {@link #postBody}.
+   * @param absoluteStreamPosition {@link #absoluteStreamPosition}.
+   * @param position {@link #position}.
+   * @param length {@link #length}.
+   * @param key {@link #key}.
+   * @param flags {@link #flags}.
+   */
+  public DataSpec(Uri uri, byte[] postBody, long absoluteStreamPosition, long position, long length,
+      String key, int flags) {
     Assertions.checkArgument(absoluteStreamPosition >= 0);
     Assertions.checkArgument(position >= 0);
     Assertions.checkArgument(length > 0 || length == C.LENGTH_UNBOUNDED);
     this.uri = uri;
+    this.postBody = postBody;
     this.absoluteStreamPosition = absoluteStreamPosition;
     this.position = position;
     this.length = length;
@@ -137,8 +161,8 @@ public final class DataSpec {
 
   @Override
   public String toString() {
-    return "DataSpec[" + uri + ", " + absoluteStreamPosition + ", " + position + ", " + length
-        + ", " + key + ", " + flags + "]";
+    return "DataSpec[" + uri + ", " + Arrays.toString(postBody) + ", " + absoluteStreamPosition
+        + ", "  + position + ", " + length + ", " + key + ", " + flags + "]";
   }
 
 }
