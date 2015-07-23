@@ -108,13 +108,15 @@ public class ManifestFetcher<T> implements Loader.Callback {
   private int enabledCount;
   private Loader loader;
   private UriLoadable<T> currentLoadable;
+  private long currentLoadStartTimestamp;
 
   private int loadExceptionCount;
   private long loadExceptionTimestamp;
   private IOException loadException;
 
   private volatile T manifest;
-  private volatile long manifestLoadTimestamp;
+  private volatile long manifestLoadStartTimestamp;
+  private volatile long manifestLoadCompleteTimestamp;
 
   /**
    * @param manifestUri The manifest location.
@@ -177,12 +179,22 @@ public class ManifestFetcher<T> implements Loader.Callback {
   }
 
   /**
+   * Gets the value of {@link SystemClock#elapsedRealtime()} when the last completed load started.
+   *
+   * @return The value of {@link SystemClock#elapsedRealtime()} when the last completed load
+   *     started.
+   */
+  public long getManifestLoadStartTimestamp() {
+    return manifestLoadStartTimestamp;
+  }
+
+  /**
    * Gets the value of {@link SystemClock#elapsedRealtime()} when the last load completed.
    *
    * @return The value of {@link SystemClock#elapsedRealtime()} when the last load completed.
    */
-  public long getManifestLoadTimestamp() {
-    return manifestLoadTimestamp;
+  public long getManifestLoadCompleteTimestamp() {
+    return manifestLoadCompleteTimestamp;
   }
 
   /**
@@ -235,6 +247,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
     }
     if (!loader.isLoading()) {
       currentLoadable = new UriLoadable<>(manifestUri, uriDataSource, parser);
+      currentLoadStartTimestamp = SystemClock.elapsedRealtime();
       loader.startLoading(currentLoadable, this);
       notifyManifestRefreshStarted();
     }
@@ -248,7 +261,8 @@ public class ManifestFetcher<T> implements Loader.Callback {
     }
 
     manifest = currentLoadable.getResult();
-    manifestLoadTimestamp = SystemClock.elapsedRealtime();
+    manifestLoadStartTimestamp = currentLoadStartTimestamp;
+    manifestLoadCompleteTimestamp = SystemClock.elapsedRealtime();
     loadExceptionCount = 0;
     loadException = null;
 
@@ -282,9 +296,10 @@ public class ManifestFetcher<T> implements Loader.Callback {
     notifyManifestError(loadException);
   }
 
-  /* package */ void onSingleFetchCompleted(T result) {
+  /* package */ void onSingleFetchCompleted(T result, long loadStartTimestamp) {
     manifest = result;
-    manifestLoadTimestamp = SystemClock.elapsedRealtime();
+    manifestLoadStartTimestamp = loadStartTimestamp;
+    manifestLoadCompleteTimestamp = SystemClock.elapsedRealtime();
   }
 
   private long getRetryDelayMillis(long errorCount) {
@@ -331,6 +346,8 @@ public class ManifestFetcher<T> implements Loader.Callback {
     private final ManifestCallback<T> wrappedCallback;
     private final Loader singleUseLoader;
 
+    private long loadStartTimestamp;
+
     public SingleFetchHelper(UriLoadable<T> singleUseLoadable, Looper callbackLooper,
         ManifestCallback<T> wrappedCallback) {
       this.singleUseLoadable = singleUseLoadable;
@@ -340,6 +357,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
     }
 
     public void startLoading() {
+      loadStartTimestamp = SystemClock.elapsedRealtime();
       singleUseLoader.startLoading(callbackLooper, singleUseLoadable, this);
     }
 
@@ -347,7 +365,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
     public void onLoadCompleted(Loadable loadable) {
       try {
         T result = singleUseLoadable.getResult();
-        onSingleFetchCompleted(result);
+        onSingleFetchCompleted(result, loadStartTimestamp);
         wrappedCallback.onSingleManifest(result);
       } finally {
         releaseLoader();

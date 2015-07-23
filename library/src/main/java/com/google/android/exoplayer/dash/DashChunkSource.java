@@ -386,7 +386,7 @@ public class DashChunkSource implements ChunkSource {
     }
 
     if (finishedCurrentManifest && (android.os.SystemClock.elapsedRealtime()
-        > manifestFetcher.getManifestLoadTimestamp() + minUpdatePeriod)) {
+        > manifestFetcher.getManifestLoadStartTimestamp() + minUpdatePeriod)) {
       manifestFetcher.requestRefresh();
     }
   }

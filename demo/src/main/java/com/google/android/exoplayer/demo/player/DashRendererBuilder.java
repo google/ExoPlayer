@@ -134,7 +134,7 @@ public class DashRendererBuilder implements RendererBuilder,
     this.manifest = manifest;
     if (manifest.dynamic && manifest.utcTiming != null) {
       UtcTimingElementResolver.resolveTimingElement(manifestDataSource, manifest.utcTiming,
-          manifestFetcher.getManifestLoadTimestamp(), this);
+          manifestFetcher.getManifestLoadCompleteTimestamp(), this);
     } else {
       buildRenderers();
     }
