@@ -141,7 +141,9 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
       for (int i = 0; i < subtitleParsers.length; i++) {
         try {
           subtitleParsers[i] = DEFAULT_PARSER_CLASSES.get(i).newInstance();
-        } catch (ReflectiveOperationException e) {
+        } catch (InstantiationException e) {
+          throw new IllegalStateException("Unexpected error creating default parser", e);
+        } catch (IllegalAccessException e) {
           throw new IllegalStateException("Unexpected error creating default parser", e);
         }
       }

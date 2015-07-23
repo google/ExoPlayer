@@ -247,7 +247,9 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
       for (int i = 0; i < extractors.length; i++) {
         try {
           extractors[i] = DEFAULT_EXTRACTOR_CLASSES.get(i).newInstance();
-        } catch (ReflectiveOperationException e) {
+        } catch (InstantiationException e) {
+          throw new IllegalStateException("Unexpected error creating default extractor", e);
+        } catch (IllegalAccessException e) {
           throw new IllegalStateException("Unexpected error creating default extractor", e);
         }
       }
