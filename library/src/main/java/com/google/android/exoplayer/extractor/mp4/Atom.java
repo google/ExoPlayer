@@ -41,6 +41,8 @@ import java.util.List;
   public static final int TYPE_avc3 = Util.getIntegerCodeForString("avc3");
   public static final int TYPE_hvc1 = Util.getIntegerCodeForString("hvc1");
   public static final int TYPE_hev1 = Util.getIntegerCodeForString("hev1");
+  public static final int TYPE_s263 = Util.getIntegerCodeForString("s263");
+  public static final int TYPE_d263 = Util.getIntegerCodeForString("d263");
   public static final int TYPE_mdat = Util.getIntegerCodeForString("mdat");
   public static final int TYPE_mp4a = Util.getIntegerCodeForString("mp4a");
   public static final int TYPE_ac_3 = Util.getIntegerCodeForString("ac-3");
@@ -92,8 +94,6 @@ import java.util.List;
   public static final int TYPE_stco = Util.getIntegerCodeForString("stco");
   public static final int TYPE_co64 = Util.getIntegerCodeForString("co64");
   public static final int TYPE_tx3g = Util.getIntegerCodeForString("tx3g");
-  public static final int TYPE_s263 = Util.getIntegerCodeForString("s263");
-  public static final int TYPE_d263 = Util.getIntegerCodeForString("d263");
 
   public final int type;
 

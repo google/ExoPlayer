@@ -1069,14 +1069,14 @@ public final class WebmExtractor implements Extractor {
           break;
         case CODEC_ID_H264:
           mimeType = MimeTypes.VIDEO_H264;
-          Pair<List<byte[]>, Integer> h264Data = parseH264CodecPrivate(
+          Pair<List<byte[]>, Integer> h264Data = parseAvcCodecPrivate(
               new ParsableByteArray(codecPrivate));
           initializationData = h264Data.first;
           nalUnitLengthFieldLength = h264Data.second;
           break;
         case CODEC_ID_H265:
           mimeType = MimeTypes.VIDEO_H265;
-          Pair<List<byte[]>, Integer> hevcData = parseHEVCCodecPrivate(
+          Pair<List<byte[]>, Integer> hevcData = parseHevcCodecPrivate(
               new ParsableByteArray(codecPrivate));
           initializationData = hevcData.first;
           nalUnitLengthFieldLength = hevcData.second;
@@ -1121,12 +1121,12 @@ public final class WebmExtractor implements Extractor {
     }
 
     /**
-     * Builds initialization data for a {@link MediaFormat} from H.264 codec private data.
+     * Builds initialization data for a {@link MediaFormat} from H.264 (AVC) codec private data.
      *
      * @return The initialization data for the {@link MediaFormat}.
      * @throws ParserException If the initialization data could not be built.
      */
-    private static Pair<List<byte[]>, Integer> parseH264CodecPrivate(ParsableByteArray buffer)
+    private static Pair<List<byte[]>, Integer> parseAvcCodecPrivate(ParsableByteArray buffer)
         throws ParserException {
       try {
         // TODO: Deduplicate with AtomParsers.parseAvcCFromParent.
@@ -1144,7 +1144,7 @@ public final class WebmExtractor implements Extractor {
         }
         return Pair.create(initializationData, nalUnitLengthFieldLength);
       } catch (ArrayIndexOutOfBoundsException e) {
-        throw new ParserException("Error parsing vorbis codec private");
+        throw new ParserException("Error parsing AVC codec private");
       }
     }
 
@@ -1154,10 +1154,10 @@ public final class WebmExtractor implements Extractor {
      * @return The initialization data for the {@link MediaFormat}.
      * @throws ParserException If the initialization data could not be built.
      */
-    private static Pair<List<byte[]>, Integer> parseHEVCCodecPrivate(ParsableByteArray parent)
+    private static Pair<List<byte[]>, Integer> parseHevcCodecPrivate(ParsableByteArray parent)
         throws ParserException {
       try {
-        // TODO: Deduplicate with AtomParsers.parseAvcCFromParent.
+        // TODO: Deduplicate with AtomParsers.parseHvcCFromParent.
         parent.setPosition(21);
         int lengthSizeMinusOne = parent.readUnsignedByte() & 0x03;
 
@@ -1197,7 +1197,7 @@ public final class WebmExtractor implements Extractor {
         List<byte[]> initializationData = csdLength == 0 ? null : Collections.singletonList(buffer);
         return Pair.create(initializationData, lengthSizeMinusOne + 1);
       } catch (ArrayIndexOutOfBoundsException e) {
-        throw new ParserException("Error parsing vorbis codec private");
+        throw new ParserException("Error parsing HEVC codec private");
       }
     }
 
