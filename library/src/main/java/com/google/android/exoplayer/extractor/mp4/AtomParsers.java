@@ -45,7 +45,7 @@ import java.util.List;
     Atom.ContainerAtom mdia = trak.getContainerAtomOfType(Atom.TYPE_mdia);
     int trackType = parseHdlr(mdia.getLeafAtomOfType(Atom.TYPE_hdlr).data);
     if (trackType != Track.TYPE_AUDIO && trackType != Track.TYPE_VIDEO
-        && trackType != Track.TYPE_TEXT && trackType != Track.TYPE_TIME_CODE) {
+        && trackType != Track.TYPE_TEXT && trackType != Track.TYPE_SUBTITLE) {
       return null;
     }
 
@@ -344,9 +344,9 @@ import java.util.List;
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, durationUs,
             holder, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
-        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML);
+        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML, durationUs);
       } else if (childAtomType == Atom.TYPE_tx3g) {
-        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TX3G);
+        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TX3G, durationUs);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }

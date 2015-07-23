@@ -206,6 +206,10 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
       }
     }
 
+    if (getState() != TrackRenderer.STATE_STARTED) {
+      return;
+    }
+
     boolean textRendererNeedsUpdate = false;
     long subtitleNextEventTimeUs = Long.MAX_VALUE;
     if (subtitle != null) {
@@ -228,7 +232,7 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
       textRendererNeedsUpdate = true;
     }
 
-    if (textRendererNeedsUpdate && getState() == TrackRenderer.STATE_STARTED) {
+    if (textRendererNeedsUpdate) {
       // textRendererNeedsUpdate is set and we're playing. Update the renderer.
       updateTextRenderer(subtitle.getCues(positionUs));
     }
