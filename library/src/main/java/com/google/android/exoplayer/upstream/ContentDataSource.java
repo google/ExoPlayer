@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.upstream;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.util.Assertions;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -75,11 +74,21 @@ public final class ContentDataSource implements UriDataSource {
       AssetFileDescriptor assetFd = resolver.openAssetFileDescriptor(dataSpec.uri, "r");
       inputStream = new FileInputStream(assetFd.getFileDescriptor());
       long skipped = inputStream.skip(dataSpec.position);
-      Assertions.checkState(skipped == dataSpec.position);
-      bytesRemaining = dataSpec.length == C.LENGTH_UNBOUNDED ? inputStream.available()
-          : dataSpec.length;
-      if (bytesRemaining < 0) {
+      if (skipped < dataSpec.position) {
+        // We expect the skip to be satisfied in full. If it isn't then we're probably trying to
+        // skip beyond the end of the data.
         throw new EOFException();
+      }
+      if (dataSpec.length != C.LENGTH_UNBOUNDED) {
+        bytesRemaining = dataSpec.length;
+      } else {
+        bytesRemaining = inputStream.available();
+        if (bytesRemaining == 0) {
+          // FileInputStream.available() returns 0 if the remaining length cannot be determined, or
+          // if it's greater than Integer.MAX_VALUE. We don't know the true length in either case,
+          // so treat as unbounded.
+          bytesRemaining = C.LENGTH_UNBOUNDED;
+        }
       }
     } catch (IOException e) {
       throw new ContentDataSourceException(e);
@@ -100,13 +109,17 @@ public final class ContentDataSource implements UriDataSource {
     } else {
       int bytesRead = 0;
       try {
-        bytesRead = inputStream.read(buffer, offset, (int) Math.min(bytesRemaining, readLength));
+        int bytesToRead = bytesRemaining == C.LENGTH_UNBOUNDED ? readLength
+            : (int) Math.min(bytesRemaining, readLength);
+        bytesRead = inputStream.read(buffer, offset, bytesToRead);
       } catch (IOException e) {
         throw new ContentDataSourceException(e);
       }
 
       if (bytesRead > 0) {
-        bytesRemaining -= bytesRead;
+        if (bytesRemaining != C.LENGTH_UNBOUNDED) {
+          bytesRemaining -= bytesRead;
+        }
         if (listener != null) {
           listener.onBytesTransferred(bytesRead);
         }
