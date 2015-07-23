@@ -65,6 +65,9 @@ public final class WebmExtractor implements Extractor {
   private static final String DOC_TYPE_MATROSKA = "matroska";
   private static final String CODEC_ID_VP8 = "V_VP8";
   private static final String CODEC_ID_VP9 = "V_VP9";
+  private static final String CODEC_ID_MPEG4_SP = "V_MPEG4/ISO/SP";
+  private static final String CODEC_ID_MPEG4_ASP = "V_MPEG4/ISO/ASP";
+  private static final String CODEC_ID_MPEG4_AP = "V_MPEG4/ISO/AP";
   private static final String CODEC_ID_H264 = "V_MPEG4/ISO/AVC";
   private static final String CODEC_ID_H265 = "V_MPEGH/ISO/HEVC";
   private static final String CODEC_ID_VORBIS = "A_VORBIS";
@@ -962,6 +965,9 @@ public final class WebmExtractor implements Extractor {
   private static boolean isCodecSupported(String codecId) {
     return CODEC_ID_VP8.equals(codecId)
         || CODEC_ID_VP9.equals(codecId)
+        || CODEC_ID_MPEG4_SP.equals(codecId)
+        || CODEC_ID_MPEG4_ASP.equals(codecId)
+        || CODEC_ID_MPEG4_AP.equals(codecId)
         || CODEC_ID_H264.equals(codecId)
         || CODEC_ID_H265.equals(codecId)
         || CODEC_ID_OPUS.equals(codecId)
@@ -1066,6 +1072,13 @@ public final class WebmExtractor implements Extractor {
           break;
         case CODEC_ID_VP9:
           mimeType = MimeTypes.VIDEO_VP9;
+          break;
+        case CODEC_ID_MPEG4_SP:
+        case CODEC_ID_MPEG4_ASP:
+        case CODEC_ID_MPEG4_AP:
+          mimeType = MimeTypes.VIDEO_MP4V;
+          initializationData =
+              codecPrivate == null ? null : Collections.singletonList(codecPrivate);
           break;
         case CODEC_ID_H264:
           mimeType = MimeTypes.VIDEO_H264;
