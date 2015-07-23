@@ -239,7 +239,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     }
 
     if (finishedCurrentManifest && (SystemClock.elapsedRealtime()
-        > manifestFetcher.getManifestLoadTimestamp() + MINIMUM_MANIFEST_REFRESH_PERIOD_MS)) {
+        > manifestFetcher.getManifestLoadStartTimestamp() + MINIMUM_MANIFEST_REFRESH_PERIOD_MS)) {
       manifestFetcher.requestRefresh();
     }
   }
