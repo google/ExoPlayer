@@ -32,6 +32,7 @@ import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
 import android.os.SystemClock;
@@ -40,7 +41,6 @@ import android.util.SparseArray;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -69,6 +69,18 @@ import java.util.List;
  */
 public class ExtractorSampleSource implements SampleSource, SampleSourceReader, ExtractorOutput,
     Loader.Callback {
+
+  /**
+   * Thrown if the input format could not recognized.
+   */
+  public static final class UnrecognizedInputFormatException extends ParserException {
+
+    public UnrecognizedInputFormatException(Extractor[] extractors) {
+      super("None of the available extractors ("
+          + Util.getCommaDelimitedSimpleClassNames(extractors) + ") could read the stream.");
+    }
+
+  }
 
   /**
    * The default minimum number of times to retry loading prior to failing for on-demand streams.
@@ -401,6 +413,9 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
     if (currentLoadableException == null) {
       return;
     }
+    if (isCurrentLoadableExceptionFatal()) {
+      throw currentLoadableException;
+    }
     int minLoadableRetryCountForMedia;
     if (minLoadableRetryCount != MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA) {
       minLoadableRetryCountForMedia = minLoadableRetryCount;
@@ -545,6 +560,9 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
     }
 
     if (currentLoadableException != null) {
+      if (isCurrentLoadableExceptionFatal()) {
+        return;
+      }
       Assertions.checkState(loadable != null);
       long elapsedMillis = SystemClock.elapsedRealtime() - currentLoadableExceptionTimestamp;
       if (elapsedMillis >= getRetryDelayMillis(currentLoadableExceptionCount)) {
@@ -640,6 +658,10 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
 
   private boolean isPendingReset() {
     return pendingResetPositionUs != NO_RESET_PENDING;
+  }
+
+  private boolean isCurrentLoadableExceptionFatal() {
+    return currentLoadableException instanceof UnrecognizedInputFormatException;
   }
 
   private long getRetryDelayMillis(long errorCount) {
@@ -787,17 +809,6 @@ public class ExtractorSampleSource implements SampleSource, SampleSourceReader, 
       }
       extractor.init(extractorOutput);
       return extractor;
-    }
-
-  }
-
-  /**
-   * Thrown if the input format could not recognized by {@link Extractor#sniff(ExtractorInput)}.
-   */
-  private static final class UnrecognizedInputFormatException extends ParserException {
-
-    public UnrecognizedInputFormatException(Extractor[] extractors) {
-      super("None of the extractors " + Arrays.toString(extractors) + " could read the stream.");
     }
 
   }
