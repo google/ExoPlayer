@@ -15,10 +15,8 @@
  */
 package com.google.android.exoplayer.extractor.mp3;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import android.net.Uri;
+import android.test.InstrumentationTestCase;
 
 import com.google.android.exoplayer.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorInput;
@@ -28,13 +26,15 @@ import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
-import android.net.Uri;
-import android.test.InstrumentationTestCase;
-
 import org.mockito.Mock;
 
 import java.nio.BufferOverflowException;
 import java.util.Arrays;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * Tests for {@link BufferingInput}.
@@ -52,13 +52,13 @@ public class BufferingInputTest extends InstrumentationTestCase {
 
   @Override
   public void setUp() throws Exception {
-    TestUtil.setUpMockito(this);
-
     FakeDataSource.Builder builder = new FakeDataSource.Builder();
     builder.appendReadData(STREAM_DATA);
     FakeDataSource fakeDataSource = builder.build();
     fakeDataSource.open(new DataSpec(Uri.parse(TEST_URI)));
     fakeExtractorInput = new DefaultExtractorInput(fakeDataSource, 0, STREAM_DATA.length);
+
+    TestUtil.setUpMockito(this);
   }
 
   public void testReadFromExtractor() throws Exception {

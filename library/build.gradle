@@ -48,9 +48,10 @@ android {
 }
 
 dependencies {
-    androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
-    androidTestCompile 'org.mockito:mockito-core:1.9.5'
+    androidTestCompile "org.mockito:mockito-core:${MOCKITO_VERSION}"
+    androidTestCompile "com.crittercism.dexmaker:dexmaker:${DEXMAKER_VERSION}"
+    androidTestCompile "com.crittercism.dexmaker:dexmaker-dx:${DEXMAKER_VERSION}"
+    androidTestCompile "com.crittercism.dexmaker:dexmaker-mockito:${DEXMAKER_VERSION}"
 }
 
 android.libraryVariants.all { variant ->
