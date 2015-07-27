@@ -15,15 +15,15 @@
  */
 package com.google.android.exoplayer.testutil;
 
+import android.net.Uri;
+import android.test.InstrumentationTestCase;
+
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.upstream.DataSpec;
-
-import android.net.Uri;
-import android.test.InstrumentationTestCase;
 
 import org.mockito.MockitoAnnotations;
 
@@ -100,9 +100,6 @@ public class TestUtil {
   }
 
   public static void setUpMockito(InstrumentationTestCase instrumentationTestCase) {
-    // Workaround for https://code.google.com/p/dexmaker/issues/detail?id=2.
-    System.setProperty("dexmaker.dexcache",
-        instrumentationTestCase.getInstrumentation().getTargetContext().getCacheDir().getPath());
     MockitoAnnotations.initMocks(instrumentationTestCase);
   }
 
