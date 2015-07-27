@@ -67,39 +67,20 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
    */
   public interface RendererBuilder {
     /**
-     * Constructs the necessary components for playback.
+     * Builds renderers for playback.
      *
-     * @param player The parent player.
-     * @param callback The callback to invoke with the constructed components.
+     * @param player The player for which renderers are being built. {@link DemoPlayer#onRenderers}
+     *     should be invoked once the renderers have been built. If building fails,
+     *     {@link DemoPlayer#onRenderersError} should be invoked.
      */
-    void buildRenderers(DemoPlayer player, RendererBuilderCallback callback);
-  }
-
-  /**
-   * A callback invoked by a {@link RendererBuilder}.
-   */
-  public interface RendererBuilderCallback {
+    void buildRenderers(DemoPlayer player);
     /**
-     * Invoked with the results from a {@link RendererBuilder}.
-     *
-     * @param trackNames The names of the available tracks, indexed by {@link DemoPlayer} TYPE_*
-     *     constants. May be null if the track names are unknown. An individual element may be null
-     *     if the track names are unknown for the corresponding type.
-     * @param multiTrackSources Sources capable of switching between multiple available tracks,
-     *     indexed by {@link DemoPlayer} TYPE_* constants. May be null if there are no types with
-     *     multiple tracks. An individual element may be null if it does not have multiple tracks.
-     * @param renderers Renderers indexed by {@link DemoPlayer} TYPE_* constants. An individual
-     *     element may be null if there do not exist tracks of the corresponding type.
-     * @param bandwidthMeter Provides an estimate of the currently available bandwidth. May be null.
+     * Cancels the current build operation, if there is one. Else does nothing.
+     * <p>
+     * A canceled build operation must not invoke {@link DemoPlayer#onRenderers} or
+     * {@link DemoPlayer#onRenderersError} on the player, which may have been released.
      */
-    void onRenderers(String[][] trackNames, MultiTrackChunkSource[] multiTrackSources,
-        TrackRenderer[] renderers, BandwidthMeter bandwidthMeter);
-    /**
-     * Invoked if a {@link RendererBuilder} encounters an error.
-     *
-     * @param e Describes the error.
-     */
-    void onRenderersError(Exception e);
+    void cancel();
   }
 
   /**
@@ -191,7 +172,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   private boolean lastReportedPlayWhenReady;
 
   private Surface surface;
-  private InternalRendererBuilderCallback builderCallback;
   private TrackRenderer videoRenderer;
   private CodecCounters codecCounters;
   private Format videoFormat;
@@ -305,22 +285,31 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     if (rendererBuildingState == RENDERER_BUILDING_STATE_BUILT) {
       player.stop();
     }
-    if (builderCallback != null) {
-      builderCallback.cancel();
-    }
+    rendererBuilder.cancel();
     videoFormat = null;
     videoRenderer = null;
     multiTrackSources = null;
     rendererBuildingState = RENDERER_BUILDING_STATE_BUILDING;
     maybeReportPlayerState();
-    builderCallback = new InternalRendererBuilderCallback();
-    rendererBuilder.buildRenderers(this, builderCallback);
+    rendererBuilder.buildRenderers(this);
   }
 
+  /**
+   * Invoked with the results from a {@link RendererBuilder}.
+   *
+   * @param trackNames The names of the available tracks, indexed by {@link DemoPlayer} TYPE_*
+   *     constants. May be null if the track names are unknown. An individual element may be null
+   *     if the track names are unknown for the corresponding type.
+   * @param multiTrackSources Sources capable of switching between multiple available tracks,
+   *     indexed by {@link DemoPlayer} TYPE_* constants. May be null if there are no types with
+   *     multiple tracks. An individual element may be null if it does not have multiple tracks.
+   * @param renderers Renderers indexed by {@link DemoPlayer} TYPE_* constants. An individual
+   *     element may be null if there do not exist tracks of the corresponding type.
+   * @param bandwidthMeter Provides an estimate of the currently available bandwidth. May be null.
+   */
   /* package */ void onRenderers(String[][] trackNames,
       MultiTrackChunkSource[] multiTrackSources, TrackRenderer[] renderers,
       BandwidthMeter bandwidthMeter) {
-    builderCallback = null;
     // Normalize the results.
     if (trackNames == null) {
       trackNames = new String[RENDERER_COUNT][];
@@ -357,8 +346,12 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     rendererBuildingState = RENDERER_BUILDING_STATE_BUILT;
   }
 
+  /**
+   * Invoked if a {@link RendererBuilder} encounters an error.
+   *
+   * @param e Describes the error.
+   */
   /* package */ void onRenderersError(Exception e) {
-    builderCallback = null;
     if (internalErrorListener != null) {
       internalErrorListener.onRendererInitializationError(e);
     }
@@ -378,10 +371,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   public void release() {
-    if (builderCallback != null) {
-      builderCallback.cancel();
-      builderCallback = null;
-    }
+    rendererBuilder.cancel();
     rendererBuildingState = RENDERER_BUILDING_STATE_IDLE;
     surface = null;
     player.release();
@@ -390,14 +380,13 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
 
   public int getPlaybackState() {
     if (rendererBuildingState == RENDERER_BUILDING_STATE_BUILDING) {
-      return ExoPlayer.STATE_PREPARING;
+      return STATE_PREPARING;
     }
     int playerState = player.getPlaybackState();
-    if (rendererBuildingState == RENDERER_BUILDING_STATE_BUILT
-        && rendererBuildingState == RENDERER_BUILDING_STATE_IDLE) {
+    if (rendererBuildingState == RENDERER_BUILDING_STATE_BUILT && playerState == STATE_IDLE) {
       // This is an edge case where the renderers are built, but are still being passed to the
       // player's playback thread.
-      return ExoPlayer.STATE_PREPARING;
+      return STATE_PREPARING;
     }
     return playerState;
   }
@@ -643,31 +632,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
       player.setRendererEnabled(type, allowRendererEnable);
       player.setPlayWhenReady(playWhenReady);
     }
-  }
-
-  private class InternalRendererBuilderCallback implements RendererBuilderCallback {
-
-    private boolean canceled;
-
-    public void cancel() {
-      canceled = true;
-    }
-
-    @Override
-    public void onRenderers(String[][] trackNames, MultiTrackChunkSource[] multiTrackSources,
-        TrackRenderer[] renderers, BandwidthMeter bandwidthMeter) {
-      if (!canceled) {
-        DemoPlayer.this.onRenderers(trackNames, multiTrackSources, renderers, bandwidthMeter);
-      }
-    }
-
-    @Override
-    public void onRenderersError(Exception e) {
-      if (!canceled) {
-        DemoPlayer.this.onRenderersError(e);
-      }
-    }
-
   }
 
 }
