@@ -22,6 +22,7 @@ import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.PositionHolder;
+import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer.extractor.mp4.Atom.LeafAtom;
@@ -93,6 +94,9 @@ public final class FragmentedMp4Extractor implements Extractor {
   // Extractor outputs.
   private ExtractorOutput extractorOutput;
   private TrackOutput trackOutput;
+
+  // Whether extractorOutput.seekMap has been invoked.
+  private boolean haveOutputSeekMap;
 
   public FragmentedMp4Extractor() {
     this(0);
@@ -182,6 +186,10 @@ public final class FragmentedMp4Extractor implements Extractor {
     atomType = atomHeader.readInt();
 
     if (atomType == Atom.TYPE_mdat) {
+      if (!haveOutputSeekMap) {
+        extractorOutput.seekMap(SeekMap.UNSEEKABLE);
+        haveOutputSeekMap = true;
+      }
       if (fragmentRun.sampleEncryptionDataNeedsFill) {
         parserState = STATE_READING_ENCRYPTION_DATA;
       } else {
@@ -233,6 +241,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     } else if (leaf.type == Atom.TYPE_sidx) {
       ChunkIndex segmentIndex = parseSidx(leaf.data, inputPosition);
       extractorOutput.seekMap(segmentIndex);
+      haveOutputSeekMap = true;
     }
   }
 
