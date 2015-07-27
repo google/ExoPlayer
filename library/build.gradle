@@ -38,13 +38,6 @@ android {
     lintOptions {
         abortOnError false
     }
-
-    sourceSets {
-        androidTest {
-            assets.srcDirs = ['src/test/assets']
-            java.srcDirs = ['src/test/java']
-        }
-    }
 }
 
 dependencies {
