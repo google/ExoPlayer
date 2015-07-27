@@ -47,7 +47,7 @@ public final class CodecSpecificDataUtil {
    * @param audioSpecificConfig The AudioSpecificConfig to parse.
    * @return A pair consisting of the sample rate in Hz and the channel count.
    */
-  public static Pair<Integer, Integer> parseAudioSpecificConfig(byte[] audioSpecificConfig) {
+  public static Pair<Integer, Integer> parseAacAudioSpecificConfig(byte[] audioSpecificConfig) {
     int audioObjectType = (audioSpecificConfig[0] >> 3) & 0x1F;
     int byteOffset = audioObjectType == 5 || audioObjectType == 29 ? 1 : 0;
     int frequencyIndex = (audioSpecificConfig[byteOffset] & 0x7) << 1
@@ -66,7 +66,7 @@ public final class CodecSpecificDataUtil {
    * @param channelConfig The channel configuration.
    * @return The AudioSpecificConfig.
    */
-  public static byte[] buildAudioSpecificConfig(int audioObjectType, int sampleRateIndex,
+  public static byte[] buildAacAudioSpecificConfig(int audioObjectType, int sampleRateIndex,
       int channelConfig) {
     byte[] audioSpecificConfig = new byte[2];
     audioSpecificConfig[0] = (byte) ((audioObjectType << 3) & 0xF8 | (sampleRateIndex >> 1) & 0x07);
@@ -81,7 +81,7 @@ public final class CodecSpecificDataUtil {
    * @param numChannels The number of channels.
    * @return The AudioSpecificConfig.
    */
-  public static byte[] buildAudioSpecificConfig(int sampleRate, int numChannels) {
+  public static byte[] buildAacAudioSpecificConfig(int sampleRate, int numChannels) {
     int sampleRateIndex = -1;
     for (int i = 0; i < AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE.length; ++i) {
       if (sampleRate == AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE[i]) {
@@ -132,7 +132,7 @@ public final class CodecSpecificDataUtil {
       // data does not consist of NAL start code delimited units.
       return null;
     }
-    List<Integer> starts = new ArrayList<Integer>();
+    List<Integer> starts = new ArrayList<>();
     int nalUnitIndex = 0;
     do {
       starts.add(nalUnitIndex);

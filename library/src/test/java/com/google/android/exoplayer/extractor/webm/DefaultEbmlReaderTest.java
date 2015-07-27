@@ -173,7 +173,7 @@ public class DefaultEbmlReaderTest extends TestCase {
     private static final int ID_DURATION = 0x4489;
     private static final int ID_SIMPLE_BLOCK = 0xA3;
 
-    private final List<String> events = new ArrayList<String>();
+    private final List<String> events = new ArrayList<>();
 
     @Override
     public int getElementType(int id) {

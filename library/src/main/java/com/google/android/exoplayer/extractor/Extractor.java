@@ -52,9 +52,10 @@ public interface Extractor {
   /**
    * Extracts data read from a provided {@link ExtractorInput}.
    * <p>
-   * Each read will extract at most one sample from the stream before returning.
+   * A single call to this method will block until some progress has been made, but will not block
+   * for longer than this. Hence each call will consume only a small amount of input data.
    * <p>
-   * In the common case, {@link #RESULT_CONTINUE} is returned to indicate that
+   * In the common case, {@link #RESULT_CONTINUE} is returned to indicate that the
    * {@link ExtractorInput} passed to the next read is required to provide data continuing from the
    * position in the stream reached by the returning call. If the extractor requires data to be
    * provided from a different position, then that position is set in {@code seekPosition} and

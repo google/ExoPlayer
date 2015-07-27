@@ -26,6 +26,7 @@ public final class ParsableBitArray {
   // byte (from 0 to 7).
   private int byteOffset;
   private int bitOffset;
+  private int byteLimit;
 
   /** Creates a new instance that initially has no backing data. */
   public ParsableBitArray() {}
@@ -36,7 +37,18 @@ public final class ParsableBitArray {
    * @param data The data to wrap.
    */
   public ParsableBitArray(byte[] data) {
+    this(data, data.length);
+  }
+
+  /**
+   * Creates a new instance that wraps an existing array.
+   *
+   * @param data The data to wrap.
+   * @param limit The limit in bytes.
+   */
+  public ParsableBitArray(byte[] data, int limit) {
     this.data = data;
+    byteLimit = limit;
   }
 
   /**
@@ -45,9 +57,27 @@ public final class ParsableBitArray {
    * @param data The array to wrap.
    */
   public void reset(byte[] data) {
+    reset(data, data.length);
+  }
+
+  /**
+   * Updates the instance to wrap {@code data}, and resets the position to zero.
+   *
+   * @param data The array to wrap.
+   * @param limit The limit in bytes.
+   */
+  public void reset(byte[] data, int limit) {
     this.data = data;
     byteOffset = 0;
     bitOffset = 0;
+    byteLimit = limit;
+  }
+
+  /**
+   * Returns the number of bits yet to be read.
+   */
+  public int bitsLeft() {
+    return (byteLimit - byteOffset) * 8 - bitOffset;
   }
 
   /**
@@ -67,6 +97,7 @@ public final class ParsableBitArray {
   public void setPosition(int position) {
     byteOffset = position / 8;
     bitOffset = position - (byteOffset * 8);
+    assertValidOffset();
   }
 
   /**
@@ -81,6 +112,7 @@ public final class ParsableBitArray {
       byteOffset++;
       bitOffset -= 8;
     }
+    assertValidOffset();
   }
 
   /**
@@ -103,12 +135,20 @@ public final class ParsableBitArray {
       return 0;
     }
 
-    int retval = 0;
+    int returnValue = 0;
 
     // While n >= 8, read whole bytes.
     while (n >= 8) {
+      int byteValue;
+      if (bitOffset != 0) {
+        byteValue = ((data[byteOffset] & 0xFF) << bitOffset)
+            | ((data[byteOffset + 1] & 0xFF) >>> (8 - bitOffset));
+      } else {
+        byteValue = data[byteOffset];
+      }
       n -= 8;
-      retval |= (readUnsignedByte() << n);
+      returnValue |= (byteValue & 0xFF) << n;
+      byteOffset++;
     }
 
     if (n > 0) {
@@ -117,12 +157,12 @@ public final class ParsableBitArray {
 
       if (nextBit > 8) {
         // Combine bits from current byte and next byte.
-        retval |= (((getUnsignedByte(byteOffset) << (nextBit - 8)
-            | (getUnsignedByte(byteOffset + 1) >> (16 - nextBit))) & writeMask));
+        returnValue |= ((((data[byteOffset] & 0xFF) << (nextBit - 8)
+            | ((data[byteOffset + 1] & 0xFF) >> (16 - nextBit))) & writeMask));
         byteOffset++;
       } else {
         // Bits to be read only within current byte.
-        retval |= ((getUnsignedByte(byteOffset) >> (8 - nextBit)) & writeMask);
+        returnValue |= (((data[byteOffset] & 0xFF) >> (8 - nextBit)) & writeMask);
         if (nextBit == 8) {
           byteOffset++;
         }
@@ -131,7 +171,27 @@ public final class ParsableBitArray {
       bitOffset = nextBit % 8;
     }
 
-    return retval;
+    assertValidOffset();
+    return returnValue;
+  }
+
+  /**
+   * Peeks the length of an Exp-Golomb-coded integer (signed or unsigned) starting from the current
+   * offset, returning the length or -1 if the limit is reached.
+   *
+   * @return The length of the Exp-Golob-coded integer, or -1.
+   */
+  public int peekExpGolombCodedNumLength() {
+    int initialByteOffset = byteOffset;
+    int initialBitOffset = bitOffset;
+    int leadingZeros = 0;
+    while (byteOffset < byteLimit && !readBit()) {
+      leadingZeros++;
+    }
+    boolean hitLimit = byteOffset == byteLimit;
+    byteOffset = initialByteOffset;
+    bitOffset = initialBitOffset;
+    return hitLimit ? -1 : leadingZeros * 2 + 1;
   }
 
   /**
@@ -153,28 +213,19 @@ public final class ParsableBitArray {
     return ((codeNum % 2) == 0 ? -1 : 1) * ((codeNum + 1) / 2);
   }
 
-  private int readUnsignedByte() {
-    int value;
-    if (bitOffset != 0) {
-      value = ((data[byteOffset] & 0xFF) << bitOffset)
-          | ((data[byteOffset + 1] & 0xFF) >>> (8 - bitOffset));
-    } else {
-      value = data[byteOffset];
-    }
-    byteOffset++;
-    return value & 0xFF;
-  }
-
-  private int getUnsignedByte(int offset) {
-    return data[offset] & 0xFF;
-  }
-
   private int readExpGolombCodeNum() {
     int leadingZeros = 0;
     while (!readBit()) {
       leadingZeros++;
     }
     return (1 << leadingZeros) - 1 + (leadingZeros > 0 ? readBits(leadingZeros) : 0);
+  }
+
+  private void assertValidOffset() {
+    // It is fine for position to be at the end of the array, but no further.
+    Assertions.checkState(byteOffset >= 0
+        && (bitOffset >= 0 && bitOffset < 8)
+        && (byteOffset < byteLimit || (byteOffset == byteLimit && bitOffset == 0)));
   }
 
 }

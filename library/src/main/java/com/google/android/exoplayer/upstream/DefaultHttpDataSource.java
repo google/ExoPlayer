@@ -61,7 +61,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
   private static final String TAG = "HttpDataSource";
   private static final Pattern CONTENT_RANGE_HEADER =
       Pattern.compile("^bytes (\\d+)-(\\d+)/(\\d+)$");
-  private static final AtomicReference<byte[]> skipBufferReference = new AtomicReference<byte[]>();
+  private static final AtomicReference<byte[]> skipBufferReference = new AtomicReference<>();
 
   private final boolean allowCrossProtocolRedirects;
   private final int connectTimeoutMillis;
@@ -141,7 +141,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
     this.userAgent = Assertions.checkNotEmpty(userAgent);
     this.contentTypePredicate = contentTypePredicate;
     this.listener = listener;
-    this.requestProperties = new HashMap<String, String>();
+    this.requestProperties = new HashMap<>();
     this.connectTimeoutMillis = connectTimeoutMillis;
     this.readTimeoutMillis = readTimeoutMillis;
     this.allowCrossProtocolRedirects = allowCrossProtocolRedirects;
@@ -150,6 +150,11 @@ public class DefaultHttpDataSource implements HttpDataSource {
   @Override
   public String getUri() {
     return connection == null ? null : connection.getURL().toString();
+  }
+
+  @Override
+  public Map<String, List<String>> getResponseHeaders() {
+    return connection == null ? null : connection.getHeaderFields();
   }
 
   @Override

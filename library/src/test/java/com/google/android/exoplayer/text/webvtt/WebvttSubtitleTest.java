@@ -15,7 +15,12 @@
  */
 package com.google.android.exoplayer.text.webvtt;
 
+import com.google.android.exoplayer.text.Cue;
+
 import junit.framework.TestCase;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Unit test for {@link WebvttSubtitle}.
@@ -25,21 +30,39 @@ public class WebvttSubtitleTest extends TestCase {
   private static final String FIRST_SUBTITLE_STRING = "This is the first subtitle.";
   private static final String SECOND_SUBTITLE_STRING = "This is the second subtitle.";
   private static final String FIRST_AND_SECOND_SUBTITLE_STRING =
-      FIRST_SUBTITLE_STRING + SECOND_SUBTITLE_STRING;
+      FIRST_SUBTITLE_STRING + "\n" + SECOND_SUBTITLE_STRING;
 
-  private WebvttSubtitle emptySubtitle = new WebvttSubtitle(new String[] {}, 0, new long[] {});
+  private WebvttSubtitle emptySubtitle = new WebvttSubtitle(new ArrayList<WebvttCue>(), 0);
 
-  private WebvttSubtitle simpleSubtitle = new WebvttSubtitle(
-      new String[] {FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING}, 0,
-      new long[] {1000000, 2000000, 3000000, 4000000});
+  private ArrayList<WebvttCue> simpleSubtitleCues = new ArrayList<>();
+  {
+    WebvttCue firstCue = new WebvttCue(1000000, 2000000, FIRST_SUBTITLE_STRING);
+    simpleSubtitleCues.add(firstCue);
 
-  private WebvttSubtitle overlappingSubtitle = new WebvttSubtitle(
-      new String[] {FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING}, 0,
-      new long[] {1000000, 3000000, 2000000, 4000000});
+    WebvttCue secondCue = new WebvttCue(3000000, 4000000, SECOND_SUBTITLE_STRING);
+    simpleSubtitleCues.add(secondCue);
+  }
+  private WebvttSubtitle simpleSubtitle = new WebvttSubtitle(simpleSubtitleCues, 0);
 
-  private WebvttSubtitle nestedSubtitle = new WebvttSubtitle(
-      new String[] {FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING}, 0,
-      new long[] {1000000, 4000000, 2000000, 3000000});
+  private ArrayList<WebvttCue> overlappingSubtitleCues = new ArrayList<>();
+  {
+    WebvttCue firstCue = new WebvttCue(1000000, 3000000, FIRST_SUBTITLE_STRING);
+    overlappingSubtitleCues.add(firstCue);
+
+    WebvttCue secondCue = new WebvttCue(2000000, 4000000, SECOND_SUBTITLE_STRING);
+    overlappingSubtitleCues.add(secondCue);
+  }
+  private WebvttSubtitle overlappingSubtitle = new WebvttSubtitle(overlappingSubtitleCues, 0);
+
+  private ArrayList<WebvttCue> nestedSubtitleCues = new ArrayList<>();
+  {
+    WebvttCue firstCue = new WebvttCue(1000000, 4000000, FIRST_SUBTITLE_STRING);
+    nestedSubtitleCues.add(firstCue);
+
+    WebvttCue secondCue = new WebvttCue(2000000, 3000000, SECOND_SUBTITLE_STRING);
+    nestedSubtitleCues.add(secondCue);
+  }
+  private WebvttSubtitle nestedSubtitle = new WebvttSubtitle(nestedSubtitleCues, 0);
 
   public void testEventCount() {
     assertEquals(0, emptySubtitle.getEventTimeCount());
@@ -72,29 +95,29 @@ public class WebvttSubtitleTest extends TestCase {
 
   public void testSimpleSubtitleText() {
     // Test before first subtitle
-    assertNull(simpleSubtitle.getText(0));
-    assertNull(simpleSubtitle.getText(500000));
-    assertNull(simpleSubtitle.getText(999999));
+    assertSingleCueEmpty(simpleSubtitle.getCues(0));
+    assertSingleCueEmpty(simpleSubtitle.getCues(500000));
+    assertSingleCueEmpty(simpleSubtitle.getCues(999999));
 
     // Test first subtitle
-    assertEquals(FIRST_SUBTITLE_STRING, simpleSubtitle.getText(1000000));
-    assertEquals(FIRST_SUBTITLE_STRING, simpleSubtitle.getText(1500000));
-    assertEquals(FIRST_SUBTITLE_STRING, simpleSubtitle.getText(1999999));
+    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, simpleSubtitle.getCues(1000000));
+    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, simpleSubtitle.getCues(1500000));
+    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, simpleSubtitle.getCues(1999999));
 
     // Test after first subtitle, before second subtitle
-    assertNull(simpleSubtitle.getText(2000000));
-    assertNull(simpleSubtitle.getText(2500000));
-    assertNull(simpleSubtitle.getText(2999999));
+    assertSingleCueEmpty(simpleSubtitle.getCues(2000000));
+    assertSingleCueEmpty(simpleSubtitle.getCues(2500000));
+    assertSingleCueEmpty(simpleSubtitle.getCues(2999999));
 
     // Test second subtitle
-    assertEquals(SECOND_SUBTITLE_STRING, simpleSubtitle.getText(3000000));
-    assertEquals(SECOND_SUBTITLE_STRING, simpleSubtitle.getText(3500000));
-    assertEquals(SECOND_SUBTITLE_STRING, simpleSubtitle.getText(3999999));
+    assertSingleCueTextEquals(SECOND_SUBTITLE_STRING, simpleSubtitle.getCues(3000000));
+    assertSingleCueTextEquals(SECOND_SUBTITLE_STRING, simpleSubtitle.getCues(3500000));
+    assertSingleCueTextEquals(SECOND_SUBTITLE_STRING, simpleSubtitle.getCues(3999999));
 
     // Test after second subtitle
-    assertNull(simpleSubtitle.getText(4000000));
-    assertNull(simpleSubtitle.getText(4500000));
-    assertNull(simpleSubtitle.getText(Long.MAX_VALUE));
+    assertSingleCueEmpty(simpleSubtitle.getCues(4000000));
+    assertSingleCueEmpty(simpleSubtitle.getCues(4500000));
+    assertSingleCueEmpty(simpleSubtitle.getCues(Long.MAX_VALUE));
   }
 
   public void testOverlappingSubtitleEventTimes() {
@@ -107,29 +130,32 @@ public class WebvttSubtitleTest extends TestCase {
 
   public void testOverlappingSubtitleText() {
     // Test before first subtitle
-    assertNull(overlappingSubtitle.getText(0));
-    assertNull(overlappingSubtitle.getText(500000));
-    assertNull(overlappingSubtitle.getText(999999));
+    assertSingleCueEmpty(overlappingSubtitle.getCues(0));
+    assertSingleCueEmpty(overlappingSubtitle.getCues(500000));
+    assertSingleCueEmpty(overlappingSubtitle.getCues(999999));
 
     // Test first subtitle
-    assertEquals(FIRST_SUBTITLE_STRING, overlappingSubtitle.getText(1000000));
-    assertEquals(FIRST_SUBTITLE_STRING, overlappingSubtitle.getText(1500000));
-    assertEquals(FIRST_SUBTITLE_STRING, overlappingSubtitle.getText(1999999));
+    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, overlappingSubtitle.getCues(1000000));
+    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, overlappingSubtitle.getCues(1500000));
+    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, overlappingSubtitle.getCues(1999999));
 
     // Test after first and second subtitle
-    assertEquals(FIRST_AND_SECOND_SUBTITLE_STRING, overlappingSubtitle.getText(2000000));
-    assertEquals(FIRST_AND_SECOND_SUBTITLE_STRING, overlappingSubtitle.getText(2500000));
-    assertEquals(FIRST_AND_SECOND_SUBTITLE_STRING, overlappingSubtitle.getText(2999999));
+    assertSingleCueTextEquals(FIRST_AND_SECOND_SUBTITLE_STRING,
+        overlappingSubtitle.getCues(2000000));
+    assertSingleCueTextEquals(FIRST_AND_SECOND_SUBTITLE_STRING,
+        overlappingSubtitle.getCues(2500000));
+    assertSingleCueTextEquals(FIRST_AND_SECOND_SUBTITLE_STRING,
+        overlappingSubtitle.getCues(2999999));
 
     // Test second subtitle
-    assertEquals(SECOND_SUBTITLE_STRING, overlappingSubtitle.getText(3000000));
-    assertEquals(SECOND_SUBTITLE_STRING, overlappingSubtitle.getText(3500000));
-    assertEquals(SECOND_SUBTITLE_STRING, overlappingSubtitle.getText(3999999));
+    assertSingleCueTextEquals(SECOND_SUBTITLE_STRING, overlappingSubtitle.getCues(3000000));
+    assertSingleCueTextEquals(SECOND_SUBTITLE_STRING, overlappingSubtitle.getCues(3500000));
+    assertSingleCueTextEquals(SECOND_SUBTITLE_STRING, overlappingSubtitle.getCues(3999999));
 
     // Test after second subtitle
-    assertNull(overlappingSubtitle.getText(4000000));
-    assertNull(overlappingSubtitle.getText(4500000));
-    assertNull(overlappingSubtitle.getText(Long.MAX_VALUE));
+    assertSingleCueEmpty(overlappingSubtitle.getCues(4000000));
+    assertSingleCueEmpty(overlappingSubtitle.getCues(4500000));
+    assertSingleCueEmpty(overlappingSubtitle.getCues(Long.MAX_VALUE));
   }
 
   public void testNestedSubtitleEventTimes() {
@@ -142,29 +168,29 @@ public class WebvttSubtitleTest extends TestCase {
 
   public void testNestedSubtitleText() {
     // Test before first subtitle
-    assertNull(nestedSubtitle.getText(0));
-    assertNull(nestedSubtitle.getText(500000));
-    assertNull(nestedSubtitle.getText(999999));
+    assertSingleCueEmpty(nestedSubtitle.getCues(0));
+    assertSingleCueEmpty(nestedSubtitle.getCues(500000));
+    assertSingleCueEmpty(nestedSubtitle.getCues(999999));
 
     // Test first subtitle
-    assertEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getText(1000000));
-    assertEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getText(1500000));
-    assertEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getText(1999999));
+    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getCues(1000000));
+    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getCues(1500000));
+    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getCues(1999999));
 
     // Test after first and second subtitle
-    assertEquals(FIRST_AND_SECOND_SUBTITLE_STRING, nestedSubtitle.getText(2000000));
-    assertEquals(FIRST_AND_SECOND_SUBTITLE_STRING, nestedSubtitle.getText(2500000));
-    assertEquals(FIRST_AND_SECOND_SUBTITLE_STRING, nestedSubtitle.getText(2999999));
+    assertSingleCueTextEquals(FIRST_AND_SECOND_SUBTITLE_STRING, nestedSubtitle.getCues(2000000));
+    assertSingleCueTextEquals(FIRST_AND_SECOND_SUBTITLE_STRING, nestedSubtitle.getCues(2500000));
+    assertSingleCueTextEquals(FIRST_AND_SECOND_SUBTITLE_STRING, nestedSubtitle.getCues(2999999));
 
     // Test first subtitle
-    assertEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getText(3000000));
-    assertEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getText(3500000));
-    assertEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getText(3999999));
+    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getCues(3000000));
+    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getCues(3500000));
+    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getCues(3999999));
 
     // Test after second subtitle
-    assertNull(nestedSubtitle.getText(4000000));
-    assertNull(nestedSubtitle.getText(4500000));
-    assertNull(nestedSubtitle.getText(Long.MAX_VALUE));
+    assertSingleCueEmpty(nestedSubtitle.getCues(4000000));
+    assertSingleCueEmpty(nestedSubtitle.getCues(4500000));
+    assertSingleCueEmpty(nestedSubtitle.getCues(Long.MAX_VALUE));
   }
 
   private void testSubtitleEventTimesHelper(WebvttSubtitle subtitle) {
@@ -199,6 +225,15 @@ public class WebvttSubtitleTest extends TestCase {
     assertEquals(-1, subtitle.getNextEventTimeIndex(4000000));
     assertEquals(-1, subtitle.getNextEventTimeIndex(4500000));
     assertEquals(-1, subtitle.getNextEventTimeIndex(Long.MAX_VALUE));
+  }
+
+  private void assertSingleCueEmpty(List<Cue> cues) {
+    assertTrue(cues.size() == 0);
+  }
+
+  private void assertSingleCueTextEquals(String expected, List<Cue> cues) {
+    assertTrue(cues.size() == 1);
+    assertEquals(expected, cues.get(0).text.toString());
   }
 
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>ExoPlayerTests</name>
+	<name>ExoPlayerLibTests</name>
 	<comment></comment>
 	<projects>
 		<project>ExoPlayerLib</project>

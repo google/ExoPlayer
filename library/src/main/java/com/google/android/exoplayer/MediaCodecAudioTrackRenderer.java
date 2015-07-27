@@ -31,7 +31,7 @@ import java.nio.ByteBuffer;
  * Decodes and renders audio using {@link MediaCodec} and {@link android.media.AudioTrack}.
  */
 @TargetApi(16)
-public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
+public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implements MediaClock {
 
   /**
    * Interface definition for a callback to be notified of {@link MediaCodecAudioTrackRenderer}
@@ -72,6 +72,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   private int audioSessionId;
   private long currentPositionUs;
+  private boolean allowPositionDiscontinuity;
 
   /**
    * @param source The upstream source from which the renderer obtains samples.
@@ -151,8 +152,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected boolean isTimeSource() {
-    return true;
+  protected MediaClock getMediaClock() {
+    return this;
   }
 
   @Override
@@ -163,7 +164,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   @Override
   protected void onEnabled(long positionUs, boolean joining) {
     super.onEnabled(positionUs, joining);
-    currentPositionUs = Long.MIN_VALUE;
+    seekToInternal(positionUs);
   }
 
   @Override
@@ -219,14 +220,12 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected long getCurrentPositionUs() {
-    long audioTrackCurrentPositionUs = audioTrack.getCurrentPositionUs(isEnded());
-    if (audioTrackCurrentPositionUs == AudioTrack.CURRENT_POSITION_NOT_SET) {
-      // Use the super class position before audio playback starts.
-      currentPositionUs = Math.max(currentPositionUs, super.getCurrentPositionUs());
-    } else {
-      // Make sure we don't ever report time moving backwards.
-      currentPositionUs = Math.max(currentPositionUs, audioTrackCurrentPositionUs);
+  public long getPositionUs() {
+    long newCurrentPositionUs = audioTrack.getCurrentPositionUs(isEnded());
+    if (newCurrentPositionUs != AudioTrack.CURRENT_POSITION_NOT_SET) {
+      currentPositionUs = allowPositionDiscontinuity ? newCurrentPositionUs
+          : Math.max(currentPositionUs, newCurrentPositionUs);
+      allowPositionDiscontinuity = false;
     }
     return currentPositionUs;
   }
@@ -244,9 +243,14 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
   @Override
   protected void seekTo(long positionUs) throws ExoPlaybackException {
     super.seekTo(positionUs);
+    seekToInternal(positionUs);
+  }
+
+  private void seekToInternal(long positionUs) {
     // TODO: Try and re-use the same AudioTrack instance once [Internal: b/7941810] is fixed.
     audioTrack.reset();
-    currentPositionUs = Long.MIN_VALUE;
+    currentPositionUs = positionUs;
+    allowPositionDiscontinuity = true;
   }
 
   @Override
@@ -290,7 +294,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
     // If we are out of sync, allow currentPositionUs to jump backwards.
     if ((handleBufferResult & AudioTrack.RESULT_POSITION_DISCONTINUITY) != 0) {
-      currentPositionUs = Long.MIN_VALUE;
+      handleDiscontinuity();
+      allowPositionDiscontinuity = true;
     }
 
     // Release the buffer if it was consumed.
@@ -301,6 +306,10 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
     }
 
     return false;
+  }
+
+  protected void handleDiscontinuity() {
+    // Do nothing
   }
 
   @Override
@@ -314,7 +323,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer {
 
   private void notifyAudioTrackInitializationError(final AudioTrack.InitializationException e) {
     if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable()  {
+      eventHandler.post(new Runnable() {
         @Override
         public void run() {
           eventListener.onAudioTrackInitializationError(e);

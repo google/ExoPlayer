@@ -1,6 +1,8 @@
 # Android generated
 bin
 gen
+libs
+obj
 lint.xml
 
 # IntelliJ IDEA
@@ -16,6 +18,7 @@ gen-external-apklibs
 .classpath
 .settings
 .checkstyle
+.cproject
 
 # Gradle
 .gradle
@@ -37,3 +40,11 @@ proguard-project.txt
 .DS_Store
 dist
 tmp
+
+# VP9 Extension
+extensions/vp9/src/main/jni/libvpx
+extensions/vp9/src/main/jni/libvpx_android_configs
+extensions/vp9/src/main/jni/libyuv
+
+# Opus Extension
+extensions/opus/src/main/jni/libopus

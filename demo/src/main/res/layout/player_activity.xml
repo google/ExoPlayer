@@ -21,24 +21,26 @@
     android:layout_height="match_parent"
     android:keepScreenOn="true">
 
-  <com.google.android.exoplayer.VideoSurfaceView android:id="@+id/surface_view"
+  <com.google.android.exoplayer.AspectRatioFrameLayout android:id="@+id/video_frame"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:layout_gravity="center"/>
+      android:layout_gravity="center">
 
-  <com.google.android.exoplayer.text.SubtitleView android:id="@+id/subtitles"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="bottom|center_horizontal"
-      android:layout_marginLeft="16dp"
-      android:layout_marginRight="16dp"
-      android:layout_marginBottom="32dp"
-      android:visibility="invisible"/>
+    <SurfaceView android:id="@+id/surface_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"/>
 
-  <View android:id="@+id/shutter"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:background="@android:color/black"/>
+    <com.google.android.exoplayer.text.SubtitleLayout android:id="@+id/subtitles"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <View android:id="@+id/shutter"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/black"/>
+
+  </com.google.android.exoplayer.AspectRatioFrameLayout>
 
   <LinearLayout
       android:layout_width="match_parent"

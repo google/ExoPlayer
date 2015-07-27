@@ -165,9 +165,9 @@ import java.util.Collections;
       adtsScratch.skipBits(1);
       int channelConfig = adtsScratch.readBits(3);
 
-      byte[] audioSpecificConfig = CodecSpecificDataUtil.buildAudioSpecificConfig(
+      byte[] audioSpecificConfig = CodecSpecificDataUtil.buildAacAudioSpecificConfig(
           audioObjectType, sampleRateIndex, channelConfig);
-      Pair<Integer, Integer> audioParams = CodecSpecificDataUtil.parseAudioSpecificConfig(
+      Pair<Integer, Integer> audioParams = CodecSpecificDataUtil.parseAacAudioSpecificConfig(
           audioSpecificConfig);
 
       MediaFormat mediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_AAC,

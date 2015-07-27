@@ -26,14 +26,17 @@ public class DashWrappingSegmentIndex implements DashSegmentIndex {
 
   private final ChunkIndex chunkIndex;
   private final String uri;
+  private final long startTimeUs;
 
   /**
    * @param chunkIndex The {@link ChunkIndex} to wrap.
    * @param uri The URI where the data is located.
+   * @param startTimeUs The start time of the index, in microseconds.
    */
-  public DashWrappingSegmentIndex(ChunkIndex chunkIndex, String uri) {
+  public DashWrappingSegmentIndex(ChunkIndex chunkIndex, String uri, long startTimeUs) {
     this.chunkIndex = chunkIndex;
     this.uri = uri;
+    this.startTimeUs = startTimeUs;
   }
 
   @Override
@@ -48,7 +51,7 @@ public class DashWrappingSegmentIndex implements DashSegmentIndex {
 
   @Override
   public long getTimeUs(int segmentNum) {
-    return chunkIndex.timesUs[segmentNum];
+    return chunkIndex.timesUs[segmentNum] + startTimeUs;
   }
 
   @Override
@@ -63,7 +66,7 @@ public class DashWrappingSegmentIndex implements DashSegmentIndex {
 
   @Override
   public int getSegmentNum(long timeUs) {
-    return chunkIndex.getChunkIndex(timeUs);
+    return chunkIndex.getChunkIndex(timeUs - startTimeUs);
   }
 
   @Override

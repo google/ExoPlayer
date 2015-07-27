@@ -42,9 +42,9 @@ import com.google.android.exoplayer.dash.mpd.UtcTimingElementResolver;
 import com.google.android.exoplayer.dash.mpd.UtcTimingElementResolver.UtcTimingCallback;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilderCallback;
-import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.drm.MediaDrmCallback;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
+import com.google.android.exoplayer.drm.UnsupportedDrmException;
 import com.google.android.exoplayer.text.TextTrackRenderer;
 import com.google.android.exoplayer.text.ttml.TtmlParser;
 import com.google.android.exoplayer.text.webvtt.WebvttParser;
@@ -57,14 +57,10 @@ import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
 import com.google.android.exoplayer.util.Util;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaCodec;
-import android.media.UnsupportedSchemeException;
 import android.os.Handler;
 import android.util.Log;
-import android.util.Pair;
-import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -104,7 +100,6 @@ public class DashRendererBuilder implements RendererBuilder,
   private final String userAgent;
   private final String url;
   private final MediaDrmCallback drmCallback;
-  private final TextView debugTextView;
   private final AudioCapabilities audioCapabilities;
 
   private DemoPlayer player;
@@ -116,12 +111,11 @@ public class DashRendererBuilder implements RendererBuilder,
   private long elapsedRealtimeOffset;
 
   public DashRendererBuilder(Context context, String userAgent, String url,
-      MediaDrmCallback drmCallback, TextView debugTextView, AudioCapabilities audioCapabilities) {
+      MediaDrmCallback drmCallback, AudioCapabilities audioCapabilities) {
     this.context = context;
     this.userAgent = userAgent;
     this.url = url;
     this.drmCallback = drmCallback;
-    this.debugTextView = debugTextView;
     this.audioCapabilities = audioCapabilities;
   }
 
@@ -131,8 +125,7 @@ public class DashRendererBuilder implements RendererBuilder,
     this.callback = callback;
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
     manifestDataSource = new DefaultUriDataSource(context, userAgent);
-    manifestFetcher = new ManifestFetcher<MediaPresentationDescription>(url, manifestDataSource,
-        parser);
+    manifestFetcher = new ManifestFetcher<>(url, manifestDataSource, parser);
     manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
   }
 
@@ -193,20 +186,18 @@ public class DashRendererBuilder implements RendererBuilder,
 
     // Check drm support if necessary.
     boolean filterHdContent = false;
-    DrmSessionManager drmSessionManager = null;
+    StreamingDrmSessionManager drmSessionManager = null;
     if (hasContentProtection) {
       if (Util.SDK_INT < 18) {
         callback.onRenderersError(
-            new UnsupportedDrmException(UnsupportedDrmException.REASON_NO_DRM));
+            new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME));
         return;
       }
       try {
-        Pair<DrmSessionManager, Boolean> drmSessionManagerData =
-            V18Compat.getDrmSessionManagerData(player, drmCallback);
-        drmSessionManager = drmSessionManagerData.first;
-        // HD streams require L1 security.
+        drmSessionManager = StreamingDrmSessionManager.newWidevineInstance(
+            player.getPlaybackLooper(), drmCallback, null, player.getMainHandler(), player);
         filterHdContent = videoAdaptationSet != null && videoAdaptationSet.hasContentProtection()
-            && !drmSessionManagerData.second;
+            && getWidevineSecurityLevel(drmSessionManager) != SECURITY_LEVEL_1;
       } catch (UnsupportedDrmException e) {
         callback.onRenderersError(e);
         return;
@@ -227,39 +218,36 @@ public class DashRendererBuilder implements RendererBuilder,
 
     // Build the video renderer.
     final MediaCodecVideoTrackRenderer videoRenderer;
-    final TrackRenderer debugRenderer;
     if (videoRepresentationIndices == null || videoRepresentationIndices.length == 0) {
       videoRenderer = null;
-      debugRenderer = null;
     } else {
       DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher,
           videoAdaptationSetIndex, videoRepresentationIndices, videoDataSource,
-          new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset);
+          new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset,
+          mainHandler, player);
       ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
           VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
           DemoPlayer.TYPE_VIDEO);
       videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource, drmSessionManager, true,
           MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, mainHandler, player, 50);
-      debugRenderer = debugTextView != null
-          ? new DebugTrackRenderer(debugTextView, player, videoRenderer) : null;
     }
 
     // Build the audio chunk sources.
-    List<ChunkSource> audioChunkSourceList = new ArrayList<ChunkSource>();
-    List<String> audioTrackNameList = new ArrayList<String>();
+    List<ChunkSource> audioChunkSourceList = new ArrayList<>();
+    List<String> audioTrackNameList = new ArrayList<>();
     if (audioAdaptationSet != null) {
       DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
       List<Representation> audioRepresentations = audioAdaptationSet.representations;
-      List<String> codecs = new ArrayList<String>();
+      List<String> codecs = new ArrayList<>();
       for (int i = 0; i < audioRepresentations.size(); i++) {
         Format format = audioRepresentations.get(i).format;
         audioTrackNameList.add(format.id + " (" + format.numChannels + "ch, " +
             format.audioSamplingRate + "Hz)");
         audioChunkSourceList.add(new DashChunkSource(manifestFetcher, audioAdaptationSetIndex,
             new int[] {i}, audioDataSource, audioEvaluator, LIVE_EDGE_LATENCY_MS,
-            elapsedRealtimeOffset));
+            elapsedRealtimeOffset, mainHandler, player));
         codecs.add(format.codecs);
       }
 
@@ -306,8 +294,8 @@ public class DashRendererBuilder implements RendererBuilder,
     // Build the text chunk sources.
     DataSource textDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
     FormatEvaluator textEvaluator = new FormatEvaluator.FixedEvaluator();
-    List<ChunkSource> textChunkSourceList = new ArrayList<ChunkSource>();
-    List<String> textTrackNameList = new ArrayList<String>();
+    List<ChunkSource> textChunkSourceList = new ArrayList<>();
+    List<String> textTrackNameList = new ArrayList<>();
     for (int i = 0; i < period.adaptationSets.size(); i++) {
       AdaptationSet adaptationSet = period.adaptationSets.get(i);
       if (adaptationSet.type == AdaptationSet.TYPE_TEXT) {
@@ -316,7 +304,8 @@ public class DashRendererBuilder implements RendererBuilder,
           Representation representation = representations.get(j);
           textTrackNameList.add(representation.format.id);
           textChunkSourceList.add(new DashChunkSource(manifestFetcher, i, new int[] {j},
-              textDataSource, textEvaluator, LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset));
+              textDataSource, textEvaluator, LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset,
+              mainHandler, player));
         }
       }
     }
@@ -354,34 +343,13 @@ public class DashRendererBuilder implements RendererBuilder,
     renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
     renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
     renderers[DemoPlayer.TYPE_TEXT] = textRenderer;
-    renderers[DemoPlayer.TYPE_DEBUG] = debugRenderer;
-    callback.onRenderers(trackNames, multiTrackChunkSources, renderers);
+    callback.onRenderers(trackNames, multiTrackChunkSources, renderers, bandwidthMeter);
   }
 
-  @TargetApi(18)
-  private static class V18Compat {
-
-    public static Pair<DrmSessionManager, Boolean> getDrmSessionManagerData(DemoPlayer player,
-        MediaDrmCallback drmCallback) throws UnsupportedDrmException {
-      try {
-        StreamingDrmSessionManager streamingDrmSessionManager =
-            StreamingDrmSessionManager.newWidevineInstance(player.getPlaybackLooper(), drmCallback,
-            null, player.getMainHandler(), player);
-        return Pair.create((DrmSessionManager) streamingDrmSessionManager,
-            getWidevineSecurityLevel(streamingDrmSessionManager) == SECURITY_LEVEL_1);
-      } catch (UnsupportedSchemeException e) {
-        throw new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME);
-      } catch (Exception e) {
-        throw new UnsupportedDrmException(UnsupportedDrmException.REASON_UNKNOWN, e);
-      }
-    }
-
-    private static int getWidevineSecurityLevel(StreamingDrmSessionManager sessionManager) {
-      String securityLevelProperty = sessionManager.getPropertyString("securityLevel");
-      return securityLevelProperty.equals("L1") ? SECURITY_LEVEL_1 : securityLevelProperty
-          .equals("L3") ? SECURITY_LEVEL_3 : SECURITY_LEVEL_UNKNOWN;
-    }
-
+  private static int getWidevineSecurityLevel(StreamingDrmSessionManager sessionManager) {
+    String securityLevelProperty = sessionManager.getPropertyString("securityLevel");
+    return securityLevelProperty.equals("L1") ? SECURITY_LEVEL_1 : securityLevelProperty
+        .equals("L3") ? SECURITY_LEVEL_3 : SECURITY_LEVEL_UNKNOWN;
   }
 
 }

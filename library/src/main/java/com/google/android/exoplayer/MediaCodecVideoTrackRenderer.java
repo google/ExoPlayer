@@ -132,6 +132,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   private int currentWidth;
   private int currentHeight;
   private float currentPixelWidthHeightRatio;
+  private float pendingPixelWidthHeightRatio;
   private int lastReportedWidth;
   private int lastReportedHeight;
   private float lastReportedPixelWidthHeightRatio;
@@ -248,6 +249,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     currentWidth = -1;
     currentHeight = -1;
     currentPixelWidthHeightRatio = -1;
+    pendingPixelWidthHeightRatio = -1;
     lastReportedWidth = -1;
     lastReportedHeight = -1;
     lastReportedPixelWidthHeightRatio = -1;
@@ -316,6 +318,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     currentWidth = -1;
     currentHeight = -1;
     currentPixelWidthHeightRatio = -1;
+    pendingPixelWidthHeightRatio = -1;
     lastReportedWidth = -1;
     lastReportedHeight = -1;
     lastReportedPixelWidthHeightRatio = -1;
@@ -367,9 +370,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   @Override
   protected void onInputFormatChanged(MediaFormatHolder holder) throws ExoPlaybackException {
     super.onInputFormatChanged(holder);
-    // TODO: Ideally this would be read in onOutputFormatChanged, but there doesn't seem
-    // to be a way to pass a custom key/value pair value through to the output format.
-    currentPixelWidthHeightRatio = holder.format.pixelWidthHeightRatio == MediaFormat.NO_VALUE ? 1
+    pendingPixelWidthHeightRatio = holder.format.pixelWidthHeightRatio == MediaFormat.NO_VALUE ? 1
         : holder.format.pixelWidthHeightRatio;
   }
 
@@ -392,6 +393,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     currentHeight = hasCrop
         ? outputFormat.getInteger(KEY_CROP_BOTTOM) - outputFormat.getInteger(KEY_CROP_TOP) + 1
         : outputFormat.getInteger(android.media.MediaFormat.KEY_HEIGHT);
+    currentPixelWidthHeightRatio = pendingPixelWidthHeightRatio;
   }
 
   @Override

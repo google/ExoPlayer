@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
+import android.text.SpannableStringBuilder;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -44,15 +46,15 @@ import java.util.TreeSet;
   public static final String TAG_SMPTE_INFORMATION = "smpte:information";
 
   public final String tag;
-  public final boolean isTextNode;
   public final String text;
+  public final boolean isTextNode;
   public final long startTimeUs;
   public final long endTimeUs;
 
   private List<TtmlNode> children;
 
   public static TtmlNode buildTextNode(String text) {
-    return new TtmlNode(null, applySpacePolicy(text, true), UNDEFINED_TIME, UNDEFINED_TIME);
+    return new TtmlNode(null, applyTextElementSpacePolicy(text), UNDEFINED_TIME, UNDEFINED_TIME);
   }
 
   public static TtmlNode buildNode(String tag, long startTimeUs, long endTimeUs) {
@@ -76,7 +78,7 @@ import java.util.TreeSet;
 
   public void addChild(TtmlNode child) {
     if (children == null) {
-      children = new ArrayList<TtmlNode>();
+      children = new ArrayList<>();
     }
     children.add(child);
   }
@@ -93,7 +95,7 @@ import java.util.TreeSet;
   }
 
   public long[] getEventTimesUs() {
-    TreeSet<Long> eventTimeSet = new TreeSet<Long>();
+    TreeSet<Long> eventTimeSet = new TreeSet<>();
     getEventTimes(eventTimeSet, false);
     long[] eventTimes = new long[eventTimeSet.size()];
     Iterator<Long> eventTimeIterator = eventTimeSet.iterator();
@@ -123,47 +125,104 @@ import java.util.TreeSet;
     }
   }
 
-  public String getText(long timeUs) {
-    StringBuilder builder = new StringBuilder();
-    getText(timeUs, builder, false);
-    return applySpacePolicy(builder.toString().replaceAll("\n$", ""), false);
+  public CharSequence getText(long timeUs) {
+    SpannableStringBuilder builder = getText(timeUs, new SpannableStringBuilder(), false);
+    // Having joined the text elements, we need to do some final cleanup on the result.
+    // 1. Collapse multiple consecutive spaces into a single space.
+    int builderLength = builder.length();
+    for (int i = 0; i < builderLength; i++) {
+      if (builder.charAt(i) == ' ') {
+        int j = i + 1;
+        while (j < builder.length() && builder.charAt(j) == ' ') {
+          j++;
+        }
+        int spacesToDelete = j - (i + 1);
+        if (spacesToDelete > 0) {
+          builder.delete(i, i + spacesToDelete);
+          builderLength -= spacesToDelete;
+        }
+      }
+    }
+    // 2. Remove any spaces from the start of each line.
+    if (builderLength > 0 && builder.charAt(0) == ' ') {
+      builder.delete(0, 1);
+      builderLength--;
+    }
+    for (int i = 0; i < builderLength - 1; i++) {
+      if (builder.charAt(i) == '\n' && builder.charAt(i + 1) == ' ') {
+        builder.delete(i + 1, i + 2);
+        builderLength--;
+      }
+    }
+    // 3. Remove any spaces from the end of each line.
+    if (builderLength > 0 && builder.charAt(builderLength - 1) == ' ') {
+      builder.delete(builderLength - 1, builderLength);
+      builderLength--;
+    }
+    for (int i = 0; i < builderLength - 1; i++) {
+      if (builder.charAt(i) == ' ' && builder.charAt(i + 1) == '\n') {
+        builder.delete(i, i + 1);
+        builderLength--;
+      }
+    }
+    // 4. Trim a trailing newline, if there is one.
+    if (builderLength > 0 && builder.charAt(builderLength - 1) == '\n') {
+      builder.delete(builderLength - 1, builderLength);
+      builderLength--;
+    }
+    return builder.subSequence(0, builderLength);
   }
 
-  private void getText(long timeUs, StringBuilder builder, boolean descendsPNode) {
+  private SpannableStringBuilder getText(long timeUs, SpannableStringBuilder builder,
+      boolean descendsPNode) {
     if (isTextNode && descendsPNode) {
       builder.append(text);
     } else if (TAG_BR.equals(tag) && descendsPNode) {
-      builder.append("\n");
+      builder.append('\n');
     } else if (TAG_METADATA.equals(tag)) {
       // Do nothing.
     } else if (isActive(timeUs)) {
       boolean isPNode = TAG_P.equals(tag);
-      int length = builder.length();
       for (int i = 0; i < getChildCount(); ++i) {
         getChild(i).getText(timeUs, builder, descendsPNode || isPNode);
       }
-      if (isPNode && length != builder.length()) {
-        builder.append("\n");
+      if (isPNode) {
+        endParagraph(builder);
       }
+    }
+    return builder;
+  }
+
+  /**
+   * Invoked when the end of a paragraph is encountered. Adds a newline if there are one or more
+   * non-space characters since the previous newline.
+   *
+   * @param builder The builder.
+   */
+  private static void endParagraph(SpannableStringBuilder builder) {
+    int position = builder.length() - 1;
+    while (position >= 0 && builder.charAt(position) == ' ') {
+      position--;
+    }
+    if (position >= 0 && builder.charAt(position) != '\n') {
+      builder.append('\n');
     }
   }
 
   /**
-   * Applies the space policy to the given string. See:
-   * <a href src="http://www.w3.org/TR/ttaf1-dfxp/#content-attribute-space">The default space
-   * policy</a>
+   * Applies the appropriate space policy to the given text element.
    *
-   * @param in A string to apply the policy.
-   * @param treatLineFeedAsSpace Whether to convert line feeds to spaces.
+   * @param in The text element to which the policy should be applied.
+   * @return The result of applying the policy to the text element.
    */
-  private static String applySpacePolicy(String in, boolean treatLineFeedAsSpace) {
+  private static String applyTextElementSpacePolicy(String in) {
     // Removes carriage return followed by line feed. See: http://www.w3.org/TR/xml/#sec-line-ends
     String out = in.replaceAll("\r\n", "\n");
     // Apply suppress-at-line-break="auto" and
     // white-space-treatment="ignore-if-surrounding-linefeed"
     out = out.replaceAll(" *\n *", "\n");
     // Apply linefeed-treatment="treat-as-space"
-    out = treatLineFeedAsSpace ? out.replaceAll("\n", " ") : out;
+    out = out.replaceAll("\n", " ");
     // Apply white-space-collapse="true"
     out = out.replaceAll("[ \t\\x0B\f\r]+", " ");
     return out;
