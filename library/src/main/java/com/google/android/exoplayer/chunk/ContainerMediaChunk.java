@@ -27,16 +27,12 @@ import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
-import android.util.Log;
-
 import java.io.IOException;
 
 /**
  * A {@link BaseMediaChunk} that uses an {@link Extractor} to parse sample data.
  */
 public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOutput {
-
-  private static final String TAG = "ContainerMediaChunk";
 
   private final ChunkExtractorWrapper extractorWrapper;
   private final long sampleOffsetUs;
@@ -96,7 +92,7 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
 
   @Override
   public void seekMap(SeekMap seekMap) {
-    Log.w(TAG, "Ignoring unexpected seekMap");
+    // Do nothing.
   }
 
   @Override
