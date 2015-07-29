@@ -37,15 +37,16 @@ import java.util.Stack;
 public final class Mp4Extractor implements Extractor, SeekMap {
 
   // Parser states.
-  private static final int STATE_READING_ATOM_HEADER = 0;
-  private static final int STATE_READING_ATOM_PAYLOAD = 1;
-  private static final int STATE_READING_SAMPLE = 2;
+  private static final int STATE_AFTER_SEEK = 0;
+  private static final int STATE_READING_ATOM_HEADER = 1;
+  private static final int STATE_READING_ATOM_PAYLOAD = 2;
+  private static final int STATE_READING_SAMPLE = 3;
 
   /**
    * When seeking within the source, if the offset is greater than or equal to this value (or the
    * offset is negative), the source will be reloaded.
    */
-  private static final int RELOAD_MINIMUM_SEEK_DISTANCE = 256 * 1024;
+  private static final long RELOAD_MINIMUM_SEEK_DISTANCE = 256 * 1024;
 
   // Temporary arrays.
   private final ParsableByteArray nalStartCode;
@@ -55,10 +56,9 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private final Stack<ContainerAtom> containerAtoms;
 
   private int parserState;
-  private long rootAtomBytesRead;
   private int atomType;
   private long atomSize;
-  private int atomBytesRead;
+  private int atomHeaderBytesRead;
   private ParsableByteArray atomData;
 
   private int sampleSize;
@@ -74,7 +74,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     containerAtoms = new Stack<>();
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
-    parserState = STATE_READING_ATOM_HEADER;
+    enterReadingAtomHeaderState();
   }
 
   @Override
@@ -89,9 +89,11 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   @Override
   public void seek() {
-    rootAtomBytesRead = 0;
+    containerAtoms.clear();
+    atomHeaderBytesRead = 0;
     sampleBytesWritten = 0;
     sampleCurrentNalBytesRemaining = 0;
+    parserState = STATE_AFTER_SEEK;
   }
 
   @Override
@@ -99,6 +101,13 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       throws IOException, InterruptedException {
     while (true) {
       switch (parserState) {
+        case STATE_AFTER_SEEK:
+          if (input.getPosition() == 0) {
+            enterReadingAtomHeaderState();
+          } else {
+            parserState = STATE_READING_SAMPLE;
+          }
+          break;
         case STATE_READING_ATOM_HEADER:
           if (!readAtomHeader(input)) {
             return RESULT_END_OF_INPUT;
@@ -143,36 +152,40 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   // Private methods.
 
+  private void enterReadingAtomHeaderState() {
+    parserState = STATE_READING_ATOM_HEADER;
+    atomHeaderBytesRead = 0;
+  }
+
   private boolean readAtomHeader(ExtractorInput input) throws IOException, InterruptedException {
-    if (!input.readFully(atomHeader.data, 0, Atom.HEADER_SIZE, true)) {
-      return false;
+    if (atomHeaderBytesRead == 0) {
+      // Read the standard length atom header.
+      if (!input.readFully(atomHeader.data, 0, Atom.HEADER_SIZE, true)) {
+        return false;
+      }
+      atomHeaderBytesRead = Atom.HEADER_SIZE;
+      atomHeader.setPosition(0);
+      atomSize = atomHeader.readUnsignedInt();
+      atomType = atomHeader.readInt();
     }
 
-    atomHeader.setPosition(0);
-    atomSize = atomHeader.readUnsignedInt();
-    atomType = atomHeader.readInt();
     if (atomSize == Atom.LONG_SIZE_PREFIX) {
-      // The extended atom size is contained in the next 8 bytes, so try to read it now.
-      input.readFully(atomHeader.data, Atom.HEADER_SIZE, Atom.LONG_HEADER_SIZE - Atom.HEADER_SIZE);
-      atomSize = atomHeader.readLong();
-      rootAtomBytesRead += Atom.LONG_HEADER_SIZE;
-      atomBytesRead = Atom.LONG_HEADER_SIZE;
-    } else {
-      rootAtomBytesRead += Atom.HEADER_SIZE;
-      atomBytesRead = Atom.HEADER_SIZE;
+      // Read the extended atom size.
+      int headerBytesRemaining = Atom.LONG_HEADER_SIZE - Atom.HEADER_SIZE;
+      input.readFully(atomHeader.data, Atom.HEADER_SIZE, headerBytesRemaining);
+      atomHeaderBytesRead += headerBytesRemaining;
+      atomSize = atomHeader.readUnsignedLongToLong();
     }
 
     if (shouldParseContainerAtom(atomType)) {
-      if (atomSize == Atom.LONG_SIZE_PREFIX) {
-        containerAtoms.add(
-            new ContainerAtom(atomType, rootAtomBytesRead + atomSize - atomBytesRead));
-      } else {
-        containerAtoms.add(
-            new ContainerAtom(atomType, rootAtomBytesRead + atomSize - atomBytesRead));
-      }
-      parserState = STATE_READING_ATOM_HEADER;
+      long endPosition = input.getPosition() + atomSize - atomHeaderBytesRead;
+      containerAtoms.add(new ContainerAtom(atomType, endPosition));
+      enterReadingAtomHeaderState();
     } else if (shouldParseLeafAtom(atomType)) {
-      Assertions.checkState(atomSize < Integer.MAX_VALUE);
+      // We don't support parsing of leaf atoms that define extended atom sizes, or that have
+      // lengths greater than Integer.MAX_VALUE.
+      Assertions.checkState(atomHeaderBytesRead == Atom.HEADER_SIZE);
+      Assertions.checkState(atomSize <= Integer.MAX_VALUE);
       atomData = new ParsableByteArray((int) atomSize);
       System.arraycopy(atomHeader.data, 0, atomData.data, 0, Atom.HEADER_SIZE);
       parserState = STATE_READING_ATOM_PAYLOAD;
@@ -191,31 +204,38 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    */
   private boolean readAtomPayload(ExtractorInput input, PositionHolder positionHolder)
       throws IOException, InterruptedException {
-    parserState = STATE_READING_ATOM_HEADER;
-    rootAtomBytesRead += atomSize - atomBytesRead;
-    long atomRemainingBytes = atomSize - atomBytesRead;
-    boolean seekRequired = atomData == null
-        && (atomSize >= RELOAD_MINIMUM_SEEK_DISTANCE || atomSize > Integer.MAX_VALUE);
-    if (seekRequired) {
-      positionHolder.position = rootAtomBytesRead;
-    } else if (atomData != null) {
-      input.readFully(atomData.data, atomBytesRead, (int) atomRemainingBytes);
+    long atomPayloadSize = atomSize - atomHeaderBytesRead;
+    long atomEndPosition = input.getPosition() + atomPayloadSize;
+    boolean seekRequired = false;
+    if (atomData != null) {
+      input.readFully(atomData.data, atomHeaderBytesRead, (int) atomPayloadSize);
       if (!containerAtoms.isEmpty()) {
         containerAtoms.peek().add(new Atom.LeafAtom(atomType, atomData));
       }
     } else {
-      input.skipFully((int) atomRemainingBytes);
+      // We don't need the data. Skip or seek, depending on how large the atom is.
+      if (atomPayloadSize < RELOAD_MINIMUM_SEEK_DISTANCE) {
+        input.skipFully((int) atomPayloadSize);
+      } else {
+        positionHolder.position = input.getPosition() + atomPayloadSize;
+        seekRequired = true;
+      }
     }
 
-    while (!containerAtoms.isEmpty() && containerAtoms.peek().endByteOffset == rootAtomBytesRead) {
+    while (!containerAtoms.isEmpty() && containerAtoms.peek().endPosition == atomEndPosition) {
       Atom.ContainerAtom containerAtom = containerAtoms.pop();
       if (containerAtom.type == Atom.TYPE_moov) {
+        // We've reached the end of the moov atom. Process it and prepare to read samples.
         processMoovAtom(containerAtom);
+        containerAtoms.clear();
+        parserState = STATE_READING_SAMPLE;
+        return false;
       } else if (!containerAtoms.isEmpty()) {
         containerAtoms.peek().add(containerAtom);
       }
     }
 
+    enterReadingAtomHeaderState();
     return seekRequired;
   }
 
@@ -253,7 +273,6 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     this.tracks = tracks.toArray(new Mp4Track[0]);
     extractorOutput.endTracks();
     extractorOutput.seekMap(this);
-    parserState = STATE_READING_SAMPLE;
   }
 
   /**
