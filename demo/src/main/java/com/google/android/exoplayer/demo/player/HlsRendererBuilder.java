@@ -146,6 +146,11 @@ public class HlsRendererBuilder implements RendererBuilder {
         }
       }
 
+      if (variantIndices.length == 0) {
+        player.onRenderersError(new IllegalStateException("No variants selected."));
+        return;
+      }
+
       DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter,
           variantIndices, HlsChunkSource.ADAPTIVE_MODE_SPLICE, audioCapabilities);
