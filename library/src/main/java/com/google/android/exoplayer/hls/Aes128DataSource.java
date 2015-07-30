@@ -42,7 +42,7 @@ import javax.crypto.spec.SecretKeySpec;
  * designed specifically for reading whole files as defined in an HLS media playlist. For this
  * reason the implementation is private to the HLS package.
  */
-/* package */ class Aes128DataSource implements DataSource {
+/* package */ final class Aes128DataSource implements DataSource {
 
   private final DataSource upstream;
   private final byte[] encryptionKey;
