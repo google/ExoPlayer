@@ -171,7 +171,7 @@ public final class SingleSampleSource implements SampleSource, SampleSourceReade
       if (elapsedMillis < getRetryDelayMillis(currentLoadableExceptionCount)) {
         return;
       }
-      clearCurrentLoadableException();
+      currentLoadableException = null;
     }
     loader.startLoading(this, this);
   }
