@@ -106,8 +106,9 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
   }
 
   @Override
-  public int sampleData(ExtractorInput input, int length) throws IOException, InterruptedException {
-    return getOutput().sampleData(input, length);
+  public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
+      throws IOException, InterruptedException {
+    return getOutput().sampleData(input, length, allowEndOfInput);
   }
 
   @Override

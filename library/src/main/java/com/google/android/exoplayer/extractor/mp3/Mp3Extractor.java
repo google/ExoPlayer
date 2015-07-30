@@ -170,11 +170,11 @@ public final class Mp3Extractor implements Extractor {
     sampleBytesRemaining -= inputBuffer.drainToOutput(trackOutput, sampleBytesRemaining);
     if (sampleBytesRemaining > 0) {
       inputBuffer.mark();
-      try {
-        sampleBytesRemaining -= trackOutput.sampleData(extractorInput, sampleBytesRemaining);
-      } catch (EOFException e) {
+      int bytesAppended = trackOutput.sampleData(extractorInput, sampleBytesRemaining, true);
+      if (bytesAppended == C.RESULT_END_OF_INPUT) {
         return RESULT_END_OF_INPUT;
       }
+      sampleBytesRemaining -= bytesAppended;
       // Return if we still need more data.
       if (sampleBytesRemaining > 0) {
         return RESULT_CONTINUE;

@@ -663,14 +663,14 @@ public final class FragmentedMp4Extractor implements Extractor {
           sampleSize += nalUnitLengthFieldLengthDiff;
         } else {
           // Write the payload of the NAL unit.
-          int writtenBytes = trackOutput.sampleData(input, sampleCurrentNalBytesRemaining);
+          int writtenBytes = trackOutput.sampleData(input, sampleCurrentNalBytesRemaining, false);
           sampleBytesWritten += writtenBytes;
           sampleCurrentNalBytesRemaining -= writtenBytes;
         }
       }
     } else {
       while (sampleBytesWritten < sampleSize) {
-        int writtenBytes = trackOutput.sampleData(input, sampleSize - sampleBytesWritten);
+        int writtenBytes = trackOutput.sampleData(input, sampleSize - sampleBytesWritten, false);
         sampleBytesWritten += writtenBytes;
       }
     }
