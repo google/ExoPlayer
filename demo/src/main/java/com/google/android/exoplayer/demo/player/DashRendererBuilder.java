@@ -274,7 +274,7 @@ public class DashRendererBuilder implements RendererBuilder {
             new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset,
             mainHandler, player);
         ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
-            VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
+            VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
             DemoPlayer.TYPE_VIDEO);
         videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource, drmSessionManager, true,
             MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, mainHandler, player, 50);
@@ -332,7 +332,7 @@ public class DashRendererBuilder implements RendererBuilder {
         audioTrackNameList.toArray(audioTrackNames);
         audioChunkSource = new MultiTrackChunkSource(audioChunkSourceList);
         SampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
-            AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
+            AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
             DemoPlayer.TYPE_AUDIO);
         audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource, drmSessionManager, true,
             mainHandler, player);
@@ -370,7 +370,7 @@ public class DashRendererBuilder implements RendererBuilder {
         textTrackNameList.toArray(textTrackNames);
         textChunkSource = new MultiTrackChunkSource(textChunkSourceList);
         SampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
-            TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
+            TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
             DemoPlayer.TYPE_TEXT);
         textRenderer = new TextTrackRenderer(textSampleSource, player, mainHandler.getLooper(),
             new TtmlParser(), new WebvttParser());

@@ -196,7 +196,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder {
             videoStreamElementIndex, videoTrackIndices, videoDataSource,
             new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
         ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
-            VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
+            VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
             DemoPlayer.TYPE_VIDEO);
         videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource, drmSessionManager, true,
             MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, mainHandler, player, 50);
@@ -227,7 +227,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder {
         }
         audioChunkSource = new MultiTrackChunkSource(audioChunkSources);
         ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
-            AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
+            AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
             DemoPlayer.TYPE_AUDIO);
         audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource, drmSessionManager, true,
             mainHandler, player);
@@ -258,7 +258,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder {
         }
         textChunkSource = new MultiTrackChunkSource(textChunkSources);
         ChunkSampleSource ttmlSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
-            TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true, mainHandler, player,
+            TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
             DemoPlayer.TYPE_TEXT);
         textRenderer = new TextTrackRenderer(ttmlSampleSource, player, mainHandler.getLooper(),
             new TtmlParser());
