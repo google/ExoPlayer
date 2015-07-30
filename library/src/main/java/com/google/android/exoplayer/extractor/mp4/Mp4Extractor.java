@@ -298,6 +298,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       return RESULT_END_OF_INPUT;
     }
     Mp4Track track = tracks[trackIndex];
+    TrackOutput trackOutput = track.trackOutput;
     int sampleIndex = track.sampleIndex;
     long position = track.sampleTable.offsets[sampleIndex];
     long skipAmount = position - input.getPosition() + sampleBytesWritten;
@@ -327,24 +328,24 @@ public final class Mp4Extractor implements Extractor, SeekMap {
           sampleCurrentNalBytesRemaining = nalLength.readUnsignedIntToInt();
           // Write a start code for the current NAL unit.
           nalStartCode.setPosition(0);
-          track.trackOutput.sampleData(nalStartCode, 4);
+          trackOutput.sampleData(nalStartCode, 4);
           sampleBytesWritten += 4;
           sampleSize += nalUnitLengthFieldLengthDiff;
         } else {
           // Write the payload of the NAL unit.
-          int writtenBytes = track.trackOutput.sampleData(input, sampleCurrentNalBytesRemaining);
+          int writtenBytes = trackOutput.sampleData(input, sampleCurrentNalBytesRemaining, false);
           sampleBytesWritten += writtenBytes;
           sampleCurrentNalBytesRemaining -= writtenBytes;
         }
       }
     } else {
       while (sampleBytesWritten < sampleSize) {
-        int writtenBytes = track.trackOutput.sampleData(input, sampleSize - sampleBytesWritten);
+        int writtenBytes = trackOutput.sampleData(input, sampleSize - sampleBytesWritten, false);
         sampleBytesWritten += writtenBytes;
         sampleCurrentNalBytesRemaining -= writtenBytes;
       }
     }
-    track.trackOutput.sampleMetadata(track.sampleTable.timestampsUs[sampleIndex],
+    trackOutput.sampleMetadata(track.sampleTable.timestampsUs[sampleIndex],
         track.sampleTable.flags[sampleIndex], sampleSize, 0, null);
     track.sampleIndex++;
     sampleBytesWritten = 0;

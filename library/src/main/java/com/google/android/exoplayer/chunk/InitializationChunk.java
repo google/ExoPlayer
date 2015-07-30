@@ -138,7 +138,8 @@ public final class InitializationChunk extends Chunk implements SingleTrackOutpu
   }
 
   @Override
-  public int sampleData(ExtractorInput input, int length) throws IOException, InterruptedException {
+  public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
+      throws IOException, InterruptedException {
     throw new IllegalStateException("Unexpected sample data in initialization chunk");
   }
 

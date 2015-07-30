@@ -885,7 +885,7 @@ public final class WebmExtractor implements Extractor {
       bytesRead = Math.min(length, strippedBytesLeft);
       output.sampleData(sampleStrippedBytes, bytesRead);
     } else {
-      bytesRead = output.sampleData(input, length);
+      bytesRead = output.sampleData(input, length, false);
     }
     sampleBytesRead += bytesRead;
     sampleBytesWritten += bytesRead;
