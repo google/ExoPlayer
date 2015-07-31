@@ -68,7 +68,12 @@ public final class AudioCapabilitiesReceiver {
   @TargetApi(21)
   public void register() {
     if (receiver != null) {
-      context.registerReceiver(receiver, new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG));
+      Intent initialStickyIntent =
+          context.registerReceiver(receiver, new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG));
+      if (initialStickyIntent != null) {
+        receiver.onReceive(context, initialStickyIntent);
+        return;
+      }
     }
 
     listener.onAudioCapabilitiesChanged(DEFAULT_AUDIO_CAPABILITIES);
@@ -86,6 +91,10 @@ public final class AudioCapabilitiesReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+      if (isInitialStickyBroadcast()) {
+        return;
+      }
+
       String action = intent.getAction();
       if (!action.equals(AudioManager.ACTION_HDMI_AUDIO_PLUG)) {
         return;

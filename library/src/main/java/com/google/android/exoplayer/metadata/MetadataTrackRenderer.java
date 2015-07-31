@@ -19,6 +19,7 @@ import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.util.Assertions;
 
@@ -54,7 +55,7 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
 
   private static final int MSG_INVOKE_RENDERER = 0;
 
-  private final SampleSource source;
+  private final SampleSourceReader source;
   private final MetadataParser<T> metadataParser;
   private final MetadataRenderer<T> metadataRenderer;
   private final Handler metadataHandler;
@@ -62,7 +63,6 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
   private final SampleHolder sampleHolder;
 
   private int trackIndex;
-  private long currentPositionUs;
   private boolean inputStreamEnded;
 
   private long pendingMetadataTimestamp;
@@ -80,7 +80,7 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
    */
   public MetadataTrackRenderer(SampleSource source, MetadataParser<T> metadataParser,
       MetadataRenderer<T> metadataRenderer, Looper metadataRendererLooper) {
-    this.source = Assertions.checkNotNull(source);
+    this.source = source.register();
     this.metadataParser = Assertions.checkNotNull(metadataParser);
     this.metadataRenderer = Assertions.checkNotNull(metadataRenderer);
     this.metadataHandler = metadataRendererLooper == null ? null
@@ -90,16 +90,13 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
   }
 
   @Override
-  protected int doPrepare() throws ExoPlaybackException {
-    try {
-      boolean sourcePrepared = source.prepare();
-      if (!sourcePrepared) {
-        return TrackRenderer.STATE_UNPREPARED;
-      }
-    } catch (IOException e) {
-      throw new ExoPlaybackException(e);
+  protected int doPrepare(long positionUs) {
+    boolean sourcePrepared = source.prepare(positionUs);
+    if (!sourcePrepared) {
+      return TrackRenderer.STATE_UNPREPARED;
     }
-    for (int i = 0; i < source.getTrackCount(); i++) {
+    int trackCount = source.getTrackCount();
+    for (int i = 0; i < trackCount; i++) {
       if (metadataParser.canParse(source.getTrackInfo(i).mimeType)) {
         trackIndex = i;
         return TrackRenderer.STATE_PREPARED;
@@ -111,17 +108,16 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
   @Override
   protected void onEnabled(long positionUs, boolean joining) {
     source.enable(trackIndex, positionUs);
-    seekToInternal(positionUs);
+    seekToInternal();
   }
 
   @Override
   protected void seekTo(long positionUs) throws ExoPlaybackException {
     source.seekToUs(positionUs);
-    seekToInternal(positionUs);
+    seekToInternal();
   }
 
-  private void seekToInternal(long positionUs) {
-    currentPositionUs = positionUs;
+  private void seekToInternal() {
     pendingMetadata = null;
     inputStreamEnded = false;
   }
@@ -129,31 +125,35 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
   @Override
   protected void doSomeWork(long positionUs, long elapsedRealtimeUs)
       throws ExoPlaybackException {
-    currentPositionUs = positionUs;
-    try {
-      source.continueBuffering(positionUs);
-    } catch (IOException e) {
-      throw new ExoPlaybackException(e);
-    }
+    source.continueBuffering(trackIndex, positionUs);
 
     if (!inputStreamEnded && pendingMetadata == null) {
-      try {
         int result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
         if (result == SampleSource.SAMPLE_READ) {
           pendingMetadataTimestamp = sampleHolder.timeUs;
-          pendingMetadata = metadataParser.parse(sampleHolder.data.array(), sampleHolder.size);
+          try {
+            pendingMetadata = metadataParser.parse(sampleHolder.data.array(), sampleHolder.size);
+          } catch (IOException e) {
+            throw new ExoPlaybackException(e);
+          }
           sampleHolder.data.clear();
         } else if (result == SampleSource.END_OF_STREAM) {
           inputStreamEnded = true;
         }
-      } catch (IOException e) {
-        throw new ExoPlaybackException(e);
-      }
     }
 
-    if (pendingMetadata != null && pendingMetadataTimestamp <= currentPositionUs) {
+    if (pendingMetadata != null && pendingMetadataTimestamp <= positionUs) {
       invokeRenderer(pendingMetadata);
       pendingMetadata = null;
+    }
+  }
+
+  @Override
+  protected void maybeThrowError() throws ExoPlaybackException {
+    try {
+      source.maybeThrowError();
+    } catch (IOException e) {
+      throw new ExoPlaybackException(e);
     }
   }
 
@@ -166,11 +166,6 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
   @Override
   protected long getDurationUs() {
     return source.getTrackInfo(trackIndex).durationUs;
-  }
-
-  @Override
-  protected long getCurrentPositionUs() {
-    return currentPositionUs;
   }
 
   @Override

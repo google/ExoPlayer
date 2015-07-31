@@ -124,7 +124,7 @@ public class UtcTimingElementResolver implements Loader.Callback {
 
   private void resolveHttp(UriLoadable.Parser<Long> parser) {
     singleUseLoader = new Loader("utctiming");
-    singleUseLoadable = new UriLoadable<Long>(timingElement.value, uriDataSource, parser);
+    singleUseLoadable = new UriLoadable<>(timingElement.value, uriDataSource, parser);
     singleUseLoader.startLoading(singleUseLoadable, this);
   }
 

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An HTTP specific extension to {@link DataSource}.
+ * An HTTP specific extension to {@link UriDataSource}.
  */
 public interface HttpDataSource extends UriDataSource {
 
@@ -144,5 +144,12 @@ public interface HttpDataSource extends UriDataSource {
    * Clears all request header fields that were set by {@link #setRequestProperty(String, String)}.
    */
   void clearAllRequestProperties();
+
+  /**
+   * Gets the headers provided in the response.
+   *
+   * @return The response headers, or {@code null} if response headers are unavailable.
+   */
+  Map<String, List<String>> getResponseHeaders();
 
 }

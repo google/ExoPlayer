@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.extractor.mp3;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.util.MpegAudioHeader;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
@@ -24,42 +25,24 @@ import com.google.android.exoplayer.util.Util;
  */
 /* package */ final class XingSeeker implements Mp3Extractor.Seeker {
 
-  private static final int XING_HEADER = Util.getIntegerCodeForString("Xing");
-  private static final int INFO_HEADER = Util.getIntegerCodeForString("Info");
-
   /**
-   * If {@code frame} contains a XING header and it is usable for seeking, returns a
-   * {@link XingSeeker} for seeking in the containing stream. Otherwise, returns {@code null}, which
-   * indicates that the information in the frame was not a XING header, or was unusable for seeking.
+   * Returns a {@link XingSeeker} for seeking in the stream, if required information is present.
+   * Returns {@code null} if not. On returning, {@code frame}'s position is not specified so the
+   * caller should reset it.
+   *
+   * @param mpegAudioHeader The MPEG audio header associated with the frame.
+   * @param frame The data in this audio frame, with its position set to immediately after the
+   *    'XING' or 'INFO' tag.
+   * @param position The position (byte offset) of the start of this frame in the stream.
+   * @param inputLength The length of the stream in bytes.
+   * @return A {@link XingSeeker} for seeking in the stream, or {@code null} if the required
+   *     information is not present.
    */
   public static XingSeeker create(MpegAudioHeader mpegAudioHeader, ParsableByteArray frame,
       long position, long inputLength) {
     int samplesPerFrame = mpegAudioHeader.samplesPerFrame;
     int sampleRate = mpegAudioHeader.sampleRate;
     long firstFramePosition = position + mpegAudioHeader.frameSize;
-
-    // Skip to the XING header.
-    int xingBase;
-    if ((mpegAudioHeader.version & 1) == 1) {
-      // MPEG 1.
-      if (mpegAudioHeader.channels != 1) {
-        xingBase = 32;
-      } else {
-        xingBase = 17;
-      }
-    } else {
-      // MPEG 2 or 2.5.
-      if (mpegAudioHeader.channels != 1) {
-        xingBase = 17;
-      } else {
-        xingBase = 9;
-      }
-    }
-    frame.skipBytes(4 + xingBase);
-    int headerData = frame.readInt();
-    if (headerData != XING_HEADER && headerData != INFO_HEADER) {
-      return null;
-    }
 
     int flags = frame.readInt();
     // Frame count, size and table of contents are required to use this header.

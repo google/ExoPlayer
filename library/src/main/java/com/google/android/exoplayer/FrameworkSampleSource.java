@@ -15,9 +15,10 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
-import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
+import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
@@ -37,25 +38,19 @@ import java.util.UUID;
  * <p>
  * Warning - This class is marked as deprecated because there are known device specific issues
  * associated with its use, including playbacks not starting, playbacks stuttering and other
- * miscellaneous failures. For mp4, m4a, mp3, webm, mpeg-ts and aac playbacks it is strongly
- * recommended to use {@link ExtractorSampleSource} instead, along with the corresponding extractor
- * (e.g. {@link Mp4Extractor} for mp4 playbacks). Where this is not possible this class can still be
- * used, but please be aware of the associated risks. Valid use cases of this class that are not
- * yet supported by {@link ExtractorSampleSource} include:
- * <ul>
- * <li>Playing a container format for which an ExoPlayer extractor does not yet exist (e.g. ogg).
- * </li>
- * <li>Playing media whose container format is unknown and so needs to be inferred automatically.
- * </li>
- * </ul>
- * Over time we hope to enhance {@link ExtractorSampleSource} to support these use cases, and hence
+ * miscellaneous failures. For mp4, m4a, mp3, webm, mkv, mpeg-ts and aac playbacks it is strongly
+ * recommended to use {@link ExtractorSampleSource} instead. Where this is not possible this class
+ * can still be used, but please be aware of the associated risks. Playing container formats for
+ * which an ExoPlayer extractor does not yet exist (e.g. ogg) is a valid use case of this class.
+ * <p>
+ * Over time we hope to enhance {@link ExtractorSampleSource} to support more formats, and hence
  * make use of this class unnecessary.
  */
 // TODO: This implementation needs to be fixed so that its methods are non-blocking (either
 // through use of a background thread, or through changes to the framework's MediaExtractor API).
 @Deprecated
 @TargetApi(16)
-public final class FrameworkSampleSource implements SampleSource {
+public final class FrameworkSampleSource implements SampleSource, SampleSourceReader {
 
   private static final int ALLOWED_FLAGS_MASK = C.SAMPLE_FLAG_SYNC | C.SAMPLE_FLAG_ENCRYPTED;
 
@@ -73,6 +68,7 @@ public final class FrameworkSampleSource implements SampleSource {
   private final long fileDescriptorOffset;
   private final long fileDescriptorLength;
 
+  private IOException preparationError;
   private MediaExtractor extractor;
   private TrackInfo[] trackInfos;
   private boolean prepared;
@@ -88,17 +84,12 @@ public final class FrameworkSampleSource implements SampleSource {
    * @param context Context for resolving {@code uri}.
    * @param uri The content URI from which to extract data.
    * @param headers Headers to send with requests for data.
-   * @param downstreamRendererCount Number of track renderers dependent on this sample source.
    */
-  public FrameworkSampleSource(Context context, Uri uri, Map<String, String> headers,
-      int downstreamRendererCount) {
+  public FrameworkSampleSource(Context context, Uri uri, Map<String, String> headers) {
     Assertions.checkState(Util.SDK_INT >= 16);
-    this.remainingReleaseCount = downstreamRendererCount;
-
     this.context = Assertions.checkNotNull(context);
     this.uri = Assertions.checkNotNull(uri);
     this.headers = headers;
-
     fileDescriptor = null;
     fileDescriptorOffset = 0;
     fileDescriptorLength = 0;
@@ -109,32 +100,43 @@ public final class FrameworkSampleSource implements SampleSource {
    * The caller is responsible for releasing the file descriptor.
    *
    * @param fileDescriptor File descriptor from which to read.
-   * @param offset The offset in bytes into the file where the data to be extracted starts.
-   * @param length The length in bytes of the data to be extracted.
-   * @param downstreamRendererCount Number of track renderers dependent on this sample source.
+   * @param fileDescriptorOffset The offset in bytes where the data to be extracted starts.
+   * @param fileDescriptorLength The length in bytes of the data to be extracted.
    */
-  public FrameworkSampleSource(FileDescriptor fileDescriptor, long offset, long length,
-      int downstreamRendererCount) {
+  public FrameworkSampleSource(FileDescriptor fileDescriptor, long fileDescriptorOffset,
+      long fileDescriptorLength) {
     Assertions.checkState(Util.SDK_INT >= 16);
-    this.remainingReleaseCount = downstreamRendererCount;
-
+    this.fileDescriptor = Assertions.checkNotNull(fileDescriptor);
+    this.fileDescriptorOffset = fileDescriptorOffset;
+    this.fileDescriptorLength = fileDescriptorLength;
     context = null;
     uri = null;
     headers = null;
-
-    this.fileDescriptor = Assertions.checkNotNull(fileDescriptor);
-    fileDescriptorOffset = offset;
-    fileDescriptorLength = length;
   }
 
   @Override
-  public boolean prepare() throws IOException {
+  public SampleSourceReader register() {
+    remainingReleaseCount++;
+    return this;
+  }
+
+  @Override
+  public boolean prepare(long positionUs) {
     if (!prepared) {
+      if (preparationError != null) {
+        return false;
+      }
+
       extractor = new MediaExtractor();
-      if (context != null) {
-        extractor.setDataSource(context, uri, headers);
-      } else {
-        extractor.setDataSource(fileDescriptor, fileDescriptorOffset, fileDescriptorLength);
+      try {
+        if (context != null) {
+          extractor.setDataSource(context, uri, headers);
+        } else {
+          extractor.setDataSource(fileDescriptor, fileDescriptorOffset, fileDescriptorLength);
+        }
+      } catch (IOException e) {
+        preparationError = e;
+        return false;
       }
 
       trackStates = new int[extractor.getTrackCount()];
@@ -174,7 +176,7 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public boolean continueBuffering(long positionUs) {
+  public boolean continueBuffering(int track, long positionUs) {
     // MediaExtractor takes care of buffering and blocks until it has samples, so we can always
     // return true here. Although note that the blocking behavior is itself as bug, as per the
     // TODO further up this file. This method will need to return something else as part of fixing
@@ -233,6 +235,13 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
+  public void maybeThrowError() throws IOException {
+    if (preparationError != null) {
+      throw preparationError;
+    }
+  }
+
+  @Override
   public void seekToUs(long positionUs) {
     Assertions.checkState(prepared);
     seekToUsInternal(positionUs, false);
@@ -267,7 +276,10 @@ public final class FrameworkSampleSource implements SampleSource {
       return null;
     }
     DrmInitData.Mapped drmInitData = new DrmInitData.Mapped(MimeTypes.VIDEO_MP4);
-    drmInitData.putAll(psshInfo);
+    for (UUID uuid : psshInfo.keySet()) {
+      byte[] psshAtom = PsshAtomUtil.buildPsshAtom(uuid, psshInfo.get(uuid));
+      drmInitData.put(uuid, psshAtom);
+    }
     return drmInitData;
   }
 

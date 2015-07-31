@@ -17,17 +17,33 @@ package com.google.android.exoplayer.upstream;
 
 import com.google.android.exoplayer.util.Assertions;
 
+import android.content.Context;
+import android.text.TextUtils;
+
 import java.io.IOException;
 
 /**
- * A data source that fetches data from a local or remote {@link DataSpec}.
+ * A {@link UriDataSource} that supports multiple URI schemes. The supported schemes are:
+ *
+ * <ul>
+ * <li>http(s): For fetching data over HTTP and HTTPS (e.g. https://www.something.com/media.mp4).
+ * <li>file: For fetching data from a local file (e.g. file:///path/to/media/media.mp4, or just
+ *     /path/to/media/media.mp4 because the implementation assumes that a URI without a scheme is a
+ *     local file URI).
+ * <li>asset: For fetching data from an asset in the application's apk (e.g. asset:///media.mp4).
+ * <li>content: For fetching data from a content URI (e.g. content://authority/path/123).
+ * </ul>
  */
 public final class DefaultUriDataSource implements UriDataSource {
 
-  private static final String FILE_URI_SCHEME = "file";
+  private static final String SCHEME_FILE = "file";
+  private static final String SCHEME_ASSET = "asset";
+  private static final String SCHEME_CONTENT = "content";
 
-  private final UriDataSource fileDataSource;
   private final UriDataSource httpDataSource;
+  private final UriDataSource fileDataSource;
+  private final UriDataSource assetDataSource;
+  private final UriDataSource contentDataSource;
 
   /**
    * {@code null} if no data source is open. Otherwise, equal to {@link #fileDataSource} if the open
@@ -36,54 +52,87 @@ public final class DefaultUriDataSource implements UriDataSource {
   private UriDataSource dataSource;
 
   /**
-   * Constructs a new data source that delegates to a {@link FileDataSource} for file URIs and a
-   * {@link DefaultHttpDataSource} for other URIs.
+   * Constructs a new instance.
    * <p>
    * The constructed instance will not follow cross-protocol redirects (i.e. redirects from HTTP to
    * HTTPS or vice versa) when fetching remote data. Cross-protocol redirects can be enabled by
-   * using the {@link #DefaultUriDataSource(String, TransferListener, boolean)} constructor and
-   * passing {@code true} as the final argument.
+   * using {@link #DefaultUriDataSource(Context, TransferListener, String, boolean)} and passing
+   * {@code true} as the final argument.
    *
+   * @param context A context.
    * @param userAgent The User-Agent string that should be used when requesting remote data.
-   * @param transferListener An optional listener.
    */
-  public DefaultUriDataSource(String userAgent, TransferListener transferListener) {
-    this(userAgent, transferListener, false);
+  public DefaultUriDataSource(Context context, String userAgent) {
+    this(context, null, userAgent, false);
   }
 
   /**
-   * Constructs a new data source that delegates to a {@link FileDataSource} for file URIs and a
-   * {@link DefaultHttpDataSource} for other URIs.
+   * Constructs a new instance.
+   * <p>
+   * The constructed instance will not follow cross-protocol redirects (i.e. redirects from HTTP to
+   * HTTPS or vice versa) when fetching remote data. Cross-protocol redirects can be enabled by
+   * using {@link #DefaultUriDataSource(Context, TransferListener, String, boolean)} and passing
+   * {@code true} as the final argument.
    *
+   * @param context A context.
+   * @param listener An optional {@link TransferListener}.
    * @param userAgent The User-Agent string that should be used when requesting remote data.
-   * @param transferListener An optional listener.
+   */
+  public DefaultUriDataSource(Context context, TransferListener listener, String userAgent) {
+    this(context, listener, userAgent, false);
+  }
+
+  /**
+   * Constructs a new instance, optionally configured to follow cross-protocol redirects.
+   *
+   * @param context A context.
+   * @param listener An optional {@link TransferListener}.
+   * @param userAgent The User-Agent string that should be used when requesting remote data.
    * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
    *     to HTTPS and vice versa) are enabled when fetching remote data..
    */
-  public DefaultUriDataSource(String userAgent, TransferListener transferListener,
+  public DefaultUriDataSource(Context context, TransferListener listener, String userAgent,
       boolean allowCrossProtocolRedirects) {
-    this(new FileDataSource(transferListener),
-        new DefaultHttpDataSource(userAgent, null, transferListener,
+    this(context, listener,
+        new DefaultHttpDataSource(userAgent, null, listener,
             DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
             DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS, allowCrossProtocolRedirects));
   }
 
   /**
-   * Constructs a new data source using {@code fileDataSource} for file URIs, and
-   * {@code httpDataSource} for non-file URIs.
+   * Constructs a new instance, using a provided {@link HttpDataSource} for fetching remote data.
    *
-   * @param fileDataSource {@link UriDataSource} to use for file URIs.
+   * @param context A context.
+   * @param listener An optional {@link TransferListener}.
    * @param httpDataSource {@link UriDataSource} to use for non-file URIs.
    */
-  public DefaultUriDataSource(UriDataSource fileDataSource, UriDataSource httpDataSource) {
-    this.fileDataSource = Assertions.checkNotNull(fileDataSource);
+  public DefaultUriDataSource(Context context, TransferListener listener,
+      UriDataSource httpDataSource) {
     this.httpDataSource = Assertions.checkNotNull(httpDataSource);
+    this.fileDataSource = new FileDataSource(listener);
+    this.assetDataSource = new AssetDataSource(context, listener);
+    this.contentDataSource = new ContentDataSource(context, listener);
   }
 
   @Override
   public long open(DataSpec dataSpec) throws IOException {
     Assertions.checkState(dataSource == null);
-    dataSource = FILE_URI_SCHEME.equals(dataSpec.uri.getScheme()) ? fileDataSource : httpDataSource;
+    // Choose the correct source for the scheme.
+    String scheme = dataSpec.uri.getScheme();
+    if (SCHEME_FILE.equals(scheme) || TextUtils.isEmpty(scheme)) {
+      if (dataSpec.uri.getPath().startsWith("/android_asset/")) {
+        dataSource = assetDataSource;
+      } else {
+        dataSource = fileDataSource;
+      }
+    } else if (SCHEME_ASSET.equals(scheme)) {
+      dataSource = assetDataSource;
+    } else if (SCHEME_CONTENT.equals(scheme)) {
+      dataSource = contentDataSource;
+    } else {
+      dataSource = httpDataSource;
+    }
+    // Open the source and return.
     return dataSource.open(dataSpec);
   }
 
@@ -100,8 +149,11 @@ public final class DefaultUriDataSource implements UriDataSource {
   @Override
   public void close() throws IOException {
     if (dataSource != null) {
-      dataSource.close();
-      dataSource = null;
+      try {
+        dataSource.close();
+      } finally {
+        dataSource = null;
+      }
     }
   }
 

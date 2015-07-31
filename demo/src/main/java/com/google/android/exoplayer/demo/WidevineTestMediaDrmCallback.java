@@ -16,13 +16,12 @@
 package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.drm.MediaDrmCallback;
+import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
 import android.media.MediaDrm.KeyRequest;
 import android.media.MediaDrm.ProvisionRequest;
 import android.text.TextUtils;
-
-import org.apache.http.client.ClientProtocolException;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -43,10 +42,9 @@ public class WidevineTestMediaDrmCallback implements MediaDrmCallback {
   }
 
   @Override
-  public byte[] executeProvisionRequest(UUID uuid, ProvisionRequest request)
-      throws ClientProtocolException, IOException {
+  public byte[] executeProvisionRequest(UUID uuid, ProvisionRequest request) throws IOException {
     String url = request.getDefaultUrl() + "&signedRequest=" + new String(request.getData());
-    return DemoUtil.executePost(url, null, null);
+    return Util.executePost(url, null, null);
   }
 
   @Override
@@ -55,7 +53,7 @@ public class WidevineTestMediaDrmCallback implements MediaDrmCallback {
     if (TextUtils.isEmpty(url)) {
       url = defaultUri;
     }
-    return DemoUtil.executePost(url, request.getData(), null);
+    return Util.executePost(url, request.getData(), null);
   }
 
 }

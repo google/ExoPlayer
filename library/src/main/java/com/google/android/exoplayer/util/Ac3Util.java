@@ -17,8 +17,6 @@ package com.google.android.exoplayer.util;
 
 import com.google.android.exoplayer.MediaFormat;
 
-import java.util.Collections;
-
 /**
  * Utility methods for parsing AC-3 headers.
  */
@@ -51,7 +49,7 @@ public final class Ac3Util {
       channelCount++;
     }
     return MediaFormat.createAudioFormat(MimeTypes.AUDIO_AC3, MediaFormat.NO_VALUE,
-        MediaFormat.NO_VALUE, channelCount, sampleRate, Collections.<byte[]>emptyList());
+        channelCount, sampleRate, null);
   }
 
   /**
@@ -74,7 +72,7 @@ public final class Ac3Util {
       channelCount++;
     }
     return MediaFormat.createAudioFormat(MimeTypes.AUDIO_EC3, MediaFormat.NO_VALUE,
-        channelCount, sampleRate, Collections.<byte[]>emptyList());
+        channelCount, sampleRate, null);
   }
 
   /**
@@ -102,8 +100,7 @@ public final class Ac3Util {
     }
     boolean lfeon = data.readBit();
     return MediaFormat.createAudioFormat(MimeTypes.AUDIO_AC3, MediaFormat.NO_VALUE,
-        MediaFormat.NO_VALUE, CHANNEL_COUNTS[acmod] + (lfeon ? 1 : 0), SAMPLE_RATES[fscod],
-        Collections.<byte[]>emptyList());
+        CHANNEL_COUNTS[acmod] + (lfeon ? 1 : 0), SAMPLE_RATES[fscod], null);
   }
 
   /**

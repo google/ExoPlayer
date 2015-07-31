@@ -94,7 +94,7 @@ public final class VideoFormatSelectorUtil {
       String[] allowedContainerMimeTypes, boolean filterHdFormats, boolean orientationMayChange,
       int viewportWidth, int viewportHeight) throws DecoderQueryException {
     int maxVideoPixelsToRetain = Integer.MAX_VALUE;
-    ArrayList<Integer> selectedIndexList = new ArrayList<Integer>();
+    ArrayList<Integer> selectedIndexList = new ArrayList<>();
     int maxDecodableFrameSize = MediaCodecUtil.maxH264DecodableFrameSize();
 
     // First pass to filter out formats that individually fail to meet the selection criteria.
@@ -108,7 +108,7 @@ public final class VideoFormatSelectorUtil {
         // Keep track of the number of pixels of the selected format whose resolution is the
         // smallest to exceed the maximum size at which it can be displayed within the viewport.
         // We'll discard formats of higher resolution in a second pass.
-        if (format.width != -1 && format.height != -1) {
+        if (format.width > 0 && format.height > 0) {
           Point maxVideoSizeInViewport = getMaxVideoSizeInViewport(orientationMayChange,
               viewportWidth, viewportHeight, format.width, format.height);
           int videoPixels = format.width * format.height;
@@ -126,7 +126,7 @@ public final class VideoFormatSelectorUtil {
     // viewport.
     for (int i = selectedIndexList.size() - 1; i >= 0; i--) {
       Format format = formatWrappers.get(i).getFormat();
-      if (format.width != -1 && format.height != -1
+      if (format.width > 0 && format.height > 0
           && format.width * format.height > maxVideoPixelsToRetain) {
         selectedIndexList.remove(i);
       }
@@ -150,7 +150,7 @@ public final class VideoFormatSelectorUtil {
       // Filtering format because it's HD.
       return false;
     }
-    if (format.width != -1 && format.height != -1) {
+    if (format.width > 0 && format.height > 0) {
       // TODO: Use MediaCodecUtil.isSizeAndRateSupportedV21 on API levels >= 21 if we know the
       // mimeType of the media samples within the container. Remove the assumption that we're
       // dealing with H.264.

@@ -50,11 +50,21 @@ public interface Extractor {
   void init(ExtractorOutput output);
 
   /**
+   * Returns whether this extractor can extract samples from the {@link ExtractorInput}, which must
+   * provide data from the start of the stream.
+   *
+   * @throws IOException If an error occurred reading from the input.
+   * @throws InterruptedException If the thread was interrupted.
+   */
+  boolean sniff(ExtractorInput input) throws IOException, InterruptedException;
+
+  /**
    * Extracts data read from a provided {@link ExtractorInput}.
    * <p>
-   * Each read will extract at most one sample from the stream before returning.
+   * A single call to this method will block until some progress has been made, but will not block
+   * for longer than this. Hence each call will consume only a small amount of input data.
    * <p>
-   * In the common case, {@link #RESULT_CONTINUE} is returned to indicate that
+   * In the common case, {@link #RESULT_CONTINUE} is returned to indicate that the
    * {@link ExtractorInput} passed to the next read is required to provide data continuing from the
    * position in the stream reached by the returning call. If the extractor requires data to be
    * provided from a different position, then that position is set in {@code seekPosition} and
@@ -75,9 +85,10 @@ public interface Extractor {
    * Notifies the extractor that a seek has occurred.
    * <p>
    * Following a call to this method, the {@link ExtractorInput} passed to the next invocation of
-   * {@link #read(ExtractorInput, PositionHolder)} is required to provide data starting from any
-   * random access position in the stream. Random access positions can be obtained from a
-   * {@link SeekMap} that has been extracted and passed to the {@link ExtractorOutput}.
+   * {@link #read(ExtractorInput, PositionHolder)} is required to provide data starting from a
+   * random access position in the stream. Valid random access positions are the start of the
+   * stream and positions that can be obtained from any {@link SeekMap} passed to the
+   * {@link ExtractorOutput}.
    */
   void seek();
 

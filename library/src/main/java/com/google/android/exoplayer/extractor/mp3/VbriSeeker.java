@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.extractor.mp3;
 
+import com.google.android.exoplayer.util.MpegAudioHeader;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
@@ -23,23 +24,20 @@ import com.google.android.exoplayer.util.Util;
  */
 /* package */ final class VbriSeeker implements Mp3Extractor.Seeker {
 
-  private static final int VBRI_HEADER = Util.getIntegerCodeForString("VBRI");
-
   /**
-   * If {@code frame} contains a VBRI header and it is usable for seeking, returns a
-   * {@link VbriSeeker} for seeking in the containing stream. Otherwise, returns {@code null}, which
-   * indicates that the information in the frame was not a VBRI header, or was unusable for seeking.
+   * Returns a {@link VbriSeeker} for seeking in the stream, if required information is present.
+   * Returns {@code null} if not. On returning, {@code frame}'s position is not specified so the
+   * caller should reset it.
+   *
+   * @param mpegAudioHeader The MPEG audio header associated with the frame.
+   * @param frame The data in this audio frame, with its position set to immediately after the
+   *     'VBRI' tag.
+   * @param position The position (byte offset) of the start of this frame in the stream.
+   * @return A {@link VbriSeeker} for seeking in the stream, or {@code null} if the required
+   *     information is not present.
    */
-  public static VbriSeeker create(
-      MpegAudioHeader mpegAudioHeader, ParsableByteArray frame, long position) {
-    long basePosition = position + mpegAudioHeader.frameSize;
-
-    // Read the VBRI header.
-    frame.skipBytes(32);
-    int headerData = frame.readInt();
-    if (headerData != VBRI_HEADER) {
-      return null;
-    }
+  public static VbriSeeker create(MpegAudioHeader mpegAudioHeader, ParsableByteArray frame,
+      long position) {
     frame.skipBytes(10);
     int numFrames = frame.readInt();
     if (numFrames <= 0) {
@@ -83,7 +81,7 @@ import com.google.android.exoplayer.util.Util;
 
       segmentIndex++;
     }
-    return new VbriSeeker(timesUs, offsets, basePosition, durationUs);
+    return new VbriSeeker(timesUs, offsets, position + mpegAudioHeader.frameSize, durationUs);
   }
 
   private final long[] timesUs;

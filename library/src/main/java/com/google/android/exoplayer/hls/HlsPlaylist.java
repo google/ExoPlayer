@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.hls;
 
-
 /**
  * Represents an HLS playlist.
  */

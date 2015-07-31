@@ -55,7 +55,7 @@ public final class AudioTrack {
   /**
    * Thrown when a failure occurs instantiating an {@link android.media.AudioTrack}.
    */
-  public static class InitializationException extends Exception {
+  public static final class InitializationException extends Exception {
 
     /** The state as reported by {@link android.media.AudioTrack#getState()}. */
     public final int audioTrackState;
@@ -72,7 +72,7 @@ public final class AudioTrack {
   /**
    * Thrown when a failure occurs writing to an {@link android.media.AudioTrack}.
    */
-  public static class WriteException extends Exception {
+  public static final class WriteException extends Exception {
 
     /** The value returned from {@link android.media.AudioTrack#write(byte[], int, int)}. */
     public final int errorCode;
@@ -80,6 +80,18 @@ public final class AudioTrack {
     public WriteException(int errorCode) {
       super("AudioTrack write failed: " + errorCode);
       this.errorCode = errorCode;
+    }
+
+  }
+
+  /**
+   * Thrown when {@link android.media.AudioTrack#getTimestamp} returns a spurious timestamp, if
+   * {@code AudioTrack#failOnSpuriousAudioTimestamp} is set.
+   */
+  public static final class InvalidAudioTrackTimestampException extends RuntimeException {
+
+    public InvalidAudioTrackTimestampException(String message) {
+      super(message);
     }
 
   }
@@ -134,11 +146,21 @@ public final class AudioTrack {
   private static final int MIN_TIMESTAMP_SAMPLE_INTERVAL_US = 500000;
 
   /**
-   * Set to {@code true} to enable a workaround for an issue where an audio effect does not keep its
-   * session active across releasing/initializing a new audio track, on platform API version < 21.
-   * The flag must be set before creating the player.
+   * Whether to enable a workaround for an issue where an audio effect does not keep its session
+   * active across releasing/initializing a new audio track, on platform API version < 21.
+   * <p>
+   * The flag must be set before creating a player.
    */
   public static boolean enablePreV21AudioSessionWorkaround = false;
+
+  /**
+   * Whether to throw an {@link InvalidAudioTrackTimestampException} when a spurious timestamp is
+   * reported from {@link android.media.AudioTrack#getTimestamp}.
+   * <p>
+   * The flag must be set before creating a player. Should be set to {@code true} for testing and
+   * debugging purposes only.
+   */
+  public static boolean failOnSpuriousAudioTimestamp = false;
 
   private final ConditionVariable releasingConditionVariable;
   private final long[] playheadOffsets;
@@ -423,12 +445,21 @@ public final class AudioTrack {
       return RESULT_BUFFER_CONSUMED;
     }
 
-    // As a workaround for an issue on platform API versions 21/22 where an an AC-3 audio track
-    // continues to play data written while it is paused, stop writing so its buffer empties. See
-    // [Internal: b/18899620].
-    if (Util.SDK_INT <= 22 && isAc3
-        && audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PAUSED) {
-      return 0;
+    // Workarounds for issues with AC-3 passthrough AudioTracks on API versions 21/22:
+    if (Util.SDK_INT <= 22 && isAc3) {
+      // An AC-3 audio track continues to play data written while it is paused. Stop writing so its
+      // buffer empties. See [Internal: b/18899620].
+      if (audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PAUSED) {
+        return 0;
+      }
+
+      // A new AC-3 audio track's playback position continues to increase from the old track's
+      // position for a short time after is has been released. Avoid writing data until the playback
+      // head position actually returns to zero.
+      if (audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_STOPPED
+          && audioTrackUtil.getPlaybackHeadPosition() != 0) {
+        return 0;
+      }
     }
 
     int result = 0;
@@ -440,7 +471,7 @@ public final class AudioTrack {
       // This is the first time we've seen this {@code buffer}.
       // Note: presentationTimeUs corresponds to the end of the sample, not the start.
       long bufferStartTime = presentationTimeUs - framesToDurationUs(bytesToFrames(size));
-      if (startMediaTimeUs == START_NOT_SET) {
+      if (startMediaTimeState == START_NOT_SET) {
         startMediaTimeUs = Math.max(0, bufferStartTime);
         startMediaTimeState = START_IN_SYNC;
       } else {
@@ -564,7 +595,8 @@ public final class AudioTrack {
     if (isInitialized()) {
       submittedBytes = 0;
       temporaryBufferSize = 0;
-      startMediaTimeUs = START_NOT_SET;
+      startMediaTimeState = START_NOT_SET;
+      latencyUs = 0;
       resetSyncParams();
       int playState = audioTrack.getPlayState();
       if (playState == android.media.AudioTrack.PLAYSTATE_PLAYING) {
@@ -613,10 +645,12 @@ public final class AudioTrack {
 
   /** Returns whether {@link #getCurrentPositionUs} can return the current playback position. */
   private boolean hasCurrentPositionUs() {
-    return isInitialized() && startMediaTimeUs != START_NOT_SET;
+    return isInitialized() && startMediaTimeState != START_NOT_SET;
   }
 
-  /** Updates the audio track latency and playback position parameters. */
+  /**
+   * Updates the audio track latency and playback position parameters.
+   */
   private void maybeSampleSyncParams() {
     long playbackPositionUs = audioTrackUtil.getPlaybackHeadPositionUs();
     if (playbackPositionUs == 0) {
@@ -638,7 +672,9 @@ public final class AudioTrack {
       }
     }
 
-    if (systemClockUs - lastTimestampSampleTimeUs >= MIN_TIMESTAMP_SAMPLE_INTERVAL_US) {
+    // Don't sample the timestamp and latency if this is an AC-3 passthrough AudioTrack, as the
+    // returned values cause audio/video synchronization to be incorrect.
+    if (!isAc3 && systemClockUs - lastTimestampSampleTimeUs >= MIN_TIMESTAMP_SAMPLE_INTERVAL_US) {
       audioTimestampSet = audioTrackUtil.updateTimestamp();
       if (audioTimestampSet) {
         // Perform sanity checks on the timestamp.
@@ -649,17 +685,25 @@ public final class AudioTrack {
           audioTimestampSet = false;
         } else if (Math.abs(audioTimestampUs - systemClockUs) > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
           // The timestamp time base is probably wrong.
-          audioTimestampSet = false;
-          Log.w(TAG, "Spurious audio timestamp (system clock mismatch): "
+          String message = "Spurious audio timestamp (system clock mismatch): "
               + audioTimestampFramePosition + ", " + audioTimestampUs + ", " + systemClockUs + ", "
-              + playbackPositionUs);
+              + playbackPositionUs;
+          if (failOnSpuriousAudioTimestamp) {
+            throw new InvalidAudioTrackTimestampException(message);
+          }
+          Log.w(TAG, message);
+          audioTimestampSet = false;
         } else if (Math.abs(framesToDurationUs(audioTimestampFramePosition) - playbackPositionUs)
             > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
           // The timestamp frame position is probably wrong.
-          audioTimestampSet = false;
-          Log.w(TAG, "Spurious audio timestamp (frame position mismatch): "
+          String message = "Spurious audio timestamp (frame position mismatch): "
               + audioTimestampFramePosition + ", " + audioTimestampUs + ", " + systemClockUs + ", "
-              + playbackPositionUs);
+              + playbackPositionUs;
+          if (failOnSpuriousAudioTimestamp) {
+            throw new InvalidAudioTrackTimestampException(message);
+          }
+          Log.w(TAG, message);
+          audioTimestampSet = false;
         }
       }
       if (getLatencyMethod != null) {

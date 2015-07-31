@@ -17,6 +17,7 @@ package com.google.android.exoplayer.upstream;
 
 import com.google.android.exoplayer.C;
 
+import android.content.Context;
 import android.content.res.AssetManager;
 
 import java.io.EOFException;
@@ -24,14 +25,14 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * A local asset {@link DataSource}.
+ * A local asset {@link UriDataSource}.
  */
-public final class AssetDataSource implements DataSource {
+public final class AssetDataSource implements UriDataSource {
 
   /**
-   * Thrown when IOException is encountered during local asset read operation.
+   * Thrown when an {@link IOException} is encountered reading a local asset.
    */
-  public static class AssetDataSourceException extends IOException {
+  public static final class AssetDataSourceException extends IOException {
 
     public AssetDataSourceException(IOException cause) {
       super(cause);
@@ -42,15 +43,16 @@ public final class AssetDataSource implements DataSource {
   private final AssetManager assetManager;
   private final TransferListener listener;
 
-  private InputStream assetInputStream;
+  private String uriString;
+  private InputStream inputStream;
   private long bytesRemaining;
   private boolean opened;
 
   /**
    * Constructs a new {@link DataSource} that retrieves data from a local asset.
    */
-  public AssetDataSource(AssetManager assetManager) {
-    this(assetManager, null);
+  public AssetDataSource(Context context) {
+    this(context, null);
   }
 
   /**
@@ -58,22 +60,39 @@ public final class AssetDataSource implements DataSource {
    *
    * @param listener An optional listener. Specify {@code null} for no listener.
    */
-  public AssetDataSource(AssetManager assetManager, TransferListener listener) {
-    this.assetManager = assetManager;
+  public AssetDataSource(Context context, TransferListener listener) {
+    this.assetManager = context.getAssets();
     this.listener = listener;
   }
 
   @Override
   public long open(DataSpec dataSpec) throws AssetDataSourceException {
     try {
-      // Lose the '/' prefix in the path or else AssetManager won't find our file
-      assetInputStream = assetManager.open(dataSpec.uri.getPath().substring(1),
-          AssetManager.ACCESS_RANDOM);
-      assetInputStream.skip(dataSpec.position);
-      bytesRemaining = dataSpec.length == C.LENGTH_UNBOUNDED ? assetInputStream.available()
-          : dataSpec.length;
-      if (bytesRemaining < 0) {
+      uriString = dataSpec.uri.toString();
+      String path = dataSpec.uri.getPath();
+      if (path.startsWith("/android_asset/")) {
+        path = path.substring(15);
+      } else if (path.startsWith("/")) {
+        path = path.substring(1);
+      }
+      uriString = dataSpec.uri.toString();
+      inputStream = assetManager.open(path, AssetManager.ACCESS_RANDOM);
+      long skipped = inputStream.skip(dataSpec.position);
+      if (skipped < dataSpec.position) {
+        // assetManager.open() returns an AssetInputStream, whose skip() implementation only skips
+        // fewer bytes than requested if the skip is beyond the end of the asset's data.
         throw new EOFException();
+      }
+      if (dataSpec.length != C.LENGTH_UNBOUNDED) {
+        bytesRemaining = dataSpec.length;
+      } else {
+        bytesRemaining = inputStream.available();
+        if (bytesRemaining == Integer.MAX_VALUE) {
+          // assetManager.open() returns an AssetInputStream, whose available() implementation
+          // returns Integer.MAX_VALUE if the remaining length is greater than (or equal to)
+          // Integer.MAX_VALUE. We don't know the true length in this case, so treat as unbounded.
+          bytesRemaining = C.LENGTH_UNBOUNDED;
+        }
       }
     } catch (IOException e) {
       throw new AssetDataSourceException(e);
@@ -93,14 +112,17 @@ public final class AssetDataSource implements DataSource {
     } else {
       int bytesRead = 0;
       try {
-        bytesRead = assetInputStream.read(buffer, offset,
-            (int) Math.min(bytesRemaining, readLength));
+        int bytesToRead = bytesRemaining == C.LENGTH_UNBOUNDED ? readLength
+            : (int) Math.min(bytesRemaining, readLength);
+        bytesRead = inputStream.read(buffer, offset, bytesToRead);
       } catch (IOException e) {
         throw new AssetDataSourceException(e);
       }
 
       if (bytesRead > 0) {
-        bytesRemaining -= bytesRead;
+        if (bytesRemaining != C.LENGTH_UNBOUNDED) {
+          bytesRemaining -= bytesRead;
+        }
         if (listener != null) {
           listener.onBytesTransferred(bytesRead);
         }
@@ -111,14 +133,20 @@ public final class AssetDataSource implements DataSource {
   }
 
   @Override
+  public String getUri() {
+    return uriString;
+  }
+
+  @Override
   public void close() throws AssetDataSourceException {
-    if (assetInputStream != null) {
+    uriString = null;
+    if (inputStream != null) {
       try {
-        assetInputStream.close();
+        inputStream.close();
       } catch (IOException e) {
         throw new AssetDataSourceException(e);
       } finally {
-        assetInputStream = null;
+        inputStream = null;
         if (opened) {
           opened = false;
           if (listener != null) {

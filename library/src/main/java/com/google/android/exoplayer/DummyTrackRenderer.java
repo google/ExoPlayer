@@ -18,14 +18,14 @@ package com.google.android.exoplayer;
 /**
  * A {@link TrackRenderer} that does nothing.
  * <p>
- * This renderer returns {@link TrackRenderer#STATE_IGNORE} from {@link #doPrepare()} in order to
- * request that it should be ignored. {@link IllegalStateException} is thrown from all methods that
- * are documented to indicate that they should not be invoked unless the renderer is prepared.
+ * This renderer returns {@link TrackRenderer#STATE_IGNORE} from {@link #doPrepare(long)} in order
+ * to request that it should be ignored. {@link IllegalStateException} is thrown from all methods
+ * that are documented to indicate that they should not be invoked unless the renderer is prepared.
  */
 public class DummyTrackRenderer extends TrackRenderer {
 
   @Override
-  protected int doPrepare() throws ExoPlaybackException {
+  protected int doPrepare(long positionUs) {
     return STATE_IGNORE;
   }
 
@@ -50,17 +50,17 @@ public class DummyTrackRenderer extends TrackRenderer {
   }
 
   @Override
+  protected void maybeThrowError() {
+    throw new IllegalStateException();
+  }
+
+  @Override
   protected long getDurationUs() {
     throw new IllegalStateException();
   }
 
   @Override
   protected long getBufferedPositionUs() {
-    throw new IllegalStateException();
-  }
-
-  @Override
-  protected long getCurrentPositionUs() {
     throw new IllegalStateException();
   }
 

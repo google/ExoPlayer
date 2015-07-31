@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 /**
- * A local file {@link DataSource}.
+ * A local file {@link UriDataSource}.
  */
 public final class FileDataSource implements UriDataSource {
 
@@ -40,7 +40,7 @@ public final class FileDataSource implements UriDataSource {
   private final TransferListener listener;
 
   private RandomAccessFile file;
-  private String uri;
+  private String uriString;
   private long bytesRemaining;
   private boolean opened;
 
@@ -63,7 +63,7 @@ public final class FileDataSource implements UriDataSource {
   @Override
   public long open(DataSpec dataSpec) throws FileDataSourceException {
     try {
-      uri = dataSpec.uri.toString();
+      uriString = dataSpec.uri.toString();
       file = new RandomAccessFile(dataSpec.uri.getPath(), "r");
       file.seek(dataSpec.position);
       bytesRemaining = dataSpec.length == C.LENGTH_UNBOUNDED ? file.length() - dataSpec.position
@@ -108,11 +108,12 @@ public final class FileDataSource implements UriDataSource {
 
   @Override
   public String getUri() {
-    return uri;
+    return uriString;
   }
 
   @Override
   public void close() throws FileDataSourceException {
+    uriString = null;
     if (file != null) {
       try {
         file.close();
@@ -120,8 +121,6 @@ public final class FileDataSource implements UriDataSource {
         throw new FileDataSourceException(e);
       } finally {
         file = null;
-        uri = null;
-
         if (opened) {
           opened = false;
           if (listener != null) {

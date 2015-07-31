@@ -15,16 +15,18 @@
  */
 package com.google.android.exoplayer.text;
 
+import java.util.List;
+
 /**
  * An interface for components that render text.
  */
 public interface TextRenderer {
 
   /**
-   * Invoked each time there is a change in the text to be rendered.
+   * Invoked each time there is a change in the {@link Cue}s to be rendered.
    *
-   * @param text The text to render, or null if no text is to be rendered.
+   * @param cues The {@link Cue}s to be rendered, or an empty list if no cues are to be rendered.
    */
-  void onText(String text);
+  void onCues(List<Cue> cues);
 
 }

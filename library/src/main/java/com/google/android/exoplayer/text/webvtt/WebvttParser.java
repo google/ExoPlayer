@@ -17,8 +17,13 @@ package com.google.android.exoplayer.text.webvtt;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.MimeTypes;
+
+import android.text.Html;
+import android.text.Layout.Alignment;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,22 +40,13 @@ import java.util.regex.Pattern;
  */
 public class WebvttParser implements SubtitleParser {
 
-  /**
-   * This parser allows a custom header to be prepended to the WebVTT data, in the form of a text
-   * line starting with this string.
-   *
-   * @hide
-   */
-  public static final String EXO_HEADER = "EXO-HEADER";
-  /**
-   * A {@code OFFSET + value} element can be added to the custom header to specify an offset time
-   * (in microseconds) that should be subtracted from the embedded MPEGTS value.
-   *
-   * @hide
-   */
-  public static final String OFFSET = "OFFSET:";
+  private static final String TAG = "WebvttParser";
 
   private static final long SAMPLING_RATE = 90;
+
+  private static final String WEBVTT_FILE_HEADER_STRING = "^\uFEFF?WEBVTT((\\u0020|\u0009).*)?$";
+  private static final Pattern WEBVTT_FILE_HEADER =
+      Pattern.compile(WEBVTT_FILE_HEADER_STRING);
 
   private static final String WEBVTT_METADATA_HEADER_STRING = "\\S*[:=]\\S*";
   private static final Pattern WEBVTT_METADATA_HEADER =
@@ -63,27 +59,41 @@ public class WebvttParser implements SubtitleParser {
   private static final String WEBVTT_TIMESTAMP_STRING = "(\\d+:)?[0-5]\\d:[0-5]\\d\\.\\d{3}";
   private static final Pattern WEBVTT_TIMESTAMP = Pattern.compile(WEBVTT_TIMESTAMP_STRING);
 
-  private static final Pattern MEDIA_TIMESTAMP_OFFSET = Pattern.compile(OFFSET + "\\d+");
+  private static final String WEBVTT_CUE_SETTING_STRING = "\\S*:\\S*";
+  private static final Pattern WEBVTT_CUE_SETTING = Pattern.compile(WEBVTT_CUE_SETTING_STRING);
+
+  private static final Pattern MEDIA_TIMESTAMP_OFFSET =
+      Pattern.compile(C.WEBVTT_EXO_HEADER_OFFSET + "\\-?\\d+");
   private static final Pattern MEDIA_TIMESTAMP = Pattern.compile("MPEGTS:\\d+");
 
-  private static final String WEBVTT_CUE_TAG_STRING = "\\<.*?>";
+  private static final String NON_NUMERIC_STRING = ".*[^0-9].*";
+
+  private final StringBuilder textBuilder;
 
   private final boolean strictParsing;
-  private final boolean filterTags;
 
+  /**
+   * Equivalent to {@code WebvttParser(false)}.
+   */
   public WebvttParser() {
-    this(true, true);
+    this(false);
   }
 
-  public WebvttParser(boolean strictParsing, boolean filterTags) {
+  /**
+   * @param strictParsing If true, {@link #parse(InputStream, String, long)} will throw a
+   *     {@link ParserException} if the stream contains invalid data. If false, the parser will
+   *     make a best effort to ignore minor errors in the stream. Note however that a
+   *     {@link ParserException} will still be thrown when this is not possible.
+   */
+  public WebvttParser(boolean strictParsing) {
     this.strictParsing = strictParsing;
-    this.filterTags = filterTags;
+    textBuilder = new StringBuilder();
   }
 
   @Override
   public WebvttSubtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
       throws IOException {
-    ArrayList<WebvttCue> subtitles = new ArrayList<WebvttCue>();
+    ArrayList<WebvttCue> subtitles = new ArrayList<>();
     long mediaTimestampUs = startTimeUs;
     long mediaTimestampOffsetUs = 0;
 
@@ -96,7 +106,7 @@ public class WebvttParser implements SubtitleParser {
       throw new ParserException("Expected WEBVTT or EXO-HEADER. Got null");
     }
 
-    if (line.startsWith(EXO_HEADER)) {
+    if (line.startsWith(C.WEBVTT_EXO_HEADER)) {
       // parse the timestamp offset, if present
       Matcher matcher = MEDIA_TIMESTAMP_OFFSET.matcher(line);
       if (matcher.find()) {
@@ -110,7 +120,7 @@ public class WebvttParser implements SubtitleParser {
       }
     }
 
-    if (!line.equals("WEBVTT") && !line.equals("\uFEFFWEBVTT")) {
+    if (!WEBVTT_FILE_HEADER.matcher(line).matches()) {
       throw new ParserException("Expected WEBVTT. Got " + line);
     }
 
@@ -137,7 +147,7 @@ public class WebvttParser implements SubtitleParser {
           throw new ParserException("X-TIMESTAMP-MAP doesn't contain media timestamp: " + line);
         } else {
           mediaTimestampUs = (Long.parseLong(timestampMatcher.group().substring(7)) * 1000)
-              / SAMPLING_RATE - mediaTimestampOffsetUs;
+              / SAMPLING_RATE + mediaTimestampOffsetUs;
         }
         mediaTimestampUs = getAdjustedStartTime(mediaTimestampUs);
       }
@@ -145,6 +155,7 @@ public class WebvttParser implements SubtitleParser {
 
     // process the cues and text
     while ((line = webvttData.readLine()) != null) {
+
       // parse the cue identifier (if present) {
       Matcher matcher = WEBVTT_CUE_IDENTIFIER.matcher(line);
       if (matcher.find()) {
@@ -152,11 +163,16 @@ public class WebvttParser implements SubtitleParser {
         line = webvttData.readLine();
       }
 
+      long startTime = Cue.UNSET_VALUE;
+      long endTime = Cue.UNSET_VALUE;
+      CharSequence text = null;
+      int lineNum = Cue.UNSET_VALUE;
+      int position = Cue.UNSET_VALUE;
+      Alignment alignment = null;
+      int size = Cue.UNSET_VALUE;
+
       // parse the cue timestamps
       matcher = WEBVTT_TIMESTAMP.matcher(line);
-      long startTime;
-      long endTime;
-      String text = "";
 
       // parse start timestamp
       if (!matcher.find()) {
@@ -166,37 +182,74 @@ public class WebvttParser implements SubtitleParser {
       }
 
       // parse end timestamp
+      String endTimeString;
       if (!matcher.find()) {
         throw new ParserException("Expected cue end time: " + line);
       } else {
-        endTime = parseTimestampUs(matcher.group()) + mediaTimestampUs;
+        endTimeString = matcher.group();
+        endTime = parseTimestampUs(endTimeString) + mediaTimestampUs;
+      }
+
+      // parse the (optional) cue setting list
+      line = line.substring(line.indexOf(endTimeString) + endTimeString.length());
+      matcher = WEBVTT_CUE_SETTING.matcher(line);
+      while (matcher.find()) {
+        String match = matcher.group();
+        String[] parts = match.split(":", 2);
+        String name = parts[0];
+        String value = parts[1];
+
+        try {
+          if ("line".equals(name)) {
+            if (value.endsWith("%")) {
+              lineNum = parseIntPercentage(value);
+            } else if (value.matches(NON_NUMERIC_STRING)) {
+              Log.w(TAG, "Invalid line value: " + value);
+            } else {
+              lineNum = Integer.parseInt(value);
+            }
+          } else if ("align".equals(name)) {
+            // TODO: handle for RTL languages
+            if ("start".equals(value)) {
+              alignment = Alignment.ALIGN_NORMAL;
+            } else if ("middle".equals(value)) {
+              alignment = Alignment.ALIGN_CENTER;
+            } else if ("end".equals(value)) {
+              alignment = Alignment.ALIGN_OPPOSITE;
+            } else if ("left".equals(value)) {
+              alignment = Alignment.ALIGN_NORMAL;
+            } else if ("right".equals(value)) {
+              alignment = Alignment.ALIGN_OPPOSITE;
+            } else {
+              Log.w(TAG, "Invalid align value: " + value);
+            }
+          } else if ("position".equals(name)) {
+            position = parseIntPercentage(value);
+          } else if ("size".equals(name)) {
+            size = parseIntPercentage(value);
+          } else {
+            Log.w(TAG, "Unknown cue setting " + name + ":" + value);
+          }
+        } catch (NumberFormatException e) {
+          Log.w(TAG, name + " contains an invalid value " + value, e);
+        }
       }
 
       // parse text
+      textBuilder.setLength(0);
       while (((line = webvttData.readLine()) != null) && (!line.isEmpty())) {
-        text += processCueText(line.trim()) + "\n";
+        if (textBuilder.length() > 0) {
+          textBuilder.append("<br>");
+        }
+        textBuilder.append(line.trim());
       }
+      text = Html.fromHtml(textBuilder.toString());
 
-      WebvttCue cue = new WebvttCue(startTime, endTime, text);
+      WebvttCue cue = new WebvttCue(startTime, endTime, text, lineNum, position, alignment, size);
       subtitles.add(cue);
     }
 
-    webvttData.close();
-    inputStream.close();
-
-    // copy WebvttCue data into arrays for WebvttSubtitle constructor
-    String[] cueText = new String[subtitles.size()];
-    long[] cueTimesUs = new long[2 * subtitles.size()];
-    for (int subtitleIndex = 0; subtitleIndex < subtitles.size(); subtitleIndex++) {
-      int arrayIndex = subtitleIndex * 2;
-      WebvttCue cue = subtitles.get(subtitleIndex);
-      cueTimesUs[arrayIndex] = cue.startTime;
-      cueTimesUs[arrayIndex + 1] = cue.endTime;
-      cueText[subtitleIndex] = cue.text;
-    }
-
-    WebvttSubtitle subtitle = new WebvttSubtitle(cueText, mediaTimestampUs, cueTimesUs);
-    return subtitle;
+    return new WebvttSubtitle(subtitles, mediaTimestampUs);
   }
 
   @Override
@@ -208,23 +261,27 @@ public class WebvttParser implements SubtitleParser {
     return startTimeUs;
   }
 
-  protected String processCueText(String line) {
-    if (filterTags) {
-      line = line.replaceAll(WEBVTT_CUE_TAG_STRING, "");
-      line = line.replaceAll("&lt;", "<");
-      line = line.replaceAll("&gt;", ">");
-      line = line.replaceAll("&nbsp;", " ");
-      line = line.replaceAll("&amp;", "&");
-      return line;
-    } else {
-      return line;
-    }
-  }
-
   protected void handleNoncompliantLine(String line) throws ParserException {
     if (strictParsing) {
       throw new ParserException("Unexpected line: " + line);
     }
+  }
+
+  private static int parseIntPercentage(String s) throws NumberFormatException {
+    if (!s.endsWith("%")) {
+      throw new NumberFormatException(s + " doesn't end with '%'");
+    }
+
+    s = s.substring(0, s.length() - 1);
+    if (s.matches(NON_NUMERIC_STRING)) {
+      throw new NumberFormatException(s + " contains an invalid character");
+    }
+
+    int value = Integer.parseInt(s);
+    if (value < 0 || value > 100) {
+      throw new NumberFormatException(value + " is out of range [0-100]");
+    }
+    return value;
   }
 
   private static long parseTimestampUs(String s) throws NumberFormatException {
@@ -238,18 +295,6 @@ public class WebvttParser implements SubtitleParser {
       value = value * 60 + Long.parseLong(group);
     }
     return (value * 1000 + Long.parseLong(parts[1])) * 1000;
-  }
-
-  private static class WebvttCue {
-    public final long startTime;
-    public final long endTime;
-    public final String text;
-
-    public WebvttCue(long startTime, long endTime, String text) {
-      this.startTime = startTime;
-      this.endTime = endTime;
-      this.text = text;
-    }
   }
 
 }

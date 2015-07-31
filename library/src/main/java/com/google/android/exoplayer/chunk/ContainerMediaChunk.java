@@ -27,16 +27,12 @@ import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
-import android.util.Log;
-
 import java.io.IOException;
 
 /**
  * A {@link BaseMediaChunk} that uses an {@link Extractor} to parse sample data.
  */
 public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOutput {
-
-  private static final String TAG = "ContainerMediaChunk";
 
   private final ChunkExtractorWrapper extractorWrapper;
   private final long sampleOffsetUs;
@@ -62,15 +58,15 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
    *     known to define its own format.
    * @param drmInitData The {@link DrmInitData} for the chunk. Null if the media is not drm
    *     protected. May also be null if the data is known to define its own initialization data.
-   * @param isFormatFinal True if {@code mediaFormat} and {@code drmInitData} are known to be
+   * @param isMediaFormatFinal True if {@code mediaFormat} and {@code drmInitData} are known to be
    *     correct and final. False if the data may define its own format or initialization data.
    */
   public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
       long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk, long sampleOffsetUs,
       ChunkExtractorWrapper extractorWrapper, MediaFormat mediaFormat, DrmInitData drmInitData,
-      boolean isFormatFinal) {
+      boolean isMediaFormatFinal) {
     super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, isLastChunk,
-        isFormatFinal);
+        isMediaFormatFinal);
     this.extractorWrapper = extractorWrapper;
     this.sampleOffsetUs = sampleOffsetUs;
     this.mediaFormat = mediaFormat;
@@ -96,7 +92,7 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
 
   @Override
   public void seekMap(SeekMap seekMap) {
-    Log.w(TAG, "Ignoring unexpected seekMap");
+    // Do nothing.
   }
 
   @Override
@@ -110,8 +106,9 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
   }
 
   @Override
-  public int sampleData(ExtractorInput input, int length) throws IOException, InterruptedException {
-    return getOutput().sampleData(input, length);
+  public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
+      throws IOException, InterruptedException {
+    return getOutput().sampleData(input, length, allowEndOfInput);
   }
 
   @Override

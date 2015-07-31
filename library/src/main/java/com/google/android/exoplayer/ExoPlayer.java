@@ -52,7 +52,7 @@ import android.os.Looper;
  * <h3>Threading model</h3>
  *
  * <p>The figure below shows the {@link ExoPlayer} threading model.</p>
- * <p align="center"><img src="../../../../../doc_src/images/exoplayer_threading_model.png"
+ * <p align="center"><img src="../../../../../images/exoplayer_threading_model.png"
  *     alt="MediaPlayer state diagram"
  *     border="0"/></p>
  *
@@ -79,14 +79,14 @@ import android.os.Looper;
  * have been performed asynchronously by the playback thread. In contrast, the playback state
  * accessed by {@link #getPlaybackState()} is only ever changed as a result of operations
  * completing on the playback thread, as illustrated below.</p>
- * <p align="center"><img src="../../../../../doc_src/images/exoplayer_state.png"
+ * <p align="center"><img src="../../../../../images/exoplayer_state.png"
  *     alt="ExoPlayer state"
  *     border="0"/></p>
  *
  * <p>The possible playback state transitions are shown below. Transitions can be triggered either
  * by changes in the state of the {@link TrackRenderer}s being used, or as a result of
  * {@link #prepare(TrackRenderer[])}, {@link #stop()} or {@link #release()} being invoked.</p>
- * <p align="center"><img src="../../../../../doc_src/images/exoplayer_playbackstate.png"
+ * <p align="center"><img src="../../../../../images/exoplayer_playbackstate.png"
  *     alt="ExoPlayer playback state transitions"
  *     border="0"/></p>
  */
@@ -101,7 +101,7 @@ public interface ExoPlayer {
      * The default minimum duration of data that must be buffered for playback to start or resume
      * following a user action such as a seek.
      */
-    public static final int DEFAULT_MIN_BUFFER_MS = 500;
+    public static final int DEFAULT_MIN_BUFFER_MS = 2500;
 
     /**
      * The default minimum duration of data that must be buffered for playback to resume
@@ -262,20 +262,30 @@ public interface ExoPlayer {
   public void prepare(TrackRenderer... renderers);
 
   /**
+   * Returns whether the renderer at the given index has media to play.
+   * <p>
+   * Always returns false whilst the player is in the {@link #STATE_PREPARING} state.
+   *
+   * @param rendererIndex The index of the renderer.
+   * @return True if the renderer has media to play, false otherwise.
+   */
+  public boolean getRendererHasMedia(int rendererIndex);
+
+  /**
    * Sets whether the renderer at the given index is enabled.
    *
-   * @param index The index of the renderer.
+   * @param rendererIndex The index of the renderer.
    * @param enabled Whether the renderer at the given index should be enabled.
    */
-  public void setRendererEnabled(int index, boolean enabled);
+  public void setRendererEnabled(int rendererIndex, boolean enabled);
 
   /**
    * Whether the renderer at the given index is enabled.
    *
-   * @param index The index of the renderer.
+   * @param rendererIndex The index of the renderer.
    * @return Whether the renderer is enabled.
    */
-  public boolean getRendererEnabled(int index);
+  public boolean getRendererEnabled(int rendererIndex);
 
   /**
    * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.

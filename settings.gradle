@@ -13,3 +13,10 @@
 // limitations under the License.
 include ':library'
 include ':demo'
+include ':opus-extension'
+include ':vp9-extension'
+include ':webm-sw-demo'
+
+project(':opus-extension').projectDir = new File(settingsDir, 'extensions/opus')
+project(':vp9-extension').projectDir = new File(settingsDir, 'extensions/vp9')
+project(':webm-sw-demo').projectDir = new File(settingsDir, 'demo_misc/webm_sw_decoder')
