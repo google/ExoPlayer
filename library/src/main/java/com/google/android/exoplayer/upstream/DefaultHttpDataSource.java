@@ -223,7 +223,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
     bytesToSkip = responseCode == 200 && dataSpec.position != 0 ? dataSpec.position : 0;
 
     // Determine the length of the data to be read, after skipping.
-    if (!"gzip".equals(connection.getContentEncoding())) {
+    if (!isContentGzipped(connection)) {
       long contentLength = getContentLength(connection);
       bytesToRead = dataSpec.length != C.LENGTH_UNBOUNDED ? dataSpec.length
           : contentLength != C.LENGTH_UNBOUNDED ? contentLength - bytesToSkip
@@ -442,6 +442,25 @@ public class DefaultHttpDataSource implements HttpDataSource {
     //       + originalUrl.getProtocol() + " to " + protocol + ")");
     // }
     return url;
+  }
+
+  /**
+   * To determine if content provided by an open connection is compressed using gzip.
+   *
+   * @param connection The open connection.
+   * @return Returns true is the content is compressed using gzip.
+   */
+  private static boolean isContentGzipped(HttpURLConnection connection) {
+    String contentEncoding = connection.getContentEncoding();
+    if(contentEncoding != null) {
+      String[] encodings = contentEncoding.split(",");
+      for(String encoding : encodings) {
+        if("gzip".equals(encoding.trim())) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   /**
