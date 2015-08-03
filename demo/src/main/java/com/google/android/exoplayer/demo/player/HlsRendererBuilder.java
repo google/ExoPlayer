@@ -144,11 +144,10 @@ public class HlsRendererBuilder implements RendererBuilder {
           player.onRenderersError(e);
           return;
         }
-      }
-
-      if (variantIndices.length == 0) {
-        player.onRenderersError(new IllegalStateException("No variants selected."));
-        return;
+        if (variantIndices.length == 0) {
+          player.onRenderersError(new IllegalStateException("No variants selected."));
+          return;
+        }
       }
 
       DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
