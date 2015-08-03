@@ -223,16 +223,15 @@ public class DefaultHttpDataSource implements HttpDataSource {
     bytesToSkip = responseCode == 200 && dataSpec.position != 0 ? dataSpec.position : 0;
 
     // Determine the length of the data to be read, after skipping.
-    if ((dataSpec.flags & DataSpec.FLAG_ALLOW_GZIP) == 0) {
+    if (!isContentGzipped(connection)) {
       long contentLength = getContentLength(connection);
       bytesToRead = dataSpec.length != C.LENGTH_UNBOUNDED ? dataSpec.length
           : contentLength != C.LENGTH_UNBOUNDED ? contentLength - bytesToSkip
           : C.LENGTH_UNBOUNDED;
     } else {
       // Gzip is enabled. If the server opts to use gzip then the content length in the response
-      // will be that of the compressed data, which isn't what we want. Furthermore, there isn't a
-      // reliable way to determine whether the gzip was used or not. Always use the dataSpec length
-      // in this case.
+      // will be that of the compressed data, which isn't what we want. Always use the dataSpec
+      // length in this case.
       bytesToRead = dataSpec.length;
     }
 
@@ -443,6 +442,25 @@ public class DefaultHttpDataSource implements HttpDataSource {
     //       + originalUrl.getProtocol() + " to " + protocol + ")");
     // }
     return url;
+  }
+
+  /**
+   * To determine if content provided by an open connection is compressed using gzip.
+   *
+   * @param connection The open connection.
+   * @return Returns true is the content is compressed using gzip.
+   */
+  private static boolean isContentGzipped(HttpURLConnection connection) {
+    String contentEncoding = connection.getContentEncoding();
+    if(contentEncoding != null) {
+      String[] encodings = contentEncoding.split(",");
+      for(String encoding : encodings) {
+        if("gzip".equals(encoding.trim())) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   /**
