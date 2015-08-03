@@ -18,14 +18,12 @@ package com.google.android.exoplayer.util;
 /**
  * Utility class for managing a set of tags for which verbose logging should be enabled.
  */
-public class VerboseLogUtil {
+public final class VerboseLogUtil {
 
   private static volatile String[] enabledTags;
   private static volatile boolean enableAllTags;
 
-  private VerboseLogUtil() {
-    // Private constructor to prevent instantiation.
-  }
+  private VerboseLogUtil() {}
 
   /**
    * Sets the tags for which verbose logging should be enabled.

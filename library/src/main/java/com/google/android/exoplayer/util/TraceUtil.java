@@ -22,7 +22,9 @@ import android.annotation.TargetApi;
 /**
  * Calls through to {@link android.os.Trace} methods on supported API levels.
  */
-public class TraceUtil {
+public final class TraceUtil {
+
+  private TraceUtil() {}
 
   /**
    * Writes a trace message to indicate that a given section of code has begun.

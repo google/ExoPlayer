@@ -24,7 +24,7 @@ import java.io.IOException;
 /**
  * A {@link DataSink} for writing to a byte array.
  */
-public class ByteArrayDataSink implements DataSink {
+public final class ByteArrayDataSink implements DataSink {
 
   private ByteArrayOutputStream stream;
 

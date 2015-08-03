@@ -22,7 +22,7 @@ package com.google.android.exoplayer;
  * to request that it should be ignored. {@link IllegalStateException} is thrown from all methods
  * that are documented to indicate that they should not be invoked unless the renderer is prepared.
  */
-public class DummyTrackRenderer extends TrackRenderer {
+public final class DummyTrackRenderer extends TrackRenderer {
 
   @Override
   protected int doPrepare(long positionUs) {

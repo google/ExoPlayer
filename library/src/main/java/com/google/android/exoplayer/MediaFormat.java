@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Defines the format of an elementary media stream.
  */
-public class MediaFormat {
+public final class MediaFormat {
 
   private static final String KEY_PIXEL_WIDTH_HEIGHT_RATIO =
       "com.google.android.videos.pixelWidthHeightRatio";

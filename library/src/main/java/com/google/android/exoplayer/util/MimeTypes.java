@@ -23,7 +23,7 @@ import android.media.AudioFormat;
 /**
  * Defines common MIME types and helper methods.
  */
-public class MimeTypes {
+public final class MimeTypes {
 
   public static final String BASE_TYPE_VIDEO = "video";
   public static final String BASE_TYPE_AUDIO = "audio";

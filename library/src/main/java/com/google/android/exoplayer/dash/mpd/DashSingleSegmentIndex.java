@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.dash;
+package com.google.android.exoplayer.dash.mpd;
 
-import com.google.android.exoplayer.dash.mpd.RangedUri;
+import com.google.android.exoplayer.dash.DashSegmentIndex;
 
 /**
  * A {@link DashSegmentIndex} that defines a single segment.
  */
-public class DashSingleSegmentIndex implements DashSegmentIndex {
+/* package */ final class DashSingleSegmentIndex implements DashSegmentIndex {
 
   private final long startTimeUs;
   private final long durationUs;

@@ -58,7 +58,7 @@ import java.util.List;
  * {@link SubtitleParser#canParse(String)} will be used.
  */
 @TargetApi(16)
-public class TextTrackRenderer extends TrackRenderer implements Callback {
+public final class TextTrackRenderer extends TrackRenderer implements Callback {
 
   private static final int MSG_UPDATE_OVERLAY = 0;
 

@@ -21,7 +21,7 @@ import java.util.TreeSet;
 /**
  * Evicts least recently used cache files first.
  */
-public class LeastRecentlyUsedCacheEvictor implements CacheEvictor, Comparator<CacheSpan> {
+public final class LeastRecentlyUsedCacheEvictor implements CacheEvictor, Comparator<CacheSpan> {
 
   private final long maxBytes;
   private final TreeSet<CacheSpan> leastRecentlyUsed;

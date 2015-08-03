@@ -21,7 +21,7 @@ import android.os.SystemClock;
  * A standalone {@link MediaClock}. The clock can be started, stopped and its time can be set and
  * retrieved. When started, this clock is based on {@link SystemClock#elapsedRealtime()}.
  */
-/* package */ class StandaloneMediaClock implements MediaClock {
+/* package */ final class StandaloneMediaClock implements MediaClock {
 
   private boolean started;
 

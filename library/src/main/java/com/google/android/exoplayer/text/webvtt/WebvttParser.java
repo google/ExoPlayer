@@ -91,7 +91,7 @@ public class WebvttParser implements SubtitleParser {
   }
 
   @Override
-  public WebvttSubtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
+  public final WebvttSubtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
       throws IOException {
     ArrayList<WebvttCue> subtitles = new ArrayList<>();
     long mediaTimestampUs = startTimeUs;
@@ -253,7 +253,7 @@ public class WebvttParser implements SubtitleParser {
   }
 
   @Override
-  public boolean canParse(String mimeType) {
+  public final boolean canParse(String mimeType) {
     return MimeTypes.TEXT_VTT.equals(mimeType);
   }
 

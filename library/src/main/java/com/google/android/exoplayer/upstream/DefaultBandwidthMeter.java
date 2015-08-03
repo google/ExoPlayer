@@ -26,7 +26,7 @@ import android.os.Handler;
  * Counts transferred bytes while transfers are open and creates a bandwidth sample and updated
  * bandwidth estimate each time a transfer ends.
  */
-public class DefaultBandwidthMeter implements BandwidthMeter {
+public final class DefaultBandwidthMeter implements BandwidthMeter {
 
   public static final int DEFAULT_MAX_WEIGHT = 2000;
 
