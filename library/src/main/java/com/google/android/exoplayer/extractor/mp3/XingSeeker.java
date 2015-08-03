@@ -69,8 +69,8 @@ import com.google.android.exoplayer.util.Util;
     }
 
     // TODO: Handle encoder delay and padding in 3 bytes offset by xingBase + 213 bytes:
-    // delay = ((frame.readUnsignedByte() & 0xFF) << 4) + ((frame.readUnsignedByte() & 0xFF) >>> 4);
-    // padding = ((frame.readUnsignedByte() & 0x0F) << 8) + (frame.readUnsignedByte() & 0xFF);
+    // delay = (frame.readUnsignedByte() << 4) + (frame.readUnsignedByte() >> 4);
+    // padding = ((frame.readUnsignedByte() & 0x0F) << 8) + frame.readUnsignedByte();
     return new XingSeeker(tableOfContents, firstFramePosition, sizeBytes, durationUs, inputLength);
   }
 
