@@ -82,7 +82,6 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
       new Format("3", "video/mp4", WIDE_WIDTH, 50, -1, -1, -1, 1000);
 
   @Mock private DataSource mockDataSource;
-  @Mock private ManifestFetcher<MediaPresentationDescription> mockManifestFetcher;
 
   @Override
   public void setUp() throws Exception {

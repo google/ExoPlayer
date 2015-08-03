@@ -29,7 +29,7 @@ import java.util.List;
  * An example use case for this implementation is to act as the source for loading out-of-band
  * subtitles, where subtitles for the entire video are delivered as a single file.
  */
-public class SingleSampleChunkSource implements ChunkSource {
+public final class SingleSampleChunkSource implements ChunkSource {
 
   private final DataSource dataSource;
   private final DataSpec dataSpec;

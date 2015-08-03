@@ -21,7 +21,7 @@ import android.os.Process;
 /**
  * A {@link HandlerThread} with a specified process priority.
  */
-public class PriorityHandlerThread extends HandlerThread {
+public final class PriorityHandlerThread extends HandlerThread {
 
   private final int priority;
 

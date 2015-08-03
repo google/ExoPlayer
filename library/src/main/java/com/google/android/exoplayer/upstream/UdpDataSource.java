@@ -27,7 +27,7 @@ import java.net.MulticastSocket;
 /**
  * A UDP {@link DataSource}.
  */
-public class UdpDataSource implements UriDataSource {
+public final class UdpDataSource implements UriDataSource {
 
   /**
    * Thrown when an error is encountered when trying to read from a {@link UdpDataSource}.

@@ -30,7 +30,7 @@ import java.util.Collections;
 /**
  * Parses a continuous H.265 byte stream and extracts individual frames.
  */
-/* package */ class H265Reader extends ElementaryStreamReader {
+/* package */ final class H265Reader extends ElementaryStreamReader {
 
   private static final String TAG = "H265Reader";
 

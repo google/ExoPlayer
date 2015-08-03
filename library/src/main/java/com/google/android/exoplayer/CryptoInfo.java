@@ -23,7 +23,7 @@ import android.media.MediaExtractor;
 /**
  * Compatibility wrapper around {@link android.media.MediaCodec.CryptoInfo}.
  */
-public class CryptoInfo {
+public final class CryptoInfo {
 
   /**
    * @see android.media.MediaCodec.CryptoInfo#iv

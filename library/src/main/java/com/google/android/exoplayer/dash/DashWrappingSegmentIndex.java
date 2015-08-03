@@ -22,7 +22,7 @@ import com.google.android.exoplayer.extractor.ChunkIndex;
  * An implementation of {@link DashSegmentIndex} that wraps a {@link ChunkIndex} parsed from a
  * media stream.
  */
-public class DashWrappingSegmentIndex implements DashSegmentIndex {
+/* package */ final class DashWrappingSegmentIndex implements DashSegmentIndex {
 
   private final ChunkIndex chunkIndex;
   private final String uri;

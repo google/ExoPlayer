@@ -23,7 +23,7 @@ import java.io.IOException;
 /**
  * A {@link DataSource} for reading from a byte array.
  */
-public class ByteArrayDataSource implements DataSource {
+public final class ByteArrayDataSource implements DataSource {
 
   private final byte[] data;
   private int readPosition;

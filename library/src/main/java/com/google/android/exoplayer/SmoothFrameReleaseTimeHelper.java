@@ -25,7 +25,7 @@ import android.view.Choreographer.FrameCallback;
  * Makes a best effort to adjust frame release timestamps for a smoother visual result.
  */
 @TargetApi(16)
-public class SmoothFrameReleaseTimeHelper implements FrameReleaseTimeHelper, FrameCallback {
+public final class SmoothFrameReleaseTimeHelper implements FrameReleaseTimeHelper, FrameCallback {
 
   private static final long CHOREOGRAPHER_SAMPLE_DELAY_MILLIS = 500;
   private static final long MAX_ALLOWED_DRIFT_NS = 20000000;

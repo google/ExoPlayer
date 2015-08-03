@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * Parses a continuous H264 byte stream and extracts individual frames.
  */
-/* package */ class H264Reader extends ElementaryStreamReader {
+/* package */ final class H264Reader extends ElementaryStreamReader {
 
   private static final String TAG = "H264Reader";
 

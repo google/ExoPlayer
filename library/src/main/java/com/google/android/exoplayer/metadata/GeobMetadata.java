@@ -19,7 +19,7 @@ package com.google.android.exoplayer.metadata;
  * A metadata that contains parsed ID3 GEOB (General Encapsulated Object) frame data associated
  * with time indices.
  */
-public class GeobMetadata {
+public final class GeobMetadata {
 
   public static final String TYPE = "GEOB";
 
