@@ -74,7 +74,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
   private static final Pattern RESOLUTION_ATTR_REGEX =
       Pattern.compile(RESOLUTION_ATTR + "=(\\d+x\\d+)");
   private static final Pattern MEDIA_DURATION_REGEX =
-      Pattern.compile(MEDIA_DURATION_TAG + ":([\\d.]+),");
+      Pattern.compile(MEDIA_DURATION_TAG + ":([\\d.]+)\\b");
   private static final Pattern MEDIA_SEQUENCE_REGEX =
       Pattern.compile(MEDIA_SEQUENCE_TAG + ":(\\d+)\\b");
   private static final Pattern TARGET_DURATION_REGEX =
