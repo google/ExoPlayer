@@ -152,16 +152,14 @@ constructed.
 {% highlight java %}
 Allocator allocator = new DefaultAllocator(BUFFER_SEGMENT_SIZE);
 DataSource dataSource = new DefaultUriDataSource(context, null, userAgent);
-Mp4Extractor extractor = new Mp4Extractor();
 ExtractorSampleSource sampleSource = new ExtractorSampleSource(
-    uri, dataSource, extractor, allocator, BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE);
+    uri, dataSource, allocator, BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE);
 MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(
     sampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
 MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
 {% endhighlight %}
 
-To play media of a different type, inject a different `Extractor`. There are `Extractor`
-implementations for many of the common container formats in the `extractor` package of the library.
+`ExtractorSampleSource` will automatically load the correct `Extractor` for the media being played.
 If there is no `Extractor` for the media you wish to play, it's possible to implement and inject
 your own.
 
@@ -219,7 +217,7 @@ ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher, videoAdaptat
     videoRepresentationIndices, videoDataSource, new AdaptiveEvaluator(bandwidthMeter),
     LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset, null, null);
 ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
-    VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
+    VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
 MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource,
     MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
 
@@ -229,7 +227,7 @@ ChunkSource audioChunkSource = new DashChunkSource(manifestFetcher, audioAdaptat
     null, audioDataSource, new FixedEvaluator(), LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset, null,
     null);
 ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource,
-    loadControl, AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
+    loadControl, AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
 MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource);
 {% endhighlight %}
 
@@ -263,13 +261,8 @@ The following code example outlines how the video and audio renderers are constr
 int[] variantIndices = null;
 if (manifest instanceof HlsMasterPlaylist) {
   HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) manifest;
-  try {
-    variantIndices = VideoFormatSelectorUtil.selectVideoFormatsForDefaultDisplay(context,
-        masterPlaylist.variants, null, false);
-  } catch (DecoderQueryException e) {
-    callback.onRenderersError(e);
-    return;
-  }
+  variantIndices = VideoFormatSelectorUtil.selectVideoFormatsForDefaultDisplay(context,
+      masterPlaylist.variants, null, false);
 }
 
 // Build the renderers
@@ -279,7 +272,7 @@ DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAg
 HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter,
     variantIndices, HlsChunkSource.ADAPTIVE_MODE_SPLICE, audioCapabilities);
 HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, loadControl,
-    BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
+    BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
 MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
     MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
 MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
