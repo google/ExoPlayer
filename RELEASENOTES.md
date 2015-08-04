@@ -1,6 +1,10 @@
 # Release notes #
 
-### Current dev branch (from r1.4.1) ###
+### Current dev branch (from r1.4.2) ###
+
+* Nothing yet.
+
+### r1.4.2 ###
 
 * Implemented automatic format detection for regular container formats.
 * Added UdpDataSource for connecting to multicast streams.
