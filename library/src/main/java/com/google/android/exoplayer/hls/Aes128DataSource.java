@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.upstream;
+package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DataSourceInputStream;
+import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.Assertions;
 
 import java.io.IOException;
@@ -32,10 +35,14 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * A {@link DataSource} that decrypts the data read from an upstream source, encrypted with AES-128
- * with a 128-bit key and PKCS7 padding.
+ * A {@link DataSource} that decrypts data read from an upstream source, encrypted with AES-128 with
+ * a 128-bit key and PKCS7 padding.
+ * <p>
+ * Note that this {@link DataSource} does not support being opened from arbitrary offsets. It is
+ * designed specifically for reading whole files as defined in an HLS media playlist. For this
+ * reason the implementation is private to the HLS package.
  */
-public class Aes128DataSource implements DataSource {
+/* package */ final class Aes128DataSource implements DataSource {
 
   private final DataSource upstream;
   private final byte[] encryptionKey;

@@ -19,7 +19,7 @@ package com.google.android.exoplayer.metadata;
  * A metadata that contains parsed ID3 TXXX (User defined text information) frame data associated
  * with time indices.
  */
-public class TxxxMetadata {
+public final class TxxxMetadata {
 
   public static final String TYPE = "TXXX";
 

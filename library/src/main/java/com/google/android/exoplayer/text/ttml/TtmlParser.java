@@ -54,7 +54,7 @@ import java.util.regex.Pattern;
  * </p>
  * @see <a href="http://www.w3.org/TR/ttaf1-dfxp/">TTML specification</a>
  */
-public class TtmlParser implements SubtitleParser {
+public final class TtmlParser implements SubtitleParser {
 
   private static final String TAG = "TtmlParser";
 

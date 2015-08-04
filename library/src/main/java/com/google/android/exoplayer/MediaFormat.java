@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Defines the format of an elementary media stream.
  */
-public class MediaFormat {
+public final class MediaFormat {
 
   private static final String KEY_PIXEL_WIDTH_HEIGHT_RATIO =
       "com.google.android.videos.pixelWidthHeightRatio";
@@ -94,11 +94,19 @@ public class MediaFormat {
   }
 
   public static MediaFormat createTextFormat(String mimeType) {
-    return createFormatForMimeType(mimeType);
+    return createTextFormat(mimeType, C.UNKNOWN_TIME_US);
+  }
+
+  public static MediaFormat createTextFormat(String mimeType, long durationUs) {
+    return createFormatForMimeType(mimeType, durationUs);
   }
 
   public static MediaFormat createFormatForMimeType(String mimeType) {
-    return new MediaFormat(mimeType, NO_VALUE, C.UNKNOWN_TIME_US, NO_VALUE, NO_VALUE, NO_VALUE,
+    return createFormatForMimeType(mimeType, C.UNKNOWN_TIME_US);
+  }
+
+  public static MediaFormat createFormatForMimeType(String mimeType, long durationUs) {
+    return new MediaFormat(mimeType, NO_VALUE, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, null);
   }
 

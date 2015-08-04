@@ -39,7 +39,7 @@ import java.util.List;
  * itself as a task with priority {@link NetworkLock#STREAMING_PRIORITY} during loading periods,
  * and unregistering itself during draining periods.
  */
-public class DefaultLoadControl implements LoadControl {
+public final class DefaultLoadControl implements LoadControl {
 
   /**
    * Interface definition for a callback to be notified of {@link DefaultLoadControl} events.
@@ -162,18 +162,16 @@ public class DefaultLoadControl implements LoadControl {
 
   @Override
   public boolean update(Object loader, long playbackPositionUs, long nextLoadPositionUs,
-      boolean loading, boolean failed) {
+      boolean loading) {
     // Update the loader state.
     int loaderBufferState = getLoaderBufferState(playbackPositionUs, nextLoadPositionUs);
     LoaderState loaderState = loaderStates.get(loader);
     boolean loaderStateChanged = loaderState.bufferState != loaderBufferState
-        || loaderState.nextLoadPositionUs != nextLoadPositionUs || loaderState.loading != loading
-        || loaderState.failed != failed;
+        || loaderState.nextLoadPositionUs != nextLoadPositionUs || loaderState.loading != loading;
     if (loaderStateChanged) {
       loaderState.bufferState = loaderBufferState;
       loaderState.nextLoadPositionUs = nextLoadPositionUs;
       loaderState.loading = loading;
-      loaderState.failed = failed;
     }
 
     // Update the buffer state.
@@ -213,18 +211,16 @@ public class DefaultLoadControl implements LoadControl {
 
   private void updateControlState() {
     boolean loading = false;
-    boolean failed = false;
     boolean haveNextLoadPosition = false;
     int highestState = bufferState;
     for (int i = 0; i < loaders.size(); i++) {
       LoaderState loaderState = loaderStates.get(loaders.get(i));
       loading |= loaderState.loading;
-      failed |= loaderState.failed;
       haveNextLoadPosition |= loaderState.nextLoadPositionUs != -1;
       highestState = Math.max(highestState, loaderState.bufferState);
     }
 
-    fillingBuffers = !loaders.isEmpty() && !failed && (loading || haveNextLoadPosition)
+    fillingBuffers = !loaders.isEmpty() && (loading || haveNextLoadPosition)
         && (highestState == BELOW_LOW_WATERMARK
         || (highestState == BETWEEN_WATERMARKS && fillingBuffers));
     if (fillingBuffers && !streamingPrioritySet) {
@@ -268,14 +264,12 @@ public class DefaultLoadControl implements LoadControl {
 
     public int bufferState;
     public boolean loading;
-    public boolean failed;
     public long nextLoadPositionUs;
 
     public LoaderState(int bufferSizeContribution) {
       this.bufferSizeContribution = bufferSizeContribution;
       bufferState = ABOVE_HIGH_WATERMARK;
       loading = false;
-      failed = false;
       nextLoadPositionUs = -1;
     }
 

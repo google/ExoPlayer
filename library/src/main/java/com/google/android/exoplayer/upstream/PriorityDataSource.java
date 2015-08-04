@@ -24,7 +24,7 @@ import java.io.IOException;
  * priority is the highest priority of any task. {@link NetworkLock.PriorityTooLowException} is
  * thrown when this condition does not hold.
  */
-public class PriorityDataSource implements DataSource {
+public final class PriorityDataSource implements DataSource {
 
   private final DataSource upstream;
   private final int priority;

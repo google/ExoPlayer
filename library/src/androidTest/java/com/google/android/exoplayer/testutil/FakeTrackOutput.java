@@ -57,8 +57,8 @@ public final class FakeTrackOutput implements TrackOutput {
   }
 
   @Override
-  public int sampleData(ExtractorInput input, int length) throws IOException,
-      InterruptedException {
+  public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
+      throws IOException, InterruptedException {
     byte[] newData = new byte[length];
     input.readFully(newData, 0, length);
     sampleData = TestUtil.joinByteArrays(sampleData, newData);

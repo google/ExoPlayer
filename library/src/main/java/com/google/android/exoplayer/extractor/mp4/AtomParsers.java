@@ -45,7 +45,7 @@ import java.util.List;
     Atom.ContainerAtom mdia = trak.getContainerAtomOfType(Atom.TYPE_mdia);
     int trackType = parseHdlr(mdia.getLeafAtomOfType(Atom.TYPE_hdlr).data);
     if (trackType != Track.TYPE_AUDIO && trackType != Track.TYPE_VIDEO
-        && trackType != Track.TYPE_TEXT && trackType != Track.TYPE_TIME_CODE) {
+        && trackType != Track.TYPE_TEXT && trackType != Track.TYPE_SUBTITLE) {
       return null;
     }
 
@@ -336,16 +336,17 @@ import java.util.List;
       int childAtomType = stsd.readInt();
       if (childAtomType == Atom.TYPE_avc1 || childAtomType == Atom.TYPE_avc3
           || childAtomType == Atom.TYPE_encv || childAtomType == Atom.TYPE_mp4v
-          || childAtomType == Atom.TYPE_hvc1 || childAtomType == Atom.TYPE_hev1) {
+          || childAtomType == Atom.TYPE_hvc1 || childAtomType == Atom.TYPE_hev1
+          || childAtomType == Atom.TYPE_s263) {
         parseVideoSampleEntry(stsd, childStartPosition, childAtomSize, durationUs, holder, i);
       } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca
           || childAtomType == Atom.TYPE_ac_3) {
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, durationUs,
             holder, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
-        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML);
+        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML, durationUs);
       } else if (childAtomType == Atom.TYPE_tx3g) {
-        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TX3G);
+        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TX3G, durationUs);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
@@ -387,6 +388,9 @@ import java.util.List;
         Pair<List<byte[]>, Integer> hvcCData = parseHvcCFromParent(parent, childStartPosition);
         initializationData = hvcCData.first;
         out.nalUnitLengthFieldLength = hvcCData.second;
+      } else if (childAtomType == Atom.TYPE_d263) {
+        Assertions.checkState(mimeType == null);
+        mimeType = MimeTypes.VIDEO_H263;
       } else if (childAtomType == Atom.TYPE_esds) {
         Assertions.checkState(mimeType == null);
         Pair<String, byte[]> mimeTypeAndInitializationData =

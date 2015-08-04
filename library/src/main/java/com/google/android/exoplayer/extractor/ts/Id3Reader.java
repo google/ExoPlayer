@@ -24,7 +24,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 /**
  * Parses ID3 data and extracts individual text information frames.
  */
-/* package */ class Id3Reader extends ElementaryStreamReader {
+/* package */ final class Id3Reader extends ElementaryStreamReader {
 
   // State that should be reset on seek.
   private boolean writingSample;

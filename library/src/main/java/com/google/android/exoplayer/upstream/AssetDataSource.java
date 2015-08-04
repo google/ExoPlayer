@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.upstream;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.util.Assertions;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -79,11 +78,21 @@ public final class AssetDataSource implements UriDataSource {
       uriString = dataSpec.uri.toString();
       inputStream = assetManager.open(path, AssetManager.ACCESS_RANDOM);
       long skipped = inputStream.skip(dataSpec.position);
-      Assertions.checkState(skipped == dataSpec.position);
-      bytesRemaining = dataSpec.length == C.LENGTH_UNBOUNDED ? inputStream.available()
-          : dataSpec.length;
-      if (bytesRemaining < 0) {
+      if (skipped < dataSpec.position) {
+        // assetManager.open() returns an AssetInputStream, whose skip() implementation only skips
+        // fewer bytes than requested if the skip is beyond the end of the asset's data.
         throw new EOFException();
+      }
+      if (dataSpec.length != C.LENGTH_UNBOUNDED) {
+        bytesRemaining = dataSpec.length;
+      } else {
+        bytesRemaining = inputStream.available();
+        if (bytesRemaining == Integer.MAX_VALUE) {
+          // assetManager.open() returns an AssetInputStream, whose available() implementation
+          // returns Integer.MAX_VALUE if the remaining length is greater than (or equal to)
+          // Integer.MAX_VALUE. We don't know the true length in this case, so treat as unbounded.
+          bytesRemaining = C.LENGTH_UNBOUNDED;
+        }
       }
     } catch (IOException e) {
       throw new AssetDataSourceException(e);
@@ -103,13 +112,17 @@ public final class AssetDataSource implements UriDataSource {
     } else {
       int bytesRead = 0;
       try {
-        bytesRead = inputStream.read(buffer, offset, (int) Math.min(bytesRemaining, readLength));
+        int bytesToRead = bytesRemaining == C.LENGTH_UNBOUNDED ? readLength
+            : (int) Math.min(bytesRemaining, readLength);
+        bytesRead = inputStream.read(buffer, offset, bytesToRead);
       } catch (IOException e) {
         throw new AssetDataSourceException(e);
       }
 
       if (bytesRead > 0) {
-        bytesRemaining -= bytesRead;
+        if (bytesRemaining != C.LENGTH_UNBOUNDED) {
+          bytesRemaining -= bytesRead;
+        }
         if (listener != null) {
           listener.onBytesTransferred(bytesRead);
         }

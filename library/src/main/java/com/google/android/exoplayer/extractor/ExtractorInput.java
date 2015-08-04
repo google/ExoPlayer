@@ -93,9 +93,40 @@ public interface ExtractorInput {
   void skipFully(int length) throws IOException, InterruptedException;
 
   /**
-   * The current position (byte offset) in the stream.
+   * Peeks {@code length} bytes from the peek position, writing them into {@code target} at index
+   * {@code offset}. The current read position is left unchanged.
+   * <p>
+   * Calling {@link #resetPeekPosition()} resets the peek position to equal the current read
+   * position, so the caller can peek the same data again. Reading also resets the peek position.
    *
-   * @return The position (byte offset) in the stream.
+   * @param target A target array into which data should be written.
+   * @param offset The offset into the target array at which to write.
+   * @param length The number of bytes to peek from the input.
+   * @throws EOFException If the end of input was encountered.
+   * @throws IOException If an error occurs peeking from the input.
+   * @throws InterruptedException If the thread is interrupted.
+   */
+  void peekFully(byte[] target, int offset, int length) throws IOException, InterruptedException;
+
+  /**
+   * Advances the peek position by {@code length} bytes.
+   *
+   * @param length The number of bytes to peek from the input.
+   * @throws EOFException If the end of input was encountered.
+   * @throws IOException If an error occurs peeking from the input.
+   * @throws InterruptedException If the thread is interrupted.
+   */
+  void advancePeekPosition(int length) throws IOException, InterruptedException;
+
+  /**
+   * Resets the peek position to equal the current read position.
+   */
+  void resetPeekPosition();
+
+  /**
+   * The current read position (byte offset) in the stream.
+   *
+   * @return The read position (byte offset) in the stream.
    */
   long getPosition();
 

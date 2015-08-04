@@ -80,8 +80,14 @@ import java.util.List;
     return this;
   }
 
-  public StreamBuilder setInfo(int timecodeScale, long durationUs) {
-    info = createInfoElement(timecodeScale, durationUs);
+  public StreamBuilder setInfo(int timecodeScale, long durationTimecode) {
+    return setInfo(timecodeScale, durationTimecode, false, false);
+  }
+
+  public StreamBuilder setInfo(int timecodeScale, long durationTimecode,
+      boolean omitTimecodeScaleIfDefault, boolean durationFirst) {
+    info = createInfoElement(timecodeScale, durationTimecode, omitTimecodeScaleIfDefault,
+        durationFirst);
     return this;
   }
 
@@ -177,28 +183,38 @@ import java.util.List;
     Assertions.checkNotNull(info);
 
     EbmlElement tracks = element(0x1654AE6B, trackEntries.toArray(new EbmlElement[0]));
+    EbmlElement[] children;
 
-    // Get the size of the initialization segment.
-    EbmlElement[] cuePointElements = new EbmlElement[cuePointCount];
-    for (int i = 0; i < cuePointCount; i++) {
-      cuePointElements[i] = createCuePointElement(10 * i, 0);
+    if (cuePointCount == 0) {
+      children = new EbmlElement[2 + mediaSegments.size()];
+      System.arraycopy(mediaSegments.toArray(new EbmlElement[0]), 0, children, 2,
+          mediaSegments.size());
+      children[0] = info;
+      children[1] = tracks;
+    } else {
+      // Get the size of the initialization segment.
+      EbmlElement[] cuePointElements = new EbmlElement[cuePointCount];
+      for (int i = 0; i < cuePointCount; i++) {
+        cuePointElements[i] = createCuePointElement(10 * i, 0);
+      }
+      EbmlElement cues = element(0x1C53BB6B, cuePointElements); // Cues
+      long initializationSegmentSize = info.getSize() + tracks.getSize() + cues.getSize();
+
+      // Recreate the initialization segment using its size as an offset.
+      for (int i = 0; i < cuePointCount; i++) {
+        cuePointElements[i] = createCuePointElement(10 * i, (int) initializationSegmentSize);
+      }
+      cues = element(0x1C53BB6B, cuePointElements); // Cues
+
+      // Build the top-level segment element.
+      children = new EbmlElement[3 + mediaSegments.size()];
+      System.arraycopy(mediaSegments.toArray(new EbmlElement[0]), 0, children, 3,
+          mediaSegments.size());
+      children[0] = info;
+      children[1] = tracks;
+      children[2] = cues;
     }
-    EbmlElement cues = element(0x1C53BB6B, cuePointElements); // Cues
-    long initializationSegmentSize = info.getSize() + tracks.getSize() + cues.getSize();
 
-    // Recreate the initialization segment using its size as an offset.
-    for (int i = 0; i < cuePointCount; i++) {
-      cuePointElements[i] = createCuePointElement(10 * i, (int) initializationSegmentSize);
-    }
-    cues = element(0x1C53BB6B, cuePointElements); // Cues
-
-    // Build the top-level segment element.
-    EbmlElement[] children = new EbmlElement[3 + mediaSegments.size()];
-    System.arraycopy(mediaSegments.toArray(new EbmlElement[0]), 0, children, 3,
-        mediaSegments.size());
-    children[0] = info;
-    children[1] = tracks;
-    children[2] = cues;
     EbmlElement segmentElement = element(0x18538067, children); // Segment
 
     // Serialize the EBML header and the top-level segment element.
@@ -221,12 +237,19 @@ import java.util.List;
         element(0x4285, (byte) (docTypeReadVersion & 0xFF))); // DocTypeReadVersion
   }
 
-  private EbmlElement createInfoElement(int timecodeScale, long durationUs) {
+  private EbmlElement createInfoElement(int timecodeScale, long durationTimecode,
+      boolean durationFirst, boolean omitDefaultTimecodeScale) {
     byte[] timecodeScaleBytes = getIntegerBytes(timecodeScale);
-    byte[] durationBytes = getLongBytes(Double.doubleToLongBits(durationUs / 1000.0));
+    byte[] durationBytes = getLongBytes(Double.doubleToLongBits(durationTimecode));
+    EbmlElement durationElement = element(0x4489, durationBytes);
+    EbmlElement timescaleElement = element(0x2AD7B1, timecodeScaleBytes);
+    if (omitDefaultTimecodeScale && timecodeScale == 1000000) {
+      return element(0x1549A966, // Info
+          durationElement);
+    }
     return element(0x1549A966, // Info
-        element(0x2AD7B1, timecodeScaleBytes), // TimecodeScale
-        element(0x4489, durationBytes)); // Duration
+        durationFirst ? durationElement : timescaleElement,
+        durationFirst ? timescaleElement : durationElement);
   }
 
   private static EbmlElement createVideoTrackEntry(String codecId, int pixelWidth, int pixelHeight,

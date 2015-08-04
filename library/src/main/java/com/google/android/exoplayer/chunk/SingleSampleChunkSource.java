@@ -21,7 +21,6 @@ import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -30,7 +29,7 @@ import java.util.List;
  * An example use case for this implementation is to act as the source for loading out-of-band
  * subtitles, where subtitles for the entire video are delivered as a single file.
  */
-public class SingleSampleChunkSource implements ChunkSource {
+public final class SingleSampleChunkSource implements ChunkSource {
 
   private final DataSource dataSource;
   private final DataSpec dataSpec;
@@ -94,8 +93,8 @@ public class SingleSampleChunkSource implements ChunkSource {
   }
 
   @Override
-  public IOException getError() {
-    return null;
+  public void maybeThrowError() {
+    // Do nothing.
   }
 
   @Override

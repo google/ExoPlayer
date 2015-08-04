@@ -1,5 +1,16 @@
 # Release notes #
 
+### Current dev branch (from r1.4.2) ###
+
+* Nothing yet.
+
+### r1.4.2 ###
+
+* Implemented automatic format detection for regular container formats.
+* Added UdpDataSource for connecting to multicast streams.
+* Improved robustness for MP4 playbacks.
+* Misc bug fixes.
+
 ### r1.4.1 ###
 
 * HLS: Fix premature playback failures that could occur in some cases.

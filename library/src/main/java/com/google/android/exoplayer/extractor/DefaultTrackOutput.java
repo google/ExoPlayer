@@ -15,12 +15,14 @@
  */
 package com.google.android.exoplayer.extractor;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
+import java.io.EOFException;
 import java.io.IOException;
 
 /**
@@ -225,8 +227,20 @@ public class DefaultTrackOutput implements TrackOutput {
 
   // Called by the loading thread.
 
-  public int sampleData(DataSource dataSource, int length) throws IOException {
-    return rollingBuffer.appendData(dataSource, length);
+  /**
+   * Invoked to write sample data to the output.
+   *
+   * @param dataSource A {@link DataSource} from which to read the sample data.
+   * @param length The maximum length to read from the input.
+   * @param allowEndOfInput True if encountering the end of the input having read no data is
+   *     allowed, and should result in {@link C#RESULT_END_OF_INPUT} being returned. False if it
+   *     should be considered an error, causing an {@link EOFException} to be thrown.
+   * @return The number of bytes appended.
+   * @throws IOException If an error occurred reading from the input.
+   */
+  public int sampleData(DataSource dataSource, int length, boolean allowEndOfInput)
+      throws IOException {
+    return rollingBuffer.appendData(dataSource, length, allowEndOfInput);
   }
 
   // TrackOutput implementation. Called by the loading thread.
@@ -237,8 +251,9 @@ public class DefaultTrackOutput implements TrackOutput {
   }
 
   @Override
-  public int sampleData(ExtractorInput input, int length) throws IOException, InterruptedException {
-    return rollingBuffer.appendData(input, length);
+  public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
+      throws IOException, InterruptedException {
+    return rollingBuffer.appendData(input, length, allowEndOfInput);
   }
 
   @Override

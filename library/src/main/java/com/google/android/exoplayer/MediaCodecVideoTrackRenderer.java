@@ -437,7 +437,11 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     }
 
     if (!renderedFirstFrame) {
-      renderOutputBufferImmediate(codec, bufferIndex);
+      if (Util.SDK_INT >= 21) {
+        renderOutputBufferV21(codec, bufferIndex, System.nanoTime());
+      } else {
+        renderOutputBuffer(codec, bufferIndex);
+      }
       return true;
     }
 
@@ -448,7 +452,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     if (Util.SDK_INT >= 21) {
       // Let the underlying framework time the release.
       if (earlyUs < 50000) {
-        renderOutputBufferTimedV21(codec, bufferIndex, adjustedReleaseTimeNs);
+        renderOutputBufferV21(codec, bufferIndex, adjustedReleaseTimeNs);
         return true;
       }
     } else {
@@ -464,7 +468,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
             Thread.currentThread().interrupt();
           }
         }
-        renderOutputBufferImmediate(codec, bufferIndex);
+        renderOutputBuffer(codec, bufferIndex);
         return true;
       }
     }
@@ -491,9 +495,9 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     }
   }
 
-  protected void renderOutputBufferImmediate(MediaCodec codec, int bufferIndex) {
+  protected void renderOutputBuffer(MediaCodec codec, int bufferIndex) {
     maybeNotifyVideoSizeChanged();
-    TraceUtil.beginSection("renderVideoBufferImmediate");
+    TraceUtil.beginSection("releaseOutputBuffer");
     codec.releaseOutputBuffer(bufferIndex, true);
     TraceUtil.endSection();
     codecCounters.renderedOutputBufferCount++;
@@ -502,9 +506,9 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @TargetApi(21)
-  protected void renderOutputBufferTimedV21(MediaCodec codec, int bufferIndex, long releaseTimeNs) {
+  protected void renderOutputBufferV21(MediaCodec codec, int bufferIndex, long releaseTimeNs) {
     maybeNotifyVideoSizeChanged();
-    TraceUtil.beginSection("releaseOutputBufferTimed");
+    TraceUtil.beginSection("releaseOutputBuffer");
     codec.releaseOutputBuffer(bufferIndex, releaseTimeNs);
     TraceUtil.endSection();
     codecCounters.renderedOutputBufferCount++;

@@ -26,7 +26,7 @@ import java.util.ArrayList;
  * Facilitates the extraction and parsing of EIA-608 (a.k.a. "line 21 captions" and "CEA-608")
  * Closed Captions from the SEI data block from H.264.
  */
-public class Eia608Parser {
+public final class Eia608Parser {
 
   private static final int PAYLOAD_TYPE_CC = 4;
   private static final int COUNTRY_CODE = 0xB5;

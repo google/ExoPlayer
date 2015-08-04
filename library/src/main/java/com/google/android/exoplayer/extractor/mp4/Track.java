@@ -17,6 +17,7 @@ package com.google.android.exoplayer.extractor.mp4;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.util.Util;
 
 /**
  * Encapsulates information describing an MP4 track.
@@ -26,27 +27,19 @@ public final class Track {
   /**
    * Type of a video track.
    */
-  public static final int TYPE_VIDEO = 0x76696465;
+  public static final int TYPE_VIDEO = Util.getIntegerCodeForString("vide");
   /**
    * Type of an audio track.
    */
-  public static final int TYPE_AUDIO = 0x736F756E;
+  public static final int TYPE_AUDIO = Util.getIntegerCodeForString("soun");
   /**
    * Type of a text track.
    */
-  public static final int TYPE_TEXT = 0x74657874;
+  public static final int TYPE_TEXT = Util.getIntegerCodeForString("text");
   /**
-   * Type of a hint track.
+   * Type of a subtitle track.
    */
-  public static final int TYPE_HINT = 0x68696E74;
-  /**
-   * Type of a meta track.
-   */
-  public static final int TYPE_META = 0x6D657461;
-  /**
-   * Type of a time-code track.
-   */
-  public static final int TYPE_TIME_CODE = 0x746D6364;
+  public static final int TYPE_SUBTITLE = Util.getIntegerCodeForString("sbtl");
 
   /**
    * The track identifier.
@@ -54,8 +47,7 @@ public final class Track {
   public final int id;
 
   /**
-   * One of {@link #TYPE_VIDEO}, {@link #TYPE_AUDIO}, {@link #TYPE_HINT}, {@link #TYPE_META} and
-   * {@link #TYPE_TIME_CODE}.
+   * One of {@link #TYPE_VIDEO}, {@link #TYPE_AUDIO}, {@link #TYPE_TEXT} and {@link #TYPE_SUBTITLE}.
    */
   public final int type;
 
