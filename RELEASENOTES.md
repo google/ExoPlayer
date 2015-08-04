@@ -2,7 +2,10 @@
 
 ### Current dev branch (from r1.4.1) ###
 
-* Added MulticastDataSource for connecting to multicast streams.
+* Implemented automatic format detection for regular container formats.
+* Added UdpDataSource for connecting to multicast streams.
+* Improved robustness for MP4 playbacks.
+* Misc bug fixes.
 
 ### r1.4.1 ###
 
