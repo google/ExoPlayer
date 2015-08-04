@@ -68,7 +68,6 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   private final List<BaseMediaChunk> readOnlyMediaChunks;
   private final DefaultTrackOutput sampleQueue;
   private final int bufferSizeContribution;
-  private final boolean frameAccurateSeeking;
   private final Handler eventHandler;
   private final EventListener eventListener;
   private final int minLoadableRetryCount;
@@ -91,24 +90,23 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   private Format downstreamFormat;
 
   public ChunkSampleSource(ChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, boolean frameAccurateSeeking) {
-    this(chunkSource, loadControl, bufferSizeContribution, frameAccurateSeeking, null, null, 0);
+      int bufferSizeContribution) {
+    this(chunkSource, loadControl, bufferSizeContribution, null, null, 0);
   }
 
   public ChunkSampleSource(ChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, boolean frameAccurateSeeking, Handler eventHandler,
-      EventListener eventListener, int eventSourceId) {
-    this(chunkSource, loadControl, bufferSizeContribution, frameAccurateSeeking, eventHandler,
-        eventListener, eventSourceId, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
+      int bufferSizeContribution, Handler eventHandler, EventListener eventListener,
+      int eventSourceId) {
+    this(chunkSource, loadControl, bufferSizeContribution, eventHandler, eventListener,
+        eventSourceId, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
   }
 
   public ChunkSampleSource(ChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, boolean frameAccurateSeeking, Handler eventHandler,
-      EventListener eventListener, int eventSourceId, int minLoadableRetryCount) {
+      int bufferSizeContribution, Handler eventHandler, EventListener eventListener,
+      int eventSourceId, int minLoadableRetryCount) {
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
     this.bufferSizeContribution = bufferSizeContribution;
-    this.frameAccurateSeeking = frameAccurateSeeking;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
@@ -188,23 +186,18 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   }
 
   @Override
-  public boolean continueBuffering(int track, long positionUs) throws IOException {
+  public boolean continueBuffering(int track, long positionUs) {
     Assertions.checkState(state == STATE_ENABLED);
     Assertions.checkState(track == 0);
     downstreamPositionUs = positionUs;
     chunkSource.continueBuffering(positionUs);
     updateLoadControl();
-
-    boolean haveSamples = !sampleQueue.isEmpty();
-    if (!haveSamples) {
-      maybeThrowLoadableException();
-    }
-    return loadingFinished || haveSamples;
+    return loadingFinished || !sampleQueue.isEmpty();
   }
 
   @Override
   public int readData(int track, long positionUs, MediaFormatHolder formatHolder,
-      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) throws IOException {
+      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
     Assertions.checkState(state == STATE_ENABLED);
     Assertions.checkState(track == 0);
     downstreamPositionUs = positionUs;
@@ -219,7 +212,6 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
     }
 
     if (isPendingReset()) {
-      maybeThrowLoadableException();
       return NOTHING_READ;
     }
 
@@ -252,18 +244,16 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
       if (loadingFinished) {
         return END_OF_STREAM;
       }
-      maybeThrowLoadableException();
       return NOTHING_READ;
     }
 
     if (sampleQueue.getSample(sampleHolder)) {
-      boolean decodeOnly = frameAccurateSeeking && sampleHolder.timeUs < lastSeekPositionUs;
+      boolean decodeOnly = sampleHolder.timeUs < lastSeekPositionUs;
       sampleHolder.flags |= decodeOnly ? C.SAMPLE_FLAG_DECODE_ONLY : 0;
       onSampleRead(currentChunk, sampleHolder);
       return SAMPLE_READ;
     }
 
-    maybeThrowLoadableException();
     return NOTHING_READ;
   }
 
@@ -295,15 +285,12 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
     pendingDiscontinuity = true;
   }
 
-  private void maybeThrowLoadableException() throws IOException {
+  @Override
+  public void maybeThrowError() throws IOException {
     if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
       throw currentLoadableException;
-    }
-    if (sampleQueue.isEmpty() && currentLoadableHolder.chunk == null) {
-      IOException chunkSourceException = chunkSource.getError();
-      if (chunkSourceException != null) {
-        throw chunkSourceException;
-      }
+    } else if (currentLoadableHolder.chunk == null) {
+      chunkSource.maybeThrowError();
     }
   }
 
@@ -437,7 +424,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
 
     // Update the control with our current state, and determine whether we're the next loader.
     boolean nextLoader = loadControl.update(this, downstreamPositionUs, nextLoadPositionUs,
-        loadingOrBackedOff, false);
+        loadingOrBackedOff);
 
     if (isBackedOff) {
       long elapsedMillis = now - currentLoadableExceptionTimestamp;

@@ -38,7 +38,7 @@ import java.util.concurrent.CancellationException;
 /**
  * Resolves a {@link UtcTimingElement}.
  */
-public class UtcTimingElementResolver implements Loader.Callback {
+public final class UtcTimingElementResolver implements Loader.Callback {
 
   /**
    * Callback for timing element resolution.

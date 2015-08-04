@@ -126,24 +126,19 @@ public class LibopusAudioTrackRenderer extends TrackRenderer implements MediaClo
   }
 
   @Override
-  protected int doPrepare(long positionUs) throws ExoPlaybackException {
-    try {
-      boolean sourcePrepared = source.prepare(positionUs);
-      if (!sourcePrepared) {
-        return TrackRenderer.STATE_UNPREPARED;
-      }
-    } catch (IOException e) {
-      throw new ExoPlaybackException(e);
+  protected int doPrepare(long positionUs) {
+    boolean sourcePrepared = source.prepare(positionUs);
+    if (!sourcePrepared) {
+      return TrackRenderer.STATE_UNPREPARED;
     }
-
-    for (int i = 0; i < source.getTrackCount(); i++) {
+    int trackCount = source.getTrackCount();
+    for (int i = 0; i < trackCount; i++) {
       if (source.getTrackInfo(i).mimeType.equalsIgnoreCase(MimeTypes.AUDIO_OPUS)
           || source.getTrackInfo(i).mimeType.equalsIgnoreCase(MimeTypes.AUDIO_WEBM)) {
         trackIndex = i;
         return TrackRenderer.STATE_PREPARED;
       }
     }
-
     return TrackRenderer.STATE_IGNORE;
   }
 
@@ -152,42 +147,49 @@ public class LibopusAudioTrackRenderer extends TrackRenderer implements MediaClo
     if (outputStreamEnded) {
       return;
     }
-    try {
-      sourceIsReady = source.continueBuffering(trackIndex, positionUs);
-      checkForDiscontinuity();
-      if (format == null) {
-        readFormat();
-      } else {
-        // Create the decoder.
-        if (decoder == null) {
-          // For opus, the format can contain upto 3 entries in initializationData in the following
-          // exact order:
-          // 1) Opus Header Information (required)
-          // 2) Codec Delay in nanoseconds (required if Seek Preroll is present)
-          // 3) Seek Preroll in nanoseconds (required if Codec Delay is present)
-          List<byte[]> initializationData = format.initializationData;
-          if (initializationData.size() < 1) {
-            throw new ExoPlaybackException("Missing initialization data");
-          }
-          long codecDelayNs = -1;
-          long seekPreRollNs = -1;
-          if (initializationData.size() == 3) {
-            if (initializationData.get(1).length != Long.SIZE
-                || initializationData.get(2).length != Long.SIZE) {
-              throw new ExoPlaybackException("Invalid Codec Delay or Seek Preroll");
-            }
-            codecDelayNs = ByteBuffer.wrap(initializationData.get(1)).getLong();
-            seekPreRollNs = ByteBuffer.wrap(initializationData.get(2)).getLong();
-          }
-          decoder =
-              new OpusDecoderWrapper(initializationData.get(0), codecDelayNs, seekPreRollNs);
-          decoder.start();
-        }
-        renderBuffer();
+    sourceIsReady = source.continueBuffering(trackIndex, positionUs);
+    checkForDiscontinuity();
 
-        // Queue input buffers.
-        while (feedInputBuffer()) {}
+    // Try and read a format if we don't have one already.
+    if (format == null && !readFormat(positionUs)) {
+      // We can't make progress without one.
+      return;
+    }
+
+    // If we don't have a decoder yet, we need to instantiate one.
+    if (decoder == null) {
+      // For opus, the format can contain upto 3 entries in initializationData in the following
+      // exact order:
+      // 1) Opus Header Information (required)
+      // 2) Codec Delay in nanoseconds (required if Seek Preroll is present)
+      // 3) Seek Preroll in nanoseconds (required if Codec Delay is present)
+      List<byte[]> initializationData = format.initializationData;
+      if (initializationData.size() < 1) {
+        throw new ExoPlaybackException("Missing initialization data");
       }
+      long codecDelayNs = -1;
+      long seekPreRollNs = -1;
+      if (initializationData.size() == 3) {
+        if (initializationData.get(1).length != Long.SIZE
+            || initializationData.get(2).length != Long.SIZE) {
+          throw new ExoPlaybackException("Invalid Codec Delay or Seek Preroll");
+        }
+        codecDelayNs = ByteBuffer.wrap(initializationData.get(1)).getLong();
+        seekPreRollNs = ByteBuffer.wrap(initializationData.get(2)).getLong();
+      }
+      try {
+        decoder = new OpusDecoderWrapper(initializationData.get(0), codecDelayNs, seekPreRollNs);
+      } catch (OpusDecoderException e) {
+        notifyDecoderError(e);
+        throw new ExoPlaybackException(e);
+      }
+      decoder.start();
+    }
+
+    // Rendering loop.
+    try {
+      renderBuffer();
+      while (feedInputBuffer()) {}
     } catch (AudioTrack.InitializationException e) {
       notifyAudioTrackInitializationError(e);
       throw new ExoPlaybackException(e);
@@ -196,8 +198,6 @@ public class LibopusAudioTrackRenderer extends TrackRenderer implements MediaClo
       throw new ExoPlaybackException(e);
     } catch (OpusDecoderException e) {
       notifyDecoderError(e);
-      throw new ExoPlaybackException(e);
-    } catch (IOException e) {
       throw new ExoPlaybackException(e);
     }
   }
@@ -249,7 +249,7 @@ public class LibopusAudioTrackRenderer extends TrackRenderer implements MediaClo
     }
   }
 
-  private boolean feedInputBuffer() throws IOException, OpusDecoderException {
+  private boolean feedInputBuffer() throws OpusDecoderException {
     if (inputStreamEnded) {
       return false;
     }
@@ -291,7 +291,7 @@ public class LibopusAudioTrackRenderer extends TrackRenderer implements MediaClo
     return true;
   }
 
-  private void checkForDiscontinuity() throws IOException {
+  private void checkForDiscontinuity() {
     if (decoder == null) {
       return;
     }
@@ -394,12 +394,23 @@ public class LibopusAudioTrackRenderer extends TrackRenderer implements MediaClo
     }
   }
 
-  private void readFormat() throws IOException {
-    int result = source.readData(trackIndex, currentPositionUs, formatHolder, null, false);
+  @Override
+  protected void maybeThrowError() throws ExoPlaybackException {
+    try {
+      source.maybeThrowError();
+    } catch (IOException e) {
+      throw new ExoPlaybackException(e);
+    }
+  }
+
+  private boolean readFormat(long positionUs) {
+    int result = source.readData(trackIndex, positionUs, formatHolder, null, false);
     if (result == SampleSource.FORMAT_READ) {
       format = formatHolder.format;
       audioTrack.reconfigure(format.getFrameworkMediaFormatV16());
+      return true;
     }
+    return false;
   }
 
   @Override

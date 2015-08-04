@@ -386,7 +386,7 @@ public class DashChunkSource implements ChunkSource {
     }
 
     if (finishedCurrentManifest && (android.os.SystemClock.elapsedRealtime()
-        > manifestFetcher.getManifestLoadTimestamp() + minUpdatePeriod)) {
+        > manifestFetcher.getManifestLoadStartTimestamp() + minUpdatePeriod)) {
       manifestFetcher.requestRefresh();
     }
   }
@@ -514,9 +514,12 @@ public class DashChunkSource implements ChunkSource {
   }
 
   @Override
-  public IOException getError() {
-    return fatalError != null ? fatalError
-        : (manifestFetcher != null ? manifestFetcher.getError() : null);
+  public void maybeThrowError() throws IOException {
+    if (fatalError != null) {
+      throw fatalError;
+    } else if (manifestFetcher != null) {
+      manifestFetcher.maybeThrowError();
+    }
   }
 
   @Override

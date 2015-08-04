@@ -21,6 +21,7 @@ import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.util.ParsableByteArray;
+import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
 
@@ -28,7 +29,7 @@ import java.io.IOException;
  * Facilitates the extraction of AAC samples from elementary audio files formatted as AAC with ADTS
  * headers.
  */
-public class AdtsExtractor implements Extractor, SeekMap {
+public final class AdtsExtractor implements Extractor {
 
   private static final int MAX_PACKET_SIZE = 200;
 
@@ -50,10 +51,28 @@ public class AdtsExtractor implements Extractor, SeekMap {
   }
 
   @Override
+  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+    ParsableByteArray scratch = new ParsableByteArray(10);
+    input.peekFully(scratch.data, 0, 10);
+    int value = scratch.readUnsignedInt24();
+    if (value != Util.getIntegerCodeForString("ID3")) {
+      value = value >> 8;
+    } else {
+      int length = (scratch.data[6] & 0x7F) << 21 | ((scratch.data[7] & 0x7F) << 14)
+          | ((scratch.data[8] & 0x7F) << 7) | (scratch.data[9] & 0x7F);
+      input.advancePeekPosition(length);
+      input.peekFully(scratch.data, 0, 2);
+      scratch.setPosition(0);
+      value = scratch.readUnsignedShort();
+    }
+    return (value & 0xFFF6) == 0xFFF0;
+  }
+
+  @Override
   public void init(ExtractorOutput output) {
     adtsReader = new AdtsReader(output.track(0));
     output.endTracks();
-    output.seekMap(this);
+    output.seekMap(SeekMap.UNSEEKABLE);
   }
 
   @Override
@@ -79,18 +98,6 @@ public class AdtsExtractor implements Extractor, SeekMap {
     adtsReader.consume(packetBuffer, firstSampleTimestampUs, firstPacket);
     firstPacket = false;
     return RESULT_CONTINUE;
-  }
-
-  // SeekMap implementation.
-
-  @Override
-  public boolean isSeekable() {
-    return false;
-  }
-
-  @Override
-  public long getPosition(long timeUs) {
-    return 0;
   }
 
 }

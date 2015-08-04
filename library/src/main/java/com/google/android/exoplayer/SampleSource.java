@@ -76,9 +76,8 @@ public interface SampleSource {
      *
      * @param positionUs The player's current playback position.
      * @return True if the source was prepared successfully, false otherwise.
-     * @throws IOException If an error occurred preparing the source.
      */
-    public boolean prepare(long positionUs) throws IOException;
+    public boolean prepare(long positionUs);
 
     /**
      * Returns the number of tracks exposed by the source.
@@ -117,15 +116,22 @@ public interface SampleSource {
     public void disable(int track);
 
     /**
+     * If the source is currently having difficulty preparing or loading samples, then this method
+     * throws the underlying error. Otherwise does nothing.
+     *
+     * @throws IOException The underlying error.
+     */
+    public void maybeThrowError() throws IOException;
+
+    /**
      * Indicates to the source that it should still be buffering data for the specified track.
      *
      * @param track The track to continue buffering.
      * @param positionUs The current playback position.
      * @return True if the track has available samples, or if the end of the stream has been
      *     reached. False if more data needs to be buffered for samples to become available.
-     * @throws IOException If an error occurred reading from the source.
      */
-    public boolean continueBuffering(int track, long positionUs) throws IOException;
+    public boolean continueBuffering(int track, long positionUs);
 
     /**
      * Attempts to read either a sample, a new format or or a discontinuity from the source.
@@ -147,10 +153,9 @@ public interface SampleSource {
      *     {@link #DISCONTINUITY_READ} or {@link #NOTHING_READ} can be returned.
      * @return The result, which can be {@link #SAMPLE_READ}, {@link #FORMAT_READ},
      *     {@link #DISCONTINUITY_READ}, {@link #NOTHING_READ} or {@link #END_OF_STREAM}.
-     * @throws IOException If an error occurred reading from the source.
      */
     public int readData(int track, long positionUs, MediaFormatHolder formatHolder,
-        SampleHolder sampleHolder, boolean onlyReadDiscontinuity) throws IOException;
+        SampleHolder sampleHolder, boolean onlyReadDiscontinuity);
 
     /**
      * Seeks to the specified time in microseconds.

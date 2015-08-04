@@ -27,16 +27,12 @@ import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
-import android.util.Log;
-
 import java.io.IOException;
 
 /**
  * A {@link BaseMediaChunk} that uses an {@link Extractor} to parse sample data.
  */
 public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOutput {
-
-  private static final String TAG = "ContainerMediaChunk";
 
   private final ChunkExtractorWrapper extractorWrapper;
   private final long sampleOffsetUs;
@@ -78,67 +74,69 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
   }
 
   @Override
-  public long bytesLoaded() {
+  public final long bytesLoaded() {
     return bytesLoaded;
   }
 
   @Override
-  public MediaFormat getMediaFormat() {
+  public final MediaFormat getMediaFormat() {
     return mediaFormat;
   }
 
   @Override
-  public DrmInitData getDrmInitData() {
+  public final DrmInitData getDrmInitData() {
     return drmInitData;
   }
 
   // SingleTrackOutput implementation.
 
   @Override
-  public void seekMap(SeekMap seekMap) {
-    Log.w(TAG, "Ignoring unexpected seekMap");
+  public final void seekMap(SeekMap seekMap) {
+    // Do nothing.
   }
 
   @Override
-  public void drmInitData(DrmInitData drmInitData) {
+  public final void drmInitData(DrmInitData drmInitData) {
     this.drmInitData = drmInitData;
   }
 
   @Override
-  public void format(MediaFormat mediaFormat) {
+  public final void format(MediaFormat mediaFormat) {
     this.mediaFormat = mediaFormat;
   }
 
   @Override
-  public int sampleData(ExtractorInput input, int length) throws IOException, InterruptedException {
-    return getOutput().sampleData(input, length);
+  public final int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
+      throws IOException, InterruptedException {
+    return getOutput().sampleData(input, length, allowEndOfInput);
   }
 
   @Override
-  public void sampleData(ParsableByteArray data, int length) {
+  public final void sampleData(ParsableByteArray data, int length) {
     getOutput().sampleData(data, length);
   }
 
   @Override
-  public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
+  public final void sampleMetadata(long timeUs, int flags, int size, int offset,
+      byte[] encryptionKey) {
     getOutput().sampleMetadata(timeUs + sampleOffsetUs, flags, size, offset, encryptionKey);
   }
 
   // Loadable implementation.
 
   @Override
-  public void cancelLoad() {
+  public final void cancelLoad() {
     loadCanceled = true;
   }
 
   @Override
-  public boolean isLoadCanceled() {
+  public final boolean isLoadCanceled() {
     return loadCanceled;
   }
 
   @SuppressWarnings("NonAtomicVolatileUpdate")
   @Override
-  public void load() throws IOException, InterruptedException {
+  public final void load() throws IOException, InterruptedException {
     DataSpec loadDataSpec = Util.getRemainderDataSpec(dataSpec, bytesLoaded);
     try {
       // Create and open the input.

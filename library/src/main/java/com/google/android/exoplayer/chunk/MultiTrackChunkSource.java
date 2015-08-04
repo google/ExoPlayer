@@ -28,7 +28,7 @@ import java.util.List;
  * A {@link ChunkSource} providing the ability to switch between multiple other {@link ChunkSource}
  * instances.
  */
-public class MultiTrackChunkSource implements ChunkSource, ExoPlayerComponent {
+public final class MultiTrackChunkSource implements ChunkSource, ExoPlayerComponent {
 
   /**
    * A message to indicate a source selection. Source selection can only be performed when the
@@ -89,8 +89,8 @@ public class MultiTrackChunkSource implements ChunkSource, ExoPlayerComponent {
   }
 
   @Override
-  public IOException getError() {
-    return null;
+  public void maybeThrowError() throws IOException {
+    selectedSource.maybeThrowError();
   }
 
   @Override

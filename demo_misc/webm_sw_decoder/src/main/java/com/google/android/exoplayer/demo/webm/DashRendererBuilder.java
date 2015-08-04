@@ -114,7 +114,7 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
         throw new IllegalStateException("Unexpected mime type: " + mimeType);
       }
       ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
-          VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
+          VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
       videoRenderer = new LibvpxVideoTrackRenderer(videoSampleSource,
           true, player.getMainHandler(), player, 50);
     }
@@ -133,7 +133,7 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
       }
       audioChunkSource = new MultiTrackChunkSource(audioChunkSources);
       SampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
-          AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
+          AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
       if (manifestUrl.contains("opus")) { // TODO: Need a better logic here.
         audioRenderer = new LibopusAudioTrackRenderer(audioSampleSource);
       } else {

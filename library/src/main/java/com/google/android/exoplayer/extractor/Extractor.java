@@ -50,6 +50,15 @@ public interface Extractor {
   void init(ExtractorOutput output);
 
   /**
+   * Returns whether this extractor can extract samples from the {@link ExtractorInput}, which must
+   * provide data from the start of the stream.
+   *
+   * @throws IOException If an error occurred reading from the input.
+   * @throws InterruptedException If the thread was interrupted.
+   */
+  boolean sniff(ExtractorInput input) throws IOException, InterruptedException;
+
+  /**
    * Extracts data read from a provided {@link ExtractorInput}.
    * <p>
    * A single call to this method will block until some progress has been made, but will not block
@@ -76,9 +85,10 @@ public interface Extractor {
    * Notifies the extractor that a seek has occurred.
    * <p>
    * Following a call to this method, the {@link ExtractorInput} passed to the next invocation of
-   * {@link #read(ExtractorInput, PositionHolder)} is required to provide data starting from any
-   * random access position in the stream. Random access positions can be obtained from a
-   * {@link SeekMap} that has been extracted and passed to the {@link ExtractorOutput}.
+   * {@link #read(ExtractorInput, PositionHolder)} is required to provide data starting from a
+   * random access position in the stream. Valid random access positions are the start of the
+   * stream and positions that can be obtained from any {@link SeekMap} passed to the
+   * {@link ExtractorOutput}.
    */
   void seek();
 

@@ -25,10 +25,10 @@ public class TimeRangeTest extends TestCase {
   public void testEquals() {
     TimeRange timeRange1 = new TimeRange(TimeRange.TYPE_SNAPSHOT, 0, 30000000);
     assertTrue(timeRange1.equals(timeRange1));
-    
+
     TimeRange timeRange2 = new TimeRange(TimeRange.TYPE_SNAPSHOT, 0, 30000000);
     assertTrue(timeRange1.equals(timeRange2));
-    
+
     TimeRange timeRange3 = new TimeRange(TimeRange.TYPE_SNAPSHOT, 0, 60000000);
     assertFalse(timeRange1.equals(timeRange3));
   }

@@ -24,12 +24,14 @@ import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.PositionHolder;
+import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.LongArray;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableByteArray;
+import com.google.android.exoplayer.util.Util;
 
 import android.util.Pair;
 
@@ -39,7 +41,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * An extractor to facilitate data retrieval from the WebM container format.
@@ -64,7 +65,11 @@ public final class WebmExtractor implements Extractor {
   private static final String DOC_TYPE_MATROSKA = "matroska";
   private static final String CODEC_ID_VP8 = "V_VP8";
   private static final String CODEC_ID_VP9 = "V_VP9";
+  private static final String CODEC_ID_MPEG4_SP = "V_MPEG4/ISO/SP";
+  private static final String CODEC_ID_MPEG4_ASP = "V_MPEG4/ISO/ASP";
+  private static final String CODEC_ID_MPEG4_AP = "V_MPEG4/ISO/AP";
   private static final String CODEC_ID_H264 = "V_MPEG4/ISO/AVC";
+  private static final String CODEC_ID_H265 = "V_MPEGH/ISO/HEVC";
   private static final String CODEC_ID_VORBIS = "A_VORBIS";
   private static final String CODEC_ID_OPUS = "A_OPUS";
   private static final String CODEC_ID_AAC = "A_AAC";
@@ -83,6 +88,7 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_DOC_TYPE = 0x4282;
   private static final int ID_DOC_TYPE_READ_VERSION = 0x4285;
   private static final int ID_SEGMENT = 0x18538067;
+  private static final int ID_SEGMENT_INFO = 0x1549A966;
   private static final int ID_SEEK_HEAD = 0x114D9B74;
   private static final int ID_SEEK = 0x4DBB;
   private static final int ID_SEEK_ID = 0x53AB;
@@ -147,7 +153,8 @@ public final class WebmExtractor implements Extractor {
 
   private long segmentContentPosition = UNKNOWN;
   private long segmentContentSize = UNKNOWN;
-  private long timecodeScale = 1000000L;
+  private long timecodeScale = C.UNKNOWN_TIME_US;
+  private long durationTimecode = C.UNKNOWN_TIME_US;
   private long durationUs = C.UNKNOWN_TIME_US;
 
   private TrackFormat trackFormat;  // Used to store the last seen track.
@@ -206,6 +213,11 @@ public final class WebmExtractor implements Extractor {
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
     sampleStrippedBytes = new ParsableByteArray();
+  }
+
+  @Override
+  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+    return new Sniffer().sniff(input);
   }
 
   @Override
@@ -320,10 +332,17 @@ public final class WebmExtractor implements Extractor {
         seenClusterPositionForCurrentCuePoint = false;
         return;
       case ID_CLUSTER:
-        // If we encounter a Cluster before building Cues, then we should try to build cues first
-        // before parsing the Cluster.
-        if (cuesState == CUES_STATE_NOT_BUILT && cuesContentPosition != UNKNOWN) {
-          seekForCues = true;
+        if (cuesState == CUES_STATE_NOT_BUILT) {
+          // We need to build cues before parsing the cluster.
+          if (cuesContentPosition != UNKNOWN) {
+            // We know where the Cues element is located. Seek to request it.
+            seekForCues = true;
+          } else {
+            // We don't know where the Cues element is located. It's most likely omitted. Allow
+            // playback, but disable seeking.
+            extractorOutput.seekMap(SeekMap.UNSEEKABLE);
+            cuesState = CUES_STATE_BUILT;
+          }
         }
         return;
       case ID_BLOCK_GROUP:
@@ -345,6 +364,15 @@ public final class WebmExtractor implements Extractor {
 
   /* package */ void endMasterElement(int id) throws ParserException {
     switch (id) {
+      case ID_SEGMENT_INFO:
+        if (timecodeScale == C.UNKNOWN_TIME_US) {
+          // timecodeScale was omitted. Use the default value.
+          timecodeScale = 1000000;
+        }
+        if (durationTimecode != C.UNKNOWN_TIME_US) {
+          durationUs = scaleTimecodeToUs(durationTimecode);
+        }
+        return;
       case ID_SEEK:
         if (seekEntryId == UNKNOWN || seekEntryPosition == UNKNOWN) {
           throw new ParserException("Mandatory element SeekID or SeekPosition not found");
@@ -355,7 +383,7 @@ public final class WebmExtractor implements Extractor {
         return;
       case ID_CUES:
         if (cuesState != CUES_STATE_BUILT) {
-          extractorOutput.seekMap(buildCues());
+          extractorOutput.seekMap(buildSeekMap());
           cuesState = CUES_STATE_BUILT;
         } else {
           // We have already built the cues. Ignore.
@@ -528,7 +556,7 @@ public final class WebmExtractor implements Extractor {
   /* package */ void floatElement(int id, double value) {
     switch (id) {
       case ID_DURATION:
-        durationUs = scaleTimecodeToUs((long) value);
+        durationTimecode = (long) value;
         return;
       case ID_SAMPLING_FREQUENCY:
         trackFormat.sampleRate = (int) value;
@@ -781,7 +809,7 @@ public final class WebmExtractor implements Extractor {
     }
     size += sampleStrippedBytes.limit();
 
-    if (CODEC_ID_H264.equals(format.codecId)) {
+    if (CODEC_ID_H264.equals(format.codecId) || CODEC_ID_H265.equals(format.codecId)) {
       // TODO: Deduplicate with Mp4Extractor.
 
       // Zero the top three bytes of the array that we'll use to parse nal unit lengths, in case
@@ -857,7 +885,7 @@ public final class WebmExtractor implements Extractor {
       bytesRead = Math.min(length, strippedBytesLeft);
       output.sampleData(sampleStrippedBytes, bytesRead);
     } else {
-      bytesRead = output.sampleData(input, length);
+      bytesRead = output.sampleData(input, length, false);
     }
     sampleBytesRead += bytesRead;
     sampleBytesWritten += bytesRead;
@@ -865,19 +893,19 @@ public final class WebmExtractor implements Extractor {
   }
 
   /**
-   * Builds a {@link ChunkIndex} containing recently gathered Cues information.
+   * Builds a {@link SeekMap} from the recently gathered Cues information.
    *
-   * @return The built {@link ChunkIndex}.
-   * @throws ParserException If the index could not be built.
+   * @return The built {@link SeekMap}. May be {@link SeekMap#UNSEEKABLE} if cues information was
+   *     missing or incomplete.
    */
-  private ChunkIndex buildCues() throws ParserException {
-    if (segmentContentPosition == UNKNOWN) {
-      throw new ParserException("Segment start/end offsets unknown");
-    } else if (durationUs == C.UNKNOWN_TIME_US) {
-      throw new ParserException("Duration unknown");
-    } else if (cueTimesUs == null || cueClusterPositions == null
-        || cueTimesUs.size() == 0 || cueTimesUs.size() != cueClusterPositions.size()) {
-      throw new ParserException("Invalid/missing cue points");
+  private SeekMap buildSeekMap() {
+    if (segmentContentPosition == UNKNOWN || durationUs == C.UNKNOWN_TIME_US
+        || cueTimesUs == null || cueTimesUs.size() == 0
+        || cueClusterPositions == null || cueClusterPositions.size() != cueTimesUs.size()) {
+      // Cues information is missing or incomplete.
+      cueTimesUs = null;
+      cueClusterPositions = null;
+      return SeekMap.UNSEEKABLE;
     }
     int cuePointsSize = cueTimesUs.size();
     int[] sizes = new int[cuePointsSize];
@@ -927,14 +955,21 @@ public final class WebmExtractor implements Extractor {
     return false;
   }
 
-  private long scaleTimecodeToUs(long unscaledTimecode) {
-    return TimeUnit.NANOSECONDS.toMicros(unscaledTimecode * timecodeScale);
+  private long scaleTimecodeToUs(long unscaledTimecode) throws ParserException {
+    if (timecodeScale == C.UNKNOWN_TIME_US) {
+      throw new ParserException("Can't scale timecode prior to timecodeScale being set.");
+    }
+    return Util.scaleLargeTimestamp(unscaledTimecode, timecodeScale, 1000);
   }
 
   private static boolean isCodecSupported(String codecId) {
     return CODEC_ID_VP8.equals(codecId)
         || CODEC_ID_VP9.equals(codecId)
+        || CODEC_ID_MPEG4_SP.equals(codecId)
+        || CODEC_ID_MPEG4_ASP.equals(codecId)
+        || CODEC_ID_MPEG4_AP.equals(codecId)
         || CODEC_ID_H264.equals(codecId)
+        || CODEC_ID_H265.equals(codecId)
         || CODEC_ID_OPUS.equals(codecId)
         || CODEC_ID_VORBIS.equals(codecId)
         || CODEC_ID_AAC.equals(codecId)
@@ -984,7 +1019,7 @@ public final class WebmExtractor implements Extractor {
     }
 
     @Override
-    public void floatElement(int id, double value) {
+    public void floatElement(int id, double value) throws ParserException {
       WebmExtractor.this.floatElement(id, value);
     }
 
@@ -1038,12 +1073,26 @@ public final class WebmExtractor implements Extractor {
         case CODEC_ID_VP9:
           mimeType = MimeTypes.VIDEO_VP9;
           break;
+        case CODEC_ID_MPEG4_SP:
+        case CODEC_ID_MPEG4_ASP:
+        case CODEC_ID_MPEG4_AP:
+          mimeType = MimeTypes.VIDEO_MP4V;
+          initializationData =
+              codecPrivate == null ? null : Collections.singletonList(codecPrivate);
+          break;
         case CODEC_ID_H264:
           mimeType = MimeTypes.VIDEO_H264;
-          Pair<List<byte[]>, Integer> h264Data = parseH264CodecPrivate(
+          Pair<List<byte[]>, Integer> h264Data = parseAvcCodecPrivate(
               new ParsableByteArray(codecPrivate));
           initializationData = h264Data.first;
           nalUnitLengthFieldLength = h264Data.second;
+          break;
+        case CODEC_ID_H265:
+          mimeType = MimeTypes.VIDEO_H265;
+          Pair<List<byte[]>, Integer> hevcData = parseHevcCodecPrivate(
+              new ParsableByteArray(codecPrivate));
+          initializationData = hevcData.first;
+          nalUnitLengthFieldLength = hevcData.second;
           break;
         case CODEC_ID_VORBIS:
           mimeType = MimeTypes.AUDIO_VORBIS;
@@ -1085,12 +1134,12 @@ public final class WebmExtractor implements Extractor {
     }
 
     /**
-     * Builds initialization data for a {@link MediaFormat} from H.264 codec private data.
+     * Builds initialization data for a {@link MediaFormat} from H.264 (AVC) codec private data.
      *
      * @return The initialization data for the {@link MediaFormat}.
      * @throws ParserException If the initialization data could not be built.
      */
-    private static Pair<List<byte[]>, Integer> parseH264CodecPrivate(ParsableByteArray buffer)
+    private static Pair<List<byte[]>, Integer> parseAvcCodecPrivate(ParsableByteArray buffer)
         throws ParserException {
       try {
         // TODO: Deduplicate with AtomParsers.parseAvcCFromParent.
@@ -1108,7 +1157,60 @@ public final class WebmExtractor implements Extractor {
         }
         return Pair.create(initializationData, nalUnitLengthFieldLength);
       } catch (ArrayIndexOutOfBoundsException e) {
-        throw new ParserException("Error parsing vorbis codec private");
+        throw new ParserException("Error parsing AVC codec private");
+      }
+    }
+
+    /**
+     * Builds initialization data for a {@link MediaFormat} from H.265 (HEVC) codec private data.
+     *
+     * @return The initialization data for the {@link MediaFormat}.
+     * @throws ParserException If the initialization data could not be built.
+     */
+    private static Pair<List<byte[]>, Integer> parseHevcCodecPrivate(ParsableByteArray parent)
+        throws ParserException {
+      try {
+        // TODO: Deduplicate with AtomParsers.parseHvcCFromParent.
+        parent.setPosition(21);
+        int lengthSizeMinusOne = parent.readUnsignedByte() & 0x03;
+
+        // Calculate the combined size of all VPS/SPS/PPS bitstreams.
+        int numberOfArrays = parent.readUnsignedByte();
+        int csdLength = 0;
+        int csdStartPosition = parent.getPosition();
+        for (int i = 0; i < numberOfArrays; i++) {
+          parent.skipBytes(1); // completeness (1), nal_unit_type (7)
+          int numberOfNalUnits = parent.readUnsignedShort();
+          for (int j = 0; j < numberOfNalUnits; j++) {
+            int nalUnitLength = parent.readUnsignedShort();
+            csdLength += 4 + nalUnitLength; // Start code and NAL unit.
+            parent.skipBytes(nalUnitLength);
+          }
+        }
+
+        // Concatenate the codec-specific data into a single buffer.
+        parent.setPosition(csdStartPosition);
+        byte[] buffer = new byte[csdLength];
+        int bufferPosition = 0;
+        for (int i = 0; i < numberOfArrays; i++) {
+          parent.skipBytes(1); // completeness (1), nal_unit_type (7)
+          int numberOfNalUnits = parent.readUnsignedShort();
+          for (int j = 0; j < numberOfNalUnits; j++) {
+            int nalUnitLength = parent.readUnsignedShort();
+            System.arraycopy(NalUnitUtil.NAL_START_CODE, 0, buffer, bufferPosition,
+                NalUnitUtil.NAL_START_CODE.length);
+            bufferPosition += NalUnitUtil.NAL_START_CODE.length;
+            System.arraycopy(parent.data, parent.getPosition(), buffer, bufferPosition,
+                nalUnitLength);
+            bufferPosition += nalUnitLength;
+            parent.skipBytes(nalUnitLength);
+          }
+        }
+
+        List<byte[]> initializationData = csdLength == 0 ? null : Collections.singletonList(buffer);
+        return Pair.create(initializationData, lengthSizeMinusOne + 1);
+      } catch (ArrayIndexOutOfBoundsException e) {
+        throw new ParserException("Error parsing HEVC codec private");
       }
     }
 

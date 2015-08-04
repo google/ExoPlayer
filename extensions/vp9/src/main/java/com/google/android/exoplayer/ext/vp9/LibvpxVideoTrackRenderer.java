@@ -153,23 +153,18 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
 
   @Override
   protected int doPrepare(long positionUs) throws ExoPlaybackException {
-    try {
-      boolean sourcePrepared = source.prepare(positionUs);
-      if (!sourcePrepared) {
-        return TrackRenderer.STATE_UNPREPARED;
-      }
-    } catch (IOException e) {
-      throw new ExoPlaybackException(e);
+    boolean sourcePrepared = source.prepare(positionUs);
+    if (!sourcePrepared) {
+      return TrackRenderer.STATE_UNPREPARED;
     }
-
-    for (int i = 0; i < source.getTrackCount(); i++) {
+    int trackCount = source.getTrackCount();
+    for (int i = 0; i < trackCount; i++) {
       if (source.getTrackInfo(i).mimeType.equalsIgnoreCase(MimeTypes.VIDEO_VP9)
           || source.getTrackInfo(i).mimeType.equalsIgnoreCase(MimeTypes.VIDEO_WEBM)) {
         trackIndex = i;
         return TrackRenderer.STATE_PREPARED;
       }
     }
-
     return TrackRenderer.STATE_IGNORE;
   }
 
@@ -178,27 +173,28 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
     if (outputStreamEnded) {
       return;
     }
-    try {
-      sourceIsReady = source.continueBuffering(trackIndex, positionUs);
-      checkForDiscontinuity(positionUs);
-      if (format == null) {
-        readFormat(positionUs);
-      } else {
-        // TODO: Add support for dynamic switching between one type of surface to another.
-        // Create the decoder.
-        if (decoder == null) {
-          decoder = new VpxDecoderWrapper(outputRgb);
-          decoder.start();
-        }
-        processOutputBuffer(positionUs, elapsedRealtimeUs);
+    sourceIsReady = source.continueBuffering(trackIndex, positionUs);
+    checkForDiscontinuity(positionUs);
 
-        // Queue input buffers.
-        while (feedInputBuffer(positionUs)) {}
-      }
+    // Try and read a format if we don't have one already.
+    if (format == null && !readFormat(positionUs)) {
+      // We can't make progress without one.
+      return;
+    }
+
+    // If we don't have a decoder yet, we need to instantiate one.
+    // TODO: Add support for dynamic switching between one type of surface to another.
+    if (decoder == null) {
+      decoder = new VpxDecoderWrapper(outputRgb);
+      decoder.start();
+    }
+
+    // Rendering loop.
+    try {
+      processOutputBuffer(positionUs, elapsedRealtimeUs);
+      while (feedInputBuffer(positionUs)) {}
     } catch (VpxDecoderException e) {
       notifyDecoderError(e);
-      throw new ExoPlaybackException(e);
-    } catch (IOException e) {
       throw new ExoPlaybackException(e);
     }
   }
@@ -294,7 +290,7 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
     surface.unlockCanvasAndPost(canvas);
   }
 
-  private boolean feedInputBuffer(long positionUs) throws IOException, VpxDecoderException {
+  private boolean feedInputBuffer(long positionUs) throws VpxDecoderException {
     if (inputStreamEnded) {
       return false;
     }
@@ -334,7 +330,7 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
     return true;
   }
 
-  private void checkForDiscontinuity(long positionUs) throws IOException {
+  private void checkForDiscontinuity(long positionUs) {
     if (decoder == null) {
       return;
     }
@@ -417,11 +413,22 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
     source.disable(trackIndex);
   }
 
-  private void readFormat(long positionUs) throws IOException {
+  @Override
+  protected void maybeThrowError() throws ExoPlaybackException {
+    try {
+      source.maybeThrowError();
+    } catch (IOException e) {
+      throw new ExoPlaybackException(e);
+    }
+  }
+
+  private boolean readFormat(long positionUs) {
     int result = source.readData(trackIndex, positionUs, formatHolder, null, false);
     if (result == SampleSource.FORMAT_READ) {
       format = formatHolder.format;
+      return true;
     }
+    return false;
   }
 
   @Override

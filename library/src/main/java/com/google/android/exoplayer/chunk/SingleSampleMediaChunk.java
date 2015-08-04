@@ -109,10 +109,8 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
       // Load the sample data.
       int result = 0;
       while (result != C.RESULT_END_OF_INPUT) {
-        result = getOutput().sampleData(dataSource, Integer.MAX_VALUE);
-        if (result != C.RESULT_END_OF_INPUT) {
-          bytesLoaded += result;
-        }
+        bytesLoaded += result;
+        result = getOutput().sampleData(dataSource, Integer.MAX_VALUE, true);
       }
       int sampleSize = bytesLoaded;
       if (headerData != null) {
