@@ -29,7 +29,7 @@ import java.io.IOException;
 /**
  * Writes data into a cache.
  */
-public class CacheDataSink implements DataSink {
+public final class CacheDataSink implements DataSink {
 
   private final Cache cache;
   private final long maxCacheFileSize;

@@ -40,7 +40,7 @@ import java.util.LinkedList;
 /**
  * A {@link SampleSource} for HLS streams.
  */
-public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader.Callback {
+public final class HlsSampleSource implements SampleSource, SampleSourceReader, Loader.Callback {
 
   /**
    * Interface definition for a callback to be notified of {@link HlsSampleSource} events.
@@ -561,7 +561,7 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     return Math.min((errorCount - 1) * 1000, 5000);
   }
 
-  protected final int usToMs(long timeUs) {
+  /* package */ int usToMs(long timeUs) {
     return (int) (timeUs / 1000);
   }
 

@@ -39,7 +39,7 @@ import java.util.List;
  * itself as a task with priority {@link NetworkLock#STREAMING_PRIORITY} during loading periods,
  * and unregistering itself during draining periods.
  */
-public class DefaultLoadControl implements LoadControl {
+public final class DefaultLoadControl implements LoadControl {
 
   /**
    * Interface definition for a callback to be notified of {@link DefaultLoadControl} events.

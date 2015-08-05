@@ -39,7 +39,7 @@ import java.util.TreeSet;
 /**
  * A {@link TrackRenderer} for EIA-608 closed captions in a media stream.
  */
-public class Eia608TrackRenderer extends TrackRenderer implements Callback {
+public final class Eia608TrackRenderer extends TrackRenderer implements Callback {
 
   private static final int MSG_INVOKE_RENDERER = 0;
 

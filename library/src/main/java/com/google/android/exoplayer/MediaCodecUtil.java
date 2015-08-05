@@ -34,7 +34,7 @@ import java.util.HashMap;
  * A utility class for querying the available codecs.
  */
 @TargetApi(16)
-public class MediaCodecUtil {
+public final class MediaCodecUtil {
 
   /**
    * Thrown when an error occurs querying the device for its underlying media capabilities.
@@ -53,6 +53,8 @@ public class MediaCodecUtil {
   private static final String TAG = "MediaCodecUtil";
 
   private static final HashMap<CodecKey, Pair<String, CodecCapabilities>> codecs = new HashMap<>();
+
+  private MediaCodecUtil() {}
 
   /**
    * Get information about the decoder that will be used for a given mime type.

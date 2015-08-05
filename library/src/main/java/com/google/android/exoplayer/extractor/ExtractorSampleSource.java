@@ -67,8 +67,8 @@ import java.util.List;
  * constructor. When reading a new stream, the first {@link Extractor} that returns {@code true}
  * from {@link Extractor#sniff(ExtractorInput)} will be used.
  */
-public class ExtractorSampleSource implements SampleSource, SampleSourceReader, ExtractorOutput,
-    Loader.Callback {
+public final class ExtractorSampleSource implements SampleSource, SampleSourceReader,
+    ExtractorOutput, Loader.Callback {
 
   /**
    * Thrown if the input format could not recognized.

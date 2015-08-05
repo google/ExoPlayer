@@ -35,7 +35,7 @@ import java.io.IOException;
  *
  * @param <T> The type of the metadata.
  */
-public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback {
+public final class MetadataTrackRenderer<T> extends TrackRenderer implements Callback {
 
   /**
    * An interface for components that process metadata.

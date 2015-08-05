@@ -22,7 +22,7 @@ package com.google.android.exoplayer.upstream.cache;
  * Warning: Using this evictor might have unforeseeable consequences if cache
  * size is not managed elsewhere.
  */
-public class NoOpCacheEvictor implements CacheEvictor {
+public final class NoOpCacheEvictor implements CacheEvictor {
 
   @Override
   public void onStartFile(Cache cache, String key, long position, long length) {

@@ -29,7 +29,7 @@ import java.io.IOException;
  * Facilitates the extraction of AAC samples from elementary audio files formatted as AAC with ADTS
  * headers.
  */
-public class AdtsExtractor implements Extractor {
+public final class AdtsExtractor implements Extractor {
 
   private static final int MAX_PACKET_SIZE = 200;
 
