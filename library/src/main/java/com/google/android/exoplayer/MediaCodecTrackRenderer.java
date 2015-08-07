@@ -950,8 +950,11 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    *     incorrectly on the host device. False otherwise.
    */
   private static boolean codecNeedsEndOfStreamWorkaround(String name) {
-    return Util.SDK_INT <= 17 && "ht7s3".equals(Util.DEVICE) // Tesco HUDL
-        && "OMX.rk.video_decoder.avc".equals(name);
+    return Util.SDK_INT <= 17
+        && "OMX.rk.video_decoder.avc".equals(name)
+        && ("ht7s3".equals(Util.DEVICE) // Tesco HUDL
+            || "rk30sdk".equals(Util.DEVICE) // Rockchip rk30
+            || "rk31sdk".equals(Util.DEVICE)); // Rockchip rk31
   }
 
 }
