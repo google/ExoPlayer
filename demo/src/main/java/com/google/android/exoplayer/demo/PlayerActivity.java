@@ -185,9 +185,11 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   public void onResume() {
     super.onResume();
     configureSubtitleView();
-
-    // The player will be prepared on receiving audio capabilities.
-    audioCapabilitiesReceiver.register();
+    if (player == null) {
+      preparePlayer();
+    } else if (player != null) {
+      player.setBackgrounded(false);
+    }
   }
 
   @Override
@@ -198,7 +200,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     } else {
       player.setBackgrounded(true);
     }
-    audioCapabilitiesReceiver.unregister();
     shutterView.setVisibility(View.VISIBLE);
   }
 
@@ -230,6 +231,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       player.setBackgrounded(false);
     }
   }
+
 
   // Internal methods
 

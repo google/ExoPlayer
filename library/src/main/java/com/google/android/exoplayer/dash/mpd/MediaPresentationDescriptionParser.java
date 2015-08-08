@@ -347,7 +347,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
   protected Format buildFormat(String id, String mimeType, int width, int height, float frameRate,
       int numChannels, int audioSamplingRate, int bandwidth, String language, String codecs) {
-    return new Format(id, mimeType, width, height, frameRate, numChannels, audioSamplingRate,
+    return new Format(id, null, mimeType, width, height, frameRate, numChannels, audioSamplingRate,
         bandwidth, language, codecs);
   }
 

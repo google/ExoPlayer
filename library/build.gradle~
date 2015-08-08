@@ -12,25 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 apply plugin: 'com.android.library'
+<<<<<<< HEAD
 apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'bintray-release'
 
 configurations {
     deployerJars
 }
+=======
+apply plugin: 'bintray-release'
+>>>>>>> df9e552e9dc1a6585640ad4d10fff7fc4b05d1ab
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 21
+    buildToolsVersion "21.1.2"
 
     defaultConfig {
-        // Important: ExoPlayerLib specifies a minSdkVersion of 9 because
-        // various components provided by the library may be of use on older
-        // devices. However, please note that the core video playback
-        // functionality provided by the library requires API level 16 or
-        // greater.
         minSdkVersion 9
-        targetSdkVersion 22
+        targetSdkVersion 21
     }
 
     buildTypes {
@@ -47,9 +45,6 @@ android {
 
 dependencies {
     deployerJars "org.kuali.maven.wagons:maven-s3-wagon:1.2.1"
-    androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
-    androidTestCompile 'org.mockito:mockito-core:1.9.5'
 }
 
 uploadArchives {
@@ -74,27 +69,12 @@ android.libraryVariants.all { variant ->
     artifacts.add('archives', task);
 }
 
-android.libraryVariants.all { variant ->
-    task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
-        title = "ExoPlayer library"
-        description "Generates Javadoc for $variant.name."
-        source = variant.javaCompile.source
-        classpath = files(variant.javaCompile.classpath.files, project.android.getBootClasspath())
-        options {
-            links "http://docs.oracle.com/javase/7/docs/api/"
-            linksOffline "https://developer.android.com/reference","${android.sdkDirectory}/docs/reference"
-        }
-        exclude '**/BuildConfig.java'
-        exclude '**/R.java'
-    }
-}
-
 publish {
     repoName = 'exoplayer'
     userOrg = 'google'
     groupId = 'com.google.android.exoplayer'
     artifactId = 'exoplayer'
-    version = 'r1.4.2'
+    version = 'r1.2.4'
     description = 'The ExoPlayer library.'
     website = 'https://github.com/google/ExoPlayer'
 }
