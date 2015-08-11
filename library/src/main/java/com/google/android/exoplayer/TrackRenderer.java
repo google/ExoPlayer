@@ -110,11 +110,11 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @throws ExoPlaybackException If an error occurs.
    */
   /* package */ final int prepare(long positionUs) throws ExoPlaybackException {
-    Assertions.checkState(state == TrackRenderer.STATE_UNPREPARED);
+    Assertions.checkState(state == STATE_UNPREPARED);
     state = doPrepare(positionUs);
-    Assertions.checkState(state == TrackRenderer.STATE_UNPREPARED ||
-        state == TrackRenderer.STATE_PREPARED ||
-        state == TrackRenderer.STATE_IGNORE);
+    Assertions.checkState(state == STATE_UNPREPARED ||
+        state == STATE_PREPARED ||
+        state == STATE_IGNORE);
     return state;
   }
 
@@ -143,8 +143,8 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @throws ExoPlaybackException If an error occurs.
    */
   /* package */ final void enable(long positionUs, boolean joining) throws ExoPlaybackException {
-    Assertions.checkState(state == TrackRenderer.STATE_PREPARED);
-    state = TrackRenderer.STATE_ENABLED;
+    Assertions.checkState(state == STATE_PREPARED);
+    state = STATE_ENABLED;
     onEnabled(positionUs, joining);
   }
 
@@ -170,8 +170,8 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @throws ExoPlaybackException If an error occurs.
    */
   /* package */ final void start() throws ExoPlaybackException {
-    Assertions.checkState(state == TrackRenderer.STATE_ENABLED);
-    state = TrackRenderer.STATE_STARTED;
+    Assertions.checkState(state == STATE_ENABLED);
+    state = STATE_STARTED;
     onStarted();
   }
 
@@ -192,8 +192,8 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @throws ExoPlaybackException If an error occurs.
    */
   /* package */ final void stop() throws ExoPlaybackException {
-    Assertions.checkState(state == TrackRenderer.STATE_STARTED);
-    state = TrackRenderer.STATE_ENABLED;
+    Assertions.checkState(state == STATE_STARTED);
+    state = STATE_ENABLED;
     onStopped();
   }
 
@@ -214,8 +214,8 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @throws ExoPlaybackException If an error occurs.
    */
   /* package */ final void disable() throws ExoPlaybackException {
-    Assertions.checkState(state == TrackRenderer.STATE_ENABLED);
-    state = TrackRenderer.STATE_PREPARED;
+    Assertions.checkState(state == STATE_ENABLED);
+    state = STATE_PREPARED;
     onDisabled();
   }
 
@@ -236,10 +236,10 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @throws ExoPlaybackException If an error occurs.
    */
   /* package */ final void release() throws ExoPlaybackException {
-    Assertions.checkState(state != TrackRenderer.STATE_ENABLED
-        && state != TrackRenderer.STATE_STARTED
-        && state != TrackRenderer.STATE_RELEASED);
-    state = TrackRenderer.STATE_RELEASED;
+    Assertions.checkState(state != STATE_ENABLED
+        && state != STATE_STARTED
+        && state != STATE_RELEASED);
+    state = STATE_RELEASED;
     onReleased();
   }
 

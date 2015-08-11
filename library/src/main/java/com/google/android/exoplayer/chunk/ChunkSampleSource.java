@@ -58,7 +58,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   private static final int STATE_PREPARED = 2;
   private static final int STATE_ENABLED = 3;
 
-  private static final int NO_RESET_PENDING = -1;
+  private static final long NO_RESET_PENDING = Long.MIN_VALUE;
 
   private final int eventSourceId;
   private final LoadControl loadControl;

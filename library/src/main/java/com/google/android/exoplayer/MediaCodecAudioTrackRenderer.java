@@ -157,12 +157,12 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected boolean handlesMimeType(String mimeType) {
-    return MimeTypes.isAudio(mimeType) && super.handlesMimeType(mimeType);
+  protected boolean handlesTrack(TrackInfo trackInfo) {
+    return MimeTypes.isAudio(trackInfo.mimeType);
   }
 
   @Override
-  protected void onEnabled(long positionUs, boolean joining) {
+  protected void onEnabled(long positionUs, boolean joining) throws ExoPlaybackException {
     super.onEnabled(positionUs, joining);
     seekToInternal(positionUs);
   }
@@ -231,7 +231,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected void onDisabled() {
+  protected void onDisabled() throws ExoPlaybackException {
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     try {
       audioTrack.release();
