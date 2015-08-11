@@ -22,6 +22,7 @@ import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
+import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
@@ -370,6 +371,7 @@ import java.util.List;
     parent.skipBytes(24);
     int width = parent.readUnsignedShort();
     int height = parent.readUnsignedShort();
+    boolean pixelWidthHeightRatioFromPasp = false;
     float pixelWidthHeightRatio = 1;
     parent.skipBytes(50);
 
@@ -389,9 +391,12 @@ import java.util.List;
       if (childAtomType == Atom.TYPE_avcC) {
         Assertions.checkState(mimeType == null);
         mimeType = MimeTypes.VIDEO_H264;
-        Pair<List<byte[]>, Integer> avcCData = parseAvcCFromParent(parent, childStartPosition);
-        initializationData = avcCData.first;
-        out.nalUnitLengthFieldLength = avcCData.second;
+        AvcCData avcCData = parseAvcCFromParent(parent, childStartPosition);
+        initializationData = avcCData.initializationData;
+        out.nalUnitLengthFieldLength = avcCData.nalUnitLengthFieldLength;
+        if (!pixelWidthHeightRatioFromPasp) {
+          pixelWidthHeightRatio = avcCData.pixelWidthAspectRatio;
+        }
       } else if (childAtomType == Atom.TYPE_hvcC) {
         Assertions.checkState(mimeType == null);
         mimeType = MimeTypes.VIDEO_H265;
@@ -412,6 +417,7 @@ import java.util.List;
             parseSinfFromParent(parent, childStartPosition, childAtomSize);
       } else if (childAtomType == Atom.TYPE_pasp) {
         pixelWidthHeightRatio = parsePaspFromParent(parent, childStartPosition);
+        pixelWidthHeightRatioFromPasp = true;
       }
       childPosition += childAtomSize;
     }
@@ -425,8 +431,7 @@ import java.util.List;
         width, height, pixelWidthHeightRatio, initializationData);
   }
 
-  private static Pair<List<byte[]>, Integer> parseAvcCFromParent(ParsableByteArray parent,
-      int position) {
+  private static AvcCData parseAvcCFromParent(ParsableByteArray parent, int position) {
     parent.setPosition(position + Atom.HEADER_SIZE + 4);
     // Start of the AVCDecoderConfigurationRecord (defined in 14496-15)
     int nalUnitLengthFieldLength = (parent.readUnsignedByte() & 0x3) + 1;
@@ -434,8 +439,7 @@ import java.util.List;
       throw new IllegalStateException();
     }
     List<byte[]> initializationData = new ArrayList<>();
-    // TODO: We should try and parse these using CodecSpecificDataUtil.parseSpsNalUnit, and
-    // expose the AVC profile and level somewhere useful; Most likely in MediaFormat.
+    float pixelWidthAspectRatio = 1;
     int numSequenceParameterSets = parent.readUnsignedByte() & 0x1F;
     for (int j = 0; j < numSequenceParameterSets; j++) {
       initializationData.add(NalUnitUtil.parseChildNalUnit(parent));
@@ -444,7 +448,17 @@ import java.util.List;
     for (int j = 0; j < numPictureParameterSets; j++) {
       initializationData.add(NalUnitUtil.parseChildNalUnit(parent));
     }
-    return Pair.create(initializationData, nalUnitLengthFieldLength);
+
+    if (numSequenceParameterSets > 0) {
+      // Parse the first sequence parameter set to obtain pixelWidthAspectRatio.
+      ParsableBitArray spsDataBitArray = new ParsableBitArray(initializationData.get(0));
+      // Skip the NAL header consisting of the nalUnitLengthField and the type (1 byte).
+      spsDataBitArray.setPosition(8 * (nalUnitLengthFieldLength + 1));
+      pixelWidthAspectRatio = CodecSpecificDataUtil.parseSpsNalUnit(spsDataBitArray)
+          .pixelWidthAspectRatio;
+    }
+
+    return new AvcCData(initializationData, nalUnitLengthFieldLength, pixelWidthAspectRatio);
   }
 
   private static Pair<List<byte[]>, Integer> parseHvcCFromParent(ParsableByteArray parent,
@@ -701,6 +715,21 @@ import java.util.List;
     public StsdDataHolder(int numberOfEntries) {
       trackEncryptionBoxes = new TrackEncryptionBox[numberOfEntries];
       nalUnitLengthFieldLength = -1;
+    }
+
+  }
+
+  private static final class AvcCData {
+
+    public final List<byte[]> initializationData;
+    public final int nalUnitLengthFieldLength;
+    public final float pixelWidthAspectRatio;
+
+    public AvcCData(List<byte[]> initializationData, int nalUnitLengthFieldLength,
+        float pixelWidthAspectRatio) {
+      this.initializationData = initializationData;
+      this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
+      this.pixelWidthAspectRatio = pixelWidthAspectRatio;
     }
 
   }
