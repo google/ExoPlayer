@@ -16,7 +16,6 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.Assertions;
@@ -31,7 +30,6 @@ import android.media.MediaCrypto;
 import android.os.Handler;
 import android.os.SystemClock;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +38,7 @@ import java.util.List;
  * An abstract {@link TrackRenderer} that uses {@link MediaCodec} to decode samples for rendering.
  */
 @TargetApi(16)
-public abstract class MediaCodecTrackRenderer extends TrackRenderer {
+public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer {
 
   /**
    * Interface definition for a callback to be notified of {@link MediaCodecTrackRenderer} events.
@@ -183,7 +181,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
   private final DrmSessionManager drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
-  private final SampleSourceReader source;
   private final SampleHolder sampleHolder;
   private final MediaFormatHolder formatHolder;
   private final List<Long> decodeOnlyPresentationTimestamps;
@@ -207,7 +204,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   private int codecReinitializationState;
   private boolean codecHasQueuedBuffers;
 
-  private int trackIndex;
   private int sourceState;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
@@ -229,8 +225,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    */
   public MediaCodecTrackRenderer(SampleSource source, DrmSessionManager drmSessionManager,
       boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener) {
+    super(source);
     Assertions.checkState(Util.SDK_INT >= 16);
-    this.source = source.register();
     this.drmSessionManager = drmSessionManager;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
     this.eventHandler = eventHandler;
@@ -245,39 +241,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected int doPrepare(long positionUs) {
-    boolean sourcePrepared = source.prepare(positionUs);
-    if (!sourcePrepared) {
-      return TrackRenderer.STATE_UNPREPARED;
-    }
-    int trackCount = source.getTrackCount();
-    for (int i = 0; i < trackCount; i++) {
-      // TODO: Right now this is getting the mime types of the container format
-      // (e.g. audio/mp4 and video/mp4 for fragmented mp4). It needs to be getting the mime types
-      // of the actual samples (e.g. audio/mp4a-latm and video/avc).
-      if (handlesMimeType(source.getTrackInfo(i).mimeType)) {
-        trackIndex = i;
-        return TrackRenderer.STATE_PREPARED;
-      }
-    }
-    return TrackRenderer.STATE_IGNORE;
-  }
-
-  /**
-   * Determines whether a mime type is handled by the renderer.
-   *
-   * @param mimeType The mime type to test.
-   * @return True if the renderer can handle the mime type. False otherwise.
-   */
-  protected boolean handlesMimeType(String mimeType) {
-    return true;
-    // TODO: Uncomment once the TODO above is fixed.
-    // DecoderInfoUtil.getDecoder(mimeType) != null;
-  }
-
-  @Override
-  protected void onEnabled(long positionUs, boolean joining) {
-    source.enable(trackIndex, positionUs);
+  protected void onEnabled(long positionUs, boolean joining) throws ExoPlaybackException {
+    super.onEnabled(positionUs, joining);
     seekToInternal();
   }
 
@@ -400,7 +365,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected void onDisabled() {
+  protected void onDisabled() throws ExoPlaybackException {
     format = null;
     drmInitData = null;
     try {
@@ -412,7 +377,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
           openedDrmSession = false;
         }
       } finally {
-        source.disable(trackIndex);
+        super.onDisabled();
       }
     }
   }
@@ -446,23 +411,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected void onReleased() {
-    source.release();
-  }
-
-  @Override
-  protected long getDurationUs() {
-    return source.getTrackInfo(trackIndex).durationUs;
-  }
-
-  @Override
-  protected long getBufferedPositionUs() {
-    return source.getBufferedPositionUs();
-  }
-
-  @Override
   protected void seekTo(long positionUs) throws ExoPlaybackException {
-    source.seekToUs(positionUs);
+    super.seekTo(positionUs);
     seekToInternal();
   }
 
@@ -484,7 +434,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
 
   @Override
   protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
-    sourceState = source.continueBuffering(trackIndex, positionUs)
+    sourceState = continueBufferingSource(positionUs)
         ? (sourceState == SOURCE_STATE_NOT_READY ? SOURCE_STATE_READY : sourceState)
         : SOURCE_STATE_NOT_READY;
     checkForDiscontinuity(positionUs);
@@ -506,7 +456,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   private void readFormat(long positionUs) throws ExoPlaybackException {
-    int result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
+    int result = readSource(positionUs, formatHolder, sampleHolder, false);
     if (result == SampleSource.FORMAT_READ) {
       onInputFormatChanged(formatHolder);
     }
@@ -516,7 +466,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
     if (codec == null) {
       return;
     }
-    int result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, true);
+    int result = readSource(positionUs, formatHolder, sampleHolder, true);
     if (result == SampleSource.DISCONTINUITY_READ) {
       flushCodec();
     }
@@ -597,7 +547,7 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
         }
         codecReconfigurationState = RECONFIGURATION_STATE_QUEUE_PENDING;
       }
-      result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
+      result = readSource(positionUs, formatHolder, sampleHolder, false);
       if (firstFeed && sourceState == SOURCE_STATE_READY && result == SampleSource.NOTHING_READ) {
         sourceState = SOURCE_STATE_READY_READ_MAY_FAIL;
       }
@@ -775,15 +725,6 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected void maybeThrowError() throws ExoPlaybackException {
-    try {
-      source.maybeThrowError();
-    } catch (IOException e) {
-      throw new ExoPlaybackException(e);
-    }
-  }
-
-  @Override
   protected boolean isEnded() {
     return outputStreamEnded;
   }
@@ -950,11 +891,8 @@ public abstract class MediaCodecTrackRenderer extends TrackRenderer {
    *     incorrectly on the host device. False otherwise.
    */
   private static boolean codecNeedsEndOfStreamWorkaround(String name) {
-    return Util.SDK_INT <= 17
-        && "OMX.rk.video_decoder.avc".equals(name)
-        && ("ht7s3".equals(Util.DEVICE) // Tesco HUDL
-            || "rk30sdk".equals(Util.DEVICE) // Rockchip rk30
-            || "rk31sdk".equals(Util.DEVICE)); // Rockchip rk31
+    return Util.SDK_INT <= 17 && "ht7s3".equals(Util.DEVICE) // Tesco HUDL
+        && "OMX.rk.video_decoder.avc".equals(name);
   }
 
 }

@@ -52,7 +52,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
-  private static final int NO_RESET_PENDING = -1;
+  private static final long NO_RESET_PENDING = Long.MIN_VALUE;
 
   private final HlsChunkSource chunkSource;
   private final LinkedList<HlsExtractorWrapper> extractors;
@@ -182,15 +182,17 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     enabledTrackCount++;
     trackEnabledStates[track] = true;
     downstreamMediaFormats[track] = null;
+    pendingDiscontinuities[track] = false;
     downstreamFormat = null;
     if (!loadControlRegistered) {
       loadControl.register(this, bufferSizeContribution);
       loadControlRegistered = true;
     }
     if (enabledTrackCount == 1) {
-      seekToUs(positionUs);
+      downstreamPositionUs = positionUs;
+      lastSeekPositionUs = positionUs;
+      restartFrom(positionUs);
     }
-    pendingDiscontinuities[track] = false;
   }
 
   @Override

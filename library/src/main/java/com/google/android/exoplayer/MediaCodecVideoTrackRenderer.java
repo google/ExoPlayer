@@ -256,12 +256,12 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected boolean handlesMimeType(String mimeType) {
-    return MimeTypes.isVideo(mimeType) && super.handlesMimeType(mimeType);
+  protected boolean handlesTrack(TrackInfo trackInfo) {
+    return MimeTypes.isVideo(trackInfo.mimeType);
   }
 
   @Override
-  protected void onEnabled(long positionUs, boolean joining) {
+  protected void onEnabled(long positionUs, boolean joining) throws ExoPlaybackException {
     super.onEnabled(positionUs, joining);
     renderedFirstFrame = false;
     if (joining && allowedJoiningTimeUs > 0) {
@@ -314,7 +314,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  public void onDisabled() {
+  protected void onDisabled() throws ExoPlaybackException {
     currentWidth = -1;
     currentHeight = -1;
     currentPixelWidthHeightRatio = -1;

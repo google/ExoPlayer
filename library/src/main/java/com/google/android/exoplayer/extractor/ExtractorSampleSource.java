@@ -93,7 +93,7 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE = 6;
 
   private static final int MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA = -1;
-  private static final int NO_RESET_PENDING = -1;
+  private static final long NO_RESET_PENDING = Long.MIN_VALUE;
 
   /**
    * Default extractor classes in priority order. They are referred to indirectly so that it is
@@ -326,10 +326,14 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
     enabledTrackCount++;
     trackEnabledStates[track] = true;
     pendingMediaFormat[track] = true;
-    if (enabledTrackCount == 1) {
-      seekToUs(positionUs);
-    }
     pendingDiscontinuities[track] = false;
+    if (enabledTrackCount == 1) {
+      // Treat all enables in non-seekable media as being from t=0.
+      positionUs = !seekMap.isSeekable() ? 0 : positionUs;
+      downstreamPositionUs = positionUs;
+      lastSeekPositionUs = positionUs;
+      restartFrom(positionUs);
+    }
   }
 
   @Override
@@ -431,10 +435,8 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
   public void seekToUs(long positionUs) {
     Assertions.checkState(prepared);
     Assertions.checkState(enabledTrackCount > 0);
-    if (!seekMap.isSeekable()) {
-      // Treat all seeks into non-seekable media as seeks to the start.
-      positionUs = 0;
-    }
+    // Treat all seeks into non-seekable media as being to t=0.
+    positionUs = !seekMap.isSeekable() ? 0 : positionUs;
 
     long currentPositionUs = isPendingReset() ? pendingResetPositionUs : downstreamPositionUs;
     downstreamPositionUs = positionUs;
