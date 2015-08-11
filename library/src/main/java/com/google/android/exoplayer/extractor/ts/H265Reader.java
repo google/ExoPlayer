@@ -319,7 +319,7 @@ import java.util.Collections;
           // scaling_list_pred_matrix_id_delta[sizeId][matrixId]
           bitArray.readUnsignedExpGolombCodedInt();
         } else {
-          int coefNum = Math.min(64, 1 << (4 + sizeId << 1));
+          int coefNum = Math.min(64, 1 << (4 + (sizeId << 1)));
           if (sizeId > 1) {
             // scaling_list_dc_coef_minus8[sizeId - 2][matrixId]
             bitArray.readSignedExpGolombCodedInt();
