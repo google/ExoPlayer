@@ -656,7 +656,8 @@ public class DashChunkSource implements ChunkSource {
       }
       return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_INITIAL,
           representation.format, startTimeUs, endTimeUs, absoluteSegmentNum, isLastSegment,
-          MediaFormat.createTextFormat(MimeTypes.TEXT_VTT), null, representationHolder.vttHeader);
+          MediaFormat.createTextFormat(MimeTypes.TEXT_VTT, representation.format.language), null,
+          representationHolder.vttHeader);
     } else {
       return new ContainerMediaChunk(dataSource, dataSpec, trigger, representation.format,
           startTimeUs, endTimeUs, absoluteSegmentNum, isLastSegment, sampleOffsetUs,

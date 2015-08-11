@@ -21,7 +21,6 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -30,9 +29,6 @@ import java.util.List;
  * Defines the format of an elementary media stream.
  */
 public final class MediaFormat {
-
-  private static final String KEY_PIXEL_WIDTH_HEIGHT_RATIO =
-      "com.google.android.videos.pixelWidthHeightRatio";
 
   public static final int NO_VALUE = -1;
 
@@ -48,6 +44,8 @@ public final class MediaFormat {
   public final int channelCount;
   public final int sampleRate;
 
+  public final String language;
+
   public final List<byte[]> initializationData;
 
   private int maxWidth;
@@ -57,11 +55,6 @@ public final class MediaFormat {
   private int hashCode;
   // Possibly-lazy-initialized framework media format.
   private android.media.MediaFormat frameworkMediaFormat;
-
-  @TargetApi(16)
-  public static MediaFormat createFromFrameworkMediaFormatV16(android.media.MediaFormat format) {
-    return new MediaFormat(format);
-  }
 
   public static MediaFormat createVideoFormat(String mimeType, int maxInputSize, int width,
       int height, List<byte[]> initializationData) {
@@ -78,7 +71,7 @@ public final class MediaFormat {
   public static MediaFormat createVideoFormat(String mimeType, int maxInputSize, long durationUs,
       int width, int height, float pixelWidthHeightRatio, List<byte[]> initializationData) {
     return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, pixelWidthHeightRatio,
-        NO_VALUE, NO_VALUE, initializationData);
+        NO_VALUE, NO_VALUE, null, initializationData);
   }
 
   public static MediaFormat createAudioFormat(String mimeType, int maxInputSize, int channelCount,
@@ -90,15 +83,16 @@ public final class MediaFormat {
   public static MediaFormat createAudioFormat(String mimeType, int maxInputSize, long durationUs,
       int channelCount, int sampleRate, List<byte[]> initializationData) {
     return new MediaFormat(mimeType, maxInputSize, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
-        channelCount, sampleRate, initializationData);
+        channelCount, sampleRate, null, initializationData);
   }
 
-  public static MediaFormat createTextFormat(String mimeType) {
-    return createTextFormat(mimeType, C.UNKNOWN_TIME_US);
+  public static MediaFormat createTextFormat(String mimeType, String language) {
+    return createTextFormat(mimeType, language, C.UNKNOWN_TIME_US);
   }
 
-  public static MediaFormat createTextFormat(String mimeType, long durationUs) {
-    return createFormatForMimeType(mimeType, durationUs);
+  public static MediaFormat createTextFormat(String mimeType, String language, long durationUs) {
+    return new MediaFormat(mimeType, NO_VALUE, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
+        NO_VALUE, NO_VALUE, language, null);
   }
 
   public static MediaFormat createFormatForMimeType(String mimeType) {
@@ -107,35 +101,11 @@ public final class MediaFormat {
 
   public static MediaFormat createFormatForMimeType(String mimeType, long durationUs) {
     return new MediaFormat(mimeType, NO_VALUE, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, null);
+        NO_VALUE, NO_VALUE, null, null);
   }
 
-  @TargetApi(16)
-  private MediaFormat(android.media.MediaFormat format) {
-    this.frameworkMediaFormat = format;
-    mimeType = format.getString(android.media.MediaFormat.KEY_MIME);
-    maxInputSize = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_MAX_INPUT_SIZE);
-    width = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_WIDTH);
-    height = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_HEIGHT);
-    channelCount = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_CHANNEL_COUNT);
-    sampleRate = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_SAMPLE_RATE);
-    pixelWidthHeightRatio = getOptionalFloatV16(format, KEY_PIXEL_WIDTH_HEIGHT_RATIO);
-    initializationData = new ArrayList<>();
-    for (int i = 0; format.containsKey("csd-" + i); i++) {
-      ByteBuffer buffer = format.getByteBuffer("csd-" + i);
-      byte[] data = new byte[buffer.limit()];
-      buffer.get(data);
-      initializationData.add(data);
-      buffer.flip();
-    }
-    durationUs = format.containsKey(android.media.MediaFormat.KEY_DURATION)
-        ? format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
-    maxWidth = NO_VALUE;
-    maxHeight = NO_VALUE;
-  }
-
-  private MediaFormat(String mimeType, int maxInputSize, long durationUs, int width, int height,
-      float pixelWidthHeightRatio, int channelCount, int sampleRate,
+  /* package */ MediaFormat(String mimeType, int maxInputSize, long durationUs, int width,
+      int height, float pixelWidthHeightRatio, int channelCount, int sampleRate, String language,
       List<byte[]> initializationData) {
     this.mimeType = mimeType;
     this.maxInputSize = maxInputSize;
@@ -145,17 +115,20 @@ public final class MediaFormat {
     this.pixelWidthHeightRatio = pixelWidthHeightRatio;
     this.channelCount = channelCount;
     this.sampleRate = sampleRate;
+    this.language = language;
     this.initializationData = initializationData == null ? Collections.<byte[]>emptyList()
         : initializationData;
     maxWidth = NO_VALUE;
     maxHeight = NO_VALUE;
   }
 
+  @SuppressLint("InlinedApi")
   public void setMaxVideoDimensions(int maxWidth, int maxHeight) {
     this.maxWidth = maxWidth;
     this.maxHeight = maxHeight;
     if (frameworkMediaFormat != null) {
-      maybeSetMaxDimensionsV16(frameworkMediaFormat);
+      maybeSetIntegerV16(frameworkMediaFormat, android.media.MediaFormat.KEY_MAX_WIDTH, maxWidth);
+      maybeSetIntegerV16(frameworkMediaFormat, android.media.MediaFormat.KEY_MAX_HEIGHT, maxHeight);
     }
   }
 
@@ -165,6 +138,41 @@ public final class MediaFormat {
 
   public int getMaxVideoHeight() {
     return maxHeight;
+  }
+
+  /**
+   * @return A {@link MediaFormat} representation of this format.
+   */
+  @SuppressLint("InlinedApi")
+  @TargetApi(16)
+  public final android.media.MediaFormat getFrameworkMediaFormatV16() {
+    if (frameworkMediaFormat == null) {
+      android.media.MediaFormat format = new android.media.MediaFormat();
+      format.setString(android.media.MediaFormat.KEY_MIME, mimeType);
+      maybeSetStringV16(format, android.media.MediaFormat.KEY_LANGUAGE, language);
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_WIDTH, width);
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_HEIGHT, height);
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_WIDTH, maxWidth);
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_HEIGHT, maxHeight);
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_CHANNEL_COUNT, channelCount);
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_SAMPLE_RATE, sampleRate);
+      for (int i = 0; i < initializationData.size(); i++) {
+        format.setByteBuffer("csd-" + i, ByteBuffer.wrap(initializationData.get(i)));
+      }
+      if (durationUs != C.UNKNOWN_TIME_US) {
+        format.setLong(android.media.MediaFormat.KEY_DURATION, durationUs);
+      }
+      frameworkMediaFormat = format;
+    }
+    return frameworkMediaFormat;
+  }
+
+  @Override
+  public String toString() {
+    return "MediaFormat(" + mimeType + ", " + maxInputSize + ", " + width + ", " + height + ", "
+        + pixelWidthHeightRatio + ", " + channelCount + ", " + sampleRate + ", " + durationUs + ", "
+        + maxWidth + ", " + maxHeight + ")";
   }
 
   @Override
@@ -227,44 +235,12 @@ public final class MediaFormat {
     return true;
   }
 
-  @Override
-  public String toString() {
-    return "MediaFormat(" + mimeType + ", " + maxInputSize + ", " + width + ", " + height + ", "
-        + pixelWidthHeightRatio + ", " + channelCount + ", " + sampleRate + ", " + durationUs + ", "
-        + maxWidth + ", " + maxHeight + ")";
-  }
-
-  /**
-   * @return A {@link MediaFormat} representation of this format.
-   */
   @TargetApi(16)
-  public final android.media.MediaFormat getFrameworkMediaFormatV16() {
-    if (frameworkMediaFormat == null) {
-      android.media.MediaFormat format = new android.media.MediaFormat();
-      format.setString(android.media.MediaFormat.KEY_MIME, mimeType);
-      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
-      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_WIDTH, width);
-      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_HEIGHT, height);
-      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_CHANNEL_COUNT, channelCount);
-      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_SAMPLE_RATE, sampleRate);
-      maybeSetFloatV16(format, KEY_PIXEL_WIDTH_HEIGHT_RATIO, pixelWidthHeightRatio);
-      for (int i = 0; i < initializationData.size(); i++) {
-        format.setByteBuffer("csd-" + i, ByteBuffer.wrap(initializationData.get(i)));
-      }
-      if (durationUs != C.UNKNOWN_TIME_US) {
-        format.setLong(android.media.MediaFormat.KEY_DURATION, durationUs);
-      }
-      maybeSetMaxDimensionsV16(format);
-      frameworkMediaFormat = format;
+  private static final void maybeSetStringV16(android.media.MediaFormat format, String key,
+      String value) {
+    if (value != null) {
+      format.setString(key, value);
     }
-    return frameworkMediaFormat;
-  }
-
-  @SuppressLint("InlinedApi")
-  @TargetApi(16)
-  private final void maybeSetMaxDimensionsV16(android.media.MediaFormat format) {
-    maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_WIDTH, maxWidth);
-    maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_HEIGHT, maxHeight);
   }
 
   @TargetApi(16)
@@ -273,24 +249,6 @@ public final class MediaFormat {
     if (value != NO_VALUE) {
       format.setInteger(key, value);
     }
-  }
-
-  @TargetApi(16)
-  private static final void maybeSetFloatV16(android.media.MediaFormat format, String key,
-      float value) {
-    if (value != NO_VALUE) {
-      format.setFloat(key, value);
-    }
-  }
-
-  @TargetApi(16)
-  private static final int getOptionalIntegerV16(android.media.MediaFormat format, String key) {
-    return format.containsKey(key) ? format.getInteger(key) : NO_VALUE;
-  }
-
-  @TargetApi(16)
-  private static final float getOptionalFloatV16(android.media.MediaFormat format, String key) {
-    return format.containsKey(key) ? format.getFloat(key) : NO_VALUE;
   }
 
 }

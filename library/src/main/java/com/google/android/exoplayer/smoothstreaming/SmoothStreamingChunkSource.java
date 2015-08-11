@@ -398,7 +398,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
           trackFormat.numChannels, trackFormat.audioSamplingRate, csd);
       return format;
     } else if (streamElement.type == StreamElement.TYPE_TEXT) {
-      return MediaFormat.createTextFormat(trackFormat.mimeType);
+      return MediaFormat.createTextFormat(trackFormat.mimeType, trackFormat.language);
     }
     return null;
   }

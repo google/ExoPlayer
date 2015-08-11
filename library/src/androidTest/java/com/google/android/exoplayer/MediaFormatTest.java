@@ -17,17 +17,20 @@ package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.util.Util;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 
 import junit.framework.TestCase;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Unit test for {@link MediaFormat}.
  */
-public class MediaFormatTest extends TestCase {
+public final class MediaFormatTest extends TestCase {
 
   public void testConversionToFrameworkFormat() {
     if (Util.SDK_INT < 16) {
@@ -41,20 +44,64 @@ public class MediaFormatTest extends TestCase {
     initData.add(initData1);
     initData.add(initData2);
 
+    testConversionToFrameworkFormatV16(MediaFormat.createVideoFormat(
+        "video/xyz", 102400, 1000L, 1280, 720, 1, initData));
+    testConversionToFrameworkFormatV16(MediaFormat.createVideoFormat(
+        "video/xyz", MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, 1280, 720, 1, null));
+    testConversionToFrameworkFormatV16(MediaFormat.createAudioFormat(
+        "audio/xyz", 128, 1000L, 5, 44100, initData));
+    testConversionToFrameworkFormatV16(MediaFormat.createAudioFormat(
+        "audio/xyz", MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, 5, 44100, null));
     testConversionToFrameworkFormatV16(
-        MediaFormat.createVideoFormat("video/xyz", 102400, 1000L, 1280, 720, 1.5f, initData));
+        MediaFormat.createTextFormat("text/xyz", "eng", 1000L));
     testConversionToFrameworkFormatV16(
-        MediaFormat.createAudioFormat("audio/xyz", 102400, 1000L, 5, 44100, initData));
+        MediaFormat.createTextFormat("text/xyz", null, C.UNKNOWN_TIME_US));
+  }
+
+  @SuppressLint("InlinedApi")
+  @TargetApi(16)
+  private static void testConversionToFrameworkFormatV16(MediaFormat in) {
+    android.media.MediaFormat out = in.getFrameworkMediaFormatV16();
+    assertEquals(in.mimeType, out.getString(android.media.MediaFormat.KEY_MIME));
+    assertOptionalV16(out, android.media.MediaFormat.KEY_LANGUAGE, in.language);
+    assertOptionalV16(out, android.media.MediaFormat.KEY_MAX_INPUT_SIZE, in.maxInputSize);
+    assertOptionalV16(out, android.media.MediaFormat.KEY_WIDTH, in.width);
+    assertOptionalV16(out, android.media.MediaFormat.KEY_HEIGHT, in.height);
+    assertOptionalV16(out, android.media.MediaFormat.KEY_CHANNEL_COUNT, in.channelCount);
+    assertOptionalV16(out, android.media.MediaFormat.KEY_SAMPLE_RATE, in.sampleRate);
+    assertOptionalV16(out, android.media.MediaFormat.KEY_MAX_WIDTH, in.getMaxVideoWidth());
+    assertOptionalV16(out, android.media.MediaFormat.KEY_MAX_HEIGHT, in.getMaxVideoHeight());
+    for (int i = 0; i < in.initializationData.size(); i++) {
+      byte[] originalData = in.initializationData.get(i);
+      ByteBuffer frameworkBuffer = out.getByteBuffer("csd-" + i);
+      byte[] frameworkData = Arrays.copyOf(frameworkBuffer.array(), frameworkBuffer.limit());
+      assertTrue(Arrays.equals(originalData, frameworkData));
+    }
+    if (in.durationUs == C.UNKNOWN_TIME_US) {
+      assertFalse(out.containsKey(android.media.MediaFormat.KEY_DURATION));
+    } else {
+      assertEquals(in.durationUs, out.getLong(android.media.MediaFormat.KEY_DURATION));
+    }
   }
 
   @TargetApi(16)
-  private void testConversionToFrameworkFormatV16(MediaFormat format) {
-    // Convert to a framework MediaFormat and back again.
-    MediaFormat convertedFormat = MediaFormat.createFromFrameworkMediaFormatV16(
-        format.getFrameworkMediaFormatV16());
-    // Assert that we end up with an equivalent object to the one we started with.
-    assertEquals(format.hashCode(), convertedFormat.hashCode());
-    assertEquals(format, convertedFormat);
+  private static void assertOptionalV16(android.media.MediaFormat format, String key,
+      String value) {
+    if (value == null) {
+      assertFalse(format.containsKey(key));
+    } else {
+      assertEquals(value, format.getString(key));
+    }
+  }
+
+  @TargetApi(16)
+  private static void assertOptionalV16(android.media.MediaFormat format, String key,
+      int value) {
+    if (value == MediaFormat.NO_VALUE) {
+      assertFalse(format.containsKey(key));
+    } else {
+      assertEquals(value, format.getInteger(key));
+    }
   }
 
 }

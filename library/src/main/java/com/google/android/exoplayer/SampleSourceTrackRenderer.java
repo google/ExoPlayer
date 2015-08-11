@@ -70,15 +70,6 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
    */
   protected abstract boolean handlesTrack(TrackInfo trackInfo);
 
-  /**
-   * Invoked when a track is selected.
-   *
-   * @param trackInfo The selected track.
-   */
-  protected void onTrackSelected(TrackInfo trackInfo) {
-    // Do nothing.
-  }
-
   @Override
   protected void onEnabled(int track, long positionUs, boolean joining)
       throws ExoPlaybackException {

@@ -35,7 +35,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
   public Id3Reader(TrackOutput output) {
     super(output);
-    output.format(MediaFormat.createTextFormat(MimeTypes.APPLICATION_ID3));
+    output.format(MediaFormat.createFormatForMimeType(MimeTypes.APPLICATION_ID3));
   }
 
   @Override
