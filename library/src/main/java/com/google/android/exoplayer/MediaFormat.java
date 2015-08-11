@@ -171,8 +171,8 @@ public final class MediaFormat {
   @Override
   public String toString() {
     return "MediaFormat(" + mimeType + ", " + maxInputSize + ", " + width + ", " + height + ", "
-        + pixelWidthHeightRatio + ", " + channelCount + ", " + sampleRate + ", " + durationUs + ", "
-        + maxWidth + ", " + maxHeight + ")";
+        + pixelWidthHeightRatio + ", " + channelCount + ", " + sampleRate + ", " + language + ", "
+        + durationUs + ", " + maxWidth + ", " + maxHeight + ")";
   }
 
   @Override
@@ -189,6 +189,7 @@ public final class MediaFormat {
       result = 31 * result + maxHeight;
       result = 31 * result + channelCount;
       result = 31 * result + sampleRate;
+      result = 31 * result + (language == null ? 0 : language.hashCode());
       for (int i = 0; i < initializationData.size(); i++) {
         result = 31 * result + Arrays.hashCode(initializationData.get(i));
       }
@@ -223,7 +224,7 @@ public final class MediaFormat {
         || pixelWidthHeightRatio != other.pixelWidthHeightRatio
         || (!ignoreMaxDimensions && (maxWidth != other.maxWidth || maxHeight != other.maxHeight))
         || channelCount != other.channelCount || sampleRate != other.sampleRate
-        || !Util.areEqual(mimeType, other.mimeType)
+        || !Util.areEqual(language, other.language) || !Util.areEqual(mimeType, other.mimeType)
         || initializationData.size() != other.initializationData.size()) {
       return false;
     }
