@@ -274,7 +274,7 @@ public class VideoPlayer extends Activity implements OnClickListener,
   }
 
   private void toggleControlsVisibility()  {
-    if (mediaController != null) {
+    if (mediaController != null && player != null) {
       if (mediaController.isShowing()) {
         mediaController.hide();
       } else {
