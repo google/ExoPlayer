@@ -392,10 +392,10 @@ public class SmoothStreamingChunkSource implements ChunkSource {
         csd = Arrays.asList(trackElement.csd);
       } else {
         csd = Collections.singletonList(CodecSpecificDataUtil.buildAacAudioSpecificConfig(
-            trackFormat.audioSamplingRate, trackFormat.numChannels));
+            trackFormat.audioSamplingRate, trackFormat.audioChannels));
       }
       MediaFormat format = MediaFormat.createAudioFormat(mimeType, MediaFormat.NO_VALUE,
-          trackFormat.numChannels, trackFormat.audioSamplingRate, csd);
+          trackFormat.audioChannels, trackFormat.audioSamplingRate, csd);
       return format;
     } else if (streamElement.type == StreamElement.TYPE_TEXT) {
       return MediaFormat.createTextFormat(trackFormat.mimeType, trackFormat.language);

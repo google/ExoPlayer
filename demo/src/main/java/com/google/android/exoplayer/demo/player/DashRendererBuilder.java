@@ -272,7 +272,7 @@ public class DashRendererBuilder implements RendererBuilder {
         List<String> codecs = new ArrayList<>();
         for (int i = 0; i < audioRepresentations.size(); i++) {
           Format format = audioRepresentations.get(i).format;
-          audioTrackNameList.add(format.id + " (" + format.numChannels + "ch, " +
+          audioTrackNameList.add(format.id + " (" + format.audioChannels + "ch, " +
               format.audioSamplingRate + "Hz)");
           audioChunkSourceList.add(new DashChunkSource(manifestFetcher, audioAdaptationSetIndex,
               new int[] {i}, audioDataSource, audioEvaluator, LIVE_EDGE_LATENCY_MS,
