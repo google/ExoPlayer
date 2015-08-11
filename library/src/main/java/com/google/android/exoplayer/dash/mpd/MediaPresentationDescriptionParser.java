@@ -184,14 +184,17 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
   protected AdaptationSet parseAdaptationSet(XmlPullParser xpp, String baseUrl, long periodStartMs,
       long periodDurationMs, SegmentBase segmentBase) throws XmlPullParserException, IOException {
-
     int id = parseInt(xpp, "id", -1);
+    int contentType = parseContentType(xpp);
+
     String mimeType = xpp.getAttributeValue(null, "mimeType");
+    String codecs = xpp.getAttributeValue(null, "codecs");
+    int width = parseInt(xpp, "width", -1);
+    int height = parseInt(xpp, "height", -1);
+    float frameRate = parseFrameRate(xpp, -1);
+    int audioChannels = -1;
+    int audioSamplingRate = parseInt(xpp, "audioSamplingRate", -1);
     String language = xpp.getAttributeValue(null, "lang");
-    int contentType = parseAdaptationSetType(xpp.getAttributeValue(null, "contentType"));
-    if (contentType == AdaptationSet.TYPE_UNKNOWN) {
-      contentType = parseAdaptationSetTypeFromMimeType(xpp.getAttributeValue(null, "mimeType"));
-    }
 
     ContentProtectionsBuilder contentProtectionsBuilder = new ContentProtectionsBuilder();
     List<Representation> representations = new ArrayList<>();
@@ -203,15 +206,16 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         contentProtectionsBuilder.addAdaptationSetProtection(parseContentProtection(xpp));
       } else if (isStartTag(xpp, "ContentComponent")) {
         language = checkLanguageConsistency(language, xpp.getAttributeValue(null, "lang"));
-        contentType = checkAdaptationSetTypeConsistency(contentType,
-            parseAdaptationSetType(xpp.getAttributeValue(null, "contentType")));
+        contentType = checkContentTypeConsistency(contentType, parseContentType(xpp));
       } else if (isStartTag(xpp, "Representation")) {
         Representation representation = parseRepresentation(xpp, baseUrl, periodStartMs,
-            periodDurationMs, mimeType, language, segmentBase, contentProtectionsBuilder);
+            periodDurationMs, mimeType, codecs, width, height, frameRate, audioChannels,
+            audioSamplingRate, language, segmentBase, contentProtectionsBuilder);
         contentProtectionsBuilder.endRepresentation();
-        contentType = checkAdaptationSetTypeConsistency(contentType,
-            parseAdaptationSetTypeFromMimeType(representation.format.mimeType));
+        contentType = checkContentTypeConsistency(contentType, getContentType(representation));
         representations.add(representation);
+      } else if (isStartTag(xpp, "AudioChannelConfiguration")) {
+        audioChannels = parseAudioChannelConfiguration(xpp);
       } else if (isStartTag(xpp, "SegmentBase")) {
         segmentBase = parseSegmentBase(xpp, baseUrl, (SingleSegmentBase) segmentBase);
       } else if (isStartTag(xpp, "SegmentList")) {
@@ -232,7 +236,8 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     return new AdaptationSet(id, contentType, representations, contentProtections);
   }
 
-  protected int parseAdaptationSetType(String contentType) {
+  protected int parseContentType(XmlPullParser xpp) {
+    String contentType = xpp.getAttributeValue(null, "contentType");
     return TextUtils.isEmpty(contentType) ? AdaptationSet.TYPE_UNKNOWN
         : MimeTypes.BASE_TYPE_AUDIO.equals(contentType) ? AdaptationSet.TYPE_AUDIO
         : MimeTypes.BASE_TYPE_VIDEO.equals(contentType) ? AdaptationSet.TYPE_VIDEO
@@ -240,12 +245,25 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         : AdaptationSet.TYPE_UNKNOWN;
   }
 
-  protected int parseAdaptationSetTypeFromMimeType(String mimeType) {
-    return TextUtils.isEmpty(mimeType) ? AdaptationSet.TYPE_UNKNOWN
-        : MimeTypes.isAudio(mimeType) ? AdaptationSet.TYPE_AUDIO
-        : MimeTypes.isVideo(mimeType) ? AdaptationSet.TYPE_VIDEO
-        : MimeTypes.isText(mimeType) || MimeTypes.isTtml(mimeType) ? AdaptationSet.TYPE_TEXT
-        : AdaptationSet.TYPE_UNKNOWN;
+  protected int getContentType(Representation representation) {
+    String mimeType = representation.format.mimeType;
+    if (TextUtils.isEmpty(mimeType)) {
+      return AdaptationSet.TYPE_UNKNOWN;
+    } else if (MimeTypes.isVideo(mimeType)) {
+      return AdaptationSet.TYPE_VIDEO;
+    } else if (MimeTypes.isAudio(mimeType)) {
+      return AdaptationSet.TYPE_AUDIO;
+    } else if (MimeTypes.isText(mimeType) || MimeTypes.APPLICATION_TTML.equals(mimeType)) {
+      return AdaptationSet.TYPE_TEXT;
+    } else if (MimeTypes.APPLICATION_MP4.equals(mimeType)) {
+      // The representation uses mp4 but does not contain video or audio. Use codecs to determine
+      // whether the container holds text.
+      String codecs = representation.format.codecs;
+      if ("stpp".equals(codecs) || "wvtt".equals(codecs)) {
+        return AdaptationSet.TYPE_TEXT;
+      }
+    }
+    return AdaptationSet.TYPE_UNKNOWN;
   }
 
   /**
@@ -293,40 +311,30 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   // Representation parsing.
 
   protected Representation parseRepresentation(XmlPullParser xpp, String baseUrl,
-      long periodStartMs, long periodDurationMs, String mimeType, String language,
-      SegmentBase segmentBase, ContentProtectionsBuilder contentProtectionsBuilder)
+      long periodStartMs, long periodDurationMs, String adaptationSetMimeType,
+      String adaptationSetCodecs, int adaptationSetWidth, int adaptationSetHeight,
+      float adaptationSetFrameRate, int adaptationSetAudioChannels,
+      int adaptationSetAudioSamplingRate, String adaptationSetLanguage, SegmentBase segmentBase,
+      ContentProtectionsBuilder contentProtectionsBuilder)
       throws XmlPullParserException, IOException {
     String id = xpp.getAttributeValue(null, "id");
     int bandwidth = parseInt(xpp, "bandwidth");
-    int audioSamplingRate = parseInt(xpp, "audioSamplingRate");
-    int width = parseInt(xpp, "width");
-    int height = parseInt(xpp, "height");
 
-    float frameRate = -1;
-    String frameRateAttribute = xpp.getAttributeValue(null, "frameRate");
-    if (frameRateAttribute != null) {
-      Matcher frameRateMatcher = FRAME_RATE_PATTERN.matcher(frameRateAttribute);
-      if (frameRateMatcher.matches()) {
-        int numerator = Integer.parseInt(frameRateMatcher.group(1));
-        String denominatorString = frameRateMatcher.group(2);
-        if (!TextUtils.isEmpty(denominatorString)) {
-          frameRate = (float) numerator / Integer.parseInt(denominatorString);
-        } else {
-          frameRate = numerator;
-        }
-      }
-    }
+    String mimeType = parseString(xpp, "mimeType", adaptationSetMimeType);
+    String codecs = parseString(xpp, "codecs", adaptationSetCodecs);
+    int width = parseInt(xpp, "width", adaptationSetWidth);
+    int height = parseInt(xpp, "height", adaptationSetHeight);
+    float frameRate = parseFrameRate(xpp, adaptationSetFrameRate);
+    int audioChannels = adaptationSetAudioChannels;
+    int audioSamplingRate = parseInt(xpp, "audioSamplingRate", adaptationSetAudioSamplingRate);
+    String language = adaptationSetLanguage;
 
-    mimeType = parseString(xpp, "mimeType", mimeType);
-    String codecs = parseString(xpp, "codecs", null);
-
-    int numChannels = -1;
     do {
       xpp.next();
       if (isStartTag(xpp, "BaseURL")) {
         baseUrl = parseBaseUrl(xpp, baseUrl);
       } else if (isStartTag(xpp, "AudioChannelConfiguration")) {
-        numChannels = Integer.parseInt(xpp.getAttributeValue(null, "value"));
+        audioChannels = parseAudioChannelConfiguration(xpp);
       } else if (isStartTag(xpp, "SegmentBase")) {
         segmentBase = parseSegmentBase(xpp, baseUrl, (SingleSegmentBase) segmentBase);
       } else if (isStartTag(xpp, "SegmentList")) {
@@ -339,15 +347,15 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       }
     } while (!isEndTag(xpp, "Representation"));
 
-    Format format = buildFormat(id, mimeType, width, height, frameRate, numChannels,
+    Format format = buildFormat(id, mimeType, width, height, frameRate, audioChannels,
         audioSamplingRate, bandwidth, language, codecs);
     return buildRepresentation(periodStartMs, periodDurationMs, contentId, -1, format,
         segmentBase != null ? segmentBase : new SingleSegmentBase(baseUrl));
   }
 
   protected Format buildFormat(String id, String mimeType, int width, int height, float frameRate,
-      int numChannels, int audioSamplingRate, int bandwidth, String language, String codecs) {
-    return new Format(id, mimeType, width, height, frameRate, numChannels, audioSamplingRate,
+      int audioChannels, int audioSamplingRate, int bandwidth, String language, String codecs) {
+    return new Format(id, mimeType, width, height, frameRate, audioChannels, audioSamplingRate,
         bandwidth, language, codecs);
   }
 
@@ -540,6 +548,17 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     return new RangedUri(baseUrl, urlText, rangeStart, rangeLength);
   }
 
+  // AudioChannelConfiguration parsing.
+
+  protected int parseAudioChannelConfiguration(XmlPullParser xpp)
+      throws XmlPullParserException, IOException {
+    int audioChannels = parseInt(xpp, "value");
+    do {
+      xpp.next();
+    } while (!isEndTag(xpp, "AudioChannelConfiguration"));
+    return audioChannels;
+  }
+
   // Utility methods.
 
   /**
@@ -564,8 +583,8 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   }
 
   /**
-   * Checks two adaptation set types for consistency, returning the consistent type, or throwing an
-   * {@link IllegalStateException} if the types are inconsistent.
+   * Checks two adaptation set content types for consistency, returning the consistent type, or
+   * throwing an {@link IllegalStateException} if the types are inconsistent.
    * <p>
    * Two types are consistent if they are equal, or if one is {@link AdaptationSet#TYPE_UNKNOWN}.
    * Where one of the types is {@link AdaptationSet#TYPE_UNKNOWN}, the other is returned.
@@ -574,7 +593,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
    * @param secondType The second type.
    * @return The consistent type.
    */
-  private static int checkAdaptationSetTypeConsistency(int firstType, int secondType) {
+  private static int checkContentTypeConsistency(int firstType, int secondType) {
     if (firstType == AdaptationSet.TYPE_UNKNOWN) {
       return secondType;
     } else if (secondType == AdaptationSet.TYPE_UNKNOWN) {
@@ -596,6 +615,24 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
   protected static boolean isStartTag(XmlPullParser xpp) throws XmlPullParserException {
     return xpp.getEventType() == XmlPullParser.START_TAG;
+  }
+
+  protected static float parseFrameRate(XmlPullParser xpp, float defaultValue) {
+    float frameRate = defaultValue;
+    String frameRateAttribute = xpp.getAttributeValue(null, "frameRate");
+    if (frameRateAttribute != null) {
+      Matcher frameRateMatcher = FRAME_RATE_PATTERN.matcher(frameRateAttribute);
+      if (frameRateMatcher.matches()) {
+        int numerator = Integer.parseInt(frameRateMatcher.group(1));
+        String denominatorString = frameRateMatcher.group(2);
+        if (!TextUtils.isEmpty(denominatorString)) {
+          frameRate = (float) numerator / Integer.parseInt(denominatorString);
+        } else {
+          frameRate = numerator;
+        }
+      }
+    }
+    return frameRate;
   }
 
   protected static long parseDuration(XmlPullParser xpp, String name, long defaultValue) {

@@ -50,6 +50,7 @@ public final class MimeTypes {
 
   public static final String TEXT_VTT = BASE_TYPE_TEXT + "/vtt";
 
+  public static final String APPLICATION_MP4 = BASE_TYPE_APPLICATION + "/mp4";
   public static final String APPLICATION_ID3 = BASE_TYPE_APPLICATION + "/id3";
   public static final String APPLICATION_EIA608 = BASE_TYPE_APPLICATION + "/eia-608";
   public static final String APPLICATION_SUBRIP = BASE_TYPE_APPLICATION + "/x-subrip";
@@ -111,16 +112,6 @@ public final class MimeTypes {
    */
   public static boolean isApplication(String mimeType) {
     return getTopLevelType(mimeType).equals(BASE_TYPE_APPLICATION);
-  }
-
-  /**
-   * Whether the mimeType is {@link #APPLICATION_TTML}.
-   *
-   * @param mimeType The mimeType to test.
-   * @return Whether the mimeType is {@link #APPLICATION_TTML}.
-   */
-  public static boolean isTtml(String mimeType) {
-    return mimeType.equals(APPLICATION_TTML);
   }
 
 }
