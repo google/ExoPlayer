@@ -69,8 +69,8 @@ public final class MediaFormatTest extends TestCase {
     assertOptionalV16(out, android.media.MediaFormat.KEY_HEIGHT, in.height);
     assertOptionalV16(out, android.media.MediaFormat.KEY_CHANNEL_COUNT, in.channelCount);
     assertOptionalV16(out, android.media.MediaFormat.KEY_SAMPLE_RATE, in.sampleRate);
-    assertOptionalV16(out, android.media.MediaFormat.KEY_MAX_WIDTH, in.getMaxVideoWidth());
-    assertOptionalV16(out, android.media.MediaFormat.KEY_MAX_HEIGHT, in.getMaxVideoHeight());
+    assertOptionalV16(out, android.media.MediaFormat.KEY_MAX_WIDTH, in.maxWidth);
+    assertOptionalV16(out, android.media.MediaFormat.KEY_MAX_HEIGHT, in.maxHeight);
     for (int i = 0; i < in.initializationData.size(); i++) {
       byte[] originalData = in.initializationData.get(i);
       ByteBuffer frameworkBuffer = out.getByteBuffer("csd-" + i);

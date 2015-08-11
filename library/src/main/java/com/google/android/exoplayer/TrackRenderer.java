@@ -138,17 +138,17 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   }
 
   /**
-   * Returns information about the specified track.
+   * Returns the format of the specified track.
    * <p>
    * This method may be called when the renderer is in the following states:
    * {@link #STATE_PREPARED}, {@link #STATE_ENABLED}, {@link #STATE_STARTED}
    *
    * @param track The track index.
-   * @return Information about the specified track.
+   * @return The format of the specified track.
    */
   // TODO: This method should be abstract. This implementation is provided as an interim step only.
-  protected TrackInfo getTrackInfo(int track) {
-    return new TrackInfo("application/octet-stream", getDurationUs());
+  protected MediaFormat getFormat(int track) {
+    return MediaFormat.createFormatForMimeType("application/octet-stream", getDurationUs());
   }
 
   /**

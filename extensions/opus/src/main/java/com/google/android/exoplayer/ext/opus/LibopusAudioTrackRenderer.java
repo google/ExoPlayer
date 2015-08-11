@@ -22,7 +22,6 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSourceTrackRenderer;
-import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.ext.opus.OpusDecoderWrapper.InputBuffer;
@@ -125,9 +124,10 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
   }
 
   @Override
-  protected boolean handlesTrack(TrackInfo trackInfo) {
-    return MimeTypes.AUDIO_OPUS.equalsIgnoreCase(trackInfo.mimeType)
-        || MimeTypes.AUDIO_WEBM.equalsIgnoreCase(trackInfo.mimeType);
+  protected boolean handlesTrack(MediaFormat mediaFormat) {
+    // TODO: Stop claiming to handle the WebM mime type (b/22996976).
+    return MimeTypes.AUDIO_OPUS.equalsIgnoreCase(mediaFormat.mimeType)
+        || MimeTypes.AUDIO_WEBM.equalsIgnoreCase(mediaFormat.mimeType);
   }
 
   @Override

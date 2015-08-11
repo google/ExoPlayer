@@ -16,11 +16,11 @@
 package com.google.android.exoplayer.text;
 
 import com.google.android.exoplayer.ExoPlaybackException;
+import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSourceTrackRenderer;
-import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.util.Assertions;
 
@@ -150,15 +150,15 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
   }
 
   @Override
-  protected boolean handlesTrack(TrackInfo trackInfo) {
-    return getParserIndex(trackInfo) != -1;
+  protected boolean handlesTrack(MediaFormat mediaFormat) {
+    return getParserIndex(mediaFormat) != -1;
   }
 
   @Override
   protected void onEnabled(int track, long positionUs, boolean joining)
       throws ExoPlaybackException {
     super.onEnabled(track, positionUs, joining);
-    parserIndex = getParserIndex(getTrackInfo(track));
+    parserIndex = getParserIndex(getFormat(track));
     parserThread = new HandlerThread("textParser");
     parserThread.start();
     parserHelper = new SubtitleParserHelper(parserThread.getLooper(), subtitleParsers[parserIndex]);
@@ -296,9 +296,9 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
     textRenderer.onCues(cues);
   }
 
-  private int getParserIndex(TrackInfo trackInfo) {
+  private int getParserIndex(MediaFormat mediaFormat) {
     for (int i = 0; i < subtitleParsers.length; i++) {
-      if (subtitleParsers[i].canParse(trackInfo.mimeType)) {
+      if (subtitleParsers[i].canParse(mediaFormat.mimeType)) {
         return i;
       }
     }

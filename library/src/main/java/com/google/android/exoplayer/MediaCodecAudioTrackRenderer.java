@@ -193,8 +193,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected boolean handlesTrack(TrackInfo trackInfo) {
-    return MimeTypes.isAudio(trackInfo.mimeType);
+  protected boolean handlesTrack(MediaFormat mediaFormat) {
+    // TODO: Check the mime type against the available decoders (b/22996976).
+    return MimeTypes.isAudio(mediaFormat.mimeType);
   }
 
   @Override

@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.TrackInfo;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,23 +31,24 @@ import java.util.List;
 public interface ChunkSource {
 
   /**
-   * Gets information about the track for which this instance provides {@link Chunk}s.
+   * Gets the format.
    * <p>
    * May be called when the source is disabled or enabled.
    *
-   * @return Information about the track.
+   * @return The format.
    */
-  TrackInfo getTrackInfo();
+  MediaFormat getFormat();
 
   /**
-   * Adaptive video {@link ChunkSource} implementations must set the maximum video dimensions on
-   * the supplied {@link MediaFormat}. Other implementations do nothing.
-   * <p>
-   * Only called when the source is enabled.
+   * Adaptive video {@link ChunkSource} implementations must return a copy of the provided
+   * {@link MediaFormat} with the maximum video dimensions set. Other implementations can return
+   * the provided {@link MediaFormat} directly.
    *
-   * @param out The {@link MediaFormat} on which the maximum video dimensions should be set.
+   * @param format The format to be copied or returned.
+   * @return A copy of the provided {@link MediaFormat} with the maximum video dimensions set, or
+   *     the provided format.
    */
-  void getMaxVideoDimensions(MediaFormat out);
+  MediaFormat getWithMaxVideoDimensions(MediaFormat format);
 
   /**
    * Called when the source is enabled.

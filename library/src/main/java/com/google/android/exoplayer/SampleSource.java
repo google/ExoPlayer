@@ -20,9 +20,9 @@ import java.io.IOException;
 /**
  * A source of media samples.
  * <p>
- * A {@link SampleSource} may expose one or multiple tracks. The number of tracks and information
- * about each can be queried using {@link SampleSourceReader#getTrackCount()} and
- * {@link SampleSourceReader#getTrackInfo(int)} respectively.
+ * A {@link SampleSource} may expose one or multiple tracks. The number of tracks and each track's
+ * media format can be queried using {@link SampleSourceReader#getTrackCount()} and
+ * {@link SampleSourceReader#getFormat(int)} respectively.
  */
 public interface SampleSource {
 
@@ -87,13 +87,14 @@ public interface SampleSource {
     public int getTrackCount();
 
     /**
-     * Returns information about the specified track.
+     * Returns the format of the specified track.
      * <p>
      * This method should not be called until after the source has been successfully prepared.
      *
-     * @return Information about the specified track.
+     * @param track The track index.
+     * @return The format of the specified track.
      */
-    public TrackInfo getTrackInfo(int track);
+    public MediaFormat getFormat(int track);
 
     /**
      * Enable the specified track. This allows the track's format and samples to be read from

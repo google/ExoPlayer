@@ -21,7 +21,6 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSourceTrackRenderer;
-import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.ext.vp9.VpxDecoderWrapper.InputBuffer;
 import com.google.android.exoplayer.ext.vp9.VpxDecoderWrapper.OutputBuffer;
@@ -149,9 +148,10 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
   }
 
   @Override
-  protected boolean handlesTrack(TrackInfo trackInfo) {
-    return MimeTypes.VIDEO_VP9.equalsIgnoreCase(trackInfo.mimeType)
-        || MimeTypes.VIDEO_WEBM.equalsIgnoreCase(trackInfo.mimeType);
+  protected boolean handlesTrack(MediaFormat mediaFormat) {
+    // TODO: Stop claiming to handle the WebM mime type (b/22996976).
+    return MimeTypes.VIDEO_VP9.equalsIgnoreCase(mediaFormat.mimeType)
+        || MimeTypes.VIDEO_WEBM.equalsIgnoreCase(mediaFormat.mimeType);
   }
 
   @Override

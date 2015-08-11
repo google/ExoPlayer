@@ -91,11 +91,11 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   public void testMaxVideoDimensions() {
     DashChunkSource chunkSource = new DashChunkSource(generateVodMpd(), AdaptationSet.TYPE_VIDEO,
         null, null, null);
-    MediaFormat out = MediaFormat.createVideoFormat("video/h264", 1, 1, 1, 1, null);
-    chunkSource.getMaxVideoDimensions(out);
+    MediaFormat format = MediaFormat.createVideoFormat("video/h264", 1, 1, 1, 1, null);
+    format = chunkSource.getWithMaxVideoDimensions(format);
 
-    assertEquals(WIDE_WIDTH, out.getMaxVideoWidth());
-    assertEquals(TALL_HEIGHT, out.getMaxVideoHeight());
+    assertEquals(WIDE_WIDTH, format.maxWidth);
+    assertEquals(TALL_HEIGHT, format.maxHeight);
   }
 
   public void testGetSeekRangeOnVod() {
@@ -121,11 +121,11 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
         Representation.newInstance(0, 0, null, 0, WIDE_VIDEO, segmentBase2);
 
     DashChunkSource chunkSource = new DashChunkSource(null, null, representation1, representation2);
-    MediaFormat out = MediaFormat.createVideoFormat("video/h264", 1, 1, 1, 1, null);
-    chunkSource.getMaxVideoDimensions(out);
+    MediaFormat format = MediaFormat.createVideoFormat("video/h264", 1, 1, 1, 1, null);
+    format = chunkSource.getWithMaxVideoDimensions(format);
 
-    assertEquals(WIDE_WIDTH, out.getMaxVideoWidth());
-    assertEquals(TALL_HEIGHT, out.getMaxVideoHeight());
+    assertEquals(WIDE_WIDTH, format.maxWidth);
+    assertEquals(TALL_HEIGHT, format.maxHeight);
   }
 
   public void testLiveEdgeNoLatency() {

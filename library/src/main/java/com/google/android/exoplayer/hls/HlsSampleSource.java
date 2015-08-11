@@ -22,7 +22,6 @@ import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSource.SampleSourceReader;
-import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
@@ -71,7 +70,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   private int enabledTrackCount;
   private boolean[] trackEnabledStates;
   private boolean[] pendingDiscontinuities;
-  private TrackInfo[] trackInfos;
+  private MediaFormat[] mediaFormats;
   private MediaFormat[] downstreamMediaFormats;
   private Format downstreamFormat;
 
@@ -135,10 +134,9 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
         trackEnabledStates = new boolean[trackCount];
         pendingDiscontinuities = new boolean[trackCount];
         downstreamMediaFormats = new MediaFormat[trackCount];
-        trackInfos = new TrackInfo[trackCount];
+        mediaFormats = new MediaFormat[trackCount];
         for (int i = 0; i < trackCount; i++) {
-          MediaFormat format = extractor.getMediaFormat(i);
-          trackInfos[i] = new TrackInfo(format.mimeType, chunkSource.getDurationUs());
+          mediaFormats[i] = extractor.getMediaFormat(i);
         }
         prepared = true;
         return true;
@@ -170,9 +168,9 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   }
 
   @Override
-  public TrackInfo getTrackInfo(int track) {
+  public MediaFormat getFormat(int track) {
     Assertions.checkState(prepared);
-    return trackInfos[track];
+    return mediaFormats[track];
   }
 
   @Override
