@@ -94,8 +94,9 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   }
 
   @Override
-  protected void onEnabled(long positionUs, boolean joining) throws ExoPlaybackException {
-    super.onEnabled(positionUs, joining);
+  protected void onEnabled(int track, long positionUs, boolean joining)
+      throws ExoPlaybackException {
+    super.onEnabled(track, positionUs, joining);
     seekToInternal();
   }
 

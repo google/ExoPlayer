@@ -93,8 +93,9 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
   }
 
   @Override
-  protected void onEnabled(long positionUs, boolean joining) throws ExoPlaybackException {
-    super.onEnabled(positionUs, joining);
+  protected void onEnabled(int track, long positionUs, boolean joining)
+      throws ExoPlaybackException {
+    super.onEnabled(track, positionUs, joining);
     seekToInternal();
   }
 

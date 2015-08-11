@@ -31,6 +31,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -54,7 +55,7 @@ import java.util.List;
   private static final int MSG_RELEASE = 5;
   private static final int MSG_SEEK_TO = 6;
   private static final int MSG_DO_SOME_WORK = 7;
-  private static final int MSG_SET_RENDERER_ENABLED = 8;
+  private static final int MSG_SET_RENDERER_SELECTED_TRACK = 8;
   private static final int MSG_CUSTOM = 9;
 
   private static final int PREPARE_INTERVAL_MS = 10;
@@ -65,11 +66,12 @@ import java.util.List;
   private final HandlerThread internalPlaybackThread;
   private final Handler eventHandler;
   private final StandaloneMediaClock standaloneMediaClock;
-  private final boolean[] rendererEnabledFlags;
+  private final List<TrackRenderer> enabledRenderers;
+  private final TrackInfo[][] trackInfos;
+  private final int[] selectedTrackIndices;
   private final long minBufferUs;
   private final long minRebufferUs;
 
-  private final List<TrackRenderer> enabledRenderers;
   private TrackRenderer[] renderers;
   private TrackRenderer rendererMediaClockSource;
   private MediaClock rendererMediaClock;
@@ -87,22 +89,19 @@ import java.util.List;
   private volatile long bufferedPositionUs;
 
   public ExoPlayerImplInternal(Handler eventHandler, boolean playWhenReady,
-      boolean[] rendererEnabledFlags, int minBufferMs, int minRebufferMs) {
+      int[] selectedTrackIndices, int minBufferMs, int minRebufferMs) {
     this.eventHandler = eventHandler;
     this.playWhenReady = playWhenReady;
-    this.rendererEnabledFlags = new boolean[rendererEnabledFlags.length];
     this.minBufferUs = minBufferMs * 1000L;
     this.minRebufferUs = minRebufferMs * 1000L;
-    for (int i = 0; i < rendererEnabledFlags.length; i++) {
-      this.rendererEnabledFlags[i] = rendererEnabledFlags[i];
-    }
-
+    this.selectedTrackIndices = Arrays.copyOf(selectedTrackIndices, selectedTrackIndices.length);
     this.state = ExoPlayer.STATE_IDLE;
     this.durationUs = TrackRenderer.UNKNOWN_TIME_US;
     this.bufferedPositionUs = TrackRenderer.UNKNOWN_TIME_US;
 
     standaloneMediaClock = new StandaloneMediaClock();
-    enabledRenderers = new ArrayList<>(rendererEnabledFlags.length);
+    enabledRenderers = new ArrayList<>(selectedTrackIndices.length);
+    trackInfos = new TrackInfo[selectedTrackIndices.length][];
     // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
     // not normally change to this priority" is incorrect.
     internalPlaybackThread = new PriorityHandlerThread(getClass().getSimpleName() + ":Handler",
@@ -146,8 +145,9 @@ import java.util.List;
     handler.sendEmptyMessage(MSG_STOP);
   }
 
-  public void setRendererEnabled(int index, boolean enabled) {
-    handler.obtainMessage(MSG_SET_RENDERER_ENABLED, index, enabled ? 1 : 0).sendToTarget();
+  public void setRendererSelectedTrack(int rendererIndex, int trackIndex) {
+    handler.obtainMessage(MSG_SET_RENDERER_SELECTED_TRACK, rendererIndex, trackIndex)
+        .sendToTarget();
   }
 
   public void sendMessage(ExoPlayerComponent target, int messageType, Object message) {
@@ -223,8 +223,8 @@ import java.util.List;
           sendMessageInternal(msg.arg1, msg.obj);
           return true;
         }
-        case MSG_SET_RENDERER_ENABLED: {
-          setRendererEnabledInternal(msg.arg1, msg.arg2 != 0);
+        case MSG_SET_RENDERER_SELECTED_TRACK: {
+          setRendererSelectedTrackInternal(msg.arg1, msg.arg2);
           return true;
         }
         default:
@@ -253,6 +253,7 @@ import java.util.List;
   private void prepareInternal(TrackRenderer[] renderers) throws ExoPlaybackException {
     resetInternal();
     this.renderers = renderers;
+    Arrays.fill(trackInfos, null);
     for (int i = 0; i < renderers.length; i++) {
       MediaClock mediaClock = renderers[i].getMediaClock();
       if (mediaClock != null) {
@@ -288,11 +289,15 @@ import java.util.List;
     long durationUs = 0;
     boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
-    boolean[] rendererHasMediaFlags = new boolean[renderers.length];
     for (int rendererIndex = 0; rendererIndex < renderers.length; rendererIndex++) {
       TrackRenderer renderer = renderers[rendererIndex];
-      rendererHasMediaFlags[rendererIndex] = renderer.getState() == TrackRenderer.STATE_PREPARED;
-      if (rendererHasMediaFlags[rendererIndex]) {
+      int rendererTrackCount = renderer.getTrackCount();
+      TrackInfo[] rendererTrackInfos = new TrackInfo[rendererTrackCount];
+      for (int trackIndex = 0; trackIndex < rendererTrackCount; trackIndex++) {
+        rendererTrackInfos[trackIndex] = renderer.getTrackInfo(trackIndex);
+      }
+      trackInfos[rendererIndex] = rendererTrackInfos;
+      if (rendererTrackCount > 0) {
         if (durationUs == TrackRenderer.UNKNOWN_TIME_US) {
           // We've already encountered a track for which the duration is unknown, so the media
           // duration is unknown regardless of the duration of this track.
@@ -306,8 +311,9 @@ import java.util.List;
             durationUs = Math.max(durationUs, trackDurationUs);
           }
         }
-        if (rendererEnabledFlags[rendererIndex]) {
-          renderer.enable(positionUs, false);
+        int trackIndex = selectedTrackIndices[rendererIndex];
+        if (0 <= trackIndex && trackIndex < rendererTrackInfos.length) {
+          renderer.enable(trackIndex, positionUs, false);
           enabledRenderers.add(renderer);
           allRenderersEnded = allRenderersEnded && renderer.isEnded();
           allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded(renderer);
@@ -325,8 +331,8 @@ import java.util.List;
     }
 
     // Fire an event indicating that the player has been prepared, passing the initial state and
-    // renderer media flags.
-    eventHandler.obtainMessage(MSG_PREPARED, state, 0, rendererHasMediaFlags).sendToTarget();
+    // renderer track information.
+    eventHandler.obtainMessage(MSG_PREPARED, state, 0, trackInfos).sendToTarget();
 
     // Start the renderers if required, and schedule the first piece of work.
     if (playWhenReady && state == ExoPlayer.STATE_READY) {
@@ -583,42 +589,53 @@ import java.util.List;
     }
   }
 
-  private void setRendererEnabledInternal(int rendererIndex, boolean enabled)
+  private void setRendererSelectedTrackInternal(int rendererIndex, int trackIndex)
       throws ExoPlaybackException {
-    if (rendererEnabledFlags[rendererIndex] == enabled) {
+    if (selectedTrackIndices[rendererIndex] == trackIndex) {
       return;
     }
 
-    rendererEnabledFlags[rendererIndex] = enabled;
+    selectedTrackIndices[rendererIndex] = trackIndex;
     if (state == ExoPlayer.STATE_IDLE || state == ExoPlayer.STATE_PREPARING) {
       return;
     }
 
     TrackRenderer renderer = renderers[rendererIndex];
     int rendererState = renderer.getState();
-    if (rendererState != TrackRenderer.STATE_PREPARED &&
-        rendererState != TrackRenderer.STATE_ENABLED &&
-        rendererState != TrackRenderer.STATE_STARTED) {
+    if (rendererState == TrackRenderer.STATE_UNPREPARED
+        || rendererState == TrackRenderer.STATE_RELEASED
+        || renderer.getTrackCount() == 0) {
       return;
     }
 
-    if (enabled) {
-      boolean playing = playWhenReady && state == ExoPlayer.STATE_READY;
-      renderer.enable(positionUs, playing);
-      enabledRenderers.add(renderer);
-      if (playing) {
-        renderer.start();
-      }
-      handler.sendEmptyMessage(MSG_DO_SOME_WORK);
-    } else {
-      if (renderer == rendererMediaClockSource) {
+    boolean isEnabled = rendererState == TrackRenderer.STATE_ENABLED
+        || rendererState == TrackRenderer.STATE_STARTED;
+    boolean shouldEnable = 0 <= trackIndex && trackIndex < trackInfos[rendererIndex].length;
+
+    if (isEnabled) {
+      // The renderer is currently enabled. We need to disable it, so that we can either re-enable
+      // it with the newly selected track (if shouldEnable is true) or because we want to leave it
+      // disabled (if shouldEnable is false).
+      if (!shouldEnable && renderer == rendererMediaClockSource) {
         // We've been using rendererMediaClockSource to advance the current position, but it's being
-        // disabled. Sync standaloneMediaClock so that it can take over timing responsibilities.
+        // disabled and won't be re-enabled. Sync standaloneMediaClock so that it can take over
+        // timing responsibilities.
         standaloneMediaClock.setPositionUs(rendererMediaClock.getPositionUs());
       }
       ensureStopped(renderer);
       enabledRenderers.remove(renderer);
       renderer.disable();
+    }
+
+    if (shouldEnable) {
+      // Re-enable the renderer with the newly selected track.
+      boolean playing = playWhenReady && state == ExoPlayer.STATE_READY;
+      renderer.enable(trackIndex, positionUs, playing);
+      enabledRenderers.add(renderer);
+      if (playing) {
+        renderer.start();
+      }
+      handler.sendEmptyMessage(MSG_DO_SOME_WORK);
     }
   }
 

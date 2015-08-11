@@ -18,6 +18,7 @@ package com.google.android.exoplayer;
 import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Base class for {@link TrackRenderer} implementations that render samples obtained from a
@@ -27,7 +28,9 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
 
   private final SampleSourceReader source;
 
-  private int trackIndex;
+  private int enabledSourceTrackIndex;
+  private int[] handledSourceTrackIndices;
+  private TrackInfo[] trackInfos;
 
   /**
    * @param source The upstream source from which the renderer obtains samples.
@@ -37,21 +40,26 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected int doPrepare(long positionUs) throws ExoPlaybackException {
+  protected boolean doPrepare(long positionUs) throws ExoPlaybackException {
     boolean sourcePrepared = source.prepare(positionUs);
     if (!sourcePrepared) {
-      return TrackRenderer.STATE_UNPREPARED;
+      return false;
     }
-    int trackCount = source.getTrackCount();
-    for (int i = 0; i < trackCount; i++) {
-      TrackInfo trackInfo = source.getTrackInfo(i);
+    int handledTrackCount = 0;
+    int sourceTrackCount = source.getTrackCount();
+    int[] trackIndices = new int[sourceTrackCount];
+    TrackInfo[] trackInfos = new TrackInfo[sourceTrackCount];
+    for (int trackIndex = 0; trackIndex < sourceTrackCount; trackIndex++) {
+      TrackInfo trackInfo = source.getTrackInfo(trackIndex);
       if (handlesTrack(trackInfo)) {
-        trackIndex = i;
-        onTrackSelected(trackInfo);
-        return TrackRenderer.STATE_PREPARED;
+        trackIndices[handledTrackCount] = trackIndex;
+        trackInfos[handledTrackCount] = trackInfo;
+        handledTrackCount++;
       }
     }
-    return TrackRenderer.STATE_IGNORE;
+    this.handledSourceTrackIndices = Arrays.copyOf(trackIndices, handledTrackCount);
+    this.trackInfos = Arrays.copyOf(trackInfos, handledTrackCount);
+    return true;
   }
 
   /**
@@ -72,8 +80,10 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected void onEnabled(long positionUs, boolean joining) throws ExoPlaybackException {
-    source.enable(trackIndex, positionUs);
+  protected void onEnabled(int track, long positionUs, boolean joining)
+      throws ExoPlaybackException {
+    this.enabledSourceTrackIndex = handledSourceTrackIndices[track];
+    source.enable(enabledSourceTrackIndex, positionUs);
   }
 
   @Override
@@ -88,7 +98,7 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
 
   @Override
   protected long getDurationUs() {
-    return source.getTrackInfo(trackIndex).durationUs;
+    return source.getTrackInfo(enabledSourceTrackIndex).durationUs;
   }
 
   @Override
@@ -102,7 +112,7 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
 
   @Override
   protected void onDisabled() throws ExoPlaybackException {
-    source.disable(trackIndex);
+    source.disable(enabledSourceTrackIndex);
   }
 
   @Override
@@ -111,13 +121,23 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
   }
 
   protected final boolean continueBufferingSource(long positionUs) {
-    return source.continueBuffering(trackIndex, positionUs);
+    return source.continueBuffering(enabledSourceTrackIndex, positionUs);
   }
 
   protected final int readSource(long positionUs, MediaFormatHolder formatHolder,
       SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
-    return source.readData(trackIndex, positionUs, formatHolder, sampleHolder,
+    return source.readData(enabledSourceTrackIndex, positionUs, formatHolder, sampleHolder,
         onlyReadDiscontinuity);
+  }
+
+  @Override
+  protected final int getTrackCount() {
+    return trackInfos.length;
+  }
+
+  @Override
+  protected final TrackInfo getTrackInfo(int track) {
+    return trackInfos[track];
   }
 
 }
