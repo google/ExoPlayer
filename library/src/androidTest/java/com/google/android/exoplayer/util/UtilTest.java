@@ -144,4 +144,21 @@ public class UtilTest extends TestCase {
     assertEquals(1407322800000L, Util.parseXsDateTime("2014-08-06T11:00:00Z"));
   }
 
+  public void testLongSplitting() {
+    assertLongSplittingForValue(Long.MIN_VALUE);
+    assertLongSplittingForValue(Long.MIN_VALUE + 1);
+    assertLongSplittingForValue(-1);
+    assertLongSplittingForValue(0);
+    assertLongSplittingForValue(1);
+    assertLongSplittingForValue(Long.MAX_VALUE - 1);
+    assertLongSplittingForValue(Long.MAX_VALUE);
+  }
+
+  private static void assertLongSplittingForValue(long value) {
+    int topBits = Util.getTopInt(value);
+    int bottomBots = Util.getBottomInt(value);
+    long reconstructedValue = Util.getLong(topBits, bottomBots);
+    assertEquals(value, reconstructedValue);
+  }
+
 }

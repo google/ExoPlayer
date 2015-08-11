@@ -19,6 +19,7 @@ import com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.PriorityHandlerThread;
 import com.google.android.exoplayer.util.TraceUtil;
+import com.google.android.exoplayer.util.Util;
 
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -137,7 +138,8 @@ import java.util.List;
   }
 
   public void seekTo(long positionMs) {
-    handler.obtainMessage(MSG_SEEK_TO, positionMs).sendToTarget();
+    handler.obtainMessage(MSG_SEEK_TO, Util.getTopInt(positionMs),
+        Util.getBottomInt(positionMs)).sendToTarget();
   }
 
   public void stop() {
@@ -206,7 +208,7 @@ import java.util.List;
           return true;
         }
         case MSG_SEEK_TO: {
-          seekToInternal((Long) msg.obj);
+          seekToInternal(Util.getLong(msg.arg1, msg.arg2));
           return true;
         }
         case MSG_STOP: {
@@ -482,8 +484,13 @@ import java.util.List;
   }
 
   private void seekToInternal(long positionMs) throws ExoPlaybackException {
+    if (positionMs == (positionUs / 1000)) {
+      // Seek is to the current position. Do nothing.
+      return;
+    }
+
     rebuffering = false;
-    positionUs = positionMs * 1000L;
+    positionUs = positionMs * 1000;
     standaloneMediaClock.stop();
     standaloneMediaClock.setPositionUs(positionUs);
     if (state == ExoPlayer.STATE_IDLE || state == ExoPlayer.STATE_PREPARING) {
