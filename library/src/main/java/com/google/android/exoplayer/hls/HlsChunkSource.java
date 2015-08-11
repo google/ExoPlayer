@@ -17,7 +17,6 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.DataChunk;
@@ -124,7 +123,6 @@ public class HlsChunkSource {
   private final int maxHeight;
   private final long minBufferDurationToSwitchUpUs;
   private final long maxBufferDurationToSwitchDownUs;
-  private final AudioCapabilities audioCapabilities;
 
   // A list of variants considered during playback, ordered by decreasing bandwidth. The following
   // three arrays are of the same length and are ordered in the same way (i.e. variantPlaylists[i],
@@ -147,11 +145,9 @@ public class HlsChunkSource {
   private byte[] encryptionIv;
 
   public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
-      BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode,
-      AudioCapabilities audioCapabilities) {
+      BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode) {
     this(dataSource, playlistUrl, playlist, bandwidthMeter, variantIndices, adaptiveMode,
-        DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS, DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS,
-        audioCapabilities);
+        DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS, DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS);
   }
 
   /**
@@ -169,17 +165,13 @@ public class HlsChunkSource {
    *     for a switch to a higher quality variant to be considered.
    * @param maxBufferDurationToSwitchDownMs The maximum duration of media that needs to be buffered
    *     for a switch to a lower quality variant to be considered.
-   * @param audioCapabilities The audio capabilities for playback on this device, or {@code null} if
-   *     the default capabilities should be assumed.
    */
   public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
       BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode,
-      long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs,
-      AudioCapabilities audioCapabilities) {
+      long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs) {
     this.dataSource = dataSource;
     this.bandwidthMeter = bandwidthMeter;
     this.adaptiveMode = adaptiveMode;
-    this.audioCapabilities = audioCapabilities;
     minBufferDurationToSwitchUpUs = minBufferDurationToSwitchUpMs * 1000;
     maxBufferDurationToSwitchDownUs = maxBufferDurationToSwitchDownMs * 1000;
     baseUri = playlist.baseUri;
@@ -356,8 +348,7 @@ public class HlsChunkSource {
     if (previousTsChunk == null || segment.discontinuity || !format.equals(previousTsChunk.format)
         || liveDiscontinuity) {
       Extractor extractor = chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)
-          ? new AdtsExtractor(startTimeUs)
-          : new TsExtractor(startTimeUs, audioCapabilities);
+          ? new AdtsExtractor(startTimeUs) : new TsExtractor(startTimeUs);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
           switchingVariantSpliced);
     } else {

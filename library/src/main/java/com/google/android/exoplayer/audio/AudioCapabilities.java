@@ -15,7 +15,13 @@
  */
 package com.google.android.exoplayer.audio;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.media.AudioFormat;
+import android.media.AudioManager;
 
 import java.util.Arrays;
 
@@ -24,6 +30,34 @@ import java.util.Arrays;
  */
 @TargetApi(21)
 public final class AudioCapabilities {
+
+  /**
+   * Default to stereo PCM on SDK < 21 and when HDMI is unplugged.
+   */
+  private static final AudioCapabilities DEFAULT_AUDIO_CAPABILITIES =
+      new AudioCapabilities(new int[] {AudioFormat.ENCODING_PCM_16BIT}, 2);
+
+  /**
+   * Gets the current audio capabilities. Note that to be notified when audio capabilities change,
+   * you can create an instance of {@link AudioCapabilitiesReceiver} and register a listener.
+   *
+   * @param context Context for receiving the initial broadcast.
+   * @return Current audio capabilities for the device.
+   */
+  @SuppressWarnings("InlinedApi")
+  public static AudioCapabilities getCapabilities(Context context) {
+    return getCapabilities(
+        context.registerReceiver(null, new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG)));
+  }
+
+  @SuppressLint("InlinedApi")
+  /* package */ static AudioCapabilities getCapabilities(Intent intent) {
+    if (intent == null || intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 0) {
+      return DEFAULT_AUDIO_CAPABILITIES;
+    }
+    return new AudioCapabilities(intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS),
+        intent.getIntExtra(AudioManager.EXTRA_MAX_CHANNEL_COUNT, 0));
+  }
 
   private final int[] supportedEncodings;
   private final int maxChannelCount;
@@ -36,7 +70,7 @@ public final class AudioCapabilities {
    *     {@code ENCODING_*} constants.
    * @param maxChannelCount The maximum number of audio channels that can be played simultaneously.
    */
-  public AudioCapabilities(int[] supportedEncodings, int maxChannelCount) {
+  /* package */ AudioCapabilities(int[] supportedEncodings, int maxChannelCount) {
     if (supportedEncodings != null) {
       this.supportedEncodings = Arrays.copyOf(supportedEncodings, supportedEncodings.length);
       Arrays.sort(this.supportedEncodings);

@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.demo.player;
 
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
@@ -81,39 +80,24 @@ public class DashRendererBuilder implements RendererBuilder {
   private static final int SECURITY_LEVEL_1 = 1;
   private static final int SECURITY_LEVEL_3 = 3;
 
-  /**
-   * Passthrough audio formats (encodings) in order of decreasing priority.
-   */
-  private static final int[] PASSTHROUGH_ENCODINGS_PRIORITY =
-      new int[] {C.ENCODING_E_AC3, C.ENCODING_AC3};
-  /**
-   * Passthrough audio codecs corresponding to the encodings in
-   * {@link #PASSTHROUGH_ENCODINGS_PRIORITY}.
-   */
-  private static final String[] PASSTHROUGH_CODECS_PRIORITY =
-      new String[] {"ec-3", "ac-3"};
-
   private final Context context;
   private final String userAgent;
   private final String url;
   private final MediaDrmCallback drmCallback;
-  private final AudioCapabilities audioCapabilities;
 
   private AsyncRendererBuilder currentAsyncBuilder;
 
   public DashRendererBuilder(Context context, String userAgent, String url,
-      MediaDrmCallback drmCallback, AudioCapabilities audioCapabilities) {
+      MediaDrmCallback drmCallback) {
     this.context = context;
     this.userAgent = userAgent;
     this.url = url;
     this.drmCallback = drmCallback;
-    this.audioCapabilities = audioCapabilities;
   }
 
   @Override
   public void buildRenderers(DemoPlayer player) {
-    currentAsyncBuilder = new AsyncRendererBuilder(context, userAgent, url, drmCallback,
-        audioCapabilities, player);
+    currentAsyncBuilder = new AsyncRendererBuilder(context, userAgent, url, drmCallback, player);
     currentAsyncBuilder.init();
   }
 
@@ -131,7 +115,6 @@ public class DashRendererBuilder implements RendererBuilder {
     private final Context context;
     private final String userAgent;
     private final MediaDrmCallback drmCallback;
-    private final AudioCapabilities audioCapabilities;
     private final DemoPlayer player;
     private final ManifestFetcher<MediaPresentationDescription> manifestFetcher;
     private final UriDataSource manifestDataSource;
@@ -141,11 +124,10 @@ public class DashRendererBuilder implements RendererBuilder {
     private long elapsedRealtimeOffset;
 
     public AsyncRendererBuilder(Context context, String userAgent, String url,
-        MediaDrmCallback drmCallback, AudioCapabilities audioCapabilities, DemoPlayer player) {
+        MediaDrmCallback drmCallback, DemoPlayer player) {
       this.context = context;
       this.userAgent = userAgent;
       this.drmCallback = drmCallback;
-      this.audioCapabilities = audioCapabilities;
       this.player = player;
       MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
       manifestDataSource = new DefaultUriDataSource(context, userAgent);
@@ -297,26 +279,6 @@ public class DashRendererBuilder implements RendererBuilder {
               elapsedRealtimeOffset, mainHandler, player));
           codecs.add(format.codecs);
         }
-
-        if (audioCapabilities != null) {
-          // If there are any passthrough audio encodings available, select the highest priority
-          // supported format (e.g. E-AC-3) and remove other tracks.
-          for (int i = 0; i < PASSTHROUGH_CODECS_PRIORITY.length; i++) {
-            String codec = PASSTHROUGH_CODECS_PRIORITY[i];
-            int encoding = PASSTHROUGH_ENCODINGS_PRIORITY[i];
-            if (codecs.indexOf(codec) == -1 || !audioCapabilities.supportsEncoding(encoding)) {
-              continue;
-            }
-
-            for (int j = audioRepresentations.size() - 1; j >= 0; j--) {
-              if (!audioRepresentations.get(j).format.codecs.equals(codec)) {
-                audioTrackNameList.remove(j);
-                audioChunkSourceList.remove(j);
-              }
-            }
-            break;
-          }
-        }
       }
 
       // Build the audio renderer.
@@ -335,7 +297,7 @@ public class DashRendererBuilder implements RendererBuilder {
             AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
             DemoPlayer.TYPE_AUDIO);
         audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource, drmSessionManager, true,
-            mainHandler, player);
+            mainHandler, player, AudioCapabilities.getCapabilities(context));
       }
 
       // Build the text chunk sources.

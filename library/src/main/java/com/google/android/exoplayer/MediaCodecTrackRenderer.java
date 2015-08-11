@@ -697,11 +697,9 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * <p>
    * The default implementation is a no-op.
    *
-   * @param inputFormat The format of media input to the codec.
    * @param outputFormat The new output format.
    */
-  protected void onOutputFormatChanged(MediaFormat inputFormat,
-      android.media.MediaFormat outputFormat) {
+  protected void onOutputFormatChanged(android.media.MediaFormat outputFormat) {
     // Do nothing.
   }
 
@@ -775,7 +773,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     }
 
     if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-      onOutputFormatChanged(format, codec.getOutputFormat());
+      onOutputFormatChanged(codec.getOutputFormat());
       codecCounters.outputFormatChangedCount++;
       return true;
     } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {

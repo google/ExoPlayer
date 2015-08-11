@@ -119,7 +119,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private String contentId;
 
   private AudioCapabilitiesReceiver audioCapabilitiesReceiver;
-  private AudioCapabilities audioCapabilities;
 
   // Activity lifecycle
 
@@ -154,7 +153,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
         return false;
       }
     });
-    audioCapabilitiesReceiver = new AudioCapabilitiesReceiver(getApplicationContext(), this);
 
     shutterView = findViewById(R.id.shutter);
     debugRootView = findViewById(R.id.controls_root);
@@ -179,15 +177,20 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (currentHandler != defaultCookieManager) {
       CookieHandler.setDefault(defaultCookieManager);
     }
+
+    audioCapabilitiesReceiver = new AudioCapabilitiesReceiver(this, this);
+    audioCapabilitiesReceiver.register();
   }
 
   @Override
   public void onResume() {
     super.onResume();
     configureSubtitleView();
-
-    // The player will be prepared on receiving audio capabilities.
-    audioCapabilitiesReceiver.register();
+    if (player == null) {
+      preparePlayer(true);
+    } else {
+      player.setBackgrounded(false);
+    }
   }
 
   @Override
@@ -198,13 +201,13 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     } else {
       player.setBackgrounded(true);
     }
-    audioCapabilitiesReceiver.unregister();
     shutterView.setVisibility(View.VISIBLE);
   }
 
   @Override
   public void onDestroy() {
     super.onDestroy();
+    audioCapabilitiesReceiver.unregister();
     releasePlayer();
   }
 
@@ -213,7 +216,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   @Override
   public void onClick(View view) {
     if (view == retryButton) {
-      preparePlayer();
+      preparePlayer(true);
     }
   }
 
@@ -221,14 +224,14 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   @Override
   public void onAudioCapabilitiesChanged(AudioCapabilities audioCapabilities) {
-    boolean audioCapabilitiesChanged = !audioCapabilities.equals(this.audioCapabilities);
-    if (player == null || audioCapabilitiesChanged) {
-      this.audioCapabilities = audioCapabilities;
-      releasePlayer();
-      preparePlayer();
-    } else if (player != null) {
-      player.setBackgrounded(false);
+    if (player == null) {
+      return;
     }
+    boolean backgrounded = player.getBackgrounded();
+    boolean playWhenReady = player.getPlayWhenReady();
+    releasePlayer();
+    preparePlayer(playWhenReady);
+    player.setBackgrounded(backgrounded);
   }
 
   // Internal methods
@@ -241,9 +244,9 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
             new SmoothStreamingTestMediaDrmCallback());
       case TYPE_DASH:
         return new DashRendererBuilder(this, userAgent, contentUri.toString(),
-            new WidevineTestMediaDrmCallback(contentId), audioCapabilities);
+            new WidevineTestMediaDrmCallback(contentId));
       case TYPE_HLS:
-        return new HlsRendererBuilder(this, userAgent, contentUri.toString(), audioCapabilities);
+        return new HlsRendererBuilder(this, userAgent, contentUri.toString());
       case TYPE_OTHER:
         return new ExtractorRendererBuilder(this, userAgent, contentUri);
       default:
@@ -251,7 +254,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     }
   }
 
-  private void preparePlayer() {
+  private void preparePlayer(boolean playWhenReady) {
     if (player == null) {
       player = new DemoPlayer(getRendererBuilder());
       player.addListener(this);
@@ -275,7 +278,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       updateButtonVisibilities();
     }
     player.setSurface(surfaceView.getHolder().getSurface());
-    player.setPlayWhenReady(true);
+    player.setPlayWhenReady(playWhenReady);
   }
 
   private void releasePlayer() {
