@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.dash;
 
 import com.google.android.exoplayer.BehindLiveWindowException;
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.TrackInfo;
@@ -104,7 +103,6 @@ public class DashChunkSource implements ChunkSource {
   private final FormatEvaluator formatEvaluator;
   private final Evaluation evaluation;
   private final Clock systemClock;
-  private final StringBuilder headerBuilder;
   private final long liveEdgeLatencyUs;
   private final long elapsedRealtimeOffsetUs;
   private final int maxWidth;
@@ -258,7 +256,6 @@ public class DashChunkSource implements ChunkSource {
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.evaluation = new Evaluation();
-    this.headerBuilder = new StringBuilder();
     this.seekRangeValues = new long[2];
 
     drmInitData = getDrmInitData(currentManifest, adaptationSetIndex);
@@ -645,19 +642,9 @@ public class DashChunkSource implements ChunkSource {
     long sampleOffsetUs = representation.periodStartMs * 1000
         - representation.presentationTimeOffsetUs;
     if (representation.format.mimeType.equals(MimeTypes.TEXT_VTT)) {
-      if (representationHolder.vttHeaderOffsetUs != sampleOffsetUs) {
-        // Update the VTT header.
-        headerBuilder.setLength(0);
-        headerBuilder.append(C.WEBVTT_EXO_HEADER).append("=")
-            .append(C.WEBVTT_EXO_HEADER_OFFSET).append(sampleOffsetUs)
-            .append("\n");
-        representationHolder.vttHeader = headerBuilder.toString().getBytes();
-        representationHolder.vttHeaderOffsetUs = sampleOffsetUs;
-      }
       return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_INITIAL,
           representation.format, startTimeUs, endTimeUs, absoluteSegmentNum, isLastSegment,
-          MediaFormat.createTextFormat(MimeTypes.TEXT_VTT, representation.format.language), null,
-          representationHolder.vttHeader);
+          MediaFormat.createTextFormat(MimeTypes.TEXT_VTT, representation.format.language), null);
     } else {
       return new ContainerMediaChunk(dataSource, dataSpec, trigger, representation.format,
           startTimeUs, endTimeUs, absoluteSegmentNum, isLastSegment, sampleOffsetUs,
@@ -741,8 +728,6 @@ public class DashChunkSource implements ChunkSource {
     public MediaFormat format;
 
     public int segmentNumShift;
-    public long vttHeaderOffsetUs;
-    public byte[] vttHeader;
 
     public RepresentationHolder(Representation representation,
         ChunkExtractorWrapper extractorWrapper) {
