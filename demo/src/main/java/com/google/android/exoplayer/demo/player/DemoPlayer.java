@@ -267,6 +267,10 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     }
   }
 
+  public boolean getBackgrounded() {
+    return backgrounded;
+  }
+
   public void setBackgrounded(boolean backgrounded) {
     if (this.backgrounded == backgrounded) {
       return;
