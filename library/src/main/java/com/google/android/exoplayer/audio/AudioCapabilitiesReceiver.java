@@ -18,6 +18,7 @@ package com.google.android.exoplayer.audio;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -67,16 +68,9 @@ public final class AudioCapabilitiesReceiver {
    */
   @TargetApi(21)
   public void register() {
-    if (receiver != null) {
-      Intent initialStickyIntent =
-          context.registerReceiver(receiver, new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG));
-      if (initialStickyIntent != null) {
-        receiver.onReceive(context, initialStickyIntent);
-        return;
-      }
-    }
-
-    listener.onAudioCapabilitiesChanged(DEFAULT_AUDIO_CAPABILITIES);
+    Intent stickyIntent = receiver == null ? null
+        : context.registerReceiver(receiver, new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG));
+    listener.onAudioCapabilitiesChanged(getCapabilities(stickyIntent));
   }
 
   /** Unregisters to stop notifying the listener when audio capabilities change. */
@@ -86,7 +80,15 @@ public final class AudioCapabilitiesReceiver {
     }
   }
 
-  @TargetApi(21)
+  @SuppressLint("InlinedApi")
+  /* package */ AudioCapabilities getCapabilities(Intent intent) {
+    if (intent == null || intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 0) {
+      return DEFAULT_AUDIO_CAPABILITIES;
+    }
+    return new AudioCapabilities(intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS),
+        intent.getIntExtra(AudioManager.EXTRA_MAX_CHANNEL_COUNT, 0));
+  }
+
   private final class HdmiAudioPlugBroadcastReceiver extends BroadcastReceiver {
 
     @Override
@@ -94,15 +96,7 @@ public final class AudioCapabilitiesReceiver {
       if (isInitialStickyBroadcast()) {
         return;
       }
-
-      String action = intent.getAction();
-      if (!action.equals(AudioManager.ACTION_HDMI_AUDIO_PLUG)) {
-        return;
-      }
-
-      listener.onAudioCapabilitiesChanged(
-          new AudioCapabilities(intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS),
-              intent.getIntExtra(AudioManager.EXTRA_MAX_CHANNEL_COUNT, 0)));
+      listener.onAudioCapabilitiesChanged(getCapabilities(intent));
     }
 
   }
