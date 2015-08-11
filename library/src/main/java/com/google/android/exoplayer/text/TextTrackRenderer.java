@@ -151,29 +151,14 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
 
   @Override
   protected boolean handlesTrack(TrackInfo trackInfo) {
-    for (int i = 0; i < subtitleParsers.length; i++) {
-      if (subtitleParsers[i].canParse(trackInfo.mimeType)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @Override
-  protected void onTrackSelected(TrackInfo trackInfo) {
-    for (int i = 0; i < subtitleParsers.length; i++) {
-      if (subtitleParsers[i].canParse(trackInfo.mimeType)) {
-        parserIndex = i;
-        return;
-      }
-    }
-    throw new IllegalStateException("Invalid track selected");
+    return getParserIndex(trackInfo) != -1;
   }
 
   @Override
   protected void onEnabled(int track, long positionUs, boolean joining)
       throws ExoPlaybackException {
     super.onEnabled(track, positionUs, joining);
+    parserIndex = getParserIndex(getTrackInfo(track));
     parserThread = new HandlerThread("textParser");
     parserThread.start();
     parserHelper = new SubtitleParserHelper(parserThread.getLooper(), subtitleParsers[parserIndex]);
@@ -309,6 +294,15 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
 
   private void invokeRendererInternalCues(List<Cue> cues) {
     textRenderer.onCues(cues);
+  }
+
+  private int getParserIndex(TrackInfo trackInfo) {
+    for (int i = 0; i < subtitleParsers.length; i++) {
+      if (subtitleParsers[i].canParse(trackInfo.mimeType)) {
+        return i;
+      }
+    }
+    return -1;
   }
 
 }

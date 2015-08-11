@@ -62,10 +62,11 @@ import java.util.List;
     Atom.ContainerAtom stbl = mdia.getContainerAtomOfType(Atom.TYPE_minf)
         .getContainerAtomOfType(Atom.TYPE_stbl);
 
-    long mediaTimescale = parseMdhd(mdia.getLeafAtomOfType(Atom.TYPE_mdhd).data);
-    StsdDataHolder stsdData = parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, durationUs);
+    Pair<Long, String> mdhdData = parseMdhd(mdia.getLeafAtomOfType(Atom.TYPE_mdhd).data);
+    StsdDataHolder stsdData = parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, durationUs,
+        mdhdData.second);
     return stsdData.mediaFormat == null ? null
-        : new Track(id, trackType, mediaTimescale, durationUs, stsdData.mediaFormat,
+        : new Track(id, trackType, mdhdData.first, durationUs, stsdData.mediaFormat,
             stsdData.trackEncryptionBoxes, stsdData.nalUnitLengthFieldLength);
   }
 
@@ -314,18 +315,25 @@ import java.util.List;
    * Parses an mdhd atom (defined in 14496-12).
    *
    * @param mdhd The mdhd atom to parse.
-   * @return The media timescale, defined as the number of time units that pass in one second.
+   * @return A pair consisting of the media timescale defined as the number of time units that pass
+   *     in one second, and the language code.
    */
-  private static long parseMdhd(ParsableByteArray mdhd) {
+  private static Pair<Long, String> parseMdhd(ParsableByteArray mdhd) {
     mdhd.setPosition(Atom.HEADER_SIZE);
     int fullAtom = mdhd.readInt();
     int version = Atom.parseFullAtomVersion(fullAtom);
-
     mdhd.skipBytes(version == 0 ? 8 : 16);
-    return mdhd.readUnsignedInt();
+    long timescale = mdhd.readUnsignedInt();
+    mdhd.skipBytes(version == 0 ? 4 : 8);
+    int languageCode = mdhd.readUnsignedShort();
+    String language = "" + (char) (((languageCode >> 10) & 0x1F) + 0x60)
+        + (char) (((languageCode >> 5) & 0x1F) + 0x60)
+        + (char) (((languageCode) & 0x1F) + 0x60);
+    return Pair.create(timescale, language);
   }
 
-  private static StsdDataHolder parseStsd(ParsableByteArray stsd, long durationUs) {
+  private static StsdDataHolder parseStsd(ParsableByteArray stsd, long durationUs,
+      String language) {
     stsd.setPosition(Atom.FULL_HEADER_SIZE);
     int numberOfEntries = stsd.readInt();
     StsdDataHolder holder = new StsdDataHolder(numberOfEntries);
@@ -344,9 +352,11 @@ import java.util.List;
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, durationUs,
             holder, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
-        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML, durationUs);
+        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML, language,
+            durationUs);
       } else if (childAtomType == Atom.TYPE_tx3g) {
-        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TX3G, durationUs);
+        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TX3G, language,
+            durationUs);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
