@@ -34,8 +34,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private final Handler eventHandler;
   private final ExoPlayerImplInternal internalPlayer;
   private final CopyOnWriteArraySet<Listener> listeners;
-  private final boolean[] rendererHasMediaFlags;
-  private final boolean[] rendererEnabledFlags;
+  private final TrackInfo[][] trackInfos;
+  private final int[] selectedTrackIndices;
 
   private boolean playWhenReady;
   private int playbackState;
@@ -58,18 +58,15 @@ import java.util.concurrent.CopyOnWriteArraySet;
     this.playWhenReady = false;
     this.playbackState = STATE_IDLE;
     this.listeners = new CopyOnWriteArraySet<>();
-    this.rendererHasMediaFlags = new boolean[rendererCount];
-    this.rendererEnabledFlags = new boolean[rendererCount];
-    for (int i = 0; i < rendererEnabledFlags.length; i++) {
-      rendererEnabledFlags[i] = true;
-    }
+    this.trackInfos = new TrackInfo[rendererCount][];
+    this.selectedTrackIndices = new int[rendererCount];
     eventHandler = new Handler() {
       @Override
       public void handleMessage(Message msg) {
         ExoPlayerImpl.this.handleEvent(msg);
       }
     };
-    internalPlayer = new ExoPlayerImplInternal(eventHandler, playWhenReady, rendererEnabledFlags,
+    internalPlayer = new ExoPlayerImplInternal(eventHandler, playWhenReady, selectedTrackIndices,
         minBufferMs, minRebufferMs);
   }
 
@@ -95,26 +92,49 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void prepare(TrackRenderer... renderers) {
-    Arrays.fill(rendererHasMediaFlags, false);
+    Arrays.fill(trackInfos, null);
     internalPlayer.prepare(renderers);
   }
 
   @Override
+  // TODO: Deprecate in ExoPlayer.
   public boolean getRendererHasMedia(int rendererIndex) {
-    return rendererHasMediaFlags[rendererIndex];
+    return getRendererTrackCount(rendererIndex) > 0;
   }
 
   @Override
+  // TODO: Deprecate in ExoPlayer.
   public void setRendererEnabled(int rendererIndex, boolean enabled) {
-    if (rendererEnabledFlags[rendererIndex] != enabled) {
-      rendererEnabledFlags[rendererIndex] = enabled;
-      internalPlayer.setRendererEnabled(rendererIndex, enabled);
+    setRendererSelectedTrack(rendererIndex, enabled ? 0 : -1);
+  }
+
+  @Override
+  // TODO: Deprecate in ExoPlayer.
+  public boolean getRendererEnabled(int rendererIndex) {
+    return getRendererSelectedTrack(rendererIndex) == 0;
+  }
+
+  // TODO: Expose in ExoPlayer.
+  public int getRendererTrackCount(int rendererIndex) {
+    return trackInfos[rendererIndex] != null ? trackInfos[rendererIndex].length : 0;
+  }
+
+  // TODO: Expose in ExoPlayer.
+  public TrackInfo getRendererTrackInfo(int rendererIndex, int trackIndex) {
+    return trackInfos[rendererIndex][trackIndex];
+  }
+
+  // TODO: Expose in ExoPlayer.
+  public void setRendererSelectedTrack(int rendererIndex, int trackIndex) {
+    if (selectedTrackIndices[rendererIndex] != trackIndex) {
+      selectedTrackIndices[rendererIndex] = trackIndex;
+      internalPlayer.setRendererSelectedTrack(rendererIndex, trackIndex);
     }
   }
 
-  @Override
-  public boolean getRendererEnabled(int rendererIndex) {
-    return rendererEnabledFlags[rendererIndex];
+  // TODO: Expose in ExoPlayer.
+  public int getRendererSelectedTrack(int rendererIndex) {
+    return selectedTrackIndices[rendererIndex];
   }
 
   @Override
@@ -192,9 +212,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   /* package */ void handleEvent(Message msg) {
     switch (msg.what) {
       case ExoPlayerImplInternal.MSG_PREPARED: {
-        boolean[] rendererHasMediaFlags = (boolean[]) msg.obj;
-        System.arraycopy(rendererHasMediaFlags, 0, this.rendererHasMediaFlags, 0,
-            rendererHasMediaFlags.length);
+        TrackInfo[][] trackInfos = (TrackInfo[][]) msg.obj;
+        System.arraycopy(trackInfos, 0, this.trackInfos, 0, trackInfos.length);
         playbackState = msg.arg1;
         for (Listener listener : listeners) {
           listener.onPlayerStateChanged(playWhenReady, playbackState);
