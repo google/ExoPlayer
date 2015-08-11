@@ -67,7 +67,7 @@ import java.util.List;
   private final Handler eventHandler;
   private final StandaloneMediaClock standaloneMediaClock;
   private final List<TrackRenderer> enabledRenderers;
-  private final TrackInfo[][] trackInfos;
+  private final MediaFormat[][] trackFormats;
   private final int[] selectedTrackIndices;
   private final long minBufferUs;
   private final long minRebufferUs;
@@ -101,7 +101,7 @@ import java.util.List;
 
     standaloneMediaClock = new StandaloneMediaClock();
     enabledRenderers = new ArrayList<>(selectedTrackIndices.length);
-    trackInfos = new TrackInfo[selectedTrackIndices.length][];
+    trackFormats = new MediaFormat[selectedTrackIndices.length][];
     // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
     // not normally change to this priority" is incorrect.
     internalPlaybackThread = new PriorityHandlerThread(getClass().getSimpleName() + ":Handler",
@@ -253,7 +253,7 @@ import java.util.List;
   private void prepareInternal(TrackRenderer[] renderers) throws ExoPlaybackException {
     resetInternal();
     this.renderers = renderers;
-    Arrays.fill(trackInfos, null);
+    Arrays.fill(trackFormats, null);
     for (int i = 0; i < renderers.length; i++) {
       MediaClock mediaClock = renderers[i].getMediaClock();
       if (mediaClock != null) {
@@ -292,11 +292,11 @@ import java.util.List;
     for (int rendererIndex = 0; rendererIndex < renderers.length; rendererIndex++) {
       TrackRenderer renderer = renderers[rendererIndex];
       int rendererTrackCount = renderer.getTrackCount();
-      TrackInfo[] rendererTrackInfos = new TrackInfo[rendererTrackCount];
+      MediaFormat[] rendererTrackFormats = new MediaFormat[rendererTrackCount];
       for (int trackIndex = 0; trackIndex < rendererTrackCount; trackIndex++) {
-        rendererTrackInfos[trackIndex] = renderer.getTrackInfo(trackIndex);
+        rendererTrackFormats[trackIndex] = renderer.getFormat(trackIndex);
       }
-      trackInfos[rendererIndex] = rendererTrackInfos;
+      trackFormats[rendererIndex] = rendererTrackFormats;
       if (rendererTrackCount > 0) {
         if (durationUs == TrackRenderer.UNKNOWN_TIME_US) {
           // We've already encountered a track for which the duration is unknown, so the media
@@ -312,7 +312,7 @@ import java.util.List;
           }
         }
         int trackIndex = selectedTrackIndices[rendererIndex];
-        if (0 <= trackIndex && trackIndex < rendererTrackInfos.length) {
+        if (0 <= trackIndex && trackIndex < rendererTrackFormats.length) {
           renderer.enable(trackIndex, positionUs, false);
           enabledRenderers.add(renderer);
           allRenderersEnded = allRenderersEnded && renderer.isEnded();
@@ -332,7 +332,7 @@ import java.util.List;
 
     // Fire an event indicating that the player has been prepared, passing the initial state and
     // renderer track information.
-    eventHandler.obtainMessage(MSG_PREPARED, state, 0, trackInfos).sendToTarget();
+    eventHandler.obtainMessage(MSG_PREPARED, state, 0, trackFormats).sendToTarget();
 
     // Start the renderers if required, and schedule the first piece of work.
     if (playWhenReady && state == ExoPlayer.STATE_READY) {
@@ -610,7 +610,7 @@ import java.util.List;
 
     boolean isEnabled = rendererState == TrackRenderer.STATE_ENABLED
         || rendererState == TrackRenderer.STATE_STARTED;
-    boolean shouldEnable = 0 <= trackIndex && trackIndex < trackInfos[rendererIndex].length;
+    boolean shouldEnable = 0 <= trackIndex && trackIndex < trackFormats[rendererIndex].length;
 
     if (isEnabled) {
       // The renderer is currently enabled. We need to disable it, so that we can either re-enable

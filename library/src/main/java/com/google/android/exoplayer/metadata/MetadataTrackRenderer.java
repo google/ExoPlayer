@@ -16,11 +16,11 @@
 package com.google.android.exoplayer.metadata;
 
 import com.google.android.exoplayer.ExoPlaybackException;
+import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSourceTrackRenderer;
-import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.util.Assertions;
 
@@ -88,8 +88,8 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
   }
 
   @Override
-  protected boolean handlesTrack(TrackInfo trackInfo) {
-    return metadataParser.canParse(trackInfo.mimeType);
+  protected boolean handlesTrack(MediaFormat mediaFormat) {
+    return metadataParser.canParse(mediaFormat.mimeType);
   }
 
   @Override

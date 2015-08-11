@@ -35,6 +35,11 @@ public final class MediaFormat {
   public final String mimeType;
   public final int maxInputSize;
 
+  /**
+   * The duration in microseconds, or {@link C#UNKNOWN_TIME_US} if the duration is unknown, or
+   * {@link C#MATCH_LONGEST_US} if the duration should match the duration of the longest track whose
+   * duration is known.
+   */
   public final long durationUs;
 
   public final int width;
@@ -48,8 +53,8 @@ public final class MediaFormat {
 
   public final List<byte[]> initializationData;
 
-  private int maxWidth;
-  private int maxHeight;
+  public final int maxWidth;
+  public final int maxHeight;
 
   // Lazy-initialized hashcode.
   private int hashCode;
@@ -71,7 +76,7 @@ public final class MediaFormat {
   public static MediaFormat createVideoFormat(String mimeType, int maxInputSize, long durationUs,
       int width, int height, float pixelWidthHeightRatio, List<byte[]> initializationData) {
     return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, pixelWidthHeightRatio,
-        NO_VALUE, NO_VALUE, null, initializationData);
+        NO_VALUE, NO_VALUE, null, initializationData, NO_VALUE, NO_VALUE);
   }
 
   public static MediaFormat createAudioFormat(String mimeType, int maxInputSize, int channelCount,
@@ -83,7 +88,7 @@ public final class MediaFormat {
   public static MediaFormat createAudioFormat(String mimeType, int maxInputSize, long durationUs,
       int channelCount, int sampleRate, List<byte[]> initializationData) {
     return new MediaFormat(mimeType, maxInputSize, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
-        channelCount, sampleRate, null, initializationData);
+        channelCount, sampleRate, null, initializationData, NO_VALUE, NO_VALUE);
   }
 
   public static MediaFormat createTextFormat(String mimeType, String language) {
@@ -92,7 +97,7 @@ public final class MediaFormat {
 
   public static MediaFormat createTextFormat(String mimeType, String language, long durationUs) {
     return new MediaFormat(mimeType, NO_VALUE, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, language, null);
+        NO_VALUE, NO_VALUE, language, null, NO_VALUE, NO_VALUE);
   }
 
   public static MediaFormat createFormatForMimeType(String mimeType) {
@@ -101,12 +106,12 @@ public final class MediaFormat {
 
   public static MediaFormat createFormatForMimeType(String mimeType, long durationUs) {
     return new MediaFormat(mimeType, NO_VALUE, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, null, null);
+        NO_VALUE, NO_VALUE, null, null, NO_VALUE, NO_VALUE);
   }
 
   /* package */ MediaFormat(String mimeType, int maxInputSize, long durationUs, int width,
       int height, float pixelWidthHeightRatio, int channelCount, int sampleRate, String language,
-      List<byte[]> initializationData) {
+      List<byte[]> initializationData, int maxWidth, int maxHeight) {
     this.mimeType = mimeType;
     this.maxInputSize = maxInputSize;
     this.durationUs = durationUs;
@@ -118,26 +123,13 @@ public final class MediaFormat {
     this.language = language;
     this.initializationData = initializationData == null ? Collections.<byte[]>emptyList()
         : initializationData;
-    maxWidth = NO_VALUE;
-    maxHeight = NO_VALUE;
-  }
-
-  @SuppressLint("InlinedApi")
-  public void setMaxVideoDimensions(int maxWidth, int maxHeight) {
     this.maxWidth = maxWidth;
     this.maxHeight = maxHeight;
-    if (frameworkMediaFormat != null) {
-      maybeSetIntegerV16(frameworkMediaFormat, android.media.MediaFormat.KEY_MAX_WIDTH, maxWidth);
-      maybeSetIntegerV16(frameworkMediaFormat, android.media.MediaFormat.KEY_MAX_HEIGHT, maxHeight);
-    }
   }
 
-  public int getMaxVideoWidth() {
-    return maxWidth;
-  }
-
-  public int getMaxVideoHeight() {
-    return maxHeight;
+  public MediaFormat copyWithMaxVideoDimension(int maxWidth, int maxHeight) {
+    return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, pixelWidthHeightRatio,
+        channelCount, sampleRate, language, initializationData, maxWidth, maxHeight);
   }
 
   /**

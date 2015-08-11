@@ -224,19 +224,17 @@ public class HlsChunkSource {
   }
 
   /**
-   * Adaptive implementations must set the maximum video dimensions on the supplied
-   * {@link MediaFormat}. Other implementations do nothing.
-   * <p>
-   * Only called when the source is enabled.
+   * Adaptive implementations must return a copy of the provided {@link MediaFormat} with the
+   * maximum video dimensions set. Other implementations can return the provided {@link MediaFormat}
+   * directly.
    *
-   * @param out The {@link MediaFormat} on which the maximum video dimensions should be set.
+   * @param format The format to be copied or returned.
+   * @return A copy of the provided {@link MediaFormat} with the maximum video dimensions set, or
+   *     the provided format.
    */
-  public void getMaxVideoDimensions(MediaFormat out) {
-    if (maxWidth == -1 || maxHeight == -1) {
-      // Not adaptive.
-      return;
-    }
-    out.setMaxVideoDimensions(maxWidth, maxHeight);
+  public MediaFormat getMaxVideoDimensions(MediaFormat format) {
+    return (maxWidth == -1 || maxHeight == -1) ? format
+        : format.copyWithMaxVideoDimension(maxWidth, maxHeight);
   }
 
   /**

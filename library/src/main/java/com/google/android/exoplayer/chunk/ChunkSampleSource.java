@@ -22,7 +22,6 @@ import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSource.SampleSourceReader;
-import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.upstream.Loader;
@@ -132,7 +131,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
     if (state == STATE_PREPARED) {
       return true;
     }
-    loader = new Loader("Loader:" + chunkSource.getTrackInfo().mimeType);
+    loader = new Loader("Loader:" + chunkSource.getFormat().mimeType);
     state = STATE_PREPARED;
     return true;
   }
@@ -144,10 +143,10 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   }
 
   @Override
-  public TrackInfo getTrackInfo(int track) {
+  public MediaFormat getFormat(int track) {
     Assertions.checkState(state == STATE_PREPARED || state == STATE_ENABLED);
     Assertions.checkState(track == 0);
-    return chunkSource.getTrackInfo();
+    return chunkSource.getFormat();
   }
 
   @Override
@@ -232,7 +231,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
     if (haveSamples || currentChunk.isMediaFormatFinal) {
       MediaFormat mediaFormat = currentChunk.getMediaFormat();
       if (!mediaFormat.equals(downstreamMediaFormat, true)) {
-        chunkSource.getMaxVideoDimensions(mediaFormat);
+        mediaFormat = chunkSource.getWithMaxVideoDimensions(mediaFormat);
         formatHolder.format = mediaFormat;
         formatHolder.drmInitData = currentChunk.getDrmInitData();
         downstreamMediaFormat = mediaFormat;

@@ -18,7 +18,6 @@ package com.google.android.exoplayer.dash;
 import com.google.android.exoplayer.BehindLiveWindowException;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.TimeRange;
-import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkExtractorWrapper;
@@ -98,7 +97,7 @@ public class DashChunkSource implements ChunkSource {
   private final Handler eventHandler;
   private final EventListener eventListener;
 
-  private final TrackInfo trackInfo;
+  private final MediaFormat mediaFormat;
   private final DataSource dataSource;
   private final FormatEvaluator formatEvaluator;
   private final Evaluation evaluation;
@@ -263,7 +262,9 @@ public class DashChunkSource implements ChunkSource {
         adaptationSetIndex, representationIndices);
     long periodDurationUs = (representations[0].periodDurationMs == TrackRenderer.UNKNOWN_TIME_US)
         ? TrackRenderer.UNKNOWN_TIME_US : representations[0].periodDurationMs * 1000;
-    this.trackInfo = new TrackInfo(representations[0].format.mimeType, periodDurationUs);
+    // TODO: Remove this and pass proper formats instead (b/22996976).
+    this.mediaFormat = MediaFormat.createFormatForMimeType(representations[0].format.mimeType,
+        periodDurationUs);
 
     this.formats = new Format[representations.length];
     this.representationHolders = new HashMap<>();
@@ -284,15 +285,14 @@ public class DashChunkSource implements ChunkSource {
   }
 
   @Override
-  public final void getMaxVideoDimensions(MediaFormat out) {
-    if (trackInfo.mimeType.startsWith("video")) {
-      out.setMaxVideoDimensions(maxWidth, maxHeight);
-    }
+  public final MediaFormat getWithMaxVideoDimensions(MediaFormat format) {
+    return MimeTypes.isVideo(mediaFormat.mimeType)
+        ? format.copyWithMaxVideoDimension(maxWidth, maxHeight) : format;
   }
 
   @Override
-  public final TrackInfo getTrackInfo() {
-    return trackInfo;
+  public final MediaFormat getFormat() {
+    return mediaFormat;
   }
 
   // VisibleForTesting

@@ -34,7 +34,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private final Handler eventHandler;
   private final ExoPlayerImplInternal internalPlayer;
   private final CopyOnWriteArraySet<Listener> listeners;
-  private final TrackInfo[][] trackInfos;
+  private final MediaFormat[][] trackFormats;
   private final int[] selectedTrackIndices;
 
   private boolean playWhenReady;
@@ -58,7 +58,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     this.playWhenReady = false;
     this.playbackState = STATE_IDLE;
     this.listeners = new CopyOnWriteArraySet<>();
-    this.trackInfos = new TrackInfo[rendererCount][];
+    this.trackFormats = new MediaFormat[rendererCount][];
     this.selectedTrackIndices = new int[rendererCount];
     eventHandler = new Handler() {
       @Override
@@ -92,7 +92,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void prepare(TrackRenderer... renderers) {
-    Arrays.fill(trackInfos, null);
+    Arrays.fill(trackFormats, null);
     internalPlayer.prepare(renderers);
   }
 
@@ -116,12 +116,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   // TODO: Expose in ExoPlayer.
   public int getRendererTrackCount(int rendererIndex) {
-    return trackInfos[rendererIndex] != null ? trackInfos[rendererIndex].length : 0;
+    return trackFormats[rendererIndex] != null ? trackFormats[rendererIndex].length : 0;
   }
 
   // TODO: Expose in ExoPlayer.
-  public TrackInfo getRendererTrackInfo(int rendererIndex, int trackIndex) {
-    return trackInfos[rendererIndex][trackIndex];
+  public MediaFormat getRendererTrackInfo(int rendererIndex, int trackIndex) {
+    return trackFormats[rendererIndex][trackIndex];
   }
 
   // TODO: Expose in ExoPlayer.
@@ -212,8 +212,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   /* package */ void handleEvent(Message msg) {
     switch (msg.what) {
       case ExoPlayerImplInternal.MSG_PREPARED: {
-        TrackInfo[][] trackInfos = (TrackInfo[][]) msg.obj;
-        System.arraycopy(trackInfos, 0, this.trackInfos, 0, trackInfos.length);
+        System.arraycopy(msg.obj, 0, trackFormats, 0, trackFormats.length);
         playbackState = msg.arg1;
         for (Listener listener : listeners) {
           listener.onPlayerStateChanged(playWhenReady, playbackState);

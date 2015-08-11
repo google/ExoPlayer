@@ -30,7 +30,6 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
 
   private int enabledSourceTrackIndex;
   private int[] handledSourceTrackIndices;
-  private TrackInfo[] trackInfos;
 
   /**
    * @param source The upstream source from which the renderer obtains samples.
@@ -48,27 +47,24 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
     int handledTrackCount = 0;
     int sourceTrackCount = source.getTrackCount();
     int[] trackIndices = new int[sourceTrackCount];
-    TrackInfo[] trackInfos = new TrackInfo[sourceTrackCount];
     for (int trackIndex = 0; trackIndex < sourceTrackCount; trackIndex++) {
-      TrackInfo trackInfo = source.getTrackInfo(trackIndex);
-      if (handlesTrack(trackInfo)) {
+      MediaFormat format = source.getFormat(trackIndex);
+      if (handlesTrack(format)) {
         trackIndices[handledTrackCount] = trackIndex;
-        trackInfos[handledTrackCount] = trackInfo;
         handledTrackCount++;
       }
     }
     this.handledSourceTrackIndices = Arrays.copyOf(trackIndices, handledTrackCount);
-    this.trackInfos = Arrays.copyOf(trackInfos, handledTrackCount);
     return true;
   }
 
   /**
    * Returns whether this renderer is capable of handling the provided track.
    *
-   * @param trackInfo The track.
+   * @param mediaFormat The track.
    * @return True if the renderer can handle the track, false otherwise.
    */
-  protected abstract boolean handlesTrack(TrackInfo trackInfo);
+  protected abstract boolean handlesTrack(MediaFormat mediaFormat);
 
   @Override
   protected void onEnabled(int track, long positionUs, boolean joining)
@@ -89,7 +85,7 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
 
   @Override
   protected long getDurationUs() {
-    return source.getTrackInfo(enabledSourceTrackIndex).durationUs;
+    return source.getFormat(enabledSourceTrackIndex).durationUs;
   }
 
   @Override
@@ -123,12 +119,12 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
 
   @Override
   protected final int getTrackCount() {
-    return trackInfos.length;
+    return handledSourceTrackIndices.length;
   }
 
   @Override
-  protected final TrackInfo getTrackInfo(int track) {
-    return trackInfos[track];
+  protected final MediaFormat getFormat(int track) {
+    return source.getFormat(handledSourceTrackIndices[track]);
   }
 
 }

@@ -22,7 +22,6 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSource.SampleSourceReader;
-import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.upstream.Allocator;
@@ -163,7 +162,7 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
 
   private boolean prepared;
   private int enabledTrackCount;
-  private TrackInfo[] trackInfos;
+  private MediaFormat[] mediaFormats;
   private long maxTrackDurationUs;
   private boolean[] pendingMediaFormat;
   private boolean[] pendingDiscontinuities;
@@ -292,11 +291,11 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
       trackEnabledStates = new boolean[trackCount];
       pendingDiscontinuities = new boolean[trackCount];
       pendingMediaFormat = new boolean[trackCount];
-      trackInfos = new TrackInfo[trackCount];
+      mediaFormats = new MediaFormat[trackCount];
       maxTrackDurationUs = C.UNKNOWN_TIME_US;
       for (int i = 0; i < trackCount; i++) {
         MediaFormat format = sampleQueues.valueAt(i).getFormat();
-        trackInfos[i] = new TrackInfo(format.mimeType, format.durationUs);
+        mediaFormats[i] = format;
         if (format.durationUs != C.UNKNOWN_TIME_US && format.durationUs > maxTrackDurationUs) {
           maxTrackDurationUs = format.durationUs;
         }
@@ -314,9 +313,9 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
   }
 
   @Override
-  public TrackInfo getTrackInfo(int track) {
+  public MediaFormat getFormat(int track) {
     Assertions.checkState(prepared);
-    return trackInfos[track];
+    return mediaFormats[track];
   }
 
   @Override

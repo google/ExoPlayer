@@ -73,7 +73,7 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
 
   private IOException preparationError;
   private MediaExtractor extractor;
-  private TrackInfo[] trackInfos;
+  private MediaFormat[] trackFormats;
   private boolean prepared;
   private int remainingReleaseCount;
   private int[] trackStates;
@@ -144,13 +144,9 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
 
       trackStates = new int[extractor.getTrackCount()];
       pendingDiscontinuities = new boolean[trackStates.length];
-      trackInfos = new TrackInfo[trackStates.length];
+      trackFormats = new MediaFormat[trackStates.length];
       for (int i = 0; i < trackStates.length; i++) {
-        android.media.MediaFormat format = extractor.getTrackFormat(i);
-        long durationUs = format.containsKey(android.media.MediaFormat.KEY_DURATION)
-            ? format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
-        String mime = format.getString(android.media.MediaFormat.KEY_MIME);
-        trackInfos[i] = new TrackInfo(mime, durationUs);
+        trackFormats[i] = createMediaFormat(extractor.getTrackFormat(i));
       }
       prepared = true;
     }
@@ -164,9 +160,9 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
   }
 
   @Override
-  public TrackInfo getTrackInfo(int track) {
+  public MediaFormat getFormat(int track) {
     Assertions.checkState(prepared);
-    return trackInfos[track];
+    return trackFormats[track];
   }
 
   @Override
@@ -200,7 +196,7 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
       return NOTHING_READ;
     }
     if (trackStates[track] != TRACK_STATE_FORMAT_SENT) {
-      formatHolder.format = createMediaFormat(extractor.getTrackFormat(track));
+      formatHolder.format = trackFormats[track];
       formatHolder.drmInitData = Util.SDK_INT >= 18 ? getDrmInitDataV18() : null;
       trackStates[track] = TRACK_STATE_FORMAT_SENT;
       return FORMAT_READ;
@@ -319,7 +315,8 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
     long durationUs = format.containsKey(android.media.MediaFormat.KEY_DURATION)
         ? format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
     return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, MediaFormat.NO_VALUE,
-        channelCount, sampleRate, language, initializationData);
+        channelCount, sampleRate, language, initializationData, MediaFormat.NO_VALUE,
+        MediaFormat.NO_VALUE);
   }
 
   @TargetApi(16)
