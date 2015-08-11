@@ -90,18 +90,6 @@ public final class C {
    */
   public static final int RESULT_END_OF_INPUT = -1;
 
-  /**
-   * A prefix for custom ExoPlayer WebVTT headers.
-   */
-  public static final String WEBVTT_EXO_HEADER = "EXO-HEADER";
-
-  /**
-   * An element of a custom ExoPlayer WebVTT header. An {@code WEBVTT_OFFSET + value} element can
-   * be added to a custom ExoPlayer WebVTT header to specify an offset time (in microseconds) that
-   * should be added to the embedded MPEGTS value.
-   */
-  public static final String WEBVTT_EXO_HEADER_OFFSET = "OFFSET:";
-
   private C() {}
 
 }
