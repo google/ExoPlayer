@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.ext.vp9;
 
+import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaFormat;
@@ -88,6 +89,8 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
    */
   public static final int MSG_SET_SURFACE = 1;
   public static final int MSG_SET_VPX_SURFACE_VIEW = 2;
+
+  public final CodecCounters codecCounters = new CodecCounters();
 
   private final boolean scaleToFit;
   private final Handler eventHandler;
@@ -209,6 +212,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
 
     if (timeToRenderUs < -30000 || outputBuffer.timestampUs < positionUs) {
       // Drop frame if we are too late.
+      codecCounters.droppedOutputBufferCount++;
       droppedFrameCount++;
       if (droppedFrameCount == maxDroppedFrameCountToNotify) {
         notifyAndResetDroppedFrameCount();
@@ -217,7 +221,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
       return;
     }
 
-    // If we have not renderered any frame so far (either initially or immediately following a
+    // If we have not rendered any frame so far (either initially or immediately following a
     // seek), render one frame irresepective of the state.
     if (!renderedFirstFrame) {
       renderBuffer();
@@ -243,6 +247,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
   }
 
   private void renderBuffer() throws VpxDecoderException {
+    codecCounters.renderedOutputBufferCount++;
     notifyIfVideoSizeChanged(outputBuffer);
     if (outputRgb) {
       renderRgbFrame(outputBuffer, scaleToFit);
