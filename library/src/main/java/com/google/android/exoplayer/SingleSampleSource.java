@@ -176,7 +176,7 @@ public final class SingleSampleSource implements SampleSource, SampleSourceReade
   // Private methods.
 
   private void maybeStartLoading() {
-    if (loadingFinished || state != STATE_END_OF_STREAM || loader.isLoading()) {
+    if (loadingFinished || state == STATE_END_OF_STREAM || loader.isLoading()) {
       return;
     }
     if (currentLoadableException != null) {

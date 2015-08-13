@@ -138,6 +138,12 @@ public final class MediaFormat {
         maxHeight);
   }
 
+  public MediaFormat copyWithDurationUs(long durationUs) {
+    return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, rotationDegrees,
+        pixelWidthHeightRatio, channelCount, sampleRate, language, initializationData, maxWidth,
+        maxHeight);
+  }
+
   /**
    * @return A {@link MediaFormat} representation of this format.
    */
