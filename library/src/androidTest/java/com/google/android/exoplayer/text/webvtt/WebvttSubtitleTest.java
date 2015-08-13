@@ -32,7 +32,7 @@ public class WebvttSubtitleTest extends TestCase {
   private static final String FIRST_AND_SECOND_SUBTITLE_STRING =
       FIRST_SUBTITLE_STRING + "\n" + SECOND_SUBTITLE_STRING;
 
-  private WebvttSubtitle emptySubtitle = new WebvttSubtitle(new ArrayList<WebvttCue>(), 0);
+  private WebvttSubtitle emptySubtitle = new WebvttSubtitle(new ArrayList<WebvttCue>());
 
   private ArrayList<WebvttCue> simpleSubtitleCues = new ArrayList<>();
   {
@@ -42,7 +42,7 @@ public class WebvttSubtitleTest extends TestCase {
     WebvttCue secondCue = new WebvttCue(3000000, 4000000, SECOND_SUBTITLE_STRING);
     simpleSubtitleCues.add(secondCue);
   }
-  private WebvttSubtitle simpleSubtitle = new WebvttSubtitle(simpleSubtitleCues, 0);
+  private WebvttSubtitle simpleSubtitle = new WebvttSubtitle(simpleSubtitleCues);
 
   private ArrayList<WebvttCue> overlappingSubtitleCues = new ArrayList<>();
   {
@@ -52,7 +52,7 @@ public class WebvttSubtitleTest extends TestCase {
     WebvttCue secondCue = new WebvttCue(2000000, 4000000, SECOND_SUBTITLE_STRING);
     overlappingSubtitleCues.add(secondCue);
   }
-  private WebvttSubtitle overlappingSubtitle = new WebvttSubtitle(overlappingSubtitleCues, 0);
+  private WebvttSubtitle overlappingSubtitle = new WebvttSubtitle(overlappingSubtitleCues);
 
   private ArrayList<WebvttCue> nestedSubtitleCues = new ArrayList<>();
   {
@@ -62,20 +62,13 @@ public class WebvttSubtitleTest extends TestCase {
     WebvttCue secondCue = new WebvttCue(2000000, 3000000, SECOND_SUBTITLE_STRING);
     nestedSubtitleCues.add(secondCue);
   }
-  private WebvttSubtitle nestedSubtitle = new WebvttSubtitle(nestedSubtitleCues, 0);
+  private WebvttSubtitle nestedSubtitle = new WebvttSubtitle(nestedSubtitleCues);
 
   public void testEventCount() {
     assertEquals(0, emptySubtitle.getEventTimeCount());
     assertEquals(4, simpleSubtitle.getEventTimeCount());
     assertEquals(4, overlappingSubtitle.getEventTimeCount());
     assertEquals(4, nestedSubtitle.getEventTimeCount());
-  }
-
-  public void testStartTime() {
-    assertEquals(0, emptySubtitle.getStartTime());
-    assertEquals(0, simpleSubtitle.getStartTime());
-    assertEquals(0, overlappingSubtitle.getStartTime());
-    assertEquals(0, nestedSubtitle.getStartTime());
   }
 
   public void testLastEventTime() {

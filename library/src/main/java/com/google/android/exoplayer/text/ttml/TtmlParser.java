@@ -84,7 +84,7 @@ public final class TtmlParser implements SubtitleParser {
   }
 
   /**
-   * @param strictParsing If true, {@link #parse(InputStream, String, long)} will throw a
+   * @param strictParsing If true, {@link #parse(InputStream, String)} will throw a
    *     {@link ParserException} if the stream contains invalid data. If false, the parser will
    *     make a best effort to ignore minor errors in the stream. Note however that a
    *     {@link ParserException} will still be thrown when this is not possible.
@@ -99,8 +99,7 @@ public final class TtmlParser implements SubtitleParser {
   }
 
   @Override
-  public Subtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
-      throws IOException {
+  public Subtitle parse(InputStream inputStream, String inputEncoding) throws IOException {
     try {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
       xmlParser.setInput(inputStream, inputEncoding);
@@ -137,7 +136,7 @@ public final class TtmlParser implements SubtitleParser {
             parent.addChild(TtmlNode.buildTextNode(xmlParser.getText()));
           } else if (eventType == XmlPullParser.END_TAG) {
             if (xmlParser.getName().equals(TtmlNode.TAG_TT)) {
-              ttmlSubtitle = new TtmlSubtitle(nodeStack.getLast(), startTimeUs);
+              ttmlSubtitle = new TtmlSubtitle(nodeStack.getLast());
             }
             nodeStack.removeLast();
           }

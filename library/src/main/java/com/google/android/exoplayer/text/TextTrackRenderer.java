@@ -110,8 +110,8 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
 
   private int parserIndex;
   private boolean inputStreamEnded;
-  private Subtitle subtitle;
-  private Subtitle nextSubtitle;
+  private PlayableSubtitle subtitle;
+  private PlayableSubtitle nextSubtitle;
   private SubtitleParserHelper parserHelper;
   private HandlerThread parserThread;
   private int nextSubtitleEventIndex;
@@ -208,7 +208,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
     }
 
     if (subtitleNextEventTimeUs == Long.MAX_VALUE && nextSubtitle != null
-        && nextSubtitle.getStartTime() <= positionUs) {
+        && nextSubtitle.startTimeUs <= positionUs) {
       // Advance to the next subtitle. Sync the next event index and trigger an update.
       subtitle = nextSubtitle;
       nextSubtitle = null;

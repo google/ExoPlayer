@@ -17,6 +17,7 @@ package com.google.android.exoplayer.text;
 
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.Util;
 
 import android.media.MediaCodec;
 import android.os.Handler;
@@ -31,14 +32,14 @@ import java.io.InputStream;
  * Wraps a {@link SubtitleParser}, exposing an interface similar to {@link MediaCodec} for
  * asynchronous parsing of subtitles.
  */
-public final class SubtitleParserHelper implements Handler.Callback {
+/* package */ final class SubtitleParserHelper implements Handler.Callback {
 
   private final SubtitleParser parser;
 
   private final Handler handler;
   private SampleHolder sampleHolder;
   private boolean parsing;
-  private Subtitle result;
+  private PlayableSubtitle result;
   private IOException error;
 
   /**
@@ -94,7 +95,8 @@ public final class SubtitleParserHelper implements Handler.Callback {
     parsing = true;
     result = null;
     error = null;
-    handler.obtainMessage(0, sampleHolder).sendToTarget();
+    handler.obtainMessage(0, Util.getTopInt(sampleHolder.timeUs),
+        Util.getBottomInt(sampleHolder.timeUs), sampleHolder).sendToTarget();
   }
 
   /**
@@ -106,7 +108,7 @@ public final class SubtitleParserHelper implements Handler.Callback {
    * @return The result of the parsing operation, or null.
    * @throws IOException If the parsing operation failed.
    */
-  public synchronized Subtitle getAndClearResult() throws IOException {
+  public synchronized PlayableSubtitle getAndClearResult() throws IOException {
     try {
       if (error != null) {
         throw error;
@@ -120,22 +122,21 @@ public final class SubtitleParserHelper implements Handler.Callback {
 
   @Override
   public boolean handleMessage(Message msg) {
-    Subtitle result;
-    IOException error;
+    long sampleTimeUs = Util.getLong(msg.arg1, msg.arg2);
     SampleHolder holder = (SampleHolder) msg.obj;
+    Subtitle parsedSubtitle = null;
+    IOException error = null;
     try {
       InputStream inputStream = new ByteArrayInputStream(holder.data.array(), 0, holder.size);
-      result = parser.parse(inputStream, null, sampleHolder.timeUs);
-      error = null;
+      parsedSubtitle = parser.parse(inputStream, null);
     } catch (IOException e) {
-      result = null;
       error = e;
     }
     synchronized (this) {
       if (sampleHolder != holder) {
         // A flush has occurred since this holder was posted. Do nothing.
       } else {
-        this.result = result;
+        this.result = new PlayableSubtitle(sampleTimeUs, parsedSubtitle);
         this.error = error;
         this.parsing = false;
       }

@@ -74,7 +74,7 @@ public final class WebvttParser implements SubtitleParser {
   }
 
   /**
-   * @param strictParsing If true, {@link #parse(InputStream, String, long)} will throw a
+   * @param strictParsing If true, {@link #parse(InputStream, String)} will throw a
    *     {@link ParserException} if the stream contains invalid data. If false, the parser will
    *     make a best effort to ignore minor errors in the stream. Note however that a
    *     {@link ParserException} will still be thrown when this is not possible.
@@ -85,7 +85,7 @@ public final class WebvttParser implements SubtitleParser {
   }
 
   @Override
-  public final WebvttSubtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
+  public final WebvttSubtitle parse(InputStream inputStream, String inputEncoding)
       throws IOException {
     ArrayList<WebvttCue> subtitles = new ArrayList<>();
 
@@ -142,7 +142,7 @@ public final class WebvttParser implements SubtitleParser {
       if (!matcher.find()) {
         throw new ParserException("Expected cue start time: " + line);
       } else {
-        startTime = parseTimestampUs(matcher.group()) + startTimeUs;
+        startTime = parseTimestampUs(matcher.group());
       }
 
       // parse end timestamp
@@ -151,7 +151,7 @@ public final class WebvttParser implements SubtitleParser {
         throw new ParserException("Expected cue end time: " + line);
       } else {
         endTimeString = matcher.group();
-        endTime = parseTimestampUs(endTimeString) + startTimeUs;
+        endTime = parseTimestampUs(endTimeString);
       }
 
       // parse the (optional) cue setting list
@@ -213,7 +213,7 @@ public final class WebvttParser implements SubtitleParser {
       subtitles.add(cue);
     }
 
-    return new WebvttSubtitle(subtitles, startTimeUs);
+    return new WebvttSubtitle(subtitles);
   }
 
   @Override

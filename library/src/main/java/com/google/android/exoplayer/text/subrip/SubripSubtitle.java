@@ -28,25 +28,16 @@ import java.util.List;
  */
 /* package */ final class SubripSubtitle implements Subtitle {
 
-  private final long startTimeUs;
-
   private final Cue[] cues;
   private final long[] cueTimesUs;
 
   /**
-   * @param startTimeUs The start time of the subtitle, in microseconds.
    * @param cues The cues in the subtitle.
    * @param cueTimesUs Interleaved cue start and end times, in microseconds.
    */
-  public SubripSubtitle(long startTimeUs, Cue[] cues, long[] cueTimesUs) {
-    this.startTimeUs = startTimeUs;
+  public SubripSubtitle(Cue[] cues, long[] cueTimesUs) {
     this.cues = cues;
     this.cueTimesUs = cueTimesUs;
-  }
-
-  @Override
-  public long getStartTime() {
-    return startTimeUs;
   }
 
   @Override
