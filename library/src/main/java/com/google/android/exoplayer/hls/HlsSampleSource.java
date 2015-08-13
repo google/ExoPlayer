@@ -136,7 +136,8 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
         downstreamMediaFormats = new MediaFormat[trackCount];
         mediaFormats = new MediaFormat[trackCount];
         for (int i = 0; i < trackCount; i++) {
-          mediaFormats[i] = extractor.getMediaFormat(i);
+          mediaFormats[i] = extractor.getMediaFormat(i).copyWithDurationUs(
+              chunkSource.getDurationUs());
         }
         prepared = true;
         return true;
