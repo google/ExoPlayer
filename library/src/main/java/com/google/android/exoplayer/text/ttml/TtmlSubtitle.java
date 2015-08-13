@@ -28,23 +28,16 @@ import java.util.List;
 public final class TtmlSubtitle implements Subtitle {
 
   private final TtmlNode root;
-  private final long startTimeUs;
   private final long[] eventTimesUs;
 
-  public TtmlSubtitle(TtmlNode root, long startTimeUs) {
+  public TtmlSubtitle(TtmlNode root) {
     this.root = root;
-    this.startTimeUs = startTimeUs;
     this.eventTimesUs = root.getEventTimesUs();
   }
 
   @Override
-  public long getStartTime() {
-    return startTimeUs;
-  }
-
-  @Override
   public int getNextEventTimeIndex(long timeUs) {
-    int index = Util.binarySearchCeil(eventTimesUs, timeUs - startTimeUs, false, false);
+    int index = Util.binarySearchCeil(eventTimesUs, timeUs, false, false);
     return index < eventTimesUs.length ? index : -1;
   }
 
@@ -55,17 +48,17 @@ public final class TtmlSubtitle implements Subtitle {
 
   @Override
   public long getEventTime(int index) {
-    return eventTimesUs[index] + startTimeUs;
+    return eventTimesUs[index];
   }
 
   @Override
   public long getLastEventTime() {
-    return (eventTimesUs.length == 0 ? -1 : eventTimesUs[eventTimesUs.length - 1]) + startTimeUs;
+    return (eventTimesUs.length == 0 ? -1 : eventTimesUs[eventTimesUs.length - 1]);
   }
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    CharSequence cueText = root.getText(timeUs - startTimeUs);
+    CharSequence cueText = root.getText(timeUs);
     if (cueText == null) {
       return Collections.<Cue>emptyList();
     } else {

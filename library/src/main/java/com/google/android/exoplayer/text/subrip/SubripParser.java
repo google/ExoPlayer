@@ -50,8 +50,7 @@ public final class SubripParser implements SubtitleParser {
   }
 
   @Override
-  public SubripSubtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
-      throws IOException {
+  public SubripSubtitle parse(InputStream inputStream, String inputEncoding) throws IOException {
     ArrayList<Cue> cues = new ArrayList<>();
     LongArray cueTimesUs = new LongArray();
     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, C.UTF8_NAME));
@@ -69,8 +68,8 @@ public final class SubripParser implements SubtitleParser {
       currentLine = reader.readLine();
       Matcher matcher = SUBRIP_TIMING_LINE.matcher(currentLine);
       if (matcher.find()) {
-        cueTimesUs.add(startTimeUs + parseTimestampUs(matcher.group(1)));
-        cueTimesUs.add(startTimeUs + parseTimestampUs(matcher.group(2)));
+        cueTimesUs.add(parseTimestampUs(matcher.group(1)));
+        cueTimesUs.add(parseTimestampUs(matcher.group(2)));
       } else {
         throw new ParserException("Expected timing line: " + currentLine);
       }
@@ -91,7 +90,7 @@ public final class SubripParser implements SubtitleParser {
     Cue[] cuesArray = new Cue[cues.size()];
     cues.toArray(cuesArray);
     long[] cueTimesUsArray = cueTimesUs.toArray();
-    return new SubripSubtitle(startTimeUs, cuesArray, cueTimesUsArray);
+    return new SubripSubtitle(cuesArray, cueTimesUsArray);
   }
 
   @Override

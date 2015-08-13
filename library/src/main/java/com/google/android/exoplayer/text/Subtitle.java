@@ -23,16 +23,6 @@ import java.util.List;
 public interface Subtitle {
 
   /**
-   * Gets the start time of the subtitle.
-   * <p>
-   * Note that the value returned may be less than {@code getEventTime(0)}, since a subtitle may
-   * begin prior to the time of the first event.
-   *
-   * @return The start time of the subtitle in microseconds.
-   */
-  public long getStartTime();
-
-  /**
    * Gets the index of the first event that occurs after a given time (exclusive).
    *
    * @param timeUs The time in microseconds.

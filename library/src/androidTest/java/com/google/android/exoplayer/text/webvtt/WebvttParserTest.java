@@ -39,7 +39,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
         getInstrumentation().getContext().getResources().getAssets().open(EMPTY_WEBVTT_FILE);
 
     try {
-      parser.parse(inputStream, C.UTF8_NAME, 0);
+      parser.parse(inputStream, C.UTF8_NAME);
       fail("Expected IOException");
     } catch (IOException expected) {
       // Do nothing.
@@ -50,10 +50,9 @@ public class WebvttParserTest extends InstrumentationTestCase {
     WebvttParser parser = new WebvttParser();
     InputStream inputStream =
         getInstrumentation().getContext().getResources().getAssets().open(TYPICAL_WEBVTT_FILE);
-    WebvttSubtitle subtitle = parser.parse(inputStream, C.UTF8_NAME, 0);
+    WebvttSubtitle subtitle = parser.parse(inputStream, C.UTF8_NAME);
 
-    // test start time and event count
-    assertEquals(0, subtitle.getStartTime());
+    // test event count
     assertEquals(4, subtitle.getEventTimeCount());
 
     // test first cue
@@ -74,10 +73,9 @@ public class WebvttParserTest extends InstrumentationTestCase {
     InputStream inputStream =
         getInstrumentation().getContext().getResources().getAssets()
           .open(TYPICAL_WITH_IDS_WEBVTT_FILE);
-    WebvttSubtitle subtitle = parser.parse(inputStream, C.UTF8_NAME, 0);
+    WebvttSubtitle subtitle = parser.parse(inputStream, C.UTF8_NAME);
 
-    // test start time and event count
-    assertEquals(0, subtitle.getStartTime());
+    // test event count
     assertEquals(4, subtitle.getEventTimeCount());
 
     // test first cue
@@ -98,10 +96,9 @@ public class WebvttParserTest extends InstrumentationTestCase {
     InputStream inputStream =
         getInstrumentation().getContext().getResources().getAssets()
           .open(TYPICAL_WITH_TAGS_WEBVTT_FILE);
-    WebvttSubtitle subtitle = parser.parse(inputStream, C.UTF8_NAME, 0);
+    WebvttSubtitle subtitle = parser.parse(inputStream, C.UTF8_NAME);
 
-    // test start time and event count
-    assertEquals(0, subtitle.getStartTime());
+    // test event count
     assertEquals(8, subtitle.getEventTimeCount());
 
     // test first cue
@@ -133,11 +130,10 @@ public class WebvttParserTest extends InstrumentationTestCase {
     WebvttParser parser = new WebvttParser();
     InputStream inputStream =
         getInstrumentation().getContext().getResources().getAssets().open(LIVE_TYPICAL_WEBVTT_FILE);
-    WebvttSubtitle subtitle = parser.parse(inputStream, C.UTF8_NAME, 0);
+    WebvttSubtitle subtitle = parser.parse(inputStream, C.UTF8_NAME);
 
-    // test start time and event count
+    // test event count
     long startTimeUs = 0;
-    assertEquals(startTimeUs, subtitle.getStartTime());
     assertEquals(4, subtitle.getEventTimeCount());
 
     // test first cue
