@@ -44,6 +44,7 @@ public final class MediaFormat {
 
   public final int width;
   public final int height;
+  public final int rotationDegrees;
   public final float pixelWidthHeightRatio;
 
   public final int channelCount;
@@ -64,19 +65,21 @@ public final class MediaFormat {
   public static MediaFormat createVideoFormat(String mimeType, int maxInputSize, int width,
       int height, List<byte[]> initializationData) {
     return createVideoFormat(
-        mimeType, maxInputSize, C.UNKNOWN_TIME_US, width, height, initializationData);
+        mimeType, maxInputSize, C.UNKNOWN_TIME_US, width, height, NO_VALUE, initializationData);
   }
 
   public static MediaFormat createVideoFormat(String mimeType, int maxInputSize, long durationUs,
-      int width, int height, List<byte[]> initializationData) {
+      int width, int height, int rotationDegrees, List<byte[]> initializationData) {
     return createVideoFormat(
-        mimeType, maxInputSize, durationUs, width, height, 1, initializationData);
+        mimeType, maxInputSize, durationUs, width, height, rotationDegrees, NO_VALUE,
+        initializationData);
   }
 
   public static MediaFormat createVideoFormat(String mimeType, int maxInputSize, long durationUs,
-      int width, int height, float pixelWidthHeightRatio, List<byte[]> initializationData) {
-    return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, pixelWidthHeightRatio,
-        NO_VALUE, NO_VALUE, null, initializationData, NO_VALUE, NO_VALUE);
+      int width, int height, int rotationDegrees, float pixelWidthHeightRatio,
+      List<byte[]> initializationData) {
+    return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, rotationDegrees,
+        pixelWidthHeightRatio, NO_VALUE, NO_VALUE, null, initializationData, NO_VALUE, NO_VALUE);
   }
 
   public static MediaFormat createAudioFormat(String mimeType, int maxInputSize, int channelCount,
@@ -88,7 +91,7 @@ public final class MediaFormat {
   public static MediaFormat createAudioFormat(String mimeType, int maxInputSize, long durationUs,
       int channelCount, int sampleRate, List<byte[]> initializationData) {
     return new MediaFormat(mimeType, maxInputSize, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
-        channelCount, sampleRate, null, initializationData, NO_VALUE, NO_VALUE);
+        NO_VALUE, channelCount, sampleRate, null, initializationData, NO_VALUE, NO_VALUE);
   }
 
   public static MediaFormat createTextFormat(String mimeType, String language) {
@@ -97,7 +100,7 @@ public final class MediaFormat {
 
   public static MediaFormat createTextFormat(String mimeType, String language, long durationUs) {
     return new MediaFormat(mimeType, NO_VALUE, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, language, null, NO_VALUE, NO_VALUE);
+        NO_VALUE, NO_VALUE, NO_VALUE, language, null, NO_VALUE, NO_VALUE);
   }
 
   public static MediaFormat createFormatForMimeType(String mimeType) {
@@ -106,17 +109,19 @@ public final class MediaFormat {
 
   public static MediaFormat createFormatForMimeType(String mimeType, long durationUs) {
     return new MediaFormat(mimeType, NO_VALUE, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, null, null, NO_VALUE, NO_VALUE);
+        NO_VALUE, NO_VALUE, NO_VALUE, null, null, NO_VALUE, NO_VALUE);
   }
 
   /* package */ MediaFormat(String mimeType, int maxInputSize, long durationUs, int width,
-      int height, float pixelWidthHeightRatio, int channelCount, int sampleRate, String language,
-      List<byte[]> initializationData, int maxWidth, int maxHeight) {
+      int height, int rotationDegrees, float pixelWidthHeightRatio, int channelCount,
+      int sampleRate, String language, List<byte[]> initializationData, int maxWidth,
+      int maxHeight) {
     this.mimeType = mimeType;
     this.maxInputSize = maxInputSize;
     this.durationUs = durationUs;
     this.width = width;
     this.height = height;
+    this.rotationDegrees = rotationDegrees;
     this.pixelWidthHeightRatio = pixelWidthHeightRatio;
     this.channelCount = channelCount;
     this.sampleRate = sampleRate;
@@ -128,8 +133,9 @@ public final class MediaFormat {
   }
 
   public MediaFormat copyWithMaxVideoDimension(int maxWidth, int maxHeight) {
-    return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, pixelWidthHeightRatio,
-        channelCount, sampleRate, language, initializationData, maxWidth, maxHeight);
+    return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, rotationDegrees,
+        pixelWidthHeightRatio, channelCount, sampleRate, language, initializationData, maxWidth,
+        maxHeight);
   }
 
   /**
@@ -145,6 +151,7 @@ public final class MediaFormat {
       maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
       maybeSetIntegerV16(format, android.media.MediaFormat.KEY_WIDTH, width);
       maybeSetIntegerV16(format, android.media.MediaFormat.KEY_HEIGHT, height);
+      maybeSetIntegerV16(format, "rotation-degrees", rotationDegrees);
       maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_WIDTH, maxWidth);
       maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_HEIGHT, maxHeight);
       maybeSetIntegerV16(format, android.media.MediaFormat.KEY_CHANNEL_COUNT, channelCount);
@@ -163,8 +170,8 @@ public final class MediaFormat {
   @Override
   public String toString() {
     return "MediaFormat(" + mimeType + ", " + maxInputSize + ", " + width + ", " + height + ", "
-        + pixelWidthHeightRatio + ", " + channelCount + ", " + sampleRate + ", " + language + ", "
-        + durationUs + ", " + maxWidth + ", " + maxHeight + ")";
+        + rotationDegrees + ", " + pixelWidthHeightRatio + ", " + channelCount + ", " + sampleRate
+        + ", " + language + ", " + durationUs + ", " + maxWidth + ", " + maxHeight + ")";
   }
 
   @Override
@@ -175,6 +182,7 @@ public final class MediaFormat {
       result = 31 * result + maxInputSize;
       result = 31 * result + width;
       result = 31 * result + height;
+      result = 31 * result + rotationDegrees;
       result = 31 * result + Float.floatToRawIntBits(pixelWidthHeightRatio);
       result = 31 * result + (int) durationUs;
       result = 31 * result + maxWidth;
@@ -213,6 +221,7 @@ public final class MediaFormat {
 
   private boolean equalsInternal(MediaFormat other, boolean ignoreMaxDimensions) {
     if (maxInputSize != other.maxInputSize || width != other.width || height != other.height
+        || rotationDegrees != other.rotationDegrees
         || pixelWidthHeightRatio != other.pixelWidthHeightRatio
         || (!ignoreMaxDimensions && (maxWidth != other.maxWidth || maxHeight != other.maxHeight))
         || channelCount != other.channelCount || sampleRate != other.sampleRate

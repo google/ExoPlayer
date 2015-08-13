@@ -302,6 +302,7 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
     int maxInputSize = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_MAX_INPUT_SIZE);
     int width = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_WIDTH);
     int height = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_HEIGHT);
+    int rotationDegrees = getOptionalIntegerV16(format, "rotation-degrees");
     int channelCount = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_CHANNEL_COUNT);
     int sampleRate = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_SAMPLE_RATE);
     ArrayList<byte[]> initializationData = new ArrayList<>();
@@ -314,9 +315,9 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
     }
     long durationUs = format.containsKey(android.media.MediaFormat.KEY_DURATION)
         ? format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
-    return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, MediaFormat.NO_VALUE,
-        channelCount, sampleRate, language, initializationData, MediaFormat.NO_VALUE,
-        MediaFormat.NO_VALUE);
+    return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, rotationDegrees,
+        MediaFormat.NO_VALUE, channelCount, sampleRate, language, initializationData,
+        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
   }
 
   @TargetApi(16)
