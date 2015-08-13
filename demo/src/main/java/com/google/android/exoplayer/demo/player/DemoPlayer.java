@@ -89,7 +89,8 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   public interface Listener {
     void onStateChanged(boolean playWhenReady, int playbackState);
     void onError(Exception e);
-    void onVideoSizeChanged(int width, int height, float pixelWidthHeightRatio);
+    void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
+        float pixelWidthHeightRatio);
   }
 
   /**
@@ -449,9 +450,10 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   @Override
-  public void onVideoSizeChanged(int width, int height, float pixelWidthHeightRatio) {
+  public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
+      float pixelWidthHeightRatio) {
     for (Listener listener : listeners) {
-      listener.onVideoSizeChanged(width, height, pixelWidthHeightRatio);
+      listener.onVideoSizeChanged(width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
     }
   }
 

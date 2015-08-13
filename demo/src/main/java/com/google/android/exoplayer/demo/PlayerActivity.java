@@ -341,7 +341,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   }
 
   @Override
-  public void onVideoSizeChanged(int width, int height, float pixelWidthAspectRatio) {
+  public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
+      float pixelWidthAspectRatio) {
     shutterView.setVisibility(View.GONE);
     videoFrame.setAspectRatio(
         height == 0 ? 1 : (width * pixelWidthAspectRatio) / height);

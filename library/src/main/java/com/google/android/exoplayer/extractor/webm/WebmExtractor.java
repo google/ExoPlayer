@@ -1127,7 +1127,7 @@ public final class WebmExtractor implements Extractor {
             sampleRate, initializationData);
       } else if (MimeTypes.isVideo(mimeType)) {
         return MediaFormat.createVideoFormat(mimeType, maxInputSize, durationUs, pixelWidth,
-            pixelHeight, initializationData);
+            pixelHeight, 0, initializationData);
       } else {
         throw new ParserException("Unexpected MIME type.");
       }

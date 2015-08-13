@@ -50,9 +50,8 @@ import java.util.List;
       return null;
     }
 
-    Pair<Integer, Long> header = parseTkhd(trak.getLeafAtomOfType(Atom.TYPE_tkhd).data);
-    int id = header.first;
-    long duration = header.second;
+    TkhdData tkhdData = parseTkhd(trak.getLeafAtomOfType(Atom.TYPE_tkhd).data);
+    long duration = tkhdData.duration;
     long movieTimescale = parseMvhd(mvhd.data);
     long durationUs;
     if (duration == -1) {
@@ -64,10 +63,10 @@ import java.util.List;
         .getContainerAtomOfType(Atom.TYPE_stbl);
 
     Pair<Long, String> mdhdData = parseMdhd(mdia.getLeafAtomOfType(Atom.TYPE_mdhd).data);
-    StsdDataHolder stsdData = parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, durationUs,
-        mdhdData.second);
+    StsdData stsdData = parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, durationUs,
+        tkhdData.rotationDegrees, mdhdData.second);
     return stsdData.mediaFormat == null ? null
-        : new Track(id, trackType, mdhdData.first, durationUs, stsdData.mediaFormat,
+        : new Track(tkhdData.id, trackType, mdhdData.first, durationUs, stsdData.mediaFormat,
             stsdData.trackEncryptionBoxes, stsdData.nalUnitLengthFieldLength);
   }
 
@@ -268,19 +267,17 @@ import java.util.List;
   /**
    * Parses a tkhd atom (defined in 14496-12).
    *
-   * @return A {@link Pair} consisting of the track id and duration (in the timescale indicated in
-   *     the movie header box). The duration is set to -1 if the duration is unspecified.
+   * @return An object containing the parsed data.
    */
-  private static Pair<Integer, Long> parseTkhd(ParsableByteArray tkhd) {
+  private static TkhdData parseTkhd(ParsableByteArray tkhd) {
     tkhd.setPosition(Atom.HEADER_SIZE);
     int fullAtom = tkhd.readInt();
     int version = Atom.parseFullAtomVersion(fullAtom);
 
     tkhd.skipBytes(version == 0 ? 8 : 16);
-
     int trackId = tkhd.readInt();
-    tkhd.skipBytes(4);
 
+    tkhd.skipBytes(4);
     boolean durationUnknown = true;
     int durationPosition = tkhd.getPosition();
     int durationByteCount = version == 0 ? 4 : 8;
@@ -298,7 +295,27 @@ import java.util.List;
       duration = version == 0 ? tkhd.readUnsignedInt() : tkhd.readUnsignedLongToLong();
     }
 
-    return Pair.create(trackId, duration);
+    tkhd.skipBytes(16);
+    int a00 = tkhd.readInt();
+    int a01 = tkhd.readInt();
+    tkhd.skipBytes(4);
+    int a10 = tkhd.readInt();
+    int a11 = tkhd.readInt();
+
+    int rotationDegrees;
+    int fixedOne = 65536;
+    if (a00 == 0 && a01 == fixedOne && a10 == -fixedOne && a11 == 0) {
+      rotationDegrees = 90;
+    } else if (a00 == 0 && a01 == -fixedOne && a10 == fixedOne && a11 == 0) {
+      rotationDegrees = 270;
+    } else if (a00 == -fixedOne && a01 == 0 && a10 == 0 && a11 == -fixedOne) {
+      rotationDegrees = 180;
+    } else {
+      // Only 0, 90, 180 and 270 are supported. Treat anything else as 0.
+      rotationDegrees = 0;
+    }
+
+    return new TkhdData(trackId, duration, rotationDegrees);
   }
 
   /**
@@ -333,11 +350,16 @@ import java.util.List;
     return Pair.create(timescale, language);
   }
 
-  private static StsdDataHolder parseStsd(ParsableByteArray stsd, long durationUs,
+  /**
+   * Parses a stsd atom (defined in 14496-12).
+   *
+   * @return An object containing the parsed data.
+   */
+  private static StsdData parseStsd(ParsableByteArray stsd, long durationUs, int rotationDegrees,
       String language) {
     stsd.setPosition(Atom.FULL_HEADER_SIZE);
     int numberOfEntries = stsd.readInt();
-    StsdDataHolder holder = new StsdDataHolder(numberOfEntries);
+    StsdData out = new StsdData(numberOfEntries);
     for (int i = 0; i < numberOfEntries; i++) {
       int childStartPosition = stsd.getPosition();
       int childAtomSize = stsd.readInt();
@@ -347,25 +369,26 @@ import java.util.List;
           || childAtomType == Atom.TYPE_encv || childAtomType == Atom.TYPE_mp4v
           || childAtomType == Atom.TYPE_hvc1 || childAtomType == Atom.TYPE_hev1
           || childAtomType == Atom.TYPE_s263) {
-        parseVideoSampleEntry(stsd, childStartPosition, childAtomSize, durationUs, holder, i);
+        parseVideoSampleEntry(stsd, childStartPosition, childAtomSize, durationUs, rotationDegrees,
+            out, i);
       } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca
           || childAtomType == Atom.TYPE_ac_3) {
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, durationUs,
-            holder, i);
+            out, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
-        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML, language,
+        out.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML, language,
             durationUs);
       } else if (childAtomType == Atom.TYPE_tx3g) {
-        holder.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TX3G, language,
+        out.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TX3G, language,
             durationUs);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
-    return holder;
+    return out;
   }
 
   private static void parseVideoSampleEntry(ParsableByteArray parent, int position, int size,
-      long durationUs, StsdDataHolder out, int entryIndex) {
+      long durationUs, int rotationDegrees, StsdData out, int entryIndex) {
     parent.setPosition(position + Atom.HEADER_SIZE);
 
     parent.skipBytes(24);
@@ -428,7 +451,7 @@ import java.util.List;
     }
 
     out.mediaFormat = MediaFormat.createVideoFormat(mimeType, MediaFormat.NO_VALUE, durationUs,
-        width, height, pixelWidthHeightRatio, initializationData);
+        width, height, rotationDegrees, pixelWidthHeightRatio, initializationData);
   }
 
   private static AvcCData parseAvcCFromParent(ParsableByteArray parent, int position) {
@@ -556,7 +579,7 @@ import java.util.List;
   }
 
   private static void parseAudioSampleEntry(ParsableByteArray parent, int atomType, int position,
-      int size, long durationUs, StsdDataHolder out, int entryIndex) {
+      int size, long durationUs, StsdData out, int entryIndex) {
     parent.setPosition(position + Atom.HEADER_SIZE);
     parent.skipBytes(16);
     int channelCount = parent.readUnsignedShort();
@@ -703,22 +726,42 @@ import java.util.List;
   }
 
   /**
+   * Holds data parsed from a tkhd atom.
+   */
+  private static final class TkhdData {
+
+    private final int id;
+    private final long duration;
+    private final int rotationDegrees;
+
+    public TkhdData(int id, long duration, int rotationDegrees) {
+      this.id = id;
+      this.duration = duration;
+      this.rotationDegrees = rotationDegrees;
+    }
+
+  }
+
+  /**
    * Holds data parsed from an stsd atom and its children.
    */
-  private static final class StsdDataHolder {
+  private static final class StsdData {
 
     public final TrackEncryptionBox[] trackEncryptionBoxes;
 
     public MediaFormat mediaFormat;
     public int nalUnitLengthFieldLength;
 
-    public StsdDataHolder(int numberOfEntries) {
+    public StsdData(int numberOfEntries) {
       trackEncryptionBoxes = new TrackEncryptionBox[numberOfEntries];
       nalUnitLengthFieldLength = -1;
     }
 
   }
 
+  /**
+   * Holds data parsed from an AvcC atom.
+   */
   private static final class AvcCData {
 
     public final List<byte[]> initializationData;
