@@ -55,7 +55,12 @@ public final class SingleSampleChunkSource implements ChunkSource {
   }
 
   @Override
-  public MediaFormat getFormat() {
+  public int getTrackCount() {
+    return 1;
+  }
+
+  @Override
+  public MediaFormat getFormat(int track) {
     return mediaFormat;
   }
 
@@ -65,7 +70,7 @@ public final class SingleSampleChunkSource implements ChunkSource {
   }
 
   @Override
-  public void enable() {
+  public void enable(int track) {
     // Do nothing.
   }
 

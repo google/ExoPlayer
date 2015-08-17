@@ -96,44 +96,45 @@ import java.util.concurrent.CopyOnWriteArraySet;
     internalPlayer.prepare(renderers);
   }
 
+  @Deprecated
   @Override
-  // TODO: Deprecate in ExoPlayer.
   public boolean getRendererHasMedia(int rendererIndex) {
-    return getRendererTrackCount(rendererIndex) > 0;
+    return getTrackCount(rendererIndex) > 0;
   }
 
+  @Deprecated
   @Override
-  // TODO: Deprecate in ExoPlayer.
   public void setRendererEnabled(int rendererIndex, boolean enabled) {
-    setRendererSelectedTrack(rendererIndex, enabled ? 0 : -1);
+    setSelectedTrack(rendererIndex, enabled ? ExoPlayer.TRACK_DEFAULT : ExoPlayer.TRACK_DISABLED);
+  }
+
+  @Deprecated
+  @Override
+  public boolean getRendererEnabled(int rendererIndex) {
+    int selectedTrack = getSelectedTrack(rendererIndex);
+    return 0 <= selectedTrack && selectedTrack < getTrackCount(rendererIndex);
   }
 
   @Override
-  // TODO: Deprecate in ExoPlayer.
-  public boolean getRendererEnabled(int rendererIndex) {
-    return getRendererSelectedTrack(rendererIndex) == 0;
-  }
-
-  // TODO: Expose in ExoPlayer.
-  public int getRendererTrackCount(int rendererIndex) {
+  public int getTrackCount(int rendererIndex) {
     return trackFormats[rendererIndex] != null ? trackFormats[rendererIndex].length : 0;
   }
 
-  // TODO: Expose in ExoPlayer.
-  public MediaFormat getRendererTrackInfo(int rendererIndex, int trackIndex) {
+  @Override
+  public MediaFormat getTrackFormat(int rendererIndex, int trackIndex) {
     return trackFormats[rendererIndex][trackIndex];
   }
 
-  // TODO: Expose in ExoPlayer.
-  public void setRendererSelectedTrack(int rendererIndex, int trackIndex) {
+  @Override
+  public void setSelectedTrack(int rendererIndex, int trackIndex) {
     if (selectedTrackIndices[rendererIndex] != trackIndex) {
       selectedTrackIndices[rendererIndex] = trackIndex;
       internalPlayer.setRendererSelectedTrack(rendererIndex, trackIndex);
     }
   }
 
-  // TODO: Expose in ExoPlayer.
-  public int getRendererSelectedTrack(int rendererIndex) {
+  @Override
+  public int getSelectedTrack(int rendererIndex) {
     return selectedTrackIndices[rendererIndex];
   }
 

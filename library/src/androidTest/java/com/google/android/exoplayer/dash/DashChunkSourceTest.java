@@ -101,7 +101,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   public void testGetSeekRangeOnVod() {
     DashChunkSource chunkSource = new DashChunkSource(generateVodMpd(), AdaptationSet.TYPE_VIDEO,
         null, null, mock(FormatEvaluator.class));
-    chunkSource.enable();
+    chunkSource.enable(0);
     TimeRange seekRange = chunkSource.getSeekRange();
 
     checkSeekRange(seekRange, 0, VOD_DURATION_MS * 1000);
@@ -394,7 +394,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
         AdaptationSet.TYPE_VIDEO, null, mockDataSource, EVALUATOR,
         new FakeClock(AVAILABILITY_CURRENT_TIME_MS + periodStartMs), liveEdgeLatencyMs * 1000,
         AVAILABILITY_REALTIME_OFFSET_MS * 1000, false, null, null);
-    chunkSource.enable();
+    chunkSource.enable(0);
     return chunkSource;
   }
 

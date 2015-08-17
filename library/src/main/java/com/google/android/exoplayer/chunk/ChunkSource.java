@@ -31,13 +31,21 @@ import java.util.List;
 public interface ChunkSource {
 
   /**
-   * Gets the format.
+   * Returns the number of tracks exposed by the source.
+   *
+   * @return The number of tracks.
+   */
+  int getTrackCount();
+
+  /**
+   * Gets the format of the specified track.
    * <p>
    * May be called when the source is disabled or enabled.
    *
-   * @return The format.
+   * @param track The track index.
+   * @return The format of the track.
    */
-  MediaFormat getFormat();
+  MediaFormat getFormat(int track);
 
   /**
    * Adaptive video {@link ChunkSource} implementations must return a copy of the provided
@@ -52,8 +60,10 @@ public interface ChunkSource {
 
   /**
    * Called when the source is enabled.
+   *
+   * @param track The track index.
    */
-  void enable();
+  void enable(int track);
 
   /**
    * Called when the source is disabled.

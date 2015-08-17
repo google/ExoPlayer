@@ -27,6 +27,8 @@ import java.util.List;
  * A {@link ChunkSource} providing the ability to switch between multiple other {@link ChunkSource}
  * instances.
  */
+// TODO: Expose multiple tracks directly in DashChunkSource and SmoothStreamingChunkSource, and
+// delete this class.
 public final class MultiTrackChunkSource implements ChunkSource, ExoPlayerComponent {
 
   /**
@@ -55,18 +57,23 @@ public final class MultiTrackChunkSource implements ChunkSource, ExoPlayerCompon
    *
    * @return The number of tracks.
    */
-  public int getTrackCount() {
+  public int getMultiTrackCount() {
     return allSources.length;
   }
 
   @Override
-  public MediaFormat getFormat() {
-    return selectedSource.getFormat();
+  public int getTrackCount() {
+    return selectedSource.getTrackCount();
   }
 
   @Override
-  public void enable() {
-    selectedSource.enable();
+  public MediaFormat getFormat(int track) {
+    return selectedSource.getFormat(track);
+  }
+
+  @Override
+  public void enable(int track) {
+    selectedSource.enable(track);
     enabled = true;
   }
 
