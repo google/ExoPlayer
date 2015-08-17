@@ -317,7 +317,7 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
         ? format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
     return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, rotationDegrees,
         MediaFormat.NO_VALUE, channelCount, sampleRate, language, initializationData,
-        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
+        false, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
   }
 
   @TargetApi(16)

@@ -89,6 +89,13 @@ public interface SampleSource {
     /**
      * Returns the format of the specified track.
      * <p>
+     * Note that whilst the format of a track will remain constant, the format of the actual media
+     * stream may change dynamically. An example of this is where the track is adaptive
+     * (i.e. @link {@link MediaFormat#adaptive} is true). Hence the track formats returned through
+     * this method should not be used to configure decoders. Decoder configuration should be
+     * performed using the formats obtained when reading the media stream through calls to
+     * {@link #readData(int, long, MediaFormatHolder, SampleHolder, boolean)}.
+     * <p>
      * This method should not be called until after the source has been successfully prepared.
      *
      * @param track The track index.
