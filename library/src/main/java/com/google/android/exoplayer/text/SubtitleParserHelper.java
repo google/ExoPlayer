@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.text;
 
+import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
@@ -34,13 +35,19 @@ import java.io.InputStream;
  */
 /* package */ final class SubtitleParserHelper implements Handler.Callback {
 
-  private final SubtitleParser parser;
+  private static final int MSG_FORMAT = 0;
+  private static final int MSG_SAMPLE = 1;
 
+  private final SubtitleParser parser;
   private final Handler handler;
+
   private SampleHolder sampleHolder;
   private boolean parsing;
   private PlayableSubtitle result;
   private IOException error;
+
+  private boolean subtitlesAreRelative;
+  private long subtitleOffsetUs;
 
   /**
    * @param looper The {@link Looper} associated with the thread on which parsing should occur.
@@ -85,6 +92,15 @@ import java.io.InputStream;
   }
 
   /**
+   * Sets the format of subsequent samples.
+   *
+   * @param format The format.
+   */
+  public void setFormat(MediaFormat format) {
+    handler.obtainMessage(MSG_FORMAT, format).sendToTarget();
+  }
+
+  /**
    * Start a parsing operation.
    * <p>
    * The holder returned by {@link #getSampleHolder()} should be populated with the data to be
@@ -95,7 +111,7 @@ import java.io.InputStream;
     parsing = true;
     result = null;
     error = null;
-    handler.obtainMessage(0, Util.getTopInt(sampleHolder.timeUs),
+    handler.obtainMessage(MSG_SAMPLE, Util.getTopInt(sampleHolder.timeUs),
         Util.getBottomInt(sampleHolder.timeUs), sampleHolder).sendToTarget();
   }
 
@@ -122,8 +138,25 @@ import java.io.InputStream;
 
   @Override
   public boolean handleMessage(Message msg) {
-    long sampleTimeUs = Util.getLong(msg.arg1, msg.arg2);
-    SampleHolder holder = (SampleHolder) msg.obj;
+    switch (msg.what) {
+      case MSG_FORMAT:
+        handleFormat((MediaFormat) msg.obj);
+        break;
+      case MSG_SAMPLE:
+        long sampleTimeUs = Util.getLong(msg.arg1, msg.arg2);
+        SampleHolder holder = (SampleHolder) msg.obj;
+        handleSample(sampleTimeUs, holder);
+        break;
+    }
+    return true;
+  }
+
+  private void handleFormat(MediaFormat format) {
+    subtitlesAreRelative = format.subsampleOffsetUs == MediaFormat.OFFSET_SAMPLE_RELATIVE;
+    subtitleOffsetUs = subtitlesAreRelative ? 0 : format.subsampleOffsetUs;
+  }
+
+  private void handleSample(long sampleTimeUs, SampleHolder holder) {
     Subtitle parsedSubtitle = null;
     IOException error = null;
     try {
@@ -136,12 +169,12 @@ import java.io.InputStream;
       if (sampleHolder != holder) {
         // A flush has occurred since this holder was posted. Do nothing.
       } else {
-        this.result = new PlayableSubtitle(sampleTimeUs, parsedSubtitle);
+        this.result = new PlayableSubtitle(parsedSubtitle, subtitlesAreRelative, sampleTimeUs,
+            subtitleOffsetUs);
         this.error = error;
         this.parsing = false;
       }
     }
-    return true;
   }
 
 }

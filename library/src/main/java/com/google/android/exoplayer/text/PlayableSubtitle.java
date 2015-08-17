@@ -32,19 +32,19 @@ import java.util.List;
   public final long startTimeUs;
 
   private final Subtitle subtitle;
+  private final long offsetUs;
 
   /**
-   * @param startTimeUs The start time of the subtitle.
    * @param subtitle The subtitle to wrap.
+   * @param isRelative True if the wrapped subtitle's timestamps are relative to the start time.
+   *     False if they are absolute.
+   * @param startTimeUs The start time of the subtitle.
+   * @param offsetUs An offset to add to the subtitle timestamps.
    */
-  public PlayableSubtitle(long startTimeUs, Subtitle subtitle) {
-    this.startTimeUs = startTimeUs;
+  public PlayableSubtitle(Subtitle subtitle, boolean isRelative, long startTimeUs, long offsetUs) {
     this.subtitle = subtitle;
-  }
-
-  @Override
-  public int getNextEventTimeIndex(long timeUs) {
-    return subtitle.getNextEventTimeIndex(timeUs - startTimeUs);
+    this.startTimeUs = startTimeUs;
+    this.offsetUs = (isRelative ? startTimeUs : 0) + offsetUs;
   }
 
   @Override
@@ -54,17 +54,22 @@ import java.util.List;
 
   @Override
   public long getEventTime(int index) {
-    return subtitle.getEventTime(index) + startTimeUs;
+    return subtitle.getEventTime(index) + offsetUs;
   }
 
   @Override
   public long getLastEventTime() {
-    return subtitle.getLastEventTime() + startTimeUs;
+    return subtitle.getLastEventTime() + offsetUs;
+  }
+
+  @Override
+  public int getNextEventTimeIndex(long timeUs) {
+    return subtitle.getNextEventTimeIndex(timeUs - offsetUs);
   }
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    return subtitle.getCues(timeUs - startTimeUs);
+    return subtitle.getCues(timeUs - offsetUs);
   }
 
 }

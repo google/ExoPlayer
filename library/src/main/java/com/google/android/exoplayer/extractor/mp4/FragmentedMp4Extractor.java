@@ -474,7 +474,7 @@ public final class FragmentedMp4Extractor implements Extractor {
 
     long timescale = track.timescale;
     long cumulativeTime = decodeTime;
-    boolean workaroundEveryVideoFrameIsSyncFrame = track.type == Track.TYPE_VIDEO
+    boolean workaroundEveryVideoFrameIsSyncFrame = track.type == Track.TYPE_vide
         && ((workaroundFlags & WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME)
         == WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME);
     for (int i = 0; i < sampleCount; i++) {

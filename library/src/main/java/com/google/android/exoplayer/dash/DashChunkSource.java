@@ -263,7 +263,7 @@ public class DashChunkSource implements ChunkSource {
     long periodDurationUs = (representations[0].periodDurationMs == TrackRenderer.UNKNOWN_TIME_US)
         ? TrackRenderer.UNKNOWN_TIME_US : representations[0].periodDurationMs * 1000;
     // TODO: Remove this and pass proper formats instead (b/22996976).
-    this.mediaFormat = MediaFormat.createFormatForMimeType(representations[0].format.mimeType,
+    this.mediaFormat = MediaFormat.createFormatForMimeType(getMediaMimeType(representations[0]),
         periodDurationUs);
 
     this.formats = new Format[representations.length];
@@ -287,7 +287,7 @@ public class DashChunkSource implements ChunkSource {
   @Override
   public final MediaFormat getWithMaxVideoDimensions(MediaFormat format) {
     return MimeTypes.isVideo(mediaFormat.mimeType)
-        ? format.copyWithMaxVideoDimension(maxWidth, maxHeight) : format;
+        ? format.copyWithMaxVideoDimensions(maxWidth, maxHeight) : format;
   }
 
   @Override
@@ -668,6 +668,16 @@ public class DashChunkSource implements ChunkSource {
     } else {
       return System.currentTimeMillis() * 1000;
     }
+  }
+
+  private static String getMediaMimeType(Representation representation) {
+    String mimeType = representation.format.mimeType;
+    if (MimeTypes.APPLICATION_MP4.equals(representation.format.mimeType)
+        && "stpp".equals(representation.format.codecs)) {
+      return MimeTypes.APPLICATION_TTML;
+    }
+    // TODO: Use codecs to determine media mime type for other formats too.
+    return mimeType;
   }
 
   private static Representation[] getFilteredRepresentations(MediaPresentationDescription manifest,

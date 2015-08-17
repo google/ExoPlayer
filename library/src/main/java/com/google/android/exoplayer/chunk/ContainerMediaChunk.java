@@ -69,7 +69,7 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
         isMediaFormatFinal);
     this.extractorWrapper = extractorWrapper;
     this.sampleOffsetUs = sampleOffsetUs;
-    this.mediaFormat = mediaFormat;
+    this.mediaFormat = getAdjustedMediaFormat(mediaFormat, sampleOffsetUs);
     this.drmInitData = drmInitData;
   }
 
@@ -102,7 +102,7 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
 
   @Override
   public final void format(MediaFormat mediaFormat) {
-    this.mediaFormat = mediaFormat;
+    this.mediaFormat = getAdjustedMediaFormat(mediaFormat, sampleOffsetUs);
   }
 
   @Override
@@ -158,6 +158,15 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
     } finally {
       dataSource.close();
     }
+  }
+
+  // Private methods.
+
+  private static MediaFormat getAdjustedMediaFormat(MediaFormat format, long sampleOffsetUs) {
+    if (sampleOffsetUs != 0 && format.subsampleOffsetUs != MediaFormat.OFFSET_SAMPLE_RELATIVE) {
+      return format.copyWithSubsampleOffsetUs(format.subsampleOffsetUs + sampleOffsetUs);
+    }
+    return format;
   }
 
 }

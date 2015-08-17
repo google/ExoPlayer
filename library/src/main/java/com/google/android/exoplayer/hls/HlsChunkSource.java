@@ -234,7 +234,7 @@ public class HlsChunkSource {
    */
   public MediaFormat getMaxVideoDimensions(MediaFormat format) {
     return (maxWidth == -1 || maxHeight == -1) ? format
-        : format.copyWithMaxVideoDimension(maxWidth, maxHeight);
+        : format.copyWithMaxVideoDimensions(maxWidth, maxHeight);
   }
 
   /**
