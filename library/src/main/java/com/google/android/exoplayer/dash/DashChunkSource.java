@@ -291,6 +291,11 @@ public class DashChunkSource implements ChunkSource {
   }
 
   @Override
+  public boolean prepare() {
+    return true;
+  }
+
+  @Override
   public int getTrackCount() {
     return 1;
   }

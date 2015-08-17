@@ -55,6 +55,11 @@ public final class SingleSampleChunkSource implements ChunkSource {
   }
 
   @Override
+  public boolean prepare() {
+    return true;
+  }
+
+  @Override
   public int getTrackCount() {
     return 1;
   }

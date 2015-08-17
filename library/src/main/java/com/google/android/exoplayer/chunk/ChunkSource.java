@@ -31,7 +31,26 @@ import java.util.List;
 public interface ChunkSource {
 
   /**
+   * If the source is currently having difficulty preparing or providing chunks, then this method
+   * throws the underlying error. Otherwise does nothing.
+   *
+   * @throws IOException The underlying error.
+   */
+  void maybeThrowError() throws IOException;
+
+  /**
+   * Prepares the source.
+   * <p>
+   * The method can be called repeatedly until the return value indicates success.
+   *
+   * @return True if the source was prepared, false otherwise.
+   */
+  boolean prepare();
+
+  /**
    * Returns the number of tracks exposed by the source.
+   * <p>
+   * This method should only be called after the source has been prepared.
    *
    * @return The number of tracks.
    */
@@ -40,7 +59,7 @@ public interface ChunkSource {
   /**
    * Gets the format of the specified track.
    * <p>
-   * May be called when the source is disabled or enabled.
+   * This method should only be called after the source has been prepared.
    *
    * @param track The track index.
    * @return The format of the track.
@@ -51,6 +70,8 @@ public interface ChunkSource {
    * Adaptive video {@link ChunkSource} implementations must return a copy of the provided
    * {@link MediaFormat} with the maximum video dimensions set. Other implementations can return
    * the provided {@link MediaFormat} directly.
+   * <p>
+   * This method should only be called after the source has been prepared.
    *
    * @param format The format to be copied or returned.
    * @return A copy of the provided {@link MediaFormat} with the maximum video dimensions set, or
@@ -59,21 +80,19 @@ public interface ChunkSource {
   MediaFormat getWithMaxVideoDimensions(MediaFormat format);
 
   /**
-   * Called when the source is enabled.
+   * Enable the source for the specified track.
+   * <p>
+   * This method should only be called after the source has been prepared, and when the source is
+   * disabled.
    *
    * @param track The track index.
    */
   void enable(int track);
 
   /**
-   * Called when the source is disabled.
-   *
-   * @param queue A representation of the currently buffered {@link MediaChunk}s.
-   */
-  void disable(List<? extends MediaChunk> queue);
-
-  /**
    * Indicates to the source that it should still be checking for updates to the stream.
+   * <p>
+   * This method should only be called when the source is enabled.
    *
    * @param playbackPositionUs The current playback position.
    */
@@ -88,6 +107,8 @@ public interface ChunkSource {
    * with the next {@link Chunk} to load. The next chunk may be a {@link MediaChunk} to be added to
    * the queue, or another {@link Chunk} type (e.g. to load initialization data), or null if the
    * source is not able to provide a chunk in its current state.
+   * <p>
+   * This method should only be called when the source is enabled.
    *
    * @param queue A representation of the currently buffered {@link MediaChunk}s.
    * @param seekPositionUs If the queue is empty, this parameter must specify the seek position. If
@@ -104,16 +125,10 @@ public interface ChunkSource {
       long playbackPositionUs, ChunkOperationHolder out);
 
   /**
-   * If the source is currently having difficulty providing chunks, then this method throws the
-   * underlying error. Otherwise does nothing.
-   *
-   * @throws IOException The underlying error.
-   */
-  void maybeThrowError() throws IOException;
-
-  /**
    * Invoked when the {@link ChunkSampleSource} has finished loading a chunk obtained from this
    * source.
+   * <p>
+   * This method should only be called when the source is enabled.
    *
    * @param chunk The chunk whose load has been completed.
    */
@@ -122,10 +137,21 @@ public interface ChunkSource {
   /**
    * Invoked when the {@link ChunkSampleSource} encounters an error loading a chunk obtained from
    * this source.
+   * <p>
+   * This method should only be called when the source is enabled.
    *
    * @param chunk The chunk whose load encountered the error.
    * @param e The error.
    */
   void onChunkLoadError(Chunk chunk, Exception e);
+
+  /**
+   * Disables the source.
+   * <p>
+   * This method should only be called when the source is enabled.
+   *
+   * @param queue A representation of the currently buffered {@link MediaChunk}s.
+   */
+  void disable(List<? extends MediaChunk> queue);
 
 }

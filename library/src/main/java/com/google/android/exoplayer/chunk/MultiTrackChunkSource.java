@@ -62,6 +62,15 @@ public final class MultiTrackChunkSource implements ChunkSource, ExoPlayerCompon
   }
 
   @Override
+  public boolean prepare() {
+    boolean prepared = true;
+    for (int i = 0; i < allSources.length; i++) {
+      prepared &= allSources[i].prepare();
+    }
+    return prepared;
+  }
+
+  @Override
   public int getTrackCount() {
     return selectedSource.getTrackCount();
   }
