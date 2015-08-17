@@ -226,7 +226,9 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
       SampleHolder sampleHolder = parserHelper.getSampleHolder();
       sampleHolder.clearData();
       int result = readSource(positionUs, formatHolder, sampleHolder, false);
-      if (result == SampleSource.SAMPLE_READ) {
+      if (result == SampleSource.FORMAT_READ) {
+        parserHelper.setFormat(formatHolder.format);
+      } else if (result == SampleSource.SAMPLE_READ) {
         parserHelper.startParseOperation();
       } else if (result == SampleSource.END_OF_STREAM) {
         inputStreamEnded = true;

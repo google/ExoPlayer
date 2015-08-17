@@ -34,6 +34,12 @@ public final class MediaFormat {
   public static final int NO_VALUE = -1;
 
   /**
+   * A value for {@link #subsampleOffsetUs} to indicate that subsample timestamps are relative to
+   * the timestamps of their parent samples.
+   */
+  public static final long OFFSET_SAMPLE_RELATIVE = Long.MAX_VALUE;
+
+  /**
    * The mime type of the format.
    */
   public final String mimeType;
@@ -112,6 +118,13 @@ public final class MediaFormat {
    */
   public final String language;
 
+  /**
+   * For samples that contain subsamples, this is an offset that should be added to subsample
+   * timestamps. A value of {@link #OFFSET_SAMPLE_RELATIVE} indicates that subsample timestamps are
+   * relative to the timestamps of their parent samples.
+   */
+  public final long subsampleOffsetUs;
+
   // Lazy-initialized hashcode and framework media format.
 
   private int hashCode;
@@ -134,8 +147,8 @@ public final class MediaFormat {
       int width, int height, int rotationDegrees, float pixelWidthHeightRatio,
       List<byte[]> initializationData) {
     return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, rotationDegrees,
-        pixelWidthHeightRatio, NO_VALUE, NO_VALUE, null, initializationData, false, NO_VALUE,
-        NO_VALUE);
+        pixelWidthHeightRatio, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE, initializationData,
+        false, NO_VALUE, NO_VALUE);
   }
 
   public static MediaFormat createAudioFormat(String mimeType, int maxInputSize, int channelCount,
@@ -147,8 +160,8 @@ public final class MediaFormat {
   public static MediaFormat createAudioFormat(String mimeType, int maxInputSize, long durationUs,
       int channelCount, int sampleRate, List<byte[]> initializationData) {
     return new MediaFormat(mimeType, maxInputSize, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, channelCount, sampleRate, null, initializationData, false, NO_VALUE,
-        NO_VALUE);
+        NO_VALUE, channelCount, sampleRate, null, OFFSET_SAMPLE_RELATIVE, initializationData,
+        false, NO_VALUE, NO_VALUE);
   }
 
   public static MediaFormat createTextFormat(String mimeType, String language) {
@@ -156,8 +169,13 @@ public final class MediaFormat {
   }
 
   public static MediaFormat createTextFormat(String mimeType, String language, long durationUs) {
-    return new MediaFormat(mimeType, NO_VALUE, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, language, null, false, NO_VALUE, NO_VALUE);
+    return createTextFormat(mimeType, language, durationUs, OFFSET_SAMPLE_RELATIVE);
+  }
+
+  public static MediaFormat createTextFormat(String mimeType, String language, long durationUs,
+      long subsampleOffsetUs) {
+    return new MediaFormat(mimeType, NO_VALUE, durationUs, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
+        NO_VALUE, NO_VALUE, language, subsampleOffsetUs, null, false, NO_VALUE, NO_VALUE);
   }
 
   public static MediaFormat createFormatForMimeType(String mimeType) {
@@ -165,8 +183,8 @@ public final class MediaFormat {
   }
 
   public static MediaFormat createFormatForMimeType(String mimeType, long durationUs) {
-    return new MediaFormat(mimeType, NO_VALUE, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, null, null, false, NO_VALUE, NO_VALUE);
+    return new MediaFormat(mimeType, NO_VALUE, durationUs, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
+        NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE, null, false, NO_VALUE, NO_VALUE);
   }
 
   public static MediaFormat createAdaptiveFormat(String mimeType) {
@@ -175,13 +193,13 @@ public final class MediaFormat {
 
   public static MediaFormat createAdaptiveFormat(String mimeType, long durationUs) {
     return new MediaFormat(mimeType, NO_VALUE, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, null, null, true, NO_VALUE, NO_VALUE);
+        NO_VALUE, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE, null, true, NO_VALUE, NO_VALUE);
   }
 
   /* package */ MediaFormat(String mimeType, int maxInputSize, long durationUs, int width,
       int height, int rotationDegrees, float pixelWidthHeightRatio, int channelCount,
-      int sampleRate, String language, List<byte[]> initializationData, boolean adaptive,
-      int maxWidth, int maxHeight) {
+      int sampleRate, String language, long subsampleOffsetUs, List<byte[]> initializationData,
+      boolean adaptive, int maxWidth, int maxHeight) {
     this.mimeType = Assertions.checkNotEmpty(mimeType);
     this.maxInputSize = maxInputSize;
     this.durationUs = durationUs;
@@ -192,6 +210,7 @@ public final class MediaFormat {
     this.channelCount = channelCount;
     this.sampleRate = sampleRate;
     this.language = language;
+    this.subsampleOffsetUs = subsampleOffsetUs;
     this.initializationData = initializationData == null ? Collections.<byte[]>emptyList()
         : initializationData;
     this.adaptive = adaptive;
@@ -199,16 +218,22 @@ public final class MediaFormat {
     this.maxHeight = maxHeight;
   }
 
-  public MediaFormat copyWithMaxVideoDimension(int maxWidth, int maxHeight) {
+  public MediaFormat copyWithMaxVideoDimensions(int maxWidth, int maxHeight) {
     return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, rotationDegrees,
-        pixelWidthHeightRatio, channelCount, sampleRate, language, initializationData, false,
-        maxWidth, maxHeight);
+        pixelWidthHeightRatio, channelCount, sampleRate, language, subsampleOffsetUs,
+        initializationData, adaptive, maxWidth, maxHeight);
+  }
+
+  public MediaFormat copyWithSubsampleOffsetUs(long subsampleOffsetUs) {
+    return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, rotationDegrees,
+        pixelWidthHeightRatio, channelCount, sampleRate, language, subsampleOffsetUs,
+        initializationData, adaptive, maxWidth, maxHeight);
   }
 
   public MediaFormat copyWithDurationUs(long durationUs) {
     return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, rotationDegrees,
-        pixelWidthHeightRatio, channelCount, sampleRate, language, initializationData, false,
-        maxWidth, maxHeight);
+        pixelWidthHeightRatio, channelCount, sampleRate, language, subsampleOffsetUs,
+        initializationData, adaptive, maxWidth, maxHeight);
   }
 
   /**

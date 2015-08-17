@@ -165,13 +165,14 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       maxHeight = Math.max(maxHeight, formats[i].height);
 
       MediaFormat mediaFormat = getMediaFormat(streamElement, trackIndex);
-      int trackType = streamElement.type == StreamElement.TYPE_VIDEO ? Track.TYPE_VIDEO
-          : Track.TYPE_AUDIO;
+      int trackType = streamElement.type == StreamElement.TYPE_VIDEO ? Track.TYPE_vide
+          : streamElement.type == StreamElement.TYPE_AUDIO ? Track.TYPE_soun
+          : Track.TYPE_text;
       FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
           FragmentedMp4Extractor.WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME);
       extractor.setTrack(new Track(trackIndex, trackType, streamElement.timescale,
           initialManifest.durationUs, mediaFormat, trackEncryptionBoxes,
-          trackType == Track.TYPE_VIDEO ? 4 : -1));
+          trackType == Track.TYPE_vide ? 4 : -1));
       extractorWrappers.put(trackIndex, new ChunkExtractorWrapper(extractor));
       mediaFormats.put(trackIndex, mediaFormat);
     }
@@ -183,7 +184,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   @Override
   public final MediaFormat getWithMaxVideoDimensions(MediaFormat format) {
     return MimeTypes.isVideo(mediaFormat.mimeType)
-        ? format.copyWithMaxVideoDimension(maxWidth, maxHeight) : format;
+        ? format.copyWithMaxVideoDimensions(maxWidth, maxHeight) : format;
   }
 
   @Override

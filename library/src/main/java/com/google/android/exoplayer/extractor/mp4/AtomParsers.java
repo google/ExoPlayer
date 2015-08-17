@@ -45,8 +45,8 @@ import java.util.List;
   public static Track parseTrak(Atom.ContainerAtom trak, Atom.LeafAtom mvhd) {
     Atom.ContainerAtom mdia = trak.getContainerAtomOfType(Atom.TYPE_mdia);
     int trackType = parseHdlr(mdia.getLeafAtomOfType(Atom.TYPE_hdlr).data);
-    if (trackType != Track.TYPE_AUDIO && trackType != Track.TYPE_VIDEO
-        && trackType != Track.TYPE_TEXT && trackType != Track.TYPE_SUBTITLE) {
+    if (trackType != Track.TYPE_soun && trackType != Track.TYPE_vide && trackType != Track.TYPE_text
+        && trackType != Track.TYPE_sbtl && trackType != Track.TYPE_subt) {
       return null;
     }
 
@@ -381,6 +381,9 @@ import java.util.List;
       } else if (childAtomType == Atom.TYPE_tx3g) {
         out.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TX3G, language,
             durationUs);
+      } else if (childAtomType == Atom.TYPE_stpp) {
+        out.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML, language,
+            durationUs, 0 /* subsample timing is absolute */);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
