@@ -67,6 +67,14 @@ public interface SampleSource {
   public interface SampleSourceReader {
 
     /**
+     * If the source is currently having difficulty preparing or loading samples, then this method
+     * throws the underlying error. Otherwise does nothing.
+     *
+     * @throws IOException The underlying error.
+     */
+    public void maybeThrowError() throws IOException;
+
+    /**
      * Prepares the source.
      * <p>
      * Preparation may require reading from the data source (e.g. to determine the available tracks
@@ -75,12 +83,14 @@ public interface SampleSource {
      * success.
      *
      * @param positionUs The player's current playback position.
-     * @return True if the source was prepared successfully, false otherwise.
+     * @return True if the source was prepared, false otherwise.
      */
     public boolean prepare(long positionUs);
 
     /**
      * Returns the number of tracks exposed by the source.
+     * <p>
+     * This method should only be called after the source has been prepared.
      *
      * @return The number of tracks.
      */
@@ -96,7 +106,7 @@ public interface SampleSource {
      * performed using the formats obtained when reading the media stream through calls to
      * {@link #readData(int, long, MediaFormatHolder, SampleHolder, boolean)}.
      * <p>
-     * This method should not be called until after the source has been successfully prepared.
+     * This method should only be called after the source has been prepared.
      *
      * @param track The track index.
      * @return The format of the specified track.
@@ -107,7 +117,8 @@ public interface SampleSource {
      * Enable the specified track. This allows the track's format and samples to be read from
      * {@link #readData(int, long, MediaFormatHolder, SampleHolder, boolean)}.
      * <p>
-     * This method should not be called until after the source has been successfully prepared.
+     * This method should only be called after the source has been prepared, and when the specified
+     * track is disabled.
      *
      * @param track The track to enable.
      * @param positionUs The player's current playback position.
@@ -115,24 +126,9 @@ public interface SampleSource {
     public void enable(int track, long positionUs);
 
     /**
-     * Disable the specified track.
-     * <p>
-     * This method should not be called until after the source has been successfully prepared.
-     *
-     * @param track The track to disable.
-     */
-    public void disable(int track);
-
-    /**
-     * If the source is currently having difficulty preparing or loading samples, then this method
-     * throws the underlying error. Otherwise does nothing.
-     *
-     * @throws IOException The underlying error.
-     */
-    public void maybeThrowError() throws IOException;
-
-    /**
      * Indicates to the source that it should still be buffering data for the specified track.
+     * <p>
+     * This method should only be called when the specified track is enabled.
      *
      * @param track The track to continue buffering.
      * @param positionUs The current playback position.
@@ -144,7 +140,7 @@ public interface SampleSource {
     /**
      * Attempts to read either a sample, a new format or or a discontinuity from the source.
      * <p>
-     * This method should not be called until after the source has been successfully prepared.
+     * This method should only be called when the specified track is enabled.
      * <p>
      * Note that where multiple tracks are enabled, {@link #NOTHING_READ} may be returned if the
      * next piece of data to be read from the {@link SampleSource} corresponds to a different track
@@ -168,7 +164,7 @@ public interface SampleSource {
     /**
      * Seeks to the specified time in microseconds.
      * <p>
-     * This method should not be called until after the source has been successfully prepared.
+     * This method should only be called when at least one track is enabled.
      *
      * @param positionUs The seek position in microseconds.
      */
@@ -177,13 +173,22 @@ public interface SampleSource {
     /**
      * Returns an estimate of the position up to which data is buffered.
      * <p>
-     * This method should not be called until after the source has been successfully prepared.
+     * This method should only be called when at least one track is enabled.
      *
      * @return An estimate of the absolute position in microseconds up to which data is buffered,
      *     or {@link TrackRenderer#END_OF_TRACK_US} if data is buffered to the end of the stream,
      *     or {@link TrackRenderer#UNKNOWN_TIME_US} if no estimate is available.
      */
     public long getBufferedPositionUs();
+
+    /**
+     * Disable the specified track.
+     * <p>
+     * This method should only be called when the specified track is enabled.
+     *
+     * @param track The track to disable.
+     */
+    public void disable(int track);
 
     /**
      * Releases the {@link SampleSourceReader}.

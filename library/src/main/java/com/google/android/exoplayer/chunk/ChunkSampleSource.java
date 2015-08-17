@@ -131,6 +131,8 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
     Assertions.checkState(state == STATE_INITIALIZED || state == STATE_PREPARED);
     if (state == STATE_PREPARED) {
       return true;
+    } else if (!chunkSource.prepare()) {
+      return false;
     }
     loader = new Loader("Loader:" + chunkSource.getFormat(0).mimeType);
     state = STATE_PREPARED;
