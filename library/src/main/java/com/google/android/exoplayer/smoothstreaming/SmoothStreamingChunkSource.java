@@ -187,12 +187,17 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   }
 
   @Override
-  public final MediaFormat getFormat() {
+  public int getTrackCount() {
+    return 1;
+  }
+
+  @Override
+  public final MediaFormat getFormat(int track) {
     return mediaFormat;
   }
 
   @Override
-  public void enable() {
+  public void enable(int track) {
     fatalError = null;
     formatEvaluator.enable();
     if (manifestFetcher != null) {

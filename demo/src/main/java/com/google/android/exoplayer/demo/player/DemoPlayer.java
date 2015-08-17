@@ -245,6 +245,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     pushSurface(true);
   }
 
+  @SuppressWarnings("deprecation")
   public int getTrackCount(int type) {
     return !player.getRendererHasMedia(type) ? 0 : trackNames[type].length;
   }
@@ -330,7 +331,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
       if (trackNames[rendererIndex] == null) {
         // Convert a null trackNames to an array of suitable length.
         int trackCount = multiTrackSources[rendererIndex] != null
-            ? multiTrackSources[rendererIndex].getTrackCount() : 1;
+            ? multiTrackSources[rendererIndex].getMultiTrackCount() : 1;
         trackNames[rendererIndex] = new String[trackCount];
       }
     }
@@ -619,6 +620,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     }
   }
 
+  @SuppressWarnings("deprecation")
   private void pushTrackSelection(int type, boolean allowRendererEnable) {
     if (multiTrackSources == null) {
       return;

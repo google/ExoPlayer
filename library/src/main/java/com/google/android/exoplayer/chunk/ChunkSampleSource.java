@@ -81,6 +81,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   private Loader loader;
   private boolean loadingFinished;
   private IOException currentLoadableException;
+  private int enabledTrackCount;
   private int currentLoadableExceptionCount;
   private long currentLoadableExceptionTimestamp;
   private long currentLoadStartTimeMs;
@@ -131,7 +132,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
     if (state == STATE_PREPARED) {
       return true;
     }
-    loader = new Loader("Loader:" + chunkSource.getFormat().mimeType);
+    loader = new Loader("Loader:" + chunkSource.getFormat(0).mimeType);
     state = STATE_PREPARED;
     return true;
   }
@@ -139,22 +140,21 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   @Override
   public int getTrackCount() {
     Assertions.checkState(state == STATE_PREPARED || state == STATE_ENABLED);
-    return 1;
+    return chunkSource.getTrackCount();
   }
 
   @Override
   public MediaFormat getFormat(int track) {
     Assertions.checkState(state == STATE_PREPARED || state == STATE_ENABLED);
-    Assertions.checkState(track == 0);
-    return chunkSource.getFormat();
+    return chunkSource.getFormat(track);
   }
 
   @Override
   public void enable(int track, long positionUs) {
     Assertions.checkState(state == STATE_PREPARED);
-    Assertions.checkState(track == 0);
+    Assertions.checkState(enabledTrackCount++ == 0);
     state = STATE_ENABLED;
-    chunkSource.enable();
+    chunkSource.enable(track);
     loadControl.register(this, bufferSizeContribution);
     downstreamFormat = null;
     downstreamMediaFormat = null;
@@ -167,7 +167,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   @Override
   public void disable(int track) {
     Assertions.checkState(state == STATE_ENABLED);
-    Assertions.checkState(track == 0);
+    Assertions.checkState(--enabledTrackCount == 0);
     state = STATE_PREPARED;
     try {
       chunkSource.disable(mediaChunks);
@@ -187,7 +187,6 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   @Override
   public boolean continueBuffering(int track, long positionUs) {
     Assertions.checkState(state == STATE_ENABLED);
-    Assertions.checkState(track == 0);
     downstreamPositionUs = positionUs;
     chunkSource.continueBuffering(positionUs);
     updateLoadControl();
@@ -198,7 +197,6 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   public int readData(int track, long positionUs, MediaFormatHolder formatHolder,
       SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
     Assertions.checkState(state == STATE_ENABLED);
-    Assertions.checkState(track == 0);
     downstreamPositionUs = positionUs;
 
     if (pendingDiscontinuity) {

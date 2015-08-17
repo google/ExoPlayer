@@ -291,7 +291,12 @@ public class DashChunkSource implements ChunkSource {
   }
 
   @Override
-  public final MediaFormat getFormat() {
+  public int getTrackCount() {
+    return 1;
+  }
+
+  @Override
+  public final MediaFormat getFormat(int track) {
     return mediaFormat;
   }
 
@@ -301,7 +306,7 @@ public class DashChunkSource implements ChunkSource {
   }
 
   @Override
-  public void enable() {
+  public void enable(int track) {
     fatalError = null;
     formatEvaluator.enable();
     if (manifestFetcher != null) {
