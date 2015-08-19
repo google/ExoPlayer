@@ -111,8 +111,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Deprecated
   @Override
   public boolean getRendererEnabled(int rendererIndex) {
-    int selectedTrack = getSelectedTrack(rendererIndex);
-    return 0 <= selectedTrack && selectedTrack < getTrackCount(rendererIndex);
+    return getSelectedTrack(rendererIndex) >= 0;
   }
 
   @Override
