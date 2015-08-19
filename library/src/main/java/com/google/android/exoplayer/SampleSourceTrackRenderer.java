@@ -26,42 +26,80 @@ import java.util.Arrays;
  */
 public abstract class SampleSourceTrackRenderer extends TrackRenderer {
 
-  private final SampleSourceReader source;
+  private final SampleSourceReader[] sources;
 
-  private int enabledSourceTrackIndex;
+  private int[] handledSourceIndices;
   private int[] handledSourceTrackIndices;
 
+  private SampleSourceReader enabledSource;
+  private int enabledSourceTrackIndex;
+
+  private long durationUs;
+
   /**
-   * @param source The upstream source from which the renderer obtains samples.
+   * @param sources One or more upstream sources from which the renderer can obtain samples.
    */
-  public SampleSourceTrackRenderer(SampleSource source) {
-    this.source = source.register();
+  public SampleSourceTrackRenderer(SampleSource... sources) {
+    this.sources = new SampleSourceReader[sources.length];
+    for (int i = 0; i < sources.length; i++) {
+      this.sources[i] = sources[i].register();
+    }
   }
 
   @Override
   protected boolean doPrepare(long positionUs) throws ExoPlaybackException {
-    boolean sourcePrepared = source.prepare(positionUs);
-    if (!sourcePrepared) {
+    boolean allSourcesPrepared = true;
+    for (int i = 0; i < sources.length; i++) {
+      allSourcesPrepared &= sources[i].prepare(positionUs);
+    }
+    if (!allSourcesPrepared) {
       return false;
     }
+    // The sources are all prepared.
+    int totalSourceTrackCount = 0;
+    for (int i = 0; i < sources.length; i++) {
+      totalSourceTrackCount += sources[i].getTrackCount();
+    }
+    long durationUs = 0;
     int handledTrackCount = 0;
-    int sourceTrackCount = source.getTrackCount();
-    int[] trackIndices = new int[sourceTrackCount];
-    for (int trackIndex = 0; trackIndex < sourceTrackCount; trackIndex++) {
-      MediaFormat format = source.getFormat(trackIndex);
-      if (handlesTrack(format)) {
-        trackIndices[handledTrackCount] = trackIndex;
-        handledTrackCount++;
+    int[] handledSourceIndices = new int[totalSourceTrackCount];
+    int[] handledTrackIndices = new int[totalSourceTrackCount];
+    int sourceCount = sources.length;
+    for (int sourceIndex = 0; sourceIndex < sourceCount; sourceIndex++) {
+      SampleSourceReader source = sources[sourceIndex];
+      int sourceTrackCount = source.getTrackCount();
+      for (int trackIndex = 0; trackIndex < sourceTrackCount; trackIndex++) {
+        MediaFormat format = source.getFormat(trackIndex);
+        if (handlesTrack(format)) {
+          handledSourceIndices[handledTrackCount] = sourceIndex;
+          handledTrackIndices[handledTrackCount] = trackIndex;
+          handledTrackCount++;
+          if (durationUs == TrackRenderer.UNKNOWN_TIME_US) {
+            // We've already encountered a track for which the duration is unknown, so the media
+            // duration is unknown regardless of the duration of this track.
+          } else {
+            long trackDurationUs = format.durationUs;
+            if (trackDurationUs == TrackRenderer.UNKNOWN_TIME_US) {
+              durationUs = TrackRenderer.UNKNOWN_TIME_US;
+            } else if (trackDurationUs == TrackRenderer.MATCH_LONGEST_US) {
+              // Do nothing.
+            } else {
+              durationUs = Math.max(durationUs, trackDurationUs);
+            }
+          }
+        }
       }
     }
-    this.handledSourceTrackIndices = Arrays.copyOf(trackIndices, handledTrackCount);
+    this.durationUs = durationUs;
+    this.handledSourceIndices = Arrays.copyOf(handledSourceIndices, handledTrackCount);
+    this.handledSourceTrackIndices = Arrays.copyOf(handledTrackIndices, handledTrackCount);
     return true;
   }
 
   /**
    * Returns whether this renderer is capable of handling the provided track.
    *
-   * @param mediaFormat The track.
+   * @param mediaFormat The format of the track.
    * @return True if the renderer can handle the track, false otherwise.
    */
   protected abstract boolean handlesTrack(MediaFormat mediaFormat);
@@ -69,27 +107,39 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
   @Override
   protected void onEnabled(int track, long positionUs, boolean joining)
       throws ExoPlaybackException {
-    this.enabledSourceTrackIndex = handledSourceTrackIndices[track];
-    source.enable(enabledSourceTrackIndex, positionUs);
+    enabledSource = sources[handledSourceIndices[track]];
+    enabledSourceTrackIndex = handledSourceTrackIndices[track];
+    enabledSource.enable(enabledSourceTrackIndex, positionUs);
   }
 
   @Override
   protected void seekTo(long positionUs) throws ExoPlaybackException {
-    source.seekToUs(positionUs);
+    enabledSource.seekToUs(positionUs);
   }
 
   @Override
   protected long getBufferedPositionUs() {
-    return source.getBufferedPositionUs();
+    return enabledSource.getBufferedPositionUs();
   }
 
   @Override
   protected long getDurationUs() {
-    return source.getFormat(enabledSourceTrackIndex).durationUs;
+    return durationUs;
   }
 
   @Override
   protected void maybeThrowError() throws ExoPlaybackException {
+    if (enabledSource != null) {
+      maybeThrowError(enabledSource);
+    } else {
+      int sourceCount = sources.length;
+      for (int i = 0; i < sourceCount; i++) {
+        maybeThrowError(sources[i]);
+      }
+    }
+  }
+
+  private void maybeThrowError(SampleSourceReader source) throws ExoPlaybackException {
     try {
       source.maybeThrowError();
     } catch (IOException e) {
@@ -99,21 +149,25 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
 
   @Override
   protected void onDisabled() throws ExoPlaybackException {
-    source.disable(enabledSourceTrackIndex);
+    enabledSource.disable(enabledSourceTrackIndex);
+    enabledSource = null;
   }
 
   @Override
   protected void onReleased() throws ExoPlaybackException {
-    source.release();
+    int sourceCount = sources.length;
+    for (int i = 0; i < sourceCount; i++) {
+      sources[i].release();
+    }
   }
 
   protected final boolean continueBufferingSource(long positionUs) {
-    return source.continueBuffering(enabledSourceTrackIndex, positionUs);
+    return enabledSource.continueBuffering(enabledSourceTrackIndex, positionUs);
   }
 
   protected final int readSource(long positionUs, MediaFormatHolder formatHolder,
       SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
-    return source.readData(enabledSourceTrackIndex, positionUs, formatHolder, sampleHolder,
+    return enabledSource.readData(enabledSourceTrackIndex, positionUs, formatHolder, sampleHolder,
         onlyReadDiscontinuity);
   }
 
@@ -124,6 +178,7 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
 
   @Override
   protected final MediaFormat getFormat(int track) {
+    SampleSourceReader source = sources[handledSourceIndices[track]];
     return source.getFormat(handledSourceTrackIndices[track]);
   }
 
