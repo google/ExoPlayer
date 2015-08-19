@@ -262,6 +262,18 @@ public final class MediaFormat {
     return frameworkMediaFormat;
   }
 
+  /**
+   * Sets the framework format returned by {@link #getFrameworkMediaFormatV16()}.
+   *
+   * @deprecated This method only exists for FrameworkSampleSource, which is itself deprecated.
+   * @param format The framework format.
+   */
+  @Deprecated
+  @TargetApi(16)
+  /* package */ final void setFrameworkFormatV16(android.media.MediaFormat format) {
+    frameworkMediaFormat = format;
+  }
+
   @Override
   public String toString() {
     return "MediaFormat(" + mimeType + ", " + maxInputSize + ", " + width + ", " + height + ", "
