@@ -68,6 +68,7 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -450,14 +451,19 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (format.adaptive) {
       return "auto";
     } else if (MimeTypes.isVideo(format.mimeType)) {
-      return format.width + "x" + format.height;
+      return format.width + "x" + format.height + buildBitrateString(format);
     } else if (MimeTypes.isAudio(format.mimeType)) {
-      return format.channelCount + "ch, " + format.sampleRate + "Hz";
+      return format.channelCount + "ch, " + format.sampleRate + "Hz" + buildBitrateString(format);
     } else if (MimeTypes.isText(format.mimeType) && !TextUtils.isEmpty(format.language)) {
-      return format.language;
+      return format.language + buildBitrateString(format);
     } else {
-      return "unknown";
+      return "unknown" + buildBitrateString(format);
     }
+  }
+
+  private static String buildBitrateString(MediaFormat format) {
+    return format.bitrate == MediaFormat.NO_VALUE ? ""
+        : String.format(Locale.US, " (%.2fMbit)", format.bitrate / 1000000f);
   }
 
   private boolean onTrackItemClick(MenuItem item, int type) {

@@ -374,7 +374,7 @@ public class SmoothStreamingChunkSource implements ChunkSource,
       maxHeight = Math.max(maxHeight, mediaFormat.height);
     }
     Arrays.sort(formats, new DecreasingBandwidthComparator());
-    MediaFormat adaptiveMediaFormat = maxHeightMediaFormat.copyWithAdaptive(true);
+    MediaFormat adaptiveMediaFormat = maxHeightMediaFormat.copyAsAdaptive();
     tracks.add(new ExposedTrack(adaptiveMediaFormat, element, formats, maxWidth, maxHeight));
   }
 
@@ -404,8 +404,9 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     int mp4TrackType;
     switch (element.type) {
       case StreamElement.TYPE_VIDEO:
-        mediaFormat = MediaFormat.createVideoFormat(format.mimeType, MediaFormat.NO_VALUE,
-            durationUs, format.width, format.height, 0, Arrays.asList(csdArray));
+        mediaFormat = MediaFormat.createVideoFormat(format.mimeType, format.bitrate,
+            MediaFormat.NO_VALUE, durationUs, format.width, format.height, 0,
+            Arrays.asList(csdArray));
         mp4TrackType = Track.TYPE_vide;
         break;
       case StreamElement.TYPE_AUDIO:
@@ -416,12 +417,13 @@ public class SmoothStreamingChunkSource implements ChunkSource,
           csd = Collections.singletonList(CodecSpecificDataUtil.buildAacAudioSpecificConfig(
               format.audioSamplingRate, format.audioChannels));
         }
-        mediaFormat = MediaFormat.createAudioFormat(format.mimeType, MediaFormat.NO_VALUE,
-            durationUs, format.audioChannels, format.audioSamplingRate, csd);
+        mediaFormat = MediaFormat.createAudioFormat(format.mimeType, format.bitrate,
+            MediaFormat.NO_VALUE, durationUs, format.audioChannels, format.audioSamplingRate, csd);
         mp4TrackType = Track.TYPE_soun;
         break;
       case StreamElement.TYPE_TEXT:
-        mediaFormat = MediaFormat.createTextFormat(format.mimeType, format.language, durationUs);
+        mediaFormat = MediaFormat.createTextFormat(format.mimeType, format.bitrate, format.language,
+            durationUs);
         mp4TrackType = Track.TYPE_text;
         break;
       default:

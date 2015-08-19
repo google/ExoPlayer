@@ -264,7 +264,7 @@ public class DashChunkSource implements ChunkSource {
         ? TrackRenderer.UNKNOWN_TIME_US : representations[0].periodDurationMs * 1000;
     // TODO: Remove this and pass proper formats instead (b/22996976).
     this.mediaFormat = MediaFormat.createFormatForMimeType(getMediaMimeType(representations[0]),
-        periodDurationUs);
+        MediaFormat.NO_VALUE, periodDurationUs);
 
     this.formats = new Format[representations.length];
     this.representationHolders = new HashMap<>();
@@ -652,9 +652,11 @@ public class DashChunkSource implements ChunkSource {
     long sampleOffsetUs = representation.periodStartMs * 1000
         - representation.presentationTimeOffsetUs;
     if (representation.format.mimeType.equals(MimeTypes.TEXT_VTT)) {
+      MediaFormat mediaFormat = MediaFormat.createTextFormat(MimeTypes.TEXT_VTT,
+          MediaFormat.NO_VALUE, representation.format.language);
       return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_INITIAL,
           representation.format, startTimeUs, endTimeUs, absoluteSegmentNum, isLastSegment,
-          MediaFormat.createTextFormat(MimeTypes.TEXT_VTT, representation.format.language), null);
+          mediaFormat, null);
     } else {
       return new ContainerMediaChunk(dataSource, dataSpec, trigger, representation.format,
           startTimeUs, endTimeUs, absoluteSegmentNum, isLastSegment, sampleOffsetUs,

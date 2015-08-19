@@ -211,7 +211,7 @@ import java.util.List;
 
     // Construct and output the format.
     output.format(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
-        C.UNKNOWN_TIME_US, parsedSpsData.width, parsedSpsData.height, 0,
+        MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, parsedSpsData.width, parsedSpsData.height, 0,
         parsedSpsData.pixelWidthAspectRatio, initializationData));
     hasOutputFormat = true;
   }
