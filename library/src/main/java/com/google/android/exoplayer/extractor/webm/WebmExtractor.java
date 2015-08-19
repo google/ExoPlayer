@@ -37,6 +37,7 @@ import android.util.Pair;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1104,8 +1105,10 @@ public final class WebmExtractor implements Extractor {
           maxInputSize = OPUS_MAX_INPUT_SIZE;
           initializationData = new ArrayList<>(3);
           initializationData.add(codecPrivate);
-          initializationData.add(ByteBuffer.allocate(Long.SIZE).putLong(codecDelayNs).array());
-          initializationData.add(ByteBuffer.allocate(Long.SIZE).putLong(seekPreRollNs).array());
+          initializationData.add(
+              ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(codecDelayNs).array());
+          initializationData.add(
+              ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(seekPreRollNs).array());
           break;
         case CODEC_ID_AAC:
           mimeType = MimeTypes.AUDIO_AAC;
