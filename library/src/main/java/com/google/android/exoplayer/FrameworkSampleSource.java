@@ -315,10 +315,12 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
     }
     long durationUs = format.containsKey(android.media.MediaFormat.KEY_DURATION)
         ? format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
-    return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, rotationDegrees,
-        MediaFormat.NO_VALUE, channelCount, sampleRate, language,
+    MediaFormat mediaFormat = new MediaFormat(mimeType, maxInputSize, durationUs, width, height,
+        rotationDegrees, MediaFormat.NO_VALUE, channelCount, sampleRate, language,
         MediaFormat.OFFSET_SAMPLE_RELATIVE, initializationData, false, MediaFormat.NO_VALUE,
         MediaFormat.NO_VALUE);
+    mediaFormat.setFrameworkFormatV16(format);
+    return mediaFormat;
   }
 
   @TargetApi(16)
