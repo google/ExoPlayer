@@ -31,6 +31,7 @@ import com.google.android.exoplayer.util.MimeTypes;
 import android.os.Handler;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.List;
 
 /**
@@ -165,12 +166,13 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
       long codecDelayNs = -1;
       long seekPreRollNs = -1;
       if (initializationData.size() == 3) {
-        if (initializationData.get(1).length != Long.SIZE
-            || initializationData.get(2).length != Long.SIZE) {
+        if (initializationData.get(1).length != 8 || initializationData.get(2).length != 8) {
           throw new ExoPlaybackException("Invalid Codec Delay or Seek Preroll");
         }
-        codecDelayNs = ByteBuffer.wrap(initializationData.get(1)).getLong();
-        seekPreRollNs = ByteBuffer.wrap(initializationData.get(2)).getLong();
+        codecDelayNs =
+            ByteBuffer.wrap(initializationData.get(1)).order(ByteOrder.LITTLE_ENDIAN).getLong();
+        seekPreRollNs =
+            ByteBuffer.wrap(initializationData.get(2)).order(ByteOrder.LITTLE_ENDIAN).getLong();
       }
       try {
         decoder = new OpusDecoderWrapper(initializationData.get(0), codecDelayNs, seekPreRollNs);

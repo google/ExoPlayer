@@ -34,6 +34,7 @@ import android.test.InstrumentationTestCase;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -731,8 +732,10 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
       assertEquals(3, format.initializationData.size());
       android.test.MoreAsserts.assertEquals(TEST_OPUS_CODEC_PRIVATE,
           format.initializationData.get(0));
-      assertEquals(TEST_CODEC_DELAY, ByteBuffer.wrap(format.initializationData.get(1)).getLong());
-      assertEquals(TEST_SEEK_PRE_ROLL, ByteBuffer.wrap(format.initializationData.get(2)).getLong());
+      assertEquals(TEST_CODEC_DELAY, ByteBuffer.wrap(format.initializationData.get(1))
+          .order(ByteOrder.LITTLE_ENDIAN).getLong());
+      assertEquals(TEST_SEEK_PRE_ROLL, ByteBuffer.wrap(format.initializationData.get(2))
+          .order(ByteOrder.LITTLE_ENDIAN).getLong());
     } else if (MimeTypes.AUDIO_VORBIS.equals(expectedMimeType)) {
       assertEquals(2, format.initializationData.size());
       assertEquals(TEST_VORBIS_INFO_SIZE, format.initializationData.get(0).length);
