@@ -17,6 +17,7 @@ package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.AspectRatioFrameLayout;
 import com.google.android.exoplayer.ExoPlayer;
+import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
 import com.google.android.exoplayer.demo.player.DashRendererBuilder;
@@ -33,6 +34,7 @@ import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleLayout;
 import com.google.android.exoplayer.util.DebugTextViewHelper;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 import com.google.android.exoplayer.util.VerboseLogUtil;
 
@@ -435,23 +437,34 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     });
     Menu menu = popup.getMenu();
     // ID_OFFSET ensures we avoid clashing with Menu.NONE (which equals 0)
-    menu.add(MENU_GROUP_TRACKS, DemoPlayer.DISABLED_TRACK + ID_OFFSET, Menu.NONE, R.string.off);
-    if (trackCount == 1 && TextUtils.isEmpty(player.getTrackName(trackType, 0))) {
-      menu.add(MENU_GROUP_TRACKS, DemoPlayer.PRIMARY_TRACK + ID_OFFSET, Menu.NONE, R.string.on);
-    } else {
-      for (int i = 0; i < trackCount; i++) {
-        menu.add(MENU_GROUP_TRACKS, i + ID_OFFSET, Menu.NONE, player.getTrackName(trackType, i));
-      }
+    menu.add(MENU_GROUP_TRACKS, DemoPlayer.TRACK_DISABLED + ID_OFFSET, Menu.NONE, R.string.off);
+    for (int i = 0; i < trackCount; i++) {
+      menu.add(MENU_GROUP_TRACKS, i + ID_OFFSET, Menu.NONE,
+          buildTrackName(player.getTrackFormat(trackType, i)));
     }
     menu.setGroupCheckable(MENU_GROUP_TRACKS, true, true);
-    menu.findItem(player.getSelectedTrackIndex(trackType) + ID_OFFSET).setChecked(true);
+    menu.findItem(player.getSelectedTrack(trackType) + ID_OFFSET).setChecked(true);
+  }
+
+  private static String buildTrackName(MediaFormat format) {
+    if (format.adaptive) {
+      return "auto";
+    } else if (MimeTypes.isVideo(format.mimeType)) {
+      return format.width + "x" + format.height;
+    } else if (MimeTypes.isAudio(format.mimeType)) {
+      return format.channelCount + "ch, " + format.sampleRate + "Hz";
+    } else if (MimeTypes.isText(format.mimeType) && !TextUtils.isEmpty(format.language)) {
+      return format.language;
+    } else {
+      return "unknown";
+    }
   }
 
   private boolean onTrackItemClick(MenuItem item, int type) {
     if (player == null || item.getGroupId() != MENU_GROUP_TRACKS) {
       return false;
     }
-    player.selectTrack(type, item.getItemId() - ID_OFFSET);
+    player.setSelectedTrack(type, item.getItemId() - ID_OFFSET);
     return true;
   }
 

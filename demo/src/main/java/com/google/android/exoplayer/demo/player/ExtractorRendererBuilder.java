@@ -74,7 +74,7 @@ public class ExtractorRendererBuilder implements RendererBuilder {
     renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
     renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
     renderers[DemoPlayer.TYPE_TEXT] = textRenderer;
-    player.onRenderers(null, null, renderers, bandwidthMeter);
+    player.onRenderers(renderers, bandwidthMeter);
   }
 
   @Override

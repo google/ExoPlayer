@@ -352,7 +352,7 @@ public class DashRendererBuilder implements RendererBuilder {
       renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
       renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
       renderers[DemoPlayer.TYPE_TEXT] = textRenderer;
-      player.onRenderers(trackNames, multiTrackChunkSources, renderers, bandwidthMeter);
+      player.onRenderers(renderers, bandwidthMeter);
     }
 
     private static int getWidevineSecurityLevel(StreamingDrmSessionManager sessionManager) {
