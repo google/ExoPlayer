@@ -171,7 +171,7 @@ import java.util.Collections;
           audioSpecificConfig);
 
       MediaFormat mediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_AAC,
-          MediaFormat.NO_VALUE, audioParams.second, audioParams.first,
+          MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, audioParams.second, audioParams.first,
           Collections.singletonList(audioSpecificConfig));
       frameDurationUs = (C.MICROS_PER_SECOND * 1024L) / mediaFormat.sampleRate;
       output.format(mediaFormat);

@@ -148,7 +148,8 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    */
   // TODO: This method should be abstract. This implementation is provided as an interim step only.
   protected MediaFormat getFormat(int track) {
-    return MediaFormat.createFormatForMimeType("application/octet-stream", getDurationUs());
+    return MediaFormat.createFormatForMimeType("application/octet-stream", MediaFormat.NO_VALUE,
+        getDurationUs());
   }
 
   /**

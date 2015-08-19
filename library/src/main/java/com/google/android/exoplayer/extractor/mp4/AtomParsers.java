@@ -376,14 +376,14 @@ import java.util.List;
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, durationUs,
             out, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
-        out.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML, language,
-            durationUs);
+        out.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML,
+            MediaFormat.NO_VALUE, language, durationUs);
       } else if (childAtomType == Atom.TYPE_tx3g) {
-        out.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TX3G, language,
-            durationUs);
+        out.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TX3G,
+            MediaFormat.NO_VALUE, language, durationUs);
       } else if (childAtomType == Atom.TYPE_stpp) {
-        out.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML, language,
-            durationUs, 0 /* subsample timing is absolute */);
+        out.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML,
+            MediaFormat.NO_VALUE, language, durationUs, 0 /* subsample timing is absolute */);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
@@ -453,8 +453,9 @@ import java.util.List;
       return;
     }
 
-    out.mediaFormat = MediaFormat.createVideoFormat(mimeType, MediaFormat.NO_VALUE, durationUs,
-        width, height, rotationDegrees, pixelWidthHeightRatio, initializationData);
+    out.mediaFormat = MediaFormat.createVideoFormat(mimeType, MediaFormat.NO_VALUE,
+        MediaFormat.NO_VALUE, durationUs, width, height, rotationDegrees, pixelWidthHeightRatio,
+        initializationData);
   }
 
   private static AvcCData parseAvcCFromParent(ParsableByteArray parent, int position) {
@@ -643,8 +644,8 @@ import java.util.List;
       return;
     }
 
-    out.mediaFormat = MediaFormat.createAudioFormat(mimeType, sampleSize, durationUs, channelCount,
-        sampleRate,
+    out.mediaFormat = MediaFormat.createAudioFormat(mimeType, MediaFormat.NO_VALUE, sampleSize,
+        durationUs, channelCount, sampleRate,
         initializationData == null ? null : Collections.singletonList(initializationData));
   }
 
