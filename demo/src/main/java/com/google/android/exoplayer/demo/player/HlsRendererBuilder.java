@@ -162,7 +162,7 @@ public class HlsRendererBuilder implements RendererBuilder {
       renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
       renderers[DemoPlayer.TYPE_METADATA] = id3Renderer;
       renderers[DemoPlayer.TYPE_TEXT] = closedCaptionRenderer;
-      player.onRenderers(null, null, renderers, bandwidthMeter);
+      player.onRenderers(renderers, bandwidthMeter);
     }
 
   }

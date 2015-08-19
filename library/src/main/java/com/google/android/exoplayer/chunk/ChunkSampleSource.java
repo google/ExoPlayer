@@ -134,7 +134,9 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
     } else if (!chunkSource.prepare()) {
       return false;
     }
-    loader = new Loader("Loader:" + chunkSource.getFormat(0).mimeType);
+    if (chunkSource.getTrackCount() > 0) {
+      loader = new Loader("Loader:" + chunkSource.getFormat(0).mimeType);
+    }
     state = STATE_PREPARED;
     return true;
   }

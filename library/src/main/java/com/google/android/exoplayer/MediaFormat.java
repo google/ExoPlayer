@@ -187,15 +187,6 @@ public final class MediaFormat {
         NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE, null, false, NO_VALUE, NO_VALUE);
   }
 
-  public static MediaFormat createAdaptiveFormat(String mimeType) {
-    return createAdaptiveFormat(mimeType, C.UNKNOWN_TIME_US);
-  }
-
-  public static MediaFormat createAdaptiveFormat(String mimeType, long durationUs) {
-    return new MediaFormat(mimeType, NO_VALUE, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE, null, true, NO_VALUE, NO_VALUE);
-  }
-
   /* package */ MediaFormat(String mimeType, int maxInputSize, long durationUs, int width,
       int height, int rotationDegrees, float pixelWidthHeightRatio, int channelCount,
       int sampleRate, String language, long subsampleOffsetUs, List<byte[]> initializationData,
@@ -231,6 +222,12 @@ public final class MediaFormat {
   }
 
   public MediaFormat copyWithDurationUs(long durationUs) {
+    return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, rotationDegrees,
+        pixelWidthHeightRatio, channelCount, sampleRate, language, subsampleOffsetUs,
+        initializationData, adaptive, maxWidth, maxHeight);
+  }
+
+  public MediaFormat copyWithAdaptive(boolean adaptive) {
     return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, rotationDegrees,
         pixelWidthHeightRatio, channelCount, sampleRate, language, subsampleOffsetUs,
         initializationData, adaptive, maxWidth, maxHeight);
