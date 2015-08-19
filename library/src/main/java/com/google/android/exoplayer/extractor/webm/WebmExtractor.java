@@ -721,7 +721,8 @@ public final class WebmExtractor implements Extractor {
           int timecode = (scratch.data[0] << 8) | (scratch.data[1] & 0xFF);
           blockTimeUs = clusterTimecodeUs + scaleTimecodeToUs(timecode);
           boolean isInvisible = (scratch.data[2] & 0x08) == 0x08;
-          boolean isKeyframe = (id == ID_SIMPLE_BLOCK && (scratch.data[2] & 0x80) == 0x80);
+          boolean isKeyframe = sampleTrackFormat.type == TRACK_TYPE_AUDIO
+              || (id == ID_SIMPLE_BLOCK && (scratch.data[2] & 0x80) == 0x80);
           blockFlags = (isKeyframe ? C.SAMPLE_FLAG_SYNC : 0)
               | (isInvisible ? C.SAMPLE_FLAG_DECODE_ONLY : 0);
           blockEncryptionKeyId = sampleTrackFormat.encryptionKeyId;
