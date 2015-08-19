@@ -160,8 +160,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   /**
-   * Returns whether encoded audio passthrough may be used for playing back the input format. This
-   * implementation returns true if the {@link AudioTrack}'s audio capabilities indicate that
+   * Returns whether encoded audio passthrough should be used for playing back the input format.
+   * This implementation returns true if the {@link AudioTrack}'s audio capabilities indicate that
    * passthrough is supported.
    *
    * @param mimeType The type of input media.
@@ -174,9 +174,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   @Override
   protected void configureCodec(MediaCodec codec, String codecName,
       android.media.MediaFormat format, android.media.MediaCrypto crypto) {
-    if (RAW_DECODER_NAME.equals(codecName)) {
+    String mimeType = format.getString(android.media.MediaFormat.KEY_MIME);
+    if (RAW_DECODER_NAME.equals(codecName) && !MimeTypes.AUDIO_RAW.equals(mimeType)) {
       // Override the MIME type used to configure the codec if we are using a passthrough decoder.
-      String mimeType = format.getString(android.media.MediaFormat.KEY_MIME);
       format.setString(android.media.MediaFormat.KEY_MIME, MimeTypes.AUDIO_RAW);
       codec.configure(format, null, crypto, 0);
       format.setString(android.media.MediaFormat.KEY_MIME, mimeType);
