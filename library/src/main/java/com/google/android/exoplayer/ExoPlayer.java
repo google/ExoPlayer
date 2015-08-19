@@ -300,10 +300,9 @@ public interface ExoPlayer {
   /**
    * Whether the renderer at the given index is enabled.
    *
-   * @deprecated Use {@code getSelectedTrack(rendererIndex)}. A return value between 0 (inclusive)
-   *      and {@code getTrackCount(rendererIndex)} (exclusive) indicate the renderer is enabled. A
-   *      value outside of this range (e.g. {@link #TRACK_DISABLED}) indicates that the renderer is
-   *      disabled.
+   * @deprecated Use {@code getSelectedTrack(rendererIndex)}. A non-negative return value from that
+   *     method is equivalent to this method returning true. A negative return value is equivalent
+   *     to this method returning false.
    * @param rendererIndex The index of the renderer.
    * @return Whether the renderer is enabled.
    */
