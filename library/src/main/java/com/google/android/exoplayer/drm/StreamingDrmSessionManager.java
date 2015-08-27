@@ -259,7 +259,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   @Override
-  public final void open(DrmInitData drmInitData) {
+  public void open(DrmInitData drmInitData) {
     if (++openCount != 1) {
       return;
     }
@@ -290,7 +290,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   @Override
-  public final void close() {
+  public void close() {
     if (--openCount != 0) {
       return;
     }
