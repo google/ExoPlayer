@@ -158,9 +158,9 @@ public final class WebmExtractor implements Extractor {
   private long durationTimecode = C.UNKNOWN_TIME_US;
   private long durationUs = C.UNKNOWN_TIME_US;
 
-  private TrackFormat trackFormat;  // Used to store the last seen track.
-  private TrackFormat audioTrackFormat;
-  private TrackFormat videoTrackFormat;
+  private Track currentTrack;
+  private Track audioTrack;
+  private Track videoTrack;
 
   private boolean sentDrmInitData;
 
@@ -353,10 +353,10 @@ public final class WebmExtractor implements Extractor {
         // TODO: check and fail if more than one content encoding is present.
         return;
       case ID_CONTENT_ENCRYPTION:
-        trackFormat.hasContentEncryption = true;
+        currentTrack.hasContentEncryption = true;
         return;
       case ID_TRACK_ENTRY:
-        trackFormat = new TrackFormat();
+        currentTrack = new Track();
         return;
       default:
         return;
@@ -399,53 +399,48 @@ public final class WebmExtractor implements Extractor {
         if (!sampleSeenReferenceBlock) {
           blockFlags |= C.SAMPLE_FLAG_SYNC;
         }
-        outputSampleMetadata(
-            (audioTrackFormat != null && blockTrackNumber == audioTrackFormat.number)
-                ? audioTrackFormat.trackOutput : videoTrackFormat.trackOutput, blockTimeUs);
+        outputSampleMetadata((audioTrack != null && blockTrackNumber == audioTrack.number)
+            ? audioTrack.output : videoTrack.output, blockTimeUs);
         blockState = BLOCK_STATE_START;
         return;
       case ID_CONTENT_ENCODING:
-        if (trackFormat.hasContentEncryption) {
-          if (trackFormat.encryptionKeyId == null) {
+        if (currentTrack.hasContentEncryption) {
+          if (currentTrack.encryptionKeyId == null) {
             throw new ParserException("Encrypted Track found but ContentEncKeyID was not found");
           }
           if (!sentDrmInitData) {
             extractorOutput.drmInitData(
-                new DrmInitData.Universal(MimeTypes.VIDEO_WEBM, trackFormat.encryptionKeyId));
+                new DrmInitData.Universal(MimeTypes.VIDEO_WEBM, currentTrack.encryptionKeyId));
             sentDrmInitData = true;
           }
         }
         return;
       case ID_CONTENT_ENCODINGS:
-        if (trackFormat.hasContentEncryption && trackFormat.sampleStrippedBytes != null) {
+        if (currentTrack.hasContentEncryption && currentTrack.sampleStrippedBytes != null) {
           throw new ParserException("Combining encryption and compression is not supported");
         }
         return;
       case ID_TRACK_ENTRY:
-        if (trackFormat.number == UNKNOWN || trackFormat.type == UNKNOWN) {
-          throw new ParserException("Mandatory element TrackNumber or TrackType not found");
-        }
-        if ((trackFormat.type == TRACK_TYPE_AUDIO && audioTrackFormat != null)
-            || (trackFormat.type == TRACK_TYPE_VIDEO && videoTrackFormat != null)) {
+        if ((currentTrack.type == TRACK_TYPE_AUDIO && audioTrack != null)
+            || (currentTrack.type == TRACK_TYPE_VIDEO && videoTrack != null)) {
           // There is more than 1 audio/video track. Ignore everything but the first.
-          trackFormat = null;
+          currentTrack = null;
           return;
         }
-        if (trackFormat.type == TRACK_TYPE_AUDIO && isCodecSupported(trackFormat.codecId)) {
-          audioTrackFormat = trackFormat;
-          audioTrackFormat.trackOutput = extractorOutput.track(audioTrackFormat.number);
-          audioTrackFormat.trackOutput.format(audioTrackFormat.getMediaFormat(durationUs));
-        } else if (trackFormat.type == TRACK_TYPE_VIDEO && isCodecSupported(trackFormat.codecId)) {
-          videoTrackFormat = trackFormat;
-          videoTrackFormat.trackOutput = extractorOutput.track(videoTrackFormat.number);
-          videoTrackFormat.trackOutput.format(videoTrackFormat.getMediaFormat(durationUs));
+        if (currentTrack.type == TRACK_TYPE_AUDIO && isCodecSupported(currentTrack.codecId)) {
+          audioTrack = currentTrack;
+          audioTrack.initializeOutput(extractorOutput, durationUs);
+        } else if (currentTrack.type == TRACK_TYPE_VIDEO
+            && isCodecSupported(currentTrack.codecId)) {
+          videoTrack = currentTrack;
+          videoTrack.initializeOutput(extractorOutput, durationUs);
         } else {
           // Unsupported track type. Do nothing.
         }
-        trackFormat = null;
+        currentTrack = null;
         return;
       case ID_TRACKS:
-        if (videoTrackFormat == null && audioTrackFormat == null) {
+        if (videoTrack == null && audioTrack == null) {
           throw new ParserException("No valid tracks were found");
         }
         extractorOutput.endTracks();
@@ -478,28 +473,28 @@ public final class WebmExtractor implements Extractor {
         timecodeScale = value;
         return;
       case ID_PIXEL_WIDTH:
-        trackFormat.pixelWidth = (int) value;
+        currentTrack.width = (int) value;
         return;
       case ID_PIXEL_HEIGHT:
-        trackFormat.pixelHeight = (int) value;
+        currentTrack.height = (int) value;
         return;
       case ID_TRACK_NUMBER:
-        trackFormat.number = (int) value;
+        currentTrack.number = (int) value;
         return;
       case ID_TRACK_TYPE:
-        trackFormat.type = (int) value;
+        currentTrack.type = (int) value;
         return;
       case ID_DEFAULT_DURATION:
-        trackFormat.defaultSampleDurationNs = (int) value;
+        currentTrack.defaultSampleDurationNs = (int) value;
         break;
       case ID_CODEC_DELAY:
-        trackFormat.codecDelayNs = value;
+        currentTrack.codecDelayNs = value;
         return;
       case ID_SEEK_PRE_ROLL:
-        trackFormat.seekPreRollNs = value;
+        currentTrack.seekPreRollNs = value;
         return;
       case ID_CHANNELS:
-        trackFormat.channelCount = (int) value;
+        currentTrack.channelCount = (int) value;
         return;
       case ID_REFERENCE_BLOCK:
         sampleSeenReferenceBlock = true;
@@ -560,7 +555,7 @@ public final class WebmExtractor implements Extractor {
         durationTimecode = (long) value;
         return;
       case ID_SAMPLING_FREQUENCY:
-        trackFormat.sampleRate = (int) value;
+        currentTrack.sampleRate = (int) value;
         return;
       default:
         return;
@@ -576,7 +571,7 @@ public final class WebmExtractor implements Extractor {
         }
         return;
       case ID_CODEC_ID:
-        trackFormat.codecId = value;
+        currentTrack.codecId = value;
         return;
       default:
         return;
@@ -593,17 +588,17 @@ public final class WebmExtractor implements Extractor {
         seekEntryId = (int) seekEntryIdBytes.readUnsignedInt();
         return;
       case ID_CODEC_PRIVATE:
-        trackFormat.codecPrivate = new byte[contentSize];
-        input.readFully(trackFormat.codecPrivate, 0, contentSize);
+        currentTrack.codecPrivate = new byte[contentSize];
+        input.readFully(currentTrack.codecPrivate, 0, contentSize);
         return;
       case ID_CONTENT_COMPRESSION_SETTINGS:
         // This extractor only supports header stripping, so the payload is the stripped bytes.
-        trackFormat.sampleStrippedBytes = new byte[contentSize];
-        input.readFully(trackFormat.sampleStrippedBytes, 0, contentSize);
+        currentTrack.sampleStrippedBytes = new byte[contentSize];
+        input.readFully(currentTrack.sampleStrippedBytes, 0, contentSize);
         return;
       case ID_CONTENT_ENCRYPTION_KEY_ID:
-        trackFormat.encryptionKeyId = new byte[contentSize];
-        input.readFully(trackFormat.encryptionKeyId, 0, contentSize);
+        currentTrack.encryptionKeyId = new byte[contentSize];
+        input.readFully(currentTrack.encryptionKeyId, 0, contentSize);
         return;
       case ID_SIMPLE_BLOCK:
       case ID_BLOCK:
@@ -620,23 +615,15 @@ public final class WebmExtractor implements Extractor {
         }
 
         // Ignore the block if the track number equals neither the audio track nor the video track.
-        if ((audioTrackFormat != null && videoTrackFormat != null
-                && audioTrackFormat.number != blockTrackNumber
-                && videoTrackFormat.number != blockTrackNumber)
-            || (audioTrackFormat != null && videoTrackFormat == null
-                && audioTrackFormat.number != blockTrackNumber)
-            || (audioTrackFormat == null && videoTrackFormat != null
-                && videoTrackFormat.number != blockTrackNumber)) {
+        if ((audioTrack == null || audioTrack.number != blockTrackNumber)
+            && (videoTrack == null || videoTrack.number != blockTrackNumber)) {
           input.skipFully(contentSize - blockTrackNumberLength);
           blockState = BLOCK_STATE_START;
           return;
         }
 
-        TrackFormat sampleTrackFormat =
-            (audioTrackFormat != null && blockTrackNumber == audioTrackFormat.number)
-                ? audioTrackFormat : videoTrackFormat;
-        TrackOutput trackOutput = sampleTrackFormat.trackOutput;
-
+        Track track = (audioTrack != null && blockTrackNumber == audioTrack.number)
+            ? audioTrack : videoTrack;
         if (blockState == BLOCK_STATE_HEADER) {
           // Read the relative timecode (2 bytes) and flags (1 byte).
           readScratch(input, 3);
@@ -721,11 +708,11 @@ public final class WebmExtractor implements Extractor {
           int timecode = (scratch.data[0] << 8) | (scratch.data[1] & 0xFF);
           blockTimeUs = clusterTimecodeUs + scaleTimecodeToUs(timecode);
           boolean isInvisible = (scratch.data[2] & 0x08) == 0x08;
-          boolean isKeyframe = sampleTrackFormat.type == TRACK_TYPE_AUDIO
+          boolean isKeyframe = track.type == TRACK_TYPE_AUDIO
               || (id == ID_SIMPLE_BLOCK && (scratch.data[2] & 0x80) == 0x80);
           blockFlags = (isKeyframe ? C.SAMPLE_FLAG_SYNC : 0)
               | (isInvisible ? C.SAMPLE_FLAG_DECODE_ONLY : 0);
-          blockEncryptionKeyId = sampleTrackFormat.encryptionKeyId;
+          blockEncryptionKeyId = track.encryptionKeyId;
           blockState = BLOCK_STATE_DATA;
           blockLacingSampleIndex = 0;
         }
@@ -733,18 +720,17 @@ public final class WebmExtractor implements Extractor {
         if (id == ID_SIMPLE_BLOCK) {
           // For SimpleBlock, we have metadata for each sample here.
           while (blockLacingSampleIndex < blockLacingSampleCount) {
-            writeSampleData(input, trackOutput, sampleTrackFormat,
-                blockLacingSampleSizes[blockLacingSampleIndex]);
+            writeSampleData(input, track, blockLacingSampleSizes[blockLacingSampleIndex]);
             long sampleTimeUs = this.blockTimeUs
-                + (blockLacingSampleIndex * sampleTrackFormat.defaultSampleDurationNs) / 1000;
-            outputSampleMetadata(trackOutput, sampleTimeUs);
+                + (blockLacingSampleIndex * track.defaultSampleDurationNs) / 1000;
+            outputSampleMetadata(track.output, sampleTimeUs);
             blockLacingSampleIndex++;
           }
           blockState = BLOCK_STATE_START;
         } else {
           // For Block, we send the metadata at the end of the BlockGroup element since we'll know
           // if the sample is a keyframe or not only at that point.
-          writeSampleData(input, trackOutput, sampleTrackFormat, blockLacingSampleSizes[0]);
+          writeSampleData(input, track, blockLacingSampleSizes[0]);
         }
 
         return;
@@ -784,10 +770,11 @@ public final class WebmExtractor implements Extractor {
     scratch.setLimit(requiredLength);
   }
 
-  private void writeSampleData(ExtractorInput input, TrackOutput output, TrackFormat format,
-      int size) throws IOException, InterruptedException {
+  private void writeSampleData(ExtractorInput input, Track track, int size)
+      throws IOException, InterruptedException {
+    TrackOutput output = track.output;
     if (!sampleEncodingHandled) {
-      if (format.hasContentEncryption) {
+      if (track.hasContentEncryption) {
         // If the sample is encrypted, read its encryption signal byte and set the IV size.
         // Clear the encrypted flag.
         blockFlags &= ~C.SAMPLE_FLAG_ENCRYPTED;
@@ -803,15 +790,15 @@ public final class WebmExtractor implements Extractor {
           sampleBytesWritten++;
           blockFlags |= C.SAMPLE_FLAG_ENCRYPTED;
         }
-      } else if (format.sampleStrippedBytes != null) {
+      } else if (track.sampleStrippedBytes != null) {
         // If the sample has header stripping, prepare to read/output the stripped bytes first.
-        sampleStrippedBytes.reset(format.sampleStrippedBytes, format.sampleStrippedBytes.length);
+        sampleStrippedBytes.reset(track.sampleStrippedBytes, track.sampleStrippedBytes.length);
       }
       sampleEncodingHandled = true;
     }
     size += sampleStrippedBytes.limit();
 
-    if (CODEC_ID_H264.equals(format.codecId) || CODEC_ID_H265.equals(format.codecId)) {
+    if (CODEC_ID_H264.equals(track.codecId) || CODEC_ID_H265.equals(track.codecId)) {
       // TODO: Deduplicate with Mp4Extractor.
 
       // Zero the top three bytes of the array that we'll use to parse nal unit lengths, in case
@@ -820,8 +807,8 @@ public final class WebmExtractor implements Extractor {
       nalLengthData[0] = 0;
       nalLengthData[1] = 0;
       nalLengthData[2] = 0;
-      int nalUnitLengthFieldLength = format.nalUnitLengthFieldLength;
-      int nalUnitLengthFieldLengthDiff = 4 - format.nalUnitLengthFieldLength;
+      int nalUnitLengthFieldLength = track.nalUnitLengthFieldLength;
+      int nalUnitLengthFieldLengthDiff = 4 - track.nalUnitLengthFieldLength;
       // NAL units are length delimited, but the decoder requires start code delimited units.
       // Loop until we've written the sample to the track output, replacing length delimiters with
       // start codes as we encounter them.
@@ -848,7 +835,7 @@ public final class WebmExtractor implements Extractor {
       }
     }
 
-    if (CODEC_ID_VORBIS.equals(format.codecId)) {
+    if (CODEC_ID_VORBIS.equals(track.codecId)) {
       // Vorbis decoder in android MediaCodec [1] expects the last 4 bytes of the sample to be the
       // number of samples in the current page. This definition holds good only for Ogg and
       // irrelevant for WebM. So we always set this to -1 (the decoder will ignore this value if we
@@ -1038,36 +1025,39 @@ public final class WebmExtractor implements Extractor {
 
   }
 
-  private static final class TrackFormat {
+  private static final class Track {
 
-    // Common track elements.
+    // Common elements.
     public String codecId;
-    public int number = UNKNOWN;
-    public int type = UNKNOWN;
-    public int defaultSampleDurationNs = UNKNOWN;
+    public int number;
+    public int type;
+    public int defaultSampleDurationNs;
     public boolean hasContentEncryption;
     public byte[] sampleStrippedBytes;
     public byte[] encryptionKeyId;
     public byte[] codecPrivate;
 
-    // Video track related elements.
-    public int pixelWidth = UNKNOWN;
-    public int pixelHeight = UNKNOWN;
-    public int nalUnitLengthFieldLength = UNKNOWN;
+    // Video elements.
+    public int width = MediaFormat.NO_VALUE;
+    public int height = MediaFormat.NO_VALUE;
 
-    // Audio track related elements.
-    public int channelCount = UNKNOWN;
-    public int sampleRate = UNKNOWN;
-    public long codecDelayNs = UNKNOWN;
-    public long seekPreRollNs = UNKNOWN;
+    // Audio elements. Initially set to their default values.
+    public int channelCount = 1;
+    public int sampleRate = 8000;
+    public long codecDelayNs = 0;
+    public long seekPreRollNs = 0;
 
-    public TrackOutput trackOutput;
+    // Set when the output is initialized. nalUnitLengthFieldLength is only set for H264/H265.
+    public TrackOutput output;
+    public int nalUnitLengthFieldLength;
 
-    /** Returns a {@link MediaFormat} built using the information in this instance. */
-    public MediaFormat getMediaFormat(long durationUs) throws ParserException {
+    /**
+     * Initializes the track with an output.
+     */
+    public void initializeOutput(ExtractorOutput output, long durationUs) throws ParserException {
       String mimeType;
+      int maxInputSize = MediaFormat.NO_VALUE;
       List<byte[]> initializationData = null;
-      int maxInputSize = UNKNOWN;
       switch (codecId) {
         case CODEC_ID_VP8:
           mimeType = MimeTypes.VIDEO_VP8;
@@ -1116,8 +1106,8 @@ public final class WebmExtractor implements Extractor {
           initializationData = Collections.singletonList(codecPrivate);
           break;
         case CODEC_ID_MP3:
-          maxInputSize = MP3_MAX_INPUT_SIZE;
           mimeType = MimeTypes.AUDIO_MPEG;
+          maxInputSize = MP3_MAX_INPUT_SIZE;
           break;
         case CODEC_ID_AC3:
           mimeType = MimeTypes.AUDIO_AC3;
@@ -1126,15 +1116,19 @@ public final class WebmExtractor implements Extractor {
           throw new ParserException("Unrecognized codec identifier.");
       }
 
+      MediaFormat format;
       if (MimeTypes.isAudio(mimeType)) {
-        return MediaFormat.createAudioFormat(mimeType, MediaFormat.NO_VALUE, maxInputSize,
+        format = MediaFormat.createAudioFormat(mimeType, MediaFormat.NO_VALUE, maxInputSize,
             durationUs, channelCount, sampleRate, initializationData);
       } else if (MimeTypes.isVideo(mimeType)) {
-        return MediaFormat.createVideoFormat(mimeType, MediaFormat.NO_VALUE, maxInputSize,
-            durationUs, pixelWidth, pixelHeight, 0, initializationData);
+        format = MediaFormat.createVideoFormat(mimeType, MediaFormat.NO_VALUE, maxInputSize,
+            durationUs, width, height, 0, initializationData);
       } else {
         throw new ParserException("Unexpected MIME type.");
       }
+
+      this.output = output.track(number);
+      this.output.format(format);
     }
 
     /**
