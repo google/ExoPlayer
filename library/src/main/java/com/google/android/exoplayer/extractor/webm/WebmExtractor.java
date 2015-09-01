@@ -73,6 +73,8 @@ public final class WebmExtractor implements Extractor {
   private static final String CODEC_ID_AAC = "A_AAC";
   private static final String CODEC_ID_MP3 = "A_MPEG/L3";
   private static final String CODEC_ID_AC3 = "A_AC3";
+  private static final String CODEC_ID_SUBRIP = "S_TEXT/UTF8";
+
   private static final int VORBIS_MAX_INPUT_SIZE = 8192;
   private static final int OPUS_MAX_INPUT_SIZE = 5760;
   private static final int MP3_MAX_INPUT_SIZE = 4096;
@@ -98,6 +100,7 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_SIMPLE_BLOCK = 0xA3;
   private static final int ID_BLOCK_GROUP = 0xA0;
   private static final int ID_BLOCK = 0xA1;
+  private static final int ID_BLOCK_DURATION = 0x9B;
   private static final int ID_REFERENCE_BLOCK = 0xFB;
   private static final int ID_TRACKS = 0x1654AE6B;
   private static final int ID_TRACK_ENTRY = 0xAE;
@@ -131,11 +134,38 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_CUE_TIME = 0xB3;
   private static final int ID_CUE_TRACK_POSITIONS = 0xB7;
   private static final int ID_CUE_CLUSTER_POSITION = 0xF1;
+  private static final int ID_LANGUAGE = 0x22B59C;
 
   private static final int LACING_NONE = 0;
   private static final int LACING_XIPH = 1;
   private static final int LACING_FIXED_SIZE = 2;
   private static final int LACING_EBML = 3;
+
+  /**
+   * A template for the prefix that must be added to each subrip sample. The 12 byte end timecode
+   * starting at {@link #SUBRIP_PREFIX_END_TIMECODE_OFFSET} is set to a dummy value, and must be
+   * replaced with the duration of the subtitle.
+   * <p>
+   * Equivalent to the UTF-8 string: "1\n00:00:00,000 --> 00:00:00,000\n".
+   */
+  private static final byte[] SUBRIP_PREFIX = new byte[] {49, 10, 48, 48, 58, 48, 48, 58, 48, 48,
+      44, 48, 48, 48, 32, 45, 45, 62, 32, 48, 48, 58, 48, 48, 58, 48, 48, 44, 48, 48, 48, 10};
+  /**
+   * A special end timecode indicating that a subtitle should be displayed until the next subtitle,
+   * or until the end of the media in the case of the last subtitle.
+   * <p>
+   * Equivalent to the UTF-8 string: "            ".
+   */
+  private static final byte[] SUBRIP_TIMECODE_EMPTY =
+      new byte[] {32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32};
+  /**
+   * The byte offset of the end timecode in {@link #SUBRIP_PREFIX}.
+   */
+  private static final int SUBRIP_PREFIX_END_TIMECODE_OFFSET = 19;
+  /**
+   * The length in bytes of a timecode in a subrip prefix.
+   */
+  private static final int SUBRIP_TIMECODE_LENGTH = 12;
 
   private final EbmlReader reader;
   private final VarintReader varintReader;
@@ -148,6 +178,7 @@ public final class WebmExtractor implements Extractor {
   private final ParsableByteArray vorbisNumPageSamples;
   private final ParsableByteArray seekEntryIdBytes;
   private final ParsableByteArray sampleStrippedBytes;
+  private final ParsableByteArray subripSample;
 
   private long segmentContentPosition = UNKNOWN;
   private long segmentContentSize = UNKNOWN;
@@ -178,13 +209,13 @@ public final class WebmExtractor implements Extractor {
   // Block reading state.
   private int blockState;
   private long blockTimeUs;
+  private long blockDurationUs;
   private int blockLacingSampleIndex;
   private int blockLacingSampleCount;
   private int[] blockLacingSampleSizes;
   private int blockTrackNumber;
   private int blockTrackNumberLength;
   private int blockFlags;
-  private byte[] blockEncryptionKeyId;
 
   // Sample reading state.
   private int sampleBytesRead;
@@ -212,6 +243,7 @@ public final class WebmExtractor implements Extractor {
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
     sampleStrippedBytes = new ParsableByteArray();
+    subripSample = new ParsableByteArray();
   }
 
   @Override
@@ -274,6 +306,7 @@ public final class WebmExtractor implements Extractor {
       case ID_SEEK_POSITION:
       case ID_TIMECODE_SCALE:
       case ID_TIME_CODE:
+      case ID_BLOCK_DURATION:
       case ID_PIXEL_WIDTH:
       case ID_PIXEL_HEIGHT:
       case ID_TRACK_NUMBER:
@@ -293,6 +326,7 @@ public final class WebmExtractor implements Extractor {
         return EbmlReader.TYPE_UNSIGNED_INT;
       case ID_DOC_TYPE:
       case ID_CODEC_ID:
+      case ID_LANGUAGE:
         return EbmlReader.TYPE_STRING;
       case ID_SEEK_ID:
       case ID_CONTENT_COMPRESSION_SETTINGS:
@@ -397,7 +431,7 @@ public final class WebmExtractor implements Extractor {
         if (!sampleSeenReferenceBlock) {
           blockFlags |= C.SAMPLE_FLAG_SYNC;
         }
-        outputSampleMetadata(tracks.get(blockTrackNumber), blockTimeUs);
+        commitSampleToOutput(tracks.get(blockTrackNumber), blockTimeUs);
         blockState = BLOCK_STATE_START;
         return;
       case ID_CONTENT_ENCODING:
@@ -531,6 +565,9 @@ public final class WebmExtractor implements Extractor {
       case ID_TIME_CODE:
         clusterTimecodeUs = scaleTimecodeToUs(value);
         return;
+      case ID_BLOCK_DURATION:
+        blockDurationUs = scaleTimecodeToUs(value);
+        return;
       default:
         return;
     }
@@ -559,6 +596,9 @@ public final class WebmExtractor implements Extractor {
         return;
       case ID_CODEC_ID:
         currentTrack.codecId = value;
+        return;
+      case ID_LANGUAGE:
+        currentTrack.language = value;
         return;
       default:
         return;
@@ -597,6 +637,7 @@ public final class WebmExtractor implements Extractor {
         if (blockState == BLOCK_STATE_START) {
           blockTrackNumber = (int) varintReader.readUnsignedVarint(input, false, true);
           blockTrackNumberLength = varintReader.getLastLength();
+          blockDurationUs = UNKNOWN;
           blockState = BLOCK_STATE_HEADER;
           scratch.reset();
         }
@@ -698,7 +739,6 @@ public final class WebmExtractor implements Extractor {
               || (id == ID_SIMPLE_BLOCK && (scratch.data[2] & 0x80) == 0x80);
           blockFlags = (isKeyframe ? C.SAMPLE_FLAG_SYNC : 0)
               | (isInvisible ? C.SAMPLE_FLAG_DECODE_ONLY : 0);
-          blockEncryptionKeyId = track.encryptionKeyId;
           blockState = BLOCK_STATE_DATA;
           blockLacingSampleIndex = 0;
         }
@@ -709,7 +749,7 @@ public final class WebmExtractor implements Extractor {
             writeSampleData(input, track, blockLacingSampleSizes[blockLacingSampleIndex]);
             long sampleTimeUs = this.blockTimeUs
                 + (blockLacingSampleIndex * track.defaultSampleDurationNs) / 1000;
-            outputSampleMetadata(track, sampleTimeUs);
+            commitSampleToOutput(track, sampleTimeUs);
             blockLacingSampleIndex++;
           }
           blockState = BLOCK_STATE_START;
@@ -725,8 +765,11 @@ public final class WebmExtractor implements Extractor {
     }
   }
 
-  private void outputSampleMetadata(Track track, long timeUs) {
-    track.output.sampleMetadata(timeUs, blockFlags, sampleBytesWritten, 0, blockEncryptionKeyId);
+  private void commitSampleToOutput(Track track, long timeUs) {
+    if (CODEC_ID_SUBRIP.equals(track.codecId)) {
+      writeSubripSample(track);
+    }
+    track.output.sampleMetadata(timeUs, blockFlags, sampleBytesWritten, 0, track.encryptionKeyId);
     sampleRead = true;
     resetSample();
   }
@@ -758,6 +801,21 @@ public final class WebmExtractor implements Extractor {
 
   private void writeSampleData(ExtractorInput input, Track track, int size)
       throws IOException, InterruptedException {
+    if (CODEC_ID_SUBRIP.equals(track.codecId)) {
+      int sizeWithPrefix = SUBRIP_PREFIX.length + size;
+      if (subripSample.capacity() < sizeWithPrefix) {
+        // Initialize subripSample to contain the required prefix and have space to hold a subtitle
+        // twice as long as this one.
+        subripSample.data = Arrays.copyOf(SUBRIP_PREFIX, sizeWithPrefix + size);
+      }
+      input.readFully(subripSample.data, SUBRIP_PREFIX.length, size);
+      subripSample.setPosition(0);
+      subripSample.setLimit(sizeWithPrefix);
+      // Defer writing the data to the track output. We need to modify the sample data by setting
+      // the correct end timecode, which we might not have yet.
+      return;
+    }
+
     TrackOutput output = track.output;
     if (!sampleEncodingHandled) {
       if (track.hasContentEncryption) {
@@ -832,6 +890,33 @@ public final class WebmExtractor implements Extractor {
       output.sampleData(vorbisNumPageSamples, 4);
       sampleBytesWritten += 4;
     }
+  }
+
+  private void writeSubripSample(Track track) {
+    setSubripSampleEndTimecode(subripSample.data, blockDurationUs);
+    // Note: If we ever want to support DRM protected subtitles then we'll need to output the
+    // appropriate encryption data here.
+    track.output.sampleData(subripSample, subripSample.limit());
+    sampleBytesWritten += subripSample.limit();
+  }
+
+  private static void setSubripSampleEndTimecode(byte[] subripSampleData, long timeUs) {
+    byte[] timeCodeData;
+    if (timeUs == UNKNOWN) {
+      timeCodeData = SUBRIP_TIMECODE_EMPTY;
+    } else {
+      int hours = (int) (timeUs / 3600000000L);
+      timeUs -= (hours * 3600000000L);
+      int minutes = (int) (timeUs / 60000000);
+      timeUs -= (minutes * 60000000);
+      int seconds = (int) (timeUs / 1000000);
+      timeUs -= (seconds * 1000000);
+      int milliseconds = (int) (timeUs / 1000);
+      timeCodeData = String.format("%02d:%02d:%02d,%03d", hours, minutes, seconds, milliseconds)
+          .getBytes();
+    }
+    System.arraycopy(timeCodeData, 0, subripSampleData, SUBRIP_PREFIX_END_TIMECODE_OFFSET,
+        SUBRIP_TIMECODE_LENGTH);
   }
 
   /**
@@ -948,7 +1033,8 @@ public final class WebmExtractor implements Extractor {
         || CODEC_ID_VORBIS.equals(codecId)
         || CODEC_ID_AAC.equals(codecId)
         || CODEC_ID_MP3.equals(codecId)
-        || CODEC_ID_AC3.equals(codecId);
+        || CODEC_ID_AC3.equals(codecId)
+        || CODEC_ID_SUBRIP.equals(codecId);
   }
 
   /**
@@ -1032,6 +1118,9 @@ public final class WebmExtractor implements Extractor {
     public long codecDelayNs = 0;
     public long seekPreRollNs = 0;
 
+    // Text elements.
+    private String language = "eng";
+
     // Set when the output is initialized. nalUnitLengthFieldLength is only set for H264/H265.
     public TrackOutput output;
     public int nalUnitLengthFieldLength;
@@ -1097,6 +1186,9 @@ public final class WebmExtractor implements Extractor {
         case CODEC_ID_AC3:
           mimeType = MimeTypes.AUDIO_AC3;
           break;
+        case CODEC_ID_SUBRIP:
+          mimeType = MimeTypes.APPLICATION_SUBRIP;
+          break;
         default:
           throw new ParserException("Unrecognized codec identifier.");
       }
@@ -1108,6 +1200,8 @@ public final class WebmExtractor implements Extractor {
       } else if (MimeTypes.isVideo(mimeType)) {
         format = MediaFormat.createVideoFormat(mimeType, MediaFormat.NO_VALUE, maxInputSize,
             durationUs, width, height, 0, initializationData);
+      } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
+        format = MediaFormat.createTextFormat(mimeType, MediaFormat.NO_VALUE, language, durationUs);
       } else {
         throw new ParserException("Unexpected MIME type.");
       }
