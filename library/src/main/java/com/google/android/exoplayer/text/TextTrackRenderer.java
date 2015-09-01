@@ -207,8 +207,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
       }
     }
 
-    if (nextSubtitle != null && (subtitleNextEventTimeUs == Long.MAX_VALUE
-        || nextSubtitle.startTimeUs <= positionUs)) {
+    if (nextSubtitle != null && nextSubtitle.startTimeUs <= positionUs) {
       // Advance to the next subtitle. Sync the next event index and trigger an update.
       subtitle = nextSubtitle;
       nextSubtitle = null;
