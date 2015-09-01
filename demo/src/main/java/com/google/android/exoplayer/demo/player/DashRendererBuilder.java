@@ -188,7 +188,7 @@ public class DashRendererBuilder implements RendererBuilder {
     }
 
     private void buildRenderers() {
-      Period period = manifest.periods.get(0);
+      Period period = manifest.getPeriod(0);
       Handler mainHandler = player.getMainHandler();
       LoadControl loadControl = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
       DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter(mainHandler, player);
