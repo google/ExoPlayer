@@ -454,7 +454,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       return buildResolutionString(format) + buildBitrateString(format);
     } else if (MimeTypes.isAudio(format.mimeType)) {
       return buildAudioPropertyString(format) + buildBitrateString(format);
-    } else if (MimeTypes.isText(format.mimeType) && !TextUtils.isEmpty(format.language)) {
+    } else if (!TextUtils.isEmpty(format.language)) {
       return format.language + buildBitrateString(format);
     } else {
       return "unknown" + buildBitrateString(format);
