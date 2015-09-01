@@ -357,7 +357,7 @@ public final class AudioTrack {
     }
 
     audioTrackUtil.reconfigure(audioTrack, isPassthrough());
-    setVolume(volume);
+    setAudioTrackVolume();
 
     return sessionId;
   }
@@ -582,23 +582,29 @@ public final class AudioTrack {
 
   /** Sets the playback volume. */
   public void setVolume(float volume) {
-    this.volume = volume;
-    if (isInitialized()) {
-      if (Util.SDK_INT >= 21) {
-        setVolumeV21(audioTrack, volume);
-      } else {
-        setVolumeV3(audioTrack, volume);
-      }
+    if (this.volume != volume) {
+      this.volume = volume;
+      setAudioTrackVolume();
+    }
+  }
+
+  private void setAudioTrackVolume() {
+    if (!isInitialized()) {
+      // Do nothing.
+    } else if (Util.SDK_INT >= 21) {
+      setAudioTrackVolumeV21(audioTrack, volume);
+    } else {
+      setAudioTrackVolumeV3(audioTrack, volume);
     }
   }
 
   @TargetApi(21)
-  private static void setVolumeV21(android.media.AudioTrack audioTrack, float volume) {
+  private static void setAudioTrackVolumeV21(android.media.AudioTrack audioTrack, float volume) {
     audioTrack.setVolume(volume);
   }
 
   @SuppressWarnings("deprecation")
-  private static void setVolumeV3(android.media.AudioTrack audioTrack, float volume) {
+  private static void setAudioTrackVolumeV3(android.media.AudioTrack audioTrack, float volume) {
     audioTrack.setStereoVolume(volume, volume);
   }
 
