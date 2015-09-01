@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.text.webvtt;
 
-import com.google.android.exoplayer.C;
-
 import android.test.InstrumentationTestCase;
 
 import java.io.IOException;
@@ -39,7 +37,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
         getInstrumentation().getContext().getResources().getAssets().open(EMPTY_WEBVTT_FILE);
 
     try {
-      parser.parse(inputStream, C.UTF8_NAME);
+      parser.parse(inputStream);
       fail("Expected IOException");
     } catch (IOException expected) {
       // Do nothing.
@@ -50,7 +48,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
     WebvttParser parser = new WebvttParser();
     InputStream inputStream =
         getInstrumentation().getContext().getResources().getAssets().open(TYPICAL_WEBVTT_FILE);
-    WebvttSubtitle subtitle = parser.parse(inputStream, C.UTF8_NAME);
+    WebvttSubtitle subtitle = parser.parse(inputStream);
 
     // test event count
     assertEquals(4, subtitle.getEventTimeCount());
@@ -73,7 +71,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
     InputStream inputStream =
         getInstrumentation().getContext().getResources().getAssets()
           .open(TYPICAL_WITH_IDS_WEBVTT_FILE);
-    WebvttSubtitle subtitle = parser.parse(inputStream, C.UTF8_NAME);
+    WebvttSubtitle subtitle = parser.parse(inputStream);
 
     // test event count
     assertEquals(4, subtitle.getEventTimeCount());
@@ -96,7 +94,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
     InputStream inputStream =
         getInstrumentation().getContext().getResources().getAssets()
           .open(TYPICAL_WITH_TAGS_WEBVTT_FILE);
-    WebvttSubtitle subtitle = parser.parse(inputStream, C.UTF8_NAME);
+    WebvttSubtitle subtitle = parser.parse(inputStream);
 
     // test event count
     assertEquals(8, subtitle.getEventTimeCount());
@@ -130,7 +128,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
     WebvttParser parser = new WebvttParser();
     InputStream inputStream =
         getInstrumentation().getContext().getResources().getAssets().open(LIVE_TYPICAL_WEBVTT_FILE);
-    WebvttSubtitle subtitle = parser.parse(inputStream, C.UTF8_NAME);
+    WebvttSubtitle subtitle = parser.parse(inputStream);
 
     // test event count
     long startTimeUs = 0;

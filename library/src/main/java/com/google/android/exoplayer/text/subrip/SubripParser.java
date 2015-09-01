@@ -50,7 +50,7 @@ public final class SubripParser implements SubtitleParser {
   }
 
   @Override
-  public SubripSubtitle parse(InputStream inputStream, String inputEncoding) throws IOException {
+  public SubripSubtitle parse(InputStream inputStream) throws IOException {
     ArrayList<Cue> cues = new ArrayList<>();
     LongArray cueTimesUs = new LongArray();
     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, C.UTF8_NAME));

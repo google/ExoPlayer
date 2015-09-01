@@ -232,7 +232,7 @@ public class HlsChunkSource {
    * @return A copy of the provided {@link MediaFormat} with the maximum video dimensions set, or
    *     the provided format.
    */
-  public MediaFormat getMaxVideoDimensions(MediaFormat format) {
+  public MediaFormat getWithMaxVideoDimensions(MediaFormat format) {
     return (maxWidth == -1 || maxHeight == -1) ? format
         : format.copyWithMaxVideoDimensions(maxWidth, maxHeight);
   }

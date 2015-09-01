@@ -74,10 +74,10 @@ public final class WebvttParser implements SubtitleParser {
   }
 
   /**
-   * @param strictParsing If true, {@link #parse(InputStream, String)} will throw a
-   *     {@link ParserException} if the stream contains invalid data. If false, the parser will
-   *     make a best effort to ignore minor errors in the stream. Note however that a
-   *     {@link ParserException} will still be thrown when this is not possible.
+   * @param strictParsing If true, {@link #parse(InputStream)} will throw a {@link ParserException}
+   *     if the stream contains invalid data. If false, the parser will make a best effort to ignore
+   *     minor errors in the stream. Note however that a {@link ParserException} will still be
+   *     thrown when this is not possible.
    */
   public WebvttParser(boolean strictParsing) {
     this.strictParsing = strictParsing;
@@ -85,8 +85,7 @@ public final class WebvttParser implements SubtitleParser {
   }
 
   @Override
-  public final WebvttSubtitle parse(InputStream inputStream, String inputEncoding)
-      throws IOException {
+  public final WebvttSubtitle parse(InputStream inputStream) throws IOException {
     ArrayList<WebvttCue> subtitles = new ArrayList<>();
 
     BufferedReader webvttData = new BufferedReader(new InputStreamReader(inputStream, C.UTF8_NAME));

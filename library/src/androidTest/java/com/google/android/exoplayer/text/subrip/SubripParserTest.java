@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.text.subrip;
 
-import com.google.android.exoplayer.C;
-
 import android.test.InstrumentationTestCase;
 
 import java.io.IOException;
@@ -34,7 +32,7 @@ public final class SubripParserTest extends InstrumentationTestCase {
     SubripParser parser = new SubripParser();
     InputStream inputStream =
         getInstrumentation().getContext().getResources().getAssets().open(EMPTY_SUBRIP_FILE);
-    SubripSubtitle subtitle = parser.parse(inputStream, C.UTF8_NAME);
+    SubripSubtitle subtitle = parser.parse(inputStream);
     // Assert that the subtitle is empty.
     assertEquals(0, subtitle.getEventTimeCount());
     assertTrue(subtitle.getCues(0).isEmpty());
@@ -44,7 +42,7 @@ public final class SubripParserTest extends InstrumentationTestCase {
     SubripParser parser = new SubripParser();
     InputStream inputStream =
         getInstrumentation().getContext().getResources().getAssets().open(TYPICAL_SUBRIP_FILE);
-    SubripSubtitle subtitle = parser.parse(inputStream, C.UTF8_NAME);
+    SubripSubtitle subtitle = parser.parse(inputStream);
 
     // Test event count.
     assertEquals(4, subtitle.getEventTimeCount());
