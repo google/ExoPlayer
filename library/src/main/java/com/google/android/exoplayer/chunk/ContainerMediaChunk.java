@@ -43,6 +43,15 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
   private volatile int bytesLoaded;
   private volatile boolean loadCanceled;
 
+  public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
+      long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk, long sampleOffsetUs,
+      ChunkExtractorWrapper extractorWrapper, MediaFormat mediaFormat, DrmInitData drmInitData,
+      boolean isMediaFormatFinal) {
+    this(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, isLastChunk,
+        sampleOffsetUs, extractorWrapper, mediaFormat, drmInitData, isMediaFormatFinal,
+        Chunk.NO_PARENT_ID);
+  }
+
   /**
    * @param dataSource A {@link DataSource} for loading the data.
    * @param dataSpec Defines the data to be loaded.
@@ -60,13 +69,14 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
    *     protected. May also be null if the data is known to define its own initialization data.
    * @param isMediaFormatFinal True if {@code mediaFormat} and {@code drmInitData} are known to be
    *     correct and final. False if the data may define its own format or initialization data.
+   * @param parentId Identifier for a parent from which this chunk originates.
    */
   public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
       long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk, long sampleOffsetUs,
       ChunkExtractorWrapper extractorWrapper, MediaFormat mediaFormat, DrmInitData drmInitData,
-      boolean isMediaFormatFinal) {
+      boolean isMediaFormatFinal, int parentId) {
     super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, isLastChunk,
-        isMediaFormatFinal);
+        isMediaFormatFinal, parentId);
     this.extractorWrapper = extractorWrapper;
     this.sampleOffsetUs = sampleOffsetUs;
     this.mediaFormat = getAdjustedMediaFormat(mediaFormat, sampleOffsetUs);

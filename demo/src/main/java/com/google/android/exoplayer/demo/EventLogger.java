@@ -47,7 +47,7 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
 
   private long sessionStartTimeMs;
   private long[] loadStartTimeMs;
-  private long[] seekRangeValuesUs;
+  private long[] availableRangeValuesUs;
 
   public EventLogger() {
     loadStartTimeMs = new long[DemoPlayer.RENDERER_COUNT];
@@ -171,10 +171,10 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   @Override
-  public void onSeekRangeChanged(TimeRange seekRange) {
-    seekRangeValuesUs = seekRange.getCurrentBoundsUs(seekRangeValuesUs);
-    Log.d(TAG, "seekRange [ " + seekRange.type + ", " + seekRangeValuesUs[0] + ", "
-        + seekRangeValuesUs[1] + "]");
+  public void onAvailableRangeChanged(TimeRange availableRange) {
+    availableRangeValuesUs = availableRange.getCurrentBoundsUs(availableRangeValuesUs);
+    Log.d(TAG, "availableRange [ " + availableRange.type + ", " + availableRangeValuesUs[0] + ", "
+        + availableRangeValuesUs[1] + "]");
   }
 
   private void printInternalError(String type, Exception e) {
