@@ -59,7 +59,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
   public static final int DEFAULT_READ_TIMEOUT_MILLIS = 8 * 1000;
 
   private static final int MAX_REDIRECTS = 20; // Same limit as okhttp.
-  private static final String TAG = "HttpDataSource";
+  private static final String TAG = "DefaultHttpDataSource";
   private static final Pattern CONTENT_RANGE_HEADER =
       Pattern.compile("^bytes (\\d+)-(\\d+)/(\\d+)$");
   private static final AtomicReference<byte[]> skipBufferReference = new AtomicReference<>();
@@ -198,7 +198,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
     try {
       responseCode = connection.getResponseCode();
     } catch (IOException e) {
-      closeConnection();
+      closeConnectionQuietly();
       throw new HttpDataSourceException("Unable to connect to " + dataSpec.uri.toString(), e,
           dataSpec);
     }
@@ -206,14 +206,14 @@ public class DefaultHttpDataSource implements HttpDataSource {
     // Check for a valid response code.
     if (responseCode < 200 || responseCode > 299) {
       Map<String, List<String>> headers = connection.getHeaderFields();
-      closeConnection();
+      closeConnectionQuietly();
       throw new InvalidResponseCodeException(responseCode, headers, dataSpec);
     }
 
     // Check for a valid content type.
     String contentType = connection.getContentType();
     if (contentTypePredicate != null && !contentTypePredicate.evaluate(contentType)) {
-      closeConnection();
+      closeConnectionQuietly();
       throw new InvalidContentTypeException(contentType, dataSpec);
     }
 
@@ -239,7 +239,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
     try {
       inputStream = connection.getInputStream();
     } catch (IOException e) {
-      closeConnection();
+      closeConnectionQuietly();
       throw new HttpDataSourceException(e, dataSpec);
     }
 
@@ -274,7 +274,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
       }
     } finally {
       inputStream = null;
-      closeConnection();
+      closeConnectionQuietly();
       if (opened) {
         opened = false;
         if (listener != null) {
@@ -566,11 +566,15 @@ public class DefaultHttpDataSource implements HttpDataSource {
   }
 
   /**
-   * Closes the current connection, if there is one.
+   * Closes the current connection quietly, if there is one.
    */
-  private void closeConnection() {
+  private void closeConnectionQuietly() {
     if (connection != null) {
-      connection.disconnect();
+      try {
+        connection.disconnect();
+      } catch (Exception e) {
+        Log.e(TAG, "Unexpected error while disconnecting", e);
+      }
       connection = null;
     }
   }
