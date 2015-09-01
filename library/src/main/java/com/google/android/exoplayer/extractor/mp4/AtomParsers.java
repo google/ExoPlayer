@@ -372,7 +372,9 @@ import java.util.List;
         parseVideoSampleEntry(stsd, childStartPosition, childAtomSize, durationUs, rotationDegrees,
             out, i);
       } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca
-          || childAtomType == Atom.TYPE_ac_3) {
+          || childAtomType == Atom.TYPE_ac_3 || childAtomType == Atom.TYPE_ec_3
+          || childAtomType == Atom.TYPE_dtsc || childAtomType == Atom.TYPE_dtse
+          || childAtomType == Atom.TYPE_dtsh || childAtomType == Atom.TYPE_dtsl) {
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, durationUs,
             out, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
@@ -597,6 +599,10 @@ import java.util.List;
       mimeType = MimeTypes.AUDIO_AC3;
     } else if (atomType == Atom.TYPE_ec_3) {
       mimeType = MimeTypes.AUDIO_EC3;
+    } else if (atomType == Atom.TYPE_dtsc || atomType == Atom.TYPE_dtse) {
+      mimeType = MimeTypes.AUDIO_DTS;
+    } else if (atomType == Atom.TYPE_dtsh || atomType == Atom.TYPE_dtsl) {
+      mimeType = MimeTypes.AUDIO_DTS_HD;
     }
 
     byte[] initializationData = null;
@@ -631,9 +637,15 @@ import java.util.List;
         parent.setPosition(Atom.HEADER_SIZE + childStartPosition);
         out.mediaFormat = Ac3Util.parseAnnexFAc3Format(parent);
         return;
-      } else if  (atomType == Atom.TYPE_ec_3 && childAtomType == Atom.TYPE_dec3) {
+      } else if (atomType == Atom.TYPE_ec_3 && childAtomType == Atom.TYPE_dec3) {
         parent.setPosition(Atom.HEADER_SIZE + childStartPosition);
         out.mediaFormat = Ac3Util.parseAnnexFEAc3Format(parent);
+        return;
+      } else if ((atomType == Atom.TYPE_dtsc || atomType == Atom.TYPE_dtse
+          || atomType == Atom.TYPE_dtsh || atomType == Atom.TYPE_dtsl)
+          && childAtomType == Atom.TYPE_ddts) {
+        out.mediaFormat = MediaFormat.createAudioFormat(mimeType, MediaFormat.NO_VALUE,
+            MediaFormat.NO_VALUE, channelCount, sampleRate, null);
         return;
       }
       childPosition += childAtomSize;
@@ -684,7 +696,6 @@ import java.util.List;
     switch (objectTypeIndication) {
       case 0x6B:
         mimeType = MimeTypes.AUDIO_MPEG;
-        // Don't extract codec-specific data for MPEG audio tracks, as it is not needed.
         return Pair.create(mimeType, null);
       case 0x20:
         mimeType = MimeTypes.VIDEO_MP4V;
@@ -707,6 +718,14 @@ import java.util.List;
       case 0xA6:
         mimeType = MimeTypes.AUDIO_EC3;
         break;
+      case 0xA9:
+      case 0xAC:
+        mimeType = MimeTypes.AUDIO_DTS;
+        return Pair.create(mimeType, null);
+      case 0xAA:
+      case 0xAB:
+        mimeType = MimeTypes.AUDIO_DTS_HD;
+        return Pair.create(mimeType, null);
       default:
         mimeType = null;
         break;
