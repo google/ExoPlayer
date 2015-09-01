@@ -59,10 +59,6 @@ public final class WebmExtractor implements Extractor {
   private static final int BLOCK_STATE_HEADER = 1;
   private static final int BLOCK_STATE_DATA = 2;
 
-  private static final int CUES_STATE_NOT_BUILT = 0;
-  private static final int CUES_STATE_BUILDING = 1;
-  private static final int CUES_STATE_BUILT = 2;
-
   private static final String DOC_TYPE_WEBM = "webm";
   private static final String DOC_TYPE_MATROSKA = "matroska";
   private static final String CODEC_ID_VP8 = "V_VP8";
@@ -164,6 +160,7 @@ public final class WebmExtractor implements Extractor {
 
   // Whether drm init data has been sent to the output.
   private boolean sentDrmInitData;
+  private boolean sentSeekMap;
 
   // Master seek entry related elements.
   private int seekEntryId;
@@ -173,7 +170,6 @@ public final class WebmExtractor implements Extractor {
   private boolean seekForCues;
   private long cuesContentPosition = UNKNOWN;
   private long seekPositionAfterBuildingCues = UNKNOWN;
-  private int cuesState = CUES_STATE_NOT_BUILT;
   private long clusterTimecodeUs = UNKNOWN;
   private LongArray cueTimesUs;
   private LongArray cueClusterPositions;
@@ -335,7 +331,7 @@ public final class WebmExtractor implements Extractor {
         seenClusterPositionForCurrentCuePoint = false;
         return;
       case ID_CLUSTER:
-        if (cuesState == CUES_STATE_NOT_BUILT) {
+        if (!sentSeekMap) {
           // We need to build cues before parsing the cluster.
           if (cuesContentPosition != UNKNOWN) {
             // We know where the Cues element is located. Seek to request it.
@@ -344,7 +340,7 @@ public final class WebmExtractor implements Extractor {
             // We don't know where the Cues element is located. It's most likely omitted. Allow
             // playback, but disable seeking.
             extractorOutput.seekMap(SeekMap.UNSEEKABLE);
-            cuesState = CUES_STATE_BUILT;
+            sentSeekMap = true;
           }
         }
         return;
@@ -385,9 +381,9 @@ public final class WebmExtractor implements Extractor {
         }
         return;
       case ID_CUES:
-        if (cuesState != CUES_STATE_BUILT) {
+        if (!sentSeekMap) {
           extractorOutput.seekMap(buildSeekMap());
-          cuesState = CUES_STATE_BUILT;
+          sentSeekMap = true;
         } else {
           // We have already built the cues. Ignore.
         }
@@ -920,13 +916,12 @@ public final class WebmExtractor implements Extractor {
     if (seekForCues) {
       seekPositionAfterBuildingCues = currentPosition;
       seekPosition.position = cuesContentPosition;
-      cuesState = CUES_STATE_BUILDING;
       seekForCues = false;
       return true;
     }
-    // After parsing Cues, Seek back to original position if available. We will not do this unless
+    // After parsing Cues, seek back to original position if available. We will not do this unless
     // we seeked to get to the Cues in the first place.
-    if (cuesState == CUES_STATE_BUILT && seekPositionAfterBuildingCues != UNKNOWN) {
+    if (sentSeekMap && seekPositionAfterBuildingCues != UNKNOWN) {
       seekPosition.position = seekPositionAfterBuildingCues;
       seekPositionAfterBuildingCues = UNKNOWN;
       return true;
