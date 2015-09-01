@@ -574,11 +574,11 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
             sampleQueues.valueAt(i).clear();
           }
           loadable = createLoadableFromStart();
-        } else if (!seekMap.isSeekable()) {
-          // We're playing a non-seekable stream. Assume it's live, and therefore that the data at
-          // the uri is a continuously shifting window of the latest available media. For this case
-          // there's no way to continue loading from where a previous load finished, and hence it's
-          // necessary to load from the start whenever commencing a new load.
+        } else if (!seekMap.isSeekable() && maxTrackDurationUs == C.UNKNOWN_TIME_US) {
+          // We're playing a non-seekable stream with unknown duration. Assume it's live, and
+          // therefore that the data at the uri is a continuously shifting window of the latest
+          // available media. For this case there's no way to continue loading from where a previous
+          // load finished, so it's necessary to load from the start whenever commencing a new load.
           for (int i = 0; i < sampleQueues.size(); i++) {
             sampleQueues.valueAt(i).clear();
           }

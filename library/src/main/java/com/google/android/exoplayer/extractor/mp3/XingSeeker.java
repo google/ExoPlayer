@@ -45,23 +45,18 @@ import com.google.android.exoplayer.util.Util;
     long firstFramePosition = position + mpegAudioHeader.frameSize;
 
     int flags = frame.readInt();
-    // Frame count, size and table of contents are required to use this header.
-    if ((flags & 0x07) != 0x07) {
+    int frameCount;
+    if ((flags & 0x01) != 0x01 || (frameCount = frame.readUnsignedIntToInt()) == 0) {
+      // If the frame count is missing/invalid, the header can't be used to determine the duration.
       return null;
     }
-
-    // Read frame count, as (flags & 1) == 1.
-    int frameCount = frame.readUnsignedIntToInt();
-    if (frameCount == 0) {
-      return null;
+    long durationUs = Util.scaleLargeTimestamp(frameCount, samplesPerFrame * 1000000L, sampleRate);
+    if ((flags & 0x06) != 0x06) {
+      // If the size in bytes or table of contents is missing, the stream is not seekable.
+      return new XingSeeker(inputLength, firstFramePosition, durationUs);
     }
-    long durationUs =
-        Util.scaleLargeTimestamp(frameCount, samplesPerFrame * 1000000L, sampleRate);
 
-    // Read size in bytes, as (flags & 2) == 2.
     long sizeBytes = frame.readUnsignedIntToInt();
-
-    // Read table-of-contents as (flags & 4) == 4.
     frame.skipBytes(1);
     long[] tableOfContents = new long[99];
     for (int i = 0; i < 99; i++) {
@@ -71,18 +66,24 @@ import com.google.android.exoplayer.util.Util;
     // TODO: Handle encoder delay and padding in 3 bytes offset by xingBase + 213 bytes:
     // delay = (frame.readUnsignedByte() << 4) + (frame.readUnsignedByte() >> 4);
     // padding = ((frame.readUnsignedByte() & 0x0F) << 8) + frame.readUnsignedByte();
-    return new XingSeeker(tableOfContents, firstFramePosition, sizeBytes, durationUs, inputLength);
+    return new XingSeeker(inputLength, firstFramePosition, durationUs, tableOfContents, sizeBytes);
   }
 
-  /** Entries are in the range [0, 255], but are stored as long integers for convenience. */
+  /**
+   * Entries are in the range [0, 255], but are stored as long integers for convenience.
+   */
   private final long[] tableOfContents;
   private final long firstFramePosition;
   private final long sizeBytes;
   private final long durationUs;
   private final long inputLength;
 
-  private XingSeeker(long[] tableOfContents, long firstFramePosition, long sizeBytes,
-      long durationUs, long inputLength) {
+  private XingSeeker(long inputLength, long firstFramePosition, long durationUs) {
+    this(inputLength, firstFramePosition, durationUs, null, 0);
+  }
+
+  private XingSeeker(long inputLength, long firstFramePosition, long durationUs,
+      long[] tableOfContents, long sizeBytes) {
     this.tableOfContents = tableOfContents;
     this.firstFramePosition = firstFramePosition;
     this.sizeBytes = sizeBytes;
@@ -92,11 +93,14 @@ import com.google.android.exoplayer.util.Util;
 
   @Override
   public boolean isSeekable() {
-    return true;
+    return tableOfContents != null;
   }
 
   @Override
   public long getPosition(long timeUs) {
+    if (!isSeekable()) {
+      return firstFramePosition;
+    }
     float percent = timeUs * 100f / durationUs;
     float fx;
     if (percent <= 0f) {
@@ -125,6 +129,9 @@ import com.google.android.exoplayer.util.Util;
 
   @Override
   public long getTimeUs(long position) {
+    if (!isSeekable()) {
+      return 0L;
+    }
     long offsetByte = 256 * (position - firstFramePosition) / sizeBytes;
     int previousIndex = Util.binarySearchFloor(tableOfContents, offsetByte, true, false);
     long previousTime = getTimeUsForTocIndex(previousIndex);
@@ -146,7 +153,9 @@ import com.google.android.exoplayer.util.Util;
     return durationUs;
   }
 
-  /** Returns the time in microseconds corresponding to an index in the table of contents. */
+  /**
+   * Returns the time in microseconds corresponding to an index in the table of contents.
+   */
   private long getTimeUsForTocIndex(int tocIndex) {
     return durationUs * (tocIndex + 1) / 100;
   }
