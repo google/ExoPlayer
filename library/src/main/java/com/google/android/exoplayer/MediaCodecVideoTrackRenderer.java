@@ -441,6 +441,19 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       return true;
     }
 
+    if (!renderedFirstFrame) {
+      if (Util.SDK_INT >= 21) {
+        renderOutputBufferV21(codec, bufferIndex, System.nanoTime());
+      } else {
+        renderOutputBuffer(codec, bufferIndex);
+      }
+      return true;
+    }
+
+    if (getState() != TrackRenderer.STATE_STARTED) {
+      return false;
+    }
+
     // Compute how many microseconds it is until the buffer's presentation time.
     long elapsedSinceStartOfLoopUs = (SystemClock.elapsedRealtime() * 1000) - elapsedRealtimeUs;
     long earlyUs = bufferInfo.presentationTimeUs - positionUs - elapsedSinceStartOfLoopUs;
@@ -463,19 +476,6 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       // We're more than 30ms late rendering the frame.
       dropOutputBuffer(codec, bufferIndex);
       return true;
-    }
-
-    if (!renderedFirstFrame) {
-      if (Util.SDK_INT >= 21) {
-        renderOutputBufferV21(codec, bufferIndex, System.nanoTime());
-      } else {
-        renderOutputBuffer(codec, bufferIndex);
-      }
-      return true;
-    }
-
-    if (getState() != TrackRenderer.STATE_STARTED) {
-      return false;
     }
 
     if (Util.SDK_INT >= 21) {
