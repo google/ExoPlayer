@@ -24,17 +24,16 @@ import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSource;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
-import com.google.android.exoplayer.chunk.VideoFormatSelectorUtil;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.drm.MediaDrmCallback;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
+import com.google.android.exoplayer.smoothstreaming.DefaultSmoothStreamingTrackSelector;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingChunkSource;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifestParser;
-import com.google.android.exoplayer.smoothstreaming.SmoothStreamingTrackSelector;
 import com.google.android.exoplayer.text.TextTrackRenderer;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
@@ -49,7 +48,6 @@ import android.media.MediaCodec;
 import android.os.Handler;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * A {@link RendererBuilder} for SmoothStreaming.
@@ -160,8 +158,8 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder {
       // Build the video renderer.
       DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
-          new TrackSelector(context, StreamElement.TYPE_VIDEO), videoDataSource,
-          new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
+          new DefaultSmoothStreamingTrackSelector(context, StreamElement.TYPE_VIDEO),
+          videoDataSource, new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
       ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
           VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
           DemoPlayer.TYPE_VIDEO);
@@ -172,8 +170,8 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder {
       // Build the audio renderer.
       DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       ChunkSource audioChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
-          new TrackSelector(context, StreamElement.TYPE_AUDIO), audioDataSource, null,
-          LIVE_EDGE_LATENCY_MS);
+          new DefaultSmoothStreamingTrackSelector(context, StreamElement.TYPE_AUDIO),
+          audioDataSource, null, LIVE_EDGE_LATENCY_MS);
       ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
           AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
           DemoPlayer.TYPE_AUDIO);
@@ -183,8 +181,8 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder {
       // Build the text renderer.
       DataSource textDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       ChunkSource textChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
-          new TrackSelector(context, StreamElement.TYPE_TEXT), textDataSource, null,
-          LIVE_EDGE_LATENCY_MS);
+          new DefaultSmoothStreamingTrackSelector(context, StreamElement.TYPE_TEXT),
+          textDataSource, null, LIVE_EDGE_LATENCY_MS);
       ChunkSampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
           TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
           DemoPlayer.TYPE_TEXT);
@@ -197,38 +195,6 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder {
       renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
       renderers[DemoPlayer.TYPE_TEXT] = textRenderer;
       player.onRenderers(renderers, bandwidthMeter);
-    }
-
-  }
-
-  private static final class TrackSelector implements SmoothStreamingTrackSelector {
-
-    private final Context context;
-    private final int elementType;
-
-    private TrackSelector(Context context, int type) {
-      this.context = context;
-      this.elementType = type;
-    }
-
-    @Override
-    public void selectTracks(SmoothStreamingManifest manifest, Output output) throws IOException {
-      for (int i = 0; i < manifest.streamElements.length; i++) {
-        if (manifest.streamElements[i].type == elementType) {
-          if (elementType == StreamElement.TYPE_VIDEO) {
-            int[] trackIndices = VideoFormatSelectorUtil.selectVideoFormatsForDefaultDisplay(
-                context, Arrays.asList(manifest.streamElements[i].tracks), null, false);
-            output.adaptiveTrack(manifest, i, trackIndices);
-            for (int j = 0; j < trackIndices.length; j++) {
-              output.fixedTrack(manifest, i, trackIndices[j]);
-            }
-          } else {
-            for (int j = 0; j < manifest.streamElements[i].tracks.length; j++) {
-              output.fixedTrack(manifest, i, j);
-            }
-          }
-        }
-      }
     }
 
   }
