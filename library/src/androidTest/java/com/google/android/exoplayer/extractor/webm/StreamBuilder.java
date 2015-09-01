@@ -91,41 +91,44 @@ import java.util.List;
     return this;
   }
 
-  public StreamBuilder addVp9Track(int width, int height,
+  public StreamBuilder addVp9Track(byte trackNumber, int width, int height,
       ContentEncodingSettings contentEncodingSettings) {
-    trackEntries.add(createVideoTrackEntry("V_VP9", width, height, contentEncodingSettings, null));
+    trackEntries.add(createVideoTrackEntry(trackNumber, "V_VP9", width, height,
+        contentEncodingSettings, null));
     return this;
   }
 
-  public StreamBuilder addH264Track(int width, int height, byte[] codecPrivate) {
-    trackEntries.add(createVideoTrackEntry("V_MPEG4/ISO/AVC", width, height, null, codecPrivate));
+  public StreamBuilder addH264Track(byte trackNumber, int width, int height, byte[] codecPrivate) {
+    trackEntries.add(createVideoTrackEntry(trackNumber, "V_MPEG4/ISO/AVC", width, height, null,
+        codecPrivate));
     return this;
   }
 
-  public StreamBuilder addOpusTrack(int channelCount, int sampleRate, int codecDelay,
-      int seekPreRoll, byte[] codecPrivate) {
-    trackEntries.add(createAudioTrackEntry("A_OPUS", channelCount, sampleRate, codecPrivate,
-        codecDelay, seekPreRoll, NO_VALUE));
+  public StreamBuilder addOpusTrack(byte trackNumber, int channelCount, int sampleRate,
+      int codecDelay, int seekPreRoll, byte[] codecPrivate) {
+    trackEntries.add(createAudioTrackEntry(trackNumber, "A_OPUS", channelCount, sampleRate,
+        codecPrivate, codecDelay, seekPreRoll, NO_VALUE));
     return this;
   }
 
-  public StreamBuilder addOpusTrack(int channelCount, int sampleRate, int codecDelay,
-      int seekPreRoll, byte[] codecPrivate, int defaultDurationNs) {
-    trackEntries.add(createAudioTrackEntry("A_OPUS", channelCount, sampleRate, codecPrivate,
-        codecDelay, seekPreRoll, defaultDurationNs));
+  public StreamBuilder addOpusTrack(byte trackNumber, int channelCount, int sampleRate,
+      int codecDelay, int seekPreRoll, byte[] codecPrivate, int defaultDurationNs) {
+    trackEntries.add(createAudioTrackEntry(trackNumber, "A_OPUS", channelCount, sampleRate,
+        codecPrivate, codecDelay, seekPreRoll, defaultDurationNs));
     return this;
   }
 
-  public StreamBuilder addVorbisTrack(int channelCount, int sampleRate, byte[] codecPrivate) {
-    trackEntries.add(createAudioTrackEntry("A_VORBIS", channelCount, sampleRate, codecPrivate,
-        NO_VALUE, NO_VALUE, NO_VALUE));
+  public StreamBuilder addVorbisTrack(byte trackNumber, int channelCount, int sampleRate,
+      byte[] codecPrivate) {
+    trackEntries.add(createAudioTrackEntry(trackNumber, "A_VORBIS", channelCount, sampleRate,
+        codecPrivate, NO_VALUE, NO_VALUE, NO_VALUE));
     return this;
   }
 
-  public StreamBuilder addUnsupportedTrack() {
+  public StreamBuilder addUnsupportedTrack(byte trackNumber) {
     trackEntries.add(element(0xAE, // TrackEntry
         element(0x86, "D_WEBVTT/metadata".getBytes()), // CodecID
-        element(0xD7, (byte) 0x03), // TrackNumber
+        element(0xD7, trackNumber), // TrackNumber
         element(0x83, (byte) 0x11))); // TrackType
     return this;
   }
@@ -252,8 +255,8 @@ import java.util.List;
         durationFirst ? timescaleElement : durationElement);
   }
 
-  private static EbmlElement createVideoTrackEntry(String codecId, int pixelWidth, int pixelHeight,
-      ContentEncodingSettings contentEncodingSettings, byte[] codecPrivate) {
+  private static EbmlElement createVideoTrackEntry(byte trackNumber, String codecId, int pixelWidth,
+      int pixelHeight, ContentEncodingSettings contentEncodingSettings, byte[] codecPrivate) {
     byte[] widthBytes = getIntegerBytes(pixelWidth);
     byte[] heightBytes = getIntegerBytes(pixelHeight);
     EbmlElement contentEncodingSettingsElement;
@@ -297,7 +300,7 @@ import java.util.List;
 
     return element(0xAE, // TrackEntry
         element(0x86, codecId.getBytes()), // CodecID
-        element(0xD7, (byte) 0x01), // TrackNumber
+        element(0xD7, trackNumber), // TrackNumber
         element(0x83, (byte) 0x01), // TrackType
         contentEncodingSettingsElement,
         element(0xE0, // Video
@@ -306,13 +309,14 @@ import java.util.List;
         codecPrivateElement);
   }
 
-  private static EbmlElement createAudioTrackEntry(String codecId, int channelCount, int sampleRate,
-      byte[] codecPrivate, int codecDelay, int seekPreRoll, int defaultDurationNs) {
+  private static EbmlElement createAudioTrackEntry(byte trackNumber, String codecId,
+      int channelCount, int sampleRate, byte[] codecPrivate, int codecDelay, int seekPreRoll,
+      int defaultDurationNs) {
     byte channelCountByte = (byte) (channelCount & 0xFF);
     byte[] sampleRateDoubleBytes = getLongBytes(Double.doubleToLongBits(sampleRate));
     return element(0xAE, // TrackEntry
         element(0x86, codecId.getBytes()), // CodecID
-        element(0xD7, (byte) 0x02), // TrackNumber
+        element(0xD7, trackNumber), // TrackNumber
         element(0x83, (byte) 0x02), // TrackType
         // CodecDelay
         codecDelay != NO_VALUE ? element(0x56AA, getIntegerBytes(codecDelay)) : empty(),
