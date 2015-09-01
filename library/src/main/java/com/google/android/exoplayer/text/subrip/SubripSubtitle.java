@@ -32,8 +32,8 @@ import java.util.List;
   private final long[] cueTimesUs;
 
   /**
-   * @param cues The cues in the subtitle.
-   * @param cueTimesUs Interleaved cue start and end times, in microseconds.
+   * @param cues The cues in the subtitle. Null entries may be used to represent empty cues.
+   * @param cueTimesUs The cue times, in microseconds.
    */
   public SubripSubtitle(Cue[] cues, long[] cueTimesUs) {
     this.cues = cues;
@@ -69,11 +69,11 @@ import java.util.List;
   @Override
   public List<Cue> getCues(long timeUs) {
     int index = Util.binarySearchFloor(cueTimesUs, timeUs, true, false);
-    if (index == -1 || index % 2 == 1) {
-      // timeUs is earlier than the start of the first cue, or corresponds to a gap between cues.
+    if (index == -1 || cues[index] == null) {
+      // timeUs is earlier than the start of the first cue, or we have an empty cue.
       return Collections.<Cue>emptyList();
     } else {
-      return Collections.singletonList(cues[index / 2]);
+      return Collections.singletonList(cues[index]);
     }
   }
 

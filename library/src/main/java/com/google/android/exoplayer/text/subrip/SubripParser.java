@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
  */
 public final class SubripParser implements SubtitleParser {
 
-  private static final Pattern SUBRIP_TIMING_LINE = Pattern.compile("(.*)\\s+-->\\s+(.*)");
+  private static final Pattern SUBRIP_TIMING_LINE = Pattern.compile("(\\S*)\\s*-->\\s*(\\S*)");
   private static final Pattern SUBRIP_TIMESTAMP =
       Pattern.compile("(?:(\\d+):)?(\\d+):(\\d+),(\\d+)");
 
@@ -54,6 +54,7 @@ public final class SubripParser implements SubtitleParser {
     ArrayList<Cue> cues = new ArrayList<>();
     LongArray cueTimesUs = new LongArray();
     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, C.UTF8_NAME));
+    boolean haveEndTimecode;
     String currentLine;
 
     while ((currentLine = reader.readLine()) != null) {
@@ -65,11 +66,16 @@ public final class SubripParser implements SubtitleParser {
       }
 
       // Read and parse the timing line.
+      haveEndTimecode = false;
       currentLine = reader.readLine();
       Matcher matcher = SUBRIP_TIMING_LINE.matcher(currentLine);
       if (matcher.find()) {
-        cueTimesUs.add(parseTimestampUs(matcher.group(1)));
-        cueTimesUs.add(parseTimestampUs(matcher.group(2)));
+        cueTimesUs.add(parseTimecode(matcher.group(1)));
+        String endTimecode = matcher.group(2);
+        if (!TextUtils.isEmpty(endTimecode)) {
+          haveEndTimecode = true;
+          cueTimesUs.add(parseTimecode(matcher.group(2)));
+        }
       } else {
         throw new ParserException("Expected timing line: " + currentLine);
       }
@@ -85,6 +91,9 @@ public final class SubripParser implements SubtitleParser {
 
       Spanned text = Html.fromHtml(textBuilder.toString());
       cues.add(new Cue(text));
+      if (haveEndTimecode) {
+        cues.add(null);
+      }
     }
 
     Cue[] cuesArray = new Cue[cues.size()];
@@ -98,7 +107,7 @@ public final class SubripParser implements SubtitleParser {
     return MimeTypes.APPLICATION_SUBRIP.equals(mimeType);
   }
 
-  private static long parseTimestampUs(String s) throws NumberFormatException {
+  private static long parseTimecode(String s) throws NumberFormatException {
     Matcher matcher = SUBRIP_TIMESTAMP.matcher(s);
     if (!matcher.matches()) {
       throw new NumberFormatException("has invalid format");
