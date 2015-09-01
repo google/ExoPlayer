@@ -11,13 +11,28 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-include ':library'
-include ':demo'
-include ':playbacktests'
-include ':opus-extension'
-include ':vp9-extension'
-include ':webm-sw-demo'
+apply plugin: 'com.android.application'
 
-project(':opus-extension').projectDir = new File(settingsDir, 'extensions/opus')
-project(':vp9-extension').projectDir = new File(settingsDir, 'extensions/vp9')
-project(':webm-sw-demo').projectDir = new File(settingsDir, 'demo_misc/webm_sw_decoder')
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 22
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    compile project(':library')
+}
