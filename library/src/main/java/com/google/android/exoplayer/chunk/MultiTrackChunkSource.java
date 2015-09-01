@@ -18,6 +18,8 @@ package com.google.android.exoplayer.chunk;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.dash.DashChunkSource;
+import com.google.android.exoplayer.smoothstreaming.SmoothStreamingChunkSource;
 import com.google.android.exoplayer.util.Assertions;
 
 import java.io.IOException;
@@ -26,9 +28,12 @@ import java.util.List;
 /**
  * A {@link ChunkSource} providing the ability to switch between multiple other {@link ChunkSource}
  * instances.
+ *
+ * @deprecated {@link DashChunkSource} and {@link SmoothStreamingChunkSource} both support multiple
+ *     tracks directly, so use of this class should not be required. It will be deleted once legacy
+ *     uses have been removed.
  */
-// TODO: Expose multiple tracks directly in DashChunkSource and SmoothStreamingChunkSource, and
-// delete this class.
+@Deprecated
 public final class MultiTrackChunkSource implements ChunkSource, ExoPlayerComponent {
 
   /**

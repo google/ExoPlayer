@@ -21,8 +21,6 @@ import static org.mockito.Mockito.when;
 import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.Format;
-import com.google.android.exoplayer.chunk.FormatEvaluator;
-import com.google.android.exoplayer.chunk.FormatEvaluator.FixedEvaluator;
 import com.google.android.exoplayer.chunk.InitializationChunk;
 import com.google.android.exoplayer.chunk.MediaChunk;
 import com.google.android.exoplayer.dash.mpd.AdaptationSet;
@@ -52,8 +50,6 @@ import java.util.List;
  * Tests {@link DashChunkSource}.
  */
 public class DashChunkSourceTest extends InstrumentationTestCase {
-
-  private static final FormatEvaluator EVALUATOR = new FixedEvaluator();
 
   private static final long VOD_DURATION_MS = 30000;
 
@@ -85,8 +81,9 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   }
 
   public void testGetAvailableRangeOnVod() {
-    DashChunkSource chunkSource = new DashChunkSource(buildVodMpd(), AdaptationSet.TYPE_VIDEO,
-        null, null, mock(FormatEvaluator.class));
+    DashChunkSource chunkSource = new DashChunkSource(buildVodMpd(),
+        DefaultDashTrackSelector.newVideoInstance(null, false, false), null, null);
+    chunkSource.prepare();
     chunkSource.enable(0);
     TimeRange availableRange = chunkSource.getAvailableRange();
 
@@ -106,7 +103,8 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
 
   public void testGetAvailableRangeOnMultiPeriodVod() {
     DashChunkSource chunkSource = new DashChunkSource(buildMultiPeriodVodMpd(),
-        AdaptationSet.TYPE_VIDEO, null, null, EVALUATOR);
+        DefaultDashTrackSelector.newVideoInstance(null, false, false), null, null);
+    chunkSource.prepare();
     chunkSource.enable(0);
     TimeRange availableRange = chunkSource.getAvailableRange();
     checkAvailableRange(availableRange, 0, MULTI_PERIOD_VOD_DURATION_MS * 1000);
@@ -120,8 +118,10 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   }
 
   public void testSegmentIndexInitializationOnVod() {
-    DashChunkSource chunkSource = new DashChunkSource(buildVodMpd(), AdaptationSet.TYPE_VIDEO,
-        null, mock(DataSource.class), EVALUATOR);
+    DashChunkSource chunkSource = new DashChunkSource(buildVodMpd(),
+        DefaultDashTrackSelector.newVideoInstance(null, false, false), mock(DataSource.class),
+        null);
+    chunkSource.prepare();
     chunkSource.enable(0);
 
     List<MediaChunk> queue = new ArrayList<>();
@@ -232,7 +232,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
 
   private static MediaPresentationDescription buildMpd(long durationMs,
       List<Representation> representations, boolean live, boolean limitTimeshiftBuffer) {
-    AdaptationSet adaptationSet = new AdaptationSet(0, AdaptationSet.TYPE_UNKNOWN, representations);
+    AdaptationSet adaptationSet = new AdaptationSet(0, AdaptationSet.TYPE_VIDEO, representations);
     Period period = new Period(null, 0, Collections.singletonList(adaptationSet));
     return new MediaPresentationDescription(AVAILABILITY_START_TIME_MS, durationMs, -1, live, -1,
         (limitTimeshiftBuffer) ? LIVE_TIMESHIFT_BUFFER_DEPTH_MS : -1, null, null,
@@ -259,7 +259,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
     long periodDurationMs = VOD_DURATION_MS;
     for (int i = 0; i < 2; i++) {
       Representation representation = buildVodRepresentation(REGULAR_VIDEO);
-      AdaptationSet adaptationSet = new AdaptationSet(0, AdaptationSet.TYPE_UNKNOWN,
+      AdaptationSet adaptationSet = new AdaptationSet(0, AdaptationSet.TYPE_VIDEO,
           Collections.singletonList(representation));
       Period period = new Period(null, timeMs, Collections.singletonList(adaptationSet));
       periods.add(period);
@@ -288,7 +288,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
     long periodDurationMs = LIVE_DURATION_MS;
     for (int i = 0; i < MULTI_PERIOD_COUNT; i++) {
       Representation representation = buildSegmentTimelineRepresentation(LIVE_DURATION_MS, 0);
-      AdaptationSet adaptationSet = new AdaptationSet(0, AdaptationSet.TYPE_UNKNOWN,
+      AdaptationSet adaptationSet = new AdaptationSet(0, AdaptationSet.TYPE_VIDEO,
           Collections.singletonList(representation));
       Period period = new Period(null, periodStartTimeMs, Collections.singletonList(adaptationSet));
       periods.add(period);
@@ -303,7 +303,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
     long periodDurationMs = LIVE_DURATION_MS;
     for (int i = 0; i < MULTI_PERIOD_COUNT; i++) {
       Representation representation = buildSegmentTemplateRepresentation();
-      AdaptationSet adaptationSet = new AdaptationSet(0, AdaptationSet.TYPE_UNKNOWN,
+      AdaptationSet adaptationSet = new AdaptationSet(0, AdaptationSet.TYPE_VIDEO,
           Collections.singletonList(representation));
       Period period = new Period(null, periodStartTimeMs, Collections.singletonList(adaptationSet));
       periods.add(period);
@@ -322,9 +322,10 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
     ManifestFetcher<MediaPresentationDescription> manifestFetcher = mock(ManifestFetcher.class);
     when(manifestFetcher.getManifest()).thenReturn(mpd);
     DashChunkSource chunkSource = new DashChunkSource(manifestFetcher, mpd,
-        AdaptationSet.TYPE_VIDEO, null, mock(DataSource.class), EVALUATOR,
+        DefaultDashTrackSelector.newVideoInstance(null, false, false), mock(DataSource.class), null,
         new FakeClock(mpd.availabilityStartTime + mpd.duration - ELAPSED_REALTIME_OFFSET_MS),
         liveEdgeLatencyMs * 1000, ELAPSED_REALTIME_OFFSET_MS * 1000, startAtLiveEdge, null, null);
+    chunkSource.prepare();
     chunkSource.enable(0);
     return chunkSource;
   }

@@ -312,6 +312,20 @@ public final class Util {
   }
 
   /**
+   * Creates an integer array containing the integers from 0 to {@code length - 1}.
+   *
+   * @param length The length of the array.
+   * @return The array.
+   */
+  public static int[] firstIntegersArray(int length) {
+    int[] firstIntegers = new int[length];
+    for (int i = 0; i < length; i++) {
+      firstIntegers[i] = i;
+    }
+    return firstIntegers;
+  }
+
+  /**
    * Parses an xs:duration attribute value, returning the parsed duration in milliseconds.
    *
    * @param value The attribute value to parse.
