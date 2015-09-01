@@ -15,37 +15,22 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.util.Clock;
+
+import android.os.SystemClock;
+
 /**
  * A container to store a start and end time in microseconds.
  */
-public final class TimeRange {
+public interface TimeRange {
 
   /**
-   * Represents a range of time whose bounds change in bulk increments rather than smoothly over
-   * time.
-   */
-  public static final int TYPE_SNAPSHOT = 0;
-
-  /**
-   * The type of this time range.
-   */
-  public final int type;
-
-  private final long startTimeUs;
-  private final long endTimeUs;
-
-  /**
-   * Create a new {@link TimeRange} of the appropriate type.
+   * Whether the range is static, meaning repeated calls to {@link #getCurrentBoundsMs(long[])}
+   * or {@link #getCurrentBoundsUs(long[])} will return identical results.
    *
-   * @param type The type of the TimeRange.
-   * @param startTimeUs The beginning of the TimeRange.
-   * @param endTimeUs The end of the TimeRange.
+   * @return Whether the range is static.
    */
-  public TimeRange(int type, long startTimeUs, long endTimeUs) {
-    this.type = type;
-    this.startTimeUs = startTimeUs;
-    this.endTimeUs = endTimeUs;
-  }
+  public boolean isStatic();
 
   /**
    * Returns the start and end times (in milliseconds) of the TimeRange in the provided array,
@@ -54,12 +39,7 @@ public final class TimeRange {
    * @param out An array to store the start and end times; can be null.
    * @return An array containing the start time (index 0) and end time (index 1) in milliseconds.
    */
-  public long[] getCurrentBoundsMs(long[] out) {
-    out = getCurrentBoundsUs(out);
-    out[0] /= 1000;
-    out[1] /= 1000;
-    return out;
-  }
+  public long[] getCurrentBoundsMs(long[] out);
 
   /**
    * Returns the start and end times (in microseconds) of the TimeRange in the provided array,
@@ -68,35 +48,156 @@ public final class TimeRange {
    * @param out An array to store the start and end times; can be null.
    * @return An array containing the start time (index 0) and end time (index 1) in microseconds.
    */
-  public long[] getCurrentBoundsUs(long[] out) {
-    if (out == null || out.length < 2) {
-      out = new long[2];
+  public long[] getCurrentBoundsUs(long[] out);
+
+  /**
+   * A static {@link TimeRange}.
+   */
+  public static final class StaticTimeRange implements TimeRange {
+
+    private final long startTimeUs;
+    private final long endTimeUs;
+
+    /**
+     * @param startTimeUs The beginning of the range.
+     * @param endTimeUs The end of the range.
+     */
+    public StaticTimeRange(long startTimeUs, long endTimeUs) {
+      this.startTimeUs = startTimeUs;
+      this.endTimeUs = endTimeUs;
     }
-    out[0] = startTimeUs;
-    out[1] = endTimeUs;
-    return out;
-  }
 
-  @Override
-  public int hashCode() {
-    int hashCode = 0;
-    hashCode |= type << 30;
-    hashCode |= (((startTimeUs + endTimeUs) / 1000) & 0x3FFFFFFF);
-    return hashCode;
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == this) {
+    @Override
+    public boolean isStatic() {
       return true;
     }
-    if (other instanceof TimeRange) {
-      TimeRange otherTimeRange = (TimeRange) other;
-      return (otherTimeRange.type == type) && (otherTimeRange.startTimeUs == startTimeUs)
-          && (otherTimeRange.endTimeUs == endTimeUs);
-    } else {
+
+    @Override
+    public long[] getCurrentBoundsMs(long[] out) {
+      out = getCurrentBoundsUs(out);
+      out[0] /= 1000;
+      out[1] /= 1000;
+      return out;
+    }
+
+    @Override
+    public long[] getCurrentBoundsUs(long[] out) {
+      if (out == null || out.length < 2) {
+        out = new long[2];
+      }
+      out[0] = startTimeUs;
+      out[1] = endTimeUs;
+      return out;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = 17;
+      result = 31 * result + (int) startTimeUs;
+      result = 31 * result + (int) endTimeUs;
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == this) {
+        return true;
+      }
+      if (obj == null || getClass() != obj.getClass()) {
+        return false;
+      }
+      StaticTimeRange other = (StaticTimeRange) obj;
+      return other.startTimeUs == startTimeUs
+          && other.endTimeUs == endTimeUs;
+    }
+
+  }
+
+  /**
+   * A dynamic {@link TimeRange}.
+   */
+  public static final class DynamicTimeRange implements TimeRange {
+
+    private final long minStartTimeUs;
+    private final long maxEndTimeUs;
+    private final long elapsedRealtimeAtStartUs;
+    private final long bufferDepthUs;
+    private final Clock systemClock;
+
+    /**
+     * @param minStartTimeUs A lower bound on the beginning of the range.
+     * @param maxEndTimeUs An upper bound on the end of the range.
+     * @param elapsedRealtimeAtStartUs The value of {@link SystemClock#elapsedRealtime()},
+     *     multiplied by 1000, corresponding to a media time of zero.
+     * @param bufferDepthUs The buffer depth of the media, or -1.
+     * @param systemClock A system clock.
+     */
+    public DynamicTimeRange(long minStartTimeUs, long maxEndTimeUs, long elapsedRealtimeAtStartUs,
+        long bufferDepthUs, Clock systemClock) {
+      this.minStartTimeUs = minStartTimeUs;
+      this.maxEndTimeUs = maxEndTimeUs;
+      this.elapsedRealtimeAtStartUs = elapsedRealtimeAtStartUs;
+      this.bufferDepthUs = bufferDepthUs;
+      this.systemClock = systemClock;
+    }
+
+    @Override
+    public boolean isStatic() {
       return false;
     }
+
+    @Override
+    public long[] getCurrentBoundsMs(long[] out) {
+      out = getCurrentBoundsUs(out);
+      out[0] /= 1000;
+      out[1] /= 1000;
+      return out;
+    }
+
+    @Override
+    public long[] getCurrentBoundsUs(long[] out) {
+      if (out == null || out.length < 2) {
+        out = new long[2];
+      }
+      // Don't allow the end time to be greater than the total elapsed time.
+      long currentEndTimeUs = Math.min(maxEndTimeUs,
+          (systemClock.elapsedRealtime() * 1000) - elapsedRealtimeAtStartUs);
+      long currentStartTimeUs = minStartTimeUs;
+      if (bufferDepthUs != -1) {
+        // Don't allow the start time to be less than the current end time minus the buffer depth.
+        currentStartTimeUs = Math.max(currentStartTimeUs,
+            currentEndTimeUs - bufferDepthUs);
+      }
+      out[0] = currentStartTimeUs;
+      out[1] = currentEndTimeUs;
+      return out;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = 17;
+      result = 31 * result + (int) minStartTimeUs;
+      result = 31 * result + (int) maxEndTimeUs;
+      result = 31 * result + (int) elapsedRealtimeAtStartUs;
+      result = 31 * result + (int) bufferDepthUs;
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == this) {
+        return true;
+      }
+      if (obj == null || getClass() != obj.getClass()) {
+        return false;
+      }
+      DynamicTimeRange other = (DynamicTimeRange) obj;
+      return other.minStartTimeUs == minStartTimeUs
+          && other.maxEndTimeUs == maxEndTimeUs
+          && other.elapsedRealtimeAtStartUs == elapsedRealtimeAtStartUs
+          && other.bufferDepthUs == bufferDepthUs;
+    }
+
   }
 
 }

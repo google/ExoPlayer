@@ -18,6 +18,8 @@ package com.google.android.exoplayer.dash;
 import com.google.android.exoplayer.BehindLiveWindowException;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.TimeRange;
+import com.google.android.exoplayer.TimeRange.DynamicTimeRange;
+import com.google.android.exoplayer.TimeRange.StaticTimeRange;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkExtractorWrapper;
@@ -115,6 +117,7 @@ public class DashChunkSource implements ChunkSource {
   private final long elapsedRealtimeOffsetUs;
   private final int maxWidth;
   private final int maxHeight;
+  private final long[] availableRangeValues;
 
   private final SparseArray<PeriodHolder> periodHolders;
 
@@ -128,7 +131,6 @@ public class DashChunkSource implements ChunkSource {
 
   private DrmInitData drmInitData;
   private TimeRange availableRange;
-  private long[] availableRangeValues;
 
   private boolean startAtLiveEdge;
   private boolean lastChunkWasInitialization;
@@ -327,7 +329,6 @@ public class DashChunkSource implements ChunkSource {
     if (manifestFetcher != null) {
       manifestFetcher.enable();
     }
-    updateAvailableBounds(getNowUs());
   }
 
   @Override
@@ -348,7 +349,6 @@ public class DashChunkSource implements ChunkSource {
     MediaPresentationDescription newManifest = manifestFetcher.getManifest();
     if (currentManifest != newManifest && newManifest != null) {
       processManifest(newManifest);
-      updateAvailableBounds(getNowUs());
     }
 
     // TODO: This is a temporary hack to avoid constantly refreshing the MPD in cases where
@@ -401,19 +401,12 @@ public class DashChunkSource implements ChunkSource {
     // In all cases where we return before instantiating a new chunk, we want out.chunk to be null.
     out.chunk = null;
 
-    if (currentManifest.dynamic
-        && periodHolders.valueAt(periodHolders.size() - 1).isIndexUnbounded()) {
-      // Manifests with unbounded indexes aren't updated regularly, so we need to update the
-      // segment bounds before use to ensure that they are accurate to the current time
-      updateAvailableBounds(getNowUs());
-    }
-    availableRangeValues = availableRange.getCurrentBoundsUs(availableRangeValues);
-
     long segmentStartTimeUs;
     int segmentNum = -1;
     boolean startingNewPeriod = false;
     PeriodHolder periodHolder;
 
+    availableRange.getCurrentBoundsUs(availableRangeValues);
     if (queue.isEmpty()) {
       if (currentManifest.dynamic) {
         if (startAtLiveEdge) {
@@ -563,45 +556,6 @@ public class DashChunkSource implements ChunkSource {
   @Override
   public void onChunkLoadError(Chunk chunk, Exception e) {
     // Do nothing.
-  }
-
-  private void updateAvailableBounds(long nowUs) {
-    PeriodHolder firstPeriod = periodHolders.valueAt(0);
-    long earliestAvailablePosition = firstPeriod.getAvailableStartTimeUs();
-    PeriodHolder lastPeriod = periodHolders.valueAt(periodHolders.size() - 1);
-    boolean isManifestUnbounded = lastPeriod.isIndexUnbounded();
-    long latestAvailablePosition;
-    if (!currentManifest.dynamic || !isManifestUnbounded) {
-      latestAvailablePosition = lastPeriod.getAvailableEndTimeUs();
-    } else {
-      latestAvailablePosition = TrackRenderer.UNKNOWN_TIME_US;
-    }
-
-    if (currentManifest.dynamic) {
-      if (isManifestUnbounded) {
-        latestAvailablePosition = nowUs - currentManifest.availabilityStartTime * 1000;
-      } else if (!lastPeriod.isIndexExplicit()) {
-        // Some segments defined by the index may not be available yet. Bound the calculated live
-        // edge based on the elapsed time since the manifest became available.
-        latestAvailablePosition = Math.min(latestAvailablePosition,
-            nowUs - currentManifest.availabilityStartTime * 1000);
-      }
-
-      // if we have a limited timeshift buffer, we need to adjust the earliest seek position so
-      // that it doesn't start before the buffer
-      if (currentManifest.timeShiftBufferDepth != -1) {
-        long bufferDepthUs = currentManifest.timeShiftBufferDepth * 1000;
-        earliestAvailablePosition = Math.max(earliestAvailablePosition,
-            latestAvailablePosition - bufferDepthUs);
-      }
-    }
-
-    TimeRange newAvailableRange = new TimeRange(TimeRange.TYPE_SNAPSHOT, earliestAvailablePosition,
-        latestAvailablePosition);
-    if (availableRange == null || !availableRange.equals(newAvailableRange)) {
-      availableRange = newAvailableRange;
-      notifyAvailableRangeChanged(availableRange);
-    }
   }
 
   private static boolean mimeTypeIsWebm(String mimeType) {
@@ -755,7 +709,34 @@ public class DashChunkSource implements ChunkSource {
       periodHolderNextIndex++;
     }
 
+    // Update the available range.
+    TimeRange newAvailableRange = getAvailableRange(getNowUs());
+    if (availableRange == null || !availableRange.equals(newAvailableRange)) {
+      availableRange = newAvailableRange;
+      notifyAvailableRangeChanged(availableRange);
+    }
+
     currentManifest = manifest;
+  }
+
+  private TimeRange getAvailableRange(long nowUs) {
+    PeriodHolder firstPeriod = periodHolders.valueAt(0);
+    PeriodHolder lastPeriod = periodHolders.valueAt(periodHolders.size() - 1);
+
+    if (!currentManifest.dynamic || lastPeriod.isIndexExplicit()) {
+      return new StaticTimeRange(firstPeriod.getAvailableStartTimeUs(),
+          lastPeriod.getAvailableEndTimeUs());
+    }
+
+    long minStartPositionUs = firstPeriod.getAvailableStartTimeUs();
+    long maxEndPositionUs = lastPeriod.isIndexUnbounded() ? Long.MAX_VALUE
+        : lastPeriod.getAvailableEndTimeUs();
+    long elapsedRealtimeAtZeroUs = (systemClock.elapsedRealtime() * 1000)
+        - (nowUs - currentManifest.availabilityStartTime * 1000);
+    long timeShiftBufferDepthUs = currentManifest.timeShiftBufferDepth == -1 ? -1
+        : currentManifest.timeShiftBufferDepth * 1000;
+    return new DynamicTimeRange(minStartPositionUs, maxEndPositionUs, elapsedRealtimeAtZeroUs,
+        timeShiftBufferDepthUs, systemClock);
   }
 
   private void notifyAvailableRangeChanged(final TimeRange seekRange) {
