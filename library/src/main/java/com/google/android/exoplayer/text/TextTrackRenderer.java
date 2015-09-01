@@ -129,7 +129,23 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
    */
   public TextTrackRenderer(SampleSource source, TextRenderer textRenderer,
       Looper textRendererLooper, SubtitleParser... subtitleParsers) {
-    super(source);
+    this(new SampleSource[] {source}, textRenderer, textRendererLooper, subtitleParsers);
+  }
+
+  /**
+   * @param sources Sources from which samples containing subtitle data can be read.
+   * @param textRenderer The text renderer.
+   * @param textRendererLooper The looper associated with the thread on which textRenderer should be
+   *     invoked. If the renderer makes use of standard Android UI components, then this should
+   *     normally be the looper associated with the applications' main thread, which can be
+   *     obtained using {@link android.app.Activity#getMainLooper()}. Null may be passed if the
+   *     renderer should be invoked directly on the player's internal rendering thread.
+   * @param subtitleParsers {@link SubtitleParser}s to parse text samples, in order of decreasing
+   *     priority. If omitted, the default parsers will be used.
+   */
+  public TextTrackRenderer(SampleSource[] sources, TextRenderer textRenderer,
+      Looper textRendererLooper, SubtitleParser... subtitleParsers) {
+    super(sources);
     this.textRenderer = Assertions.checkNotNull(textRenderer);
     this.textRendererHandler = textRendererLooper == null ? null
         : new Handler(textRendererLooper, this);
