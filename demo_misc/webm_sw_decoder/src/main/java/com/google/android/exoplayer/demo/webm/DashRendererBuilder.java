@@ -22,7 +22,6 @@ import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSource;
-import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.dash.mpd.AdaptationSet;
@@ -109,7 +108,7 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
       if (mimeType.equals(MimeTypes.VIDEO_WEBM)) {
         videoChunkSource = new DashChunkSource(videoDataSource,
             new AdaptiveEvaluator(bandwidthMeter), manifest.getPeriodDuration(0),
-            videoRepresentations);
+            AdaptationSet.TYPE_VIDEO, videoRepresentations);
       } else {
         throw new IllegalStateException("Unexpected mime type: " + mimeType);
       }
@@ -125,9 +124,8 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
       audioRenderer = null;
     } else {
       DataSource audioDataSource = new DefaultUriDataSource(player, bandwidthMeter, userAgent);
-      FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
-      DashChunkSource audioChunkSource = new DashChunkSource(audioDataSource, audioEvaluator,
-            manifest.getPeriodDuration(0), audioRepresentation);
+      DashChunkSource audioChunkSource = new DashChunkSource(audioDataSource, null,
+            manifest.getPeriodDuration(0), AdaptationSet.TYPE_AUDIO, audioRepresentation);
       SampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
           AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
       if ("opus".equals(audioRepresentation.format.codecs)) {

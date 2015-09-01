@@ -18,24 +18,18 @@ package com.google.android.exoplayer.demo.player;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
-import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
-import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSource;
-import com.google.android.exoplayer.chunk.Format;
-import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
-import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
-import com.google.android.exoplayer.chunk.VideoFormatSelectorUtil;
 import com.google.android.exoplayer.dash.DashChunkSource;
+import com.google.android.exoplayer.dash.DefaultDashTrackSelector;
 import com.google.android.exoplayer.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescriptionParser;
 import com.google.android.exoplayer.dash.mpd.Period;
-import com.google.android.exoplayer.dash.mpd.Representation;
 import com.google.android.exoplayer.dash.mpd.UtcTimingElement;
 import com.google.android.exoplayer.dash.mpd.UtcTimingElementResolver;
 import com.google.android.exoplayer.dash.mpd.UtcTimingElementResolver.UtcTimingCallback;
@@ -44,8 +38,6 @@ import com.google.android.exoplayer.drm.MediaDrmCallback;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
 import com.google.android.exoplayer.text.TextTrackRenderer;
-import com.google.android.exoplayer.text.ttml.TtmlParser;
-import com.google.android.exoplayer.text.webvtt.WebvttParser;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
@@ -60,8 +52,6 @@ import android.os.Handler;
 import android.util.Log;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A {@link RendererBuilder} for DASH.
@@ -194,23 +184,11 @@ public class DashRendererBuilder implements RendererBuilder {
       DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter(mainHandler, player);
 
       boolean hasContentProtection = false;
-      int videoAdaptationSetIndex = period.getAdaptationSetIndex(AdaptationSet.TYPE_VIDEO);
-      int audioAdaptationSetIndex = period.getAdaptationSetIndex(AdaptationSet.TYPE_AUDIO);
-      AdaptationSet videoAdaptationSet = null;
-      AdaptationSet audioAdaptationSet = null;
-      if (videoAdaptationSetIndex != -1) {
-        videoAdaptationSet = period.adaptationSets.get(videoAdaptationSetIndex);
-        hasContentProtection |= videoAdaptationSet.hasContentProtection();
-      }
-      if (audioAdaptationSetIndex != -1) {
-        audioAdaptationSet = period.adaptationSets.get(audioAdaptationSetIndex);
-        hasContentProtection |= audioAdaptationSet.hasContentProtection();
-      }
-
-      // Fail if we have neither video or audio.
-      if (videoAdaptationSet == null && audioAdaptationSet == null) {
-        player.onRenderersError(new IllegalStateException("No video or audio adaptation sets"));
-        return;
+      for (int i = 0; i < period.adaptationSets.size(); i++) {
+        AdaptationSet adaptationSet = period.adaptationSets.get(i);
+        if (adaptationSet.type != AdaptationSet.TYPE_UNKNOWN) {
+          hasContentProtection |= adaptationSet.hasContentProtection();
+        }
       }
 
       // Check drm support if necessary.
@@ -225,129 +203,49 @@ public class DashRendererBuilder implements RendererBuilder {
         try {
           drmSessionManager = StreamingDrmSessionManager.newWidevineInstance(
               player.getPlaybackLooper(), drmCallback, null, player.getMainHandler(), player);
-          filterHdContent = videoAdaptationSet != null && videoAdaptationSet.hasContentProtection()
-              && getWidevineSecurityLevel(drmSessionManager) != SECURITY_LEVEL_1;
+          filterHdContent = getWidevineSecurityLevel(drmSessionManager) != SECURITY_LEVEL_1;
         } catch (UnsupportedDrmException e) {
           player.onRenderersError(e);
           return;
         }
       }
 
-      // Determine which video representations we should use for playback.
-      int[] videoRepresentationIndices = null;
-      if (videoAdaptationSet != null) {
-        try {
-          videoRepresentationIndices = VideoFormatSelectorUtil.selectVideoFormatsForDefaultDisplay(
-              context, videoAdaptationSet.representations, null, filterHdContent);
-        } catch (DecoderQueryException e) {
-          player.onRenderersError(e);
-          return;
-        }
-      }
-
       // Build the video renderer.
-      final MediaCodecVideoTrackRenderer videoRenderer;
-      if (videoRepresentationIndices == null || videoRepresentationIndices.length == 0) {
-        videoRenderer = null;
-      } else {
-        DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-        ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher,
-            videoAdaptationSetIndex, videoRepresentationIndices, videoDataSource,
-            new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset,
-            mainHandler, player);
-        ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
-            VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
-            DemoPlayer.TYPE_VIDEO);
-        videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource, drmSessionManager, true,
-            MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, mainHandler, player, 50);
-      }
-
-      // Build the audio chunk sources.
-      List<ChunkSource> audioChunkSourceList = new ArrayList<>();
-      List<String> audioTrackNameList = new ArrayList<>();
-      if (audioAdaptationSet != null) {
-        DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-        FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
-        List<Representation> audioRepresentations = audioAdaptationSet.representations;
-        List<String> codecs = new ArrayList<>();
-        for (int i = 0; i < audioRepresentations.size(); i++) {
-          Format format = audioRepresentations.get(i).format;
-          audioTrackNameList.add(format.id + " (" + format.audioChannels + "ch, " +
-              format.audioSamplingRate + "Hz)");
-          audioChunkSourceList.add(new DashChunkSource(manifestFetcher, audioAdaptationSetIndex,
-              new int[] {i}, audioDataSource, audioEvaluator, LIVE_EDGE_LATENCY_MS,
-              elapsedRealtimeOffset, mainHandler, player));
-          codecs.add(format.codecs);
-        }
-      }
+      DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+      ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher,
+          DefaultDashTrackSelector.newVideoInstance(context, true, filterHdContent),
+          videoDataSource, new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS,
+          elapsedRealtimeOffset, mainHandler, player);
+      ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
+          VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
+          DemoPlayer.TYPE_VIDEO);
+      TrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource,
+          drmSessionManager, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null,
+          mainHandler, player, 50);
 
       // Build the audio renderer.
-      final String[] audioTrackNames;
-      final MultiTrackChunkSource audioChunkSource;
-      final TrackRenderer audioRenderer;
-      if (audioChunkSourceList.isEmpty()) {
-        audioTrackNames = null;
-        audioChunkSource = null;
-        audioRenderer = null;
-      } else {
-        audioTrackNames = new String[audioTrackNameList.size()];
-        audioTrackNameList.toArray(audioTrackNames);
-        audioChunkSource = new MultiTrackChunkSource(audioChunkSourceList);
-        SampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
-            AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
-            DemoPlayer.TYPE_AUDIO);
-        audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource, drmSessionManager, true,
-            mainHandler, player, AudioCapabilities.getCapabilities(context));
-      }
+      DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+      ChunkSource audioChunkSource = new DashChunkSource(manifestFetcher,
+          DefaultDashTrackSelector.newAudioInstance(), audioDataSource, null, LIVE_EDGE_LATENCY_MS,
+          elapsedRealtimeOffset, mainHandler, player);
+      ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
+          AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
+          DemoPlayer.TYPE_AUDIO);
+      TrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource,
+          drmSessionManager, true, mainHandler, player, AudioCapabilities.getCapabilities(context));
 
-      // Build the text chunk sources.
+      // Build the text renderer.
       DataSource textDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-      FormatEvaluator textEvaluator = new FormatEvaluator.FixedEvaluator();
-      List<ChunkSource> textChunkSourceList = new ArrayList<>();
-      List<String> textTrackNameList = new ArrayList<>();
-      for (int i = 0; i < period.adaptationSets.size(); i++) {
-        AdaptationSet adaptationSet = period.adaptationSets.get(i);
-        if (adaptationSet.type == AdaptationSet.TYPE_TEXT) {
-          List<Representation> representations = adaptationSet.representations;
-          for (int j = 0; j < representations.size(); j++) {
-            Representation representation = representations.get(j);
-            textTrackNameList.add(representation.format.id);
-            textChunkSourceList.add(new DashChunkSource(manifestFetcher, i, new int[] {j},
-                textDataSource, textEvaluator, LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset,
-                mainHandler, player));
-          }
-        }
-      }
-
-      // Build the text renderers
-      final String[] textTrackNames;
-      final MultiTrackChunkSource textChunkSource;
-      final TrackRenderer textRenderer;
-      if (textChunkSourceList.isEmpty()) {
-        textTrackNames = null;
-        textChunkSource = null;
-        textRenderer = null;
-      } else {
-        textTrackNames = new String[textTrackNameList.size()];
-        textTrackNameList.toArray(textTrackNames);
-        textChunkSource = new MultiTrackChunkSource(textChunkSourceList);
-        SampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
-            TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
-            DemoPlayer.TYPE_TEXT);
-        textRenderer = new TextTrackRenderer(textSampleSource, player, mainHandler.getLooper(),
-            new TtmlParser(), new WebvttParser());
-      }
+      ChunkSource textChunkSource = new DashChunkSource(manifestFetcher,
+          DefaultDashTrackSelector.newTextInstance(), textDataSource, null, LIVE_EDGE_LATENCY_MS,
+          elapsedRealtimeOffset, mainHandler, player);
+      ChunkSampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
+          TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
+          DemoPlayer.TYPE_TEXT);
+      TrackRenderer textRenderer = new TextTrackRenderer(textSampleSource, player,
+          mainHandler.getLooper());
 
       // Invoke the callback.
-      String[][] trackNames = new String[DemoPlayer.RENDERER_COUNT][];
-      trackNames[DemoPlayer.TYPE_AUDIO] = audioTrackNames;
-      trackNames[DemoPlayer.TYPE_TEXT] = textTrackNames;
-
-      MultiTrackChunkSource[] multiTrackChunkSources =
-          new MultiTrackChunkSource[DemoPlayer.RENDERER_COUNT];
-      multiTrackChunkSources[DemoPlayer.TYPE_AUDIO] = audioChunkSource;
-      multiTrackChunkSources[DemoPlayer.TYPE_TEXT] = textChunkSource;
-
       TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
       renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
       renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
