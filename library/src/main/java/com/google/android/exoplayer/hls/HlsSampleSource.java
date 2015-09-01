@@ -140,7 +140,8 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
         for (int i = 0; i < trackCount; i++) {
           mediaFormats[i] = extractor.getMediaFormat(i).copyWithDurationUs(durationUs);
           if (MimeTypes.isVideo(mediaFormats[i].mimeType)) {
-            mediaFormats[i] = chunkSource.getMaxVideoDimensions(mediaFormats[i]).copyAsAdaptive();
+            mediaFormats[i] = chunkSource.getWithMaxVideoDimensions(mediaFormats[i])
+                .copyAsAdaptive();
           }
         }
         prepared = true;
@@ -294,7 +295,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
 
     MediaFormat mediaFormat = extractor.getMediaFormat(track);
     if (mediaFormat != null && !mediaFormat.equals(downstreamMediaFormats[track], true)) {
-      chunkSource.getMaxVideoDimensions(mediaFormat);
+      mediaFormat = chunkSource.getWithMaxVideoDimensions(mediaFormat);
       formatHolder.format = mediaFormat;
       downstreamMediaFormats[track] = mediaFormat;
       return FORMAT_READ;

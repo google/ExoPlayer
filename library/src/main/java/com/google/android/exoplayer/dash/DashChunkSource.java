@@ -855,15 +855,6 @@ public class DashChunkSource implements ChunkSource {
       return segmentIndex.getFirstSegmentNum() + segmentNumShift;
     }
 
-    public int getLastAvailableSegmentNum() {
-      int lastSegmentNum = segmentIndex.getLastSegmentNum();
-      if (lastSegmentNum == DashSegmentIndex.INDEX_UNBOUNDED) {
-        return DashSegmentIndex.INDEX_UNBOUNDED;
-      } else {
-        return lastSegmentNum + segmentNumShift;
-      }
-    }
-
     public RangedUri getSegmentUrl(int segmentNum) {
       return segmentIndex.getSegmentUrl(segmentNum - segmentNumShift);
     }

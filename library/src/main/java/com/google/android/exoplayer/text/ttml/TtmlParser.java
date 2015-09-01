@@ -84,10 +84,10 @@ public final class TtmlParser implements SubtitleParser {
   }
 
   /**
-   * @param strictParsing If true, {@link #parse(InputStream, String)} will throw a
-   *     {@link ParserException} if the stream contains invalid data. If false, the parser will
-   *     make a best effort to ignore minor errors in the stream. Note however that a
-   *     {@link ParserException} will still be thrown when this is not possible.
+   * @param strictParsing If true, {@link #parse(InputStream)} will throw a {@link ParserException}
+   *     if the stream contains invalid data. If false, the parser will make a best effort to ignore
+   *     minor errors in the stream. Note however that a {@link ParserException} will still be
+   *     thrown when this is not possible.
    */
   public TtmlParser(boolean strictParsing) {
     this.strictParsing = strictParsing;
@@ -99,10 +99,10 @@ public final class TtmlParser implements SubtitleParser {
   }
 
   @Override
-  public Subtitle parse(InputStream inputStream, String inputEncoding) throws IOException {
+  public Subtitle parse(InputStream inputStream) throws IOException {
     try {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
-      xmlParser.setInput(inputStream, inputEncoding);
+      xmlParser.setInput(inputStream, null);
       TtmlSubtitle ttmlSubtitle = null;
       LinkedList<TtmlNode> nodeStack = new LinkedList<>();
       int unsupportedNodeDepth = 0;

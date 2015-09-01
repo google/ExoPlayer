@@ -75,8 +75,6 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   private static final long AVAILABILITY_CURRENT_TIME_MS =
       AVAILABILITY_START_TIME_MS + LIVE_TIMESHIFT_BUFFER_DEPTH_MS - AVAILABILITY_REALTIME_OFFSET_MS;
 
-  private static final long LIVE_SEEK_BEYOND_EDGE_MS = 60000;
-
   private static final int TALL_HEIGHT = 200;
   private static final int WIDE_WIDTH = 400;
 
@@ -167,7 +165,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
         AdaptationSet.TYPE_VIDEO, null, mockDataSource, EVALUATOR);
     chunkSource.enable(0);
 
-    List<MediaChunk> queue = new ArrayList<MediaChunk>();
+    List<MediaChunk> queue = new ArrayList<>();
     ChunkOperationHolder out = new ChunkOperationHolder();
 
     // request first chunk; should get back initialization chunk
@@ -507,7 +505,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
 
   private static MediaPresentationDescription generateMultiPeriodLiveMpdWithTimeline(
       long startTimeMs) {
-    List<Period> periods = new ArrayList<Period>();
+    List<Period> periods = new ArrayList<>();
 
     for (int i = 0; i < MULTI_PERIOD_COUNT; i++) {
       Representation representation = generateSegmentTimelineRepresentation(0, startTimeMs,
@@ -527,7 +525,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
 
   private static MediaPresentationDescription generateMultiPeriodLiveMpdWithTemplate(
       long periodStartTimeMs) {
-    List<Period> periods = new ArrayList<Period>();
+    List<Period> periods = new ArrayList<>();
 
     Representation representation1 = generateSegmentTemplateRepresentation(periodStartTimeMs,
         LIVE_DURATION_MS);
@@ -556,6 +554,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
         AVAILABILITY_CURRENT_TIME_MS + periodStartMs);
   }
 
+  @SuppressWarnings("unused")
   private DashChunkSource setupDashChunkSource(MediaPresentationDescription mpd, long periodStartMs,
       long liveEdgeLatencyMs, long nowUs) {
     @SuppressWarnings("unchecked")
@@ -647,7 +646,7 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   }
 
   private void checkSegmentRequestSequenceOnMultiPeriodLive(DashChunkSource chunkSource) {
-    List<MediaChunk> queue = new ArrayList<MediaChunk>();
+    List<MediaChunk> queue = new ArrayList<>();
     ChunkOperationHolder out = new ChunkOperationHolder();
 
     long seekPositionMs = 0;

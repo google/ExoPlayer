@@ -161,7 +161,7 @@ import java.io.InputStream;
     IOException error = null;
     try {
       InputStream inputStream = new ByteArrayInputStream(holder.data.array(), 0, holder.size);
-      parsedSubtitle = parser.parse(inputStream, null);
+      parsedSubtitle = parser.parse(inputStream);
     } catch (IOException e) {
       error = e;
     }
