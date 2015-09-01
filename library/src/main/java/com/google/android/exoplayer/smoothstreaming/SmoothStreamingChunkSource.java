@@ -94,7 +94,7 @@ public class SmoothStreamingChunkSource implements ChunkSource,
    *     completed an initial load.
    * @param trackSelector Selects tracks from the manifest to be exposed by this source.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
-   * @param formatEvaluator Selects from the available formats.
+   * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    * @param liveEdgeLatencyMs For live streams, the number of milliseconds that the playback should
    *     lag behind the "live edge" (i.e. the end of the most recently defined media in the
    *     manifest). Choosing a small value will minimize latency introduced by the player, however
@@ -103,9 +103,9 @@ public class SmoothStreamingChunkSource implements ChunkSource,
    */
   public SmoothStreamingChunkSource(ManifestFetcher<SmoothStreamingManifest> manifestFetcher,
       SmoothStreamingTrackSelector trackSelector, DataSource dataSource,
-      FormatEvaluator formatEvaluator, long liveEdgeLatencyMs) {
-    this(manifestFetcher, manifestFetcher.getManifest(), trackSelector, dataSource, formatEvaluator,
-        liveEdgeLatencyMs);
+      FormatEvaluator adaptiveFormatEvaluator, long liveEdgeLatencyMs) {
+    this(manifestFetcher, manifestFetcher.getManifest(), trackSelector, dataSource,
+        adaptiveFormatEvaluator, liveEdgeLatencyMs);
   }
 
   /**
@@ -114,12 +114,12 @@ public class SmoothStreamingChunkSource implements ChunkSource,
    * @param manifest The manifest parsed from {@code baseUrl + "/Manifest"}.
    * @param trackSelector Selects tracks from the manifest to be exposed by this source.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
-   * @param formatEvaluator Selects from the available formats.
+   * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    */
   public SmoothStreamingChunkSource(SmoothStreamingManifest manifest,
       SmoothStreamingTrackSelector trackSelector, DataSource dataSource,
-      FormatEvaluator formatEvaluator) {
-    this(null, manifest, trackSelector, dataSource, formatEvaluator, 0);
+      FormatEvaluator adaptiveFormatEvaluator) {
+    this(null, manifest, trackSelector, dataSource, adaptiveFormatEvaluator, 0);
   }
 
   private SmoothStreamingChunkSource(ManifestFetcher<SmoothStreamingManifest> manifestFetcher,
