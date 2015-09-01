@@ -714,16 +714,14 @@ public class DashChunkSource implements ChunkSource {
       return periodHolders.valueAt(0);
     }
 
-    for (int i = 0; i < periodHolders.size(); i++) {
+    for (int i = 0; i < periodHolders.size() - 1; i++) {
       PeriodHolder periodHolder = periodHolders.valueAt(i);
-      if (positionUs >= periodHolder.getAvailableStartTimeUs()
-          && (periodHolder.isIndexUnbounded()
-          || positionUs < periodHolder.getAvailableEndTimeUs())) {
+      if (positionUs < periodHolder.getAvailableEndTimeUs()) {
         return periodHolder;
       }
     }
 
-    // if positionUs is after the last period, return the last period
+    // positionUs is within or after the last period
     return periodHolders.valueAt(periodHolders.size() - 1);
   }
 
@@ -731,6 +729,7 @@ public class DashChunkSource implements ChunkSource {
     Period firstPeriod = manifest.periods.get(0);
     while (periodHolders.size() > 0
         && periodHolders.valueAt(0).startTimeUs < firstPeriod.startMs * 1000) {
+      // this existing period is no longer on the manifest, we need to remove it
       PeriodHolder periodHolder = periodHolders.valueAt(0);
       // TODO: a better call would be periodHolders.removeAt(0), but that was added in
       // API 11 and this project currently uses API 9; if that changes, we should switch
@@ -738,7 +737,6 @@ public class DashChunkSource implements ChunkSource {
       periodHolders.remove(periodHolder.manifestIndex);
     }
 
-    int periodIndex = 0;
     for (int i = 0; i < manifest.periods.size(); i++) {
       Period period = manifest.periods.get(i);
       AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
@@ -754,13 +752,9 @@ public class DashChunkSource implements ChunkSource {
         }
       }
 
-      PeriodHolder periodHolder = periodHolders.valueAt(periodIndex);
-      if (periodHolder == null) {
-        long periodStartUs = period.startMs * 1000;
-        periodHolder = new PeriodHolder(periodHolderNextIndex, periodStartUs, newRepresentations);
-        periodHolders.put(periodHolderNextIndex, periodHolder);
-        periodHolderNextIndex++;
-      } else {
+      if (i < periodHolders.size()) {
+        // this is an existing period, we need to update it
+        PeriodHolder periodHolder = periodHolders.valueAt(i);
         for (int j = 0; j < newRepresentations.length; j++) {
           RepresentationHolder representationHolder =
               periodHolder.representationHolders.get(newRepresentations[j].format.id);
@@ -771,8 +765,14 @@ public class DashChunkSource implements ChunkSource {
             return;
           }
         }
+      } else {
+        // this is a new period, we need to add it
+        long periodStartUs = period.startMs * 1000;
+        PeriodHolder periodHolder = new PeriodHolder(periodHolderNextIndex, periodStartUs,
+            newRepresentations);
+        periodHolders.put(periodHolderNextIndex, periodHolder);
+        periodHolderNextIndex++;
       }
-      periodIndex++;
     }
 
     currentManifest = manifest;
