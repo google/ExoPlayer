@@ -180,7 +180,7 @@ public class SmoothStreamingChunkSource implements ChunkSource,
 
   @Override
   public final MediaFormat getFormat(int track) {
-    return tracks.get(track).format;
+    return tracks.get(track).trackFormat;
   }
 
   @Override
@@ -512,7 +512,7 @@ public class SmoothStreamingChunkSource implements ChunkSource,
 
   private static final class ExposedTrack {
 
-    public final MediaFormat format;
+    public final MediaFormat trackFormat;
 
     private final int elementIndex;
 
@@ -524,8 +524,8 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     private final int adaptiveMaxWidth;
     private final int adaptiveMaxHeight;
 
-    public ExposedTrack(MediaFormat format, int elementIndex, Format fixedFormat) {
-      this.format = format;
+    public ExposedTrack(MediaFormat trackFormat, int elementIndex, Format fixedFormat) {
+      this.trackFormat = trackFormat;
       this.elementIndex = elementIndex;
       this.fixedFormat = fixedFormat;
       this.adaptiveFormats = null;
@@ -533,9 +533,9 @@ public class SmoothStreamingChunkSource implements ChunkSource,
       this.adaptiveMaxHeight = MediaFormat.NO_VALUE;
     }
 
-    public ExposedTrack(MediaFormat format, int elementIndex, Format[] adaptiveFormats,
+    public ExposedTrack(MediaFormat trackFormat, int elementIndex, Format[] adaptiveFormats,
         int adaptiveMaxWidth, int adaptiveMaxHeight) {
-      this.format = format;
+      this.trackFormat = trackFormat;
       this.elementIndex = elementIndex;
       this.adaptiveFormats = adaptiveFormats;
       this.adaptiveMaxWidth = adaptiveMaxWidth;

@@ -71,7 +71,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   private int enabledTrackCount;
   private boolean[] trackEnabledStates;
   private boolean[] pendingDiscontinuities;
-  private MediaFormat[] mediaFormats;
+  private MediaFormat[] trackFormat;
   private MediaFormat[] downstreamMediaFormats;
   private Format downstreamFormat;
 
@@ -135,14 +135,14 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
         trackEnabledStates = new boolean[trackCount];
         pendingDiscontinuities = new boolean[trackCount];
         downstreamMediaFormats = new MediaFormat[trackCount];
-        mediaFormats = new MediaFormat[trackCount];
+        trackFormat = new MediaFormat[trackCount];
         long durationUs = chunkSource.getDurationUs();
         for (int i = 0; i < trackCount; i++) {
           MediaFormat format = extractor.getMediaFormat(i).copyWithDurationUs(durationUs);
           if (MimeTypes.isVideo(format.mimeType)) {
             format = format.copyAsAdaptive();
           }
-          mediaFormats[i] = format;
+          trackFormat[i] = format;
         }
         prepared = true;
         return true;
@@ -176,7 +176,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   @Override
   public MediaFormat getFormat(int track) {
     Assertions.checkState(prepared);
-    return mediaFormats[track];
+    return trackFormat[track];
   }
 
   @Override

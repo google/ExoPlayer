@@ -108,7 +108,7 @@ public class DashChunkSource implements ChunkSource {
   private final Handler eventHandler;
   private final EventListener eventListener;
 
-  private final MediaFormat mediaFormat;
+  private final MediaFormat trackFormat;
   private final DataSource dataSource;
   private final FormatEvaluator formatEvaluator;
   private final Evaluation evaluation;
@@ -294,7 +294,7 @@ public class DashChunkSource implements ChunkSource {
     this.maxWidth = maxWidth == 0 ? MediaFormat.NO_VALUE : maxWidth;
     this.maxHeight = maxHeight == 0 ? MediaFormat.NO_VALUE : maxHeight;
     // TODO: Remove this and pass proper formats instead (b/22996976).
-    this.mediaFormat = MediaFormat.createFormatForMimeType(mimeType, MediaFormat.NO_VALUE,
+    this.trackFormat = MediaFormat.createFormatForMimeType(mimeType, MediaFormat.NO_VALUE,
         totalDurationUs);
   }
 
@@ -310,7 +310,7 @@ public class DashChunkSource implements ChunkSource {
 
   @Override
   public final MediaFormat getFormat(int track) {
-    return mediaFormat;
+    return trackFormat;
   }
 
   // VisibleForTesting
