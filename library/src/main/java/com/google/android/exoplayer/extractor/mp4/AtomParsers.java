@@ -696,6 +696,9 @@ import java.util.List;
         mimeType = MimeTypes.VIDEO_H265;
         break;
       case 0x40:
+      case 0x66:
+      case 0x67:
+      case 0x68:
         mimeType = MimeTypes.AUDIO_AAC;
         break;
       case 0xA5:
