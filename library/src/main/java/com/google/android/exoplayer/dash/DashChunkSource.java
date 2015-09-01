@@ -542,7 +542,6 @@ public class DashChunkSource implements ChunkSource {
       }
 
       RepresentationHolder representationHolder = periodHolder.representationHolders.get(formatId);
-
       if (initializationChunk.hasFormat()) {
         representationHolder.mediaFormat = initializationChunk.getFormat();
       }
@@ -550,7 +549,7 @@ public class DashChunkSource implements ChunkSource {
         representationHolder.segmentIndex = new DashWrappingSegmentIndex(
             (ChunkIndex) initializationChunk.getSeekMap(),
             initializationChunk.dataSpec.uri.toString(),
-            representationHolder.representation.periodStartMs * 1000);
+            periodHolder.startTimeUs);
       }
 
       // The null check avoids overwriting drmInitData obtained from the manifest with drmInitData
@@ -726,53 +725,34 @@ public class DashChunkSource implements ChunkSource {
   }
 
   private void processManifest(MediaPresentationDescription manifest) {
-    Period firstPeriod = manifest.periods.get(0);
+    List<Period> newPeriods = manifest.periods;
+
+    // Remove old periods.
+    Period firstPeriod = newPeriods.get(0);
     while (periodHolders.size() > 0
         && periodHolders.valueAt(0).startTimeUs < firstPeriod.startMs * 1000) {
-      // this existing period is no longer on the manifest, we need to remove it
       PeriodHolder periodHolder = periodHolders.valueAt(0);
-      // TODO: a better call would be periodHolders.removeAt(0), but that was added in
-      // API 11 and this project currently uses API 9; if that changes, we should switch
-      // this to removeAt(0);
+      // TODO: Use periodHolders.removeAt(0) if the minimum API level is ever increased to 11.
       periodHolders.remove(periodHolder.manifestIndex);
     }
 
-    for (int i = 0; i < manifest.periods.size(); i++) {
-      Period period = manifest.periods.get(i);
-      AdaptationSet adaptationSet = period.adaptationSets.get(adaptationSetIndex);
-      List<Representation> representations = adaptationSet.representations;
-      Representation newRepresentations[];
-      if (representationIndices == null) {
-        newRepresentations = new Representation[representations.size()];
-        representations.toArray(newRepresentations);
-      } else {
-        newRepresentations = new Representation[representationIndices.length];
-        for (int j = 0; j < representationIndices.length; j++) {
-          newRepresentations[j] = representations.get(representationIndices[j]);
-        }
+    // Update existing periods.
+    try {
+      for (int i = 0; i < periodHolders.size(); i++) {
+        periodHolders.valueAt(i).updatePeriod(newPeriods.get(i));
       }
+    } catch (BehindLiveWindowException e) {
+      fatalError = e;
+      return;
+    }
 
-      if (i < periodHolders.size()) {
-        // this is an existing period, we need to update it
-        PeriodHolder periodHolder = periodHolders.valueAt(i);
-        for (int j = 0; j < newRepresentations.length; j++) {
-          RepresentationHolder representationHolder =
-              periodHolder.representationHolders.get(newRepresentations[j].format.id);
-          try {
-            representationHolder.updateRepresentation(newRepresentations[j]);
-          } catch (BehindLiveWindowException e) {
-            fatalError = e;
-            return;
-          }
-        }
-      } else {
-        // this is a new period, we need to add it
-        long periodStartUs = period.startMs * 1000;
-        PeriodHolder periodHolder = new PeriodHolder(periodHolderNextIndex, periodStartUs,
-            newRepresentations);
-        periodHolders.put(periodHolderNextIndex, periodHolder);
-        periodHolderNextIndex++;
-      }
+    // Add new periods.
+    for (int i = periodHolders.size(); i < newPeriods.size(); i++) {
+      Period period = newPeriods.get(i);
+      PeriodHolder periodHolder = new PeriodHolder(periodHolderNextIndex, period,
+          adaptationSetIndex, representationIndices);
+      periodHolders.put(periodHolderNextIndex, periodHolder);
+      periodHolderNextIndex++;
     }
 
     currentManifest = manifest;
@@ -870,21 +850,35 @@ public class DashChunkSource implements ChunkSource {
     public final Format[] formats;
     public final HashMap<String, RepresentationHolder> representationHolders;
 
+    private final int adaptationSetIndex;
+    private final int[] representationIndices;
     private final int maxWidth;
     private final int maxHeight;
 
-    public PeriodHolder(int manifestIndex, long startTimeUs, Representation[] representations) {
+    private boolean indexIsUnbounded;
+    private boolean indexIsExplicit;
+    private long availableStartTimeUs;
+    private long availableEndTimeUs;
+
+    public PeriodHolder(int manifestIndex, Period period, int adaptationSetIndex,
+        int[] representationIndices) {
       this.manifestIndex = manifestIndex;
-      this.startTimeUs = startTimeUs;
+      this.adaptationSetIndex = adaptationSetIndex;
+      this.representationIndices = representationIndices;
 
-      this.formats = new Format[representations.length];
-      this.representationHolders = new HashMap<>();
+      List<Representation> periodRepresentations =
+          period.adaptationSets.get(adaptationSetIndex).representations;
+      int representationCount = representationIndices != null ? representationIndices.length
+          : periodRepresentations.size();
+      formats = new Format[representationCount];
+      representationHolders = new HashMap<>(representationCount);
 
-      int maxWidth = 0;
-      int maxHeight = 0;
+      int maxWidth = -1;
+      int maxHeight = -1;
       String mimeType = "";
-      for (int i = 0; i < representations.length; i++) {
-        Representation representation = representations[i];
+      for (int i = 0; i < representationCount; i++) {
+        int representationIndex = representationIndices != null ? representationIndices[i] : i;
+        Representation representation = periodRepresentations.get(representationIndex);
         formats[i] = representation.format;
         mimeType = getMediaMimeType(representation);
         maxWidth = Math.max(formats[i].width, maxWidth);
@@ -899,69 +893,68 @@ public class DashChunkSource implements ChunkSource {
       this.maxHeight = maxHeight;
       this.mimeType = mimeType;
 
-      long durationMs =
-          representationHolders.get(formats[0].id).representation.periodDurationMs;
-      if (durationMs == TrackRenderer.UNKNOWN_TIME_US) {
+      startTimeUs = period.startMs * 1000;
+      long durationMs = period.durationMs;
+      if (durationMs == -1) {
         durationUs = TrackRenderer.UNKNOWN_TIME_US;
       } else {
         durationUs = durationMs * 1000;
       }
 
       Arrays.sort(formats, new DecreasingBandwidthComparator());
+      updateRepresentationIndependentProperties();
+    }
+
+    public void updatePeriod(Period period) throws BehindLiveWindowException {
+      List<Representation> representations =
+          period.adaptationSets.get(adaptationSetIndex).representations;
+      int representationCount = formats.length;
+      for (int i = 0; i < representationCount; i++) {
+        int representationIndex = representationIndices != null ? representationIndices[i] : i;
+        Representation representation = representations.get(representationIndex);
+        representationHolders.get(representation.format.id).updateRepresentation(representation);
+      }
+      updateRepresentationIndependentProperties();
     }
 
     public long getAvailableStartTimeUs() {
-      RepresentationHolder representationHolder = representationHolders.get(formats[0].id);
-      // in this case, we only want to use the segment index if it was defined in the manifest,
-      // otherwise we should just base this on the period information that was in the manifest
-      DashSegmentIndex segmentIndex = representationHolder.representation.getIndex();
-      if (segmentIndex != null) {
-        return segmentIndex.getTimeUs(segmentIndex.getFirstSegmentNum());
-      } else {
-        return startTimeUs;
-      }
+      return availableStartTimeUs;
     }
 
     public long getAvailableEndTimeUs() {
-      RepresentationHolder representationHolder = representationHolders.get(formats[0].id);
-      // in this case, we only want to use the segment index if it was defined in the manifest,
-      // otherwise we should just base this on the period information that was in the manifest
-      DashSegmentIndex segmentIndex = representationHolder.representation.getIndex();
-      if (segmentIndex != null) {
-        int lastSegmentNum = segmentIndex.getLastSegmentNum();
-        if (lastSegmentNum == DashSegmentIndex.INDEX_UNBOUNDED) {
-          throw new IllegalStateException("Can't call this method on a period with and unbounded "
-              + "index");
-        }
-        return segmentIndex.getTimeUs(lastSegmentNum) + segmentIndex.getDurationUs(lastSegmentNum);
-      } else {
-        return startTimeUs + (representationHolder.representation.periodDurationMs * 1000);
+      if (isIndexUnbounded()) {
+        throw new IllegalStateException("Period has unbounded index");
       }
+      return availableEndTimeUs;
     }
 
     public boolean isIndexUnbounded() {
-      RepresentationHolder representationHolder = representationHolders.get(formats[0].id);
-      // in this case, we only want to use the segment index if it was defined in the manifest,
-      // otherwise we should just base this on the period information that was in the manifest
-      DashSegmentIndex segmentIndex = representationHolder.representation.getIndex();
-      if (segmentIndex != null) {
-        int lastSegmentNum = segmentIndex.getLastSegmentNum();
-        if (lastSegmentNum == DashSegmentIndex.INDEX_UNBOUNDED) {
-          return lastSegmentNum == DashSegmentIndex.INDEX_UNBOUNDED;
-        }
-      }
-      return false;
+      return indexIsUnbounded;
     }
 
     public boolean isIndexExplicit() {
-      RepresentationHolder representationHolder = representationHolders.get(formats[0].id);
-      // in this case, we only want to use the segment index if it was defined in the manifest,
-      // otherwise we should just base this on the period information that was in the manifest
-      DashSegmentIndex segmentIndex = representationHolder.representation.getIndex();
+      return indexIsExplicit;
+    }
+
+    private void updateRepresentationIndependentProperties() {
+      // Arbitrarily use the first representation to derive representation independent properties.
+      Representation representation = representationHolders.get(formats[0].id).representation;
+      DashSegmentIndex segmentIndex = representation.getIndex();
       if (segmentIndex != null) {
-        return segmentIndex.isExplicit();
+        int lastSegmentNum = segmentIndex.getLastSegmentNum();
+        indexIsUnbounded = lastSegmentNum == DashSegmentIndex.INDEX_UNBOUNDED;
+        indexIsExplicit = segmentIndex.isExplicit();
+        availableStartTimeUs = segmentIndex.getTimeUs(segmentIndex.getFirstSegmentNum());
+        if (!indexIsUnbounded) {
+          availableEndTimeUs = segmentIndex.getTimeUs(lastSegmentNum)
+              + segmentIndex.getDurationUs(lastSegmentNum);
+        }
+      } else {
+        indexIsUnbounded = false;
+        indexIsExplicit = true;
+        availableStartTimeUs = startTimeUs;
+        availableEndTimeUs = startTimeUs + durationUs;
       }
-      return true;
     }
 
   }
