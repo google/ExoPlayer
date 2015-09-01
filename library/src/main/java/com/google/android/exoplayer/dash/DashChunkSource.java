@@ -422,9 +422,9 @@ public class DashChunkSource implements ChunkSource {
           seekPositionUs = Math.max(availableRangeValues[0],
               availableRangeValues[1] - liveEdgeLatencyUs);
         } else {
-          seekPositionUs = Math.max(seekPositionUs, availableRangeValues[0]);
           // we subtract 1 from the upper bound because it's exclusive for that bound
           seekPositionUs = Math.min(seekPositionUs, availableRangeValues[1] - 1);
+          seekPositionUs = Math.max(seekPositionUs, availableRangeValues[0]);
         }
       }
 
