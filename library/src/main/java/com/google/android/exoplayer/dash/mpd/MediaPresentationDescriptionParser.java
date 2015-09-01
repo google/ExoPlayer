@@ -144,6 +144,16 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       }
     } while (!isEndTag(xpp, "MPD"));
 
+    if (!dynamic && durationMs == -1) {
+      // The manifest is static and doesn't define a duration. This is unexpected.
+      if (nextPeriodStartMs != -1) {
+        // If we know the end time of the final period, we can use it as the duration.
+        durationMs = nextPeriodStartMs;
+      } else {
+        throw new ParserException("Unable to determine duration of static manifest.");
+      }
+    }
+
     return buildMediaPresentationDescription(availabilityStartTime, durationMs, minBufferTimeMs,
         dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, utcTiming, location, periods);
   }
