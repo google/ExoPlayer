@@ -185,8 +185,6 @@ public class SmoothStreamingChunkSource implements ChunkSource,
 
   @Override
   public void enable(int track) {
-    fatalError = null;
-    evaluation.format = null;
     enabledTrack = tracks.get(track);
     if (enabledTrack.isAdaptive()) {
       adaptiveFormatEvaluator.enable();
@@ -339,6 +337,8 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     if (manifestFetcher != null) {
       manifestFetcher.disable();
     }
+    evaluation.format = null;
+    fatalError = null;
   }
 
   // SmoothStreamingTrackSelector.Output implementation.
