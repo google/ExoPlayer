@@ -487,7 +487,7 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     // To convert them the absolute timestamps, we need to set sampleOffsetUs to -chunkStartTimeUs.
     return new ContainerMediaChunk(dataSource, dataSpec, trigger, formatInfo, chunkStartTimeUs,
         chunkEndTimeUs, chunkIndex, isLast, chunkStartTimeUs, extractorWrapper, mediaFormat,
-        drmInitData, true);
+        drmInitData, true, Chunk.NO_PARENT_ID);
   }
 
   private static int getManifestTrackKey(int elementIndex, int trackIndex) {

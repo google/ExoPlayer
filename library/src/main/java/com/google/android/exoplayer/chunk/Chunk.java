@@ -104,10 +104,6 @@ public abstract class Chunk implements Loadable {
 
   protected final DataSource dataSource;
 
-  public Chunk(DataSource dataSource, DataSpec dataSpec, int type, int trigger, Format format) {
-    this(dataSource, dataSpec, type, trigger, format, NO_PARENT_ID);
-  }
-
   /**
    * @param dataSource The source from which the data should be loaded.
    * @param dataSpec Defines the data to be loaded. {@code dataSpec.length} must not exceed

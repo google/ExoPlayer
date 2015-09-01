@@ -658,7 +658,7 @@ public class HlsChunkSource {
     public MediaPlaylistChunk(DataSource dataSource, DataSpec dataSpec, byte[] scratchSpace,
         HlsPlaylistParser playlistParser, int variantIndex, String playlistUrl) {
       super(dataSource, dataSpec, Chunk.TYPE_MANIFEST, Chunk.TRIGGER_UNSPECIFIED, null,
-          scratchSpace);
+          Chunk.NO_PARENT_ID, scratchSpace);
       this.variantIndex = variantIndex;
       this.playlistParser = playlistParser;
       this.playlistUrl = playlistUrl;
@@ -685,7 +685,8 @@ public class HlsChunkSource {
 
     public EncryptionKeyChunk(DataSource dataSource, DataSpec dataSpec, byte[] scratchSpace,
         String iv, int variantIndex) {
-      super(dataSource, dataSpec, Chunk.TYPE_DRM, Chunk.TRIGGER_UNSPECIFIED, null, scratchSpace);
+      super(dataSource, dataSpec, Chunk.TYPE_DRM, Chunk.TRIGGER_UNSPECIFIED, null,
+          Chunk.NO_PARENT_ID, scratchSpace);
       this.iv = iv;
       this.variantIndex = variantIndex;
     }
