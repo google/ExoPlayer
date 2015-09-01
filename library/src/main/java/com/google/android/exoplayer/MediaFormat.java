@@ -323,25 +323,12 @@ public final class MediaFormat {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    return equalsInternal((MediaFormat) obj, false);
-  }
-
-  public boolean equals(MediaFormat other, boolean ignoreMaxDimensions) {
-    if (this == other) {
-      return true;
-    }
-    if (other == null) {
-      return false;
-    }
-    return equalsInternal(other, ignoreMaxDimensions);
-  }
-
-  private boolean equalsInternal(MediaFormat other, boolean ignoreMaxDimensions) {
+    MediaFormat other = (MediaFormat) obj;
     if (adaptive != other.adaptive || bitrate != other.bitrate || maxInputSize != other.maxInputSize
         || width != other.width || height != other.height
         || rotationDegrees != other.rotationDegrees
         || pixelWidthHeightRatio != other.pixelWidthHeightRatio
-        || (!ignoreMaxDimensions && (maxWidth != other.maxWidth || maxHeight != other.maxHeight))
+        || maxWidth != other.maxWidth || maxHeight != other.maxHeight
         || channelCount != other.channelCount || sampleRate != other.sampleRate
         || !Util.areEqual(language, other.language) || !Util.areEqual(mimeType, other.mimeType)
         || initializationData.size() != other.initializationData.size()) {

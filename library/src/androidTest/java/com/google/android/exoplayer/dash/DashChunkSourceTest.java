@@ -18,7 +18,6 @@ package com.google.android.exoplayer.dash;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
@@ -85,21 +84,12 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   private static final Format WIDE_VIDEO =
       new Format("3", "video/mp4", WIDE_WIDTH, 50, -1, -1, -1, 1000);
 
-  @Mock private DataSource mockDataSource;
+  @Mock
+  private DataSource mockDataSource;
 
   @Override
   public void setUp() throws Exception {
     TestUtil.setUpMockito(this);
-  }
-
-  public void testMaxVideoDimensions() {
-    DashChunkSource chunkSource = new DashChunkSource(generateVodMpd(), AdaptationSet.TYPE_VIDEO,
-        null, null, null);
-    MediaFormat format = MediaFormat.createVideoFormat("video/h264", 5000, 1, 1, 1, 1, 1, null);
-    format = chunkSource.getWithMaxVideoDimensions(format);
-
-    assertEquals(WIDE_WIDTH, format.maxWidth);
-    assertEquals(TALL_HEIGHT, format.maxHeight);
   }
 
   public void testGetAvailableRangeOnVod() {
@@ -192,22 +182,6 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
     checkSegmentRequestSequenceOnMultiPeriodLive(chunkSource);
   }
 
-  public void testMaxVideoDimensionsLegacy() {
-    SingleSegmentBase segmentBase1 = new SingleSegmentBase("https://example.com/1.mp4");
-    Representation representation1 =
-        Representation.newInstance(0, 0, null, 0, TALL_VIDEO, segmentBase1);
-
-    SingleSegmentBase segmentBase2 = new SingleSegmentBase("https://example.com/2.mp4");
-    Representation representation2 =
-        Representation.newInstance(0, 0, null, 0, WIDE_VIDEO, segmentBase2);
-
-    DashChunkSource chunkSource = new DashChunkSource(null, null, representation1, representation2);
-    MediaFormat format = MediaFormat.createVideoFormat("video/h264", 5000, 1, 1, 1, 1, 1, null);
-    format = chunkSource.getWithMaxVideoDimensions(format);
-
-    assertEquals(WIDE_WIDTH, format.maxWidth);
-    assertEquals(TALL_HEIGHT, format.maxHeight);
-  }
 
   public void testLiveEdgeNoLatency() {
     long startTimeMs = 0;
