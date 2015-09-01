@@ -40,7 +40,7 @@ public interface SmoothStreamingTrackSelector {
      * Outputs a fixed track corresponding to the specified track in the specified element.
      *
      * @param manifest The manifest being processed.
-     * @param element The index of the element within which the adaptive tracks are located.
+     * @param element The index of the element within which the track is located.
      * @param track The index of the track within the element.
      */
     void fixedTrack(SmoothStreamingManifest manifest, int element, int track);
