@@ -235,9 +235,9 @@ public final class MediaFormat {
   }
 
   public MediaFormat copyAsAdaptive() {
-    return new MediaFormat(mimeType, NO_VALUE, maxInputSize, durationUs, width, height,
-        rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
-        subsampleOffsetUs, initializationData, true, maxWidth, maxHeight);
+    return new MediaFormat(mimeType, NO_VALUE, NO_VALUE, durationUs, NO_VALUE, NO_VALUE,
+        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE, null, true, maxWidth,
+        maxHeight);
   }
 
   /**

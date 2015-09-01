@@ -451,14 +451,24 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (format.adaptive) {
       return "auto";
     } else if (MimeTypes.isVideo(format.mimeType)) {
-      return format.width + "x" + format.height + buildBitrateString(format);
+      return buildResolutionString(format) + buildBitrateString(format);
     } else if (MimeTypes.isAudio(format.mimeType)) {
-      return format.channelCount + "ch, " + format.sampleRate + "Hz" + buildBitrateString(format);
+      return buildAudioPropertyString(format) + buildBitrateString(format);
     } else if (MimeTypes.isText(format.mimeType) && !TextUtils.isEmpty(format.language)) {
       return format.language + buildBitrateString(format);
     } else {
       return "unknown" + buildBitrateString(format);
     }
+  }
+
+  private static String buildResolutionString(MediaFormat format) {
+    return format.width == MediaFormat.NO_VALUE || format.height == MediaFormat.NO_VALUE
+        ? "video" : format.width + "x" + format.height;
+  }
+
+  private static String buildAudioPropertyString(MediaFormat format) {
+    return format.channelCount == MediaFormat.NO_VALUE || format.sampleRate == MediaFormat.NO_VALUE
+        ? "audio" : format.channelCount + "ch, " + format.sampleRate + "Hz";
   }
 
   private static String buildBitrateString(MediaFormat format) {

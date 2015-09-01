@@ -29,6 +29,7 @@ import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.MimeTypes;
 
 import android.os.Handler;
 import android.os.SystemClock;
@@ -135,9 +136,12 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
         pendingDiscontinuities = new boolean[trackCount];
         downstreamMediaFormats = new MediaFormat[trackCount];
         mediaFormats = new MediaFormat[trackCount];
+        long durationUs = chunkSource.getDurationUs();
         for (int i = 0; i < trackCount; i++) {
-          mediaFormats[i] = extractor.getMediaFormat(i).copyWithDurationUs(
-              chunkSource.getDurationUs());
+          mediaFormats[i] = extractor.getMediaFormat(i).copyWithDurationUs(durationUs);
+          if (MimeTypes.isVideo(mediaFormats[i].mimeType)) {
+            mediaFormats[i] = chunkSource.getMaxVideoDimensions(mediaFormats[i]).copyAsAdaptive();
+          }
         }
         prepared = true;
         return true;
