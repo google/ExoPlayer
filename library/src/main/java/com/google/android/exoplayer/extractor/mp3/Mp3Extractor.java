@@ -191,7 +191,9 @@ public final class Mp3Extractor implements Extractor {
     return RESULT_CONTINUE;
   }
 
-  /** Attempts to read an MPEG audio header at the current offset, resynchronizing if necessary. */
+  /**
+   * Attempts to read an MPEG audio header at the current offset, resynchronizing if necessary.
+   */
   private long maybeResynchronize(ExtractorInput extractorInput)
       throws IOException, InterruptedException {
     inputBuffer.mark();
