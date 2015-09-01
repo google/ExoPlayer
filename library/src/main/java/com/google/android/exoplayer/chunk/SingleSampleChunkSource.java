@@ -116,7 +116,7 @@ public final class SingleSampleChunkSource implements ChunkSource {
 
   private SingleSampleMediaChunk initChunk() {
     return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_UNSPECIFIED, format, 0,
-        durationUs, 0, true, mediaFormat, null);
+        durationUs, 0, true, mediaFormat, null, Chunk.NO_PARENT_ID);
   }
 
 }

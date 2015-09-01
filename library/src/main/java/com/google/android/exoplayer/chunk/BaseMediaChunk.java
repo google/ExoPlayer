@@ -38,13 +38,6 @@ public abstract class BaseMediaChunk extends MediaChunk {
   private DefaultTrackOutput output;
   private int firstSampleIndex;
 
-  public BaseMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
-      long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk,
-      boolean isMediaFormatFinal) {
-    this(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, isLastChunk,
-        isMediaFormatFinal, Chunk.NO_PARENT_ID);
-  }
-
   /**
    * @param dataSource A {@link DataSource} for loading the data.
    * @param dataSpec Defines the data to be loaded.
