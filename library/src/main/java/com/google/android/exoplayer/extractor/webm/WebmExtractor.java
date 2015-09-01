@@ -34,6 +34,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
 import android.util.Pair;
+import android.util.SparseArray;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -81,7 +82,6 @@ public final class WebmExtractor implements Extractor {
   private static final int MP3_MAX_INPUT_SIZE = 4096;
   private static final int ENCRYPTION_IV_SIZE = 8;
   private static final int TRACK_TYPE_AUDIO = 2;
-  private static final int TRACK_TYPE_VIDEO = 1;
   private static final int UNKNOWN = -1;
 
   private static final int ID_EBML = 0x1A45DFA3;
@@ -143,6 +143,7 @@ public final class WebmExtractor implements Extractor {
 
   private final EbmlReader reader;
   private final VarintReader varintReader;
+  private final SparseArray<Track> tracks;
 
   // Temporary arrays.
   private final ParsableByteArray nalStartCode;
@@ -158,10 +159,10 @@ public final class WebmExtractor implements Extractor {
   private long durationTimecode = C.UNKNOWN_TIME_US;
   private long durationUs = C.UNKNOWN_TIME_US;
 
+  // The track corresponding to the current TrackEntry element, or null.
   private Track currentTrack;
-  private Track audioTrack;
-  private Track videoTrack;
 
+  // Whether drm init data has been sent to the output.
   private boolean sentDrmInitData;
 
   // Master seek entry related elements.
@@ -208,6 +209,7 @@ public final class WebmExtractor implements Extractor {
     this.reader = reader;
     this.reader.init(new InnerEbmlReaderOutput());
     varintReader = new VarintReader();
+    tracks = new SparseArray<>();
     scratch = new ParsableByteArray(4);
     vorbisNumPageSamples = new ParsableByteArray(ByteBuffer.allocate(4).putInt(-1).array());
     seekEntryIdBytes = new ParsableByteArray(4);
@@ -399,8 +401,7 @@ public final class WebmExtractor implements Extractor {
         if (!sampleSeenReferenceBlock) {
           blockFlags |= C.SAMPLE_FLAG_SYNC;
         }
-        outputSampleMetadata((audioTrack != null && blockTrackNumber == audioTrack.number)
-            ? audioTrack.output : videoTrack.output, blockTimeUs);
+        outputSampleMetadata(tracks.get(blockTrackNumber), blockTimeUs);
         blockState = BLOCK_STATE_START;
         return;
       case ID_CONTENT_ENCODING:
@@ -421,26 +422,16 @@ public final class WebmExtractor implements Extractor {
         }
         return;
       case ID_TRACK_ENTRY:
-        if ((currentTrack.type == TRACK_TYPE_AUDIO && audioTrack != null)
-            || (currentTrack.type == TRACK_TYPE_VIDEO && videoTrack != null)) {
-          // There is more than 1 audio/video track. Ignore everything but the first.
-          currentTrack = null;
-          return;
-        }
-        if (currentTrack.type == TRACK_TYPE_AUDIO && isCodecSupported(currentTrack.codecId)) {
-          audioTrack = currentTrack;
-          audioTrack.initializeOutput(extractorOutput, durationUs);
-        } else if (currentTrack.type == TRACK_TYPE_VIDEO
-            && isCodecSupported(currentTrack.codecId)) {
-          videoTrack = currentTrack;
-          videoTrack.initializeOutput(extractorOutput, durationUs);
+        if (tracks.get(currentTrack.number) == null && isCodecSupported(currentTrack.codecId)) {
+          currentTrack.initializeOutput(extractorOutput, durationUs);
+          tracks.put(currentTrack.number, currentTrack);
         } else {
-          // Unsupported track type. Do nothing.
+          // We've seen this track entry before, or the codec is unsupported. Do nothing.
         }
         currentTrack = null;
         return;
       case ID_TRACKS:
-        if (videoTrack == null && audioTrack == null) {
+        if (tracks.size() == 0) {
           throw new ParserException("No valid tracks were found");
         }
         extractorOutput.endTracks();
@@ -614,16 +605,15 @@ public final class WebmExtractor implements Extractor {
           scratch.reset();
         }
 
-        // Ignore the block if the track number equals neither the audio track nor the video track.
-        if ((audioTrack == null || audioTrack.number != blockTrackNumber)
-            && (videoTrack == null || videoTrack.number != blockTrackNumber)) {
+        Track track = tracks.get(blockTrackNumber);
+
+        // Ignore the block if we don't know about the track to which it belongs.
+        if (track == null) {
           input.skipFully(contentSize - blockTrackNumberLength);
           blockState = BLOCK_STATE_START;
           return;
         }
 
-        Track track = (audioTrack != null && blockTrackNumber == audioTrack.number)
-            ? audioTrack : videoTrack;
         if (blockState == BLOCK_STATE_HEADER) {
           // Read the relative timecode (2 bytes) and flags (1 byte).
           readScratch(input, 3);
@@ -723,7 +713,7 @@ public final class WebmExtractor implements Extractor {
             writeSampleData(input, track, blockLacingSampleSizes[blockLacingSampleIndex]);
             long sampleTimeUs = this.blockTimeUs
                 + (blockLacingSampleIndex * track.defaultSampleDurationNs) / 1000;
-            outputSampleMetadata(track.output, sampleTimeUs);
+            outputSampleMetadata(track, sampleTimeUs);
             blockLacingSampleIndex++;
           }
           blockState = BLOCK_STATE_START;
@@ -739,8 +729,8 @@ public final class WebmExtractor implements Extractor {
     }
   }
 
-  private void outputSampleMetadata(TrackOutput trackOutput, long timeUs) {
-    trackOutput.sampleMetadata(timeUs, blockFlags, sampleBytesWritten, 0, blockEncryptionKeyId);
+  private void outputSampleMetadata(Track track, long timeUs) {
+    track.output.sampleMetadata(timeUs, blockFlags, sampleBytesWritten, 0, blockEncryptionKeyId);
     sampleRead = true;
     resetSample();
   }
