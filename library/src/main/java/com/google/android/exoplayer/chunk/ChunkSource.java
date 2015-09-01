@@ -77,19 +77,6 @@ public interface ChunkSource {
   void enable(int track);
 
   /**
-   * Adaptive video {@link ChunkSource} implementations must return a copy of the provided
-   * {@link MediaFormat} with the maximum video dimensions set. Other implementations can return
-   * the provided {@link MediaFormat} directly.
-   * <p>
-   * This method should only be called when the source is enabled.
-   *
-   * @param format The format to be copied or returned.
-   * @return A copy of the provided {@link MediaFormat} with the maximum video dimensions set, or
-   *     the provided format.
-   */
-  MediaFormat getWithMaxVideoDimensions(MediaFormat format);
-
-  /**
    * Indicates to the source that it should still be checking for updates to the stream.
    * <p>
    * This method should only be called when the source is enabled.

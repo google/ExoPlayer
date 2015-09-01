@@ -232,8 +232,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
 
     if (haveSamples || currentChunk.isMediaFormatFinal) {
       MediaFormat mediaFormat = currentChunk.getMediaFormat();
-      if (!mediaFormat.equals(downstreamMediaFormat, true)) {
-        mediaFormat = chunkSource.getWithMaxVideoDimensions(mediaFormat);
+      if (!mediaFormat.equals(downstreamMediaFormat)) {
         formatHolder.format = mediaFormat;
         formatHolder.drmInitData = currentChunk.getDrmInitData();
         downstreamMediaFormat = mediaFormat;

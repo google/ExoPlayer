@@ -109,11 +109,6 @@ public final class MultiTrackChunkSource implements ChunkSource, ExoPlayerCompon
   }
 
   @Override
-  public MediaFormat getWithMaxVideoDimensions(MediaFormat format) {
-    return selectedSource.getWithMaxVideoDimensions(format);
-  }
-
-  @Override
   public void handleMessage(int what, Object msg) throws ExoPlaybackException {
     Assertions.checkState(!enabled);
     if (what == MSG_SELECT_TRACK) {

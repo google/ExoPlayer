@@ -119,8 +119,8 @@ public class HlsChunkSource {
   private final BandwidthMeter bandwidthMeter;
   private final int adaptiveMode;
   private final String baseUri;
-  private final int maxWidth;
-  private final int maxHeight;
+  private final int adaptiveMaxWidth;
+  private final int adaptiveMaxHeight;
   private final long minBufferDurationToSwitchUpUs;
   private final long maxBufferDurationToSwitchDownUs;
 
@@ -184,8 +184,8 @@ public class HlsChunkSource {
       variantBlacklistTimes = new long[1];
       setMediaPlaylist(0, (HlsMediaPlaylist) playlist);
       // We won't be adapting between different variants.
-      maxWidth = -1;
-      maxHeight = -1;
+      adaptiveMaxWidth = MediaFormat.NO_VALUE;
+      adaptiveMaxHeight = MediaFormat.NO_VALUE;
     } else {
       List<Variant> masterPlaylistVariants = ((HlsMasterPlaylist) playlist).variants;
       variants = buildOrderedVariants(masterPlaylistVariants, variantIndices);
@@ -208,33 +208,19 @@ public class HlsChunkSource {
       }
       if (variants.length <= 1 || adaptiveMode == ADAPTIVE_MODE_NONE) {
         // We won't be adapting between different variants.
-        this.maxWidth = -1;
-        this.maxHeight = -1;
+        this.adaptiveMaxWidth = MediaFormat.NO_VALUE;
+        this.adaptiveMaxHeight = MediaFormat.NO_VALUE;
       } else {
         // We will be adapting between different variants.
         // TODO: We should allow the default values to be passed through the constructor.
-        this.maxWidth = maxWidth > 0 ? maxWidth : 1920;
-        this.maxHeight = maxHeight > 0 ? maxHeight : 1080;
+        this.adaptiveMaxWidth = maxWidth > 0 ? maxWidth : 1920;
+        this.adaptiveMaxHeight = maxHeight > 0 ? maxHeight : 1080;
       }
     }
   }
 
   public long getDurationUs() {
     return live ? C.UNKNOWN_TIME_US : durationUs;
-  }
-
-  /**
-   * Adaptive implementations must return a copy of the provided {@link MediaFormat} with the
-   * maximum video dimensions set. Other implementations can return the provided {@link MediaFormat}
-   * directly.
-   *
-   * @param format The format to be copied or returned.
-   * @return A copy of the provided {@link MediaFormat} with the maximum video dimensions set, or
-   *     the provided format.
-   */
-  public MediaFormat getWithMaxVideoDimensions(MediaFormat format) {
-    return (maxWidth == -1 || maxHeight == -1) ? format
-        : format.copyWithMaxVideoDimensions(maxWidth, maxHeight);
   }
 
   /**
@@ -348,7 +334,7 @@ public class HlsChunkSource {
       Extractor extractor = chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)
           ? new AdtsExtractor(startTimeUs) : new TsExtractor(startTimeUs);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
-          switchingVariantSpliced);
+          switchingVariantSpliced, adaptiveMaxWidth, adaptiveMaxHeight);
     } else {
       extractorWrapper = previousTsChunk.extractorWrapper;
     }

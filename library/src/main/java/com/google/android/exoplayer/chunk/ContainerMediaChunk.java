@@ -36,6 +36,8 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
 
   private final ChunkExtractorWrapper extractorWrapper;
   private final long sampleOffsetUs;
+  private final int adaptiveMaxWidth;
+  private final int adaptiveMaxHeight;
 
   private MediaFormat mediaFormat;
   private DrmInitData drmInitData;
@@ -56,6 +58,12 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
    * @param extractorWrapper A wrapped extractor to use for parsing the data.
    * @param mediaFormat The {@link MediaFormat} of the chunk, if known. May be null if the data is
    *     known to define its own format.
+   * @param adaptiveMaxWidth If this chunk contains video and is part of an adaptive playback, this
+   *     is the maximum width of the video in pixels that will be encountered during the playback.
+   *     {@link MediaFormat#NO_VALUE} otherwise.
+   * @param adaptiveMaxHeight If this chunk contains video and is part of an adaptive playback, this
+   *     is the maximum height of the video in pixels that will be encountered during the playback.
+   *     {@link MediaFormat#NO_VALUE} otherwise.
    * @param drmInitData The {@link DrmInitData} for the chunk. Null if the media is not drm
    *     protected. May also be null if the data is known to define its own initialization data.
    * @param isMediaFormatFinal True if {@code mediaFormat} and {@code drmInitData} are known to be
@@ -64,13 +72,16 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
    */
   public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
       long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk, long sampleOffsetUs,
-      ChunkExtractorWrapper extractorWrapper, MediaFormat mediaFormat, DrmInitData drmInitData,
-      boolean isMediaFormatFinal, int parentId) {
+      ChunkExtractorWrapper extractorWrapper, MediaFormat mediaFormat, int adaptiveMaxWidth,
+      int adaptiveMaxHeight, DrmInitData drmInitData, boolean isMediaFormatFinal, int parentId) {
     super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, isLastChunk,
         isMediaFormatFinal, parentId);
     this.extractorWrapper = extractorWrapper;
     this.sampleOffsetUs = sampleOffsetUs;
-    this.mediaFormat = getAdjustedMediaFormat(mediaFormat, sampleOffsetUs);
+    this.adaptiveMaxWidth = adaptiveMaxWidth;
+    this.adaptiveMaxHeight = adaptiveMaxHeight;
+    this.mediaFormat = getAdjustedMediaFormat(mediaFormat, sampleOffsetUs, adaptiveMaxWidth,
+        adaptiveMaxHeight);
     this.drmInitData = drmInitData;
   }
 
@@ -103,7 +114,8 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
 
   @Override
   public final void format(MediaFormat mediaFormat) {
-    this.mediaFormat = getAdjustedMediaFormat(mediaFormat, sampleOffsetUs);
+    this.mediaFormat = getAdjustedMediaFormat(mediaFormat, sampleOffsetUs, adaptiveMaxWidth,
+        adaptiveMaxHeight);
   }
 
   @Override
@@ -163,10 +175,16 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
 
   // Private methods.
 
-  private static MediaFormat getAdjustedMediaFormat(MediaFormat format, long sampleOffsetUs) {
-    if (sampleOffsetUs != 0 && format != null
-        && format.subsampleOffsetUs != MediaFormat.OFFSET_SAMPLE_RELATIVE) {
-      return format.copyWithSubsampleOffsetUs(format.subsampleOffsetUs + sampleOffsetUs);
+  private static MediaFormat getAdjustedMediaFormat(MediaFormat format, long sampleOffsetUs,
+      int adaptiveMaxWidth, int adaptiveMaxHeight) {
+    if (format == null) {
+      return null;
+    }
+    if (sampleOffsetUs != 0 && format.subsampleOffsetUs != MediaFormat.OFFSET_SAMPLE_RELATIVE) {
+      format = format.copyWithSubsampleOffsetUs(format.subsampleOffsetUs + sampleOffsetUs);
+    }
+    if (adaptiveMaxWidth != MediaFormat.NO_VALUE || adaptiveMaxHeight != MediaFormat.NO_VALUE) {
+      format = format.copyWithMaxVideoDimensions(adaptiveMaxWidth, adaptiveMaxHeight);
     }
     return format;
   }

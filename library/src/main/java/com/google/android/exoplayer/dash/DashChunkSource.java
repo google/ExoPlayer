@@ -271,11 +271,10 @@ public class DashChunkSource implements ChunkSource {
 
     processManifest(currentManifest);
 
-    String mimeType = "";
     long totalDurationUs = 0;
-    int maxHeight = 0;
     int maxWidth = 0;
-
+    int maxHeight = 0;
+    String mimeType = "";
     for (int i = 0; i < periodHolders.size(); i++) {
       PeriodHolder periodHolder = periodHolders.valueAt(i);
       if (totalDurationUs != TrackRenderer.UNKNOWN_TIME_US) {
@@ -285,21 +284,15 @@ public class DashChunkSource implements ChunkSource {
           totalDurationUs += periodHolder.durationUs;
         }
       }
-      mimeType = periodHolder.mimeType;
-      maxHeight = Math.max(maxHeight, periodHolder.maxHeight);
       maxWidth = Math.max(maxWidth, periodHolder.maxWidth);
+      maxHeight = Math.max(maxHeight, periodHolder.maxHeight);
+      mimeType = periodHolder.mimeType;
     }
+    this.maxWidth = maxWidth == 0 ? MediaFormat.NO_VALUE : maxWidth;
+    this.maxHeight = maxHeight == 0 ? MediaFormat.NO_VALUE : maxHeight;
     // TODO: Remove this and pass proper formats instead (b/22996976).
     this.mediaFormat = MediaFormat.createFormatForMimeType(mimeType, MediaFormat.NO_VALUE,
         totalDurationUs);
-    this.maxHeight = maxHeight;
-    this.maxWidth = maxWidth;
-  }
-
-  @Override
-  public final MediaFormat getWithMaxVideoDimensions(MediaFormat format) {
-    return MimeTypes.isVideo(mediaFormat.mimeType)
-        ? format.copyWithMaxVideoDimensions(maxWidth, maxHeight) : format;
   }
 
   @Override
@@ -606,8 +599,8 @@ public class DashChunkSource implements ChunkSource {
       boolean isMediaFormatFinal = (mediaFormat != null);
       return new ContainerMediaChunk(dataSource, dataSpec, trigger, representation.format,
           startTimeUs, endTimeUs, segmentNum, isLastSegment, sampleOffsetUs,
-          representationHolder.extractorWrapper, mediaFormat, drmInitData, isMediaFormatFinal,
-          periodHolder.manifestIndex);
+          representationHolder.extractorWrapper, mediaFormat, maxWidth, maxHeight, drmInitData,
+          isMediaFormatFinal, periodHolder.manifestIndex);
     }
   }
 
@@ -854,8 +847,8 @@ public class DashChunkSource implements ChunkSource {
       formats = new Format[representationCount];
       representationHolders = new HashMap<>(representationCount);
 
-      int maxWidth = -1;
-      int maxHeight = -1;
+      int maxWidth = 0;
+      int maxHeight = 0;
       String mimeType = "";
       for (int i = 0; i < representationCount; i++) {
         int representationIndex = representationIndices != null ? representationIndices[i] : i;

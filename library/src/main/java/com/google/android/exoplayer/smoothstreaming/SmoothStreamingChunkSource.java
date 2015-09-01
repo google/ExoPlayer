@@ -197,15 +197,6 @@ public class SmoothStreamingChunkSource implements ChunkSource,
   }
 
   @Override
-  public final MediaFormat getWithMaxVideoDimensions(MediaFormat format) {
-    if (enabledTrack.isAdaptive() && MimeTypes.isVideo(format.mimeType)) {
-      return format.copyWithMaxVideoDimensions(
-          enabledTrack.adaptiveMaxWidth, enabledTrack.adaptiveMaxHeight);
-    }
-    return format;
-  }
-
-  @Override
   public void continueBuffering(long playbackPositionUs) {
     if (manifestFetcher == null || !currentManifest.isLive || fatalError != null) {
       return;
@@ -323,10 +314,10 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     int manifestTrackKey = getManifestTrackKey(enabledTrack.elementIndex, manifestTrackIndex);
     Uri uri = streamElement.buildRequestUri(manifestTrackIndex, chunkIndex);
     Chunk mediaChunk = newMediaChunk(selectedFormat, uri, null,
-        extractorWrappers.get(manifestTrackKey),
-        drmInitData, dataSource, currentAbsoluteChunkIndex, isLastChunk, chunkStartTimeUs,
-        chunkEndTimeUs, evaluation.trigger,
-        mediaFormats.get(manifestTrackKey));
+        extractorWrappers.get(manifestTrackKey), drmInitData, dataSource, currentAbsoluteChunkIndex,
+        isLastChunk, chunkStartTimeUs, chunkEndTimeUs, evaluation.trigger,
+        mediaFormats.get(manifestTrackKey), enabledTrack.adaptiveMaxWidth,
+        enabledTrack.adaptiveMaxHeight);
     out.chunk = mediaChunk;
   }
 
@@ -480,14 +471,14 @@ public class SmoothStreamingChunkSource implements ChunkSource,
   private static MediaChunk newMediaChunk(Format formatInfo, Uri uri, String cacheKey,
       ChunkExtractorWrapper extractorWrapper, DrmInitData drmInitData, DataSource dataSource,
       int chunkIndex, boolean isLast, long chunkStartTimeUs, long chunkEndTimeUs,
-      int trigger, MediaFormat mediaFormat) {
+      int trigger, MediaFormat mediaFormat, int adaptiveMaxWidth, int adaptiveMaxHeight) {
     long offset = 0;
     DataSpec dataSpec = new DataSpec(uri, offset, -1, cacheKey);
     // In SmoothStreaming each chunk contains sample timestamps relative to the start of the chunk.
     // To convert them the absolute timestamps, we need to set sampleOffsetUs to -chunkStartTimeUs.
     return new ContainerMediaChunk(dataSource, dataSpec, trigger, formatInfo, chunkStartTimeUs,
         chunkEndTimeUs, chunkIndex, isLast, chunkStartTimeUs, extractorWrapper, mediaFormat,
-        drmInitData, true, Chunk.NO_PARENT_ID);
+        adaptiveMaxWidth, adaptiveMaxHeight, drmInitData, true, Chunk.NO_PARENT_ID);
   }
 
   private static int getManifestTrackKey(int elementIndex, int trackIndex) {
@@ -538,17 +529,17 @@ public class SmoothStreamingChunkSource implements ChunkSource,
       this.elementIndex = elementIndex;
       this.fixedFormat = fixedFormat;
       this.adaptiveFormats = null;
-      this.adaptiveMaxWidth = -1;
-      this.adaptiveMaxHeight = -1;
+      this.adaptiveMaxWidth = MediaFormat.NO_VALUE;
+      this.adaptiveMaxHeight = MediaFormat.NO_VALUE;
     }
 
     public ExposedTrack(MediaFormat format, int elementIndex, Format[] adaptiveFormats,
-        int maxWidth, int maxHeight) {
+        int adaptiveMaxWidth, int adaptiveMaxHeight) {
       this.format = format;
       this.elementIndex = elementIndex;
       this.adaptiveFormats = adaptiveFormats;
-      this.adaptiveMaxWidth = maxWidth;
-      this.adaptiveMaxHeight = maxHeight;
+      this.adaptiveMaxWidth = adaptiveMaxWidth;
+      this.adaptiveMaxHeight = adaptiveMaxHeight;
       this.fixedFormat = null;
     }
 

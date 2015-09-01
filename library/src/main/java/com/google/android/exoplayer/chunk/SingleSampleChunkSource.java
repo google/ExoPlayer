@@ -70,11 +70,6 @@ public final class SingleSampleChunkSource implements ChunkSource {
   }
 
   @Override
-  public MediaFormat getWithMaxVideoDimensions(MediaFormat format) {
-    return format;
-  }
-
-  @Override
   public void enable(int track) {
     // Do nothing.
   }
