@@ -124,7 +124,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
         int mediaStartTimeMs, int mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs);
     void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
         long initializationDurationMs);
-    void onSeekRangeChanged(TimeRange seekRange);
+    void onAvailableRangeChanged(TimeRange availableRange);
   }
 
   /**
@@ -509,9 +509,9 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   @Override
-  public void onSeekRangeChanged(TimeRange seekRange) {
+  public void onAvailableRangeChanged(TimeRange availableRange) {
     if (infoListener != null) {
-      infoListener.onSeekRangeChanged(seekRange);
+      infoListener.onAvailableRangeChanged(availableRange);
     }
   }
 

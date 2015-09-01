@@ -38,6 +38,13 @@ public abstract class BaseMediaChunk extends MediaChunk {
   private DefaultTrackOutput output;
   private int firstSampleIndex;
 
+  public BaseMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
+      long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk,
+      boolean isMediaFormatFinal) {
+    this(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, isLastChunk,
+        isMediaFormatFinal, Chunk.NO_PARENT_ID);
+  }
+
   /**
    * @param dataSource A {@link DataSource} for loading the data.
    * @param dataSpec Defines the data to be loaded.
@@ -51,11 +58,13 @@ public abstract class BaseMediaChunk extends MediaChunk {
    *     be called at any time to obtain the media format and drm initialization data. False if
    *     these methods are only guaranteed to return correct data after the first sample data has
    *     been output from the chunk.
+   * @param parentId Identifier for a parent from which this chunk originates.
    */
   public BaseMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
       long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk,
-      boolean isMediaFormatFinal) {
-    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, isLastChunk);
+      boolean isMediaFormatFinal, int parentId) {
+    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, isLastChunk,
+        parentId);
     this.isMediaFormatFinal = isMediaFormatFinal;
   }
 
