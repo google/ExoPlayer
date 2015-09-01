@@ -163,7 +163,8 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
   // Private methods.
 
   private static MediaFormat getAdjustedMediaFormat(MediaFormat format, long sampleOffsetUs) {
-    if (sampleOffsetUs != 0 && format.subsampleOffsetUs != MediaFormat.OFFSET_SAMPLE_RELATIVE) {
+    if (sampleOffsetUs != 0 && format != null
+        && format.subsampleOffsetUs != MediaFormat.OFFSET_SAMPLE_RELATIVE) {
       return format.copyWithSubsampleOffsetUs(format.subsampleOffsetUs + sampleOffsetUs);
     }
     return format;
