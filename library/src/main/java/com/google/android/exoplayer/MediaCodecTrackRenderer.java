@@ -192,7 +192,9 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   private DrmInitData drmInitData;
   private MediaCodec codec;
   private boolean codecIsAdaptive;
-  private boolean codecNeedsEndOfStreamWorkaround;
+  private boolean codecNeedsEosPropagationWorkaround;
+  private boolean codecNeedsEosFlushWorkaround;
+  private boolean codecReceivedEos;
   private ByteBuffer[] inputBuffers;
   private ByteBuffer[] outputBuffers;
   private long codecHotswapTimeMs;
@@ -319,7 +321,8 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
 
     String decoderName = decoderInfo.name;
     codecIsAdaptive = decoderInfo.adaptive;
-    codecNeedsEndOfStreamWorkaround = codecNeedsEndOfStreamWorkaround(decoderName);
+    codecNeedsEosPropagationWorkaround = codecNeedsEosPropagationWorkaround(decoderName);
+    codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(decoderName);
     try {
       long codecInitializingTimestamp = SystemClock.elapsedRealtime();
       TraceUtil.beginSection("createByCodecName(" + decoderName + ")");
@@ -395,7 +398,9 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       codecReconfigured = false;
       codecHasQueuedBuffers = false;
       codecIsAdaptive = false;
-      codecNeedsEndOfStreamWorkaround = false;
+      codecNeedsEosPropagationWorkaround = false;
+      codecNeedsEosFlushWorkaround = false;
+      codecReceivedEos = false;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
       codecReinitializationState = REINITIALIZATION_STATE_NONE;
       codecCounters.codecReleaseCount++;
@@ -480,14 +485,19 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     waitingForFirstSyncFrame = true;
     waitingForKeys = false;
     decodeOnlyPresentationTimestamps.clear();
-    // Workaround for framework bugs.
-    // See [Internal: b/8347958], [Internal: b/8578467], [Internal: b/8543366].
-    if (Util.SDK_INT >= 18 && codecReinitializationState == REINITIALIZATION_STATE_NONE) {
-      codec.flush();
-      codecHasQueuedBuffers = false;
-    } else {
+    if (Util.SDK_INT < 18 || (codecNeedsEosFlushWorkaround && codecReceivedEos)) {
+      // Workaround framework bugs. See [Internal: b/8347958, b/8578467, b/8543366, b/23361053].
       releaseCodec();
       maybeInitCodec();
+    } else if (codecReinitializationState != REINITIALIZATION_STATE_NONE) {
+      // We're already waiting to release and re-initialize the codec. Since we're now flushing,
+      // there's no need to wait any longer.
+      releaseCodec();
+      maybeInitCodec();
+    } else {
+      // We can flush and re-use the existing decoder.
+      codec.flush();
+      codecHasQueuedBuffers = false;
     }
     if (codecReconfigured && format != null) {
       // Any reconfiguration data that we send shortly before the flush may be discarded. We
@@ -524,9 +534,10 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     if (codecReinitializationState == REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM) {
       // We need to re-initialize the codec. Send an end of stream signal to the existing codec so
       // that it outputs any remaining buffers before we release it.
-      if (codecNeedsEndOfStreamWorkaround) {
+      if (codecNeedsEosPropagationWorkaround) {
         // Do nothing.
       } else {
+        codecReceivedEos = true;
         codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
         inputIndex = -1;
       }
@@ -581,9 +592,10 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       }
       inputStreamEnded = true;
       try {
-        if (codecNeedsEndOfStreamWorkaround) {
+        if (codecNeedsEosPropagationWorkaround) {
           // Do nothing.
         } else {
+          codecReceivedEos = true;
           codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
           inputIndex = -1;
         }
@@ -781,7 +793,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       codecCounters.outputBuffersChangedCount++;
       return true;
     } else if (outputIndex < 0) {
-      if (codecNeedsEndOfStreamWorkaround && (inputStreamEnded
+      if (codecNeedsEosPropagationWorkaround && (inputStreamEnded
           || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM)) {
         processEndOfStream();
         return true;
@@ -879,22 +891,38 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   /**
-   * Returns whether the decoder is known to handle {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM}
-   * incorrectly on the host device.
+   * Returns whether the decoder is known to handle the propagation of the
+   * {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM} flag incorrectly on the host device.
    * <p>
    * If true is returned, the renderer will work around the issue by approximating end of stream
-   * behavior without involvement of the underlying decoder.
+   * behavior without relying on the flag being propagated through to an output buffer by the
+   * underlying decoder.
    *
    * @param name The name of the decoder.
    * @return True if the decoder is known to handle {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM}
-   *     incorrectly on the host device. False otherwise.
+   *     propagation incorrectly on the host device. False otherwise.
    */
-  private static boolean codecNeedsEndOfStreamWorkaround(String name) {
+  private static boolean codecNeedsEosPropagationWorkaround(String name) {
     return Util.SDK_INT <= 17
         && "OMX.rk.video_decoder.avc".equals(name)
         && ("ht7s3".equals(Util.DEVICE) // Tesco HUDL
             || "rk30sdk".equals(Util.DEVICE) // Rockchip rk30
             || "rk31sdk".equals(Util.DEVICE)); // Rockchip rk31
+  }
+
+  /**
+   * Returns whether the decoder is known to behave incorrectly if flushed after receiving an input
+   * buffer with {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM} set.
+   * <p>
+   * If true is returned, the renderer will work around the issue by instantiating a new decoder
+   * when this case occurs.
+   *
+   * @param name The name of the decoder.
+   * @return True if the decoder is known to behave incorrectly if flushed after receiving an input
+   *     buffer with {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM} set. False otherwise.
+   */
+  private static boolean codecNeedsEosFlushWorkaround(String name) {
+    return Util.SDK_INT <= 23 && "OMX.google.vorbis.decoder".equals(name);
   }
 
 }
