@@ -35,7 +35,6 @@ public abstract class Representation implements FormatWrapper {
    * {@link #contentId}, which should uniquely identify that video.
    */
   public final String contentId;
-
   /**
    * Identifies the revision of the content.
    * <p>
@@ -45,22 +44,10 @@ public abstract class Representation implements FormatWrapper {
    * timestamp at which the media was encoded is often a suitable.
    */
   public final long revisionId;
-
   /**
    * The format of the representation.
    */
   public final Format format;
-
-  /**
-   * The start time of the enclosing period in milliseconds since the epoch.
-   */
-  public final long periodStartMs;
-
-  /**
-   * The duration of the enclosing period in milliseconds.
-   */
-  public final long periodDurationMs;
-
   /**
    * The offset of the presentation timestamps in the media stream relative to media time.
    */
@@ -71,33 +58,28 @@ public abstract class Representation implements FormatWrapper {
   /**
    * Constructs a new instance.
    *
-   * @param periodStartMs The start time of the enclosing period in milliseconds.
-   * @param periodDurationMs The duration of the enclosing period in milliseconds, or -1 if the
-   *     duration is unknown.
    * @param contentId Identifies the piece of content to which this representation belongs.
    * @param revisionId Identifies the revision of the content.
    * @param format The format of the representation.
    * @param segmentBase A segment base element for the representation.
    * @return The constructed instance.
    */
-  public static Representation newInstance(long periodStartMs, long periodDurationMs,
-      String contentId, long revisionId, Format format, SegmentBase segmentBase) {
+  public static Representation newInstance(String contentId, long revisionId, Format format,
+      SegmentBase segmentBase) {
     if (segmentBase instanceof SingleSegmentBase) {
-      return new SingleSegmentRepresentation(periodStartMs, periodDurationMs, contentId, revisionId,
-          format, (SingleSegmentBase) segmentBase, -1);
+      return new SingleSegmentRepresentation(contentId, revisionId, format,
+          (SingleSegmentBase) segmentBase, -1);
     } else if (segmentBase instanceof MultiSegmentBase) {
-      return new MultiSegmentRepresentation(periodStartMs, periodDurationMs, contentId, revisionId,
-          format, (MultiSegmentBase) segmentBase);
+      return new MultiSegmentRepresentation(contentId, revisionId, format,
+          (MultiSegmentBase) segmentBase);
     } else {
       throw new IllegalArgumentException("segmentBase must be of type SingleSegmentBase or "
           + "MultiSegmentBase");
     }
   }
 
-  private Representation(long periodStartMs, long periodDurationMs, String contentId,
-      long revisionId, Format format, SegmentBase segmentBase) {
-    this.periodStartMs = periodStartMs;
-    this.periodDurationMs = periodDurationMs;
+  private Representation(String contentId, long revisionId, Format format,
+      SegmentBase segmentBase) {
     this.contentId = contentId;
     this.revisionId = revisionId;
     this.format = format;
@@ -165,9 +147,6 @@ public abstract class Representation implements FormatWrapper {
     private final DashSingleSegmentIndex segmentIndex;
 
     /**
-     * @param periodStartMs The start time of the enclosing period in milliseconds.
-     * @param periodDurationMs The duration of the enclosing period in milliseconds, or -1 if the
-     *     duration is unknown.
      * @param contentId Identifies the piece of content to which this representation belongs.
      * @param revisionId Identifies the revision of the content.
      * @param format The format of the representation.
@@ -178,37 +157,34 @@ public abstract class Representation implements FormatWrapper {
      * @param indexEnd The offset of the last byte of index data.
      * @param contentLength The content length, or -1 if unknown.
      */
-    public static SingleSegmentRepresentation newInstance(long periodStartMs, long periodDurationMs,
-        String contentId, long revisionId, Format format, String uri, long initializationStart,
-        long initializationEnd, long indexStart, long indexEnd, long contentLength) {
+    public static SingleSegmentRepresentation newInstance(String contentId, long revisionId,
+        Format format, String uri, long initializationStart, long initializationEnd,
+        long indexStart, long indexEnd, long contentLength) {
       RangedUri rangedUri = new RangedUri(uri, null, initializationStart,
           initializationEnd - initializationStart + 1);
       SingleSegmentBase segmentBase = new SingleSegmentBase(rangedUri, 1, 0, uri, indexStart,
           indexEnd - indexStart + 1);
-      return new SingleSegmentRepresentation(periodStartMs, periodDurationMs, contentId, revisionId,
+      return new SingleSegmentRepresentation(contentId, revisionId,
           format, segmentBase, contentLength);
     }
 
     /**
-     * @param periodStartMs The start time of the enclosing period in milliseconds.
-     * @param periodDurationMs The duration of the enclosing period in milliseconds, or -1 if the
-     *     duration is unknown.
      * @param contentId Identifies the piece of content to which this representation belongs.
      * @param revisionId Identifies the revision of the content.
      * @param format The format of the representation.
      * @param segmentBase The segment base underlying the representation.
      * @param contentLength The content length, or -1 if unknown.
      */
-    public SingleSegmentRepresentation(long periodStartMs, long periodDurationMs, String contentId,
-        long revisionId, Format format, SingleSegmentBase segmentBase, long contentLength) {
-      super(periodStartMs, periodDurationMs, contentId, revisionId, format, segmentBase);
+    public SingleSegmentRepresentation(String contentId, long revisionId, Format format,
+        SingleSegmentBase segmentBase, long contentLength) {
+      super(contentId, revisionId, format, segmentBase);
       this.uri = Uri.parse(segmentBase.uri);
       this.indexUri = segmentBase.getIndex();
       this.contentLength = contentLength;
       // If we have an index uri then the index is defined externally, and we shouldn't return one
       // directly. If we don't, then we can't do better than an index defining a single segment.
-      segmentIndex = indexUri != null ? null : new DashSingleSegmentIndex(periodStartMs * 1000,
-          periodDurationMs * 1000, new RangedUri(segmentBase.uri, null, 0, -1));
+      segmentIndex = indexUri != null ? null
+          : new DashSingleSegmentIndex(new RangedUri(segmentBase.uri, null, 0, contentLength));
     }
 
     @Override
@@ -232,17 +208,14 @@ public abstract class Representation implements FormatWrapper {
     private final MultiSegmentBase segmentBase;
 
     /**
-     * @param periodStartMs The start time of the enclosing period in milliseconds.
-     * @param periodDurationMs The duration of the enclosing period in milliseconds, or -1 if the
-     *     duration is unknown.
      * @param contentId Identifies the piece of content to which this representation belongs.
      * @param revisionId Identifies the revision of the content.
      * @param format The format of the representation.
      * @param segmentBase The segment base underlying the representation.
      */
-    public MultiSegmentRepresentation(long periodStartMs, long periodDurationMs, String contentId,
-        long revisionId, Format format, MultiSegmentBase segmentBase) {
-      super(periodStartMs, periodDurationMs, contentId, revisionId, format, segmentBase);
+    public MultiSegmentRepresentation(String contentId, long revisionId, Format format,
+        MultiSegmentBase segmentBase) {
+      super(contentId, revisionId, format, segmentBase);
       this.segmentBase = segmentBase;
     }
 
@@ -264,18 +237,18 @@ public abstract class Representation implements FormatWrapper {
     }
 
     @Override
-    public int getSegmentNum(long timeUs) {
-      return segmentBase.getSegmentNum(timeUs - periodStartMs * 1000);
+    public int getSegmentNum(long timeUs, long periodDurationUs) {
+      return segmentBase.getSegmentNum(timeUs, periodDurationUs);
     }
 
     @Override
     public long getTimeUs(int segmentIndex) {
-      return segmentBase.getSegmentTimeUs(segmentIndex) + periodStartMs * 1000;
+      return segmentBase.getSegmentTimeUs(segmentIndex);
     }
 
     @Override
-    public long getDurationUs(int segmentIndex) {
-      return segmentBase.getSegmentDurationUs(segmentIndex);
+    public long getDurationUs(int segmentIndex, long periodDurationUs) {
+      return segmentBase.getSegmentDurationUs(segmentIndex, periodDurationUs);
     }
 
     @Override
@@ -284,8 +257,8 @@ public abstract class Representation implements FormatWrapper {
     }
 
     @Override
-    public int getLastSegmentNum() {
-      return segmentBase.getLastSegmentNum();
+    public int getLastSegmentNum(long periodDurationUs) {
+      return segmentBase.getLastSegmentNum(periodDurationUs);
     }
 
     @Override

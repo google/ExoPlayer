@@ -61,7 +61,6 @@ public class VideoPlayer extends Activity implements OnClickListener,
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
   private static final int BUFFER_SEGMENT_COUNT = 160;
 
-
   private boolean isDash;
   private String manifestUrl;
   private boolean useOpenGL;
