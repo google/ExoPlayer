@@ -52,12 +52,6 @@ import android.util.Log;
   private static final float LINE_HEIGHT_FRACTION = 0.0533f;
 
   /**
-   * The default bottom padding to apply when {@link Cue#line} is {@link Cue#UNSET_VALUE}, as a
-   * fraction of the viewport height.
-   */
-  private static final float DEFAULT_BOTTOM_PADDING_FRACTION = 0.08f;
-
-  /**
    * Temporary rectangle used for computing line bounds.
    */
   private final RectF lineBounds = new RectF();
@@ -82,6 +76,8 @@ import android.util.Log;
   private int windowColor;
   private int edgeColor;
   private int edgeType;
+  private float fontScale;
+  private float bottomPaddingFraction;
   private int parentLeft;
   private int parentTop;
   private int parentRight;
@@ -127,14 +123,16 @@ import android.util.Log;
    * @param cue The cue to draw.
    * @param style The style to use when drawing the cue text.
    * @param fontScale The font scale.
+   * @param bottomPaddingFraction The bottom padding fraction to apply when {@link Cue#line} is
+   *     {@link Cue#UNSET_VALUE}, as a fraction of the viewport height
    * @param canvas The canvas into which to draw.
    * @param cueBoxLeft The left position of the enclosing cue box.
    * @param cueBoxTop The top position of the enclosing cue box.
    * @param cueBoxRight The right position of the enclosing cue box.
    * @param cueBoxBottom The bottom position of the enclosing cue box.
    */
-  public void draw(Cue cue, CaptionStyleCompat style, float fontScale, Canvas canvas,
-      int cueBoxLeft, int cueBoxTop, int cueBoxRight, int cueBoxBottom) {
+  public void draw(Cue cue, CaptionStyleCompat style, float fontScale, float bottomPaddingFraction,
+      Canvas canvas, int cueBoxLeft, int cueBoxTop, int cueBoxRight, int cueBoxBottom) {
     if (TextUtils.isEmpty(cue.text)) {
       // Nothing to draw.
       return;
@@ -149,6 +147,8 @@ import android.util.Log;
         && edgeType == style.edgeType
         && edgeColor == style.edgeColor
         && Util.areEqual(textPaint.getTypeface(), style.typeface)
+        && this.fontScale == fontScale
+        && this.bottomPaddingFraction == bottomPaddingFraction
         && parentLeft == cueBoxLeft
         && parentTop == cueBoxTop
         && parentRight == cueBoxRight
@@ -167,6 +167,8 @@ import android.util.Log;
     edgeType = style.edgeType;
     edgeColor = style.edgeColor;
     textPaint.setTypeface(style.typeface);
+    this.fontScale = fontScale;
+    this.bottomPaddingFraction = bottomPaddingFraction;
     parentLeft = cueBoxLeft;
     parentTop = cueBoxTop;
     parentRight = cueBoxRight;
@@ -199,7 +201,7 @@ import android.util.Log;
     int textLeft = (parentWidth - textWidth) / 2;
     int textRight = textLeft + textWidth;
     int textTop = parentBottom - textHeight
-        - (int) (parentHeight * DEFAULT_BOTTOM_PADDING_FRACTION);
+        - (int) (parentHeight * bottomPaddingFraction);
     int textBottom = textTop + textHeight;
 
     if (cue.position != Cue.UNSET_VALUE) {

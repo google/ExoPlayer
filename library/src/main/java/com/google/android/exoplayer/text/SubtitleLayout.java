@@ -28,11 +28,18 @@ import java.util.List;
  */
 public final class SubtitleLayout extends View {
 
+  /**
+   * The default bottom padding to apply when {@link Cue#line} is {@link Cue#UNSET_VALUE}, as a
+   * fraction of the viewport height.
+   */
+  public static final float DEFAULT_BOTTOM_PADDING_FRACTION = 0.08f;
+
   private final List<CuePainter> painters;
 
   private List<Cue> cues;
   private float fontScale;
   private CaptionStyleCompat style;
+  private float bottomPaddingFraction;
 
   public SubtitleLayout(Context context) {
     this(context, null);
@@ -43,6 +50,7 @@ public final class SubtitleLayout extends View {
     painters = new ArrayList<>();
     fontScale = 1;
     style = CaptionStyleCompat.DEFAULT;
+    bottomPaddingFraction = DEFAULT_BOTTOM_PADDING_FRACTION;
   }
 
   /**
@@ -92,12 +100,27 @@ public final class SubtitleLayout extends View {
     invalidate();
   }
 
+  /**
+   * Sets the bottom padding fraction to apply when {@link Cue#line} is {@link Cue#UNSET_VALUE},
+   * as a fraction of the viewport height.
+   *
+   * @param bottomPaddingFraction The bottom padding fraction.
+   */
+  public void setBottomPaddingFraction(float bottomPaddingFraction) {
+    if (this.bottomPaddingFraction == bottomPaddingFraction) {
+      return;
+    }
+    this.bottomPaddingFraction = bottomPaddingFraction;
+    // Invalidate to trigger drawing.
+    invalidate();
+  }
+
   @Override
   public void dispatchDraw(Canvas canvas) {
     int cueCount = (cues == null) ? 0 : cues.size();
     for (int i = 0; i < cueCount; i++) {
-      painters.get(i).draw(cues.get(i), style, fontScale, canvas, getLeft(), getTop(), getRight(),
-          getBottom());
+      painters.get(i).draw(cues.get(i), style, fontScale, bottomPaddingFraction, canvas, getLeft(),
+          getTop(), getRight(), getBottom());
     }
   }
 
