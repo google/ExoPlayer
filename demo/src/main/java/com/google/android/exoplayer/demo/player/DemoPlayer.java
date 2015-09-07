@@ -46,6 +46,7 @@ import android.os.Looper;
 import android.view.Surface;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -253,6 +254,9 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
 
   public void setSelectedTrack(int type, int index) {
     player.setSelectedTrack(type, index);
+    if (type == TYPE_TEXT && index < 0 && captionListener != null) {
+      captionListener.onCues(Collections.<Cue>emptyList());
+    }
   }
 
   public boolean getBackgrounded() {
