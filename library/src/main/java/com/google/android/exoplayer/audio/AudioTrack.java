@@ -165,6 +165,7 @@ public final class AudioTrack {
   public static boolean failOnSpuriousAudioTimestamp = false;
 
   private final AudioCapabilities audioCapabilities;
+  private final int streamType;
   private final ConditionVariable releasingConditionVariable;
   private final long[] playheadOffsets;
   private final AudioTrackUtil audioTrackUtil;
@@ -208,16 +209,18 @@ public final class AudioTrack {
    * Creates an audio track with default audio capabilities (no encoded audio passthrough support).
    */
   public AudioTrack() {
-    this(null);
+    this(null, AudioManager.STREAM_MUSIC);
   }
 
   /**
-   * Creates an audio track using the specified audio capabilities.
+   * Creates an audio track using the specified audio capabilities and stream type.
    *
    * @param audioCapabilities The current audio playback capabilities.
+   * @param streamType The type of audio stream for the underlying {@link android.media.AudioTrack}.
    */
-  public AudioTrack(AudioCapabilities audioCapabilities) {
+  public AudioTrack(AudioCapabilities audioCapabilities, int streamType) {
     this.audioCapabilities = audioCapabilities;
+    this.streamType = streamType;
     releasingConditionVariable = new ConditionVariable(true);
     if (Util.SDK_INT >= 18) {
       try {
@@ -326,19 +329,19 @@ public final class AudioTrack {
     releasingConditionVariable.block();
 
     if (sessionId == SESSION_ID_NOT_SET) {
-      audioTrack = new android.media.AudioTrack(AudioManager.STREAM_MUSIC, sampleRate,
-          channelConfig, encoding, bufferSize, android.media.AudioTrack.MODE_STREAM);
+      audioTrack = new android.media.AudioTrack(streamType, sampleRate, channelConfig, encoding,
+          bufferSize, android.media.AudioTrack.MODE_STREAM);
     } else {
       // Re-attach to the same audio session.
-      audioTrack = new android.media.AudioTrack(AudioManager.STREAM_MUSIC, sampleRate,
-          channelConfig, encoding, bufferSize, android.media.AudioTrack.MODE_STREAM, sessionId);
+      audioTrack = new android.media.AudioTrack(streamType, sampleRate, channelConfig, encoding,
+          bufferSize, android.media.AudioTrack.MODE_STREAM, sessionId);
     }
     checkAudioTrackInitialized();
 
     sessionId = audioTrack.getAudioSessionId();
     if (enablePreV21AudioSessionWorkaround) {
       if (Util.SDK_INT < 21) {
-        // The workaround creates an audio track with a one byte buffer on the same session, and
+        // The workaround creates an audio track with a two byte buffer on the same session, and
         // does not release it until this object is released, which keeps the session active.
         if (keepSessionIdAudioTrack != null
             && sessionId != keepSessionIdAudioTrack.getAudioSessionId()) {
@@ -349,9 +352,8 @@ public final class AudioTrack {
           int channelConfig = AudioFormat.CHANNEL_OUT_MONO;
           int encoding = AudioFormat.ENCODING_PCM_16BIT;
           int bufferSize = 2; // Use a two byte buffer, as it is not actually used for playback.
-          keepSessionIdAudioTrack = new android.media.AudioTrack(AudioManager.STREAM_MUSIC,
-              sampleRate, channelConfig, encoding, bufferSize, android.media.AudioTrack.MODE_STATIC,
-              sessionId);
+          keepSessionIdAudioTrack = new android.media.AudioTrack(streamType, sampleRate,
+              channelConfig, encoding, bufferSize, android.media.AudioTrack.MODE_STATIC, sessionId);
         }
       }
     }
