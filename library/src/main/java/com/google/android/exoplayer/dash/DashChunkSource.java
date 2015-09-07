@@ -64,7 +64,7 @@ import java.util.List;
 /**
  * An {@link ChunkSource} for DASH streams.
  * <p>
- * This implementation currently supports fMP4, webm, and webvtt.
+ * This implementation currently supports fMP4, webm, webvtt and ttml.
  * <p>
  * This implementation makes the following assumptions about multi-period manifests:
  * <ol>
@@ -600,8 +600,12 @@ public class DashChunkSource implements ChunkSource, Output {
     return mimeType;
   }
 
-  private static boolean mimeTypeIsWebm(String mimeType) {
+  /* package */ static boolean mimeTypeIsWebm(String mimeType) {
     return mimeType.startsWith(MimeTypes.VIDEO_WEBM) || mimeType.startsWith(MimeTypes.AUDIO_WEBM);
+  }
+
+  /* package */ static boolean mimeTypeIsRawText(String mimeType) {
+    return MimeTypes.TEXT_VTT.equals(mimeType) || MimeTypes.APPLICATION_TTML.equals(mimeType);
   }
 
   private Chunk newInitializationChunk(RangedUri initializationUri, RangedUri indexUri,
@@ -627,6 +631,7 @@ public class DashChunkSource implements ChunkSource, Output {
   private Chunk newMediaChunk(PeriodHolder periodHolder, RepresentationHolder representationHolder,
       DataSource dataSource, MediaFormat mediaFormat, int segmentNum, int trigger) {
     Representation representation = representationHolder.representation;
+    Format format = representation.format;
 
     long startTimeUs = representationHolder.getSegmentStartTimeUs(segmentNum);
     long endTimeUs = representationHolder.getSegmentEndTimeUs(segmentNum);
@@ -639,18 +644,17 @@ public class DashChunkSource implements ChunkSource, Output {
         representation.getCacheKey());
 
     long sampleOffsetUs = periodHolder.startTimeUs - representation.presentationTimeOffsetUs;
-    if (representation.format.mimeType.equals(MimeTypes.TEXT_VTT)) {
-      return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_INITIAL,
-          representation.format, startTimeUs, endTimeUs, segmentNum, isLastSegment,
-          MediaFormat.createTextFormat(MimeTypes.TEXT_VTT, MediaFormat.NO_VALUE,
-          representation.format.language), null, periodHolder.localIndex);
+    if (mimeTypeIsRawText(format.mimeType)) {
+      return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_INITIAL, format,
+          startTimeUs, endTimeUs, segmentNum, isLastSegment,
+          MediaFormat.createTextFormat(format.mimeType, MediaFormat.NO_VALUE, format.language),
+          null, periodHolder.localIndex);
     } else {
       boolean isMediaFormatFinal = (mediaFormat != null);
-      return new ContainerMediaChunk(dataSource, dataSpec, trigger, representation.format,
-          startTimeUs, endTimeUs, segmentNum, isLastSegment, sampleOffsetUs,
-          representationHolder.extractorWrapper, mediaFormat, enabledTrack.adaptiveMaxWidth,
-          enabledTrack.adaptiveMaxHeight, periodHolder.drmInitData, isMediaFormatFinal,
-          periodHolder.localIndex);
+      return new ContainerMediaChunk(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs,
+          segmentNum, isLastSegment, sampleOffsetUs, representationHolder.extractorWrapper,
+          mediaFormat, enabledTrack.adaptiveMaxWidth, enabledTrack.adaptiveMaxHeight,
+          periodHolder.drmInitData, isMediaFormatFinal, periodHolder.localIndex);
     }
   }
 
@@ -811,9 +815,9 @@ public class DashChunkSource implements ChunkSource, Output {
       this.periodStartTimeUs = periodStartTimeUs;
       this.periodDurationUs = periodDurationUs;
       this.representation = representation;
-      extractorWrapper = MimeTypes.TEXT_VTT.equals(representation.format.mimeType) ? null
-          : new ChunkExtractorWrapper(mimeTypeIsWebm(representation.format.mimeType)
-          ? new WebmExtractor() : new FragmentedMp4Extractor());
+      String mimeType = representation.format.mimeType;
+      extractorWrapper = mimeTypeIsRawText(mimeType) ? null : new ChunkExtractorWrapper(
+          mimeTypeIsWebm(mimeType) ? new WebmExtractor() : new FragmentedMp4Extractor());
       segmentIndex = representation.getIndex();
     }
 
