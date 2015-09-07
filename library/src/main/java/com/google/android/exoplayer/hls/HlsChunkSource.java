@@ -138,6 +138,7 @@ public class HlsChunkSource {
   private byte[] scratchSpace;
   private boolean live;
   private long durationUs;
+  private IOException fatalError;
 
   private Uri encryptionKeyUri;
   private byte[] encryptionKey;
@@ -224,6 +225,18 @@ public class HlsChunkSource {
   }
 
   /**
+   * If the source is currently having difficulty providing chunks, then this method throws the
+   * underlying error. Otherwise does nothing.
+   *
+   * @throws IOException The underlying error.
+   */
+  public void maybeThrowError() throws IOException {
+    if (fatalError != null) {
+      throw fatalError;
+    }
+  }
+
+  /**
    * Returns the next {@link Chunk} that should be loaded.
    *
    * @param previousTsChunk The previously loaded chunk that the next chunk should follow.
@@ -262,9 +275,15 @@ public class HlsChunkSource {
         chunkMediaSequence = switchingVariantSpliced
             ? previousTsChunk.chunkIndex : previousTsChunk.chunkIndex + 1;
         if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
+          // TODO: Decide what we want to do with: https://github.com/google/ExoPlayer/issues/765
+          // if (allowSkipAhead) {
           // If the chunk is no longer in the playlist. Skip ahead and start again.
           chunkMediaSequence = getLiveStartChunkMediaSequence(nextVariantIndex);
           liveDiscontinuity = true;
+          // } else {
+          //   fatalError = new BehindLiveWindowException();
+          //   return null;
+          // }
         }
       }
     } else {
@@ -412,6 +431,10 @@ public class HlsChunkSource {
       }
     }
     return false;
+  }
+
+  public void reset() {
+    fatalError = null;
   }
 
   private int getNextVariantIndex(TsChunk previousTsChunk, long playbackPositionUs) {

@@ -206,6 +206,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     enabledTrackCount--;
     trackEnabledStates[track] = false;
     if (enabledTrackCount == 0) {
+      chunkSource.reset();
       downstreamPositionUs = Long.MIN_VALUE;
       if (loadControlRegistered) {
         loadControl.unregister(this);
@@ -317,6 +318,8 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   public void maybeThrowError() throws IOException {
     if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
       throw currentLoadableException;
+    } else if (currentLoadable == null) {
+      chunkSource.maybeThrowError();
     }
   }
 
