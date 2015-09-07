@@ -126,9 +126,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
 
   @Override
   protected boolean handlesTrack(MediaFormat mediaFormat) {
-    // TODO: Stop claiming to handle the WebM mime type (b/22996976).
-    return MimeTypes.AUDIO_OPUS.equalsIgnoreCase(mediaFormat.mimeType)
-        || MimeTypes.AUDIO_WEBM.equalsIgnoreCase(mediaFormat.mimeType);
+    return MimeTypes.AUDIO_OPUS.equalsIgnoreCase(mediaFormat.mimeType);
   }
 
   @Override

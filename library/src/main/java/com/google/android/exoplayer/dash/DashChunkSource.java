@@ -52,6 +52,8 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.SystemClock;
 
 import android.os.Handler;
+import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseArray;
 
 import java.io.IOException;
@@ -101,6 +103,8 @@ public class DashChunkSource implements ChunkSource, Output {
 
   }
 
+  private static final String TAG = "DashChunkSource";
+
   private final Handler eventHandler;
   private final EventListener eventListener;
 
@@ -138,8 +142,8 @@ public class DashChunkSource implements ChunkSource, Output {
    */
   public DashChunkSource(DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
       long durationMs, int adaptationSetType, Representation... representations) {
-    this(buildManifest(durationMs, adaptationSetType, Arrays.asList(representations)), null,
-        dataSource, adaptiveFormatEvaluator);
+    this(dataSource, adaptiveFormatEvaluator, durationMs, adaptationSetType,
+        Arrays.asList(representations));
   }
 
   /**
@@ -522,7 +526,7 @@ public class DashChunkSource implements ChunkSource, Output {
   public void adaptiveTrack(MediaPresentationDescription manifest, int periodIndex,
       int adaptationSetIndex, int[] representationIndices) {
     if (adaptiveFormatEvaluator == null) {
-      // Do nothing.
+      Log.w(TAG, "Skipping adaptive track (missing format evaluator)");
       return;
     }
     AdaptationSet adaptationSet = manifest.getPeriod(periodIndex).adaptationSets.get(
@@ -542,10 +546,19 @@ public class DashChunkSource implements ChunkSource, Output {
     }
     Arrays.sort(representationFormats, new DecreasingBandwidthComparator());
     long trackDurationUs = manifest.dynamic ? C.UNKNOWN_TIME_US : manifest.duration * 1000;
-    MediaFormat trackFormat = buildTrackFormat(adaptationSet.type, maxHeightRepresentationFormat,
-        trackDurationUs).copyAsAdaptive();
-    tracks.add(new ExposedTrack(trackFormat, adaptationSetIndex, representationFormats, maxWidth,
-        maxHeight));
+    String mediaMimeType = getMediaMimeType(maxHeightRepresentationFormat);
+    if (mediaMimeType == null) {
+      Log.w(TAG, "Skipped adaptive track (unknown media mime type)");
+      return;
+    }
+    MediaFormat trackFormat = getTrackFormat(adaptationSet.type, maxHeightRepresentationFormat,
+        mediaMimeType, trackDurationUs);
+    if (trackFormat == null) {
+      Log.w(TAG, "Skipped adaptive track (unknown media format)");
+      return;
+    }
+    tracks.add(new ExposedTrack(trackFormat.copyAsAdaptive(), adaptationSetIndex,
+        representationFormats, maxWidth, maxHeight));
   }
 
   @Override
@@ -554,8 +567,17 @@ public class DashChunkSource implements ChunkSource, Output {
     List<AdaptationSet> adaptationSets = manifest.getPeriod(periodIndex).adaptationSets;
     AdaptationSet adaptationSet = adaptationSets.get(adaptationSetIndex);
     Format representationFormat = adaptationSet.representations.get(representationIndex).format;
-    MediaFormat trackFormat = buildTrackFormat(adaptationSet.type, representationFormat,
-        manifest.dynamic ? C.UNKNOWN_TIME_US : manifest.duration * 1000);
+    String mediaMimeType = getMediaMimeType(representationFormat);
+    if (mediaMimeType == null) {
+      Log.w(TAG, "Skipped track " + representationFormat.id + " (unknown media mime type)");
+      return;
+    }
+    MediaFormat trackFormat = getTrackFormat(adaptationSet.type, representationFormat,
+        mediaMimeType, manifest.dynamic ? C.UNKNOWN_TIME_US : manifest.duration * 1000);
+    if (trackFormat == null) {
+      Log.w(TAG, "Skipped track " + representationFormat.id + " (unknown media format)");
+      return;
+    }
     tracks.add(new ExposedTrack(trackFormat, adaptationSetIndex, representationFormat));
   }
 
@@ -574,34 +596,64 @@ public class DashChunkSource implements ChunkSource, Output {
         Collections.singletonList(period));
   }
 
-  private static MediaFormat buildTrackFormat(int adaptationSetType, Format format,
-      long durationUs) {
+  private static MediaFormat getTrackFormat(int adaptationSetType, Format format,
+      String mediaMimeType, long durationUs) {
     switch (adaptationSetType) {
       case AdaptationSet.TYPE_VIDEO:
-        return MediaFormat.createVideoFormat(getMediaMimeType(format), format.bitrate,
-            MediaFormat.NO_VALUE, durationUs, format.width, format.height, 0, null);
+        return MediaFormat.createVideoFormat(mediaMimeType, format.bitrate, MediaFormat.NO_VALUE,
+            durationUs, format.width, format.height, 0, null);
       case AdaptationSet.TYPE_AUDIO:
-        return MediaFormat.createAudioFormat(getMediaMimeType(format), format.bitrate,
-            MediaFormat.NO_VALUE, durationUs, format.audioChannels, format.audioSamplingRate, null);
+        return MediaFormat.createAudioFormat(mediaMimeType, format.bitrate, MediaFormat.NO_VALUE,
+            durationUs, format.audioChannels, format.audioSamplingRate, null);
       case AdaptationSet.TYPE_TEXT:
-        return MediaFormat.createTextFormat(getMediaMimeType(format), format.bitrate,
-            format.language, durationUs);
+        return MediaFormat.createTextFormat(mediaMimeType, format.bitrate, format.language,
+            durationUs);
       default:
-        throw new IllegalStateException("Invalid type: " + adaptationSetType);
+        return null;
     }
   }
 
   private static String getMediaMimeType(Format format) {
-    String mimeType = format.mimeType;
-    if (MimeTypes.APPLICATION_MP4.equals(format.mimeType) && "stpp".equals(format.codecs)) {
+    String formatMimeType = format.mimeType;
+    String codecs = format.codecs;
+    if (MimeTypes.isAudio(formatMimeType)) {
+      return getAudioMediaMimeType(codecs);
+    } else if (MimeTypes.isVideo(formatMimeType)) {
+      return getVideoMediaMimeType(codecs);
+    } else if (mimeTypeIsRawText(formatMimeType)) {
+      return formatMimeType;
+    } else if (MimeTypes.APPLICATION_MP4.equals(formatMimeType) && "stpp".equals(codecs)) {
       return MimeTypes.APPLICATION_TTML;
+    } else {
+      return null;
     }
-    // TODO: Use codecs to determine media mime type for other formats too.
-    return mimeType;
+  }
+
+  private static String getVideoMediaMimeType(String codecs) {
+    if (TextUtils.isEmpty(codecs)) {
+      return MimeTypes.VIDEO_UNKNOWN;
+    } else if (codecs.startsWith("vp9")) {
+      return MimeTypes.VIDEO_VP9;
+    } else if (codecs.startsWith("vp8")) {
+      return MimeTypes.VIDEO_VP8;
+    }
+    // TODO: Parse more codecs values here.
+    return MimeTypes.VIDEO_UNKNOWN;
+  }
+
+  private static String getAudioMediaMimeType(String codecs) {
+    if (TextUtils.isEmpty(codecs)) {
+      return MimeTypes.AUDIO_UNKNOWN;
+    } else if (codecs.startsWith("opus")) {
+      return MimeTypes.AUDIO_OPUS;
+    }
+    // TODO: Parse more codecs values here.
+    return MimeTypes.AUDIO_UNKNOWN;
   }
 
   /* package */ static boolean mimeTypeIsWebm(String mimeType) {
-    return mimeType.startsWith(MimeTypes.VIDEO_WEBM) || mimeType.startsWith(MimeTypes.AUDIO_WEBM);
+    return mimeType.startsWith(MimeTypes.VIDEO_WEBM) || mimeType.startsWith(MimeTypes.AUDIO_WEBM)
+        || mimeType.startsWith(MimeTypes.APPLICATION_WEBM);
   }
 
   /* package */ static boolean mimeTypeIsRawText(String mimeType) {
