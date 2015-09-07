@@ -265,7 +265,7 @@ import java.util.List;
     }
 
     /**
-     * Invoked to pass stream data. The data passed should not include 4 byte NAL unit prefixes.
+     * Invoked to pass stream data. The data passed should not include the 3 byte start code.
      *
      * @param data Holds the data being passed.
      * @param offset The offset of the data in {@code data}.
@@ -283,6 +283,7 @@ import java.util.List;
       ifrLength += readLength;
 
       scratchSliceType.reset(ifrData, ifrLength);
+      scratchSliceType.skipBits(8);
       // first_mb_in_slice
       int len = scratchSliceType.peekExpGolombCodedNumLength();
       if ((len == -1) || (len > scratchSliceType.bitsLeft())) {
