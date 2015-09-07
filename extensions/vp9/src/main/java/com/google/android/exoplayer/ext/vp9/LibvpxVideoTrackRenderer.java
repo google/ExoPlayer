@@ -152,9 +152,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
 
   @Override
   protected boolean handlesTrack(MediaFormat mediaFormat) {
-    // TODO: Stop claiming to handle the WebM mime type (b/22996976).
-    return MimeTypes.VIDEO_VP9.equalsIgnoreCase(mediaFormat.mimeType)
-        || MimeTypes.VIDEO_WEBM.equalsIgnoreCase(mediaFormat.mimeType);
+    return MimeTypes.VIDEO_VP9.equalsIgnoreCase(mediaFormat.mimeType);
   }
 
   @Override

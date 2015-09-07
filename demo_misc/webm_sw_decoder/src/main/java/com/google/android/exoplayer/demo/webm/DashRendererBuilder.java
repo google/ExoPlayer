@@ -38,7 +38,8 @@ import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
-import com.google.android.exoplayer.util.MimeTypes;
+
+import android.text.TextUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -82,6 +83,7 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
 
     // Obtain Representations for playback.
     Representation audioRepresentation = null;
+    boolean audioRepresentationIsOpus = false;
     ArrayList<Representation> videoRepresentationsList = new ArrayList<>();
     Period period = manifest.getPeriod(0);
     for (int i = 0; i < period.adaptationSets.size(); i++) {
@@ -89,9 +91,12 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
       int adaptationSetType = adaptationSet.type;
       for (int j = 0; j < adaptationSet.representations.size(); j++) {
         Representation representation = adaptationSet.representations.get(j);
+        String codecs = representation.format.codecs;
         if (adaptationSetType == AdaptationSet.TYPE_AUDIO && audioRepresentation == null) {
           audioRepresentation = representation;
-        } else if (adaptationSetType == AdaptationSet.TYPE_VIDEO) {
+          audioRepresentationIsOpus = !TextUtils.isEmpty(codecs) && codecs.startsWith("opus");
+        } else if (adaptationSetType == AdaptationSet.TYPE_VIDEO && !TextUtils.isEmpty(codecs)
+            && codecs.startsWith("vp9")) {
           videoRepresentationsList.add(representation);
         }
       }
@@ -103,15 +108,9 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
     LibvpxVideoTrackRenderer videoRenderer = null;
     if (!videoRepresentationsList.isEmpty()) {
       DataSource videoDataSource = new DefaultUriDataSource(player, bandwidthMeter, userAgent);
-      ChunkSource videoChunkSource;
-      String mimeType = videoRepresentations[0].format.mimeType;
-      if (mimeType.equals(MimeTypes.VIDEO_WEBM)) {
-        videoChunkSource = new DashChunkSource(videoDataSource,
-            new AdaptiveEvaluator(bandwidthMeter), manifest.getPeriodDuration(0),
-            AdaptationSet.TYPE_VIDEO, videoRepresentations);
-      } else {
-        throw new IllegalStateException("Unexpected mime type: " + mimeType);
-      }
+      ChunkSource videoChunkSource = new DashChunkSource(videoDataSource,
+          new AdaptiveEvaluator(bandwidthMeter), manifest.getPeriodDuration(0),
+          AdaptationSet.TYPE_VIDEO, videoRepresentations);
       ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
           VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
       videoRenderer = new LibvpxVideoTrackRenderer(videoSampleSource,
@@ -128,7 +127,7 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
             manifest.getPeriodDuration(0), AdaptationSet.TYPE_AUDIO, audioRepresentation);
       SampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
           AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
-      if ("opus".equals(audioRepresentation.format.codecs)) {
+      if (audioRepresentationIsOpus) {
         audioRenderer = new LibopusAudioTrackRenderer(audioSampleSource);
       } else {
         audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource);
