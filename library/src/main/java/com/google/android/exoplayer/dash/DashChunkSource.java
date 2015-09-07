@@ -615,39 +615,56 @@ public class DashChunkSource implements ChunkSource, Output {
 
   private static String getMediaMimeType(Format format) {
     String formatMimeType = format.mimeType;
-    String codecs = format.codecs;
     if (MimeTypes.isAudio(formatMimeType)) {
-      return getAudioMediaMimeType(codecs);
+      return getAudioMediaMimeType(format);
     } else if (MimeTypes.isVideo(formatMimeType)) {
-      return getVideoMediaMimeType(codecs);
+      return getVideoMediaMimeType(format);
     } else if (mimeTypeIsRawText(formatMimeType)) {
       return formatMimeType;
-    } else if (MimeTypes.APPLICATION_MP4.equals(formatMimeType) && "stpp".equals(codecs)) {
+    } else if (MimeTypes.APPLICATION_MP4.equals(formatMimeType) && "stpp".equals(format.codecs)) {
       return MimeTypes.APPLICATION_TTML;
     } else {
       return null;
     }
   }
 
-  private static String getVideoMediaMimeType(String codecs) {
+  private static String getVideoMediaMimeType(Format format) {
+    String codecs = format.codecs;
     if (TextUtils.isEmpty(codecs)) {
+      Log.w(TAG, "Codecs attribute missing: " + format.id);
       return MimeTypes.VIDEO_UNKNOWN;
+    } else if (codecs.startsWith("avc1") || codecs.startsWith("avc3")) {
+      return MimeTypes.VIDEO_H264;
+    } else if (codecs.startsWith("hev1") || codecs.startsWith("hvc1")) {
+      return MimeTypes.VIDEO_H265;
     } else if (codecs.startsWith("vp9")) {
       return MimeTypes.VIDEO_VP9;
     } else if (codecs.startsWith("vp8")) {
       return MimeTypes.VIDEO_VP8;
     }
-    // TODO: Parse more codecs values here.
+    Log.w(TAG, "Failed to parse mime from codecs: " + format.id + ", " + codecs);
     return MimeTypes.VIDEO_UNKNOWN;
   }
 
-  private static String getAudioMediaMimeType(String codecs) {
+  private static String getAudioMediaMimeType(Format format) {
+    String codecs = format.codecs;
     if (TextUtils.isEmpty(codecs)) {
+      Log.w(TAG, "Codecs attribute missing: " + format.id);
       return MimeTypes.AUDIO_UNKNOWN;
+    } else if (codecs.startsWith("mp4a")) {
+      return MimeTypes.AUDIO_AAC;
+    } else if (codecs.startsWith("ac-3") || codecs.startsWith("dac3")) {
+      return MimeTypes.AUDIO_AC3;
+    } else if (codecs.startsWith("ec-3") || codecs.startsWith("dec3")) {
+      return MimeTypes.AUDIO_EC3;
+    } else if (codecs.startsWith("dtsc") || codecs.startsWith("dtse")) {
+      return MimeTypes.AUDIO_DTS;
+    } else if (codecs.startsWith("dtsh") || codecs.startsWith("dtsl")) {
+      return MimeTypes.AUDIO_DTS_HD;
     } else if (codecs.startsWith("opus")) {
       return MimeTypes.AUDIO_OPUS;
     }
-    // TODO: Parse more codecs values here.
+    Log.w(TAG, "Failed to parse mime from codecs: " + format.id + ", " + codecs);
     return MimeTypes.AUDIO_UNKNOWN;
   }
 
