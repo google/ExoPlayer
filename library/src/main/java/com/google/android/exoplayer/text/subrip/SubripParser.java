@@ -58,6 +58,10 @@ public final class SubripParser implements SubtitleParser {
     String currentLine;
 
     while ((currentLine = reader.readLine()) != null) {
+      // Skip blank lines.
+      if (currentLine.length() == 0)
+        continue;
+
       // Parse the numeric counter as a sanity check.
       try {
         Integer.parseInt(currentLine);
