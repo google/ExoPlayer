@@ -342,7 +342,8 @@ public final class TsExtractor implements Extractor {
     private static final int STATE_READING_BODY = 3;
 
     private static final int HEADER_SIZE = 9;
-    private static final int MAX_HEADER_EXTENSION_SIZE = 5;
+    private static final int MAX_HEADER_EXTENSION_SIZE = 10;
+    private static final int PES_SCRATCH_SIZE = 10; // max(HEADER_SIZE, MAX_HEADER_EXTENSION_SIZE)
 
     private final ParsableBitArray pesScratch;
     private final ElementaryStreamReader pesPayloadReader;
@@ -352,13 +353,15 @@ public final class TsExtractor implements Extractor {
     private boolean bodyStarted;
 
     private boolean ptsFlag;
+    private boolean dtsFlag;
+    private boolean seenFirstDts;
     private int extendedHeaderLength;
     private int payloadSize;
     private long timeUs;
 
     public PesReader(ElementaryStreamReader pesPayloadReader) {
       this.pesPayloadReader = pesPayloadReader;
-      pesScratch = new ParsableBitArray(new byte[HEADER_SIZE]);
+      pesScratch = new ParsableBitArray(new byte[PES_SCRATCH_SIZE]);
       state = STATE_FINDING_HEADER;
     }
 
@@ -367,6 +370,7 @@ public final class TsExtractor implements Extractor {
       state = STATE_FINDING_HEADER;
       bytesRead = 0;
       bodyStarted = false;
+      seenFirstDts = false;
       pesPayloadReader.seek();
     }
 
@@ -484,9 +488,10 @@ public final class TsExtractor implements Extractor {
       // data_alignment_indicator (1), copyright (1), original_or_copy (1)
       pesScratch.skipBits(8);
       ptsFlag = pesScratch.readBit();
-      // DTS_flag (1), ESCR_flag (1), ES_rate_flag (1), DSM_trick_mode_flag (1),
+      dtsFlag = pesScratch.readBit();
+      // ESCR_flag (1), ES_rate_flag (1), DSM_trick_mode_flag (1),
       // additional_copy_info_flag (1), PES_CRC_flag (1), PES_extension_flag (1)
-      pesScratch.skipBits(7);
+      pesScratch.skipBits(6);
       extendedHeaderLength = pesScratch.readBits(8);
 
       if (packetLength == 0) {
@@ -509,6 +514,22 @@ public final class TsExtractor implements Extractor {
         pesScratch.skipBits(1); // marker_bit
         pts |= pesScratch.readBits(15);
         pesScratch.skipBits(1); // marker_bit
+        if (!seenFirstDts && dtsFlag) {
+          pesScratch.skipBits(4); // '0011'
+          long dts = (long) pesScratch.readBits(3) << 30;
+          pesScratch.skipBits(1); // marker_bit
+          dts |= pesScratch.readBits(15) << 15;
+          pesScratch.skipBits(1); // marker_bit
+          dts |= pesScratch.readBits(15);
+          pesScratch.skipBits(1); // marker_bit
+          // Subsequent PES packets may have earlier presentation timestamps than this one, but they
+          // should all be greater than or equal to this packet's decode timestamp. We feed the
+          // decode timestamp to the adjuster here so that in the case that this is the first to be
+          // fed, the adjuster will be able to compute an offset to apply such that the adjusted
+          // presentation timestamps of all future packets are non-negative.
+          ptsTimestampAdjuster.adjustTimestamp(dts);
+          seenFirstDts = true;
+        }
         timeUs = ptsTimestampAdjuster.adjustTimestamp(pts);
       }
     }
