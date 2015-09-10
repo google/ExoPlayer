@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.text.subrip;
 
+import com.google.android.exoplayer.ParserException;
+
 import android.test.InstrumentationTestCase;
 
 import java.io.IOException;
@@ -27,44 +29,83 @@ public final class SubripParserTest extends InstrumentationTestCase {
 
   private static final String EMPTY_FILE = "subrip/empty";
   private static final String TYPICAL_FILE = "subrip/typical";
+  private static final String TYPICAL_EXTRA_BLANK_LINE = "subrip/typical_extra_blank_line";
+  private static final String TYPICAL_MISSING_TIMECODE = "subrip/typical_missing_timecode";
+  private static final String TYPICAL_MISSING_SEQUENCE = "subrip/typical_missing_sequence";
   private static final String NO_END_TIMECODES_FILE = "subrip/no_end_timecodes";
 
-  public void testParseEmptySubripFile() throws IOException {
-    SubripParser parser = new SubripParser();
-    InputStream inputStream =
-        getInstrumentation().getContext().getResources().getAssets().open(EMPTY_FILE);
+  public void testParseEmpty() throws IOException {
+    SubripParser parser = new SubripParser(true);
+    InputStream inputStream = getInputStream(EMPTY_FILE);
     SubripSubtitle subtitle = parser.parse(inputStream);
     // Assert that the subtitle is empty.
     assertEquals(0, subtitle.getEventTimeCount());
     assertTrue(subtitle.getCues(0).isEmpty());
   }
 
-  public void testParseTypicalSubripFile() throws IOException {
-    SubripParser parser = new SubripParser();
-    InputStream inputStream =
-        getInstrumentation().getContext().getResources().getAssets().open(TYPICAL_FILE);
+  public void testParseTypical() throws IOException {
+    SubripParser parser = new SubripParser(true);
+    InputStream inputStream = getInputStream(TYPICAL_FILE);
     SubripSubtitle subtitle = parser.parse(inputStream);
+    assertEquals(6, subtitle.getEventTimeCount());
+    assertTypicalCue1(subtitle, 0);
+    assertTypicalCue2(subtitle, 2);
+    assertTypicalCue3(subtitle, 4);
+  }
 
-    // Test event count.
+  public void testParseTypicalExtraBlankLine() throws IOException {
+    SubripParser parser = new SubripParser(true);
+    InputStream inputStream = getInputStream(TYPICAL_EXTRA_BLANK_LINE);
+    SubripSubtitle subtitle = parser.parse(inputStream);
+    assertEquals(6, subtitle.getEventTimeCount());
+    assertTypicalCue1(subtitle, 0);
+    assertTypicalCue2(subtitle, 2);
+    assertTypicalCue3(subtitle, 4);
+  }
+
+  public void testParseTypicalMissingTimecode() throws IOException {
+    // Strict parsing should fail.
+    SubripParser parser = new SubripParser(true);
+    InputStream inputStream = getInputStream(TYPICAL_MISSING_TIMECODE);
+    try {
+      parser.parse(inputStream);
+      fail();
+    } catch (ParserException e) {
+      // Expected.
+    }
+
+    // Non-strict parsing should succeed, parsing the first and third cues only.
+    parser = new SubripParser(false);
+    inputStream = getInputStream(TYPICAL_MISSING_TIMECODE);
+    SubripSubtitle subtitle = parser.parse(inputStream);
     assertEquals(4, subtitle.getEventTimeCount());
+    assertTypicalCue1(subtitle, 0);
+    assertTypicalCue3(subtitle, 2);
+  }
 
-    // Test first cue.
-    assertEquals(0, subtitle.getEventTime(0));
-    assertEquals("This is the first subtitle.",
-        subtitle.getCues(subtitle.getEventTime(0)).get(0).text.toString());
-    assertEquals(1234000, subtitle.getEventTime(1));
+  public void testParseTypicalMissingSequence() throws IOException {
+    // Strict parsing should fail.
+    SubripParser parser = new SubripParser(true);
+    InputStream inputStream = getInputStream(TYPICAL_MISSING_SEQUENCE);
+    try {
+      parser.parse(inputStream);
+      fail();
+    } catch (ParserException e) {
+      // Expected.
+    }
 
-    // Test second cue.
-    assertEquals(2345000, subtitle.getEventTime(2));
-    assertEquals("This is the second subtitle.\nSecond subtitle with second line.",
-        subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString());
-    assertEquals(3456000, subtitle.getEventTime(3));
+    // Non-strict parsing should succeed, parsing the first and third cues only.
+    parser = new SubripParser(false);
+    inputStream = getInputStream(TYPICAL_MISSING_SEQUENCE);
+    SubripSubtitle subtitle = parser.parse(inputStream);
+    assertEquals(4, subtitle.getEventTimeCount());
+    assertTypicalCue1(subtitle, 0);
+    assertTypicalCue3(subtitle, 2);
   }
 
   public void testParseNoEndTimecodes() throws IOException {
-    SubripParser parser = new SubripParser();
-    InputStream inputStream = getInstrumentation().getContext().getResources().getAssets()
-        .open(NO_END_TIMECODES_FILE);
+    SubripParser parser = new SubripParser(true);
+    InputStream inputStream = getInputStream(NO_END_TIMECODES_FILE);
     SubripSubtitle subtitle = parser.parse(inputStream);
 
     // Test event count.
@@ -84,6 +125,31 @@ public final class SubripParserTest extends InstrumentationTestCase {
     assertEquals(3456000, subtitle.getEventTime(2));
     assertEquals("Or to the end of the media.",
         subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString());
+  }
+
+  private InputStream getInputStream(String fileName) throws IOException {
+    return getInstrumentation().getContext().getResources().getAssets().open(fileName);
+  }
+
+  private static void assertTypicalCue1(SubripSubtitle subtitle, int eventIndex) {
+    assertEquals(0, subtitle.getEventTime(eventIndex));
+    assertEquals("This is the first subtitle.",
+        subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString());
+    assertEquals(1234000, subtitle.getEventTime(eventIndex + 1));
+  }
+
+  private static void assertTypicalCue2(SubripSubtitle subtitle, int eventIndex) {
+    assertEquals(2345000, subtitle.getEventTime(eventIndex));
+    assertEquals("This is the second subtitle.\nSecond subtitle with second line.",
+        subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString());
+    assertEquals(3456000, subtitle.getEventTime(eventIndex + 1));
+  }
+
+  private static void assertTypicalCue3(SubripSubtitle subtitle, int eventIndex) {
+    assertEquals(4567000, subtitle.getEventTime(eventIndex));
+    assertEquals("This is the third subtitle.",
+        subtitle.getCues(subtitle.getEventTime(eventIndex)).get(0).text.toString());
+    assertEquals(8901000, subtitle.getEventTime(eventIndex + 1));
   }
 
 }
