@@ -720,6 +720,17 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   /**
+   * Invoked when the output stream ends, meaning that the last output buffer has been processed
+   * and the {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM} flag has been propagated through the
+   * decoder.
+   * <p>
+   * The default implementation is a no-op.
+   */
+  protected void onOutputStreamEnded() {
+    // Do nothing.
+  }
+
+  /**
    * Determines whether the existing {@link MediaCodec} should be reconfigured for a new format by
    * sending codec specific initialization data at the start of the next input buffer. If true is
    * returned then the {@link MediaCodec} instance will be reconfigured in this way. If false is
@@ -846,6 +857,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       maybeInitCodec();
     } else {
       outputStreamEnded = true;
+      onOutputStreamEnded();
     }
   }
 

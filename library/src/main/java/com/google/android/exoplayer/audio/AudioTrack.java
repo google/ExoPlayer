@@ -562,6 +562,17 @@ public final class AudioTrack {
     return result;
   }
 
+  /**
+   * Ensures that the last data passed to {@link #handleBuffer(ByteBuffer, int, int, long)} is
+   * played out in full.
+   */
+  public void handleEndOfStream() {
+    if (audioTrack != null) {
+      // Required to ensure that the media written to the AudioTrack is played out in full.
+      audioTrack.stop();
+    }
+  }
+
   @TargetApi(21)
   private static int writeNonBlockingV21(
       android.media.AudioTrack audioTrack, ByteBuffer buffer, int size) {
@@ -573,13 +584,6 @@ public final class AudioTrack {
     return isInitialized()
         && (bytesToFrames(submittedBytes) > audioTrackUtil.getPlaybackHeadPosition()
             || audioTrackUtil.overrideHasPendingData());
-  }
-
-  /** Returns whether enough data has been supplied via {@link #handleBuffer} to begin playback. */
-  public boolean hasEnoughDataToBeginPlayback() {
-    // The value of minBufferSize can be slightly less than what's actually required for playback
-    // to start, hence the multiplication factor.
-    return submittedBytes > (minBufferSize * 3) / 2;
   }
 
   /** Sets the playback volume. */

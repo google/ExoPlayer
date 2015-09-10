@@ -265,10 +265,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
 
   @Override
   protected boolean isEnded() {
-    // We've exhausted the output stream, and the AudioTrack has either played all of the data
-    // submitted, or has been fed insufficient data to begin playback.
-    return super.isEnded() && (!audioTrack.hasPendingData()
-        || !audioTrack.hasEnoughDataToBeginPlayback());
+    return super.isEnded() && !audioTrack.hasPendingData();
   }
 
   @Override
@@ -364,6 +361,11 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
     }
 
     return false;
+  }
+
+  @Override
+  protected void onOutputStreamEnded() {
+    audioTrack.handleEndOfStream();
   }
 
   protected void handleDiscontinuity() {

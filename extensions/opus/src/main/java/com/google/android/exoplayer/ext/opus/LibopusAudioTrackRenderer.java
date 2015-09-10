@@ -212,6 +212,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
 
     if (outputBuffer.getFlag(OpusDecoderWrapper.FLAG_END_OF_STREAM)) {
       outputStreamEnded = true;
+      audioTrack.handleEndOfStream();
       decoder.releaseOutputBuffer(outputBuffer);
       outputBuffer = null;
       return;
@@ -304,8 +305,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
 
   @Override
   protected boolean isEnded() {
-    return outputStreamEnded && (!audioTrack.hasPendingData()
-        || !audioTrack.hasEnoughDataToBeginPlayback());
+    return outputStreamEnded && !audioTrack.hasPendingData();
   }
 
   @Override
