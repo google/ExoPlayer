@@ -117,10 +117,14 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     List<Period> periods = new ArrayList<>();
     long nextPeriodStartMs = dynamic ? -1 : 0;
     boolean seenEarlyAccessPeriod = false;
+    boolean seenFirstBaseUrl = false;
     do {
       xpp.next();
       if (isStartTag(xpp, "BaseURL")) {
-        baseUrl = parseBaseUrl(xpp, baseUrl);
+        if (!seenFirstBaseUrl) {
+          baseUrl = parseBaseUrl(xpp, baseUrl);
+          seenFirstBaseUrl = true;
+        }
       } else if (isStartTag(xpp, "UTCTiming")) {
         utcTiming = parseUtcTiming(xpp);
       } else if (isStartTag(xpp, "Location")) {
@@ -183,10 +187,14 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     long durationMs = parseDuration(xpp, "duration", -1);
     SegmentBase segmentBase = null;
     List<AdaptationSet> adaptationSets = new ArrayList<>();
+    boolean seenFirstBaseUrl = false;
     do {
       xpp.next();
       if (isStartTag(xpp, "BaseURL")) {
-        baseUrl = parseBaseUrl(xpp, baseUrl);
+        if (!seenFirstBaseUrl) {
+          baseUrl = parseBaseUrl(xpp, baseUrl);
+          seenFirstBaseUrl = true;
+        }
       } else if (isStartTag(xpp, "AdaptationSet")) {
         adaptationSets.add(parseAdaptationSet(xpp, baseUrl, segmentBase));
       } else if (isStartTag(xpp, "SegmentBase")) {
@@ -223,10 +231,14 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
     ContentProtectionsBuilder contentProtectionsBuilder = new ContentProtectionsBuilder();
     List<Representation> representations = new ArrayList<>();
+    boolean seenFirstBaseUrl = false;
     do {
       xpp.next();
       if (isStartTag(xpp, "BaseURL")) {
-        baseUrl = parseBaseUrl(xpp, baseUrl);
+        if (!seenFirstBaseUrl) {
+          baseUrl = parseBaseUrl(xpp, baseUrl);
+          seenFirstBaseUrl = true;
+        }
       } else if (isStartTag(xpp, "ContentProtection")) {
         contentProtectionsBuilder.addAdaptationSetProtection(parseContentProtection(xpp));
       } else if (isStartTag(xpp, "ContentComponent")) {
@@ -352,10 +364,14 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     int audioSamplingRate = parseInt(xpp, "audioSamplingRate", adaptationSetAudioSamplingRate);
     String language = adaptationSetLanguage;
 
+    boolean seenFirstBaseUrl = false;
     do {
       xpp.next();
       if (isStartTag(xpp, "BaseURL")) {
-        baseUrl = parseBaseUrl(xpp, baseUrl);
+        if (!seenFirstBaseUrl) {
+          baseUrl = parseBaseUrl(xpp, baseUrl);
+          seenFirstBaseUrl = true;
+        }
       } else if (isStartTag(xpp, "AudioChannelConfiguration")) {
         audioChannels = parseAudioChannelConfiguration(xpp);
       } else if (isStartTag(xpp, "SegmentBase")) {
