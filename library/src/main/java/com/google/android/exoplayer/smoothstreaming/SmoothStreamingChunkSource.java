@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.smoothstreaming;
 
 import com.google.android.exoplayer.BehindLiveWindowException;
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkExtractorWrapper;
@@ -69,6 +70,7 @@ public class SmoothStreamingChunkSource implements ChunkSource,
   private final ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
   private final DrmInitData.Mapped drmInitData;
   private final FormatEvaluator adaptiveFormatEvaluator;
+  private final boolean live;
 
   // The tracks exposed by this source.
   private final ArrayList<ExposedTrack> tracks;
@@ -80,7 +82,7 @@ public class SmoothStreamingChunkSource implements ChunkSource,
   private boolean prepareCalled;
   private SmoothStreamingManifest currentManifest;
   private int currentManifestChunkOffset;
-  private boolean currentManifestFinished;
+  private boolean needManifestRefresh;
   private ExposedTrack enabledTrack;
   private IOException fatalError;
 
@@ -135,6 +137,7 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     tracks = new ArrayList<>();
     extractorWrappers = new SparseArray<>();
     mediaFormats = new SparseArray<>();
+    live = initialManifest.isLive;
 
     ProtectionElement protectionElement = initialManifest.protectionElement;
     if (protectionElement != null) {
@@ -221,10 +224,10 @@ public class SmoothStreamingChunkSource implements ChunkSource,
         }
       }
       currentManifest = newManifest;
-      currentManifestFinished = false;
+      needManifestRefresh = false;
     }
 
-    if (currentManifestFinished && (SystemClock.elapsedRealtime()
+    if (needManifestRefresh && (SystemClock.elapsedRealtime()
         > manifestFetcher.getManifestLoadStartTimestamp() + MINIMUM_MANIFEST_REFRESH_PERIOD_MS)) {
       manifestFetcher.requestRefresh();
     }
@@ -265,14 +268,15 @@ public class SmoothStreamingChunkSource implements ChunkSource,
 
     StreamElement streamElement = currentManifest.streamElements[enabledTrack.elementIndex];
     if (streamElement.chunkCount == 0) {
-      // The manifest is currently empty for this stream.
-      currentManifestFinished = true;
+      if (currentManifest.isLive) {
+        needManifestRefresh = true;
+      }
       return;
     }
 
     int chunkIndex;
     if (queue.isEmpty()) {
-      if (currentManifest.isLive) {
+      if (live) {
         seekPositionUs = getLiveSeekPosition(currentManifest, liveEdgeLatencyUs);
       }
       chunkIndex = streamElement.getChunkIndex(seekPositionUs);
@@ -281,19 +285,19 @@ public class SmoothStreamingChunkSource implements ChunkSource,
       chunkIndex = previous.isLastChunk ? -1 : previous.chunkIndex + 1 - currentManifestChunkOffset;
     }
 
-    if (currentManifest.isLive) {
-      if (chunkIndex < 0) {
-        // This is before the first chunk in the current manifest.
-        fatalError = new BehindLiveWindowException();
-        return;
-      } else if (chunkIndex >= streamElement.chunkCount) {
+    if (live && chunkIndex < 0) {
+      // This is before the first chunk in the current manifest.
+      fatalError = new BehindLiveWindowException();
+      return;
+    } else if (currentManifest.isLive) {
+      if (chunkIndex >= streamElement.chunkCount) {
         // This is beyond the last chunk in the current manifest.
-        currentManifestFinished = true;
+        needManifestRefresh = true;
         return;
       } else if (chunkIndex == streamElement.chunkCount - 1) {
         // This is the last chunk in the current manifest. Mark the manifest as being finished,
         // but continue to return the final chunk.
-        currentManifestFinished = true;
+        needManifestRefresh = true;
       }
     }
 
@@ -388,7 +392,7 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     }
 
     // Build the media format.
-    long durationUs = manifest.durationUs;
+    long durationUs = live ? C.UNKNOWN_TIME_US : manifest.durationUs;
     StreamElement element = manifest.streamElements[elementIndex];
     Format format = element.tracks[trackIndex].format;
     byte[][] csdArray = element.tracks[trackIndex].csd;

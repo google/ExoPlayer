@@ -221,7 +221,7 @@ public class HlsChunkSource {
   }
 
   public long getDurationUs() {
-    return live ? C.UNKNOWN_TIME_US : durationUs;
+    return durationUs;
   }
 
   /**
@@ -551,7 +551,7 @@ public class HlsChunkSource {
     variantLastPlaylistLoadTimesMs[variantIndex] = SystemClock.elapsedRealtime();
     variantPlaylists[variantIndex] = mediaPlaylist;
     live |= mediaPlaylist.live;
-    durationUs = mediaPlaylist.durationUs;
+    durationUs = live ? C.UNKNOWN_TIME_US : mediaPlaylist.durationUs;
   }
 
   /**
