@@ -591,6 +591,10 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
         codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
       }
       inputStreamEnded = true;
+      if (!codecHasQueuedBuffers) {
+        processEndOfStream();
+        return false;
+      }
       try {
         if (codecNeedsEosPropagationWorkaround) {
           // Do nothing.
