@@ -31,14 +31,14 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"/>
 
-    <com.google.android.exoplayer.text.SubtitleLayout android:id="@+id/subtitles"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
     <View android:id="@+id/shutter"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/black"/>
+
+    <com.google.android.exoplayer.text.SubtitleLayout android:id="@+id/subtitles"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
   </com.google.android.exoplayer.AspectRatioFrameLayout>
 
