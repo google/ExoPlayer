@@ -2,7 +2,12 @@
 
 ### Current dev branch (from r1.4.2) ###
 
-* Nothing yet.
+* Multi-track support.
+* DASH: Limited support for multi-period manifests.
+* HLS: Smoother format adaptation.
+* TTML: Support for most embedded TTML styling.
+* Playback tests.
+* Misc bug fixes.
 
 ### r1.4.2 ###
 
