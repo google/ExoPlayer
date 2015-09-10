@@ -45,7 +45,7 @@ public final class MimeTypes {
   public static final String AUDIO_RAW = BASE_TYPE_AUDIO + "/raw";
   public static final String AUDIO_AC3 = BASE_TYPE_AUDIO + "/ac3";
   public static final String AUDIO_EC3 = BASE_TYPE_AUDIO + "/eac3";
-  public static final String AUDIO_DTS = BASE_TYPE_AUDIO + "/x-dts";
+  public static final String AUDIO_DTS = BASE_TYPE_AUDIO + "/vnd.dts";
   public static final String AUDIO_DTS_HD = BASE_TYPE_AUDIO + "/vnd.dts.hd";
   public static final String AUDIO_VORBIS = BASE_TYPE_AUDIO + "/vorbis";
   public static final String AUDIO_OPUS = BASE_TYPE_AUDIO + "/opus";
