@@ -135,7 +135,7 @@ public final class TtmlParser implements SubtitleParser {
                 if (strictParsing) {
                   throw e;
                 } else {
-                  Log.e(TAG, "Suppressing parser error", e);
+                  Log.w(TAG, "Suppressing parser error", e);
                   // Treat the node (and by extension, all of its children) as unsupported.
                   unsupportedNodeDepth++;
                 }
