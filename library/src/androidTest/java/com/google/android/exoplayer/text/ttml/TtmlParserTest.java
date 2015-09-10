@@ -45,6 +45,10 @@ public final class TtmlParserTest extends InstrumentationTestCase {
       "ttml/no_underline_linethrough.xml";
   private static final String INSTANCE_CREATION_TTML_FILE =
       "ttml/instance_creation.xml";
+  private static final String NAMESPACE_CONFUSION_TTML_FILE =
+      "ttml/namespace_confusion.xml";
+  private static final String NAMESPACE_NOT_DECLARED_TTML_FILE =
+      "ttml/namespace_not_declared.xml";
 
   public void testInlineAttributes() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
@@ -329,6 +333,44 @@ public final class TtmlParserTest extends InstrumentationTestCase {
 
     // if a backgroundColor is involved it does not help
     assertNotSame(thirdP.style.getInheritableStyle(), thirdSpan.style);
+  }
+
+  public void testNamspaceConfusionDoesNotHurt() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(NAMESPACE_CONFUSION_TTML_FILE);
+    assertEquals(2, subtitle.getEventTimeCount());
+
+    TtmlNode root = subtitle.getRoot();
+    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
+    TtmlNode div = queryChildrenForTag(body, TtmlNode.TAG_DIV, 0);
+    TtmlStyle style = queryChildrenForTag(div, TtmlNode.TAG_P, 0).style;
+
+    assertNotNull(style);
+    assertEquals(Color.BLACK, style.getBackgroundColor());
+    assertEquals(Color.YELLOW, style.getColor());
+    assertEquals(TtmlStyle.STYLE_ITALIC, style.getStyle());
+    assertEquals("sansSerif", style.getFontFamily());
+    assertFalse(style.isUnderline());
+    assertTrue(style.isLinethrough());
+
+  }
+
+  public void testNamespaceNotDeclared() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(NAMESPACE_NOT_DECLARED_TTML_FILE);
+    assertEquals(2, subtitle.getEventTimeCount());
+
+    TtmlNode root = subtitle.getRoot();
+    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
+    TtmlNode div = queryChildrenForTag(body, TtmlNode.TAG_DIV, 0);
+    TtmlStyle style = queryChildrenForTag(div, TtmlNode.TAG_P, 0).style;
+
+    assertNotNull(style);
+    assertEquals(Color.BLACK, style.getBackgroundColor());
+    assertEquals(Color.YELLOW, style.getColor());
+    assertEquals(TtmlStyle.STYLE_ITALIC, style.getStyle());
+    assertEquals("sansSerif", style.getFontFamily());
+    assertFalse(style.isUnderline());
+    assertTrue(style.isLinethrough());
+
   }
 
   private TtmlNode queryChildrenForTag(TtmlNode node, String tag, int pos) {
