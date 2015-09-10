@@ -102,12 +102,8 @@ import java.io.IOException;
         atomSize = buffer.readLong();
       }
       // Check the atom size is large enough to include its header.
-      if (atomSize < headerSize || atomSize > Integer.MAX_VALUE) {
+      if (atomSize < headerSize) {
         return false;
-      }
-      // Stop searching if reading this atom would exceed the search limit.
-      if (bytesSearched + atomSize > bytesToSearch) {
-        break;
       }
       int atomDataSize = (int) atomSize - headerSize;
       if (atomType == Atom.TYPE_ftyp) {
@@ -126,10 +122,18 @@ import java.io.IOException;
             break;
           }
         }
+        // There is only one ftyp box, so reject the file if the file type in this box was invalid.
+        if (!foundGoodFileType) {
+          return false;
+        }
       } else if (atomType == Atom.TYPE_moof) {
         foundFragment = true;
         break;
       } else if (atomDataSize != 0) {
+        // Stop searching if reading this atom would exceed the search limit.
+        if (bytesSearched + atomSize >= bytesToSearch) {
+          break;
+        }
         input.advancePeekPosition(atomDataSize);
       }
       bytesSearched += atomSize;
