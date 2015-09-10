@@ -119,6 +119,7 @@ public class DashChunkSource implements ChunkSource, Output {
   private final long liveEdgeLatencyUs;
   private final long elapsedRealtimeOffsetUs;
   private final long[] availableRangeValues;
+  private final boolean live;
 
   private MediaPresentationDescription currentManifest;
   private ExposedTrack enabledTrack;
@@ -260,7 +261,8 @@ public class DashChunkSource implements ChunkSource, Output {
     this.evaluation = new Evaluation();
     this.availableRangeValues = new long[2];
     periodHolders = new SparseArray<>();
-    tracks = new ArrayList<ExposedTrack>();
+    tracks = new ArrayList<>();
+    live = initialManifest.dynamic;
   }
 
   // ChunkSource implementation.
@@ -375,7 +377,7 @@ public class DashChunkSource implements ChunkSource, Output {
 
     availableRange.getCurrentBoundsUs(availableRangeValues);
     if (queue.isEmpty()) {
-      if (currentManifest.dynamic) {
+      if (live) {
         if (startAtLiveEdge) {
           // We want live streams to start at the live edge instead of the beginning of the
           // manifest
@@ -403,18 +405,16 @@ public class DashChunkSource implements ChunkSource, Output {
         return;
       }
 
-      if (currentManifest.dynamic) {
-        long nextSegmentStartTimeUs = previous.endTimeUs;
-        if (nextSegmentStartTimeUs < availableRangeValues[0]) {
-          // This is before the first chunk in the current manifest.
-          fatalError = new BehindLiveWindowException();
-          return;
-        } else if (nextSegmentStartTimeUs >= availableRangeValues[1]) {
-          // This chunk is beyond the last chunk in the current manifest. If the index is bounded
-          // we'll need to wait until it's refreshed. If it's unbounded we just need to wait for a
-          // while before attempting to load the chunk.
-          return;
-        }
+      long nextSegmentStartTimeUs = previous.endTimeUs;
+      if (live && nextSegmentStartTimeUs < availableRangeValues[0]) {
+        // This is before the first chunk in the current manifest.
+        fatalError = new BehindLiveWindowException();
+        return;
+      } else if (currentManifest.dynamic && nextSegmentStartTimeUs >= availableRangeValues[1]) {
+        // This chunk is beyond the last chunk in the current manifest. If the index is bounded
+        // we'll need to wait until it's refreshed. If it's unbounded we just need to wait for a
+        // while before attempting to load the chunk.
+        return;
       }
 
       startingNewPeriod = false;
@@ -545,7 +545,7 @@ public class DashChunkSource implements ChunkSource, Output {
       representationFormats[i] = format;
     }
     Arrays.sort(representationFormats, new DecreasingBandwidthComparator());
-    long trackDurationUs = manifest.dynamic ? C.UNKNOWN_TIME_US : manifest.duration * 1000;
+    long trackDurationUs = live ? C.UNKNOWN_TIME_US : manifest.duration * 1000;
     String mediaMimeType = getMediaMimeType(maxHeightRepresentationFormat);
     if (mediaMimeType == null) {
       Log.w(TAG, "Skipped adaptive track (unknown media mime type)");
