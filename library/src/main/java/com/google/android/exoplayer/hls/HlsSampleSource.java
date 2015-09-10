@@ -353,6 +353,12 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       return TrackRenderer.END_OF_TRACK_US;
     } else {
       long largestParsedTimestampUs = extractors.getLast().getLargestParsedTimestampUs();
+      if (extractors.size() > 1) {
+        // When adapting from one format to the next, the penultimate extractor may have the largest
+        // parsed timestamp (e.g. if the last extractor hasn't parsed any timestamps yet).
+        largestParsedTimestampUs = Math.max(largestParsedTimestampUs,
+            extractors.get(extractors.size() - 2).getLargestParsedTimestampUs());
+      }
       return largestParsedTimestampUs == Long.MIN_VALUE ? downstreamPositionUs
           : largestParsedTimestampUs;
     }
