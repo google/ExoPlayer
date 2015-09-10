@@ -21,6 +21,7 @@ import com.google.android.exoplayer.text.Subtitle;
 import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParserUtil;
+import com.google.android.exoplayer.util.Util;
 
 import android.graphics.Color;
 import android.text.Layout;
@@ -224,14 +225,14 @@ public final class TtmlParser implements SubtitleParser {
           break;
         case TtmlNode.ATTR_TTS_FONT_WEIGHT:
           style = createIfNull(style).setBold(
-              TtmlNode.BOLD.equals(attributeValue.toLowerCase()));
+              TtmlNode.BOLD.equalsIgnoreCase(attributeValue));
           break;
         case TtmlNode.ATTR_TTS_FONT_STYLE:
           style = createIfNull(style).setItalic(
-              TtmlNode.ITALIC.equals(attributeValue.toLowerCase()));
+              TtmlNode.ITALIC.equalsIgnoreCase(attributeValue));
           break;
         case TtmlNode.ATTR_TTS_TEXT_ALIGN:
-          switch (attributeValue.toLowerCase()) {
+          switch (Util.toLowerInvariant(attributeValue)) {
             case TtmlNode.LEFT:
               style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_NORMAL);
               break;
@@ -250,7 +251,7 @@ public final class TtmlParser implements SubtitleParser {
           }
           break;
         case TtmlNode.ATTR_TTS_TEXT_DECORATION:
-          switch (attributeValue.toLowerCase()) {
+          switch (Util.toLowerInvariant(attributeValue)) {
             case TtmlNode.LINETHROUGH:
               style = createIfNull(style).setLinethrough(true);
               break;
