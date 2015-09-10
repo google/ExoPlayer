@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.extractor.ts;
 
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
@@ -51,38 +50,33 @@ public final class TsExtractor implements Extractor {
   private static final int TS_STREAM_TYPE_ID3 = 0x15;
   private static final int TS_STREAM_TYPE_EIA608 = 0x100; // 0xFF + 1
 
-  private static final long MAX_PTS = 0x1FFFFFFFFL;
-
+  private final PtsTimestampAdjuster ptsTimestampAdjuster;
   private final ParsableByteArray tsPacketBuffer;
   private final ParsableBitArray tsScratch;
   private final boolean idrKeyframesOnly;
-  private final long firstSampleTimestampUs;
   /* package */ final SparseBooleanArray streamTypes;
   /* package */ final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
 
   // Accessed only by the loading thread.
   private ExtractorOutput output;
-  private long timestampOffsetUs;
-  private long lastPts;
   /* package */ Id3Reader id3Reader;
 
   public TsExtractor() {
-    this(0);
+    this(new PtsTimestampAdjuster(0));
   }
 
-  public TsExtractor(long firstSampleTimestampUs) {
-    this(firstSampleTimestampUs, true);
+  public TsExtractor(PtsTimestampAdjuster ptsTimestampAdjuster) {
+    this(ptsTimestampAdjuster, true);
   }
 
-  public TsExtractor(long firstSampleTimestampUs, boolean idrKeyframesOnly) {
-    this.firstSampleTimestampUs = firstSampleTimestampUs;
+  public TsExtractor(PtsTimestampAdjuster ptsTimestampAdjuster, boolean idrKeyframesOnly) {
     this.idrKeyframesOnly = idrKeyframesOnly;
     tsScratch = new ParsableBitArray(new byte[3]);
     tsPacketBuffer = new ParsableByteArray(TS_PACKET_SIZE);
     streamTypes = new SparseBooleanArray();
     tsPayloadReaders = new SparseArray<>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
-    lastPts = Long.MIN_VALUE;
+    this.ptsTimestampAdjuster = ptsTimestampAdjuster;
   }
 
   // Extractor implementation.
@@ -108,8 +102,7 @@ public final class TsExtractor implements Extractor {
 
   @Override
   public void seek() {
-    timestampOffsetUs = 0;
-    lastPts = Long.MIN_VALUE;
+    ptsTimestampAdjuster.reset();
     for (int i = 0; i < tsPayloadReaders.size(); i++) {
       tsPayloadReaders.valueAt(i).seek();
     }
@@ -159,33 +152,6 @@ public final class TsExtractor implements Extractor {
   }
 
   // Internals.
-
-  /**
-   * Adjusts a PTS value to the corresponding time in microseconds, accounting for PTS wraparound.
-   *
-   * @param pts The raw PTS value.
-   * @return The corresponding time in microseconds.
-   */
-  /* package */ long ptsToTimeUs(long pts) {
-    if (lastPts != Long.MIN_VALUE) {
-      // The wrap count for the current PTS may be closestWrapCount or (closestWrapCount - 1),
-      // and we need to snap to the one closest to lastPts.
-      long closestWrapCount = (lastPts + (MAX_PTS / 2)) / MAX_PTS;
-      long ptsWrapBelow = pts + (MAX_PTS * (closestWrapCount - 1));
-      long ptsWrapAbove = pts + (MAX_PTS * closestWrapCount);
-      pts = Math.abs(ptsWrapBelow - lastPts) < Math.abs(ptsWrapAbove - lastPts)
-          ? ptsWrapBelow : ptsWrapAbove;
-    }
-    // Calculate the corresponding timestamp.
-    long timeUs = (pts * C.MICROS_PER_SECOND) / 90000;
-    // If we haven't done the initial timestamp adjustment, do it now.
-    if (lastPts == Long.MIN_VALUE) {
-      timestampOffsetUs = firstSampleTimestampUs - timeUs;
-    }
-    // Record the adjusted PTS to adjust for wraparound next time.
-    lastPts = pts;
-    return timeUs + timestampOffsetUs;
-  }
 
   /**
    * Parses TS packet payload data.
@@ -543,7 +509,7 @@ public final class TsExtractor implements Extractor {
         pesScratch.skipBits(1); // marker_bit
         pts |= pesScratch.readBits(15);
         pesScratch.skipBits(1); // marker_bit
-        timeUs = ptsToTimeUs(pts);
+        timeUs = ptsTimestampAdjuster.adjustTimestamp(pts);
       }
     }
 
