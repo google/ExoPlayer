@@ -38,6 +38,7 @@ public final class SubtitleLayout extends View {
 
   private List<Cue> cues;
   private float fontScale;
+  private boolean applyEmbeddedStyles;
   private CaptionStyleCompat style;
   private float bottomPaddingFraction;
 
@@ -49,6 +50,7 @@ public final class SubtitleLayout extends View {
     super(context, attrs);
     painters = new ArrayList<>();
     fontScale = 1;
+    applyEmbeddedStyles = true;
     style = CaptionStyleCompat.DEFAULT;
     bottomPaddingFraction = DEFAULT_BOTTOM_PADDING_FRACTION;
   }
@@ -87,7 +89,21 @@ public final class SubtitleLayout extends View {
   }
 
   /**
-   * Configures the view according to the given style.
+   * Sets whether styling embedded within the cues should be applied. Enabled by default.
+   *
+   * @param applyEmbeddedStyles Whether styling embedded within the cues should be applied.
+   */
+  public void setApplyEmbeddedStyles(boolean applyEmbeddedStyles) {
+    if (this.applyEmbeddedStyles == applyEmbeddedStyles) {
+      return;
+    }
+    this.applyEmbeddedStyles = applyEmbeddedStyles;
+    // Invalidate to trigger drawing.
+    invalidate();
+  }
+
+  /**
+   * Sets the caption style.
    *
    * @param style A style for the view.
    */
@@ -119,8 +135,8 @@ public final class SubtitleLayout extends View {
   public void dispatchDraw(Canvas canvas) {
     int cueCount = (cues == null) ? 0 : cues.size();
     for (int i = 0; i < cueCount; i++) {
-      painters.get(i).draw(cues.get(i), style, fontScale, bottomPaddingFraction, canvas, getLeft(),
-          getTop(), getRight(), getBottom());
+      painters.get(i).draw(cues.get(i), applyEmbeddedStyles, style, fontScale,
+          bottomPaddingFraction, canvas, getLeft(), getTop(), getRight(), getBottom());
     }
   }
 
