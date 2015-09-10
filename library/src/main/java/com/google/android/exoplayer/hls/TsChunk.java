@@ -49,16 +49,15 @@ public final class TsChunk extends MediaChunk {
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
-   * @param isLastChunk True if this is the last chunk in the media. False otherwise.
    * @param extractorWrapper A wrapped extractor to parse samples from the data.
    * @param encryptionKey For AES encryption chunks, the encryption key.
    * @param encryptionIv For AES encryption chunks, the encryption initialization vector.
    */
   public TsChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
-      long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk,
-      HlsExtractorWrapper extractorWrapper, byte[] encryptionKey, byte[] encryptionIv) {
+      long startTimeUs, long endTimeUs, int chunkIndex, HlsExtractorWrapper extractorWrapper,
+      byte[] encryptionKey, byte[] encryptionIv) {
     super(buildDataSource(dataSource, encryptionKey, encryptionIv), dataSpec, trigger, format,
-        startTimeUs, endTimeUs, chunkIndex, isLastChunk);
+        startTimeUs, endTimeUs, chunkIndex);
     this.extractorWrapper = extractorWrapper;
     // Note: this.dataSource and dataSource may be different.
     this.isEncrypted = this.dataSource instanceof Aes128DataSource;

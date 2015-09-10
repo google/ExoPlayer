@@ -89,24 +89,19 @@ public interface ChunkSource {
    * Updates the provided {@link ChunkOperationHolder} to contain the next operation that should
    * be performed by the calling {@link ChunkSampleSource}.
    * <p>
-   * The next operation comprises of a possibly shortened queue length (shortened if the
-   * implementation wishes for the caller to discard {@link MediaChunk}s from the queue), together
-   * with the next {@link Chunk} to load. The next chunk may be a {@link MediaChunk} to be added to
-   * the queue, or another {@link Chunk} type (e.g. to load initialization data), or null if the
-   * source is not able to provide a chunk in its current state.
-   * <p>
    * This method should only be called when the source is enabled.
    *
    * @param queue A representation of the currently buffered {@link MediaChunk}s.
    * @param seekPositionUs If the queue is empty, this parameter must specify the seek position. If
    *     the queue is non-empty then this parameter is ignored.
    * @param playbackPositionUs The current playback position.
-   * @param out A holder for the next operation, whose {@link ChunkOperationHolder#queueSize} is
-   *     initially equal to the length of the queue, and whose {@link ChunkOperationHolder#chunk} is
-   *     initially equal to null or a {@link Chunk} previously supplied by the {@link ChunkSource}
-   *     that the caller has not yet finished loading. In the latter case the chunk can either be
-   *     replaced or left unchanged. Note that leaving the chunk unchanged is both preferred and
-   *     more efficient than replacing it with a new but identical chunk.
+   * @param out A holder for the next operation, whose {@link ChunkOperationHolder#endOfStream} is
+   *     initially set to false, whose {@link ChunkOperationHolder#queueSize} is initially equal to
+   *     the length of the queue, and whose {@link ChunkOperationHolder#chunk} is initially equal to
+   *     null or a {@link Chunk} previously supplied by the {@link ChunkSource} that the caller has
+   *     not yet finished loading. In the latter case the chunk can either be replaced or left
+   *     unchanged. Note that leaving the chunk unchanged is both preferred and more efficient than
+   *     replacing it with a new but identical chunk.
    */
   void getChunkOperation(List<? extends MediaChunk> queue, long seekPositionUs,
       long playbackPositionUs, ChunkOperationHolder out);

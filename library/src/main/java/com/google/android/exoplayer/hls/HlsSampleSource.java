@@ -25,6 +25,7 @@ import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
+import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
@@ -58,6 +59,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   private final LinkedList<HlsExtractorWrapper> extractors;
   private final int minLoadableRetryCount;
   private final int bufferSizeContribution;
+  private final ChunkOperationHolder chunkOperationHolder;
 
   private final int eventSourceId;
   private final LoadControl loadControl;
@@ -114,6 +116,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     this.eventSourceId = eventSourceId;
     this.pendingResetPositionUs = NO_RESET_PENDING;
     extractors = new LinkedList<>();
+    chunkOperationHolder = new ChunkOperationHolder();
   }
 
   @Override
@@ -383,7 +386,6 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     chunkSource.onChunkLoadCompleted(currentLoadable);
     if (isTsChunk(currentLoadable)) {
       Assertions.checkState(currentLoadable == currentTsLoadable);
-      loadingFinished = currentTsLoadable.isLastChunk;
       previousTsLoadable = currentTsLoadable;
       notifyLoadCompleted(currentLoadable.bytesLoaded(), currentTsLoadable.type,
           currentTsLoadable.trigger, currentTsLoadable.format, currentTsLoadable.startTimeUs,
@@ -521,8 +523,16 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       return;
     }
 
-    Chunk nextLoadable = chunkSource.getChunkOperation(previousTsLoadable, pendingResetPositionUs,
-        downstreamPositionUs);
+    chunkSource.getChunkOperation(previousTsLoadable, pendingResetPositionUs,
+        downstreamPositionUs, chunkOperationHolder);
+    boolean endOfStream = chunkOperationHolder.endOfStream;
+    Chunk nextLoadable = chunkOperationHolder.chunk;
+    chunkOperationHolder.clear();
+
+    if (endOfStream) {
+      loadingFinished = true;
+      return;
+    }
     if (nextLoadable == null) {
       return;
     }
@@ -557,9 +567,8 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      return currentTsLoadable != null
-          ? (currentTsLoadable.isLastChunk ? -1 : currentTsLoadable.endTimeUs)
-          : (previousTsLoadable.isLastChunk ? -1 : previousTsLoadable.endTimeUs);
+      return loadingFinished ? -1
+          : currentTsLoadable != null ? currentTsLoadable.endTimeUs : previousTsLoadable.endTimeUs;
     }
   }
 

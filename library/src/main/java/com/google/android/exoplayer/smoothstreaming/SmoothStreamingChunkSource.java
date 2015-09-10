@@ -270,6 +270,8 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     if (streamElement.chunkCount == 0) {
       if (currentManifest.isLive) {
         needManifestRefresh = true;
+      } else {
+        out.endOfStream = true;
       }
       return;
     }
@@ -282,7 +284,7 @@ public class SmoothStreamingChunkSource implements ChunkSource,
       chunkIndex = streamElement.getChunkIndex(seekPositionUs);
     } else {
       MediaChunk previous = queue.get(out.queueSize - 1);
-      chunkIndex = previous.isLastChunk ? -1 : previous.chunkIndex + 1 - currentManifestChunkOffset;
+      chunkIndex = previous.chunkIndex + 1 - currentManifestChunkOffset;
     }
 
     if (live && chunkIndex < 0) {
@@ -299,10 +301,8 @@ public class SmoothStreamingChunkSource implements ChunkSource,
         // but continue to return the final chunk.
         needManifestRefresh = true;
       }
-    }
-
-    if (chunkIndex == -1) {
-      // We've reached the end of the stream.
+    } else if (chunkIndex >= streamElement.chunkCount) {
+      out.endOfStream = true;
       return;
     }
 
@@ -317,9 +317,8 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     Uri uri = streamElement.buildRequestUri(manifestTrackIndex, chunkIndex);
     Chunk mediaChunk = newMediaChunk(selectedFormat, uri, null,
         extractorWrappers.get(manifestTrackKey), drmInitData, dataSource, currentAbsoluteChunkIndex,
-        isLastChunk, chunkStartTimeUs, chunkEndTimeUs, evaluation.trigger,
-        mediaFormats.get(manifestTrackKey), enabledTrack.adaptiveMaxWidth,
-        enabledTrack.adaptiveMaxHeight);
+        chunkStartTimeUs, chunkEndTimeUs, evaluation.trigger, mediaFormats.get(manifestTrackKey),
+        enabledTrack.adaptiveMaxWidth, enabledTrack.adaptiveMaxHeight);
     out.chunk = mediaChunk;
   }
 
@@ -474,14 +473,14 @@ public class SmoothStreamingChunkSource implements ChunkSource,
 
   private static MediaChunk newMediaChunk(Format formatInfo, Uri uri, String cacheKey,
       ChunkExtractorWrapper extractorWrapper, DrmInitData drmInitData, DataSource dataSource,
-      int chunkIndex, boolean isLast, long chunkStartTimeUs, long chunkEndTimeUs,
-      int trigger, MediaFormat mediaFormat, int adaptiveMaxWidth, int adaptiveMaxHeight) {
+      int chunkIndex, long chunkStartTimeUs, long chunkEndTimeUs, int trigger,
+      MediaFormat mediaFormat, int adaptiveMaxWidth, int adaptiveMaxHeight) {
     long offset = 0;
     DataSpec dataSpec = new DataSpec(uri, offset, -1, cacheKey);
     // In SmoothStreaming each chunk contains sample timestamps relative to the start of the chunk.
     // To convert them the absolute timestamps, we need to set sampleOffsetUs to -chunkStartTimeUs.
     return new ContainerMediaChunk(dataSource, dataSpec, trigger, formatInfo, chunkStartTimeUs,
-        chunkEndTimeUs, chunkIndex, isLast, chunkStartTimeUs, extractorWrapper, mediaFormat,
+        chunkEndTimeUs, chunkIndex, chunkStartTimeUs, extractorWrapper, mediaFormat,
         adaptiveMaxWidth, adaptiveMaxHeight, drmInitData, true, Chunk.NO_PARENT_ID);
   }
 

@@ -400,11 +400,6 @@ public class DashChunkSource implements ChunkSource, Output {
       }
 
       MediaChunk previous = queue.get(out.queueSize - 1);
-      if (previous.isLastChunk) {
-        // We've reached the end of the stream.
-        return;
-      }
-
       long nextSegmentStartTimeUs = previous.endTimeUs;
       if (live && nextSegmentStartTimeUs < availableRangeValues[0]) {
         // This is before the first chunk in the current manifest.
@@ -415,6 +410,17 @@ public class DashChunkSource implements ChunkSource, Output {
         // we'll need to wait until it's refreshed. If it's unbounded we just need to wait for a
         // while before attempting to load the chunk.
         return;
+      } else if (!currentManifest.dynamic) {
+        // The current manifest isn't dynamic, so check whether we've reached the end of the stream.
+        PeriodHolder lastPeriodHolder = periodHolders.valueAt(periodHolders.size() - 1);
+        if (previous.parentId == lastPeriodHolder.localIndex) {
+          RepresentationHolder representationHolder =
+              lastPeriodHolder.representationHolders.get(previous.format.id);
+          if (representationHolder.isLastSegment(previous.chunkIndex)) {
+            out.endOfStream = true;
+            return;
+          }
+        }
       }
 
       startingNewPeriod = false;
@@ -701,13 +707,8 @@ public class DashChunkSource implements ChunkSource, Output {
       DataSource dataSource, MediaFormat mediaFormat, int segmentNum, int trigger) {
     Representation representation = representationHolder.representation;
     Format format = representation.format;
-
     long startTimeUs = representationHolder.getSegmentStartTimeUs(segmentNum);
     long endTimeUs = representationHolder.getSegmentEndTimeUs(segmentNum);
-    boolean isLastSegment = !currentManifest.dynamic
-        && periodHolders.valueAt(periodHolders.size() - 1) == periodHolder
-        && representationHolder.isLastSegment(segmentNum);
-
     RangedUri segmentUri = representationHolder.getSegmentUrl(segmentNum);
     DataSpec dataSpec = new DataSpec(segmentUri.getUri(), segmentUri.start, segmentUri.length,
         representation.getCacheKey());
@@ -715,15 +716,15 @@ public class DashChunkSource implements ChunkSource, Output {
     long sampleOffsetUs = periodHolder.startTimeUs - representation.presentationTimeOffsetUs;
     if (mimeTypeIsRawText(format.mimeType)) {
       return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_INITIAL, format,
-          startTimeUs, endTimeUs, segmentNum, isLastSegment,
+          startTimeUs, endTimeUs, segmentNum,
           MediaFormat.createTextFormat(format.mimeType, MediaFormat.NO_VALUE, format.language),
           null, periodHolder.localIndex);
     } else {
       boolean isMediaFormatFinal = (mediaFormat != null);
       return new ContainerMediaChunk(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs,
-          segmentNum, isLastSegment, sampleOffsetUs, representationHolder.extractorWrapper,
-          mediaFormat, enabledTrack.adaptiveMaxWidth, enabledTrack.adaptiveMaxHeight,
-          periodHolder.drmInitData, isMediaFormatFinal, periodHolder.localIndex);
+          segmentNum, sampleOffsetUs, representationHolder.extractorWrapper, mediaFormat,
+          enabledTrack.adaptiveMaxWidth, enabledTrack.adaptiveMaxHeight, periodHolder.drmInitData,
+          isMediaFormatFinal, periodHolder.localIndex);
     }
   }
 
