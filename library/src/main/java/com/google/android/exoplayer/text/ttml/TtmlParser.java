@@ -194,7 +194,6 @@ public final class TtmlParser implements SubtitleParser {
     for (int i = 0; i < attributeCount; i++) {
       String attributeName = parser.getAttributeName(i);
       String attributeValue = parser.getAttributeValue(i);
-      // TODO: check if it is safe to remove the namespace prefix
       switch (ParserUtil.removeNamespacePrefix(attributeName)) {
         case TtmlNode.ATTR_ID:
           if (TtmlNode.TAG_STYLE.equals(parser.getName())) {
