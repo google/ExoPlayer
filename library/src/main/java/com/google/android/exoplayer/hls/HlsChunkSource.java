@@ -24,6 +24,7 @@ import com.google.android.exoplayer.chunk.DataChunk;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ts.AdtsExtractor;
+import com.google.android.exoplayer.extractor.ts.PtsTimestampAdjuster;
 import com.google.android.exoplayer.extractor.ts.TsExtractor;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -140,6 +141,7 @@ public class HlsChunkSource {
   private boolean live;
   private long durationUs;
   private IOException fatalError;
+  private PtsTimestampAdjuster ptsTimestampAdjuster;
 
   private Uri encryptionKeyUri;
   private byte[] encryptionKey;
@@ -352,10 +354,21 @@ public class HlsChunkSource {
 
     // Configure the extractor that will read the chunk.
     HlsExtractorWrapper extractorWrapper;
-    if (previousTsChunk == null || segment.discontinuity || !format.equals(previousTsChunk.format)
-        || liveDiscontinuity) {
-      Extractor extractor = chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)
-          ? new AdtsExtractor(startTimeUs) : new TsExtractor(startTimeUs);
+
+    if (previousTsChunk == null || segment.discontinuity || liveDiscontinuity
+        || !format.equals(previousTsChunk.format)) {
+      Extractor extractor;
+      if (chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)) {
+        extractor = new AdtsExtractor(startTimeUs);
+      } else {
+        if (previousTsChunk == null || segment.discontinuity || liveDiscontinuity
+            || ptsTimestampAdjuster == null) {
+          // TODO: Use this for AAC as well, along with the ID3 PRIV priv tag values with owner
+          // identifier com.apple.streaming.transportStreamTimestamp.
+          ptsTimestampAdjuster = new PtsTimestampAdjuster(startTimeUs);
+        }
+        extractor = new TsExtractor(ptsTimestampAdjuster);
+      }
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
           switchingVariantSpliced, adaptiveMaxWidth, adaptiveMaxHeight);
     } else {
