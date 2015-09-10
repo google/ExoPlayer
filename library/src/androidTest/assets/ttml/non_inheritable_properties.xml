@@ -1,0 +1,19 @@
+<tt xmlns="http://www.w3.org/ns/ttml"
+    xmlns="http://www.w3.org/2006/10/ttaf1"
+    xmlns:ttp="http://www.w3.org/2006/10/ttaf1#parameter"
+    xmlns:tts="http://www.w3.org/2006/10/ttaf1#style"
+    xmlns:ttm="http://www.w3.org/2006/10/ttaf1#metadata">
+  <body>
+    <div>
+      <p begin="10s" end="18s"
+        tts:fontWeight="bold"
+        tts:fontStyle="italic"
+        tts:fontFamily="serif"
+        tts:textDecoration="underline"
+        tts:backgroundColor="blue"
+        tts:color="yellow">
+        <span>text 1</span>
+      </p>
+    </div>
+  </body>
+</tt>

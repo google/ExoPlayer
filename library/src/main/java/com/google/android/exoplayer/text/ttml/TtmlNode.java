@@ -15,7 +15,16 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
+import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.AlignmentSpan;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StrikethroughSpan;
+import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
+import android.text.style.UnderlineSpan;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,7 +37,6 @@ import java.util.TreeSet;
 /* package */ final class TtmlNode {
 
   public static final long UNDEFINED_TIME = -1;
-
   public static final String TAG_TT = "tt";
   public static final String TAG_HEAD = "head";
   public static final String TAG_BODY = "body";
@@ -45,25 +53,51 @@ import java.util.TreeSet;
   public static final String TAG_SMPTE_DATA = "smpte:data";
   public static final String TAG_SMPTE_INFORMATION = "smpte:information";
 
+  public static final String ATTR_ID = "id";
+  public static final String ATTR_TTS_BACKGROUND_COLOR = "backgroundColor";
+  public static final String ATTR_TTS_FONT_STYLE = "fontStyle";
+  public static final String ATTR_TTS_FONT_SIZE = "fontSize";
+  public static final String ATTR_TTS_FONT_FAMILY = "fontFamily";
+  public static final String ATTR_TTS_FONT_WEIGHT = "fontWeight";
+  public static final String ATTR_TTS_COLOR = "color";
+  public static final String ATTR_TTS_TEXT_DECORATION = "textDecoration";
+  public static final String ATTR_TTS_TEXT_ALIGN = "textAlign";
+
+  public static final String LINETHROUGH = "linethrough";
+  public static final String NO_LINETHROUGH = "nolinethrough";
+  public static final String UNDERLINE = "underline";
+  public static final String NO_UNDERLINE = "nounderline";
+  public static final String ITALIC = "italic";
+  public static final String BOLD = "bold";
+
+  public static final String LEFT = "left";
+  public static final String CENTER = "center";
+  public static final String RIGHT = "right";
+  public static final String START = "start";
+  public static final String END = "end";
+
   public final String tag;
   public final String text;
   public final boolean isTextNode;
   public final long startTimeUs;
   public final long endTimeUs;
+  public final TtmlStyle style;
 
   private List<TtmlNode> children;
 
-  public static TtmlNode buildTextNode(String text) {
-    return new TtmlNode(null, applyTextElementSpacePolicy(text), UNDEFINED_TIME, UNDEFINED_TIME);
+  public static TtmlNode buildTextNode(String text, TtmlStyle style) {
+    return new TtmlNode(null, applyTextElementSpacePolicy(text), UNDEFINED_TIME,
+        UNDEFINED_TIME, style);
   }
 
-  public static TtmlNode buildNode(String tag, long startTimeUs, long endTimeUs) {
-    return new TtmlNode(tag, null, startTimeUs, endTimeUs);
+  public static TtmlNode buildNode(String tag, long startTimeUs, long endTimeUs, TtmlStyle style) {
+    return new TtmlNode(tag, null, startTimeUs, endTimeUs, style);
   }
 
-  private TtmlNode(String tag, String text, long startTimeUs, long endTimeUs) {
+  private TtmlNode(String tag, String text, long startTimeUs, long endTimeUs, TtmlStyle style) {
     this.tag = tag;
     this.text = text;
+    this.style = style;
     this.isTextNode = text != null;
     this.startTimeUs = startTimeUs;
     this.endTimeUs = endTimeUs;
@@ -168,15 +202,18 @@ import java.util.TreeSet;
     // 4. Trim a trailing newline, if there is one.
     if (builderLength > 0 && builder.charAt(builderLength - 1) == '\n') {
       builder.delete(builderLength - 1, builderLength);
-      builderLength--;
+      /*builderLength--;*/
     }
-    return builder.subSequence(0, builderLength);
+
+    return builder;
   }
 
   private SpannableStringBuilder getText(long timeUs, SpannableStringBuilder builder,
       boolean descendsPNode) {
     if (isTextNode && descendsPNode) {
+      int start = builder.length();
       builder.append(text);
+      applyStylesToSpan(builder, start, builder.length(), style);
     } else if (TAG_BR.equals(tag) && descendsPNode) {
       builder.append('\n');
     } else if (TAG_METADATA.equals(tag)) {
@@ -191,6 +228,37 @@ import java.util.TreeSet;
       }
     }
     return builder;
+  }
+
+  private static void applyStylesToSpan(SpannableStringBuilder builder,
+      int start, int end, TtmlStyle style) {
+
+    if (style.getStyle() != TtmlStyle.UNSPECIFIED) {
+      builder.setSpan(new StyleSpan(style.getStyle()), start, end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    if (style.isLinethrough()) {
+      builder.setSpan(new StrikethroughSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    if (style.isUnderline()) {
+      builder.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    if (style.hasColorSpecified()) {
+      builder.setSpan(new ForegroundColorSpan(style.getColor()), start, end,
+          Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    if (style.hasBackgroundColorSpecified()) {
+      builder.setSpan(new BackgroundColorSpan(style.getBackgroundColor()), start, end,
+          Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    if (style.getFontFamily() != null) {
+      builder.setSpan(new TypefaceSpan(style.getFontFamily()), start, end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    if (style.getTextAlign() != null) {
+      builder.setSpan(new AlignmentSpan.Standard(style.getTextAlign()), start, end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
   }
 
   /**
