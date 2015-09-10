@@ -1,0 +1,24 @@
+<tt xmlns:ttm="http://www.w3.org/2006/10/ttaf1#metadata" xmlns:ttp="http://www.w3.org/2006/10/ttaf1#parameter"
+  xmlns:tts="http://www.w3.org/2006/10/ttaf1#style"
+  xmlns="http://www.w3.org/ns/ttml"
+  xmlns="http://www.w3.org/2006/10/ttaf1">
+  <head>
+    <styling>
+      <style id="s0"
+        tts:color="blue"/>
+      <style id="s1"
+        tts:backgroundColor="red"/>
+    </styling>
+  </head>
+  <body style="s0">
+    <div>
+      <p style="s0" begin="10s" end="18s">text 1</p>
+    </div>
+    <div>
+      <p style="s0" begin="20s" end="28s">text <span style="s0">2</span></p>
+    </div>
+    <div>
+      <p style="s1" begin="20s" end="28s">text <span style="s1">3</span></p>
+    </div>
+  </body>
+</tt>

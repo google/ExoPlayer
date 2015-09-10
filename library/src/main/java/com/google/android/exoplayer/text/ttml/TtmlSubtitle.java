@@ -56,6 +56,11 @@ public final class TtmlSubtitle implements Subtitle {
     return (eventTimesUs.length == 0 ? -1 : eventTimesUs[eventTimesUs.length - 1]);
   }
 
+  /* @VisibleForTesting */
+  /* package */ TtmlNode getRoot() {
+    return root;
+  }
+
   @Override
   public List<Cue> getCues(long timeUs) {
     CharSequence cueText = root.getText(timeUs);
