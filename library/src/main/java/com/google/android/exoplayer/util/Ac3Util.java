@@ -72,7 +72,7 @@ public final class Ac3Util {
       channelCount++;
     }
     return MediaFormat.createAudioFormat(MimeTypes.AUDIO_EC3, MediaFormat.NO_VALUE,
-        MediaFormat.NO_VALUE, channelCount, sampleRate, null);
+        MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate, null);
   }
 
   /**
