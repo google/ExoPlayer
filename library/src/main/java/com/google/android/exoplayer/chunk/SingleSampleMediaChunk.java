@@ -43,17 +43,16 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
-   * @param isLastChunk True if this is the last chunk in the media. False otherwise.
    * @param sampleFormat The format of the sample.
    * @param sampleDrmInitData The {@link DrmInitData} for the sample. Null if the sample is not drm
    *     protected.
    * @param parentId Identifier for a parent from which this chunk originates.
    */
   public SingleSampleMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger,
-      Format format, long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk,
-      MediaFormat sampleFormat, DrmInitData sampleDrmInitData, int parentId) {
-    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, isLastChunk,
-        true, parentId);
+      Format format, long startTimeUs, long endTimeUs, int chunkIndex, MediaFormat sampleFormat,
+      DrmInitData sampleDrmInitData, int parentId) {
+    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, true,
+        parentId);
     this.sampleFormat = sampleFormat;
     this.sampleDrmInitData = sampleDrmInitData;
   }

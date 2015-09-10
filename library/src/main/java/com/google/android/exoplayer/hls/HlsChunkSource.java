@@ -19,6 +19,7 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
+import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.DataChunk;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.extractor.Extractor;
@@ -237,16 +238,18 @@ public class HlsChunkSource {
   }
 
   /**
-   * Returns the next {@link Chunk} that should be loaded.
+   * Updates the provided {@link ChunkOperationHolder} to contain the next operation that should
+   * be performed by the calling {@link HlsSampleSource}.
    *
    * @param previousTsChunk The previously loaded chunk that the next chunk should follow.
    * @param seekPositionUs If there is no previous chunk, this parameter must specify the seek
    *     position. If there is a previous chunk then this parameter is ignored.
    * @param playbackPositionUs The current playback position.
-   * @return The next chunk to load.
+   * @param out The holder to populate with the result. {@link ChunkOperationHolder#queueSize} is
+   *     unused.
    */
-  public Chunk getChunkOperation(TsChunk previousTsChunk, long seekPositionUs,
-      long playbackPositionUs) {
+  public void getChunkOperation(TsChunk previousTsChunk, long seekPositionUs,
+      long playbackPositionUs, ChunkOperationHolder out) {
     int nextVariantIndex;
     boolean switchingVariantSpliced;
     if (adaptiveMode == ADAPTIVE_MODE_NONE) {
@@ -262,7 +265,8 @@ public class HlsChunkSource {
     HlsMediaPlaylist mediaPlaylist = variantPlaylists[nextVariantIndex];
     if (mediaPlaylist == null) {
       // We don't have the media playlist for the next variant. Request it now.
-      return newMediaPlaylistChunk(nextVariantIndex);
+      out.chunk = newMediaPlaylistChunk(nextVariantIndex);
+      return;
     }
 
     selectedVariantIndex = nextVariantIndex;
@@ -299,11 +303,12 @@ public class HlsChunkSource {
 
     int chunkIndex = chunkMediaSequence - mediaPlaylist.mediaSequence;
     if (chunkIndex >= mediaPlaylist.segments.size()) {
-      if (mediaPlaylist.live && shouldRerequestMediaPlaylist(nextVariantIndex)) {
-        return newMediaPlaylistChunk(nextVariantIndex);
-      } else {
-        return null;
+      if (!mediaPlaylist.live) {
+        out.endOfStream = true;
+      } else if (shouldRerequestLiveMediaPlaylist(nextVariantIndex)) {
+        out.chunk = newMediaPlaylistChunk(nextVariantIndex);
       }
+      return;
     }
 
     HlsMediaPlaylist.Segment segment = mediaPlaylist.segments.get(chunkIndex);
@@ -314,8 +319,8 @@ public class HlsChunkSource {
       Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, segment.encryptionKeyUri);
       if (!keyUri.equals(encryptionKeyUri)) {
         // Encryption is specified and the key has changed.
-        Chunk toReturn = newEncryptionKeyChunk(keyUri, segment.encryptionIV, selectedVariantIndex);
-        return toReturn;
+        out.chunk = newEncryptionKeyChunk(keyUri, segment.encryptionIV, selectedVariantIndex);
+        return;
       }
       if (!Util.areEqual(segment.encryptionIV, encryptionIvString)) {
         setEncryptionData(keyUri, segment.encryptionIV, encryptionKey);
@@ -342,7 +347,6 @@ public class HlsChunkSource {
       startTimeUs = segment.startTimeUs;
     }
     long endTimeUs = startTimeUs + (long) (segment.durationSecs * C.MICROS_PER_SECOND);
-    boolean isLastChunk = !mediaPlaylist.live && chunkIndex == mediaPlaylist.segments.size() - 1;
     int trigger = Chunk.TRIGGER_UNSPECIFIED;
     Format format = variants[selectedVariantIndex].format;
 
@@ -358,9 +362,8 @@ public class HlsChunkSource {
       extractorWrapper = previousTsChunk.extractorWrapper;
     }
 
-    return new TsChunk(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs,
-        chunkMediaSequence, isLastChunk, extractorWrapper, encryptionKey,
-        encryptionIv);
+    out.chunk = new TsChunk(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs,
+        chunkMediaSequence, extractorWrapper, encryptionKey, encryptionIv);
   }
 
   /**
@@ -492,7 +495,7 @@ public class HlsChunkSource {
     return lowestQualityEnabledVariantIndex;
   }
 
-  private boolean shouldRerequestMediaPlaylist(int nextVariantIndex) {
+  private boolean shouldRerequestLiveMediaPlaylist(int nextVariantIndex) {
     // Don't re-request media playlist more often than one-half of the target duration.
     HlsMediaPlaylist mediaPlaylist = variantPlaylists[nextVariantIndex];
     long timeSinceLastMediaPlaylistLoadMs =

@@ -53,7 +53,6 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
-   * @param isLastChunk True if this is the last chunk in the media. False otherwise.
    * @param sampleOffsetUs An offset to add to the sample timestamps parsed by the extractor.
    * @param extractorWrapper A wrapped extractor to use for parsing the data.
    * @param mediaFormat The {@link MediaFormat} of the chunk, if known. May be null if the data is
@@ -71,10 +70,10 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
    * @param parentId Identifier for a parent from which this chunk originates.
    */
   public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
-      long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk, long sampleOffsetUs,
+      long startTimeUs, long endTimeUs, int chunkIndex, long sampleOffsetUs,
       ChunkExtractorWrapper extractorWrapper, MediaFormat mediaFormat, int adaptiveMaxWidth,
       int adaptiveMaxHeight, DrmInitData drmInitData, boolean isMediaFormatFinal, int parentId) {
-    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, isLastChunk,
+    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex,
         isMediaFormatFinal, parentId);
     this.extractorWrapper = extractorWrapper;
     this.sampleOffsetUs = sampleOffsetUs;
