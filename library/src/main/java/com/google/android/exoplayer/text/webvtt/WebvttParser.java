@@ -60,6 +60,8 @@ public final class WebvttParser implements SubtitleParser {
   private static final String WEBVTT_CUE_SETTING_STRING = "\\S*:\\S*";
   private static final Pattern WEBVTT_CUE_SETTING = Pattern.compile(WEBVTT_CUE_SETTING_STRING);
 
+  private static final String WEBVTT_PERCENTAGE_NUMBER = "^([0-9]+|[0-9]+\\.[0-9]+)$";
+
   private static final String NON_NUMERIC_STRING = ".*[^0-9].*";
 
   private final StringBuilder textBuilder;
@@ -226,11 +228,11 @@ public final class WebvttParser implements SubtitleParser {
     }
 
     s = s.substring(0, s.length() - 1);
-    if (s.matches(NON_NUMERIC_STRING)) {
+    if (!s.matches(WEBVTT_PERCENTAGE_NUMBER)) {
       throw new NumberFormatException(s + " contains an invalid character");
     }
 
-    int value = Integer.parseInt(s);
+    int value = Math.round(Float.parseFloat(s));
     if (value < 0 || value > 100) {
       throw new NumberFormatException(value + " is out of range [0-100]");
     }
