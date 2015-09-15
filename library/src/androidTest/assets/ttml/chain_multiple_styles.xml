@@ -18,6 +18,9 @@
       <style style="s0 s1" id="s2"
         tts:fontFamily="serif"
         tts:backgroundColor="red" />
+      <style style="s1 s0" id="s3"
+        tts:fontFamily="serif"
+        tts:backgroundColor="red" />
     </styling>
   </head>
   <body>

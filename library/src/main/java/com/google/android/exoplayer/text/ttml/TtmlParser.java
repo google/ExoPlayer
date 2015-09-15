@@ -127,7 +127,7 @@ public final class TtmlParser implements SubtitleParser {
               parseHeader(xmlParser, globalStyles);
             } else {
               try {
-                TtmlNode node = parseNode(xmlParser, parent, globalStyles);
+                TtmlNode node = parseNode(xmlParser, parent);
                 nodeStack.addLast(node);
                 if (parent != null) {
                   parent.addChild(node);
@@ -143,10 +143,10 @@ public final class TtmlParser implements SubtitleParser {
               }
             }
           } else if (eventType == XmlPullParser.TEXT) {
-            parent.addChild(TtmlNode.buildTextNode(xmlParser.getText(), parent.style));
+            parent.addChild(TtmlNode.buildTextNode(xmlParser.getText()));
           } else if (eventType == XmlPullParser.END_TAG) {
             if (xmlParser.getName().equals(TtmlNode.TAG_TT)) {
-              ttmlSubtitle = new TtmlSubtitle(nodeStack.getLast());
+              ttmlSubtitle = new TtmlSubtitle(nodeStack.getLast(), globalStyles);
             }
             nodeStack.removeLast();
           }
@@ -176,7 +176,7 @@ public final class TtmlParser implements SubtitleParser {
         String parentStyleId = xmlParser.getAttributeValue(null, ATTR_STYLE);
         TtmlStyle style = parseStyleAttributes(xmlParser, new TtmlStyle());
         if (parentStyleId != null) {
-          String[] ids = parentStyleId.split(" ");
+          String[] ids = parseStyleIds(parentStyleId);
           for (int i = 0; i < ids.length; i++) {
             style.chain(globalStyles.get(ids[i]));
           }
@@ -187,6 +187,10 @@ public final class TtmlParser implements SubtitleParser {
       }
     } while (!ParserUtil.isEndTag(xmlParser, TtmlNode.TAG_HEAD));
     return globalStyles;
+  }
+
+  private String[] parseStyleIds(String parentStyleIds) {
+    return parentStyleIds.split("\\s+");
   }
 
   private TtmlStyle parseStyleAttributes(XmlPullParser parser, TtmlStyle style) {
@@ -282,23 +286,14 @@ public final class TtmlParser implements SubtitleParser {
     return MimeTypes.APPLICATION_TTML.equals(mimeType);
   }
 
-  private TtmlNode parseNode(XmlPullParser parser, TtmlNode parent,
-      Map<String, TtmlStyle> globalStyles) throws ParserException {
+  private TtmlNode parseNode(XmlPullParser parser, TtmlNode parent) throws ParserException {
     long duration = 0;
     long startTime = TtmlNode.UNDEFINED_TIME;
     long endTime = TtmlNode.UNDEFINED_TIME;
+    String[] styleIds = null;
     int attributeCount = parser.getAttributeCount();
     TtmlStyle style = parseStyleAttributes(parser, null);
-    boolean hasInlineStyles = style != null;
-    if (parent != null && parent.style != null) {
-      if (hasInlineStyles) {
-        style.inherit(parent.style);
-      } else {
-        style = parent.style.getInheritableStyle();
-      }
-    }
     for (int i = 0; i < attributeCount; i++) {
-      // TODO: check if it is safe to remove the namespace prefix
       String attr = ParserUtil.removeNamespacePrefix(parser.getAttributeName(i));
       String value = parser.getAttributeValue(i);
       if (attr.equals(ATTR_BEGIN)) {
@@ -312,32 +307,10 @@ public final class TtmlParser implements SubtitleParser {
             DEFAULT_FRAMERATE, DEFAULT_SUBFRAMERATE, DEFAULT_TICKRATE);
       } else if (attr.equals(ATTR_STYLE)) {
         // IDREFS: potentially multiple space delimited ids
-        String[] ids = value.split(" ");
-        if (style == null) {
-          // use global style without overriding
-          if (ids.length == 1) {
-            style = globalStyles.get(value);
-          } else if (ids.length > 1){
-            style = new TtmlStyle();
-            for (int j = 0; j < ids.length; j++) {
-              style.chain(globalStyles.get(ids[j]));
-            }
-          }
-        } else if (hasInlineStyles) {
-          // local attributes inherits from global style
-          for (int j = 0; j < ids.length; j++) {
-            style.chain(globalStyles.get(ids[j]));
-          }
-        } else if (ids.length > 1 || (ids.length == 1 && style != globalStyles.get(ids[0]))) {
-          // merge global style and parent styles
-          TtmlStyle inheritedStyles = style;
-          style = new TtmlStyle();
-          for (int j = 0; j < ids.length; j++) {
-            style.chain(globalStyles.get(ids[j]));
-          }
-          style.inherit(inheritedStyles);
+        String[] ids = parseStyleIds(value);
+        if (ids.length > 0) {
+          styleIds = ids;
         }
-
       } else {
         // Do nothing.
       }
@@ -359,7 +332,7 @@ public final class TtmlParser implements SubtitleParser {
         endTime = parent.endTimeUs;
       }
     }
-    return TtmlNode.buildNode(parser.getName(), startTime, endTime, style);
+    return TtmlNode.buildNode(parser.getName(), startTime, endTime, style, styleIds);
   }
 
   private static boolean isSupportedTag(String tag) {
