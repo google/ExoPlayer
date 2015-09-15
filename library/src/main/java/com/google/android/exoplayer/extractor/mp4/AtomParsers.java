@@ -376,16 +376,16 @@ import java.util.List;
           || childAtomType == Atom.TYPE_dtsc || childAtomType == Atom.TYPE_dtse
           || childAtomType == Atom.TYPE_dtsh || childAtomType == Atom.TYPE_dtsl) {
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, durationUs,
-            out, i);
+            language, out, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
         out.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML,
-            MediaFormat.NO_VALUE, language, durationUs);
+            MediaFormat.NO_VALUE, durationUs, language);
       } else if (childAtomType == Atom.TYPE_tx3g) {
         out.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TX3G,
-            MediaFormat.NO_VALUE, language, durationUs);
+            MediaFormat.NO_VALUE, durationUs, language);
       } else if (childAtomType == Atom.TYPE_stpp) {
         out.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML,
-            MediaFormat.NO_VALUE, language, durationUs, 0 /* subsample timing is absolute */);
+            MediaFormat.NO_VALUE, durationUs, language, 0 /* subsample timing is absolute */);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
@@ -585,7 +585,7 @@ import java.util.List;
   }
 
   private static void parseAudioSampleEntry(ParsableByteArray parent, int atomType, int position,
-      int size, long durationUs, StsdData out, int entryIndex) {
+      int size, long durationUs, String language, StsdData out, int entryIndex) {
     parent.setPosition(position + Atom.HEADER_SIZE);
     parent.skipBytes(16);
     int channelCount = parent.readUnsignedShort();
@@ -635,17 +635,17 @@ import java.util.List;
         // TODO: Choose the right AC-3 track based on the contents of dac3/dec3.
         // TODO: Add support for encryption (by setting out.trackEncryptionBoxes).
         parent.setPosition(Atom.HEADER_SIZE + childStartPosition);
-        out.mediaFormat = Ac3Util.parseAnnexFAc3Format(parent, durationUs);
+        out.mediaFormat = Ac3Util.parseAnnexFAc3Format(parent, durationUs, language);
         return;
       } else if (atomType == Atom.TYPE_ec_3 && childAtomType == Atom.TYPE_dec3) {
         parent.setPosition(Atom.HEADER_SIZE + childStartPosition);
-        out.mediaFormat = Ac3Util.parseAnnexFEAc3Format(parent, durationUs);
+        out.mediaFormat = Ac3Util.parseAnnexFEAc3Format(parent, durationUs, language);
         return;
       } else if ((atomType == Atom.TYPE_dtsc || atomType == Atom.TYPE_dtse
           || atomType == Atom.TYPE_dtsh || atomType == Atom.TYPE_dtsl)
           && childAtomType == Atom.TYPE_ddts) {
         out.mediaFormat = MediaFormat.createAudioFormat(mimeType, MediaFormat.NO_VALUE,
-            MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate, null);
+            MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate, null, language);
         return;
       }
       childPosition += childAtomSize;
@@ -658,7 +658,8 @@ import java.util.List;
 
     out.mediaFormat = MediaFormat.createAudioFormat(mimeType, MediaFormat.NO_VALUE, sampleSize,
         durationUs, channelCount, sampleRate,
-        initializationData == null ? null : Collections.singletonList(initializationData));
+        initializationData == null ? null : Collections.singletonList(initializationData),
+        language);
   }
 
   /** Returns codec-specific initialization data contained in an esds box. */

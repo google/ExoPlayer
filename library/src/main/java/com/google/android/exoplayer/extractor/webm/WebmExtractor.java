@@ -1210,12 +1210,12 @@ public final class WebmExtractor implements Extractor {
       MediaFormat format;
       if (MimeTypes.isAudio(mimeType)) {
         format = MediaFormat.createAudioFormat(mimeType, MediaFormat.NO_VALUE, maxInputSize,
-            durationUs, channelCount, sampleRate, initializationData);
+            durationUs, channelCount, sampleRate, initializationData, language);
       } else if (MimeTypes.isVideo(mimeType)) {
         format = MediaFormat.createVideoFormat(mimeType, MediaFormat.NO_VALUE, maxInputSize,
             durationUs, width, height, initializationData);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
-        format = MediaFormat.createTextFormat(mimeType, MediaFormat.NO_VALUE, language, durationUs);
+        format = MediaFormat.createTextFormat(mimeType, MediaFormat.NO_VALUE, durationUs, language);
       } else {
         throw new ParserException("Unexpected MIME type.");
       }
