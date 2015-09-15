@@ -45,9 +45,9 @@ public final class MediaFormatTest extends TestCase {
     initData.add(initData2);
 
     testConversionToFrameworkFormatV16(MediaFormat.createVideoFormat(
-        "video/xyz", 5000, 102400, 1000L, 1280, 720, 1, initData));
+        "video/xyz", 5000, 102400, 1000L, 1280, 720, initData));
     testConversionToFrameworkFormatV16(MediaFormat.createVideoFormat(
-        "video/xyz", 5000, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, 1280, 720, 1, null));
+        "video/xyz", 5000, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, 1280, 720, null));
     testConversionToFrameworkFormatV16(MediaFormat.createAudioFormat(
         "audio/xyz", 500, 128, 1000L, 5, 44100, initData));
     testConversionToFrameworkFormatV16(MediaFormat.createAudioFormat(

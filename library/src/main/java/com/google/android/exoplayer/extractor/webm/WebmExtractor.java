@@ -1213,7 +1213,7 @@ public final class WebmExtractor implements Extractor {
             durationUs, channelCount, sampleRate, initializationData);
       } else if (MimeTypes.isVideo(mimeType)) {
         format = MediaFormat.createVideoFormat(mimeType, MediaFormat.NO_VALUE, maxInputSize,
-            durationUs, width, height, 0, initializationData);
+            durationUs, width, height, initializationData);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
         format = MediaFormat.createTextFormat(mimeType, MediaFormat.NO_VALUE, language, durationUs);
       } else {
