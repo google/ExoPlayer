@@ -173,8 +173,7 @@ public final class MediaCodecUtil {
    */
   private static boolean isCodecUsableDecoder(MediaCodecInfo info, String name,
       boolean secureDecodersExplicit) {
-    if (info.isEncoder() || !name.startsWith("OMX.")
-        || (!secureDecodersExplicit && name.endsWith(".secure"))) {
+    if (info.isEncoder() || (!secureDecodersExplicit && name.endsWith(".secure"))) {
       return false;
     }
 
