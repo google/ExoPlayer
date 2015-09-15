@@ -495,7 +495,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       } else {
         sampleCompositionTimeOffsetTable[i] = 0;
       }
-      sampleDecodingTimeTable[i] = (cumulativeTime * 1000) / timescale;
+      sampleDecodingTimeTable[i] = Util.scaleLargeTimestamp(cumulativeTime, 1000, timescale);
       sampleSizeTable[i] = sampleSize;
       sampleIsSyncFrameTable[i] = ((sampleFlags >> 16) & 0x1) == 0
           && (!workaroundEveryVideoFrameIsSyncFrame || i == 0);
