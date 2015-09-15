@@ -21,6 +21,7 @@ import com.google.android.exoplayer.util.Util;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A representation of a TTML subtitle.
@@ -29,9 +30,12 @@ public final class TtmlSubtitle implements Subtitle {
 
   private final TtmlNode root;
   private final long[] eventTimesUs;
+  private final Map<String, TtmlStyle> globalStyles;
 
-  public TtmlSubtitle(TtmlNode root) {
+  public TtmlSubtitle(TtmlNode root, Map<String, TtmlStyle> globalStyles) {
     this.root = root;
+    this.globalStyles = globalStyles != null
+        ? Collections.unmodifiableMap(globalStyles) : Collections.<String, TtmlStyle>emptyMap();
     this.eventTimesUs = root.getEventTimesUs();
   }
 
@@ -63,7 +67,7 @@ public final class TtmlSubtitle implements Subtitle {
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    CharSequence cueText = root.getText(timeUs);
+    CharSequence cueText = root.getText(timeUs, globalStyles);
     if (cueText == null) {
       return Collections.<Cue>emptyList();
     } else {
@@ -72,4 +76,8 @@ public final class TtmlSubtitle implements Subtitle {
     }
   }
 
+  /* @VisibleForTesting */
+  /* package */ Map<String, TtmlStyle> getGlobalStyles() {
+    return globalStyles;
+  }
 }

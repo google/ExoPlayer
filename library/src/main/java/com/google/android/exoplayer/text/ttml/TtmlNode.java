@@ -15,20 +15,12 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
-import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.AlignmentSpan;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StrikethroughSpan;
-import android.text.style.StyleSpan;
-import android.text.style.TypefaceSpan;
-import android.text.style.UnderlineSpan;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 /**
@@ -82,22 +74,28 @@ import java.util.TreeSet;
   public final long startTimeUs;
   public final long endTimeUs;
   public final TtmlStyle style;
+  private String[] styleIds;
 
   private List<TtmlNode> children;
+  private int start;
+  private int end;
 
-  public static TtmlNode buildTextNode(String text, TtmlStyle style) {
-    return new TtmlNode(null, applyTextElementSpacePolicy(text), UNDEFINED_TIME,
-        UNDEFINED_TIME, style);
+  public static TtmlNode buildTextNode(String text) {
+    return new TtmlNode(null, TtmlRenderUtil.applyTextElementSpacePolicy(text), UNDEFINED_TIME,
+        UNDEFINED_TIME, null, null);
   }
 
-  public static TtmlNode buildNode(String tag, long startTimeUs, long endTimeUs, TtmlStyle style) {
-    return new TtmlNode(tag, null, startTimeUs, endTimeUs, style);
+  public static TtmlNode buildNode(String tag, long startTimeUs, long endTimeUs,
+      TtmlStyle style, String[] styleIds) {
+    return new TtmlNode(tag, null, startTimeUs, endTimeUs, style, styleIds);
   }
 
-  private TtmlNode(String tag, String text, long startTimeUs, long endTimeUs, TtmlStyle style) {
+  private TtmlNode(String tag, String text, long startTimeUs, long endTimeUs,
+      TtmlStyle style, String[] styleIds) {
     this.tag = tag;
     this.text = text;
     this.style = style;
+    this.styleIds = styleIds;
     this.isTextNode = text != null;
     this.startTimeUs = startTimeUs;
     this.endTimeUs = endTimeUs;
@@ -159,8 +157,14 @@ import java.util.TreeSet;
     }
   }
 
-  public CharSequence getText(long timeUs) {
-    SpannableStringBuilder builder = getText(timeUs, new SpannableStringBuilder(), false);
+  public String[] getStyleIds() {
+    return styleIds;
+  }
+
+  public CharSequence getText(long timeUs, Map<String, TtmlStyle> globalStyles) {
+    SpannableStringBuilder builder = new SpannableStringBuilder();
+    traverseForText(timeUs, builder, false);
+    traverseForStyle(builder, globalStyles);
     // Having joined the text elements, we need to do some final cleanup on the result.
     // 1. Collapse multiple consecutive spaces into a single space.
     int builderLength = builder.length();
@@ -208,12 +212,12 @@ import java.util.TreeSet;
     return builder;
   }
 
-  private SpannableStringBuilder getText(long timeUs, SpannableStringBuilder builder,
+  private SpannableStringBuilder traverseForText(long timeUs, SpannableStringBuilder builder,
       boolean descendsPNode) {
+    start = builder.length();
+    end = start;
     if (isTextNode && descendsPNode) {
-      int start = builder.length();
       builder.append(text);
-      applyStylesToSpan(builder, start, builder.length(), style);
     } else if (TAG_BR.equals(tag) && descendsPNode) {
       builder.append('\n');
     } else if (TAG_METADATA.equals(tag)) {
@@ -221,79 +225,27 @@ import java.util.TreeSet;
     } else if (isActive(timeUs)) {
       boolean isPNode = TAG_P.equals(tag);
       for (int i = 0; i < getChildCount(); ++i) {
-        getChild(i).getText(timeUs, builder, descendsPNode || isPNode);
+        getChild(i).traverseForText(timeUs, builder, descendsPNode || isPNode);
       }
       if (isPNode) {
-        endParagraph(builder);
+        TtmlRenderUtil.endParagraph(builder);
       }
+      end = builder.length();
     }
     return builder;
   }
 
-  private static void applyStylesToSpan(SpannableStringBuilder builder,
-      int start, int end, TtmlStyle style) {
-
-    if (style.getStyle() != TtmlStyle.UNSPECIFIED) {
-      builder.setSpan(new StyleSpan(style.getStyle()), start, end,
-          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+  private void traverseForStyle(SpannableStringBuilder builder,
+      Map<String, TtmlStyle> globalStyles) {
+    if (start != end) {
+      TtmlStyle resolvedStyle = TtmlRenderUtil.resolveStyle(style, styleIds, globalStyles);
+      if (resolvedStyle != null) {
+        TtmlRenderUtil.applyStylesToSpan(builder, start, end, resolvedStyle);
+      }
+      for (int i = 0; i < getChildCount(); ++i) {
+        getChild(i).traverseForStyle(builder, globalStyles);
+      }
     }
-    if (style.isLinethrough()) {
-      builder.setSpan(new StrikethroughSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
-    if (style.isUnderline()) {
-      builder.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
-    if (style.hasColorSpecified()) {
-      builder.setSpan(new ForegroundColorSpan(style.getColor()), start, end,
-          Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
-    if (style.hasBackgroundColorSpecified()) {
-      builder.setSpan(new BackgroundColorSpan(style.getBackgroundColor()), start, end,
-          Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
-    if (style.getFontFamily() != null) {
-      builder.setSpan(new TypefaceSpan(style.getFontFamily()), start, end,
-          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
-    if (style.getTextAlign() != null) {
-      builder.setSpan(new AlignmentSpan.Standard(style.getTextAlign()), start, end,
-          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
-  }
-
-  /**
-   * Invoked when the end of a paragraph is encountered. Adds a newline if there are one or more
-   * non-space characters since the previous newline.
-   *
-   * @param builder The builder.
-   */
-  private static void endParagraph(SpannableStringBuilder builder) {
-    int position = builder.length() - 1;
-    while (position >= 0 && builder.charAt(position) == ' ') {
-      position--;
-    }
-    if (position >= 0 && builder.charAt(position) != '\n') {
-      builder.append('\n');
-    }
-  }
-
-  /**
-   * Applies the appropriate space policy to the given text element.
-   *
-   * @param in The text element to which the policy should be applied.
-   * @return The result of applying the policy to the text element.
-   */
-  private static String applyTextElementSpacePolicy(String in) {
-    // Removes carriage return followed by line feed. See: http://www.w3.org/TR/xml/#sec-line-ends
-    String out = in.replaceAll("\r\n", "\n");
-    // Apply suppress-at-line-break="auto" and
-    // white-space-treatment="ignore-if-surrounding-linefeed"
-    out = out.replaceAll(" *\n *", "\n");
-    // Apply linefeed-treatment="treat-as-space"
-    out = out.replaceAll("\n", " ");
-    // Apply white-space-collapse="true"
-    out = out.replaceAll("[ \t\\x0B\f\r]+", " ");
-    return out;
   }
 
 }

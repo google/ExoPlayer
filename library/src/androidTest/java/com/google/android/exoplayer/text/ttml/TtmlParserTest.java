@@ -15,12 +15,24 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
+import com.google.android.exoplayer.text.Cue;
+
 import android.graphics.Color;
 import android.test.InstrumentationTestCase;
 import android.text.Layout;
+import android.text.SpannableStringBuilder;
+import android.text.style.AlignmentSpan;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StrikethroughSpan;
+import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
+import android.text.style.UnderlineSpan;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Unit test for {@link TtmlParser}.
@@ -35,16 +47,12 @@ public final class TtmlParserTest extends InstrumentationTestCase {
       "ttml/inherit_and_override_style.xml";
   private static final String INHERIT_GLOBAL_AND_PARENT_TTML_FILE =
       "ttml/inherit_global_and_parent.xml";
-  private static final String NON_INHERTABLE_PROPERTIES_TTML_FILE =
-      "ttml/non_inheritable_properties.xml";
   private static final String INHERIT_MULTIPLE_STYLES_TTML_FILE =
       "ttml/inherit_multiple_styles.xml";
   private static final String CHAIN_MULTIPLE_STYLES_TTML_FILE =
       "ttml/chain_multiple_styles.xml";
   private static final String NO_UNDERLINE_LINETHROUGH_TTML_FILE =
       "ttml/no_underline_linethrough.xml";
-  private static final String INSTANCE_CREATION_TTML_FILE =
-      "ttml/instance_creation.xml";
   private static final String NAMESPACE_CONFUSION_TTML_FILE =
       "ttml/namespace_confusion.xml";
   private static final String NAMESPACE_NOT_DECLARED_TTML_FILE =
@@ -67,143 +75,53 @@ public final class TtmlParserTest extends InstrumentationTestCase {
   }
 
   public void testInheritInlineAttributes() throws IOException {
-
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
     assertEquals(4, subtitle.getEventTimeCount());
-
-    TtmlNode root = subtitle.getRoot();
-    // inherite inline attributes
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode secondDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 1);
-    TtmlStyle secondPStyle = queryChildrenForTag(secondDiv, TtmlNode.TAG_P, 0).style;
-    assertEquals(Color.parseColor("lime"), secondPStyle.getColor());
-    assertFalse(secondPStyle.hasBackgroundColorSpecified());
-    assertEquals(0, secondPStyle.getBackgroundColor());
-    assertEquals("sansSerif", secondPStyle.getFontFamily());
-    assertEquals(TtmlStyle.STYLE_ITALIC, secondPStyle.getStyle());
-    assertTrue(secondPStyle.isLinethrough());
+    assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_ITALIC,
+        Color.CYAN, Color.parseColor("lime"), false, true, null);
   }
 
   public void testInheritGlobalStyle() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_STYLE_TTML_FILE);
     assertEquals(2, subtitle.getEventTimeCount());
-
-    TtmlNode root = subtitle.getRoot();
-
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode firstDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 0);
-    TtmlStyle firstPStyle = queryChildrenForTag(firstDiv, TtmlNode.TAG_P, 0).style;
-    assertEquals(Color.parseColor("yellow"), firstPStyle.getColor());
-    assertEquals(Color.parseColor("blue"), firstPStyle.getBackgroundColor());
-    assertEquals("serif", firstPStyle.getFontFamily());
-    assertEquals(TtmlStyle.STYLE_BOLD_ITALIC, firstPStyle.getStyle());
-    assertTrue(firstPStyle.isUnderline());
+    assertSpans(subtitle, 10, "text 1", "serif", TtmlStyle.STYLE_BOLD_ITALIC,
+        Color.BLUE, Color.YELLOW, true, false, null);
   }
 
   public void testInheritGlobalStyleOverriddenByInlineAttributes() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_STYLE_OVERRIDE_TTML_FILE);
     assertEquals(4, subtitle.getEventTimeCount());
 
-    TtmlNode root = subtitle.getRoot();
-
-    // first pNode inherits global style
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode firstDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 0);
-    TtmlStyle firstPStyle = queryChildrenForTag(firstDiv, TtmlNode.TAG_P, 0).style;
-    assertEquals(Color.parseColor("yellow"), firstPStyle.getColor());
-    assertEquals(Color.parseColor("blue"), firstPStyle.getBackgroundColor());
-    assertEquals("serif", firstPStyle.getFontFamily());
-    assertEquals(TtmlStyle.STYLE_BOLD_ITALIC, firstPStyle.getStyle());
-    assertTrue(firstPStyle.isUnderline());
-
-    // second pNode inherits global style and overrides with attribute
-    TtmlNode secondDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 1);
-    TtmlStyle secondPStyle = queryChildrenForTag(secondDiv, TtmlNode.TAG_P, 0).style;
-    assertEquals(Color.parseColor("yellow"), secondPStyle.getColor());
-    assertEquals(Color.parseColor("red"), secondPStyle.getBackgroundColor());
-    assertEquals("sansSerif", secondPStyle.getFontFamily());
-    assertEquals(TtmlStyle.STYLE_ITALIC, secondPStyle.getStyle());
-    assertTrue(secondPStyle.isUnderline());
+    assertSpans(subtitle, 10, "text 1", "serif", TtmlStyle.STYLE_BOLD_ITALIC, Color.BLUE,
+        Color.YELLOW, true, false, null);
+    assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_ITALIC, Color.RED,
+        Color.YELLOW, true, false, null);
   }
 
   public void testInheritGlobalAndParent() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_GLOBAL_AND_PARENT_TTML_FILE);
     assertEquals(4, subtitle.getEventTimeCount());
 
-    TtmlNode root = subtitle.getRoot();
-
-    // first pNode inherits parent style
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode firstDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 0);
-    TtmlStyle firstPStyle = queryChildrenForTag(firstDiv, TtmlNode.TAG_P, 0).style;
-
-    assertFalse(firstPStyle.hasBackgroundColorSpecified());
-    assertEquals(0, firstPStyle.getBackgroundColor());
-
-    assertEquals(Color.parseColor("lime"), firstPStyle.getColor());
-    assertEquals("sansSerif", firstPStyle.getFontFamily());
-    assertEquals(TtmlStyle.STYLE_NORMAL, firstPStyle.getStyle());
-    assertTrue(firstPStyle.isLinethrough());
-
-    // second pNode inherits parent style and overrides with global style
-    TtmlNode secondDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 1);
-    TtmlStyle secondPStyle = queryChildrenForTag(secondDiv, TtmlNode.TAG_P, 0).style;
-    // attributes overridden by global style
-    assertEquals(Color.parseColor("blue"), secondPStyle.getBackgroundColor());
-    assertEquals(Color.parseColor("yellow"), secondPStyle.getColor());
-    assertEquals(TtmlStyle.STYLE_BOLD_ITALIC, secondPStyle.getStyle());
-    assertEquals("serif", secondPStyle.getFontFamily());
-    assertTrue(secondPStyle.isUnderline());
-    assertEquals(Layout.Alignment.ALIGN_CENTER, secondPStyle.getTextAlign());
-  }
-
-  public void testNonInheritablePropertiesAreNotInherited() throws IOException {
-    TtmlSubtitle subtitle = getSubtitle(NON_INHERTABLE_PROPERTIES_TTML_FILE);
-    assertEquals(2, subtitle.getEventTimeCount());
-
-    TtmlNode root = subtitle.getRoot();
-
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode firstDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 0);
-    TtmlNode firstPStyle = queryChildrenForTag(firstDiv, TtmlNode.TAG_P, 0);
-    TtmlStyle spanStyle = queryChildrenForTag(firstPStyle, TtmlNode.TAG_SPAN, 0).style;
-
-    assertFalse("background color must not be inherited from a context node",
-        spanStyle.hasBackgroundColorSpecified());
+    assertSpans(subtitle, 10, "text 1", "sansSerif", TtmlStyle.STYLE_NORMAL,
+        Color.RED, Color.parseColor("lime"), false, true, Layout.Alignment.ALIGN_CENTER);
+    assertSpans(subtitle, 20, "text 2", "serif", TtmlStyle.STYLE_BOLD_ITALIC,
+        Color.BLUE, Color.YELLOW, true, true, Layout.Alignment.ALIGN_CENTER);
   }
 
   public void testInheritMultipleStyles() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
     assertEquals(12, subtitle.getEventTimeCount());
 
-    TtmlNode root = subtitle.getRoot();
-
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode firstDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 0);
-    TtmlStyle firstPStyle = queryChildrenForTag(firstDiv, TtmlNode.TAG_P, 0).style;
-
-    assertEquals(Color.parseColor("blue"), firstPStyle.getBackgroundColor());
-    assertEquals(Color.parseColor("yellow"), firstPStyle.getColor());
-    assertEquals("sansSerif", firstPStyle.getFontFamily());
-    assertEquals(TtmlStyle.STYLE_BOLD_ITALIC, firstPStyle.getStyle());
-    assertTrue(firstPStyle.isLinethrough());
+    assertSpans(subtitle, 10, "text 1", "sansSerif", TtmlStyle.STYLE_BOLD_ITALIC,
+        Color.BLUE, Color.YELLOW, false, true, null);
   }
 
   public void testInheritMultipleStylesWithoutLocalAttributes() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
     assertEquals(12, subtitle.getEventTimeCount());
 
-    TtmlNode root = subtitle.getRoot();
-
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode secondDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 1);
-    TtmlStyle firstPStyle = queryChildrenForTag(secondDiv, TtmlNode.TAG_P, 0).style;
-
-    assertEquals(Color.parseColor("blue"), firstPStyle.getBackgroundColor());
-    assertEquals(Color.parseColor("black"), firstPStyle.getColor());
-    assertEquals("sansSerif", firstPStyle.getFontFamily());
-    assertEquals(TtmlStyle.STYLE_BOLD_ITALIC, firstPStyle.getStyle());
-    assertTrue(firstPStyle.isLinethrough());
+    assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_BOLD_ITALIC,
+        Color.BLUE, Color.BLACK, false, true, null);
 
   }
 
@@ -211,21 +129,8 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
     assertEquals(12, subtitle.getEventTimeCount());
 
-    TtmlNode root = subtitle.getRoot();
-
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode thirdDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 2);
-    TtmlStyle firstPStyle = queryChildrenForTag(thirdDiv, TtmlNode.TAG_P, 0).style;
-
-    // inherit from first global style
-    assertEquals(Color.parseColor("red"), firstPStyle.getBackgroundColor());
-    // inherit from second global style
-    assertTrue(firstPStyle.isLinethrough());
-    // inherited from parent node
-    assertEquals("sansSerifInline", firstPStyle.getFontFamily());
-    assertEquals(TtmlStyle.STYLE_ITALIC, firstPStyle.getStyle());
-    assertTrue(firstPStyle.isUnderline());
-    assertEquals(Color.parseColor("yellow"), firstPStyle.getColor());
+    assertSpans(subtitle, 30, "text 2.5", "sansSerifInline", TtmlStyle.STYLE_ITALIC,
+        Color.RED, Color.YELLOW, true, true, null);
   }
 
   public void testEmptyStyleAttribute() throws IOException {
@@ -236,8 +141,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
     TtmlNode fourthDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 3);
 
-    // no styles specified
-    assertNull(queryChildrenForTag(fourthDiv, TtmlNode.TAG_P, 0).style);
+    assertNull(queryChildrenForTag(fourthDiv, TtmlNode.TAG_P, 0).getStyleIds());
   }
 
   public void testNonexistingStyleId() throws IOException {
@@ -248,11 +152,10 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
     TtmlNode fifthDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 4);
 
-    // no styles specified
-    assertNull(queryChildrenForTag(fifthDiv, TtmlNode.TAG_P, 0).style);
+    assertEquals(1, queryChildrenForTag(fifthDiv, TtmlNode.TAG_P, 0).getStyleIds().length);
   }
 
-  public void testNonExistingAndExistingStyleId() throws IOException {
+  public void testNonExistingAndExistingStyleIdWithRedundantSpaces() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
     assertEquals(12, subtitle.getEventTimeCount());
 
@@ -260,28 +163,30 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
     TtmlNode sixthDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 5);
 
-    // no styles specified
-    TtmlStyle style = queryChildrenForTag(sixthDiv, TtmlNode.TAG_P, 0).style;
-    assertNotNull(style);
-    assertEquals(Color.RED, style.getBackgroundColor());
+    String[] styleIds = queryChildrenForTag(sixthDiv, TtmlNode.TAG_P, 0).getStyleIds();
+    assertEquals(2, styleIds.length);
   }
 
   public void testMultipleChaining() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(CHAIN_MULTIPLE_STYLES_TTML_FILE);
     assertEquals(2, subtitle.getEventTimeCount());
 
-    TtmlNode root = subtitle.getRoot();
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode div = queryChildrenForTag(body, TtmlNode.TAG_DIV, 0);
+    Map<String, TtmlStyle> globalStyles = subtitle.getGlobalStyles();
 
-    // no styles specified
-    TtmlStyle style = queryChildrenForTag(div, TtmlNode.TAG_P, 0).style;
+    TtmlStyle style = globalStyles.get("s2");
     assertEquals("serif", style.getFontFamily());
     assertEquals(Color.RED, style.getBackgroundColor());
     assertEquals(Color.BLACK, style.getColor());
     assertEquals(TtmlStyle.STYLE_BOLD_ITALIC, style.getStyle());
     assertTrue(style.isLinethrough());
 
+    style = globalStyles.get("s3");
+    // only difference: color must be RED
+    assertEquals(Color.RED, style.getColor());
+    assertEquals("serif", style.getFontFamily());
+    assertEquals(Color.RED, style.getBackgroundColor());
+    assertEquals(TtmlStyle.STYLE_BOLD_ITALIC, style.getStyle());
+    assertTrue(style.isLinethrough());
   }
 
   public void testNoUnderline() throws IOException {
@@ -307,32 +212,6 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     TtmlStyle style = queryChildrenForTag(div, TtmlNode.TAG_P, 0).style;
     assertFalse("noLineThrough from inline attribute expected in second pNode",
         style.isLinethrough());
-  }
-
-
-  public void testOnlySingleInstance() throws IOException {
-    TtmlSubtitle subtitle = getSubtitle(INSTANCE_CREATION_TTML_FILE);
-    assertEquals(4, subtitle.getEventTimeCount());
-
-    TtmlNode root = subtitle.getRoot();
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode firstDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 0);
-    TtmlNode secondDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 1);
-    TtmlNode thirdDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 2);
-
-    TtmlNode firstP = queryChildrenForTag(firstDiv, TtmlNode.TAG_P, 0);
-    TtmlNode secondP = queryChildrenForTag(secondDiv, TtmlNode.TAG_P, 0);
-    TtmlNode secondSpan = queryChildrenForTag(secondP, TtmlNode.TAG_SPAN, 0);
-    TtmlNode thirdP = queryChildrenForTag(thirdDiv, TtmlNode.TAG_P, 0);
-    TtmlNode thirdSpan = queryChildrenForTag(secondP, TtmlNode.TAG_SPAN, 0);
-
-    // inherit the same instance down the tree if possible
-    assertSame(body.style, firstP.style);
-    assertSame(firstP.style, secondP.style);
-    assertSame(secondP.style, secondSpan.style);
-
-    // if a backgroundColor is involved it does not help
-    assertNotSame(thirdP.style.getInheritableStyle(), thirdSpan.style);
   }
 
   public void testNamspaceConfusionDoesNotHurt() throws IOException {
@@ -371,6 +250,60 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertFalse(style.isUnderline());
     assertTrue(style.isLinethrough());
 
+  }
+
+  private void assertSpans(TtmlSubtitle subtitle, int second,
+      String text, String font, int fontStyle,
+      int backgroundColor, int color, boolean isUnderline,
+      boolean isLinethrough, Layout.Alignment alignment) {
+
+    long timeUs = second * 1000000;
+    List<Cue> cues = subtitle.getCues(timeUs);
+
+    assertEquals(1, cues.size());
+    assertEquals(text, String.valueOf(cues.get(0).text));
+
+    assertEquals("single cue expected for timeUs: " + timeUs, 1, cues.size());
+    SpannableStringBuilder spannable = (SpannableStringBuilder) cues.get(0).text;
+
+    TypefaceSpan[] typefaceSpans = spannable.getSpans(0, spannable.length(), TypefaceSpan.class);
+    assertEquals(font, typefaceSpans[typefaceSpans.length - 1].getFamily());
+
+    StyleSpan[] styleSpans = spannable.getSpans(0, spannable.length(), StyleSpan.class);
+    assertEquals(fontStyle, styleSpans[styleSpans.length - 1].getStyle());
+
+    UnderlineSpan[] underlineSpans = spannable.getSpans(0, spannable.length(),
+        UnderlineSpan.class);
+    assertEquals(isUnderline ? "must be underlined" : "must not be underlined",
+        isUnderline ? 1 : 0, underlineSpans.length);
+
+    StrikethroughSpan[] striketroughSpans = spannable.getSpans(0, spannable.length(),
+        StrikethroughSpan.class);
+    assertEquals(isLinethrough ? "must be strikethrough" : "must not be strikethrough",
+        isLinethrough ? 1 : 0, striketroughSpans.length);
+
+    BackgroundColorSpan[] backgroundColorSpans =
+        spannable.getSpans(0, spannable.length(), BackgroundColorSpan.class);
+    if (backgroundColor != 0) {
+      assertEquals(backgroundColor, backgroundColorSpans[backgroundColorSpans.length - 1]
+          .getBackgroundColor());
+    } else {
+      assertEquals(0, backgroundColorSpans.length);
+    }
+
+    ForegroundColorSpan[] foregroundColorSpans =
+        spannable.getSpans(0, spannable.length(), ForegroundColorSpan.class);
+    assertEquals(color, foregroundColorSpans[foregroundColorSpans.length - 1].getForegroundColor());
+
+    if (alignment != null) {
+      AlignmentSpan.Standard[] alignmentSpans =
+          spannable.getSpans(0, spannable.length(), AlignmentSpan.Standard.class);
+      assertEquals(1, alignmentSpans.length);
+      assertEquals(alignment, alignmentSpans[0].getAlignment());
+    } else {
+      assertEquals(0, spannable.getSpans
+          (0, spannable.length(), AlignmentSpan.Standard.class).length);
+    }
   }
 
   private TtmlNode queryChildrenForTag(TtmlNode node, String tag, int pos) {
