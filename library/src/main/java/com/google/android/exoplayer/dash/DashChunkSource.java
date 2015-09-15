@@ -607,7 +607,7 @@ public class DashChunkSource implements ChunkSource, Output {
     switch (adaptationSetType) {
       case AdaptationSet.TYPE_VIDEO:
         return MediaFormat.createVideoFormat(mediaMimeType, format.bitrate, MediaFormat.NO_VALUE,
-            durationUs, format.width, format.height, 0, null);
+            durationUs, format.width, format.height, null);
       case AdaptationSet.TYPE_AUDIO:
         return MediaFormat.createAudioFormat(mediaMimeType, format.bitrate, MediaFormat.NO_VALUE,
             durationUs, format.audioChannels, format.audioSamplingRate, null);
@@ -716,9 +716,8 @@ public class DashChunkSource implements ChunkSource, Output {
     long sampleOffsetUs = periodHolder.startTimeUs - representation.presentationTimeOffsetUs;
     if (mimeTypeIsRawText(format.mimeType)) {
       return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_INITIAL, format,
-          startTimeUs, endTimeUs, segmentNum,
-          MediaFormat.createTextFormat(format.mimeType, MediaFormat.NO_VALUE, format.language),
-          null, periodHolder.localIndex);
+          startTimeUs, endTimeUs, segmentNum, enabledTrack.trackFormat, null,
+          periodHolder.localIndex);
     } else {
       boolean isMediaFormatFinal = (mediaFormat != null);
       return new ContainerMediaChunk(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs,

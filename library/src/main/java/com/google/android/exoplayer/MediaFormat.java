@@ -135,30 +135,17 @@ public final class MediaFormat {
   private android.media.MediaFormat frameworkMediaFormat;
 
   public static MediaFormat createVideoFormat(String mimeType, int bitrate, int maxInputSize,
-      int width, int height, List<byte[]> initializationData) {
-    return createVideoFormat(mimeType, bitrate, maxInputSize, C.UNKNOWN_TIME_US, width, height,
-        NO_VALUE, initializationData);
-  }
-
-  public static MediaFormat createVideoFormat(String mimeType, int bitrate, int maxInputSize,
-      long durationUs, int width, int height, int rotationDegrees,
-      List<byte[]> initializationData) {
+      long durationUs, int width, int height, List<byte[]> initializationData) {
     return createVideoFormat(mimeType, bitrate, maxInputSize, durationUs, width, height,
-        rotationDegrees, NO_VALUE, initializationData);
+        initializationData, NO_VALUE, NO_VALUE);
   }
 
   public static MediaFormat createVideoFormat(String mimeType, int bitrate, int maxInputSize,
-      long durationUs, int width, int height, int rotationDegrees, float pixelWidthHeightRatio,
-      List<byte[]> initializationData) {
+      long durationUs, int width, int height, List<byte[]> initializationData, int rotationDegrees,
+      float pixelWidthHeightRatio) {
     return new MediaFormat(mimeType, bitrate, maxInputSize, durationUs, width, height,
         rotationDegrees, pixelWidthHeightRatio, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE,
         initializationData, false, NO_VALUE, NO_VALUE);
-  }
-
-  public static MediaFormat createAudioFormat(String mimeType, int bitrate, int maxInputSize,
-      int channelCount, int sampleRate, List<byte[]> initializationData) {
-    return createAudioFormat(mimeType, bitrate, maxInputSize, C.UNKNOWN_TIME_US, channelCount,
-        sampleRate, initializationData);
   }
 
   public static MediaFormat createAudioFormat(String mimeType, int bitrate, int maxInputSize,
@@ -166,10 +153,6 @@ public final class MediaFormat {
     return new MediaFormat(mimeType, bitrate, maxInputSize, durationUs, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, channelCount, sampleRate, null, OFFSET_SAMPLE_RELATIVE,
         initializationData, false, NO_VALUE, NO_VALUE);
-  }
-
-  public static MediaFormat createTextFormat(String mimeType, int bitrate, String language) {
-    return createTextFormat(mimeType, bitrate, language, C.UNKNOWN_TIME_US);
   }
 
   public static MediaFormat createTextFormat(String mimeType, int bitrate, String language,
@@ -181,10 +164,6 @@ public final class MediaFormat {
       long durationUs, long subsampleOffsetUs) {
     return new MediaFormat(mimeType, bitrate, NO_VALUE, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, language, subsampleOffsetUs, null, false, NO_VALUE, NO_VALUE);
-  }
-
-  public static MediaFormat createFormatForMimeType(String mimeType, int bitrate) {
-    return createFormatForMimeType(mimeType, bitrate, C.UNKNOWN_TIME_US);
   }
 
   public static MediaFormat createFormatForMimeType(String mimeType, int bitrate, long durationUs) {

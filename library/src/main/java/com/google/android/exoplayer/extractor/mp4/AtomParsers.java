@@ -456,8 +456,8 @@ import java.util.List;
     }
 
     out.mediaFormat = MediaFormat.createVideoFormat(mimeType, MediaFormat.NO_VALUE,
-        MediaFormat.NO_VALUE, durationUs, width, height, rotationDegrees, pixelWidthHeightRatio,
-        initializationData);
+        MediaFormat.NO_VALUE, durationUs, width, height, initializationData, rotationDegrees,
+        pixelWidthHeightRatio);
   }
 
   private static AvcCData parseAvcCFromParent(ParsableByteArray parent, int position) {

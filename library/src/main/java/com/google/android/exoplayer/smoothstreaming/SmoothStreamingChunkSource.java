@@ -399,8 +399,7 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     switch (element.type) {
       case StreamElement.TYPE_VIDEO:
         mediaFormat = MediaFormat.createVideoFormat(format.mimeType, format.bitrate,
-            MediaFormat.NO_VALUE, durationUs, format.width, format.height, 0,
-            Arrays.asList(csdArray));
+            MediaFormat.NO_VALUE, durationUs, format.width, format.height, Arrays.asList(csdArray));
         mp4TrackType = Track.TYPE_vide;
         break;
       case StreamElement.TYPE_AUDIO:
