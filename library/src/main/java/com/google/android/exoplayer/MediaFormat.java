@@ -149,19 +149,20 @@ public final class MediaFormat {
   }
 
   public static MediaFormat createAudioFormat(String mimeType, int bitrate, int maxInputSize,
-      long durationUs, int channelCount, int sampleRate, List<byte[]> initializationData) {
+      long durationUs, int channelCount, int sampleRate, List<byte[]> initializationData,
+      String language) {
     return new MediaFormat(mimeType, bitrate, maxInputSize, durationUs, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, channelCount, sampleRate, null, OFFSET_SAMPLE_RELATIVE,
+        NO_VALUE, NO_VALUE, channelCount, sampleRate, language, OFFSET_SAMPLE_RELATIVE,
         initializationData, false, NO_VALUE, NO_VALUE);
   }
 
-  public static MediaFormat createTextFormat(String mimeType, int bitrate, String language,
-      long durationUs) {
-    return createTextFormat(mimeType, bitrate, language, durationUs, OFFSET_SAMPLE_RELATIVE);
+  public static MediaFormat createTextFormat(String mimeType, int bitrate, long durationUs,
+      String language) {
+    return createTextFormat(mimeType, bitrate, durationUs, language, OFFSET_SAMPLE_RELATIVE);
   }
 
-  public static MediaFormat createTextFormat(String mimeType, int bitrate, String language,
-      long durationUs, long subsampleOffsetUs) {
+  public static MediaFormat createTextFormat(String mimeType, int bitrate, long durationUs,
+      String language, long subsampleOffsetUs) {
     return new MediaFormat(mimeType, bitrate, NO_VALUE, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, language, subsampleOffsetUs, null, false, NO_VALUE, NO_VALUE);
   }

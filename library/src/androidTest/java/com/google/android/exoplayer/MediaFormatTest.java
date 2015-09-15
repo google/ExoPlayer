@@ -49,13 +49,13 @@ public final class MediaFormatTest extends TestCase {
     testConversionToFrameworkFormatV16(MediaFormat.createVideoFormat(
         "video/xyz", 5000, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, 1280, 720, null));
     testConversionToFrameworkFormatV16(MediaFormat.createAudioFormat(
-        "audio/xyz", 500, 128, 1000L, 5, 44100, initData));
+        "audio/xyz", 500, 128, 1000L, 5, 44100, initData, null));
     testConversionToFrameworkFormatV16(MediaFormat.createAudioFormat(
-        "audio/xyz", 500, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, 5, 44100, null));
+        "audio/xyz", 500, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, 5, 44100, null, null));
     testConversionToFrameworkFormatV16(
-        MediaFormat.createTextFormat("text/xyz", MediaFormat.NO_VALUE, "eng", 1000L));
+        MediaFormat.createTextFormat("text/xyz", MediaFormat.NO_VALUE, 1000L, "eng"));
     testConversionToFrameworkFormatV16(
-        MediaFormat.createTextFormat("text/xyz", MediaFormat.NO_VALUE, null, C.UNKNOWN_TIME_US));
+        MediaFormat.createTextFormat("text/xyz", MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, null));
   }
 
   @SuppressLint("InlinedApi")

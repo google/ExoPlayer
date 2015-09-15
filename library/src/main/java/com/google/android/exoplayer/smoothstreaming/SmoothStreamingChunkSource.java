@@ -411,12 +411,13 @@ public class SmoothStreamingChunkSource implements ChunkSource,
               format.audioSamplingRate, format.audioChannels));
         }
         mediaFormat = MediaFormat.createAudioFormat(format.mimeType, format.bitrate,
-            MediaFormat.NO_VALUE, durationUs, format.audioChannels, format.audioSamplingRate, csd);
+            MediaFormat.NO_VALUE, durationUs, format.audioChannels, format.audioSamplingRate, csd,
+            format.language);
         mp4TrackType = Track.TYPE_soun;
         break;
       case StreamElement.TYPE_TEXT:
-        mediaFormat = MediaFormat.createTextFormat(format.mimeType, format.bitrate, format.language,
-            durationUs);
+        mediaFormat = MediaFormat.createTextFormat(format.mimeType, format.bitrate, durationUs,
+            format.language);
         mp4TrackType = Track.TYPE_text;
         break;
       default:

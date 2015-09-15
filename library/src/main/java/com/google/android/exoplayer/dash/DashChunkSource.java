@@ -610,10 +610,10 @@ public class DashChunkSource implements ChunkSource, Output {
             durationUs, format.width, format.height, null);
       case AdaptationSet.TYPE_AUDIO:
         return MediaFormat.createAudioFormat(mediaMimeType, format.bitrate, MediaFormat.NO_VALUE,
-            durationUs, format.audioChannels, format.audioSamplingRate, null);
+            durationUs, format.audioChannels, format.audioSamplingRate, null, format.language);
       case AdaptationSet.TYPE_TEXT:
-        return MediaFormat.createTextFormat(mediaMimeType, format.bitrate, format.language,
-            durationUs);
+        return MediaFormat.createTextFormat(mediaMimeType, format.bitrate, durationUs,
+            format.language);
       default:
         return null;
     }
