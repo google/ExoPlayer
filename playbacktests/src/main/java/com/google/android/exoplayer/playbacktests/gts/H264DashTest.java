@@ -61,8 +61,10 @@ public final class H264DashTest extends ActivityInstrumentationTestCase2<HostAct
   private static final String TAG = "H264DashTest";
 
   private static final long MAX_PLAYING_TIME_DISCREPANCY_MS = 2000;
-  private static final long MAX_ADDITIONAL_TIME_MS = 60000;
   private static final float MAX_DROPPED_VIDEO_FRAME_FRACTION = 0.01f;
+
+  private static final long MAX_ADDITIONAL_TIME_MS = 120000;
+  private static final int MIN_LOADABLE_RETRY_COUNT = 8;
 
   private static final String SOURCE_URL = "https://storage.googleapis.com/exoplayer-test-media-1"
       + "/gen/screens/dash-vod-single-segment/manifest-baseline.mpd";
@@ -213,7 +215,8 @@ public final class H264DashTest extends ActivityInstrumentationTestCase2<HostAct
       ChunkSource videoChunkSource = new DashChunkSource(mpd, videoTrackSelector, videoDataSource,
           new FormatEvaluator.RandomEvaluator(0));
       ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
-          VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, handler, logger, VIDEO_EVENT_ID);
+          VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, handler, logger, VIDEO_EVENT_ID,
+          MIN_LOADABLE_RETRY_COUNT);
       MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(
           videoSampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 0, handler, logger, 50);
       videoCounters = videoRenderer.codecCounters;
@@ -225,7 +228,8 @@ public final class H264DashTest extends ActivityInstrumentationTestCase2<HostAct
       ChunkSource audioChunkSource = new DashChunkSource(mpd, audioTrackSelector, audioDataSource,
           null);
       ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
-          AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, handler, logger, AUDIO_EVENT_ID);
+          AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, handler, logger, AUDIO_EVENT_ID,
+          MIN_LOADABLE_RETRY_COUNT);
       MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(
           audioSampleSource, handler, logger);
       audioCounters = audioRenderer.codecCounters;
