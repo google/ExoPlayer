@@ -175,6 +175,7 @@ public abstract class SegmentBase {
      */
     public final long getSegmentDurationUs(int sequenceNumber, long periodDurationUs) {
       if (segmentTimeline != null) {
+        sequenceNumber = sequenceNumber < startNumber ? startNumber : sequenceNumber;
         long duration = segmentTimeline.get(sequenceNumber - startNumber).duration;
         return (duration * C.MICROS_PER_SECOND) / timescale;
       } else {
@@ -188,6 +189,7 @@ public abstract class SegmentBase {
      * @see DashSegmentIndex#getTimeUs(int)
      */
     public final long getSegmentTimeUs(int sequenceNumber) {
+      sequenceNumber = sequenceNumber < startNumber ? startNumber : sequenceNumber;
       long unscaledSegmentTime;
       if (segmentTimeline != null) {
         unscaledSegmentTime = segmentTimeline.get(sequenceNumber - startNumber).startTime
@@ -328,6 +330,7 @@ public abstract class SegmentBase {
     @Override
     public RangedUri getSegmentUrl(Representation representation, int sequenceNumber) {
       long time = 0;
+      sequenceNumber = sequenceNumber < startNumber ? startNumber : sequenceNumber;
       if (segmentTimeline != null) {
         time = segmentTimeline.get(sequenceNumber - startNumber).startTime;
       } else {
