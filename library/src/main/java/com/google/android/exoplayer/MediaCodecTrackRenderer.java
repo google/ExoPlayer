@@ -522,7 +522,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * @throws ExoPlaybackException If an error occurs feeding the input buffer.
    */
   private boolean feedInputBuffer(long positionUs, boolean firstFeed) throws ExoPlaybackException {
-    if (inputStreamEnded
+    if (codec == null || inputStreamEnded
         || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
       // The input stream has ended, or we need to re-initialize the codec but are still waiting
       // for the existing codec to output any final output buffers.
