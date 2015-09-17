@@ -60,6 +60,13 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     void onCryptoError(CryptoException e);
 
     /**
+     * Invoked when a decoder error occurred during play.
+     *
+     * @param e Corresponding exception or null if cause unknown
+     */
+    void onDecoderError(IllegalStateException e);
+
+    /**
      * Invoked when a decoder is successfully created.
      *
      * @param decoderName The decoder that was configured and created.
@@ -796,7 +803,15 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     }
 
     if (outputIndex < 0) {
+      try {
       outputIndex = codec.dequeueOutputBuffer(outputBufferInfo, getDequeueOutputBufferTimeoutUs());
+      } catch (IllegalStateException e) {
+        // An illegal state is thrown after a playing exception has occurred. Root cause cannot be
+        // known (except if we were to use setCallbacks / onError, but only for API >= 21)
+        notifyDecoderError(null);
+        releaseCodec();
+        return false;
+      }
     }
 
     if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
@@ -861,12 +876,37 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     }
   }
 
+  protected boolean releaseOutputBuffer(MediaCodec codec, int bufferIndex, boolean render) {
+    try {
+      codec.releaseOutputBuffer(bufferIndex, render);
+    } catch (IllegalStateException e) {
+      // An illegal state is thrown after a playing exception has occurred. Root cause cannot be
+      // known (except if we were to use setCallbacks / onError, but only for API >= 21)
+      notifyDecoderError(null);
+      releaseCodec();
+      return true;
+    }
+    return false;
+  }
+
+
   private void notifyDecoderInitializationError(final DecoderInitializationException e) {
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable()  {
         @Override
         public void run() {
           eventListener.onDecoderInitializationError(e);
+        }
+      });
+    }
+  }
+
+  protected void notifyDecoderError(final CodecException e) {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable()  {
+        @Override
+        public void run() {
+          eventListener.onDecoderError(e);
         }
       });
     }

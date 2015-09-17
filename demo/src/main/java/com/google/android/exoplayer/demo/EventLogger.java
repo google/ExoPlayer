@@ -150,6 +150,11 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   @Override
+  public void onDecoderError(IllegalStateException e) {
+    printInternalError("decoderError", e);
+  }
+
+  @Override
   public void onAudioTrackInitializationError(AudioTrack.InitializationException e) {
     printInternalError("audioTrackInitializationError", e);
   }

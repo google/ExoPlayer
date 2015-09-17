@@ -508,14 +508,14 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   protected void skipOutputBuffer(MediaCodec codec, int bufferIndex) {
     TraceUtil.beginSection("skipVideoBuffer");
-    codec.releaseOutputBuffer(bufferIndex, false);
+    releaseOutputBuffer(codec, bufferIndex, false);
     TraceUtil.endSection();
     codecCounters.skippedOutputBufferCount++;
   }
 
   protected void dropOutputBuffer(MediaCodec codec, int bufferIndex) {
     TraceUtil.beginSection("dropVideoBuffer");
-    codec.releaseOutputBuffer(bufferIndex, false);
+    releaseOutputBuffer(codec, bufferIndex, false);
     TraceUtil.endSection();
     codecCounters.droppedOutputBufferCount++;
     droppedFrameCount++;
@@ -527,7 +527,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   protected void renderOutputBuffer(MediaCodec codec, int bufferIndex) {
     maybeNotifyVideoSizeChanged();
     TraceUtil.beginSection("releaseOutputBuffer");
-    codec.releaseOutputBuffer(bufferIndex, true);
+    releaseOutputBuffer(codec, bufferIndex, true);
     TraceUtil.endSection();
     codecCounters.renderedOutputBufferCount++;
     renderedFirstFrame = true;
