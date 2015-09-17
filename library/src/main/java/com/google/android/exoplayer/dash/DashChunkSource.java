@@ -468,9 +468,21 @@ public class DashChunkSource implements ChunkSource, Output {
       return;
     }
 
-    int segmentNum = queue.isEmpty() ? representationHolder.getSegmentNum(seekPositionUs)
-          : startingNewPeriod ? representationHolder.getFirstAvailableSegmentNum()
-          : queue.get(out.queueSize - 1).chunkIndex + 1;
+    int segmentNum = representationHolder.getSegmentNum(seekPositionUs);
+    if (!queue.isEmpty()) {
+      if (startingNewPeriod) {
+        segmentNum = representationHolder.getFirstAvailableSegmentNum();
+      } else {
+        segmentNum = queue.get(out.queueSize - 1).chunkIndex + 1;
+        if (queue.get(out.queueSize - 1).format.id != selectedFormat.id) {
+          // Different representations may have different startNumbers, the segmentNum needs to be adapted
+          int queueStartNum = periodHolder.representationHolders.get(queue.get(out.queueSize -1).format.id).getFirstAvailableSegmentNum();
+          int formatStartNum = periodHolder.representationHolders.get(selectedFormat.id).getFirstAvailableSegmentNum();
+          segmentNum += formatStartNum - queueStartNum;
+        }
+      }
+    }
+
     Chunk nextMediaChunk = newMediaChunk(periodHolder, representationHolder, dataSource,
         mediaFormat, segmentNum, evaluation.trigger);
     lastChunkWasInitialization = false;
