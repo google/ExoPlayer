@@ -138,7 +138,8 @@ public final class ParsableBitArray {
     int returnValue = 0;
 
     // While n >= 8, read whole bytes.
-    while (n >= 8) {
+    int numBytes = (n / 8);
+    for (int i = 0; i < numBytes; i ++) {
       int byteValue;
       if (bitOffset != 0) {
         byteValue = ((data[byteOffset] & 0xFF) << bitOffset)
