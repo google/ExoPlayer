@@ -45,11 +45,6 @@ public final class SampleHolder {
   public ByteBuffer data;
 
   /**
-   * The size of the sample in bytes.
-   */
-  public int size;
-
-  /**
    * Flags that accompany the sample. A combination of {@link C#SAMPLE_FLAG_SYNC},
    * {@link C#SAMPLE_FLAG_ENCRYPTED} and {@link C#SAMPLE_FLAG_DECODE_ONLY}.
    */
@@ -61,9 +56,10 @@ public final class SampleHolder {
   public long timeUs;
 
   private final int bufferReplacementMode;
+  private int size;
 
   /**
-   * @param bufferReplacementMode Determines the behavior of {@link #replaceBuffer(int)}. One of
+   * @param bufferReplacementMode Determines the behavior of the buffer allocation. One of
    *     {@link #BUFFER_REPLACEMENT_MODE_DISABLED}, {@link #BUFFER_REPLACEMENT_MODE_NORMAL} and
    *     {@link #BUFFER_REPLACEMENT_MODE_DIRECT}.
    */
@@ -78,7 +74,7 @@ public final class SampleHolder {
    * @param capacity The capacity of the replacement buffer, in bytes.
    * @return True if the buffer was replaced. False otherwise.
    */
-  public boolean replaceBuffer(int capacity) {
+  private boolean allocateBuffer(int capacity) {
     switch (bufferReplacementMode) {
       case BUFFER_REPLACEMENT_MODE_NORMAL:
         data = ByteBuffer.allocate(capacity);
@@ -120,4 +116,19 @@ public final class SampleHolder {
     }
   }
 
+  /**
+   * The size of the sample in bytes.
+   */
+  public int getSize() {
+    return Math.min(size, data == null ? 0 : data.capacity());
+  }
+
+  public void setSize(int size) {
+    if (data == null) {
+      allocateBuffer(size);
+    } else if (data.capacity() < size) {
+      allocateBuffer(size);
+    }
+    this.size = size;
+  }
 }

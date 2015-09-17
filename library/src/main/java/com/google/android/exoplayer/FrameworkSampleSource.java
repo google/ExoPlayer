@@ -205,10 +205,10 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
     if (extractorTrackIndex == track) {
       if (sampleHolder.data != null) {
         int offset = sampleHolder.data.position();
-        sampleHolder.size = extractor.readSampleData(sampleHolder.data, offset);
-        sampleHolder.data.position(offset + sampleHolder.size);
+        sampleHolder.setSize(extractor.readSampleData(sampleHolder.data, offset));
+        sampleHolder.data.position(offset + sampleHolder.getSize());
       } else {
-        sampleHolder.size = 0;
+        sampleHolder.setSize(0);
       }
       sampleHolder.timeUs = extractor.getSampleTime();
       sampleHolder.flags = extractor.getSampleFlags() & ALLOWED_FLAGS_MASK;

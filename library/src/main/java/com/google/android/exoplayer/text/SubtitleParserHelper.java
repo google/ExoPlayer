@@ -160,7 +160,7 @@ import java.io.InputStream;
     Subtitle parsedSubtitle = null;
     IOException error = null;
     try {
-      InputStream inputStream = new ByteArrayInputStream(holder.data.array(), 0, holder.size);
+      InputStream inputStream = new ByteArrayInputStream(holder.data.array(), 0, holder.getSize());
       parsedSubtitle = parser.parse(inputStream);
     } catch (IOException e) {
       error = e;
