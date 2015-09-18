@@ -562,17 +562,17 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   }
 
   private void configureSubtitleView() {
-    CaptionStyleCompat captionStyle;
-    float captionFontScale;
+    CaptionStyleCompat style;
+    float fontScale;
     if (Util.SDK_INT >= 19) {
-      captionStyle = getUserCaptionStyleV19();
-      captionFontScale = getUserCaptionFontScaleV19();
+      style = getUserCaptionStyleV19();
+      fontScale = getUserCaptionFontScaleV19();
     } else {
-      captionStyle = CaptionStyleCompat.DEFAULT;
-      captionFontScale = 1.0f;
+      style = CaptionStyleCompat.DEFAULT;
+      fontScale = 1.0f;
     }
-    subtitleLayout.setStyle(captionStyle);
-    subtitleLayout.setFontScale(captionFontScale);
+    subtitleLayout.setStyle(style);
+    subtitleLayout.setFractionalTextSize(SubtitleLayout.DEFAULT_TEXT_SIZE_FRACTION * fontScale);
   }
 
   @TargetApi(19)
