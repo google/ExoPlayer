@@ -46,12 +46,6 @@ import android.util.Log;
   private static final float INNER_PADDING_RATIO = 0.125f;
 
   /**
-   * Use the same line height ratio as WebVtt to match the display with the preview.
-   * WebVtt specifies line height as 5.3% of the viewport height.
-   */
-  private static final float LINE_HEIGHT_FRACTION = 0.0533f;
-
-  /**
    * Temporary rectangle used for computing line bounds.
    */
   private final RectF lineBounds = new RectF();
@@ -77,7 +71,7 @@ import android.util.Log;
   private int windowColor;
   private int edgeColor;
   private int edgeType;
-  private float fontScale;
+  private float textSizePx;
   private float bottomPaddingFraction;
   private int parentLeft;
   private int parentTop;
@@ -124,7 +118,7 @@ import android.util.Log;
    * @param cue The cue to draw.
    * @param applyEmbeddedStyles Whether styling embedded within the cue should be applied.
    * @param style The style to use when drawing the cue text.
-   * @param fontScale The font scale.
+   * @param textSizePx The text size to use when drawing the cue text, in pixels.
    * @param bottomPaddingFraction The bottom padding fraction to apply when {@link Cue#line} is
    *     {@link Cue#UNSET_VALUE}, as a fraction of the viewport height
    * @param canvas The canvas into which to draw.
@@ -133,7 +127,7 @@ import android.util.Log;
    * @param cueBoxRight The right position of the enclosing cue box.
    * @param cueBoxBottom The bottom position of the enclosing cue box.
    */
-  public void draw(Cue cue, boolean applyEmbeddedStyles, CaptionStyleCompat style, float fontScale,
+  public void draw(Cue cue, boolean applyEmbeddedStyles, CaptionStyleCompat style, float textSizePx,
       float bottomPaddingFraction, Canvas canvas, int cueBoxLeft, int cueBoxTop, int cueBoxRight,
       int cueBoxBottom) {
     CharSequence cueText = cue.text;
@@ -155,7 +149,7 @@ import android.util.Log;
         && this.edgeType == style.edgeType
         && this.edgeColor == style.edgeColor
         && Util.areEqual(this.textPaint.getTypeface(), style.typeface)
-        && this.fontScale == fontScale
+        && this.textSizePx == textSizePx
         && this.bottomPaddingFraction == bottomPaddingFraction
         && this.parentLeft == cueBoxLeft
         && this.parentTop == cueBoxTop
@@ -176,7 +170,7 @@ import android.util.Log;
     this.edgeType = style.edgeType;
     this.edgeColor = style.edgeColor;
     this.textPaint.setTypeface(style.typeface);
-    this.fontScale = fontScale;
+    this.textSizePx = textSizePx;
     this.bottomPaddingFraction = bottomPaddingFraction;
     this.parentLeft = cueBoxLeft;
     this.parentTop = cueBoxTop;
@@ -186,9 +180,8 @@ import android.util.Log;
     int parentWidth = parentRight - parentLeft;
     int parentHeight = parentBottom - parentTop;
 
-    float textSize = LINE_HEIGHT_FRACTION * parentHeight * fontScale;
-    textPaint.setTextSize(textSize);
-    int textPaddingX = (int) (textSize * INNER_PADDING_RATIO + 0.5f);
+    textPaint.setTextSize(textSizePx);
+    int textPaddingX = (int) (textSizePx * INNER_PADDING_RATIO + 0.5f);
     int availableWidth = parentWidth - textPaddingX * 2;
     if (availableWidth <= 0) {
       Log.w(TAG, "Skipped drawing subtitle cue (insufficient space)");
@@ -207,12 +200,8 @@ import android.util.Log;
     }
     textWidth += textPaddingX * 2;
 
-    int textLeft = (parentWidth - textWidth) / 2;
-    int textRight = textLeft + textWidth;
-    int textTop = parentBottom - textHeight
-        - (int) (parentHeight * bottomPaddingFraction);
-    int textBottom = textTop + textHeight;
-
+    int textLeft;
+    int textRight;
     if (cue.position != Cue.UNSET_VALUE) {
       if (cue.alignment == Alignment.ALIGN_OPPOSITE) {
         textRight = (parentWidth * cue.position) / 100 + parentLeft;
@@ -221,7 +210,13 @@ import android.util.Log;
         textLeft = (parentWidth * cue.position) / 100 + parentLeft;
         textRight = Math.min(textLeft + textWidth, parentRight);
       }
+    } else {
+      textLeft = (parentWidth - textWidth) / 2;
+      textRight = textLeft + textWidth;
     }
+
+    int textTop;
+    int textBottom;
     if (cue.line != Cue.UNSET_VALUE) {
       textTop = (parentHeight * cue.line) / 100 + parentTop;
       textBottom = textTop + textHeight;
@@ -229,7 +224,11 @@ import android.util.Log;
         textTop = parentBottom - textHeight;
         textBottom = parentBottom;
       }
+    } else {
+      textTop = parentBottom - textHeight - (int) (parentHeight * bottomPaddingFraction);
+      textBottom = textTop + textHeight;
     }
+
     textWidth = textRight - textLeft;
 
     // Update the derived drawing variables.
