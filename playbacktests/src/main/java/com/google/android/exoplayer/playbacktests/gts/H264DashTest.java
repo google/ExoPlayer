@@ -63,8 +63,8 @@ public final class H264DashTest extends ActivityInstrumentationTestCase2<HostAct
   private static final long MAX_PLAYING_TIME_DISCREPANCY_MS = 2000;
   private static final float MAX_DROPPED_VIDEO_FRAME_FRACTION = 0.01f;
 
-  private static final long MAX_ADDITIONAL_TIME_MS = 120000;
-  private static final int MIN_LOADABLE_RETRY_COUNT = 8;
+  private static final long MAX_ADDITIONAL_TIME_MS = 180000;
+  private static final int MIN_LOADABLE_RETRY_COUNT = 10;
 
   private static final String SOURCE_URL = "https://storage.googleapis.com/exoplayer-test-media-1"
       + "/gen/screens/dash-vod-single-segment/manifest-baseline.mpd";
@@ -252,8 +252,8 @@ public final class H264DashTest extends ActivityInstrumentationTestCase2<HostAct
         if (videoFormats.length == 1) {
           // Video is not adaptive, so the decoder output format should have changed exactly once.
           // The output buffers should have changed 0 or 1 times.
-          CodecCountersUtil.assertOutputFormatChangedCount(VIDEO_TAG, audioCounters, 1);
-          CodecCountersUtil.assertOutputBuffersChangedLimit(VIDEO_TAG, audioCounters, 1);
+          CodecCountersUtil.assertOutputFormatChangedCount(VIDEO_TAG, videoCounters, 1);
+          CodecCountersUtil.assertOutputBuffersChangedLimit(VIDEO_TAG, videoCounters, 1);
         }
 
         // We shouldn't have skipped any output buffers.
