@@ -50,7 +50,7 @@ public final class VideoFormatSelectorUtil {
    *     mime types.
    * @param filterHdFormats True to filter HD formats. False otherwise.
    * @return An array holding the indices of the selected formats.
-   * @throws DecoderQueryException
+   * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
   public static int[] selectVideoFormatsForDefaultDisplay(Context context,
       List<? extends FormatWrapper> formatWrappers, String[] allowedContainerMimeTypes,
