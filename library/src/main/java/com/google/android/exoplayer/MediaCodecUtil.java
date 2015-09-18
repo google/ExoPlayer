@@ -180,10 +180,25 @@ public final class MediaCodecUtil {
     // Work around an issue where creating a particular MP3 decoder on some devices on platform API
     // version 16 crashes mediaserver.
     if (Util.SDK_INT == 16
+        && "OMX.qcom.audio.decoder.mp3".equals(name)
         && ("dlxu".equals(Util.DEVICE) // HTC Butterfly
             || "protou".equals(Util.DEVICE) // HTC Desire X
-            || "C6602".equals(Util.DEVICE) || "C6603".equals(Util.DEVICE)) // Sony Xperia Z
-        && name.equals("OMX.qcom.audio.decoder.mp3")) {
+            || "C6602".equals(Util.DEVICE) // Sony Xperia Z
+            || "C6603".equals(Util.DEVICE)
+            || "C6606".equals(Util.DEVICE)
+            || "C6616".equals(Util.DEVICE)
+            || "L36h".equals(Util.DEVICE)
+            || "SO-02E".equals(Util.DEVICE))) {
+      return false;
+    }
+
+    // Work around an issue where large timestamps are not propagated correctly.
+    if (Util.SDK_INT == 16
+        && "OMX.qcom.audio.decoder.aac".equals(name)
+        && ("C1504".equals(Util.DEVICE) // Sony Xperia E
+            || "C1505".equals(Util.DEVICE)
+            || "C1604".equals(Util.DEVICE) // Sony Xperia E dual
+            || "C1605".equals(Util.DEVICE))) {
       return false;
     }
 
