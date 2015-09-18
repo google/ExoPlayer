@@ -590,7 +590,10 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
 
   protected int parseAudioChannelConfiguration(XmlPullParser xpp)
       throws XmlPullParserException, IOException {
-    int audioChannels = parseInt(xpp, "value");
+    int audioChannels = -1;
+    String schemeIdUri = parseString(xpp, "schemeIdUri", "");
+    if (schemeIdUri.equals("urn:mpeg:dash:23003:3:audio_channel_configuration:2011"))
+      audioChannels = parseInt(xpp, "value");
     do {
       xpp.next();
     } while (!ParserUtil.isEndTag(xpp, "AudioChannelConfiguration"));
