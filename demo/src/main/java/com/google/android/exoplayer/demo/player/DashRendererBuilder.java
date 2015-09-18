@@ -62,7 +62,7 @@ public class DashRendererBuilder implements RendererBuilder {
 
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
   private static final int VIDEO_BUFFER_SEGMENTS = 200;
-  private static final int AUDIO_BUFFER_SEGMENTS = 60;
+  private static final int AUDIO_BUFFER_SEGMENTS = 54;
   private static final int TEXT_BUFFER_SEGMENTS = 2;
   private static final int LIVE_EDGE_LATENCY_MS = 30000;
 

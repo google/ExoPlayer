@@ -39,7 +39,7 @@ import android.net.Uri;
 public class ExtractorRendererBuilder implements RendererBuilder {
 
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
-  private static final int BUFFER_SEGMENT_COUNT = 160;
+  private static final int BUFFER_SEGMENT_COUNT = 256;
 
   private final Context context;
   private final String userAgent;
