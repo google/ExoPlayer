@@ -63,8 +63,12 @@ import android.util.Log;
 
   // Previous input variables.
   private CharSequence cueText;
-  private int cuePosition;
-  private Alignment cueAlignment;
+  private Alignment cueTextAlignment;
+  private float cueLine;
+  private int cueLineAnchor;
+  private float cuePosition;
+  private int cuePositionAnchor;
+  private float cueSize;
   private boolean applyEmbeddedStyles;
   private int foregroundColor;
   private int backgroundColor;
@@ -120,7 +124,7 @@ import android.util.Log;
    * @param style The style to use when drawing the cue text.
    * @param textSizePx The text size to use when drawing the cue text, in pixels.
    * @param bottomPaddingFraction The bottom padding fraction to apply when {@link Cue#line} is
-   *     {@link Cue#UNSET_VALUE}, as a fraction of the viewport height
+   *     {@link Cue#DIMEN_UNSET}, as a fraction of the viewport height
    * @param canvas The canvas into which to draw.
    * @param cueBoxLeft The left position of the enclosing cue box.
    * @param cueBoxTop The top position of the enclosing cue box.
@@ -140,8 +144,12 @@ import android.util.Log;
       cueText = cueText.toString();
     }
     if (areCharSequencesEqual(this.cueText, cueText)
+        && Util.areEqual(this.cueTextAlignment, cue.textAlignment)
+        && this.cueLine == cue.line
+        && Util.areEqual(this.cueLineAnchor, cue.lineAnchor)
         && this.cuePosition == cue.position
-        && Util.areEqual(this.cueAlignment, cue.alignment)
+        && Util.areEqual(this.cuePositionAnchor, cue.positionAnchor)
+        && this.cueSize == cue.size
         && this.applyEmbeddedStyles == applyEmbeddedStyles
         && this.foregroundColor == style.foregroundColor
         && this.backgroundColor == style.backgroundColor
@@ -161,8 +169,12 @@ import android.util.Log;
     }
 
     this.cueText = cueText;
+    this.cueTextAlignment = cue.textAlignment;
+    this.cueLine = cue.line;
+    this.cueLineAnchor = cue.lineAnchor;
     this.cuePosition = cue.position;
-    this.cueAlignment = cue.alignment;
+    this.cuePositionAnchor = cue.positionAnchor;
+    this.cueSize = cue.size;
     this.applyEmbeddedStyles = applyEmbeddedStyles;
     this.foregroundColor = style.foregroundColor;
     this.backgroundColor = style.backgroundColor;
@@ -182,14 +194,18 @@ import android.util.Log;
 
     textPaint.setTextSize(textSizePx);
     int textPaddingX = (int) (textSizePx * INNER_PADDING_RATIO + 0.5f);
+
     int availableWidth = parentWidth - textPaddingX * 2;
+    if (cueSize != Cue.DIMEN_UNSET) {
+      availableWidth = (int) (availableWidth * cueSize);
+    }
     if (availableWidth <= 0) {
       Log.w(TAG, "Skipped drawing subtitle cue (insufficient space)");
       return;
     }
 
-    Alignment layoutAlignment = cueAlignment == null ? Alignment.ALIGN_CENTER : cueAlignment;
-    textLayout = new StaticLayout(cueText, textPaint, availableWidth, layoutAlignment, spacingMult,
+    Alignment textAlignment = cueTextAlignment == null ? Alignment.ALIGN_CENTER : cueTextAlignment;
+    textLayout = new StaticLayout(cueText, textPaint, availableWidth, textAlignment, spacingMult,
         spacingAdd, true);
 
     int textHeight = textLayout.getHeight();
@@ -202,14 +218,13 @@ import android.util.Log;
 
     int textLeft;
     int textRight;
-    if (cue.position != Cue.UNSET_VALUE) {
-      if (cue.alignment == Alignment.ALIGN_OPPOSITE) {
-        textRight = (parentWidth * cue.position) / 100 + parentLeft;
-        textLeft = Math.max(textRight - textWidth, parentLeft);
-      } else {
-        textLeft = (parentWidth * cue.position) / 100 + parentLeft;
-        textRight = Math.min(textLeft + textWidth, parentRight);
-      }
+    if (cuePosition != Cue.DIMEN_UNSET) {
+      int anchorPosition = Math.round(parentWidth * cuePosition) + parentLeft;
+      textLeft = cuePositionAnchor == Cue.ANCHOR_END ? anchorPosition - textWidth
+          : cuePositionAnchor == Cue.ANCHOR_MIDDLE ? (anchorPosition * 2 - textWidth) / 2
+          : anchorPosition;
+      textLeft = Math.max(textLeft, parentLeft);
+      textRight = Math.min(textLeft + textWidth, parentRight);
     } else {
       textLeft = (parentWidth - textWidth) / 2;
       textRight = textLeft + textWidth;
@@ -217,12 +232,18 @@ import android.util.Log;
 
     int textTop;
     int textBottom;
-    if (cue.line != Cue.UNSET_VALUE) {
-      textTop = (parentHeight * cue.line) / 100 + parentTop;
+    if (cueLine != Cue.DIMEN_UNSET) {
+      int anchorPosition = Math.round(parentHeight * cueLine) + parentLeft;
+      textTop = cueLineAnchor == Cue.ANCHOR_END ? anchorPosition - textHeight
+          : cueLineAnchor == Cue.ANCHOR_MIDDLE ? (anchorPosition * 2 - textHeight) / 2
+          : anchorPosition;
       textBottom = textTop + textHeight;
       if (textBottom > parentBottom) {
         textTop = parentBottom - textHeight;
         textBottom = parentBottom;
+      } else if (textTop < parentTop) {
+        textTop = parentTop;
+        textBottom = parentTop + textHeight;
       }
     } else {
       textTop = parentBottom - textHeight - (int) (parentHeight * bottomPaddingFraction);
@@ -232,7 +253,7 @@ import android.util.Log;
     textWidth = textRight - textLeft;
 
     // Update the derived drawing variables.
-    this.textLayout = new StaticLayout(cueText, textPaint, textWidth, layoutAlignment, spacingMult,
+    this.textLayout = new StaticLayout(cueText, textPaint, textWidth, textAlignment, spacingMult,
         spacingAdd, true);
     this.textLeft = textLeft;
     this.textTop = textTop;

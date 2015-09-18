@@ -43,34 +43,14 @@ public final class WebvttParser implements SubtitleParser {
 
   private static final String TAG = "WebvttParser";
 
-  private static final String WEBVTT_FILE_HEADER_STRING = "^\uFEFF?WEBVTT((\u0020|\u0009).*)?$";
-  private static final Pattern WEBVTT_FILE_HEADER =
-      Pattern.compile(WEBVTT_FILE_HEADER_STRING);
-
-  private static final String WEBVTT_COMMENT_BLOCK_STRING = "^NOTE((\u0020|\u0009).*)?$";
-  private static final Pattern WEBVTT_COMMENT_BLOCK =
-      Pattern.compile(WEBVTT_COMMENT_BLOCK_STRING);
-
-  private static final String WEBVTT_METADATA_HEADER_STRING = "\\S*[:=]\\S*";
-  private static final Pattern WEBVTT_METADATA_HEADER =
-      Pattern.compile(WEBVTT_METADATA_HEADER_STRING);
-
-  private static final String WEBVTT_CUE_IDENTIFIER_STRING = "^(?!.*(-->)).*$";
-  private static final Pattern WEBVTT_CUE_IDENTIFIER =
-      Pattern.compile(WEBVTT_CUE_IDENTIFIER_STRING);
-
-  private static final String WEBVTT_TIMESTAMP_STRING = "(\\d+:)?[0-5]\\d:[0-5]\\d\\.\\d{3}";
-  private static final Pattern WEBVTT_TIMESTAMP = Pattern.compile(WEBVTT_TIMESTAMP_STRING);
-
-  private static final String WEBVTT_CUE_SETTING_STRING = "\\S*:\\S*";
-  private static final Pattern WEBVTT_CUE_SETTING = Pattern.compile(WEBVTT_CUE_SETTING_STRING);
-
-  private static final String WEBVTT_PERCENTAGE_NUMBER_STRING = "^([0-9]+|[0-9]+\\.[0-9]+)$";
-
-  private static final String NON_NUMERIC_STRING = ".*[^0-9].*";
+  private static final Pattern HEADER = Pattern.compile("^\uFEFF?WEBVTT((\u0020|\u0009).*)?$");
+  private static final Pattern COMMENT_BLOCK = Pattern.compile("^NOTE((\u0020|\u0009).*)?$");
+  private static final Pattern METADATA_HEADER = Pattern.compile("\\S*[:=]\\S*");
+  private static final Pattern CUE_IDENTIFIER = Pattern.compile("^(?!.*(-->)).*$");
+  private static final Pattern TIMESTAMP = Pattern.compile("(\\d+:)?[0-5]\\d:[0-5]\\d\\.\\d{3}");
+  private static final Pattern CUE_SETTING = Pattern.compile("\\S*:\\S*");
 
   private final StringBuilder textBuilder;
-
   private final boolean strictParsing;
 
   /**
@@ -100,7 +80,7 @@ public final class WebvttParser implements SubtitleParser {
 
     // file should start with "WEBVTT"
     line = webvttData.readLine();
-    if (line == null || !WEBVTT_FILE_HEADER.matcher(line).matches()) {
+    if (line == null || !HEADER.matcher(line).matches()) {
       throw new ParserException("Expected WEBVTT. Got " + line);
     }
 
@@ -116,7 +96,7 @@ public final class WebvttParser implements SubtitleParser {
       }
 
       if (strictParsing) {
-        Matcher matcher = WEBVTT_METADATA_HEADER.matcher(line);
+        Matcher matcher = METADATA_HEADER.matcher(line);
         if (!matcher.find()) {
           throw new ParserException("Unexpected line: " + line);
         }
@@ -125,39 +105,42 @@ public final class WebvttParser implements SubtitleParser {
 
     // process the cues and text
     while ((line = webvttData.readLine()) != null) {
+
       // parse webvtt comment block in case it is present
-      Matcher matcher = WEBVTT_COMMENT_BLOCK.matcher(line);
-      if(matcher.find()) {
+      Matcher matcher = COMMENT_BLOCK.matcher(line);
+      if (matcher.find()) {
         // read lines until finding an empty one (webvtt line terminator: CRLF, or LF or CR)
         while (((line = webvttData.readLine()) != null) && (!line.isEmpty())) {
-          // just ignoring comment text
+          // ignore comment text
         }
         continue;
       }
 
       // parse the cue identifier (if present) {
-      matcher = WEBVTT_CUE_IDENTIFIER.matcher(line);
+      matcher = CUE_IDENTIFIER.matcher(line);
       if (matcher.find()) {
         // ignore the identifier (we currently don't use it) and read the next line
         line = webvttData.readLine();
       }
 
-      long startTime = Cue.UNSET_VALUE;
-      long endTime = Cue.UNSET_VALUE;
-      CharSequence text = null;
-      int lineNum = Cue.UNSET_VALUE;
-      int position = Cue.UNSET_VALUE;
-      Alignment alignment = null;
-      int size = Cue.UNSET_VALUE;
+      long cueStartTime;
+      long cueEndTime;
+      CharSequence cueText;
+      Alignment cueTextAlignment = null;
+      float cueLine = Cue.DIMEN_UNSET;
+      int cueLineAnchor = Cue.ANCHOR_UNSET;
+      float cuePosition = Cue.DIMEN_UNSET;
+      int cuePositionAnchor = Cue.ANCHOR_UNSET;
+      float cueWidth = Cue.DIMEN_UNSET;
 
       // parse the cue timestamps
-      matcher = WEBVTT_TIMESTAMP.matcher(line);
+      matcher = TIMESTAMP.matcher(line);
 
       // parse start timestamp
       if (!matcher.find()) {
         throw new ParserException("Expected cue start time: " + line);
       } else {
-        startTime = parseTimestampUs(matcher.group());
+        cueStartTime = parseTimestampUs(matcher.group());
       }
 
       // parse end timestamp
@@ -166,12 +149,12 @@ public final class WebvttParser implements SubtitleParser {
         throw new ParserException("Expected cue end time: " + line);
       } else {
         endTimeString = matcher.group();
-        endTime = parseTimestampUs(endTimeString);
+        cueEndTime = parseTimestampUs(endTimeString);
       }
 
       // parse the (optional) cue setting list
       line = line.substring(line.indexOf(endTimeString) + endTimeString.length());
-      matcher = WEBVTT_CUE_SETTING.matcher(line);
+      matcher = CUE_SETTING.matcher(line);
       while (matcher.find()) {
         String match = matcher.group();
         String[] parts = match.split(":", 2);
@@ -180,39 +163,29 @@ public final class WebvttParser implements SubtitleParser {
 
         try {
           if ("line".equals(name)) {
-            Pair<String, Alignment> lineMetadata = parseLinePositionAttributes(value);
-            value = lineMetadata.first;
-            if (value.endsWith("%")) {
-              lineNum = parseIntPercentage(value);
-            } else {
-              // Following WebVTT spec, line number can be a negative number
-              int sign = 1;
-              if (value.startsWith("-") && value.length() > 1) {
-                sign = -1;
-                value = value.substring(1);
-              }
-
-              if (value.matches(NON_NUMERIC_STRING)) {
-                Log.w(TAG, "Invalid line value: " + value);
-              } else {
-                lineNum = sign * Integer.parseInt(value);
-              }
-            }
+            Pair<Float, Integer> lineAttributes = parseLineAttribute(value);
+            cueLine = lineAttributes.first;
+            cueLineAnchor = lineAttributes.second;
           } else if ("align".equals(name)) {
-            // TODO: handle for RTL languages
-            alignment = parseAlignment(value);
+            cueTextAlignment = parseTextAlignment(value);
           } else if ("position".equals(name)) {
-            Pair<String, Alignment> lineMetadata = parseLinePositionAttributes(value);
-            value = lineMetadata.first;
-            position = parseIntPercentage(value);
+            Pair<Float, Integer> positionAttributes = parsePositionAttribute(value);
+            cuePosition = positionAttributes.first;
+            cuePositionAnchor = positionAttributes.second;
           } else if ("size".equals(name)) {
-            size = parseIntPercentage(value);
+            cueWidth = parsePercentage(value);
           } else {
             Log.w(TAG, "Unknown cue setting " + name + ":" + value);
           }
         } catch (NumberFormatException e) {
-          Log.w(TAG, name + " contains an invalid value " + value, e);
+          Log.w(TAG, e.getMessage() + ": " + match);
         }
+      }
+
+      if (cuePosition != Cue.DIMEN_UNSET && cuePositionAnchor == Cue.ANCHOR_UNSET) {
+        // Computed position alignment should be derived from the text alignment if it has not been
+        // set explicitly.
+        cuePositionAnchor = alignmentToAnchor(cueTextAlignment);
       }
 
       // parse text
@@ -223,9 +196,10 @@ public final class WebvttParser implements SubtitleParser {
         }
         textBuilder.append(line.trim());
       }
-      text = Html.fromHtml(textBuilder.toString());
+      cueText = Html.fromHtml(textBuilder.toString());
 
-      WebvttCue cue = new WebvttCue(startTime, endTime, text, lineNum, position, alignment, size);
+      WebvttCue cue = new WebvttCue(cueStartTime, cueEndTime, cueText, cueTextAlignment, cueLine,
+          cueLineAnchor, cuePosition, cuePositionAnchor, cueWidth);
       subtitles.add(cue);
     }
 
@@ -237,67 +211,97 @@ public final class WebvttParser implements SubtitleParser {
     return MimeTypes.TEXT_VTT.equals(mimeType);
   }
 
-  private static int parseIntPercentage(String s) throws NumberFormatException {
-    if (!s.endsWith("%")) {
-      throw new NumberFormatException(s + " doesn't end with '%'");
-    }
-
-    s = s.substring(0, s.length() - 1);
-    if (!s.matches(WEBVTT_PERCENTAGE_NUMBER_STRING)) {
-      throw new NumberFormatException(s + " contains an invalid character");
-    }
-
-    int value = Math.round(Float.parseFloat(s));
-    if (value < 0 || value > 100) {
-      throw new NumberFormatException(value + " is out of range [0-100]");
-    }
-    return value;
-  }
-
   private static long parseTimestampUs(String s) throws NumberFormatException {
-    if (!s.matches(WEBVTT_TIMESTAMP_STRING)) {
-      throw new NumberFormatException("has invalid format");
-    }
-
-    String[] parts = s.split("\\.", 2);
     long value = 0;
-    for (String group : parts[0].split(":")) {
-      value = value * 60 + Long.parseLong(group);
+    String[] parts = s.split("\\.", 2);
+    String[] subparts = parts[0].split(":");
+    for (int i = 0; i < subparts.length; i++) {
+      value = value * 60 + Long.parseLong(subparts[i]);
     }
     return (value * 1000 + Long.parseLong(parts[1])) * 1000;
   }
 
-  private static Pair<String, Alignment> parseLinePositionAttributes(String s) {
-    String value;
-    Alignment alignment = null;
-
-    int commaPos;
-    if ((commaPos = s.indexOf(",")) > 0 && commaPos < s.length() - 1) {
-      alignment = parseAlignment(s.substring(commaPos + 1));
-      value = s.substring(0, commaPos);
+  private static Pair<Float, Integer> parseLineAttribute(String s) {
+    int anchor;
+    int commaPosition = s.indexOf(",");
+    if (commaPosition != -1) {
+      anchor = parsePositionAnchor(s.substring(commaPosition + 1));
+      s = s.substring(0, commaPosition);
     } else {
-      value = s;
+      anchor = Cue.ANCHOR_UNSET;
     }
-
-    return new Pair<String, Alignment>(value, alignment);
+    float line = s.endsWith("%") ? parsePercentage(s) : (Integer.parseInt(s) / 100f);
+    return Pair.create(line, anchor);
   }
 
-  private static Alignment parseAlignment(String s) {
-    Alignment alignment = null;
-    if ("start".equals(s)) {
-      alignment = Alignment.ALIGN_NORMAL;
-    } else if ("middle".equals(s)) {
-      alignment = Alignment.ALIGN_CENTER;
-    } else if ("end".equals(s)) {
-      alignment = Alignment.ALIGN_OPPOSITE;
-    } else if ("left".equals(s)) {
-      alignment = Alignment.ALIGN_NORMAL;
-    } else if ("right".equals(s)) {
-      alignment = Alignment.ALIGN_OPPOSITE;
+  private static Pair<Float, Integer> parsePositionAttribute(String s) {
+    int anchor;
+    int commaPosition = s.indexOf(",");
+    if (commaPosition != -1) {
+      anchor = parsePositionAnchor(s.substring(commaPosition + 1));
+      s = s.substring(0, commaPosition);
     } else {
-      Log.w(TAG, "Invalid align value: " + s);
+      anchor = Cue.ANCHOR_UNSET;
     }
-    return alignment;
+    float position = parsePercentage(s);
+    return Pair.create(position, anchor);
+  }
+
+  private static float parsePercentage(String s) throws NumberFormatException {
+    if (!s.endsWith("%")) {
+      throw new NumberFormatException("Percentages must end with %");
+    }
+    s = s.substring(0, s.length() - 1);
+    return Float.parseFloat(s) / 100;
+  }
+
+  private static int parsePositionAnchor(String s) {
+    switch (s) {
+      case "start":
+        return Cue.ANCHOR_START;
+      case "middle":
+        return Cue.ANCHOR_MIDDLE;
+      case "end":
+        return Cue.ANCHOR_END;
+      default:
+        Log.w(TAG, "Invalid anchor value: " + s);
+        return Cue.ANCHOR_UNSET;
+    }
+  }
+
+  private static Alignment parseTextAlignment(String s) {
+    switch (s) {
+      case "start":
+        return Alignment.ALIGN_NORMAL;
+      case "middle":
+        return Alignment.ALIGN_CENTER;
+      case "end":
+        return Alignment.ALIGN_OPPOSITE;
+      case "left":
+        return Alignment.ALIGN_NORMAL;
+      case "right":
+        return Alignment.ALIGN_OPPOSITE;
+      default:
+        Log.w(TAG, "Invalid alignment value: " + s);
+        return null;
+    }
+  }
+
+  private static int alignmentToAnchor(Alignment alignment) {
+    if (alignment == null) {
+      return Cue.ANCHOR_UNSET;
+    }
+    switch (alignment) {
+      case ALIGN_NORMAL:
+        return Cue.ANCHOR_START;
+      case ALIGN_CENTER:
+        return Cue.ANCHOR_MIDDLE;
+      case ALIGN_OPPOSITE:
+        return Cue.ANCHOR_END;
+      default:
+        Log.w(TAG, "Unrecognised alignment: " + alignment);
+        return Cue.ANCHOR_START;
+    }
   }
 
 }
