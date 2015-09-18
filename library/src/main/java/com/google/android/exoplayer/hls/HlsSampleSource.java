@@ -191,14 +191,23 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     downstreamMediaFormats[track] = null;
     pendingDiscontinuities[track] = false;
     downstreamFormat = null;
+    boolean wasLoadControlRegistered = loadControlRegistered;
     if (!loadControlRegistered) {
       loadControl.register(this, bufferSizeContribution);
       loadControlRegistered = true;
     }
     if (enabledTrackCount == 1) {
-      downstreamPositionUs = positionUs;
       lastSeekPositionUs = positionUs;
-      restartFrom(positionUs);
+      if (wasLoadControlRegistered && downstreamPositionUs == positionUs) {
+        // TODO: Address [Internal: b/21743989] to remove the need for this kind of hack.
+        // This is the first track to be enabled after preparation and the position is the same as
+        // was passed to prepare. In this case we can avoid restarting, which would reload the same
+        // chunks as were loaded during preparation.
+        maybeStartLoading();
+      } else {
+        downstreamPositionUs = positionUs;
+        restartFrom(positionUs);
+      }
     }
   }
 
