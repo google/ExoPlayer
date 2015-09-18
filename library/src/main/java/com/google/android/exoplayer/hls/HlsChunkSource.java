@@ -23,6 +23,7 @@ import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.DataChunk;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.extractor.Extractor;
+import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer.extractor.ts.PtsTimestampAdjuster;
 import com.google.android.exoplayer.extractor.ts.TsExtractor;
@@ -114,6 +115,7 @@ public class HlsChunkSource {
 
   private static final String TAG = "HlsChunkSource";
   private static final String AAC_FILE_EXTENSION = ".aac";
+  private static final String MP3_FILE_EXTENSION = ".mp3";
   private static final float BANDWIDTH_FRACTION = 0.8f;
 
   private final DataSource dataSource;
@@ -354,24 +356,28 @@ public class HlsChunkSource {
 
     // Configure the extractor that will read the chunk.
     HlsExtractorWrapper extractorWrapper;
-
-    if (previousTsChunk == null || segment.discontinuity || liveDiscontinuity
+    if (chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)) {
+      Extractor extractor = new AdtsExtractor(startTimeUs);
+      extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
+          switchingVariantSpliced, adaptiveMaxWidth, adaptiveMaxHeight);
+    } else if (chunkUri.getLastPathSegment().endsWith(MP3_FILE_EXTENSION)) {
+      Extractor extractor = new Mp3Extractor(startTimeUs);
+      extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
+          switchingVariantSpliced, adaptiveMaxWidth, adaptiveMaxHeight);
+    } else if (previousTsChunk == null || segment.discontinuity || liveDiscontinuity
         || !format.equals(previousTsChunk.format)) {
-      Extractor extractor;
-      if (chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)) {
-        extractor = new AdtsExtractor(startTimeUs);
-      } else {
-        if (previousTsChunk == null || segment.discontinuity || liveDiscontinuity
-            || ptsTimestampAdjuster == null) {
-          // TODO: Use this for AAC as well, along with the ID3 PRIV priv tag values with owner
-          // identifier com.apple.streaming.transportStreamTimestamp.
-          ptsTimestampAdjuster = new PtsTimestampAdjuster(startTimeUs);
-        }
-        extractor = new TsExtractor(ptsTimestampAdjuster);
+      // MPEG-2 TS segments, but we need a new extractor.
+      if (previousTsChunk == null || segment.discontinuity || liveDiscontinuity
+          || ptsTimestampAdjuster == null) {
+        // TODO: Use this for AAC as well, along with the ID3 PRIV priv tag values with owner
+        // identifier com.apple.streaming.transportStreamTimestamp.
+        ptsTimestampAdjuster = new PtsTimestampAdjuster(startTimeUs);
       }
+      Extractor extractor = new TsExtractor(ptsTimestampAdjuster);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
           switchingVariantSpliced, adaptiveMaxWidth, adaptiveMaxHeight);
     } else {
+      // MPEG-2 TS segments, and we need to continue using the same extractor.
       extractorWrapper = previousTsChunk.extractorWrapper;
     }
 
