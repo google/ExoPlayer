@@ -33,6 +33,7 @@ import android.util.Pair;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Implements the internal behavior of {@link ExoPlayerImpl}.
@@ -66,6 +67,7 @@ import java.util.List;
   private final HandlerThread internalPlaybackThread;
   private final Handler eventHandler;
   private final StandaloneMediaClock standaloneMediaClock;
+  private final AtomicInteger pendingSeekCount;
   private final List<TrackRenderer> enabledRenderers;
   private final MediaFormat[][] trackFormats;
   private final int[] selectedTrackIndices;
@@ -82,6 +84,7 @@ import java.util.List;
   private int state;
   private int customMessagesSent = 0;
   private int customMessagesProcessed = 0;
+  private long lastSeekPositionMs;
   private long elapsedRealtimeUs;
 
   private volatile long durationUs;
@@ -100,6 +103,7 @@ import java.util.List;
     this.bufferedPositionUs = TrackRenderer.UNKNOWN_TIME_US;
 
     standaloneMediaClock = new StandaloneMediaClock();
+    pendingSeekCount = new AtomicInteger();
     enabledRenderers = new ArrayList<>(selectedTrackIndices.length);
     trackFormats = new MediaFormat[selectedTrackIndices.length][];
     // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
@@ -115,7 +119,7 @@ import java.util.List;
   }
 
   public long getCurrentPosition() {
-    return positionUs / 1000;
+    return pendingSeekCount.get() > 0 ? lastSeekPositionMs : (positionUs / 1000);
   }
 
   public long getBufferedPosition() {
@@ -137,6 +141,8 @@ import java.util.List;
   }
 
   public void seekTo(long positionMs) {
+    lastSeekPositionMs = positionMs;
+    pendingSeekCount.incrementAndGet();
     handler.obtainMessage(MSG_SEEK_TO, Util.getTopInt(positionMs),
         Util.getBottomInt(positionMs)).sendToTarget();
   }
@@ -490,25 +496,29 @@ import java.util.List;
   }
 
   private void seekToInternal(long positionMs) throws ExoPlaybackException {
-    if (positionMs == (positionUs / 1000)) {
-      // Seek is to the current position. Do nothing.
-      return;
-    }
+    try {
+      if (positionMs == (positionUs / 1000)) {
+        // Seek is to the current position. Do nothing.
+        return;
+      }
 
-    rebuffering = false;
-    positionUs = positionMs * 1000;
-    standaloneMediaClock.stop();
-    standaloneMediaClock.setPositionUs(positionUs);
-    if (state == ExoPlayer.STATE_IDLE || state == ExoPlayer.STATE_PREPARING) {
-      return;
+      rebuffering = false;
+      positionUs = positionMs * 1000;
+      standaloneMediaClock.stop();
+      standaloneMediaClock.setPositionUs(positionUs);
+      if (state == ExoPlayer.STATE_IDLE || state == ExoPlayer.STATE_PREPARING) {
+        return;
+      }
+      for (int i = 0; i < enabledRenderers.size(); i++) {
+        TrackRenderer renderer = enabledRenderers.get(i);
+        ensureStopped(renderer);
+        renderer.seekTo(positionUs);
+      }
+      setState(ExoPlayer.STATE_BUFFERING);
+      handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+    } finally {
+      pendingSeekCount.decrementAndGet();
     }
-    for (int i = 0; i < enabledRenderers.size(); i++) {
-      TrackRenderer renderer = enabledRenderers.get(i);
-      ensureStopped(renderer);
-      renderer.seekTo(positionUs);
-    }
-    setState(ExoPlayer.STATE_BUFFERING);
-    handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
   private void stopInternal() {
@@ -577,15 +587,15 @@ import java.util.List;
       @SuppressWarnings("unchecked")
       Pair<ExoPlayerComponent, Object> targetAndMessage = (Pair<ExoPlayerComponent, Object>) obj;
       targetAndMessage.first.handleMessage(what, targetAndMessage.second);
+      if (state != ExoPlayer.STATE_IDLE && state != ExoPlayer.STATE_PREPARING) {
+        // The message may have caused something to change that now requires us to do work.
+        handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+      }
     } finally {
       synchronized (this) {
         customMessagesProcessed++;
         notifyAll();
       }
-    }
-    if (state != ExoPlayer.STATE_IDLE && state != ExoPlayer.STATE_PREPARING) {
-      // The message may have caused something to change that now requires us to do work.
-      handler.sendEmptyMessage(MSG_DO_SOME_WORK);
     }
   }
 
