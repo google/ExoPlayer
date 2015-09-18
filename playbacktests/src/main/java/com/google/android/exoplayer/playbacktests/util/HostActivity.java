@@ -19,11 +19,18 @@ import static junit.framework.Assert.fail;
 
 import com.google.android.exoplayer.playbacktests.R;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.Util;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
+import android.net.wifi.WifiManager;
+import android.net.wifi.WifiManager.WifiLock;
 import android.os.Bundle;
 import android.os.ConditionVariable;
 import android.os.Handler;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -77,6 +84,9 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   }
 
   private static final String TAG = "HostActivity";
+
+  private WakeLock wakeLock;
+  private WifiLock wifiLock;
 
   private SurfaceView surfaceView;
   private Handler mainHandler;
@@ -138,6 +148,18 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   }
 
   @Override
+  public void onStart() {
+    Context appContext = getApplicationContext();
+    WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
+    wifiLock = wifiManager.createWifiLock(getWifiLockMode(), TAG);
+    wifiLock.acquire();
+    PowerManager powerManager = (PowerManager) appContext.getSystemService(Context.POWER_SERVICE);
+    wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+    wakeLock.acquire();
+    super.onStart();
+  }
+
+  @Override
   public void onResume() {
     super.onResume();
     maybeInitializeHostedTest();
@@ -147,6 +169,15 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   public void onPause() {
     super.onPause();
     maybeReleaseHostedTest();
+  }
+
+  @Override
+  public void onStop() {
+    super.onStop();
+    wakeLock.release();
+    wakeLock = null;
+    wifiLock.release();
+    wifiLock = null;
   }
 
   // SurfaceHolder.Callback
@@ -188,6 +219,11 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
       mainHandler.removeCallbacks(checkFinishedRunnable);
       hostedTestReleasedCondition.open();
     }
+  }
+
+  @SuppressLint("InlinedApi")
+  private static final int getWifiLockMode() {
+    return Util.SDK_INT < 12 ? WifiManager.WIFI_MODE_FULL : WifiManager.WIFI_MODE_FULL_HIGH_PERF;
   }
 
   private final class CheckFinishedRunnable implements Runnable {
