@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 
 import java.io.IOException;
@@ -70,7 +71,13 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
       int sourceTrackCount = source.getTrackCount();
       for (int trackIndex = 0; trackIndex < sourceTrackCount; trackIndex++) {
         MediaFormat format = source.getFormat(trackIndex);
-        if (handlesTrack(format)) {
+        boolean handlesTrack;
+        try {
+          handlesTrack = handlesTrack(format);
+        } catch (DecoderQueryException e) {
+          throw new ExoPlaybackException(e);
+        }
+        if (handlesTrack) {
           handledSourceIndices[handledTrackCount] = sourceIndex;
           handledTrackIndices[handledTrackCount] = trackIndex;
           handledTrackCount++;
@@ -101,8 +108,9 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
    *
    * @param mediaFormat The format of the track.
    * @return True if the renderer can handle the track, false otherwise.
+   * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
-  protected abstract boolean handlesTrack(MediaFormat mediaFormat);
+  protected abstract boolean handlesTrack(MediaFormat mediaFormat) throws DecoderQueryException;
 
   @Override
   protected void onEnabled(int track, long positionUs, boolean joining)

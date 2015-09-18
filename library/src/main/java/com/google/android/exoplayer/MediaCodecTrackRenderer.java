@@ -256,6 +256,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * @param requiresSecureDecoder Whether a secure decoder is needed for decoding {@code mimeType}.
    * @return {@link DecoderInfo} for decoding media in the specified MIME type, or {@code null} if
    *     no suitable decoder is available.
+   * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
   protected DecoderInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder)
       throws DecoderQueryException {
