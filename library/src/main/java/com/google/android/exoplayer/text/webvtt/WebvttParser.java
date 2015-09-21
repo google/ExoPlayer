@@ -24,7 +24,6 @@ import com.google.android.exoplayer.util.MimeTypes;
 import android.text.Html;
 import android.text.Layout.Alignment;
 import android.util.Log;
-import android.util.Pair;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -50,6 +49,7 @@ public final class WebvttParser implements SubtitleParser {
   private static final Pattern TIMESTAMP = Pattern.compile("(\\d+:)?[0-5]\\d:[0-5]\\d\\.\\d{3}");
   private static final Pattern CUE_SETTING = Pattern.compile("\\S*:\\S*");
 
+  private final PositionHolder positionHolder;
   private final StringBuilder textBuilder;
   private final boolean strictParsing;
 
@@ -68,6 +68,7 @@ public final class WebvttParser implements SubtitleParser {
    */
   public WebvttParser(boolean strictParsing) {
     this.strictParsing = strictParsing;
+    positionHolder = new PositionHolder();
     textBuilder = new StringBuilder();
   }
 
@@ -110,7 +111,7 @@ public final class WebvttParser implements SubtitleParser {
       Matcher matcher = COMMENT_BLOCK.matcher(line);
       if (matcher.find()) {
         // read lines until finding an empty one (webvtt line terminator: CRLF, or LF or CR)
-        while (((line = webvttData.readLine()) != null) && (!line.isEmpty())) {
+        while ((line = webvttData.readLine()) != null && !line.isEmpty()) {
           // ignore comment text
         }
         continue;
@@ -121,6 +122,10 @@ public final class WebvttParser implements SubtitleParser {
       if (matcher.find()) {
         // ignore the identifier (we currently don't use it) and read the next line
         line = webvttData.readLine();
+        if (line == null) {
+          // end of file
+          break;
+        }
       }
 
       long cueStartTime;
@@ -128,9 +133,10 @@ public final class WebvttParser implements SubtitleParser {
       CharSequence cueText;
       Alignment cueTextAlignment = null;
       float cueLine = Cue.DIMEN_UNSET;
-      int cueLineAnchor = Cue.ANCHOR_UNSET;
+      int cueLineType = Cue.TYPE_UNSET;
+      int cueLineAnchor = Cue.TYPE_UNSET;
       float cuePosition = Cue.DIMEN_UNSET;
-      int cuePositionAnchor = Cue.ANCHOR_UNSET;
+      int cuePositionAnchor = Cue.TYPE_UNSET;
       float cueWidth = Cue.DIMEN_UNSET;
 
       // parse the cue timestamps
@@ -163,15 +169,16 @@ public final class WebvttParser implements SubtitleParser {
 
         try {
           if ("line".equals(name)) {
-            Pair<Float, Integer> lineAttributes = parseLineAttribute(value);
-            cueLine = lineAttributes.first;
-            cueLineAnchor = lineAttributes.second;
+            parseLineAttribute(value, positionHolder);
+            cueLine = positionHolder.position;
+            cueLineType = positionHolder.lineType;
+            cueLineAnchor = positionHolder.positionAnchor;
           } else if ("align".equals(name)) {
             cueTextAlignment = parseTextAlignment(value);
           } else if ("position".equals(name)) {
-            Pair<Float, Integer> positionAttributes = parsePositionAttribute(value);
-            cuePosition = positionAttributes.first;
-            cuePositionAnchor = positionAttributes.second;
+            parsePositionAttribute(value, positionHolder);
+            cuePosition = positionHolder.position;
+            cuePositionAnchor = positionHolder.positionAnchor;
           } else if ("size".equals(name)) {
             cueWidth = parsePercentage(value);
           } else {
@@ -182,7 +189,7 @@ public final class WebvttParser implements SubtitleParser {
         }
       }
 
-      if (cuePosition != Cue.DIMEN_UNSET && cuePositionAnchor == Cue.ANCHOR_UNSET) {
+      if (cuePosition != Cue.DIMEN_UNSET && cuePositionAnchor == Cue.TYPE_UNSET) {
         // Computed position alignment should be derived from the text alignment if it has not been
         // set explicitly.
         cuePositionAnchor = alignmentToAnchor(cueTextAlignment);
@@ -190,7 +197,7 @@ public final class WebvttParser implements SubtitleParser {
 
       // parse text
       textBuilder.setLength(0);
-      while (((line = webvttData.readLine()) != null) && (!line.isEmpty())) {
+      while ((line = webvttData.readLine()) != null && !line.isEmpty()) {
         if (textBuilder.length() > 0) {
           textBuilder.append("<br>");
         }
@@ -199,7 +206,7 @@ public final class WebvttParser implements SubtitleParser {
       cueText = Html.fromHtml(textBuilder.toString());
 
       WebvttCue cue = new WebvttCue(cueStartTime, cueEndTime, cueText, cueTextAlignment, cueLine,
-          cueLineAnchor, cuePosition, cuePositionAnchor, cueWidth);
+          cueLineType, cueLineAnchor, cuePosition, cuePositionAnchor, cueWidth);
       subtitles.add(cue);
     }
 
@@ -221,30 +228,41 @@ public final class WebvttParser implements SubtitleParser {
     return (value * 1000 + Long.parseLong(parts[1])) * 1000;
   }
 
-  private static Pair<Float, Integer> parseLineAttribute(String s) {
-    int anchor;
+  private static void parseLineAttribute(String s, PositionHolder out) {
+    int lineAnchor;
     int commaPosition = s.indexOf(",");
     if (commaPosition != -1) {
-      anchor = parsePositionAnchor(s.substring(commaPosition + 1));
+      lineAnchor = parsePositionAnchor(s.substring(commaPosition + 1));
       s = s.substring(0, commaPosition);
     } else {
-      anchor = Cue.ANCHOR_UNSET;
+      lineAnchor = Cue.TYPE_UNSET;
     }
-    float line = s.endsWith("%") ? parsePercentage(s) : (Integer.parseInt(s) / 100f);
-    return Pair.create(line, anchor);
+    float line;
+    int lineType;
+    if (s.endsWith("%")) {
+      line = parsePercentage(s);
+      lineType = Cue.LINE_TYPE_FRACTION;
+    } else {
+      line = Integer.parseInt(s);
+      lineType = Cue.LINE_TYPE_NUMBER;
+    }
+    out.position = line;
+    out.positionAnchor = lineAnchor;
+    out.lineType = lineType;
   }
 
-  private static Pair<Float, Integer> parsePositionAttribute(String s) {
-    int anchor;
+  private static void parsePositionAttribute(String s, PositionHolder out) {
+    int positionAnchor;
     int commaPosition = s.indexOf(",");
     if (commaPosition != -1) {
-      anchor = parsePositionAnchor(s.substring(commaPosition + 1));
+      positionAnchor = parsePositionAnchor(s.substring(commaPosition + 1));
       s = s.substring(0, commaPosition);
     } else {
-      anchor = Cue.ANCHOR_UNSET;
+      positionAnchor = Cue.TYPE_UNSET;
     }
-    float position = parsePercentage(s);
-    return Pair.create(position, anchor);
+    out.position = parsePercentage(s);
+    out.positionAnchor = positionAnchor;
+    out.lineType = Cue.TYPE_UNSET;
   }
 
   private static float parsePercentage(String s) throws NumberFormatException {
@@ -258,14 +276,14 @@ public final class WebvttParser implements SubtitleParser {
   private static int parsePositionAnchor(String s) {
     switch (s) {
       case "start":
-        return Cue.ANCHOR_START;
+        return Cue.ANCHOR_TYPE_START;
       case "middle":
-        return Cue.ANCHOR_MIDDLE;
+        return Cue.ANCHOR_TYPE_MIDDLE;
       case "end":
-        return Cue.ANCHOR_END;
+        return Cue.ANCHOR_TYPE_END;
       default:
         Log.w(TAG, "Invalid anchor value: " + s);
-        return Cue.ANCHOR_UNSET;
+        return Cue.TYPE_UNSET;
     }
   }
 
@@ -289,19 +307,27 @@ public final class WebvttParser implements SubtitleParser {
 
   private static int alignmentToAnchor(Alignment alignment) {
     if (alignment == null) {
-      return Cue.ANCHOR_UNSET;
+      return Cue.TYPE_UNSET;
     }
     switch (alignment) {
       case ALIGN_NORMAL:
-        return Cue.ANCHOR_START;
+        return Cue.ANCHOR_TYPE_START;
       case ALIGN_CENTER:
-        return Cue.ANCHOR_MIDDLE;
+        return Cue.ANCHOR_TYPE_MIDDLE;
       case ALIGN_OPPOSITE:
-        return Cue.ANCHOR_END;
+        return Cue.ANCHOR_TYPE_END;
       default:
         Log.w(TAG, "Unrecognised alignment: " + alignment);
-        return Cue.ANCHOR_START;
+        return Cue.ANCHOR_TYPE_START;
     }
+  }
+
+  private static final class PositionHolder {
+
+    public float position;
+    public int positionAnchor;
+    public int lineType;
+
   }
 
 }

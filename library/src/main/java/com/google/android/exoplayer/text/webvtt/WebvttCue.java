@@ -32,13 +32,13 @@ import android.text.Layout.Alignment;
   }
 
   public WebvttCue(long startTime, long endTime, CharSequence text) {
-    this(startTime, endTime, text, null, Cue.DIMEN_UNSET, Cue.ANCHOR_UNSET, Cue.DIMEN_UNSET,
-        Cue.ANCHOR_UNSET, Cue.DIMEN_UNSET);
+    this(startTime, endTime, text, null, Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.TYPE_UNSET,
+        Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.DIMEN_UNSET);
   }
 
   public WebvttCue(long startTime, long endTime, CharSequence text, Alignment textAlignment,
-      float line, int lineAnchor, float position, int positionAnchor, float width) {
-    super(text, textAlignment, line, lineAnchor, position, positionAnchor, width);
+      float line, int lineType, int lineAnchor, float position, int positionAnchor, float width) {
+    super(text, textAlignment, line, lineType, lineAnchor, position, positionAnchor, width);
     this.startTime = startTime;
     this.endTime = endTime;
   }

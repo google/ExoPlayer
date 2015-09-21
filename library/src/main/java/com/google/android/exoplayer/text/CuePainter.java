@@ -65,6 +65,7 @@ import android.util.Log;
   private CharSequence cueText;
   private Alignment cueTextAlignment;
   private float cueLine;
+  private int cueLineType;
   private int cueLineAnchor;
   private float cuePosition;
   private int cuePositionAnchor;
@@ -146,6 +147,7 @@ import android.util.Log;
     if (areCharSequencesEqual(this.cueText, cueText)
         && Util.areEqual(this.cueTextAlignment, cue.textAlignment)
         && this.cueLine == cue.line
+        && this.cueLineType == cue.lineType
         && Util.areEqual(this.cueLineAnchor, cue.lineAnchor)
         && this.cuePosition == cue.position
         && Util.areEqual(this.cuePositionAnchor, cue.positionAnchor)
@@ -171,6 +173,7 @@ import android.util.Log;
     this.cueText = cueText;
     this.cueTextAlignment = cue.textAlignment;
     this.cueLine = cue.line;
+    this.cueLineType = cue.lineType;
     this.cueLineAnchor = cue.lineAnchor;
     this.cuePosition = cue.position;
     this.cuePositionAnchor = cue.positionAnchor;
@@ -207,7 +210,6 @@ import android.util.Log;
     Alignment textAlignment = cueTextAlignment == null ? Alignment.ALIGN_CENTER : cueTextAlignment;
     textLayout = new StaticLayout(cueText, textPaint, availableWidth, textAlignment, spacingMult,
         spacingAdd, true);
-
     int textHeight = textLayout.getHeight();
     int textWidth = 0;
     int lineCount = textLayout.getLineCount();
@@ -220,8 +222,8 @@ import android.util.Log;
     int textRight;
     if (cuePosition != Cue.DIMEN_UNSET) {
       int anchorPosition = Math.round(parentWidth * cuePosition) + parentLeft;
-      textLeft = cuePositionAnchor == Cue.ANCHOR_END ? anchorPosition - textWidth
-          : cuePositionAnchor == Cue.ANCHOR_MIDDLE ? (anchorPosition * 2 - textWidth) / 2
+      textLeft = cuePositionAnchor == Cue.ANCHOR_TYPE_END ? anchorPosition - textWidth
+          : cuePositionAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorPosition * 2 - textWidth) / 2
           : anchorPosition;
       textLeft = Math.max(textLeft, parentLeft);
       textRight = Math.min(textLeft + textWidth, parentRight);
@@ -233,9 +235,20 @@ import android.util.Log;
     int textTop;
     int textBottom;
     if (cueLine != Cue.DIMEN_UNSET) {
-      int anchorPosition = Math.round(parentHeight * cueLine) + parentLeft;
-      textTop = cueLineAnchor == Cue.ANCHOR_END ? anchorPosition - textHeight
-          : cueLineAnchor == Cue.ANCHOR_MIDDLE ? (anchorPosition * 2 - textHeight) / 2
+      int anchorPosition;
+      if (cueLineType == Cue.LINE_TYPE_FRACTION) {
+        anchorPosition = Math.round(parentHeight * cueLine) + parentTop;
+      } else {
+        // cueLineType == Cue.LINE_TYPE_NUMBER
+        int firstLineHeight = textLayout.getLineBottom(0) - textLayout.getLineTop(0);
+        if(cueLine >= 0) {
+          anchorPosition = Math.round(cueLine * firstLineHeight) + parentTop;
+        } else {
+          anchorPosition = Math.round(cueLine * firstLineHeight) + parentBottom;
+        }
+      }
+      textTop = cueLineAnchor == Cue.ANCHOR_TYPE_END ? anchorPosition - textHeight
+          : cueLineAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorPosition * 2 - textHeight) / 2
           : anchorPosition;
       textBottom = textTop + textHeight;
       if (textBottom > parentBottom) {

@@ -38,9 +38,8 @@ public class WebvttParserTest extends InstrumentationTestCase {
 
   public void testParseNull() throws IOException {
     WebvttParser parser = new WebvttParser();
-    InputStream inputStream =
-        getInstrumentation().getContext().getResources().getAssets().open(EMPTY_FILE);
-
+    InputStream inputStream = getInstrumentation().getContext().getResources().getAssets()
+        .open(EMPTY_FILE);
     try {
       parser.parse(inputStream);
       fail("Expected IOException");
@@ -65,9 +64,8 @@ public class WebvttParserTest extends InstrumentationTestCase {
 
   public void testParseTypicalWithIds() throws IOException {
     WebvttParser parser = new WebvttParser();
-    InputStream inputStream =
-        getInstrumentation().getContext().getResources().getAssets()
-          .open(TYPICAL_WITH_IDS_FILE);
+    InputStream inputStream = getInstrumentation().getContext().getResources().getAssets()
+        .open(TYPICAL_WITH_IDS_FILE);
     WebvttSubtitle subtitle = parser.parse(inputStream);
 
     // test event count
@@ -119,27 +117,29 @@ public class WebvttParserTest extends InstrumentationTestCase {
 
     // test cues
     assertCue(subtitle, 0, 0, 1234000, "This is the first subtitle.", Alignment.ALIGN_NORMAL,
-        Cue.DIMEN_UNSET, Cue.ANCHOR_UNSET, 0.1f, Cue.ANCHOR_START, 0.35f);
+        Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.TYPE_UNSET, 0.1f, Cue.ANCHOR_TYPE_START, 0.35f);
     assertCue(subtitle, 2, 2345000, 3456000, "This is the second subtitle.",
-        Alignment.ALIGN_OPPOSITE, Cue.DIMEN_UNSET, Cue.ANCHOR_UNSET, Cue.DIMEN_UNSET,
-        Cue.ANCHOR_UNSET, 0.35f);
+        Alignment.ALIGN_OPPOSITE, Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.TYPE_UNSET, Cue.DIMEN_UNSET,
+        Cue.TYPE_UNSET, 0.35f);
     assertCue(subtitle, 4, 4000000, 5000000, "This is the third subtitle.",
-        Alignment.ALIGN_CENTER, 0.45f, Cue.ANCHOR_END, Cue.DIMEN_UNSET, Cue.ANCHOR_UNSET, 0.35f);
+        Alignment.ALIGN_CENTER, 0.45f, Cue.LINE_TYPE_FRACTION, Cue.ANCHOR_TYPE_END, Cue.DIMEN_UNSET,
+        Cue.TYPE_UNSET, 0.35f);
     assertCue(subtitle, 6, 6000000, 7000000, "This is the fourth subtitle.",
-        Alignment.ALIGN_CENTER, -0.1f, Cue.ANCHOR_UNSET, Cue.DIMEN_UNSET, Cue.ANCHOR_UNSET,
-        Cue.DIMEN_UNSET);
+        Alignment.ALIGN_CENTER, -10f, Cue.LINE_TYPE_NUMBER, Cue.TYPE_UNSET, Cue.DIMEN_UNSET,
+        Cue.TYPE_UNSET, Cue.DIMEN_UNSET);
     assertCue(subtitle, 8, 7000000, 8000000, "This is the fifth subtitle.",
-        Alignment.ALIGN_OPPOSITE, Cue.DIMEN_UNSET, Cue.ANCHOR_UNSET, 0.1f, Cue.ANCHOR_END, 0.1f);
+        Alignment.ALIGN_OPPOSITE, Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.TYPE_UNSET, 0.1f,
+        Cue.ANCHOR_TYPE_END, 0.1f);
   }
 
   private static void assertCue(WebvttSubtitle subtitle, int eventTimeIndex, long startTimeUs,
       int endTimeUs, String text) {
     assertCue(subtitle, eventTimeIndex, startTimeUs, endTimeUs, text, null, Cue.DIMEN_UNSET,
-        Cue.ANCHOR_UNSET, Cue.DIMEN_UNSET, Cue.ANCHOR_UNSET, Cue.DIMEN_UNSET);
+        Cue.TYPE_UNSET, Cue.TYPE_UNSET, Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.DIMEN_UNSET);
   }
 
   private static void assertCue(WebvttSubtitle subtitle, int eventTimeIndex, long startTimeUs,
-      int endTimeUs, String text, Alignment textAlignment, float line, int lineAnchor,
+      int endTimeUs, String text, Alignment textAlignment, float line, int lineType, int lineAnchor,
       float position, int positionAnchor, float size) {
     assertEquals(startTimeUs, subtitle.getEventTime(eventTimeIndex));
     assertEquals(endTimeUs, subtitle.getEventTime(eventTimeIndex + 1));
@@ -150,6 +150,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
     assertEquals(text, cue.text.toString());
     assertEquals(textAlignment, cue.textAlignment);
     assertEquals(line, cue.line);
+    assertEquals(lineType, cue.lineType);
     assertEquals(lineAnchor, cue.lineAnchor);
     assertEquals(position, cue.position);
     assertEquals(positionAnchor, cue.positionAnchor);
