@@ -131,24 +131,30 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       return true;
     }
     if (!extractors.isEmpty()) {
-      // We're not prepared, but we might have loaded what we need.
-      HlsExtractorWrapper extractor = getCurrentExtractor();
-      if (extractor.isPrepared()) {
-        trackCount = extractor.getTrackCount();
-        trackEnabledStates = new boolean[trackCount];
-        pendingDiscontinuities = new boolean[trackCount];
-        downstreamMediaFormats = new MediaFormat[trackCount];
-        trackFormat = new MediaFormat[trackCount];
-        long durationUs = chunkSource.getDurationUs();
-        for (int i = 0; i < trackCount; i++) {
-          MediaFormat format = extractor.getMediaFormat(i).copyWithDurationUs(durationUs);
-          if (MimeTypes.isVideo(format.mimeType)) {
-            format = format.copyAsAdaptive();
+      while (true) {
+        // We're not prepared, but we might have loaded what we need.
+        HlsExtractorWrapper extractor = extractors.getFirst();
+        if (extractor.isPrepared()) {
+          trackCount = extractor.getTrackCount();
+          trackEnabledStates = new boolean[trackCount];
+          pendingDiscontinuities = new boolean[trackCount];
+          downstreamMediaFormats = new MediaFormat[trackCount];
+          trackFormat = new MediaFormat[trackCount];
+          long durationUs = chunkSource.getDurationUs();
+          for (int i = 0; i < trackCount; i++) {
+            MediaFormat format = extractor.getMediaFormat(i).copyWithDurationUs(durationUs);
+            if (MimeTypes.isVideo(format.mimeType)) {
+              format = format.copyAsAdaptive();
+            }
+            trackFormat[i] = format;
           }
-          trackFormat[i] = format;
+          prepared = true;
+          return true;
+        } else if (extractors.size() > 1) {
+          extractors.removeFirst().clear();
+        } else {
+          break;
         }
-        prepared = true;
-        return true;
       }
     }
     // We're not prepared and we haven't loaded what we need.
@@ -191,14 +197,23 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     downstreamMediaFormats[track] = null;
     pendingDiscontinuities[track] = false;
     downstreamFormat = null;
+    boolean wasLoadControlRegistered = loadControlRegistered;
     if (!loadControlRegistered) {
       loadControl.register(this, bufferSizeContribution);
       loadControlRegistered = true;
     }
     if (enabledTrackCount == 1) {
-      downstreamPositionUs = positionUs;
       lastSeekPositionUs = positionUs;
-      restartFrom(positionUs);
+      if (wasLoadControlRegistered && downstreamPositionUs == positionUs) {
+        // TODO: Address [Internal: b/21743989] to remove the need for this kind of hack.
+        // This is the first track to be enabled after preparation and the position is the same as
+        // was passed to prepare. In this case we can avoid restarting, which would reload the same
+        // chunks as were loaded during preparation.
+        maybeStartLoading();
+      } else {
+        downstreamPositionUs = positionUs;
+        restartFrom(positionUs);
+      }
     }
   }
 

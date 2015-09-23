@@ -16,6 +16,9 @@
 package com.google.android.exoplayer.text.webvtt;
 
 import android.test.InstrumentationTestCase;
+import android.text.Layout;
+
+import com.google.android.exoplayer.text.Cue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +31,8 @@ public class WebvttParserTest extends InstrumentationTestCase {
   private static final String TYPICAL_WEBVTT_FILE = "webvtt/typical";
   private static final String TYPICAL_WITH_IDS_WEBVTT_FILE = "webvtt/typical_with_identifiers";
   private static final String TYPICAL_WITH_TAGS_WEBVTT_FILE = "webvtt/typical_with_tags";
+  private static final String TYPICAL_WITH_COMMENTS_WEBVTT_FILE = "webvtt/typical_with_comments";
+  private static final String TYPICAL_WITH_METADATA_WEBVTT_FILE = "webvtt/typical_with_metadata";
   private static final String LIVE_TYPICAL_WEBVTT_FILE = "webvtt/live_typical";
   private static final String EMPTY_WEBVTT_FILE = "webvtt/empty";
 
@@ -121,6 +126,88 @@ public class WebvttParserTest extends InstrumentationTestCase {
     assertEquals(6000000, subtitle.getEventTime(6));
     assertEquals("This is the <fourth> &subtitle.",
         subtitle.getCues(subtitle.getEventTime(6)).get(0).text.toString());
+    assertEquals(7000000, subtitle.getEventTime(7));
+  }
+
+  public void testParseTypicalWithCommentsWebvttFile() throws IOException {
+    WebvttParser parser = new WebvttParser();
+    InputStream inputStream =
+            getInstrumentation().getContext().getResources().getAssets()
+                    .open(TYPICAL_WITH_COMMENTS_WEBVTT_FILE);
+    WebvttSubtitle subtitle = parser.parse(inputStream);
+
+    // test event count
+    assertEquals(4, subtitle.getEventTimeCount());
+
+    // test first cue
+    assertEquals(0, subtitle.getEventTime(0));
+    assertEquals("This is the first subtitle.",
+            subtitle.getCues(subtitle.getEventTime(0)).get(0).text.toString());
+    assertEquals(1234000, subtitle.getEventTime(1));
+
+    // test second cue
+    assertEquals(2345000, subtitle.getEventTime(2));
+    assertEquals("This is the second subtitle.",
+            subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString());
+    assertEquals(3456000, subtitle.getEventTime(3));
+  }
+
+  public void testParseTypicalWithMetadataWebvttFile() throws IOException {
+    WebvttParser parser = new WebvttParser();
+    InputStream inputStream =
+            getInstrumentation().getContext().getResources().getAssets()
+                    .open(TYPICAL_WITH_METADATA_WEBVTT_FILE);
+    WebvttSubtitle subtitle = parser.parse(inputStream);
+
+    // test event count
+    assertEquals(8, subtitle.getEventTimeCount());
+
+    // test first cue
+    assertEquals(0, subtitle.getEventTime(0));
+    assertEquals("This is the first subtitle.",
+        subtitle.getCues(subtitle.getEventTime(0)).get(0).text.toString());
+    assertEquals(10,
+        subtitle.getCues(subtitle.getEventTime(0)).get(0).position);
+    assertEquals(Layout.Alignment.ALIGN_NORMAL,
+        subtitle.getCues(subtitle.getEventTime(0)).get(0).alignment);
+    assertEquals(35,
+        subtitle.getCues(subtitle.getEventTime(0)).get(0).size);
+    assertEquals(1234000, subtitle.getEventTime(1));
+
+    // test second cue
+    assertEquals(2345000, subtitle.getEventTime(2));
+    assertEquals("This is the second subtitle.",
+        subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString());
+    assertEquals(Cue.UNSET_VALUE,
+        subtitle.getCues(subtitle.getEventTime(2)).get(0).position);
+    assertEquals(Layout.Alignment.ALIGN_OPPOSITE,
+        subtitle.getCues(subtitle.getEventTime(2)).get(0).alignment);
+    assertEquals(35,
+        subtitle.getCues(subtitle.getEventTime(2)).get(0).size);
+    assertEquals(3456000, subtitle.getEventTime(3));
+
+    // test third cue
+    assertEquals(4000000, subtitle.getEventTime(4));
+    assertEquals("This is the third subtitle.",
+        subtitle.getCues(subtitle.getEventTime(4)).get(0).text.toString());
+    assertEquals(45,
+        subtitle.getCues(subtitle.getEventTime(4)).get(0).line);
+    assertEquals(Layout.Alignment.ALIGN_CENTER,
+        subtitle.getCues(subtitle.getEventTime(4)).get(0).alignment);
+    assertEquals(35,
+        subtitle.getCues(subtitle.getEventTime(4)).get(0).size);
+    assertEquals(5000000, subtitle.getEventTime(5));
+
+    // test forth cue
+    assertEquals(6000000, subtitle.getEventTime(6));
+    assertEquals("This is the forth subtitle.",
+        subtitle.getCues(subtitle.getEventTime(6)).get(0).text.toString());
+    assertEquals(-10,
+        subtitle.getCues(subtitle.getEventTime(6)).get(0).line);
+    assertEquals(Layout.Alignment.ALIGN_CENTER,
+        subtitle.getCues(subtitle.getEventTime(6)).get(0).alignment);
+    assertEquals(35,
+        subtitle.getCues(subtitle.getEventTime(6)).get(0).size);
     assertEquals(7000000, subtitle.getEventTime(7));
   }
 

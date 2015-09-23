@@ -24,6 +24,7 @@ import com.google.android.exoplayer.util.MimeTypes;
 import android.text.Html;
 import android.text.Layout.Alignment;
 import android.util.Log;
+import android.util.Pair;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,9 +43,13 @@ public final class WebvttParser implements SubtitleParser {
 
   private static final String TAG = "WebvttParser";
 
-  private static final String WEBVTT_FILE_HEADER_STRING = "^\uFEFF?WEBVTT((\\u0020|\u0009).*)?$";
+  private static final String WEBVTT_FILE_HEADER_STRING = "^\uFEFF?WEBVTT((\u0020|\u0009).*)?$";
   private static final Pattern WEBVTT_FILE_HEADER =
       Pattern.compile(WEBVTT_FILE_HEADER_STRING);
+
+  private static final String WEBVTT_COMMENT_BLOCK_STRING = "^NOTE((\u0020|\u0009).*)?$";
+  private static final Pattern WEBVTT_COMMENT_BLOCK =
+      Pattern.compile(WEBVTT_COMMENT_BLOCK_STRING);
 
   private static final String WEBVTT_METADATA_HEADER_STRING = "\\S*[:=]\\S*";
   private static final Pattern WEBVTT_METADATA_HEADER =
@@ -59,6 +64,8 @@ public final class WebvttParser implements SubtitleParser {
 
   private static final String WEBVTT_CUE_SETTING_STRING = "\\S*:\\S*";
   private static final Pattern WEBVTT_CUE_SETTING = Pattern.compile(WEBVTT_CUE_SETTING_STRING);
+
+  private static final String WEBVTT_PERCENTAGE_NUMBER_STRING = "^([0-9]+|[0-9]+\\.[0-9]+)$";
 
   private static final String NON_NUMERIC_STRING = ".*[^0-9].*";
 
@@ -118,9 +125,18 @@ public final class WebvttParser implements SubtitleParser {
 
     // process the cues and text
     while ((line = webvttData.readLine()) != null) {
+      // parse webvtt comment block in case it is present
+      Matcher matcher = WEBVTT_COMMENT_BLOCK.matcher(line);
+      if(matcher.find()) {
+        // read lines until finding an empty one (webvtt line terminator: CRLF, or LF or CR)
+        while (((line = webvttData.readLine()) != null) && (!line.isEmpty())) {
+          // just ignoring comment text
+        }
+        continue;
+      }
 
       // parse the cue identifier (if present) {
-      Matcher matcher = WEBVTT_CUE_IDENTIFIER.matcher(line);
+      matcher = WEBVTT_CUE_IDENTIFIER.matcher(line);
       if (matcher.find()) {
         // ignore the identifier (we currently don't use it) and read the next line
         line = webvttData.readLine();
@@ -164,29 +180,30 @@ public final class WebvttParser implements SubtitleParser {
 
         try {
           if ("line".equals(name)) {
+            Pair<String, Alignment> lineMetadata = parseLinePositionAttributes(value);
+            value = lineMetadata.first;
             if (value.endsWith("%")) {
               lineNum = parseIntPercentage(value);
-            } else if (value.matches(NON_NUMERIC_STRING)) {
-              Log.w(TAG, "Invalid line value: " + value);
             } else {
-              lineNum = Integer.parseInt(value);
+              // Following WebVTT spec, line number can be a negative number
+              int sign = 1;
+              if (value.startsWith("-") && value.length() > 1) {
+                sign = -1;
+                value = value.substring(1);
+              }
+
+              if (value.matches(NON_NUMERIC_STRING)) {
+                Log.w(TAG, "Invalid line value: " + value);
+              } else {
+                lineNum = sign * Integer.parseInt(value);
+              }
             }
           } else if ("align".equals(name)) {
             // TODO: handle for RTL languages
-            if ("start".equals(value)) {
-              alignment = Alignment.ALIGN_NORMAL;
-            } else if ("middle".equals(value)) {
-              alignment = Alignment.ALIGN_CENTER;
-            } else if ("end".equals(value)) {
-              alignment = Alignment.ALIGN_OPPOSITE;
-            } else if ("left".equals(value)) {
-              alignment = Alignment.ALIGN_NORMAL;
-            } else if ("right".equals(value)) {
-              alignment = Alignment.ALIGN_OPPOSITE;
-            } else {
-              Log.w(TAG, "Invalid align value: " + value);
-            }
+            alignment = parseAlignment(value);
           } else if ("position".equals(name)) {
+            Pair<String, Alignment> lineMetadata = parseLinePositionAttributes(value);
+            value = lineMetadata.first;
             position = parseIntPercentage(value);
           } else if ("size".equals(name)) {
             size = parseIntPercentage(value);
@@ -226,11 +243,11 @@ public final class WebvttParser implements SubtitleParser {
     }
 
     s = s.substring(0, s.length() - 1);
-    if (s.matches(NON_NUMERIC_STRING)) {
+    if (!s.matches(WEBVTT_PERCENTAGE_NUMBER_STRING)) {
       throw new NumberFormatException(s + " contains an invalid character");
     }
 
-    int value = Integer.parseInt(s);
+    int value = Math.round(Float.parseFloat(s));
     if (value < 0 || value > 100) {
       throw new NumberFormatException(value + " is out of range [0-100]");
     }
@@ -248,6 +265,39 @@ public final class WebvttParser implements SubtitleParser {
       value = value * 60 + Long.parseLong(group);
     }
     return (value * 1000 + Long.parseLong(parts[1])) * 1000;
+  }
+
+  private static Pair<String, Alignment> parseLinePositionAttributes(String s) {
+    String value;
+    Alignment alignment = null;
+
+    int commaPos;
+    if ((commaPos = s.indexOf(",")) > 0 && commaPos < s.length() - 1) {
+      alignment = parseAlignment(s.substring(commaPos + 1));
+      value = s.substring(0, commaPos);
+    } else {
+      value = s;
+    }
+
+    return new Pair<String, Alignment>(value, alignment);
+  }
+
+  private static Alignment parseAlignment(String s) {
+    Alignment alignment = null;
+    if ("start".equals(s)) {
+      alignment = Alignment.ALIGN_NORMAL;
+    } else if ("middle".equals(s)) {
+      alignment = Alignment.ALIGN_CENTER;
+    } else if ("end".equals(s)) {
+      alignment = Alignment.ALIGN_OPPOSITE;
+    } else if ("left".equals(s)) {
+      alignment = Alignment.ALIGN_NORMAL;
+    } else if ("right".equals(s)) {
+      alignment = Alignment.ALIGN_OPPOSITE;
+    } else {
+      Log.w(TAG, "Invalid align value: " + s);
+    }
+    return alignment;
   }
 
 }

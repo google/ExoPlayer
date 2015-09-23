@@ -16,8 +16,10 @@
 package com.google.android.exoplayer.text;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -29,15 +31,29 @@ import java.util.List;
 public final class SubtitleLayout extends View {
 
   /**
+   * The default fractional text size.
+   *
+   * @see #setFractionalTextSize(float, boolean)
+   */
+  public static final float DEFAULT_TEXT_SIZE_FRACTION = 0.0533f;
+
+  /**
    * The default bottom padding to apply when {@link Cue#line} is {@link Cue#UNSET_VALUE}, as a
    * fraction of the viewport height.
+   *
+   * @see #setBottomPaddingFraction(float)
    */
   public static final float DEFAULT_BOTTOM_PADDING_FRACTION = 0.08f;
+
+  private static final int FRACTIONAL = 0;
+  private static final int FRACTIONAL_IGNORE_PADDING = 1;
+  private static final int ABSOLUTE = 2;
 
   private final List<CuePainter> painters;
 
   private List<Cue> cues;
-  private float fontScale;
+  private int textSizeType;
+  private float textSize;
   private boolean applyEmbeddedStyles;
   private CaptionStyleCompat style;
   private float bottomPaddingFraction;
@@ -49,7 +65,8 @@ public final class SubtitleLayout extends View {
   public SubtitleLayout(Context context, AttributeSet attrs) {
     super(context, attrs);
     painters = new ArrayList<>();
-    fontScale = 1;
+    textSizeType = FRACTIONAL;
+    textSize = DEFAULT_TEXT_SIZE_FRACTION;
     applyEmbeddedStyles = true;
     style = CaptionStyleCompat.DEFAULT;
     bottomPaddingFraction = DEFAULT_BOTTOM_PADDING_FRACTION;
@@ -75,15 +92,55 @@ public final class SubtitleLayout extends View {
   }
 
   /**
-   * Sets the scale of the font.
+   * Set the text size to a given unit and value.
+   * <p>
+   * See {@link TypedValue} for the possible dimension units.
    *
-   * @param fontScale The scale of the font.
+   * @param unit The desired dimension unit.
+   * @param size The desired size in the given units.
    */
-  public void setFontScale(float fontScale) {
-    if (this.fontScale == fontScale) {
+  public void setFixedTextSize(int unit, float size) {
+    Context context = getContext();
+    Resources resources;
+    if (context == null) {
+      resources = Resources.getSystem();
+    } else {
+      resources = context.getResources();
+    }
+    setTextSize(ABSOLUTE, TypedValue.applyDimension(unit, size, resources.getDisplayMetrics()));
+  }
+
+  /**
+   * Sets the text size to be a fraction of the view's remaining height after its top and bottom
+   * padding have been subtracted.
+   * <p>
+   * Equivalent to {@code #setFractionalTextSize(fractionOfHeight, false)}.
+   *
+   * @param fractionOfHeight A fraction between 0 and 1.
+   */
+  public void setFractionalTextSize(float fractionOfHeight) {
+    setFractionalTextSize(fractionOfHeight, false);
+  }
+
+  /**
+   * Sets the text size to be a fraction of the height of this view.
+   *
+   * @param fractionOfHeight A fraction between 0 and 1.
+   * @param ignorePadding Set to true if {@code fractionOfHeight} should be interpreted as a
+   *     fraction of this view's height ignoring any top and bottom padding. Set to false if
+   *     {@code fractionOfHeight} should be interpreted as a fraction of this view's remaining
+   *     height after the top and bottom padding has been subtracted.
+   */
+  public void setFractionalTextSize(float fractionOfHeight, boolean ignorePadding) {
+    setTextSize(ignorePadding ? FRACTIONAL_IGNORE_PADDING : FRACTIONAL, fractionOfHeight);
+  }
+
+  private void setTextSize(int textSizeType, float textSize) {
+    if (this.textSizeType == textSizeType && this.textSize == textSize) {
       return;
     }
-    this.fontScale = fontScale;
+    this.textSizeType = textSizeType;
+    this.textSize = textSize;
     // Invalidate to trigger drawing.
     invalidate();
   }
@@ -118,7 +175,10 @@ public final class SubtitleLayout extends View {
 
   /**
    * Sets the bottom padding fraction to apply when {@link Cue#line} is {@link Cue#UNSET_VALUE},
-   * as a fraction of the viewport height.
+   * as a fraction of the view's remaining height after its top and bottom padding have been
+   * subtracted.
+   * <p>
+   * Note that this padding is applied in addition to any standard view padding.
    *
    * @param bottomPaddingFraction The bottom padding fraction.
    */
@@ -134,9 +194,29 @@ public final class SubtitleLayout extends View {
   @Override
   public void dispatchDraw(Canvas canvas) {
     int cueCount = (cues == null) ? 0 : cues.size();
+    int rawTop = getTop();
+    int rawBottom = getBottom();
+
+    // Calculate the bounds after padding is taken into account.
+    int left = getLeft() + getPaddingLeft();
+    int top = rawTop + getPaddingTop();
+    int right = getRight() + getPaddingRight();
+    int bottom = rawBottom - getPaddingBottom();
+    if (bottom <= top || right <= left) {
+      // No space to draw subtitles.
+      return;
+    }
+
+    float textSizePx = textSizeType == ABSOLUTE ? textSize
+        : textSize * (textSizeType == FRACTIONAL ? (bottom - top) : (rawBottom - rawTop));
+    if (textSizePx <= 0) {
+      // Text has no height.
+      return;
+    }
+
     for (int i = 0; i < cueCount; i++) {
-      painters.get(i).draw(cues.get(i), applyEmbeddedStyles, style, fontScale,
-          bottomPaddingFraction, canvas, getLeft(), getTop(), getRight(), getBottom());
+      painters.get(i).draw(cues.get(i), applyEmbeddedStyles, style, textSizePx,
+          bottomPaddingFraction, canvas, left, top, right, bottom);
     }
   }
 

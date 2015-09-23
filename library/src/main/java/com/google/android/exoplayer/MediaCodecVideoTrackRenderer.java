@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.TraceUtil;
@@ -268,9 +269,11 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected boolean handlesTrack(MediaFormat mediaFormat) {
-    // TODO: Check the mime type against the available decoders (b/22996976).
-    return MimeTypes.isVideo(mediaFormat.mimeType);
+  protected boolean handlesTrack(MediaFormat mediaFormat) throws DecoderQueryException {
+    // TODO: Use MediaCodecList.findDecoderForFormat on API 23.
+    String mimeType = mediaFormat.mimeType;
+    return MimeTypes.isVideo(mimeType) && (MimeTypes.VIDEO_UNKNOWN.equals(mimeType)
+        || MediaCodecUtil.getDecoderInfo(mimeType, false) != null);
   }
 
   @Override

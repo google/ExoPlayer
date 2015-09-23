@@ -48,6 +48,7 @@ public final class Mp3Extractor implements Extractor {
   private static final int INFO_HEADER = Util.getIntegerCodeForString("Info");
   private static final int VBRI_HEADER = Util.getIntegerCodeForString("VBRI");
 
+  private final long forcedFirstSampleTimestampUs;
   private final BufferingInput inputBuffer;
   private final ParsableByteArray scratch;
   private final MpegAudioHeader synchronizedHeader;
@@ -63,11 +64,25 @@ public final class Mp3Extractor implements Extractor {
   private int samplesRead;
   private int sampleBytesRemaining;
 
-  /** Constructs a new {@link Mp3Extractor}. */
+  /**
+   * Constructs a new {@link Mp3Extractor}.
+   */
   public Mp3Extractor() {
+    this(-1);
+  }
+
+  /**
+   * Constructs a new {@link Mp3Extractor}.
+   *
+   * @param forcedFirstSampleTimestampUs A timestamp to force for the first sample, or -1 if forcing
+   *     is not required.
+   */
+  public Mp3Extractor(long forcedFirstSampleTimestampUs) {
+    this.forcedFirstSampleTimestampUs = forcedFirstSampleTimestampUs;
     inputBuffer = new BufferingInput(MpegAudioHeader.MAX_FRAME_SIZE_BYTES * 3);
     scratch = new ParsableByteArray(4);
     synchronizedHeader = new MpegAudioHeader();
+    basisTimeUs = -1;
   }
 
   @Override
@@ -164,6 +179,10 @@ public final class Mp3Extractor implements Extractor {
       }
       if (basisTimeUs == -1) {
         basisTimeUs = seeker.getTimeUs(getPosition(extractorInput, inputBuffer));
+        if (forcedFirstSampleTimestampUs != -1) {
+          long embeddedFirstSampleTimestampUs = seeker.getTimeUs(0);
+          basisTimeUs += forcedFirstSampleTimestampUs - embeddedFirstSampleTimestampUs;
+        }
       }
       sampleBytesRemaining = synchronizedHeader.frameSize;
     }
