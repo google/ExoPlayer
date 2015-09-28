@@ -219,8 +219,8 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
       return;
     }
 
-    // If we have not rendered any frame so far (either initially or immediately following a
-    // seek), render one frame irresepective of the state.
+    // If we have not rendered any frame so far (either initially or immediately following a seek),
+    // render one frame irrespective of the state.
     if (!renderedFirstFrame) {
       renderBuffer();
       renderedFirstFrame = true;
@@ -234,8 +234,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
 
     if (timeToRenderUs > 11000) {
       try {
-        // Subtracting 10000 rather than 11000 ensures that the sleep time
-        // will be at least 1ms.
+        // Subtracting 10000 rather than 11000 ensures that the sleep time will be at least 1ms.
         Thread.sleep((timeToRenderUs - 10000) / 1000);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
