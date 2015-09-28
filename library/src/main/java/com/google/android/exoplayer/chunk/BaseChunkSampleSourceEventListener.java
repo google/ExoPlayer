@@ -42,7 +42,7 @@ public interface BaseChunkSampleSourceEventListener {
    *     load is for initialization data.
    */
   void onLoadStarted(int sourceId, long length, int type, int trigger, Format format,
-      int mediaStartTimeMs, int mediaEndTimeMs);
+      long mediaStartTimeMs, long mediaEndTimeMs);
 
   /**
    * Invoked when the current load operation completes.
@@ -61,7 +61,7 @@ public interface BaseChunkSampleSourceEventListener {
    * @param loadDurationMs Amount of time taken to load the data.
    */
    void onLoadCompleted(int sourceId, long bytesLoaded, int type, int trigger, Format format,
-       int mediaStartTimeMs, int mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs);
+       long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs);
 
   /**
    * Invoked when the current upstream load operation is canceled.
@@ -87,7 +87,7 @@ public interface BaseChunkSampleSourceEventListener {
    * @param mediaStartTimeMs The media time of the start of the discarded data.
    * @param mediaEndTimeMs The media time of the end of the discarded data.
    */
-  void onUpstreamDiscarded(int sourceId, int mediaStartTimeMs, int mediaEndTimeMs);
+  void onUpstreamDiscarded(int sourceId, long mediaStartTimeMs, long mediaEndTimeMs);
 
   /**
    * Invoked when the downstream format changes (i.e. when the format being supplied to the
@@ -99,6 +99,6 @@ public interface BaseChunkSampleSourceEventListener {
    *     {@link ChunkSource}.
    * @param mediaTimeMs The media time at which the change occurred.
    */
-  void onDownstreamFormatChanged(int sourceId, Format format, int trigger, int mediaTimeMs);
+  void onDownstreamFormatChanged(int sourceId, Format format, int trigger, long mediaTimeMs);
 
 }

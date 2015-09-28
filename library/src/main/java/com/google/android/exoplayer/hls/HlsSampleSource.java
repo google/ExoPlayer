@@ -599,8 +599,8 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     return Math.min((errorCount - 1) * 1000, 5000);
   }
 
-  /* package */ int usToMs(long timeUs) {
-    return (int) (timeUs / 1000);
+  /* package */ long usToMs(long timeUs) {
+    return timeUs / 1000;
   }
 
   private void notifyLoadStarted(final long length, final int type, final int trigger,

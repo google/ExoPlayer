@@ -117,7 +117,7 @@ public final class LogcatLogger implements ExoPlayer.Listener,
 
   @Override
   public void onDownstreamFormatChanged(int sourceId, Format format, int trigger,
-      int mediaTimeMs) {
+      long mediaTimeMs) {
     Log.i(tag, "Downstream format changed (" + sourceId + "): " + format.id);
   }
 
@@ -129,18 +129,18 @@ public final class LogcatLogger implements ExoPlayer.Listener,
 
   @Override
   public void onLoadStarted(int sourceId, long length, int type, int trigger, Format format,
-      int mediaStartTimeMs, int mediaEndTimeMs) {}
+      long mediaStartTimeMs, long mediaEndTimeMs) {}
 
   @Override
   public void onLoadCompleted(int sourceId, long bytesLoaded, int type, int trigger,
-      Format format, int mediaStartTimeMs, int mediaEndTimeMs, long elapsedRealtimeMs,
+      Format format, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs,
       long loadDurationMs) {}
 
   @Override
   public void onLoadCanceled(int sourceId, long bytesLoaded) {}
 
   @Override
-  public void onUpstreamDiscarded(int sourceId, int mediaStartTimeMs, int mediaEndTimeMs) {}
+  public void onUpstreamDiscarded(int sourceId, long mediaStartTimeMs, long mediaEndTimeMs) {}
 
   @Override
   public void onDrawnToSurface(Surface surface) {}
