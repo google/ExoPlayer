@@ -214,9 +214,9 @@ import java.util.LinkedList;
         skipSamples = (inputBuffer.sampleHolder.timeUs == 0) ? opusHeader.skipSamples : seekPreRoll;
       }
       SampleHolder sampleHolder = inputBuffer.sampleHolder;
-      sampleHolder.data.position(sampleHolder.data.position() - sampleHolder.size);
+      sampleHolder.data.position(sampleHolder.data.position() - sampleHolder.getSize());
       outputBuffer.timestampUs = sampleHolder.timeUs;
-      outputBuffer.size = decoder.decode(sampleHolder.data, sampleHolder.size,
+      outputBuffer.size = decoder.decode(sampleHolder.data, sampleHolder.getSize(),
           outputBuffer.data, outputBuffer.data.capacity());
       outputBuffer.data.position(0);
       if (skipSamples > 0) {

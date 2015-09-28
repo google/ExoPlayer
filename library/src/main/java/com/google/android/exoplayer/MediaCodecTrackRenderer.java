@@ -60,6 +60,13 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     void onCryptoError(CryptoException e);
 
     /**
+     * Invoked when a decoder error occurred during play.
+     *
+     * @param e Corresponding exception or null if cause unknown
+     */
+    void onDecoderError(IllegalStateException e);
+
+    /**
      * Invoked when a decoder is successfully created.
      *
      * @param decoderName The decoder that was configured and created.
@@ -298,7 +305,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       if (drmSessionState == DrmSessionManager.STATE_ERROR) {
         throw new ExoPlaybackException(drmSessionManager.getError());
       } else if (drmSessionState == DrmSessionManager.STATE_OPENED
-          || drmSessionState == DrmSessionManager.STATE_OPENED_WITH_KEYS) {
+              || drmSessionState == DrmSessionManager.STATE_OPENED_WITH_KEYS) {
         mediaCrypto = drmSessionManager.getMediaCrypto();
         requiresSecureDecoder = drmSessionManager.requiresSecureDecoderComponent(mimeType);
       } else {
@@ -312,44 +319,44 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       decoderInfo = getDecoderInfo(mimeType, requiresSecureDecoder);
     } catch (DecoderQueryException e) {
       notifyAndThrowDecoderInitError(new DecoderInitializationException(format, e,
-          DecoderInitializationException.DECODER_QUERY_ERROR));
+              DecoderInitializationException.DECODER_QUERY_ERROR));
     }
 
     if (decoderInfo == null) {
       notifyAndThrowDecoderInitError(new DecoderInitializationException(format, null,
-          DecoderInitializationException.NO_SUITABLE_DECODER_ERROR));
+              DecoderInitializationException.NO_SUITABLE_DECODER_ERROR));
     }
 
-    String decoderName = decoderInfo.name;
-    codecIsAdaptive = decoderInfo.adaptive;
-    codecNeedsEosPropagationWorkaround = codecNeedsEosPropagationWorkaround(decoderName);
-    codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(decoderName);
-    try {
-      long codecInitializingTimestamp = SystemClock.elapsedRealtime();
-      TraceUtil.beginSection("createByCodecName(" + decoderName + ")");
-      codec = MediaCodec.createByCodecName(decoderName);
-      TraceUtil.endSection();
-      TraceUtil.beginSection("configureCodec");
-      configureCodec(codec, decoderName, format.getFrameworkMediaFormatV16(), mediaCrypto);
-      TraceUtil.endSection();
-      TraceUtil.beginSection("codec.start()");
-      codec.start();
-      TraceUtil.endSection();
-      long codecInitializedTimestamp = SystemClock.elapsedRealtime();
-      notifyDecoderInitialized(decoderName, codecInitializedTimestamp,
-          codecInitializedTimestamp - codecInitializingTimestamp);
-      inputBuffers = codec.getInputBuffers();
-      outputBuffers = codec.getOutputBuffers();
-    } catch (Exception e) {
-      notifyAndThrowDecoderInitError(new DecoderInitializationException(format, e, decoderName));
+      String decoderName = decoderInfo.name;
+      codecIsAdaptive = decoderInfo.adaptive;
+      codecNeedsEosPropagationWorkaround = codecNeedsEosPropagationWorkaround(decoderName);
+      codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(decoderName);
+      try {
+        long codecInitializingTimestamp = SystemClock.elapsedRealtime();
+        TraceUtil.beginSection("createByCodecName(" + decoderName + ")");
+        codec = MediaCodec.createByCodecName(decoderName);
+        TraceUtil.endSection();
+        TraceUtil.beginSection("configureCodec");
+        configureCodec(codec, decoderName, format.getFrameworkMediaFormatV16(), mediaCrypto);
+        TraceUtil.endSection();
+        TraceUtil.beginSection("codec.start()");
+        codec.start();
+        TraceUtil.endSection();
+        long codecInitializedTimestamp = SystemClock.elapsedRealtime();
+        notifyDecoderInitialized(decoderName, codecInitializedTimestamp,
+                codecInitializedTimestamp - codecInitializingTimestamp);
+        inputBuffers = codec.getInputBuffers();
+        outputBuffers = codec.getOutputBuffers();
+      } catch (Exception e) {
+        notifyAndThrowDecoderInitError(new DecoderInitializationException(format, e, decoderName));
+      }
+      codecHotswapTimeMs = getState() == TrackRenderer.STATE_STARTED ?
+              SystemClock.elapsedRealtime() : -1;
+      inputIndex = -1;
+      outputIndex = -1;
+      waitingForFirstSyncFrame = true;
+      codecCounters.codecInitCount++;
     }
-    codecHotswapTimeMs = getState() == TrackRenderer.STATE_STARTED ?
-        SystemClock.elapsedRealtime() : -1;
-    inputIndex = -1;
-    outputIndex = -1;
-    waitingForFirstSyncFrame = true;
-    codecCounters.codecInitCount++;
-  }
 
   private void notifyAndThrowDecoderInitError(DecoderInitializationException e)
       throws ExoPlaybackException {
@@ -516,7 +523,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * @throws ExoPlaybackException If an error occurs feeding the input buffer.
    */
   private boolean feedInputBuffer(long positionUs, boolean firstFeed) throws ExoPlaybackException {
-    if (inputStreamEnded
+    if (codec == null || inputStreamEnded
         || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
       // The input stream has ended, or we need to re-initialize the codec but are still waiting
       // for the existing codec to output any final output buffers.
@@ -631,7 +638,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     }
     try {
       int bufferSize = sampleHolder.data.position();
-      int adaptiveReconfigurationBytes = bufferSize - sampleHolder.size;
+      int adaptiveReconfigurationBytes = bufferSize - sampleHolder.getSize();
       long presentationTimeUs = sampleHolder.timeUs;
       if (sampleHolder.isDecodeOnly()) {
         decodeOnlyPresentationTimestamps.add(presentationTimeUs);
@@ -797,7 +804,15 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     }
 
     if (outputIndex < 0) {
-      outputIndex = codec.dequeueOutputBuffer(outputBufferInfo, getDequeueOutputBufferTimeoutUs());
+      try {
+        outputIndex = codec.dequeueOutputBuffer(outputBufferInfo, getDequeueOutputBufferTimeoutUs());
+      } catch (IllegalStateException e) {
+        // An illegal state is thrown after a playing exception has occurred. Root cause cannot be
+        // known (except if we were to use setCallbacks / onError, but only for API >= 21)
+        notifyDecoderError(null);
+        releaseCodec();
+        return false;
+      }
     }
 
     if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
@@ -862,12 +877,37 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     }
   }
 
+  protected boolean releaseOutputBuffer(MediaCodec codec, int bufferIndex, boolean render) {
+    try {
+      codec.releaseOutputBuffer(bufferIndex, render);
+    } catch (IllegalStateException e) {
+      // An illegal state is thrown after a playing exception has occurred. Root cause cannot be
+      // known (except if we were to use setCallbacks / onError, but only for API >= 21)
+      notifyDecoderError(null);
+      releaseCodec();
+      return true;
+    }
+    return false;
+  }
+
+
   private void notifyDecoderInitializationError(final DecoderInitializationException e) {
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable()  {
         @Override
         public void run() {
           eventListener.onDecoderInitializationError(e);
+        }
+      });
+    }
+  }
+
+  protected void notifyDecoderError(final CodecException e) {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable()  {
+        @Override
+        public void run() {
+          eventListener.onDecoderError(e);
         }
       });
     }

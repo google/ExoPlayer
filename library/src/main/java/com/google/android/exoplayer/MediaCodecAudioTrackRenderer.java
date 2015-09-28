@@ -315,10 +315,13 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
       ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo, int bufferIndex, boolean shouldSkip)
       throws ExoPlaybackException {
     if (shouldSkip) {
-      codec.releaseOutputBuffer(bufferIndex, false);
-      codecCounters.skippedOutputBufferCount++;
-      audioTrack.handleDiscontinuity();
-      return true;
+      if (releaseOutputBuffer(codec, bufferIndex, false)) {
+        return false;
+      } else {
+        codecCounters.skippedOutputBufferCount++;
+        audioTrack.handleDiscontinuity();
+        return true;
+      }
     }
 
     // Initialize and start the audio track now.
@@ -357,9 +360,12 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
 
     // Release the buffer if it was consumed.
     if ((handleBufferResult & AudioTrack.RESULT_BUFFER_CONSUMED) != 0) {
-      codec.releaseOutputBuffer(bufferIndex, false);
-      codecCounters.renderedOutputBufferCount++;
-      return true;
+      if (releaseOutputBuffer(codec, bufferIndex, false)) {
+        return false;
+      } else {
+        codecCounters.renderedOutputBufferCount++;
+        return true;
+      }
     }
 
     return false;

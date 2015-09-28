@@ -109,6 +109,8 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     void onCryptoError(CryptoException e);
     void onLoadError(int sourceId, IOException e);
     void onDrmSessionManagerError(Exception e);
+
+    void onDecoderError(IllegalStateException e);
   }
 
   /**
@@ -463,6 +465,13 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   public void onDecoderInitializationError(DecoderInitializationException e) {
     if (internalErrorListener != null) {
       internalErrorListener.onDecoderInitializationError(e);
+    }
+  }
+
+  @Override
+  public void onDecoderError(IllegalStateException e) {
+    if (internalErrorListener != null) {
+      internalErrorListener.onDecoderError(e);
     }
   }
 

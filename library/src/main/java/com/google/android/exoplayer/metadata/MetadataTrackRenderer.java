@@ -118,7 +118,7 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
       if (result == SampleSource.SAMPLE_READ) {
         pendingMetadataTimestamp = sampleHolder.timeUs;
         try {
-          pendingMetadata = metadataParser.parse(sampleHolder.data.array(), sampleHolder.size);
+          pendingMetadata = metadataParser.parse(sampleHolder.data.array(), sampleHolder.getSize());
         } catch (IOException e) {
           throw new ExoPlaybackException(e);
         }
