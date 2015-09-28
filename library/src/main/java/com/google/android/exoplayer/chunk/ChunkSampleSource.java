@@ -219,7 +219,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
     boolean haveSamples = !sampleQueue.isEmpty();
     BaseMediaChunk currentChunk = mediaChunks.getFirst();
     while (haveSamples && mediaChunks.size() > 1
-        && mediaChunks.get(1).getFirstSampleIndex() == sampleQueue.getReadIndex()) {
+        && mediaChunks.get(1).getFirstSampleIndex() <= sampleQueue.getReadIndex()) {
       mediaChunks.removeFirst();
       currentChunk = mediaChunks.getFirst();
     }
