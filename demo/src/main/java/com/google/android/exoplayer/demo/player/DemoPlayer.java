@@ -115,14 +115,14 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
    * A listener for debugging information.
    */
   public interface InfoListener {
-    void onVideoFormatEnabled(Format format, int trigger, int mediaTimeMs);
-    void onAudioFormatEnabled(Format format, int trigger, int mediaTimeMs);
+    void onVideoFormatEnabled(Format format, int trigger, long mediaTimeMs);
+    void onAudioFormatEnabled(Format format, int trigger, long mediaTimeMs);
     void onDroppedFrames(int count, long elapsed);
     void onBandwidthSample(int elapsedMs, long bytes, long bitrateEstimate);
     void onLoadStarted(int sourceId, long length, int type, int trigger, Format format,
-        int mediaStartTimeMs, int mediaEndTimeMs);
+        long mediaStartTimeMs, long mediaEndTimeMs);
     void onLoadCompleted(int sourceId, long bytesLoaded, int type, int trigger, Format format,
-        int mediaStartTimeMs, int mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs);
+        long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs);
     void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
         long initializationDurationMs);
     void onAvailableRangeChanged(TimeRange availableRange);
@@ -435,7 +435,8 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   @Override
-  public void onDownstreamFormatChanged(int sourceId, Format format, int trigger, int mediaTimeMs) {
+  public void onDownstreamFormatChanged(int sourceId, Format format, int trigger,
+      long mediaTimeMs) {
     if (infoListener == null) {
       return;
     }
@@ -445,11 +446,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     } else if (sourceId == TYPE_AUDIO) {
       infoListener.onAudioFormatEnabled(format, trigger, mediaTimeMs);
     }
-  }
-
-  @Override
-  public void onDrmKeysLoaded() {
-    // Do nothing.
   }
 
   @Override
@@ -535,7 +531,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
 
   @Override
   public void onLoadStarted(int sourceId, long length, int type, int trigger, Format format,
-      int mediaStartTimeMs, int mediaEndTimeMs) {
+      long mediaStartTimeMs, long mediaEndTimeMs) {
     if (infoListener != null) {
       infoListener.onLoadStarted(sourceId, length, type, trigger, format, mediaStartTimeMs,
           mediaEndTimeMs);
@@ -544,7 +540,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
 
   @Override
   public void onLoadCompleted(int sourceId, long bytesLoaded, int type, int trigger, Format format,
-      int mediaStartTimeMs, int mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs) {
+      long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs) {
     if (infoListener != null) {
       infoListener.onLoadCompleted(sourceId, bytesLoaded, type, trigger, format, mediaStartTimeMs,
           mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs);
@@ -557,7 +553,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   @Override
-  public void onUpstreamDiscarded(int sourceId, int mediaStartTimeMs, int mediaEndTimeMs) {
+  public void onUpstreamDiscarded(int sourceId, long mediaStartTimeMs, long mediaEndTimeMs) {
     // Do nothing.
   }
 
