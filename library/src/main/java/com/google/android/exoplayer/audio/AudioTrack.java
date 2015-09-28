@@ -27,6 +27,7 @@ import android.media.AudioManager;
 import android.media.AudioTimestamp;
 import android.media.MediaFormat;
 import android.os.ConditionVariable;
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.lang.reflect.Method;
@@ -567,9 +568,8 @@ public final class AudioTrack {
    * played out in full.
    */
   public void handleEndOfStream() {
-    if (audioTrack != null) {
-      // Required to ensure that the media written to the AudioTrack is played out in full.
-      audioTrack.stop();
+    if (isInitialized()) {
+      audioTrackUtil.handleEndOfStream(bytesToFrames(submittedBytes));
     }
   }
 
@@ -618,7 +618,7 @@ public final class AudioTrack {
   public void pause() {
     if (isInitialized()) {
       resetSyncParams();
-      audioTrack.pause();
+      audioTrackUtil.pause();
     }
   }
 
@@ -843,6 +843,10 @@ public final class AudioTrack {
     private long rawPlaybackHeadWrapCount;
     private long passthroughWorkaroundPauseOffset;
 
+    private long stopTimestampUs;
+    private long stopPlaybackHeadPosition;
+    private long endPlaybackHeadPosition;
+
     /**
      * Reconfigures the audio track utility helper to use the specified {@code audioTrack}.
      *
@@ -852,6 +856,7 @@ public final class AudioTrack {
     public void reconfigure(android.media.AudioTrack audioTrack, boolean isPassthrough) {
       this.audioTrack = audioTrack;
       this.isPassthrough = isPassthrough;
+      stopTimestampUs = -1;
       lastRawPlaybackHeadPosition = 0;
       rawPlaybackHeadWrapCount = 0;
       passthroughWorkaroundPauseOffset = 0;
@@ -875,6 +880,32 @@ public final class AudioTrack {
     }
 
     /**
+     * Stops the audio track in a way that ensures media written to it is played out in full, and
+     * that {@link #getPlaybackHeadPosition()} and {@link #getPlaybackHeadPositionUs()} continue to
+     * increment as the remaining media is played out.
+     *
+     * @param submittedFrames The total number of frames that have been submitted.
+     */
+    public void handleEndOfStream(long submittedFrames) {
+      stopPlaybackHeadPosition = getPlaybackHeadPosition();
+      stopTimestampUs = SystemClock.elapsedRealtime() * 1000;
+      endPlaybackHeadPosition = submittedFrames;
+      audioTrack.stop();
+    }
+
+    /**
+     * Pauses the audio track unless the end of the stream has been handled, in which case calling
+     * this method does nothing.
+     */
+    public void pause() {
+      if (stopTimestampUs != -1) {
+        // We don't want to knock the audio track back into the paused state.
+        return;
+      }
+      audioTrack.pause();
+    }
+
+    /**
      * {@link android.media.AudioTrack#getPlaybackHeadPosition()} returns a value intended to be
      * interpreted as an unsigned 32 bit integer, which also wraps around periodically. This method
      * returns the playback head position as a long that will only wrap around if the value exceeds
@@ -884,18 +915,25 @@ public final class AudioTrack {
      *     expressed as a long.
      */
     public long getPlaybackHeadPosition() {
+      if (stopTimestampUs != -1) {
+        // Simulate the playback head position up to the total number of frames submitted.
+        long elapsedTimeSinceStopUs = (SystemClock.elapsedRealtime() * 1000) - stopTimestampUs;
+        long framesSinceStop = (elapsedTimeSinceStopUs * sampleRate) / C.MICROS_PER_SECOND;
+        return Math.min(endPlaybackHeadPosition, stopPlaybackHeadPosition + framesSinceStop);
+      }
+
+      int state = audioTrack.getPlayState();
+      if (state == android.media.AudioTrack.PLAYSTATE_STOPPED) {
+        // The audio track hasn't been started.
+        return 0;
+      }
+
       long rawPlaybackHeadPosition = 0xFFFFFFFFL & audioTrack.getPlaybackHeadPosition();
       if (Util.SDK_INT <= 22 && isPassthrough) {
-        // Work around issues with passthrough/direct AudioTracks on platform API versions 21/22:
-        // - After resetting, the new AudioTrack's playback position continues to increase for a
-        //   short time from the old AudioTrack's position, while in the PLAYSTATE_STOPPED state.
-        // - The playback head position jumps back to zero on paused passthrough/direct audio
-        //   tracks. See [Internal: b/19187573].
-        if (audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_STOPPED) {
-          // Prevent detecting a wrapped position.
-          lastRawPlaybackHeadPosition = rawPlaybackHeadPosition;
-        } else if (audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PAUSED
-            && rawPlaybackHeadPosition == 0) {
+        // Work around an issue with passthrough/direct AudioTracks on platform API versions 21/22
+        // where the playback head position jumps back to zero on paused passthrough/direct audio
+        // tracks. See [Internal: b/19187573].
+        if (state == android.media.AudioTrack.PLAYSTATE_PAUSED && rawPlaybackHeadPosition == 0) {
           passthroughWorkaroundPauseOffset = lastRawPlaybackHeadPosition;
         }
         rawPlaybackHeadPosition += passthroughWorkaroundPauseOffset;
