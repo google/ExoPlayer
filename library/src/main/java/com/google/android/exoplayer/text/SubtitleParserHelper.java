@@ -45,6 +45,7 @@ import java.io.InputStream;
   private boolean parsing;
   private PlayableSubtitle result;
   private IOException error;
+  private RuntimeException runtimeError;
 
   private boolean subtitlesAreRelative;
   private long subtitleOffsetUs;
@@ -67,6 +68,7 @@ import java.io.InputStream;
     parsing = false;
     result = null;
     error = null;
+    runtimeError = null;
   }
 
   /**
@@ -111,6 +113,7 @@ import java.io.InputStream;
     parsing = true;
     result = null;
     error = null;
+    runtimeError = null;
     handler.obtainMessage(MSG_SAMPLE, Util.getTopInt(sampleHolder.timeUs),
         Util.getBottomInt(sampleHolder.timeUs), sampleHolder).sendToTarget();
   }
@@ -128,11 +131,15 @@ import java.io.InputStream;
     try {
       if (error != null) {
         throw error;
+      } else if (runtimeError != null) {
+        throw runtimeError;
+      } else {
+        return result;
       }
-      return result;
     } finally {
-      error = null;
       result = null;
+      error = null;
+      runtimeError = null;
     }
   }
 
@@ -159,11 +166,14 @@ import java.io.InputStream;
   private void handleSample(long sampleTimeUs, SampleHolder holder) {
     Subtitle parsedSubtitle = null;
     IOException error = null;
+    RuntimeException runtimeError = null;
     try {
       InputStream inputStream = new ByteArrayInputStream(holder.data.array(), 0, holder.size);
       parsedSubtitle = parser.parse(inputStream);
     } catch (IOException e) {
       error = e;
+    } catch (RuntimeException e) {
+      runtimeError = e;
     }
     synchronized (this) {
       if (sampleHolder != holder) {
@@ -172,6 +182,7 @@ import java.io.InputStream;
         this.result = new PlayableSubtitle(parsedSubtitle, subtitlesAreRelative, sampleTimeUs,
             subtitleOffsetUs);
         this.error = error;
+        this.runtimeError = runtimeError;
         this.parsing = false;
       }
     }
