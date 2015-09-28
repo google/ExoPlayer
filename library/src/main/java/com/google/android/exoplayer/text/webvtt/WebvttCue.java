@@ -28,16 +28,17 @@ import android.text.Layout.Alignment;
   public final long endTime;
 
   public WebvttCue(CharSequence text) {
-    this(Cue.UNSET_VALUE, Cue.UNSET_VALUE, text);
+    this(0, 0, text);
   }
 
   public WebvttCue(long startTime, long endTime, CharSequence text) {
-    this(startTime, endTime, text, Cue.UNSET_VALUE, Cue.UNSET_VALUE, null, Cue.UNSET_VALUE);
+    this(startTime, endTime, text, null, Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.TYPE_UNSET,
+        Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.DIMEN_UNSET);
   }
 
-  public WebvttCue(long startTime, long endTime, CharSequence text, int line, int position,
-      Alignment alignment, int size) {
-    super(text, line, position, alignment, size);
+  public WebvttCue(long startTime, long endTime, CharSequence text, Alignment textAlignment,
+      float line, int lineType, int lineAnchor, float position, int positionAnchor, float width) {
+    super(text, textAlignment, line, lineType, lineAnchor, position, positionAnchor, width);
     this.startTime = startTime;
     this.endTime = endTime;
   }
@@ -49,7 +50,7 @@ import android.text.Layout.Alignment;
    * @return True if this cue should be placed in the default position; false otherwise.
    */
   public boolean isNormalCue() {
-    return (line == UNSET_VALUE && position == UNSET_VALUE);
+    return (line == DIMEN_UNSET && position == DIMEN_UNSET);
   }
 
 }

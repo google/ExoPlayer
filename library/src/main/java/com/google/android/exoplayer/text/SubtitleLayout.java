@@ -38,7 +38,7 @@ public final class SubtitleLayout extends View {
   public static final float DEFAULT_TEXT_SIZE_FRACTION = 0.0533f;
 
   /**
-   * The default bottom padding to apply when {@link Cue#line} is {@link Cue#UNSET_VALUE}, as a
+   * The default bottom padding to apply when {@link Cue#line} is {@link Cue#DIMEN_UNSET}, as a
    * fraction of the viewport height.
    *
    * @see #setBottomPaddingFraction(float)
@@ -174,7 +174,7 @@ public final class SubtitleLayout extends View {
   }
 
   /**
-   * Sets the bottom padding fraction to apply when {@link Cue#line} is {@link Cue#UNSET_VALUE},
+   * Sets the bottom padding fraction to apply when {@link Cue#line} is {@link Cue#DIMEN_UNSET},
    * as a fraction of the view's remaining height after its top and bottom padding have been
    * subtracted.
    * <p>
