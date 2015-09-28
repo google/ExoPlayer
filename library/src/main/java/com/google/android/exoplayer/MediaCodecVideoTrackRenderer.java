@@ -21,6 +21,7 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.TraceUtil;
 import com.google.android.exoplayer.util.Util;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
@@ -378,8 +379,9 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   // Override configureCodec to provide the surface.
   @Override
-  protected void configureCodec(MediaCodec codec, String codecName,
+  protected void configureCodec(MediaCodec codec, String codecName, boolean codecIsAdaptive,
       android.media.MediaFormat format, MediaCrypto crypto) {
+    maybeSetMaxInputSize(format, codecIsAdaptive);
     codec.configure(format, surface, crypto, 0);
     codec.setVideoScalingMode(videoScalingMode);
   }
@@ -546,6 +548,29 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     codecCounters.renderedOutputBufferCount++;
     renderedFirstFrame = true;
     maybeNotifyDrawnToSurface();
+  }
+
+  @SuppressLint("InlinedApi")
+  private void maybeSetMaxInputSize(android.media.MediaFormat format, boolean codecIsAdaptive) {
+    if (!MimeTypes.VIDEO_H264.equals(format.getString(android.media.MediaFormat.KEY_MIME))) {
+      // Only set a max input size for H264 for now.
+      return;
+    }
+    if (format.containsKey(android.media.MediaFormat.KEY_MAX_INPUT_SIZE)) {
+      // Already set. The source of the format may know better, so do nothing.
+      return;
+    }
+    int maxHeight = format.getInteger(android.media.MediaFormat.KEY_HEIGHT);
+    if (codecIsAdaptive && format.containsKey(android.media.MediaFormat.KEY_MAX_HEIGHT)) {
+      maxHeight = Math.max(maxHeight, format.getInteger(android.media.MediaFormat.KEY_MAX_HEIGHT));
+    }
+    int maxWidth = format.getInteger(android.media.MediaFormat.KEY_WIDTH);
+    if (codecIsAdaptive && format.containsKey(android.media.MediaFormat.KEY_MAX_WIDTH)) {
+      maxWidth = Math.max(maxHeight, format.getInteger(android.media.MediaFormat.KEY_MAX_WIDTH));
+    }
+    // H264 requires compression ratio of at least 2, and uses macroblocks.
+    int maxInputSize = ((maxWidth + 15) / 16) * ((maxHeight + 15) / 16) * 192;
+    format.setInteger(android.media.MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
   }
 
   private void maybeNotifyVideoSizeChanged() {

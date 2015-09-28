@@ -269,10 +269,11 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    *
    * @param codec The {@link MediaCodec} to configure.
    * @param codecName The name of the codec.
+   * @param codecIsAdaptive Whether the codec is adaptive.
    * @param format The format for which the codec is being configured.
    * @param crypto For drm protected playbacks, a {@link MediaCrypto} to use for decryption.
    */
-  protected void configureCodec(MediaCodec codec, String codecName,
+  protected void configureCodec(MediaCodec codec, String codecName, boolean codecIsAdaptive,
       android.media.MediaFormat format, MediaCrypto crypto) {
     codec.configure(format, null, crypto, 0);
   }
@@ -320,28 +321,29 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
           DecoderInitializationException.NO_SUITABLE_DECODER_ERROR));
     }
 
-    String decoderName = decoderInfo.name;
+    String codecName = decoderInfo.name;
     codecIsAdaptive = decoderInfo.adaptive;
-    codecNeedsEosPropagationWorkaround = codecNeedsEosPropagationWorkaround(decoderName);
-    codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(decoderName);
+    codecNeedsEosPropagationWorkaround = codecNeedsEosPropagationWorkaround(codecName);
+    codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(codecName);
     try {
       long codecInitializingTimestamp = SystemClock.elapsedRealtime();
-      TraceUtil.beginSection("createByCodecName(" + decoderName + ")");
-      codec = MediaCodec.createByCodecName(decoderName);
+      TraceUtil.beginSection("createByCodecName(" + codecName + ")");
+      codec = MediaCodec.createByCodecName(codecName);
       TraceUtil.endSection();
       TraceUtil.beginSection("configureCodec");
-      configureCodec(codec, decoderName, format.getFrameworkMediaFormatV16(), mediaCrypto);
+      configureCodec(codec, codecName, codecIsAdaptive, format.getFrameworkMediaFormatV16(),
+          mediaCrypto);
       TraceUtil.endSection();
       TraceUtil.beginSection("codec.start()");
       codec.start();
       TraceUtil.endSection();
       long codecInitializedTimestamp = SystemClock.elapsedRealtime();
-      notifyDecoderInitialized(decoderName, codecInitializedTimestamp,
+      notifyDecoderInitialized(codecName, codecInitializedTimestamp,
           codecInitializedTimestamp - codecInitializingTimestamp);
       inputBuffers = codec.getInputBuffers();
       outputBuffers = codec.getOutputBuffers();
     } catch (Exception e) {
-      notifyAndThrowDecoderInitError(new DecoderInitializationException(format, e, decoderName));
+      notifyAndThrowDecoderInitError(new DecoderInitializationException(format, e, codecName));
     }
     codecHotswapTimeMs = getState() == TrackRenderer.STATE_STARTED ?
         SystemClock.elapsedRealtime() : -1;
