@@ -50,8 +50,11 @@ public final class DefaultSmoothStreamingTrackSelector implements SmoothStreamin
         if (streamElementType == StreamElement.TYPE_VIDEO) {
           int[] trackIndices = VideoFormatSelectorUtil.selectVideoFormatsForDefaultDisplay(
               context, Arrays.asList(manifest.streamElements[i].tracks), null, false);
-          output.adaptiveTrack(manifest, i, trackIndices);
-          for (int j = 0; j < trackIndices.length; j++) {
+          int trackCount = trackIndices.length;
+          if (trackCount > 1) {
+            output.adaptiveTrack(manifest, i, trackIndices);
+          }
+          for (int j = 0; j < trackCount; j++) {
             output.fixedTrack(manifest, i, trackIndices[j]);
           }
         } else {

@@ -84,8 +84,11 @@ public final class DefaultDashTrackSelector implements DashTrackSelector {
           } else {
             representations = Util.firstIntegersArray(adaptationSet.representations.size());
           }
-          output.adaptiveTrack(manifest, periodIndex, i, representations);
-          for (int j = 0; j < representations.length; j++) {
+          int representationCount = representations.length;
+          if (representationCount > 1) {
+            output.adaptiveTrack(manifest, periodIndex, i, representations);
+          }
+          for (int j = 0; j < representationCount; j++) {
             output.fixedTrack(manifest, periodIndex, i, representations[j]);
           }
         } else {
