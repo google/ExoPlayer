@@ -531,7 +531,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
         return false;
       }
       sampleHolder.data = inputBuffers[inputIndex];
-      sampleHolder.data.clear();
+      sampleHolder.clearData();
     }
 
     if (codecReinitializationState == REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM) {
@@ -579,7 +579,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
         // We received two formats in a row. Clear the current buffer of any reconfiguration data
         // associated with the first format.
-        sampleHolder.data.clear();
+        sampleHolder.clearData();
         codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
       }
       onInputFormatChanged(formatHolder);
@@ -590,7 +590,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
         // We received a new format immediately before the end of the stream. We need to clear
         // the corresponding reconfiguration data from the current buffer, but re-write it into
         // a subsequent buffer if there are any (e.g. if the user seeks backwards).
-        sampleHolder.data.clear();
+        sampleHolder.clearData();
         codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
       }
       inputStreamEnded = true;
@@ -616,7 +616,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       // TODO: Find out if it's possible to supply samples prior to the first sync
       // frame for HE-AAC.
       if (!sampleHolder.isSyncFrame()) {
-        sampleHolder.data.clear();
+        sampleHolder.clearData();
         if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
           // The buffer we just cleared contained reconfiguration data. We need to re-write this
           // data into a subsequent buffer (if there is one).
