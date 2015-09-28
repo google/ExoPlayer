@@ -132,10 +132,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    *
    * @return The number of tracks.
    */
-  // TODO: This method should be abstract. This implementation is provided as an interim step only.
-  protected int getTrackCount() {
-    return 1;
-  }
+  protected abstract int getTrackCount();
 
   /**
    * Returns the format of the specified track.
@@ -146,11 +143,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @param track The track index.
    * @return The format of the specified track.
    */
-  // TODO: This method should be abstract. This implementation is provided as an interim step only.
-  protected MediaFormat getFormat(int track) {
-    return MediaFormat.createFormatForMimeType("application/octet-stream", MediaFormat.NO_VALUE,
-        getDurationUs());
-  }
+  protected abstract MediaFormat getFormat(int track);
 
   /**
    * Enable the renderer for a specified track.
