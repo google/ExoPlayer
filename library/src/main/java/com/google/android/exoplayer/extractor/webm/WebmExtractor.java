@@ -457,7 +457,7 @@ public final class WebmExtractor implements Extractor {
         return;
       case ID_TRACK_ENTRY:
         if (tracks.get(currentTrack.number) == null && isCodecSupported(currentTrack.codecId)) {
-          currentTrack.initializeOutput(extractorOutput, durationUs);
+          currentTrack.initializeOutput(extractorOutput, currentTrack.number, durationUs);
           tracks.put(currentTrack.number, currentTrack);
         } else {
           // We've seen this track entry before, or the codec is unsupported. Do nothing.
@@ -1135,7 +1135,8 @@ public final class WebmExtractor implements Extractor {
     /**
      * Initializes the track with an output.
      */
-    public void initializeOutput(ExtractorOutput output, long durationUs) throws ParserException {
+    public void initializeOutput(ExtractorOutput output, int trackId, long durationUs)
+        throws ParserException {
       String mimeType;
       int maxInputSize = MediaFormat.NO_VALUE;
       List<byte[]> initializationData = null;
@@ -1209,13 +1210,14 @@ public final class WebmExtractor implements Extractor {
 
       MediaFormat format;
       if (MimeTypes.isAudio(mimeType)) {
-        format = MediaFormat.createAudioFormat(mimeType, MediaFormat.NO_VALUE, maxInputSize,
-            durationUs, channelCount, sampleRate, initializationData, language);
+        format = MediaFormat.createAudioFormat(trackId, mimeType, MediaFormat.NO_VALUE,
+            maxInputSize, durationUs, channelCount, sampleRate, initializationData, language);
       } else if (MimeTypes.isVideo(mimeType)) {
-        format = MediaFormat.createVideoFormat(mimeType, MediaFormat.NO_VALUE, maxInputSize,
-            durationUs, width, height, initializationData);
+        format = MediaFormat.createVideoFormat(trackId, mimeType, MediaFormat.NO_VALUE,
+            maxInputSize, durationUs, width, height, initializationData);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
-        format = MediaFormat.createTextFormat(mimeType, MediaFormat.NO_VALUE, durationUs, language);
+        format = MediaFormat.createTextFormat(trackId, mimeType, MediaFormat.NO_VALUE, durationUs,
+            language);
       } else {
         throw new ParserException("Unexpected MIME type.");
       }
