@@ -449,6 +449,11 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   @Override
+  public void onDrmKeysLoaded() {
+    // Do nothing.
+  }
+
+  @Override
   public void onDrmSessionManagerError(Exception e) {
     if (internalErrorListener != null) {
       internalErrorListener.onDrmSessionManagerError(e);
