@@ -51,10 +51,9 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   public interface EventListener {
 
     /**
-     * Invoked when DRM keys have been loaded. Depending on license setup, this might occur multiple
-     * times during playback.
+     * Invoked each time keys are loaded.
      */
-    void onKeysLoaded();
+    void onDrmKeysLoaded();
 
     /**
      * Invoked when a drm error occurs.
@@ -396,7 +395,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
         eventHandler.post(new Runnable() {
           @Override
           public void run() {
-            eventListener.onKeysLoaded();
+            eventListener.onDrmKeysLoaded();
           }
         });
       }
