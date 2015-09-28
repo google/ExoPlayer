@@ -302,12 +302,14 @@ public class DashChunkSource implements ChunkSource, Output {
   @Override
   public void enable(int track) {
     enabledTrack = tracks.get(track);
-    processManifest(currentManifest);
     if (enabledTrack.isAdaptive()) {
       adaptiveFormatEvaluator.enable();
     }
     if (manifestFetcher != null) {
       manifestFetcher.enable();
+      processManifest(manifestFetcher.getManifest());
+    } else {
+      processManifest(currentManifest);
     }
   }
 
