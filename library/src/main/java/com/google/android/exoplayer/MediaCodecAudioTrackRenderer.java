@@ -196,7 +196,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected void configureCodec(MediaCodec codec, String codecName,
+  protected void configureCodec(MediaCodec codec, String codecName, boolean codecIsAdaptive,
       android.media.MediaFormat format, android.media.MediaCrypto crypto) {
     String mimeType = format.getString(android.media.MediaFormat.KEY_MIME);
     if (RAW_DECODER_NAME.equals(codecName) && !MimeTypes.AUDIO_RAW.equals(mimeType)) {
