@@ -186,12 +186,8 @@ import java.util.concurrent.LinkedBlockingDeque;
       readEncryptionData(sampleHolder, extrasHolder);
     }
     // Write the sample data into the holder.
-    if (sampleHolder.data == null || sampleHolder.data.capacity() < sampleHolder.size) {
-      sampleHolder.replaceBuffer(sampleHolder.size);
-    }
-    if (sampleHolder.data != null) {
-      readData(extrasHolder.offset, sampleHolder.data, sampleHolder.size);
-    }
+    sampleHolder.ensureSpaceForWrite(sampleHolder.size);
+    readData(extrasHolder.offset, sampleHolder.data, sampleHolder.size);
     // Advance the read head.
     long nextOffset = infoQueue.moveToNextSample();
     dropDownstreamTo(nextOffset);

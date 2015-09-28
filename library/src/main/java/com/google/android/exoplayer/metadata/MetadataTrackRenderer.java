@@ -114,6 +114,7 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
   protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     continueBufferingSource(positionUs);
     if (!inputStreamEnded && pendingMetadata == null) {
+      sampleHolder.clearData();
       int result = readSource(positionUs, formatHolder, sampleHolder, false);
       if (result == SampleSource.SAMPLE_READ) {
         pendingMetadataTimestamp = sampleHolder.timeUs;
@@ -122,7 +123,6 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
         } catch (IOException e) {
           throw new ExoPlaybackException(e);
         }
-        sampleHolder.data.clear();
       } else if (result == SampleSource.END_OF_STREAM) {
         inputStreamEnded = true;
       }

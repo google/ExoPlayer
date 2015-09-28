@@ -324,7 +324,7 @@ import java.util.LinkedList;
     }
 
     public void reset() {
-      sampleHolder.data.clear();
+      sampleHolder.clearData();
       flags = 0;
     }
 
