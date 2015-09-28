@@ -63,8 +63,8 @@ import java.util.List;
         .getContainerAtomOfType(Atom.TYPE_stbl);
 
     Pair<Long, String> mdhdData = parseMdhd(mdia.getLeafAtomOfType(Atom.TYPE_mdhd).data);
-    StsdData stsdData = parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, durationUs,
-        tkhdData.rotationDegrees, mdhdData.second);
+    StsdData stsdData = parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, tkhdData.id,
+        durationUs, tkhdData.rotationDegrees, mdhdData.second);
     return stsdData.mediaFormat == null ? null
         : new Track(tkhdData.id, trackType, mdhdData.first, durationUs, stsdData.mediaFormat,
             stsdData.trackEncryptionBoxes, stsdData.nalUnitLengthFieldLength);
@@ -353,10 +353,15 @@ import java.util.List;
   /**
    * Parses a stsd atom (defined in 14496-12).
    *
+   * @param stsd The stsd atom to parse.
+   * @param trackId The track's identifier in its container.
+   * @param durationUs The duration of the track in microseconds.
+   * @param rotationDegrees The rotation of the track in degrees.
+   * @param language The language of the track.
    * @return An object containing the parsed data.
    */
-  private static StsdData parseStsd(ParsableByteArray stsd, long durationUs, int rotationDegrees,
-      String language) {
+  private static StsdData parseStsd(ParsableByteArray stsd, int trackId, long durationUs,
+      int rotationDegrees, String language) {
     stsd.setPosition(Atom.FULL_HEADER_SIZE);
     int numberOfEntries = stsd.readInt();
     StsdData out = new StsdData(numberOfEntries);
@@ -369,22 +374,22 @@ import java.util.List;
           || childAtomType == Atom.TYPE_encv || childAtomType == Atom.TYPE_mp4v
           || childAtomType == Atom.TYPE_hvc1 || childAtomType == Atom.TYPE_hev1
           || childAtomType == Atom.TYPE_s263) {
-        parseVideoSampleEntry(stsd, childStartPosition, childAtomSize, durationUs, rotationDegrees,
-            out, i);
+        parseVideoSampleEntry(stsd, childStartPosition, childAtomSize, trackId, durationUs,
+            rotationDegrees, out, i);
       } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca
           || childAtomType == Atom.TYPE_ac_3 || childAtomType == Atom.TYPE_ec_3
           || childAtomType == Atom.TYPE_dtsc || childAtomType == Atom.TYPE_dtse
           || childAtomType == Atom.TYPE_dtsh || childAtomType == Atom.TYPE_dtsl) {
-        parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, durationUs,
-            language, out, i);
+        parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
+            durationUs, language, out, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
-        out.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML,
+        out.mediaFormat = MediaFormat.createTextFormat(trackId, MimeTypes.APPLICATION_TTML,
             MediaFormat.NO_VALUE, durationUs, language);
       } else if (childAtomType == Atom.TYPE_tx3g) {
-        out.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TX3G,
+        out.mediaFormat = MediaFormat.createTextFormat(trackId, MimeTypes.APPLICATION_TX3G,
             MediaFormat.NO_VALUE, durationUs, language);
       } else if (childAtomType == Atom.TYPE_stpp) {
-        out.mediaFormat = MediaFormat.createTextFormat(MimeTypes.APPLICATION_TTML,
+        out.mediaFormat = MediaFormat.createTextFormat(trackId, MimeTypes.APPLICATION_TTML,
             MediaFormat.NO_VALUE, durationUs, language, 0 /* subsample timing is absolute */);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
@@ -393,7 +398,7 @@ import java.util.List;
   }
 
   private static void parseVideoSampleEntry(ParsableByteArray parent, int position, int size,
-      long durationUs, int rotationDegrees, StsdData out, int entryIndex) {
+      int trackId, long durationUs, int rotationDegrees, StsdData out, int entryIndex) {
     parent.setPosition(position + Atom.HEADER_SIZE);
 
     parent.skipBytes(24);
@@ -455,7 +460,7 @@ import java.util.List;
       return;
     }
 
-    out.mediaFormat = MediaFormat.createVideoFormat(mimeType, MediaFormat.NO_VALUE,
+    out.mediaFormat = MediaFormat.createVideoFormat(trackId, mimeType, MediaFormat.NO_VALUE,
         MediaFormat.NO_VALUE, durationUs, width, height, initializationData, rotationDegrees,
         pixelWidthHeightRatio);
   }
@@ -585,7 +590,7 @@ import java.util.List;
   }
 
   private static void parseAudioSampleEntry(ParsableByteArray parent, int atomType, int position,
-      int size, long durationUs, String language, StsdData out, int entryIndex) {
+      int size, int trackId, long durationUs, String language, StsdData out, int entryIndex) {
     parent.setPosition(position + Atom.HEADER_SIZE);
     parent.skipBytes(16);
     int channelCount = parent.readUnsignedShort();
@@ -635,16 +640,16 @@ import java.util.List;
         // TODO: Choose the right AC-3 track based on the contents of dac3/dec3.
         // TODO: Add support for encryption (by setting out.trackEncryptionBoxes).
         parent.setPosition(Atom.HEADER_SIZE + childStartPosition);
-        out.mediaFormat = Ac3Util.parseAnnexFAc3Format(parent, durationUs, language);
+        out.mediaFormat = Ac3Util.parseAnnexFAc3Format(parent, trackId, durationUs, language);
         return;
       } else if (atomType == Atom.TYPE_ec_3 && childAtomType == Atom.TYPE_dec3) {
         parent.setPosition(Atom.HEADER_SIZE + childStartPosition);
-        out.mediaFormat = Ac3Util.parseAnnexFEAc3Format(parent, durationUs, language);
+        out.mediaFormat = Ac3Util.parseAnnexFEAc3Format(parent, trackId, durationUs, language);
         return;
       } else if ((atomType == Atom.TYPE_dtsc || atomType == Atom.TYPE_dtse
           || atomType == Atom.TYPE_dtsh || atomType == Atom.TYPE_dtsl)
           && childAtomType == Atom.TYPE_ddts) {
-        out.mediaFormat = MediaFormat.createAudioFormat(mimeType, MediaFormat.NO_VALUE,
+        out.mediaFormat = MediaFormat.createAudioFormat(trackId, mimeType, MediaFormat.NO_VALUE,
             MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate, null, language);
         return;
       }
@@ -656,8 +661,8 @@ import java.util.List;
       return;
     }
 
-    out.mediaFormat = MediaFormat.createAudioFormat(mimeType, MediaFormat.NO_VALUE, sampleSize,
-        durationUs, channelCount, sampleRate,
+    out.mediaFormat = MediaFormat.createAudioFormat(trackId, mimeType, MediaFormat.NO_VALUE,
+        sampleSize, durationUs, channelCount, sampleRate,
         initializationData == null ? null : Collections.singletonList(initializationData),
         language);
   }

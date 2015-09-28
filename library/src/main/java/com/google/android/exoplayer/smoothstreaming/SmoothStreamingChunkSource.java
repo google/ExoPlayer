@@ -398,8 +398,9 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     int mp4TrackType;
     switch (element.type) {
       case StreamElement.TYPE_VIDEO:
-        mediaFormat = MediaFormat.createVideoFormat(format.mimeType, format.bitrate,
-            MediaFormat.NO_VALUE, durationUs, format.width, format.height, Arrays.asList(csdArray));
+        mediaFormat = MediaFormat.createVideoFormat(MediaFormat.NO_VALUE, format.mimeType,
+            format.bitrate, MediaFormat.NO_VALUE, durationUs, format.width, format.height,
+            Arrays.asList(csdArray));
         mp4TrackType = Track.TYPE_vide;
         break;
       case StreamElement.TYPE_AUDIO:
@@ -410,14 +411,14 @@ public class SmoothStreamingChunkSource implements ChunkSource,
           csd = Collections.singletonList(CodecSpecificDataUtil.buildAacAudioSpecificConfig(
               format.audioSamplingRate, format.audioChannels));
         }
-        mediaFormat = MediaFormat.createAudioFormat(format.mimeType, format.bitrate,
-            MediaFormat.NO_VALUE, durationUs, format.audioChannels, format.audioSamplingRate, csd,
-            format.language);
+        mediaFormat = MediaFormat.createAudioFormat(MediaFormat.NO_VALUE, format.mimeType,
+            format.bitrate, MediaFormat.NO_VALUE, durationUs, format.audioChannels,
+            format.audioSamplingRate, csd, format.language);
         mp4TrackType = Track.TYPE_soun;
         break;
       case StreamElement.TYPE_TEXT:
-        mediaFormat = MediaFormat.createTextFormat(format.mimeType, format.bitrate, durationUs,
-            format.language);
+        mediaFormat = MediaFormat.createTextFormat(MediaFormat.NO_VALUE, format.mimeType,
+            format.bitrate, durationUs, format.language);
         mp4TrackType = Track.TYPE_text;
         break;
       default:
