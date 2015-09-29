@@ -15,15 +15,15 @@
  */
 package com.google.android.exoplayer.chunk;
 
-import com.google.android.exoplayer.MediaCodecUtil;
-import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer.util.Util;
-
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Point;
 import android.view.Display;
 import android.view.WindowManager;
+
+import com.google.android.exoplayer.MediaCodecUtil;
+import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer.util.DisplaySizeUtil;
+import com.google.android.exoplayer.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,9 +57,10 @@ public final class VideoFormatSelectorUtil {
       boolean filterHdFormats) throws DecoderQueryException {
     WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     Display display = windowManager.getDefaultDisplay();
-    Point displaySize = getDisplaySize(display);
-    return selectVideoFormats(formatWrappers, allowedContainerMimeTypes, filterHdFormats, true,
-        displaySize.x, displaySize.y);
+    Point displaySize = DisplaySizeUtil.getDisplaySize(context);
+    int[] selectedIndexList = selectVideoFormats(formatWrappers, allowedContainerMimeTypes, filterHdFormats, true,
+            displaySize.x, displaySize.y);
+    return selectedIndexList;
   }
 
   /**
@@ -132,6 +133,7 @@ public final class VideoFormatSelectorUtil {
       }
     }
 
+
     return Util.toArray(selectedIndexList);
   }
 
@@ -182,34 +184,6 @@ public final class VideoFormatSelectorUtil {
       // Vertical letter-boxing along edges.
       return new Point(Util.ceilDivide(viewportHeight * videoWidth, videoHeight), viewportHeight);
     }
-  }
-
-  private static Point getDisplaySize(Display display) {
-    Point displaySize = new Point();
-    if (Util.SDK_INT >= 17) {
-      getDisplaySizeV17(display, displaySize);
-    } else if (Util.SDK_INT >= 16) {
-      getDisplaySizeV16(display, displaySize);
-    } else {
-      getDisplaySizeV9(display, displaySize);
-    }
-    return displaySize;
-  }
-
-  @TargetApi(17)
-  private static void getDisplaySizeV17(Display display, Point outSize) {
-    display.getRealSize(outSize);
-  }
-
-  @TargetApi(16)
-  private static void getDisplaySizeV16(Display display, Point outSize) {
-    display.getSize(outSize);
-  }
-
-  @SuppressWarnings("deprecation")
-  private static void getDisplaySizeV9(Display display, Point outSize) {
-    outSize.x = display.getWidth();
-    outSize.y = display.getHeight();
   }
 
   private VideoFormatSelectorUtil() {}

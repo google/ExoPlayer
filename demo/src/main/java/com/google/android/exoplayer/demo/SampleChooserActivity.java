@@ -15,11 +15,6 @@
  */
 package com.google.android.exoplayer.demo;
 
-import com.google.android.exoplayer.MediaCodecUtil;
-import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer.demo.Samples.Sample;
-import com.google.android.exoplayer.util.MimeTypes;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -34,6 +29,11 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.google.android.exoplayer.MediaCodecUtil;
+import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer.demo.Samples.Sample;
+import com.google.android.exoplayer.util.MimeTypes;
 
 /**
  * An activity for selecting from a number of samples.
@@ -50,6 +50,8 @@ public class SampleChooserActivity extends Activity {
     ListView sampleList = (ListView) findViewById(R.id.sample_list);
     final SampleAdapter sampleAdapter = new SampleAdapter(this);
 
+    sampleAdapter.add(new Header("4K Video"));
+    sampleAdapter.addAll((Object[]) Samples.UHD);
     sampleAdapter.add(new Header("YouTube DASH"));
     sampleAdapter.addAll((Object[]) Samples.YOUTUBE_DASH_MP4);
     sampleAdapter.add(new Header("Widevine GTS DASH"));
@@ -136,6 +138,11 @@ public class SampleChooserActivity extends Activity {
       this.name = name;
     }
 
+  }
+
+  @Override
+  public void onStart(){
+    super.onStart();
   }
 
 }
