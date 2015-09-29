@@ -18,40 +18,42 @@ package com.google.android.exoplayer.audio;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.AudioFormat;
 import android.media.AudioManager;
 
 /**
  * Notifies a listener when the audio playback capabilities change. Call {@link #register} to start
- * receiving notifications, and {@link #unregister} to stop.
+ * (or resume) receiving notifications, and {@link #unregister} to stop.
  */
 public final class AudioCapabilitiesReceiver {
 
-  /** Listener notified when audio capabilities change. */
+  /**
+   * Listener notified when audio capabilities change.
+   */
   public interface Listener {
 
-    /** Called when the audio capabilities change. */
+    /**
+     * Called when the audio capabilities change.
+     *
+     * @param audioCapabilities Current audio capabilities for the device.
+     */
     void onAudioCapabilitiesChanged(AudioCapabilities audioCapabilities);
 
   }
-
-  /** Default to stereo PCM on SDK < 21 and when HDMI is unplugged. */
-  private static final AudioCapabilities DEFAULT_AUDIO_CAPABILITIES =
-      new AudioCapabilities(new int[] {AudioFormat.ENCODING_PCM_16BIT}, 2);
 
   private final Context context;
   private final Listener listener;
   private final BroadcastReceiver receiver;
 
+  /* package */ AudioCapabilities audioCapabilities;
+
   /**
    * Constructs a new audio capabilities receiver.
    *
-   * @param context Application context for registering to receive broadcasts.
+   * @param context Context for registering to receive broadcasts.
    * @param listener Listener to notify when audio capabilities change.
    */
   public AudioCapabilitiesReceiver(Context context, Listener listener) {
@@ -61,48 +63,40 @@ public final class AudioCapabilitiesReceiver {
   }
 
   /**
-   * Registers to notify the listener when audio capabilities change. The listener will immediately
-   * receive the current audio capabilities. It is important to call {@link #unregister} so that
-   * the listener can be garbage collected.
+   * Registers to notify the listener when audio capabilities change. The current capabilities will
+   * be returned. It is important to call {@link #unregister} so that the listener can be garbage
+   * collected.
+   *
+   * @return Current audio capabilities for the device.
    */
-  @TargetApi(21)
-  public void register() {
-    if (receiver != null) {
-      Intent initialStickyIntent =
-          context.registerReceiver(receiver, new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG));
-      if (initialStickyIntent != null) {
-        receiver.onReceive(context, initialStickyIntent);
-        return;
-      }
-    }
-
-    listener.onAudioCapabilitiesChanged(DEFAULT_AUDIO_CAPABILITIES);
+  @SuppressWarnings("InlinedApi")
+  public AudioCapabilities register() {
+    Intent stickyIntent = receiver == null ? null
+        : context.registerReceiver(receiver, new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG));
+    audioCapabilities = AudioCapabilities.getCapabilities(stickyIntent);
+    return audioCapabilities;
   }
 
-  /** Unregisters to stop notifying the listener when audio capabilities change. */
+  /**
+   * Unregisters to stop notifying the listener when audio capabilities change.
+   */
   public void unregister() {
     if (receiver != null) {
       context.unregisterReceiver(receiver);
     }
   }
 
-  @TargetApi(21)
   private final class HdmiAudioPlugBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-      if (isInitialStickyBroadcast()) {
-        return;
+      if (!isInitialStickyBroadcast()) {
+        AudioCapabilities newAudioCapabilities = AudioCapabilities.getCapabilities(intent);
+        if (!newAudioCapabilities.equals(audioCapabilities)) {
+          audioCapabilities = newAudioCapabilities;
+          listener.onAudioCapabilitiesChanged(newAudioCapabilities);
+        }
       }
-
-      String action = intent.getAction();
-      if (!action.equals(AudioManager.ACTION_HDMI_AUDIO_PLUG)) {
-        return;
-      }
-
-      listener.onAudioCapabilitiesChanged(
-          new AudioCapabilities(intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS),
-              intent.getIntExtra(AudioManager.EXTRA_MAX_CHANNEL_COUNT, 0)));
     }
 
   }

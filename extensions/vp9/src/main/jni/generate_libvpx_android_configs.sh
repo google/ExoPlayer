@@ -31,7 +31,7 @@ shift 1
 # configuration parameters common to all architectures
 common_params="--disable-examples --disable-docs --enable-realtime-only"
 common_params+=" --disable-vp8 --disable-vp9-encoder --disable-webm-io"
-common_params+=" --disable-libyuv --disable-runtime-cpu-detect"
+common_params+=" --disable-vp10 --disable-libyuv --disable-runtime-cpu-detect"
 
 # configuration parameters for various architectures
 arch[0]="armeabi-v7a"
@@ -40,15 +40,27 @@ config[0]+=" --enable-neon-asm"
 
 arch[1]="armeabi"
 config[1]="--target=armv7-android-gcc --sdk-path=$ndk --disable-neon"
-config[1]+=" --disable-neon-asm"
+config[1]+=" --disable-neon-asm --disable-media"
 
 arch[2]="mips"
 config[2]="--force-target=mips32-android-gcc --sdk-path=$ndk"
 
 arch[3]="x86"
-config[3]="--force-target=x86-android-gcc --sdk-path=$ndk --disable-sse3"
-config[3]+=" --disable-ssse3 --disable-sse4_1 --disable-avx --disable-avx2"
-config[3]+=" --enable-pic"
+config[3]="--force-target=x86-android-gcc --sdk-path=$ndk --disable-sse2"
+config[3]+=" --disable-sse3 --disable-ssse3 --disable-sse4_1 --disable-avx"
+config[3]+=" --disable-avx2 --enable-pic"
+
+arch[4]="arm64-v8a"
+config[4]="--force-target=armv8-android-gcc --sdk-path=$ndk --disable-neon"
+config[4]+=" --disable-neon-asm"
+
+arch[5]="x86_64"
+config[5]="--force-target=x86_64-android-gcc --sdk-path=$ndk --disable-sse2"
+config[5]+=" --disable-sse3 --disable-ssse3 --disable-sse4_1 --disable-avx"
+config[5]+=" --disable-avx2 --enable-pic --disable-neon --disable-neon-asm"
+
+arch[6]="mips64"
+config[6]="--force-target=mips64-android-gcc --sdk-path=$ndk"
 
 limit=$((${#arch[@]} - 1))
 
@@ -56,9 +68,10 @@ limit=$((${#arch[@]} - 1))
 # everything else will be removed.
 allowed_files="libvpx_srcs.txt vpx_config.c vpx_config.h vpx_scale_rtcd.h"
 allowed_files+=" vp8_rtcd.h vp9_rtcd.h vpx_version.h vpx_config.asm"
+allowed_files+=" vpx_dsp_rtcd.h"
 
 remove_trailing_whitespace() {
-  sed -i 's/\s\+$//' "$@"
+  perl -pi -e 's/\s\+$//' "$@"
 }
 
 convert_asm() {
@@ -66,10 +79,15 @@ convert_asm() {
     while read file; do
       case "${file}" in
         *.asm.s)
-          asm_file="libvpx/${file%.s}"
-          cat "${asm_file}" | libvpx/build/make/ads2gas.pl > "libvpx/${file}"
-          remove_trailing_whitespace "libvpx/${file}"
-          rm "${asm_file}"
+          # Some files may already have been processed (there are duplicated
+          # .asm.s files for vp8 in the armeabi/armeabi-v7a configurations).
+          file="libvpx/${file}"
+          if [[ ! -e "${file}" ]]; then
+            asm_file="${file%.s}"
+            cat "${asm_file}" | libvpx/build/make/ads2gas.pl > "${file}"
+            remove_trailing_whitespace "${file}"
+            rm "${asm_file}"
+          fi
           ;;
       esac
     done < libvpx_android_configs/${arch[${i}]}/libvpx_srcs.txt
@@ -80,7 +98,7 @@ extglob_status="$(shopt extglob | cut -f2)"
 shopt -s extglob
 for i in $(seq 0 ${limit}); do
   mkdir -p "libvpx_android_configs/${arch[${i}]}"
-  cd "libvpx_android_configs/${arch[${i}]}"
+  pushd "libvpx_android_configs/${arch[${i}]}"
 
   # configure and make
   echo "build_android_configs: "
@@ -93,7 +111,7 @@ for i in $(seq 0 ${limit}); do
   rm -rf !(${allowed_files// /|})
   remove_trailing_whitespace *
 
-  cd ../..
+  popd
 done
 
 # restore extglob status as it was before

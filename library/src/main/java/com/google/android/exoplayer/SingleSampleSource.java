@@ -20,6 +20,7 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
+import com.google.android.exoplayer.util.Assertions;
 
 import android.net.Uri;
 import android.os.SystemClock;
@@ -43,15 +44,18 @@ public final class SingleSampleSource implements SampleSource, SampleSourceReade
    */
   private static final int INITIAL_SAMPLE_SIZE = 1;
 
+  private static final int STATE_SEND_FORMAT = 0;
+  private static final int STATE_SEND_SAMPLE = 1;
+  private static final int STATE_END_OF_STREAM = 2;
+
   private final Uri uri;
   private final DataSource dataSource;
   private final MediaFormat format;
-  private final TrackInfo trackInfo;
   private final int minLoadableRetryCount;
 
+  private int state;
   private byte[] sampleData;
   private int sampleSize;
-  private boolean pendingSample;
 
   private boolean loadingFinished;
   private Loader loader;
@@ -69,7 +73,6 @@ public final class SingleSampleSource implements SampleSource, SampleSourceReade
     this.dataSource = dataSource;
     this.format = format;
     this.minLoadableRetryCount = minLoadableRetryCount;
-    trackInfo = new TrackInfo(format.mimeType, format.durationUs);
     sampleData = new byte[INITIAL_SAMPLE_SIZE];
   }
 
@@ -92,13 +95,13 @@ public final class SingleSampleSource implements SampleSource, SampleSourceReade
   }
 
   @Override
-  public TrackInfo getTrackInfo(int track) {
-    return trackInfo;
+  public MediaFormat getFormat(int track) {
+    return format;
   }
 
   @Override
   public void enable(int track, long positionUs) {
-    pendingSample = true;
+    state = STATE_SEND_FORMAT;
     clearCurrentLoadableException();
     maybeStartLoading();
   }
@@ -121,25 +124,33 @@ public final class SingleSampleSource implements SampleSource, SampleSourceReade
       SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
     if (onlyReadDiscontinuity) {
       return NOTHING_READ;
-    } else if (!pendingSample) {
+    } else if (state == STATE_END_OF_STREAM) {
       return END_OF_STREAM;
-    } else if (!loadingFinished) {
+    } else if (state == STATE_SEND_FORMAT) {
+      formatHolder.format = format;
+      state = STATE_SEND_SAMPLE;
+      return FORMAT_READ;
+    }
+
+    Assertions.checkState(state == STATE_SEND_SAMPLE);
+    if (!loadingFinished) {
       return NOTHING_READ;
     } else {
       sampleHolder.timeUs = 0;
       sampleHolder.size = sampleSize;
       sampleHolder.flags = C.SAMPLE_FLAG_SYNC;
-      if (sampleHolder.data == null || sampleHolder.data.capacity() < sampleSize) {
-        sampleHolder.replaceBuffer(sampleHolder.size);
-      }
+      sampleHolder.ensureSpaceForWrite(sampleHolder.size);
       sampleHolder.data.put(sampleData, 0, sampleSize);
+      state = STATE_END_OF_STREAM;
       return SAMPLE_READ;
     }
   }
 
   @Override
   public void seekToUs(long positionUs) {
-    pendingSample = true;
+    if (state == STATE_END_OF_STREAM) {
+      state = STATE_SEND_SAMPLE;
+    }
   }
 
   @Override
@@ -149,7 +160,7 @@ public final class SingleSampleSource implements SampleSource, SampleSourceReade
 
   @Override
   public void disable(int track) {
-    pendingSample = false;
+    state = STATE_END_OF_STREAM;
   }
 
   @Override
@@ -163,7 +174,7 @@ public final class SingleSampleSource implements SampleSource, SampleSourceReade
   // Private methods.
 
   private void maybeStartLoading() {
-    if (loadingFinished || !pendingSample || loader.isLoading()) {
+    if (loadingFinished || state == STATE_END_OF_STREAM || loader.isLoading()) {
       return;
     }
     if (currentLoadableException != null) {

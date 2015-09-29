@@ -1,0 +1,13 @@
+<tt>
+  <body>
+    <div>
+      <p begin="10s" end="18s"
+          tts:backgroundColor="black"
+          abc:fontFamily="sansSerif"
+          def:fontStyle="italic"
+          ghi:textDecoration="lineThrough"
+          jkl:color="yellow">text 1</p>
+    </div>
+  </body>
+</tt>
+

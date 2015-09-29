@@ -20,7 +20,6 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
-import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
@@ -32,9 +31,6 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
 
   private final MediaFormat sampleFormat;
   private final DrmInitData sampleDrmInitData;
-  private final byte[] headerData;
-
-  private boolean writtenHeader;
 
   private volatile int bytesLoaded;
   private volatile boolean loadCanceled;
@@ -47,22 +43,18 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
-   * @param isLastChunk True if this is the last chunk in the media. False otherwise.
    * @param sampleFormat The format of the sample.
    * @param sampleDrmInitData The {@link DrmInitData} for the sample. Null if the sample is not drm
    *     protected.
-   * @param headerData Custom header data for the sample. May be null. If set, the header data is
-   *     prepended to the sample data. It is not reflected in the values returned by
-   *     {@link #bytesLoaded()}.
+   * @param parentId Identifier for a parent from which this chunk originates.
    */
   public SingleSampleMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger,
-      Format format, long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk,
-      MediaFormat sampleFormat, DrmInitData sampleDrmInitData, byte[] headerData) {
-    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, isLastChunk,
-        true);
+      Format format, long startTimeUs, long endTimeUs, int chunkIndex, MediaFormat sampleFormat,
+      DrmInitData sampleDrmInitData, int parentId) {
+    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, true,
+        parentId);
     this.sampleFormat = sampleFormat;
     this.sampleDrmInitData = sampleDrmInitData;
-    this.headerData = headerData;
   }
 
   @Override
@@ -95,13 +87,6 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
   @SuppressWarnings("NonAtomicVolatileUpdate")
   @Override
   public void load() throws IOException, InterruptedException {
-    if (!writtenHeader) {
-      if (headerData != null) {
-        getOutput().sampleData(new ParsableByteArray(headerData), headerData.length);
-      }
-      writtenHeader = true;
-    }
-
     DataSpec loadDataSpec = Util.getRemainderDataSpec(dataSpec, bytesLoaded);
     try {
       // Create and open the input.
@@ -113,9 +98,6 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
         result = getOutput().sampleData(dataSource, Integer.MAX_VALUE, true);
       }
       int sampleSize = bytesLoaded;
-      if (headerData != null) {
-        sampleSize += headerData.length;
-      }
       getOutput().sampleMetadata(startTimeUs, C.SAMPLE_FLAG_SYNC, sampleSize, 0, null);
     } finally {
       dataSource.close();

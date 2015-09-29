@@ -13,6 +13,7 @@
 // limitations under the License.
 include ':library'
 include ':demo'
+include ':playbacktests'
 include ':opus-extension'
 include ':vp9-extension'
 include ':webm-sw-demo'

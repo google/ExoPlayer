@@ -77,8 +77,9 @@ public final class Mp4ExtractorTest extends TestCase {
       + "000000000000000000000000000003");
 
   /** String of hexadecimal bytes containing a tkhd payload with an unknown duration. */
-  private static final byte[] TKHD_PAYLOAD =
-      getByteArray("0000000000000000000000000000000000000000FFFFFFFF");
+  private static final byte[] TKHD_PAYLOAD = getByteArray(
+      "00000007D1F0C7BFD1F0C7BF0000000000000000FFFFFFFF00000000000000000000000000000000000100"
+      + "0000000000000000000000000000010000000000000000000000000000400000000780000004380000");
 
   /** Video frame timestamps in time units. */
   private static final int[] SAMPLE_TIMESTAMPS = {0, 2, 3, 5, 6, 7};
@@ -87,7 +88,7 @@ public final class Mp4ExtractorTest extends TestCase {
   /** Indices of key-frames. */
   private static final boolean[] SAMPLE_IS_SYNC = {true, false, false, false, true, true};
   /** Indices of video frame chunk offsets. */
-  private static final int[] CHUNK_OFFSETS = {1080, 2000, 3000, 4000};
+  private static final int[] CHUNK_OFFSETS = {1200, 2120, 3120, 4120};
   /** Numbers of video frames in each chunk. */
   private static final int[] SAMPLES_IN_CHUNK = {2, 2, 1, 1};
   /** The mdat box must be large enough to avoid reading chunk sample data out of bounds. */
@@ -399,7 +400,7 @@ public final class Mp4ExtractorTest extends TestCase {
                             atom(Atom.TYPE_stsc, getStsc()),
                             atom(Atom.TYPE_stsz, getStsz()),
                             atom(Atom.TYPE_stco, getStco())))))),
-        atom(Atom.TYPE_mdat, getMdat(mp4vFormat ? 1048 : 1038, !mp4vFormat)));
+        atom(Atom.TYPE_mdat, getMdat(mp4vFormat ? 1168 : 1158, !mp4vFormat)));
   }
 
   /** Gets a valid MP4 file with audio/video tracks and without a synchronization table. */
@@ -435,7 +436,7 @@ public final class Mp4ExtractorTest extends TestCase {
                             atom(Atom.TYPE_stsc, getStsc()),
                             atom(Atom.TYPE_stsz, getStsz()),
                             atom(Atom.TYPE_stco, getStco())))))),
-        atom(Atom.TYPE_mdat, getMdat(mp4vFormat ? 992 : 982, !mp4vFormat)));
+        atom(Atom.TYPE_mdat, getMdat(mp4vFormat ? 1112 : 1102, !mp4vFormat)));
   }
 
   private static Mp4Atom atom(int type, Mp4Atom... containedMp4Atoms) {

@@ -50,7 +50,7 @@ public final class VideoFormatSelectorUtil {
    *     mime types.
    * @param filterHdFormats True to filter HD formats. False otherwise.
    * @return An array holding the indices of the selected formats.
-   * @throws DecoderQueryException
+   * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
   public static int[] selectVideoFormatsForDefaultDisplay(Context context,
       List<? extends FormatWrapper> formatWrappers, String[] allowedContainerMimeTypes,
@@ -125,7 +125,7 @@ public final class VideoFormatSelectorUtil {
     // unnecessarily high resolution given the size at which the video will be displayed within the
     // viewport.
     for (int i = selectedIndexList.size() - 1; i >= 0; i--) {
-      Format format = formatWrappers.get(i).getFormat();
+      Format format = formatWrappers.get(selectedIndexList.get(i)).getFormat();
       if (format.width > 0 && format.height > 0
           && format.width * format.height > maxVideoPixelsToRetain) {
         selectedIndexList.remove(i);

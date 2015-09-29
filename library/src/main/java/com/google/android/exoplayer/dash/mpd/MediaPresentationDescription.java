@@ -41,7 +41,7 @@ public class MediaPresentationDescription implements RedirectingManifest {
 
   public final String location;
 
-  public final List<Period> periods;
+  private final List<Period> periods;
 
   public MediaPresentationDescription(long availabilityStartTime, long duration, long minBufferTime,
       boolean dynamic, long minUpdatePeriod, long timeShiftBufferDepth, UtcTimingElement utcTiming,
@@ -54,12 +54,26 @@ public class MediaPresentationDescription implements RedirectingManifest {
     this.timeShiftBufferDepth = timeShiftBufferDepth;
     this.utcTiming = utcTiming;
     this.location = location;
-    this.periods = Collections.unmodifiableList(periods);
+    this.periods = periods == null ? Collections.<Period>emptyList() : periods;
   }
 
   @Override
-  public String getNextManifestUri() {
+  public final String getNextManifestUri() {
     return location;
+  }
+
+  public final int getPeriodCount() {
+    return periods.size();
+  }
+
+  public final Period getPeriod(int index) {
+    return periods.get(index);
+  }
+
+  public final long getPeriodDuration(int index) {
+    return index == periods.size() - 1
+        ? (duration == -1 ? -1 : duration - periods.get(index).startMs)
+        : periods.get(index + 1).startMs - periods.get(index).startMs;
   }
 
 }

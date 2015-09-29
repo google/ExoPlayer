@@ -51,6 +51,11 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   public interface EventListener {
 
     /**
+     * Invoked each time keys are loaded.
+     */
+    void onDrmKeysLoaded();
+
+    /**
      * Invoked when a drm error occurs.
      *
      * @param e The corresponding exception.
@@ -259,7 +264,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   @Override
-  public final void open(DrmInitData drmInitData) {
+  public void open(DrmInitData drmInitData) {
     if (++openCount != 1) {
       return;
     }
@@ -290,7 +295,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
   }
 
   @Override
-  public final void close() {
+  public void close() {
     if (--openCount != 0) {
       return;
     }
@@ -386,6 +391,14 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
     try {
       mediaDrm.provideKeyResponse(sessionId, (byte[]) response);
       state = STATE_OPENED_WITH_KEYS;
+      if (eventHandler != null && eventListener != null) {
+        eventHandler.post(new Runnable() {
+          @Override
+          public void run() {
+            eventListener.onDrmKeysLoaded();
+          }
+        });
+      }
     } catch (Exception e) {
       onKeysError(e);
     }

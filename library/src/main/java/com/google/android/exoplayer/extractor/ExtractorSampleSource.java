@@ -22,7 +22,6 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSource.SampleSourceReader;
-import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.upstream.Allocator;
@@ -93,7 +92,7 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_LIVE = 6;
 
   private static final int MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA = -1;
-  private static final int NO_RESET_PENDING = -1;
+  private static final long NO_RESET_PENDING = Long.MIN_VALUE;
 
   /**
    * Default extractor classes in priority order. They are referred to indirectly so that it is
@@ -163,7 +162,7 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
 
   private boolean prepared;
   private int enabledTrackCount;
-  private TrackInfo[] trackInfos;
+  private MediaFormat[] mediaFormats;
   private long maxTrackDurationUs;
   private boolean[] pendingMediaFormat;
   private boolean[] pendingDiscontinuities;
@@ -292,11 +291,11 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
       trackEnabledStates = new boolean[trackCount];
       pendingDiscontinuities = new boolean[trackCount];
       pendingMediaFormat = new boolean[trackCount];
-      trackInfos = new TrackInfo[trackCount];
+      mediaFormats = new MediaFormat[trackCount];
       maxTrackDurationUs = C.UNKNOWN_TIME_US;
       for (int i = 0; i < trackCount; i++) {
         MediaFormat format = sampleQueues.valueAt(i).getFormat();
-        trackInfos[i] = new TrackInfo(format.mimeType, format.durationUs);
+        mediaFormats[i] = format;
         if (format.durationUs != C.UNKNOWN_TIME_US && format.durationUs > maxTrackDurationUs) {
           maxTrackDurationUs = format.durationUs;
         }
@@ -314,9 +313,9 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
   }
 
   @Override
-  public TrackInfo getTrackInfo(int track) {
+  public MediaFormat getFormat(int track) {
     Assertions.checkState(prepared);
-    return trackInfos[track];
+    return mediaFormats[track];
   }
 
   @Override
@@ -326,10 +325,14 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
     enabledTrackCount++;
     trackEnabledStates[track] = true;
     pendingMediaFormat[track] = true;
-    if (enabledTrackCount == 1) {
-      seekToUs(positionUs);
-    }
     pendingDiscontinuities[track] = false;
+    if (enabledTrackCount == 1) {
+      // Treat all enables in non-seekable media as being from t=0.
+      positionUs = !seekMap.isSeekable() ? 0 : positionUs;
+      downstreamPositionUs = positionUs;
+      lastSeekPositionUs = positionUs;
+      restartFrom(positionUs);
+    }
   }
 
   @Override
@@ -431,10 +434,8 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
   public void seekToUs(long positionUs) {
     Assertions.checkState(prepared);
     Assertions.checkState(enabledTrackCount > 0);
-    if (!seekMap.isSeekable()) {
-      // Treat all seeks into non-seekable media as seeks to the start.
-      positionUs = 0;
-    }
+    // Treat all seeks into non-seekable media as being to t=0.
+    positionUs = !seekMap.isSeekable() ? 0 : positionUs;
 
     long currentPositionUs = isPendingReset() ? pendingResetPositionUs : downstreamPositionUs;
     downstreamPositionUs = positionUs;
@@ -573,11 +574,11 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
             sampleQueues.valueAt(i).clear();
           }
           loadable = createLoadableFromStart();
-        } else if (!seekMap.isSeekable()) {
-          // We're playing a non-seekable stream. Assume it's live, and therefore that the data at
-          // the uri is a continuously shifting window of the latest available media. For this case
-          // there's no way to continue loading from where a previous load finished, and hence it's
-          // necessary to load from the start whenever commencing a new load.
+        } else if (!seekMap.isSeekable() && maxTrackDurationUs == C.UNKNOWN_TIME_US) {
+          // We're playing a non-seekable stream with unknown duration. Assume it's live, and
+          // therefore that the data at the uri is a continuously shifting window of the latest
+          // available media. For this case there's no way to continue loading from where a previous
+          // load finished, so it's necessary to load from the start whenever commencing a new load.
           for (int i = 0; i < sampleQueues.size(); i++) {
             sampleQueues.valueAt(i).clear();
           }

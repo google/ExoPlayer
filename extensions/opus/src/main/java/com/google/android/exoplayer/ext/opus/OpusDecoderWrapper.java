@@ -203,6 +203,7 @@ import java.util.LinkedList;
     }
 
     // Decode.
+    boolean skipBuffer = false;
     if (inputBuffer.getFlag(FLAG_END_OF_STREAM)) {
       outputBuffer.setFlag(FLAG_END_OF_STREAM);
     } else {
@@ -221,13 +222,14 @@ import java.util.LinkedList;
       if (skipSamples > 0) {
         int bytesPerSample = opusHeader.channelCount * 2;
         int skipBytes = skipSamples * bytesPerSample;
-        if (outputBuffer.size < skipBytes) {
+        if (outputBuffer.size <= skipBytes) {
           skipSamples -= outputBuffer.size / bytesPerSample;
           outputBuffer.size = 0;
+          skipBuffer = true;
         } else {
           skipSamples = 0;
-          outputBuffer.data.position(skipBytes);
           outputBuffer.size -= skipBytes;
+          outputBuffer.data.position(skipBytes);
         }
       }
     }
@@ -235,7 +237,7 @@ import java.util.LinkedList;
     synchronized (lock) {
       if (flushDecodedOutputBuffer
           || inputBuffer.sampleHolder.isDecodeOnly()
-          || outputBuffer.size == 0) {
+          || skipBuffer) {
         // In the following cases, we make the output buffer available again rather than queuing it
         // to be consumed:
         // 1) A flush occured whilst we were decoding.
@@ -322,7 +324,7 @@ import java.util.LinkedList;
     }
 
     public void reset() {
-      sampleHolder.data.clear();
+      sampleHolder.clearData();
       flags = 0;
     }
 

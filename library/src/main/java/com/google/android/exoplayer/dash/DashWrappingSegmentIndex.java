@@ -26,17 +26,14 @@ import com.google.android.exoplayer.extractor.ChunkIndex;
 
   private final ChunkIndex chunkIndex;
   private final String uri;
-  private final long startTimeUs;
 
   /**
    * @param chunkIndex The {@link ChunkIndex} to wrap.
    * @param uri The URI where the data is located.
-   * @param startTimeUs The start time of the index, in microseconds.
    */
-  public DashWrappingSegmentIndex(ChunkIndex chunkIndex, String uri, long startTimeUs) {
+  public DashWrappingSegmentIndex(ChunkIndex chunkIndex, String uri) {
     this.chunkIndex = chunkIndex;
     this.uri = uri;
-    this.startTimeUs = startTimeUs;
   }
 
   @Override
@@ -45,17 +42,17 @@ import com.google.android.exoplayer.extractor.ChunkIndex;
   }
 
   @Override
-  public int getLastSegmentNum() {
+  public int getLastSegmentNum(long periodDurationUs) {
     return chunkIndex.length - 1;
   }
 
   @Override
   public long getTimeUs(int segmentNum) {
-    return chunkIndex.timesUs[segmentNum] + startTimeUs;
+    return chunkIndex.timesUs[segmentNum];
   }
 
   @Override
-  public long getDurationUs(int segmentNum) {
+  public long getDurationUs(int segmentNum, long periodDurationUs) {
     return chunkIndex.durationsUs[segmentNum];
   }
 
@@ -65,8 +62,8 @@ import com.google.android.exoplayer.extractor.ChunkIndex;
   }
 
   @Override
-  public int getSegmentNum(long timeUs) {
-    return chunkIndex.getChunkIndex(timeUs - startTimeUs);
+  public int getSegmentNum(long timeUs, long periodDurationUs) {
+    return chunkIndex.getChunkIndex(timeUs);
   }
 
   @Override
