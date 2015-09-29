@@ -74,7 +74,7 @@ import android.os.Looper;
  * <h3>Player state</h3>
  *
  * <p>The components of an {@link ExoPlayer}'s state can be divided into two distinct groups. State
- * accessed by {@link #getRendererEnabled(int)} and {@link #getPlayWhenReady()} are only ever
+ * accessed by {@link #getSelectedTrack(int)} and {@link #getPlayWhenReady()} is only ever
  * changed by invoking the player's methods, and are never changed as a result of operations that
  * have been performed asynchronously by the playback thread. In contrast, the playback state
  * accessed by {@link #getPlaybackState()} is only ever changed as a result of operations
@@ -219,6 +219,18 @@ public interface ExoPlayer {
    * The player has finished playing the media.
    */
   public static final int STATE_ENDED = 5;
+
+  /**
+   * A value that can be passed as the second argument to {@link #setSelectedTrack(int, int)} to
+   * disable the renderer.
+   */
+  public static final int TRACK_DISABLED = -1;
+  /**
+   * A value that can be passed as the second argument to {@link #setSelectedTrack(int, int)} to
+   * select the default track.
+   */
+  public static final int TRACK_DEFAULT = 0;
+
   /**
    * Represents an unknown time or duration.
    */
@@ -266,26 +278,71 @@ public interface ExoPlayer {
    * <p>
    * Always returns false whilst the player is in the {@link #STATE_PREPARING} state.
    *
+   * @deprecated Use {@code getTrackCount(rendererIndex) > 0}.
    * @param rendererIndex The index of the renderer.
    * @return True if the renderer has media to play, false otherwise.
    */
+  @Deprecated
   public boolean getRendererHasMedia(int rendererIndex);
 
   /**
    * Sets whether the renderer at the given index is enabled.
    *
+   * @deprecated Use {@code setSelectedTrack(rendererIndex, trackIndex)}. Passing
+   *     {@link #TRACK_DEFAULT} as {@code trackIndex} is equivalent to enabling the renderer with
+   *     this method. Passing {@link #TRACK_DISABLED} is equivalent to disabling the renderer.
    * @param rendererIndex The index of the renderer.
    * @param enabled Whether the renderer at the given index should be enabled.
    */
+  @Deprecated
   public void setRendererEnabled(int rendererIndex, boolean enabled);
 
   /**
    * Whether the renderer at the given index is enabled.
    *
+   * @deprecated Use {@code getSelectedTrack(rendererIndex)}. A non-negative return value from that
+   *     method is equivalent to this method returning true. A negative return value is equivalent
+   *     to this method returning false.
    * @param rendererIndex The index of the renderer.
    * @return Whether the renderer is enabled.
    */
+  @Deprecated
   public boolean getRendererEnabled(int rendererIndex);
+
+  /**
+   * Returns the number of tracks exposed by the specified renderer.
+   *
+   * @param rendererIndex The index of the renderer.
+   * @return The number of tracks.
+   */
+  public int getTrackCount(int rendererIndex);
+
+  /**
+   * Returns the format of a track.
+   *
+   * @param rendererIndex The index of the renderer.
+   * @param trackIndex The index of the track.
+   * @return The format of the track.
+   */
+  public MediaFormat getTrackFormat(int rendererIndex, int trackIndex);
+
+  /**
+   * Selects a track for the specified renderer.
+   *
+   * @param rendererIndex The index of the renderer.
+   * @param trackIndex The index of the track. A negative value or a value greater than or equal to
+   *     the renderer's track count will disable the renderer.
+   */
+  public void setSelectedTrack(int rendererIndex, int trackIndex);
+
+  /**
+   * Returns the index of the currently selected track for the specified renderer.
+   *
+   * @param rendererIndex The index of the renderer.
+   * @return The selected track. A negative value or a value greater than or equal to the renderer's
+   *     track count indicates that the renderer is disabled.
+   */
+  public int getSelectedTrack(int rendererIndex);
 
   /**
    * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.

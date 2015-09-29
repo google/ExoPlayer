@@ -24,22 +24,11 @@ import com.google.android.exoplayer.util.Util;
  */
 public final class Track {
 
-  /**
-   * Type of a video track.
-   */
-  public static final int TYPE_VIDEO = Util.getIntegerCodeForString("vide");
-  /**
-   * Type of an audio track.
-   */
-  public static final int TYPE_AUDIO = Util.getIntegerCodeForString("soun");
-  /**
-   * Type of a text track.
-   */
-  public static final int TYPE_TEXT = Util.getIntegerCodeForString("text");
-  /**
-   * Type of a subtitle track.
-   */
-  public static final int TYPE_SUBTITLE = Util.getIntegerCodeForString("sbtl");
+  public static final int TYPE_vide = Util.getIntegerCodeForString("vide");
+  public static final int TYPE_soun = Util.getIntegerCodeForString("soun");
+  public static final int TYPE_text = Util.getIntegerCodeForString("text");
+  public static final int TYPE_sbtl = Util.getIntegerCodeForString("sbtl");
+  public static final int TYPE_subt = Util.getIntegerCodeForString("subt");
 
   /**
    * The track identifier.
@@ -47,7 +36,8 @@ public final class Track {
   public final int id;
 
   /**
-   * One of {@link #TYPE_VIDEO}, {@link #TYPE_AUDIO}, {@link #TYPE_TEXT} and {@link #TYPE_SUBTITLE}.
+   * One of {@link #TYPE_vide}, {@link #TYPE_soun}, {@link #TYPE_text} and {@link #TYPE_sbtl} and
+   * {@link #TYPE_subt}.
    */
   public final int type;
 
@@ -62,7 +52,7 @@ public final class Track {
   public final long durationUs;
 
   /**
-   * The format if {@link #type} is {@link #TYPE_VIDEO} or {@link #TYPE_AUDIO}. Null otherwise.
+   * The media format.
    */
   public final MediaFormat mediaFormat;
 

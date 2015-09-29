@@ -46,18 +46,6 @@ import android.util.Log;
   private static final float INNER_PADDING_RATIO = 0.125f;
 
   /**
-   * Use the same line height ratio as WebVtt to match the display with the preview.
-   * WebVtt specifies line height as 5.3% of the viewport height.
-   */
-  private static final float LINE_HEIGHT_FRACTION = 0.0533f;
-
-  /**
-   * The default bottom padding to apply when {@link Cue#line} is {@link Cue#UNSET_VALUE}, as a
-   * fraction of the viewport height.
-   */
-  private static final float DEFAULT_BOTTOM_PADDING_FRACTION = 0.08f;
-
-  /**
    * Temporary rectangle used for computing line bounds.
    */
   private final RectF lineBounds = new RectF();
@@ -75,13 +63,21 @@ import android.util.Log;
 
   // Previous input variables.
   private CharSequence cueText;
-  private int cuePosition;
-  private Alignment cueAlignment;
+  private Alignment cueTextAlignment;
+  private float cueLine;
+  private int cueLineType;
+  private int cueLineAnchor;
+  private float cuePosition;
+  private int cuePositionAnchor;
+  private float cueSize;
+  private boolean applyEmbeddedStyles;
   private int foregroundColor;
   private int backgroundColor;
   private int windowColor;
   private int edgeColor;
   private int edgeType;
+  private float textSizePx;
+  private float bottomPaddingFraction;
   private int parentLeft;
   private int parentTop;
   private int parentRight;
@@ -125,69 +121,95 @@ import android.util.Log;
    * which the same parameters are passed.
    *
    * @param cue The cue to draw.
+   * @param applyEmbeddedStyles Whether styling embedded within the cue should be applied.
    * @param style The style to use when drawing the cue text.
-   * @param fontScale The font scale.
+   * @param textSizePx The text size to use when drawing the cue text, in pixels.
+   * @param bottomPaddingFraction The bottom padding fraction to apply when {@link Cue#line} is
+   *     {@link Cue#DIMEN_UNSET}, as a fraction of the viewport height
    * @param canvas The canvas into which to draw.
    * @param cueBoxLeft The left position of the enclosing cue box.
    * @param cueBoxTop The top position of the enclosing cue box.
    * @param cueBoxRight The right position of the enclosing cue box.
    * @param cueBoxBottom The bottom position of the enclosing cue box.
    */
-  public void draw(Cue cue, CaptionStyleCompat style, float fontScale, Canvas canvas,
-      int cueBoxLeft, int cueBoxTop, int cueBoxRight, int cueBoxBottom) {
-    if (TextUtils.isEmpty(cue.text)) {
+  public void draw(Cue cue, boolean applyEmbeddedStyles, CaptionStyleCompat style, float textSizePx,
+      float bottomPaddingFraction, Canvas canvas, int cueBoxLeft, int cueBoxTop, int cueBoxRight,
+      int cueBoxBottom) {
+    CharSequence cueText = cue.text;
+    if (TextUtils.isEmpty(cueText)) {
       // Nothing to draw.
       return;
     }
-
-    if (TextUtils.equals(cueText, cue.text)
-        && cuePosition == cue.position
-        && Util.areEqual(cueAlignment, cue.alignment)
-        && foregroundColor == style.foregroundColor
-        && backgroundColor == style.backgroundColor
-        && windowColor == style.windowColor
-        && edgeType == style.edgeType
-        && edgeColor == style.edgeColor
-        && Util.areEqual(textPaint.getTypeface(), style.typeface)
-        && parentLeft == cueBoxLeft
-        && parentTop == cueBoxTop
-        && parentRight == cueBoxRight
-        && parentBottom == cueBoxBottom) {
+    if (!applyEmbeddedStyles) {
+      // Strip out any embedded styling.
+      cueText = cueText.toString();
+    }
+    if (areCharSequencesEqual(this.cueText, cueText)
+        && Util.areEqual(this.cueTextAlignment, cue.textAlignment)
+        && this.cueLine == cue.line
+        && this.cueLineType == cue.lineType
+        && Util.areEqual(this.cueLineAnchor, cue.lineAnchor)
+        && this.cuePosition == cue.position
+        && Util.areEqual(this.cuePositionAnchor, cue.positionAnchor)
+        && this.cueSize == cue.size
+        && this.applyEmbeddedStyles == applyEmbeddedStyles
+        && this.foregroundColor == style.foregroundColor
+        && this.backgroundColor == style.backgroundColor
+        && this.windowColor == style.windowColor
+        && this.edgeType == style.edgeType
+        && this.edgeColor == style.edgeColor
+        && Util.areEqual(this.textPaint.getTypeface(), style.typeface)
+        && this.textSizePx == textSizePx
+        && this.bottomPaddingFraction == bottomPaddingFraction
+        && this.parentLeft == cueBoxLeft
+        && this.parentTop == cueBoxTop
+        && this.parentRight == cueBoxRight
+        && this.parentBottom == cueBoxBottom) {
       // We can use the cached layout.
       drawLayout(canvas);
       return;
     }
 
-    cueText = cue.text;
-    cuePosition = cue.position;
-    cueAlignment = cue.alignment;
-    foregroundColor = style.foregroundColor;
-    backgroundColor = style.backgroundColor;
-    windowColor = style.windowColor;
-    edgeType = style.edgeType;
-    edgeColor = style.edgeColor;
-    textPaint.setTypeface(style.typeface);
-    parentLeft = cueBoxLeft;
-    parentTop = cueBoxTop;
-    parentRight = cueBoxRight;
-    parentBottom = cueBoxBottom;
+    this.cueText = cueText;
+    this.cueTextAlignment = cue.textAlignment;
+    this.cueLine = cue.line;
+    this.cueLineType = cue.lineType;
+    this.cueLineAnchor = cue.lineAnchor;
+    this.cuePosition = cue.position;
+    this.cuePositionAnchor = cue.positionAnchor;
+    this.cueSize = cue.size;
+    this.applyEmbeddedStyles = applyEmbeddedStyles;
+    this.foregroundColor = style.foregroundColor;
+    this.backgroundColor = style.backgroundColor;
+    this.windowColor = style.windowColor;
+    this.edgeType = style.edgeType;
+    this.edgeColor = style.edgeColor;
+    this.textPaint.setTypeface(style.typeface);
+    this.textSizePx = textSizePx;
+    this.bottomPaddingFraction = bottomPaddingFraction;
+    this.parentLeft = cueBoxLeft;
+    this.parentTop = cueBoxTop;
+    this.parentRight = cueBoxRight;
+    this.parentBottom = cueBoxBottom;
 
     int parentWidth = parentRight - parentLeft;
     int parentHeight = parentBottom - parentTop;
 
-    float textSize = LINE_HEIGHT_FRACTION * parentHeight * fontScale;
-    textPaint.setTextSize(textSize);
-    int textPaddingX = (int) (textSize * INNER_PADDING_RATIO + 0.5f);
+    textPaint.setTextSize(textSizePx);
+    int textPaddingX = (int) (textSizePx * INNER_PADDING_RATIO + 0.5f);
+
     int availableWidth = parentWidth - textPaddingX * 2;
+    if (cueSize != Cue.DIMEN_UNSET) {
+      availableWidth = (int) (availableWidth * cueSize);
+    }
     if (availableWidth <= 0) {
       Log.w(TAG, "Skipped drawing subtitle cue (insufficient space)");
       return;
     }
 
-    Alignment layoutAlignment = cueAlignment == null ? Alignment.ALIGN_CENTER : cueAlignment;
-    textLayout = new StaticLayout(cueText, textPaint, availableWidth, layoutAlignment, spacingMult,
+    Alignment textAlignment = cueTextAlignment == null ? Alignment.ALIGN_CENTER : cueTextAlignment;
+    textLayout = new StaticLayout(cueText, textPaint, availableWidth, textAlignment, spacingMult,
         spacingAdd, true);
-
     int textHeight = textLayout.getHeight();
     int textWidth = 0;
     int lineCount = textLayout.getLineCount();
@@ -196,33 +218,55 @@ import android.util.Log;
     }
     textWidth += textPaddingX * 2;
 
-    int textLeft = (parentWidth - textWidth) / 2;
-    int textRight = textLeft + textWidth;
-    int textTop = parentBottom - textHeight
-        - (int) (parentHeight * DEFAULT_BOTTOM_PADDING_FRACTION);
-    int textBottom = textTop + textHeight;
-
-    if (cue.position != Cue.UNSET_VALUE) {
-      if (cue.alignment == Alignment.ALIGN_OPPOSITE) {
-        textRight = (parentWidth * cue.position) / 100 + parentLeft;
-        textLeft = Math.max(textRight - textWidth, parentLeft);
-      } else {
-        textLeft = (parentWidth * cue.position) / 100 + parentLeft;
-        textRight = Math.min(textLeft + textWidth, parentRight);
-      }
+    int textLeft;
+    int textRight;
+    if (cuePosition != Cue.DIMEN_UNSET) {
+      int anchorPosition = Math.round(parentWidth * cuePosition) + parentLeft;
+      textLeft = cuePositionAnchor == Cue.ANCHOR_TYPE_END ? anchorPosition - textWidth
+          : cuePositionAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorPosition * 2 - textWidth) / 2
+          : anchorPosition;
+      textLeft = Math.max(textLeft, parentLeft);
+      textRight = Math.min(textLeft + textWidth, parentRight);
+    } else {
+      textLeft = (parentWidth - textWidth) / 2;
+      textRight = textLeft + textWidth;
     }
-    if (cue.line != Cue.UNSET_VALUE) {
-      textTop = (parentHeight * cue.line) / 100 + parentTop;
+
+    int textTop;
+    int textBottom;
+    if (cueLine != Cue.DIMEN_UNSET) {
+      int anchorPosition;
+      if (cueLineType == Cue.LINE_TYPE_FRACTION) {
+        anchorPosition = Math.round(parentHeight * cueLine) + parentTop;
+      } else {
+        // cueLineType == Cue.LINE_TYPE_NUMBER
+        int firstLineHeight = textLayout.getLineBottom(0) - textLayout.getLineTop(0);
+        if (cueLine >= 0) {
+          anchorPosition = Math.round(cueLine * firstLineHeight) + parentTop;
+        } else {
+          anchorPosition = Math.round(cueLine * firstLineHeight) + parentBottom;
+        }
+      }
+      textTop = cueLineAnchor == Cue.ANCHOR_TYPE_END ? anchorPosition - textHeight
+          : cueLineAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorPosition * 2 - textHeight) / 2
+          : anchorPosition;
       textBottom = textTop + textHeight;
       if (textBottom > parentBottom) {
         textTop = parentBottom - textHeight;
         textBottom = parentBottom;
+      } else if (textTop < parentTop) {
+        textTop = parentTop;
+        textBottom = parentTop + textHeight;
       }
+    } else {
+      textTop = parentBottom - textHeight - (int) (parentHeight * bottomPaddingFraction);
+      textBottom = textTop + textHeight;
     }
+
     textWidth = textRight - textLeft;
 
     // Update the derived drawing variables.
-    this.textLayout = new StaticLayout(cueText, textPaint, textWidth, layoutAlignment, spacingMult,
+    this.textLayout = new StaticLayout(cueText, textPaint, textWidth, textAlignment, spacingMult,
         spacingAdd, true);
     this.textLeft = textLeft;
     this.textTop = textTop;
@@ -293,6 +337,17 @@ import android.util.Log;
     textPaint.setShadowLayer(0, 0, 0, 0);
 
     canvas.restoreToCount(saveCount);
+  }
+
+  /**
+   * This method is used instead of {@link TextUtils#equals(CharSequence, CharSequence)} because the
+   * latter only checks the text of each sequence, and does not check for equality of styling that
+   * may be embedded within the {@link CharSequence}s.
+   */
+  private static boolean areCharSequencesEqual(CharSequence first, CharSequence second) {
+    // Some CharSequence implementations don't perform a cheap referential equality check in their
+    // equals methods, so we perform one explicitly here.
+    return first == second || (first != null && first.equals(second));
   }
 
 }

@@ -32,13 +32,23 @@ import com.google.android.exoplayer.util.Assertions;
 public abstract class TrackRenderer implements ExoPlayerComponent {
 
   /**
+   * Represents an unknown time or duration. Equal to {@link C#UNKNOWN_TIME_US}.
+   */
+  public static final long UNKNOWN_TIME_US = C.UNKNOWN_TIME_US; // -1
+  /**
+   * Represents a time or duration that should match the duration of the longest track whose
+   * duration is known. Equal to {@link C#MATCH_LONGEST_US}.
+   */
+  public static final long MATCH_LONGEST_US = C.MATCH_LONGEST_US; // -2
+  /**
+   * Represents the time of the end of the track.
+   */
+  public static final long END_OF_TRACK_US = -3;
+
+  /**
    * The renderer has been released and should not be used.
    */
-  protected static final int STATE_RELEASED = -2;
-  /**
-   * The renderer should be ignored by the player.
-   */
-  protected static final int STATE_IGNORE = -1;
+  protected static final int STATE_RELEASED = -1;
   /**
    * The renderer has not yet been prepared.
    */
@@ -63,20 +73,6 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * rendered.
    */
   protected static final int STATE_STARTED = 3;
-
-  /**
-   * Represents an unknown time or duration. Equal to {@link C#UNKNOWN_TIME_US}.
-   */
-  public static final long UNKNOWN_TIME_US = C.UNKNOWN_TIME_US; // -1
-  /**
-   * Represents a time or duration that should match the duration of the longest track whose
-   * duration is known. Equal to {@link C#MATCH_LONGEST_US}.
-   */
-  public static final long MATCH_LONGEST_US = C.MATCH_LONGEST_US; // -2
-  /**
-   * Represents the time of the end of the track.
-   */
-  public static final long END_OF_TRACK_US = -3;
 
   private int state;
 
@@ -110,42 +106,60 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @throws ExoPlaybackException If an error occurs.
    */
   /* package */ final int prepare(long positionUs) throws ExoPlaybackException {
-    Assertions.checkState(state == TrackRenderer.STATE_UNPREPARED);
-    state = doPrepare(positionUs);
-    Assertions.checkState(state == TrackRenderer.STATE_UNPREPARED ||
-        state == TrackRenderer.STATE_PREPARED ||
-        state == TrackRenderer.STATE_IGNORE);
+    Assertions.checkState(state == STATE_UNPREPARED);
+    state = doPrepare(positionUs) ? STATE_PREPARED : STATE_UNPREPARED;
     return state;
   }
 
   /**
    * Invoked to make progress when the renderer is in the {@link #STATE_UNPREPARED} state. This
-   * method will be called repeatedly until a value other than {@link #STATE_UNPREPARED} is
-   * returned.
+   * method will be called repeatedly until {@code true} is returned.
    * <p>
    * This method should return quickly, and should not block if the renderer is currently unable to
    * make any useful progress.
    *
    * @param positionUs The player's current playback position.
-   * @return The new state of the renderer. One of {@link #STATE_UNPREPARED},
-   *     {@link #STATE_PREPARED} and {@link #STATE_IGNORE}.
+   * @return True if the renderer is now prepared. False otherwise.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected abstract int doPrepare(long positionUs) throws ExoPlaybackException;
+  protected abstract boolean doPrepare(long positionUs) throws ExoPlaybackException;
 
   /**
-   * Enable the renderer.
+   * Returns the number of tracks exposed by the renderer.
+   * <p>
+   * This method may be called when the renderer is in the following states:
+   * {@link #STATE_PREPARED}, {@link #STATE_ENABLED}, {@link #STATE_STARTED}
    *
+   * @return The number of tracks.
+   */
+  protected abstract int getTrackCount();
+
+  /**
+   * Returns the format of the specified track.
+   * <p>
+   * This method may be called when the renderer is in the following states:
+   * {@link #STATE_PREPARED}, {@link #STATE_ENABLED}, {@link #STATE_STARTED}
+   *
+   * @param track The track index.
+   * @return The format of the specified track.
+   */
+  protected abstract MediaFormat getFormat(int track);
+
+  /**
+   * Enable the renderer for a specified track.
+   *
+   * @param track The track for which the renderer is being enabled.
    * @param positionUs The player's current position.
    * @param joining Whether this renderer is being enabled to join an ongoing playback. If true
    *     then {@link #start} must be called immediately after this method returns (unless a
    *     {@link ExoPlaybackException} is thrown).
    * @throws ExoPlaybackException If an error occurs.
    */
-  /* package */ final void enable(long positionUs, boolean joining) throws ExoPlaybackException {
-    Assertions.checkState(state == TrackRenderer.STATE_PREPARED);
-    state = TrackRenderer.STATE_ENABLED;
-    onEnabled(positionUs, joining);
+  /* package */ final void enable(int track, long positionUs, boolean joining)
+      throws ExoPlaybackException {
+    Assertions.checkState(state == STATE_PREPARED);
+    state = STATE_ENABLED;
+    onEnabled(track, positionUs, joining);
   }
 
   /**
@@ -153,13 +167,15 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * <p>
    * The default implementation is a no-op.
    *
+   * @param track The track for which the renderer is being enabled.
    * @param positionUs The player's current position.
    * @param joining Whether this renderer is being enabled to join an ongoing playback. If true
    *     then {@link #onStarted} is guaranteed to be called immediately after this method returns
    *     (unless a {@link ExoPlaybackException} is thrown).
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onEnabled(long positionUs, boolean joining) throws ExoPlaybackException {
+  protected void onEnabled(int track, long positionUs, boolean joining)
+      throws ExoPlaybackException {
     // Do nothing.
   }
 
@@ -170,8 +186,8 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @throws ExoPlaybackException If an error occurs.
    */
   /* package */ final void start() throws ExoPlaybackException {
-    Assertions.checkState(state == TrackRenderer.STATE_ENABLED);
-    state = TrackRenderer.STATE_STARTED;
+    Assertions.checkState(state == STATE_ENABLED);
+    state = STATE_STARTED;
     onStarted();
   }
 
@@ -192,8 +208,8 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @throws ExoPlaybackException If an error occurs.
    */
   /* package */ final void stop() throws ExoPlaybackException {
-    Assertions.checkState(state == TrackRenderer.STATE_STARTED);
-    state = TrackRenderer.STATE_ENABLED;
+    Assertions.checkState(state == STATE_STARTED);
+    state = STATE_ENABLED;
     onStopped();
   }
 
@@ -214,8 +230,8 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @throws ExoPlaybackException If an error occurs.
    */
   /* package */ final void disable() throws ExoPlaybackException {
-    Assertions.checkState(state == TrackRenderer.STATE_ENABLED);
-    state = TrackRenderer.STATE_PREPARED;
+    Assertions.checkState(state == STATE_ENABLED);
+    state = STATE_PREPARED;
     onDisabled();
   }
 
@@ -236,10 +252,10 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @throws ExoPlaybackException If an error occurs.
    */
   /* package */ final void release() throws ExoPlaybackException {
-    Assertions.checkState(state != TrackRenderer.STATE_ENABLED
-        && state != TrackRenderer.STATE_STARTED
-        && state != TrackRenderer.STATE_RELEASED);
-    state = TrackRenderer.STATE_RELEASED;
+    Assertions.checkState(state != STATE_ENABLED
+        && state != STATE_STARTED
+        && state != STATE_RELEASED);
+    state = STATE_RELEASED;
     onReleased();
   }
 

@@ -72,7 +72,7 @@ import java.util.LinkedList;
       }
       InputBuffer inputBuffer = availableInputBuffers[--availableInputBufferCount];
       inputBuffer.flags = 0;
-      inputBuffer.sampleHolder.data.clear();
+      inputBuffer.sampleHolder.clearData();
       return inputBuffer;
     }
   }

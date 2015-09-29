@@ -34,18 +34,14 @@ public final class WebvttSubtitle implements Subtitle {
 
   private final List<WebvttCue> cues;
   private final int numCues;
-  private final long startTimeUs;
   private final long[] cueTimesUs;
   private final long[] sortedCueTimesUs;
 
   /**
    * @param cues A list of the cues in this subtitle.
-   * @param startTimeUs The start time of the subtitle.
    */
-  public WebvttSubtitle(List<WebvttCue> cues, long startTimeUs) {
+  public WebvttSubtitle(List<WebvttCue> cues) {
     this.cues = cues;
-    this.startTimeUs = startTimeUs;
-
     numCues = cues.size();
     cueTimesUs = new long[2 * numCues];
     for (int cueIndex = 0; cueIndex < numCues; cueIndex++) {
@@ -56,11 +52,6 @@ public final class WebvttSubtitle implements Subtitle {
     }
     sortedCueTimesUs = Arrays.copyOf(cueTimesUs, cueTimesUs.length);
     Arrays.sort(sortedCueTimesUs);
-  }
-
-  @Override
-  public long getStartTime() {
-    return startTimeUs;
   }
 
   @Override

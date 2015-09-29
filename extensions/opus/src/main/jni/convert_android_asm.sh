@@ -31,7 +31,7 @@ while read file; do
     ${ASM_CONVERTER} "${file}" > "${gnu_file}"
     # The ASM conversion script replaces includes with *_gnu.S. So, replace
     # occurences of "*-gnu.S" with "*_gnu.s".
-    sed -i "s/-gnu\.S/_gnu\.s/g" "${gnu_file}"
+    perl -pi -e "s/-gnu\.S/_gnu\.s/g" "${gnu_file}"
     rm -f "${file}"
   fi
 done < <(find . -iname '*.s')

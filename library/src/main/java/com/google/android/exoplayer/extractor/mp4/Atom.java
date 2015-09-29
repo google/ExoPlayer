@@ -57,6 +57,11 @@ import java.util.List;
   public static final int TYPE_dac3 = Util.getIntegerCodeForString("dac3");
   public static final int TYPE_ec_3 = Util.getIntegerCodeForString("ec-3");
   public static final int TYPE_dec3 = Util.getIntegerCodeForString("dec3");
+  public static final int TYPE_dtsc = Util.getIntegerCodeForString("dtsc");
+  public static final int TYPE_dtsh = Util.getIntegerCodeForString("dtsh");
+  public static final int TYPE_dtsl = Util.getIntegerCodeForString("dtsl");
+  public static final int TYPE_dtse = Util.getIntegerCodeForString("dtse");
+  public static final int TYPE_ddts = Util.getIntegerCodeForString("ddts");
   public static final int TYPE_tfdt = Util.getIntegerCodeForString("tfdt");
   public static final int TYPE_tfhd = Util.getIntegerCodeForString("tfhd");
   public static final int TYPE_trex = Util.getIntegerCodeForString("trex");
@@ -102,6 +107,7 @@ import java.util.List;
   public static final int TYPE_stco = Util.getIntegerCodeForString("stco");
   public static final int TYPE_co64 = Util.getIntegerCodeForString("co64");
   public static final int TYPE_tx3g = Util.getIntegerCodeForString("tx3g");
+  public static final int TYPE_stpp = Util.getIntegerCodeForString("stpp");
 
   public final int type;
 

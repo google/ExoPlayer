@@ -15,8 +15,10 @@
  */
 package com.google.android.exoplayer.text;
 
+import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.Util;
 
 import android.media.MediaCodec;
 import android.os.Handler;
@@ -31,15 +33,22 @@ import java.io.InputStream;
  * Wraps a {@link SubtitleParser}, exposing an interface similar to {@link MediaCodec} for
  * asynchronous parsing of subtitles.
  */
-public final class SubtitleParserHelper implements Handler.Callback {
+/* package */ final class SubtitleParserHelper implements Handler.Callback {
+
+  private static final int MSG_FORMAT = 0;
+  private static final int MSG_SAMPLE = 1;
 
   private final SubtitleParser parser;
-
   private final Handler handler;
+
   private SampleHolder sampleHolder;
   private boolean parsing;
-  private Subtitle result;
+  private PlayableSubtitle result;
   private IOException error;
+  private RuntimeException runtimeError;
+
+  private boolean subtitlesAreRelative;
+  private long subtitleOffsetUs;
 
   /**
    * @param looper The {@link Looper} associated with the thread on which parsing should occur.
@@ -59,6 +68,7 @@ public final class SubtitleParserHelper implements Handler.Callback {
     parsing = false;
     result = null;
     error = null;
+    runtimeError = null;
   }
 
   /**
@@ -84,6 +94,15 @@ public final class SubtitleParserHelper implements Handler.Callback {
   }
 
   /**
+   * Sets the format of subsequent samples.
+   *
+   * @param format The format.
+   */
+  public void setFormat(MediaFormat format) {
+    handler.obtainMessage(MSG_FORMAT, format).sendToTarget();
+  }
+
+  /**
    * Start a parsing operation.
    * <p>
    * The holder returned by {@link #getSampleHolder()} should be populated with the data to be
@@ -94,7 +113,9 @@ public final class SubtitleParserHelper implements Handler.Callback {
     parsing = true;
     result = null;
     error = null;
-    handler.obtainMessage(0, sampleHolder).sendToTarget();
+    runtimeError = null;
+    handler.obtainMessage(MSG_SAMPLE, Util.getTopInt(sampleHolder.timeUs),
+        Util.getBottomInt(sampleHolder.timeUs), sampleHolder).sendToTarget();
   }
 
   /**
@@ -106,41 +127,65 @@ public final class SubtitleParserHelper implements Handler.Callback {
    * @return The result of the parsing operation, or null.
    * @throws IOException If the parsing operation failed.
    */
-  public synchronized Subtitle getAndClearResult() throws IOException {
+  public synchronized PlayableSubtitle getAndClearResult() throws IOException {
     try {
       if (error != null) {
         throw error;
+      } else if (runtimeError != null) {
+        throw runtimeError;
+      } else {
+        return result;
       }
-      return result;
     } finally {
-      error = null;
       result = null;
+      error = null;
+      runtimeError = null;
     }
   }
 
   @Override
   public boolean handleMessage(Message msg) {
-    Subtitle result;
-    IOException error;
-    SampleHolder holder = (SampleHolder) msg.obj;
+    switch (msg.what) {
+      case MSG_FORMAT:
+        handleFormat((MediaFormat) msg.obj);
+        break;
+      case MSG_SAMPLE:
+        long sampleTimeUs = Util.getLong(msg.arg1, msg.arg2);
+        SampleHolder holder = (SampleHolder) msg.obj;
+        handleSample(sampleTimeUs, holder);
+        break;
+    }
+    return true;
+  }
+
+  private void handleFormat(MediaFormat format) {
+    subtitlesAreRelative = format.subsampleOffsetUs == MediaFormat.OFFSET_SAMPLE_RELATIVE;
+    subtitleOffsetUs = subtitlesAreRelative ? 0 : format.subsampleOffsetUs;
+  }
+
+  private void handleSample(long sampleTimeUs, SampleHolder holder) {
+    Subtitle parsedSubtitle = null;
+    IOException error = null;
+    RuntimeException runtimeError = null;
     try {
       InputStream inputStream = new ByteArrayInputStream(holder.data.array(), 0, holder.size);
-      result = parser.parse(inputStream, null, sampleHolder.timeUs);
-      error = null;
+      parsedSubtitle = parser.parse(inputStream);
     } catch (IOException e) {
-      result = null;
       error = e;
+    } catch (RuntimeException e) {
+      runtimeError = e;
     }
     synchronized (this) {
       if (sampleHolder != holder) {
         // A flush has occurred since this holder was posted. Do nothing.
       } else {
-        this.result = result;
+        this.result = new PlayableSubtitle(parsedSubtitle, subtitlesAreRelative, sampleTimeUs,
+            subtitleOffsetUs);
         this.error = error;
+        this.runtimeError = runtimeError;
         this.parsing = false;
       }
     }
-    return true;
   }
 
 }

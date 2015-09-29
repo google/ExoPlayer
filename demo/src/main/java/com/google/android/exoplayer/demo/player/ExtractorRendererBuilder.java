@@ -18,6 +18,7 @@ package com.google.android.exoplayer.demo.player;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
@@ -38,7 +39,7 @@ import android.net.Uri;
 public class ExtractorRendererBuilder implements RendererBuilder {
 
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
-  private static final int BUFFER_SEGMENT_COUNT = 160;
+  private static final int BUFFER_SEGMENT_COUNT = 256;
 
   private final Context context;
   private final String userAgent;
@@ -64,7 +65,7 @@ public class ExtractorRendererBuilder implements RendererBuilder {
         null, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, player.getMainHandler(),
         player, 50);
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource,
-        null, true, player.getMainHandler(), player);
+        null, true, player.getMainHandler(), player, AudioCapabilities.getCapabilities(context));
     TrackRenderer textRenderer = new TextTrackRenderer(sampleSource, player,
         player.getMainHandler().getLooper());
 
@@ -73,7 +74,7 @@ public class ExtractorRendererBuilder implements RendererBuilder {
     renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
     renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
     renderers[DemoPlayer.TYPE_TEXT] = textRenderer;
-    player.onRenderers(null, null, renderers, bandwidthMeter);
+    player.onRenderers(renderers, bandwidthMeter);
   }
 
   @Override

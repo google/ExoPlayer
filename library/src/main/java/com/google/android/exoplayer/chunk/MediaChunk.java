@@ -36,10 +36,12 @@ public abstract class MediaChunk extends Chunk {
    * The chunk index.
    */
   public final int chunkIndex;
-  /**
-   * True if this is the last chunk in the media. False otherwise.
-   */
-  public final boolean isLastChunk;
+
+  public MediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
+      long startTimeUs, long endTimeUs, int chunkIndex) {
+    this(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex,
+        Chunk.NO_PARENT_ID);
+  }
 
   /**
    * @param dataSource A {@link DataSource} for loading the data.
@@ -49,16 +51,15 @@ public abstract class MediaChunk extends Chunk {
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
-   * @param isLastChunk True if this is the last chunk in the media. False otherwise.
+   * @param parentId Identifier for a parent from which this chunk originates.
    */
   public MediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
-      long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk) {
-    super(dataSource, dataSpec, Chunk.TYPE_MEDIA, trigger, format);
+      long startTimeUs, long endTimeUs, int chunkIndex, int parentId) {
+    super(dataSource, dataSpec, Chunk.TYPE_MEDIA, trigger, format, parentId);
     Assertions.checkNotNull(format);
     this.startTimeUs = startTimeUs;
     this.endTimeUs = endTimeUs;
     this.chunkIndex = chunkIndex;
-    this.isLastChunk = isLastChunk;
   }
 
 }

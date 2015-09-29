@@ -155,7 +155,8 @@ import com.google.android.exoplayer.util.ParsableByteArray;
     sampleSize = Ac3Util.parseFrameSize(headerScratchBits);
     if (mediaFormat == null) {
       headerScratchBits.setPosition(0);
-      mediaFormat = Ac3Util.parseFrameAc3Format(headerScratchBits);
+      mediaFormat = Ac3Util.parseFrameAc3Format(headerScratchBits, MediaFormat.NO_VALUE,
+          C.UNKNOWN_TIME_US, null);
       output.format(mediaFormat);
       bitrate = Ac3Util.getBitrate(sampleSize, mediaFormat.sampleRate);
     }

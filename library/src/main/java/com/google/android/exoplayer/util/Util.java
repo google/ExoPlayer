@@ -312,6 +312,20 @@ public final class Util {
   }
 
   /**
+   * Creates an integer array containing the integers from 0 to {@code length - 1}.
+   *
+   * @param length The length of the array.
+   * @return The array.
+   */
+  public static int[] firstIntegersArray(int length) {
+    int[] firstIntegers = new int[length];
+    for (int i = 0; i < length; i++) {
+      firstIntegers[i] = i;
+    }
+    return firstIntegers;
+  }
+
+  /**
    * Parses an xs:duration attribute value, returning the parsed duration in milliseconds.
    *
    * @param value The attribute value to parse.
@@ -566,6 +580,27 @@ public final class Util {
       result |= string.charAt(i);
     }
     return result;
+  }
+
+  /**
+   * Returns the top 32 bits of a long as an integer.
+   */
+  public static int getTopInt(long value) {
+    return (int) (value >>> 32);
+  }
+
+  /**
+   * Returns the bottom 32 bits of a long as an integer.
+   */
+  public static int getBottomInt(long value) {
+    return (int) value;
+  }
+
+  /**
+   * Returns a long created by concatenating the bits of two integers.
+   */
+  public static long getLong(int topInteger, int bottomInteger) {
+    return ((long) topInteger << 32) | (bottomInteger & 0xFFFFFFFFL);
   }
 
   /**

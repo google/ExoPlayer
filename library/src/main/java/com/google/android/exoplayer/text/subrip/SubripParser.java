@@ -25,6 +25,7 @@ import com.google.android.exoplayer.util.MimeTypes;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -39,38 +40,73 @@ import java.util.regex.Pattern;
  */
 public final class SubripParser implements SubtitleParser {
 
-  private static final Pattern SUBRIP_TIMING_LINE = Pattern.compile("(.*)\\s+-->\\s+(.*)");
+  private static final String TAG = "SubripParser";
+
+  private static final Pattern SUBRIP_TIMING_LINE = Pattern.compile("(\\S*)\\s*-->\\s*(\\S*)");
   private static final Pattern SUBRIP_TIMESTAMP =
       Pattern.compile("(?:(\\d+):)?(\\d+):(\\d+),(\\d+)");
 
   private final StringBuilder textBuilder;
+  private final boolean strictParsing;
 
+  /**
+   * Equivalent to {@code SubripParser(false)}.
+   */
   public SubripParser() {
+    this(false);
+  }
+
+  /**
+   * @param strictParsing If true, {@link #parse(InputStream)} will throw a {@link ParserException}
+   *     if the stream contains invalid data. If false, the parser will make a best effort to ignore
+   *     minor errors in the stream. Note however that a {@link ParserException} will still be
+   *     thrown when this is not possible.
+   */
+  public SubripParser(boolean strictParsing) {
+    this.strictParsing = strictParsing;
     textBuilder = new StringBuilder();
   }
 
   @Override
-  public SubripSubtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
-      throws IOException {
+  public SubripSubtitle parse(InputStream inputStream) throws IOException {
     ArrayList<Cue> cues = new ArrayList<>();
     LongArray cueTimesUs = new LongArray();
     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, C.UTF8_NAME));
+    boolean haveEndTimecode;
     String currentLine;
 
     while ((currentLine = reader.readLine()) != null) {
-      // Parse the numeric counter as a sanity check.
+      if (currentLine.length() == 0) {
+        // Skip blank lines.
+        continue;
+      }
+
+      // Parse the index line as a sanity check.
       try {
         Integer.parseInt(currentLine);
       } catch (NumberFormatException e) {
-        throw new ParserException("Expected numeric counter: " + currentLine);
+        if (!strictParsing) {
+          Log.w(TAG, "Skipping invalid index: " + currentLine);
+          continue;
+        } else {
+          throw new ParserException("Expected numeric counter: " + currentLine);
+        }
       }
 
       // Read and parse the timing line.
+      haveEndTimecode = false;
       currentLine = reader.readLine();
       Matcher matcher = SUBRIP_TIMING_LINE.matcher(currentLine);
       if (matcher.find()) {
-        cueTimesUs.add(startTimeUs + parseTimestampUs(matcher.group(1)));
-        cueTimesUs.add(startTimeUs + parseTimestampUs(matcher.group(2)));
+        cueTimesUs.add(parseTimecode(matcher.group(1)));
+        String endTimecode = matcher.group(2);
+        if (!TextUtils.isEmpty(endTimecode)) {
+          haveEndTimecode = true;
+          cueTimesUs.add(parseTimecode(matcher.group(2)));
+        }
+      } else if (!strictParsing) {
+        Log.w(TAG, "Skipping invalid timing: " + currentLine);
+        continue;
       } else {
         throw new ParserException("Expected timing line: " + currentLine);
       }
@@ -86,12 +122,15 @@ public final class SubripParser implements SubtitleParser {
 
       Spanned text = Html.fromHtml(textBuilder.toString());
       cues.add(new Cue(text));
+      if (haveEndTimecode) {
+        cues.add(null);
+      }
     }
 
     Cue[] cuesArray = new Cue[cues.size()];
     cues.toArray(cuesArray);
     long[] cueTimesUsArray = cueTimesUs.toArray();
-    return new SubripSubtitle(startTimeUs, cuesArray, cueTimesUsArray);
+    return new SubripSubtitle(cuesArray, cueTimesUsArray);
   }
 
   @Override
@@ -99,7 +138,7 @@ public final class SubripParser implements SubtitleParser {
     return MimeTypes.APPLICATION_SUBRIP.equals(mimeType);
   }
 
-  private static long parseTimestampUs(String s) throws NumberFormatException {
+  private static long parseTimecode(String s) throws NumberFormatException {
     Matcher matcher = SUBRIP_TIMESTAMP.matcher(s);
     if (!matcher.matches()) {
       throw new NumberFormatException("has invalid format");
