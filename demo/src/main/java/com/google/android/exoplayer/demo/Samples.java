@@ -145,6 +145,9 @@ import java.util.Locale;
         "http://storage.googleapis.com/exoplayer-test-media-0/play.mp3", PlayerActivity.TYPE_OTHER),
     new Sample("Google Glass (WebM Video with Vorbis Audio)",
         "http://demos.webmproject.org/exoplayer/glass_vp9_vorbis.webm", PlayerActivity.TYPE_OTHER),
+      new Sample("FLV Sample",
+          "http://master255.org/res/%D0%9A%D0%BB%D0%B8%D0%BF%D1%8B/B/Black%20Eyed%20Peas/black%20ey"
+          + "ed%20peas-My%20Humps.flv", PlayerActivity.TYPE_OTHER),
   };
 
   private Samples() {}
