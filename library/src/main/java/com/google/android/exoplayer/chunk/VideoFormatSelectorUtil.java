@@ -125,7 +125,7 @@ public final class VideoFormatSelectorUtil {
     // unnecessarily high resolution given the size at which the video will be displayed within the
     // viewport.
     for (int i = selectedIndexList.size() - 1; i >= 0; i--) {
-      Format format = formatWrappers.get(i).getFormat();
+      Format format = formatWrappers.get(selectedIndexList.get(i)).getFormat();
       if (format.width > 0 && format.height > 0
           && format.width * format.height > maxVideoPixelsToRetain) {
         selectedIndexList.remove(i);
