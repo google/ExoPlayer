@@ -51,10 +51,6 @@ It's important to note that there are also some disadvantages:
 
 * **ExoPlayer's standard audio and video components rely on Android's `MediaCodec` API, which was
   released in Android 4.1 (API level 16). Hence they do not work on earlier versions of Android.**
-* ExoPlayer does not (yet) automatically detect the format of the media being played. An application
-  needs to know the format of the media it wishes to play in order to construct an ExoPlayer capable
-  of playing it. Removing this limitation is tracked by
-  [Issue #438](https://github.com/google/ExoPlayer/issues/438).
 
 ## Library overview ##
 
@@ -205,17 +201,11 @@ The following code example outlines how the video and audio renderers are constr
 LoadControl loadControl = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
 DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 
-// Discover which video representations the device is able to play.
-Period period = manifest.periods.get(0);
-AdaptationSet videoAdaptationSet = period.adaptationSets.get(videoAdaptationSetIndex);
-int[] videoRepresentationIndices = VideoFormatSelectorUtil.selectVideoFormatsForDefaultDisplay(
-    context, videoAdaptationSet.representations, null, filterHdContent);
-
 // Build the video renderer.
 DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher, videoAdaptationSetIndex,
-    videoRepresentationIndices, videoDataSource, new AdaptiveEvaluator(bandwidthMeter),
-    LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset, null, null);
+ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher,
+    DefaultDashTrackSelector.newVideoInstance(context, true, false), videoDataSource,
+    new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset, null, null);
 ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
     VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
 MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource,
@@ -223,9 +213,9 @@ MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(vi
 
 // Build the audio renderer.
 DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-ChunkSource audioChunkSource = new DashChunkSource(manifestFetcher, audioAdaptationSetIndex,
-    null, audioDataSource, new FixedEvaluator(), LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset, null,
-    null);
+ChunkSource audioChunkSource = new DashChunkSource(manifestFetcher,
+    DefaultDashTrackSelector.newAudioInstance(), audioDataSource, null, LIVE_EDGE_LATENCY_MS,
+    elapsedRealtimeOffset, null, null);
 ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource,
     loadControl, AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
 MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource);
@@ -270,9 +260,9 @@ LoadControl loadControl = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEG
 DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
 HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter,
-    variantIndices, HlsChunkSource.ADAPTIVE_MODE_SPLICE, audioCapabilities);
+    variantIndices, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
 HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, loadControl,
-    BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
+    BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
 MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
     MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
 MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
@@ -311,7 +301,8 @@ surface to have the correct height and width ratio for the video being played:
 
 {% highlight java %}
 @Override
-public void onVideoSizeChanged(int width, int height, float pixelWidthAspectRatio) {
+public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
+    float pixelWidthHeightRatio) {
   surfaceView.setVideoWidthHeightRatio(
       height == 0 ? 1 : (width * pixelWidthAspectRatio) / height);
 }
