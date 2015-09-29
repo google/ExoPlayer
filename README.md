@@ -1,5 +1,19 @@
 # ExoPlayer Readme #
 
+## Fork information ##
+
+Based off ExoPlayer 1.4.2
+
+ExoPlayer does not correctly identify the display resolution on Api level bellow 23. This is a bug at the Android level and it's logged here:
+
+https://github.com/google/ExoPlayer/issues/800
+
+This is a shame because currently Sony Bravia TV's have a 4K variant that runs Android TV and because of this shortcoming they don't detect these displays to be 4K defaulting to 1080p resolution.
+
+In this fork, a simple Util class is introduced that handles this case by using the android.os.Build.MODEL to detect TV models with ‘4K’ in the name. This approach permits ExoPlayer to output 4K video on Sony Bravia TVs bellow api level 23. The approach is based off official Sony Bravia TV Developer documentation.
+
+Rest of official ExoPlayer README follows.
+
 ## Description ##
 
 ExoPlayer is an application level media player for Android. It provides an
