@@ -123,7 +123,7 @@ import com.google.android.exoplayer.util.Util;
       fx = fa + (fb - fa) * (percent - a);
     }
 
-    long position = (long) ((1f / 256) * fx * sizeBytes) + firstFramePosition;
+    long position = (long) ((1.0 / 256) * fx * sizeBytes) + firstFramePosition;
     return inputLength != C.LENGTH_UNBOUNDED ? Math.min(position, inputLength - 1) : position;
   }
 
@@ -132,8 +132,8 @@ import com.google.android.exoplayer.util.Util;
     if (!isSeekable()) {
       return 0L;
     }
-    long offsetByte = 256 * (position - firstFramePosition) / sizeBytes;
-    int previousIndex = Util.binarySearchFloor(tableOfContents, offsetByte, true, false);
+    double offsetByte = 256.0 * (position - firstFramePosition) / sizeBytes;
+    int previousIndex = Util.binarySearchFloor(tableOfContents, (long) offsetByte, true, false);
     long previousTime = getTimeUsForTocIndex(previousIndex);
     if (previousIndex == 98) {
       return previousTime;
@@ -143,8 +143,8 @@ import com.google.android.exoplayer.util.Util;
     long previousByte = previousIndex == -1 ? 0 : tableOfContents[previousIndex];
     long nextByte = tableOfContents[previousIndex + 1];
     long nextTime = getTimeUsForTocIndex(previousIndex + 1);
-    long timeOffset =
-        (nextTime - previousTime) * (offsetByte - previousByte) / (nextByte - previousByte);
+    long timeOffset = nextByte == previousByte ? 0 : (long) ((nextTime - previousTime)
+        * (offsetByte - previousByte) / (nextByte - previousByte));
     return previousTime + timeOffset;
   }
 
