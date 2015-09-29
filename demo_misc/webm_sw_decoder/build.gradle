@@ -35,6 +35,6 @@ android {
 
 dependencies {
     compile project(':library')
-    compile project(':opus-extension')
-    compile project(':vp9-extension')
+    compile project(':extension-opus')
+    compile project(':extension-vp9')
 }
