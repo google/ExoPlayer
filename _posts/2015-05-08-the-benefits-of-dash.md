@@ -2,6 +2,7 @@
 layout: default
 title: The benefits of DASH
 author: Oliver Woodman
+disqus: true
 ---
 
 There exist multiple standards for adaptive streaming over HTTP, the most popular of which are

@@ -45,15 +45,24 @@
     </div>
 
     <!-- Main content -->
-    <article class="markdown-body">
-      <h1>{{ page.title }}</h1>
-      {{ content }}
-    </article>
+    <div class="markdown-body">
+      <article>
+        <h1>{{ page.title }}</h1>
+        {{ content }}
+      </article>
+      {% if page.disqus == true %}
+      <div class="disqus">
+        {% include disqus.html %}
+      </div>
+      {% endif %}
+    </div>
 
 </div>
 
 <!-- Javascript for collapsing/expanding the menu -->
 <script src="{{ site.baseurl }}/third_party/pure-layout-side-menu/ui.js"></script>
+<!-- Google analytics -->
+{% include analytics.html %}
 
 </body>
 </html>
