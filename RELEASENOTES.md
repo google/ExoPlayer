@@ -1,6 +1,10 @@
 # Release notes #
 
-### r.1.5.0 ###
+### Current dev branch (from r1.5.0)
+
+* Added OkHttpDataSource extension.
+
+### r1.5.0 ###
 
 * Multi-track support.
 * DASH: Limited support for multi-period manifests.
