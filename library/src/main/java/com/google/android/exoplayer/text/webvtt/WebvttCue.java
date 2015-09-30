@@ -37,7 +37,7 @@ import android.text.Layout.Alignment;
   }
 
   public WebvttCue(long startTime, long endTime, CharSequence text, Alignment textAlignment,
-      float line, int lineType, int lineAnchor, float position, int positionAnchor, float width) {
+                   float line, int lineType, int lineAnchor, float position, int positionAnchor, float width) {
     super(text, textAlignment, line, lineType, lineAnchor, position, positionAnchor, width);
     this.startTime = startTime;
     this.endTime = endTime;

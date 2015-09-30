@@ -35,6 +35,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
   private static final String WITH_POSITIONING_FILE = "webvtt/with_positioning";
   private static final String WITH_TAGS_FILE = "webvtt/with_tags";
   private static final String EMPTY_FILE = "webvtt/empty";
+  private static final String WITH_WRITING_DIRECTION = "webvtt/with_writing_direction";
 
   public void testParseEmpty() throws IOException {
     WebvttParser parser = new WebvttParser();
