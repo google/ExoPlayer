@@ -21,7 +21,7 @@ import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Logger;
-
+import com.google.android.exoplayer.util.AmazonQuirks; // AMZN_CHANGE_ONELINE
 import android.annotation.TargetApi;
 import android.media.AudioManager;
 import android.media.MediaCodec;
@@ -182,8 +182,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   @Override
   protected DecoderInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder)
       throws DecoderQueryException {
-    return allowPassthrough(mimeType) ? new DecoderInfo(RAW_DECODER_NAME, true)
-        : super.getDecoderInfo(mimeType, requiresSecureDecoder);
+    return allowPassthrough(mimeType) && AmazonQuirks.useDefaultPassthroughDecoder() ? // AMZN_CHANGE_ONELINE
+            new DecoderInfo(RAW_DECODER_NAME, true) : super.getDecoderInfo(mimeType, requiresSecureDecoder);
   }
 
   /**
@@ -239,8 +239,15 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   @Override
   protected void onOutputFormatChanged(android.media.MediaFormat outputFormat) {
     log.i("onOutputFormatChanged: inputFormat = outputFormat = " + outputFormat);
-    boolean passthrough = passthroughMediaFormat != null;
-    audioTrack.reconfigure(passthrough ? passthroughMediaFormat : outputFormat, passthrough);
+    // AMZN_CHANGE_BEGIN
+    // Some platform dolby decoders may output mime types depending on the
+    // audio capabilities of the connected device and Dolby settings. So, as a general rule, if
+    // platform decoder is being used instead of OMX.google.raw.decoder, need to
+    // configure audio track based on the output mime type returned by the media codec.
+    String outputMimeType = outputFormat.getString(android.media.MediaFormat.KEY_MIME);
+    boolean passthrough = (passthroughMediaFormat != null) || MimeTypes.isPassthroughAudio(outputMimeType);
+    audioTrack.reconfigure(passthroughMediaFormat != null ? passthroughMediaFormat : outputFormat, passthrough);
+    // AMZN_CHANGE_END
   }
 
   /**
@@ -273,7 +280,15 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
 
   @Override
   protected boolean isEnded() {
-    return super.isEnded() && !audioTrack.hasPendingData();
+    // AMZN_CHANGE_BEGIN
+    boolean ended = super.isEnded();
+    // for dolby passthrough quirk case, we can't call hasPendingData
+    // to detect end of playback. Instead we depend only on the codec to flag EOS.
+    if (!audioTrack.applyDolbyPassthroughQuirk()) {
+      ended = ended && (!audioTrack.hasPendingData());
+    }
+    return ended;
+    // AMZN_CHANGE_END
   }
 
   @Override

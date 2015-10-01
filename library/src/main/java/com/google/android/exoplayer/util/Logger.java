@@ -164,4 +164,12 @@ public class Logger {
     public void e(String msg) {
         Log.e(mTag, msg);
     }
+    /**
+    * Function to print error level logs and throwable
+    * @param msg The log message
+    * @param tr The throwable
+    */
+    public void e(String msg, Throwable tr) {
+        Log.e(mTag, msg, tr);
+    }
 }
