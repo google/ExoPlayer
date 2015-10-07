@@ -43,6 +43,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
   private static final String MEDIA_DURATION_TAG = "#EXTINF";
   private static final String MEDIA_SEQUENCE_TAG = "#EXT-X-MEDIA-SEQUENCE";
   private static final String TARGET_DURATION_TAG = "#EXT-X-TARGETDURATION";
+  private static final String PLAYLIST_TYPE_TAG = "#EXT-X-PLAYLIST-TYPE";
   private static final String ENDLIST_TAG = "#EXT-X-ENDLIST";
   private static final String KEY_TAG = "#EXT-X-KEY";
   private static final String BYTERANGE_TAG = "#EXT-X-BYTERANGE";
@@ -83,6 +84,8 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
       Pattern.compile(VERSION_TAG + ":(\\d+)\\b");
   private static final Pattern BYTERANGE_REGEX =
       Pattern.compile(BYTERANGE_TAG + ":(\\d+(?:@\\d+)?)\\b");
+  private static final Pattern PLAYLIST_TYPE_PATTERN =
+      Pattern.compile(PLAYLIST_TYPE_TAG + ":(EVENT|VOD)\\b");
 
   private static final Pattern METHOD_ATTR_REGEX =
       Pattern.compile(METHOD_ATTR + "=(" + METHOD_NONE + "|" + METHOD_AES128 + ")");
@@ -202,6 +205,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
     int targetDurationSecs = 0;
     int version = 1; // Default version == 1.
     boolean live = true;
+    boolean liveEvent = false;
     List<Segment> segments = new ArrayList<>();
 
     double segmentDurationSecs = 0.0;
@@ -271,13 +275,16 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
           segmentByterangeOffset += segmentByterangeLength;
         }
         segmentByterangeLength = C.LENGTH_UNBOUNDED;
+      }else if(line.startsWith(PLAYLIST_TYPE_TAG)){
+        String playlistType = HlsParserUtil.parseStringAttr(line, PLAYLIST_TYPE_PATTERN, PLAYLIST_TYPE_TAG);
+        liveEvent = playlistType != null && playlistType.toUpperCase().equals("EVENT");
       } else if (line.equals(ENDLIST_TAG)) {
         live = false;
         break;
       }
     }
     return new HlsMediaPlaylist(baseUri, mediaSequence, targetDurationSecs, version, live,
-        Collections.unmodifiableList(segments));
+        liveEvent, Collections.unmodifiableList(segments));
   }
 
   private static class LineIterator {

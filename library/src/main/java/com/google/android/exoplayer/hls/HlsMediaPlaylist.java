@@ -68,14 +68,16 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public final List<Segment> segments;
   public final boolean live;
   public final long durationUs;
+  public final boolean liveEvent;
 
   public HlsMediaPlaylist(String baseUri, int mediaSequence, int targetDurationSecs, int version,
-      boolean live, List<Segment> segments) {
+      boolean live, boolean liveEvent, List<Segment> segments) {
     super(baseUri, HlsPlaylist.TYPE_MEDIA);
     this.mediaSequence = mediaSequence;
     this.targetDurationSecs = targetDurationSecs;
     this.version = version;
     this.live = live;
+    this.liveEvent = liveEvent;
     this.segments = segments;
 
     if (!segments.isEmpty()) {
