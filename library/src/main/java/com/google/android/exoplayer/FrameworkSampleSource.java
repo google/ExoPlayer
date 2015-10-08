@@ -18,12 +18,12 @@ package com.google.android.exoplayer;
 import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
-import com.google.android.exoplayer.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaExtractor;
@@ -31,6 +31,8 @@ import android.net.Uri;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
@@ -39,19 +41,12 @@ import java.util.UUID;
  * <p>
  * Warning - This class is marked as deprecated because there are known device specific issues
  * associated with its use, including playbacks not starting, playbacks stuttering and other
- * miscellaneous failures. For mp4, m4a, mp3, webm, mpeg-ts and aac playbacks it is strongly
- * recommended to use {@link ExtractorSampleSource} instead, along with the corresponding extractor
- * (e.g. {@link Mp4Extractor} for mp4 playbacks). Where this is not possible this class can still be
- * used, but please be aware of the associated risks. Valid use cases of this class that are not
- * yet supported by {@link ExtractorSampleSource} include:
- * <ul>
- * <li>Playing a container format for which an ExoPlayer extractor does not yet exist (e.g. ogg).
- * </li>
- * <li>Playing media whose container format is unknown and so needs to be inferred automatically.
- * </li>
- * </ul>
+ * miscellaneous failures. For mp4, m4a, mp3, webm, mkv, mpeg-ts and aac playbacks it is strongly
+ * recommended to use {@link ExtractorSampleSource} instead. Where this is not possible this class
+ * can still be used, but please be aware of the associated risks. Playing container formats for
+ * which an ExoPlayer extractor does not yet exist (e.g. ogg) is a valid use case of this class.
  * <p>
- * Over time we hope to enhance {@link ExtractorSampleSource} to support these use cases, and hence
+ * Over time we hope to enhance {@link ExtractorSampleSource} to support more formats, and hence
  * make use of this class unnecessary.
  */
 // TODO: This implementation needs to be fixed so that its methods are non-blocking (either
@@ -76,8 +71,9 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
   private final long fileDescriptorOffset;
   private final long fileDescriptorLength;
 
+  private IOException preparationError;
   private MediaExtractor extractor;
-  private TrackInfo[] trackInfos;
+  private MediaFormat[] trackFormats;
   private boolean prepared;
   private int remainingReleaseCount;
   private int[] trackStates;
@@ -128,24 +124,29 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
   }
 
   @Override
-  public boolean prepare(long positionUs) throws IOException {
+  public boolean prepare(long positionUs) {
     if (!prepared) {
+      if (preparationError != null) {
+        return false;
+      }
+
       extractor = new MediaExtractor();
-      if (context != null) {
-        extractor.setDataSource(context, uri, headers);
-      } else {
-        extractor.setDataSource(fileDescriptor, fileDescriptorOffset, fileDescriptorLength);
+      try {
+        if (context != null) {
+          extractor.setDataSource(context, uri, headers);
+        } else {
+          extractor.setDataSource(fileDescriptor, fileDescriptorOffset, fileDescriptorLength);
+        }
+      } catch (IOException e) {
+        preparationError = e;
+        return false;
       }
 
       trackStates = new int[extractor.getTrackCount()];
       pendingDiscontinuities = new boolean[trackStates.length];
-      trackInfos = new TrackInfo[trackStates.length];
+      trackFormats = new MediaFormat[trackStates.length];
       for (int i = 0; i < trackStates.length; i++) {
-        android.media.MediaFormat format = extractor.getTrackFormat(i);
-        long durationUs = format.containsKey(android.media.MediaFormat.KEY_DURATION)
-            ? format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
-        String mime = format.getString(android.media.MediaFormat.KEY_MIME);
-        trackInfos[i] = new TrackInfo(mime, durationUs);
+        trackFormats[i] = createMediaFormat(extractor.getTrackFormat(i));
       }
       prepared = true;
     }
@@ -159,9 +160,9 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
   }
 
   @Override
-  public TrackInfo getTrackInfo(int track) {
+  public MediaFormat getFormat(int track) {
     Assertions.checkState(prepared);
-    return trackInfos[track];
+    return trackFormats[track];
   }
 
   @Override
@@ -195,8 +196,7 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
       return NOTHING_READ;
     }
     if (trackStates[track] != TRACK_STATE_FORMAT_SENT) {
-      formatHolder.format = MediaFormat.createFromFrameworkMediaFormatV16(
-          extractor.getTrackFormat(track));
+      formatHolder.format = trackFormats[track];
       formatHolder.drmInitData = Util.SDK_INT >= 18 ? getDrmInitDataV18() : null;
       trackStates[track] = TRACK_STATE_FORMAT_SENT;
       return FORMAT_READ;
@@ -230,6 +230,13 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
     extractor.unselectTrack(track);
     pendingDiscontinuities[track] = false;
     trackStates[track] = TRACK_STATE_DISABLED;
+  }
+
+  @Override
+  public void maybeThrowError() throws IOException {
+    if (preparationError != null) {
+      throw preparationError;
+    }
   }
 
   @Override
@@ -286,6 +293,44 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
         }
       }
     }
+  }
+
+  @SuppressLint("InlinedApi")
+  private static MediaFormat createMediaFormat(android.media.MediaFormat format) {
+    String mimeType = format.getString(android.media.MediaFormat.KEY_MIME);
+    String language = getOptionalStringV16(format, android.media.MediaFormat.KEY_LANGUAGE);
+    int maxInputSize = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_MAX_INPUT_SIZE);
+    int width = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_WIDTH);
+    int height = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_HEIGHT);
+    int rotationDegrees = getOptionalIntegerV16(format, "rotation-degrees");
+    int channelCount = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_CHANNEL_COUNT);
+    int sampleRate = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_SAMPLE_RATE);
+    ArrayList<byte[]> initializationData = new ArrayList<>();
+    for (int i = 0; format.containsKey("csd-" + i); i++) {
+      ByteBuffer buffer = format.getByteBuffer("csd-" + i);
+      byte[] data = new byte[buffer.limit()];
+      buffer.get(data);
+      initializationData.add(data);
+      buffer.flip();
+    }
+    long durationUs = format.containsKey(android.media.MediaFormat.KEY_DURATION)
+        ? format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
+    MediaFormat mediaFormat = new MediaFormat(MediaFormat.NO_VALUE, mimeType, MediaFormat.NO_VALUE,
+        maxInputSize, durationUs, width, height, rotationDegrees, MediaFormat.NO_VALUE,
+        channelCount, sampleRate, language, MediaFormat.OFFSET_SAMPLE_RELATIVE, initializationData,
+        false, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
+    mediaFormat.setFrameworkFormatV16(format);
+    return mediaFormat;
+  }
+
+  @TargetApi(16)
+  private static final String getOptionalStringV16(android.media.MediaFormat format, String key) {
+    return format.containsKey(key) ? format.getString(key) : null;
+  }
+
+  @TargetApi(16)
+  private static final int getOptionalIntegerV16(android.media.MediaFormat format, String key) {
+    return format.containsKey(key) ? format.getInteger(key) : MediaFormat.NO_VALUE;
   }
 
 }

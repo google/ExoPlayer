@@ -127,8 +127,9 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
   }
 
   @Override
-  public int sampleData(ExtractorInput input, int length) throws IOException, InterruptedException {
-    return output.sampleData(input, length);
+  public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
+      throws IOException, InterruptedException {
+    return output.sampleData(input, length, allowEndOfInput);
   }
 
   @Override

@@ -69,7 +69,7 @@ public class Format {
   /**
    * The number of audio channels, or -1 if unknown or not applicable.
    */
-  public final int numChannels;
+  public final int audioChannels;
 
   /**
    * The audio sampling rate in Hz, or -1 if unknown or not applicable.
@@ -131,20 +131,20 @@ public class Format {
    * @param height The height of the video in pixels, or -1 if unknown or not applicable.
    * @param frameRate The frame rate of the video in frames per second, or -1 if unknown or not
    *     applicable.
-   * @param numChannels The number of audio channels, or -1 if unknown or not applicable.
+   * @param audioChannels The number of audio channels, or -1 if unknown or not applicable.
    * @param audioSamplingRate The audio sampling rate in Hz, or -1 if unknown or not applicable.
    * @param bitrate The average bandwidth of the format in bits per second.
    * @param language The language of the format.
    * @param codecs The codecs used to decode the format.
    */
-  public Format(String id, String mimeType, int width, int height, float frameRate, int numChannels,
-      int audioSamplingRate, int bitrate, String language, String codecs) {
+  public Format(String id, String mimeType, int width, int height, float frameRate,
+      int audioChannels, int audioSamplingRate, int bitrate, String language, String codecs) {
     this.id = Assertions.checkNotNull(id);
     this.mimeType = mimeType;
     this.width = width;
     this.height = height;
     this.frameRate = frameRate;
-    this.numChannels = numChannels;
+    this.audioChannels = audioChannels;
     this.audioSamplingRate = audioSamplingRate;
     this.bitrate = bitrate;
     this.language = language;

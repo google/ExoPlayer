@@ -34,11 +34,6 @@ public class Period {
   public final long startMs;
 
   /**
-   * The duration of the period in milliseconds, or -1 if the duration is unknown.
-   */
-  public final long durationMs;
-
-  /**
    * The adaptation sets belonging to the period.
    */
   public final List<AdaptationSet> adaptationSets;
@@ -46,13 +41,11 @@ public class Period {
   /**
    * @param id The period identifier. May be null.
    * @param start The start time of the period in milliseconds.
-   * @param duration The duration of the period in milliseconds, or -1 if the duration is unknown.
    * @param adaptationSets The adaptation sets belonging to the period.
    */
-  public Period(String id, long start, long duration, List<AdaptationSet> adaptationSets) {
+  public Period(String id, long start, List<AdaptationSet> adaptationSets) {
     this.id = id;
     this.startMs = start;
-    this.durationMs = duration;
     this.adaptationSets = Collections.unmodifiableList(adaptationSets);
   }
 

@@ -22,6 +22,7 @@ import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.PositionHolder;
+import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer.extractor.mp4.Atom.LeafAtom;
@@ -76,9 +77,9 @@ public final class FragmentedMp4Extractor implements Extractor {
   private final TrackFragment fragmentRun;
 
   private int parserState;
-  private int rootAtomBytesRead;
   private int atomType;
-  private int atomSize;
+  private long atomSize;
+  private int atomHeaderBytesRead;
   private ParsableByteArray atomData;
 
   private int sampleIndex;
@@ -94,6 +95,9 @@ public final class FragmentedMp4Extractor implements Extractor {
   private ExtractorOutput extractorOutput;
   private TrackOutput trackOutput;
 
+  // Whether extractorOutput.seekMap has been invoked.
+  private boolean haveOutputSeekMap;
+
   public FragmentedMp4Extractor() {
     this(0);
   }
@@ -104,14 +108,19 @@ public final class FragmentedMp4Extractor implements Extractor {
    */
   public FragmentedMp4Extractor(int workaroundFlags) {
     this.workaroundFlags = workaroundFlags;
-    atomHeader = new ParsableByteArray(Atom.HEADER_SIZE);
+    atomHeader = new ParsableByteArray(Atom.LONG_HEADER_SIZE);
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
     encryptionSignalByte = new ParsableByteArray(1);
     extendedTypeScratch = new byte[16];
     containerAtoms = new Stack<>();
     fragmentRun = new TrackFragment();
-    parserState = STATE_READING_ATOM_HEADER;
+    enterReadingAtomHeaderState();
+  }
+
+  @Override
+  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+    return Sniffer.sniffFragmented(input);
   }
 
   /**
@@ -138,8 +147,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   @Override
   public void seek() {
     containerAtoms.clear();
-    rootAtomBytesRead = 0;
-    parserState = STATE_READING_ATOM_HEADER;
+    enterReadingAtomHeaderState();
   }
 
   @Override
@@ -166,17 +174,36 @@ public final class FragmentedMp4Extractor implements Extractor {
     }
   }
 
+  private void enterReadingAtomHeaderState() {
+    parserState = STATE_READING_ATOM_HEADER;
+    atomHeaderBytesRead = 0;
+  }
+
   private boolean readAtomHeader(ExtractorInput input) throws IOException, InterruptedException {
-    if (!input.readFully(atomHeader.data, 0, Atom.HEADER_SIZE, true)) {
-      return false;
+    if (atomHeaderBytesRead == 0) {
+      // Read the standard length atom header.
+      if (!input.readFully(atomHeader.data, 0, Atom.HEADER_SIZE, true)) {
+        return false;
+      }
+      atomHeaderBytesRead = Atom.HEADER_SIZE;
+      atomHeader.setPosition(0);
+      atomSize = atomHeader.readUnsignedInt();
+      atomType = atomHeader.readInt();
     }
 
-    rootAtomBytesRead += Atom.HEADER_SIZE;
-    atomHeader.setPosition(0);
-    atomSize = atomHeader.readInt();
-    atomType = atomHeader.readInt();
+    if (atomSize == Atom.LONG_SIZE_PREFIX) {
+      // Read the extended atom size.
+      int headerBytesRemaining = Atom.LONG_HEADER_SIZE - Atom.HEADER_SIZE;
+      input.readFully(atomHeader.data, Atom.HEADER_SIZE, headerBytesRemaining);
+      atomHeaderBytesRead += headerBytesRemaining;
+      atomSize = atomHeader.readUnsignedLongToLong();
+    }
 
     if (atomType == Atom.TYPE_mdat) {
+      if (!haveOutputSeekMap) {
+        extractorOutput.seekMap(SeekMap.UNSEEKABLE);
+        haveOutputSeekMap = true;
+      }
       if (fragmentRun.sampleEncryptionDataNeedsFill) {
         parserState = STATE_READING_ENCRYPTION_DATA;
       } else {
@@ -187,15 +214,21 @@ public final class FragmentedMp4Extractor implements Extractor {
 
     if (shouldParseAtom(atomType)) {
       if (shouldParseContainerAtom(atomType)) {
-        parserState = STATE_READING_ATOM_HEADER;
-        containerAtoms.add(new ContainerAtom(atomType,
-            rootAtomBytesRead + atomSize - Atom.HEADER_SIZE));
+        long endPosition = input.getPosition() + atomSize - Atom.HEADER_SIZE;
+        containerAtoms.add(new ContainerAtom(atomType, endPosition));
+        enterReadingAtomHeaderState();
       } else {
-        atomData = new ParsableByteArray(atomSize);
+        // We don't support parsing of leaf atoms that define extended atom sizes, or that have
+        // lengths greater than Integer.MAX_VALUE.
+        Assertions.checkState(atomHeaderBytesRead == Atom.HEADER_SIZE);
+        Assertions.checkState(atomSize <= Integer.MAX_VALUE);
+        atomData = new ParsableByteArray((int) atomSize);
         System.arraycopy(atomHeader.data, 0, atomData.data, 0, Atom.HEADER_SIZE);
         parserState = STATE_READING_ATOM_PAYLOAD;
       }
     } else {
+      // We don't support skipping of atoms that have lengths greater than Integer.MAX_VALUE.
+      Assertions.checkState(atomSize <= Integer.MAX_VALUE);
       atomData = null;
       parserState = STATE_READING_ATOM_PAYLOAD;
     }
@@ -204,22 +237,18 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   private void readAtomPayload(ExtractorInput input) throws IOException, InterruptedException {
-    int payloadLength = atomSize - Atom.HEADER_SIZE;
+    int atomPayloadSize = (int) atomSize - atomHeaderBytesRead;
     if (atomData != null) {
-      input.readFully(atomData.data, Atom.HEADER_SIZE, payloadLength);
-      rootAtomBytesRead += payloadLength;
+      input.readFully(atomData.data, Atom.HEADER_SIZE, atomPayloadSize);
       onLeafAtomRead(new LeafAtom(atomType, atomData), input.getPosition());
     } else {
-      input.skipFully(payloadLength);
-      rootAtomBytesRead += payloadLength;
+      input.skipFully(atomPayloadSize);
     }
-    while (!containerAtoms.isEmpty() && containerAtoms.peek().endByteOffset == rootAtomBytesRead) {
+    long currentPosition = input.getPosition();
+    while (!containerAtoms.isEmpty() && containerAtoms.peek().endPosition == currentPosition) {
       onContainerAtomRead(containerAtoms.pop());
     }
-    if (containerAtoms.isEmpty()) {
-      rootAtomBytesRead = 0;
-    }
-    parserState = STATE_READING_ATOM_HEADER;
+    enterReadingAtomHeaderState();
   }
 
   private void onLeafAtomRead(LeafAtom leaf, long inputPosition) {
@@ -228,6 +257,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     } else if (leaf.type == Atom.TYPE_sidx) {
       ChunkIndex segmentIndex = parseSidx(leaf.data, inputPosition);
       extractorOutput.seekMap(segmentIndex);
+      haveOutputSeekMap = true;
     }
   }
 
@@ -444,7 +474,7 @@ public final class FragmentedMp4Extractor implements Extractor {
 
     long timescale = track.timescale;
     long cumulativeTime = decodeTime;
-    boolean workaroundEveryVideoFrameIsSyncFrame = track.type == Track.TYPE_VIDEO
+    boolean workaroundEveryVideoFrameIsSyncFrame = track.type == Track.TYPE_vide
         && ((workaroundFlags & WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME)
         == WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME);
     for (int i = 0; i < sampleCount; i++) {
@@ -465,7 +495,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       } else {
         sampleCompositionTimeOffsetTable[i] = 0;
       }
-      sampleDecodingTimeTable[i] = (cumulativeTime * 1000) / timescale;
+      sampleDecodingTimeTable[i] = Util.scaleLargeTimestamp(cumulativeTime, 1000, timescale);
       sampleSizeTable[i] = sampleSize;
       sampleIsSyncFrameTable[i] = ((sampleFlags >> 16) & 0x1) == 0
           && (!workaroundEveryVideoFrameIsSyncFrame || i == 0);
@@ -592,7 +622,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   private boolean readSample(ExtractorInput input) throws IOException, InterruptedException {
     if (sampleIndex >= fragmentRun.length) {
       // We've run out of samples in the current mdat atom.
-      parserState = STATE_READING_ATOM_HEADER;
+      enterReadingAtomHeaderState();
       return false;
     }
 
@@ -633,14 +663,14 @@ public final class FragmentedMp4Extractor implements Extractor {
           sampleSize += nalUnitLengthFieldLengthDiff;
         } else {
           // Write the payload of the NAL unit.
-          int writtenBytes = trackOutput.sampleData(input, sampleCurrentNalBytesRemaining);
+          int writtenBytes = trackOutput.sampleData(input, sampleCurrentNalBytesRemaining, false);
           sampleBytesWritten += writtenBytes;
           sampleCurrentNalBytesRemaining -= writtenBytes;
         }
       }
     } else {
       while (sampleBytesWritten < sampleSize) {
-        int writtenBytes = trackOutput.sampleData(input, sampleSize - sampleBytesWritten);
+        int writtenBytes = trackOutput.sampleData(input, sampleSize - sampleBytesWritten, false);
         sampleBytesWritten += writtenBytes;
       }
     }
@@ -692,7 +722,7 @@ public final class FragmentedMp4Extractor implements Extractor {
         || atom == Atom.TYPE_trun || atom == Atom.TYPE_mvex || atom == Atom.TYPE_mdia
         || atom == Atom.TYPE_minf || atom == Atom.TYPE_stbl || atom == Atom.TYPE_pssh
         || atom == Atom.TYPE_saiz || atom == Atom.TYPE_uuid || atom == Atom.TYPE_senc
-        || atom == Atom.TYPE_pasp;
+        || atom == Atom.TYPE_pasp || atom == Atom.TYPE_s263;
   }
 
   /** Returns whether the extractor should parse a container atom with type {@code atom}. */

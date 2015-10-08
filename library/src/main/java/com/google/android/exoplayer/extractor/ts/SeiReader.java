@@ -28,11 +28,12 @@ import com.google.android.exoplayer.util.ParsableByteArray;
  * TODO: Technically, we shouldn't allow a sample to be read from the queue until we're sure that
  * a sample with an earlier timestamp won't be added to it.
  */
-/* package */ class SeiReader extends ElementaryStreamReader {
+/* package */ final class SeiReader extends ElementaryStreamReader {
 
   public SeiReader(TrackOutput output) {
     super(output);
-    output.format(MediaFormat.createTextFormat(MimeTypes.APPLICATION_EIA608));
+    output.format(MediaFormat.createTextFormat(MediaFormat.NO_VALUE, MimeTypes.APPLICATION_EIA608,
+        MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, null));
   }
 
   @Override

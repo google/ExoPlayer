@@ -24,7 +24,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 /**
  * Parses a continuous MPEG Audio byte stream and extracts individual frames.
  */
-/* package */ class MpegAudioReader extends ElementaryStreamReader {
+/* package */ final class MpegAudioReader extends ElementaryStreamReader {
 
   private static final int STATE_FINDING_HEADER = 0;
   private static final int STATE_READING_HEADER = 1;
@@ -160,9 +160,9 @@ import com.google.android.exoplayer.util.ParsableByteArray;
     frameSize = header.frameSize;
     if (!hasOutputFormat) {
       frameDurationUs = (C.MICROS_PER_SECOND * header.samplesPerFrame) / header.sampleRate;
-      MediaFormat mediaFormat = MediaFormat.createAudioFormat(header.mimeType,
-          MpegAudioHeader.MAX_FRAME_SIZE_BYTES, C.UNKNOWN_TIME_US, header.channels,
-          header.sampleRate, null);
+      MediaFormat mediaFormat = MediaFormat.createAudioFormat(MediaFormat.NO_VALUE, header.mimeType,
+          MediaFormat.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES, C.UNKNOWN_TIME_US,
+          header.channels, header.sampleRate, null, null);
       output.format(mediaFormat);
       hasOutputFormat = true;
     }

@@ -75,6 +75,10 @@ public abstract class Chunk implements Loadable {
    * Implementations may define custom {@link #trigger} codes greater than or equal to this value.
    */
   public static final int TRIGGER_CUSTOM_BASE = 10000;
+  /**
+   * Value of {@link #parentId} if no parent id need be specified.
+   */
+  public static final int NO_PARENT_ID = -1;
 
   /**
    * The type of the chunk. For reporting only.
@@ -93,6 +97,10 @@ public abstract class Chunk implements Loadable {
    * The {@link DataSpec} that defines the data to be loaded.
    */
   public final DataSpec dataSpec;
+  /**
+   * Optional identifier for a parent from which this chunk originates.
+   */
+  public final int parentId;
 
   protected final DataSource dataSource;
 
@@ -105,13 +113,16 @@ public abstract class Chunk implements Loadable {
    * @param type See {@link #type}.
    * @param trigger See {@link #trigger}.
    * @param format See {@link #format}.
+   * @param parentId See {@link #parentId}.
    */
-  public Chunk(DataSource dataSource, DataSpec dataSpec, int type, int trigger, Format format) {
+  public Chunk(DataSource dataSource, DataSpec dataSpec, int type, int trigger, Format format,
+      int parentId) {
     this.dataSource = Assertions.checkNotNull(dataSource);
     this.dataSpec = Assertions.checkNotNull(dataSpec);
     this.type = type;
     this.trigger = trigger;
     this.format = format;
+    this.parentId = parentId;
   }
 
   /**

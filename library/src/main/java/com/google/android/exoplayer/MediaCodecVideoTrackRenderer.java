@@ -15,17 +15,20 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.TraceUtil;
 import com.google.android.exoplayer.util.Util;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.Surface;
+import android.view.TextureView;
 
 import java.nio.ByteBuffer;
 
@@ -59,11 +62,19 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
      *
      * @param width The video width in pixels.
      * @param height The video height in pixels.
+     * @param unappliedRotationDegrees For videos that require a rotation, this is the clockwise
+     *     rotation in degrees that the application should apply for the video for it to be rendered
+     *     in the correct orientation. This value will always be zero on API levels 21 and above,
+     *     since the renderer will apply all necessary rotations internally. On earlier API levels
+     *     this is not possible. Applications that use {@link TextureView} can apply the rotation by
+     *     calling {@link TextureView#setTransform}. Applications that do not expect to encounter
+     *     rotated videos can safely ignore this parameter.
      * @param pixelWidthHeightRatio The width to height ratio of each pixel. For the normal case
      *     of square pixels this will be equal to 1.0. Different values are indicative of anamorphic
      *     content.
      */
-    void onVideoSizeChanged(int width, int height, float pixelWidthHeightRatio);
+    void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
+        float pixelWidthHeightRatio);
 
     /**
      * Invoked when a frame is rendered to a surface for the first time following that surface
@@ -129,12 +140,15 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   private long droppedFrameAccumulationStartTimeMs;
   private int droppedFrameCount;
 
+  private int pendingRotationDegrees;
+  private float pendingPixelWidthHeightRatio;
   private int currentWidth;
   private int currentHeight;
+  private int currentUnappliedRotationDegrees;
   private float currentPixelWidthHeightRatio;
-  private float pendingPixelWidthHeightRatio;
   private int lastReportedWidth;
   private int lastReportedHeight;
+  private int lastReportedUnappliedRotationDegrees;
   private float lastReportedPixelWidthHeightRatio;
 
   /**
@@ -256,13 +270,17 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected boolean handlesMimeType(String mimeType) {
-    return MimeTypes.isVideo(mimeType) && super.handlesMimeType(mimeType);
+  protected boolean handlesTrack(MediaFormat mediaFormat) throws DecoderQueryException {
+    // TODO: Use MediaCodecList.findDecoderForFormat on API 23.
+    String mimeType = mediaFormat.mimeType;
+    return MimeTypes.isVideo(mimeType) && (MimeTypes.VIDEO_UNKNOWN.equals(mimeType)
+        || MediaCodecUtil.getDecoderInfo(mimeType, false) != null);
   }
 
   @Override
-  protected void onEnabled(long positionUs, boolean joining) {
-    super.onEnabled(positionUs, joining);
+  protected void onEnabled(int track, long positionUs, boolean joining)
+      throws ExoPlaybackException {
+    super.onEnabled(track, positionUs, joining);
     renderedFirstFrame = false;
     if (joining && allowedJoiningTimeUs > 0) {
       joiningDeadlineUs = SystemClock.elapsedRealtime() * 1000L + allowedJoiningTimeUs;
@@ -314,7 +332,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  public void onDisabled() {
+  protected void onDisabled() throws ExoPlaybackException {
     currentWidth = -1;
     currentHeight = -1;
     currentPixelWidthHeightRatio = -1;
@@ -361,8 +379,9 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   // Override configureCodec to provide the surface.
   @Override
-  protected void configureCodec(MediaCodec codec, String codecName,
+  protected void configureCodec(MediaCodec codec, String codecName, boolean codecIsAdaptive,
       android.media.MediaFormat format, MediaCrypto crypto) {
+    maybeSetMaxInputSize(format, codecIsAdaptive);
     codec.configure(format, surface, crypto, 0);
     codec.setVideoScalingMode(videoScalingMode);
   }
@@ -372,6 +391,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     super.onInputFormatChanged(holder);
     pendingPixelWidthHeightRatio = holder.format.pixelWidthHeightRatio == MediaFormat.NO_VALUE ? 1
         : holder.format.pixelWidthHeightRatio;
+    pendingRotationDegrees = holder.format.rotationDegrees == MediaFormat.NO_VALUE ? 0
+        : holder.format.rotationDegrees;
   }
 
   /**
@@ -382,8 +403,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void onOutputFormatChanged(MediaFormat inputFormat,
-      android.media.MediaFormat outputFormat) {
+  protected void onOutputFormatChanged(android.media.MediaFormat outputFormat) {
     boolean hasCrop = outputFormat.containsKey(KEY_CROP_RIGHT)
         && outputFormat.containsKey(KEY_CROP_LEFT) && outputFormat.containsKey(KEY_CROP_BOTTOM)
         && outputFormat.containsKey(KEY_CROP_TOP);
@@ -394,6 +414,20 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
         ? outputFormat.getInteger(KEY_CROP_BOTTOM) - outputFormat.getInteger(KEY_CROP_TOP) + 1
         : outputFormat.getInteger(android.media.MediaFormat.KEY_HEIGHT);
     currentPixelWidthHeightRatio = pendingPixelWidthHeightRatio;
+    if (Util.SDK_INT >= 21) {
+      // On API level 21 and above the decoder applies the rotation when rendering to the surface.
+      // Hence currentUnappliedRotation should always be 0. For 90 and 270 degree rotations, we need
+      // to flip the width, height and pixel aspect ratio to reflect the rotation that was applied.
+      if (pendingRotationDegrees == 90 || pendingRotationDegrees == 270) {
+        int rotatedHeight = currentWidth;
+        currentWidth = currentHeight;
+        currentHeight = rotatedHeight;
+        currentPixelWidthHeightRatio = 1 / currentPixelWidthHeightRatio;
+      }
+    } else {
+      // On API level 20 and below the decoder does not apply the rotation.
+      currentUnappliedRotationDegrees = pendingRotationDegrees;
+    }
   }
 
   @Override
@@ -410,6 +444,19 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     if (shouldSkip) {
       skipOutputBuffer(codec, bufferIndex);
       return true;
+    }
+
+    if (!renderedFirstFrame) {
+      if (Util.SDK_INT >= 21) {
+        renderOutputBufferV21(codec, bufferIndex, System.nanoTime());
+      } else {
+        renderOutputBuffer(codec, bufferIndex);
+      }
+      return true;
+    }
+
+    if (getState() != TrackRenderer.STATE_STARTED) {
+      return false;
     }
 
     // Compute how many microseconds it is until the buffer's presentation time.
@@ -436,19 +483,10 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       return true;
     }
 
-    if (!renderedFirstFrame) {
-      renderOutputBufferImmediate(codec, bufferIndex);
-      return true;
-    }
-
-    if (getState() != TrackRenderer.STATE_STARTED) {
-      return false;
-    }
-
     if (Util.SDK_INT >= 21) {
       // Let the underlying framework time the release.
       if (earlyUs < 50000) {
-        renderOutputBufferTimedV21(codec, bufferIndex, adjustedReleaseTimeNs);
+        renderOutputBufferV21(codec, bufferIndex, adjustedReleaseTimeNs);
         return true;
       }
     } else {
@@ -464,7 +502,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
             Thread.currentThread().interrupt();
           }
         }
-        renderOutputBufferImmediate(codec, bufferIndex);
+        renderOutputBuffer(codec, bufferIndex);
         return true;
       }
     }
@@ -491,9 +529,9 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     }
   }
 
-  protected void renderOutputBufferImmediate(MediaCodec codec, int bufferIndex) {
+  protected void renderOutputBuffer(MediaCodec codec, int bufferIndex) {
     maybeNotifyVideoSizeChanged();
-    TraceUtil.beginSection("renderVideoBufferImmediate");
+    TraceUtil.beginSection("releaseOutputBuffer");
     codec.releaseOutputBuffer(bufferIndex, true);
     TraceUtil.endSection();
     codecCounters.renderedOutputBufferCount++;
@@ -502,9 +540,9 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @TargetApi(21)
-  protected void renderOutputBufferTimedV21(MediaCodec codec, int bufferIndex, long releaseTimeNs) {
+  protected void renderOutputBufferV21(MediaCodec codec, int bufferIndex, long releaseTimeNs) {
     maybeNotifyVideoSizeChanged();
-    TraceUtil.beginSection("releaseOutputBufferTimed");
+    TraceUtil.beginSection("releaseOutputBuffer");
     codec.releaseOutputBuffer(bufferIndex, releaseTimeNs);
     TraceUtil.endSection();
     codecCounters.renderedOutputBufferCount++;
@@ -512,25 +550,52 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     maybeNotifyDrawnToSurface();
   }
 
+  @SuppressLint("InlinedApi")
+  private void maybeSetMaxInputSize(android.media.MediaFormat format, boolean codecIsAdaptive) {
+    if (!MimeTypes.VIDEO_H264.equals(format.getString(android.media.MediaFormat.KEY_MIME))) {
+      // Only set a max input size for H264 for now.
+      return;
+    }
+    if (format.containsKey(android.media.MediaFormat.KEY_MAX_INPUT_SIZE)) {
+      // Already set. The source of the format may know better, so do nothing.
+      return;
+    }
+    int maxHeight = format.getInteger(android.media.MediaFormat.KEY_HEIGHT);
+    if (codecIsAdaptive && format.containsKey(android.media.MediaFormat.KEY_MAX_HEIGHT)) {
+      maxHeight = Math.max(maxHeight, format.getInteger(android.media.MediaFormat.KEY_MAX_HEIGHT));
+    }
+    int maxWidth = format.getInteger(android.media.MediaFormat.KEY_WIDTH);
+    if (codecIsAdaptive && format.containsKey(android.media.MediaFormat.KEY_MAX_WIDTH)) {
+      maxWidth = Math.max(maxHeight, format.getInteger(android.media.MediaFormat.KEY_MAX_WIDTH));
+    }
+    // H264 requires compression ratio of at least 2, and uses macroblocks.
+    int maxInputSize = ((maxWidth + 15) / 16) * ((maxHeight + 15) / 16) * 192;
+    format.setInteger(android.media.MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
+  }
+
   private void maybeNotifyVideoSizeChanged() {
     if (eventHandler == null || eventListener == null
         || (lastReportedWidth == currentWidth && lastReportedHeight == currentHeight
+        && lastReportedUnappliedRotationDegrees == currentUnappliedRotationDegrees
         && lastReportedPixelWidthHeightRatio == currentPixelWidthHeightRatio)) {
       return;
     }
     // Make final copies to ensure the runnable reports the correct values.
     final int currentWidth = this.currentWidth;
     final int currentHeight = this.currentHeight;
+    final int currentUnappliedRotationDegrees = this.currentUnappliedRotationDegrees;
     final float currentPixelWidthHeightRatio = this.currentPixelWidthHeightRatio;
     eventHandler.post(new Runnable()  {
       @Override
       public void run() {
-        eventListener.onVideoSizeChanged(currentWidth, currentHeight, currentPixelWidthHeightRatio);
+        eventListener.onVideoSizeChanged(currentWidth, currentHeight,
+            currentUnappliedRotationDegrees, currentPixelWidthHeightRatio);
       }
     });
     // Update the last reported values.
     lastReportedWidth = currentWidth;
     lastReportedHeight = currentHeight;
+    lastReportedUnappliedRotationDegrees = currentUnappliedRotationDegrees;
     lastReportedPixelWidthHeightRatio = currentPixelWidthHeightRatio;
   }
 

@@ -23,6 +23,7 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -185,12 +186,8 @@ import java.util.concurrent.LinkedBlockingDeque;
       readEncryptionData(sampleHolder, extrasHolder);
     }
     // Write the sample data into the holder.
-    if (sampleHolder.data == null || sampleHolder.data.capacity() < sampleHolder.size) {
-      sampleHolder.replaceBuffer(sampleHolder.size);
-    }
-    if (sampleHolder.data != null) {
-      readData(extrasHolder.offset, sampleHolder.data, sampleHolder.size);
-    }
+    sampleHolder.ensureSpaceForWrite(sampleHolder.size);
+    readData(extrasHolder.offset, sampleHolder.data, sampleHolder.size);
     // Advance the read head.
     long nextOffset = infoQueue.moveToNextSample();
     dropDownstreamTo(nextOffset);
@@ -350,26 +347,27 @@ import java.util.concurrent.LinkedBlockingDeque;
    * Appends data to the rolling buffer.
    *
    * @param dataSource The source from which to read.
-   * @param length The maximum length of the read, or {@link C#LENGTH_UNBOUNDED} if the caller does
-   *     not wish to impose a limit.
-   * @return The number of bytes appended.
+   * @param length The maximum length of the read.
+   * @param allowEndOfInput True if encountering the end of the input having appended no data is
+   *     allowed, and should result in {@link C#RESULT_END_OF_INPUT} being returned. False if it
+   *     should be considered an error, causing an {@link EOFException} to be thrown.
+   * @return The number of bytes appended, or {@link C#RESULT_END_OF_INPUT} if the input has ended.
    * @throws IOException If an error occurs reading from the source.
    */
-  public int appendData(DataSource dataSource, int length) throws IOException {
-    ensureSpaceForWrite();
-    int remainingAllocationCapacity = allocationLength - lastAllocationOffset;
-    length = length != C.LENGTH_UNBOUNDED ? Math.min(length, remainingAllocationCapacity)
-        : remainingAllocationCapacity;
-
-    int bytesRead = dataSource.read(lastAllocation.data,
+  public int appendData(DataSource dataSource, int length, boolean allowEndOfInput)
+      throws IOException {
+    length = prepareForAppend(length);
+    int bytesAppended = dataSource.read(lastAllocation.data,
         lastAllocation.translateOffset(lastAllocationOffset), length);
-    if (bytesRead == C.RESULT_END_OF_INPUT) {
-      return C.RESULT_END_OF_INPUT;
+    if (bytesAppended == C.RESULT_END_OF_INPUT) {
+      if (allowEndOfInput) {
+        return C.RESULT_END_OF_INPUT;
+      }
+      throw new EOFException();
     }
-
-    lastAllocationOffset += bytesRead;
-    totalBytesWritten += bytesRead;
-    return bytesRead;
+    lastAllocationOffset += bytesAppended;
+    totalBytesWritten += bytesAppended;
+    return bytesAppended;
   }
 
   /**
@@ -377,17 +375,27 @@ import java.util.concurrent.LinkedBlockingDeque;
    *
    * @param input The source from which to read.
    * @param length The maximum length of the read.
-   * @return The number of bytes appended.
+   * @param allowEndOfInput True if encountering the end of the input having appended no data is
+   *     allowed, and should result in {@link C#RESULT_END_OF_INPUT} being returned. False if it
+   *     should be considered an error, causing an {@link EOFException} to be thrown.
+   * @return The number of bytes appended, or {@link C#RESULT_END_OF_INPUT} if the input has ended.
    * @throws IOException If an error occurs reading from the source.
+   * @throws InterruptedException If the thread has been interrupted.
    */
-  public int appendData(ExtractorInput input, int length) throws IOException, InterruptedException {
-    ensureSpaceForWrite();
-    int thisWriteLength = Math.min(length, allocationLength - lastAllocationOffset);
-    input.readFully(lastAllocation.data, lastAllocation.translateOffset(lastAllocationOffset),
-        thisWriteLength);
-    lastAllocationOffset += thisWriteLength;
-    totalBytesWritten += thisWriteLength;
-    return thisWriteLength;
+  public int appendData(ExtractorInput input, int length, boolean allowEndOfInput)
+      throws IOException, InterruptedException {
+    length = prepareForAppend(length);
+    int bytesAppended = input.read(lastAllocation.data,
+        lastAllocation.translateOffset(lastAllocationOffset), length);
+    if (bytesAppended == C.RESULT_END_OF_INPUT) {
+      if (allowEndOfInput) {
+        return C.RESULT_END_OF_INPUT;
+      }
+      throw new EOFException();
+    }
+    lastAllocationOffset += bytesAppended;
+    totalBytesWritten += bytesAppended;
+    return bytesAppended;
   }
 
   /**
@@ -397,16 +405,14 @@ import java.util.concurrent.LinkedBlockingDeque;
    * @param length The length of the data to append.
    */
   public void appendData(ParsableByteArray buffer, int length) {
-    int remainingWriteLength = length;
-    while (remainingWriteLength > 0) {
-      ensureSpaceForWrite();
-      int thisWriteLength = Math.min(remainingWriteLength, allocationLength - lastAllocationOffset);
+    while (length > 0) {
+      int thisAppendLength = prepareForAppend(length);
       buffer.readBytes(lastAllocation.data, lastAllocation.translateOffset(lastAllocationOffset),
-          thisWriteLength);
-      lastAllocationOffset += thisWriteLength;
-      remainingWriteLength -= thisWriteLength;
+          thisAppendLength);
+      lastAllocationOffset += thisAppendLength;
+      totalBytesWritten += thisAppendLength;
+      length -= thisAppendLength;
     }
-    totalBytesWritten += length;
   }
 
   /**
@@ -424,14 +430,16 @@ import java.util.concurrent.LinkedBlockingDeque;
   }
 
   /**
-   * Ensures at least one byte can be written, obtaining an additional allocation if necessary.
+   * Prepares the rolling sample buffer for an append of up to {@code length} bytes, returning the
+   * number of bytes that can actually be appended.
    */
-  private void ensureSpaceForWrite() {
+  private int prepareForAppend(int length) {
     if (lastAllocationOffset == allocationLength) {
       lastAllocationOffset = 0;
       lastAllocation = allocator.allocate();
       dataQueue.add(lastAllocation);
     }
+    return Math.min(length, allocationLength - lastAllocationOffset);
   }
 
   /**

@@ -20,7 +20,9 @@ import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
+import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
+import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
 
@@ -28,9 +30,15 @@ import java.io.IOException;
  * Facilitates the extraction of AAC samples from elementary audio files formatted as AAC with ADTS
  * headers.
  */
-public class AdtsExtractor implements Extractor, SeekMap {
+public final class AdtsExtractor implements Extractor {
 
   private static final int MAX_PACKET_SIZE = 200;
+  private static final int ID3_TAG = Util.getIntegerCodeForString("ID3");
+  /**
+   * The maximum number of bytes to search when sniffing, excluding the header, before giving up.
+   * Frame sizes are represented by 13-bit fields, so expect a valid frame in the first 8192 bytes.
+   */
+  private static final int MAX_SNIFF_BYTES = 8 * 1024;
 
   private final long firstSampleTimestampUs;
   private final ParsableByteArray packetBuffer;
@@ -50,10 +58,61 @@ public class AdtsExtractor implements Extractor, SeekMap {
   }
 
   @Override
+  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+    // Skip any ID3 headers.
+    ParsableByteArray scratch = new ParsableByteArray(10);
+    ParsableBitArray scratchBits = new ParsableBitArray(scratch.data);
+    int startPosition = 0;
+    while (true) {
+      input.peekFully(scratch.data, 0, 10);
+      scratch.setPosition(0);
+      if (scratch.readUnsignedInt24() != ID3_TAG) {
+        break;
+      }
+      int length = (scratch.data[6] & 0x7F) << 21 | ((scratch.data[7] & 0x7F) << 14)
+          | ((scratch.data[8] & 0x7F) << 7) | (scratch.data[9] & 0x7F);
+      startPosition += 10 + length;
+      input.advancePeekPosition(length);
+    }
+    input.resetPeekPosition();
+    input.advancePeekPosition(startPosition);
+
+    // Try to find four or more consecutive AAC audio frames, exceeding the MPEG TS packet size.
+    int headerPosition = startPosition;
+    int validFramesSize = 0;
+    int validFramesCount = 0;
+    while (true) {
+      input.peekFully(scratch.data, 0, 2);
+      scratch.setPosition(0);
+      int syncBytes = scratch.readUnsignedShort();
+      if ((syncBytes & 0xFFF6) != 0xFFF0) {
+        validFramesCount = 0;
+        validFramesSize = 0;
+        input.resetPeekPosition();
+        if (++headerPosition - startPosition >= MAX_SNIFF_BYTES) {
+          return false;
+        }
+        input.advancePeekPosition(headerPosition);
+      } else {
+        if (++validFramesCount >= 4 && validFramesSize > 188) {
+          return true;
+        }
+
+        // Skip the frame.
+        input.peekFully(scratch.data, 0, 4);
+        scratchBits.setPosition(14);
+        int frameSize = scratchBits.readBits(13);
+        input.advancePeekPosition(frameSize - 6);
+        validFramesSize += frameSize;
+      }
+    }
+  }
+
+  @Override
   public void init(ExtractorOutput output) {
     adtsReader = new AdtsReader(output.track(0));
     output.endTracks();
-    output.seekMap(this);
+    output.seekMap(SeekMap.UNSEEKABLE);
   }
 
   @Override
@@ -79,18 +138,6 @@ public class AdtsExtractor implements Extractor, SeekMap {
     adtsReader.consume(packetBuffer, firstSampleTimestampUs, firstPacket);
     firstPacket = false;
     return RESULT_CONTINUE;
-  }
-
-  // SeekMap implementation.
-
-  @Override
-  public boolean isSeekable() {
-    return false;
-  }
-
-  @Override
-  public long getPosition(long timeUs) {
-    return 0;
   }
 
 }

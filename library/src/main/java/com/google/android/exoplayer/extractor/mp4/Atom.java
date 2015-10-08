@@ -24,16 +24,24 @@ import java.util.List;
 
 /* package*/ abstract class Atom {
 
-  /** Size of an atom header, in bytes. */
+  /**
+   * Size of an atom header, in bytes.
+   */
   public static final int HEADER_SIZE = 8;
 
-  /** Size of a full atom header, in bytes. */
+  /**
+   * Size of a full atom header, in bytes.
+   */
   public static final int FULL_HEADER_SIZE = 12;
 
-  /** Size of a long atom header, in bytes. */
+  /**
+   * Size of a long atom header, in bytes.
+   */
   public static final int LONG_HEADER_SIZE = 16;
 
-  /** Value for the first 32 bits of atomSize when the atom size is actually a long value. */
+  /**
+   * Value for the first 32 bits of atomSize when the atom size is actually a long value.
+   */
   public static final int LONG_SIZE_PREFIX = 1;
 
   public static final int TYPE_ftyp = Util.getIntegerCodeForString("ftyp");
@@ -41,12 +49,19 @@ import java.util.List;
   public static final int TYPE_avc3 = Util.getIntegerCodeForString("avc3");
   public static final int TYPE_hvc1 = Util.getIntegerCodeForString("hvc1");
   public static final int TYPE_hev1 = Util.getIntegerCodeForString("hev1");
+  public static final int TYPE_s263 = Util.getIntegerCodeForString("s263");
+  public static final int TYPE_d263 = Util.getIntegerCodeForString("d263");
   public static final int TYPE_mdat = Util.getIntegerCodeForString("mdat");
   public static final int TYPE_mp4a = Util.getIntegerCodeForString("mp4a");
   public static final int TYPE_ac_3 = Util.getIntegerCodeForString("ac-3");
   public static final int TYPE_dac3 = Util.getIntegerCodeForString("dac3");
   public static final int TYPE_ec_3 = Util.getIntegerCodeForString("ec-3");
   public static final int TYPE_dec3 = Util.getIntegerCodeForString("dec3");
+  public static final int TYPE_dtsc = Util.getIntegerCodeForString("dtsc");
+  public static final int TYPE_dtsh = Util.getIntegerCodeForString("dtsh");
+  public static final int TYPE_dtsl = Util.getIntegerCodeForString("dtsl");
+  public static final int TYPE_dtse = Util.getIntegerCodeForString("dtse");
+  public static final int TYPE_ddts = Util.getIntegerCodeForString("ddts");
   public static final int TYPE_tfdt = Util.getIntegerCodeForString("tfdt");
   public static final int TYPE_tfhd = Util.getIntegerCodeForString("tfhd");
   public static final int TYPE_trex = Util.getIntegerCodeForString("trex");
@@ -92,10 +107,11 @@ import java.util.List;
   public static final int TYPE_stco = Util.getIntegerCodeForString("stco");
   public static final int TYPE_co64 = Util.getIntegerCodeForString("co64");
   public static final int TYPE_tx3g = Util.getIntegerCodeForString("tx3g");
+  public static final int TYPE_stpp = Util.getIntegerCodeForString("stpp");
 
   public final int type;
 
-  Atom(int type) {
+  public Atom(int type) {
     this.type = type;
   }
 
@@ -104,11 +120,20 @@ import java.util.List;
     return getAtomTypeString(type);
   }
 
-  /** An MP4 atom that is a leaf. */
-  public static final class LeafAtom extends Atom {
+  /**
+   * An MP4 atom that is a leaf.
+   */
+  /* package */ static final class LeafAtom extends Atom {
 
+    /**
+     * The atom data.
+     */
     public final ParsableByteArray data;
 
+    /**
+     * @param type The type of the atom.
+     * @param data The atom data.
+     */
     public LeafAtom(int type, ParsableByteArray data) {
       super(type);
       this.data = data;
@@ -116,29 +141,53 @@ import java.util.List;
 
   }
 
-  /** An MP4 atom that has child atoms. */
-  public static final class ContainerAtom extends Atom {
+  /**
+   * An MP4 atom that has child atoms.
+   */
+  /* package */ static final class ContainerAtom extends Atom {
 
-    public final long endByteOffset;
+    public final long endPosition;
     public final List<LeafAtom> leafChildren;
     public final List<ContainerAtom> containerChildren;
 
-    public ContainerAtom(int type, long endByteOffset) {
+    /**
+     * @param type The type of the atom.
+     * @param endPosition The position of the first byte after the end of the atom.
+     */
+    public ContainerAtom(int type, long endPosition) {
       super(type);
-
+      this.endPosition = endPosition;
       leafChildren = new ArrayList<>();
       containerChildren = new ArrayList<>();
-      this.endByteOffset = endByteOffset;
     }
 
+    /**
+     * Adds a child leaf to this container.
+     *
+     * @param atom The child to add.
+     */
     public void add(LeafAtom atom) {
       leafChildren.add(atom);
     }
 
+    /**
+     * Adds a child container to this container.
+     *
+     * @param atom The child to add.
+     */
     public void add(ContainerAtom atom) {
       containerChildren.add(atom);
     }
 
+    /**
+     * Gets the child leaf of the given type.
+     * <p>
+     * If no child exists with the given type then null is returned. If multiple children exist with
+     * the given type then the first one to have been added is returned.
+     *
+     * @param type The leaf type.
+     * @return The child leaf of the given type, or null if no such child exists.
+     */
     public LeafAtom getLeafAtomOfType(int type) {
       int childrenSize = leafChildren.size();
       for (int i = 0; i < childrenSize; i++) {
@@ -150,6 +199,15 @@ import java.util.List;
       return null;
     }
 
+    /**
+     * Gets the child container of the given type.
+     * <p>
+     * If no child exists with the given type then null is returned. If multiple children exist with
+     * the given type then the first one to have been added is returned.
+     *
+     * @param type The container type.
+     * @return The child container of the given type, or null if no such child exists.
+     */
     public ContainerAtom getContainerAtomOfType(int type) {
       int childrenSize = containerChildren.size();
       for (int i = 0; i < childrenSize; i++) {

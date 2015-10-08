@@ -61,7 +61,6 @@ public class VideoPlayer extends Activity implements OnClickListener,
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
   private static final int BUFFER_SEGMENT_COUNT = 160;
 
-
   private boolean isDash;
   private String manifestUrl;
   private boolean useOpenGL;
@@ -167,8 +166,8 @@ public class VideoPlayer extends Activity implements OnClickListener,
     ExtractorSampleSource sampleSource = new ExtractorSampleSource(
         Uri.fromFile(new File(filename)),
         new DefaultUriDataSource(this, Util.getUserAgent(this, "ExoPlayerExtWebMDemo")),
-        new WebmExtractor(), new DefaultAllocator(BUFFER_SEGMENT_SIZE),
-        BUFFER_SEGMENT_SIZE * BUFFER_SEGMENT_COUNT);
+        new DefaultAllocator(BUFFER_SEGMENT_SIZE), BUFFER_SEGMENT_SIZE * BUFFER_SEGMENT_COUNT,
+        new WebmExtractor());
     TrackRenderer videoRenderer =
         new LibvpxVideoTrackRenderer(sampleSource, true, handler, this, 50);
     if (useOpenGL) {
@@ -274,7 +273,7 @@ public class VideoPlayer extends Activity implements OnClickListener,
   }
 
   private void toggleControlsVisibility()  {
-    if (mediaController != null) {
+    if (mediaController != null && player != null) {
       if (mediaController.isShowing()) {
         mediaController.hide();
       } else {

@@ -27,8 +27,6 @@ import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
-import android.util.Log;
-
 import java.io.IOException;
 
 /**
@@ -36,10 +34,10 @@ import java.io.IOException;
  */
 public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOutput {
 
-  private static final String TAG = "ContainerMediaChunk";
-
   private final ChunkExtractorWrapper extractorWrapper;
   private final long sampleOffsetUs;
+  private final int adaptiveMaxWidth;
+  private final int adaptiveMaxHeight;
 
   private MediaFormat mediaFormat;
   private DrmInitData drmInitData;
@@ -55,90 +53,102 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
-   * @param isLastChunk True if this is the last chunk in the media. False otherwise.
    * @param sampleOffsetUs An offset to add to the sample timestamps parsed by the extractor.
    * @param extractorWrapper A wrapped extractor to use for parsing the data.
    * @param mediaFormat The {@link MediaFormat} of the chunk, if known. May be null if the data is
    *     known to define its own format.
+   * @param adaptiveMaxWidth If this chunk contains video and is part of an adaptive playback, this
+   *     is the maximum width of the video in pixels that will be encountered during the playback.
+   *     {@link MediaFormat#NO_VALUE} otherwise.
+   * @param adaptiveMaxHeight If this chunk contains video and is part of an adaptive playback, this
+   *     is the maximum height of the video in pixels that will be encountered during the playback.
+   *     {@link MediaFormat#NO_VALUE} otherwise.
    * @param drmInitData The {@link DrmInitData} for the chunk. Null if the media is not drm
    *     protected. May also be null if the data is known to define its own initialization data.
    * @param isMediaFormatFinal True if {@code mediaFormat} and {@code drmInitData} are known to be
    *     correct and final. False if the data may define its own format or initialization data.
+   * @param parentId Identifier for a parent from which this chunk originates.
    */
   public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
-      long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk, long sampleOffsetUs,
-      ChunkExtractorWrapper extractorWrapper, MediaFormat mediaFormat, DrmInitData drmInitData,
-      boolean isMediaFormatFinal) {
-    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, isLastChunk,
-        isMediaFormatFinal);
+      long startTimeUs, long endTimeUs, int chunkIndex, long sampleOffsetUs,
+      ChunkExtractorWrapper extractorWrapper, MediaFormat mediaFormat, int adaptiveMaxWidth,
+      int adaptiveMaxHeight, DrmInitData drmInitData, boolean isMediaFormatFinal, int parentId) {
+    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex,
+        isMediaFormatFinal, parentId);
     this.extractorWrapper = extractorWrapper;
     this.sampleOffsetUs = sampleOffsetUs;
-    this.mediaFormat = mediaFormat;
+    this.adaptiveMaxWidth = adaptiveMaxWidth;
+    this.adaptiveMaxHeight = adaptiveMaxHeight;
+    this.mediaFormat = getAdjustedMediaFormat(mediaFormat, sampleOffsetUs, adaptiveMaxWidth,
+        adaptiveMaxHeight);
     this.drmInitData = drmInitData;
   }
 
   @Override
-  public long bytesLoaded() {
+  public final long bytesLoaded() {
     return bytesLoaded;
   }
 
   @Override
-  public MediaFormat getMediaFormat() {
+  public final MediaFormat getMediaFormat() {
     return mediaFormat;
   }
 
   @Override
-  public DrmInitData getDrmInitData() {
+  public final DrmInitData getDrmInitData() {
     return drmInitData;
   }
 
   // SingleTrackOutput implementation.
 
   @Override
-  public void seekMap(SeekMap seekMap) {
-    Log.w(TAG, "Ignoring unexpected seekMap");
+  public final void seekMap(SeekMap seekMap) {
+    // Do nothing.
   }
 
   @Override
-  public void drmInitData(DrmInitData drmInitData) {
+  public final void drmInitData(DrmInitData drmInitData) {
     this.drmInitData = drmInitData;
   }
 
   @Override
-  public void format(MediaFormat mediaFormat) {
-    this.mediaFormat = mediaFormat;
+  public final void format(MediaFormat mediaFormat) {
+    this.mediaFormat = getAdjustedMediaFormat(mediaFormat, sampleOffsetUs, adaptiveMaxWidth,
+        adaptiveMaxHeight);
   }
 
   @Override
-  public int sampleData(ExtractorInput input, int length) throws IOException, InterruptedException {
-    return getOutput().sampleData(input, length);
+  public final int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
+      throws IOException, InterruptedException {
+    return getOutput().sampleData(input, length, allowEndOfInput);
   }
 
   @Override
-  public void sampleData(ParsableByteArray data, int length) {
+  public final void sampleData(ParsableByteArray data, int length) {
     getOutput().sampleData(data, length);
   }
 
   @Override
-  public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
+  public final void sampleMetadata(long timeUs, int flags, int size, int offset,
+      byte[] encryptionKey) {
     getOutput().sampleMetadata(timeUs + sampleOffsetUs, flags, size, offset, encryptionKey);
   }
 
   // Loadable implementation.
 
   @Override
-  public void cancelLoad() {
+  public final void cancelLoad() {
     loadCanceled = true;
   }
 
   @Override
-  public boolean isLoadCanceled() {
+  public final boolean isLoadCanceled() {
     return loadCanceled;
   }
 
   @SuppressWarnings("NonAtomicVolatileUpdate")
   @Override
-  public void load() throws IOException, InterruptedException {
+  public final void load() throws IOException, InterruptedException {
     DataSpec loadDataSpec = Util.getRemainderDataSpec(dataSpec, bytesLoaded);
     try {
       // Create and open the input.
@@ -160,6 +170,22 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
     } finally {
       dataSource.close();
     }
+  }
+
+  // Private methods.
+
+  private static MediaFormat getAdjustedMediaFormat(MediaFormat format, long sampleOffsetUs,
+      int adaptiveMaxWidth, int adaptiveMaxHeight) {
+    if (format == null) {
+      return null;
+    }
+    if (sampleOffsetUs != 0 && format.subsampleOffsetUs != MediaFormat.OFFSET_SAMPLE_RELATIVE) {
+      format = format.copyWithSubsampleOffsetUs(format.subsampleOffsetUs + sampleOffsetUs);
+    }
+    if (adaptiveMaxWidth != MediaFormat.NO_VALUE || adaptiveMaxHeight != MediaFormat.NO_VALUE) {
+      format = format.copyWithMaxVideoDimensions(adaptiveMaxWidth, adaptiveMaxHeight);
+    }
+    return format;
   }
 
 }

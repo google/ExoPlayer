@@ -32,7 +32,7 @@ import java.util.TreeSet;
 /**
  * A {@link Cache} implementation that maintains an in-memory representation.
  */
-public class SimpleCache implements Cache {
+public final class SimpleCache implements Cache {
 
   private final File cacheDir;
   private final CacheEvictor evictor;

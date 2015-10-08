@@ -15,13 +15,13 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -29,150 +29,274 @@ import java.util.List;
 /**
  * Defines the format of an elementary media stream.
  */
-public class MediaFormat {
-
-  private static final String KEY_PIXEL_WIDTH_HEIGHT_RATIO =
-      "com.google.android.videos.pixelWidthHeightRatio";
+public final class MediaFormat {
 
   public static final int NO_VALUE = -1;
 
+  /**
+   * A value for {@link #subsampleOffsetUs} to indicate that subsample timestamps are relative to
+   * the timestamps of their parent samples.
+   */
+  public static final long OFFSET_SAMPLE_RELATIVE = Long.MAX_VALUE;
+
+  /**
+   * The identifier for the track represented by the format, or {@link #NO_VALUE} if unknown or not
+   * applicable.
+   */
+  public final int trackId;
+  /**
+   * The mime type of the format.
+   */
   public final String mimeType;
+  /**
+   * The average bandwidth in bits per second, or {@link #NO_VALUE} if unknown or not applicable.
+   */
+  public final int bitrate;
+  /**
+   * The maximum size of a buffer of data (typically one sample) in the format, or {@link #NO_VALUE}
+   * if unknown or not applicable.
+   */
   public final int maxInputSize;
-
+  /**
+   * The duration in microseconds, or {@link C#UNKNOWN_TIME_US} if the duration is unknown, or
+   * {@link C#MATCH_LONGEST_US} if the duration should match the duration of the longest track whose
+   * duration is known.
+   */
   public final long durationUs;
+  /**
+   * Initialization data that must be provided to the decoder. Will not be null, but may be empty
+   * if initialization data is not required.
+   */
+  public final List<byte[]> initializationData;
+  /**
+   * Whether the format represents an adaptive track, meaning that the format of the actual media
+   * data may change (e.g. to adapt to network conditions).
+   */
+  public final boolean adaptive;
 
+  // Video specific.
+
+  /**
+   * The width of the video in pixels, or {@link #NO_VALUE} if unknown or not applicable.
+   */
   public final int width;
+
+  /**
+   * The height of the video in pixels, or {@link #NO_VALUE} if unknown or not applicable.
+   */
   public final int height;
+  /**
+   * For formats that belong to an adaptive video track (either describing the track, or describing
+   * a specific format within it), this is the maximum width of the video in pixels that will be
+   * encountered in the stream. Set to {@link #NO_VALUE} if unknown or not applicable.
+   */
+  public final int maxWidth;
+  /**
+   * For formats that belong to an adaptive video track (either describing the track, or describing
+   * a specific format within it), this is the maximum height of the video in pixels that will be
+   * encountered in the stream. Set to {@link #NO_VALUE} if unknown or not applicable.
+   */
+  public final int maxHeight;
+  /**
+   * The clockwise rotation that should be applied to the video for it to be rendered in the correct
+   * orientation, or {@link #NO_VALUE} if unknown or not applicable. Only 0, 90, 180 and 270 are
+   * supported.
+   */
+  public final int rotationDegrees;
+  /**
+   * The width to height ratio of pixels in the video, or {@link #NO_VALUE} if unknown or not
+   * applicable.
+   */
   public final float pixelWidthHeightRatio;
 
+  // Audio specific.
+
+  /**
+   * The number of audio channels, or {@link #NO_VALUE} if unknown or not applicable.
+   */
   public final int channelCount;
+  /**
+   * The audio sampling rate in Hz, or {@link #NO_VALUE} if unknown or not applicable.
+   */
   public final int sampleRate;
 
-  public final List<byte[]> initializationData;
+  // Text specific.
 
-  private int maxWidth;
-  private int maxHeight;
+  /**
+   * The language of the track, or null if unknown or not applicable.
+   */
+  public final String language;
 
-  // Lazy-initialized hashcode.
+  /**
+   * For samples that contain subsamples, this is an offset that should be added to subsample
+   * timestamps. A value of {@link #OFFSET_SAMPLE_RELATIVE} indicates that subsample timestamps are
+   * relative to the timestamps of their parent samples.
+   */
+  public final long subsampleOffsetUs;
+
+  // Lazy-initialized hashcode and framework media format.
+
   private int hashCode;
-  // Possibly-lazy-initialized framework media format.
   private android.media.MediaFormat frameworkMediaFormat;
 
-  @TargetApi(16)
-  public static MediaFormat createFromFrameworkMediaFormatV16(android.media.MediaFormat format) {
-    return new MediaFormat(format);
+  public static MediaFormat createVideoFormat(int trackId, String mimeType, int bitrate,
+      int maxInputSize, long durationUs, int width, int height, List<byte[]> initializationData) {
+    return createVideoFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
+        initializationData, NO_VALUE, NO_VALUE);
   }
 
-  public static MediaFormat createVideoFormat(String mimeType, int maxInputSize, int width,
-      int height, List<byte[]> initializationData) {
-    return createVideoFormat(
-        mimeType, maxInputSize, C.UNKNOWN_TIME_US, width, height, initializationData);
+  public static MediaFormat createVideoFormat(int trackId, String mimeType, int bitrate,
+      int maxInputSize, long durationUs, int width, int height, List<byte[]> initializationData,
+      int rotationDegrees, float pixelWidthHeightRatio) {
+    return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
+        rotationDegrees, pixelWidthHeightRatio, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE,
+        initializationData, false, NO_VALUE, NO_VALUE);
   }
 
-  public static MediaFormat createVideoFormat(String mimeType, int maxInputSize, long durationUs,
-      int width, int height, List<byte[]> initializationData) {
-    return createVideoFormat(
-        mimeType, maxInputSize, durationUs, width, height, 1, initializationData);
+  public static MediaFormat createAudioFormat(int trackId, String mimeType, int bitrate,
+      int maxInputSize, long durationUs, int channelCount, int sampleRate,
+      List<byte[]> initializationData, String language) {
+    return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, NO_VALUE, NO_VALUE,
+        NO_VALUE, NO_VALUE, channelCount, sampleRate, language, OFFSET_SAMPLE_RELATIVE,
+        initializationData, false, NO_VALUE, NO_VALUE);
   }
 
-  public static MediaFormat createVideoFormat(String mimeType, int maxInputSize, long durationUs,
-      int width, int height, float pixelWidthHeightRatio, List<byte[]> initializationData) {
-    return new MediaFormat(mimeType, maxInputSize, durationUs, width, height, pixelWidthHeightRatio,
-        NO_VALUE, NO_VALUE, initializationData);
+  public static MediaFormat createTextFormat(int trackId, String mimeType, int bitrate,
+      long durationUs, String language) {
+    return createTextFormat(trackId, mimeType, bitrate, durationUs, language,
+        OFFSET_SAMPLE_RELATIVE);
   }
 
-  public static MediaFormat createAudioFormat(String mimeType, int maxInputSize, int channelCount,
-      int sampleRate, List<byte[]> initializationData) {
-    return createAudioFormat(
-        mimeType, maxInputSize, C.UNKNOWN_TIME_US, channelCount, sampleRate, initializationData);
+  public static MediaFormat createTextFormat(int trackId, String mimeType, int bitrate,
+      long durationUs, String language, long subsampleOffsetUs) {
+    return new MediaFormat(trackId, mimeType, bitrate, NO_VALUE, durationUs, NO_VALUE, NO_VALUE,
+        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, language, subsampleOffsetUs, null, false, NO_VALUE,
+        NO_VALUE);
   }
 
-  public static MediaFormat createAudioFormat(String mimeType, int maxInputSize, long durationUs,
-      int channelCount, int sampleRate, List<byte[]> initializationData) {
-    return new MediaFormat(mimeType, maxInputSize, durationUs, NO_VALUE, NO_VALUE, NO_VALUE,
-        channelCount, sampleRate, initializationData);
+  public static MediaFormat createFormatForMimeType(int trackId, String mimeType, int bitrate,
+      long durationUs) {
+    return new MediaFormat(trackId, mimeType, bitrate, NO_VALUE, durationUs, NO_VALUE, NO_VALUE,
+        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE, null, false, NO_VALUE,
+        NO_VALUE);
   }
 
-  public static MediaFormat createTextFormat(String mimeType) {
-    return createFormatForMimeType(mimeType);
-  }
-
-  public static MediaFormat createFormatForMimeType(String mimeType) {
-    return new MediaFormat(mimeType, NO_VALUE, C.UNKNOWN_TIME_US, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, null);
-  }
-
-  @TargetApi(16)
-  private MediaFormat(android.media.MediaFormat format) {
-    this.frameworkMediaFormat = format;
-    mimeType = format.getString(android.media.MediaFormat.KEY_MIME);
-    maxInputSize = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_MAX_INPUT_SIZE);
-    width = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_WIDTH);
-    height = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_HEIGHT);
-    channelCount = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_CHANNEL_COUNT);
-    sampleRate = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_SAMPLE_RATE);
-    pixelWidthHeightRatio = getOptionalFloatV16(format, KEY_PIXEL_WIDTH_HEIGHT_RATIO);
-    initializationData = new ArrayList<>();
-    for (int i = 0; format.containsKey("csd-" + i); i++) {
-      ByteBuffer buffer = format.getByteBuffer("csd-" + i);
-      byte[] data = new byte[buffer.limit()];
-      buffer.get(data);
-      initializationData.add(data);
-      buffer.flip();
-    }
-    durationUs = format.containsKey(android.media.MediaFormat.KEY_DURATION)
-        ? format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
-    maxWidth = NO_VALUE;
-    maxHeight = NO_VALUE;
-  }
-
-  private MediaFormat(String mimeType, int maxInputSize, long durationUs, int width, int height,
-      float pixelWidthHeightRatio, int channelCount, int sampleRate,
-      List<byte[]> initializationData) {
-    this.mimeType = mimeType;
+  /* package */ MediaFormat(int trackId, String mimeType, int bitrate, int maxInputSize,
+      long durationUs, int width, int height, int rotationDegrees, float pixelWidthHeightRatio,
+      int channelCount, int sampleRate, String language, long subsampleOffsetUs,
+      List<byte[]> initializationData, boolean adaptive, int maxWidth, int maxHeight) {
+    this.trackId = trackId;
+    this.mimeType = Assertions.checkNotEmpty(mimeType);
+    this.bitrate = bitrate;
     this.maxInputSize = maxInputSize;
     this.durationUs = durationUs;
     this.width = width;
     this.height = height;
+    this.rotationDegrees = rotationDegrees;
     this.pixelWidthHeightRatio = pixelWidthHeightRatio;
     this.channelCount = channelCount;
     this.sampleRate = sampleRate;
+    this.language = language;
+    this.subsampleOffsetUs = subsampleOffsetUs;
     this.initializationData = initializationData == null ? Collections.<byte[]>emptyList()
         : initializationData;
-    maxWidth = NO_VALUE;
-    maxHeight = NO_VALUE;
-  }
-
-  public void setMaxVideoDimensions(int maxWidth, int maxHeight) {
+    this.adaptive = adaptive;
     this.maxWidth = maxWidth;
     this.maxHeight = maxHeight;
-    if (frameworkMediaFormat != null) {
-      maybeSetMaxDimensionsV16(frameworkMediaFormat);
+  }
+
+  public MediaFormat copyWithMaxVideoDimensions(int maxWidth, int maxHeight) {
+    return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
+        rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
+        subsampleOffsetUs, initializationData, adaptive, maxWidth, maxHeight);
+  }
+
+  public MediaFormat copyWithSubsampleOffsetUs(long subsampleOffsetUs) {
+    return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
+        rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
+        subsampleOffsetUs, initializationData, adaptive, maxWidth, maxHeight);
+  }
+
+  public MediaFormat copyWithDurationUs(long durationUs) {
+    return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
+        rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
+        subsampleOffsetUs, initializationData, adaptive, maxWidth, maxHeight);
+  }
+
+  public MediaFormat copyAsAdaptive() {
+    return new MediaFormat(trackId, mimeType, NO_VALUE, NO_VALUE, durationUs, NO_VALUE, NO_VALUE,
+        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE, null, true, maxWidth,
+        maxHeight);
+  }
+
+  /**
+   * @return A {@link MediaFormat} representation of this format.
+   */
+  @SuppressLint("InlinedApi")
+  @TargetApi(16)
+  public final android.media.MediaFormat getFrameworkMediaFormatV16() {
+    if (frameworkMediaFormat == null) {
+      android.media.MediaFormat format = new android.media.MediaFormat();
+      format.setString(android.media.MediaFormat.KEY_MIME, mimeType);
+      maybeSetStringV16(format, android.media.MediaFormat.KEY_LANGUAGE, language);
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_WIDTH, width);
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_HEIGHT, height);
+      maybeSetIntegerV16(format, "rotation-degrees", rotationDegrees);
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_WIDTH, maxWidth);
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_HEIGHT, maxHeight);
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_CHANNEL_COUNT, channelCount);
+      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_SAMPLE_RATE, sampleRate);
+      for (int i = 0; i < initializationData.size(); i++) {
+        format.setByteBuffer("csd-" + i, ByteBuffer.wrap(initializationData.get(i)));
+      }
+      if (durationUs != C.UNKNOWN_TIME_US) {
+        format.setLong(android.media.MediaFormat.KEY_DURATION, durationUs);
+      }
+      frameworkMediaFormat = format;
     }
+    return frameworkMediaFormat;
   }
 
-  public int getMaxVideoWidth() {
-    return maxWidth;
+  /**
+   * Sets the framework format returned by {@link #getFrameworkMediaFormatV16()}.
+   *
+   * @deprecated This method only exists for FrameworkSampleSource, which is itself deprecated.
+   * @param format The framework format.
+   */
+  @Deprecated
+  @TargetApi(16)
+  /* package */ final void setFrameworkFormatV16(android.media.MediaFormat format) {
+    frameworkMediaFormat = format;
   }
 
-  public int getMaxVideoHeight() {
-    return maxHeight;
+  @Override
+  public String toString() {
+    return "MediaFormat(" + trackId + ", " + mimeType + ", " + bitrate + ", " + maxInputSize
+        + ", " + width + ", " + height + ", " + rotationDegrees + ", " + pixelWidthHeightRatio
+        + ", " + channelCount + ", " + sampleRate + ", " + language + ", " + durationUs + ", "
+        + adaptive + ", " + maxWidth + ", " + maxHeight + ")";
   }
 
   @Override
   public int hashCode() {
     if (hashCode == 0) {
       int result = 17;
+      result = 31 * result + trackId;
       result = 31 * result + (mimeType == null ? 0 : mimeType.hashCode());
+      result = 31 * result + bitrate;
       result = 31 * result + maxInputSize;
       result = 31 * result + width;
       result = 31 * result + height;
+      result = 31 * result + rotationDegrees;
       result = 31 * result + Float.floatToRawIntBits(pixelWidthHeightRatio);
       result = 31 * result + (int) durationUs;
+      result = 31 * result + (adaptive ? 1231 : 1237);
       result = 31 * result + maxWidth;
       result = 31 * result + maxHeight;
       result = 31 * result + channelCount;
       result = 31 * result + sampleRate;
+      result = 31 * result + (language == null ? 0 : language.hashCode());
       for (int i = 0; i < initializationData.size(); i++) {
         result = 31 * result + Arrays.hashCode(initializationData.get(i));
       }
@@ -189,24 +313,14 @@ public class MediaFormat {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    return equalsInternal((MediaFormat) obj, false);
-  }
-
-  public boolean equals(MediaFormat other, boolean ignoreMaxDimensions) {
-    if (this == other) {
-      return true;
-    }
-    if (other == null) {
-      return false;
-    }
-    return equalsInternal(other, ignoreMaxDimensions);
-  }
-
-  private boolean equalsInternal(MediaFormat other, boolean ignoreMaxDimensions) {
-    if (maxInputSize != other.maxInputSize || width != other.width || height != other.height
+    MediaFormat other = (MediaFormat) obj;
+    if (adaptive != other.adaptive || bitrate != other.bitrate || maxInputSize != other.maxInputSize
+        || width != other.width || height != other.height
+        || rotationDegrees != other.rotationDegrees
         || pixelWidthHeightRatio != other.pixelWidthHeightRatio
-        || (!ignoreMaxDimensions && (maxWidth != other.maxWidth || maxHeight != other.maxHeight))
+        || maxWidth != other.maxWidth || maxHeight != other.maxHeight
         || channelCount != other.channelCount || sampleRate != other.sampleRate
+        || trackId != other.trackId || !Util.areEqual(language, other.language)
         || !Util.areEqual(mimeType, other.mimeType)
         || initializationData.size() != other.initializationData.size()) {
       return false;
@@ -219,44 +333,12 @@ public class MediaFormat {
     return true;
   }
 
-  @Override
-  public String toString() {
-    return "MediaFormat(" + mimeType + ", " + maxInputSize + ", " + width + ", " + height + ", "
-        + pixelWidthHeightRatio + ", " + channelCount + ", " + sampleRate + ", " + durationUs + ", "
-        + maxWidth + ", " + maxHeight + ")";
-  }
-
-  /**
-   * @return A {@link MediaFormat} representation of this format.
-   */
   @TargetApi(16)
-  public final android.media.MediaFormat getFrameworkMediaFormatV16() {
-    if (frameworkMediaFormat == null) {
-      android.media.MediaFormat format = new android.media.MediaFormat();
-      format.setString(android.media.MediaFormat.KEY_MIME, mimeType);
-      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
-      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_WIDTH, width);
-      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_HEIGHT, height);
-      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_CHANNEL_COUNT, channelCount);
-      maybeSetIntegerV16(format, android.media.MediaFormat.KEY_SAMPLE_RATE, sampleRate);
-      maybeSetFloatV16(format, KEY_PIXEL_WIDTH_HEIGHT_RATIO, pixelWidthHeightRatio);
-      for (int i = 0; i < initializationData.size(); i++) {
-        format.setByteBuffer("csd-" + i, ByteBuffer.wrap(initializationData.get(i)));
-      }
-      if (durationUs != C.UNKNOWN_TIME_US) {
-        format.setLong(android.media.MediaFormat.KEY_DURATION, durationUs);
-      }
-      maybeSetMaxDimensionsV16(format);
-      frameworkMediaFormat = format;
+  private static final void maybeSetStringV16(android.media.MediaFormat format, String key,
+      String value) {
+    if (value != null) {
+      format.setString(key, value);
     }
-    return frameworkMediaFormat;
-  }
-
-  @SuppressLint("InlinedApi")
-  @TargetApi(16)
-  private final void maybeSetMaxDimensionsV16(android.media.MediaFormat format) {
-    maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_WIDTH, maxWidth);
-    maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_HEIGHT, maxHeight);
   }
 
   @TargetApi(16)
@@ -265,24 +347,6 @@ public class MediaFormat {
     if (value != NO_VALUE) {
       format.setInteger(key, value);
     }
-  }
-
-  @TargetApi(16)
-  private static final void maybeSetFloatV16(android.media.MediaFormat format, String key,
-      float value) {
-    if (value != NO_VALUE) {
-      format.setFloat(key, value);
-    }
-  }
-
-  @TargetApi(16)
-  private static final int getOptionalIntegerV16(android.media.MediaFormat format, String key) {
-    return format.containsKey(key) ? format.getInteger(key) : NO_VALUE;
-  }
-
-  @TargetApi(16)
-  private static final float getOptionalFloatV16(android.media.MediaFormat format, String key) {
-    return format.containsKey(key) ? format.getFloat(key) : NO_VALUE;
   }
 
 }

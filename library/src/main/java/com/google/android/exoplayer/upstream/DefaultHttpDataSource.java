@@ -27,6 +27,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.NoRouteToHostException;
 import java.net.ProtocolException;
@@ -58,7 +59,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
   public static final int DEFAULT_READ_TIMEOUT_MILLIS = 8 * 1000;
 
   private static final int MAX_REDIRECTS = 20; // Same limit as okhttp.
-  private static final String TAG = "HttpDataSource";
+  private static final String TAG = "DefaultHttpDataSource";
   private static final Pattern CONTENT_RANGE_HEADER =
       Pattern.compile("^bytes (\\d+)-(\\d+)/(\\d+)$");
   private static final AtomicReference<byte[]> skipBufferReference = new AtomicReference<>();
@@ -197,7 +198,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
     try {
       responseCode = connection.getResponseCode();
     } catch (IOException e) {
-      closeConnection();
+      closeConnectionQuietly();
       throw new HttpDataSourceException("Unable to connect to " + dataSpec.uri.toString(), e,
           dataSpec);
     }
@@ -205,14 +206,14 @@ public class DefaultHttpDataSource implements HttpDataSource {
     // Check for a valid response code.
     if (responseCode < 200 || responseCode > 299) {
       Map<String, List<String>> headers = connection.getHeaderFields();
-      closeConnection();
+      closeConnectionQuietly();
       throw new InvalidResponseCodeException(responseCode, headers, dataSpec);
     }
 
     // Check for a valid content type.
     String contentType = connection.getContentType();
     if (contentTypePredicate != null && !contentTypePredicate.evaluate(contentType)) {
-      closeConnection();
+      closeConnectionQuietly();
       throw new InvalidContentTypeException(contentType, dataSpec);
     }
 
@@ -238,7 +239,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
     try {
       inputStream = connection.getInputStream();
     } catch (IOException e) {
-      closeConnection();
+      closeConnectionQuietly();
       throw new HttpDataSourceException(e, dataSpec);
     }
 
@@ -270,15 +271,15 @@ public class DefaultHttpDataSource implements HttpDataSource {
         } catch (IOException e) {
           throw new HttpDataSourceException(e, dataSpec);
         }
-        inputStream = null;
       }
     } finally {
+      inputStream = null;
+      closeConnectionQuietly();
       if (opened) {
         opened = false;
         if (listener != null) {
           listener.onTransferEnd();
         }
-        closeConnection();
       }
     }
   }
@@ -329,6 +330,7 @@ public class DefaultHttpDataSource implements HttpDataSource {
    */
   private HttpURLConnection makeConnection(DataSpec dataSpec) throws IOException {
     URL url = new URL(dataSpec.uri.toString());
+    byte[] postBody = dataSpec.postBody;
     long position = dataSpec.position;
     long length = dataSpec.length;
     boolean allowGzip = (dataSpec.flags & DataSpec.FLAG_ALLOW_GZIP) != 0;
@@ -336,24 +338,27 @@ public class DefaultHttpDataSource implements HttpDataSource {
     if (!allowCrossProtocolRedirects) {
       // HttpURLConnection disallows cross-protocol redirects, but otherwise performs redirection
       // automatically. This is the behavior we want, so use it.
-      HttpURLConnection connection = configureConnection(url, position, length, allowGzip);
-      connection.connect();
+      HttpURLConnection connection = makeConnection(
+          url, postBody, position, length, allowGzip, true /* followRedirects */);
       return connection;
     }
 
     // We need to handle redirects ourselves to allow cross-protocol redirects.
     int redirectCount = 0;
     while (redirectCount++ <= MAX_REDIRECTS) {
-      HttpURLConnection connection = configureConnection(url, position, length, allowGzip);
-      connection.setInstanceFollowRedirects(false);
-      connection.connect();
+      HttpURLConnection connection = makeConnection(
+          url, postBody, position, length, allowGzip, false /* followRedirects */);
       int responseCode = connection.getResponseCode();
       if (responseCode == HttpURLConnection.HTTP_MULT_CHOICE
           || responseCode == HttpURLConnection.HTTP_MOVED_PERM
           || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
           || responseCode == HttpURLConnection.HTTP_SEE_OTHER
-          || responseCode == 307 /* HTTP_TEMP_REDIRECT */
-          || responseCode == 308 /* HTTP_PERM_REDIRECT */) {
+          || (postBody == null
+              && (responseCode == 307 /* HTTP_TEMP_REDIRECT */
+                  || responseCode == 308 /* HTTP_PERM_REDIRECT */))) {
+        // For 300, 301, 302, and 303 POST requests follow the redirect and are transformed into
+        // GET requests. For 307 and 308 POST requests are not redirected.
+        postBody = null;
         String location = connection.getHeaderField("Location");
         connection.disconnect();
         url = handleRedirect(url, location);
@@ -367,19 +372,20 @@ public class DefaultHttpDataSource implements HttpDataSource {
   }
 
   /**
-   * Configures a connection, but does not open it.
+   * Configures a connection and opens it.
    *
    * @param url The url to connect to.
+   * @param postBody The body data for a POST request.
    * @param position The byte offset of the requested data.
    * @param length The length of the requested data, or {@link C#LENGTH_UNBOUNDED}.
    * @param allowGzip Whether to allow the use of gzip.
+   * @param followRedirects Whether to follow redirects.
    */
-  private HttpURLConnection configureConnection(URL url, long position, long length,
-      boolean allowGzip) throws IOException {
+  private HttpURLConnection makeConnection(URL url, byte[] postBody, long position,
+      long length, boolean allowGzip, boolean followRedirects) throws IOException {
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.setConnectTimeout(connectTimeoutMillis);
     connection.setReadTimeout(readTimeoutMillis);
-    connection.setDoOutput(false);
     synchronized (requestProperties) {
       for (Map.Entry<String, String> property : requestProperties.entrySet()) {
         connection.setRequestProperty(property.getKey(), property.getValue());
@@ -395,6 +401,17 @@ public class DefaultHttpDataSource implements HttpDataSource {
     connection.setRequestProperty("User-Agent", userAgent);
     if (!allowGzip) {
       connection.setRequestProperty("Accept-Encoding", "identity");
+    }
+    connection.setInstanceFollowRedirects(followRedirects);
+    connection.setDoOutput(postBody != null);
+    if (postBody != null) {
+      connection.setFixedLengthStreamingMode(postBody.length);
+      connection.connect();
+      OutputStream os = connection.getOutputStream();
+      os.write(postBody);
+      os.close();
+    } else {
+      connection.connect();
     }
     return connection;
   }
@@ -549,11 +566,15 @@ public class DefaultHttpDataSource implements HttpDataSource {
   }
 
   /**
-   * Closes the current connection, if there is one.
+   * Closes the current connection quietly, if there is one.
    */
-  private void closeConnection() {
+  private void closeConnectionQuietly() {
     if (connection != null) {
-      connection.disconnect();
+      try {
+        connection.disconnect();
+      } catch (Exception e) {
+        Log.e(TAG, "Unexpected error while disconnecting", e);
+      }
       connection = null;
     }
   }

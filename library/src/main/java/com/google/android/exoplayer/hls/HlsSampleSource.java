@@ -22,14 +22,15 @@ import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSource.SampleSourceReader;
-import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
+import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.MimeTypes;
 
 import android.os.Handler;
 import android.os.SystemClock;
@@ -40,7 +41,7 @@ import java.util.LinkedList;
 /**
  * A {@link SampleSource} for HLS streams.
  */
-public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader.Callback {
+public final class HlsSampleSource implements SampleSource, SampleSourceReader, Loader.Callback {
 
   /**
    * Interface definition for a callback to be notified of {@link HlsSampleSource} events.
@@ -52,13 +53,13 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
-  private static final int NO_RESET_PENDING = -1;
+  private static final long NO_RESET_PENDING = Long.MIN_VALUE;
 
   private final HlsChunkSource chunkSource;
   private final LinkedList<HlsExtractorWrapper> extractors;
-  private final boolean frameAccurateSeeking;
   private final int minLoadableRetryCount;
   private final int bufferSizeContribution;
+  private final ChunkOperationHolder chunkOperationHolder;
 
   private final int eventSourceId;
   private final LoadControl loadControl;
@@ -72,7 +73,7 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
   private int enabledTrackCount;
   private boolean[] trackEnabledStates;
   private boolean[] pendingDiscontinuities;
-  private TrackInfo[] trackInfos;
+  private MediaFormat[] trackFormat;
   private MediaFormat[] downstreamMediaFormats;
   private Format downstreamFormat;
 
@@ -92,30 +93,30 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
   private long currentLoadStartTimeMs;
 
   public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, boolean frameAccurateSeeking) {
-    this(chunkSource, loadControl, bufferSizeContribution, frameAccurateSeeking, null, null, 0);
+      int bufferSizeContribution) {
+    this(chunkSource, loadControl, bufferSizeContribution, null, null, 0);
   }
 
   public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, boolean frameAccurateSeeking, Handler eventHandler,
-      EventListener eventListener, int eventSourceId) {
-    this(chunkSource, loadControl, bufferSizeContribution, frameAccurateSeeking, eventHandler,
-        eventListener, eventSourceId, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
+      int bufferSizeContribution, Handler eventHandler, EventListener eventListener,
+      int eventSourceId) {
+    this(chunkSource, loadControl, bufferSizeContribution, eventHandler, eventListener,
+        eventSourceId, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
   }
 
   public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
-      int bufferSizeContribution, boolean frameAccurateSeeking, Handler eventHandler,
-      EventListener eventListener, int eventSourceId, int minLoadableRetryCount) {
+      int bufferSizeContribution, Handler eventHandler, EventListener eventListener,
+      int eventSourceId, int minLoadableRetryCount) {
     this.chunkSource = chunkSource;
     this.loadControl = loadControl;
     this.bufferSizeContribution = bufferSizeContribution;
-    this.frameAccurateSeeking = frameAccurateSeeking;
     this.minLoadableRetryCount = minLoadableRetryCount;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.eventSourceId = eventSourceId;
     this.pendingResetPositionUs = NO_RESET_PENDING;
     extractors = new LinkedList<>();
+    chunkOperationHolder = new ChunkOperationHolder();
   }
 
   @Override
@@ -125,25 +126,35 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
   }
 
   @Override
-  public boolean prepare(long positionUs) throws IOException {
+  public boolean prepare(long positionUs) {
     if (prepared) {
       return true;
     }
     if (!extractors.isEmpty()) {
-      // We're not prepared, but we might have loaded what we need.
-      HlsExtractorWrapper extractor = getCurrentExtractor();
-      if (extractor.isPrepared()) {
-        trackCount = extractor.getTrackCount();
-        trackEnabledStates = new boolean[trackCount];
-        pendingDiscontinuities = new boolean[trackCount];
-        downstreamMediaFormats = new MediaFormat[trackCount];
-        trackInfos = new TrackInfo[trackCount];
-        for (int i = 0; i < trackCount; i++) {
-          MediaFormat format = extractor.getMediaFormat(i);
-          trackInfos[i] = new TrackInfo(format.mimeType, chunkSource.getDurationUs());
+      while (true) {
+        // We're not prepared, but we might have loaded what we need.
+        HlsExtractorWrapper extractor = extractors.getFirst();
+        if (extractor.isPrepared()) {
+          trackCount = extractor.getTrackCount();
+          trackEnabledStates = new boolean[trackCount];
+          pendingDiscontinuities = new boolean[trackCount];
+          downstreamMediaFormats = new MediaFormat[trackCount];
+          trackFormat = new MediaFormat[trackCount];
+          long durationUs = chunkSource.getDurationUs();
+          for (int i = 0; i < trackCount; i++) {
+            MediaFormat format = extractor.getMediaFormat(i).copyWithDurationUs(durationUs);
+            if (MimeTypes.isVideo(format.mimeType)) {
+              format = format.copyAsAdaptive();
+            }
+            trackFormat[i] = format;
+          }
+          prepared = true;
+          return true;
+        } else if (extractors.size() > 1) {
+          extractors.removeFirst().clear();
+        } else {
+          break;
         }
-        prepared = true;
-        return true;
       }
     }
     // We're not prepared and we haven't loaded what we need.
@@ -162,7 +173,6 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
       downstreamPositionUs = positionUs;
     }
     maybeStartLoading();
-    maybeThrowLoadableException();
     return false;
   }
 
@@ -173,9 +183,9 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
   }
 
   @Override
-  public TrackInfo getTrackInfo(int track) {
+  public MediaFormat getFormat(int track) {
     Assertions.checkState(prepared);
-    return trackInfos[track];
+    return trackFormat[track];
   }
 
   @Override
@@ -185,15 +195,26 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     enabledTrackCount++;
     trackEnabledStates[track] = true;
     downstreamMediaFormats[track] = null;
+    pendingDiscontinuities[track] = false;
     downstreamFormat = null;
+    boolean wasLoadControlRegistered = loadControlRegistered;
     if (!loadControlRegistered) {
       loadControl.register(this, bufferSizeContribution);
       loadControlRegistered = true;
     }
     if (enabledTrackCount == 1) {
-      seekToUs(positionUs);
+      lastSeekPositionUs = positionUs;
+      if (wasLoadControlRegistered && downstreamPositionUs == positionUs) {
+        // TODO: Address [Internal: b/21743989] to remove the need for this kind of hack.
+        // This is the first track to be enabled after preparation and the position is the same as
+        // was passed to prepare. In this case we can avoid restarting, which would reload the same
+        // chunks as were loaded during preparation.
+        maybeStartLoading();
+      } else {
+        downstreamPositionUs = positionUs;
+        restartFrom(positionUs);
+      }
     }
-    pendingDiscontinuities[track] = false;
   }
 
   @Override
@@ -203,6 +224,7 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     enabledTrackCount--;
     trackEnabledStates[track] = false;
     if (enabledTrackCount == 0) {
+      chunkSource.reset();
       downstreamPositionUs = Long.MIN_VALUE;
       if (loadControlRegistered) {
         loadControl.unregister(this);
@@ -218,7 +240,7 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
   }
 
   @Override
-  public boolean continueBuffering(int track, long playbackPositionUs) throws IOException {
+  public boolean continueBuffering(int track, long playbackPositionUs) {
     Assertions.checkState(prepared);
     Assertions.checkState(trackEnabledStates[track]);
     downstreamPositionUs = playbackPositionUs;
@@ -232,7 +254,6 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     if (isPendingReset() || extractors.isEmpty()) {
       return false;
     }
-
     for (int extractorIndex = 0; extractorIndex < extractors.size(); extractorIndex++) {
       HlsExtractorWrapper extractor = extractors.get(extractorIndex);
       if (!extractor.isPrepared()) {
@@ -242,13 +263,12 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
         return true;
       }
     }
-    maybeThrowLoadableException();
     return false;
   }
 
   @Override
   public int readData(int track, long playbackPositionUs, MediaFormatHolder formatHolder,
-      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) throws IOException {
+      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
     Assertions.checkState(prepared);
     downstreamPositionUs = playbackPositionUs;
 
@@ -262,13 +282,11 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     }
 
     if (isPendingReset()) {
-      maybeThrowLoadableException();
       return NOTHING_READ;
     }
 
     HlsExtractorWrapper extractor = getCurrentExtractor();
     if (!extractor.isPrepared()) {
-      maybeThrowLoadableException();
       return NOTHING_READ;
     }
 
@@ -290,21 +308,19 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
       // next one for the current read.
       extractor = extractors.get(++extractorIndex);
       if (!extractor.isPrepared()) {
-        maybeThrowLoadableException();
         return NOTHING_READ;
       }
     }
 
     MediaFormat mediaFormat = extractor.getMediaFormat(track);
-    if (mediaFormat != null && !mediaFormat.equals(downstreamMediaFormats[track], true)) {
-      chunkSource.getMaxVideoDimensions(mediaFormat);
+    if (mediaFormat != null && !mediaFormat.equals(downstreamMediaFormats[track])) {
       formatHolder.format = mediaFormat;
       downstreamMediaFormats[track] = mediaFormat;
       return FORMAT_READ;
     }
 
     if (extractor.getSample(track, sampleHolder)) {
-      boolean decodeOnly = frameAccurateSeeking && sampleHolder.timeUs < lastSeekPositionUs;
+      boolean decodeOnly = sampleHolder.timeUs < lastSeekPositionUs;
       sampleHolder.flags |= decodeOnly ? C.SAMPLE_FLAG_DECODE_ONLY : 0;
       return SAMPLE_READ;
     }
@@ -313,8 +329,16 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
       return END_OF_STREAM;
     }
 
-    maybeThrowLoadableException();
     return NOTHING_READ;
+  }
+
+  @Override
+  public void maybeThrowError() throws IOException {
+    if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
+      throw currentLoadableException;
+    } else if (currentLoadable == null) {
+      chunkSource.maybeThrowError();
+    }
   }
 
   @Override
@@ -347,6 +371,12 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
       return TrackRenderer.END_OF_TRACK_US;
     } else {
       long largestParsedTimestampUs = extractors.getLast().getLargestParsedTimestampUs();
+      if (extractors.size() > 1) {
+        // When adapting from one format to the next, the penultimate extractor may have the largest
+        // parsed timestamp (e.g. if the last extractor hasn't parsed any timestamps yet).
+        largestParsedTimestampUs = Math.max(largestParsedTimestampUs,
+            extractors.get(extractors.size() - 2).getLargestParsedTimestampUs());
+      }
       return largestParsedTimestampUs == Long.MIN_VALUE ? downstreamPositionUs
           : largestParsedTimestampUs;
     }
@@ -361,6 +391,8 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     }
   }
 
+  // Loader.Callback implementation.
+
   @Override
   public void onLoadCompleted(Loadable loadable) {
     Assertions.checkState(loadable == currentLoadable);
@@ -369,7 +401,6 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     chunkSource.onChunkLoadCompleted(currentLoadable);
     if (isTsChunk(currentLoadable)) {
       Assertions.checkState(currentLoadable == currentTsLoadable);
-      loadingFinished = currentTsLoadable.isLastChunk;
       previousTsLoadable = currentTsLoadable;
       notifyLoadCompleted(currentLoadable.bytesLoaded(), currentTsLoadable.type,
           currentTsLoadable.trigger, currentTsLoadable.format, currentTsLoadable.startTimeUs,
@@ -411,6 +442,8 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     notifyLoadError(e);
     maybeStartLoading();
   }
+
+  // Internal stuff.
 
   /**
    * Gets the current extractor from which samples should be read.
@@ -455,12 +488,6 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     return false;
   }
 
-  private void maybeThrowLoadableException() throws IOException {
-    if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
-      throw currentLoadableException;
-    }
-  }
-
   private void restartFrom(long positionUs) {
     pendingResetPositionUs = positionUs;
     loadingFinished = false;
@@ -496,7 +523,7 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
 
     // Update the control with our current state, and determine whether we're the next loader.
     boolean nextLoader = loadControl.update(this, downstreamPositionUs, nextLoadPositionUs,
-        loadingOrBackedOff, false);
+        loadingOrBackedOff);
 
     if (isBackedOff) {
       long elapsedMillis = now - currentLoadableExceptionTimestamp;
@@ -511,8 +538,16 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
       return;
     }
 
-    Chunk nextLoadable = chunkSource.getChunkOperation(previousTsLoadable, pendingResetPositionUs,
-        downstreamPositionUs);
+    chunkSource.getChunkOperation(previousTsLoadable, pendingResetPositionUs,
+        downstreamPositionUs, chunkOperationHolder);
+    boolean endOfStream = chunkOperationHolder.endOfStream;
+    Chunk nextLoadable = chunkOperationHolder.chunk;
+    chunkOperationHolder.clear();
+
+    if (endOfStream) {
+      loadingFinished = true;
+      return;
+    }
     if (nextLoadable == null) {
       return;
     }
@@ -547,9 +582,8 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      return currentTsLoadable != null
-          ? (currentTsLoadable.isLastChunk ? -1 : currentTsLoadable.endTimeUs)
-          : (previousTsLoadable.isLastChunk ? -1 : previousTsLoadable.endTimeUs);
+      return loadingFinished ? -1
+          : currentTsLoadable != null ? currentTsLoadable.endTimeUs : previousTsLoadable.endTimeUs;
     }
   }
 
@@ -565,8 +599,8 @@ public class HlsSampleSource implements SampleSource, SampleSourceReader, Loader
     return Math.min((errorCount - 1) * 1000, 5000);
   }
 
-  protected final int usToMs(long timeUs) {
-    return (int) (timeUs / 1000);
+  /* package */ long usToMs(long timeUs) {
+    return timeUs / 1000;
   }
 
   private void notifyLoadStarted(final long length, final int type, final int trigger,

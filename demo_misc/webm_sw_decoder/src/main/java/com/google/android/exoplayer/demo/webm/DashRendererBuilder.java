@@ -22,9 +22,7 @@ import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSource;
-import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
-import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
 import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
@@ -40,7 +38,8 @@ import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
-import com.google.android.exoplayer.util.MimeTypes;
+
+import android.text.TextUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -83,17 +82,21 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter(null, null);
 
     // Obtain Representations for playback.
-    ArrayList<Representation> audioRepresentationsList = new ArrayList<>();
+    Representation audioRepresentation = null;
+    boolean audioRepresentationIsOpus = false;
     ArrayList<Representation> videoRepresentationsList = new ArrayList<>();
-    Period period = manifest.periods.get(0);
+    Period period = manifest.getPeriod(0);
     for (int i = 0; i < period.adaptationSets.size(); i++) {
       AdaptationSet adaptationSet = period.adaptationSets.get(i);
       int adaptationSetType = adaptationSet.type;
       for (int j = 0; j < adaptationSet.representations.size(); j++) {
         Representation representation = adaptationSet.representations.get(j);
-        if (adaptationSetType == AdaptationSet.TYPE_AUDIO) {
-          audioRepresentationsList.add(representation);
-        } else if (adaptationSetType == AdaptationSet.TYPE_VIDEO) {
+        String codecs = representation.format.codecs;
+        if (adaptationSetType == AdaptationSet.TYPE_AUDIO && audioRepresentation == null) {
+          audioRepresentation = representation;
+          audioRepresentationIsOpus = !TextUtils.isEmpty(codecs) && codecs.startsWith("opus");
+        } else if (adaptationSetType == AdaptationSet.TYPE_VIDEO && !TextUtils.isEmpty(codecs)
+            && codecs.startsWith("vp9")) {
           videoRepresentationsList.add(representation);
         }
       }
@@ -105,36 +108,26 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
     LibvpxVideoTrackRenderer videoRenderer = null;
     if (!videoRepresentationsList.isEmpty()) {
       DataSource videoDataSource = new DefaultUriDataSource(player, bandwidthMeter, userAgent);
-      ChunkSource videoChunkSource;
-      String mimeType = videoRepresentations[0].format.mimeType;
-      if (mimeType.equals(MimeTypes.VIDEO_WEBM)) {
-        videoChunkSource = new DashChunkSource(videoDataSource,
-            new AdaptiveEvaluator(bandwidthMeter), videoRepresentations);
-      } else {
-        throw new IllegalStateException("Unexpected mime type: " + mimeType);
-      }
+      ChunkSource videoChunkSource = new DashChunkSource(videoDataSource,
+          new AdaptiveEvaluator(bandwidthMeter), manifest.getPeriodDuration(0),
+          AdaptationSet.TYPE_VIDEO, videoRepresentations);
       ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
-          VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
+          VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
       videoRenderer = new LibvpxVideoTrackRenderer(videoSampleSource,
           true, player.getMainHandler(), player, 50);
     }
 
     // Build the audio renderer.
-    MultiTrackChunkSource audioChunkSource = null;
-    TrackRenderer audioRenderer = null;
-    if (!audioRepresentationsList.isEmpty()) {
+    TrackRenderer audioRenderer;
+    if (audioRepresentation == null) {
+      audioRenderer = null;
+    } else {
       DataSource audioDataSource = new DefaultUriDataSource(player, bandwidthMeter, userAgent);
-      ChunkSource[] audioChunkSources = new ChunkSource[audioRepresentationsList.size()];
-      FormatEvaluator audioEvaluator = new FormatEvaluator.FixedEvaluator();
-      for (int i = 0; i < audioRepresentationsList.size(); i++) {
-        Representation representation = audioRepresentationsList.get(i);
-        audioChunkSources[i] = new DashChunkSource(audioDataSource,
-            audioEvaluator, representation);
-      }
-      audioChunkSource = new MultiTrackChunkSource(audioChunkSources);
+      DashChunkSource audioChunkSource = new DashChunkSource(audioDataSource, null,
+            manifest.getPeriodDuration(0), AdaptationSet.TYPE_AUDIO, audioRepresentation);
       SampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
-          AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
-      if (manifestUrl.contains("opus")) { // TODO: Need a better logic here.
+          AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
+      if (audioRepresentationIsOpus) {
         audioRenderer = new LibopusAudioTrackRenderer(audioSampleSource);
       } else {
         audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource);

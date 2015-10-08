@@ -28,13 +28,14 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
  * A utility class for querying the available codecs.
  */
 @TargetApi(16)
-public class MediaCodecUtil {
+public final class MediaCodecUtil {
 
   /**
    * Thrown when an error occurs querying the device for its underlying media capabilities.
@@ -42,7 +43,7 @@ public class MediaCodecUtil {
    * Such failures are not expected in normal operation and are normally temporary (e.g. if the
    * mediaserver process has crashed and is yet to restart).
    */
-  public static class DecoderQueryException extends Exception {
+  public static class DecoderQueryException extends IOException {
 
     private DecoderQueryException(Throwable cause) {
       super("Failed to query underlying media codecs", cause);
@@ -53,6 +54,8 @@ public class MediaCodecUtil {
   private static final String TAG = "MediaCodecUtil";
 
   private static final HashMap<CodecKey, Pair<String, CodecCapabilities>> codecs = new HashMap<>();
+
+  private MediaCodecUtil() {}
 
   /**
    * Get information about the decoder that will be used for a given mime type.
@@ -170,18 +173,32 @@ public class MediaCodecUtil {
    */
   private static boolean isCodecUsableDecoder(MediaCodecInfo info, String name,
       boolean secureDecodersExplicit) {
-    if (info.isEncoder() || !name.startsWith("OMX.")
-        || (!secureDecodersExplicit && name.endsWith(".secure"))) {
+    if (info.isEncoder() || (!secureDecodersExplicit && name.endsWith(".secure"))) {
       return false;
     }
 
     // Work around an issue where creating a particular MP3 decoder on some devices on platform API
     // version 16 crashes mediaserver.
     if (Util.SDK_INT == 16
+        && "OMX.qcom.audio.decoder.mp3".equals(name)
         && ("dlxu".equals(Util.DEVICE) // HTC Butterfly
             || "protou".equals(Util.DEVICE) // HTC Desire X
-            || "C6602".equals(Util.DEVICE) || "C6603".equals(Util.DEVICE)) // Sony Xperia Z
-        && name.equals("OMX.qcom.audio.decoder.mp3")) {
+            || "C6602".equals(Util.DEVICE) // Sony Xperia Z
+            || "C6603".equals(Util.DEVICE)
+            || "C6606".equals(Util.DEVICE)
+            || "C6616".equals(Util.DEVICE)
+            || "L36h".equals(Util.DEVICE)
+            || "SO-02E".equals(Util.DEVICE))) {
+      return false;
+    }
+
+    // Work around an issue where large timestamps are not propagated correctly.
+    if (Util.SDK_INT == 16
+        && "OMX.qcom.audio.decoder.aac".equals(name)
+        && ("C1504".equals(Util.DEVICE) // Sony Xperia E
+            || "C1505".equals(Util.DEVICE)
+            || "C1604".equals(Util.DEVICE) // Sony Xperia E dual
+            || "C1605".equals(Util.DEVICE))) {
       return false;
     }
 

@@ -30,17 +30,13 @@ import java.util.Collections;
 /**
  * Parses a continuous H.265 byte stream and extracts individual frames.
  */
-/* package */ class H265Reader extends ElementaryStreamReader {
+/* package */ final class H265Reader extends ElementaryStreamReader {
 
   private static final String TAG = "H265Reader";
 
   // nal_unit_type values from H.265/HEVC (2014) Table 7-1.
   private static final int RASL_R = 9;
   private static final int BLA_W_LP = 16;
-  private static final int BLA_W_RADL = 17;
-  private static final int BLA_N_LP = 18;
-  private static final int IDR_W_RADL = 19;
-  private static final int IDR_N_LP = 20;
   private static final int CRA_NUT = 21;
   private static final int VPS_NUT = 32;
   private static final int SPS_NUT = 33;
@@ -59,13 +55,8 @@ import java.util.Collections;
   private final NalUnitTargetBuffer pps;
   private final NalUnitTargetBuffer prefixSei;
   private final NalUnitTargetBuffer suffixSei; // TODO: Are both needed?
-  private boolean foundFirstSample;
+  private final SampleReader sampleReader;
   private long totalBytesWritten;
-
-  // Per sample state that gets reset at the start of each sample.
-  private boolean isKeyframe;
-  private long samplePosition;
-  private long sampleTimeUs;
 
   // Scratch variables to avoid allocations.
   private final ParsableByteArray seiWrapper;
@@ -79,6 +70,7 @@ import java.util.Collections;
     pps = new NalUnitTargetBuffer(PPS_NUT, 128);
     prefixSei = new NalUnitTargetBuffer(PREFIX_SEI_NUT, 128);
     suffixSei = new NalUnitTargetBuffer(SUFFIX_SEI_NUT, 128);
+    sampleReader = new SampleReader(output);
     seiWrapper = new ParsableByteArray();
   }
 
@@ -91,7 +83,7 @@ import java.util.Collections;
     pps.reset();
     prefixSei.reset();
     suffixSei.reset();
-    foundFirstSample = false;
+    sampleReader.reset();
     totalBytesWritten = 0;
   }
 
@@ -108,44 +100,31 @@ import java.util.Collections;
 
       // Scan the appended data, processing NAL units as they are encountered
       while (offset < limit) {
-        int nextNalUnitOffset = NalUnitUtil.findNalUnit(dataArray, offset, limit, prefixFlags);
-        if (nextNalUnitOffset < limit) {
+        int nalUnitOffset = NalUnitUtil.findNalUnit(dataArray, offset, limit, prefixFlags);
+        if (nalUnitOffset < limit) {
           // We've seen the start of a NAL unit.
 
           // This is the length to the start of the unit. It may be negative if the NAL unit
           // actually started in previously consumed data.
-          int lengthToNalUnit = nextNalUnitOffset - offset;
+          int lengthToNalUnit = nalUnitOffset - offset;
           if (lengthToNalUnit > 0) {
-            feedNalUnitTargetBuffersData(dataArray, offset, nextNalUnitOffset);
+            nalUnitData(dataArray, offset, nalUnitOffset);
           }
+          int bytesWrittenPastPosition = limit - nalUnitOffset;
+          long absolutePosition = totalBytesWritten - bytesWrittenPastPosition;
+          // Indicate the end of the previous NAL unit. If the length to the start of the next unit
+          // is negative then we wrote too many bytes to the NAL buffers. Discard the excess bytes
+          // when notifying that the unit has ended.
+          nalUnitEnd(absolutePosition, bytesWrittenPastPosition,
+              lengthToNalUnit < 0 ? -lengthToNalUnit : 0, pesTimeUs);
 
-          int nalUnitType = NalUnitUtil.getH265NalUnitType(dataArray, nextNalUnitOffset);
-          int bytesWrittenPastNalUnit = limit - nextNalUnitOffset;
-          if (isFirstSliceSegmentInPic(dataArray, nextNalUnitOffset)) {
-            if (foundFirstSample) {
-              if (isKeyframe && !hasOutputFormat && vps.isCompleted() && sps.isCompleted()
-                  && pps.isCompleted()) {
-                parseMediaFormat(vps, sps, pps);
-              }
-              int flags = isKeyframe ? C.SAMPLE_FLAG_SYNC : 0;
-              int size = (int) (totalBytesWritten - samplePosition) - bytesWrittenPastNalUnit;
-              output.sampleMetadata(sampleTimeUs, flags, size, bytesWrittenPastNalUnit, null);
-            }
-            foundFirstSample = true;
-            samplePosition = totalBytesWritten - bytesWrittenPastNalUnit;
-            sampleTimeUs = pesTimeUs;
-            isKeyframe = isRandomAccessPoint(nalUnitType);
-          }
-
-          // If the length to the start of the unit is negative then we wrote too many bytes to the
-          // NAL buffers. Discard the excess bytes when notifying that the unit has ended.
-          feedNalUnitTargetEnd(pesTimeUs, lengthToNalUnit < 0 ? -lengthToNalUnit : 0);
-          // Notify the start of the next NAL unit.
-          feedNalUnitTargetBuffersStart(nalUnitType);
+          // Indicate the start of the next NAL unit.
+          int nalUnitType = NalUnitUtil.getH265NalUnitType(dataArray, nalUnitOffset);
+          startNalUnit(absolutePosition, bytesWrittenPastPosition, nalUnitType);
           // Continue scanning the data.
-          offset = nextNalUnitOffset + 3;
+          offset = nalUnitOffset + 3;
         } else {
-          feedNalUnitTargetBuffersData(dataArray, offset, limit);
+          nalUnitData(dataArray, offset, limit);
           offset = limit;
         }
       }
@@ -157,7 +136,7 @@ import java.util.Collections;
     // Do nothing.
   }
 
-  private void feedNalUnitTargetBuffersStart(int nalUnitType) {
+  private void startNalUnit(long position, int offset, int nalUnitType) {
     if (!hasOutputFormat) {
       vps.startNalUnit(nalUnitType);
       sps.startNalUnit(nalUnitType);
@@ -165,10 +144,13 @@ import java.util.Collections;
     }
     prefixSei.startNalUnit(nalUnitType);
     suffixSei.startNalUnit(nalUnitType);
+    sampleReader.startNalUnit(position, offset, nalUnitType);
   }
 
-  private void feedNalUnitTargetBuffersData(byte[] dataArray, int offset, int limit) {
-    if (!hasOutputFormat) {
+  private void nalUnitData(byte[] dataArray, int offset, int limit) {
+    if (hasOutputFormat) {
+      sampleReader.readNalUnitData(dataArray, offset, limit);
+    } else {
       vps.appendToNalUnit(dataArray, offset, limit);
       sps.appendToNalUnit(dataArray, offset, limit);
       pps.appendToNalUnit(dataArray, offset, limit);
@@ -177,10 +159,17 @@ import java.util.Collections;
     suffixSei.appendToNalUnit(dataArray, offset, limit);
   }
 
-  private void feedNalUnitTargetEnd(long pesTimeUs, int discardPadding) {
-    vps.endNalUnit(discardPadding);
-    sps.endNalUnit(discardPadding);
-    pps.endNalUnit(discardPadding);
+  private void nalUnitEnd(long position, int offset, int discardPadding, long pesTimeUs) {
+    if (hasOutputFormat) {
+      sampleReader.endNalUnit(position, offset, pesTimeUs);
+    } else {
+      vps.endNalUnit(discardPadding);
+      sps.endNalUnit(discardPadding);
+      pps.endNalUnit(discardPadding);
+      if (vps.isCompleted() && sps.isCompleted() && pps.isCompleted()) {
+        parseMediaFormat(vps, sps, pps);
+      }
+    }
     if (prefixSei.endNalUnit(discardPadding)) {
       int unescapedLength = NalUnitUtil.unescapeStream(prefixSei.nalData, prefixSei.nalLength);
       seiWrapper.reset(prefixSei.nalData, unescapedLength);
@@ -271,7 +260,7 @@ import java.util.Collections;
     bitArray.skipBits(2); // amp_enabled_flag (1), sample_adaptive_offset_enabled_flag (1)
     if (bitArray.readBit()) { // pcm_enabled_flag
       // pcm_sample_bit_depth_luma_minus1 (4), pcm_sample_bit_depth_chroma_minus1 (4)
-      bitArray.skipBits(4);
+      bitArray.skipBits(8);
       bitArray.readUnsignedExpGolombCodedInt(); // log2_min_pcm_luma_coding_block_size_minus3
       bitArray.readUnsignedExpGolombCodedInt(); // log2_diff_max_min_pcm_luma_coding_block_size
       bitArray.skipBits(1); // pcm_loop_filter_disabled_flag
@@ -305,9 +294,10 @@ import java.util.Collections;
       }
     }
 
-    output.format(MediaFormat.createVideoFormat(MimeTypes.VIDEO_H265, MediaFormat.NO_VALUE,
-        C.UNKNOWN_TIME_US, picWidthInLumaSamples, picHeightInLumaSamples, pixelWidthHeightRatio,
-        Collections.singletonList(csd)));
+    output.format(MediaFormat.createVideoFormat(MediaFormat.NO_VALUE, MimeTypes.VIDEO_H265,
+        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, picWidthInLumaSamples,
+        picHeightInLumaSamples, Collections.singletonList(csd), MediaFormat.NO_VALUE,
+        pixelWidthHeightRatio));
     hasOutputFormat = true;
   }
 
@@ -319,7 +309,7 @@ import java.util.Collections;
           // scaling_list_pred_matrix_id_delta[sizeId][matrixId]
           bitArray.readUnsignedExpGolombCodedInt();
         } else {
-          int coefNum = Math.min(64, 1 << (4 + sizeId << 1));
+          int coefNum = Math.min(64, 1 << (4 + (sizeId << 1)));
           if (sizeId > 1) {
             // scaling_list_dc_coef_minus8[sizeId - 2][matrixId]
             bitArray.readSignedExpGolombCodedInt();
@@ -373,30 +363,85 @@ import java.util.Collections;
     }
   }
 
-  /**
-   * Returns whether the NAL unit is a random access point.
-   */
-  private static boolean isRandomAccessPoint(int nalUnitType) {
-    return nalUnitType == BLA_W_LP || nalUnitType == BLA_W_RADL || nalUnitType == BLA_N_LP
-        || nalUnitType == IDR_W_RADL || nalUnitType == IDR_N_LP || nalUnitType == CRA_NUT;
-  }
+  private static final class SampleReader {
 
-  /**
-   * Returns whether the NAL unit in {@code data} starting at {@code offset} contains the first
-   * slice in a picture.
-   *
-   * @param data The data to read.
-   * @param offset The start offset of a NAL unit. Must lie between {@code -3} (inclusive) and
-   *     {@code data.length - 3} (exclusive).
-   * @return Whether the NAL unit contains the first slice in a picture.
-   */
-  public static boolean isFirstSliceSegmentInPic(byte[] data, int offset) {
-    int nalUnitType = NalUnitUtil.getH265NalUnitType(data, offset);
-    // Check the flag in NAL units that contain a slice_segment_layer_rbsp RBSP.
-    if ((nalUnitType <= RASL_R) || (nalUnitType >= BLA_W_LP && nalUnitType <= CRA_NUT)) {
-      return (data[offset + 5] & 0x80) != 0;
+    /**
+     * Offset in bytes of the first_slice_segment_in_pic_flag in a NAL unit containing a
+     * slice_segment_layer_rbsp.
+     */
+    private static final int FIRST_SLICE_FLAG_OFFSET = 2;
+
+    private final TrackOutput output;
+
+    // Per NAL unit state. A sample consists of one or more NAL units.
+    private long nalUnitStartPosition;
+    private boolean nalUnitHasKeyframeData;
+    private int nalUnitBytesRead;
+    private boolean lookingForFirstSliceFlag;
+    private boolean firstSliceFlag;
+
+    // Per sample state that gets reset at the start of each sample.
+    private boolean readingSample;
+    private long samplePosition;
+    private long sampleTimeUs;
+    private boolean sampleIsKeyframe;
+
+    public SampleReader(TrackOutput output) {
+      this.output = output;
     }
-    return false;
+
+    public void reset() {
+      lookingForFirstSliceFlag = false;
+      firstSliceFlag = false;
+      readingSample = false;
+    }
+
+    public void startNalUnit(long position, int offset, int nalUnitType) {
+      firstSliceFlag = false;
+      nalUnitBytesRead = 0;
+      nalUnitStartPosition = position;
+      // Flush the previous sample when reading a non-VCL NAL unit.
+      if (nalUnitType >= VPS_NUT && readingSample) {
+        outputSample(offset);
+        readingSample = false;
+      }
+      // Look for the flag if this NAL unit contains a slice_segment_layer_rbsp.
+      nalUnitHasKeyframeData = (nalUnitType >= BLA_W_LP && nalUnitType <= CRA_NUT);
+      lookingForFirstSliceFlag = nalUnitHasKeyframeData || nalUnitType <= RASL_R;
+    }
+
+    public void readNalUnitData(byte[] data, int offset, int limit) {
+      if (lookingForFirstSliceFlag) {
+        int headerOffset = offset + FIRST_SLICE_FLAG_OFFSET - nalUnitBytesRead;
+        if (headerOffset < limit) {
+          firstSliceFlag = (data[headerOffset] & 0x80) != 0;
+          lookingForFirstSliceFlag = false;
+        } else {
+          nalUnitBytesRead += limit - offset;
+        }
+      }
+    }
+
+    public void endNalUnit(long position, int offset, long timeUs) {
+      if (firstSliceFlag) {
+        // If the NAL unit ending is the start of a new sample, output the previous one.
+        if (readingSample) {
+          int nalUnitLength = (int) (position - nalUnitStartPosition);
+          outputSample(offset + nalUnitLength);
+        }
+        samplePosition = nalUnitStartPosition;
+        sampleTimeUs = timeUs;
+        readingSample = true;
+        sampleIsKeyframe = nalUnitHasKeyframeData;
+      }
+    }
+
+    private void outputSample(int offset) {
+      int flags = sampleIsKeyframe ? C.SAMPLE_FLAG_SYNC : 0;
+      int size = (int) (nalUnitStartPosition - samplePosition);
+      output.sampleMetadata(sampleTimeUs, flags, size, offset, null);
+    }
+
   }
 
 }

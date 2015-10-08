@@ -35,12 +35,9 @@ public interface SubtitleParser {
    * Parses a {@link Subtitle} from the provided {@link InputStream}.
    *
    * @param inputStream The stream from which to parse the subtitle.
-   * @param inputEncoding The encoding of the input stream.
-   * @param startTimeUs The start time of the subtitle.
    * @return A parsed representation of the subtitle.
    * @throws IOException If a problem occurred reading from the stream.
    */
-  public Subtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
-      throws IOException;
+  public Subtitle parse(InputStream inputStream) throws IOException;
 
 }
