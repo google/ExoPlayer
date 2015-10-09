@@ -49,6 +49,7 @@ public final class MimeTypes {
   public static final String AUDIO_DTS_HD = BASE_TYPE_AUDIO + "/vnd.dts.hd";
   public static final String AUDIO_VORBIS = BASE_TYPE_AUDIO + "/vorbis";
   public static final String AUDIO_OPUS = BASE_TYPE_AUDIO + "/opus";
+  public static final String AUDIO_TRUEHD = BASE_TYPE_AUDIO + "/true-hd";
 
   public static final String TEXT_VTT = BASE_TYPE_TEXT + "/vtt";
 

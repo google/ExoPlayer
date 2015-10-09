@@ -77,6 +77,7 @@ public final class WebmExtractor implements Extractor {
   private static final String CODEC_ID_DTS = "A_DTS";
   private static final String CODEC_ID_DTS_EXPRESS = "A_DTS/EXPRESS";
   private static final String CODEC_ID_DTS_LOSSLESS = "A_DTS/LOSSLESS";
+  private static final String CODEC_ID_TRUEHD = "A_TRUEHD";
   private static final String CODEC_ID_SUBRIP = "S_TEXT/UTF8";
 
   private static final int VORBIS_MAX_INPUT_SIZE = 8192;
@@ -1041,6 +1042,7 @@ public final class WebmExtractor implements Extractor {
         || CODEC_ID_DTS.equals(codecId)
         || CODEC_ID_DTS_EXPRESS.equals(codecId)
         || CODEC_ID_DTS_LOSSLESS.equals(codecId)
+        || CODEC_ID_TRUEHD.equals(codecId)
         || CODEC_ID_SUBRIP.equals(codecId);
   }
 
@@ -1200,6 +1202,9 @@ public final class WebmExtractor implements Extractor {
           break;
         case CODEC_ID_DTS_LOSSLESS:
           mimeType = MimeTypes.AUDIO_DTS_HD;
+          break;
+        case CODEC_ID_TRUEHD:
+          mimeType = MimeTypes.AUDIO_TRUEHD;
           break;
         case CODEC_ID_SUBRIP:
           mimeType = MimeTypes.APPLICATION_SUBRIP;
