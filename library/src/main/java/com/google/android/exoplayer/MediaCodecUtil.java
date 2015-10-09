@@ -94,8 +94,15 @@ public final class MediaCodecUtil {
 
   /**
    * Returns the name of the best decoder and its capabilities for the given mimeType.
+   *
+   * @param mimeType The mime type.
+   * @param secure Whether the decoder is required to support secure decryption. Always pass false
+   *     unless secure decryption really is required.
+   *
+   * @return The name of the best decoder and its capabilities for the given mimeType, or null if
+   *     no decoder exists.
    */
-  private static synchronized Pair<String, CodecCapabilities> getMediaCodecInfo(
+  public static synchronized Pair<String, CodecCapabilities> getMediaCodecInfo(
       String mimeType, boolean secure) throws DecoderQueryException {
     CodecKey key = new CodecKey(mimeType, secure);
     if (codecs.containsKey(key)) {
