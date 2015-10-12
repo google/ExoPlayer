@@ -41,9 +41,20 @@
     </activity>
 
     <activity android:name="com.google.android.exoplayer.demo.PlayerActivity"
-        android:configChanges="keyboardHidden|orientation|screenSize"
+        android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
+        android:launchMode="singleInstance"
         android:label="@string/application_name"
-        android:theme="@style/PlayerTheme"/>
+        android:theme="@style/PlayerTheme">
+      <intent-filter>
+        <action android:name="com.google.android.exoplayer.demo.action.VIEW"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <data android:scheme="http"/>
+        <data android:scheme="https"/>
+        <data android:scheme="content"/>
+        <data android:scheme="asset"/>
+        <data android:scheme="file"/>
+      </intent-filter>
+    </activity>
 
   </application>
 
