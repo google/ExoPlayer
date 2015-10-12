@@ -151,7 +151,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     root.setOnKeyListener(new OnKeyListener() {
       @Override
       public boolean onKey(View v, int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_MENU) {
+        if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_ESCAPE
+            || keyCode == KeyEvent.KEYCODE_MENU) {
           return false;
         }
         return mediaController.dispatchKeyEvent(event);
