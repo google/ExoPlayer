@@ -209,8 +209,10 @@ public final class MediaCodecUtil {
       return false;
     }
 
-    // Work around an issue where the VP8 decoder on Samsung Galaxy S4 Mini does not render video.
-    if (Util.SDK_INT <= 19 && Util.DEVICE != null && Util.DEVICE.startsWith("serrano")
+    // Work around an issue where the VP8 decoder on Samsung Galaxy S3/S4 Mini does not render
+    // video.
+    if (Util.SDK_INT <= 19 && Util.DEVICE != null
+        && (Util.DEVICE.startsWith("d2") || Util.DEVICE.startsWith("serrano"))
         && "samsung".equals(Util.MANUFACTURER) && name.equals("OMX.SEC.vp8.dec")) {
       return false;
     }
