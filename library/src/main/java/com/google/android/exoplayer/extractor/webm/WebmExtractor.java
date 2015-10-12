@@ -349,6 +349,10 @@ public final class WebmExtractor implements Extractor {
     }
   }
 
+  /* package */ boolean isLevel1Element(int id) {
+    return id == ID_SEGMENT_INFO || id == ID_CLUSTER || id == ID_CUES || id == ID_TRACKS;
+  }
+
   /* package */ void startMasterElement(int id, long contentPosition, long contentSize)
       throws ParserException {
     switch (id) {
@@ -641,7 +645,7 @@ public final class WebmExtractor implements Extractor {
         // differ only in the way flags are specified.
 
         if (blockState == BLOCK_STATE_START) {
-          blockTrackNumber = (int) varintReader.readUnsignedVarint(input, false, true);
+          blockTrackNumber = (int) varintReader.readUnsignedVarint(input, false, true, 8);
           blockTrackNumberLength = varintReader.getLastLength();
           blockDurationUs = UNKNOWN;
           blockState = BLOCK_STATE_HEADER;
@@ -1071,6 +1075,11 @@ public final class WebmExtractor implements Extractor {
     @Override
     public int getElementType(int id) {
       return WebmExtractor.this.getElementType(id);
+    }
+
+    @Override
+    public boolean isLevel1Element(int id) {
+      return WebmExtractor.this.isLevel1Element(id);
     }
 
     @Override

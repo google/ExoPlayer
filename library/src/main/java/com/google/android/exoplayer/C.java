@@ -90,6 +90,11 @@ public final class C {
    */
   public static final int RESULT_END_OF_INPUT = -1;
 
+  /**
+   * A return value for methods where the length of parsed data exceeds the maximum length allowed.
+   */
+  public static final int RESULT_MAX_LENGTH_EXCEEDED = -2;
+
   private C() {}
 
 }

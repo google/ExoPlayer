@@ -95,15 +95,24 @@ public class VarintReaderTest extends TestCase {
     int bytesRead = input.read(new byte[1], 0, 1);
     assertEquals(1, bytesRead);
     // End of input allowed.
-    long result = reader.readUnsignedVarint(input, true, false);
-    assertEquals(-1, result);
+    long result = reader.readUnsignedVarint(input, true, false, 8);
+    assertEquals(C.RESULT_END_OF_INPUT, result);
     // End of input not allowed.
     try {
-      reader.readUnsignedVarint(input, false, false);
+      reader.readUnsignedVarint(input, false, false, 8);
       fail();
     } catch (EOFException e) {
       // Expected.
     }
+  }
+
+  public void testReadVarintExceedsMaximumAllowedLength() throws IOException, InterruptedException {
+    VarintReader reader = new VarintReader();
+    DataSource dataSource = buildDataSource(DATA_8_BYTE_0);
+    dataSource.open(new DataSpec(Uri.parse(TEST_URI)));
+    ExtractorInput input = new DefaultExtractorInput(dataSource, 0, C.LENGTH_UNBOUNDED);
+    long result = reader.readUnsignedVarint(input, false, true, 4);
+    assertEquals(C.RESULT_MAX_LENGTH_EXCEEDED, result);
   }
 
   public void testReadVarint() throws IOException, InterruptedException {
@@ -183,7 +192,7 @@ public class VarintReaderTest extends TestCase {
     DataSource dataSource = buildDataSource(data);
     dataSource.open(new DataSpec(Uri.parse(TEST_URI)));
     ExtractorInput input = new DefaultExtractorInput(dataSource, 0, C.LENGTH_UNBOUNDED);
-    long result = reader.readUnsignedVarint(input, false, removeMask);
+    long result = reader.readUnsignedVarint(input, false, removeMask, 8);
     assertEquals(expectedLength, input.getPosition());
     assertEquals(expectedValue, result);
   }
@@ -198,7 +207,7 @@ public class VarintReaderTest extends TestCase {
       dataSource.open(new DataSpec(Uri.parse(TEST_URI), position, C.LENGTH_UNBOUNDED, null));
       input = new DefaultExtractorInput(dataSource, position, C.LENGTH_UNBOUNDED);
       try {
-        result = reader.readUnsignedVarint(input, false, removeMask);
+        result = reader.readUnsignedVarint(input, false, removeMask, 8);
         position = input.getPosition();
       } catch (IOException e) {
         // Expected. We'll try again from the position that the input was advanced to.

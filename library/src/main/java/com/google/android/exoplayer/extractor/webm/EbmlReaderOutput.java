@@ -37,6 +37,14 @@ import java.io.IOException;
   int getElementType(int id);
 
   /**
+   * Checks if the given id is that of a level 1 element.
+   *
+   * @param id The element ID.
+   * @return True the given id is that of a level 1 element. false otherwise.
+   */
+  boolean isLevel1Element(int id);
+
+  /**
    * Called when the start of a master element is encountered.
    * <p>
    * Following events should be considered as taking place within this element until a matching call
