@@ -98,7 +98,6 @@ public final class MediaCodecUtil {
    * @param mimeType The mime type.
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
    *     unless secure decryption really is required.
-   *
    * @return The name of the best decoder and its capabilities for the given mimeType, or null if
    *     no decoder exists.
    */
