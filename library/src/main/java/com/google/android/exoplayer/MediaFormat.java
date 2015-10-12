@@ -205,6 +205,12 @@ public final class MediaFormat {
     this.maxHeight = maxHeight;
   }
 
+  public MediaFormat copyWithMaxInputSize(int maxInputSize) {
+    return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
+        rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
+        subsampleOffsetUs, initializationData, adaptive, maxWidth, maxHeight);
+  }
+
   public MediaFormat copyWithMaxVideoDimensions(int maxWidth, int maxHeight) {
     return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
         rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
