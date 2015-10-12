@@ -75,6 +75,12 @@ public final class Util {
    */
   public static final String MANUFACTURER = android.os.Build.MANUFACTURER;
 
+  /**
+   * Like {@link android.os.Build#MODEL}, but in a place where it can be conveniently overridden for
+   * local testing.
+   */
+  public static final String MODEL = android.os.Build.MODEL;
+
   private static final Pattern XS_DATE_TIME_PATTERN = Pattern.compile(
       "(\\d\\d\\d\\d)\\-(\\d\\d)\\-(\\d\\d)[Tt]"
       + "(\\d\\d):(\\d\\d):(\\d\\d)(\\.(\\d+))?"
