@@ -560,6 +560,11 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       // Already set. The source of the format may know better, so do nothing.
       return;
     }
+    if ("BRAVIA 4K 2015".equals(Util.MODEL)) {
+      // The Sony BRAVIA 4k TV has input buffers that are too small for the calculated 4k video
+      // maximum input size, so use the default value.
+      return;
+    }
     int maxHeight = format.getInteger(android.media.MediaFormat.KEY_HEIGHT);
     if (codecIsAdaptive && format.containsKey(android.media.MediaFormat.KEY_MAX_HEIGHT)) {
       maxHeight = Math.max(maxHeight, format.getInteger(android.media.MediaFormat.KEY_MAX_HEIGHT));
