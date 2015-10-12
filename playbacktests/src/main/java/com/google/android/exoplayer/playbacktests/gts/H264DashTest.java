@@ -217,7 +217,7 @@ public final class H264DashTest extends ActivityInstrumentationTestCase2<HostAct
       ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
           VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, handler, logger, VIDEO_EVENT_ID,
           MIN_LOADABLE_RETRY_COUNT);
-      MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(
+      MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(host,
           videoSampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 0, handler, logger, 50);
       videoCounters = videoRenderer.codecCounters;
       player.sendMessage(videoRenderer, MediaCodecVideoTrackRenderer.MSG_SET_SURFACE, surface);
