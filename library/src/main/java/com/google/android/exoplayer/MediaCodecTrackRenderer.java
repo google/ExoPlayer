@@ -643,7 +643,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
             adaptiveReconfigurationBytes);
         codec.queueSecureInputBuffer(inputIndex, 0, cryptoInfo, presentationTimeUs, 0);
       } else {
-        codec.queueInputBuffer(inputIndex, 0 , bufferSize, presentationTimeUs, 0);
+        codec.queueInputBuffer(inputIndex, 0, bufferSize, presentationTimeUs, 0);
       }
       inputIndex = -1;
       codecHasQueuedBuffers = true;
