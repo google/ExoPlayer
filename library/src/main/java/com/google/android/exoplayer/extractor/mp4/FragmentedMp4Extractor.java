@@ -53,6 +53,11 @@ public final class FragmentedMp4Extractor implements Extractor {
    */
   public static final int WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME = 1;
 
+  /**
+   * Flag to ignore any tfdt boxes in the stream.
+   */
+  public static final int WORKAROUND_IGNORE_TFDT_BOX = 2;
+
   private static final byte[] PIFF_SAMPLE_ENCRYPTION_BOX_EXTENDED_TYPE =
       new byte[] {-94, 57, 79, 82, 90, -101, 79, 20, -94, 68, 108, 66, 124, 100, -115, -12};
 
@@ -329,7 +334,12 @@ public final class FragmentedMp4Extractor implements Extractor {
   private static void parseTraf(Track track, DefaultSampleValues extendsDefaults,
       ContainerAtom traf, TrackFragment out, int workaroundFlags, byte[] extendedTypeScratch) {
     LeafAtom tfdtAtom = traf.getLeafAtomOfType(Atom.TYPE_tfdt);
-    long decodeTime = tfdtAtom == null ? 0 : parseTfdt(traf.getLeafAtomOfType(Atom.TYPE_tfdt).data);
+    long decodeTime;
+    if (tfdtAtom == null || (workaroundFlags & WORKAROUND_IGNORE_TFDT_BOX) != 0) {
+      decodeTime = 0;
+    } else {
+      decodeTime = parseTfdt(traf.getLeafAtomOfType(Atom.TYPE_tfdt).data);
+    }
 
     LeafAtom tfhd = traf.getLeafAtomOfType(Atom.TYPE_tfhd);
     DefaultSampleValues fragmentHeader = parseTfhd(extendsDefaults, tfhd.data);
@@ -475,8 +485,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     long timescale = track.timescale;
     long cumulativeTime = decodeTime;
     boolean workaroundEveryVideoFrameIsSyncFrame = track.type == Track.TYPE_vide
-        && ((workaroundFlags & WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME)
-        == WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME);
+        && (workaroundFlags & WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME) != 0;
     for (int i = 0; i < sampleCount; i++) {
       // Use trun values if present, otherwise tfhd, otherwise trex.
       int sampleDuration = sampleDurationsPresent ? trun.readUnsignedIntToInt()
