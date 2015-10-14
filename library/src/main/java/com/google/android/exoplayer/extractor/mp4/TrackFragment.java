@@ -25,8 +25,18 @@ import java.io.IOException;
  */
 /* package */ final class TrackFragment {
 
-  public int sampleDescriptionIndex;
-
+  /**
+   * The default values for samples from the track fragment header.
+   */
+  public DefaultSampleValues header;
+  /**
+   * The position (byte offset) of the start of sample data.
+   */
+  public long dataPosition;
+  /**
+   * The position (byte offset) of the start of auxiliary data.
+   */
+  public long auxiliaryDataPosition;
   /**
    * The number of samples contained by the fragment.
    */
