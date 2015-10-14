@@ -1,6 +1,10 @@
 # Release notes #
 
-### Current dev branch (from r1.5.0) ###
+### Current dev branch (from r1.5.1) ###
+
+* [Nothing yet]
+
+### r1.5.0 ###
 
 * Enable smooth frame release by default.
 * Added OkHttpDataSource extension.
