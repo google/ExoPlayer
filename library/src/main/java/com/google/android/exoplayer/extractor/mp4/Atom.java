@@ -92,6 +92,7 @@ import java.util.List;
   public static final int TYPE_enca = Util.getIntegerCodeForString("enca");
   public static final int TYPE_frma = Util.getIntegerCodeForString("frma");
   public static final int TYPE_saiz = Util.getIntegerCodeForString("saiz");
+  public static final int TYPE_saio = Util.getIntegerCodeForString("saio");
   public static final int TYPE_uuid = Util.getIntegerCodeForString("uuid");
   public static final int TYPE_senc = Util.getIntegerCodeForString("senc");
   public static final int TYPE_pasp = Util.getIntegerCodeForString("pasp");
@@ -217,6 +218,31 @@ import java.util.List;
         }
       }
       return null;
+    }
+
+    /**
+     * Returns the total number of leaf/container children of this atom with the given type.
+     *
+     * @param type The type of child atoms to count.
+     * @return The total number of leaf/container children of this atom with the given type.
+     */
+    public int getChildAtomOfTypeCount(int type) {
+      int count = 0;
+      int size = leafChildren.size();
+      for (int i = 0; i < size; i++) {
+        LeafAtom atom = leafChildren.get(i);
+        if (atom.type == type) {
+          count++;
+        }
+      }
+      size = containerChildren.size();
+      for (int i = 0; i < size; i++) {
+        ContainerAtom atom = containerChildren.get(i);
+        if (atom.type == type) {
+          count++;
+        }
+      }
+      return count;
     }
 
     @Override

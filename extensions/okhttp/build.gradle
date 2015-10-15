@@ -11,16 +11,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
-android {
+android{
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 9
         targetSdkVersion 22
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -35,6 +36,7 @@ android {
 
 dependencies {
     compile project(':library')
-    compile project(':opus-extension')
-    compile project(':vp9-extension')
+    compile('com.squareup.okhttp:okhttp:2.5.0') {
+        exclude group: 'org.json'
+    }
 }
