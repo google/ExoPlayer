@@ -221,10 +221,10 @@ import android.util.Log;
     int textLeft;
     int textRight;
     if (cuePosition != Cue.DIMEN_UNSET) {
-      int anchorPosition = Math.round(parentWidth * cuePosition) + parentLeft;
-      textLeft = cuePositionAnchor == Cue.ANCHOR_TYPE_END ? anchorPosition - textWidth
-          : cuePositionAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorPosition * 2 - textWidth) / 2
-          : anchorPosition;
+      int anchorPosition = Math.round(parentWidth * cuePosition);
+      textLeft = cuePositionAnchor == Cue.ANCHOR_TYPE_END ? parentRight - anchorPosition -
+          textWidth : cuePositionAnchor == Cue.ANCHOR_TYPE_START ? parentLeft + anchorPosition
+          : parentLeft + anchorPosition + (parentWidth - anchorPosition - textWidth) / 2;
       textLeft = Math.max(textLeft, parentLeft);
       textRight = Math.min(textLeft + textWidth, parentRight);
     } else {
@@ -241,15 +241,29 @@ import android.util.Log;
       } else {
         // cueLineType == Cue.LINE_TYPE_NUMBER
         int firstLineHeight = textLayout.getLineBottom(0) - textLayout.getLineTop(0);
+        int linePosition = Math.round(cueLine * firstLineHeight);
         if (cueLine >= 0) {
-          anchorPosition = Math.round(cueLine * firstLineHeight) + parentTop;
+          anchorPosition = linePosition;
         } else {
-          anchorPosition = Math.round(cueLine * firstLineHeight) + parentBottom;
+          // Let's reduce the "problem" to a known scenario so we don't need
+          // to implement tons of different use cases. If line is negative,
+          // make it positive and apply a "coordinates translation".
+          if (cueLineAnchor == Cue.ANCHOR_TYPE_END) {
+            cueLineAnchor = Cue.ANCHOR_TYPE_START;
+            anchorPosition = -linePosition;
+          } else if (cueLineAnchor == Cue.ANCHOR_TYPE_MIDDLE){
+            // There is no need of doing the conversion for middle alignment.
+            // We just keep the alignment and keep the number as negative.
+            anchorPosition = linePosition;
+          } else {
+            cueLineAnchor = Cue.ANCHOR_TYPE_END;
+            anchorPosition = -linePosition;
+          }
         }
       }
-      textTop = cueLineAnchor == Cue.ANCHOR_TYPE_END ? anchorPosition - textHeight
-          : cueLineAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorPosition * 2 - textHeight) / 2
-          : anchorPosition;
+      textTop = cueLineAnchor == Cue.ANCHOR_TYPE_END ? parentTop + anchorPosition
+          : cueLineAnchor == Cue.ANCHOR_TYPE_MIDDLE ? parentTop + (parentHeight - anchorPosition
+          - textHeight) / 2 : parentBottom - anchorPosition - textHeight;;
       textBottom = textTop + textHeight;
       if (textBottom > parentBottom) {
         textTop = parentBottom - textHeight;
