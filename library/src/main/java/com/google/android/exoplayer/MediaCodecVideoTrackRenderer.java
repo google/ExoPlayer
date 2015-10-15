@@ -23,6 +23,7 @@ import com.google.android.exoplayer.util.Util;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.os.Handler;
@@ -86,34 +87,6 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   }
 
-  /**
-   * An interface for fine-grained adjustment of frame release times.
-   */
-  public interface FrameReleaseTimeHelper {
-
-    /**
-     * Enables the helper.
-     */
-    void enable();
-
-    /**
-     * Disables the helper.
-     */
-    void disable();
-
-    /**
-     * Called to make a fine-grained adjustment to a frame release time.
-     *
-     * @param framePresentationTimeUs The frame's media presentation time, in microseconds.
-     * @param unadjustedReleaseTimeNs The frame's unadjusted release time, in nanoseconds and in
-     *     the same time base as {@link System#nanoTime()}.
-     * @return An adjusted release time for the frame, in nanoseconds and in the same time base as
-     *     {@link System#nanoTime()}.
-     */
-    public long adjustReleaseTime(long framePresentationTimeUs, long unadjustedReleaseTimeNs);
-
-  }
-
   // TODO: Use MediaFormat constants if these get exposed through the API. See [Internal: b/14127601].
   private static final String KEY_CROP_LEFT = "crop-left";
   private static final String KEY_CROP_RIGHT = "crop-right";
@@ -127,7 +100,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    */
   public static final int MSG_SET_SURFACE = 1;
 
-  private final FrameReleaseTimeHelper frameReleaseTimeHelper;
+  private final VideoFrameReleaseTimeHelper frameReleaseTimeHelper;
   private final EventListener eventListener;
   private final long allowedJoiningTimeUs;
   private final int videoScalingMode;
@@ -152,64 +125,30 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   private float lastReportedPixelWidthHeightRatio;
 
   /**
+   * @param context A context.
    * @param source The upstream source from which the renderer obtains samples.
    * @param videoScalingMode The scaling mode to pass to
    *     {@link MediaCodec#setVideoScalingMode(int)}.
    */
-  public MediaCodecVideoTrackRenderer(SampleSource source, int videoScalingMode) {
-    this(source, null, true, videoScalingMode);
+  public MediaCodecVideoTrackRenderer(Context context, SampleSource source, int videoScalingMode) {
+    this(context, source, videoScalingMode, 0);
   }
 
   /**
-   * @param source The upstream source from which the renderer obtains samples.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisision. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param videoScalingMode The scaling mode to pass to
-   *     {@link MediaCodec#setVideoScalingMode(int)}.
-   */
-  public MediaCodecVideoTrackRenderer(SampleSource source, DrmSessionManager drmSessionManager,
-      boolean playClearSamplesWithoutKeys, int videoScalingMode) {
-    this(source, drmSessionManager, playClearSamplesWithoutKeys, videoScalingMode, 0);
-  }
-
-  /**
+   * @param context A context.
    * @param source The upstream source from which the renderer obtains samples.
    * @param videoScalingMode The scaling mode to pass to
    *     {@link MediaCodec#setVideoScalingMode(int)}.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    */
-  public MediaCodecVideoTrackRenderer(SampleSource source, int videoScalingMode,
+  public MediaCodecVideoTrackRenderer(Context context, SampleSource source, int videoScalingMode,
       long allowedJoiningTimeMs) {
-    this(source, null, true, videoScalingMode, allowedJoiningTimeMs);
+    this(context, source, videoScalingMode, allowedJoiningTimeMs, null, null, -1);
   }
 
   /**
-   * @param source The upstream source from which the renderer obtains samples.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisision. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param videoScalingMode The scaling mode to pass to
-   *     {@link MediaCodec#setVideoScalingMode(int)}.
-   * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
-   *     can attempt to seamlessly join an ongoing playback.
-   */
-  public MediaCodecVideoTrackRenderer(SampleSource source, DrmSessionManager drmSessionManager,
-      boolean playClearSamplesWithoutKeys, int videoScalingMode, long allowedJoiningTimeMs) {
-    this(source, drmSessionManager, playClearSamplesWithoutKeys, videoScalingMode,
-        allowedJoiningTimeMs, null, null, null, -1);
-  }
-
-  /**
+   * @param context A context.
    * @param source The upstream source from which the renderer obtains samples.
    * @param videoScalingMode The scaling mode to pass to
    *     {@link MediaCodec#setVideoScalingMode(int)}.
@@ -221,15 +160,20 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    * @param maxDroppedFrameCountToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link EventListener#onDroppedFrames(int, long)}.
    */
-  public MediaCodecVideoTrackRenderer(SampleSource source, int videoScalingMode,
+  public MediaCodecVideoTrackRenderer(Context context, SampleSource source, int videoScalingMode,
       long allowedJoiningTimeMs, Handler eventHandler, EventListener eventListener,
       int maxDroppedFrameCountToNotify) {
-    this(source, null, true, videoScalingMode, allowedJoiningTimeMs, null, eventHandler,
+    this(context, source, videoScalingMode, allowedJoiningTimeMs, null, false, eventHandler,
         eventListener, maxDroppedFrameCountToNotify);
   }
 
   /**
+   * @param context A context.
    * @param source The upstream source from which the renderer obtains samples.
+   * @param videoScalingMode The scaling mode to pass to
+   *     {@link MediaCodec#setVideoScalingMode(int)}.
+   * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
+   *     can attempt to seamlessly join an ongoing playback.
    * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
    *     content is not required.
    * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
@@ -237,26 +181,20 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    *     begin in parallel with key acquisision. This parameter specifies whether the renderer is
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param videoScalingMode The scaling mode to pass to
-   *     {@link MediaCodec#setVideoScalingMode(int)}.
-   * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
-   *     can attempt to seamlessly join an ongoing playback.
-   * @param frameReleaseTimeHelper An optional helper to make fine-grained adjustments to frame
-   *     release times. May be null.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param maxDroppedFrameCountToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link EventListener#onDroppedFrames(int, long)}.
    */
-  public MediaCodecVideoTrackRenderer(SampleSource source, DrmSessionManager drmSessionManager,
-      boolean playClearSamplesWithoutKeys, int videoScalingMode, long allowedJoiningTimeMs,
-      FrameReleaseTimeHelper frameReleaseTimeHelper, Handler eventHandler,
-      EventListener eventListener, int maxDroppedFrameCountToNotify) {
+  public MediaCodecVideoTrackRenderer(Context context, SampleSource source, int videoScalingMode,
+      long allowedJoiningTimeMs, DrmSessionManager drmSessionManager,
+      boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener,
+      int maxDroppedFrameCountToNotify) {
     super(source, drmSessionManager, playClearSamplesWithoutKeys, eventHandler, eventListener);
+    this.frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(context);
     this.videoScalingMode = videoScalingMode;
     this.allowedJoiningTimeUs = allowedJoiningTimeMs * 1000;
-    this.frameReleaseTimeHelper = frameReleaseTimeHelper;
     this.eventListener = eventListener;
     this.maxDroppedFrameCountToNotify = maxDroppedFrameCountToNotify;
     joiningDeadlineUs = -1;
@@ -285,9 +223,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     if (joining && allowedJoiningTimeUs > 0) {
       joiningDeadlineUs = SystemClock.elapsedRealtime() * 1000L + allowedJoiningTimeUs;
     }
-    if (frameReleaseTimeHelper != null) {
-      frameReleaseTimeHelper.enable();
-    }
+    frameReleaseTimeHelper.enable();
   }
 
   @Override
@@ -340,9 +276,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     lastReportedWidth = -1;
     lastReportedHeight = -1;
     lastReportedPixelWidthHeightRatio = -1;
-    if (frameReleaseTimeHelper != null) {
-      frameReleaseTimeHelper.disable();
-    }
+    frameReleaseTimeHelper.disable();
     super.onDisabled();
   }
 
@@ -468,14 +402,9 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     long unadjustedFrameReleaseTimeNs = systemTimeNs + (earlyUs * 1000);
 
     // Apply a timestamp adjustment, if there is one.
-    long adjustedReleaseTimeNs;
-    if (frameReleaseTimeHelper != null) {
-      adjustedReleaseTimeNs = frameReleaseTimeHelper.adjustReleaseTime(
-          bufferInfo.presentationTimeUs, unadjustedFrameReleaseTimeNs);
-      earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
-    } else {
-      adjustedReleaseTimeNs = unadjustedFrameReleaseTimeNs;
-    }
+    long adjustedReleaseTimeNs = frameReleaseTimeHelper.adjustReleaseTime(
+        bufferInfo.presentationTimeUs, unadjustedFrameReleaseTimeNs);
+    earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
 
     if (earlyUs < -30000) {
       // We're more than 30ms late rendering the frame.
@@ -558,6 +487,11 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     }
     if (format.containsKey(android.media.MediaFormat.KEY_MAX_INPUT_SIZE)) {
       // Already set. The source of the format may know better, so do nothing.
+      return;
+    }
+    if ("BRAVIA 4K 2015".equals(Util.MODEL)) {
+      // The Sony BRAVIA 4k TV has input buffers that are too small for the calculated 4k video
+      // maximum input size, so use the default value.
       return;
     }
     int maxHeight = format.getInteger(android.media.MediaFormat.KEY_HEIGHT);

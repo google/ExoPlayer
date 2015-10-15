@@ -34,6 +34,7 @@ public final class MimeTypes {
   public static final String VIDEO_VP8 = BASE_TYPE_VIDEO + "/x-vnd.on2.vp8";
   public static final String VIDEO_VP9 = BASE_TYPE_VIDEO + "/x-vnd.on2.vp9";
   public static final String VIDEO_MP4V = BASE_TYPE_VIDEO + "/mp4v-es";
+  public static final String VIDEO_MPEG2 = BASE_TYPE_VIDEO + "/mpeg2";
 
   public static final String AUDIO_UNKNOWN = BASE_TYPE_AUDIO + "/x-unknown";
   public static final String AUDIO_MP4 = BASE_TYPE_AUDIO + "/mp4";
@@ -45,6 +46,7 @@ public final class MimeTypes {
   public static final String AUDIO_RAW = BASE_TYPE_AUDIO + "/raw";
   public static final String AUDIO_AC3 = BASE_TYPE_AUDIO + "/ac3";
   public static final String AUDIO_EC3 = BASE_TYPE_AUDIO + "/eac3";
+  public static final String AUDIO_TRUEHD = BASE_TYPE_AUDIO + "/true-hd";
   public static final String AUDIO_DTS = BASE_TYPE_AUDIO + "/vnd.dts";
   public static final String AUDIO_DTS_HD = BASE_TYPE_AUDIO + "/vnd.dts.hd";
   public static final String AUDIO_VORBIS = BASE_TYPE_AUDIO + "/vorbis";

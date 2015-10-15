@@ -68,6 +68,11 @@ public final class C {
   @SuppressWarnings("InlinedApi")
   public static final int ENCODING_E_AC3 = AudioFormat.ENCODING_E_AC3;
 
+  // TODO: Switch these constants to use AudioFormat fields when the target API version is >= 23.
+  // The inlined values here are for NVIDIA Shield devices which support DTS on earlier versions.
+  public static final int ENCODING_DTS = 7;
+  public static final int ENCODING_DTS_HD = 8;
+
   /**
    * @see MediaExtractor#SAMPLE_FLAG_SYNC
    */
@@ -89,6 +94,11 @@ public final class C {
    * A return value for methods where the end of an input was encountered.
    */
   public static final int RESULT_END_OF_INPUT = -1;
+
+  /**
+   * A return value for methods where the length of parsed data exceeds the maximum length allowed.
+   */
+  public static final int RESULT_MAX_LENGTH_EXCEEDED = -2;
 
   private C() {}
 

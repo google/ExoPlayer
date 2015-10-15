@@ -15,17 +15,17 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.MediaCodecVideoTrackRenderer.FrameReleaseTimeHelper;
-
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.view.Choreographer;
 import android.view.Choreographer.FrameCallback;
+import android.view.WindowManager;
 
 /**
  * Makes a best effort to adjust frame release timestamps for a smoother visual result.
  */
 @TargetApi(16)
-public final class SmoothFrameReleaseTimeHelper implements FrameReleaseTimeHelper, FrameCallback {
+public final class VideoFrameReleaseTimeHelper implements FrameCallback {
 
   private static final long CHOREOGRAPHER_SAMPLE_DELAY_MILLIS = 500;
   private static final long MAX_ALLOWED_DRIFT_NS = 20000000;
@@ -33,32 +33,45 @@ public final class SmoothFrameReleaseTimeHelper implements FrameReleaseTimeHelpe
   private static final long VSYNC_OFFSET_PERCENTAGE = 80;
   private static final int MIN_FRAMES_FOR_ADJUSTMENT = 6;
 
-  private final boolean usePrimaryDisplayVsync;
+  private final boolean useDefaultDisplayVsync;
   private final long vsyncDurationNs;
   private final long vsyncOffsetNs;
 
   private Choreographer choreographer;
   private long sampledVsyncTimeNs;
 
-  private long lastUnadjustedFrameTimeUs;
+  private long lastFramePresentationTimeUs;
   private long adjustedLastFrameTimeNs;
   private long pendingAdjustedFrameTimeNs;
 
   private boolean haveSync;
-  private long syncReleaseTimeNs;
-  private long syncFrameTimeNs;
-  private int frameCount;
+  private long syncUnadjustedReleaseTimeNs;
+  private long syncFramePresentationTimeNs;
+  private long frameCount;
 
   /**
-   * @param primaryDisplayRefreshRate The refresh rate of the default display.
-   * @param usePrimaryDisplayVsync Whether to snap to the primary display vsync. May not be
-   *     suitable when rendering to secondary displays.
+   * Constructs an instance that smoothes frame release but does not snap release to the default
+   * display's vsync signal.
    */
-  public SmoothFrameReleaseTimeHelper(
-      float primaryDisplayRefreshRate, boolean usePrimaryDisplayVsync) {
-    this.usePrimaryDisplayVsync = usePrimaryDisplayVsync;
-    if (usePrimaryDisplayVsync) {
-      vsyncDurationNs = (long) (1000000000d / primaryDisplayRefreshRate);
+  public VideoFrameReleaseTimeHelper() {
+    this(-1, false);
+  }
+
+  /**
+   * Constructs an instance that smoothes frame release and snaps release to the default display's
+   * vsync signal.
+   *
+   * @param context A context from which information about the default display can be retrieved.
+   */
+  public VideoFrameReleaseTimeHelper(Context context) {
+    this(getDefaultDisplayRefreshRate(context), true);
+  }
+
+  private VideoFrameReleaseTimeHelper(float defaultDisplayRefreshRate,
+      boolean useDefaultDisplayVsync) {
+    this.useDefaultDisplayVsync = useDefaultDisplayVsync;
+    if (useDefaultDisplayVsync) {
+      vsyncDurationNs = (long) (1000000000d / defaultDisplayRefreshRate);
       vsyncOffsetNs = (vsyncDurationNs * VSYNC_OFFSET_PERCENTAGE) / 100;
     } else {
       vsyncDurationNs = -1;
@@ -66,19 +79,23 @@ public final class SmoothFrameReleaseTimeHelper implements FrameReleaseTimeHelpe
     }
   }
 
-  @Override
+  /**
+   * Enables the helper.
+   */
   public void enable() {
     haveSync = false;
-    if (usePrimaryDisplayVsync) {
+    if (useDefaultDisplayVsync) {
       sampledVsyncTimeNs = 0;
       choreographer = Choreographer.getInstance();
       choreographer.postFrameCallback(this);
     }
   }
 
-  @Override
+  /**
+   * Disables the helper.
+   */
   public void disable() {
-    if (usePrimaryDisplayVsync) {
+    if (useDefaultDisplayVsync) {
       choreographer.removeFrameCallback(this);
       choreographer = null;
     }
@@ -90,17 +107,25 @@ public final class SmoothFrameReleaseTimeHelper implements FrameReleaseTimeHelpe
     choreographer.postFrameCallbackDelayed(this, CHOREOGRAPHER_SAMPLE_DELAY_MILLIS);
   }
 
-  @Override
-  public long adjustReleaseTime(long unadjustedFrameTimeUs, long unadjustedReleaseTimeNs) {
-    long unadjustedFrameTimeNs = unadjustedFrameTimeUs * 1000;
+  /**
+   * Called to make a fine-grained adjustment to a frame release time.
+   *
+   * @param framePresentationTimeUs The frame's media presentation time, in microseconds.
+   * @param unadjustedReleaseTimeNs The frame's unadjusted release time, in nanoseconds and in
+   *     the same time base as {@link System#nanoTime()}.
+   * @return An adjusted release time for the frame, in nanoseconds and in the same time base as
+   *     {@link System#nanoTime()}.
+   */
+  public long adjustReleaseTime(long framePresentationTimeUs, long unadjustedReleaseTimeNs) {
+    long framePresentationTimeNs = framePresentationTimeUs * 1000;
 
     // Until we know better, the adjustment will be a no-op.
-    long adjustedFrameTimeNs = unadjustedFrameTimeNs;
+    long adjustedFrameTimeNs = framePresentationTimeNs;
     long adjustedReleaseTimeNs = unadjustedReleaseTimeNs;
 
     if (haveSync) {
       // See if we've advanced to the next frame.
-      if (unadjustedFrameTimeUs != lastUnadjustedFrameTimeUs) {
+      if (framePresentationTimeUs != lastFramePresentationTimeUs) {
         frameCount++;
         adjustedLastFrameTimeNs = pendingAdjustedFrameTimeNs;
       }
@@ -109,20 +134,22 @@ public final class SmoothFrameReleaseTimeHelper implements FrameReleaseTimeHelpe
         // Calculate the average frame time across all the frames we've seen since the last sync.
         // This will typically give us a frame rate at a finer granularity than the frame times
         // themselves (which often only have millisecond granularity).
-        long averageFrameTimeNs = (unadjustedFrameTimeNs - syncFrameTimeNs) / frameCount;
+        long averageFrameDurationNs = (framePresentationTimeNs - syncFramePresentationTimeNs)
+            / frameCount;
         // Project the adjusted frame time forward using the average.
-        long candidateAdjustedFrameTimeNs = adjustedLastFrameTimeNs + averageFrameTimeNs;
+        long candidateAdjustedFrameTimeNs = adjustedLastFrameTimeNs + averageFrameDurationNs;
 
         if (isDriftTooLarge(candidateAdjustedFrameTimeNs, unadjustedReleaseTimeNs)) {
           haveSync = false;
         } else {
           adjustedFrameTimeNs = candidateAdjustedFrameTimeNs;
-          adjustedReleaseTimeNs = syncReleaseTimeNs + adjustedFrameTimeNs - syncFrameTimeNs;
+          adjustedReleaseTimeNs = syncUnadjustedReleaseTimeNs + adjustedFrameTimeNs
+              - syncFramePresentationTimeNs;
         }
       } else {
         // We're synced but haven't waited the required number of frames to apply an adjustment.
         // Check drift anyway.
-        if (isDriftTooLarge(unadjustedFrameTimeNs, unadjustedReleaseTimeNs)) {
+        if (isDriftTooLarge(framePresentationTimeNs, unadjustedReleaseTimeNs)) {
           haveSync = false;
         }
       }
@@ -130,14 +157,14 @@ public final class SmoothFrameReleaseTimeHelper implements FrameReleaseTimeHelpe
 
     // If we need to sync, do so now.
     if (!haveSync) {
-      syncFrameTimeNs = unadjustedFrameTimeNs;
-      syncReleaseTimeNs = unadjustedReleaseTimeNs;
+      syncFramePresentationTimeNs = framePresentationTimeNs;
+      syncUnadjustedReleaseTimeNs = unadjustedReleaseTimeNs;
       frameCount = 0;
       haveSync = true;
       onSynced();
     }
 
-    lastUnadjustedFrameTimeUs = unadjustedFrameTimeUs;
+    lastFramePresentationTimeUs = framePresentationTimeUs;
     pendingAdjustedFrameTimeNs = adjustedFrameTimeNs;
 
     if (sampledVsyncTimeNs == 0) {
@@ -155,8 +182,8 @@ public final class SmoothFrameReleaseTimeHelper implements FrameReleaseTimeHelpe
   }
 
   private boolean isDriftTooLarge(long frameTimeNs, long releaseTimeNs) {
-    long elapsedFrameTimeNs = frameTimeNs - syncFrameTimeNs;
-    long elapsedReleaseTimeNs = releaseTimeNs - syncReleaseTimeNs;
+    long elapsedFrameTimeNs = frameTimeNs - syncFramePresentationTimeNs;
+    long elapsedReleaseTimeNs = releaseTimeNs - syncUnadjustedReleaseTimeNs;
     return Math.abs(elapsedReleaseTimeNs - elapsedFrameTimeNs) > MAX_ALLOWED_DRIFT_NS;
   }
 
@@ -175,6 +202,11 @@ public final class SmoothFrameReleaseTimeHelper implements FrameReleaseTimeHelpe
     long snappedAfterDiff = snappedAfterNs - releaseTime;
     long snappedBeforeDiff = releaseTime - snappedBeforeNs;
     return snappedAfterDiff < snappedBeforeDiff ? snappedAfterNs : snappedBeforeNs;
+  }
+
+  private static float getDefaultDisplayRefreshRate(Context context) {
+    WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    return manager.getDefaultDisplay().getRefreshRate();
   }
 
 }

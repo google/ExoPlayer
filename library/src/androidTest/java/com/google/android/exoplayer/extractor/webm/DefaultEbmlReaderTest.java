@@ -196,6 +196,11 @@ public class DefaultEbmlReaderTest extends TestCase {
     }
 
     @Override
+    public boolean isLevel1Element(int id) {
+      return false;
+    }
+
+    @Override
     public void startMasterElement(int id, long contentPosition, long contentSize) {
       events.add(formatEvent(id, "start contentPosition=" + contentPosition
           + " contentSize=" + contentSize));

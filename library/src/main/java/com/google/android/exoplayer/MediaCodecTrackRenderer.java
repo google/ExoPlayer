@@ -643,7 +643,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
             adaptiveReconfigurationBytes);
         codec.queueSecureInputBuffer(inputIndex, 0, cryptoInfo, presentationTimeUs, 0);
       } else {
-        codec.queueInputBuffer(inputIndex, 0 , bufferSize, presentationTimeUs, 0);
+        codec.queueInputBuffer(inputIndex, 0, bufferSize, presentationTimeUs, 0);
       }
       inputIndex = -1;
       codecHasQueuedBuffers = true;
@@ -922,11 +922,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    *     propagation incorrectly on the host device. False otherwise.
    */
   private static boolean codecNeedsEosPropagationWorkaround(String name) {
-    return Util.SDK_INT <= 17
-        && "OMX.rk.video_decoder.avc".equals(name)
-        && ("ht7s3".equals(Util.DEVICE) // Tesco HUDL
-            || "rk30sdk".equals(Util.DEVICE) // Rockchip rk30
-            || "rk31sdk".equals(Util.DEVICE)); // Rockchip rk31
+    return Util.SDK_INT <= 17 && "OMX.rk.video_decoder.avc".equals(name);
   }
 
   /**
