@@ -220,20 +220,62 @@ import android.util.Log;
 
     int textLeft;
     int textRight;
-
-    // Position.
-    textLeft = calculateCueboxLeftPosition(parentWidth, cuePosition, cuePositionAnchor,
-        parentRight, parentLeft, textWidth);
-    textRight = Math.min(parentRight, textLeft + textWidth);
+    if (cuePosition != Cue.DIMEN_UNSET) {
+      int anchorPosition = Math.round(parentWidth * cuePosition);
+      textLeft = cuePositionAnchor == Cue.ANCHOR_TYPE_END ? parentRight - anchorPosition -
+          textWidth : cuePositionAnchor == Cue.ANCHOR_TYPE_START ? parentLeft + anchorPosition
+          : parentLeft + anchorPosition + (parentWidth - anchorPosition - textWidth) / 2;
+      textLeft = Math.max(textLeft, parentLeft);
+      textRight = Math.min(textLeft + textWidth, parentRight);
+    } else {
+      textLeft = (parentWidth - textWidth) / 2;
+      textRight = textLeft + textWidth;
+    }
 
     int textTop;
     int textBottom;
-
-    // Line.
-    int firstLineHeight = textLayout.getLineBottom(0) - textLayout.getLineTop(0);
-    textTop = calculateCueBoxTopPosition(parentHeight, cueLine, cueLineType, cueLineAnchor,
-        firstLineHeight, parentTop, parentBottom, textHeight, bottomPaddingFraction);
-    textBottom = Math.min(parentBottom, textTop + textHeight);
+    if (cueLine != Cue.DIMEN_UNSET) {
+      int anchorPosition;
+      if (cueLineType == Cue.LINE_TYPE_FRACTION) {
+        anchorPosition = Math.round(parentHeight * cueLine) + parentTop;
+      } else {
+        // cueLineType == Cue.LINE_TYPE_NUMBER
+        int firstLineHeight = textLayout.getLineBottom(0) - textLayout.getLineTop(0);
+        int linePosition = Math.round(cueLine * firstLineHeight);
+        if (cueLine >= 0) {
+          anchorPosition = linePosition;
+        } else {
+          // Let's reduce the "problem" to a known scenario so we don't need
+          // to implement tons of different use cases. If line is negative,
+          // make it positive and apply a "coordinates translation".
+          if (cueLineAnchor == Cue.ANCHOR_TYPE_END) {
+            cueLineAnchor = Cue.ANCHOR_TYPE_START;
+            anchorPosition = -linePosition;
+          } else if (cueLineAnchor == Cue.ANCHOR_TYPE_MIDDLE){
+            // There is no need of doing the conversion for middle alignment.
+            // We just keep the alignment and keep the number as negative.
+            anchorPosition = linePosition;
+          } else {
+            cueLineAnchor = Cue.ANCHOR_TYPE_END;
+            anchorPosition = -linePosition;
+          }
+        }
+      }
+      textTop = cueLineAnchor == Cue.ANCHOR_TYPE_END ? parentTop + anchorPosition
+          : cueLineAnchor == Cue.ANCHOR_TYPE_MIDDLE ? parentTop + (parentHeight - anchorPosition
+          - textHeight) / 2 : parentBottom - anchorPosition - textHeight;;
+      textBottom = textTop + textHeight;
+      if (textBottom > parentBottom) {
+        textTop = parentBottom - textHeight;
+        textBottom = parentBottom;
+      } else if (textTop < parentTop) {
+        textTop = parentTop;
+        textBottom = parentTop + textHeight;
+      }
+    } else {
+      textTop = parentBottom - textHeight - (int) (parentHeight * bottomPaddingFraction);
+      textBottom = textTop + textHeight;
+    }
 
     textWidth = textRight - textLeft;
 
@@ -320,98 +362,6 @@ import android.util.Log;
     // Some CharSequence implementations don't perform a cheap referential equality check in their
     // equals methods, so we perform one explicitly here.
     return first == second || (first != null && first.equals(second));
-  }
-
-  /**
-   * Calculates left position of the cuebox within enclosing parent layout.
-   *
-   * @param parentWidth Width of parent enclosing the cuebox.
-   * @param position Position value as it comes from the cue object.
-   * @param positionAnchor Position anchor as it comes from the cue object.
-   * @param parentRight Parent right.
-   * @param parentLeft Parent left
-   * @param textWidth Text width
-   * @return Left position of the cue box within parent layout.
-   */
-  private static int calculateCueboxLeftPosition(int parentWidth, float position,
-      int positionAnchor, int parentRight, int parentLeft, int textWidth) {
-    int pos;
-    if (position != Cue.DIMEN_UNSET) {
-      int anchorOffset = Math.round(parentWidth * position);
-      int anchor = positionAnchor != Cue.TYPE_UNSET ? positionAnchor : Cue.ANCHOR_TYPE_MIDDLE;
-      pos = anchor == Cue.ANCHOR_TYPE_END ? parentRight - anchorOffset -
-          textWidth : anchor == Cue.ANCHOR_TYPE_START ? parentLeft +
-          anchorOffset : parentLeft + anchorOffset + (parentWidth -
-          anchorOffset - textWidth) / 2;
-    } else {
-      // By default, cuebox is placed in the middle of the video viewport.
-      pos = parentLeft + (parentWidth - textWidth) / 2;
-    }
-
-    return Math.max(parentLeft, pos);
-  }
-
-  /**
-   * Calculates top position of the cuebox within enclosing parent layout.
-   *
-   * @param parentHeight Height of the parent enclosing the cuebox.
-   * @param line Line position value as it comes from the cue object.
-   * @param cueLineType Cue line type. One of {@link Cue#LINE_TYPE_FRACTION} or
-   * {@link Cue#LINE_TYPE_NUMBER}.
-   * @param lineAnchor Line anchor as it comes from the cue object.
-   * @param firstLineHeight Height of the first line of the text in the cuebox.
-   * @param parentTop Parent top position.
-   * @param parentBottom Parent bottom position.
-   * @param textHeight Height of the text enclosed by the cuebox.
-   * @param bottomPadding The bottom padding fraction to apply when {@link Cue#line} is
-   *     {@link Cue#DIMEN_UNSET}, as a fraction of the viewport height.
-   * @return Top position of the cue box.
-   */
-  private static int calculateCueBoxTopPosition(int parentHeight, float line, int cueLineType,
-      int lineAnchor, int firstLineHeight, int parentTop, int parentBottom,
-      int textHeight, float bottomPadding) {
-    int pos;
-
-    // Line
-    if (line != Cue.DIMEN_UNSET) {
-      int anchorOffset;
-      // calculate anchor offset
-      if (cueLineType == Cue.LINE_TYPE_FRACTION) {
-        anchorOffset = Math.round(parentHeight * line);
-      } else {
-        if (line >= 0) {
-          anchorOffset = Math.round(line * firstLineHeight);
-          // Security check.
-          if (anchorOffset > parentHeight) {
-            anchorOffset = 0;
-          }
-        } else {
-          // Let's reduce the "problem" to a known scenario so we don't need
-          // to implement tons of different use cases. If line is negative,
-          // make it positive and apply a "coordinates translation".
-          if (lineAnchor == Cue.ANCHOR_TYPE_END) {
-            lineAnchor = Cue.ANCHOR_TYPE_START;
-            anchorOffset = -Math.round(line * firstLineHeight);
-          } else if (lineAnchor == Cue.ANCHOR_TYPE_MIDDLE){
-            // There is no need of doing the conversion for middle alignment.
-            // We just keep the alignment and keep the number as negative.
-            anchorOffset = Math.round(line * firstLineHeight);
-          } else {
-            lineAnchor = Cue.ANCHOR_TYPE_END;
-            anchorOffset = -Math.round(line * firstLineHeight);
-          }
-        }
-      }
-      // calculate line position
-      pos = lineAnchor == Cue.ANCHOR_TYPE_END ? parentTop + anchorOffset
-          : lineAnchor == Cue.ANCHOR_TYPE_MIDDLE ? parentTop + (parentHeight - anchorOffset
-          - textHeight) / 2 : parentBottom - anchorOffset - textHeight;
-
-    } else {
-      pos = parentBottom - textHeight - (int) (parentHeight * bottomPadding);
-    }
-
-    return Math.max(parentTop, pos);
   }
 
 }

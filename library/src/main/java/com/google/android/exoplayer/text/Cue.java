@@ -126,7 +126,7 @@ public class Cue {
   }
 
   public Cue(CharSequence text, Alignment textAlignment, float line, int lineType,
-             int lineAnchor, float position, int positionAnchor, float size) {
+      int lineAnchor, float position, int positionAnchor, float size) {
     this.text = text;
     this.textAlignment = textAlignment;
     this.line = line;
