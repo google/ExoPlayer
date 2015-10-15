@@ -151,7 +151,7 @@ DataSource dataSource = new DefaultUriDataSource(context, null, userAgent);
 ExtractorSampleSource sampleSource = new ExtractorSampleSource(
     uri, dataSource, allocator, BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE);
 MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(
-    sampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+    context, sampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
 MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
 {% endhighlight %}
 
@@ -208,8 +208,8 @@ ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher,
     new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset, null, null);
 ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
     VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
-MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource,
-    MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context,
+    videoSampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
 
 // Build the audio renderer.
 DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
@@ -262,8 +262,8 @@ DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAg
 HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter,
     variantIndices, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
 HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, loadControl,
-    BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, true);
-MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
+    BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
+MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context, sampleSource,
     MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
 MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
 {% endhighlight %}
