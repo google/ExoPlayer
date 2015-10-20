@@ -210,7 +210,7 @@ public final class MediaFormat {
   }
 
   public MediaFormat copyWithMaxInputSize(int maxInputSize) {
-    return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
+    return new MediaFormat(id, trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
         rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
         subsampleOffsetUs, initializationData, adaptive, maxWidth, maxHeight);
   }
