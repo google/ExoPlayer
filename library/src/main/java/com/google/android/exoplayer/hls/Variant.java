@@ -27,10 +27,15 @@ public final class Variant implements FormatWrapper {
   public final String url;
   public final Format format;
 
-  public Variant(int index, String url, int bitrate, String codecs, int width, int height) {
+  public Variant(int index, String name, String url, int bitrate, String codecs, int width, int height) {
     this.url = url;
-    format = new Format(Integer.toString(index), MimeTypes.APPLICATION_M3U8, width, height, -1, -1,
-        -1, bitrate, null, codecs);
+    if (name != null) {
+      format = new Format(name, MimeTypes.APPLICATION_M3U8, width, height, -1, -1,
+              -1, bitrate, null, codecs);
+    } else {
+      format = new Format(Integer.toString(index), MimeTypes.APPLICATION_M3U8, width, height, -1, -1,
+              -1, bitrate, null, codecs);
+    }
   }
 
   @Override
