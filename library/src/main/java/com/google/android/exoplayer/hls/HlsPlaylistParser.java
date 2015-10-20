@@ -166,7 +166,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
       } else if (line.startsWith(STREAM_INF_TAG)) {
         bitrate = HlsParserUtil.parseIntAttr(line, BANDWIDTH_ATTR_REGEX, BANDWIDTH_ATTR);
         codecs = HlsParserUtil.parseOptionalStringAttr(line, CODECS_ATTR_REGEX);
-        name = HlsParserUtil.parseStringAttr(line, NAME_ATTR_REGEX, NAME_ATTR);
+        name = HlsParserUtil.parseOptionalStringAttr(line, NAME_ATTR_REGEX);
         String resolutionString = HlsParserUtil.parseOptionalStringAttr(line,
             RESOLUTION_ATTR_REGEX);
         if (resolutionString != null) {
