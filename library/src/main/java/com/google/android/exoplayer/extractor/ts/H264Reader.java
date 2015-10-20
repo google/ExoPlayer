@@ -210,7 +210,7 @@ import java.util.List;
     SpsData parsedSpsData = CodecSpecificDataUtil.parseSpsNalUnit(bitArray);
 
     // Construct and output the format.
-    output.format(MediaFormat.createVideoFormat(MediaFormat.NO_VALUE, MimeTypes.VIDEO_H264,
+    output.format(MediaFormat.createVideoFormat(null, MediaFormat.NO_VALUE, MimeTypes.VIDEO_H264,
         MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, parsedSpsData.width,
         parsedSpsData.height, initializationData, MediaFormat.NO_VALUE,
         parsedSpsData.pixelWidthAspectRatio));

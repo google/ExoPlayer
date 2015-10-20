@@ -294,7 +294,7 @@ import java.util.Collections;
       }
     }
 
-    output.format(MediaFormat.createVideoFormat(MediaFormat.NO_VALUE, MimeTypes.VIDEO_H265,
+    output.format(MediaFormat.createVideoFormat(null, MediaFormat.NO_VALUE, MimeTypes.VIDEO_H265,
         MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, picWidthInLumaSamples,
         picHeightInLumaSamples, Collections.singletonList(csd), MediaFormat.NO_VALUE,
         pixelWidthHeightRatio));

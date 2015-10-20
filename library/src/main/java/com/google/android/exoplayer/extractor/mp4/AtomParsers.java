@@ -383,13 +383,13 @@ import java.util.List;
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             durationUs, language, out, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
-        out.mediaFormat = MediaFormat.createTextFormat(trackId, MimeTypes.APPLICATION_TTML,
+        out.mediaFormat = MediaFormat.createTextFormat(null, trackId, MimeTypes.APPLICATION_TTML,
             MediaFormat.NO_VALUE, durationUs, language);
       } else if (childAtomType == Atom.TYPE_tx3g) {
-        out.mediaFormat = MediaFormat.createTextFormat(trackId, MimeTypes.APPLICATION_TX3G,
+        out.mediaFormat = MediaFormat.createTextFormat(null, trackId, MimeTypes.APPLICATION_TX3G,
             MediaFormat.NO_VALUE, durationUs, language);
       } else if (childAtomType == Atom.TYPE_stpp) {
-        out.mediaFormat = MediaFormat.createTextFormat(trackId, MimeTypes.APPLICATION_TTML,
+        out.mediaFormat = MediaFormat.createTextFormat(null, trackId, MimeTypes.APPLICATION_TTML,
             MediaFormat.NO_VALUE, durationUs, language, 0 /* subsample timing is absolute */);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
@@ -460,7 +460,7 @@ import java.util.List;
       return;
     }
 
-    out.mediaFormat = MediaFormat.createVideoFormat(trackId, mimeType, MediaFormat.NO_VALUE,
+    out.mediaFormat = MediaFormat.createVideoFormat(null, trackId, mimeType, MediaFormat.NO_VALUE,
         MediaFormat.NO_VALUE, durationUs, width, height, initializationData, rotationDegrees,
         pixelWidthHeightRatio);
   }
@@ -649,7 +649,7 @@ import java.util.List;
       } else if ((atomType == Atom.TYPE_dtsc || atomType == Atom.TYPE_dtse
           || atomType == Atom.TYPE_dtsh || atomType == Atom.TYPE_dtsl)
           && childAtomType == Atom.TYPE_ddts) {
-        out.mediaFormat = MediaFormat.createAudioFormat(trackId, mimeType, MediaFormat.NO_VALUE,
+        out.mediaFormat = MediaFormat.createAudioFormat(null, trackId, mimeType, MediaFormat.NO_VALUE,
             MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate, null, language);
         return;
       }
@@ -661,7 +661,7 @@ import java.util.List;
       return;
     }
 
-    out.mediaFormat = MediaFormat.createAudioFormat(trackId, mimeType, MediaFormat.NO_VALUE,
+    out.mediaFormat = MediaFormat.createAudioFormat(null, trackId, mimeType, MediaFormat.NO_VALUE,
         sampleSize, durationUs, channelCount, sampleRate,
         initializationData == null ? null : Collections.singletonList(initializationData),
         language);
