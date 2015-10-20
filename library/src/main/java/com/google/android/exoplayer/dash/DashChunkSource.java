@@ -608,14 +608,14 @@ public class DashChunkSource implements ChunkSource, Output {
       String mediaMimeType, long durationUs) {
     switch (adaptationSetType) {
       case AdaptationSet.TYPE_VIDEO:
-        return MediaFormat.createVideoFormat(MediaFormat.NO_VALUE, mediaMimeType, format.bitrate,
+        return MediaFormat.createVideoFormat(format.id, MediaFormat.NO_VALUE, mediaMimeType, format.bitrate,
             MediaFormat.NO_VALUE, durationUs, format.width, format.height, null);
       case AdaptationSet.TYPE_AUDIO:
-        return MediaFormat.createAudioFormat(MediaFormat.NO_VALUE, mediaMimeType, format.bitrate,
+        return MediaFormat.createAudioFormat(format.id, MediaFormat.NO_VALUE, mediaMimeType, format.bitrate,
             MediaFormat.NO_VALUE, durationUs, format.audioChannels, format.audioSamplingRate, null,
             format.language);
       case AdaptationSet.TYPE_TEXT:
-        return MediaFormat.createTextFormat(MediaFormat.NO_VALUE, mediaMimeType, format.bitrate,
+        return MediaFormat.createTextFormat(format.id, MediaFormat.NO_VALUE, mediaMimeType, format.bitrate,
             durationUs, format.language);
       default:
         return null;
@@ -846,6 +846,7 @@ public class DashChunkSource implements ChunkSource, Output {
 
     public ExposedTrack(MediaFormat trackFormat, int adaptationSetIndex, Format fixedFormat) {
       this.trackFormat = trackFormat;
+
       this.adaptationSetIndex = adaptationSetIndex;
       this.fixedFormat = fixedFormat;
       this.adaptiveFormats = null;
@@ -865,9 +866,9 @@ public class DashChunkSource implements ChunkSource, Output {
 
     public boolean isAdaptive() {
       return adaptiveFormats != null;
-    }
 
-  }
+    }
+    }
 
   private static final class RepresentationHolder {
 
