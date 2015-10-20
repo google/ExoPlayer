@@ -94,8 +94,14 @@ public final class MediaCodecUtil {
 
   /**
    * Returns the name of the best decoder and its capabilities for the given mimeType.
+   *
+   * @param mimeType The mime type.
+   * @param secure Whether the decoder is required to support secure decryption. Always pass false
+   *     unless secure decryption really is required.
+   * @return The name of the best decoder and its capabilities for the given mimeType, or null if
+   *     no decoder exists.
    */
-  private static synchronized Pair<String, CodecCapabilities> getMediaCodecInfo(
+  public static synchronized Pair<String, CodecCapabilities> getMediaCodecInfo(
       String mimeType, boolean secure) throws DecoderQueryException {
     CodecKey key = new CodecKey(mimeType, secure);
     if (codecs.containsKey(key)) {
@@ -202,8 +208,10 @@ public final class MediaCodecUtil {
       return false;
     }
 
-    // Work around an issue where the VP8 decoder on Samsung Galaxy S4 Mini does not render video.
-    if (Util.SDK_INT <= 19 && Util.DEVICE != null && Util.DEVICE.startsWith("serrano")
+    // Work around an issue where the VP8 decoder on Samsung Galaxy S3/S4 Mini does not render
+    // video.
+    if (Util.SDK_INT <= 19 && Util.DEVICE != null
+        && (Util.DEVICE.startsWith("d2") || Util.DEVICE.startsWith("serrano"))
         && "samsung".equals(Util.MANUFACTURER) && name.equals("OMX.SEC.vp8.dec")) {
       return false;
     }

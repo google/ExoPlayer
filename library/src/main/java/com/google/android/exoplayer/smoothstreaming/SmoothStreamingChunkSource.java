@@ -427,7 +427,8 @@ public class SmoothStreamingChunkSource implements ChunkSource,
 
     // Build the extractor.
     FragmentedMp4Extractor mp4Extractor = new FragmentedMp4Extractor(
-        FragmentedMp4Extractor.WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME);
+        FragmentedMp4Extractor.WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
+        | FragmentedMp4Extractor.WORKAROUND_IGNORE_TFDT_BOX);
     Track mp4Track = new Track(trackIndex, mp4TrackType, element.timescale, durationUs, mediaFormat,
         trackEncryptionBoxes, mp4TrackType == Track.TYPE_vide ? 4 : -1);
     mp4Extractor.setTrack(mp4Track);

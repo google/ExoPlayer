@@ -17,7 +17,6 @@ package com.google.android.exoplayer.text.ttml;
 
 import com.google.android.exoplayer.text.Cue;
 
-import android.graphics.Color;
 import android.test.InstrumentationTestCase;
 import android.text.Layout;
 import android.text.SpannableStringBuilder;
@@ -67,8 +66,8 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
     TtmlNode firstDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 0);
     TtmlStyle firstPStyle = queryChildrenForTag(firstDiv, TtmlNode.TAG_P, 0).style;
-    assertEquals(Color.parseColor("yellow"), firstPStyle.getColor());
-    assertEquals(Color.parseColor("blue"), firstPStyle.getBackgroundColor());
+    assertEquals(TtmlColorParser.parseColor("yellow"), firstPStyle.getColor());
+    assertEquals(TtmlColorParser.parseColor("blue"), firstPStyle.getBackgroundColor());
     assertEquals("serif", firstPStyle.getFontFamily());
     assertEquals(TtmlStyle.STYLE_BOLD_ITALIC, firstPStyle.getStyle());
     assertTrue(firstPStyle.isUnderline());
@@ -78,24 +77,43 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
     assertEquals(4, subtitle.getEventTimeCount());
     assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_ITALIC,
-        Color.CYAN, Color.parseColor("lime"), false, true, null);
+        TtmlColorParser.CYAN, TtmlColorParser.parseColor("lime"), false, true, null);
+  }
+
+  /**
+   * regression test for devices on JellyBean where some named colors are not correctly defined
+   * on framework level. Tests that <i>lime</i> resolves to <code>#FF00FF00</code> not
+   * <code>#00FF00</code>.
+   *
+   * See: https://github.com/android/platform_frameworks_base/blob/jb-mr2-release/
+   *          graphics/java/android/graphics/Color.java#L414
+   *      https://github.com/android/platform_frameworks_base/blob/kitkat-mr2.2-release/
+   *          graphics/java/android/graphics/Color.java#L414
+   *
+   * @throws IOException thrown if reading subtitle file fails.
+   */
+  public void testLime() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
+    assertEquals(4, subtitle.getEventTimeCount());
+    assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_ITALIC,
+        TtmlColorParser.CYAN, TtmlColorParser.LIME, false, true, null);
   }
 
   public void testInheritGlobalStyle() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_STYLE_TTML_FILE);
     assertEquals(2, subtitle.getEventTimeCount());
     assertSpans(subtitle, 10, "text 1", "serif", TtmlStyle.STYLE_BOLD_ITALIC,
-        Color.BLUE, Color.YELLOW, true, false, null);
+        TtmlColorParser.BLUE, TtmlColorParser.YELLOW, true, false, null);
   }
 
   public void testInheritGlobalStyleOverriddenByInlineAttributes() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_STYLE_OVERRIDE_TTML_FILE);
     assertEquals(4, subtitle.getEventTimeCount());
 
-    assertSpans(subtitle, 10, "text 1", "serif", TtmlStyle.STYLE_BOLD_ITALIC, Color.BLUE,
-        Color.YELLOW, true, false, null);
-    assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_ITALIC, Color.RED,
-        Color.YELLOW, true, false, null);
+    assertSpans(subtitle, 10, "text 1", "serif", TtmlStyle.STYLE_BOLD_ITALIC, TtmlColorParser.BLUE,
+        TtmlColorParser.YELLOW, true, false, null);
+    assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_ITALIC, TtmlColorParser.RED,
+        TtmlColorParser.YELLOW, true, false, null);
   }
 
   public void testInheritGlobalAndParent() throws IOException {
@@ -103,9 +121,10 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals(4, subtitle.getEventTimeCount());
 
     assertSpans(subtitle, 10, "text 1", "sansSerif", TtmlStyle.STYLE_NORMAL,
-        Color.RED, Color.parseColor("lime"), false, true, Layout.Alignment.ALIGN_CENTER);
+        TtmlColorParser.RED, TtmlColorParser.parseColor("lime"), false, true,
+        Layout.Alignment.ALIGN_CENTER);
     assertSpans(subtitle, 20, "text 2", "serif", TtmlStyle.STYLE_BOLD_ITALIC,
-        Color.BLUE, Color.YELLOW, true, true, Layout.Alignment.ALIGN_CENTER);
+        TtmlColorParser.BLUE, TtmlColorParser.YELLOW, true, true, Layout.Alignment.ALIGN_CENTER);
   }
 
   public void testInheritMultipleStyles() throws IOException {
@@ -113,7 +132,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals(12, subtitle.getEventTimeCount());
 
     assertSpans(subtitle, 10, "text 1", "sansSerif", TtmlStyle.STYLE_BOLD_ITALIC,
-        Color.BLUE, Color.YELLOW, false, true, null);
+        TtmlColorParser.BLUE, TtmlColorParser.YELLOW, false, true, null);
   }
 
   public void testInheritMultipleStylesWithoutLocalAttributes() throws IOException {
@@ -121,7 +140,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals(12, subtitle.getEventTimeCount());
 
     assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_BOLD_ITALIC,
-        Color.BLUE, Color.BLACK, false, true, null);
+        TtmlColorParser.BLUE, TtmlColorParser.BLACK, false, true, null);
 
   }
 
@@ -130,7 +149,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals(12, subtitle.getEventTimeCount());
 
     assertSpans(subtitle, 30, "text 2.5", "sansSerifInline", TtmlStyle.STYLE_ITALIC,
-        Color.RED, Color.YELLOW, true, true, null);
+        TtmlColorParser.RED, TtmlColorParser.YELLOW, true, true, null);
   }
 
   public void testEmptyStyleAttribute() throws IOException {
@@ -175,16 +194,16 @@ public final class TtmlParserTest extends InstrumentationTestCase {
 
     TtmlStyle style = globalStyles.get("s2");
     assertEquals("serif", style.getFontFamily());
-    assertEquals(Color.RED, style.getBackgroundColor());
-    assertEquals(Color.BLACK, style.getColor());
+    assertEquals(TtmlColorParser.RED, style.getBackgroundColor());
+    assertEquals(TtmlColorParser.BLACK, style.getColor());
     assertEquals(TtmlStyle.STYLE_BOLD_ITALIC, style.getStyle());
     assertTrue(style.isLinethrough());
 
     style = globalStyles.get("s3");
     // only difference: color must be RED
-    assertEquals(Color.RED, style.getColor());
+    assertEquals(TtmlColorParser.RED, style.getColor());
     assertEquals("serif", style.getFontFamily());
-    assertEquals(Color.RED, style.getBackgroundColor());
+    assertEquals(TtmlColorParser.RED, style.getBackgroundColor());
     assertEquals(TtmlStyle.STYLE_BOLD_ITALIC, style.getStyle());
     assertTrue(style.isLinethrough());
   }
@@ -224,8 +243,8 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     TtmlStyle style = queryChildrenForTag(div, TtmlNode.TAG_P, 0).style;
 
     assertNotNull(style);
-    assertEquals(Color.BLACK, style.getBackgroundColor());
-    assertEquals(Color.YELLOW, style.getColor());
+    assertEquals(TtmlColorParser.BLACK, style.getBackgroundColor());
+    assertEquals(TtmlColorParser.YELLOW, style.getColor());
     assertEquals(TtmlStyle.STYLE_ITALIC, style.getStyle());
     assertEquals("sansSerif", style.getFontFamily());
     assertFalse(style.isUnderline());
@@ -243,8 +262,8 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     TtmlStyle style = queryChildrenForTag(div, TtmlNode.TAG_P, 0).style;
 
     assertNotNull(style);
-    assertEquals(Color.BLACK, style.getBackgroundColor());
-    assertEquals(Color.YELLOW, style.getColor());
+    assertEquals(TtmlColorParser.BLACK, style.getBackgroundColor());
+    assertEquals(TtmlColorParser.YELLOW, style.getColor());
     assertEquals(TtmlStyle.STYLE_ITALIC, style.getStyle());
     assertEquals("sansSerif", style.getFontFamily());
     assertFalse(style.isUnderline());

@@ -53,6 +53,11 @@ public final class FragmentedMp4Extractor implements Extractor {
    */
   public static final int WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME = 1;
 
+  /**
+   * Flag to ignore any tfdt boxes in the stream.
+   */
+  public static final int WORKAROUND_IGNORE_TFDT_BOX = 2;
+
   private static final byte[] PIFF_SAMPLE_ENCRYPTION_BOX_EXTENDED_TYPE =
       new byte[] {-94, 57, 79, 82, 90, -101, 79, 20, -94, 68, 108, 66, 124, 100, -115, -12};
 
@@ -81,6 +86,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   private long atomSize;
   private int atomHeaderBytesRead;
   private ParsableByteArray atomData;
+  private long endOfMdatPosition;
 
   private int sampleIndex;
   private int sampleSize;
@@ -199,7 +205,15 @@ public final class FragmentedMp4Extractor implements Extractor {
       atomSize = atomHeader.readUnsignedLongToLong();
     }
 
+    long atomPosition = input.getPosition() - atomHeaderBytesRead;
+    if (atomType == Atom.TYPE_moof) {
+      // The data positions may be updated when parsing the tfhd/trun.
+      fragmentRun.auxiliaryDataPosition = atomPosition;
+      fragmentRun.dataPosition = atomPosition;
+    }
+
     if (atomType == Atom.TYPE_mdat) {
+      endOfMdatPosition = atomPosition + atomSize;
       if (!haveOutputSeekMap) {
         extractorOutput.seekMap(SeekMap.UNSEEKABLE);
         haveOutputSeekMap = true;
@@ -319,6 +333,8 @@ public final class FragmentedMp4Extractor implements Extractor {
 
   private static void parseMoof(Track track, DefaultSampleValues extendsDefaults,
       ContainerAtom moof, TrackFragment out, int workaroundFlags, byte[] extendedTypeScratch) {
+    // This extractor only supports one traf per moof.
+    Assertions.checkArgument(1 == moof.getChildAtomOfTypeCount(Atom.TYPE_traf));
     parseTraf(track, extendsDefaults, moof.getContainerAtomOfType(Atom.TYPE_traf),
         out, workaroundFlags, extendedTypeScratch);
   }
@@ -328,21 +344,32 @@ public final class FragmentedMp4Extractor implements Extractor {
    */
   private static void parseTraf(Track track, DefaultSampleValues extendsDefaults,
       ContainerAtom traf, TrackFragment out, int workaroundFlags, byte[] extendedTypeScratch) {
+    // This extractor only supports one trun per traf.
+    Assertions.checkArgument(1 == traf.getChildAtomOfTypeCount(Atom.TYPE_trun));
     LeafAtom tfdtAtom = traf.getLeafAtomOfType(Atom.TYPE_tfdt);
-    long decodeTime = tfdtAtom == null ? 0 : parseTfdt(traf.getLeafAtomOfType(Atom.TYPE_tfdt).data);
+    long decodeTime;
+    if (tfdtAtom == null || (workaroundFlags & WORKAROUND_IGNORE_TFDT_BOX) != 0) {
+      decodeTime = 0;
+    } else {
+      decodeTime = parseTfdt(traf.getLeafAtomOfType(Atom.TYPE_tfdt).data);
+    }
 
     LeafAtom tfhd = traf.getLeafAtomOfType(Atom.TYPE_tfhd);
-    DefaultSampleValues fragmentHeader = parseTfhd(extendsDefaults, tfhd.data);
-    out.sampleDescriptionIndex = fragmentHeader.sampleDescriptionIndex;
+    parseTfhd(extendsDefaults, tfhd.data, out);
 
     LeafAtom trun = traf.getLeafAtomOfType(Atom.TYPE_trun);
-    parseTrun(track, fragmentHeader, decodeTime, workaroundFlags, trun.data, out);
+    parseTrun(track, out.header, decodeTime, workaroundFlags, trun.data, out);
 
     LeafAtom saiz = traf.getLeafAtomOfType(Atom.TYPE_saiz);
     if (saiz != null) {
       TrackEncryptionBox trackEncryptionBox =
-          track.sampleDescriptionEncryptionBoxes[fragmentHeader.sampleDescriptionIndex];
+          track.sampleDescriptionEncryptionBoxes[out.header.sampleDescriptionIndex];
       parseSaiz(trackEncryptionBox, saiz.data, out);
+    }
+
+    LeafAtom saio = traf.getLeafAtomOfType(Atom.TYPE_saio);
+    if (saio != null) {
+      parseSaio(saio.data, out);
     }
 
     LeafAtom senc = traf.getLeafAtomOfType(Atom.TYPE_senc);
@@ -392,20 +419,48 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   /**
+   * Parses a saio atom (defined in 14496-12).
+   *
+   * @param saio The saio atom to parse.
+   * @param out The track fragment to populate with data from the saio atom.
+   */
+  private static void parseSaio(ParsableByteArray saio, TrackFragment out) {
+    saio.setPosition(Atom.HEADER_SIZE);
+    int fullAtom = saio.readInt();
+    int flags = Atom.parseFullAtomFlags(fullAtom);
+    if ((flags & 0x01) == 1) {
+      saio.skipBytes(8);
+    }
+
+    int entryCount = saio.readUnsignedIntToInt();
+    if (entryCount != 1) {
+      // We only support one trun element currently, so always expect one entry.
+      throw new IllegalStateException("Unexpected saio entry count: " + entryCount);
+    }
+
+    int version = Atom.parseFullAtomVersion(fullAtom);
+    out.auxiliaryDataPosition +=
+        version == 0 ? saio.readUnsignedInt() : saio.readUnsignedLongToLong();
+  }
+
+  /**
    * Parses a tfhd atom (defined in 14496-12).
    *
    * @param extendsDefaults Default sample values from the trex atom.
-   * @return The parsed default sample values.
+   * @param tfhd The tfhd atom to parse.
+   * @param out The track fragment to populate with data from the tfhd atom.
    */
-  private static DefaultSampleValues parseTfhd(DefaultSampleValues extendsDefaults,
-      ParsableByteArray tfhd) {
+  private static void parseTfhd(DefaultSampleValues extendsDefaults, ParsableByteArray tfhd,
+      TrackFragment out) {
     tfhd.setPosition(Atom.HEADER_SIZE);
     int fullAtom = tfhd.readInt();
     int flags = Atom.parseFullAtomFlags(fullAtom);
 
     tfhd.skipBytes(4); // trackId
     if ((flags & 0x01 /* base_data_offset_present */) != 0) {
-      tfhd.skipBytes(8);
+      long baseDataPosition = tfhd.readUnsignedLongToLong();
+      out.dataPosition = baseDataPosition;
+      out.auxiliaryDataPosition = baseDataPosition;
     }
 
     int defaultSampleDescriptionIndex =
@@ -417,7 +472,7 @@ public final class FragmentedMp4Extractor implements Extractor {
         ? tfhd.readUnsignedIntToInt() : extendsDefaults.size;
     int defaultSampleFlags = ((flags & 0x20 /* default_sample_flags_present */) != 0)
         ? tfhd.readUnsignedIntToInt() : extendsDefaults.flags;
-    return new DefaultSampleValues(defaultSampleDescriptionIndex, defaultSampleDuration,
+    out.header = new DefaultSampleValues(defaultSampleDescriptionIndex, defaultSampleDuration,
         defaultSampleSize, defaultSampleFlags);
   }
 
@@ -451,7 +506,7 @@ public final class FragmentedMp4Extractor implements Extractor {
 
     int sampleCount = trun.readUnsignedIntToInt();
     if ((flags & 0x01 /* data_offset_present */) != 0) {
-      trun.skipBytes(4);
+      out.dataPosition += trun.readInt();
     }
 
     boolean firstSampleFlagsPresent = (flags & 0x04 /* first_sample_flags_present */) != 0;
@@ -475,8 +530,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     long timescale = track.timescale;
     long cumulativeTime = decodeTime;
     boolean workaroundEveryVideoFrameIsSyncFrame = track.type == Track.TYPE_vide
-        && ((workaroundFlags & WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME)
-        == WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME);
+        && (workaroundFlags & WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME) != 0;
     for (int i = 0; i < sampleCount; i++) {
       // Use trun values if present, otherwise tfhd, otherwise trex.
       int sampleDuration = sampleDurationsPresent ? trun.readUnsignedIntToInt()
@@ -601,6 +655,9 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   private void readEncryptionData(ExtractorInput input) throws IOException, InterruptedException {
+    int bytesToSkip = (int) (fragmentRun.auxiliaryDataPosition - input.getPosition());
+    Assertions.checkState(bytesToSkip >= 0, "Offset to encryption data was negative.");
+    input.skipFully(bytesToSkip);
     fragmentRun.fillEncryptionData(input);
     parserState = STATE_READING_SAMPLE_START;
   }
@@ -620,7 +677,16 @@ public final class FragmentedMp4Extractor implements Extractor {
    * @throws InterruptedException If the thread is interrupted.
    */
   private boolean readSample(ExtractorInput input) throws IOException, InterruptedException {
+    if (sampleIndex == 0) {
+      int bytesToSkip = (int) (fragmentRun.dataPosition - input.getPosition());
+      Assertions.checkState(bytesToSkip >= 0, "Offset to sample data was negative.");
+      input.skipFully(bytesToSkip);
+    }
+
     if (sampleIndex >= fragmentRun.length) {
+      int bytesToSkip = (int) (endOfMdatPosition - input.getPosition());
+      Assertions.checkState(bytesToSkip >= 0, "Offset to end of mdat was negative.");
+      input.skipFully(bytesToSkip);
       // We've run out of samples in the current mdat atom.
       enterReadingAtomHeaderState();
       return false;
@@ -678,8 +744,9 @@ public final class FragmentedMp4Extractor implements Extractor {
     long sampleTimeUs = fragmentRun.getSamplePresentationTime(sampleIndex) * 1000L;
     int sampleFlags = (fragmentRun.definesEncryptionData ? C.SAMPLE_FLAG_ENCRYPTED : 0)
         | (fragmentRun.sampleIsSyncFrameTable[sampleIndex] ? C.SAMPLE_FLAG_SYNC : 0);
+    int sampleDescriptionIndex = fragmentRun.header.sampleDescriptionIndex;
     byte[] encryptionKey = fragmentRun.definesEncryptionData
-        ? track.sampleDescriptionEncryptionBoxes[fragmentRun.sampleDescriptionIndex].keyId : null;
+        ? track.sampleDescriptionEncryptionBoxes[sampleDescriptionIndex].keyId : null;
     trackOutput.sampleMetadata(sampleTimeUs, sampleFlags, sampleSize, 0, encryptionKey);
 
     sampleIndex++;
@@ -688,8 +755,9 @@ public final class FragmentedMp4Extractor implements Extractor {
   }
 
   private int appendSampleEncryptionData(ParsableByteArray sampleEncryptionData) {
+    int sampleDescriptionIndex = fragmentRun.header.sampleDescriptionIndex;
     TrackEncryptionBox encryptionBox =
-        track.sampleDescriptionEncryptionBoxes[fragmentRun.sampleDescriptionIndex];
+        track.sampleDescriptionEncryptionBoxes[sampleDescriptionIndex];
     int vectorSize = encryptionBox.initializationVectorSize;
     boolean subsampleEncryption = fragmentRun.sampleHasSubsampleEncryptionTable[sampleIndex];
 
@@ -721,8 +789,8 @@ public final class FragmentedMp4Extractor implements Extractor {
         || atom == Atom.TYPE_traf || atom == Atom.TYPE_trak || atom == Atom.TYPE_trex
         || atom == Atom.TYPE_trun || atom == Atom.TYPE_mvex || atom == Atom.TYPE_mdia
         || atom == Atom.TYPE_minf || atom == Atom.TYPE_stbl || atom == Atom.TYPE_pssh
-        || atom == Atom.TYPE_saiz || atom == Atom.TYPE_uuid || atom == Atom.TYPE_senc
-        || atom == Atom.TYPE_pasp || atom == Atom.TYPE_s263;
+        || atom == Atom.TYPE_saiz || atom == Atom.TYPE_saio || atom == Atom.TYPE_uuid
+        || atom == Atom.TYPE_senc || atom == Atom.TYPE_pasp || atom == Atom.TYPE_s263;
   }
 
   /** Returns whether the extractor should parse a container atom with type {@code atom}. */

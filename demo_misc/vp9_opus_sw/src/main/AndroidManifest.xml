@@ -16,9 +16,9 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.google.android.exoplayer.demo.webm"
-    android:versionCode="1500"
-    android:versionName="1.5.0"
+    package="com.google.android.exoplayer.demo.vp9opus"
+    android:versionCode="1501"
+    android:versionName="1.5.1"
     android:theme="@style/RootTheme">
 
   <uses-permission android:name="android.permission.INTERNET"/>
@@ -35,7 +35,7 @@
       android:allowBackup="false"
       android:icon="@drawable/ic_launcher">
 
-    <activity android:name="com.google.android.exoplayer.demo.webm.SampleChooserActivity"
+    <activity android:name="com.google.android.exoplayer.demo.vp9opus.SampleChooserActivity"
         android:label="@string/app_name"
         android:configChanges="keyboardHidden">
       <intent-filter>
@@ -44,12 +44,12 @@
       </intent-filter>
     </activity>
 
-    <activity android:name="com.google.android.exoplayer.demo.webm.VideoPlayer"
+    <activity android:name="com.google.android.exoplayer.demo.vp9opus.VideoPlayer"
         android:configChanges="keyboardHidden|orientation|screenSize"
         android:label="@string/app_name"
         android:theme="@style/PlayerTheme"/>
 
-    <activity android:name="com.google.android.exoplayer.demo.webm.FilePickerActivity"
+    <activity android:name="com.google.android.exoplayer.demo.vp9opus.FilePickerActivity"
         android:theme="@android:style/Theme.Dialog"/>
 
   </application>
