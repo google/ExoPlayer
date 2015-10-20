@@ -106,10 +106,11 @@ import java.util.List;
 
     long[] offsets = new long[sampleCount];
     int[] sizes = new int[sampleCount];
+    int maximumSize = 0;
     long[] timestamps = new long[sampleCount];
     int[] flags = new int[sampleCount];
     if (sampleCount == 0) {
-      return new TrackSampleTable(offsets, sizes, timestamps, flags);
+      return new TrackSampleTable(offsets, sizes, maximumSize, timestamps, flags);
     }
 
     // Prepare to read chunk offsets.
@@ -172,6 +173,9 @@ import java.util.List;
     for (int i = 0; i < sampleCount; i++) {
       offsets[i] = offsetBytes;
       sizes[i] = fixedSampleSize == 0 ? stsz.readUnsignedIntToInt() : fixedSampleSize;
+      if (sizes[i] > maximumSize) {
+        maximumSize = sizes[i];
+      }
       timestamps[i] = timestampTimeUnits + timestampOffset;
 
       // All samples are synchronization samples if the stss is not present.
@@ -244,7 +248,7 @@ import java.util.List;
     Assertions.checkArgument(remainingSamplesInChunk == 0);
     Assertions.checkArgument(remainingTimestampDeltaChanges == 0);
     Assertions.checkArgument(remainingTimestampOffsetChanges == 0);
-    return new TrackSampleTable(offsets, sizes, timestamps, flags);
+    return new TrackSampleTable(offsets, sizes, maximumSize, timestamps, flags);
   }
 
   /**

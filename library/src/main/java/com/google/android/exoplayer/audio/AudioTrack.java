@@ -202,7 +202,7 @@ public final class AudioTrack {
   private int temporaryBufferSize;
 
   /**
-   * Bitrate measured in kilobits per second, if {@link #isPassthrough()} returns true.
+   * Bitrate measured in kilobits per second, if using passthrough.
    */
   private int passthroughBitrate;
 
@@ -359,7 +359,7 @@ public final class AudioTrack {
       }
     }
 
-    audioTrackUtil.reconfigure(audioTrack, isPassthrough());
+    audioTrackUtil.reconfigure(audioTrack, needsPassthroughWorkarounds());
     setAudioTrackVolume();
 
     return sessionId;
@@ -472,8 +472,7 @@ public final class AudioTrack {
       return RESULT_BUFFER_CONSUMED;
     }
 
-    // Workarounds for issues with AC-3 passthrough AudioTracks on API versions 21/22:
-    if (Util.SDK_INT <= 22 && isPassthrough()) {
+    if (needsPassthroughWorkarounds()) {
       // An AC-3 audio track continues to play data written while it is paused. Stop writing so its
       // buffer empties. See [Internal: b/18899620].
       if (audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PAUSED) {
@@ -491,8 +490,14 @@ public final class AudioTrack {
 
     int result = 0;
     if (temporaryBufferSize == 0) {
-      if (isPassthrough() && passthroughBitrate == UNKNOWN_BITRATE) {
-        passthroughBitrate = Ac3Util.getBitrate(size, sampleRate);
+      if (passthroughBitrate == UNKNOWN_BITRATE) {
+        if (isAc3Passthrough()) {
+          passthroughBitrate = Ac3Util.getBitrate(size, sampleRate);
+        } else if (isDtsPassthrough()) {
+          int unscaledBitrate = size * 8 * sampleRate;
+          int divisor = 1000 * 512;
+          passthroughBitrate = (unscaledBitrate + divisor / 2) / divisor;
+        }
       }
 
       // This is the first time we've seen this {@code buffer}.
@@ -583,7 +588,7 @@ public final class AudioTrack {
   public boolean hasPendingData() {
     return isInitialized()
         && (bytesToFrames(submittedBytes) > audioTrackUtil.getPlaybackHeadPosition()
-            || audioTrackUtil.overrideHasPendingData());
+            || overrideHasPendingData());
   }
 
   /** Sets the playback volume. */
@@ -709,10 +714,13 @@ public final class AudioTrack {
       }
     }
 
-    // Don't sample the timestamp and latency if this is a passthrough AudioTrack, as the returned
-    // values cause audio/video synchronization to be incorrect.
-    if (!isPassthrough()
-        && systemClockUs - lastTimestampSampleTimeUs >= MIN_TIMESTAMP_SAMPLE_INTERVAL_US) {
+    if (needsPassthroughWorkarounds()) {
+      // Don't sample the timestamp and latency if this is an AC-3 passthrough AudioTrack on
+      // platform API versions 21/22, as incorrect values are returned. See [Internal: b/21145353].
+      return;
+    }
+
+    if (systemClockUs - lastTimestampSampleTimeUs >= MIN_TIMESTAMP_SAMPLE_INTERVAL_US) {
       audioTimestampSet = audioTrackUtil.updateTimestamp();
       if (audioTimestampSet) {
         // Perform sanity checks on the timestamp.
@@ -818,17 +826,50 @@ public final class AudioTrack {
   }
 
   private boolean isPassthrough() {
+    return isAc3Passthrough() || isDtsPassthrough();
+  }
+
+  private boolean isAc3Passthrough() {
     return encoding == C.ENCODING_AC3 || encoding == C.ENCODING_E_AC3;
   }
 
+  private boolean isDtsPassthrough() {
+    return encoding == C.ENCODING_DTS || encoding == C.ENCODING_DTS_HD;
+  }
+
+  /**
+   * Returns whether to work around problems with passthrough audio tracks.
+   * See [Internal: b/18899620, b/19187573, b/21145353].
+   */
+  private boolean needsPassthroughWorkarounds() {
+    return Util.SDK_INT < 23 && isAc3Passthrough();
+  }
+
+  /**
+   * Returns whether the audio track should behave as though it has pending data. This is to work
+   * around an issue on platform API versions 21/22 where AC-3 audio tracks can't be paused, so we
+   * empty their buffers when paused. In this case, they should still behave as if they have
+   * pending data, otherwise writing will never resume.
+   */
+  private boolean overrideHasPendingData() {
+    return needsPassthroughWorkarounds()
+        && audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PAUSED
+        && audioTrack.getPlaybackHeadPosition() == 0;
+  }
+
   private static int getEncodingForMimeType(String mimeType) {
-    if (MimeTypes.AUDIO_AC3.equals(mimeType)) {
-      return C.ENCODING_AC3;
+    switch (mimeType) {
+      case MimeTypes.AUDIO_AC3:
+        return C.ENCODING_AC3;
+      case MimeTypes.AUDIO_EC3:
+        return C.ENCODING_E_AC3;
+      case MimeTypes.AUDIO_DTS:
+        return C.ENCODING_DTS;
+      case MimeTypes.AUDIO_DTS_HD:
+        return C.ENCODING_DTS_HD;
+      default:
+        return AudioFormat.ENCODING_INVALID;
     }
-    if (MimeTypes.AUDIO_EC3.equals(mimeType)) {
-      return C.ENCODING_E_AC3;
-    }
-    return AudioFormat.ENCODING_INVALID;
   }
 
   /**
@@ -837,7 +878,7 @@ public final class AudioTrack {
   private static class AudioTrackUtil {
 
     protected android.media.AudioTrack audioTrack;
-    private boolean isPassthrough;
+    private boolean needsPassthroughWorkaround;
     private int sampleRate;
     private long lastRawPlaybackHeadPosition;
     private long rawPlaybackHeadWrapCount;
@@ -851,11 +892,13 @@ public final class AudioTrack {
      * Reconfigures the audio track utility helper to use the specified {@code audioTrack}.
      *
      * @param audioTrack The audio track to wrap.
-     * @param isPassthrough Whether the audio track is used for passthrough (e.g. AC-3) playback.
+     * @param needsPassthroughWorkaround Whether to workaround issues with pausing AC-3 passthrough
+     *     audio tracks on platform API version 21/22.
      */
-    public void reconfigure(android.media.AudioTrack audioTrack, boolean isPassthrough) {
+    public void reconfigure(android.media.AudioTrack audioTrack,
+        boolean needsPassthroughWorkaround) {
       this.audioTrack = audioTrack;
-      this.isPassthrough = isPassthrough;
+      this.needsPassthroughWorkaround = needsPassthroughWorkaround;
       stopTimestampUs = -1;
       lastRawPlaybackHeadPosition = 0;
       rawPlaybackHeadWrapCount = 0;
@@ -863,20 +906,6 @@ public final class AudioTrack {
       if (audioTrack != null) {
         sampleRate = audioTrack.getSampleRate();
       }
-    }
-
-    /**
-     * Returns whether the audio track should behave as though it has pending data. This is to work
-     * around an issue on platform API versions 21/22 where AC-3 audio tracks can't be paused, so we
-     * empty their buffers when paused. In this case, they should still behave as if they have
-     * pending data, otherwise writing will never resume.
-     *
-     * @see #handleBuffer
-     */
-    public boolean overrideHasPendingData() {
-      return Util.SDK_INT <= 22 && isPassthrough
-          && audioTrack.getPlayState() == android.media.AudioTrack.PLAYSTATE_PAUSED
-          && audioTrack.getPlaybackHeadPosition() == 0;
     }
 
     /**
@@ -929,7 +958,7 @@ public final class AudioTrack {
       }
 
       long rawPlaybackHeadPosition = 0xFFFFFFFFL & audioTrack.getPlaybackHeadPosition();
-      if (Util.SDK_INT <= 22 && isPassthrough) {
+      if (needsPassthroughWorkaround) {
         // Work around an issue with passthrough/direct AudioTracks on platform API versions 21/22
         // where the playback head position jumps back to zero on paused passthrough/direct audio
         // tracks. See [Internal: b/19187573].
@@ -1009,8 +1038,9 @@ public final class AudioTrack {
     }
 
     @Override
-    public void reconfigure(android.media.AudioTrack audioTrack, boolean isPassthrough) {
-      super.reconfigure(audioTrack, isPassthrough);
+    public void reconfigure(android.media.AudioTrack audioTrack,
+        boolean needsPassthroughWorkaround) {
+      super.reconfigure(audioTrack, needsPassthroughWorkaround);
       rawTimestampFramePositionWrapCount = 0;
       lastRawTimestampFramePosition = 0;
       lastTimestampFramePosition = 0;

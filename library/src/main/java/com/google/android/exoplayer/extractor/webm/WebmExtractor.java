@@ -64,6 +64,7 @@ public final class WebmExtractor implements Extractor {
   private static final String DOC_TYPE_MATROSKA = "matroska";
   private static final String CODEC_ID_VP8 = "V_VP8";
   private static final String CODEC_ID_VP9 = "V_VP9";
+  private static final String CODEC_ID_MPEG2 = "V_MPEG2";
   private static final String CODEC_ID_MPEG4_SP = "V_MPEG4/ISO/SP";
   private static final String CODEC_ID_MPEG4_ASP = "V_MPEG4/ISO/ASP";
   private static final String CODEC_ID_MPEG4_AP = "V_MPEG4/ISO/AP";
@@ -74,6 +75,7 @@ public final class WebmExtractor implements Extractor {
   private static final String CODEC_ID_AAC = "A_AAC";
   private static final String CODEC_ID_MP3 = "A_MPEG/L3";
   private static final String CODEC_ID_AC3 = "A_AC3";
+  private static final String CODEC_ID_TRUEHD = "A_TRUEHD";
   private static final String CODEC_ID_DTS = "A_DTS";
   private static final String CODEC_ID_DTS_EXPRESS = "A_DTS/EXPRESS";
   private static final String CODEC_ID_DTS_LOSSLESS = "A_DTS/LOSSLESS";
@@ -345,6 +347,10 @@ public final class WebmExtractor implements Extractor {
       default:
         return EbmlReader.TYPE_UNKNOWN;
     }
+  }
+
+  /* package */ boolean isLevel1Element(int id) {
+    return id == ID_SEGMENT_INFO || id == ID_CLUSTER || id == ID_CUES || id == ID_TRACKS;
   }
 
   /* package */ void startMasterElement(int id, long contentPosition, long contentSize)
@@ -639,7 +645,7 @@ public final class WebmExtractor implements Extractor {
         // differ only in the way flags are specified.
 
         if (blockState == BLOCK_STATE_START) {
-          blockTrackNumber = (int) varintReader.readUnsignedVarint(input, false, true);
+          blockTrackNumber = (int) varintReader.readUnsignedVarint(input, false, true, 8);
           blockTrackNumberLength = varintReader.getLastLength();
           blockDurationUs = UNKNOWN;
           blockState = BLOCK_STATE_HEADER;
@@ -1028,6 +1034,7 @@ public final class WebmExtractor implements Extractor {
   private static boolean isCodecSupported(String codecId) {
     return CODEC_ID_VP8.equals(codecId)
         || CODEC_ID_VP9.equals(codecId)
+        || CODEC_ID_MPEG2.equals(codecId)
         || CODEC_ID_MPEG4_SP.equals(codecId)
         || CODEC_ID_MPEG4_ASP.equals(codecId)
         || CODEC_ID_MPEG4_AP.equals(codecId)
@@ -1038,6 +1045,7 @@ public final class WebmExtractor implements Extractor {
         || CODEC_ID_AAC.equals(codecId)
         || CODEC_ID_MP3.equals(codecId)
         || CODEC_ID_AC3.equals(codecId)
+        || CODEC_ID_TRUEHD.equals(codecId)
         || CODEC_ID_DTS.equals(codecId)
         || CODEC_ID_DTS_EXPRESS.equals(codecId)
         || CODEC_ID_DTS_LOSSLESS.equals(codecId)
@@ -1067,6 +1075,11 @@ public final class WebmExtractor implements Extractor {
     @Override
     public int getElementType(int id) {
       return WebmExtractor.this.getElementType(id);
+    }
+
+    @Override
+    public boolean isLevel1Element(int id) {
+      return WebmExtractor.this.isLevel1Element(id);
     }
 
     @Override
@@ -1147,6 +1160,9 @@ public final class WebmExtractor implements Extractor {
         case CODEC_ID_VP9:
           mimeType = MimeTypes.VIDEO_VP9;
           break;
+        case CODEC_ID_MPEG2:
+          mimeType = MimeTypes.VIDEO_MPEG2;
+          break;
         case CODEC_ID_MPEG4_SP:
         case CODEC_ID_MPEG4_ASP:
         case CODEC_ID_MPEG4_AP:
@@ -1193,6 +1209,9 @@ public final class WebmExtractor implements Extractor {
           break;
         case CODEC_ID_AC3:
           mimeType = MimeTypes.AUDIO_AC3;
+          break;
+        case CODEC_ID_TRUEHD:
+          mimeType = MimeTypes.AUDIO_TRUEHD;
           break;
         case CODEC_ID_DTS:
         case CODEC_ID_DTS_EXPRESS:
