@@ -92,6 +92,8 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   private long currentLoadableExceptionTimestamp;
   private long currentLoadStartTimeMs;
 
+  private TimestampOffsetListener timestampOffsetListener;
+
   public HlsSampleSource(HlsChunkSource chunkSource, LoadControl loadControl,
       int bufferSizeContribution) {
     this(chunkSource, loadControl, bufferSizeContribution, null, null, 0);
@@ -117,6 +119,10 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     this.pendingResetPositionUs = NO_RESET_PENDING;
     extractors = new LinkedList<>();
     chunkOperationHolder = new ChunkOperationHolder();
+  }
+
+  public void setTimestampOffsetListener(TimestampOffsetListener timestampOffsetListener) {
+    this.timestampOffsetListener = timestampOffsetListener;
   }
 
   @Override
@@ -147,6 +153,9 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
               format = format.copyAsAdaptive();
             }
             trackFormat[i] = format;
+          }
+          if (timestampOffsetListener != null) {
+            timestampOffsetListener.onTimestampOffsetRead(chunkSource.getTimestampOffsetUs());
           }
           prepared = true;
           return true;

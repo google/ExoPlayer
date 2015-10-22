@@ -49,6 +49,10 @@ public final class WebvttParser implements SubtitleParser {
   private static final Pattern TIMESTAMP = Pattern.compile("(\\d+:)?[0-5]\\d:[0-5]\\d\\.\\d{3}");
   private static final Pattern CUE_SETTING = Pattern.compile("\\S*:\\S*");
 
+  private static final Pattern LOCAL_TIMESTAMP = Pattern.compile("LOCAL[:=]\\d+:?[0-5]\\d:[0-5]\\d\\.\\d{3}");
+  private static final Pattern MEDIA_TIMESTAMP = Pattern.compile("MPEGTS[:=]\\d+");
+  private static final long SAMPLING_RATE = 90;
+
   private final PositionHolder positionHolder;
   private final StringBuilder textBuilder;
   private final boolean strictParsing;
@@ -75,6 +79,7 @@ public final class WebvttParser implements SubtitleParser {
   @Override
   public final WebvttSubtitle parse(InputStream inputStream) throws IOException {
     ArrayList<WebvttCue> subtitles = new ArrayList<>();
+    long mediaTimestampUs = 0L;
 
     BufferedReader webvttData = new BufferedReader(new InputStreamReader(inputStream, C.UTF8_NAME));
     String line;
@@ -100,6 +105,24 @@ public final class WebvttParser implements SubtitleParser {
         Matcher matcher = METADATA_HEADER.matcher(line);
         if (!matcher.find()) {
           throw new ParserException("Unexpected line: " + line);
+        }
+      }
+
+      if (line.startsWith("X-TIMESTAMP-MAP")) {
+        // parse the local timestamp
+        Matcher timestampMatcher = LOCAL_TIMESTAMP.matcher(line);
+        long localTimestampUs;
+        if (!timestampMatcher.find()) {
+          throw new ParserException("X-TIMESTAMP-MAP doesn't contain local timestamp: " + line);
+        } else {
+          localTimestampUs = parseTimestampUs(timestampMatcher.group().substring(6));
+        }
+        // parse the media timestamp
+        timestampMatcher = MEDIA_TIMESTAMP.matcher(line);
+        if (!timestampMatcher.find()) {
+          throw new ParserException("X-TIMESTAMP-MAP doesn't contain media timestamp: " + line);
+        } else {
+          mediaTimestampUs = ((Long.parseLong(timestampMatcher.group().substring(7)) * 1000) / SAMPLING_RATE) - localTimestampUs;
         }
       }
     }
@@ -145,7 +168,7 @@ public final class WebvttParser implements SubtitleParser {
       if (!matcher.find()) {
         throw new ParserException("Expected cue start time: " + line);
       } else {
-        cueStartTime = parseTimestampUs(matcher.group());
+        cueStartTime = parseTimestampUs(matcher.group()) + mediaTimestampUs;
       }
 
       // parse end timestamp
@@ -154,7 +177,7 @@ public final class WebvttParser implements SubtitleParser {
         throw new ParserException("Expected cue end time: " + line);
       } else {
         endTimeString = matcher.group();
-        cueEndTime = parseTimestampUs(endTimeString);
+        cueEndTime = parseTimestampUs(endTimeString) + mediaTimestampUs;
       }
 
       // parse the (optional) cue setting list

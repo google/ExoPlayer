@@ -179,8 +179,13 @@ import java.io.InputStream;
       if (sampleHolder != holder) {
         // A flush has occurred since this holder was posted. Do nothing.
       } else {
-        this.result = new PlayableSubtitle(parsedSubtitle, subtitlesAreRelative, sampleTimeUs,
-            subtitleOffsetUs);
+        // it's more accurate to read startTime from eventTime compare to sampleTime
+        // esp: for Live streaming use case
+        // only when cue may not available, we rely on sampleTime
+        long startTimeUs = parsedSubtitle.getEventTimeCount() > 0 ?
+                parsedSubtitle.getEventTime(0) + subtitleOffsetUs : sampleTimeUs;
+        this.result = new PlayableSubtitle(parsedSubtitle, subtitlesAreRelative, startTimeUs,
+                subtitleOffsetUs);
         this.error = error;
         this.runtimeError = runtimeError;
         this.parsing = false;
