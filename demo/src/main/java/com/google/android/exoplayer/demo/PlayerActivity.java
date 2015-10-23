@@ -505,8 +505,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   }
 
   private static String buildTrackIdString(MediaFormat format) {
-    return format.trackId == MediaFormat.NO_VALUE ? ""
-        : String.format(Locale.US, " (%d)", format.trackId);
+    return format.trackId == null ? "" : " (" + format.trackId + ")";
   }
 
   private boolean onTrackItemClick(MenuItem item, int type) {

@@ -315,7 +315,7 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
     }
     long durationUs = format.containsKey(android.media.MediaFormat.KEY_DURATION)
         ? format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
-    MediaFormat mediaFormat = new MediaFormat(null, MediaFormat.NO_VALUE, mimeType, MediaFormat.NO_VALUE,
+    MediaFormat mediaFormat = new MediaFormat(null, mimeType, MediaFormat.NO_VALUE,
         maxInputSize, durationUs, width, height, rotationDegrees, MediaFormat.NO_VALUE,
         channelCount, sampleRate, language, MediaFormat.OFFSET_SAMPLE_RELATIVE, initializationData,
         false, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
