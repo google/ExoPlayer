@@ -317,7 +317,7 @@ import java.util.concurrent.LinkedBlockingDeque;
   private void dropDownstreamTo(long absolutePosition) {
     int relativePosition = (int) (absolutePosition - totalBytesDropped);
     int allocationIndex = relativePosition / allocationLength;
-    for (int i = 0; i < allocationIndex; i++) {
+    for (int i = 0; i < allocationIndex && !dataQueue.isEmpty(); i++) {
       allocator.release(dataQueue.remove());
       totalBytesDropped += allocationLength;
     }
