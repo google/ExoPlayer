@@ -621,7 +621,8 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     } else if (secondLanguage == null) {
       return firstLanguage;
     } else {
-      Assertions.checkState(firstLanguage.equals(secondLanguage));
+      Assertions.checkState(firstLanguage.equals(secondLanguage),
+              "Inconsistent languages: different but not null");
       return firstLanguage;
     }
   }
@@ -643,7 +644,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     } else if (secondType == AdaptationSet.TYPE_UNKNOWN) {
       return firstType;
     } else {
-      Assertions.checkState(firstType == secondType);
+      Assertions.checkState(firstType == secondType, "Inconsistent ContentType: different but not unknown");
       return firstType;
     }
   }
@@ -768,10 +769,12 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       } else {
         // Assert that each Representation element defines the same ContentProtection elements.
         if (currentRepresentationProtections == null) {
-          Assertions.checkState(representationProtections == null);
+          Assertions.checkState(representationProtections == null,
+                  "Inconsistent ContentProtection: all representations must define the same ContentProtection elements");
         } else {
           Collections.sort(currentRepresentationProtections, this);
-          Assertions.checkState(currentRepresentationProtections.equals(representationProtections));
+          Assertions.checkState(currentRepresentationProtections.equals(representationProtections),
+                  "Inconsistent ContentProtection: all representations must define the same ContentProtection elements");
         }
       }
       currentRepresentationProtections = null;
@@ -815,7 +818,8 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
           // If contains returned false (no complete match), but find a matching schemeUriId, then
           // the MPD contains inconsistent ContentProtection data.
           Assertions.checkState(
-              !contentProtections.get(i).schemeUriId.equals(contentProtection.schemeUriId));
+                  !contentProtections.get(i).schemeUriId.equals(contentProtection.schemeUriId),
+                  "Inconsistent ContentProtection: partial match");
         }
         contentProtections.add(contentProtection);
       }
