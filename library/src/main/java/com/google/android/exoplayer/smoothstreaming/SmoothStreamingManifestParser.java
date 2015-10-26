@@ -404,6 +404,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
       if (TAG_PROTECTION_HEADER.equals(parser.getName())) {
         inProtectionHeader = true;
         String uuidString = parser.getAttributeValue(null, KEY_SYSTEM_ID);
+        uuidString = stripCurlyBraces(uuidString);
         uuid = UUID.fromString(uuidString);
       }
     }
@@ -427,6 +428,12 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
       return new ProtectionElement(uuid, PsshAtomUtil.buildPsshAtom(uuid, initData));
     }
 
+    private static String stripCurlyBraces(String uuidString) {
+      if (uuidString.charAt(0) == '{' && uuidString.charAt(uuidString.length() - 1) == '}') {
+        uuidString = uuidString.substring(1, uuidString.length() - 1);
+      }
+      return uuidString;
+    }
   }
 
   private static class StreamElementParser extends ElementParser {
