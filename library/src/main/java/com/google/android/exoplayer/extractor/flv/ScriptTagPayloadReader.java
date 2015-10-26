@@ -77,7 +77,7 @@ import java.util.Map;
       // Should never happen.
       return;
     }
-    // Set the duration to the metadata's value, if present.
+    // Set the duration to the value contained in the metadata, if present.
     Map<String, Object> metadata = (Map<String, Object>) readAmfData(data, type);
     if (metadata.containsKey(KEY_DURATION)) {
       double durationSeconds = (double) metadata.get(KEY_DURATION);
@@ -202,8 +202,8 @@ import java.util.Map;
    * @return The value read from the buffer.
    */
   private Date readAmfDate(ParsableByteArray data) {
-    final Date date = new Date((long) readAmfDouble(data).doubleValue());
-    data.readUnsignedShort();
+    Date date = new Date((long) readAmfDouble(data).doubleValue());
+    data.readUnsignedShort(); // Skip reserved bytes.
     return date;
   }
 
