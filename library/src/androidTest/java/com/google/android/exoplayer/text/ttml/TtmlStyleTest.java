@@ -59,29 +59,6 @@ public final class TtmlStyleTest extends InstrumentationTestCase {
             BACKGROUND_COLOR, style.getBackgroundColor());
     }
 
-    public void testGetInheritableStyle() {
-        // same instance as long as everything can be inherited
-        assertSame(style, style.getInheritableStyle());
-        style.inherit(createAncestorStyle());
-        assertSame(style, style.getInheritableStyle());
-        // after setting a property which is not inheritable
-        // we expect the inheritable style to be another instance
-        style.setBackgroundColor(0);
-        TtmlStyle inheritableStyle = style.getInheritableStyle();
-        assertNotSame(style, inheritableStyle);
-        // and subsequent call give always the same instance
-        assertSame(inheritableStyle, style.getInheritableStyle());
-
-        boolean exceptionThrown = false;
-        try {
-          // setting properties after calling getInheritableStyle gives an exception
-          style.setItalic(true);
-        } catch (IllegalStateException e) {
-          exceptionThrown = true;
-        }
-        assertTrue(exceptionThrown);
-    }
-
     private TtmlStyle createAncestorStyle() {
         TtmlStyle ancestor = new TtmlStyle();
         ancestor.setId(ID);
