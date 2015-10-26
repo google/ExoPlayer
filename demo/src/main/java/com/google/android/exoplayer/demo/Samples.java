@@ -45,12 +45,12 @@ import java.util.Locale;
   }
 
   public static final Sample[] YOUTUBE_DASH_MP4 = new Sample[] {
-    new Sample("Google Glass",
+    new Sample("Google Glass (MP4,H264)",
         "http://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?"
         + "as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&"
         + "ipbits=0&expire=19000000000&signature=51AF5F39AB0CEC3E5497CD9C900EBFEAECCCB5C7."
         + "8506521BFC350652163895D4C26DEE124209AA9E&key=ik0", PlayerActivity.TYPE_DASH),
-    new Sample("Google Play",
+    new Sample("Google Play (MP4,H264)",
         "http://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?"
         + "as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&"
         + "ipbits=0&expire=19000000000&signature=A2716F75795F5D2AF0E88962FFCD10DB79384F29."
@@ -58,12 +58,12 @@ import java.util.Locale;
   };
 
   public static final Sample[] YOUTUBE_DASH_WEBM = new Sample[] {
-    new Sample("Google Glass",
+    new Sample("Google Glass (WebM,VP9)",
         "http://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?"
         + "as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&"
         + "ipbits=0&expire=19000000000&signature=249B04F79E984D7F86B4D8DB48AE6FAF41C17AB3."
         + "7B9F0EC0505E1566E59B8E488E9419F253DDF413&key=ik0", PlayerActivity.TYPE_DASH),
-    new Sample("Google Play",
+    new Sample("Google Play (WebM,VP9)",
         "http://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?"
         + "as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&"
         + "ipbits=0&expire=19000000000&signature=B1C2A74783AC1CC4865EB312D7DD2D48230CC9FD."
