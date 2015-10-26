@@ -17,6 +17,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.google.android.exoplayer.ext.opus">
 
-    <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="22"/>
+    <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="23"/>
 
 </manifest>
