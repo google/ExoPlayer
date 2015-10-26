@@ -24,6 +24,7 @@ import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSource;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer.dash.DashChunkSource;
+import com.google.android.exoplayer.dash.DefaultDashTrackSelector;
 import com.google.android.exoplayer.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescriptionParser;
@@ -108,7 +109,8 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
     LibvpxVideoTrackRenderer videoRenderer = null;
     if (!videoRepresentationsList.isEmpty()) {
       DataSource videoDataSource = new DefaultUriDataSource(player, bandwidthMeter, userAgent);
-      ChunkSource videoChunkSource = new DashChunkSource(videoDataSource,
+      ChunkSource videoChunkSource = new DashChunkSource(
+          DefaultDashTrackSelector.newVideoInstance(null, false, false), videoDataSource,
           new AdaptiveEvaluator(bandwidthMeter), manifest.getPeriodDuration(0),
           AdaptationSet.TYPE_VIDEO, videoRepresentations);
       ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
@@ -123,8 +125,9 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
       audioRenderer = null;
     } else {
       DataSource audioDataSource = new DefaultUriDataSource(player, bandwidthMeter, userAgent);
-      DashChunkSource audioChunkSource = new DashChunkSource(audioDataSource, null,
-            manifest.getPeriodDuration(0), AdaptationSet.TYPE_AUDIO, audioRepresentation);
+      DashChunkSource audioChunkSource = new DashChunkSource(
+          DefaultDashTrackSelector.newAudioInstance(), audioDataSource, null,
+          manifest.getPeriodDuration(0), AdaptationSet.TYPE_AUDIO, audioRepresentation);
       SampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
           AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
       if (audioRepresentationIsOpus) {

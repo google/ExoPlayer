@@ -133,6 +133,7 @@ public class DashChunkSource implements ChunkSource, Output {
   /**
    * Lightweight constructor to use for fixed duration content.
    *
+   * @param trackSelector Selects tracks to be exposed by this source.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    * @param durationMs The duration of the content.
@@ -141,15 +142,17 @@ public class DashChunkSource implements ChunkSource, Output {
    *     {@link AdaptationSet#TYPE_TEXT}.
    * @param representations The representations to be considered by the source.
    */
-  public DashChunkSource(DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
-      long durationMs, int adaptationSetType, Representation... representations) {
-    this(dataSource, adaptiveFormatEvaluator, durationMs, adaptationSetType,
+  public DashChunkSource(DashTrackSelector trackSelector, DataSource dataSource,
+      FormatEvaluator adaptiveFormatEvaluator, long durationMs, int adaptationSetType,
+      Representation... representations) {
+    this(trackSelector, dataSource, adaptiveFormatEvaluator, durationMs, adaptationSetType,
         Arrays.asList(representations));
   }
 
   /**
    * Lightweight constructor to use for fixed duration content.
    *
+   * @param trackSelector Selects tracks to be exposed by this source.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    * @param durationMs The duration of the content.
@@ -158,10 +161,10 @@ public class DashChunkSource implements ChunkSource, Output {
    *     {@link AdaptationSet#TYPE_TEXT}.
    * @param representations The representations to be considered by the source.
    */
-  public DashChunkSource(DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
-      long durationMs, int adaptationSetType, List<Representation> representations) {
-    this(buildManifest(durationMs, adaptationSetType, representations),
-        DefaultDashTrackSelector.newVideoInstance(null, false, false), dataSource,
+  public DashChunkSource(DashTrackSelector trackSelector, DataSource dataSource,
+      FormatEvaluator adaptiveFormatEvaluator, long durationMs, int adaptationSetType,
+      List<Representation> representations) {
+    this(buildManifest(durationMs, adaptationSetType, representations), trackSelector, dataSource,
         adaptiveFormatEvaluator);
   }
 
