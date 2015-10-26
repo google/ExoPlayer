@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.extractor.flv;
 
-import android.util.Log;
-
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
@@ -27,6 +25,8 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
+
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,9 +112,10 @@ final class VideoTagPayloadReader extends TagPayloadReader {
       }
 
       // Construct and output the format.
-      MediaFormat mediaFormat = MediaFormat.createVideoFormat(MimeTypes.VIDEO_H264,
-          MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, durationUs, avcData.width, avcData.height,
-          avcData.initializationData, MediaFormat.NO_VALUE, avcData.pixelWidthAspectRatio);
+      MediaFormat mediaFormat = MediaFormat.createVideoFormat(MediaFormat.NO_VALUE,
+          MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, durationUs,
+          avcData.width, avcData.height, avcData.initializationData, MediaFormat.NO_VALUE,
+          avcData.pixelWidthAspectRatio);
       output.format(mediaFormat);
       hasOutputFormat = true;
     } else if (packetType == AVC_PACKET_TYPE_AVC_NALU) {
