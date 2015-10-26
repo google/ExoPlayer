@@ -24,10 +24,20 @@ import com.google.android.exoplayer.util.ParsableByteArray;
  */
 /* package */ abstract class TagPayloadReader {
 
+  /**
+   * Thrown when the format is not supported.
+   */
+  public static final class UnsupportedFormatException extends Exception {
+
+    public UnsupportedFormatException(String msg) {
+      super(msg);
+    }
+
+  }
+
   protected final TrackOutput output;
 
-  // Duration of the track
-  protected long durationUs;
+  private long durationUs;
 
   /**
    * @param output A {@link TrackOutput} to which samples should be written.
@@ -35,6 +45,24 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   protected TagPayloadReader(TrackOutput output) {
     this.output = output;
     this.durationUs = C.UNKNOWN_TIME_US;
+  }
+
+  /**
+   * Sets duration in microseconds.
+   *
+   * @param durationUs duration in microseconds.
+   */
+  public final void setDurationUs(long durationUs) {
+    this.durationUs = durationUs;
+  }
+
+  /**
+   * Gets the duration in microseconds.
+   *
+   * @return The duration in microseconds.
+   */
+  public final long getDurationUs() {
+    return durationUs;
   }
 
   /**
@@ -47,52 +75,33 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   public abstract void seek();
 
   /**
-   * Parses tag header
-   * @param data Buffer where the tag header is stored
-   * @return True if header was parsed successfully and then payload should be read;
-   * Otherwise, false
-   * @throws UnsupportedTrack
-   */
-  protected abstract boolean parseHeader(ParsableByteArray data) throws UnsupportedTrack;
-
-  /**
-   * Parses tag payload
-   * @param data Buffer where tag payload is stored
-   * @param timeUs Time position of the frame
-   */
-  protected abstract void parsePayload(ParsableByteArray data, long timeUs);
-
-  /**
    * Consumes payload data.
    *
    * @param data The payload data to consume.
    * @param timeUs The timestamp associated with the payload.
    */
-  public void consume(ParsableByteArray data, long timeUs) throws UnsupportedTrack {
+  public final void consume(ParsableByteArray data, long timeUs) throws UnsupportedFormatException {
     if (parseHeader(data)) {
       parsePayload(data, timeUs);
     }
   }
 
   /**
-   * Sets duration in microseconds
-   * @param durationUs duration in microseconds
+   * Parses tag header.
+   *
+   * @param data Buffer where the tag header is stored.
+   * @return True if the header was parsed successfully and the payload should be read. False
+   *     otherwise.
+   * @throws UnsupportedFormatException
    */
-  public void setDurationUs(long durationUs) {
-    this.durationUs = durationUs;
-  }
+  protected abstract boolean parseHeader(ParsableByteArray data) throws UnsupportedFormatException;
 
-  public long getDurationUs() {
-    return durationUs;
-  }
   /**
-   * Thrown when format described in the AudioTrack is not supported
+   * Parses tag payload.
+   *
+   * @param data Buffer where tag payload is stored
+   * @param timeUs Time position of the frame
    */
-  public static final class UnsupportedTrack extends Exception {
+  protected abstract void parsePayload(ParsableByteArray data, long timeUs);
 
-    public UnsupportedTrack(String msg) {
-      super(msg);
-    }
-
-  }
 }

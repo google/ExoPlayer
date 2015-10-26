@@ -30,8 +30,9 @@ import java.util.Collections;
 /**
  * Parses audio tags of from an FLV stream and extracts AAC frames.
  */
-final class AudioTagPayloadReader extends TagPayloadReader {
-  // Sound format
+/* package */ final class AudioTagPayloadReader extends TagPayloadReader {
+
+  // Audio format
   private static final int AUDIO_FORMAT_AAC = 10;
 
   // AAC PACKET TYPE
@@ -47,48 +48,40 @@ final class AudioTagPayloadReader extends TagPayloadReader {
   private boolean hasParsedAudioDataHeader;
   private boolean hasOutputFormat;
 
-
   public AudioTagPayloadReader(TrackOutput output) {
     super(output);
   }
 
   @Override
   public void seek() {
-
+    // Do nothing.
   }
 
   @Override
-  protected boolean parseHeader(ParsableByteArray data) throws UnsupportedTrack {
-    // Parse audio data header, if it was not done, to extract information
-    // about the audio codec and audio configuration.
+  protected boolean parseHeader(ParsableByteArray data) throws UnsupportedFormatException {
+    // Parse audio data header, if it was not done, to extract information about the audio codec
+    // and audio configuration.
     if (!hasParsedAudioDataHeader) {
       int header = data.readUnsignedByte();
-      int soundFormat = (header >> 4) & 0x0F;
+      int audioFormat = (header >> 4) & 0x0F;
       int sampleRateIndex = (header >> 2) & 0x03;
-      int bitsPerSample = (header & 0x02) == 0x02 ? 16 : 8;
-      int channels = (header & 0x01) + 1;
-
       if (sampleRateIndex < 0 || sampleRateIndex >= AUDIO_SAMPLING_RATE_TABLE.length) {
-        throw new UnsupportedTrack("Invalid sample rate for the audio track");
+        throw new UnsupportedFormatException("Invalid sample rate for the audio track");
       }
-
-      if (!hasOutputFormat) {
+      if (audioFormat != AUDIO_FORMAT_AAC) {
         // TODO: Adds support for MP3 and PCM
-        if (soundFormat != AUDIO_FORMAT_AAC) {
-          throw new UnsupportedTrack("Audio track not supported. Format: " + soundFormat +
-              ", Sample rate: " + sampleRateIndex + ", bps: " + bitsPerSample + ", channels: " +
-              channels);
+        if (audioFormat != AUDIO_FORMAT_AAC) {
+          throw new UnsupportedFormatException("Audio format not supported: " + audioFormat);
         }
       }
-
       hasParsedAudioDataHeader = true;
     } else {
       // Skip header if it was parsed previously.
       data.skipBytes(1);
     }
 
-    // In all the cases we will be managing AAC format (otherwise an exception would be
-    // fired so we can just always return true
+    // In all the cases we will be managing AAC format (otherwise an exception would be fired so we
+    // can just always return true.
     return true;
   }
 
@@ -110,10 +103,9 @@ final class AudioTagPayloadReader extends TagPayloadReader {
           audioSpecificConfig);
 
       MediaFormat mediaFormat = MediaFormat.createAudioFormat(MediaFormat.NO_VALUE,
-          MimeTypes.AUDIO_AAC, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, durationUs,
+          MimeTypes.AUDIO_AAC, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, getDurationUs(),
           audioParams.second, audioParams.first, Collections.singletonList(audioSpecificConfig),
           null);
-
       output.format(mediaFormat);
       hasOutputFormat = true;
     } else if (packetType == AAC_PACKET_TYPE_AAC_RAW) {

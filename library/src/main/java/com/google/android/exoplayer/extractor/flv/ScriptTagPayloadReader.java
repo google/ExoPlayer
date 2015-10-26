@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * Parses Script Data tags from an FLV stream and extracts metadata information.
  */
-final class ScriptTagPayloadReader extends TagPayloadReader {
+/* package */ final class ScriptTagPayloadReader extends TagPayloadReader {
 
   // AMF object types
   private static final int AMF_TYPE_UNKNOWN = -1;
@@ -50,19 +50,20 @@ final class ScriptTagPayloadReader extends TagPayloadReader {
 
   @Override
   public void seek() {
-
+    // Do nothing.
   }
 
   @Override
-  protected boolean parseHeader(ParsableByteArray data) throws UnsupportedTrack {
+  protected boolean parseHeader(ParsableByteArray data) throws UnsupportedFormatException {
     return true;
   }
 
   @SuppressWarnings("unchecked")
   @Override
   protected void parsePayload(ParsableByteArray data, long timeUs) {
-    // Read message name (don't storing it as we are not going to give it any use)
+    // Read message name (don't store it because we don't yet have a use for it).
     readAMFData(data, AMF_TYPE_UNKNOWN);
+    // Read message data.
     Object obj = readAMFData(data, AMF_TYPE_UNKNOWN);
 
     if (obj instanceof Map) {
@@ -74,7 +75,7 @@ final class ScriptTagPayloadReader extends TagPayloadReader {
 
         switch (entry.getKey()) {
           case "duration":
-            this.durationUs = (long)(C.MICROS_PER_SECOND * (Double)(entry.getValue()));
+            setDurationUs((long) (C.MICROS_PER_SECOND * (Double)(entry.getValue())));
             break;
 
           default:
@@ -198,4 +199,5 @@ final class ScriptTagPayloadReader extends TagPayloadReader {
     data.readUnsignedShort();
     return date;
   }
+
 }
