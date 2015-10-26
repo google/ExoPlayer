@@ -15,17 +15,13 @@
  */
 package com.google.android.exoplayer.demo;
 
-import com.google.android.exoplayer.MediaCodecUtil;
-import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.demo.Samples.Sample;
-import com.google.android.exoplayer.util.MimeTypes;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,19 +52,8 @@ public class SampleChooserActivity extends Activity {
     sampleAdapter.addAll((Object[]) Samples.WIDEVINE_GTS);
     sampleAdapter.add(new Header("Widevine DASH"));
     sampleAdapter.addAll((Object[]) Samples.WIDEVINE_DASH_MP4);
-    try {
-      if (MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_VP9, false) != null) {
-        sampleAdapter.addAll((Object[]) Samples.WIDEVINE_DASH_WEBM);
-      }
-    } catch (DecoderQueryException e) {
-      Log.e(TAG, "Failed to query vp9 decoder", e);
-    }
-    sampleAdapter.add(new Header("Widevine DASH Policy Tests (GTS)"));
-    sampleAdapter.addAll((Object[]) Samples.WIDEVINE_GTS);
-    sampleAdapter.add(new Header("Widevine DASH"));
-    sampleAdapter.addAll((Object[]) Samples.WIDEVINE_DASH_MP4);
     // try {
-    //   if (MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_VP9, false) != null) {
+    //   if (MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_VP9, true) != null) {
     //     sampleAdapter.addAll((Object[]) Samples.WIDEVINE_DASH_WEBM);
     //   }
     // } catch (DecoderQueryException e) {
