@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.extractor.flv;
 
-import android.util.Pair;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.extractor.TrackOutput;
@@ -23,6 +22,8 @@ import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
+
+import android.util.Pair;
 
 import java.util.Collections;
 
@@ -108,9 +109,10 @@ final class AudioTagPayloadReader extends TagPayloadReader {
       Pair<Integer, Integer> audioParams = CodecSpecificDataUtil.parseAacAudioSpecificConfig(
           audioSpecificConfig);
 
-      MediaFormat mediaFormat = MediaFormat.createAudioFormat(MimeTypes.AUDIO_AAC,
-          MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, durationUs, audioParams.second,
-          audioParams.first, Collections.singletonList(audioSpecificConfig), null);
+      MediaFormat mediaFormat = MediaFormat.createAudioFormat(MediaFormat.NO_VALUE,
+          MimeTypes.AUDIO_AAC, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, durationUs,
+          audioParams.second, audioParams.first, Collections.singletonList(audioSpecificConfig),
+          null);
 
       output.format(mediaFormat);
       hasOutputFormat = true;
