@@ -50,7 +50,8 @@ import com.google.android.exoplayer.util.Util;
       // If the frame count is missing/invalid, the header can't be used to determine the duration.
       return null;
     }
-    long durationUs = Util.scaleLargeTimestamp(frameCount, samplesPerFrame * 1000000L, sampleRate);
+    long durationUs = Util.scaleLargeTimestamp(frameCount, samplesPerFrame * C.MICROS_PER_SECOND,
+        sampleRate);
     if ((flags & 0x06) != 0x06) {
       // If the size in bytes or table of contents is missing, the stream is not seekable.
       return new XingSeeker(inputLength, firstFramePosition, durationUs);
