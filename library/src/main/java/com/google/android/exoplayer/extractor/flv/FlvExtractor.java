@@ -129,7 +129,7 @@ public final class FlvExtractor implements Extractor, SeekMap {
           return readSample(input);
         }
       }
-    } catch (AudioTagPayloadReader.UnsupportedTrack unsupportedTrack) {
+    } catch (AudioTagPayloadReader.UnsupportedFormatException unsupportedTrack) {
       unsupportedTrack.printStackTrace();
       return RESULT_END_OF_INPUT;
     }
@@ -186,11 +186,11 @@ public final class FlvExtractor implements Extractor, SeekMap {
    * @return True if tag header was read successfully. Otherwise, false.
    * @throws IOException If an error occurred reading from the source.
    * @throws InterruptedException If the thread was interrupted.
-   * @throws TagPayloadReader.UnsupportedTrack If payload of the tag is using a codec non
+   * @throws TagPayloadReader.UnsupportedFormatException If payload of the tag is using a codec non
    * supported codec.
    */
   private boolean readTagHeader(ExtractorInput input) throws IOException, InterruptedException,
-      TagPayloadReader.UnsupportedTrack {
+      TagPayloadReader.UnsupportedFormatException {
     try {
       // skipping previous tag size field
       input.skipFully(4);
@@ -235,11 +235,11 @@ public final class FlvExtractor implements Extractor, SeekMap {
    * @return One of {@link Extractor#RESULT_CONTINUE} and {@link Extractor#RESULT_END_OF_INPUT}.
    * @throws IOException If an error occurred reading from the source.
    * @throws InterruptedException If the thread was interrupted.
-   * @throws TagPayloadReader.UnsupportedTrack If payload of the tag is using a codec non
+   * @throws TagPayloadReader.UnsupportedFormatException If payload of the tag is using a codec non
    * supported codec.
    */
   private int readSample(ExtractorInput input) throws IOException,
-      InterruptedException, AudioTagPayloadReader.UnsupportedTrack {
+      InterruptedException, AudioTagPayloadReader.UnsupportedFormatException {
     if (tagData != null) {
       if (!input.readFully(tagData.data, 0, currentTagHeader.dataSize, true)) {
         return RESULT_END_OF_INPUT;

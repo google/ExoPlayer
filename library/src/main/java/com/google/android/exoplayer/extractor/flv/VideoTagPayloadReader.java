@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * Parses video tags from an FLV stream and extracts H.264 nal units.
  */
-final class VideoTagPayloadReader extends TagPayloadReader {
+/* package */ final class VideoTagPayloadReader extends TagPayloadReader {
   private static final String TAG = "VideoTagPayloadReader";
 
   // Video codec
@@ -63,25 +63,23 @@ final class VideoTagPayloadReader extends TagPayloadReader {
    */
   public VideoTagPayloadReader(TrackOutput output) {
     super(output);
-
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
   }
 
   @Override
   public void seek() {
-
+    // Do nothing.
   }
 
   @Override
-  protected boolean parseHeader(ParsableByteArray data) throws UnsupportedTrack {
+  protected boolean parseHeader(ParsableByteArray data) throws UnsupportedFormatException {
     int header = data.readUnsignedByte();
     int frameType = (header >> 4) & 0x0F;
     int videoCodec = (header & 0x0F);
-
     // Support just H.264 encoded content.
     if (videoCodec != VIDEO_CODEC_AVC) {
-      throw new UnsupportedTrack("Video codec not supported. Codec: " + videoCodec);
+      throw new UnsupportedFormatException("Video format not supported: " + videoCodec);
     }
     this.frameType = frameType;
     return (frameType != VIDEO_FRAME_VIDEO_INFO);
@@ -113,7 +111,7 @@ final class VideoTagPayloadReader extends TagPayloadReader {
 
       // Construct and output the format.
       MediaFormat mediaFormat = MediaFormat.createVideoFormat(MediaFormat.NO_VALUE,
-          MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, durationUs,
+          MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, getDurationUs(),
           avcData.width, avcData.height, avcData.initializationData, MediaFormat.NO_VALUE,
           avcData.pixelWidthAspectRatio);
       output.format(mediaFormat);
