@@ -15,11 +15,11 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.Util;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+
+import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.Util;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -38,6 +38,7 @@ public final class MediaFormat {
    * the timestamps of their parent samples.
    */
   public static final long OFFSET_SAMPLE_RELATIVE = Long.MAX_VALUE;
+
   /**
    * The identifier for the track represented by the format, or null if unknown or not
    * applicable.

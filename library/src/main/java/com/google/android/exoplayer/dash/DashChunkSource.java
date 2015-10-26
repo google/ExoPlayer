@@ -15,6 +15,11 @@
  */
 package com.google.android.exoplayer.dash;
 
+import android.os.Handler;
+import android.text.TextUtils;
+import android.util.Log;
+import android.util.SparseArray;
+
 import com.google.android.exoplayer.BehindLiveWindowException;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
@@ -50,11 +55,6 @@ import com.google.android.exoplayer.util.Clock;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.SystemClock;
-
-import android.os.Handler;
-import android.text.TextUtils;
-import android.util.Log;
-import android.util.SparseArray;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -846,7 +846,6 @@ public class DashChunkSource implements ChunkSource, Output {
 
     public ExposedTrack(MediaFormat trackFormat, int adaptationSetIndex, Format fixedFormat) {
       this.trackFormat = trackFormat;
-
       this.adaptationSetIndex = adaptationSetIndex;
       this.fixedFormat = fixedFormat;
       this.adaptiveFormats = null;
@@ -866,9 +865,9 @@ public class DashChunkSource implements ChunkSource, Output {
 
     public boolean isAdaptive() {
       return adaptiveFormats != null;
+    }
 
-    }
-    }
+  }
 
   private static final class RepresentationHolder {
 
