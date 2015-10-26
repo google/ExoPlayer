@@ -69,6 +69,11 @@ import java.nio.ByteBuffer;
     vpxClose(vpxDecContext);
   }
 
+  /**
+   * Returns the version string of the underlying libvpx decoder.
+   */
+  public static native String getLibvpxVersion();
+
   private native long vpxInit();
   private native long vpxClose(long context);
   private native long vpxDecode(long context, ByteBuffer encoded, int length);
