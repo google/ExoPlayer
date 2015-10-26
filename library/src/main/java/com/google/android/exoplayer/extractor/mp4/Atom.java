@@ -80,6 +80,8 @@ import java.util.List;
   public static final int TYPE_traf = Util.getIntegerCodeForString("traf");
   public static final int TYPE_mvex = Util.getIntegerCodeForString("mvex");
   public static final int TYPE_tkhd = Util.getIntegerCodeForString("tkhd");
+  public static final int TYPE_edts = Util.getIntegerCodeForString("edts");
+  public static final int TYPE_elst = Util.getIntegerCodeForString("elst");
   public static final int TYPE_mdhd = Util.getIntegerCodeForString("mdhd");
   public static final int TYPE_hdlr = Util.getIntegerCodeForString("hdlr");
   public static final int TYPE_stsd = Util.getIntegerCodeForString("stsd");
