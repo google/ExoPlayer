@@ -138,11 +138,12 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       TrackSampleTable sampleTable = tracks[trackIndex].sampleTable;
       int sampleIndex = sampleTable.getIndexOfEarlierOrEqualSynchronizationSample(timeUs);
       if (sampleIndex == TrackSampleTable.NO_SAMPLE) {
+        // Handle the case where the requested time is before the first synchronization sample.
         sampleIndex = sampleTable.getIndexOfLaterOrEqualSynchronizationSample(timeUs);
       }
       tracks[trackIndex].sampleIndex = sampleIndex;
 
-      long offset = sampleTable.offsets[tracks[trackIndex].sampleIndex];
+      long offset = sampleTable.offsets[sampleIndex];
       if (offset < earliestSamplePosition) {
         earliestSamplePosition = offset;
       }
@@ -386,15 +387,15 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         || atom == Atom.TYPE_vmhd || atom == Atom.TYPE_smhd || atom == Atom.TYPE_stsd
         || atom == Atom.TYPE_avc1 || atom == Atom.TYPE_avcC || atom == Atom.TYPE_mp4a
         || atom == Atom.TYPE_esds || atom == Atom.TYPE_stts || atom == Atom.TYPE_stss
-        || atom == Atom.TYPE_ctts || atom == Atom.TYPE_stsc || atom == Atom.TYPE_stsz
-        || atom == Atom.TYPE_stco || atom == Atom.TYPE_co64 || atom == Atom.TYPE_tkhd
-        || atom == Atom.TYPE_s263;
+        || atom == Atom.TYPE_ctts || atom == Atom.TYPE_elst || atom == Atom.TYPE_stsc
+        || atom == Atom.TYPE_stsz || atom == Atom.TYPE_stco || atom == Atom.TYPE_co64
+        || atom == Atom.TYPE_tkhd || atom == Atom.TYPE_s263;
   }
 
   /** Returns whether the extractor should parse a container atom with type {@code atom}. */
   private static boolean shouldParseContainerAtom(int atom) {
     return atom == Atom.TYPE_moov || atom == Atom.TYPE_trak || atom == Atom.TYPE_mdia
-        || atom == Atom.TYPE_minf || atom == Atom.TYPE_stbl;
+        || atom == Atom.TYPE_minf || atom == Atom.TYPE_stbl || atom == Atom.TYPE_edts;
   }
 
   private static final class Mp4Track {
