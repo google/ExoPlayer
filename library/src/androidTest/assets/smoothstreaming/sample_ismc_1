@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SmoothStreamingMedia MajorVersion="2" MinorVersion="0"
+    Duration="2300000000" TimeScale="10000000">
+    <Protection>
+        <ProtectionHeader SystemID="9A04F079-9840-4286-AB92-E65BE0885F95">
+            <!-- Base 64-Encoded data omitted for clarity -->
+        </ProtectionHeader>
+    </Protection>
+
+    <StreamIndex
+        Type = "video"
+        Chunks = "115"
+        QualityLevels = "2"
+        MaxWidth = "720"
+        MaxHeight = "480"
+        TimeScale="10000000"
+        Url =
+            "QualityLevels({bitrate},{CustomAttributes})/Fragments(video={start_time})"
+        Name = "video"
+        >
+        <QualityLevel Index="0" Bitrate="1536000" FourCC="WVC1"
+            MaxWidth="720" MaxHeight="480"
+            CodecPrivateData = "270000010FCBEE1670EF8A16783BF180C9089CC4AFA11C0000010E1207F840"
+            >
+            <CustomAttributes>
+                <Attribute Name = "Compatibility" Value = "Desktop" />
+            </CustomAttributes>
+        </QualityLevel>
+
+
+        <QualityLevel Index="5" Bitrate="307200" FourCC="WVC1"
+            MaxWidth="720" MaxHeight="480"
+            CodecPrivateData = "270000010FCBEE1670EF8A16783BF180C9089CC4AFA11C0000010E1207F840">
+            <CustomAttributes>
+                <Attribute Name = "Compatibility" Value = "Handheld" />
+            </CustomAttributes>
+        </QualityLevel>
+
+
+        <c t = "0" d = "19680000" />
+        <c n = "1" t = "19680000" d="8980000" />
+
+    </StreamIndex>
+</SmoothStreamingMedia>
+
