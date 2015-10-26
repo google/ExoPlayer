@@ -49,6 +49,14 @@ import java.util.concurrent.CancellationException;
 public class ManifestFetcher<T> implements Loader.Callback {
 
   /**
+   * Thrown when an error occurs trying to fetch a manifest.
+   */
+  public static final class ManifestIOException extends IOException{
+    public ManifestIOException(Throwable cause) { super(cause); }
+
+  }
+
+  /**
    * Interface definition for a callback to be notified of {@link ManifestFetcher} events.
    */
   public interface EventListener {
@@ -112,7 +120,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
   private int loadExceptionCount;
   private long loadExceptionTimestamp;
-  private IOException loadException;
+  private ManifestIOException loadException;
 
   private volatile T manifest;
   private volatile long manifestLoadStartTimestamp;
@@ -201,9 +209,10 @@ public class ManifestFetcher<T> implements Loader.Callback {
    * Throws the error that affected the most recent attempt to load the manifest. Does nothing if
    * the most recent attempt was successful.
    *
-   * @throws IOException The error that affected the most recent attempt to load the manifest.
+   * @throws ManifestIOException The error that affected the most recent attempt to load the
+   *     manifest.
    */
-  public void maybeThrowError() throws IOException {
+  public void maybeThrowError() throws ManifestIOException {
     // Don't throw an exception until at least 1 retry attempt has been made.
     if (loadException == null || loadExceptionCount <= 1) {
       return;
@@ -291,7 +300,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
 
     loadExceptionCount++;
     loadExceptionTimestamp = SystemClock.elapsedRealtime();
-    loadException = new IOException(exception);
+    loadException = new ManifestIOException(exception);
 
     notifyManifestError(loadException);
   }
@@ -376,7 +385,7 @@ public class ManifestFetcher<T> implements Loader.Callback {
     public void onLoadCanceled(Loadable loadable) {
       // This shouldn't ever happen, but handle it anyway.
       try {
-        IOException exception = new IOException("Load cancelled", new CancellationException());
+        IOException exception = new ManifestIOException(new CancellationException());
         wrappedCallback.onSingleManifestError(exception);
       } finally {
         releaseLoader();
