@@ -34,6 +34,31 @@ public class ParsableByteArrayTest extends TestCase {
     return testArray;
   }
 
+  public void testReadShort() {
+    testReadShort((short) -1);
+    testReadShort((short) 0);
+    testReadShort((short) 1);
+    testReadShort(Short.MIN_VALUE);
+    testReadShort(Short.MAX_VALUE);
+  }
+
+  private static void testReadShort(short testValue) {
+    ParsableByteArray testArray = new ParsableByteArray(
+        ByteBuffer.allocate(4).putShort(testValue).array());
+    int readValue = testArray.readShort();
+
+    // Assert that the value we read was the value we wrote.
+    assertEquals(testValue, readValue);
+    // And that the position advanced as expected.
+    assertEquals(2, testArray.getPosition());
+
+    // And that skipping back and reading gives the same results.
+    testArray.skipBytes(-2);
+    readValue = testArray.readShort();
+    assertEquals(testValue, readValue);
+    assertEquals(2, testArray.getPosition());
+  }
+
   public void testReadInt() {
     testReadInt(0);
     testReadInt(1);
