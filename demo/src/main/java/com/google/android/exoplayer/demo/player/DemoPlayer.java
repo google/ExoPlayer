@@ -523,6 +523,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     if (infoListener != null) {
       infoListener.onAvailableRangeChanged(availableRange);
     }
+    playerControl.setAvailableSeekRange(availableRange);
   }
 
   @Override
