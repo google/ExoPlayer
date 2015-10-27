@@ -143,6 +143,10 @@ FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer, jboolean isRGB) {
   return 0;
 }
 
+FUNC(jstring, getLibvpxVersion) {
+  return env->NewStringUTF(vpx_codec_version_str());
+}
+
 FUNC(jstring, vpxGetErrorMessage, jlong jContext) {
   vpx_codec_ctx_t* const context = reinterpret_cast<vpx_codec_ctx_t*>(jContext);
   return env->NewStringUTF(vpx_codec_error(context));

@@ -150,6 +150,15 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     formatHolder = new MediaFormatHolder();
   }
 
+  /**
+   * Get the version of underlying libvpx library.
+   *
+   * @return version of the underlying libvpx library.
+   */
+  public static String getLibvpxVersion() {
+    return VpxDecoder.getLibvpxVersion();
+  }
+
   @Override
   protected boolean handlesTrack(MediaFormat mediaFormat) {
     return MimeTypes.VIDEO_VP9.equalsIgnoreCase(mediaFormat.mimeType);

@@ -54,11 +54,11 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Tests H264 DASH playbacks using {@link ExoPlayer}.
+ * Tests DASH playbacks using {@link ExoPlayer}.
  */
-public final class H264DashTest extends ActivityInstrumentationTestCase2<HostActivity> {
+public final class DashTest extends ActivityInstrumentationTestCase2<HostActivity> {
 
-  private static final String TAG = "H264DashTest";
+  private static final String TAG = "DashTest";
 
   private static final long MAX_PLAYING_TIME_DISCREPANCY_MS = 2000;
   private static final float MAX_DROPPED_VIDEO_FRAME_FRACTION = 0.01f;
@@ -66,104 +66,205 @@ public final class H264DashTest extends ActivityInstrumentationTestCase2<HostAct
   private static final long MAX_ADDITIONAL_TIME_MS = 180000;
   private static final int MIN_LOADABLE_RETRY_COUNT = 10;
 
-  private static final String SOURCE_URL = "https://storage.googleapis.com/exoplayer-test-media-1"
-      + "/gen/screens/dash-vod-single-segment/manifest-baseline.mpd";
-  private static final int SOURCE_VIDEO_FRAME_COUNT = 3840;
-  private static final int SOURCE_AUDIO_FRAME_COUNT = 5524;
-  private static final String AUDIO_REPRESENTATION_ID = "141";
-  private static final String VIDEO_REPRESENTATION_ID_240 = "avc-baseline-240";
-  private static final String VIDEO_REPRESENTATION_ID_480 = "avc-baseline-480";
+  private static final String MANIFEST_URL_PREFIX = "https://storage.googleapis.com/exoplayer-test-"
+      + "media-1/gen-2/screens/dash-vod-single-segment/";
+  private static final String H264_BASELINE_MANIFEST = "manifest-baseline.mpd";
+  private static final String H264_MAIN_MANIFEST = "manifest-main.mpd";
+  private static final String VP9_MANIFEST = "manifest-vp9.mpd";
+  private static final int AAC_AUDIO_FRAME_COUNT = 5524;
+  private static final int H264_VIDEO_FRAME_COUNT = 3841;
+  private static final int VORBIS_AUDIO_FRAME_COUNT = 7773;
+  private static final int VP9_VIDEO_FRAME_COUNT = 3841;
+  private static final String H264_BASELINE_240P_VIDEO_REPRESENTATION_ID = "avc-baseline-240";
+  private static final String H264_BASELINE_480P_VIDEO_REPRESENTATION_ID = "avc-baseline-480";
+  private static final String H264_MAIN_240P_VIDEO_REPRESENTATION_ID = "avc-main-240";
+  private static final String H264_MAIN_480P_VIDEO_REPRESENTATION_ID = "avc-main-480";
+  private static final String AAC_AUDIO_REPRESENTATION_ID = "141";
+  private static final String VP9_180P_VIDEO_REPRESENTATION_ID = "0";
+  private static final String VP9_360P_VIDEO_REPRESENTATION_ID = "1";
+  private static final String VORBIS_AUDIO_REPRESENTATION_ID = "2";
+  private static final ActionSchedule SEEKING_SCHEDULE = new ActionSchedule.Builder(TAG)
+      .delay(10000).seek(15000)
+      .delay(10000).seek(30000).seek(31000).seek(32000).seek(33000).seek(34000)
+      .delay(1000).pause().delay(1000).play()
+      .delay(1000).pause().seek(100000).delay(1000).play()
+      .build();
+  private static final ActionSchedule RENDERER_DISABLING_SCHEDULE = new ActionSchedule.Builder(TAG)
+      // Wait 10 seconds, disable the video renderer, wait another 5 seconds and enable it again.
+      .delay(10000).disableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
+      .delay(10000).enableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
+      // Ditto for the audio renderer.
+      .delay(10000).disableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
+      .delay(10000).enableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
+      // Wait 10 seconds, then disable and enable the video renderer 5 times in quick succession.
+      .delay(10000).disableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
+          .enableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
+          .disableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
+          .enableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
+          .disableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
+          .enableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
+          .disableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
+          .enableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
+          .disableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
+          .enableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
+      // Ditto for the audio renderer.
+      .delay(10000).disableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
+          .enableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
+          .disableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
+          .enableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
+          .disableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
+          .enableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
+          .disableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
+          .enableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
+          .disableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
+          .enableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
+      .build();
 
-  public H264DashTest() {
+  public DashTest() {
     super(HostActivity.class);
   }
 
-  public void testBaseline480() throws IOException {
+  public void testH264FixedBaseline480p() throws IOException {
     if (Util.SDK_INT < 16) {
       // Pass.
       return;
     }
-    MediaPresentationDescription mpd = TestUtil.loadManifest(getActivity(), SOURCE_URL,
-        new MediaPresentationDescriptionParser());
-    H264DashHostedTest test = new H264DashHostedTest(mpd, true, AUDIO_REPRESENTATION_ID,
-        VIDEO_REPRESENTATION_ID_480);
-    getActivity().runTest(test, mpd.duration + MAX_ADDITIONAL_TIME_MS);
+    testDashPlayback(getActivity(), AAC_AUDIO_FRAME_COUNT, H264_VIDEO_FRAME_COUNT,
+        H264_BASELINE_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
+        H264_BASELINE_480P_VIDEO_REPRESENTATION_ID);
   }
 
-  public void testBaselineAdaptive() throws IOException {
-    if (Util.SDK_INT < 16) {
+  public void testH264FixedMain480p() throws IOException {
+    if (Util.SDK_INT < 23) {
       // Pass.
       return;
     }
-    MediaPresentationDescription mpd = TestUtil.loadManifest(getActivity(), SOURCE_URL,
-        new MediaPresentationDescriptionParser());
-    H264DashHostedTest test = new H264DashHostedTest(mpd, true, AUDIO_REPRESENTATION_ID,
-        VIDEO_REPRESENTATION_ID_240, VIDEO_REPRESENTATION_ID_480);
-    getActivity().runTest(test, mpd.duration + MAX_ADDITIONAL_TIME_MS);
+    testDashPlayback(getActivity(), AAC_AUDIO_FRAME_COUNT, H264_VIDEO_FRAME_COUNT,
+        H264_MAIN_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, H264_MAIN_480P_VIDEO_REPRESENTATION_ID);
   }
 
-  public void testBaselineAdaptiveWithSeeking() throws IOException {
+  public void testH264BaselineAdaptive() throws IOException {
     if (Util.SDK_INT < 16) {
       // Pass.
       return;
     }
-    MediaPresentationDescription mpd = TestUtil.loadManifest(getActivity(), SOURCE_URL,
-        new MediaPresentationDescriptionParser());
-    H264DashHostedTest test = new H264DashHostedTest(mpd, false, AUDIO_REPRESENTATION_ID,
-        VIDEO_REPRESENTATION_ID_240, VIDEO_REPRESENTATION_ID_480);
-    test.setSchedule(new ActionSchedule.Builder(TAG)
-        .delay(10000).seek(15000)
-        .delay(10000).seek(30000).seek(31000).seek(32000).seek(33000).seek(34000)
-        .delay(1000).pause().delay(1000).play()
-        .delay(1000).pause().seek(100000).delay(1000).play()
-        .build());
-    getActivity().runTest(test, mpd.duration + MAX_ADDITIONAL_TIME_MS);
+    testDashPlayback(getActivity(), AAC_AUDIO_FRAME_COUNT, H264_VIDEO_FRAME_COUNT,
+        H264_BASELINE_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
+        H264_BASELINE_240P_VIDEO_REPRESENTATION_ID, H264_BASELINE_480P_VIDEO_REPRESENTATION_ID);
   }
 
-  public void testBaselineAdaptiveWithRendererDisabling() throws IOException {
+  public void testH264MainAdaptive() throws IOException {
+    if (Util.SDK_INT < 23) {
+      // Pass.
+      return;
+    }
+    testDashPlayback(getActivity(), AAC_AUDIO_FRAME_COUNT, H264_VIDEO_FRAME_COUNT,
+        H264_MAIN_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, H264_MAIN_240P_VIDEO_REPRESENTATION_ID,
+        H264_MAIN_480P_VIDEO_REPRESENTATION_ID);
+  }
+
+  public void testH264BaselineAdaptiveWithSeeking() throws IOException {
     if (Util.SDK_INT < 16) {
       // Pass.
       return;
     }
-    MediaPresentationDescription mpd = TestUtil.loadManifest(getActivity(), SOURCE_URL,
-        new MediaPresentationDescriptionParser());
-    H264DashHostedTest test = new H264DashHostedTest(mpd, false, AUDIO_REPRESENTATION_ID,
-        VIDEO_REPRESENTATION_ID_240, VIDEO_REPRESENTATION_ID_480);
-    test.setSchedule(new ActionSchedule.Builder(TAG)
-        // Wait 10 seconds, disable the video renderer, wait another 5 seconds and enable it again.
-        .delay(10000).disableRenderer(H264DashHostedTest.VIDEO_RENDERER_INDEX)
-        .delay(10000).enableRenderer(H264DashHostedTest.VIDEO_RENDERER_INDEX)
-        // Ditto for the audio renderer.
-        .delay(10000).disableRenderer(H264DashHostedTest.AUDIO_RENDERER_INDEX)
-        .delay(10000).enableRenderer(H264DashHostedTest.AUDIO_RENDERER_INDEX)
-        // Wait 10 seconds, then disable and enable the video renderer 5 times in quick succession.
-        .delay(10000).disableRenderer(H264DashHostedTest.VIDEO_RENDERER_INDEX)
-            .enableRenderer(H264DashHostedTest.VIDEO_RENDERER_INDEX)
-            .disableRenderer(H264DashHostedTest.VIDEO_RENDERER_INDEX)
-            .enableRenderer(H264DashHostedTest.VIDEO_RENDERER_INDEX)
-            .disableRenderer(H264DashHostedTest.VIDEO_RENDERER_INDEX)
-            .enableRenderer(H264DashHostedTest.VIDEO_RENDERER_INDEX)
-            .disableRenderer(H264DashHostedTest.VIDEO_RENDERER_INDEX)
-            .enableRenderer(H264DashHostedTest.VIDEO_RENDERER_INDEX)
-            .disableRenderer(H264DashHostedTest.VIDEO_RENDERER_INDEX)
-            .enableRenderer(H264DashHostedTest.VIDEO_RENDERER_INDEX)
-        // Ditto for the audio renderer.
-        .delay(10000).disableRenderer(H264DashHostedTest.AUDIO_RENDERER_INDEX)
-            .enableRenderer(H264DashHostedTest.AUDIO_RENDERER_INDEX)
-            .disableRenderer(H264DashHostedTest.AUDIO_RENDERER_INDEX)
-            .enableRenderer(H264DashHostedTest.AUDIO_RENDERER_INDEX)
-            .disableRenderer(H264DashHostedTest.AUDIO_RENDERER_INDEX)
-            .enableRenderer(H264DashHostedTest.AUDIO_RENDERER_INDEX)
-            .disableRenderer(H264DashHostedTest.AUDIO_RENDERER_INDEX)
-            .enableRenderer(H264DashHostedTest.AUDIO_RENDERER_INDEX)
-            .disableRenderer(H264DashHostedTest.AUDIO_RENDERER_INDEX)
-            .enableRenderer(H264DashHostedTest.AUDIO_RENDERER_INDEX)
-        .build());
-    getActivity().runTest(test, mpd.duration + MAX_ADDITIONAL_TIME_MS);
+    testDashPlayback(getActivity(), SEEKING_SCHEDULE, false, AAC_AUDIO_FRAME_COUNT,
+        H264_VIDEO_FRAME_COUNT, H264_BASELINE_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
+        H264_BASELINE_240P_VIDEO_REPRESENTATION_ID, H264_BASELINE_480P_VIDEO_REPRESENTATION_ID);
+  }
+
+  public void testH264MainAdaptiveWithSeeking() throws IOException {
+    if (Util.SDK_INT < 23) {
+      // Pass.
+      return;
+    }
+    testDashPlayback(getActivity(), SEEKING_SCHEDULE, false, AAC_AUDIO_FRAME_COUNT,
+        H264_VIDEO_FRAME_COUNT, H264_MAIN_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
+        H264_MAIN_240P_VIDEO_REPRESENTATION_ID, H264_MAIN_480P_VIDEO_REPRESENTATION_ID);
+  }
+
+  public void testH264BaselineAdaptiveWithRendererDisabling() throws IOException {
+    if (Util.SDK_INT < 16) {
+      // Pass.
+      return;
+    }
+    testDashPlayback(getActivity(), RENDERER_DISABLING_SCHEDULE, false, AAC_AUDIO_FRAME_COUNT,
+        H264_VIDEO_FRAME_COUNT, H264_BASELINE_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
+        H264_BASELINE_240P_VIDEO_REPRESENTATION_ID, H264_BASELINE_480P_VIDEO_REPRESENTATION_ID);
+  }
+
+  public void testH264MainAdaptiveWithRendererDisabling() throws IOException {
+    if (Util.SDK_INT < 23) {
+      // Pass.
+      return;
+    }
+    testDashPlayback(getActivity(), RENDERER_DISABLING_SCHEDULE, false, AAC_AUDIO_FRAME_COUNT,
+        H264_VIDEO_FRAME_COUNT, H264_MAIN_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
+        H264_MAIN_240P_VIDEO_REPRESENTATION_ID, H264_MAIN_480P_VIDEO_REPRESENTATION_ID);
+  }
+
+  public void testVp9Fixed360p() throws IOException {
+    if (Util.SDK_INT < 16) {
+      // Pass.
+      return;
+    }
+    testDashPlayback(getActivity(), VORBIS_AUDIO_FRAME_COUNT, VP9_VIDEO_FRAME_COUNT, VP9_MANIFEST,
+        VORBIS_AUDIO_REPRESENTATION_ID, VP9_360P_VIDEO_REPRESENTATION_ID);
+  }
+
+  public void testVp9Adaptive() throws IOException {
+    if (Util.SDK_INT < 16) {
+      // Pass.
+      return;
+    }
+    testDashPlayback(getActivity(), VORBIS_AUDIO_FRAME_COUNT, VP9_VIDEO_FRAME_COUNT, VP9_MANIFEST,
+        VORBIS_AUDIO_REPRESENTATION_ID, VP9_180P_VIDEO_REPRESENTATION_ID,
+        VP9_360P_VIDEO_REPRESENTATION_ID);
+  }
+
+  public void testVp9AdaptiveWithSeeking() throws IOException {
+    if (Util.SDK_INT < 16) {
+      // Pass.
+      return;
+    }
+    testDashPlayback(getActivity(), SEEKING_SCHEDULE, false, VORBIS_AUDIO_FRAME_COUNT,
+        VP9_VIDEO_FRAME_COUNT, VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID,
+        VP9_180P_VIDEO_REPRESENTATION_ID, VP9_360P_VIDEO_REPRESENTATION_ID);
+  }
+
+  public void testVp9AdaptiveWithRendererDisabling() throws IOException {
+    if (Util.SDK_INT < 16) {
+      // Pass.
+      return;
+    }
+    testDashPlayback(getActivity(), RENDERER_DISABLING_SCHEDULE, false, VORBIS_AUDIO_FRAME_COUNT,
+        VP9_VIDEO_FRAME_COUNT, VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID,
+        VP9_180P_VIDEO_REPRESENTATION_ID, VP9_360P_VIDEO_REPRESENTATION_ID);
+  }
+
+  private static void testDashPlayback(HostActivity activity, int sourceAudioFrameCount,
+      int sourceVideoFrameCount, String manifestFileName, String audioRepresentationId,
+      String... videoRepresentationIds) throws IOException {
+    testDashPlayback(activity, null, true, sourceAudioFrameCount, sourceVideoFrameCount,
+        manifestFileName, audioRepresentationId, videoRepresentationIds);
+  }
+
+  private static void testDashPlayback(HostActivity activity, ActionSchedule actionSchedule,
+      boolean fullPlaybackNoSeeking, int sourceAudioFrameCount, int sourceVideoFrameCount,
+      String manifestFileName, String audioRepresentationId, String... videoRepresentationIds)
+          throws IOException {
+    MediaPresentationDescription mpd = TestUtil.loadManifest(activity,
+        MANIFEST_URL_PREFIX + manifestFileName, new MediaPresentationDescriptionParser());
+    DashHostedTest test = new DashHostedTest(mpd, fullPlaybackNoSeeking, sourceAudioFrameCount,
+        sourceVideoFrameCount, audioRepresentationId, videoRepresentationIds);
+    if (actionSchedule != null) {
+      test.setSchedule(actionSchedule);
+    }
+    activity.runTest(test, mpd.duration + MAX_ADDITIONAL_TIME_MS);
   }
 
   @TargetApi(16)
-  private static class H264DashHostedTest extends ExoHostedTest {
+  private static class DashHostedTest extends ExoHostedTest {
 
     private static final int RENDERER_COUNT = 2;
     private static final int VIDEO_RENDERER_INDEX = 0;
@@ -180,6 +281,8 @@ public final class H264DashTest extends ActivityInstrumentationTestCase2<HostAct
 
     private final MediaPresentationDescription mpd;
     private final boolean fullPlaybackNoSeeking;
+    private final int sourceAudioFrameCount;
+    private final int sourceVideoFrameCount;
     private String[] audioFormats;
     private String[] videoFormats;
 
@@ -190,14 +293,19 @@ public final class H264DashTest extends ActivityInstrumentationTestCase2<HostAct
      * @param mpd The manifest.
      * @param fullPlaybackNoSeeking True if the test will play the entire source with no seeking.
      *     False otherwise.
+     * @param sourceAudioFrameCount The number of audio frames in the source.
+     * @param sourceVideoFrameCount The number of video frames in the source.
      * @param audioFormat The audio format.
      * @param videoFormats The video formats.
      */
-    public H264DashHostedTest(MediaPresentationDescription mpd, boolean fullPlaybackNoSeeking,
-        String audioFormat, String... videoFormats) {
+    public DashHostedTest(MediaPresentationDescription mpd, boolean fullPlaybackNoSeeking,
+        int sourceAudioFrameCount, int sourceVideoFrameCount, String audioFormat,
+        String... videoFormats) {
       super(RENDERER_COUNT);
       this.mpd = Assertions.checkNotNull(mpd);
       this.fullPlaybackNoSeeking = fullPlaybackNoSeeking;
+      this.sourceAudioFrameCount = sourceAudioFrameCount;
+      this.sourceVideoFrameCount = sourceVideoFrameCount;
       this.audioFormats = new String[] {audioFormat};
       this.videoFormats = videoFormats;
     }
@@ -262,10 +370,10 @@ public final class H264DashTest extends ActivityInstrumentationTestCase2<HostAct
 
         // We allow one fewer output buffer due to the way that MediaCodecTrackRenderer and the
         // underlying decoders handle the end of stream. This should be tightened up in the future.
-        CodecCountersUtil.assertTotalOutputBufferCount(VIDEO_TAG, videoCounters,
-            SOURCE_VIDEO_FRAME_COUNT - 1, SOURCE_VIDEO_FRAME_COUNT);
         CodecCountersUtil.assertTotalOutputBufferCount(AUDIO_TAG, audioCounters,
-            SOURCE_AUDIO_FRAME_COUNT - 1, SOURCE_AUDIO_FRAME_COUNT);
+            sourceAudioFrameCount - 1, sourceAudioFrameCount);
+        CodecCountersUtil.assertTotalOutputBufferCount(VIDEO_TAG, videoCounters,
+            sourceVideoFrameCount - 1, sourceVideoFrameCount);
 
         // The total playing time should match the source duration.
         long sourceDuration = mpd.duration;

@@ -73,7 +73,8 @@ public class VideoPlayer extends Activity implements OnClickListener,
   private SurfaceView surfaceView;
   private VpxVideoSurfaceView vpxVideoSurfaceView;
   private TextView debugInfoView;
-  private TextView playerStateView;
+  private String debugInfo;
+  private String playerState;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -106,7 +107,10 @@ public class VideoPlayer extends Activity implements OnClickListener,
     surfaceView = (SurfaceView) findViewById(R.id.surface_view);
     vpxVideoSurfaceView = (VpxVideoSurfaceView) findViewById(R.id.vpx_surface_view);
     debugInfoView = (TextView) findViewById(R.id.debug_info);
-    playerStateView = (TextView) findViewById(R.id.player_state);
+    debugInfo = "";
+    playerState = "";
+    filename = "";
+    updateDebugInfoTextView();
 
     // Set the buttons' onclick listeners.
     ((Button) findViewById(R.id.choose_file)).setOnClickListener(this);
@@ -115,7 +119,6 @@ public class VideoPlayer extends Activity implements OnClickListener,
     // In case of DASH, start playback right away.
     if (isDash) {
       findViewById(R.id.buttons).setVisibility(View.GONE);
-      ((TextView) findViewById(R.id.filename)).setVisibility(View.GONE);
       startDashPlayback();
     }
   }
@@ -146,8 +149,7 @@ public class VideoPlayer extends Activity implements OnClickListener,
       case FILE_PICKER_REQUEST:
         if (resultCode == Activity.RESULT_OK) {
           filename = data.getStringExtra(FilePickerActivity.FILENAME_EXTRA_ID);
-          ((TextView) findViewById(R.id.filename)).setText(
-              getString(R.string.current_path, filename));
+          updateDebugInfoTextView();
         }
         break;
     }
@@ -186,7 +188,8 @@ public class VideoPlayer extends Activity implements OnClickListener,
   }
 
   private void startDashPlayback() {
-    playerStateView.setText("Initializing");
+    playerState = "Initializing";
+    updateDebugInfoTextView();
     final String userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like"
         + " Gecko) Chrome/38.0.2125.104 Safari/537.36";
     DashRendererBuilder rendererBuilder = new DashRendererBuilder(manifestUrl, userAgent, this);
@@ -213,7 +216,8 @@ public class VideoPlayer extends Activity implements OnClickListener,
   @Override
   public void onVideoSizeChanged(int width, int height) {
     videoFrame.setAspectRatio(height == 0 ? 1 : (width * 1.0f) / height);
-    debugInfoView.setText("Video: " + width + " x " + height);
+    debugInfo = "Video: " + width + " x " + height;
+    updateDebugInfoTextView();
   }
 
   @Override
@@ -223,12 +227,12 @@ public class VideoPlayer extends Activity implements OnClickListener,
 
   @Override
   public void onDecoderError(VpxDecoderException e) {
-    debugInfoView.setText("Libvpx decode failure. Giving up.");
+    debugInfo = "Libvpx decode failure. Giving up.";
+    updateDebugInfoTextView();
   }
 
   @Override
   public void onPlayerStateChanged(boolean playWhenReady, int state) {
-    String playerState = "";
     switch (player.getPlaybackState()) {
       case ExoPlayer.STATE_BUFFERING:
         playerState = "buffering";
@@ -246,12 +250,13 @@ public class VideoPlayer extends Activity implements OnClickListener,
         playerState = "ready";
         break;
     }
-    playerStateView.setText("Player State: " + playerState);
+    updateDebugInfoTextView();
   }
 
   @Override
   public void onPlayerError(ExoPlaybackException exception) {
-    debugInfoView.setText("Exoplayer Playback error. Giving up.");
+    debugInfo = "Exoplayer Playback error. Giving up.";
+    updateDebugInfoTextView();
     // TODO: show a retry button here.
   }
 
@@ -280,6 +285,22 @@ public class VideoPlayer extends Activity implements OnClickListener,
         mediaController.show(0);
       }
     }
+  }
+
+  private void updateDebugInfoTextView() {
+    StringBuilder debugInfoText = new StringBuilder();
+    debugInfoText.append(
+        getString(R.string.libvpx_version, LibvpxVideoTrackRenderer.getLibvpxVersion()));
+    debugInfoText.append(" ");
+    debugInfoText.append(
+        getString(R.string.libopus_version, LibopusAudioTrackRenderer.getLibopusVersion()));
+    debugInfoText.append("\n");
+    debugInfoText.append(getString(R.string.current_path, filename));
+    debugInfoText.append(" ");
+    debugInfoText.append(debugInfo);
+    debugInfoText.append(" ");
+    debugInfoText.append(playerState);
+    debugInfoView.setText(debugInfoText.toString());
   }
 
 }

@@ -187,7 +187,7 @@ public final class Mp3Extractor implements Extractor {
       sampleBytesRemaining = synchronizedHeader.frameSize;
     }
 
-    long timeUs = basisTimeUs + (samplesRead * 1000000L / synchronizedHeader.sampleRate);
+    long timeUs = basisTimeUs + (samplesRead * C.MICROS_PER_SECOND / synchronizedHeader.sampleRate);
 
     // Start by draining any buffered bytes, then read directly from the extractor input.
     sampleBytesRemaining -= inputBuffer.drainToOutput(trackOutput, sampleBytesRemaining);

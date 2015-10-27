@@ -58,9 +58,10 @@ import java.util.List;
  * <li>MP3 ({@link com.google.android.exoplayer.extractor.mp3.Mp3Extractor})</li>
  * <li>AAC ({@link com.google.android.exoplayer.extractor.ts.AdtsExtractor})</li>
  * <li>MPEG TS ({@link com.google.android.exoplayer.extractor.ts.TsExtractor}</li>
+ * <li>FLV ({@link com.google.android.exoplayer.extractor.flv.FlvExtractor}</li>
  * </ul>
  *
- * <p>Seeking in AAC and MPEG TS streams is not supported.
+ * <p>Seeking in AAC, MPEG TS and FLV streams is not supported.
  *
  * <p>To override the default extractors, pass one or more {@link Extractor} instances to the
  * constructor. When reading a new stream, the first {@link Extractor} that returns {@code true}
@@ -142,6 +143,13 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
     try {
       DEFAULT_EXTRACTOR_CLASSES.add(
           Class.forName("com.google.android.exoplayer.extractor.ts.TsExtractor")
+              .asSubclass(Extractor.class));
+    } catch (ClassNotFoundException e) {
+      // Extractor not found.
+    }
+    try {
+      DEFAULT_EXTRACTOR_CLASSES.add(
+          Class.forName("com.google.android.exoplayer.extractor.flv.FlvExtractor")
               .asSubclass(Extractor.class));
     } catch (ClassNotFoundException e) {
       // Extractor not found.

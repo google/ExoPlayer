@@ -81,6 +81,11 @@ import java.nio.ByteBuffer;
     opusReset(nativeDecoderContext);
   }
 
+  /**
+   * Returns the version string of the underlying libopus decoder.
+   */
+  public static native String getLibopusVersion();
+
   private native long opusInit(int sampleRate, int channelCount, int numStreams, int numCoupled,
       int gain, byte[] streamMap);
   private native int opusDecode(long decoder, ByteBuffer inputBuffer, int inputSize,

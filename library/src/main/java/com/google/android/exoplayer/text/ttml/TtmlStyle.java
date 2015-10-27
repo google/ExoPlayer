@@ -23,7 +23,7 @@ import android.text.Layout;
 /**
  * Style object of a <code>TtmlNode</code>
  */
-public final class TtmlStyle {
+/* package */ final class TtmlStyle {
 
   public static final short UNSPECIFIED = -1;
 
@@ -31,6 +31,10 @@ public final class TtmlStyle {
   public static final short STYLE_BOLD = Typeface.BOLD;
   public static final short STYLE_ITALIC = Typeface.ITALIC;
   public static final short STYLE_BOLD_ITALIC = Typeface.BOLD_ITALIC;
+
+  public static final short FONT_SIZE_UNIT_PIXEL = 1;
+  public static final short FONT_SIZE_UNIT_EM = 2;
+  public static final short FONT_SIZE_UNIT_PERCENT = 3;
 
   private static final short OFF = 0;
   private static final short ON = 1;
@@ -44,6 +48,8 @@ public final class TtmlStyle {
   private short underline = UNSPECIFIED;
   private short bold = UNSPECIFIED;
   private short italic = UNSPECIFIED;
+  private short fontSizeUnit = UNSPECIFIED;
+  private float fontSize;
   private String id;
   private TtmlStyle inheritableStyle;
   private Layout.Alignment textAlign;
@@ -139,19 +145,6 @@ public final class TtmlStyle {
     return this;
   }
 
-  public TtmlStyle getInheritableStyle() {
-    if (isFullyInheritable()) {
-      return this;
-    } else if (inheritableStyle == null) {
-      inheritableStyle = new TtmlStyle().inherit(this);
-    }
-    return inheritableStyle;
-  }
-
-  private boolean isFullyInheritable() {
-    return !backgroundColorSpecified;
-  }
-
   /**
    * Inherits from an ancestor style. Properties like <i>tts:backgroundColor</i> which
    * are not inheritable are not inherited as well as properties which are already set locally
@@ -196,6 +189,10 @@ public final class TtmlStyle {
       if (textAlign == null) {
         textAlign = ancestor.textAlign;
       }
+      if (fontSizeUnit == UNSPECIFIED) {
+        fontSizeUnit = ancestor.fontSizeUnit;
+        fontSize = ancestor.fontSize;
+      }
       // attributes not inherited as of http://www.w3.org/TR/ttml1/
       if (chaining && !backgroundColorSpecified && ancestor.backgroundColorSpecified) {
         setBackgroundColor(ancestor.backgroundColor);
@@ -221,4 +218,23 @@ public final class TtmlStyle {
     this.textAlign = textAlign;
     return this;
   }
+
+  public TtmlStyle setFontSize(float fontSize) {
+    this.fontSize = fontSize;
+    return this;
+  }
+
+  public TtmlStyle setFontSizeUnit(short unit) {
+    this.fontSizeUnit = unit;
+    return this;
+  }
+
+  public short getFontSizeUnit() {
+    return fontSizeUnit;
+  }
+
+  public float getFontSize() {
+    return fontSize;
+  }
+
 }
