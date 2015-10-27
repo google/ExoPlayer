@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.util;
 
-import android.text.TextUtils;
-
 /**
  * Defines common MIME types and helper methods.
  */

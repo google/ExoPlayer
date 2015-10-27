@@ -15,11 +15,11 @@
  */
 package com.google.android.exoplayer;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
+
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -40,8 +40,7 @@ public final class MediaFormat {
   public static final long OFFSET_SAMPLE_RELATIVE = Long.MAX_VALUE;
 
   /**
-   * The identifier for the track represented by the format, or null if unknown or not
-   * applicable.
+   * The identifier for the track represented by the format, or null if unknown or not applicable.
    */
   public final String trackId;
   /**
@@ -229,8 +228,8 @@ public final class MediaFormat {
         subsampleOffsetUs, initializationData, adaptive, maxWidth, maxHeight);
   }
 
-  public MediaFormat copyAsAdaptive() {
-    return new MediaFormat(null, mimeType, NO_VALUE, NO_VALUE, durationUs, NO_VALUE, NO_VALUE,
+  public MediaFormat copyAsAdaptive(String trackId) {
+    return new MediaFormat(trackId, mimeType, NO_VALUE, NO_VALUE, durationUs, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE, null, true, maxWidth,
         maxHeight);
   }

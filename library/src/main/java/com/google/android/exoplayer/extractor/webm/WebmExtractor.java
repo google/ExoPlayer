@@ -1227,17 +1227,18 @@ public final class WebmExtractor implements Extractor {
       }
 
       MediaFormat format;
-      // TODO: Read the name of the track from the header of the webm container and
-      // supply this as id instead of trackId?
+      // TODO: Consider reading the name elements of the tracks and, if present, incorporating them
+      // into the trackId passed when creating the formats.
       if (MimeTypes.isAudio(mimeType)) {
-        format = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType, MediaFormat.NO_VALUE,
-            maxInputSize, durationUs, channelCount, sampleRate, initializationData, language);
+        format = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType,
+            MediaFormat.NO_VALUE, maxInputSize, durationUs, channelCount, sampleRate,
+            initializationData, language);
       } else if (MimeTypes.isVideo(mimeType)) {
-        format = MediaFormat.createVideoFormat(Integer.toString(trackId), mimeType, MediaFormat.NO_VALUE,
-            maxInputSize, durationUs, width, height, initializationData);
+        format = MediaFormat.createVideoFormat(Integer.toString(trackId), mimeType,
+            MediaFormat.NO_VALUE, maxInputSize, durationUs, width, height, initializationData);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
-        format = MediaFormat.createTextFormat(Integer.toString(trackId), mimeType, MediaFormat.NO_VALUE, durationUs,
-            language);
+        format = MediaFormat.createTextFormat(Integer.toString(trackId), mimeType,
+            MediaFormat.NO_VALUE, durationUs, language);
       } else {
         throw new ParserException("Unexpected MIME type.");
       }
