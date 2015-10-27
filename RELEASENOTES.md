@@ -1,5 +1,11 @@
 # Release notes #
 
+### Current dev branch (from r1.5.2) ###
+
+* Support for FLV (without seeking).
+* MP4: Fix for playback of media containing basic edit lists.
+* Misc bug fixes.
+
 ### r1.5.2 ###
 
 * MPEG-TS/HLS: Fix frame drops playing H265 video.
