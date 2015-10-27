@@ -151,12 +151,17 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
   }
 
   /**
-   * Get the version of underlying libvpx library.
-   *
-   * @return version of the underlying libvpx library.
+   * Returns whether the underlying libvpx library is available.
+   */
+  public static boolean isLibvpxAvailable() {
+    return VpxDecoder.isLibvpxAvailable();
+  }
+
+  /**
+   * Returns the version of the underlying libvpx library if available, otherwise {@code null}.
    */
   public static String getLibvpxVersion() {
-    return VpxDecoder.getLibvpxVersion();
+    return isLibvpxAvailable() ? VpxDecoder.getLibvpxVersion() : null;
   }
 
   @Override
