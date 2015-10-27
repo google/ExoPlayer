@@ -398,7 +398,7 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     int mp4TrackType;
     switch (element.type) {
       case StreamElement.TYPE_VIDEO:
-        mediaFormat = MediaFormat.createVideoFormat(MediaFormat.NO_VALUE, format.mimeType,
+        mediaFormat = MediaFormat.createVideoFormat(format.id, format.mimeType,
             format.bitrate, MediaFormat.NO_VALUE, durationUs, format.width, format.height,
             Arrays.asList(csdArray));
         mp4TrackType = Track.TYPE_vide;
@@ -411,13 +411,13 @@ public class SmoothStreamingChunkSource implements ChunkSource,
           csd = Collections.singletonList(CodecSpecificDataUtil.buildAacAudioSpecificConfig(
               format.audioSamplingRate, format.audioChannels));
         }
-        mediaFormat = MediaFormat.createAudioFormat(MediaFormat.NO_VALUE, format.mimeType,
+        mediaFormat = MediaFormat.createAudioFormat(format.id, format.mimeType,
             format.bitrate, MediaFormat.NO_VALUE, durationUs, format.audioChannels,
             format.audioSamplingRate, csd, format.language);
         mp4TrackType = Track.TYPE_soun;
         break;
       case StreamElement.TYPE_TEXT:
-        mediaFormat = MediaFormat.createTextFormat(MediaFormat.NO_VALUE, format.mimeType,
+        mediaFormat = MediaFormat.createTextFormat(format.id, format.mimeType,
             format.bitrate, durationUs, format.language);
         mp4TrackType = Track.TYPE_text;
         break;

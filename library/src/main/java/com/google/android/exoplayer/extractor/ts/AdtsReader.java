@@ -170,7 +170,7 @@ import java.util.Collections;
       Pair<Integer, Integer> audioParams = CodecSpecificDataUtil.parseAacAudioSpecificConfig(
           audioSpecificConfig);
 
-      MediaFormat mediaFormat = MediaFormat.createAudioFormat(MediaFormat.NO_VALUE,
+      MediaFormat mediaFormat = MediaFormat.createAudioFormat(null,
           MimeTypes.AUDIO_AAC, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US,
           audioParams.second, audioParams.first, Collections.singletonList(audioSpecificConfig),
           null);
