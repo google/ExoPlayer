@@ -22,6 +22,7 @@ import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
+import com.google.android.exoplayer.util.Util;
 
 import android.util.Log;
 import android.util.SparseArray;
@@ -49,6 +50,9 @@ public final class TsExtractor implements Extractor {
   private static final int TS_STREAM_TYPE_H265 = 0x24;
   private static final int TS_STREAM_TYPE_ID3 = 0x15;
   private static final int TS_STREAM_TYPE_EIA608 = 0x100; // 0xFF + 1
+
+  private static final long AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("AC-3");
+  private static final long HEVC_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("HEVC");
 
   private final PtsTimestampAdjuster ptsTimestampAdjuster;
   private final ParsableByteArray tsPacketBuffer;
@@ -283,8 +287,21 @@ public final class TsExtractor implements Extractor {
         pmtScratch.skipBits(4); // reserved
         int esInfoLength = pmtScratch.readBits(12);
 
-        // Skip the descriptors.
-        data.skipBytes(esInfoLength);
+        int descriptorPosition = data.getPosition();
+        if (streamType == 0x06) {
+          int descriptorTag = data.readUnsignedByte();
+          if (descriptorTag == 0x05) { // registration_descriptor
+            data.skipBytes(1); // descriptor_length
+            long formatIdentifier = data.readUnsignedInt();
+            if (formatIdentifier == AC3_FORMAT_IDENTIFIER) {
+              streamType = TS_STREAM_TYPE_ATSC_AC3;
+            } else if (formatIdentifier == HEVC_FORMAT_IDENTIFIER) {
+              streamType = TS_STREAM_TYPE_H265;
+            }
+            // Ignore additional_identification_info.
+          }
+        }
+        data.setPosition(descriptorPosition + esInfoLength);
         entriesSize -= esInfoLength + 5;
 
         if (streamTypes.get(streamType)) {
