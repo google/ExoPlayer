@@ -1,10 +1,11 @@
 # Release notes #
 
-### Current dev branch (from r1.5.1) ###
+### r1.5.2 ###
 
-* [Nothing yet]
+* MPEG-TS/HLS: Fix frame drops playing H265 video.
+* SmoothStreaming: Fix parsing of ProtectionHeader.
 
-### r1.5.0 ###
+### r1.5.1 ###
 
 * Enable smooth frame release by default.
 * Added OkHttpDataSource extension.
