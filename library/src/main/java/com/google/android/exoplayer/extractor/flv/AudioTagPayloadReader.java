@@ -95,10 +95,9 @@ import java.util.Collections;
       Pair<Integer, Integer> audioParams = CodecSpecificDataUtil.parseAacAudioSpecificConfig(
           audioSpecificConfig);
 
-      MediaFormat mediaFormat = MediaFormat.createAudioFormat(MediaFormat.NO_VALUE,
-          MimeTypes.AUDIO_AAC, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, getDurationUs(),
-          audioParams.second, audioParams.first, Collections.singletonList(audioSpecificConfig),
-          null);
+      MediaFormat mediaFormat = MediaFormat.createAudioFormat(null, MimeTypes.AUDIO_AAC,
+          MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, getDurationUs(), audioParams.second,
+          audioParams.first, Collections.singletonList(audioSpecificConfig), null);
       output.format(mediaFormat);
       hasOutputFormat = true;
     } else if (packetType == AAC_PACKET_TYPE_AAC_RAW) {
