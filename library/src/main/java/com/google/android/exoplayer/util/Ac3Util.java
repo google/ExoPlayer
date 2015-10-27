@@ -55,7 +55,7 @@ public final class Ac3Util {
     if ((nextByte & 0x04) != 0) {
       channelCount++;
     }
-    return MediaFormat.createAudioFormat(trackId, MimeTypes.AUDIO_AC3, MediaFormat.NO_VALUE,
+    return MediaFormat.createAudioFormat(Integer.toString(trackId), MimeTypes.AUDIO_AC3, MediaFormat.NO_VALUE,
         MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate, null, language);
   }
 
@@ -85,7 +85,7 @@ public final class Ac3Util {
     if ((nextByte & 0x01) != 0) {
       channelCount++;
     }
-    return MediaFormat.createAudioFormat(trackId, MimeTypes.AUDIO_EC3, MediaFormat.NO_VALUE,
+    return MediaFormat.createAudioFormat(Integer.toString(trackId), MimeTypes.AUDIO_EC3, MediaFormat.NO_VALUE,
         MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate, null, language);
   }
 
@@ -117,7 +117,7 @@ public final class Ac3Util {
       data.skipBits(2); // dsurmod
     }
     boolean lfeon = data.readBit();
-    return MediaFormat.createAudioFormat(trackId, MimeTypes.AUDIO_AC3, MediaFormat.NO_VALUE,
+    return MediaFormat.createAudioFormat(Integer.toString(trackId), MimeTypes.AUDIO_AC3, MediaFormat.NO_VALUE,
         MediaFormat.NO_VALUE, durationUs, CHANNEL_COUNTS[acmod] + (lfeon ? 1 : 0),
         SAMPLE_RATES[fscod], null, language);
   }

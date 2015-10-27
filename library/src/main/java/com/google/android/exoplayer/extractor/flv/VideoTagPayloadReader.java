@@ -95,9 +95,9 @@ import java.util.List;
       nalUnitLengthFieldLength = avcData.nalUnitLengthFieldLength;
 
       // Construct and output the format.
-      MediaFormat mediaFormat = MediaFormat.createVideoFormat(MediaFormat.NO_VALUE,
-          MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, getDurationUs(),
-          avcData.width, avcData.height, avcData.initializationData, MediaFormat.NO_VALUE,
+      MediaFormat mediaFormat = MediaFormat.createVideoFormat(null, MimeTypes.VIDEO_H264,
+          MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, getDurationUs(), avcData.width,
+          avcData.height, avcData.initializationData, MediaFormat.NO_VALUE,
           avcData.pixelWidthAspectRatio);
       output.format(mediaFormat);
       hasOutputFormat = true;
