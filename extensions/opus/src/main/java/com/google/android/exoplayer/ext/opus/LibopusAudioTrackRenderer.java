@@ -127,9 +127,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
   }
 
   /**
-   * Get the version of underlying libopus library.
-   *
-   * @return version of the underlying libopus library.
+   * Returns the version of the underlying libopus library if available, otherwise {@code null}.
    */
   public static String getLibopusVersion() {
     return isLibopusAvailable() ? OpusDecoder.getLibopusVersion() : null;
