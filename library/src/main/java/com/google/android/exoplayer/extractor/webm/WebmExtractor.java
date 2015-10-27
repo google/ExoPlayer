@@ -26,7 +26,6 @@ import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
-import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.LongArray;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
@@ -738,7 +737,7 @@ public final class WebmExtractor implements Extractor {
                   contentSize - blockTrackNumberLength - headerSize - totalSamplesSize;
             } else {
               // Lacing is always in the range 0--3.
-              throw new IllegalStateException("Unexpected lacing value: " + lacing);
+              throw new ParserException("Unexpected lacing value: " + lacing);
             }
           }
 
@@ -1257,7 +1256,9 @@ public final class WebmExtractor implements Extractor {
         // TODO: Deduplicate with AtomParsers.parseAvcCFromParent.
         buffer.setPosition(4);
         int nalUnitLengthFieldLength = (buffer.readUnsignedByte() & 0x03) + 1;
-        Assertions.checkState(nalUnitLengthFieldLength != 3);
+        if (nalUnitLengthFieldLength == 3) {
+          throw new ParserException();
+        }
         List<byte[]> initializationData = new ArrayList<>();
         int numSequenceParameterSets = buffer.readUnsignedByte() & 0x1F;
         for (int i = 0; i < numSequenceParameterSets; i++) {

@@ -52,7 +52,6 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.SystemClock;
 
 import android.os.Handler;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -133,6 +132,7 @@ public class DashChunkSource implements ChunkSource, Output {
   /**
    * Lightweight constructor to use for fixed duration content.
    *
+   * @param trackSelector Selects tracks to be exposed by this source.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    * @param durationMs The duration of the content.
@@ -141,15 +141,17 @@ public class DashChunkSource implements ChunkSource, Output {
    *     {@link AdaptationSet#TYPE_TEXT}.
    * @param representations The representations to be considered by the source.
    */
-  public DashChunkSource(DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
-      long durationMs, int adaptationSetType, Representation... representations) {
-    this(dataSource, adaptiveFormatEvaluator, durationMs, adaptationSetType,
+  public DashChunkSource(DashTrackSelector trackSelector, DataSource dataSource,
+      FormatEvaluator adaptiveFormatEvaluator, long durationMs, int adaptationSetType,
+      Representation... representations) {
+    this(trackSelector, dataSource, adaptiveFormatEvaluator, durationMs, adaptationSetType,
         Arrays.asList(representations));
   }
 
   /**
    * Lightweight constructor to use for fixed duration content.
    *
+   * @param trackSelector Selects tracks to be exposed by this source.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    * @param durationMs The duration of the content.
@@ -158,10 +160,10 @@ public class DashChunkSource implements ChunkSource, Output {
    *     {@link AdaptationSet#TYPE_TEXT}.
    * @param representations The representations to be considered by the source.
    */
-  public DashChunkSource(DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
-      long durationMs, int adaptationSetType, List<Representation> representations) {
-    this(buildManifest(durationMs, adaptationSetType, representations),
-        DefaultDashTrackSelector.newVideoInstance(null, false, false), dataSource,
+  public DashChunkSource(DashTrackSelector trackSelector, DataSource dataSource,
+      FormatEvaluator adaptiveFormatEvaluator, long durationMs, int adaptationSetType,
+      List<Representation> representations) {
+    this(buildManifest(durationMs, adaptationSetType, representations), trackSelector, dataSource,
         adaptiveFormatEvaluator);
   }
 
@@ -625,9 +627,9 @@ public class DashChunkSource implements ChunkSource, Output {
   private static String getMediaMimeType(Format format) {
     String formatMimeType = format.mimeType;
     if (MimeTypes.isAudio(formatMimeType)) {
-      return getAudioMediaMimeType(format);
+      return MimeTypes.getAudioMediaMimeType(format.codecs);
     } else if (MimeTypes.isVideo(formatMimeType)) {
-      return getVideoMediaMimeType(format);
+      return MimeTypes.getVideoMediaMimeType(format.codecs);
     } else if (mimeTypeIsRawText(formatMimeType)) {
       return formatMimeType;
     } else if (MimeTypes.APPLICATION_MP4.equals(formatMimeType) && "stpp".equals(format.codecs)) {
@@ -635,46 +637,6 @@ public class DashChunkSource implements ChunkSource, Output {
     } else {
       return null;
     }
-  }
-
-  private static String getVideoMediaMimeType(Format format) {
-    String codecs = format.codecs;
-    if (TextUtils.isEmpty(codecs)) {
-      Log.w(TAG, "Codecs attribute missing: " + format.id);
-      return MimeTypes.VIDEO_UNKNOWN;
-    } else if (codecs.startsWith("avc1") || codecs.startsWith("avc3")) {
-      return MimeTypes.VIDEO_H264;
-    } else if (codecs.startsWith("hev1") || codecs.startsWith("hvc1")) {
-      return MimeTypes.VIDEO_H265;
-    } else if (codecs.startsWith("vp9")) {
-      return MimeTypes.VIDEO_VP9;
-    } else if (codecs.startsWith("vp8")) {
-      return MimeTypes.VIDEO_VP8;
-    }
-    Log.w(TAG, "Failed to parse mime from codecs: " + format.id + ", " + codecs);
-    return MimeTypes.VIDEO_UNKNOWN;
-  }
-
-  private static String getAudioMediaMimeType(Format format) {
-    String codecs = format.codecs;
-    if (TextUtils.isEmpty(codecs)) {
-      Log.w(TAG, "Codecs attribute missing: " + format.id);
-      return MimeTypes.AUDIO_UNKNOWN;
-    } else if (codecs.startsWith("mp4a")) {
-      return MimeTypes.AUDIO_AAC;
-    } else if (codecs.startsWith("ac-3") || codecs.startsWith("dac3")) {
-      return MimeTypes.AUDIO_AC3;
-    } else if (codecs.startsWith("ec-3") || codecs.startsWith("dec3")) {
-      return MimeTypes.AUDIO_EC3;
-    } else if (codecs.startsWith("dtsc") || codecs.startsWith("dtse")) {
-      return MimeTypes.AUDIO_DTS;
-    } else if (codecs.startsWith("dtsh") || codecs.startsWith("dtsl")) {
-      return MimeTypes.AUDIO_DTS_HD;
-    } else if (codecs.startsWith("opus")) {
-      return MimeTypes.AUDIO_OPUS;
-    }
-    Log.w(TAG, "Failed to parse mime from codecs: " + format.id + ", " + codecs);
-    return MimeTypes.AUDIO_UNKNOWN;
   }
 
   /* package */ static boolean mimeTypeIsWebm(String mimeType) {

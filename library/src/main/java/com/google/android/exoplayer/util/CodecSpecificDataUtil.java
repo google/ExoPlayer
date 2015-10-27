@@ -45,13 +45,54 @@ public final class CodecSpecificDataUtil {
 
   private static final byte[] NAL_START_CODE = new byte[] {0, 0, 0, 1};
 
+  private static final int AUDIO_SPECIFIC_CONFIG_FREQUENCY_INDEX_ARBITRARY = 0xF;
+
   private static final int[] AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE = new int[] {
     96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350
   };
 
-  private static final int[] AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE = new int[] {
-    0, 1, 2, 3, 4, 5, 6, 8
-  };
+  private static final int AUDIO_SPECIFIC_CONFIG_CHANNEL_CONFIGURATION_INVALID = -1;
+  /**
+   * In the channel configurations below, <A> indicates a single channel element; (A, B) indicates a
+   * channel pair element; and [A] indicates a low-frequency effects element.
+   * The speaker mapping short forms used are:
+   * - FC: front center
+   * - BC: back center
+   * - FL/FR: front left/right
+   * - FCL/FCR: front center left/right
+   * - FTL/FTR: front top left/right
+   * - SL/SR: back surround left/right
+   * - BL/BR: back left/right
+   * - LFE: low frequency effects
+   */
+  private static final int[] AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE =
+      new int[] {
+        0,
+        1, /* mono: <FC> */
+        2, /* stereo: (FL, FR) */
+        3, /* 3.0: <FC>, (FL, FR) */
+        4, /* 4.0: <FC>, (FL, FR), <BC> */
+        5, /* 5.0 back: <FC>, (FL, FR), (SL, SR) */
+        6, /* 5.1 back: <FC>, (FL, FR), (SL, SR), <BC>, [LFE] */
+        8, /* 7.1 wide back: <FC>, (FCL, FCR), (FL, FR), (SL, SR), [LFE] */
+        AUDIO_SPECIFIC_CONFIG_CHANNEL_CONFIGURATION_INVALID,
+        AUDIO_SPECIFIC_CONFIG_CHANNEL_CONFIGURATION_INVALID,
+        AUDIO_SPECIFIC_CONFIG_CHANNEL_CONFIGURATION_INVALID,
+        7, /* 6.1: <FC>, (FL, FR), (SL, SR), <RC>, [LFE] */
+        8, /* 7.1: <FC>, (FL, FR), (SL, SR), (BL, BR), [LFE] */
+        AUDIO_SPECIFIC_CONFIG_CHANNEL_CONFIGURATION_INVALID,
+        8, /* 7.1 top: <FC>, (FL, FR), (SL, SR), [LFE], (FTL, FTR) */
+        AUDIO_SPECIFIC_CONFIG_CHANNEL_CONFIGURATION_INVALID
+      };
+
+  // Advanced Audio Coding Low-Complexity profile.
+  private static final int AUDIO_OBJECT_TYPE_AAC_LC = 2;
+  // Spectral Band Replication.
+  private static final int AUDIO_OBJECT_TYPE_SBR = 5;
+  // Error Resilient Bit-Sliced Arithmetic Coding.
+  private static final int AUDIO_OBJECT_TYPE_ER_BSAC = 22;
+  // Parametric Stereo.
+  private static final int AUDIO_OBJECT_TYPE_PS = 29;
 
   private static final String TAG = "CodecSpecificDataUtil";
 
@@ -64,13 +105,38 @@ public final class CodecSpecificDataUtil {
    * @return A pair consisting of the sample rate in Hz and the channel count.
    */
   public static Pair<Integer, Integer> parseAacAudioSpecificConfig(byte[] audioSpecificConfig) {
-    int audioObjectType = (audioSpecificConfig[0] >> 3) & 0x1F;
-    int byteOffset = audioObjectType == 5 || audioObjectType == 29 ? 1 : 0;
-    int frequencyIndex = (audioSpecificConfig[byteOffset] & 0x7) << 1
-        | ((audioSpecificConfig[byteOffset + 1] >> 7) & 0x1);
-    Assertions.checkState(frequencyIndex < 13);
-    int sampleRate = AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE[frequencyIndex];
-    int channelCount = (audioSpecificConfig[byteOffset + 1] >> 3) & 0xF;
+    ParsableBitArray bitArray = new ParsableBitArray(audioSpecificConfig);
+    int audioObjectType = bitArray.readBits(5);
+    int frequencyIndex = bitArray.readBits(4);
+    int sampleRate;
+    if (frequencyIndex == AUDIO_SPECIFIC_CONFIG_FREQUENCY_INDEX_ARBITRARY) {
+      sampleRate = bitArray.readBits(24);
+    } else {
+      Assertions.checkArgument(frequencyIndex < 13);
+      sampleRate = AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE[frequencyIndex];
+    }
+    int channelConfiguration = bitArray.readBits(4);
+    if (audioObjectType == AUDIO_OBJECT_TYPE_SBR || audioObjectType == AUDIO_OBJECT_TYPE_PS) {
+      // For an AAC bitstream using spectral band replication (SBR) or parametric stereo (PS) with
+      // explicit signaling, we return the extension sampling frequency as the sample rate of the
+      // content; this is identical to the sample rate of the decoded output but may differ from
+      // the sample rate set above.
+      // Use the extensionSamplingFrequencyIndex.
+      frequencyIndex = bitArray.readBits(4);
+      if (frequencyIndex == AUDIO_SPECIFIC_CONFIG_FREQUENCY_INDEX_ARBITRARY) {
+        sampleRate = bitArray.readBits(24);
+      } else {
+        Assertions.checkArgument(frequencyIndex < 13);
+        sampleRate = AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE[frequencyIndex];
+      }
+      audioObjectType = bitArray.readBits(5);
+      if (audioObjectType == AUDIO_OBJECT_TYPE_ER_BSAC) {
+        // Use the extensionChannelConfiguration.
+        channelConfiguration = bitArray.readBits(4);
+      }
+    }
+    int channelCount = AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE[channelConfiguration];
+    Assertions.checkArgument(channelCount != AUDIO_SPECIFIC_CONFIG_CHANNEL_CONFIGURATION_INVALID);
     return Pair.create(sampleRate, channelCount);
   }
 
@@ -112,7 +178,7 @@ public final class CodecSpecificDataUtil {
     }
     // The full specification for AudioSpecificConfig is stated in ISO 14496-3 Section 1.6.2.1
     byte[] csd = new byte[2];
-    csd[0] = (byte) ((2 /* AAC LC */ << 3) | (sampleRateIndex >> 1));
+    csd[0] = (byte) ((AUDIO_OBJECT_TYPE_AAC_LC << 3) | (sampleRateIndex >> 1));
     csd[1] = (byte) (((sampleRateIndex & 0x1) << 7) | (channelConfig << 3));
     return csd;
   }

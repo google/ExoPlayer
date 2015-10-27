@@ -123,7 +123,6 @@ public class Format {
         null);
   }
 
-
   /**
    * @param id The format identifier.
    * @param mimeType The format mime type.

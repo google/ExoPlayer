@@ -119,6 +119,15 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
     formatHolder = new MediaFormatHolder();
   }
 
+  /**
+   * Get the version of underlying libopus library.
+   *
+   * @return version of the underlying libopus library.
+   */
+  public static String getLibopusVersion() {
+    return OpusDecoder.getLibopusVersion();
+  }
+
   @Override
   protected MediaClock getMediaClock() {
     return this;
