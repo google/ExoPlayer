@@ -332,10 +332,9 @@ public final class Mp3Extractor implements Extractor {
     if (seeker == null) {
       setupSeeker(extractorInput, headerPosition);
       extractorOutput.seekMap(seeker);
-      trackOutput.format(MediaFormat.createAudioFormat(null,
-          synchronizedHeader.mimeType, MediaFormat.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES,
-          seeker.getDurationUs(), synchronizedHeader.channels, synchronizedHeader.sampleRate, null,
-          null));
+      trackOutput.format(MediaFormat.createAudioFormat(null, synchronizedHeader.mimeType,
+          MediaFormat.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES, seeker.getDurationUs(),
+          synchronizedHeader.channels, synchronizedHeader.sampleRate, null, null));
     }
 
     return headerPosition;

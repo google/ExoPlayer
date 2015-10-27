@@ -744,17 +744,20 @@ import java.util.List;
         // TODO: Choose the right AC-3 track based on the contents of dac3/dec3.
         // TODO: Add support for encryption (by setting out.trackEncryptionBoxes).
         parent.setPosition(Atom.HEADER_SIZE + childStartPosition);
-        out.mediaFormat = Ac3Util.parseAnnexFAc3Format(parent, trackId, durationUs, language);
+        out.mediaFormat = Ac3Util.parseAnnexFAc3Format(parent, Integer.toString(trackId),
+            durationUs, language);
         return;
       } else if (atomType == Atom.TYPE_ec_3 && childAtomType == Atom.TYPE_dec3) {
         parent.setPosition(Atom.HEADER_SIZE + childStartPosition);
-        out.mediaFormat = Ac3Util.parseAnnexFEAc3Format(parent, trackId, durationUs, language);
+        out.mediaFormat = Ac3Util.parseAnnexFEAc3Format(parent, Integer.toString(trackId),
+            durationUs, language);
         return;
       } else if ((atomType == Atom.TYPE_dtsc || atomType == Atom.TYPE_dtse
           || atomType == Atom.TYPE_dtsh || atomType == Atom.TYPE_dtsl)
           && childAtomType == Atom.TYPE_ddts) {
-        out.mediaFormat = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType, MediaFormat.NO_VALUE,
-            MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate, null, language);
+        out.mediaFormat = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType,
+            MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate, null,
+            language);
         return;
       }
       childPosition += childAtomSize;

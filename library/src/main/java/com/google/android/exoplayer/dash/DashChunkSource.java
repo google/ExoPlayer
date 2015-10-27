@@ -567,7 +567,7 @@ public class DashChunkSource implements ChunkSource, Output {
       Log.w(TAG, "Skipped adaptive track (unknown media format)");
       return;
     }
-    tracks.add(new ExposedTrack(trackFormat.copyAsAdaptive(), adaptationSetIndex,
+    tracks.add(new ExposedTrack(trackFormat.copyAsAdaptive(null), adaptationSetIndex,
         representationFormats, maxWidth, maxHeight));
   }
 
