@@ -454,14 +454,15 @@ import java.util.List;
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             durationUs, language, out, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
-        out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId), MimeTypes.APPLICATION_TTML,
-            MediaFormat.NO_VALUE, durationUs, language);
+        out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId),
+            MimeTypes.APPLICATION_TTML, MediaFormat.NO_VALUE, durationUs, language);
       } else if (childAtomType == Atom.TYPE_tx3g) {
-        out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId), MimeTypes.APPLICATION_TX3G,
-            MediaFormat.NO_VALUE, durationUs, language);
+        out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId),
+            MimeTypes.APPLICATION_TX3G, MediaFormat.NO_VALUE, durationUs, language);
       } else if (childAtomType == Atom.TYPE_stpp) {
-        out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId), MimeTypes.APPLICATION_TTML,
-            MediaFormat.NO_VALUE, durationUs, language, 0 /* subsample timing is absolute */);
+        out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId),
+            MimeTypes.APPLICATION_TTML, MediaFormat.NO_VALUE, durationUs, language,
+            0 /* subsample timing is absolute */);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
@@ -531,9 +532,9 @@ import java.util.List;
       return;
     }
 
-    out.mediaFormat = MediaFormat.createVideoFormat(Integer.toString(trackId), mimeType, MediaFormat.NO_VALUE,
-        MediaFormat.NO_VALUE, durationUs, width, height, initializationData, rotationDegrees,
-        pixelWidthHeightRatio);
+    out.mediaFormat = MediaFormat.createVideoFormat(Integer.toString(trackId), mimeType,
+        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, durationUs, width, height, initializationData,
+        rotationDegrees, pixelWidthHeightRatio);
   }
 
   private static AvcCData parseAvcCFromParent(ParsableByteArray parent, int position) {
@@ -768,8 +769,8 @@ import java.util.List;
       return;
     }
 
-    out.mediaFormat = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType, MediaFormat.NO_VALUE,
-        sampleSize, durationUs, channelCount, sampleRate,
+    out.mediaFormat = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType,
+        MediaFormat.NO_VALUE, sampleSize, durationUs, channelCount, sampleRate,
         initializationData == null ? null : Collections.singletonList(initializationData),
         language);
   }
