@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.extractor.flv;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -27,7 +28,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   /**
    * Thrown when the format is not supported.
    */
-  public static final class UnsupportedFormatException extends Exception {
+  public static final class UnsupportedFormatException extends ParserException {
 
     public UnsupportedFormatException(String msg) {
       super(msg);
@@ -79,8 +80,9 @@ import com.google.android.exoplayer.util.ParsableByteArray;
    *
    * @param data The payload data to consume.
    * @param timeUs The timestamp associated with the payload.
+   * @throws ParserException If an error occurs parsing the data.
    */
-  public final void consume(ParsableByteArray data, long timeUs) throws UnsupportedFormatException {
+  public final void consume(ParsableByteArray data, long timeUs) throws ParserException {
     if (parseHeader(data)) {
       parsePayload(data, timeUs);
     }
@@ -92,16 +94,17 @@ import com.google.android.exoplayer.util.ParsableByteArray;
    * @param data Buffer where the tag header is stored.
    * @return True if the header was parsed successfully and the payload should be read. False
    *     otherwise.
-   * @throws UnsupportedFormatException
+   * @throws ParserException If an error occurs parsing the header.
    */
-  protected abstract boolean parseHeader(ParsableByteArray data) throws UnsupportedFormatException;
+  protected abstract boolean parseHeader(ParsableByteArray data) throws ParserException;
 
   /**
    * Parses tag payload.
    *
    * @param data Buffer where tag payload is stored
    * @param timeUs Time position of the frame
+   * @throws ParserException If an error occurs parsing the payload.
    */
-  protected abstract void parsePayload(ParsableByteArray data, long timeUs);
+  protected abstract void parsePayload(ParsableByteArray data, long timeUs) throws ParserException;
 
 }

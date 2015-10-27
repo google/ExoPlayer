@@ -21,63 +21,61 @@ import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
-import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
-import java.io.EOFException;
 import java.io.IOException;
 
 /**
  * Facilitates the extraction of data from the FLV container format.
  */
 public final class FlvExtractor implements Extractor, SeekMap {
-  // Header sizes
-  private static final int FLV_MIN_HEADER_SIZE = 9;
+
+  // Header sizes.
+  private static final int FLV_HEADER_SIZE = 9;
   private static final int FLV_TAG_HEADER_SIZE = 11;
 
   // Parser states.
-  private static final int STATE_READING_TAG_HEADER = 1;
-  private static final int STATE_READING_SAMPLE = 2;
+  private static final int STATE_READING_FLV_HEADER = 1;
+  private static final int STATE_SKIPPING_TO_TAG_HEADER = 2;
+  private static final int STATE_READING_TAG_HEADER = 3;
+  private static final int STATE_READING_TAG_DATA = 4;
 
-  // Tag types
+  // Tag types.
   private static final int TAG_TYPE_AUDIO = 8;
   private static final int TAG_TYPE_VIDEO = 9;
   private static final int TAG_TYPE_SCRIPT_DATA = 18;
 
-  // FLV container identifier
+  // FLV container identifier.
   private static final int FLV_TAG = Util.getIntegerCodeForString("FLV");
 
-  // Temporary buffers
+  // Temporary buffers.
   private final ParsableByteArray scratch;
   private final ParsableByteArray headerBuffer;
   private final ParsableByteArray tagHeaderBuffer;
-  private ParsableByteArray tagData;
+  private final ParsableByteArray tagData;
 
   // Extractor outputs.
   private ExtractorOutput extractorOutput;
 
   // State variables.
   private int parserState;
-  private int dataOffset;
-  private TagHeader currentTagHeader;
+  private int bytesToNextTagHeader;
+  public int tagType;
+  public int tagDataSize;
+  public long tagTimestampUs;
 
-  // Tags readers
+  // Tags readers.
   private AudioTagPayloadReader audioReader;
   private VideoTagPayloadReader videoReader;
   private ScriptTagPayloadReader metadataReader;
 
   public FlvExtractor() {
     scratch = new ParsableByteArray(4);
-    headerBuffer = new ParsableByteArray(FLV_MIN_HEADER_SIZE);
+    headerBuffer = new ParsableByteArray(FLV_HEADER_SIZE);
     tagHeaderBuffer = new ParsableByteArray(FLV_TAG_HEADER_SIZE);
-    dataOffset = 0;
-    currentTagHeader = new TagHeader();
-  }
-
-  @Override
-  public void init(ExtractorOutput output) {
-    this.extractorOutput = output;
+    tagData = new ParsableByteArray();
+    parserState = STATE_READING_FLV_HEADER;
   }
 
   @Override
@@ -112,151 +110,133 @@ public final class FlvExtractor implements Extractor, SeekMap {
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException,
-      InterruptedException {
-    if (dataOffset == 0
-        && !readHeader(input)) {
-      return RESULT_END_OF_INPUT;
-    }
-
-    try {
-      while (true) {
-        if (parserState == STATE_READING_TAG_HEADER) {
-          if (!readTagHeader(input)) {
-            return RESULT_END_OF_INPUT;
-          }
-        } else {
-          return readSample(input);
-        }
-      }
-    } catch (AudioTagPayloadReader.UnsupportedFormatException unsupportedTrack) {
-      unsupportedTrack.printStackTrace();
-      return RESULT_END_OF_INPUT;
-    }
+  public void init(ExtractorOutput output) {
+    this.extractorOutput = output;
   }
 
   @Override
   public void seek() {
-    dataOffset = 0;
+    parserState = STATE_READING_FLV_HEADER;
+    bytesToNextTagHeader = 0;
+  }
+
+  @Override
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException,
+      InterruptedException {
+    while (true) {
+      switch (parserState) {
+        case STATE_READING_FLV_HEADER:
+          if (!readFlvHeader(input)) {
+            return RESULT_END_OF_INPUT;
+          }
+          break;
+        case STATE_SKIPPING_TO_TAG_HEADER:
+          skipToTagHeader(input);
+          break;
+        case STATE_READING_TAG_HEADER:
+          if (!readTagHeader(input)) {
+            return RESULT_END_OF_INPUT;
+          }
+          break;
+        case STATE_READING_TAG_DATA:
+          if (readTagData(input)) {
+            return RESULT_CONTINUE;
+          }
+          break;
+      }
+    }
   }
 
   /**
-   * Reads FLV container header from the provided {@link ExtractorInput}.
+   * Reads an FLV container header from the provided {@link ExtractorInput}.
+   *
    * @param input The {@link ExtractorInput} from which to read.
-   * @return True if header was read successfully. Otherwise, false.
-   * @throws IOException If an error occurred reading from the source.
+   * @return True if header was read successfully. False if the end of stream was reached.
+   * @throws IOException If an error occurred reading or parsing data from the source.
    * @throws InterruptedException If the thread was interrupted.
    */
-  private boolean readHeader(ExtractorInput input) throws IOException, InterruptedException {
-    try {
-      input.readFully(headerBuffer.data, 0, FLV_MIN_HEADER_SIZE);
-      headerBuffer.setPosition(0);
-      headerBuffer.skipBytes(4);
-      int flags = headerBuffer.readUnsignedByte();
-      boolean hasAudio = (flags & 0x04) != 0;
-      boolean hasVideo = (flags & 0x01) != 0;
-
-      if (hasAudio && audioReader == null) {
-        audioReader = new AudioTagPayloadReader(extractorOutput.track(TAG_TYPE_AUDIO));
-      }
-      if (hasVideo && videoReader == null) {
-        videoReader = new VideoTagPayloadReader(extractorOutput.track(TAG_TYPE_VIDEO));
-      }
-      if (metadataReader == null) {
-        metadataReader = new ScriptTagPayloadReader(null);
-      }
-      extractorOutput.endTracks();
-      extractorOutput.seekMap(this);
-
-      // Store payload start position and start extended header (if there is one)
-      dataOffset = headerBuffer.readInt();
-
-      input.skipFully(dataOffset - FLV_MIN_HEADER_SIZE);
-      parserState = STATE_READING_TAG_HEADER;
-    } catch (EOFException eof) {
+  private boolean readFlvHeader(ExtractorInput input) throws IOException, InterruptedException {
+    if (!input.readFully(headerBuffer.data, 0, FLV_HEADER_SIZE, true)) {
+      // We've reached the end of the stream.
       return false;
     }
 
+    headerBuffer.setPosition(0);
+    headerBuffer.skipBytes(4);
+    int flags = headerBuffer.readUnsignedByte();
+    boolean hasAudio = (flags & 0x04) != 0;
+    boolean hasVideo = (flags & 0x01) != 0;
+    if (hasAudio && audioReader == null) {
+      audioReader = new AudioTagPayloadReader(extractorOutput.track(TAG_TYPE_AUDIO));
+    }
+    if (hasVideo && videoReader == null) {
+      videoReader = new VideoTagPayloadReader(extractorOutput.track(TAG_TYPE_VIDEO));
+    }
+    if (metadataReader == null) {
+      metadataReader = new ScriptTagPayloadReader(null);
+    }
+    extractorOutput.endTracks();
+    extractorOutput.seekMap(this);
+
+    // We need to skip any additional content in the FLV header, plus the 4 byte previous tag size.
+    bytesToNextTagHeader = headerBuffer.readInt() - FLV_HEADER_SIZE + 4;
+    parserState = STATE_SKIPPING_TO_TAG_HEADER;
     return true;
+  }
+
+  /**
+   * Skips over data to reach the next tag header.
+   *
+   * @param input The {@link ExtractorInput} from which to read.
+   * @throws IOException If an error occurred skipping data from the source.
+   * @throws InterruptedException If the thread was interrupted.
+   */
+  private void skipToTagHeader(ExtractorInput input) throws IOException, InterruptedException {
+    input.skipFully(bytesToNextTagHeader);
+    bytesToNextTagHeader = 0;
+    parserState = STATE_READING_TAG_HEADER;
   }
 
   /**
    * Reads a tag header from the provided {@link ExtractorInput}.
+   *
    * @param input The {@link ExtractorInput} from which to read.
    * @return True if tag header was read successfully. Otherwise, false.
-   * @throws IOException If an error occurred reading from the source.
+   * @throws IOException If an error occurred reading or parsing data from the source.
    * @throws InterruptedException If the thread was interrupted.
-   * @throws TagPayloadReader.UnsupportedFormatException If payload of the tag is using a codec non
-   * supported codec.
    */
-  private boolean readTagHeader(ExtractorInput input) throws IOException, InterruptedException,
-      TagPayloadReader.UnsupportedFormatException {
-    try {
-      // skipping previous tag size field
-      input.skipFully(4);
-
-      // Read the tag header from the input.
-      input.readFully(tagHeaderBuffer.data, 0, FLV_TAG_HEADER_SIZE);
-
-      tagHeaderBuffer.setPosition(0);
-      int type = tagHeaderBuffer.readUnsignedByte();
-      int dataSize = tagHeaderBuffer.readUnsignedInt24();
-      long timestamp = tagHeaderBuffer.readUnsignedInt24();
-      timestamp = (tagHeaderBuffer.readUnsignedByte() << 24) | timestamp;
-      int streamId = tagHeaderBuffer.readUnsignedInt24();
-
-      currentTagHeader.type = type;
-      currentTagHeader.dataSize = dataSize;
-      currentTagHeader.timestamp = timestamp * 1000;
-      currentTagHeader.streamId = streamId;
-
-      // Sanity checks.
-      Assertions.checkState(type == TAG_TYPE_AUDIO || type == TAG_TYPE_VIDEO
-          || type == TAG_TYPE_SCRIPT_DATA);
-      // Reuse tagData buffer to avoid lot of memory allocation (performance penalty).
-      if (tagData == null || dataSize > tagData.capacity()) {
-        tagData = new ParsableByteArray(dataSize);
-      } else {
-        tagData.setPosition(0);
-      }
-      tagData.setLimit(dataSize);
-      parserState = STATE_READING_SAMPLE;
-
-    } catch (EOFException eof) {
+  private boolean readTagHeader(ExtractorInput input) throws IOException, InterruptedException {
+    if (!input.readFully(tagHeaderBuffer.data, 0, FLV_TAG_HEADER_SIZE, true)) {
+      // We've reached the end of the stream.
       return false;
     }
 
+    tagHeaderBuffer.setPosition(0);
+    tagType = tagHeaderBuffer.readUnsignedByte();
+    tagDataSize = tagHeaderBuffer.readUnsignedInt24();
+    tagTimestampUs = tagHeaderBuffer.readUnsignedInt24();
+    tagTimestampUs = ((tagHeaderBuffer.readUnsignedByte() << 24) | tagTimestampUs) * 1000L;
+    tagHeaderBuffer.skipBytes(3); // streamId
+    parserState = STATE_READING_TAG_DATA;
     return true;
   }
 
   /**
-   * Reads payload of an FLV tag from the provided {@link ExtractorInput}.
+   * Reads the body of a tag from the provided {@link ExtractorInput}.
+   *
    * @param input The {@link ExtractorInput} from which to read.
-   * @return One of {@link Extractor#RESULT_CONTINUE} and {@link Extractor#RESULT_END_OF_INPUT}.
-   * @throws IOException If an error occurred reading from the source.
+   * @return True if the data was consumed by a reader. False if it was skipped.
+   * @throws IOException If an error occurred reading or parsing data from the source.
    * @throws InterruptedException If the thread was interrupted.
-   * @throws TagPayloadReader.UnsupportedFormatException If payload of the tag is using a codec non
-   * supported codec.
    */
-  private int readSample(ExtractorInput input) throws IOException,
-      InterruptedException, AudioTagPayloadReader.UnsupportedFormatException {
-    if (tagData != null) {
-      if (!input.readFully(tagData.data, 0, currentTagHeader.dataSize, true)) {
-        return RESULT_END_OF_INPUT;
-      }
-      tagData.setPosition(0);
-    } else {
-      input.skipFully(currentTagHeader.dataSize);
-      return RESULT_CONTINUE;
-    }
-
-    // Pass payload to the right payload reader.
-    if (currentTagHeader.type == TAG_TYPE_AUDIO && audioReader != null) {
-      audioReader.consume(tagData, currentTagHeader.timestamp);
-    } else if (currentTagHeader.type == TAG_TYPE_VIDEO && videoReader != null) {
-      videoReader.consume(tagData, currentTagHeader.timestamp);
-    } else if (currentTagHeader.type == TAG_TYPE_SCRIPT_DATA && metadataReader != null) {
-      metadataReader.consume(tagData, currentTagHeader.timestamp);
+  private boolean readTagData(ExtractorInput input) throws IOException, InterruptedException {
+    boolean wasConsumed = true;
+    if (tagType == TAG_TYPE_AUDIO && audioReader != null) {
+      audioReader.consume(prepareTagData(input), tagTimestampUs);
+    } else if (tagType == TAG_TYPE_VIDEO && videoReader != null) {
+      videoReader.consume(prepareTagData(input), tagTimestampUs);
+    } else if (tagType == TAG_TYPE_SCRIPT_DATA && metadataReader != null) {
+      metadataReader.consume(prepareTagData(input), tagTimestampUs);
       if (metadataReader.getDurationUs() != C.UNKNOWN_TIME_US) {
         if (audioReader != null) {
           audioReader.setDurationUs(metadataReader.getDurationUs());
@@ -266,16 +246,28 @@ public final class FlvExtractor implements Extractor, SeekMap {
         }
       }
     } else {
-      tagData.reset();
+      input.skipFully(tagDataSize);
+      wasConsumed = false;
     }
+    bytesToNextTagHeader = 4; // There's a 4 byte previous tag size before the next header.
+    parserState = STATE_SKIPPING_TO_TAG_HEADER;
+    return wasConsumed;
+  }
 
-    parserState = STATE_READING_TAG_HEADER;
-
-    return RESULT_CONTINUE;
+  private ParsableByteArray prepareTagData(ExtractorInput input) throws IOException,
+      InterruptedException {
+    if (tagDataSize > tagData.capacity()) {
+      tagData.reset(new byte[Math.max(tagData.capacity() * 2, tagDataSize)], 0);
+    } else {
+      tagData.setPosition(0);
+    }
+    tagData.setLimit(tagDataSize);
+    input.readFully(tagData.data, 0, tagDataSize);
+    return tagData;
   }
 
   // SeekMap implementation.
-  // TODO: Add seeking support
+
   @Override
   public boolean isSeekable() {
     return false;
@@ -285,17 +277,5 @@ public final class FlvExtractor implements Extractor, SeekMap {
   public long getPosition(long timeUs) {
     return 0;
   }
-
-
-  /**
-   * Defines header of a FLV tag
-   */
-  final class TagHeader {
-    public int type;
-    public int dataSize;
-    public long timestamp;
-    public int streamId;
-  }
-
 
 }

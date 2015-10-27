@@ -26,8 +26,6 @@ import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,24 +33,22 @@ import java.util.List;
  * Parses video tags from an FLV stream and extracts H.264 nal units.
  */
 /* package */ final class VideoTagPayloadReader extends TagPayloadReader {
-  private static final String TAG = "VideoTagPayloadReader";
 
-  // Video codec
+  // Video codec.
   private static final int VIDEO_CODEC_AVC = 7;
 
-  // FRAME TYPE
+  // Frame types.
   private static final int VIDEO_FRAME_KEYFRAME = 1;
   private static final int VIDEO_FRAME_VIDEO_INFO = 5;
 
-  // PACKET TYPE
+  // Packet types.
   private static final int AVC_PACKET_TYPE_SEQUENCE_HEADER = 0;
   private static final int AVC_PACKET_TYPE_AVC_NALU = 1;
-  private static final int AVC_PACKET_TYPE_AVC_END_OF_SEQUENCE = 2;
 
   // Temporary arrays.
   private final ParsableByteArray nalStartCode;
   private final ParsableByteArray nalLength;
-  private int nalUnitsLength;
+  private int nalUnitLengthFieldLength;
 
   // State variables.
   private boolean hasOutputFormat;
@@ -86,28 +82,17 @@ import java.util.List;
   }
 
   @Override
-  protected void parsePayload(ParsableByteArray data, long timeUs) {
+  protected void parsePayload(ParsableByteArray data, long timeUs) throws ParserException {
     int packetType = data.readUnsignedByte();
-    int compositionTime = data.readUnsignedInt24();
-    // If there is a composition time, adjust timeUs accordingly
-    // Note: compositionTime within AVCVIDEOPACKET is provided in milliseconds
-    // and timeUs is in microseconds.
-    if (compositionTime > 0) {
-      timeUs += compositionTime * 1000;
-    }
+    int compositionTimeMs = data.readUnsignedInt24();
+    timeUs += compositionTimeMs * 1000L;
     // Parse avc sequence header in case this was not done before.
     if (packetType == AVC_PACKET_TYPE_SEQUENCE_HEADER && !hasOutputFormat) {
       ParsableByteArray videoSequence = new ParsableByteArray(new byte[data.bytesLeft()]);
       data.readBytes(videoSequence.data, 0, data.bytesLeft());
 
-      AvcSequenceHeaderData avcData;
-      try {
-        avcData = parseAvcCodecPrivate(videoSequence);
-        nalUnitsLength = avcData.nalUnitLengthFieldLength;
-      } catch (ParserException e) {
-        e.printStackTrace();
-        return;
-      }
+      AvcSequenceHeaderData avcData = parseAvcCodecPrivate(videoSequence);
+      nalUnitLengthFieldLength = avcData.nalUnitLengthFieldLength;
 
       // Construct and output the format.
       MediaFormat mediaFormat = MediaFormat.createVideoFormat(MediaFormat.NO_VALUE,
@@ -124,8 +109,7 @@ import java.util.List;
       nalLengthData[0] = 0;
       nalLengthData[1] = 0;
       nalLengthData[2] = 0;
-      int nalUnitLengthFieldLength = nalUnitsLength;
-      int nalUnitLengthFieldLengthDiff = 4 - nalUnitsLength;
+      int nalUnitLengthFieldLengthDiff = 4 - nalUnitLengthFieldLength;
       // NAL units are length delimited, but the decoder requires start code delimited units.
       // Loop until we've written the sample to the track output, replacing length delimiters with
       // start codes as we encounter them.
@@ -137,65 +121,58 @@ import java.util.List;
         nalLength.setPosition(0);
         bytesToWrite = nalLength.readUnsignedIntToInt();
 
-        // First, write nal start code (replacing length field by nal delimiter codes)
+        // Write a start code for the current NAL unit.
         nalStartCode.setPosition(0);
         output.sampleData(nalStartCode, 4);
         bytesWritten += 4;
 
-        // Then write nal unit itsef
+        // Write the payload of the NAL unit.
         output.sampleData(data, bytesToWrite);
         bytesWritten += bytesToWrite;
       }
       output.sampleMetadata(timeUs, frameType == VIDEO_FRAME_KEYFRAME ? C.SAMPLE_FLAG_SYNC : 0,
           bytesWritten, 0, null);
-    } else if (packetType == AVC_PACKET_TYPE_AVC_END_OF_SEQUENCE) {
-      Log.d(TAG, "End of seq!!!");
     }
   }
 
   /**
    * Builds initialization data for a {@link MediaFormat} from H.264 (AVC) codec private data.
    *
-   * @return The AvcSequenceHeader data with all the information needed to initialize
-   * the video codec.
+   * @return The AvcSequenceHeader data needed to initialize the video codec.
    * @throws ParserException If the initialization data could not be built.
    */
   private AvcSequenceHeaderData parseAvcCodecPrivate(ParsableByteArray buffer)
       throws ParserException {
-    try {
-      // TODO: Deduplicate with AtomParsers.parseAvcCFromParent.
-      buffer.setPosition(4);
-      int nalUnitLengthFieldLength = (buffer.readUnsignedByte() & 0x03) + 1;
-      Assertions.checkState(nalUnitLengthFieldLength != 3);
-      List<byte[]> initializationData = new ArrayList<>();
-      int numSequenceParameterSets = buffer.readUnsignedByte() & 0x1F;
-      for (int i = 0; i < numSequenceParameterSets; i++) {
-        initializationData.add(NalUnitUtil.parseChildNalUnit(buffer));
-      }
-      int numPictureParameterSets = buffer.readUnsignedByte();
-      for (int j = 0; j < numPictureParameterSets; j++) {
-        initializationData.add(NalUnitUtil.parseChildNalUnit(buffer));
-      }
-
-      float pixelWidthAspectRatio = 1;
-      int width = MediaFormat.NO_VALUE;
-      int height = MediaFormat.NO_VALUE;
-      if (numSequenceParameterSets > 0) {
-        // Parse the first sequence parameter set to obtain pixelWidthAspectRatio.
-        ParsableBitArray spsDataBitArray = new ParsableBitArray(initializationData.get(0));
-        // Skip the NAL header consisting of the nalUnitLengthField and the type (1 byte).
-        spsDataBitArray.setPosition(8 * (nalUnitLengthFieldLength + 1));
-        CodecSpecificDataUtil.SpsData sps = CodecSpecificDataUtil.parseSpsNalUnit(spsDataBitArray);
-        width = sps.width;
-        height = sps.height;
-        pixelWidthAspectRatio = sps.pixelWidthAspectRatio;
-      }
-
-      return new AvcSequenceHeaderData(initializationData, nalUnitLengthFieldLength,
-          width, height, pixelWidthAspectRatio);
-    } catch (ArrayIndexOutOfBoundsException e) {
-      throw new ParserException("Error parsing AVC codec private");
+    // TODO: Deduplicate with AtomParsers.parseAvcCFromParent.
+    buffer.setPosition(4);
+    int nalUnitLengthFieldLength = (buffer.readUnsignedByte() & 0x03) + 1;
+    Assertions.checkState(nalUnitLengthFieldLength != 3);
+    List<byte[]> initializationData = new ArrayList<>();
+    int numSequenceParameterSets = buffer.readUnsignedByte() & 0x1F;
+    for (int i = 0; i < numSequenceParameterSets; i++) {
+      initializationData.add(NalUnitUtil.parseChildNalUnit(buffer));
     }
+    int numPictureParameterSets = buffer.readUnsignedByte();
+    for (int j = 0; j < numPictureParameterSets; j++) {
+      initializationData.add(NalUnitUtil.parseChildNalUnit(buffer));
+    }
+
+    float pixelWidthAspectRatio = 1;
+    int width = MediaFormat.NO_VALUE;
+    int height = MediaFormat.NO_VALUE;
+    if (numSequenceParameterSets > 0) {
+      // Parse the first sequence parameter set to obtain pixelWidthAspectRatio.
+      ParsableBitArray spsDataBitArray = new ParsableBitArray(initializationData.get(0));
+      // Skip the NAL header consisting of the nalUnitLengthField and the type (1 byte).
+      spsDataBitArray.setPosition(8 * (nalUnitLengthFieldLength + 1));
+      CodecSpecificDataUtil.SpsData sps = CodecSpecificDataUtil.parseSpsNalUnit(spsDataBitArray);
+      width = sps.width;
+      height = sps.height;
+      pixelWidthAspectRatio = sps.pixelWidthAspectRatio;
+    }
+
+    return new AvcSequenceHeaderData(initializationData, nalUnitLengthFieldLength,
+        width, height, pixelWidthAspectRatio);
   }
 
   /**
