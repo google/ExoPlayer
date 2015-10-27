@@ -28,7 +28,7 @@ import android.util.Pair;
 import java.util.Collections;
 
 /**
- * Parses audio tags of from an FLV stream and extracts AAC frames.
+ * Parses audio tags from an FLV stream and extracts AAC frames.
  */
 /* package */ final class AudioTagPayloadReader extends TagPayloadReader {
 
@@ -59,29 +59,22 @@ import java.util.Collections;
 
   @Override
   protected boolean parseHeader(ParsableByteArray data) throws UnsupportedFormatException {
-    // Parse audio data header, if it was not done, to extract information about the audio codec
-    // and audio configuration.
     if (!hasParsedAudioDataHeader) {
       int header = data.readUnsignedByte();
       int audioFormat = (header >> 4) & 0x0F;
       int sampleRateIndex = (header >> 2) & 0x03;
       if (sampleRateIndex < 0 || sampleRateIndex >= AUDIO_SAMPLING_RATE_TABLE.length) {
-        throw new UnsupportedFormatException("Invalid sample rate for the audio track");
+        throw new UnsupportedFormatException("Invalid sample rate index: " + sampleRateIndex);
       }
+      // TODO: Add support for MP3 and PCM.
       if (audioFormat != AUDIO_FORMAT_AAC) {
-        // TODO: Adds support for MP3 and PCM
-        if (audioFormat != AUDIO_FORMAT_AAC) {
-          throw new UnsupportedFormatException("Audio format not supported: " + audioFormat);
-        }
+        throw new UnsupportedFormatException("Audio format not supported: " + audioFormat);
       }
       hasParsedAudioDataHeader = true;
     } else {
       // Skip header if it was parsed previously.
       data.skipBytes(1);
     }
-
-    // In all the cases we will be managing AAC format (otherwise an exception would be fired so we
-    // can just always return true.
     return true;
   }
 

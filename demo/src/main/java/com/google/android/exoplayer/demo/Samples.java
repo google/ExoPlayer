@@ -148,7 +148,6 @@ import java.util.Locale;
         "http://demos.webmproject.org/exoplayer/glass_vp9_vorbis.webm", PlayerActivity.TYPE_OTHER),
     new Sample("Big Buck Bunny (FLV Video)",
         "http://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0", PlayerActivity.TYPE_OTHER),
-
   };
 
   private Samples() {}

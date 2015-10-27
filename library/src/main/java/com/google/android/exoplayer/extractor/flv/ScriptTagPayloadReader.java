@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.extractor.flv;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -55,17 +56,16 @@ import java.util.Map;
   }
 
   @Override
-  protected boolean parseHeader(ParsableByteArray data) throws UnsupportedFormatException {
+  protected boolean parseHeader(ParsableByteArray data) {
     return true;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  protected void parsePayload(ParsableByteArray data, long timeUs) {
+  protected void parsePayload(ParsableByteArray data, long timeUs) throws ParserException {
     int nameType = readAmfType(data);
     if (nameType != AMF_TYPE_STRING) {
       // Should never happen.
-      return;
+      throw new ParserException();
     }
     String name = readAmfString(data);
     if (!NAME_METADATA.equals(name)) {
@@ -75,39 +75,18 @@ import java.util.Map;
     int type = readAmfType(data);
     if (type != AMF_TYPE_ECMA_ARRAY) {
       // Should never happen.
-      return;
+      throw new ParserException();
     }
     // Set the duration to the value contained in the metadata, if present.
-    Map<String, Object> metadata = (Map<String, Object>) readAmfData(data, type);
+    Map<String, Object> metadata = readAmfEcmaArray(data);
     if (metadata.containsKey(KEY_DURATION)) {
       double durationSeconds = (double) metadata.get(KEY_DURATION);
       setDurationUs((long) (durationSeconds * C.MICROS_PER_SECOND));
     }
   }
 
-  private int readAmfType(ParsableByteArray data) {
+  private static int readAmfType(ParsableByteArray data) {
     return data.readUnsignedByte();
-  }
-
-  private Object readAmfData(ParsableByteArray data, int type) {
-    switch (type) {
-      case AMF_TYPE_NUMBER:
-        return readAmfDouble(data);
-      case AMF_TYPE_BOOLEAN:
-        return readAmfBoolean(data);
-      case AMF_TYPE_STRING:
-        return readAmfString(data);
-      case AMF_TYPE_OBJECT:
-        return readAmfObject(data);
-      case AMF_TYPE_ECMA_ARRAY:
-        return readAmfEcmaArray(data);
-      case AMF_TYPE_STRICT_ARRAY:
-        return readAmfStrictArray(data);
-      case AMF_TYPE_DATE:
-        return readAmfDate(data);
-      default:
-        return null;
-    }
   }
 
   /**
@@ -116,7 +95,7 @@ import java.util.Map;
    * @param data The buffer from which to read.
    * @return The value read from the buffer.
    */
-  private Boolean readAmfBoolean(ParsableByteArray data) {
+  private static Boolean readAmfBoolean(ParsableByteArray data) {
     return data.readUnsignedByte() == 1;
   }
 
@@ -126,7 +105,7 @@ import java.util.Map;
    * @param data The buffer from which to read.
    * @return The value read from the buffer.
    */
-  private Double readAmfDouble(ParsableByteArray data) {
+  private static Double readAmfDouble(ParsableByteArray data) {
     return Double.longBitsToDouble(data.readLong());
   }
 
@@ -136,7 +115,7 @@ import java.util.Map;
    * @param data The buffer from which to read.
    * @return The value read from the buffer.
    */
-  private String readAmfString(ParsableByteArray data) {
+  private static String readAmfString(ParsableByteArray data) {
     int size = data.readUnsignedShort();
     int position = data.getPosition();
     data.skipBytes(size);
@@ -149,9 +128,9 @@ import java.util.Map;
    * @param data The buffer from which to read.
    * @return The value read from the buffer.
    */
-  private Object readAmfStrictArray(ParsableByteArray data) {
-    long count = data.readUnsignedInt();
-    ArrayList<Object> list = new ArrayList<>();
+  private static ArrayList<Object> readAmfStrictArray(ParsableByteArray data) {
+    int count = data.readUnsignedIntToInt();
+    ArrayList<Object> list = new ArrayList<>(count);
     for (int i = 0; i < count; i++) {
       int type = readAmfType(data);
       list.add(readAmfData(data, type));
@@ -165,7 +144,7 @@ import java.util.Map;
    * @param data The buffer from which to read.
    * @return The value read from the buffer.
    */
-  private Object readAmfObject(ParsableByteArray data) {
+  private static HashMap<String, Object> readAmfObject(ParsableByteArray data) {
     HashMap<String, Object> array = new HashMap<>();
     while (true) {
       String key = readAmfString(data);
@@ -184,9 +163,9 @@ import java.util.Map;
    * @param data The buffer from which to read.
    * @return The value read from the buffer.
    */
-  private Object readAmfEcmaArray(ParsableByteArray data) {
-    long count = data.readUnsignedInt();
-    HashMap<String, Object> array = new HashMap<>();
+  private static HashMap<String, Object> readAmfEcmaArray(ParsableByteArray data) {
+    int count = data.readUnsignedIntToInt();
+    HashMap<String, Object> array = new HashMap<>(count);
     for (int i = 0; i < count; i++) {
       String key = readAmfString(data);
       int type = readAmfType(data);
@@ -201,10 +180,31 @@ import java.util.Map;
    * @param data The buffer from which to read.
    * @return The value read from the buffer.
    */
-  private Date readAmfDate(ParsableByteArray data) {
+  private static Date readAmfDate(ParsableByteArray data) {
     Date date = new Date((long) readAmfDouble(data).doubleValue());
-    data.readUnsignedShort(); // Skip reserved bytes.
+    data.skipBytes(2); // Skip reserved bytes.
     return date;
+  }
+
+  private static Object readAmfData(ParsableByteArray data, int type) {
+    switch (type) {
+      case AMF_TYPE_NUMBER:
+        return readAmfDouble(data);
+      case AMF_TYPE_BOOLEAN:
+        return readAmfBoolean(data);
+      case AMF_TYPE_STRING:
+        return readAmfString(data);
+      case AMF_TYPE_OBJECT:
+        return readAmfObject(data);
+      case AMF_TYPE_ECMA_ARRAY:
+        return readAmfEcmaArray(data);
+      case AMF_TYPE_STRICT_ARRAY:
+        return readAmfStrictArray(data);
+      case AMF_TYPE_DATE:
+        return readAmfDate(data);
+      default:
+        return null;
+    }
   }
 
 }
