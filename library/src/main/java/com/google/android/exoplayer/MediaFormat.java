@@ -325,7 +325,7 @@ public final class MediaFormat {
         || pixelWidthHeightRatio != other.pixelWidthHeightRatio
         || maxWidth != other.maxWidth || maxHeight != other.maxHeight
         || channelCount != other.channelCount || sampleRate != other.sampleRate
-        || trackId != other.trackId || !Util.areEqual(language, other.language)
+        || !Util.areEqual(trackId, other.trackId) || !Util.areEqual(language, other.language)
         || !Util.areEqual(mimeType, other.mimeType)
         || initializationData.size() != other.initializationData.size()) {
       return false;
