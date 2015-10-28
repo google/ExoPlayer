@@ -40,8 +40,4 @@ public final class Variant implements FormatWrapper {
     return format;
   }
 
-  public String getName() {
-    return name;
-  }
-
 }
