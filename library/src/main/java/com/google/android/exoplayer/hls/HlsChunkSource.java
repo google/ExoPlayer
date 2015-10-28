@@ -184,7 +184,7 @@ public class HlsChunkSource {
     playlistParser = new HlsPlaylistParser();
 
     if (playlist.type == HlsPlaylist.TYPE_MEDIA) {
-      variants = new Variant[] {new Variant(0, playlistUrl, 0, null, -1, -1)};
+      variants = new Variant[] {new Variant(0, null, playlistUrl, 0, null, -1, -1)};
       variantPlaylists = new HlsMediaPlaylist[1];
       variantLastPlaylistLoadTimesMs = new long[1];
       variantBlacklistTimes = new long[1];

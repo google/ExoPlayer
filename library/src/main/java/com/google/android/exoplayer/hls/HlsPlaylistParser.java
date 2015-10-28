@@ -143,6 +143,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
     String codecs = null;
     int width = -1;
     int height = -1;
+    String name = null;
 
     boolean expectingStreamInfUrl = false;
     String line;
@@ -152,18 +153,19 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         String type = HlsParserUtil.parseStringAttr(line, TYPE_ATTR_REGEX, TYPE_ATTR);
         if (SUBTITLES_TYPE.equals(type)) {
           // We assume all subtitles belong to the same group.
-          String name = HlsParserUtil.parseStringAttr(line, NAME_ATTR_REGEX, NAME_ATTR);
+          String subtitleName = HlsParserUtil.parseStringAttr(line, NAME_ATTR_REGEX, NAME_ATTR);
           String uri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX, URI_ATTR);
           String language = HlsParserUtil.parseOptionalStringAttr(line, LANGUAGE_ATTR_REGEX);
           boolean isDefault = HlsParserUtil.parseOptionalBooleanAttr(line, DEFAULT_ATTR_REGEX);
           boolean autoSelect = HlsParserUtil.parseOptionalBooleanAttr(line, AUTOSELECT_ATTR_REGEX);
-          subtitles.add(new Subtitle(name, uri, language, isDefault, autoSelect));
+          subtitles.add(new Subtitle(subtitleName, uri, language, isDefault, autoSelect));
         } else {
           // TODO: Support other types of media tag.
         }
       } else if (line.startsWith(STREAM_INF_TAG)) {
         bitrate = HlsParserUtil.parseIntAttr(line, BANDWIDTH_ATTR_REGEX, BANDWIDTH_ATTR);
         codecs = HlsParserUtil.parseOptionalStringAttr(line, CODECS_ATTR_REGEX);
+        name = HlsParserUtil.parseOptionalStringAttr(line, NAME_ATTR_REGEX);
         String resolutionString = HlsParserUtil.parseOptionalStringAttr(line,
             RESOLUTION_ATTR_REGEX);
         if (resolutionString != null) {
@@ -184,9 +186,10 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         }
         expectingStreamInfUrl = true;
       } else if (!line.startsWith("#") && expectingStreamInfUrl) {
-        variants.add(new Variant(variants.size(), line, bitrate, codecs, width, height));
+        variants.add(new Variant(variants.size(), name, line, bitrate, codecs, width, height));
         bitrate = 0;
         codecs = null;
+        name = null;
         width = -1;
         height = -1;
         expectingStreamInfUrl = false;
