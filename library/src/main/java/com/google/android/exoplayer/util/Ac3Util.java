@@ -31,7 +31,7 @@ public final class Ac3Util {
       224, 256, 320, 384, 448, 512, 576, 640};
   /** 16-bit words per sync frame, indexed by frmsizecod / 2. (See ETSI TS 102 366 table 4.13.) */
   private static final int[] FRMSIZECOD_TO_FRAME_SIZE_44_1 = new int[] {69, 87, 104, 121, 139, 174,
-    208, 243, 278, 348, 417, 487, 557, 696, 835, 975, 1114, 1253, 1393};
+      208, 243, 278, 348, 417, 487, 557, 696, 835, 975, 1114, 1253, 1393};
 
   /**
    * Returns the AC-3 format given {@code data} containing the AC3SpecificBox according to
