@@ -28,7 +28,8 @@ public final class Variant implements FormatWrapper {
   public final Format format;
   public final String name;
 
-  public Variant(int index, String name, String url, int bitrate, String codecs, int width, int height) {
+  public Variant(int index, String name, String url, int bitrate, String codecs, int width,
+      int height) {
     this.url = url;
     this.name = name;
     String formatName = name != null ? name : Integer.toString(index);
