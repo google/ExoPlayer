@@ -63,13 +63,16 @@ public class SampleChooserActivity extends Activity {
     sampleAdapter.addAll((Object[]) Samples.WIDEVINE_GTS);
     sampleAdapter.add(new Header("Widevine DASH"));
     sampleAdapter.addAll((Object[]) Samples.WIDEVINE_DASH_MP4);
-    // try {
-    //   if (MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_VP9, true) != null) {
-    //     sampleAdapter.addAll((Object[]) Samples.WIDEVINE_DASH_WEBM);
-    //   }
-    // } catch (DecoderQueryException e) {
-    //   Log.e(TAG, "Failed to query vp9 decoder", e);
-    // }
+    try {
+      if (MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_VP9, false) != null) {
+        sampleAdapter.addAll((Object[]) Samples.WIDEVINE_VP9_WEBM_CLEAR);
+      }
+      if (MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_VP9, true) != null) {
+        sampleAdapter.addAll((Object[]) Samples.WIDEVINE_VP9_WEBM_SECURE);
+      }
+    } catch (DecoderQueryException e) {
+      Log.e(TAG, "Failed to query vp9 decoder", e);
+    }
     sampleAdapter.add(new Header("SmoothStreaming"));
     sampleAdapter.addAll((Object[]) Samples.SMOOTHSTREAMING);
     sampleAdapter.add(new Header("HLS"));

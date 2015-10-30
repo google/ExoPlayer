@@ -105,7 +105,13 @@ import java.util.Locale;
         PlayerActivity.TYPE_DASH),
   };
 
-  public static final Sample[] WIDEVINE_DASH_WEBM = new Sample[] {
+  public static final Sample[] WIDEVINE_VP9_WEBM_CLEAR = new Sample[] {
+    new Sample("WV: Clear (WebM,VP9)",
+        "https://storage.googleapis.com/wvmedia/clear/vp9/sintel-multicodec-4k/sintel-vp9.mpd",
+        PlayerActivity.TYPE_DASH),
+  };
+
+  public static final Sample[] WIDEVINE_VP9_WEBM_SECURE = new Sample[] {
     new Sample("WV: Secure (WebM,VP9)", "01234567", "widevine_test",
         "https://storage.googleapis.com/wvmedia/cenc/vp9/sintel-multicodec-4k/sintel-vp9.mpd",
         PlayerActivity.TYPE_DASH),
