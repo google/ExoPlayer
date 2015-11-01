@@ -35,4 +35,6 @@ android {
 
 dependencies {
     compile project(':library')
+    compile project(':extension-okhttp')
+    compile 'com.facebook.stetho:stetho-okhttp:1.2.0'
 }

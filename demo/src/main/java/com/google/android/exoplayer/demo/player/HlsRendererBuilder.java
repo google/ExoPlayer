@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer.demo.player;
 
+import android.content.Context;
+import android.media.MediaCodec;
+import android.os.Handler;
+
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
@@ -23,6 +27,7 @@ import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.chunk.VideoFormatSelectorUtil;
+import com.google.android.exoplayer.demo.player.DataSource.OkUriDataSource;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.hls.HlsChunkSource;
 import com.google.android.exoplayer.hls.HlsMasterPlaylist;
@@ -35,13 +40,8 @@ import com.google.android.exoplayer.text.eia608.Eia608TrackRenderer;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
-
-import android.content.Context;
-import android.media.MediaCodec;
-import android.os.Handler;
 
 import java.io.IOException;
 import java.util.Map;
@@ -96,7 +96,7 @@ public class HlsRendererBuilder implements RendererBuilder {
       this.url = url;
       this.player = player;
       HlsPlaylistParser parser = new HlsPlaylistParser();
-      playlistFetcher = new ManifestFetcher<>(url, new DefaultUriDataSource(context, userAgent),
+      playlistFetcher = new ManifestFetcher<>(url, new OkUriDataSource(context, userAgent),
           parser);
     }
 
@@ -143,7 +143,7 @@ public class HlsRendererBuilder implements RendererBuilder {
         }
       }
 
-      DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+      DataSource dataSource = new OkUriDataSource(context, bandwidthMeter, userAgent);
       HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter,
           variantIndices, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
       HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, loadControl,
