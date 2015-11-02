@@ -47,6 +47,7 @@ public final class TsExtractor implements Extractor {
   private static final int TS_STREAM_TYPE_ATSC_E_AC3 = 0x87;
   private static final int TS_STREAM_TYPE_H264 = 0x1B;
   private static final int TS_STREAM_TYPE_H265 = 0x24;
+  private static final int TS_STREAM_TYPE_H262 = 0x02;
   private static final int TS_STREAM_TYPE_ID3 = 0x15;
   private static final int TS_STREAM_TYPE_EIA608 = 0x100; // 0xFF + 1
 
@@ -314,6 +315,9 @@ public final class TsExtractor implements Extractor {
           case TS_STREAM_TYPE_H265:
             pesPayloadReader = new H265Reader(output.track(TS_STREAM_TYPE_H265),
                 new SeiReader(output.track(TS_STREAM_TYPE_EIA608)));
+            break;
+          case TS_STREAM_TYPE_H262:
+            pesPayloadReader = new H262Reader(output.track(TS_STREAM_TYPE_H262));
             break;
           case TS_STREAM_TYPE_ID3:
             pesPayloadReader = id3Reader;
