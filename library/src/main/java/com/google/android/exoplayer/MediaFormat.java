@@ -242,7 +242,11 @@ public final class MediaFormat {
   public final android.media.MediaFormat getFrameworkMediaFormatV16() {
     if (frameworkMediaFormat == null) {
       android.media.MediaFormat format = new android.media.MediaFormat();
-      format.setString(android.media.MediaFormat.KEY_MIME, mimeType);
+
+      // It's possible that our internal mimetype doesn't directly translate to the one used by
+      // the device. We therefore check to see if we need to perform a translation.
+      format.setString(android.media.MediaFormat.KEY_MIME, MediaCodecUtil.getDeviceMimeType(mimeType));
+
       maybeSetStringV16(format, android.media.MediaFormat.KEY_LANGUAGE, language);
       maybeSetIntegerV16(format, android.media.MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
       maybeSetIntegerV16(format, android.media.MediaFormat.KEY_WIDTH, width);

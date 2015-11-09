@@ -29,6 +29,8 @@ import android.util.Log;
 import android.util.Pair;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -54,6 +56,14 @@ public final class MediaCodecUtil {
   private static final String TAG = "MediaCodecUtil";
 
   private static final HashMap<CodecKey, Pair<String, CodecCapabilities>> codecs = new HashMap<>();
+
+  private static final HashMap<String, ArrayList<String>> mimeTypeAlternatives = new HashMap<>();
+
+  static {
+    // It's possible that some devices use alternative MimeTypes for codecs to those used internally. We
+    // therefore should consider them when attempting to locate the associated MediaCodec.
+    mimeTypeAlternatives.put(MimeTypes.AUDIO_DTS_HD, new ArrayList<>(Arrays.asList(new String[]{"audio/dtshd"})));
+  }
 
   private MediaCodecUtil() {}
 
@@ -95,32 +105,70 @@ public final class MediaCodecUtil {
   /**
    * Returns the name of the best decoder and its capabilities for the given mimeType.
    *
-   * @param mimeType The mime type.
+   * @param originalMimeType The mime type.
    * @param secure Whether the decoder is required to support secure decryption. Always pass false
    *     unless secure decryption really is required.
    * @return The name of the best decoder and its capabilities for the given mimeType, or null if
    *     no decoder exists.
    */
   public static synchronized Pair<String, CodecCapabilities> getMediaCodecInfo(
-      String mimeType, boolean secure) throws DecoderQueryException {
-    CodecKey key = new CodecKey(mimeType, secure);
-    if (codecs.containsKey(key)) {
-      return codecs.get(key);
-    }
-    MediaCodecListCompat mediaCodecList = Util.SDK_INT >= 21
-        ? new MediaCodecListCompatV21(secure) : new MediaCodecListCompatV16();
-    Pair<String, CodecCapabilities> codecInfo = getMediaCodecInfo(key, mediaCodecList);
-    // TODO: Verify this cannot occur on v22, and change >= to == [Internal: b/18678462].
-    if (secure && codecInfo == null && Util.SDK_INT >= 21) {
-      // Some devices don't list secure decoders on API level 21. Try the legacy path.
-      mediaCodecList = new MediaCodecListCompatV16();
+      String originalMimeType, boolean secure) throws DecoderQueryException {
+
+    // Build a collection of possible mimetypes which we can use to try and identify the associated
+    // MediaCodec.
+    ArrayList<String> mimeTypesToConsider = new ArrayList<>();
+    mimeTypesToConsider.add(originalMimeType);
+    if (mimeTypeAlternatives.containsKey(originalMimeType))
+      mimeTypesToConsider.addAll(mimeTypeAlternatives.get(originalMimeType));
+
+    Pair<String, CodecCapabilities> codecInfo = null;
+    for (String mimeType : mimeTypesToConsider) {
+      CodecKey key = new CodecKey(mimeType, secure);
+      if (codecs.containsKey(key)) {
+        return codecs.get(key);
+      }
+      MediaCodecListCompat mediaCodecList = Util.SDK_INT >= 21
+              ? new MediaCodecListCompatV21(secure) : new MediaCodecListCompatV16();
       codecInfo = getMediaCodecInfo(key, mediaCodecList);
-      if (codecInfo != null) {
-        Log.w(TAG, "MediaCodecList API didn't list secure decoder for: " + mimeType
-            + ". Assuming: " + codecInfo.first);
+      // TODO: Verify this cannot occur on v22, and change >= to == [Internal: b/18678462].
+      if (secure && codecInfo == null && Util.SDK_INT >= 21) {
+        // Some devices don't list secure decoders on API level 21. Try the legacy path.
+        mediaCodecList = new MediaCodecListCompatV16();
+        codecInfo = getMediaCodecInfo(key, mediaCodecList);
+        if (codecInfo != null) {
+          Log.w(TAG, "MediaCodecList API didn't list secure decoder for: " + mimeType
+                  + ". Assuming: " + codecInfo.first);
+        }
+      }
+
+      if (codecInfo != null && mimeTypeAlternatives.containsKey(originalMimeType)) {
+        // The original mime type had a number of possible alternatives. Now that we've determined
+        // the "correct" one, we remove any of the others so that we don't attempt to use them again
+        // in the future.
+        ArrayList<String> alternatives = mimeTypeAlternatives.get(originalMimeType);
+        alternatives.clear();
+        alternatives.add(mimeType);
       }
     }
+
     return codecInfo;
+  }
+
+  /**
+   * Returns the actual mime type known by this device for the one provided. This allows the library
+   *     to use a potentially different mime type internally, but translate back to the device
+   *     specific one when required.
+   *
+   * @param originalMimeType The mime type.
+   * @return The devices specific mime type for the one specified.
+   */
+  public static synchronized String getDeviceMimeType(String originalMimeType) {
+    ArrayList<String> alternatives = mimeTypeAlternatives.get(originalMimeType);
+    if (alternatives != null && alternatives.size() == 1) {
+      return alternatives.get(0);
+    }
+
+    return originalMimeType;
   }
 
   private static Pair<String, CodecCapabilities> getMediaCodecInfo(CodecKey key,
