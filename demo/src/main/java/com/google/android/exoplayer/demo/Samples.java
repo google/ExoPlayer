@@ -132,8 +132,6 @@ import java.util.Locale;
         + "prog_index.m3u8", PlayerActivity.TYPE_HLS),
     new Sample("Apple ID3 metadata", "http://devimages.apple.com/samplecode/adDemo/ad.m3u8",
         PlayerActivity.TYPE_HLS),
-    new Sample("Apple WebVtt", "https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8",
-          PlayerActivity.TYPE_HLS),
   };
 
   public static final Sample[] MISC = new Sample[] {

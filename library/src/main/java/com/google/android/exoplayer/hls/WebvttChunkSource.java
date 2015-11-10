@@ -96,7 +96,7 @@ public class WebvttChunkSource implements ChunkSource, TimestampOffsetListener {
                 // subsampleOffset must be set to 0, if not it will be set to OFFSET_SAMPLE_RELATIVE
                 // which will treated as relative time, as a result it won't work for WebVtt
                 // see SubtitleParserHelper for details
-                MediaFormat trackFormat = MediaFormat.createTextFormat(tracks.size(), format.mimeType,
+                MediaFormat trackFormat = MediaFormat.createTextFormat(format.id, format.mimeType,
                         format.bitrate, C.MATCH_LONGEST_US, format.language, 0);
                 if (subtitle.isDefault) {
                     tracks.add(TRACK_DEFAULT, new ExposedTrack(trackFormat, format, subtitle.uri));
@@ -131,6 +131,7 @@ public class WebvttChunkSource implements ChunkSource, TimestampOffsetListener {
             }
         }
         enabledTrack = tracks.get(track);
+        lastMediaSequence = -1;
     }
 
     @Override
