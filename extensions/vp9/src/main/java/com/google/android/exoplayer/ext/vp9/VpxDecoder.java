@@ -24,12 +24,20 @@ import java.nio.ByteBuffer;
  */
 /* package */ class VpxDecoder {
 
-  private final long vpxDecContext;
-
+  private static final boolean IS_AVAILABLE;
   static {
-    System.loadLibrary("vpx");
-    System.loadLibrary("vpxJNI");
+    boolean isAvailable;
+    try {
+      System.loadLibrary("vpx");
+      System.loadLibrary("vpxJNI");
+      isAvailable = true;
+    } catch (UnsatisfiedLinkError exception) {
+      isAvailable = false;
+    }
+    IS_AVAILABLE = isAvailable;
   }
+
+  private final long vpxDecContext;
 
   /**
    * Creates the VP9 Decoder.
@@ -54,7 +62,7 @@ import java.nio.ByteBuffer;
    * @return 0 on success with a frame to render. 1 on success without a frame to render.
    * @throws VpxDecoderException on decode failure.
    */
-  public int decode(ByteBuffer encoded, int size, OutputBuffer outputBuffer, boolean outputRgb) 
+  public int decode(ByteBuffer encoded, int size, OutputBuffer outputBuffer, boolean outputRgb)
       throws VpxDecoderException {
     if (vpxDecode(vpxDecContext, encoded, size) != 0) {
       throw new VpxDecoderException("libvpx decode error: " + vpxGetErrorMessage(vpxDecContext));
@@ -68,6 +76,18 @@ import java.nio.ByteBuffer;
   public void close() {
     vpxClose(vpxDecContext);
   }
+
+  /**
+   * Returns whether the underlying libvpx library is available.
+   */
+  public static boolean isLibvpxAvailable() {
+    return IS_AVAILABLE;
+  }
+
+  /**
+   * Returns the version string of the underlying libvpx decoder.
+   */
+  public static native String getLibvpxVersion();
 
   private native long vpxInit();
   private native long vpxClose(long context);

@@ -47,6 +47,11 @@ public final class Track {
   public final long timescale;
 
   /**
+   * The movie timescale.
+   */
+  public final long movieTimescale;
+
+  /**
    * The duration of the track in microseconds, or {@link C#UNKNOWN_TIME_US} if unknown.
    */
   public final long durationUs;
@@ -62,20 +67,34 @@ public final class Track {
   public final TrackEncryptionBox[] sampleDescriptionEncryptionBoxes;
 
   /**
+   * Durations of edit list segments in the movie timescale. Null if there is no edit list.
+   */
+  public final long[] editListDurations;
+
+  /**
+   * Media times for edit list segments in the track timescale. Null if there is no edit list.
+   */
+  public final long[] editListMediaTimes;
+
+  /**
    * For H264 video tracks, the length in bytes of the NALUnitLength field in each sample. -1 for
    * other track types.
    */
   public final int nalUnitLengthFieldLength;
 
-  public Track(int id, int type, long timescale, long durationUs, MediaFormat mediaFormat,
-      TrackEncryptionBox[] sampleDescriptionEncryptionBoxes, int nalUnitLengthFieldLength) {
+  public Track(int id, int type, long timescale, long movieTimescale, long durationUs,
+      MediaFormat mediaFormat, TrackEncryptionBox[] sampleDescriptionEncryptionBoxes,
+      int nalUnitLengthFieldLength, long[] editListDurations, long[] editListMediaTimes) {
     this.id = id;
     this.type = type;
     this.timescale = timescale;
+    this.movieTimescale = movieTimescale;
     this.durationUs = durationUs;
     this.mediaFormat = mediaFormat;
     this.sampleDescriptionEncryptionBoxes = sampleDescriptionEncryptionBoxes;
     this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
+    this.editListDurations = editListDurations;
+    this.editListMediaTimes = editListMediaTimes;
   }
 
 }

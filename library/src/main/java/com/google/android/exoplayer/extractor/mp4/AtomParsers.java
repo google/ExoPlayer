@@ -32,7 +32,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** Utility methods for parsing MP4 format atom payloads according to ISO 14496-12. */
+/**
+ * Utility methods for parsing MP4 format atom payloads according to ISO 14496-12.
+ */
 /* package */ final class AtomParsers {
 
   /**
@@ -65,9 +67,11 @@ import java.util.List;
     Pair<Long, String> mdhdData = parseMdhd(mdia.getLeafAtomOfType(Atom.TYPE_mdhd).data);
     StsdData stsdData = parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, tkhdData.id,
         durationUs, tkhdData.rotationDegrees, mdhdData.second);
+    Pair<long[], long[]> edtsData = parseEdts(trak.getContainerAtomOfType(Atom.TYPE_edts));
     return stsdData.mediaFormat == null ? null
-        : new Track(tkhdData.id, trackType, mdhdData.first, durationUs, stsdData.mediaFormat,
-            stsdData.trackEncryptionBoxes, stsdData.nalUnitLengthFieldLength);
+        : new Track(tkhdData.id, trackType, mdhdData.first, movieTimescale, durationUs,
+            stsdData.mediaFormat, stsdData.trackEncryptionBoxes, stsdData.nalUnitLengthFieldLength,
+            edtsData.first, edtsData.second);
   }
 
   /**
@@ -240,15 +244,78 @@ import java.util.List;
       }
     }
 
-    Util.scaleLargeTimestampsInPlace(timestamps, 1000000, track.timescale);
-
     // Check all the expected samples have been seen.
     Assertions.checkArgument(remainingSynchronizationSamples == 0);
     Assertions.checkArgument(remainingSamplesAtTimestampDelta == 0);
     Assertions.checkArgument(remainingSamplesInChunk == 0);
     Assertions.checkArgument(remainingTimestampDeltaChanges == 0);
     Assertions.checkArgument(remainingTimestampOffsetChanges == 0);
-    return new TrackSampleTable(offsets, sizes, maximumSize, timestamps, flags);
+
+    if (track.editListDurations == null) {
+      Util.scaleLargeTimestampsInPlace(timestamps, C.MICROS_PER_SECOND, track.timescale);
+      return new TrackSampleTable(offsets, sizes, maximumSize, timestamps, flags);
+    }
+
+    // See the BMFF spec (ISO 14496-12) subsection 8.6.6. Edit lists that truncate audio and
+    // require prerolling from a sync sample after reordering are not supported. This
+    // implementation handles simple discarding/delaying of samples. The extractor may place
+    // further restrictions on what edited streams are playable.
+
+    // Count the number of samples after applying edits.
+    int editedSampleCount = 0;
+    int nextSampleIndex = 0;
+    boolean copyMetadata = false;
+    for (int i = 0; i < track.editListDurations.length; i++) {
+      long mediaTime = track.editListMediaTimes[i];
+      if (mediaTime != -1) {
+        long duration = Util.scaleLargeTimestamp(track.editListDurations[i], track.timescale,
+            track.movieTimescale);
+        int startIndex = Util.binarySearchCeil(timestamps, mediaTime, true, true);
+        int endIndex = Util.binarySearchCeil(timestamps, mediaTime + duration, true, false);
+        editedSampleCount += endIndex - startIndex;
+        copyMetadata |= nextSampleIndex != startIndex;
+        nextSampleIndex = endIndex;
+      }
+    }
+    copyMetadata |= editedSampleCount != sampleCount;
+
+    // Calculate edited sample timestamps and update the corresponding metadata arrays.
+    long[] editedOffsets = copyMetadata ? new long[editedSampleCount] : offsets;
+    int[] editedSizes = copyMetadata ? new int[editedSampleCount] : sizes;
+    int editedMaximumSize = copyMetadata ? 0 : maximumSize;
+    int[] editedFlags = copyMetadata ? new int[editedSampleCount] : flags;
+    long[] editedTimestamps = new long[editedSampleCount];
+    long pts = 0;
+    int sampleIndex = 0;
+    for (int i = 0; i < track.editListDurations.length; i++) {
+      long mediaTime = track.editListMediaTimes[i];
+      long duration = track.editListDurations[i];
+      if (mediaTime != -1) {
+        long endMediaTime = mediaTime + Util.scaleLargeTimestamp(duration, track.timescale,
+            track.movieTimescale);
+        int startIndex = Util.binarySearchCeil(timestamps, mediaTime, true, true);
+        int endIndex = Util.binarySearchCeil(timestamps, endMediaTime, true, false);
+        if (copyMetadata) {
+          int count = endIndex - startIndex;
+          System.arraycopy(offsets, startIndex, editedOffsets, sampleIndex, count);
+          System.arraycopy(sizes, startIndex, editedSizes, sampleIndex, count);
+          System.arraycopy(flags, startIndex, editedFlags, sampleIndex, count);
+        }
+        for (int j = startIndex; j < endIndex; j++) {
+          long ptsUs = Util.scaleLargeTimestamp(pts, C.MICROS_PER_SECOND, track.movieTimescale);
+          long timeInSegmentUs = Util.scaleLargeTimestamp(timestamps[j] - mediaTime,
+              C.MICROS_PER_SECOND, track.timescale);
+          editedTimestamps[sampleIndex] = ptsUs + timeInSegmentUs;
+          if (copyMetadata && editedSizes[sampleIndex] > editedMaximumSize) {
+            editedMaximumSize = sizes[j];
+          }
+          sampleIndex++;
+        }
+      }
+      pts += duration;
+    }
+    return new TrackSampleTable(editedOffsets, editedSizes, editedMaximumSize, editedTimestamps,
+        editedFlags);
   }
 
   /**
@@ -387,14 +454,15 @@ import java.util.List;
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             durationUs, language, out, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
-        out.mediaFormat = MediaFormat.createTextFormat(trackId, MimeTypes.APPLICATION_TTML,
-            MediaFormat.NO_VALUE, durationUs, language);
+        out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId),
+            MimeTypes.APPLICATION_TTML, MediaFormat.NO_VALUE, durationUs, language);
       } else if (childAtomType == Atom.TYPE_tx3g) {
-        out.mediaFormat = MediaFormat.createTextFormat(trackId, MimeTypes.APPLICATION_TX3G,
-            MediaFormat.NO_VALUE, durationUs, language);
+        out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId),
+            MimeTypes.APPLICATION_TX3G, MediaFormat.NO_VALUE, durationUs, language);
       } else if (childAtomType == Atom.TYPE_stpp) {
-        out.mediaFormat = MediaFormat.createTextFormat(trackId, MimeTypes.APPLICATION_TTML,
-            MediaFormat.NO_VALUE, durationUs, language, 0 /* subsample timing is absolute */);
+        out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId),
+            MimeTypes.APPLICATION_TTML, MediaFormat.NO_VALUE, durationUs, language,
+            0 /* subsample timing is absolute */);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
     }
@@ -464,9 +532,9 @@ import java.util.List;
       return;
     }
 
-    out.mediaFormat = MediaFormat.createVideoFormat(trackId, mimeType, MediaFormat.NO_VALUE,
-        MediaFormat.NO_VALUE, durationUs, width, height, initializationData, rotationDegrees,
-        pixelWidthHeightRatio);
+    out.mediaFormat = MediaFormat.createVideoFormat(Integer.toString(trackId), mimeType,
+        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, durationUs, width, height, initializationData,
+        rotationDegrees, pixelWidthHeightRatio);
   }
 
   private static AvcCData parseAvcCFromParent(ParsableByteArray parent, int position) {
@@ -539,6 +607,39 @@ import java.util.List;
 
     List<byte[]> initializationData = csdLength == 0 ? null : Collections.singletonList(buffer);
     return Pair.create(initializationData, lengthSizeMinusOne + 1);
+  }
+
+  /**
+   * Parses the edts atom (defined in 14496-12 subsection 8.6.5).
+   *
+   * @param edtsAtom edts (edit box) atom to parse.
+   * @return Pair of edit list durations and edit list media times, or a pair of nulls if they are
+   *     not present.
+   */
+  private static Pair<long[], long[]> parseEdts(Atom.ContainerAtom edtsAtom) {
+    Atom.LeafAtom elst;
+    if (edtsAtom == null || (elst = edtsAtom.getLeafAtomOfType(Atom.TYPE_elst)) == null) {
+      return Pair.create(null, null);
+    }
+    ParsableByteArray elstData = elst.data;
+    elstData.setPosition(Atom.HEADER_SIZE);
+    int fullAtom = elstData.readInt();
+    int version = Atom.parseFullAtomVersion(fullAtom);
+    int entryCount = elstData.readUnsignedIntToInt();
+    long[] editListDurations = new long[entryCount];
+    long[] editListMediaTimes = new long[entryCount];
+    for (int i = 0; i < entryCount; i++) {
+      editListDurations[i] =
+          version == 1 ? elstData.readUnsignedLongToLong() : elstData.readUnsignedInt();
+      editListMediaTimes[i] = version == 1 ? elstData.readLong() : elstData.readInt();
+      int mediaRateInteger = elstData.readShort();
+      if (mediaRateInteger != 1) {
+        // The extractor does not handle dwell edits (mediaRateInteger == 0).
+        throw new IllegalArgumentException("Unsupported media rate.");
+      }
+      elstData.skipBytes(2);
+    }
+    return Pair.create(editListDurations, editListMediaTimes);
   }
 
   private static TrackEncryptionBox parseSinfFromParent(ParsableByteArray parent, int position,
@@ -644,17 +745,20 @@ import java.util.List;
         // TODO: Choose the right AC-3 track based on the contents of dac3/dec3.
         // TODO: Add support for encryption (by setting out.trackEncryptionBoxes).
         parent.setPosition(Atom.HEADER_SIZE + childStartPosition);
-        out.mediaFormat = Ac3Util.parseAnnexFAc3Format(parent, trackId, durationUs, language);
+        out.mediaFormat = Ac3Util.parseAnnexFAc3Format(parent, Integer.toString(trackId),
+            durationUs, language);
         return;
       } else if (atomType == Atom.TYPE_ec_3 && childAtomType == Atom.TYPE_dec3) {
         parent.setPosition(Atom.HEADER_SIZE + childStartPosition);
-        out.mediaFormat = Ac3Util.parseAnnexFEAc3Format(parent, trackId, durationUs, language);
+        out.mediaFormat = Ac3Util.parseAnnexFEAc3Format(parent, Integer.toString(trackId),
+            durationUs, language);
         return;
       } else if ((atomType == Atom.TYPE_dtsc || atomType == Atom.TYPE_dtse
           || atomType == Atom.TYPE_dtsh || atomType == Atom.TYPE_dtsl)
           && childAtomType == Atom.TYPE_ddts) {
-        out.mediaFormat = MediaFormat.createAudioFormat(trackId, mimeType, MediaFormat.NO_VALUE,
-            MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate, null, language);
+        out.mediaFormat = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType,
+            MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate, null,
+            language);
         return;
       }
       childPosition += childAtomSize;
@@ -665,8 +769,8 @@ import java.util.List;
       return;
     }
 
-    out.mediaFormat = MediaFormat.createAudioFormat(trackId, mimeType, MediaFormat.NO_VALUE,
-        sampleSize, durationUs, channelCount, sampleRate,
+    out.mediaFormat = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType,
+        MediaFormat.NO_VALUE, sampleSize, durationUs, channelCount, sampleRate,
         initializationData == null ? null : Collections.singletonList(initializationData),
         language);
   }

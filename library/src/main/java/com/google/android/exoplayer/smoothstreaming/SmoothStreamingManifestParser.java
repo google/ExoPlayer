@@ -404,6 +404,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
       if (TAG_PROTECTION_HEADER.equals(parser.getName())) {
         inProtectionHeader = true;
         String uuidString = parser.getAttributeValue(null, KEY_SYSTEM_ID);
+        uuidString = stripCurlyBraces(uuidString);
         uuid = UUID.fromString(uuidString);
       }
     }
@@ -427,6 +428,12 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
       return new ProtectionElement(uuid, PsshAtomUtil.buildPsshAtom(uuid, initData));
     }
 
+    private static String stripCurlyBraces(String uuidString) {
+      if (uuidString.charAt(0) == '{' && uuidString.charAt(uuidString.length() - 1) == '}') {
+        uuidString = uuidString.substring(1, uuidString.length() - 1);
+      }
+      return uuidString;
+    }
   }
 
   private static class StreamElementParser extends ElementParser {
@@ -669,6 +676,16 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
         return MimeTypes.AUDIO_AAC;
       } else if (fourCC.equalsIgnoreCase("TTML")) {
         return MimeTypes.APPLICATION_TTML;
+      } else if (fourCC.equalsIgnoreCase("ac-3") || fourCC.equalsIgnoreCase("dac3")) {
+        return MimeTypes.AUDIO_AC3;
+      } else if (fourCC.equalsIgnoreCase("ec-3") || fourCC.equalsIgnoreCase("dec3")) {
+        return MimeTypes.AUDIO_EC3;
+      } else if (fourCC.equalsIgnoreCase("dtsc") || fourCC.equalsIgnoreCase("dtse")) {
+        return MimeTypes.AUDIO_DTS;
+      } else if (fourCC.equalsIgnoreCase("dtsh") || fourCC.equalsIgnoreCase("dtsl")) {
+        return MimeTypes.AUDIO_DTS_HD;
+      } else if (fourCC.equalsIgnoreCase("opus")) {
+        return MimeTypes.AUDIO_OPUS;
       }
       return null;
     }

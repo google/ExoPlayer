@@ -150,7 +150,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
           for (int i = 0; i < trackCount; i++) {
             MediaFormat format = extractor.getMediaFormat(i).copyWithDurationUs(durationUs);
             if (MimeTypes.isVideo(format.mimeType)) {
-              format = format.copyAsAdaptive();
+              format = format.copyAsAdaptive(null);
             }
             trackFormat[i] = format;
           }

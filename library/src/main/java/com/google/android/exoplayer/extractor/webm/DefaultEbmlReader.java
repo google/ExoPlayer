@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.extractor.webm;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.util.Assertions;
 
@@ -100,7 +101,7 @@ import java.util.Stack;
           return true;
         case TYPE_UNSIGNED_INT:
           if (elementContentSize > MAX_INTEGER_ELEMENT_SIZE_BYTES) {
-            throw new IllegalStateException("Invalid integer size: " + elementContentSize);
+            throw new ParserException("Invalid integer size: " + elementContentSize);
           }
           output.integerElement(elementId, readInteger(input, (int) elementContentSize));
           elementState = ELEMENT_STATE_READ_ID;
@@ -108,14 +109,14 @@ import java.util.Stack;
         case TYPE_FLOAT:
           if (elementContentSize != VALID_FLOAT32_ELEMENT_SIZE_BYTES
               && elementContentSize != VALID_FLOAT64_ELEMENT_SIZE_BYTES) {
-            throw new IllegalStateException("Invalid float size: " + elementContentSize);
+            throw new ParserException("Invalid float size: " + elementContentSize);
           }
           output.floatElement(elementId, readFloat(input, (int) elementContentSize));
           elementState = ELEMENT_STATE_READ_ID;
           return true;
         case TYPE_STRING:
           if (elementContentSize > Integer.MAX_VALUE) {
-            throw new IllegalStateException("String element size: " + elementContentSize);
+            throw new ParserException("String element size: " + elementContentSize);
           }
           output.stringElement(elementId, readString(input, (int) elementContentSize));
           elementState = ELEMENT_STATE_READ_ID;
@@ -129,7 +130,7 @@ import java.util.Stack;
           elementState = ELEMENT_STATE_READ_ID;
           break;
         default:
-          throw new IllegalStateException("Invalid element type " + type);
+          throw new ParserException("Invalid element type " + type);
       }
     }
   }

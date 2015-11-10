@@ -52,24 +52,33 @@ public class SampleChooserActivity extends Activity {
 
     sampleAdapter.add(new Header("YouTube DASH"));
     sampleAdapter.addAll((Object[]) Samples.YOUTUBE_DASH_MP4);
-    sampleAdapter.add(new Header("Widevine GTS DASH"));
+    try {
+      if (MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_VP9, false) != null) {
+        sampleAdapter.addAll((Object[]) Samples.YOUTUBE_DASH_WEBM);
+      }
+    } catch (DecoderQueryException e) {
+      Log.e(TAG, "Failed to query vp9 decoder", e);
+    }
+    sampleAdapter.add(new Header("Widevine DASH Policy Tests (GTS)"));
     sampleAdapter.addAll((Object[]) Samples.WIDEVINE_GTS);
+    sampleAdapter.add(new Header("Widevine DASH"));
+    sampleAdapter.addAll((Object[]) Samples.WIDEVINE_DASH_MP4);
+    try {
+      if (MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_VP9, false) != null) {
+        sampleAdapter.addAll((Object[]) Samples.WIDEVINE_VP9_WEBM_CLEAR);
+      }
+      if (MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_VP9, true) != null) {
+        sampleAdapter.addAll((Object[]) Samples.WIDEVINE_VP9_WEBM_SECURE);
+      }
+    } catch (DecoderQueryException e) {
+      Log.e(TAG, "Failed to query vp9 decoder", e);
+    }
     sampleAdapter.add(new Header("SmoothStreaming"));
     sampleAdapter.addAll((Object[]) Samples.SMOOTHSTREAMING);
     sampleAdapter.add(new Header("HLS"));
     sampleAdapter.addAll((Object[]) Samples.HLS);
     sampleAdapter.add(new Header("Misc"));
     sampleAdapter.addAll((Object[]) Samples.MISC);
-
-    // Add WebM samples if the device has a VP9 decoder.
-    try {
-      if (MediaCodecUtil.getDecoderInfo(MimeTypes.VIDEO_VP9, false) != null) {
-        sampleAdapter.add(new Header("YouTube WebM DASH (Experimental)"));
-        sampleAdapter.addAll((Object[]) Samples.YOUTUBE_DASH_WEBM);
-      }
-    } catch (DecoderQueryException e) {
-      Log.e(TAG, "Failed to query vp9 decoder", e);
-    }
 
     sampleList.setAdapter(sampleAdapter);
     sampleList.setOnItemClickListener(new OnItemClickListener() {
@@ -87,7 +96,8 @@ public class SampleChooserActivity extends Activity {
     Intent mpdIntent = new Intent(this, PlayerActivity.class)
         .setData(Uri.parse(sample.uri))
         .putExtra(PlayerActivity.CONTENT_ID_EXTRA, sample.contentId)
-        .putExtra(PlayerActivity.CONTENT_TYPE_EXTRA, sample.type);
+        .putExtra(PlayerActivity.CONTENT_TYPE_EXTRA, sample.type)
+        .putExtra(PlayerActivity.PROVIDER_EXTRA, sample.provider);
     startActivity(mpdIntent);
   }
 

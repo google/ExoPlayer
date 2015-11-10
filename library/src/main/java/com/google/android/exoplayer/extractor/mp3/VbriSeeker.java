@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.extractor.mp3;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.MpegAudioHeader;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
@@ -44,8 +45,8 @@ import com.google.android.exoplayer.util.Util;
       return null;
     }
     int sampleRate = mpegAudioHeader.sampleRate;
-    long durationUs = Util.scaleLargeTimestamp(
-        numFrames, 1000000L * (sampleRate >= 32000 ? 1152 : 576), sampleRate);
+    long durationUs = Util.scaleLargeTimestamp(numFrames,
+        C.MICROS_PER_SECOND * (sampleRate >= 32000 ? 1152 : 576), sampleRate);
     int numEntries = frame.readUnsignedShort();
     int scale = frame.readUnsignedShort();
     int entrySize = frame.readUnsignedShort();

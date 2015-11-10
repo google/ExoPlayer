@@ -81,6 +81,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   // For use within demo app code.
   public static final String CONTENT_ID_EXTRA = "content_id";
   public static final String CONTENT_TYPE_EXTRA = "content_type";
+  public static final String PROVIDER_EXTRA = "provider";
   public static final int TYPE_DASH = 0;
   public static final int TYPE_SS = 1;
   public static final int TYPE_HLS = 2;
@@ -126,6 +127,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private Uri contentUri;
   private int contentType;
   private String contentId;
+  private String provider;
 
   private AudioCapabilitiesReceiver audioCapabilitiesReceiver;
 
@@ -202,6 +204,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     contentType = intent.getIntExtra(CONTENT_TYPE_EXTRA,
         inferContentType(contentUri, intent.getStringExtra(CONTENT_EXT_EXTRA)));
     contentId = intent.getStringExtra(CONTENT_ID_EXTRA);
+    provider = intent.getStringExtra(PROVIDER_EXTRA);
     configureSubtitleView();
     if (player == null) {
       preparePlayer(true);
@@ -261,7 +264,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
             new SmoothStreamingTestMediaDrmCallback());
       case TYPE_DASH:
         return new DashRendererBuilder(this, userAgent, contentUri.toString(),
-            new WidevineTestMediaDrmCallback(contentId));
+            new WidevineTestMediaDrmCallback(contentId, provider));
       case TYPE_HLS:
         return new HlsRendererBuilder(this, userAgent, contentUri.toString());
       case TYPE_OTHER:
@@ -505,8 +508,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   }
 
   private static String buildTrackIdString(MediaFormat format) {
-    return format.trackId == MediaFormat.NO_VALUE ? ""
-        : String.format(Locale.US, " (%d)", format.trackId);
+    return format.trackId == null ? "" : " (" + format.trackId + ")";
   }
 
   private boolean onTrackItemClick(MenuItem item, int type) {

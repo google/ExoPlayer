@@ -120,7 +120,7 @@ import java.util.Collections;
 
           // Indicate the start of the next NAL unit.
           int nalUnitType = NalUnitUtil.getH265NalUnitType(dataArray, nalUnitOffset);
-          startNalUnit(absolutePosition, bytesWrittenPastPosition, nalUnitType);
+          startNalUnit(absolutePosition, bytesWrittenPastPosition, nalUnitType, pesTimeUs);
           // Continue scanning the data.
           offset = nalUnitOffset + 3;
         } else {
@@ -136,7 +136,7 @@ import java.util.Collections;
     // Do nothing.
   }
 
-  private void startNalUnit(long position, int offset, int nalUnitType) {
+  private void startNalUnit(long position, int offset, int nalUnitType, long pesTimeUs) {
     if (!hasOutputFormat) {
       vps.startNalUnit(nalUnitType);
       sps.startNalUnit(nalUnitType);
@@ -144,7 +144,7 @@ import java.util.Collections;
     }
     prefixSei.startNalUnit(nalUnitType);
     suffixSei.startNalUnit(nalUnitType);
-    sampleReader.startNalUnit(position, offset, nalUnitType);
+    sampleReader.startNalUnit(position, offset, nalUnitType, pesTimeUs);
   }
 
   private void nalUnitData(byte[] dataArray, int offset, int limit) {
@@ -161,7 +161,7 @@ import java.util.Collections;
 
   private void nalUnitEnd(long position, int offset, int discardPadding, long pesTimeUs) {
     if (hasOutputFormat) {
-      sampleReader.endNalUnit(position, offset, pesTimeUs);
+      sampleReader.endNalUnit(position, offset);
     } else {
       vps.endNalUnit(discardPadding);
       sps.endNalUnit(discardPadding);
@@ -294,10 +294,9 @@ import java.util.Collections;
       }
     }
 
-    output.format(MediaFormat.createVideoFormat(MediaFormat.NO_VALUE, MimeTypes.VIDEO_H265,
-        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, picWidthInLumaSamples,
-        picHeightInLumaSamples, Collections.singletonList(csd), MediaFormat.NO_VALUE,
-        pixelWidthHeightRatio));
+    output.format(MediaFormat.createVideoFormat(null, MimeTypes.VIDEO_H265, MediaFormat.NO_VALUE,
+        MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, picWidthInLumaSamples, picHeightInLumaSamples,
+        Collections.singletonList(csd), MediaFormat.NO_VALUE, pixelWidthHeightRatio));
     hasOutputFormat = true;
   }
 
@@ -377,6 +376,7 @@ import java.util.Collections;
     private long nalUnitStartPosition;
     private boolean nalUnitHasKeyframeData;
     private int nalUnitBytesRead;
+    private long nalUnitTimeUs;
     private boolean lookingForFirstSliceFlag;
     private boolean firstSliceFlag;
 
@@ -396,8 +396,9 @@ import java.util.Collections;
       readingSample = false;
     }
 
-    public void startNalUnit(long position, int offset, int nalUnitType) {
+    public void startNalUnit(long position, int offset, int nalUnitType, long pesTimeUs) {
       firstSliceFlag = false;
+      nalUnitTimeUs = pesTimeUs;
       nalUnitBytesRead = 0;
       nalUnitStartPosition = position;
       // Flush the previous sample when reading a non-VCL NAL unit.
@@ -422,7 +423,7 @@ import java.util.Collections;
       }
     }
 
-    public void endNalUnit(long position, int offset, long timeUs) {
+    public void endNalUnit(long position, int offset) {
       if (firstSliceFlag) {
         // If the NAL unit ending is the start of a new sample, output the previous one.
         if (readingSample) {
@@ -430,7 +431,7 @@ import java.util.Collections;
           outputSample(offset + nalUnitLength);
         }
         samplePosition = nalUnitStartPosition;
-        sampleTimeUs = timeUs;
+        sampleTimeUs = nalUnitTimeUs;
         readingSample = true;
         sampleIsKeyframe = nalUnitHasKeyframeData;
       }

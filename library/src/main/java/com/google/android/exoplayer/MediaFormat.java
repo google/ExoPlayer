@@ -40,10 +40,9 @@ public final class MediaFormat {
   public static final long OFFSET_SAMPLE_RELATIVE = Long.MAX_VALUE;
 
   /**
-   * The identifier for the track represented by the format, or {@link #NO_VALUE} if unknown or not
-   * applicable.
+   * The identifier for the track represented by the format, or null if unknown or not applicable.
    */
-  public final int trackId;
+  public final String trackId;
   /**
    * The mime type of the format.
    */
@@ -139,13 +138,13 @@ public final class MediaFormat {
   private int hashCode;
   private android.media.MediaFormat frameworkMediaFormat;
 
-  public static MediaFormat createVideoFormat(int trackId, String mimeType, int bitrate,
+  public static MediaFormat createVideoFormat(String trackId, String mimeType, int bitrate,
       int maxInputSize, long durationUs, int width, int height, List<byte[]> initializationData) {
     return createVideoFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
         initializationData, NO_VALUE, NO_VALUE);
   }
 
-  public static MediaFormat createVideoFormat(int trackId, String mimeType, int bitrate,
+  public static MediaFormat createVideoFormat(String trackId, String mimeType, int bitrate,
       int maxInputSize, long durationUs, int width, int height, List<byte[]> initializationData,
       int rotationDegrees, float pixelWidthHeightRatio) {
     return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
@@ -153,7 +152,7 @@ public final class MediaFormat {
         initializationData, false, NO_VALUE, NO_VALUE);
   }
 
-  public static MediaFormat createAudioFormat(int trackId, String mimeType, int bitrate,
+  public static MediaFormat createAudioFormat(String trackId, String mimeType, int bitrate,
       int maxInputSize, long durationUs, int channelCount, int sampleRate,
       List<byte[]> initializationData, String language) {
     return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, NO_VALUE, NO_VALUE,
@@ -161,27 +160,27 @@ public final class MediaFormat {
         initializationData, false, NO_VALUE, NO_VALUE);
   }
 
-  public static MediaFormat createTextFormat(int trackId, String mimeType, int bitrate,
+  public static MediaFormat createTextFormat(String trackId, String mimeType, int bitrate,
       long durationUs, String language) {
     return createTextFormat(trackId, mimeType, bitrate, durationUs, language,
         OFFSET_SAMPLE_RELATIVE);
   }
 
-  public static MediaFormat createTextFormat(int trackId, String mimeType, int bitrate,
+  public static MediaFormat createTextFormat(String trackId, String mimeType, int bitrate,
       long durationUs, String language, long subsampleOffsetUs) {
     return new MediaFormat(trackId, mimeType, bitrate, NO_VALUE, durationUs, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, language, subsampleOffsetUs, null, false, NO_VALUE,
         NO_VALUE);
   }
 
-  public static MediaFormat createFormatForMimeType(int trackId, String mimeType, int bitrate,
+  public static MediaFormat createFormatForMimeType(String trackId, String mimeType, int bitrate,
       long durationUs) {
     return new MediaFormat(trackId, mimeType, bitrate, NO_VALUE, durationUs, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE, null, false, NO_VALUE,
         NO_VALUE);
   }
 
-  /* package */ MediaFormat(int trackId, String mimeType, int bitrate, int maxInputSize,
+  /* package */ MediaFormat(String trackId, String mimeType, int bitrate, int maxInputSize,
       long durationUs, int width, int height, int rotationDegrees, float pixelWidthHeightRatio,
       int channelCount, int sampleRate, String language, long subsampleOffsetUs,
       List<byte[]> initializationData, boolean adaptive, int maxWidth, int maxHeight) {
@@ -229,7 +228,7 @@ public final class MediaFormat {
         subsampleOffsetUs, initializationData, adaptive, maxWidth, maxHeight);
   }
 
-  public MediaFormat copyAsAdaptive() {
+  public MediaFormat copyAsAdaptive(String trackId) {
     return new MediaFormat(trackId, mimeType, NO_VALUE, NO_VALUE, durationUs, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE, null, true, maxWidth,
         maxHeight);
@@ -288,7 +287,7 @@ public final class MediaFormat {
   public int hashCode() {
     if (hashCode == 0) {
       int result = 17;
-      result = 31 * result + trackId;
+      result = 31 * result + (trackId == null ? 0 : trackId.hashCode());
       result = 31 * result + (mimeType == null ? 0 : mimeType.hashCode());
       result = 31 * result + bitrate;
       result = 31 * result + maxInputSize;
@@ -326,7 +325,7 @@ public final class MediaFormat {
         || pixelWidthHeightRatio != other.pixelWidthHeightRatio
         || maxWidth != other.maxWidth || maxHeight != other.maxHeight
         || channelCount != other.channelCount || sampleRate != other.sampleRate
-        || trackId != other.trackId || !Util.areEqual(language, other.language)
+        || !Util.areEqual(trackId, other.trackId) || !Util.areEqual(language, other.language)
         || !Util.areEqual(mimeType, other.mimeType)
         || initializationData.size() != other.initializationData.size()) {
       return false;

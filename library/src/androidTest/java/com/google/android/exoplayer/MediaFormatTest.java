@@ -45,21 +45,18 @@ public final class MediaFormatTest extends TestCase {
     initData.add(initData2);
 
     testConversionToFrameworkFormatV16(MediaFormat.createVideoFormat(
-        MediaFormat.NO_VALUE, "video/xyz", 5000, 102400, 1000L, 1280, 720, initData));
+        null, "video/xyz", 5000, 102400, 1000L, 1280, 720, initData));
     testConversionToFrameworkFormatV16(MediaFormat.createVideoFormat(
-        MediaFormat.NO_VALUE, "video/xyz", 5000, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, 1280, 720,
+        null, "video/xyz", 5000, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, 1280, 720, null));
+    testConversionToFrameworkFormatV16(MediaFormat.createAudioFormat(
+        null, "audio/xyz", 500, 128, 1000L, 5, 44100, initData, null));
+    testConversionToFrameworkFormatV16(MediaFormat.createAudioFormat(
+        null, "audio/xyz", 500, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, 5, 44100, null, null));
+    testConversionToFrameworkFormatV16(
+        MediaFormat.createTextFormat(null, "text/xyz", MediaFormat.NO_VALUE, 1000L, "eng"));
+    testConversionToFrameworkFormatV16(
+        MediaFormat.createTextFormat(null, "text/xyz", MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US,
         null));
-    testConversionToFrameworkFormatV16(MediaFormat.createAudioFormat(
-        MediaFormat.NO_VALUE, "audio/xyz", 500, 128, 1000L, 5, 44100, initData, null));
-    testConversionToFrameworkFormatV16(MediaFormat.createAudioFormat(
-        MediaFormat.NO_VALUE, "audio/xyz", 500, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, 5, 44100,
-        null, null));
-    testConversionToFrameworkFormatV16(
-        MediaFormat.createTextFormat(MediaFormat.NO_VALUE, "text/xyz", MediaFormat.NO_VALUE, 1000L,
-            "eng"));
-    testConversionToFrameworkFormatV16(
-        MediaFormat.createTextFormat(MediaFormat.NO_VALUE, "text/xyz", MediaFormat.NO_VALUE,
-            C.UNKNOWN_TIME_US, null));
   }
 
   @SuppressLint("InlinedApi")

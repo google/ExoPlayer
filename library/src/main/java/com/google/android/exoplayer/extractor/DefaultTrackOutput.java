@@ -205,7 +205,7 @@ public class DefaultTrackOutput implements TrackOutput {
   /**
    * Advances the underlying buffer to the next sample that is eligible to be returned.
    *
-   * @boolean True if an eligible sample was found. False otherwise, in which case the underlying
+   * @return True if an eligible sample was found. False otherwise, in which case the underlying
    *     buffer has been emptied.
    */
   private boolean advanceToEligibleSample() {

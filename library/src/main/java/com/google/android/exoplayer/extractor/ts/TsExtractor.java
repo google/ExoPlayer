@@ -22,6 +22,7 @@ import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
+import com.google.android.exoplayer.util.Util;
 
 import android.util.Log;
 import android.util.SparseArray;
@@ -49,6 +50,9 @@ public final class TsExtractor implements Extractor {
   private static final int TS_STREAM_TYPE_H265 = 0x24;
   private static final int TS_STREAM_TYPE_ID3 = 0x15;
   private static final int TS_STREAM_TYPE_EIA608 = 0x100; // 0xFF + 1
+
+  private static final long AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("AC-3");
+  private static final long HEVC_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("HEVC");
 
   private final PtsTimestampAdjuster ptsTimestampAdjuster;
   private final ParsableByteArray tsPacketBuffer;
@@ -273,25 +277,26 @@ public final class TsExtractor implements Extractor {
         id3Reader = new Id3Reader(output.track(TS_STREAM_TYPE_ID3));
       }
 
-      int entriesSize = sectionLength - 9 /* Size of the rest of the fields before descriptors */
-          - programInfoLength - 4 /* CRC size */;
-      while (entriesSize > 0) {
+      int remainingEntriesLength = sectionLength - 9 /* Length of fields before descriptors */
+          - programInfoLength - 4 /* CRC length */;
+      while (remainingEntriesLength > 0) {
         data.readBytes(pmtScratch, 5);
         int streamType = pmtScratch.readBits(8);
         pmtScratch.skipBits(3); // reserved
         int elementaryPid = pmtScratch.readBits(13);
         pmtScratch.skipBits(4); // reserved
-        int esInfoLength = pmtScratch.readBits(12);
-
-        // Skip the descriptors.
-        data.skipBytes(esInfoLength);
-        entriesSize -= esInfoLength + 5;
-
+        int esInfoLength = pmtScratch.readBits(12); // ES_info_length
+        if (streamType == 0x06) {
+          // Read descriptors in PES packets containing private data.
+          streamType = readPrivateDataStreamType(data, esInfoLength);
+        } else {
+          data.skipBytes(esInfoLength);
+        }
+        remainingEntriesLength -= esInfoLength + 5;
         if (streamTypes.get(streamType)) {
           continue;
         }
 
-        // TODO: Detect and read DVB AC-3 streams with Ac3Reader.
         ElementaryStreamReader pesPayloadReader = null;
         switch (streamType) {
           case TS_STREAM_TYPE_MPA:
@@ -327,6 +332,36 @@ public final class TsExtractor implements Extractor {
       }
 
       output.endTracks();
+    }
+
+    /**
+     * Returns the stream type read from a registration descriptor in private data, or -1 if no
+     * stream type is present. Sets {@code data}'s position to the end of the descriptors.
+     *
+     * @param data A buffer with its position set to the start of the first descriptor.
+     * @param length The length of descriptors to read from the current position in {@code data}.
+     * @return The stream type read from a registration descriptor in private data, or -1 if no
+     *     stream type is present.
+     */
+    private int readPrivateDataStreamType(ParsableByteArray data, int length) {
+      int streamType = -1;
+      int descriptorsEndPosition = data.getPosition() + length;
+      while (data.getPosition() < descriptorsEndPosition) {
+        int descriptorTag = data.readUnsignedByte();
+        int descriptorLength = data.readUnsignedByte();
+        if (descriptorTag == 0x05) { // registration_descriptor
+          long formatIdentifier = data.readUnsignedInt();
+          if (formatIdentifier == AC3_FORMAT_IDENTIFIER) {
+            streamType = TS_STREAM_TYPE_ATSC_AC3;
+          } else if (formatIdentifier == HEVC_FORMAT_IDENTIFIER) {
+            streamType = TS_STREAM_TYPE_H265;
+          }
+          break;
+        }
+        data.skipBytes(descriptorLength);
+      }
+      data.setPosition(descriptorsEndPosition);
+      return streamType;
     }
 
   }

@@ -17,6 +17,7 @@ package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.MediaCodecUtil;
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
@@ -138,7 +139,7 @@ public final class VideoFormatSelectorUtil {
    * whether HD formats should be filtered and a maximum decodable frame size in pixels.
    */
   private static boolean isFormatPlayable(Format format, String[] allowedContainerMimeTypes,
-      boolean filterHdFormats, int maxDecodableFrameSize) {
+      boolean filterHdFormats, int maxDecodableFrameSize) throws DecoderQueryException {
     if (allowedContainerMimeTypes != null
         && !Util.contains(allowedContainerMimeTypes, format.mimeType)) {
       // Filtering format based on its container mime type.
@@ -149,9 +150,13 @@ public final class VideoFormatSelectorUtil {
       return false;
     }
     if (format.width > 0 && format.height > 0) {
-      // TODO: Use MediaCodecUtil.isSizeAndRateSupportedV21 on API levels >= 21 if we know the
-      // mimeType of the media samples within the container. Remove the assumption that we're
-      // dealing with H.264.
+      String videoMediaMimeType = MimeTypes.getVideoMediaMimeType(format.codecs);
+      if (Util.SDK_INT >= 21 && !MimeTypes.VIDEO_UNKNOWN.equals(videoMediaMimeType)) {
+        float frameRate = (format.frameRate > 0) ? format.frameRate : 30.0f;
+        return MediaCodecUtil.isSizeAndRateSupportedV21(videoMediaMimeType, false,
+            format.width, format.height, frameRate);
+      }
+      //Assuming that the media is H.264
       if (format.width * format.height > maxDecodableFrameSize) {
         // Filtering stream that device cannot play
         return false;
