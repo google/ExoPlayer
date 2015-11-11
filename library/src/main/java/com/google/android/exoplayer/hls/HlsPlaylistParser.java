@@ -68,21 +68,21 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
   private static final String METHOD_AES128 = "AES-128";
 
   private static final Pattern BANDWIDTH_ATTR_REGEX =
-      Pattern.compile(BANDWIDTH_ATTR + "=(\\d+)\\b");
+      Pattern.compile(BANDWIDTH_ATTR + "=[ \\t]*(\\d+)\\b");
   private static final Pattern CODECS_ATTR_REGEX =
       Pattern.compile(CODECS_ATTR + "=\"(.+?)\"");
   private static final Pattern RESOLUTION_ATTR_REGEX =
       Pattern.compile(RESOLUTION_ATTR + "=(\\d+x\\d+)");
   private static final Pattern MEDIA_DURATION_REGEX =
-      Pattern.compile(MEDIA_DURATION_TAG + ":([\\d.]+)\\b");
+      Pattern.compile(MEDIA_DURATION_TAG + ":[ \\t]*([\\d.]+)\\b");
   private static final Pattern MEDIA_SEQUENCE_REGEX =
-      Pattern.compile(MEDIA_SEQUENCE_TAG + ":(\\d+)\\b");
+      Pattern.compile(MEDIA_SEQUENCE_TAG + ":[ \\t]*(\\d+)\\b");
   private static final Pattern TARGET_DURATION_REGEX =
-      Pattern.compile(TARGET_DURATION_TAG + ":(\\d+)\\b");
+      Pattern.compile(TARGET_DURATION_TAG + ":[ \\t]*(\\d+)\\b");
   private static final Pattern VERSION_REGEX =
-      Pattern.compile(VERSION_TAG + ":(\\d+)\\b");
+      Pattern.compile(VERSION_TAG + ":[ \\t]*(\\d+)\\b");
   private static final Pattern BYTERANGE_REGEX =
-      Pattern.compile(BYTERANGE_TAG + ":(\\d+(?:@\\d+)?)\\b");
+      Pattern.compile(BYTERANGE_TAG + ":[ \\t]*(\\d+(?:@\\d+)?)\\b");
 
   private static final Pattern METHOD_ATTR_REGEX =
       Pattern.compile(METHOD_ATTR + "=(" + METHOD_NONE + "|" + METHOD_AES128 + ")");
