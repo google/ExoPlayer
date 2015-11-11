@@ -31,6 +31,7 @@ import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
+import com.google.android.exoplayer.hls.HlsChunkSource;
 import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer.MetadataRenderer;
 import com.google.android.exoplayer.text.Cue;
@@ -57,7 +58,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * SmoothStreaming and so on).
  */
 public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventListener,
-    HlsSampleSource.EventListener, DefaultBandwidthMeter.EventListener,
+    HlsChunkSource.EventListener, HlsSampleSource.EventListener, DefaultBandwidthMeter.EventListener,
     MediaCodecVideoTrackRenderer.EventListener, MediaCodecAudioTrackRenderer.EventListener,
     StreamingDrmSessionManager.EventListener, DashChunkSource.EventListener, TextRenderer,
     MetadataRenderer<Map<String, Object>>, DebugTextViewHelper.Provider {
@@ -522,6 +523,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     if (infoListener != null) {
       infoListener.onAvailableRangeChanged(availableRange);
     }
+    playerControl.setAvailableSeekRange(availableRange);
   }
 
   @Override
