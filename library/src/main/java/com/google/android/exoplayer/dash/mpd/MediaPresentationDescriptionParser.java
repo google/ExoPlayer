@@ -159,6 +159,11 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       }
     }
 
+    if (periods.isEmpty()) {
+      throw new ParserException(
+          "no valid periods present in media presentation description");
+    }
+
     return buildMediaPresentationDescription(availabilityStartTime, durationMs, minBufferTimeMs,
         dynamic, minUpdateTimeMs, timeShiftBufferDepthMs, utcTiming, location, periods);
   }
