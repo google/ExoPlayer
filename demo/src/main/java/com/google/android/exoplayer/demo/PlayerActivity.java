@@ -210,6 +210,9 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     }
   }
 
+
+
+//kkkkkkkkkkk
   @Override
   public void onPause() {
     super.onPause();
