@@ -160,8 +160,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     }
 
     if (periods.isEmpty()) {
-      throw new ParserException(
-          "no valid periods present in media presentation description");
+      throw new ParserException("No periods found.");
     }
 
     return buildMediaPresentationDescription(availabilityStartTime, durationMs, minBufferTimeMs,
