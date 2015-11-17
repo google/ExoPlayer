@@ -4,6 +4,8 @@
 
 * Support for FLV (without seeking).
 * MP4: Fix for playback of media containing basic edit lists.
+* QuickTime: Fix parsing of QuickTime style audio sample entry.
+* HLS: Add H262 support for devices that have an H262 decoder.
 * Misc bug fixes.
 
 ### r1.5.2 ###
