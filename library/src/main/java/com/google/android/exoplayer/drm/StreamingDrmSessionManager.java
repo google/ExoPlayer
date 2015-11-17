@@ -434,6 +434,7 @@ public class StreamingDrmSessionManager implements DrmSessionManager {
       super(looper);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void handleMessage(Message msg) {
       if (openCount == 0 || (state != STATE_OPENED && state != STATE_OPENED_WITH_KEYS)) {
