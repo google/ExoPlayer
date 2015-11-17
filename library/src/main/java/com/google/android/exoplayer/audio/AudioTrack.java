@@ -861,7 +861,7 @@ public final class AudioTrack {
     switch (mimeType) {
       case MimeTypes.AUDIO_AC3:
         return C.ENCODING_AC3;
-      case MimeTypes.AUDIO_EC3:
+      case MimeTypes.AUDIO_E_AC3:
         return C.ENCODING_E_AC3;
       case MimeTypes.AUDIO_DTS:
         return C.ENCODING_DTS;

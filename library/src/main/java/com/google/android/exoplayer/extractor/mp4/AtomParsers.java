@@ -708,7 +708,7 @@ import java.util.List;
     if (atomType == Atom.TYPE_ac_3) {
       mimeType = MimeTypes.AUDIO_AC3;
     } else if (atomType == Atom.TYPE_ec_3) {
-      mimeType = MimeTypes.AUDIO_EC3;
+      mimeType = MimeTypes.AUDIO_E_AC3;
     } else if (atomType == Atom.TYPE_dtsc || atomType == Atom.TYPE_dtse) {
       mimeType = MimeTypes.AUDIO_DTS;
     } else if (atomType == Atom.TYPE_dtsh || atomType == Atom.TYPE_dtsl) {
@@ -830,7 +830,7 @@ import java.util.List;
         mimeType = MimeTypes.AUDIO_AC3;
         break;
       case 0xA6:
-        mimeType = MimeTypes.AUDIO_EC3;
+        mimeType = MimeTypes.AUDIO_E_AC3;
         break;
       case 0xA9:
       case 0xAC:
