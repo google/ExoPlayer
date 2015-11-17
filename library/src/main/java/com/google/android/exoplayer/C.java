@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.util.Util;
+
 import android.media.AudioFormat;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
@@ -72,6 +74,15 @@ public final class C {
   // The inlined values here are for NVIDIA Shield devices which support DTS on earlier versions.
   public static final int ENCODING_DTS = 7;
   public static final int ENCODING_DTS_HD = 8;
+
+  // TODO: Change 6396 to AudioFormat.CHANNEL_OUT_7POINT1_SURROUND when the target API version is
+  // >= 23.
+  /**
+   * @see AudioFormat#CHANNEL_OUT_7POINT1_SURROUND
+   */
+  @SuppressWarnings({"InlinedApi", "deprecation"})
+  public static final int CHANNEL_OUT_7POINT1_SURROUND = Util.SDK_INT < 23
+      ? AudioFormat.CHANNEL_OUT_7POINT1 : 6396;
 
   /**
    * @see MediaExtractor#SAMPLE_FLAG_SYNC
