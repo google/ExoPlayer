@@ -385,7 +385,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
     int result = readSource(positionUs, formatHolder, null, false);
     if (result == SampleSource.FORMAT_READ) {
       format = formatHolder.format;
-      audioTrack.reconfigure(format.getFrameworkMediaFormatV16(), false);
+      audioTrack.configure(format.getFrameworkMediaFormatV16(), false);
       return true;
     }
     return false;

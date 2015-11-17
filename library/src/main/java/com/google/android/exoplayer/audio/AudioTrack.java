@@ -36,19 +36,24 @@ import java.nio.ByteBuffer;
 /**
  * Plays audio data. The implementation delegates to an {@link android.media.AudioTrack} and handles
  * playback position smoothing, non-blocking writes and reconfiguration.
- *
- * <p>If {@link #isInitialized} returns {@code false}, the instance can be {@link #initialize}d.
- * After initialization, start playback by calling {@link #play}.
- *
- * <p>Call {@link #handleBuffer} to write data for playback.
- *
- * <p>Call {@link #handleDiscontinuity} when a buffer is skipped.
- *
- * <p>Call {@link #reconfigure} when the output format changes.
- *
- * <p>Call {@link #reset} to free resources. It is safe to re-{@link #initialize} the instance.
- *
- * <p>Call {@link #release} when the instance will no longer be used.
+ * <p>
+ * Before starting playback, specify the input audio format by calling one of the {@link #configure}
+ * methods and {@link #initialize} the instance, optionally specifying an audio session.
+ * <p>
+ * Call {@link #handleBuffer(ByteBuffer, int, int, long)} to write data to play back, and
+ * {@link #handleDiscontinuity()} when a buffer is skipped. Call {@link #play()} to start playing
+ * back written data.
+ * <p>
+ * Call {@link #configure} again whenever the input format changes. If {@link #isInitialized()}
+ * returns false after calling {@link #configure}, it is necessary to re-{@link #initialize} the
+ * instance before writing more data.
+ * <p>
+ * The underlying framework audio track is created by {@link #initialize} and released
+ * asynchronously by {@link #reset} (and {@link #configure}, unless the format is unchanged).
+ * Reinitialization blocks until releasing the old audio track completes. It is safe to
+ * re-{@link #initialize} the instance after calling {@link #reset()}, without reconfiguration.
+ * <p>
+ * Call {@link #release()} when the instance will no longer be used.
  */
 @TargetApi(16)
 public final class AudioTrack {
@@ -58,7 +63,9 @@ public final class AudioTrack {
    */
   public static final class InitializationException extends Exception {
 
-    /** The state as reported by {@link android.media.AudioTrack#getState()}. */
+    /**
+     * The state as reported by {@link android.media.AudioTrack#getState()}.
+     */
     public final int audioTrackState;
 
     public InitializationException(
@@ -75,7 +82,9 @@ public final class AudioTrack {
    */
   public static final class WriteException extends Exception {
 
-    /** The value returned from {@link android.media.AudioTrack#write(byte[], int, int)}. */
+    /**
+     * The value returned from {@link android.media.AudioTrack#write(byte[], int, int)}.
+     */
     public final int errorCode;
 
     public WriteException(int errorCode) {
@@ -97,20 +106,32 @@ public final class AudioTrack {
 
   }
 
-  /** Returned in the result of {@link #handleBuffer} if the buffer was discontinuous. */
+  /**
+   * Returned in the result of {@link #handleBuffer} if the buffer was discontinuous.
+   */
   public static final int RESULT_POSITION_DISCONTINUITY = 1;
-  /** Returned in the result of {@link #handleBuffer} if the buffer can be released. */
+  /**
+   * Returned in the result of {@link #handleBuffer} if the buffer can be released.
+   */
   public static final int RESULT_BUFFER_CONSUMED = 2;
 
-  /** Represents an unset {@link android.media.AudioTrack} session identifier. */
+  /**
+   * Represents an unset {@link android.media.AudioTrack} session identifier.
+   */
   public static final int SESSION_ID_NOT_SET = 0;
 
-  /** Returned by {@link #getCurrentPositionUs} when the position is not set. */
+  /**
+   * Returned by {@link #getCurrentPositionUs} when the position is not set.
+   */
   public static final long CURRENT_POSITION_NOT_SET = Long.MIN_VALUE;
 
-  /** A minimum length for the {@link android.media.AudioTrack} buffer, in microseconds. */
+  /**
+   * A minimum length for the {@link android.media.AudioTrack} buffer, in microseconds.
+   */
   private static final long MIN_BUFFER_DURATION_US = 250000;
-  /** A maximum length for the {@link android.media.AudioTrack} buffer, in microseconds. */
+  /**
+   * A maximum length for the {@link android.media.AudioTrack} buffer, in microseconds.
+   */
   private static final long MAX_BUFFER_DURATION_US = 750000;
   /**
    * A multiplication factor to apply to the minimum buffer size requested by the underlying
@@ -171,7 +192,9 @@ public final class AudioTrack {
   private final long[] playheadOffsets;
   private final AudioTrackUtil audioTrackUtil;
 
-  /** Used to keep the audio session active on pre-V21 builds (see {@link #initialize()}). */
+  /**
+   * Used to keep the audio session active on pre-V21 builds (see {@link #initialize()}).
+   */
   private android.media.AudioTrack keepSessionIdAudioTrack;
 
   private android.media.AudioTrack audioTrack;
@@ -307,6 +330,89 @@ public final class AudioTrack {
   }
 
   /**
+   * Configures (or reconfigures) the audio track to play back media in {@code format}, inferring a
+   * buffer size from the format.
+   *
+   * @param format Specifies the channel count and sample rate to play back.
+   * @param passthrough Whether to play back using a passthrough encoding.
+   */
+  public void configure(MediaFormat format, boolean passthrough) {
+    configure(format, passthrough, 0);
+  }
+
+  /**
+   * Configures (or reconfigures) the audio track to play back media in {@code format}.
+   *
+   * @param format Specifies the channel count and sample rate to play back.
+   * @param passthrough Whether to playback using a passthrough encoding.
+   * @param specifiedBufferSize A specific size for the playback buffer in bytes, or 0 to use a
+   *     size inferred from the format.
+   */
+  public void configure(MediaFormat format, boolean passthrough, int specifiedBufferSize) {
+    int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+    int channelConfig;
+    switch (channelCount) {
+      case 1:
+        channelConfig = AudioFormat.CHANNEL_OUT_MONO;
+        break;
+      case 2:
+        channelConfig = AudioFormat.CHANNEL_OUT_STEREO;
+        break;
+      case 3:
+        channelConfig = AudioFormat.CHANNEL_OUT_STEREO | AudioFormat.CHANNEL_OUT_FRONT_CENTER;
+        break;
+      case 4:
+        channelConfig = AudioFormat.CHANNEL_OUT_QUAD;
+        break;
+      case 5:
+        channelConfig = AudioFormat.CHANNEL_OUT_QUAD | AudioFormat.CHANNEL_OUT_FRONT_CENTER;
+        break;
+      case 6:
+        channelConfig = AudioFormat.CHANNEL_OUT_5POINT1;
+        break;
+      case 7:
+        channelConfig = AudioFormat.CHANNEL_OUT_5POINT1 | AudioFormat.CHANNEL_OUT_BACK_CENTER;
+        break;
+      case 8:
+        channelConfig = C.CHANNEL_OUT_7POINT1_SURROUND;
+        break;
+      default:
+        throw new IllegalArgumentException("Unsupported channel count: " + channelCount);
+    }
+    int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
+    String mimeType = format.getString(MediaFormat.KEY_MIME);
+    int encoding = passthrough ? getEncodingForMimeType(mimeType) : AudioFormat.ENCODING_PCM_16BIT;
+    if (isInitialized() && this.sampleRate == sampleRate && this.channelConfig == channelConfig
+        && this.encoding == encoding) {
+      // We already have an audio track with the correct sample rate, encoding and channel config.
+      return;
+    }
+
+    reset();
+
+    this.encoding = encoding;
+    this.sampleRate = sampleRate;
+    this.channelConfig = channelConfig;
+    passthroughBitrate = UNKNOWN_BITRATE;
+    frameSize = 2 * channelCount; // 2 bytes per 16 bit sample * number of channels.
+    minBufferSize = android.media.AudioTrack.getMinBufferSize(sampleRate, channelConfig, encoding);
+    Assertions.checkState(minBufferSize != android.media.AudioTrack.ERROR_BAD_VALUE);
+
+    if (specifiedBufferSize != 0) {
+      bufferSize = specifiedBufferSize;
+    } else {
+      int multipliedBufferSize = minBufferSize * BUFFER_MULTIPLICATION_FACTOR;
+      int minAppBufferSize = (int) durationUsToFrames(MIN_BUFFER_DURATION_US) * frameSize;
+      int maxAppBufferSize = (int) Math.max(minBufferSize,
+          durationUsToFrames(MAX_BUFFER_DURATION_US) * frameSize);
+      bufferSize = multipliedBufferSize < minAppBufferSize ? minAppBufferSize
+          : multipliedBufferSize > maxAppBufferSize ? maxAppBufferSize
+          : multipliedBufferSize;
+    }
+    bufferSizeUs = framesToDurationUs(bytesToFrames(bufferSize));
+  }
+
+  /**
    * Initializes the audio track for writing new buffers using {@link #handleBuffer}.
    *
    * @return The audio track session identifier.
@@ -367,82 +473,11 @@ public final class AudioTrack {
   }
 
   /**
-   * Reconfigures the audio track to play back media in {@code format}, inferring a buffer size from
-   * the format.
-   *
-   * @param format Specifies the channel count and sample rate to play back.
-   * @param passthrough Whether to play back using a passthrough encoding.
-   */
-  public void reconfigure(MediaFormat format, boolean passthrough) {
-    reconfigure(format, passthrough, 0);
-  }
-
-  /**
-   * Reconfigures the audio track to play back media in {@code format}.
-   *
-   * @param format Specifies the channel count and sample rate to play back.
-   * @param passthrough Whether to playback using a passthrough encoding.
-   * @param specifiedBufferSize A specific size for the playback buffer in bytes, or 0 to use a
-   *     size inferred from the format.
-   */
-  public void reconfigure(MediaFormat format, boolean passthrough, int specifiedBufferSize) {
-    int channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
-    int channelConfig;
-    switch (channelCount) {
-      case 1:
-        channelConfig = AudioFormat.CHANNEL_OUT_MONO;
-        break;
-      case 2:
-        channelConfig = AudioFormat.CHANNEL_OUT_STEREO;
-        break;
-      case 6:
-        channelConfig = AudioFormat.CHANNEL_OUT_5POINT1;
-        break;
-      case 8:
-        channelConfig = C.CHANNEL_OUT_7POINT1_SURROUND;
-        break;
-      default:
-        throw new IllegalArgumentException("Unsupported channel count: " + channelCount);
-    }
-    int sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
-    String mimeType = format.getString(MediaFormat.KEY_MIME);
-    int encoding = passthrough ? getEncodingForMimeType(mimeType) : AudioFormat.ENCODING_PCM_16BIT;
-    if (isInitialized() && this.sampleRate == sampleRate && this.channelConfig == channelConfig
-        && this.encoding == encoding) {
-      // We already have an audio track with the correct sample rate, encoding and channel config.
-      return;
-    }
-
-    reset();
-
-    this.encoding = encoding;
-    this.sampleRate = sampleRate;
-    this.channelConfig = channelConfig;
-    passthroughBitrate = UNKNOWN_BITRATE;
-    frameSize = 2 * channelCount; // 2 bytes per 16 bit sample * number of channels.
-    minBufferSize = android.media.AudioTrack.getMinBufferSize(sampleRate, channelConfig, encoding);
-    Assertions.checkState(minBufferSize != android.media.AudioTrack.ERROR_BAD_VALUE);
-
-    if (specifiedBufferSize != 0) {
-      bufferSize = specifiedBufferSize;
-    } else {
-      int multipliedBufferSize = minBufferSize * BUFFER_MULTIPLICATION_FACTOR;
-      int minAppBufferSize = (int) durationUsToFrames(MIN_BUFFER_DURATION_US) * frameSize;
-      int maxAppBufferSize = (int) Math.max(minBufferSize,
-          durationUsToFrames(MAX_BUFFER_DURATION_US) * frameSize);
-      bufferSize = multipliedBufferSize < minAppBufferSize ? minAppBufferSize
-          : multipliedBufferSize > maxAppBufferSize ? maxAppBufferSize
-          : multipliedBufferSize;
-    }
-    bufferSizeUs = framesToDurationUs(bytesToFrames(bufferSize));
-  }
-
-  /**
    * Returns the size of this {@link AudioTrack}'s buffer in microseconds, given its current
    * configuration.
    * <p>
    * The duration returned from this method may change as a result of calling one of the
-   * {@link #reconfigure} methods.
+   * {@link #configure} methods.
    *
    * @return The size of the buffer in microseconds.
    */
