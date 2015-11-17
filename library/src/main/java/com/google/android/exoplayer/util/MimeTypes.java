@@ -45,7 +45,7 @@ public final class MimeTypes {
   public static final String AUDIO_MPEG_L2 = BASE_TYPE_AUDIO + "/mpeg-L2";
   public static final String AUDIO_RAW = BASE_TYPE_AUDIO + "/raw";
   public static final String AUDIO_AC3 = BASE_TYPE_AUDIO + "/ac3";
-  public static final String AUDIO_EC3 = BASE_TYPE_AUDIO + "/eac3";
+  public static final String AUDIO_E_AC3 = BASE_TYPE_AUDIO + "/eac3";
   public static final String AUDIO_TRUEHD = BASE_TYPE_AUDIO + "/true-hd";
   public static final String AUDIO_DTS = BASE_TYPE_AUDIO + "/vnd.dts";
   public static final String AUDIO_DTS_HD = BASE_TYPE_AUDIO + "/vnd.dts.hd";
@@ -164,7 +164,7 @@ public final class MimeTypes {
       } else if (codec.startsWith("ac-3") || codec.startsWith("dac3")) {
         return MimeTypes.AUDIO_AC3;
       } else if (codec.startsWith("ec-3") || codec.startsWith("dec3")) {
-        return MimeTypes.AUDIO_EC3;
+        return MimeTypes.AUDIO_E_AC3;
       } else if (codec.startsWith("dtsc") || codec.startsWith("dtse")) {
         return MimeTypes.AUDIO_DTS;
       } else if (codec.startsWith("dtsh") || codec.startsWith("dtsl")) {
