@@ -324,7 +324,8 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
 
   @Override
   protected boolean isReady() {
-    return audioTrack.hasPendingData() || (format != null && sourceIsReady);
+    return audioTrack.hasPendingData()
+        || (format != null && (sourceIsReady || outputBuffer != null));
   }
 
   @Override
