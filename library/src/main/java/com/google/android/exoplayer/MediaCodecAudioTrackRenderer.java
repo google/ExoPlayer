@@ -26,6 +26,7 @@ import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
+import android.os.SystemClock;
 
 import java.nio.ByteBuffer;
 
@@ -55,6 +56,14 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
      */
     void onAudioTrackWriteError(AudioTrack.WriteException e);
 
+    /**
+     * Invoked when an {@link AudioTrack} underrun occurs.
+     *
+     * @param audioTrackBufferSizeMs The size of the {@link AudioTrack}'s buffer, in milliseconds.
+     * @param elapsedSinceLastFeedMs The time since the {@link AudioTrack} was last fed data.
+     */
+    void onAudioTrackUnderrun(long audioTrackBufferSizeMs, long elapsedSinceLastFeedMs);
+
   }
 
   /**
@@ -76,6 +85,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   private int audioSessionId;
   private long currentPositionUs;
   private boolean allowPositionDiscontinuity;
+
+  private boolean audioTrackHasData;
+  private long lastFeedElapsedRealtimeMs;
 
   /**
    * @param source The upstream source from which the renderer obtains samples.
@@ -272,8 +284,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
 
   @Override
   protected boolean isReady() {
-    return audioTrack.hasPendingData()
-        || (super.isReady() && getSourceState() == SOURCE_STATE_READY_READ_MAY_FAIL);
+    return audioTrack.hasPendingData() || super.isReady();
   }
 
   @Override
@@ -321,8 +332,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
       return true;
     }
 
-    // Initialize and start the audio track now.
     if (!audioTrack.isInitialized()) {
+      // Initialize the AudioTrack now.
       try {
         if (audioSessionId != AudioTrack.SESSION_ID_NOT_SET) {
           audioTrack.initialize(audioSessionId);
@@ -330,13 +341,21 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
           audioSessionId = audioTrack.initialize();
           onAudioSessionId(audioSessionId);
         }
+        audioTrackHasData = false;
       } catch (AudioTrack.InitializationException e) {
         notifyAudioTrackInitializationError(e);
         throw new ExoPlaybackException(e);
       }
-
       if (getState() == TrackRenderer.STATE_STARTED) {
         audioTrack.play();
+      }
+    } else {
+      // Check for AudioTrack underrun.
+      boolean audioTrackHadData = audioTrackHasData;
+      audioTrackHasData = audioTrack.hasPendingData();
+      if (audioTrackHadData && !audioTrackHasData && getState() == TrackRenderer.STATE_STARTED) {
+        long elapsedSinceLastFeedMs = SystemClock.elapsedRealtime() - lastFeedElapsedRealtimeMs;
+        notifyAudioTrackUnderrun(audioTrack.getBufferSizeUs() / 1000, elapsedSinceLastFeedMs);
       }
     }
 
@@ -344,6 +363,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
     try {
       handleBufferResult = audioTrack.handleBuffer(
           buffer, bufferInfo.offset, bufferInfo.size, bufferInfo.presentationTimeUs);
+      lastFeedElapsedRealtimeMs = SystemClock.elapsedRealtime();
     } catch (AudioTrack.WriteException e) {
       notifyAudioTrackWriteError(e);
       throw new ExoPlaybackException(e);
@@ -400,6 +420,18 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
         @Override
         public void run() {
           eventListener.onAudioTrackWriteError(e);
+        }
+      });
+    }
+  }
+
+  private void notifyAudioTrackUnderrun(final long audioTrackBufferSizeMs,
+      final long elapsedSinceLastFeedMs) {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable()  {
+        @Override
+        public void run() {
+          eventListener.onAudioTrackUnderrun(audioTrackBufferSizeMs, elapsedSinceLastFeedMs);
         }
       });
     }

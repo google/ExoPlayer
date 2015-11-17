@@ -105,6 +105,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     void onRendererInitializationError(Exception e);
     void onAudioTrackInitializationError(AudioTrack.InitializationException e);
     void onAudioTrackWriteError(AudioTrack.WriteException e);
+    void onAudioTrackUnderrun(long audioTrackBufferSizeMs, long elapsedSinceLastFeedMs);
     void onDecoderInitializationError(DecoderInitializationException e);
     void onCryptoError(CryptoException e);
     void onLoadError(int sourceId, IOException e);
@@ -478,6 +479,13 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   public void onAudioTrackWriteError(AudioTrack.WriteException e) {
     if (internalErrorListener != null) {
       internalErrorListener.onAudioTrackWriteError(e);
+    }
+  }
+
+  @Override
+  public void onAudioTrackUnderrun(long audioTrackBufferSizeMs, long elapsedSinceLastFeedMs) {
+    if (internalErrorListener != null) {
+      internalErrorListener.onAudioTrackUnderrun(audioTrackBufferSizeMs, elapsedSinceLastFeedMs);
     }
   }
 

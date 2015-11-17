@@ -105,6 +105,12 @@ public final class LogcatLogger implements ExoPlayer.Listener,
   }
 
   @Override
+  public void onAudioTrackUnderrun(long audioTrackBufferSizeMs, long elapsedSinceLastFeedMs) {
+    Log.e(tag, "Audio track underrun (" + audioTrackBufferSizeMs + ", " + elapsedSinceLastFeedMs
+        + ")");
+  }
+
+  @Override
   public void onDroppedFrames(int count, long elapsed) {
     Log.w(tag, "Dropped frames (" + count + ")");
   }
