@@ -100,7 +100,6 @@ import java.util.List;
   public static final int TYPE_pasp = Util.getIntegerCodeForString("pasp");
   public static final int TYPE_TTML = Util.getIntegerCodeForString("TTML");
   public static final int TYPE_vmhd = Util.getIntegerCodeForString("vmhd");
-  public static final int TYPE_smhd = Util.getIntegerCodeForString("smhd");
   public static final int TYPE_mp4v = Util.getIntegerCodeForString("mp4v");
   public static final int TYPE_stts = Util.getIntegerCodeForString("stts");
   public static final int TYPE_stss = Util.getIntegerCodeForString("stss");
