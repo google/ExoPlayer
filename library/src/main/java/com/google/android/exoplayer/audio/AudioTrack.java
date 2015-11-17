@@ -181,6 +181,7 @@ public final class AudioTrack {
   private int frameSize;
   private int minBufferSize;
   private int bufferSize;
+  private long bufferSizeUs;
 
   private int nextPlayheadOffsetIndex;
   private int playheadOffsetCount;
@@ -433,9 +434,25 @@ public final class AudioTrack {
           : multipliedBufferSize > maxAppBufferSize ? maxAppBufferSize
           : multipliedBufferSize;
     }
+    bufferSizeUs = framesToDurationUs(bytesToFrames(bufferSize));
   }
 
-  /** Starts/resumes playing audio if the audio track has been initialized. */
+  /**
+   * Returns the size of this {@link AudioTrack}'s buffer in microseconds, given its current
+   * configuration.
+   * <p>
+   * The duration returned from this method may change as a result of calling one of the
+   * {@link #reconfigure} methods.
+   *
+   * @return The size of the buffer in microseconds.
+   */
+  public long getBufferSizeUs() {
+    return bufferSizeUs;
+  }
+
+  /**
+   * Starts or resumes playing audio if the audio track has been initialized.
+   */
   public void play() {
     if (isInitialized()) {
       resumeSystemTimeUs = System.nanoTime() / 1000;
@@ -443,7 +460,9 @@ public final class AudioTrack {
     }
   }
 
-  /** Signals to the audio track that the next buffer is discontinuous with the previous buffer. */
+  /**
+   * Signals to the audio track that the next buffer is discontinuous with the previous buffer.
+   */
   public void handleDiscontinuity() {
     // Force resynchronization after a skipped buffer.
     if (startMediaTimeState == START_IN_SYNC) {
@@ -584,14 +603,18 @@ public final class AudioTrack {
     return audioTrack.write(buffer, size, android.media.AudioTrack.WRITE_NON_BLOCKING);
   }
 
-  /** Returns whether the audio track has more data pending that will be played back. */
+  /**
+   * Returns whether the audio track has more data pending that will be played back.
+   */
   public boolean hasPendingData() {
     return isInitialized()
         && (bytesToFrames(submittedBytes) > audioTrackUtil.getPlaybackHeadPosition()
             || overrideHasPendingData());
   }
 
-  /** Sets the playback volume. */
+  /**
+   * Sets the playback volume.
+   */
   public void setVolume(float volume) {
     if (this.volume != volume) {
       this.volume = volume;
@@ -619,7 +642,9 @@ public final class AudioTrack {
     audioTrack.setStereoVolume(volume, volume);
   }
 
-  /** Pauses playback. */
+  /**
+   * Pauses playback.
+   */
   public void pause() {
     if (isInitialized()) {
       resetSyncParams();
@@ -662,13 +687,17 @@ public final class AudioTrack {
     }
   }
 
-  /** Releases all resources associated with this instance. */
+  /**
+   * Releases all resources associated with this instance.
+   */
   public void release() {
     reset();
     releaseKeepSessionIdAudioTrack();
   }
 
-  /** Releases {@link #keepSessionIdAudioTrack} asynchronously, if it is non-{@code null}. */
+  /**
+   * Releases {@link #keepSessionIdAudioTrack} asynchronously, if it is non-{@code null}.
+   */
   private void releaseKeepSessionIdAudioTrack() {
     if (keepSessionIdAudioTrack == null) {
       return;
@@ -685,7 +714,9 @@ public final class AudioTrack {
     }.start();
   }
 
-  /** Returns whether {@link #getCurrentPositionUs} can return the current playback position. */
+  /**
+   * Returns whether {@link #getCurrentPositionUs} can return the current playback position.
+   */
   private boolean hasCurrentPositionUs() {
     return isInitialized() && startMediaTimeState != START_NOT_SET;
   }
@@ -757,7 +788,7 @@ public final class AudioTrack {
           // Compute the audio track latency, excluding the latency due to the buffer (leaving
           // latency due to the mixer and audio hardware driver).
           latencyUs = (Integer) getLatencyMethod.invoke(audioTrack, (Object[]) null) * 1000L
-              - framesToDurationUs(bytesToFrames(bufferSize));
+              - bufferSizeUs;
           // Sanity check that the latency is non-negative.
           latencyUs = Math.max(latencyUs, 0);
           // Sanity check that the latency isn't too large.

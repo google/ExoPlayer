@@ -160,6 +160,12 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   @Override
+  public void onAudioTrackUnderrun(long audioTrackBufferSizeMs, long elapsedSinceLastFeedMs) {
+    printInternalError("audioTrackUnderrun [" + audioTrackBufferSizeMs + ", "
+        + elapsedSinceLastFeedMs + "]", null);
+  }
+
+  @Override
   public void onCryptoError(CryptoException e) {
     printInternalError("cryptoError", e);
   }
