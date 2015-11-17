@@ -42,9 +42,10 @@ import java.util.List;
    *
    * @param trak Atom to parse.
    * @param mvhd Movie header atom, used to get the timescale.
+   * @param isQuickTime True for QuickTime media. False otherwise.
    * @return A {@link Track} instance, or {@code null} if the track's type isn't supported.
    */
-  public static Track parseTrak(Atom.ContainerAtom trak, Atom.LeafAtom mvhd) {
+  public static Track parseTrak(Atom.ContainerAtom trak, Atom.LeafAtom mvhd, boolean isQuickTime) {
     Atom.ContainerAtom mdia = trak.getContainerAtomOfType(Atom.TYPE_mdia);
     int trackType = parseHdlr(mdia.getLeafAtomOfType(Atom.TYPE_hdlr).data);
     if (trackType != Track.TYPE_soun && trackType != Track.TYPE_vide && trackType != Track.TYPE_text
@@ -66,7 +67,7 @@ import java.util.List;
 
     Pair<Long, String> mdhdData = parseMdhd(mdia.getLeafAtomOfType(Atom.TYPE_mdhd).data);
     StsdData stsdData = parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, tkhdData.id,
-        durationUs, tkhdData.rotationDegrees, mdhdData.second);
+        durationUs, tkhdData.rotationDegrees, mdhdData.second, isQuickTime);
     Pair<long[], long[]> edtsData = parseEdts(trak.getContainerAtomOfType(Atom.TYPE_edts));
     return stsdData.mediaFormat == null ? null
         : new Track(tkhdData.id, trackType, mdhdData.first, movieTimescale, durationUs,
@@ -429,10 +430,11 @@ import java.util.List;
    * @param durationUs The duration of the track in microseconds.
    * @param rotationDegrees The rotation of the track in degrees.
    * @param language The language of the track.
+   * @param isQuickTime True for QuickTime media. False otherwise.
    * @return An object containing the parsed data.
    */
   private static StsdData parseStsd(ParsableByteArray stsd, int trackId, long durationUs,
-      int rotationDegrees, String language) {
+      int rotationDegrees, String language, boolean isQuickTime) {
     stsd.setPosition(Atom.FULL_HEADER_SIZE);
     int numberOfEntries = stsd.readInt();
     StsdData out = new StsdData(numberOfEntries);
@@ -452,7 +454,7 @@ import java.util.List;
           || childAtomType == Atom.TYPE_dtsc || childAtomType == Atom.TYPE_dtse
           || childAtomType == Atom.TYPE_dtsh || childAtomType == Atom.TYPE_dtsl) {
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
-            durationUs, language, out, i);
+            durationUs, language, isQuickTime, out, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
         out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId),
             MimeTypes.APPLICATION_TTML, MediaFormat.NO_VALUE, durationUs, language);
@@ -695,13 +697,30 @@ import java.util.List;
   }
 
   private static void parseAudioSampleEntry(ParsableByteArray parent, int atomType, int position,
-      int size, int trackId, long durationUs, String language, StsdData out, int entryIndex) {
+      int size, int trackId, long durationUs, String language, boolean isQuickTime, StsdData out,
+      int entryIndex) {
     parent.setPosition(position + Atom.HEADER_SIZE);
-    parent.skipBytes(16);
+
+    int quickTimeSoundDescriptionVersion = 0;
+    if (isQuickTime) {
+      parent.skipBytes(8);
+      quickTimeSoundDescriptionVersion = parent.readUnsignedShort();
+      parent.skipBytes(6);
+    } else {
+      parent.skipBytes(16);
+    }
+
     int channelCount = parent.readUnsignedShort();
     int sampleSize = parent.readUnsignedShort();
     parent.skipBytes(4);
     int sampleRate = parent.readUnsignedFixedPoint1616();
+
+    if (quickTimeSoundDescriptionVersion > 0) {
+      parent.skipBytes(16);
+      if (quickTimeSoundDescriptionVersion == 2) {
+        parent.skipBytes(20);
+      }
+    }
 
     // If the atom type determines a MIME type, set it immediately.
     String mimeType = null;
@@ -716,17 +735,22 @@ import java.util.List;
     }
 
     byte[] initializationData = null;
-    int childPosition = parent.getPosition();
-    while (childPosition - position < size) {
-      parent.setPosition(childPosition);
-      int childStartPosition = parent.getPosition();
+    int childAtomPosition = parent.getPosition();
+    while (childAtomPosition - position < size) {
+      parent.setPosition(childAtomPosition);
       int childAtomSize = parent.readInt();
       Assertions.checkArgument(childAtomSize > 0, "childAtomSize should be positive");
       int childAtomType = parent.readInt();
       if (atomType == Atom.TYPE_mp4a || atomType == Atom.TYPE_enca) {
+        int esdsAtomPosition = -1;
         if (childAtomType == Atom.TYPE_esds) {
+          esdsAtomPosition = childAtomPosition;
+        } else if (isQuickTime && childAtomType == Atom.TYPE_wave) {
+          esdsAtomPosition = findEsdsPosition(parent, childAtomPosition, childAtomSize);
+        }
+        if (esdsAtomPosition != -1) {
           Pair<String, byte[]> mimeTypeAndInitializationData =
-              parseEsdsFromParent(parent, childStartPosition);
+              parseEsdsFromParent(parent, esdsAtomPosition);
           mimeType = mimeTypeAndInitializationData.first;
           initializationData = mimeTypeAndInitializationData.second;
           if (MimeTypes.AUDIO_AAC.equals(mimeType)) {
@@ -738,18 +762,18 @@ import java.util.List;
             channelCount = audioSpecificConfig.second;
           }
         } else if (childAtomType == Atom.TYPE_sinf) {
-          out.trackEncryptionBoxes[entryIndex] = parseSinfFromParent(parent, childStartPosition,
+          out.trackEncryptionBoxes[entryIndex] = parseSinfFromParent(parent, childAtomPosition,
               childAtomSize);
         }
       } else if (atomType == Atom.TYPE_ac_3 && childAtomType == Atom.TYPE_dac3) {
         // TODO: Choose the right AC-3 track based on the contents of dac3/dec3.
         // TODO: Add support for encryption (by setting out.trackEncryptionBoxes).
-        parent.setPosition(Atom.HEADER_SIZE + childStartPosition);
+        parent.setPosition(Atom.HEADER_SIZE + childAtomPosition);
         out.mediaFormat = Ac3Util.parseAnnexFAc3Format(parent, Integer.toString(trackId),
             durationUs, language);
         return;
       } else if (atomType == Atom.TYPE_ec_3 && childAtomType == Atom.TYPE_dec3) {
-        parent.setPosition(Atom.HEADER_SIZE + childStartPosition);
+        parent.setPosition(Atom.HEADER_SIZE + childAtomPosition);
         out.mediaFormat = Ac3Util.parseAnnexFEAc3Format(parent, Integer.toString(trackId),
             durationUs, language);
         return;
@@ -761,7 +785,7 @@ import java.util.List;
             language);
         return;
       }
-      childPosition += childAtomSize;
+      childAtomPosition += childAtomSize;
     }
 
     // If the media type was not recognized, ignore the track.
@@ -773,6 +797,22 @@ import java.util.List;
         MediaFormat.NO_VALUE, sampleSize, durationUs, channelCount, sampleRate,
         initializationData == null ? null : Collections.singletonList(initializationData),
         language);
+  }
+
+  /** Returns the position of the esds box within a parent, or -1 if no esds box is found */
+  private static int findEsdsPosition(ParsableByteArray parent, int position, int size) {
+    int childAtomPosition = parent.getPosition();
+    while (childAtomPosition - position < size) {
+      parent.setPosition(childAtomPosition);
+      int childAtomSize = parent.readInt();
+      Assertions.checkArgument(childAtomSize > 0, "childAtomSize should be positive");
+      int childType = parent.readInt();
+      if (childType == Atom.TYPE_esds) {
+        return childAtomPosition;
+      }
+      childAtomPosition += childAtomSize;
+    }
+    return -1;
   }
 
   /** Returns codec-specific initialization data contained in an esds box. */

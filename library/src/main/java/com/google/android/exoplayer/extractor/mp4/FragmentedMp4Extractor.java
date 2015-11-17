@@ -305,7 +305,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     ContainerAtom mvex = moov.getContainerAtomOfType(Atom.TYPE_mvex);
     extendsDefaults = parseTrex(mvex.getLeafAtomOfType(Atom.TYPE_trex).data);
     track = AtomParsers.parseTrak(moov.getContainerAtomOfType(Atom.TYPE_trak),
-        moov.getLeafAtomOfType(Atom.TYPE_mvhd));
+        moov.getLeafAtomOfType(Atom.TYPE_mvhd), false);
     checkState(track != null);
     trackOutput.format(track.mediaFormat);
   }
