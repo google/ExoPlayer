@@ -74,6 +74,7 @@ public final class WebmExtractor implements Extractor {
   private static final String CODEC_ID_AAC = "A_AAC";
   private static final String CODEC_ID_MP3 = "A_MPEG/L3";
   private static final String CODEC_ID_AC3 = "A_AC3";
+  private static final String CODEC_ID_E_AC3 = "A_EAC3";
   private static final String CODEC_ID_TRUEHD = "A_TRUEHD";
   private static final String CODEC_ID_DTS = "A_DTS";
   private static final String CODEC_ID_DTS_EXPRESS = "A_DTS/EXPRESS";
@@ -1044,6 +1045,7 @@ public final class WebmExtractor implements Extractor {
         || CODEC_ID_AAC.equals(codecId)
         || CODEC_ID_MP3.equals(codecId)
         || CODEC_ID_AC3.equals(codecId)
+        || CODEC_ID_E_AC3.equals(codecId)
         || CODEC_ID_TRUEHD.equals(codecId)
         || CODEC_ID_DTS.equals(codecId)
         || CODEC_ID_DTS_EXPRESS.equals(codecId)
@@ -1208,6 +1210,9 @@ public final class WebmExtractor implements Extractor {
           break;
         case CODEC_ID_AC3:
           mimeType = MimeTypes.AUDIO_AC3;
+          break;
+        case CODEC_ID_E_AC3:
+          mimeType = MimeTypes.AUDIO_E_AC3;
           break;
         case CODEC_ID_TRUEHD:
           mimeType = MimeTypes.AUDIO_TRUEHD;
