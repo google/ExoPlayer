@@ -679,7 +679,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
       } else if (fourCC.equalsIgnoreCase("ac-3") || fourCC.equalsIgnoreCase("dac3")) {
         return MimeTypes.AUDIO_AC3;
       } else if (fourCC.equalsIgnoreCase("ec-3") || fourCC.equalsIgnoreCase("dec3")) {
-        return MimeTypes.AUDIO_EC3;
+        return MimeTypes.AUDIO_E_AC3;
       } else if (fourCC.equalsIgnoreCase("dtsc") || fourCC.equalsIgnoreCase("dtse")) {
         return MimeTypes.AUDIO_DTS;
       } else if (fourCC.equalsIgnoreCase("dtsh") || fourCC.equalsIgnoreCase("dtsl")) {
