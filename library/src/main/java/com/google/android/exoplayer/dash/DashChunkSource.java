@@ -121,6 +121,7 @@ public class DashChunkSource implements ChunkSource, Output {
   private final boolean live;
 
   private MediaPresentationDescription currentManifest;
+  private MediaPresentationDescription processedManifest;
   private ExposedTrack enabledTrack;
   private int nextPeriodHolderIndex;
   private TimeRange availableRange;
@@ -322,8 +323,11 @@ public class DashChunkSource implements ChunkSource, Output {
     }
 
     MediaPresentationDescription newManifest = manifestFetcher.getManifest();
-    if (currentManifest != newManifest && newManifest != null) {
+    if (newManifest != null && newManifest != processedManifest) {
       processManifest(newManifest);
+      // Manifests may be rejected, so the new manifest may not become the next currentManifest.
+      // Track a manifest has been processed to avoid processing twice when it was discarded.
+      processedManifest = newManifest;
     }
 
     // TODO: This is a temporary hack to avoid constantly refreshing the MPD in cases where
@@ -725,6 +729,14 @@ public class DashChunkSource implements ChunkSource, Output {
       PeriodHolder periodHolder = periodHolders.valueAt(0);
       // TODO: Use periodHolders.removeAt(0) if the minimum API level is ever increased to 11.
       periodHolders.remove(periodHolder.localIndex);
+    }
+
+    // After discarding old periods, we should never have more periods than listed in the new
+    // manifest.  That would mean that a previously announced period is no longer advertised.  If
+    // this condition occurs, assume that we are hitting a manifest server that is out of sync and
+    // behind, discard this manifest, and try again later.
+    if (periodHolders.size() > manifest.getPeriodCount()) {
+      return;
     }
 
     // Update existing periods. Only the first and last periods can change.
