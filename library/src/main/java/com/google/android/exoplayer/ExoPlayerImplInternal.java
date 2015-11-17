@@ -108,7 +108,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     trackFormats = new MediaFormat[selectedTrackIndices.length][];
     // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
     // not normally change to this priority" is incorrect.
-    internalPlaybackThread = new PriorityHandlerThread(getClass().getSimpleName() + ":Handler",
+    internalPlaybackThread = new PriorityHandlerThread("ExoPlayerImplInternal:Handler",
         Process.THREAD_PRIORITY_AUDIO);
     internalPlaybackThread.start();
     handler = new Handler(internalPlaybackThread.getLooper(), this);
