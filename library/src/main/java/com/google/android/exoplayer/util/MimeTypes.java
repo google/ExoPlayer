@@ -51,6 +51,8 @@ public final class MimeTypes {
   public static final String AUDIO_DTS_HD = BASE_TYPE_AUDIO + "/vnd.dts.hd";
   public static final String AUDIO_VORBIS = BASE_TYPE_AUDIO + "/vorbis";
   public static final String AUDIO_OPUS = BASE_TYPE_AUDIO + "/opus";
+  public static final String AUDIO_AMR_NB = BASE_TYPE_AUDIO + "/3gpp";
+  public static final String AUDIO_AMR_WB = BASE_TYPE_AUDIO + "/amr-wb";
 
   public static final String TEXT_UNKNOWN = BASE_TYPE_TEXT + "/x-unknown";
   public static final String TEXT_VTT = BASE_TYPE_TEXT + "/vtt";

@@ -111,6 +111,8 @@ import java.util.List;
   public static final int TYPE_co64 = Util.getIntegerCodeForString("co64");
   public static final int TYPE_tx3g = Util.getIntegerCodeForString("tx3g");
   public static final int TYPE_stpp = Util.getIntegerCodeForString("stpp");
+  public static final int TYPE_samr = Util.getIntegerCodeForString("samr");
+  public static final int TYPE_sawb = Util.getIntegerCodeForString("sawb");
 
   public final int type;
 

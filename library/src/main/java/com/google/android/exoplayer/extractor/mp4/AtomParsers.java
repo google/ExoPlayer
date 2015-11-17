@@ -452,7 +452,8 @@ import java.util.List;
       } else if (childAtomType == Atom.TYPE_mp4a || childAtomType == Atom.TYPE_enca
           || childAtomType == Atom.TYPE_ac_3 || childAtomType == Atom.TYPE_ec_3
           || childAtomType == Atom.TYPE_dtsc || childAtomType == Atom.TYPE_dtse
-          || childAtomType == Atom.TYPE_dtsh || childAtomType == Atom.TYPE_dtsl) {
+          || childAtomType == Atom.TYPE_dtsh || childAtomType == Atom.TYPE_dtsl
+          || childAtomType == Atom.TYPE_samr || childAtomType == Atom.TYPE_sawb) {
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             durationUs, language, isQuickTime, out, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
@@ -732,6 +733,10 @@ import java.util.List;
       mimeType = MimeTypes.AUDIO_DTS;
     } else if (atomType == Atom.TYPE_dtsh || atomType == Atom.TYPE_dtsl) {
       mimeType = MimeTypes.AUDIO_DTS_HD;
+    } else if (atomType == Atom.TYPE_samr) {
+      mimeType = MimeTypes.AUDIO_AMR_NB;
+    } else if (atomType == Atom.TYPE_sawb) {
+      mimeType = MimeTypes.AUDIO_AMR_WB;
     }
 
     byte[] initializationData = null;
