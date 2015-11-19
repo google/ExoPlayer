@@ -17,7 +17,6 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
@@ -37,7 +36,6 @@ import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
-import android.os.Handler;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
@@ -62,14 +60,7 @@ public class HlsChunkSource {
   /**
    * Interface definition for a callback to be notified of {@link HlsChunkSource} events.
    */
-  public interface EventListener extends BaseChunkSampleSourceEventListener {
-    /**
-     * Invoked when the available seek range of the stream has changed.
-     *
-     * @param availableRange The range which specifies available content that can be seeked to.
-     */
-    public void onAvailableRangeChanged(TimeRange availableRange);
-  }
+  public interface EventListener extends BaseChunkSampleSourceEventListener {}
 
   /**
    * Adaptive switching is disabled.
@@ -158,15 +149,11 @@ public class HlsChunkSource {
   private byte[] encryptionKey;
   private String encryptionIvString;
   private byte[] encryptionIv;
-  private TimeRange availableRange;
-
-  private Handler eventHandler;
-  private EventListener eventListener;
 
   public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
       BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode) {
     this(dataSource, playlistUrl, playlist, bandwidthMeter, variantIndices, adaptiveMode,
-        DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS, DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS, null, null);
+        DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS, DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS);
   }
 
   /**
@@ -188,38 +175,9 @@ public class HlsChunkSource {
   public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
       BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode,
       long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs) {
-    this(dataSource, playlistUrl, playlist, bandwidthMeter, variantIndices, adaptiveMode,
-      minBufferDurationToSwitchUpMs, maxBufferDurationToSwitchDownMs, null, null);
-  }
-
-  /**
-   * @param dataSource A {@link DataSource} suitable for loading the media data.
-   * @param playlistUrl The playlist URL.
-   * @param playlist The hls playlist.
-   * @param bandwidthMeter provides an estimate of the currently available bandwidth.
-   * @param variantIndices If {@code playlist} is a {@link HlsMasterPlaylist}, the subset of variant
-   *     indices to consider, or null to consider all of the variants. For other playlist types
-   *     this parameter is ignored.
-   * @param adaptiveMode The mode for switching from one variant to another. One of
-   *     {@link #ADAPTIVE_MODE_NONE}, {@link #ADAPTIVE_MODE_ABRUPT} and
-   *     {@link #ADAPTIVE_MODE_SPLICE}.
-   * @param minBufferDurationToSwitchUpMs The minimum duration of media that needs to be buffered
-   *     for a switch to a higher quality variant to be considered.
-   * @param maxBufferDurationToSwitchDownMs The maximum duration of media that needs to be buffered
-   *     for a switch to a lower quality variant to be considered.
-   * @param eventHandler A handler to use when delivering events to {@code EventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   */
-  public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
-      BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode,
-      long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs,
-      Handler eventHandler, EventListener eventListener) {
     this.dataSource = dataSource;
     this.bandwidthMeter = bandwidthMeter;
     this.adaptiveMode = adaptiveMode;
-    this.eventHandler = eventHandler;
-    this.eventListener = eventListener;
     minBufferDurationToSwitchUpUs = minBufferDurationToSwitchUpMs * 1000;
     maxBufferDurationToSwitchDownUs = maxBufferDurationToSwitchDownMs * 1000;
     baseUri = playlist.baseUri;
@@ -320,7 +278,7 @@ public class HlsChunkSource {
     boolean liveDiscontinuity = false;
     if (live) {
       if (previousTsChunk == null) {
-        if (seekPositionUs == 0) {
+        if (seekPositionUs == 0 || seekPositionUs > getLiveEdgeUs(nextVariantIndex)) {
           chunkMediaSequence = getLiveStartChunkMediaSequence(nextVariantIndex);
         } else {
           chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, seekPositionUs, true,
@@ -569,11 +527,21 @@ public class HlsChunkSource {
     return timeSinceLastMediaPlaylistLoadMs >= (mediaPlaylist.targetDurationSecs * 1000) / 2;
   }
 
+  private long getLiveEdgeUs(int variantIndex) {
+    HlsMediaPlaylist mediaPlaylist = variantPlaylists[variantIndex];
+    int size = mediaPlaylist.segments.size();
+    return size > 3 ? mediaPlaylist.segments.get(size - 3).startTimeUs : 0;
+  }
+
+  private int getLiveEdgeIndex(int variantIndex) {
+    HlsMediaPlaylist mediaPlaylist = variantPlaylists[variantIndex];
+    return mediaPlaylist.segments.size() > 3 ? mediaPlaylist.segments.size() - 3 : 0;
+  }
+
   private int getLiveStartChunkMediaSequence(int variantIndex) {
     // For live start playback from the third chunk from the end.
-    HlsMediaPlaylist mediaPlaylist = variantPlaylists[variantIndex];
-    int chunkIndex = mediaPlaylist.segments.size() > 3 ? mediaPlaylist.segments.size() - 3 : 0;
-    return chunkIndex + mediaPlaylist.mediaSequence;
+    int chunkIndex = getLiveEdgeIndex(variantIndex);
+    return chunkIndex + variantPlaylists[variantIndex].mediaSequence;
   }
 
   private MediaPlaylistChunk newMediaPlaylistChunk(int variantIndex) {
@@ -621,11 +589,6 @@ public class HlsChunkSource {
     variantPlaylists[variantIndex] = mediaPlaylist;
     live |= mediaPlaylist.live;
     durationUs = live ? C.UNKNOWN_TIME_US : mediaPlaylist.durationUs;
-    TimeRange newAvailableRange = new TimeRange.StaticTimeRange(0, mediaPlaylist.durationUs);
-    if (availableRange == null || !availableRange.equals(newAvailableRange)) {
-      availableRange = newAvailableRange;
-      notifyAvailableRangeChanged(availableRange);
-    }
   }
 
   /**
@@ -727,17 +690,6 @@ public class HlsChunkSource {
     }
     // Should never happen.
     throw new IllegalStateException("Invalid format: " + format);
-  }
-
-  private void notifyAvailableRangeChanged(final TimeRange seekRange) {
-    if (eventHandler != null && eventListener != null) {
-      eventHandler.post(new Runnable() {
-        @Override
-        public void run() {
-          eventListener.onAvailableRangeChanged(seekRange);
-        }
-      });
-    }
   }
 
   private static class MediaPlaylistChunk extends DataChunk {

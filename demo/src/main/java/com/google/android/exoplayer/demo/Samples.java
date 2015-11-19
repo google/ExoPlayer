@@ -132,8 +132,6 @@ import java.util.Locale;
         + "prog_index.m3u8", PlayerActivity.TYPE_HLS),
     new Sample("Apple ID3 metadata", "http://devimages.apple.com/samplecode/adDemo/ad.m3u8",
         PlayerActivity.TYPE_HLS),
-    new Sample("Live/DVR Fixed", "http://bcoveliveios-i.akamaihd.net/hls/live/215102/master_english/398/master.m3u8",
-        PlayerActivity.TYPE_HLS),
   };
 
   public static final Sample[] MISC = new Sample[] {
