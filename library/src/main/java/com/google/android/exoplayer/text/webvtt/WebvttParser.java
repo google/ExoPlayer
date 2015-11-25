@@ -44,31 +44,20 @@ public final class WebvttParser implements SubtitleParser {
 
   private static final Pattern HEADER = Pattern.compile("^\uFEFF?WEBVTT((\u0020|\u0009).*)?$");
   private static final Pattern COMMENT_BLOCK = Pattern.compile("^NOTE((\u0020|\u0009).*)?$");
-  private static final Pattern METADATA_HEADER = Pattern.compile("\\S*[:=]\\S*");
   private static final Pattern CUE_HEADER = Pattern.compile("^(\\S+)\\s+-->\\s+(\\S+)(.*)?$");
   private static final Pattern CUE_SETTING = Pattern.compile("\\S+?:\\S+");
 
   private final PositionHolder positionHolder;
   private final StringBuilder textBuilder;
-  private final boolean strictParsing;
 
-  /**
-   * Equivalent to {@code WebvttParser(false)}.
-   */
   public WebvttParser() {
-    this(false);
-  }
-
-  /**
-   * @param strictParsing If true, {@link #parse(InputStream)} will throw a {@link ParserException}
-   *     if the stream contains invalid data. If false, the parser will make a best effort to ignore
-   *     minor errors in the stream. Note however that a {@link ParserException} will still be
-   *     thrown when this is not possible.
-   */
-  public WebvttParser(boolean strictParsing) {
-    this.strictParsing = strictParsing;
     positionHolder = new PositionHolder();
     textBuilder = new StringBuilder();
+  }
+
+  @Override
+  public final boolean canParse(String mimeType) {
+    return MimeTypes.TEXT_VTT.equals(mimeType);
   }
 
   @Override
@@ -93,13 +82,6 @@ public final class WebvttParser implements SubtitleParser {
       } else if (line.isEmpty()) {
         // We read the newline that separates the header from the body.
         break;
-      }
-
-      if (strictParsing) {
-        Matcher matcher = METADATA_HEADER.matcher(line);
-        if (!matcher.find()) {
-          throw new ParserException("Unexpected line: " + line);
-        }
       }
     }
 
@@ -185,11 +167,6 @@ public final class WebvttParser implements SubtitleParser {
     }
 
     return new WebvttSubtitle(subtitles);
-  }
-
-  @Override
-  public final boolean canParse(String mimeType) {
-    return MimeTypes.TEXT_VTT.equals(mimeType);
   }
 
   private static long parseTimestampUs(String s) throws NumberFormatException {

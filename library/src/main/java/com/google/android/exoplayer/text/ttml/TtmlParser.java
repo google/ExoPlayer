@@ -82,28 +82,18 @@ public final class TtmlParser implements SubtitleParser {
   private static final int DEFAULT_TICKRATE = 1;
 
   private final XmlPullParserFactory xmlParserFactory;
-  private final boolean strictParsing;
 
-  /**
-   * Equivalent to {@code TtmlParser(false)}.
-   */
   public TtmlParser() {
-    this(false);
-  }
-
-  /**
-   * @param strictParsing If true, {@link #parse(InputStream)} will throw a {@link ParserException}
-   *     if the stream contains invalid data. If false, the parser will make a best effort to ignore
-   *     minor errors in the stream. Note however that a {@link ParserException} will still be
-   *     thrown when this is not possible.
-   */
-  public TtmlParser(boolean strictParsing) {
-    this.strictParsing = strictParsing;
     try {
       xmlParserFactory = XmlPullParserFactory.newInstance();
     } catch (XmlPullParserException e) {
       throw new RuntimeException("Couldn't create XmlPullParserFactory instance", e);
     }
+  }
+
+  @Override
+  public boolean canParse(String mimeType) {
+    return MimeTypes.APPLICATION_TTML.equals(mimeType);
   }
 
   @Override
@@ -134,13 +124,9 @@ public final class TtmlParser implements SubtitleParser {
                   parent.addChild(node);
                 }
               } catch (ParserException e) {
-                if (strictParsing) {
-                  throw e;
-                } else {
-                  Log.w(TAG, "Suppressing parser error", e);
-                  // Treat the node (and by extension, all of its children) as unsupported.
-                  unsupportedNodeDepth++;
-                }
+                Log.w(TAG, "Suppressing parser error", e);
+                // Treat the node (and by extension, all of its children) as unsupported.
+                unsupportedNodeDepth++;
               }
             }
           } else if (eventType == XmlPullParser.TEXT) {
@@ -285,11 +271,6 @@ public final class TtmlParser implements SubtitleParser {
 
   private TtmlStyle createIfNull(TtmlStyle style) {
     return style == null ? new TtmlStyle() : style;
-  }
-
-  @Override
-  public boolean canParse(String mimeType) {
-    return MimeTypes.APPLICATION_TTML.equals(mimeType);
   }
 
   private TtmlNode parseNode(XmlPullParser parser, TtmlNode parent) throws ParserException {

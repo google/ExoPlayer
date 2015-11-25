@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.text.subrip;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.LongArray;
@@ -47,24 +46,14 @@ public final class SubripParser implements SubtitleParser {
       Pattern.compile("(?:(\\d+):)?(\\d+):(\\d+),(\\d+)");
 
   private final StringBuilder textBuilder;
-  private final boolean strictParsing;
 
-  /**
-   * Equivalent to {@code SubripParser(false)}.
-   */
   public SubripParser() {
-    this(false);
+    textBuilder = new StringBuilder();
   }
 
-  /**
-   * @param strictParsing If true, {@link #parse(InputStream)} will throw a {@link ParserException}
-   *     if the stream contains invalid data. If false, the parser will make a best effort to ignore
-   *     minor errors in the stream. Note however that a {@link ParserException} will still be
-   *     thrown when this is not possible.
-   */
-  public SubripParser(boolean strictParsing) {
-    this.strictParsing = strictParsing;
-    textBuilder = new StringBuilder();
+  @Override
+  public boolean canParse(String mimeType) {
+    return MimeTypes.APPLICATION_SUBRIP.equals(mimeType);
   }
 
   @Override
@@ -85,12 +74,8 @@ public final class SubripParser implements SubtitleParser {
       try {
         Integer.parseInt(currentLine);
       } catch (NumberFormatException e) {
-        if (!strictParsing) {
-          Log.w(TAG, "Skipping invalid index: " + currentLine);
-          continue;
-        } else {
-          throw new ParserException("Expected numeric counter: " + currentLine);
-        }
+        Log.w(TAG, "Skipping invalid index: " + currentLine);
+        continue;
       }
 
       // Read and parse the timing line.
@@ -104,11 +89,9 @@ public final class SubripParser implements SubtitleParser {
           haveEndTimecode = true;
           cueTimesUs.add(parseTimecode(matcher.group(2)));
         }
-      } else if (!strictParsing) {
+      } else {
         Log.w(TAG, "Skipping invalid timing: " + currentLine);
         continue;
-      } else {
-        throw new ParserException("Expected timing line: " + currentLine);
       }
 
       // Read and parse the text.
@@ -131,11 +114,6 @@ public final class SubripParser implements SubtitleParser {
     cues.toArray(cuesArray);
     long[] cueTimesUsArray = cueTimesUs.toArray();
     return new SubripSubtitle(cuesArray, cueTimesUsArray);
-  }
-
-  @Override
-  public boolean canParse(String mimeType) {
-    return MimeTypes.APPLICATION_SUBRIP.equals(mimeType);
   }
 
   private static long parseTimecode(String s) throws NumberFormatException {
