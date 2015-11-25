@@ -17,19 +17,41 @@ package com.google.android.exoplayer.util;
 
 import com.google.android.exoplayer.MediaFormat;
 
+import java.nio.ByteBuffer;
+
 /**
  * Utility methods for parsing AC-3 headers.
  */
 public final class Ac3Util {
 
-  /** Sample rates, indexed by fscod. */
+  /**
+   * The number of new samples per (E-)AC-3 audio block.
+   */
+  private static final int SAMPLES_PER_AUDIO_BLOCK = 256;
+  /**
+   * Each syncframe has 6 blocks that provide 256 new samples. See ETSI TS 102 366 subsection 4.1.
+   */
+  private static final int AC3_SAMPLES_PER_SYNCFRAME = 6 * SAMPLES_PER_AUDIO_BLOCK;
+  /**
+   * Number of audio blocks per E-AC-3 sync frame, indexed by numblkscod.
+   */
+  private static final int[] AUDIO_BLOCKS_PER_SYNCFRAME_BY_NUMBLKSCOD = new int[] {1, 2, 3, 6};
+  /**
+   * Sample rates, indexed by fscod.
+   */
   private static final int[] SAMPLE_RATES = new int[] {48000, 44100, 32000};
-  /** Channel counts, indexed by acmod. */
+  /**
+   * Channel counts, indexed by acmod.
+   */
   private static final int[] CHANNEL_COUNTS = new int[] {2, 1, 2, 3, 3, 4, 4, 5};
-  /** Nominal bitrates in kbps, indexed by bit_rate_code. */
+  /**
+   * Nominal bitrates in kbps, indexed by bit_rate_code.
+   */
   private static final int[] BITRATES = new int[] {32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192,
       224, 256, 320, 384, 448, 512, 576, 640};
-  /** 16-bit words per sync frame, indexed by frmsizecod / 2. (See ETSI TS 102 366 table 4.13.) */
+  /**
+   * 16-bit words per sync frame, indexed by frmsizecod / 2. (See ETSI TS 102 366 table 4.13.)
+   */
   private static final int[] FRMSIZECOD_TO_FRAME_SIZE_44_1 = new int[] {69, 87, 104, 121, 139, 174,
       208, 243, 278, 348, 417, 487, 557, 696, 835, 975, 1114, 1253, 1393};
 
@@ -159,6 +181,31 @@ public final class Ac3Util {
     int unscaledBitrate = bufferSize * 8 * sampleRate;
     int divisor = 1000 * 1536;
     return (unscaledBitrate + divisor / 2) / divisor;
+  }
+
+  /**
+   * Returns the number of samples per AC-3 syncframe.
+   */
+  public static int getAc3SamplesPerSyncframe() {
+    return AC3_SAMPLES_PER_SYNCFRAME;
+  }
+
+  /**
+   * Returns the number of samples per syncframe for the E-AC-3 frame in {@code buffer}.
+   *
+   * @param buffer The frame to parse.
+   * @return The number of samples per syncframe.
+   */
+  public static int parseEac3SamplesPerSyncframe(ByteBuffer buffer) {
+    // See ETSI TS 102 366 subsection E.1.2.2.
+    int audioBlocks;
+    if (((buffer.get(buffer.position() + 4) & 0xC0) >> 6) == 0x03) { // fscod
+      audioBlocks = 6;
+    } else {
+      int numblkscod = (buffer.get(buffer.position() + 4) & 0x30) >> 4;
+      audioBlocks = AUDIO_BLOCKS_PER_SYNCFRAME_BY_NUMBLKSCOD[numblkscod] * 256;
+    }
+    return audioBlocks * SAMPLES_PER_AUDIO_BLOCK;
   }
 
   private Ac3Util() {

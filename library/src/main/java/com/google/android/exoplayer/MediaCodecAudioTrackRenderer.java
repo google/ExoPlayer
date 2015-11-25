@@ -59,10 +59,13 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
     /**
      * Invoked when an {@link AudioTrack} underrun occurs.
      *
-     * @param audioTrackBufferSizeMs The size of the {@link AudioTrack}'s buffer, in milliseconds.
+     * @param bufferSize The size of the {@link AudioTrack}'s buffer, in bytes.
+     * @param bufferSizeMs The size of the {@link AudioTrack}'s buffer, in milliseconds, if it is
+     *     configured for PCM output. -1 if it is configured for passthrough output, as the buffered
+     *     media can have a variable bitrate so the duration may be unknown.
      * @param elapsedSinceLastFeedMs The time since the {@link AudioTrack} was last fed data.
      */
-    void onAudioTrackUnderrun(long audioTrackBufferSizeMs, long elapsedSinceLastFeedMs);
+    void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
 
   }
 
@@ -355,7 +358,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
       audioTrackHasData = audioTrack.hasPendingData();
       if (audioTrackHadData && !audioTrackHasData && getState() == TrackRenderer.STATE_STARTED) {
         long elapsedSinceLastFeedMs = SystemClock.elapsedRealtime() - lastFeedElapsedRealtimeMs;
-        notifyAudioTrackUnderrun(audioTrack.getBufferSizeUs() / 1000, elapsedSinceLastFeedMs);
+        long bufferSizeUs = audioTrack.getBufferSizeUs();
+        long bufferSizeMs = bufferSizeUs == C.UNKNOWN_TIME_US ? -1 : bufferSizeUs / 1000;
+        notifyAudioTrackUnderrun(audioTrack.getBufferSize(), bufferSizeMs, elapsedSinceLastFeedMs);
       }
     }
 
@@ -425,13 +430,13 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
     }
   }
 
-  private void notifyAudioTrackUnderrun(final long audioTrackBufferSizeMs,
+  private void notifyAudioTrackUnderrun(final int bufferSize, final long bufferSizeMs,
       final long elapsedSinceLastFeedMs) {
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable()  {
         @Override
         public void run() {
-          eventListener.onAudioTrackUnderrun(audioTrackBufferSizeMs, elapsedSinceLastFeedMs);
+          eventListener.onAudioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
         }
       });
     }
