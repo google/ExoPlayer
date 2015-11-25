@@ -32,6 +32,7 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
 
@@ -184,7 +185,9 @@ public class HlsChunkSource {
     playlistParser = new HlsPlaylistParser();
 
     if (playlist.type == HlsPlaylist.TYPE_MEDIA) {
-      variants = new Variant[] {new Variant(0, null, playlistUrl, 0, null, -1, -1)};
+      Format format = new Format("0", MimeTypes.APPLICATION_M3U8, -1, -1, -1, -1, -1, -1, null,
+          null);
+      variants = new Variant[] {new Variant(playlistUrl, format)};
       variantPlaylists = new HlsMediaPlaylist[1];
       variantLastPlaylistLoadTimesMs = new long[1];
       variantBlacklistTimes = new long[1];

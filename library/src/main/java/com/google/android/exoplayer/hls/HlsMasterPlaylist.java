@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.hls;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -23,12 +24,12 @@ import java.util.List;
 public final class HlsMasterPlaylist extends HlsPlaylist {
 
   public final List<Variant> variants;
-  public final List<Subtitle> subtitles;
+  public final List<Variant> subtitles;
 
-  public HlsMasterPlaylist(String baseUri, List<Variant> variants, List<Subtitle> subtitles) {
+  public HlsMasterPlaylist(String baseUri, List<Variant> variants, List<Variant> subtitles) {
     super(baseUri, HlsPlaylist.TYPE_MASTER);
-    this.variants = variants;
-    this.subtitles = subtitles;
+    this.variants = Collections.unmodifiableList(variants);
+    this.subtitles = Collections.unmodifiableList(subtitles);
   }
 
 }
