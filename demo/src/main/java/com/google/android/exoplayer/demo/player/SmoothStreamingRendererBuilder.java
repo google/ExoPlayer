@@ -18,26 +18,23 @@ package com.google.android.exoplayer.demo.player;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
-import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSource;
-import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
-import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
-import com.google.android.exoplayer.chunk.VideoFormatSelectorUtil;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.drm.MediaDrmCallback;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
+import com.google.android.exoplayer.smoothstreaming.DefaultSmoothStreamingTrackSelector;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingChunkSource;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifestParser;
 import com.google.android.exoplayer.text.TextTrackRenderer;
-import com.google.android.exoplayer.text.ttml.TtmlParser;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
@@ -51,7 +48,6 @@ import android.media.MediaCodec;
 import android.os.Handler;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * A {@link RendererBuilder} for SmoothStreaming.
@@ -60,7 +56,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder {
 
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
   private static final int VIDEO_BUFFER_SEGMENTS = 200;
-  private static final int AUDIO_BUFFER_SEGMENTS = 60;
+  private static final int AUDIO_BUFFER_SEGMENTS = 54;
   private static final int TEXT_BUFFER_SEGMENTS = 2;
   private static final int LIVE_EDGE_LATENCY_MS = 30000;
 
@@ -159,126 +155,46 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder {
         }
       }
 
-      // Obtain stream elements for playback.
-      int audioStreamElementCount = 0;
-      int textStreamElementCount = 0;
-      int videoStreamElementIndex = -1;
-      for (int i = 0; i < manifest.streamElements.length; i++) {
-        if (manifest.streamElements[i].type == StreamElement.TYPE_AUDIO) {
-          audioStreamElementCount++;
-        } else if (manifest.streamElements[i].type == StreamElement.TYPE_TEXT) {
-          textStreamElementCount++;
-        } else if (videoStreamElementIndex == -1
-            && manifest.streamElements[i].type == StreamElement.TYPE_VIDEO) {
-          videoStreamElementIndex = i;
-        }
-      }
-
-      // Determine which video tracks we should use for playback.
-      int[] videoTrackIndices = null;
-      if (videoStreamElementIndex != -1) {
-        try {
-          videoTrackIndices = VideoFormatSelectorUtil.selectVideoFormatsForDefaultDisplay(context,
-              Arrays.asList(manifest.streamElements[videoStreamElementIndex].tracks), null, false);
-        } catch (DecoderQueryException e) {
-          player.onRenderersError(e);
-          return;
-        }
-      }
-
       // Build the video renderer.
-      final MediaCodecVideoTrackRenderer videoRenderer;
-      if (videoTrackIndices == null || videoTrackIndices.length == 0) {
-        videoRenderer = null;
-      } else {
-        DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-        ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
-            videoStreamElementIndex, videoTrackIndices, videoDataSource,
-            new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
-        ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
-            VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
-            DemoPlayer.TYPE_VIDEO);
-        videoRenderer = new MediaCodecVideoTrackRenderer(videoSampleSource, drmSessionManager, true,
-            MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, mainHandler, player, 50);
-      }
+      DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+      ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
+          new DefaultSmoothStreamingTrackSelector(context, StreamElement.TYPE_VIDEO),
+          videoDataSource, new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
+      ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
+          VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
+          DemoPlayer.TYPE_VIDEO);
+      TrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context, videoSampleSource,
+          MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, drmSessionManager, true, mainHandler,
+          player, 50);
 
       // Build the audio renderer.
-      final String[] audioTrackNames;
-      final MultiTrackChunkSource audioChunkSource;
-      final MediaCodecAudioTrackRenderer audioRenderer;
-      if (audioStreamElementCount == 0) {
-        audioTrackNames = null;
-        audioChunkSource = null;
-        audioRenderer = null;
-      } else {
-        audioTrackNames = new String[audioStreamElementCount];
-        ChunkSource[] audioChunkSources = new ChunkSource[audioStreamElementCount];
-        DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-        FormatEvaluator audioFormatEvaluator = new FormatEvaluator.FixedEvaluator();
-        audioStreamElementCount = 0;
-        for (int i = 0; i < manifest.streamElements.length; i++) {
-          if (manifest.streamElements[i].type == StreamElement.TYPE_AUDIO) {
-            audioTrackNames[audioStreamElementCount] = manifest.streamElements[i].name;
-            audioChunkSources[audioStreamElementCount] = new SmoothStreamingChunkSource(
-                manifestFetcher, i, new int[] {0}, audioDataSource, audioFormatEvaluator,
-                LIVE_EDGE_LATENCY_MS);
-            audioStreamElementCount++;
-          }
-        }
-        audioChunkSource = new MultiTrackChunkSource(audioChunkSources);
-        ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
-            AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
-            DemoPlayer.TYPE_AUDIO);
-        audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource, drmSessionManager, true,
-            mainHandler, player);
-      }
+      DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+      ChunkSource audioChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
+          new DefaultSmoothStreamingTrackSelector(context, StreamElement.TYPE_AUDIO),
+          audioDataSource, null, LIVE_EDGE_LATENCY_MS);
+      ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
+          AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
+          DemoPlayer.TYPE_AUDIO);
+      TrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource,
+          drmSessionManager, true, mainHandler, player, AudioCapabilities.getCapabilities(context));
 
       // Build the text renderer.
-      final String[] textTrackNames;
-      final MultiTrackChunkSource textChunkSource;
-      final TrackRenderer textRenderer;
-      if (textStreamElementCount == 0) {
-        textTrackNames = null;
-        textChunkSource = null;
-        textRenderer = null;
-      } else {
-        textTrackNames = new String[textStreamElementCount];
-        ChunkSource[] textChunkSources = new ChunkSource[textStreamElementCount];
-        DataSource ttmlDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-        FormatEvaluator ttmlFormatEvaluator = new FormatEvaluator.FixedEvaluator();
-        textStreamElementCount = 0;
-        for (int i = 0; i < manifest.streamElements.length; i++) {
-          if (manifest.streamElements[i].type == StreamElement.TYPE_TEXT) {
-            textTrackNames[textStreamElementCount] = manifest.streamElements[i].language;
-            textChunkSources[textStreamElementCount] = new SmoothStreamingChunkSource(
-                manifestFetcher, i, new int[] {0}, ttmlDataSource, ttmlFormatEvaluator,
-                LIVE_EDGE_LATENCY_MS);
-            textStreamElementCount++;
-          }
-        }
-        textChunkSource = new MultiTrackChunkSource(textChunkSources);
-        ChunkSampleSource ttmlSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
-            TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
-            DemoPlayer.TYPE_TEXT);
-        textRenderer = new TextTrackRenderer(ttmlSampleSource, player, mainHandler.getLooper(),
-            new TtmlParser());
-      }
+      DataSource textDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+      ChunkSource textChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
+          new DefaultSmoothStreamingTrackSelector(context, StreamElement.TYPE_TEXT),
+          textDataSource, null, LIVE_EDGE_LATENCY_MS);
+      ChunkSampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
+          TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
+          DemoPlayer.TYPE_TEXT);
+      TrackRenderer textRenderer = new TextTrackRenderer(textSampleSource, player,
+          mainHandler.getLooper());
 
       // Invoke the callback.
-      String[][] trackNames = new String[DemoPlayer.RENDERER_COUNT][];
-      trackNames[DemoPlayer.TYPE_AUDIO] = audioTrackNames;
-      trackNames[DemoPlayer.TYPE_TEXT] = textTrackNames;
-
-      MultiTrackChunkSource[] multiTrackChunkSources =
-          new MultiTrackChunkSource[DemoPlayer.RENDERER_COUNT];
-      multiTrackChunkSources[DemoPlayer.TYPE_AUDIO] = audioChunkSource;
-      multiTrackChunkSources[DemoPlayer.TYPE_TEXT] = textChunkSource;
-
       TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
       renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
       renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
       renderers[DemoPlayer.TYPE_TEXT] = textRenderer;
-      player.onRenderers(trackNames, multiTrackChunkSources, renderers, bandwidthMeter);
+      player.onRenderers(renderers, bandwidthMeter);
     }
 
   }

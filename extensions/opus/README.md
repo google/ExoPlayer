@@ -2,9 +2,9 @@
 
 ## Description ##
 
-The Opus Extension is a [Track Renderer][] implementation that helps you bundle libopus (the Opus decoding library) into your app and use it along with ExoPlayer to play Opus audio on Android devices.
+The Opus Extension is a [TrackRenderer][] implementation that helps you bundle libopus (the Opus decoding library) into your app and use it along with ExoPlayer to play Opus audio on Android devices.
 
-[Track Renderer]: http://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer/TrackRenderer.html
+[TrackRenderer]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer/TrackRenderer.html
 
 ## Build Instructions (Android Studio and Eclipse) ##
 

@@ -36,6 +36,8 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
 
   private final ChunkExtractorWrapper extractorWrapper;
   private final long sampleOffsetUs;
+  private final int adaptiveMaxWidth;
+  private final int adaptiveMaxHeight;
 
   private MediaFormat mediaFormat;
   private DrmInitData drmInitData;
@@ -51,25 +53,34 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
-   * @param isLastChunk True if this is the last chunk in the media. False otherwise.
    * @param sampleOffsetUs An offset to add to the sample timestamps parsed by the extractor.
    * @param extractorWrapper A wrapped extractor to use for parsing the data.
    * @param mediaFormat The {@link MediaFormat} of the chunk, if known. May be null if the data is
    *     known to define its own format.
+   * @param adaptiveMaxWidth If this chunk contains video and is part of an adaptive playback, this
+   *     is the maximum width of the video in pixels that will be encountered during the playback.
+   *     {@link MediaFormat#NO_VALUE} otherwise.
+   * @param adaptiveMaxHeight If this chunk contains video and is part of an adaptive playback, this
+   *     is the maximum height of the video in pixels that will be encountered during the playback.
+   *     {@link MediaFormat#NO_VALUE} otherwise.
    * @param drmInitData The {@link DrmInitData} for the chunk. Null if the media is not drm
    *     protected. May also be null if the data is known to define its own initialization data.
    * @param isMediaFormatFinal True if {@code mediaFormat} and {@code drmInitData} are known to be
    *     correct and final. False if the data may define its own format or initialization data.
+   * @param parentId Identifier for a parent from which this chunk originates.
    */
   public ContainerMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
-      long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk, long sampleOffsetUs,
-      ChunkExtractorWrapper extractorWrapper, MediaFormat mediaFormat, DrmInitData drmInitData,
-      boolean isMediaFormatFinal) {
-    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, isLastChunk,
-        isMediaFormatFinal);
+      long startTimeUs, long endTimeUs, int chunkIndex, long sampleOffsetUs,
+      ChunkExtractorWrapper extractorWrapper, MediaFormat mediaFormat, int adaptiveMaxWidth,
+      int adaptiveMaxHeight, DrmInitData drmInitData, boolean isMediaFormatFinal, int parentId) {
+    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex,
+        isMediaFormatFinal, parentId);
     this.extractorWrapper = extractorWrapper;
     this.sampleOffsetUs = sampleOffsetUs;
-    this.mediaFormat = mediaFormat;
+    this.adaptiveMaxWidth = adaptiveMaxWidth;
+    this.adaptiveMaxHeight = adaptiveMaxHeight;
+    this.mediaFormat = getAdjustedMediaFormat(mediaFormat, sampleOffsetUs, adaptiveMaxWidth,
+        adaptiveMaxHeight);
     this.drmInitData = drmInitData;
   }
 
@@ -102,7 +113,8 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
 
   @Override
   public final void format(MediaFormat mediaFormat) {
-    this.mediaFormat = mediaFormat;
+    this.mediaFormat = getAdjustedMediaFormat(mediaFormat, sampleOffsetUs, adaptiveMaxWidth,
+        adaptiveMaxHeight);
   }
 
   @Override
@@ -158,6 +170,22 @@ public class ContainerMediaChunk extends BaseMediaChunk implements SingleTrackOu
     } finally {
       dataSource.close();
     }
+  }
+
+  // Private methods.
+
+  private static MediaFormat getAdjustedMediaFormat(MediaFormat format, long sampleOffsetUs,
+      int adaptiveMaxWidth, int adaptiveMaxHeight) {
+    if (format == null) {
+      return null;
+    }
+    if (sampleOffsetUs != 0 && format.subsampleOffsetUs != MediaFormat.OFFSET_SAMPLE_RELATIVE) {
+      format = format.copyWithSubsampleOffsetUs(format.subsampleOffsetUs + sampleOffsetUs);
+    }
+    if (adaptiveMaxWidth != MediaFormat.NO_VALUE || adaptiveMaxHeight != MediaFormat.NO_VALUE) {
+      format = format.copyWithMaxVideoDimensions(adaptiveMaxWidth, adaptiveMaxHeight);
+    }
+    return format;
   }
 
 }

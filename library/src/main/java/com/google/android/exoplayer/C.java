@@ -68,6 +68,11 @@ public final class C {
   @SuppressWarnings("InlinedApi")
   public static final int ENCODING_E_AC3 = AudioFormat.ENCODING_E_AC3;
 
+  // TODO: Switch these constants to use AudioFormat fields when the target API version is >= 23.
+  // The inlined values here are for NVIDIA Shield devices which support DTS on earlier versions.
+  public static final int ENCODING_DTS = 7;
+  public static final int ENCODING_DTS_HD = 8;
+
   /**
    * @see MediaExtractor#SAMPLE_FLAG_SYNC
    */
@@ -91,16 +96,9 @@ public final class C {
   public static final int RESULT_END_OF_INPUT = -1;
 
   /**
-   * A prefix for custom ExoPlayer WebVTT headers.
+   * A return value for methods where the length of parsed data exceeds the maximum length allowed.
    */
-  public static final String WEBVTT_EXO_HEADER = "EXO-HEADER";
-
-  /**
-   * An element of a custom ExoPlayer WebVTT header. An {@code WEBVTT_OFFSET + value} element can
-   * be added to a custom ExoPlayer WebVTT header to specify an offset time (in microseconds) that
-   * should be added to the embedded MPEGTS value.
-   */
-  public static final String WEBVTT_EXO_HEADER_OFFSET = "OFFSET:";
+  public static final int RESULT_MAX_LENGTH_EXCEEDED = -2;
 
   private C() {}
 

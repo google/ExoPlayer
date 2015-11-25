@@ -87,7 +87,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
   private static final Pattern METHOD_ATTR_REGEX =
       Pattern.compile(METHOD_ATTR + "=(" + METHOD_NONE + "|" + METHOD_AES128 + ")");
   private static final Pattern URI_ATTR_REGEX =
-      Pattern.compile(URI_ATTR + "=\"(.+)\"");
+      Pattern.compile(URI_ATTR + "=\"(.+?)\"");
   private static final Pattern IV_ATTR_REGEX =
       Pattern.compile(IV_ATTR + "=([^,.*]+)");
   private static final Pattern TYPE_ATTR_REGEX =

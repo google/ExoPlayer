@@ -1,5 +1,4 @@
 WEBVTT # This comment is allowed
-X-TIMESTAMP-MAP=LOCAL:00:00.000,MPEGTS:450000
 
 00:00.000 --> 00:01.234
 This is the first subtitle.

@@ -23,6 +23,7 @@ import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaExtractor;
@@ -30,6 +31,8 @@ import android.net.Uri;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
@@ -70,7 +73,7 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
 
   private IOException preparationError;
   private MediaExtractor extractor;
-  private TrackInfo[] trackInfos;
+  private MediaFormat[] trackFormats;
   private boolean prepared;
   private int remainingReleaseCount;
   private int[] trackStates;
@@ -141,13 +144,9 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
 
       trackStates = new int[extractor.getTrackCount()];
       pendingDiscontinuities = new boolean[trackStates.length];
-      trackInfos = new TrackInfo[trackStates.length];
+      trackFormats = new MediaFormat[trackStates.length];
       for (int i = 0; i < trackStates.length; i++) {
-        android.media.MediaFormat format = extractor.getTrackFormat(i);
-        long durationUs = format.containsKey(android.media.MediaFormat.KEY_DURATION)
-            ? format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
-        String mime = format.getString(android.media.MediaFormat.KEY_MIME);
-        trackInfos[i] = new TrackInfo(mime, durationUs);
+        trackFormats[i] = createMediaFormat(extractor.getTrackFormat(i));
       }
       prepared = true;
     }
@@ -161,9 +160,9 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
   }
 
   @Override
-  public TrackInfo getTrackInfo(int track) {
+  public MediaFormat getFormat(int track) {
     Assertions.checkState(prepared);
-    return trackInfos[track];
+    return trackFormats[track];
   }
 
   @Override
@@ -197,8 +196,7 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
       return NOTHING_READ;
     }
     if (trackStates[track] != TRACK_STATE_FORMAT_SENT) {
-      formatHolder.format = MediaFormat.createFromFrameworkMediaFormatV16(
-          extractor.getTrackFormat(track));
+      formatHolder.format = trackFormats[track];
       formatHolder.drmInitData = Util.SDK_INT >= 18 ? getDrmInitDataV18() : null;
       trackStates[track] = TRACK_STATE_FORMAT_SENT;
       return FORMAT_READ;
@@ -295,6 +293,44 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
         }
       }
     }
+  }
+
+  @SuppressLint("InlinedApi")
+  private static MediaFormat createMediaFormat(android.media.MediaFormat format) {
+    String mimeType = format.getString(android.media.MediaFormat.KEY_MIME);
+    String language = getOptionalStringV16(format, android.media.MediaFormat.KEY_LANGUAGE);
+    int maxInputSize = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_MAX_INPUT_SIZE);
+    int width = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_WIDTH);
+    int height = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_HEIGHT);
+    int rotationDegrees = getOptionalIntegerV16(format, "rotation-degrees");
+    int channelCount = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_CHANNEL_COUNT);
+    int sampleRate = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_SAMPLE_RATE);
+    ArrayList<byte[]> initializationData = new ArrayList<>();
+    for (int i = 0; format.containsKey("csd-" + i); i++) {
+      ByteBuffer buffer = format.getByteBuffer("csd-" + i);
+      byte[] data = new byte[buffer.limit()];
+      buffer.get(data);
+      initializationData.add(data);
+      buffer.flip();
+    }
+    long durationUs = format.containsKey(android.media.MediaFormat.KEY_DURATION)
+        ? format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
+    MediaFormat mediaFormat = new MediaFormat(MediaFormat.NO_VALUE, mimeType, MediaFormat.NO_VALUE,
+        maxInputSize, durationUs, width, height, rotationDegrees, MediaFormat.NO_VALUE,
+        channelCount, sampleRate, language, MediaFormat.OFFSET_SAMPLE_RELATIVE, initializationData,
+        false, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
+    mediaFormat.setFrameworkFormatV16(format);
+    return mediaFormat;
+  }
+
+  @TargetApi(16)
+  private static final String getOptionalStringV16(android.media.MediaFormat format, String key) {
+    return format.containsKey(key) ? format.getString(key) : null;
+  }
+
+  @TargetApi(16)
+  private static final int getOptionalIntegerV16(android.media.MediaFormat format, String key) {
+    return format.containsKey(key) ? format.getInteger(key) : MediaFormat.NO_VALUE;
   }
 
 }

@@ -17,7 +17,6 @@ package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.TrackInfo;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 
@@ -36,7 +35,6 @@ public final class SingleSampleChunkSource implements ChunkSource {
   private final Format format;
   private final long durationUs;
   private final MediaFormat mediaFormat;
-  private final TrackInfo trackInfo;
 
   /**
    * @param dataSource A {@link DataSource} suitable for loading the sample data.
@@ -54,21 +52,25 @@ public final class SingleSampleChunkSource implements ChunkSource {
     this.format = format;
     this.durationUs = durationUs;
     this.mediaFormat = mediaFormat;
-    trackInfo = new TrackInfo(format.mimeType, durationUs);
   }
 
   @Override
-  public TrackInfo getTrackInfo() {
-    return trackInfo;
+  public boolean prepare() {
+    return true;
   }
 
   @Override
-  public void getMaxVideoDimensions(MediaFormat out) {
-    // Do nothing.
+  public int getTrackCount() {
+    return 1;
   }
 
   @Override
-  public void enable() {
+  public MediaFormat getFormat(int track) {
+    return mediaFormat;
+  }
+
+  @Override
+  public void enable(int track) {
     // Do nothing.
   }
 
@@ -82,6 +84,7 @@ public final class SingleSampleChunkSource implements ChunkSource {
       long playbackPositionUs, ChunkOperationHolder out) {
     if (!queue.isEmpty()) {
       // We've already provided the single sample.
+      out.endOfStream = true;
       return;
     }
     out.chunk = initChunk();
@@ -109,7 +112,7 @@ public final class SingleSampleChunkSource implements ChunkSource {
 
   private SingleSampleMediaChunk initChunk() {
     return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_UNSPECIFIED, format, 0,
-        durationUs, 0, true, mediaFormat, null, null);
+        durationUs, 0, mediaFormat, null, Chunk.NO_PARENT_ID);
   }
 
 }

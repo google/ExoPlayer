@@ -46,16 +46,15 @@ public abstract class BaseMediaChunk extends MediaChunk {
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
-   * @param isLastChunk True if this is the last chunk in the media. False otherwise.
    * @param isMediaFormatFinal True if {@link #getMediaFormat()} and {@link #getDrmInitData()} can
    *     be called at any time to obtain the media format and drm initialization data. False if
    *     these methods are only guaranteed to return correct data after the first sample data has
    *     been output from the chunk.
+   * @param parentId Identifier for a parent from which this chunk originates.
    */
   public BaseMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
-      long startTimeUs, long endTimeUs, int chunkIndex, boolean isLastChunk,
-      boolean isMediaFormatFinal) {
-    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, isLastChunk);
+      long startTimeUs, long endTimeUs, int chunkIndex, boolean isMediaFormatFinal, int parentId) {
+    super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, parentId);
     this.isMediaFormatFinal = isMediaFormatFinal;
   }
 

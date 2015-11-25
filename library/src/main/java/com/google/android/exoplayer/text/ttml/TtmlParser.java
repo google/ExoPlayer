@@ -20,7 +20,10 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.Subtitle;
 import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.ParserUtil;
+import com.google.android.exoplayer.util.Util;
 
+import android.text.Layout;
 import android.util.Log;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -29,7 +32,9 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,6 +66,7 @@ public final class TtmlParser implements SubtitleParser {
   private static final String ATTR_BEGIN = "begin";
   private static final String ATTR_DURATION = "dur";
   private static final String ATTR_END = "end";
+  private static final String ATTR_STYLE = "style";
 
   private static final Pattern CLOCK_TIME =
       Pattern.compile("^([0-9][0-9]+):([0-9][0-9]):([0-9][0-9])"
@@ -84,10 +90,10 @@ public final class TtmlParser implements SubtitleParser {
   }
 
   /**
-   * @param strictParsing If true, {@link #parse(InputStream, String, long)} will throw a
-   *     {@link ParserException} if the stream contains invalid data. If false, the parser will
-   *     make a best effort to ignore minor errors in the stream. Note however that a
-   *     {@link ParserException} will still be thrown when this is not possible.
+   * @param strictParsing If true, {@link #parse(InputStream)} will throw a {@link ParserException}
+   *     if the stream contains invalid data. If false, the parser will make a best effort to ignore
+   *     minor errors in the stream. Note however that a {@link ParserException} will still be
+   *     thrown when this is not possible.
    */
   public TtmlParser(boolean strictParsing) {
     this.strictParsing = strictParsing;
@@ -99,11 +105,11 @@ public final class TtmlParser implements SubtitleParser {
   }
 
   @Override
-  public Subtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
-      throws IOException {
+  public Subtitle parse(InputStream inputStream) throws IOException {
     try {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
-      xmlParser.setInput(inputStream, inputEncoding);
+      Map<String, TtmlStyle> globalStyles = new HashMap<>();
+      xmlParser.setInput(inputStream, null);
       TtmlSubtitle ttmlSubtitle = null;
       LinkedList<TtmlNode> nodeStack = new LinkedList<>();
       int unsupportedNodeDepth = 0;
@@ -116,6 +122,8 @@ public final class TtmlParser implements SubtitleParser {
             if (!isSupportedTag(name)) {
               Log.i(TAG, "Ignoring unsupported tag: " + xmlParser.getName());
               unsupportedNodeDepth++;
+            } else if (TtmlNode.TAG_HEAD.equals(name)) {
+              parseHeader(xmlParser, globalStyles);
             } else {
               try {
                 TtmlNode node = parseNode(xmlParser, parent);
@@ -127,7 +135,7 @@ public final class TtmlParser implements SubtitleParser {
                 if (strictParsing) {
                   throw e;
                 } else {
-                  Log.e(TAG, "Suppressing parser error", e);
+                  Log.w(TAG, "Suppressing parser error", e);
                   // Treat the node (and by extension, all of its children) as unsupported.
                   unsupportedNodeDepth++;
                 }
@@ -137,7 +145,7 @@ public final class TtmlParser implements SubtitleParser {
             parent.addChild(TtmlNode.buildTextNode(xmlParser.getText()));
           } else if (eventType == XmlPullParser.END_TAG) {
             if (xmlParser.getName().equals(TtmlNode.TAG_TT)) {
-              ttmlSubtitle = new TtmlSubtitle(nodeStack.getLast(), startTimeUs);
+              ttmlSubtitle = new TtmlSubtitle(nodeStack.getLast(), globalStyles);
             }
             nodeStack.removeLast();
           }
@@ -157,6 +165,121 @@ public final class TtmlParser implements SubtitleParser {
     }
   }
 
+  private Map<String, TtmlStyle> parseHeader(XmlPullParser xmlParser,
+      Map<String, TtmlStyle> globalStyles)
+      throws IOException, XmlPullParserException {
+
+    do {
+      xmlParser.next();
+      if (ParserUtil.isStartTag(xmlParser, TtmlNode.TAG_STYLE)) {
+        String parentStyleId = xmlParser.getAttributeValue(null, ATTR_STYLE);
+        TtmlStyle style = parseStyleAttributes(xmlParser, new TtmlStyle());
+        if (parentStyleId != null) {
+          String[] ids = parseStyleIds(parentStyleId);
+          for (int i = 0; i < ids.length; i++) {
+            style.chain(globalStyles.get(ids[i]));
+          }
+        }
+        if (style.getId() != null) {
+          globalStyles.put(style.getId(), style);
+        }
+      }
+    } while (!ParserUtil.isEndTag(xmlParser, TtmlNode.TAG_HEAD));
+    return globalStyles;
+  }
+
+  private String[] parseStyleIds(String parentStyleIds) {
+    return parentStyleIds.split("\\s+");
+  }
+
+  private TtmlStyle parseStyleAttributes(XmlPullParser parser, TtmlStyle style) {
+    int attributeCount = parser.getAttributeCount();
+    for (int i = 0; i < attributeCount; i++) {
+      String attributeName = parser.getAttributeName(i);
+      String attributeValue = parser.getAttributeValue(i);
+      switch (ParserUtil.removeNamespacePrefix(attributeName)) {
+        case TtmlNode.ATTR_ID:
+          if (TtmlNode.TAG_STYLE.equals(parser.getName())) {
+            style = createIfNull(style).setId(attributeValue);
+          }
+          break;
+        case TtmlNode.ATTR_TTS_BACKGROUND_COLOR:
+          style = createIfNull(style);
+          try {
+            style.setBackgroundColor(TtmlColorParser.parseColor(attributeValue));
+          } catch (IllegalArgumentException e) {
+            Log.w(TAG, "failed parsing background value: '" + attributeValue + "'");
+          }
+          break;
+        case TtmlNode.ATTR_TTS_COLOR:
+          style = createIfNull(style);
+          try {
+            style.setColor(TtmlColorParser.parseColor(attributeValue));
+          } catch (IllegalArgumentException e) {
+            Log.w(TAG, "failed parsing color value: '" + attributeValue + "'");
+          }
+          break;
+        case TtmlNode.ATTR_TTS_FONT_FAMILY:
+          style = createIfNull(style).setFontFamily(attributeValue);
+          break;
+        case TtmlNode.ATTR_TTS_FONT_SIZE:
+          // TODO: handle size
+          break;
+        case TtmlNode.ATTR_TTS_FONT_WEIGHT:
+          style = createIfNull(style).setBold(
+              TtmlNode.BOLD.equalsIgnoreCase(attributeValue));
+          break;
+        case TtmlNode.ATTR_TTS_FONT_STYLE:
+          style = createIfNull(style).setItalic(
+              TtmlNode.ITALIC.equalsIgnoreCase(attributeValue));
+          break;
+        case TtmlNode.ATTR_TTS_TEXT_ALIGN:
+          switch (Util.toLowerInvariant(attributeValue)) {
+            case TtmlNode.LEFT:
+              style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_NORMAL);
+              break;
+            case TtmlNode.START:
+              style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_NORMAL);
+              break;
+            case TtmlNode.RIGHT:
+              style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_OPPOSITE);
+              break;
+            case TtmlNode.END:
+              style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_OPPOSITE);
+              break;
+            case TtmlNode.CENTER:
+              style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_CENTER);
+              break;
+          }
+          break;
+        case TtmlNode.ATTR_TTS_TEXT_DECORATION:
+          switch (Util.toLowerInvariant(attributeValue)) {
+            case TtmlNode.LINETHROUGH:
+              style = createIfNull(style).setLinethrough(true);
+              break;
+            case TtmlNode.NO_LINETHROUGH:
+              style = createIfNull(style).setLinethrough(false);
+              break;
+            case TtmlNode.UNDERLINE:
+              style = createIfNull(style).setUnderline(true);
+              break;
+            case TtmlNode.NO_UNDERLINE:
+              style = createIfNull(style).setUnderline(false);
+              break;
+          }
+          break;
+        default:
+          // ignore
+          break;
+      }
+    }
+    return style;
+  }
+
+  private TtmlStyle createIfNull(TtmlStyle style) {
+    return style == null ? new TtmlStyle() : style;
+  }
+
   @Override
   public boolean canParse(String mimeType) {
     return MimeTypes.APPLICATION_TTML.equals(mimeType);
@@ -166,10 +289,11 @@ public final class TtmlParser implements SubtitleParser {
     long duration = 0;
     long startTime = TtmlNode.UNDEFINED_TIME;
     long endTime = TtmlNode.UNDEFINED_TIME;
+    String[] styleIds = null;
     int attributeCount = parser.getAttributeCount();
+    TtmlStyle style = parseStyleAttributes(parser, null);
     for (int i = 0; i < attributeCount; i++) {
-      // TODO: check if it's safe to ignore the namespace of attributes as follows.
-      String attr = parser.getAttributeName(i).replaceFirst("^.*:", "");
+      String attr = ParserUtil.removeNamespacePrefix(parser.getAttributeName(i));
       String value = parser.getAttributeValue(i);
       if (attr.equals(ATTR_BEGIN)) {
         startTime = parseTimeExpression(value,
@@ -180,6 +304,12 @@ public final class TtmlParser implements SubtitleParser {
       } else if (attr.equals(ATTR_DURATION)) {
         duration = parseTimeExpression(value,
             DEFAULT_FRAMERATE, DEFAULT_SUBFRAMERATE, DEFAULT_TICKRATE);
+      } else if (attr.equals(ATTR_STYLE)) {
+        // IDREFS: potentially multiple space delimited ids
+        String[] ids = parseStyleIds(value);
+        if (ids.length > 0) {
+          styleIds = ids;
+        }
       } else {
         // Do nothing.
       }
@@ -201,7 +331,7 @@ public final class TtmlParser implements SubtitleParser {
         endTime = parent.endTimeUs;
       }
     }
-    return TtmlNode.buildNode(parser.getName(), startTime, endTime);
+    return TtmlNode.buildNode(parser.getName(), startTime, endTime, style, styleIds);
   }
 
   private static boolean isSupportedTag(String tag) {

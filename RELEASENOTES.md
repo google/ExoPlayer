@@ -1,8 +1,30 @@
 # Release notes #
 
-### Current dev branch (from r1.4.2) ###
+### r1.5.2 ###
 
-* Nothing yet.
+* MPEG-TS/HLS: Fix frame drops playing H265 video.
+* SmoothStreaming: Fix parsing of ProtectionHeader.
+
+### r1.5.1 ###
+
+* Enable smooth frame release by default.
+* Added OkHttpDataSource extension.
+* AndroidTV: Correctly detect 4K display size on Bravia devices.
+* FMP4: Handle non-sample data in mdat boxes.
+* TTML: Fix parsing of some colors on Jellybean.
+* SmoothStreaming: Ignore tfdt boxes.
+* Misc bug fixes.
+
+### r1.5.0 ###
+
+* Multi-track support.
+* DASH: Limited support for multi-period manifests.
+* HLS: Smoother format adaptation.
+* HLS: Support for MP3 media segments.
+* TTML: Support for most embedded TTML styling.
+* WebVTT: Enhanced positioning support.
+* Initial playback tests.
+* Misc bug fixes.
 
 ### r1.4.2 ###
 
@@ -20,7 +42,7 @@
 * Support for extracting Matroska streams (implemented by WebmExtractor).
 * Support for tx3g captions in MP4 streams.
 * Support for H.265 in MPEG-TS streams on supported devices.
-* HLS: Added support for MPEG audio (e.g. MP3).
+* HLS: Added support for MPEG audio (e.g. MP3) in TS media segments.
 * HLS: Improved robustness against missing chunks and variants.
 * MP4: Added support for embedded MPEG audio (e.g. MP3).
 * TTML: Improved handling of whitespace.

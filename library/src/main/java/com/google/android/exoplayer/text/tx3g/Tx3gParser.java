@@ -32,11 +32,10 @@ import java.io.InputStream;
 public final class Tx3gParser implements SubtitleParser {
 
   @Override
-  public Subtitle parse(InputStream inputStream, String inputEncoding, long startTimeUs)
-      throws IOException {
+  public Subtitle parse(InputStream inputStream) throws IOException {
     DataInputStream dataInputStream  = new DataInputStream(inputStream);
     String cueText = dataInputStream.readUTF();
-    return new Tx3gSubtitle(startTimeUs, new Cue(cueText));
+    return new Tx3gSubtitle(new Cue(cueText));
   }
 
   @Override

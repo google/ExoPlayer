@@ -15,12 +15,13 @@
  */
 package com.google.android.exoplayer.ext.vp9;
 
+import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleSource;
-import com.google.android.exoplayer.SampleSource.SampleSourceReader;
+import com.google.android.exoplayer.SampleSourceTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.ext.vp9.VpxDecoderWrapper.InputBuffer;
 import com.google.android.exoplayer.ext.vp9.VpxDecoderWrapper.OutputBuffer;
@@ -32,12 +33,10 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.view.Surface;
 
-import java.io.IOException;
-
 /**
  * Decodes and renders video using the native VP9 decoder.
  */
-public class LibvpxVideoTrackRenderer extends TrackRenderer {
+public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
 
   /**
    * Interface definition for a callback to be notified of {@link LibvpxVideoTrackRenderer} events.
@@ -91,7 +90,8 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
   public static final int MSG_SET_SURFACE = 1;
   public static final int MSG_SET_VPX_SURFACE_VIEW = 2;
 
-  private final SampleSourceReader source;
+  public final CodecCounters codecCounters = new CodecCounters();
+
   private final boolean scaleToFit;
   private final Handler eventHandler;
   private final EventListener eventListener;
@@ -110,7 +110,6 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
   private VpxVideoSurfaceView vpxVideoSurfaceView;
   private boolean outputRgb;
 
-  private int trackIndex;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private boolean sourceIsReady;
@@ -141,7 +140,7 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
    */
   public LibvpxVideoTrackRenderer(SampleSource source, boolean scaleToFit,
       Handler eventHandler, EventListener eventListener, int maxDroppedFrameCountToNotify) {
-    this.source = source.register();
+    super(source);
     this.scaleToFit = scaleToFit;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
@@ -152,20 +151,8 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected int doPrepare(long positionUs) throws ExoPlaybackException {
-    boolean sourcePrepared = source.prepare(positionUs);
-    if (!sourcePrepared) {
-      return TrackRenderer.STATE_UNPREPARED;
-    }
-    int trackCount = source.getTrackCount();
-    for (int i = 0; i < trackCount; i++) {
-      if (source.getTrackInfo(i).mimeType.equalsIgnoreCase(MimeTypes.VIDEO_VP9)
-          || source.getTrackInfo(i).mimeType.equalsIgnoreCase(MimeTypes.VIDEO_WEBM)) {
-        trackIndex = i;
-        return TrackRenderer.STATE_PREPARED;
-      }
-    }
-    return TrackRenderer.STATE_IGNORE;
+  protected boolean handlesTrack(MediaFormat mediaFormat) {
+    return MimeTypes.VIDEO_VP9.equalsIgnoreCase(mediaFormat.mimeType);
   }
 
   @Override
@@ -173,7 +160,7 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
     if (outputStreamEnded) {
       return;
     }
-    sourceIsReady = source.continueBuffering(trackIndex, positionUs);
+    sourceIsReady = continueBufferingSource(positionUs);
     checkForDiscontinuity(positionUs);
 
     // Try and read a format if we don't have one already.
@@ -223,6 +210,7 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
 
     if (timeToRenderUs < -30000 || outputBuffer.timestampUs < positionUs) {
       // Drop frame if we are too late.
+      codecCounters.droppedOutputBufferCount++;
       droppedFrameCount++;
       if (droppedFrameCount == maxDroppedFrameCountToNotify) {
         notifyAndResetDroppedFrameCount();
@@ -231,8 +219,8 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
       return;
     }
 
-    // If we have not renderered any frame so far (either initially or immediately following a
-    // seek), render one frame irresepective of the state.
+    // If we have not rendered any frame so far (either initially or immediately following a seek),
+    // render one frame irrespective of the state.
     if (!renderedFirstFrame) {
       renderBuffer();
       renderedFirstFrame = true;
@@ -246,8 +234,7 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
 
     if (timeToRenderUs > 11000) {
       try {
-        // Subtracting 10000 rather than 11000 ensures that the sleep time
-        // will be at least 1ms.
+        // Subtracting 10000 rather than 11000 ensures that the sleep time will be at least 1ms.
         Thread.sleep((timeToRenderUs - 10000) / 1000);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
@@ -257,6 +244,7 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
   }
 
   private void renderBuffer() throws VpxDecoderException {
+    codecCounters.renderedOutputBufferCount++;
     notifyIfVideoSizeChanged(outputBuffer);
     if (outputRgb) {
       renderRgbFrame(outputBuffer, scaleToFit);
@@ -302,7 +290,7 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
       }
     }
 
-    int result = source.readData(trackIndex, positionUs, formatHolder, inputBuffer.sampleHolder,
+    int result = readSource(positionUs, formatHolder, inputBuffer.sampleHolder,
         false);
     if (result == SampleSource.NOTHING_READ) {
       return false;
@@ -334,7 +322,7 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
     if (decoder == null) {
       return;
     }
-    int result = source.readData(trackIndex, positionUs, formatHolder, null, true);
+    int result = readSource(positionUs, formatHolder, null, true);
     if (result == SampleSource.DISCONTINUITY_READ) {
       flushDecoder();
     }
@@ -357,24 +345,15 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected long getDurationUs() {
-    return source.getTrackInfo(trackIndex).durationUs;
-  }
-
-  @Override
-  protected long getBufferedPositionUs() {
-    return source.getBufferedPositionUs();
-  }
-
-  @Override
   protected void seekTo(long positionUs) throws ExoPlaybackException {
-    source.seekToUs(positionUs);
+    super.seekTo(positionUs);
     seekToInternal();
   }
 
   @Override
-  protected void onEnabled(long positionUs, boolean joining) {
-    source.enable(trackIndex, positionUs);
+  protected void onEnabled(int track, long positionUs, boolean joining)
+      throws ExoPlaybackException {
+    super.onEnabled(track, positionUs, joining);
     seekToInternal();
   }
 
@@ -397,33 +376,22 @@ public class LibvpxVideoTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected void onReleased() {
-    source.release();
-  }
-
-  @Override
-  protected void onDisabled() {
-    if (decoder != null) {
-      decoder.release();
-      decoder = null;
-    }
+  protected void onDisabled() throws ExoPlaybackException {
     inputBuffer = null;
     outputBuffer = null;
     format = null;
-    source.disable(trackIndex);
-  }
-
-  @Override
-  protected void maybeThrowError() throws ExoPlaybackException {
     try {
-      source.maybeThrowError();
-    } catch (IOException e) {
-      throw new ExoPlaybackException(e);
+      if (decoder != null) {
+        decoder.release();
+        decoder = null;
+      }
+    } finally {
+      super.onDisabled();
     }
   }
 
   private boolean readFormat(long positionUs) {
-    int result = source.readData(trackIndex, positionUs, formatHolder, null, false);
+    int result = readSource(positionUs, formatHolder, null, false);
     if (result == SampleSource.FORMAT_READ) {
       format = formatHolder.format;
       return true;

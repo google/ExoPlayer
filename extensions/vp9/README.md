@@ -2,9 +2,9 @@
 
 ## Description ##
 
-The VP9 Extension is a [Track Renderer][] implementation that helps you bundle libvpx (the VP9 decoding library) into your app and use it along with ExoPlayer to play VP9 video on Android devices.
+The VP9 Extension is a [TrackRenderer][] implementation that helps you bundle libvpx (the VP9 decoding library) into your app and use it along with ExoPlayer to play VP9 video on Android devices.
 
-[Track Renderer]: http://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer/TrackRenderer.html
+[TrackRenderer]: https://google.github.io/ExoPlayer/doc/reference/com/google/android/exoplayer/TrackRenderer.html
 
 ## Build Instructions (Android Studio and Eclipse) ##
 
@@ -112,17 +112,20 @@ libvpx is optimized for various architectures (like neon, x86, etc.). The `gener
 * armeabi-v7a (choose this to enable neon optimizations)
 * mips
 * x86
+* arm64-v8a
+* mips64
+* x86_64
 * all (will result in a larger binary but will cover all architectures)
 
 You can build for a specific architecture in two ways:
 
 * Method 1 (edit `Application.mk`)
-  * Edit `${VP9_EXT_PATH}/jni/Application.mk` and add the following line `APP_ABI := <arch>` (where `<arch>` is one of the above 4 architectures)
+  * Edit `${VP9_EXT_PATH}/jni/Application.mk` and add the following line `APP_ABI := <arch>` (where `<arch>` is one of the above 7 architectures)
 * Method 2 (pass NDK build flag)
   * Right click on ExoPlayerExt-VP9 in the Project Explorer pane and choose Properties
   * Click on C/C++ Build
   * Uncheck `Use default build command`
-  * In `Build Command` enter: `ndk-build APP_ABI=<arch>` (where `<arch>` is one of the above 4 architectures)
+  * In `Build Command` enter: `ndk-build APP_ABI=<arch>` (where `<arch>` is one of the above 7 architectures)
   * Click Apply
 
 ## Other Things to Note ##

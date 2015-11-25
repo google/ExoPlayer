@@ -46,6 +46,11 @@ public final class InitializationChunk extends Chunk implements SingleTrackOutpu
   private volatile int bytesLoaded;
   private volatile boolean loadCanceled;
 
+  public InitializationChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
+      ChunkExtractorWrapper extractorWrapper) {
+    this(dataSource, dataSpec, trigger, format, extractorWrapper, Chunk.NO_PARENT_ID);
+  }
+
   /**
    * Constructor for a chunk of media samples.
    *
@@ -54,10 +59,11 @@ public final class InitializationChunk extends Chunk implements SingleTrackOutpu
    * @param trigger The reason for this chunk being selected.
    * @param format The format of the stream to which this chunk belongs.
    * @param extractorWrapper A wrapped extractor to use for parsing the initialization data.
+   * @param parentId Identifier for a parent from which this chunk originates.
    */
   public InitializationChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
-      ChunkExtractorWrapper extractorWrapper) {
-    super(dataSource, dataSpec, Chunk.TYPE_MEDIA_INITIALIZATION, trigger, format);
+      ChunkExtractorWrapper extractorWrapper, int parentId) {
+    super(dataSource, dataSpec, Chunk.TYPE_MEDIA_INITIALIZATION, trigger, format, parentId);
     this.extractorWrapper = extractorWrapper;
   }
 

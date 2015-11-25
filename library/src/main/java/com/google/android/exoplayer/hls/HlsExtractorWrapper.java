@@ -27,6 +27,7 @@ import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.MimeTypes;
 
 import android.util.SparseArray;
 
@@ -44,7 +45,10 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   private final Extractor extractor;
   private final SparseArray<DefaultTrackOutput> sampleQueues;
   private final boolean shouldSpliceIn;
+  private final int adaptiveMaxWidth;
+  private final int adaptiveMaxHeight;
 
+  private MediaFormat[] sampleQueueFormats;
   private Allocator allocator;
 
   private volatile boolean tracksBuilt;
@@ -54,12 +58,14 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   private boolean spliceConfigured;
 
   public HlsExtractorWrapper(int trigger, Format format, long startTimeUs, Extractor extractor,
-      boolean shouldSpliceIn) {
+      boolean shouldSpliceIn, int adaptiveMaxWidth, int adaptiveMaxHeight) {
     this.trigger = trigger;
     this.format = format;
     this.startTimeUs = startTimeUs;
     this.extractor = extractor;
     this.shouldSpliceIn = shouldSpliceIn;
+    this.adaptiveMaxWidth = adaptiveMaxWidth;
+    this.adaptiveMaxHeight = adaptiveMaxHeight;
     sampleQueues = new SparseArray<>();
   }
 
@@ -86,6 +92,15 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
         }
       }
       prepared = true;
+      sampleQueueFormats = new MediaFormat[sampleQueues.size()];
+      for (int i = 0; i < sampleQueueFormats.length; i++) {
+        MediaFormat format = sampleQueues.valueAt(i).getFormat();
+        if (MimeTypes.isVideo(format.mimeType) && (adaptiveMaxWidth != MediaFormat.NO_VALUE
+            || adaptiveMaxHeight != MediaFormat.NO_VALUE)) {
+          format = format.copyWithMaxVideoDimensions(adaptiveMaxWidth, adaptiveMaxHeight);
+        }
+        sampleQueueFormats[i] = format;
+      }
     }
     return prepared;
   }
@@ -169,7 +184,7 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
    */
   public MediaFormat getMediaFormat(int track) {
     Assertions.checkState(isPrepared());
-    return sampleQueues.valueAt(track).getFormat();
+    return sampleQueueFormats[track];
   }
 
   /**

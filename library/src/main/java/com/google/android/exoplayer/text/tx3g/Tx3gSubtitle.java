@@ -27,22 +27,15 @@ import java.util.List;
  */
 /* package */ final class Tx3gSubtitle implements Subtitle {
 
-  private final long startTimeUs;
   private final List<Cue> cues;
 
-  public Tx3gSubtitle(long startTimeUs, Cue cue) {
-    this.startTimeUs = startTimeUs;
+  public Tx3gSubtitle(Cue cue) {
     this.cues = Collections.singletonList(cue);
   }
 
   @Override
-  public long getStartTime() {
-    return startTimeUs;
-  }
-
-  @Override
   public int getNextEventTimeIndex(long timeUs) {
-    return timeUs < startTimeUs ? 0 : -1;
+    return timeUs < 0 ? 0 : -1;
   }
 
   @Override
@@ -53,17 +46,17 @@ import java.util.List;
   @Override
   public long getEventTime(int index) {
     Assertions.checkArgument(index == 0);
-    return startTimeUs;
+    return 0;
   }
 
   @Override
   public long getLastEventTime() {
-    return startTimeUs;
+    return 0;
   }
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    return timeUs >= startTimeUs ? cues : Collections.<Cue>emptyList();
+    return timeUs >= 0 ? cues : Collections.<Cue>emptyList();
   }
 
 }

@@ -75,6 +75,12 @@ public final class Util {
    */
   public static final String MANUFACTURER = android.os.Build.MANUFACTURER;
 
+  /**
+   * Like {@link android.os.Build#MODEL}, but in a place where it can be conveniently overridden for
+   * local testing.
+   */
+  public static final String MODEL = android.os.Build.MODEL;
+
   private static final Pattern XS_DATE_TIME_PATTERN = Pattern.compile(
       "(\\d\\d\\d\\d)\\-(\\d\\d)\\-(\\d\\d)[Tt]"
       + "(\\d\\d):(\\d\\d):(\\d\\d)(\\.(\\d+))?"
@@ -309,6 +315,20 @@ public final class Util {
     int index = Collections.binarySearch(list, key);
     index = index < 0 ? ~index : (inclusive ? index : (index + 1));
     return stayInBounds ? Math.min(list.size() - 1, index) : index;
+  }
+
+  /**
+   * Creates an integer array containing the integers from 0 to {@code length - 1}.
+   *
+   * @param length The length of the array.
+   * @return The array.
+   */
+  public static int[] firstIntegersArray(int length) {
+    int[] firstIntegers = new int[length];
+    for (int i = 0; i < length; i++) {
+      firstIntegers[i] = i;
+    }
+    return firstIntegers;
   }
 
   /**
@@ -566,6 +586,27 @@ public final class Util {
       result |= string.charAt(i);
     }
     return result;
+  }
+
+  /**
+   * Returns the top 32 bits of a long as an integer.
+   */
+  public static int getTopInt(long value) {
+    return (int) (value >>> 32);
+  }
+
+  /**
+   * Returns the bottom 32 bits of a long as an integer.
+   */
+  public static int getBottomInt(long value) {
+    return (int) value;
+  }
+
+  /**
+   * Returns a long created by concatenating the bits of two integers.
+   */
+  public static long getLong(int topInteger, int bottomInteger) {
+    return ((long) topInteger << 32) | (bottomInteger & 0xFFFFFFFFL);
   }
 
   /**

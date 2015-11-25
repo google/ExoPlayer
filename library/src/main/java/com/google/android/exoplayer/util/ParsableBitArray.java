@@ -127,18 +127,19 @@ public final class ParsableBitArray {
   /**
    * Reads up to 32 bits.
    *
-   * @param n The number of bits to read.
+   * @param numBits The number of bits to read.
    * @return An integer whose bottom n bits hold the read data.
    */
-  public int readBits(int n) {
-    if (n == 0) {
+  public int readBits(int numBits) {
+    if (numBits == 0) {
       return 0;
     }
 
     int returnValue = 0;
 
-    // While n >= 8, read whole bytes.
-    while (n >= 8) {
+    // Read as many whole bytes as we can.
+    int wholeBytes = (numBits / 8);
+    for (int i = 0; i < wholeBytes; i++) {
       int byteValue;
       if (bitOffset != 0) {
         byteValue = ((data[byteOffset] & 0xFF) << bitOffset)
@@ -146,14 +147,15 @@ public final class ParsableBitArray {
       } else {
         byteValue = data[byteOffset];
       }
-      n -= 8;
-      returnValue |= (byteValue & 0xFF) << n;
+      numBits -= 8;
+      returnValue |= (byteValue & 0xFF) << numBits;
       byteOffset++;
     }
 
-    if (n > 0) {
-      int nextBit = bitOffset + n;
-      byte writeMask = (byte) (0xFF >> (8 - n));
+    // Read any remaining bits.
+    if (numBits > 0) {
+      int nextBit = bitOffset + numBits;
+      byte writeMask = (byte) (0xFF >> (8 - numBits));
 
       if (nextBit > 8) {
         // Combine bits from current byte and next byte.

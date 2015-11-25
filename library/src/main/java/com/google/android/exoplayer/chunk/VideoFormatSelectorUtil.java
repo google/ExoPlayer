@@ -50,16 +50,14 @@ public final class VideoFormatSelectorUtil {
    *     mime types.
    * @param filterHdFormats True to filter HD formats. False otherwise.
    * @return An array holding the indices of the selected formats.
-   * @throws DecoderQueryException
+   * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
   public static int[] selectVideoFormatsForDefaultDisplay(Context context,
       List<? extends FormatWrapper> formatWrappers, String[] allowedContainerMimeTypes,
       boolean filterHdFormats) throws DecoderQueryException {
-    WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-    Display display = windowManager.getDefaultDisplay();
-    Point displaySize = getDisplaySize(display);
+    Point viewportSize = getViewportSize(context);
     return selectVideoFormats(formatWrappers, allowedContainerMimeTypes, filterHdFormats, true,
-        displaySize.x, displaySize.y);
+        viewportSize.x, viewportSize.y);
   }
 
   /**
@@ -125,7 +123,7 @@ public final class VideoFormatSelectorUtil {
     // unnecessarily high resolution given the size at which the video will be displayed within the
     // viewport.
     for (int i = selectedIndexList.size() - 1; i >= 0; i--) {
-      Format format = formatWrappers.get(i).getFormat();
+      Format format = formatWrappers.get(selectedIndexList.get(i)).getFormat();
       if (format.width > 0 && format.height > 0
           && format.width * format.height > maxVideoPixelsToRetain) {
         selectedIndexList.remove(i);
@@ -182,6 +180,19 @@ public final class VideoFormatSelectorUtil {
       // Vertical letter-boxing along edges.
       return new Point(Util.ceilDivide(viewportHeight * videoWidth, videoHeight), viewportHeight);
     }
+  }
+
+  private static Point getViewportSize(Context context) {
+    // Before API 23 the platform Display object does not provide a way to identify Android TVs that
+    // can show 4k resolution in a SurfaceView, so check for supported devices here.
+    // See also https://developer.sony.com/develop/tvs/android-tv/design-guide/.
+    if (Util.MODEL != null && Util.MODEL.startsWith("BRAVIA")
+        && context.getPackageManager().hasSystemFeature("com.sony.dtv.hardware.panel.qfhd")) {
+      return new Point(3840, 2160);
+    }
+
+    WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    return getDisplaySize(windowManager.getDefaultDisplay());
   }
 
   private static Point getDisplaySize(Display display) {
