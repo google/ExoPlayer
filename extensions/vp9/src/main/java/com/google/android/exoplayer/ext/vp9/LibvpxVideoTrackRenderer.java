@@ -108,7 +108,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
   private boolean renderedFirstFrame;
   private Surface surface;
   private VpxVideoSurfaceView vpxVideoSurfaceView;
-  private boolean outputRgb;
+  private int outputMode;
 
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
@@ -148,6 +148,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     previousWidth = -1;
     previousHeight = -1;
     formatHolder = new MediaFormatHolder();
+    outputMode = VpxDecoder.OUTPUT_MODE_UNKNOWN;
   }
 
   /**
@@ -184,9 +185,8 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     }
 
     // If we don't have a decoder yet, we need to instantiate one.
-    // TODO: Add support for dynamic switching between one type of surface to another.
     if (decoder == null) {
-      decoder = new VpxDecoderWrapper(outputRgb);
+      decoder = new VpxDecoderWrapper(outputMode);
       decoder.start();
     }
 
@@ -260,14 +260,14 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
   private void renderBuffer() throws VpxDecoderException {
     codecCounters.renderedOutputBufferCount++;
     notifyIfVideoSizeChanged(outputBuffer);
-    if (outputRgb) {
+    if (outputBuffer.mode == VpxDecoder.OUTPUT_MODE_RGB && surface != null) {
       renderRgbFrame(outputBuffer, scaleToFit);
-    } else {
+      if (!drawnToSurface) {
+        drawnToSurface = true;
+        notifyDrawnToSurface(surface);
+      }
+    } else if (outputBuffer.mode == VpxDecoder.OUTPUT_MODE_YUV && vpxVideoSurfaceView != null) {
       vpxVideoSurfaceView.renderFrame(outputBuffer);
-    }
-    if (!drawnToSurface) {
-      drawnToSurface = true;
-      notifyDrawnToSurface(surface);
     }
     releaseOutputBuffer();
   }
@@ -416,15 +416,37 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
   @Override
   public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
     if (messageType == MSG_SET_SURFACE) {
-      surface = (Surface) message;
-      vpxVideoSurfaceView = null;
-      outputRgb = true;
+      setSurface((Surface) message);
     } else if (messageType == MSG_SET_VPX_SURFACE_VIEW) {
-      vpxVideoSurfaceView = (VpxVideoSurfaceView) message;
-      surface = null;
-      outputRgb = false;
+      setVpxVideoSurfaceView((VpxVideoSurfaceView) message);
     } else {
       super.handleMessage(messageType, message);
+    }
+  }
+
+  private void setSurface(Surface surface) {
+    if (this.surface == surface) {
+      return;
+    }
+    this.surface = surface;
+    vpxVideoSurfaceView = null;
+    outputMode = (surface != null) ? VpxDecoder.OUTPUT_MODE_RGB : VpxDecoder.OUTPUT_MODE_UNKNOWN;
+    if (decoder != null) {
+      decoder.setOutputMode(outputMode);
+    }
+    drawnToSurface = false;
+  }
+
+  private void setVpxVideoSurfaceView(VpxVideoSurfaceView vpxVideoSurfaceView) {
+    if (this.vpxVideoSurfaceView == vpxVideoSurfaceView) {
+      return;
+    }
+    this.vpxVideoSurfaceView = vpxVideoSurfaceView;
+    surface = null;
+    outputMode =
+        (vpxVideoSurfaceView != null) ? VpxDecoder.OUTPUT_MODE_YUV : VpxDecoder.OUTPUT_MODE_UNKNOWN;
+    if (decoder != null) {
+      decoder.setOutputMode(outputMode);
     }
   }
 

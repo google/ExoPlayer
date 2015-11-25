@@ -31,7 +31,6 @@ import java.util.LinkedList;
   private static final int NUM_BUFFERS = 16;
 
   private final Object lock;
-  private final boolean outputRgb;
 
   private final LinkedList<InputBuffer> queuedInputBuffers;
   private final LinkedList<OutputBuffer> queuedOutputBuffers;
@@ -42,16 +41,17 @@ import java.util.LinkedList;
 
   private boolean flushDecodedOutputBuffer;
   private boolean released;
+  private int outputMode;
 
   private VpxDecoderException decoderException;
 
   /**
-   * @param outputRgb True if the decoded output is in RGB color format. False if it is in YUV
-   *     color format.
+   * @param outputMode One of OUTPUT_MODE_* constants from {@link VpxDecoderWrapper}
+   *     depending on the desired output mode.
    */
-  public VpxDecoderWrapper(boolean outputRgb) {
+  public VpxDecoderWrapper(int outputMode) {
     lock = new Object();
-    this.outputRgb = outputRgb;
+    this.outputMode = outputMode;
     queuedInputBuffers = new LinkedList<>();
     queuedOutputBuffers = new LinkedList<>();
     availableInputBuffers = new InputBuffer[NUM_BUFFERS];
@@ -62,6 +62,10 @@ import java.util.LinkedList;
       availableInputBuffers[i] = new InputBuffer();
       availableOutputBuffers[i] = new OutputBuffer();
     }
+  }
+
+  public void setOutputMode(int outputMode) {
+    this.outputMode = outputMode;
   }
 
   public InputBuffer getInputBuffer() throws VpxDecoderException {
@@ -192,8 +196,9 @@ import java.util.LinkedList;
       SampleHolder sampleHolder = inputBuffer.sampleHolder;
       outputBuffer.timestampUs = sampleHolder.timeUs;
       outputBuffer.flags = 0;
+      outputBuffer.mode = outputMode;
       sampleHolder.data.position(sampleHolder.data.position() - sampleHolder.size);
-      decodeResult = decoder.decode(sampleHolder.data, sampleHolder.size, outputBuffer, outputRgb);
+      decodeResult = decoder.decode(sampleHolder.data, sampleHolder.size, outputBuffer);
     }
 
     synchronized (lock) {
@@ -242,6 +247,7 @@ import java.util.LinkedList;
     public int flags;
     public ByteBuffer[] yuvPlanes;
     public int[] yuvStrides;
+    public int mode;
 
     /**
      * This method is called from C++ through JNI after decoding is done. It will resize the

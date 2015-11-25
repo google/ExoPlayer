@@ -37,6 +37,10 @@ import java.nio.ByteBuffer;
     IS_AVAILABLE = isAvailable;
   }
 
+  public static final int OUTPUT_MODE_UNKNOWN = -1;
+  public static final int OUTPUT_MODE_YUV = 0;
+  public static final int OUTPUT_MODE_RGB = 1;
+
   private final long vpxDecContext;
 
   /**
@@ -57,17 +61,15 @@ import java.nio.ByteBuffer;
    * @param encoded The encoded buffer.
    * @param size Size of the encoded buffer.
    * @param outputBuffer The buffer into which the decoded frame should be written.
-   * @param outputRgb True if the buffer should be converted to RGB color format. False if YUV
-   *     format should be retained.
    * @return 0 on success with a frame to render. 1 on success without a frame to render.
    * @throws VpxDecoderException on decode failure.
    */
-  public int decode(ByteBuffer encoded, int size, OutputBuffer outputBuffer, boolean outputRgb)
+  public int decode(ByteBuffer encoded, int size, OutputBuffer outputBuffer)
       throws VpxDecoderException {
     if (vpxDecode(vpxDecContext, encoded, size) != 0) {
       throw new VpxDecoderException("libvpx decode error: " + vpxGetErrorMessage(vpxDecContext));
     }
-    return vpxGetFrame(vpxDecContext, outputBuffer, outputRgb);
+    return vpxGetFrame(vpxDecContext, outputBuffer);
   }
 
   /**
@@ -92,7 +94,7 @@ import java.nio.ByteBuffer;
   private native long vpxInit();
   private native long vpxClose(long context);
   private native long vpxDecode(long context, ByteBuffer encoded, int length);
-  private native int vpxGetFrame(long context, OutputBuffer outputBuffer, boolean outputRgb);
+  private native int vpxGetFrame(long context, OutputBuffer outputBuffer);
   private native String vpxGetErrorMessage(long context);
 
 }
