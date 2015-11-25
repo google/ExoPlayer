@@ -43,4 +43,6 @@
 
   <string name="drm_error_unknown">An unknown DRM error occurred</string>
 
+  <string name="storage_permission_denied">Permission to access storage was denied</string>
+
 </resources>
