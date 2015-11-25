@@ -40,6 +40,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
   private static final String STREAM_INF_TAG = "#EXT-X-STREAM-INF";
   private static final String MEDIA_TAG = "#EXT-X-MEDIA";
   private static final String DISCONTINUITY_TAG = "#EXT-X-DISCONTINUITY";
+  private static final String DISCONTINUITY_SEQUENCE_TAG = "#EXT-X-DISCONTINUITY-SEQUENCE";
   private static final String MEDIA_DURATION_TAG = "#EXTINF";
   private static final String MEDIA_SEQUENCE_TAG = "#EXT-X-MEDIA-SEQUENCE";
   private static final String TARGET_DURATION_TAG = "#EXT-X-TARGETDURATION";
@@ -122,6 +123,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
             || line.startsWith(KEY_TAG)
             || line.startsWith(BYTERANGE_TAG)
             || line.equals(DISCONTINUITY_TAG)
+            || line.equals(DISCONTINUITY_SEQUENCE_TAG)
             || line.equals(ENDLIST_TAG)) {
           extraLines.add(line);
           return parseMediaPlaylist(new LineIterator(extraLines, reader), connectionUrl);
@@ -208,7 +210,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
     List<Segment> segments = new ArrayList<>();
 
     double segmentDurationSecs = 0.0;
-    boolean segmentDiscontinuity = false;
+    int discontinuitySequenceNumber = 0;
     long segmentStartTimeUs = 0;
     int segmentByterangeOffset = 0;
     int segmentByterangeLength = C.LENGTH_UNBOUNDED;
@@ -249,8 +251,10 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         if (splitByteRange.length > 1) {
           segmentByterangeOffset = Integer.parseInt(splitByteRange[1]);
         }
+      } else if (line.startsWith(DISCONTINUITY_SEQUENCE_TAG)) {
+        discontinuitySequenceNumber = Integer.parseInt(line.substring(line.indexOf(':') + 1));
       } else if (line.equals(DISCONTINUITY_TAG)) {
-        segmentDiscontinuity = true;
+        discontinuitySequenceNumber++;
       } else if (!line.startsWith("#")) {
         String segmentEncryptionIV;
         if (!isEncrypted) {
@@ -264,11 +268,10 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         if (segmentByterangeLength == C.LENGTH_UNBOUNDED) {
           segmentByterangeOffset = 0;
         }
-        segments.add(new Segment(line, segmentDurationSecs, segmentDiscontinuity,
+        segments.add(new Segment(line, segmentDurationSecs, discontinuitySequenceNumber,
             segmentStartTimeUs, isEncrypted, encryptionKeyUri, segmentEncryptionIV,
             segmentByterangeOffset, segmentByterangeLength));
         segmentStartTimeUs += (long) (segmentDurationSecs * C.MICROS_PER_SECOND);
-        segmentDiscontinuity = false;
         segmentDurationSecs = 0.0;
         if (segmentByterangeLength != C.LENGTH_UNBOUNDED) {
           segmentByterangeOffset += segmentByterangeLength;

@@ -364,10 +364,12 @@ public class HlsChunkSource {
       Extractor extractor = new Mp3Extractor(startTimeUs);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
           switchingVariantSpliced, adaptiveMaxWidth, adaptiveMaxHeight);
-    } else if (previousTsChunk == null || segment.discontinuity || liveDiscontinuity
+    } else if (previousTsChunk == null || liveDiscontinuity
+        || previousTsChunk.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
         || !format.equals(previousTsChunk.format)) {
       // MPEG-2 TS segments, but we need a new extractor.
-      if (previousTsChunk == null || segment.discontinuity || liveDiscontinuity
+      if (previousTsChunk == null || liveDiscontinuity
+          || previousTsChunk.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
           || ptsTimestampAdjuster == null) {
         // TODO: Use this for AAC as well, along with the ID3 PRIV priv tag values with owner
         // identifier com.apple.streaming.transportStreamTimestamp.
@@ -382,7 +384,8 @@ public class HlsChunkSource {
     }
 
     out.chunk = new TsChunk(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs,
-        chunkMediaSequence, extractorWrapper, encryptionKey, encryptionIv);
+        chunkMediaSequence, segment.discontinuitySequenceNumber, extractorWrapper, encryptionKey,
+        encryptionIv);
   }
 
   /**
