@@ -19,6 +19,7 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.drm.DrmInitData;
+import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
 import com.google.android.exoplayer.extractor.ChunkIndex;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
@@ -450,8 +451,8 @@ public final class WebmExtractor implements Extractor {
             throw new ParserException("Encrypted Track found but ContentEncKeyID was not found");
           }
           if (!sentDrmInitData) {
-            extractorOutput.drmInitData(
-                new DrmInitData.Universal(MimeTypes.VIDEO_WEBM, currentTrack.encryptionKeyId));
+            extractorOutput.drmInitData(new DrmInitData.Universal(
+                new SchemeInitData(MimeTypes.VIDEO_WEBM, currentTrack.encryptionKeyId)));
             sentDrmInitData = true;
           }
         }
