@@ -156,11 +156,6 @@ public final class AudioTrack {
    */
   private static final long MAX_LATENCY_US = 5 * C.MICROS_PER_SECOND;
 
-  /**
-   * Value for {@link #passthroughBitrate} before the bitrate has been calculated.
-   */
-  private static final int UNKNOWN_BITRATE = 0;
-
   private static final int START_NOT_SET = 0;
   private static final int START_IN_SYNC = 1;
   private static final int START_NEED_SYNC = 2;
@@ -201,7 +196,8 @@ public final class AudioTrack {
   private int sampleRate;
   private int channelConfig;
   private int encoding;
-  private int frameSize;
+  private boolean passthrough;
+  private int pcmFrameSize;
   private int minBufferSize;
   private int bufferSize;
   private long bufferSizeUs;
@@ -214,7 +210,9 @@ public final class AudioTrack {
   private long lastTimestampSampleTimeUs;
 
   private Method getLatencyMethod;
-  private long submittedBytes;
+  private long submittedPcmBytes;
+  private long submittedEncodedFrames;
+  private int framesPerEncodedSample;
   private int startMediaTimeState;
   private long startMediaTimeUs;
   private long resumeSystemTimeUs;
@@ -224,11 +222,6 @@ public final class AudioTrack {
   private byte[] temporaryBuffer;
   private int temporaryBufferOffset;
   private int temporaryBufferSize;
-
-  /**
-   * Bitrate measured in kilobits per second, if using passthrough.
-   */
-  private int passthroughBitrate;
 
   /**
    * Creates an audio track with default audio capabilities (no encoded audio passthrough support).
@@ -344,7 +337,7 @@ public final class AudioTrack {
    * Configures (or reconfigures) the audio track to play back media in {@code format}.
    *
    * @param format Specifies the channel count and sample rate to play back.
-   * @param passthrough Whether to playback using a passthrough encoding.
+   * @param passthrough Whether to play back using a passthrough encoding.
    * @param specifiedBufferSize A specific size for the playback buffer in bytes, or 0 to use a
    *     size inferred from the format.
    */
@@ -391,25 +384,29 @@ public final class AudioTrack {
     reset();
 
     this.encoding = encoding;
+    this.passthrough = passthrough;
     this.sampleRate = sampleRate;
     this.channelConfig = channelConfig;
-    passthroughBitrate = UNKNOWN_BITRATE;
-    frameSize = 2 * channelCount; // 2 bytes per 16 bit sample * number of channels.
+    pcmFrameSize = 2 * channelCount; // 2 bytes per 16 bit sample * number of channels.
     minBufferSize = android.media.AudioTrack.getMinBufferSize(sampleRate, channelConfig, encoding);
     Assertions.checkState(minBufferSize != android.media.AudioTrack.ERROR_BAD_VALUE);
-
     if (specifiedBufferSize != 0) {
       bufferSize = specifiedBufferSize;
+    } else if (passthrough) {
+      // TODO: Set the minimum buffer size correctly for encoded output when getMinBufferSize takes
+      // the encoding into account. [Internal: b/25181305]
+      bufferSize = minBufferSize * BUFFER_MULTIPLICATION_FACTOR * 2;
     } else {
       int multipliedBufferSize = minBufferSize * BUFFER_MULTIPLICATION_FACTOR;
-      int minAppBufferSize = (int) durationUsToFrames(MIN_BUFFER_DURATION_US) * frameSize;
+      int minAppBufferSize = (int) durationUsToFrames(MIN_BUFFER_DURATION_US) * pcmFrameSize;
       int maxAppBufferSize = (int) Math.max(minBufferSize,
-          durationUsToFrames(MAX_BUFFER_DURATION_US) * frameSize);
+          durationUsToFrames(MAX_BUFFER_DURATION_US) * pcmFrameSize);
       bufferSize = multipliedBufferSize < minAppBufferSize ? minAppBufferSize
           : multipliedBufferSize > maxAppBufferSize ? maxAppBufferSize
           : multipliedBufferSize;
     }
-    bufferSizeUs = framesToDurationUs(bytesToFrames(bufferSize));
+    bufferSizeUs = passthrough ? C.UNKNOWN_TIME_US
+        : framesToDurationUs(pcmBytesToFrames(bufferSize));
   }
 
   /**
@@ -473,13 +470,26 @@ public final class AudioTrack {
   }
 
   /**
-   * Returns the size of this {@link AudioTrack}'s buffer in microseconds, given its current
-   * configuration.
+   * Returns the size of this {@link AudioTrack}'s buffer in bytes.
    * <p>
-   * The duration returned from this method may change as a result of calling one of the
+   * The value returned from this method may change as a result of calling one of the
    * {@link #configure} methods.
    *
-   * @return The size of the buffer in microseconds.
+   * @return The size of the buffer in bytes.
+   */
+  public int getBufferSize() {
+    return bufferSize;
+  }
+
+  /**
+   * Returns the size of the buffer in microseconds for PCM {@link AudioTrack}s, or
+   * {@link C#UNKNOWN_TIME_US} for passthrough {@link AudioTrack}s.
+   * <p>
+   * The value returned from this method may change as a result of calling one of the
+   * {@link #configure} methods.
+   *
+   * @return The size of the buffer in microseconds for PCM {@link AudioTrack}s, or
+   *     {@link C#UNKNOWN_TIME_US} for passthrough {@link AudioTrack}s.
    */
   public long getBufferSizeUs() {
     return bufferSizeUs;
@@ -544,26 +554,23 @@ public final class AudioTrack {
 
     int result = 0;
     if (temporaryBufferSize == 0) {
-      if (passthroughBitrate == UNKNOWN_BITRATE) {
-        if (isAc3Passthrough()) {
-          passthroughBitrate = Ac3Util.getBitrate(size, sampleRate);
-        } else if (isDtsPassthrough()) {
-          int unscaledBitrate = size * 8 * sampleRate;
-          int divisor = 1000 * 512;
-          passthroughBitrate = (unscaledBitrate + divisor / 2) / divisor;
-        }
-      }
-
       // This is the first time we've seen this {@code buffer}.
+      temporaryBufferSize = size;
+      buffer.position(offset);
+      if (passthrough && framesPerEncodedSample == 0) {
+        // If this is the first encoded sample, calculate the sample size in frames.
+        framesPerEncodedSample = getFramesPerEncodedSample(encoding, buffer);
+      }
+      long frames = passthrough ? framesPerEncodedSample : pcmBytesToFrames(size);
+      long bufferDurationUs = framesToDurationUs(frames);
       // Note: presentationTimeUs corresponds to the end of the sample, not the start.
-      long bufferStartTime = presentationTimeUs - framesToDurationUs(bytesToFrames(size));
+      long bufferStartTime = presentationTimeUs - bufferDurationUs;
       if (startMediaTimeState == START_NOT_SET) {
         startMediaTimeUs = Math.max(0, bufferStartTime);
         startMediaTimeState = START_IN_SYNC;
       } else {
         // Sanity check that bufferStartTime is consistent with the expected value.
-        long expectedBufferStartTime = startMediaTimeUs
-            + framesToDurationUs(bytesToFrames(submittedBytes));
+        long expectedBufferStartTime = startMediaTimeUs + framesToDurationUs(getSubmittedFrames());
         if (startMediaTimeState == START_IN_SYNC
             && Math.abs(expectedBufferStartTime - bufferStartTime) > 200000) {
           Log.e(TAG, "Discontinuity detected [expected " + expectedBufferStartTime + ", got "
@@ -578,11 +585,6 @@ public final class AudioTrack {
           result |= RESULT_POSITION_DISCONTINUITY;
         }
       }
-    }
-
-    if (temporaryBufferSize == 0) {
-      temporaryBufferSize = size;
-      buffer.position(offset);
       if (Util.SDK_INT < 21) {
         // Copy {@code buffer} into {@code temporaryBuffer}.
         if (temporaryBuffer == null || temporaryBuffer.length < size) {
@@ -594,10 +596,10 @@ public final class AudioTrack {
     }
 
     int bytesWritten = 0;
-    if (Util.SDK_INT < 21) {
+    if (Util.SDK_INT < 21) { // passthrough == false
       // Work out how many bytes we can write without the risk of blocking.
       int bytesPending =
-          (int) (submittedBytes - (audioTrackUtil.getPlaybackHeadPosition() * frameSize));
+          (int) (submittedPcmBytes - (audioTrackUtil.getPlaybackHeadPosition() * pcmFrameSize));
       int bytesToWrite = bufferSize - bytesPending;
       if (bytesToWrite > 0) {
         bytesToWrite = Math.min(temporaryBufferSize, bytesToWrite);
@@ -615,8 +617,13 @@ public final class AudioTrack {
     }
 
     temporaryBufferSize -= bytesWritten;
-    submittedBytes += bytesWritten;
+    if (!passthrough) {
+      submittedPcmBytes += bytesWritten;
+    }
     if (temporaryBufferSize == 0) {
+      if (passthrough) {
+        submittedEncodedFrames += framesPerEncodedSample;
+      }
       result |= RESULT_BUFFER_CONSUMED;
     }
     return result;
@@ -628,7 +635,7 @@ public final class AudioTrack {
    */
   public void handleEndOfStream() {
     if (isInitialized()) {
-      audioTrackUtil.handleEndOfStream(bytesToFrames(submittedBytes));
+      audioTrackUtil.handleEndOfStream(getSubmittedFrames());
     }
   }
 
@@ -643,7 +650,7 @@ public final class AudioTrack {
    */
   public boolean hasPendingData() {
     return isInitialized()
-        && (bytesToFrames(submittedBytes) > audioTrackUtil.getPlaybackHeadPosition()
+        && (getSubmittedFrames() > audioTrackUtil.getPlaybackHeadPosition()
             || overrideHasPendingData());
   }
 
@@ -694,7 +701,9 @@ public final class AudioTrack {
    */
   public void reset() {
     if (isInitialized()) {
-      submittedBytes = 0;
+      submittedPcmBytes = 0;
+      submittedEncodedFrames = 0;
+      framesPerEncodedSample = 0;
       temporaryBufferSize = 0;
       startMediaTimeState = START_NOT_SET;
       latencyUs = 0;
@@ -818,7 +827,7 @@ public final class AudioTrack {
           audioTimestampSet = false;
         }
       }
-      if (getLatencyMethod != null) {
+      if (getLatencyMethod != null && !passthrough) {
         try {
           // Compute the audio track latency, excluding the latency due to the buffer (leaving
           // latency due to the mixer and audio hardware driver).
@@ -865,13 +874,8 @@ public final class AudioTrack {
     throw new InitializationException(state, sampleRate, channelConfig, bufferSize);
   }
 
-  private long bytesToFrames(long byteCount) {
-    if (isPassthrough()) {
-      return passthroughBitrate == UNKNOWN_BITRATE
-          ? 0L : byteCount * 8 * sampleRate / (1000 * passthroughBitrate);
-    } else {
-      return byteCount / frameSize;
-    }
+  private long pcmBytesToFrames(long byteCount) {
+    return byteCount / pcmFrameSize;
   }
 
   private long framesToDurationUs(long frameCount) {
@@ -880,6 +884,10 @@ public final class AudioTrack {
 
   private long durationUsToFrames(long durationUs) {
     return (durationUs * sampleRate) / C.MICROS_PER_SECOND;
+  }
+
+  private long getSubmittedFrames() {
+    return passthrough ? submittedEncodedFrames : pcmBytesToFrames(submittedPcmBytes);
   }
 
   private void resetSyncParams() {
@@ -891,24 +899,12 @@ public final class AudioTrack {
     lastTimestampSampleTimeUs = 0;
   }
 
-  private boolean isPassthrough() {
-    return isAc3Passthrough() || isDtsPassthrough();
-  }
-
-  private boolean isAc3Passthrough() {
-    return encoding == C.ENCODING_AC3 || encoding == C.ENCODING_E_AC3;
-  }
-
-  private boolean isDtsPassthrough() {
-    return encoding == C.ENCODING_DTS || encoding == C.ENCODING_DTS_HD;
-  }
-
   /**
    * Returns whether to work around problems with passthrough audio tracks.
    * See [Internal: b/18899620, b/19187573, b/21145353].
    */
   private boolean needsPassthroughWorkarounds() {
-    return Util.SDK_INT < 23 && isAc3Passthrough();
+    return Util.SDK_INT < 23 && (encoding == C.ENCODING_AC3 || encoding == C.ENCODING_E_AC3);
   }
 
   /**
@@ -935,6 +931,21 @@ public final class AudioTrack {
         return C.ENCODING_DTS_HD;
       default:
         return AudioFormat.ENCODING_INVALID;
+    }
+  }
+
+  private static int getFramesPerEncodedSample(int encoding, ByteBuffer buffer) {
+    if (encoding == C.ENCODING_DTS || encoding == C.ENCODING_DTS_HD) {
+      // Calculate the sample size in frames as per ETSI TS 102 114 F.3.2.1.
+      int nblks = ((buffer.get(buffer.position() + 4) & 0x01) << 6)
+          | ((buffer.get(buffer.position() + 5) & 0xFC) >> 2);
+      return (nblks + 1) * 32;
+    } else if (encoding == C.ENCODING_AC3) {
+      return Ac3Util.getAc3SamplesPerSyncframe();
+    } else if (encoding == C.ENCODING_E_AC3) {
+      return Ac3Util.parseEac3SamplesPerSyncframe(buffer);
+    } else {
+      throw new IllegalStateException("Unexpected audio encoding: " + encoding);
     }
   }
 
