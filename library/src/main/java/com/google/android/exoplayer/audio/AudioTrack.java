@@ -221,7 +221,7 @@ public final class AudioTrack {
 
   private byte[] temporaryBuffer;
   private int temporaryBufferOffset;
-  private int temporaryBufferSize;
+  private int bufferBytesRemaining;
 
   /**
    * Creates an audio track with default audio capabilities (no encoded audio passthrough support).
@@ -553,9 +553,10 @@ public final class AudioTrack {
     }
 
     int result = 0;
-    if (temporaryBufferSize == 0) {
-      // This is the first time we've seen this {@code buffer}.
-      temporaryBufferSize = size;
+    if (bufferBytesRemaining == 0) {
+      // The previous buffer (if there was one) was fully written to the audio track. We're now
+      // seeing a new buffer for the first time.
+      bufferBytesRemaining = size;
       buffer.position(offset);
       if (passthrough && framesPerEncodedSample == 0) {
         // If this is the first encoded sample, calculate the sample size in frames.
@@ -602,25 +603,25 @@ public final class AudioTrack {
           (int) (submittedPcmBytes - (audioTrackUtil.getPlaybackHeadPosition() * pcmFrameSize));
       int bytesToWrite = bufferSize - bytesPending;
       if (bytesToWrite > 0) {
-        bytesToWrite = Math.min(temporaryBufferSize, bytesToWrite);
+        bytesToWrite = Math.min(bufferBytesRemaining, bytesToWrite);
         bytesWritten = audioTrack.write(temporaryBuffer, temporaryBufferOffset, bytesToWrite);
         if (bytesWritten >= 0) {
           temporaryBufferOffset += bytesWritten;
         }
       }
     } else {
-      bytesWritten = writeNonBlockingV21(audioTrack, buffer, temporaryBufferSize);
+      bytesWritten = writeNonBlockingV21(audioTrack, buffer, bufferBytesRemaining);
     }
 
     if (bytesWritten < 0) {
       throw new WriteException(bytesWritten);
     }
 
-    temporaryBufferSize -= bytesWritten;
+    bufferBytesRemaining -= bytesWritten;
     if (!passthrough) {
       submittedPcmBytes += bytesWritten;
     }
-    if (temporaryBufferSize == 0) {
+    if (bufferBytesRemaining == 0) {
       if (passthrough) {
         submittedEncodedFrames += framesPerEncodedSample;
       }
@@ -704,7 +705,7 @@ public final class AudioTrack {
       submittedPcmBytes = 0;
       submittedEncodedFrames = 0;
       framesPerEncodedSample = 0;
-      temporaryBufferSize = 0;
+      bufferBytesRemaining = 0;
       startMediaTimeState = START_NOT_SET;
       latencyUs = 0;
       resetSyncParams();

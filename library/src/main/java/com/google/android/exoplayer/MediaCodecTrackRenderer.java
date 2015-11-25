@@ -450,9 +450,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     if (format == null) {
       readFormat(positionUs);
     }
-    if (codec == null && shouldInitCodec()) {
-      maybeInitCodec();
-    }
+    maybeInitCodec();
     if (codec != null) {
       TraceUtil.beginSection("drainAndFeed");
       while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
