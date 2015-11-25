@@ -38,10 +38,12 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 import com.google.android.exoplayer.util.VerboseLogUtil;
 
+import android.Manifest.permission;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -96,6 +98,9 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private static final String TAG = "PlayerActivity";
   private static final int MENU_GROUP_TRACKS = 1;
   private static final int ID_OFFSET = 2;
+
+  // For use when requesting permission.
+  private static final String URI_FILE_SCHEME = "file";
 
   private static final CookieManager defaultCookieManager;
   static {
@@ -207,7 +212,9 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     provider = intent.getStringExtra(PROVIDER_EXTRA);
     configureSubtitleView();
     if (player == null) {
-      preparePlayer(true);
+      if (!maybeRequestPermission()) {
+        preparePlayer(true);
+      }
     } else {
       player.setBackgrounded(false);
     }
@@ -252,6 +259,49 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     releasePlayer();
     preparePlayer(playWhenReady);
     player.setBackgrounded(backgrounded);
+  }
+
+  // Permission request listener method
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode, String[] permissions,
+      int[] grantResults) {
+    if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+      preparePlayer(true);
+    } else {
+      Toast.makeText(getApplicationContext(), R.string.storage_permission_denied,
+          Toast.LENGTH_LONG).show();
+      finish();
+    }
+  }
+
+  // Permission management methods
+
+  /**
+   * Checks whether it is necessary to ask for permission to read storage. If necessary, it also
+   * requests permission.
+   *
+   * @return true if a permission request is made. False if it is not necessary.
+   */
+  @TargetApi(23)
+  private boolean maybeRequestPermission() {
+    if (requiresPermission(contentUri)) {
+      requestPermissions(new String[] {permission.READ_EXTERNAL_STORAGE}, 0);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private boolean uriIsLocalFile(Uri uri) {
+    return URI_FILE_SCHEME.equals(uri.getScheme()) || TextUtils.isEmpty(uri.getScheme());
+  }
+
+  @TargetApi(23)
+  private boolean requiresPermission(Uri uri) {
+    return Util.SDK_INT >= 23 && uriIsLocalFile(uri)
+        && checkSelfPermission(permission.READ_EXTERNAL_STORAGE)
+        != PackageManager.PERMISSION_GRANTED;
   }
 
   // Internal methods
@@ -454,7 +504,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       }
     });
     Menu menu = popup.getMenu();
-    // ID_OFFSET ensures we avoid clashing with Menu.NONE (which equals 0)
+    // ID_OFFSET ensures we avoid clashing with Menu.NONE (which equals 0).
     menu.add(MENU_GROUP_TRACKS, DemoPlayer.TRACK_DISABLED + ID_OFFSET, Menu.NONE, R.string.off);
     for (int i = 0; i < trackCount; i++) {
       menu.add(MENU_GROUP_TRACKS, i + ID_OFFSET, Menu.NONE,
