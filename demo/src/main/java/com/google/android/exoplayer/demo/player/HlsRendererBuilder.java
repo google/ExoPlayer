@@ -22,6 +22,7 @@ import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioCapabilities;
+import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.VideoFormatSelectorUtil;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.hls.HlsChunkSource;
@@ -29,9 +30,12 @@ import com.google.android.exoplayer.hls.HlsMasterPlaylist;
 import com.google.android.exoplayer.hls.HlsPlaylist;
 import com.google.android.exoplayer.hls.HlsPlaylistParser;
 import com.google.android.exoplayer.hls.HlsSampleSource;
+import com.google.android.exoplayer.hls.WebvttChunkSource;
 import com.google.android.exoplayer.metadata.Id3Parser;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
+import com.google.android.exoplayer.text.TextTrackRenderer;
 import com.google.android.exoplayer.text.eia608.Eia608TrackRenderer;
+import com.google.android.exoplayer.text.webvtt.WebvttParser;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
@@ -128,8 +132,9 @@ public class HlsRendererBuilder implements RendererBuilder {
       DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 
       int[] variantIndices = null;
+      HlsMasterPlaylist masterPlaylist = null;
       if (manifest instanceof HlsMasterPlaylist) {
-        HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) manifest;
+        masterPlaylist = (HlsMasterPlaylist) manifest;
         try {
           variantIndices = VideoFormatSelectorUtil.selectVideoFormatsForDefaultDisplay(
               context, masterPlaylist.variants, null, false);
@@ -154,14 +159,27 @@ public class HlsRendererBuilder implements RendererBuilder {
           null, true, player.getMainHandler(), player, AudioCapabilities.getCapabilities(context));
       MetadataTrackRenderer<Map<String, Object>> id3Renderer = new MetadataTrackRenderer<>(
           sampleSource, new Id3Parser(), player, mainHandler.getLooper());
-      Eia608TrackRenderer closedCaptionRenderer = new Eia608TrackRenderer(sampleSource, player,
-          mainHandler.getLooper());
 
       TrackRenderer[] renderers = new TrackRenderer[DemoPlayer.RENDERER_COUNT];
       renderers[DemoPlayer.TYPE_VIDEO] = videoRenderer;
       renderers[DemoPlayer.TYPE_AUDIO] = audioRenderer;
       renderers[DemoPlayer.TYPE_METADATA] = id3Renderer;
-      renderers[DemoPlayer.TYPE_TEXT] = closedCaptionRenderer;
+      //prefer webvtt over 608
+      if (masterPlaylist != null && masterPlaylist.subtitles.size() > 0) {
+        WebvttChunkSource webvttChunkSource = new WebvttChunkSource(
+                new DefaultUriDataSource(context, userAgent), masterPlaylist);
+        ChunkSampleSource textSampleSource = new ChunkSampleSource(webvttChunkSource,
+                loadControl, 2 * BUFFER_SEGMENT_SIZE);
+        TextTrackRenderer textTrackRenderer = new TextTrackRenderer(textSampleSource, player,
+                mainHandler.getLooper(), new WebvttParser());
+        sampleSource.setTimestampOffsetListener(webvttChunkSource);
+        renderers[DemoPlayer.TYPE_TEXT] = textTrackRenderer;
+      } else {
+        Eia608TrackRenderer closedCaptionRenderer = new Eia608TrackRenderer(sampleSource, player,
+                mainHandler.getLooper());
+        renderers[DemoPlayer.TYPE_TEXT] = closedCaptionRenderer;
+      }
+
       player.onRenderers(renderers, bandwidthMeter);
     }
 

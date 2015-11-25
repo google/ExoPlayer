@@ -76,4 +76,11 @@ public final class PtsTimestampAdjuster {
     return timeUs + timestampOffsetUs;
   }
 
+  /**
+   *
+   * @return The presentation timestamp offset.
+   */
+  public long getTimestampOffsetUs() {
+    return timestampOffsetUs;
+  }
 }

@@ -459,6 +459,14 @@ public class HlsChunkSource {
     fatalError = null;
   }
 
+  /**
+   *
+   * @return The presentation timestamp offset.
+   */
+  public long getTimestampOffsetUs() {
+    return ptsTimestampAdjuster == null ? 0L : ptsTimestampAdjuster.getTimestampOffsetUs();
+  }
+
   private int getNextVariantIndex(TsChunk previousTsChunk, long playbackPositionUs) {
     clearStaleBlacklistedVariants();
     long bitrateEstimate = bandwidthMeter.getBitrateEstimate();
