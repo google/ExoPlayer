@@ -56,7 +56,6 @@ public final class WebvttSubtitle implements Subtitle {
 
   @Override
   public int getNextEventTimeIndex(long timeUs) {
-    Assertions.checkArgument(timeUs >= 0);
     int index = Util.binarySearchCeil(sortedCueTimesUs, timeUs, false, false);
     return index < sortedCueTimesUs.length ? index : -1;
   }
