@@ -17,8 +17,10 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.hls.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer.upstream.UriLoadable;
+import com.google.android.exoplayer.util.MimeTypes;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -53,8 +55,6 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
   private static final String RESOLUTION_ATTR = "RESOLUTION";
   private static final String LANGUAGE_ATTR = "LANGUAGE";
   private static final String NAME_ATTR = "NAME";
-  private static final String AUTOSELECT_ATTR = "AUTOSELECT";
-  private static final String DEFAULT_ATTR = "DEFAULT";
   private static final String TYPE_ATTR = "TYPE";
   private static final String METHOD_ATTR = "METHOD";
   private static final String URI_ATTR = "URI";
@@ -98,10 +98,10 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
       Pattern.compile(LANGUAGE_ATTR + "=\"(.+?)\"");
   private static final Pattern NAME_ATTR_REGEX =
       Pattern.compile(NAME_ATTR + "=\"(.+?)\"");
-  private static final Pattern AUTOSELECT_ATTR_REGEX =
-      HlsParserUtil.compileBooleanAttrPattern(AUTOSELECT_ATTR);
-  private static final Pattern DEFAULT_ATTR_REGEX =
-      HlsParserUtil.compileBooleanAttrPattern(DEFAULT_ATTR);
+  // private static final Pattern AUTOSELECT_ATTR_REGEX =
+  //     HlsParserUtil.compileBooleanAttrPattern(AUTOSELECT_ATTR);
+  // private static final Pattern DEFAULT_ATTR_REGEX =
+  //     HlsParserUtil.compileBooleanAttrPattern(DEFAULT_ATTR);
 
   @Override
   public HlsPlaylist parse(String connectionUrl, InputStream inputStream)
@@ -140,7 +140,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
   private static HlsMasterPlaylist parseMasterPlaylist(LineIterator iterator, String baseUri)
       throws IOException {
     ArrayList<Variant> variants = new ArrayList<>();
-    ArrayList<Subtitle> subtitles = new ArrayList<>();
+    ArrayList<Variant> subtitles = new ArrayList<>();
     int bitrate = 0;
     String codecs = null;
     int width = -1;
@@ -158,9 +158,9 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
           String subtitleName = HlsParserUtil.parseStringAttr(line, NAME_ATTR_REGEX, NAME_ATTR);
           String uri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX, URI_ATTR);
           String language = HlsParserUtil.parseOptionalStringAttr(line, LANGUAGE_ATTR_REGEX);
-          boolean isDefault = HlsParserUtil.parseOptionalBooleanAttr(line, DEFAULT_ATTR_REGEX);
-          boolean autoSelect = HlsParserUtil.parseOptionalBooleanAttr(line, AUTOSELECT_ATTR_REGEX);
-          subtitles.add(new Subtitle(subtitleName, uri, language, isDefault, autoSelect));
+          Format format = new Format(subtitleName, MimeTypes.TEXT_VTT, -1, -1, -1, -1, -1, -1,
+              language, codecs);
+          subtitles.add(new Variant(uri, format));
         } else {
           // TODO: Support other types of media tag.
         }
@@ -188,7 +188,12 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         }
         expectingStreamInfUrl = true;
       } else if (!line.startsWith("#") && expectingStreamInfUrl) {
-        variants.add(new Variant(variants.size(), name, line, bitrate, codecs, width, height));
+        if (name == null) {
+          name = Integer.toString(variants.size());
+        }
+        Format format = new Format(name, MimeTypes.APPLICATION_M3U8, width, height, -1, -1, -1,
+            bitrate, null, codecs);
+        variants.add(new Variant(line, format));
         bitrate = 0;
         codecs = null;
         name = null;
@@ -197,8 +202,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         expectingStreamInfUrl = false;
       }
     }
-    return new HlsMasterPlaylist(baseUri, Collections.unmodifiableList(variants),
-        Collections.unmodifiableList(subtitles));
+    return new HlsMasterPlaylist(baseUri, variants, subtitles);
   }
 
   private static HlsMediaPlaylist parseMediaPlaylist(LineIterator iterator, String baseUri)
