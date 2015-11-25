@@ -18,6 +18,7 @@ package com.google.android.exoplayer.extractor.mp4;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.drm.DrmInitData;
+import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
 import com.google.android.exoplayer.extractor.ChunkIndex;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
@@ -292,10 +293,11 @@ public final class FragmentedMp4Extractor implements Extractor {
       LeafAtom child = moovChildren.get(i);
       if (child.type == Atom.TYPE_pssh) {
         if (drmInitData == null) {
-          drmInitData = new DrmInitData.Mapped(MimeTypes.VIDEO_MP4);
+          drmInitData = new DrmInitData.Mapped();
         }
         byte[] psshData = child.data.data;
-        drmInitData.put(PsshAtomUtil.parseUuid(psshData), psshData);
+        drmInitData.put(PsshAtomUtil.parseUuid(psshData),
+            new SchemeInitData(MimeTypes.VIDEO_MP4, psshData));
       }
     }
     if (drmInitData != null) {

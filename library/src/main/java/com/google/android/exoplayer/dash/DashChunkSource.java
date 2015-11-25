@@ -1054,8 +1054,6 @@ public class DashChunkSource implements ChunkSource, Output {
     }
 
     private static DrmInitData getDrmInitData(AdaptationSet adaptationSet) {
-      String drmInitMimeType = mimeTypeIsWebm(adaptationSet.representations.get(0).format.mimeType)
-          ? MimeTypes.VIDEO_WEBM : MimeTypes.VIDEO_MP4;
       if (adaptationSet.contentProtections.isEmpty()) {
         return null;
       } else {
@@ -1064,7 +1062,7 @@ public class DashChunkSource implements ChunkSource, Output {
           ContentProtection contentProtection = adaptationSet.contentProtections.get(i);
           if (contentProtection.uuid != null && contentProtection.data != null) {
             if (drmInitData == null) {
-              drmInitData = new DrmInitData.Mapped(drmInitMimeType);
+              drmInitData = new DrmInitData.Mapped();
             }
             drmInitData.put(contentProtection.uuid, contentProtection.data);
           }

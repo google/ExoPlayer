@@ -29,6 +29,7 @@ import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer.chunk.MediaChunk;
 import com.google.android.exoplayer.drm.DrmInitData;
+import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
 import com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer.extractor.mp4.Track;
 import com.google.android.exoplayer.extractor.mp4.TrackEncryptionBox;
@@ -144,8 +145,9 @@ public class SmoothStreamingChunkSource implements ChunkSource,
       byte[] keyId = getProtectionElementKeyId(protectionElement.data);
       trackEncryptionBoxes = new TrackEncryptionBox[1];
       trackEncryptionBoxes[0] = new TrackEncryptionBox(true, INITIALIZATION_VECTOR_SIZE, keyId);
-      drmInitData = new DrmInitData.Mapped(MimeTypes.VIDEO_MP4);
-      drmInitData.put(protectionElement.uuid, protectionElement.data);
+      drmInitData = new DrmInitData.Mapped();
+      drmInitData.put(protectionElement.uuid,
+          new SchemeInitData(MimeTypes.VIDEO_MP4, protectionElement.data));
     } else {
       trackEncryptionBoxes = null;
       drmInitData = null;
