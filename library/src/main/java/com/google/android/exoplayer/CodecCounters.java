@@ -31,6 +31,7 @@ public final class CodecCounters {
   public int renderedOutputBufferCount;
   public int skippedOutputBufferCount;
   public int droppedOutputBufferCount;
+  public int maxConsecutiveDroppedOutputBufferCount;
 
   /**
    * Should be invoked from the playback thread after the counters have been updated. Should also
@@ -52,6 +53,7 @@ public final class CodecCounters {
     builder.append(" ren:").append(renderedOutputBufferCount);
     builder.append(" sob:").append(skippedOutputBufferCount);
     builder.append(" dob:").append(droppedOutputBufferCount);
+    builder.append(" mcdob:").append(maxConsecutiveDroppedOutputBufferCount);
     return builder.toString();
   }
 

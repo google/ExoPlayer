@@ -112,6 +112,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   private long joiningDeadlineUs;
   private long droppedFrameAccumulationStartTimeMs;
   private int droppedFrameCount;
+  private int consecutiveDroppedFrameCount;
 
   private int pendingRotationDegrees;
   private float pendingPixelWidthHeightRatio;
@@ -220,6 +221,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       throws ExoPlaybackException {
     super.onEnabled(track, positionUs, joining);
     renderedFirstFrame = false;
+    consecutiveDroppedFrameCount = 0;
     if (joining && allowedJoiningTimeUs > 0) {
       joiningDeadlineUs = SystemClock.elapsedRealtime() * 1000L + allowedJoiningTimeUs;
     }
@@ -230,6 +232,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   protected void seekTo(long positionUs) throws ExoPlaybackException {
     super.seekTo(positionUs);
     renderedFirstFrame = false;
+    consecutiveDroppedFrameCount = 0;
     joiningDeadlineUs = -1;
   }
 
@@ -377,6 +380,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo, int bufferIndex, boolean shouldSkip) {
     if (shouldSkip) {
       skipOutputBuffer(codec, bufferIndex);
+      consecutiveDroppedFrameCount = 0;
       return true;
     }
 
@@ -386,6 +390,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       } else {
         renderOutputBuffer(codec, bufferIndex);
       }
+      consecutiveDroppedFrameCount = 0;
       return true;
     }
 
@@ -416,6 +421,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       // Let the underlying framework time the release.
       if (earlyUs < 50000) {
         renderOutputBufferV21(codec, bufferIndex, adjustedReleaseTimeNs);
+        consecutiveDroppedFrameCount = 0;
         return true;
       }
     } else {
@@ -432,6 +438,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
           }
         }
         renderOutputBuffer(codec, bufferIndex);
+        consecutiveDroppedFrameCount = 0;
         return true;
       }
     }
@@ -453,6 +460,9 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     TraceUtil.endSection();
     codecCounters.droppedOutputBufferCount++;
     droppedFrameCount++;
+    consecutiveDroppedFrameCount++;
+    codecCounters.maxConsecutiveDroppedOutputBufferCount = Math.max(consecutiveDroppedFrameCount,
+        codecCounters.maxConsecutiveDroppedOutputBufferCount);
     if (droppedFrameCount == maxDroppedFrameCountToNotify) {
       maybeNotifyDroppedFrameCount();
     }

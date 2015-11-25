@@ -65,6 +65,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
   private static final long MAX_PLAYING_TIME_DISCREPANCY_MS = 2000;
   private static final float MAX_DROPPED_VIDEO_FRAME_FRACTION = 0.01f;
+  private static final int MAX_CONSECUTIVE_DROPPED_VIDEO_FRAMES = 10;
 
   private static final long MAX_ADDITIONAL_TIME_MS = 180000;
   private static final int MIN_LOADABLE_RETRY_COUNT = 10;
@@ -383,9 +384,13 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       }
 
       // Assert that the level of performance was acceptable.
+      // Assert that total dropped frames were within limit.
       int droppedFrameLimit = (int) Math.ceil(MAX_DROPPED_VIDEO_FRAME_FRACTION
           * CodecCountersUtil.getTotalOutputBuffers(videoCounters));
       CodecCountersUtil.assertDroppedOutputBufferLimit(VIDEO_TAG, videoCounters, droppedFrameLimit);
+      // Assert that consecutive dropped frames were within limit.
+      CodecCountersUtil.assertConsecutiveDroppedOutputBufferLimit(VIDEO_TAG, videoCounters,
+          MAX_CONSECUTIVE_DROPPED_VIDEO_FRAMES);
     }
 
     private static final class TrackSelector implements DashTrackSelector {
