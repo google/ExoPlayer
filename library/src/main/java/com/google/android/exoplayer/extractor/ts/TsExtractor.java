@@ -310,9 +310,11 @@ public final class TsExtractor implements Extractor {
           case TS_STREAM_TYPE_AAC:
             pesPayloadReader = new AdtsReader(output.track(TS_STREAM_TYPE_AAC));
             break;
-          case TS_STREAM_TYPE_E_AC3:
           case TS_STREAM_TYPE_AC3:
-            pesPayloadReader = new Ac3Reader(output.track(streamType));
+            pesPayloadReader = new Ac3Reader(output.track(TS_STREAM_TYPE_AC3), false);
+            break;
+          case TS_STREAM_TYPE_E_AC3:
+            pesPayloadReader = new Ac3Reader(output.track(TS_STREAM_TYPE_E_AC3), true);
             break;
           case TS_STREAM_TYPE_H262:
             pesPayloadReader = new H262Reader(output.track(TS_STREAM_TYPE_H262));

@@ -941,9 +941,9 @@ public final class AudioTrack {
           | ((buffer.get(buffer.position() + 5) & 0xFC) >> 2);
       return (nblks + 1) * 32;
     } else if (encoding == C.ENCODING_AC3) {
-      return Ac3Util.getAc3SamplesPerSyncframe();
+      return Ac3Util.getAc3SyncframeAudioSampleCount();
     } else if (encoding == C.ENCODING_E_AC3) {
-      return Ac3Util.parseEac3SamplesPerSyncframe(buffer);
+      return Ac3Util.parseEAc3SyncframeAudioSampleCount(buffer);
     } else {
       throw new IllegalStateException("Unexpected audio encoding: " + encoding);
     }
