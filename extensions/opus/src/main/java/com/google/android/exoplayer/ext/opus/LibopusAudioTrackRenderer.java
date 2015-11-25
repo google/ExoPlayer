@@ -36,8 +36,6 @@ import java.util.List;
 
 /**
  * Decodes and renders audio using the native Opus decoder.
- *
- * @author vigneshv@google.com (Vignesh Venkatasubramanian)
  */
 public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
     implements MediaClock {

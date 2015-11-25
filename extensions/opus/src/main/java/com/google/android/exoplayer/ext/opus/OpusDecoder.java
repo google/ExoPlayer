@@ -21,8 +21,6 @@ import java.nio.ByteBuffer;
 
 /**
  * JNI Wrapper for the libopus Opus decoder.
- *
- * @author vigneshv@google.com (Vignesh Venkatasubramanian)
  */
 /* package */ class OpusDecoder {
 
