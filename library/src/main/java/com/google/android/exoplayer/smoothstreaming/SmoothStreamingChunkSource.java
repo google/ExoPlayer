@@ -236,8 +236,8 @@ public class SmoothStreamingChunkSource implements ChunkSource,
   }
 
   @Override
-  public final void getChunkOperation(List<? extends MediaChunk> queue, long seekPositionUs,
-      long playbackPositionUs, ChunkOperationHolder out) {
+  public final void getChunkOperation(List<? extends MediaChunk> queue, long playbackPositionUs,
+      ChunkOperationHolder out) {
     if (fatalError != null) {
       out.chunk = null;
       return;
@@ -281,9 +281,9 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     int chunkIndex;
     if (queue.isEmpty()) {
       if (live) {
-        seekPositionUs = getLiveSeekPosition(currentManifest, liveEdgeLatencyUs);
+        playbackPositionUs = getLiveSeekPosition(currentManifest, liveEdgeLatencyUs);
       }
-      chunkIndex = streamElement.getChunkIndex(seekPositionUs);
+      chunkIndex = streamElement.getChunkIndex(playbackPositionUs);
     } else {
       MediaChunk previous = queue.get(out.queueSize - 1);
       chunkIndex = previous.chunkIndex + 1 - currentManifestChunkOffset;

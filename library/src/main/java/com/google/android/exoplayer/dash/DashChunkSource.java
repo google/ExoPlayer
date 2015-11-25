@@ -346,8 +346,8 @@ public class DashChunkSource implements ChunkSource, Output {
   }
 
   @Override
-  public final void getChunkOperation(List<? extends MediaChunk> queue, long seekPositionUs,
-      long playbackPositionUs, ChunkOperationHolder out) {
+  public final void getChunkOperation(List<? extends MediaChunk> queue, long playbackPositionUs,
+      ChunkOperationHolder out) {
     if (fatalError != null) {
       out.chunk = null;
       return;
@@ -389,16 +389,16 @@ public class DashChunkSource implements ChunkSource, Output {
         if (startAtLiveEdge) {
           // We want live streams to start at the live edge instead of the beginning of the
           // manifest
-          seekPositionUs = Math.max(availableRangeValues[0],
+          playbackPositionUs = Math.max(availableRangeValues[0],
               availableRangeValues[1] - liveEdgeLatencyUs);
         } else {
           // we subtract 1 from the upper bound because it's exclusive for that bound
-          seekPositionUs = Math.min(seekPositionUs, availableRangeValues[1] - 1);
-          seekPositionUs = Math.max(seekPositionUs, availableRangeValues[0]);
+          playbackPositionUs = Math.min(playbackPositionUs, availableRangeValues[1] - 1);
+          playbackPositionUs = Math.max(playbackPositionUs, availableRangeValues[0]);
         }
       }
 
-      periodHolder = findPeriodHolder(seekPositionUs);
+      periodHolder = findPeriodHolder(playbackPositionUs);
       startingNewPeriod = true;
     } else {
       if (startAtLiveEdge) {
@@ -476,7 +476,7 @@ public class DashChunkSource implements ChunkSource, Output {
       return;
     }
 
-    int segmentNum = queue.isEmpty() ? representationHolder.getSegmentNum(seekPositionUs)
+    int segmentNum = queue.isEmpty() ? representationHolder.getSegmentNum(playbackPositionUs)
           : startingNewPeriod ? representationHolder.getFirstAvailableSegmentNum()
           : queue.get(out.queueSize - 1).chunkIndex + 1;
     Chunk nextMediaChunk = newMediaChunk(periodHolder, representationHolder, dataSource,
