@@ -45,9 +45,8 @@ public final class WebvttParser implements SubtitleParser {
   private static final Pattern HEADER = Pattern.compile("^\uFEFF?WEBVTT((\u0020|\u0009).*)?$");
   private static final Pattern COMMENT_BLOCK = Pattern.compile("^NOTE((\u0020|\u0009).*)?$");
   private static final Pattern METADATA_HEADER = Pattern.compile("\\S*[:=]\\S*");
-  private static final Pattern CUE_IDENTIFIER = Pattern.compile("^(?!.*(-->)).*$");
-  private static final Pattern TIMESTAMP = Pattern.compile("(\\d+:)?[0-5]\\d:[0-5]\\d\\.\\d{3}");
-  private static final Pattern CUE_SETTING = Pattern.compile("\\S*:\\S*");
+  private static final Pattern CUE_HEADER = Pattern.compile("^(\\S+)\\s+-->\\s+(\\S+)(.*)?$");
+  private static final Pattern CUE_SETTING = Pattern.compile("\\S+?:\\S+");
 
   private final PositionHolder positionHolder;
   private final StringBuilder textBuilder;
@@ -79,20 +78,20 @@ public final class WebvttParser implements SubtitleParser {
     BufferedReader webvttData = new BufferedReader(new InputStreamReader(inputStream, C.UTF8_NAME));
     String line;
 
-    // file should start with "WEBVTT"
+    // File should start with "WEBVTT".
     line = webvttData.readLine();
     if (line == null || !HEADER.matcher(line).matches()) {
       throw new ParserException("Expected WEBVTT. Got " + line);
     }
 
-    // parse the remainder of the header
+    // Parse the remainder of the header.
     while (true) {
       line = webvttData.readLine();
       if (line == null) {
-        // we reached EOF before finishing the header
+        // We reached EOF before finishing the header.
         throw new ParserException("Expected an empty line after webvtt header");
       } else if (line.isEmpty()) {
-        // we've read the newline that separates the header from the body
+        // We read the newline that separates the header from the body.
         break;
       }
 
@@ -104,32 +103,29 @@ public final class WebvttParser implements SubtitleParser {
       }
     }
 
-    // process the cues and text
+    // Process the cues and text.
     while ((line = webvttData.readLine()) != null) {
-      // parse webvtt comment block in case it is present
+      // Skip a comment block, if present.
       Matcher matcher = COMMENT_BLOCK.matcher(line);
       if (matcher.find()) {
-        // read lines until finding an empty one (webvtt line terminator: CRLF, or LF or CR)
+        // Skip until the end of the comment block.
         while ((line = webvttData.readLine()) != null && !line.isEmpty()) {
-          // ignore comment text
+          // Ignore comment text.
         }
         continue;
       }
 
-      // parse the cue identifier (if present) {
-      matcher = CUE_IDENTIFIER.matcher(line);
-      if (matcher.find()) {
-        // ignore the identifier (we currently don't use it) and read the next line
-        line = webvttData.readLine();
-        if (line == null) {
-          // end of file
-          break;
-        }
+      // Skip anything other than a cue header.
+      matcher = CUE_HEADER.matcher(line);
+      if (!matcher.matches()) {
+        continue;
       }
 
-      long cueStartTime;
-      long cueEndTime;
-      CharSequence cueText;
+      // Parse the cue start and end times.
+      long cueStartTime = parseTimestampUs(matcher.group(1));
+      long cueEndTime = parseTimestampUs(matcher.group(2));
+
+      // Default cue settings.
       Alignment cueTextAlignment = null;
       float cueLine = Cue.DIMEN_UNSET;
       int cueLineType = Cue.TYPE_UNSET;
@@ -138,34 +134,13 @@ public final class WebvttParser implements SubtitleParser {
       int cuePositionAnchor = Cue.TYPE_UNSET;
       float cueWidth = Cue.DIMEN_UNSET;
 
-      // parse the cue timestamps
-      matcher = TIMESTAMP.matcher(line);
-
-      // parse start timestamp
-      if (!matcher.find()) {
-        throw new ParserException("Expected cue start time: " + line);
-      } else {
-        cueStartTime = parseTimestampUs(matcher.group());
-      }
-
-      // parse end timestamp
-      String endTimeString;
-      if (!matcher.find()) {
-        throw new ParserException("Expected cue end time: " + line);
-      } else {
-        endTimeString = matcher.group();
-        cueEndTime = parseTimestampUs(endTimeString);
-      }
-
-      // parse the (optional) cue setting list
-      line = line.substring(line.indexOf(endTimeString) + endTimeString.length());
-      matcher = CUE_SETTING.matcher(line);
+      // Parse the cue settings list.
+      matcher = CUE_SETTING.matcher(matcher.group(3));
       while (matcher.find()) {
         String match = matcher.group();
         String[] parts = match.split(":", 2);
         String name = parts[0];
         String value = parts[1];
-
         try {
           if ("line".equals(name)) {
             parseLineAttribute(value, positionHolder);
@@ -194,7 +169,7 @@ public final class WebvttParser implements SubtitleParser {
         cuePositionAnchor = alignmentToAnchor(cueTextAlignment);
       }
 
-      // parse text
+      // Parse the cue text.
       textBuilder.setLength(0);
       while ((line = webvttData.readLine()) != null && !line.isEmpty()) {
         if (textBuilder.length() > 0) {
@@ -202,7 +177,7 @@ public final class WebvttParser implements SubtitleParser {
         }
         textBuilder.append(line.trim());
       }
-      cueText = Html.fromHtml(textBuilder.toString());
+      CharSequence cueText = Html.fromHtml(textBuilder.toString());
 
       WebvttCue cue = new WebvttCue(cueStartTime, cueEndTime, cueText, cueTextAlignment, cueLine,
           cueLineType, cueLineAnchor, cuePosition, cuePositionAnchor, cueWidth);
