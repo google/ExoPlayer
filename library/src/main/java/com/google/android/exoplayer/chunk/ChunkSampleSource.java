@@ -533,7 +533,8 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   private void doChunkOperation() {
     currentLoadableHolder.endOfStream = false;
     currentLoadableHolder.queueSize = readOnlyMediaChunks.size();
-    chunkSource.getChunkOperation(readOnlyMediaChunks, pendingResetPositionUs, downstreamPositionUs,
+    chunkSource.getChunkOperation(readOnlyMediaChunks,
+        pendingResetPositionUs != NO_RESET_PENDING ? pendingResetPositionUs : downstreamPositionUs,
         currentLoadableHolder);
     loadingFinished = currentLoadableHolder.endOfStream;
   }
