@@ -148,13 +148,13 @@ import java.util.Collections;
     int aspectRatioCode = (csdData[7] & 0xF0) >> 4;
     switch(aspectRatioCode) {
       case 2:
-        pixelWidthHeightRatio = (3 * width) / (float) (4 * height);
+        pixelWidthHeightRatio = (4 * height) / (float) (3 * width);
         break;
       case 3:
-        pixelWidthHeightRatio = (9 * width) / (float) (16 * height);
+        pixelWidthHeightRatio = (16 * height) / (float) (9 * width);
         break;
       case 4:
-        pixelWidthHeightRatio = (100 * width) / (float) (121 * height);
+        pixelWidthHeightRatio = (121 * height) / (float) (100 * width);
         break;
       default:
         // Do nothing.
