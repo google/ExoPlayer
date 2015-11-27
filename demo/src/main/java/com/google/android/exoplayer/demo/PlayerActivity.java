@@ -16,7 +16,10 @@
 package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.AspectRatioFrameLayout;
+import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
+import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
+import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
@@ -98,9 +101,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private static final String TAG = "PlayerActivity";
   private static final int MENU_GROUP_TRACKS = 1;
   private static final int ID_OFFSET = 2;
-
-  // For use when requesting permission.
-  private static final String URI_FILE_SCHEME = "file";
 
   private static final CookieManager defaultCookieManager;
   static {
@@ -394,13 +394,35 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   @Override
   public void onError(Exception e) {
+    String errorString = null;
     if (e instanceof UnsupportedDrmException) {
       // Special case DRM failures.
       UnsupportedDrmException unsupportedDrmException = (UnsupportedDrmException) e;
-      int stringId = Util.SDK_INT < 18 ? R.string.drm_error_not_supported
+      errorString = getString(Util.SDK_INT < 18 ? R.string.error_drm_not_supported
           : unsupportedDrmException.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
-              ? R.string.drm_error_unsupported_scheme : R.string.drm_error_unknown;
-      Toast.makeText(getApplicationContext(), stringId, Toast.LENGTH_LONG).show();
+          ? R.string.error_drm_unsupported_scheme : R.string.error_drm_unknown);
+    } else if (e instanceof ExoPlaybackException
+        && e.getCause() instanceof DecoderInitializationException) {
+      // Special case for decoder initialization failures.
+      DecoderInitializationException decoderInitializationException =
+          (DecoderInitializationException) e.getCause();
+      if (decoderInitializationException.decoderName == null) {
+        if (decoderInitializationException.getCause() instanceof DecoderQueryException) {
+          errorString = getString(R.string.error_querying_decoders);
+        } else if (decoderInitializationException.secureDecoderRequired) {
+          errorString = getString(R.string.error_no_secure_decoder,
+              decoderInitializationException.mimeType);
+        } else {
+          errorString = getString(R.string.error_no_decoder,
+              decoderInitializationException.mimeType);
+        }
+      } else {
+        errorString = getString(R.string.error_instantiating_decoder,
+            decoderInitializationException.decoderName);
+      }
+    }
+    if (errorString != null) {
+      Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_LONG).show();
     }
     playerNeedsPrepare = true;
     updateButtonVisibilities();
