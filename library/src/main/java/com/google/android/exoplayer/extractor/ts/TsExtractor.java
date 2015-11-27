@@ -57,11 +57,11 @@ public final class TsExtractor implements Extractor {
   private static final long HEVC_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("HEVC");
 
   private final PtsTimestampAdjuster ptsTimestampAdjuster;
+  private final boolean idrKeyframesOnly;
   private final ParsableByteArray tsPacketBuffer;
   private final ParsableBitArray tsScratch;
-  private final boolean idrKeyframesOnly;
-  /* package */ final SparseBooleanArray streamTypes;
   /* package */ final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
+  /* package */ final SparseBooleanArray streamTypes;
 
   // Accessed only by the loading thread.
   private ExtractorOutput output;
@@ -76,13 +76,13 @@ public final class TsExtractor implements Extractor {
   }
 
   public TsExtractor(PtsTimestampAdjuster ptsTimestampAdjuster, boolean idrKeyframesOnly) {
+    this.ptsTimestampAdjuster = ptsTimestampAdjuster;
     this.idrKeyframesOnly = idrKeyframesOnly;
-    tsScratch = new ParsableBitArray(new byte[3]);
     tsPacketBuffer = new ParsableByteArray(TS_PACKET_SIZE);
-    streamTypes = new SparseBooleanArray();
+    tsScratch = new ParsableBitArray(new byte[3]);
     tsPayloadReaders = new SparseArray<>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
-    this.ptsTimestampAdjuster = ptsTimestampAdjuster;
+    streamTypes = new SparseBooleanArray();
   }
 
   // Extractor implementation.
