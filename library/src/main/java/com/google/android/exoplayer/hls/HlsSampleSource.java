@@ -538,8 +538,9 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       return;
     }
 
-    chunkSource.getChunkOperation(previousTsLoadable, pendingResetPositionUs,
-        downstreamPositionUs, chunkOperationHolder);
+    chunkSource.getChunkOperation(previousTsLoadable,
+        pendingResetPositionUs != NO_RESET_PENDING ? pendingResetPositionUs : downstreamPositionUs,
+        chunkOperationHolder);
     boolean endOfStream = chunkOperationHolder.endOfStream;
     Chunk nextLoadable = chunkOperationHolder.chunk;
     chunkOperationHolder.clear();
