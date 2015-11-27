@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.Uri;
 import android.os.Build;
 import android.text.TextUtils;
 
@@ -106,12 +107,13 @@ public final class Util {
   }
 
   /**
-   * Returns true if the URL points to a file on the local device
+   * Returns true if the URI is a path to a local file or a reference to a local file.
    *
-   * @param url The URL to test
+   * @param uri The uri to test.
    */
-  public static boolean isUrlLocalFile(URL url) {
-    return url.getProtocol().equals("file");
+  public static boolean isLocalFileUri(Uri uri) {
+    String scheme = uri.getScheme();
+    return TextUtils.isEmpty(scheme) || scheme.equals("file");
   }
 
   /**

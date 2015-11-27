@@ -293,15 +293,12 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     }
   }
 
-  private boolean uriIsLocalFile(Uri uri) {
-    return URI_FILE_SCHEME.equals(uri.getScheme()) || TextUtils.isEmpty(uri.getScheme());
-  }
-
   @TargetApi(23)
   private boolean requiresPermission(Uri uri) {
-    return Util.SDK_INT >= 23 && uriIsLocalFile(uri)
+    return Util.SDK_INT >= 23
+        && Util.isLocalFileUri(uri)
         && checkSelfPermission(permission.READ_EXTERNAL_STORAGE)
-        != PackageManager.PERMISSION_GRANTED;
+            != PackageManager.PERMISSION_GRANTED;
   }
 
   // Internal methods
