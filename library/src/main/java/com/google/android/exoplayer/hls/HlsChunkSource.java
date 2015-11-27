@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.hls;
 
+import com.google.android.exoplayer.BehindLiveWindowException;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
@@ -249,14 +250,14 @@ public class HlsChunkSource {
    * be performed by the calling {@link HlsSampleSource}.
    *
    * @param previousTsChunk The previously loaded chunk that the next chunk should follow.
-   * @param seekPositionUs If there is no previous chunk, this parameter must specify the seek
-   *     position. If there is a previous chunk then this parameter is ignored.
-   * @param playbackPositionUs The current playback position.
+   * @param playbackPositionUs The current playback position. If previousTsChunk is null then this
+   *     parameter is the position from which playback is expected to start (or restart) and hence
+   *     should be interpreted as a seek position.
    * @param out The holder to populate with the result. {@link ChunkOperationHolder#queueSize} is
    *     unused.
    */
-  public void getChunkOperation(TsChunk previousTsChunk, long seekPositionUs,
-      long playbackPositionUs, ChunkOperationHolder out) {
+  public void getChunkOperation(TsChunk previousTsChunk, long playbackPositionUs,
+      ChunkOperationHolder out) {
     int nextVariantIndex;
     boolean switchingVariantSpliced;
     if (adaptiveMode == ADAPTIVE_MODE_NONE) {
@@ -286,22 +287,15 @@ public class HlsChunkSource {
         chunkMediaSequence = switchingVariantSpliced
             ? previousTsChunk.chunkIndex : previousTsChunk.chunkIndex + 1;
         if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
-          // TODO: Decide what we want to do with: https://github.com/google/ExoPlayer/issues/765
-          // if (allowSkipAhead) {
-          // If the chunk is no longer in the playlist. Skip ahead and start again.
-          chunkMediaSequence = getLiveStartChunkMediaSequence(nextVariantIndex);
-          liveDiscontinuity = true;
-          // } else {
-          //   fatalError = new BehindLiveWindowException();
-          //   return null;
-          // }
+          fatalError = new BehindLiveWindowException();
+          return;
         }
       }
     } else {
       // Not live.
       if (previousTsChunk == null) {
-        chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, seekPositionUs, true,
-            true) + mediaPlaylist.mediaSequence;
+        chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, playbackPositionUs,
+            true, true) + mediaPlaylist.mediaSequence;
       } else {
         chunkMediaSequence = switchingVariantSpliced
             ? previousTsChunk.chunkIndex : previousTsChunk.chunkIndex + 1;
