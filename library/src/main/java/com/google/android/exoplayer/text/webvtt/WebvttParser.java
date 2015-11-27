@@ -21,7 +21,6 @@ import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.MimeTypes;
 
-import android.text.Html;
 import android.text.Layout.Alignment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -48,10 +47,12 @@ public final class WebvttParser implements SubtitleParser {
   private static final Pattern CUE_HEADER = Pattern.compile("^(\\S+)\\s+-->\\s+(\\S+)(.*)?$");
   private static final Pattern CUE_SETTING = Pattern.compile("(\\S+?):(\\S+)");
 
+  private final WebvttCueParser cueParser;
   private final PositionHolder positionHolder;
   private final StringBuilder textBuilder;
 
   public WebvttParser() {
+    this.cueParser = new WebvttCueParser();
     positionHolder = new PositionHolder();
     textBuilder = new StringBuilder();
   }
@@ -130,11 +131,12 @@ public final class WebvttParser implements SubtitleParser {
       String line;
       while ((line = webvttData.readLine()) != null && !line.isEmpty()) {
         if (textBuilder.length() > 0) {
-          textBuilder.append("<br>");
+          textBuilder.append("\n");
         }
         textBuilder.append(line.trim());
       }
-      CharSequence cueText = Html.fromHtml(textBuilder.toString());
+
+      CharSequence cueText = cueParser.parse(textBuilder.toString());
 
       WebvttCue cue = new WebvttCue(cueStartTime, cueEndTime, cueText, cueTextAlignment, cueLine,
           cueLineType, cueLineAnchor, cuePosition, cuePositionAnchor, cueWidth);
