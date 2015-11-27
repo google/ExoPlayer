@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.text.webvtt;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -42,9 +41,6 @@ public final class WebvttParser implements SubtitleParser {
 
   private static final String TAG = "WebvttParser";
 
-  private static final Pattern HEADER = Pattern.compile("^\uFEFF?WEBVTT((\u0020|\u0009).*)?$");
-  private static final Pattern COMMENT = Pattern.compile("^NOTE((\u0020|\u0009).*)?$");
-  private static final Pattern CUE_HEADER = Pattern.compile("^(\\S+)\\s+-->\\s+(\\S+)(.*)?$");
   private static final Pattern CUE_SETTING = Pattern.compile("(\\S+?):(\\S+)");
 
   private final WebvttCueParser cueParser;
@@ -67,18 +63,19 @@ public final class WebvttParser implements SubtitleParser {
     BufferedReader webvttData = new BufferedReader(new InputStreamReader(inputStream, C.UTF8_NAME));
 
     // Validate the first line of the header, and skip the remainder.
-    validateWebvttHeaderLine(webvttData);
+    WebvttParserUtil.validateWebvttHeaderLine(webvttData);
     while (!TextUtils.isEmpty(webvttData.readLine())) {}
 
+    // Process the cues and text.
     ArrayList<WebvttCue> subtitles = new ArrayList<>();
     Matcher cueHeaderMatcher;
-    while ((cueHeaderMatcher = findNextCueHeader(webvttData)) != null) {
+    while ((cueHeaderMatcher = WebvttParserUtil.findNextCueHeader(webvttData)) != null) {
       long cueStartTime;
       long cueEndTime;
       try {
         // Parse the cue start and end times.
-        cueStartTime = parseTimestampUs(cueHeaderMatcher.group(1));
-        cueEndTime = parseTimestampUs(cueHeaderMatcher.group(2));
+        cueStartTime = WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(1));
+        cueEndTime = WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(2));
       } catch (NumberFormatException e) {
         Log.w(TAG, "Skipping cue with bad header: " + cueHeaderMatcher.group());
         continue;
@@ -144,55 +141,6 @@ public final class WebvttParser implements SubtitleParser {
     }
 
     return new WebvttSubtitle(subtitles);
-  }
-
-  /**
-   * Reads and validates the first line of a WebVTT file.
-   *
-   * @param input The input from which the line should be read.
-   * @throws ParserException If the line isn't the start of a valid WebVTT file.
-   * @throws IOException If an error occurs reading from the input.
-   */
-  private static void validateWebvttHeaderLine(BufferedReader input) throws IOException {
-    String line = input.readLine();
-    if (line == null || !HEADER.matcher(line).matches()) {
-      throw new ParserException("Expected WEBVTT. Got " + line);
-    }
-  }
-
-  /**
-   * Reads lines up to and including the next WebVTT cue header.
-   *
-   * @param input The input from which lines should be read.
-   * @throws IOException If an error occurs reading from the input.
-   * @return A {@link Matcher} for the WebVTT cue header, or null if the end of the input was
-   *     reached without a cue header being found. In the case that a cue header is found, groups 1,
-   *     2 and 3 of the returned matcher contain the start time, end time and settings list.
-   */
-  private static Matcher findNextCueHeader(BufferedReader input) throws IOException {
-    String line;
-    while ((line = input.readLine()) != null) {
-      if (COMMENT.matcher(line).matches()) {
-        // Skip until the end of the comment block.
-        while ((line = input.readLine()) != null && !line.isEmpty()) {}
-      } else {
-        Matcher cueHeaderMatcher = CUE_HEADER.matcher(line);
-        if (cueHeaderMatcher.matches()) {
-          return cueHeaderMatcher;
-        }
-      }
-    }
-    return null;
-  }
-
-  private static long parseTimestampUs(String s) throws NumberFormatException {
-    long value = 0;
-    String[] parts = s.split("\\.", 2);
-    String[] subparts = parts[0].split(":");
-    for (int i = 0; i < subparts.length; i++) {
-      value = value * 60 + Long.parseLong(subparts[i]);
-    }
-    return (value * 1000 + Long.parseLong(parts[1])) * 1000;
   }
 
   private static void parseLineAttribute(String s, PositionHolder out)
