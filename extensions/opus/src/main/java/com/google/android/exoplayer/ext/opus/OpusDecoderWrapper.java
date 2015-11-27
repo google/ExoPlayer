@@ -22,8 +22,6 @@ import java.util.LinkedList;
 
 /**
  * Wraps {@link OpusDecoder}, exposing a higher level decoder interface.
- *
- * @author vigneshv@google.com (Vignesh Venkatasubramanian)
  */
 /* package */ class OpusDecoderWrapper extends Thread {
 
