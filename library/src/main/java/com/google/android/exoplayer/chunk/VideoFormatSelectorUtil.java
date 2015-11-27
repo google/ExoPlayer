@@ -193,7 +193,7 @@ public final class VideoFormatSelectorUtil {
     // Before API 23 the platform Display object does not provide a way to identify Android TVs that
     // can show 4k resolution in a SurfaceView, so check for supported devices here.
     // See also https://developer.sony.com/develop/tvs/android-tv/design-guide/.
-    if (Util.MODEL != null && Util.MODEL.startsWith("BRAVIA")
+    if (Util.SDK_INT < 23 && Util.MODEL != null && Util.MODEL.startsWith("BRAVIA")
         && context.getPackageManager().hasSystemFeature("com.sony.dtv.hardware.panel.qfhd")) {
       return new Point(3840, 2160);
     }
@@ -204,7 +204,9 @@ public final class VideoFormatSelectorUtil {
 
   private static Point getDisplaySize(Display display) {
     Point displaySize = new Point();
-    if (Util.SDK_INT >= 17) {
+    if (Util.SDK_INT >= 23) {
+      getDisplaySizeV23(display, displaySize);
+    } else if (Util.SDK_INT >= 17) {
       getDisplaySizeV17(display, displaySize);
     } else if (Util.SDK_INT >= 16) {
       getDisplaySizeV16(display, displaySize);
@@ -212,6 +214,13 @@ public final class VideoFormatSelectorUtil {
       getDisplaySizeV9(display, displaySize);
     }
     return displaySize;
+  }
+
+  @TargetApi(23)
+  private static void getDisplaySizeV23(Display display, Point outSize) {
+    Display.Mode mode = display.getMode();
+    outSize.x = mode.getPhysicalWidth();
+    outSize.y = mode.getPhysicalHeight();
   }
 
   @TargetApi(17)
