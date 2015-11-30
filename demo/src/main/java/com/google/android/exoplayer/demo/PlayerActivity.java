@@ -177,7 +177,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     playerStateTextView = (TextView) findViewById(R.id.player_state_view);
     subtitleLayout = (SubtitleLayout) findViewById(R.id.subtitles);
 
-    mediaController = new MediaController(this);
+    mediaController = new KeyCompatibleMediaController(this);
     mediaController.setAnchorView(root);
     retryButton = (Button) findViewById(R.id.retry_button);
     retryButton.setOnClickListener(this);
@@ -703,6 +703,40 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       return TYPE_HLS;
     } else {
       return TYPE_OTHER;
+    }
+  }
+
+  private static final class KeyCompatibleMediaController extends MediaController {
+
+    private MediaController.MediaPlayerControl playerControl;
+
+    public KeyCompatibleMediaController(Context context) {
+      super(context);
+    }
+
+    @Override
+    public void setMediaPlayer(MediaController.MediaPlayerControl playerControl) {
+      super.setMediaPlayer(playerControl);
+      this.playerControl = playerControl;
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+      int keyCode = event.getKeyCode();
+      if (playerControl.canSeekForward() && keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+          playerControl.seekTo(playerControl.getCurrentPosition() + 15000); // milliseconds
+          show();
+        }
+        return true;
+      } else if (playerControl.canSeekBackward() && keyCode == KeyEvent.KEYCODE_MEDIA_REWIND) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+          playerControl.seekTo(playerControl.getCurrentPosition() - 5000); // milliseconds
+          show();
+        }
+        return true;
+      }
+      return super.dispatchKeyEvent(event);
     }
   }
 
