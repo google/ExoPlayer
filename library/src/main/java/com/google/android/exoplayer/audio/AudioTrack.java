@@ -26,6 +26,7 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTimestamp;
 import android.media.MediaFormat;
+import android.media.PlaybackParams;
 import android.os.ConditionVariable;
 import android.os.SystemClock;
 import android.util.Log;
@@ -248,7 +249,9 @@ public final class AudioTrack {
         // There's no guarantee this method exists. Do nothing.
       }
     }
-    if (Util.SDK_INT >= 19) {
+    if (Util.SDK_INT >= 23) {
+      audioTrackUtil = new AudioTrackUtilV23();
+    } else if (Util.SDK_INT >= 19) {
       audioTrackUtil = new AudioTrackUtilV19();
     } else {
       audioTrackUtil = new AudioTrackUtil();
@@ -300,7 +303,10 @@ public final class AudioTrack {
     if (audioTimestampSet) {
       // How long ago in the past the audio timestamp is (negative if it's in the future).
       long presentationDiff = systemClockUs - (audioTrackUtil.getTimestampNanoTime() / 1000);
-      long framesDiff = durationUsToFrames(presentationDiff);
+      // Fixes such difference if the playback speed is not real time speed.
+      long actualSpeedPresentationDiff = (long) (presentationDiff
+          * audioTrackUtil.getPlaybackSpeed());
+      long framesDiff = durationUsToFrames(actualSpeedPresentationDiff);
       // The position of the frame that's currently being presented.
       long currentFramePosition = audioTrackUtil.getTimestampFramePosition() + framesDiff;
       currentPositionUs = framesToDurationUs(currentFramePosition) + startMediaTimeUs;
@@ -652,8 +658,19 @@ public final class AudioTrack {
   public boolean hasPendingData() {
     return isInitialized()
         && (getSubmittedFrames() > audioTrackUtil.getPlaybackHeadPosition()
-            || overrideHasPendingData());
+        || overrideHasPendingData());
   }
+
+  /**
+   * Sets the playback parameters. Only available for SDK_INT >= 23
+   *
+   * @throws UnsupportedOperationException if the Playback Parameters are not supported. That is,
+   *     SDK_INT < 23.
+   */
+  public void setPlaybackParams(PlaybackParams playbackParams) {
+    audioTrackUtil.setPlaybackParameters(playbackParams);
+  }
+
 
   /**
    * Sets the playback volume.
@@ -1100,6 +1117,27 @@ public final class AudioTrack {
       throw new UnsupportedOperationException();
     }
 
+    /**
+     * Sets the Playback Parameters to be used by the underlying {@link android.media.AudioTrack}.
+     *
+     * @param playbackParams to be used by the {@link android.media.AudioTrack}.
+     * @throws UnsupportedOperationException If Playback Parameters are not supported
+     *     (i.e. SDK_INT < 23).
+     */
+    public void setPlaybackParameters(PlaybackParams playbackParams) {
+      throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Returns the configured playback speed according to the used Playback Parameters. If these are
+     * not supported, 1.0f(normal speed) is returned.
+     *
+     * @return The speed factor used by the underlying {@link android.media.AudioTrack}.
+     */
+    public float getPlaybackSpeed() {
+      return 1.0f;
+    }
+
   }
 
   @TargetApi(19)
@@ -1151,4 +1189,31 @@ public final class AudioTrack {
 
   }
 
+  @TargetApi(23)
+  private static class AudioTrackUtilV23 extends AudioTrackUtilV19 {
+
+    private PlaybackParams playbackParams;
+
+    @Override
+    public void reconfigure(android.media.AudioTrack audioTrack,
+        boolean needsPassthroughWorkaround) {
+      super.reconfigure(audioTrack, needsPassthroughWorkaround);
+      setPlaybackParameters(playbackParams);
+    }
+
+    public void setPlaybackParameters(PlaybackParams playbackParams) {
+      this.playbackParams = playbackParams;
+      if (audioTrack != null && playbackParams != null) {
+        audioTrack.setPlaybackParams(playbackParams);
+      }
+    }
+
+    public float getPlaybackSpeed() {
+      if (playbackParams != null) {
+        return playbackParams.getSpeed();
+      } else {
+        return 1.0f;
+      }
+    }
+  }
 }

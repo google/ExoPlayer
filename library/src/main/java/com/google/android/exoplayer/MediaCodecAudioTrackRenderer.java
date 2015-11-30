@@ -24,6 +24,7 @@ import com.google.android.exoplayer.util.MimeTypes;
 import android.annotation.TargetApi;
 import android.media.AudioManager;
 import android.media.MediaCodec;
+import android.media.PlaybackParams;
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -75,6 +76,14 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
    * should be a {@link Float} with 0 being silence and 1 being unity gain.
    */
   public static final int MSG_SET_VOLUME = 1;
+
+  /**
+   * The type of a message that can be passed to an instance of this class via
+   * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
+   * should be a {@link android.media.PlaybackParams}. This will be used to configure the
+   * underlying {@link android.media.AudioTrack}.
+   */
+  public static final int MSG_SET_PLAYBACK_PARAMS = 2;
 
   /**
    * The name for the raw (passthrough) decoder OMX component.
@@ -401,10 +410,16 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
 
   @Override
   public void handleMessage(int messageType, Object message) throws ExoPlaybackException {
-    if (messageType == MSG_SET_VOLUME) {
-      audioTrack.setVolume((Float) message);
-    } else {
-      super.handleMessage(messageType, message);
+    switch (messageType) {
+      case MSG_SET_VOLUME:
+        audioTrack.setVolume((Float) message);
+        break;
+      case MSG_SET_PLAYBACK_PARAMS:
+        audioTrack.setPlaybackParams((PlaybackParams) message);
+        break;
+      default:
+        super.handleMessage(messageType, message);
+        break;
     }
   }
 
