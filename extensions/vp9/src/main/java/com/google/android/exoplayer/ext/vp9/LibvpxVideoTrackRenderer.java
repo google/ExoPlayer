@@ -298,7 +298,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     }
 
     if (inputBuffer == null) {
-      inputBuffer = decoder.getInputBuffer();
+      inputBuffer = decoder.dequeueInputBuffer();
       if (inputBuffer == null) {
         return false;
       }
