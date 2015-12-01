@@ -1201,6 +1201,7 @@ public final class AudioTrack {
       setPlaybackParameters(playbackParams);
     }
 
+    @Override
     public void setPlaybackParameters(PlaybackParams playbackParams) {
       this.playbackParams = playbackParams;
       if (audioTrack != null && playbackParams != null) {
@@ -1208,6 +1209,7 @@ public final class AudioTrack {
       }
     }
 
+    @Override
     public float getPlaybackSpeed() {
       if (playbackParams != null) {
         return playbackParams.getSpeed();
@@ -1215,5 +1217,7 @@ public final class AudioTrack {
         return 1.0f;
       }
     }
+
   }
+
 }
