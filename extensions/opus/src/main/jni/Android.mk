@@ -16,7 +16,6 @@
 
 WORKING_DIR := $(call my-dir)
 include $(CLEAR_VARS)
-APP_PLATFORM := android-10
 
 # build libopus.so
 LOCAL_PATH := $(WORKING_DIR)
