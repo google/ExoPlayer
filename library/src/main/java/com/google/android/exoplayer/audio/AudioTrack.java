@@ -1193,28 +1193,36 @@ public final class AudioTrack {
   private static class AudioTrackUtilV23 extends AudioTrackUtilV19 {
 
     private PlaybackParams playbackParams;
+    private float playbackSpeed;
+
+    public AudioTrackUtilV23() {
+      playbackSpeed = 1.0f;
+    }
 
     @Override
     public void reconfigure(android.media.AudioTrack audioTrack,
         boolean needsPassthroughWorkaround) {
       super.reconfigure(audioTrack, needsPassthroughWorkaround);
-      setPlaybackParameters(playbackParams);
+      maybeApplyPlaybackParams();
     }
 
     @Override
     public void setPlaybackParameters(PlaybackParams playbackParams) {
+      playbackParams = (playbackParams != null ? playbackParams : new PlaybackParams())
+          .allowDefaults();
       this.playbackParams = playbackParams;
-      if (audioTrack != null && playbackParams != null) {
-        audioTrack.setPlaybackParams(playbackParams);
-      }
+      this.playbackSpeed = playbackParams.getSpeed();
+      maybeApplyPlaybackParams();
     }
 
     @Override
     public float getPlaybackSpeed() {
-      if (playbackParams != null) {
-        return playbackParams.getSpeed();
-      } else {
-        return 1.0f;
+      return playbackSpeed;
+    }
+
+    private void maybeApplyPlaybackParams() {
+      if (audioTrack != null && playbackParams != null) {
+        audioTrack.setPlaybackParams(playbackParams);
       }
     }
 

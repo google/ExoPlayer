@@ -80,8 +80,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   /**
    * The type of a message that can be passed to an instance of this class via
    * {@link ExoPlayer#sendMessage} or {@link ExoPlayer#blockingSendMessage}. The message object
-   * should be a {@link android.media.PlaybackParams}. This will be used to configure the
-   * underlying {@link android.media.AudioTrack}.
+   * should be a {@link android.media.PlaybackParams}, which will be used to configure the
+   * underlying {@link android.media.AudioTrack}. The message object should not be modified by the
+   * caller after it has been passed
    */
   public static final int MSG_SET_PLAYBACK_PARAMS = 2;
 
