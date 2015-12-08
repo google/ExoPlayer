@@ -235,12 +235,15 @@ public final class TsExtractor implements Extractor {
    */
   private class PmtReader extends TsPayloadReader {
 
-    private final ParsableByteArray data;
     private final ParsableBitArray pmtScratch;
+    private final ParsableByteArray sectionData;
+
+    private int sectionLength;
+    private int sectionBytesRead;
 
     public PmtReader() {
-      data = new ParsableByteArray();
       pmtScratch = new ParsableBitArray(new byte[5]);
+      sectionData = new ParsableByteArray();
     }
 
     @Override
@@ -249,47 +252,47 @@ public final class TsExtractor implements Extractor {
     }
 
     @Override
-    public void consume(ParsableByteArray dataPart, boolean payloadUnitStartIndicator,
+    public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
         ExtractorOutput output) {
       if (payloadUnitStartIndicator) {
         // Skip pointer.
-        int pointerField = dataPart.readUnsignedByte();
-        dataPart.skipBytes(pointerField);
+        int pointerField = data.readUnsignedByte();
+        data.skipBytes(pointerField);
 
         // Note: see ISO/IEC 13818-1, section 2.4.4.8 for detailed information on the format of
         // the header.
-        dataPart.readBytes(pmtScratch, 3);
-        pmtScratch.skipBits(12); // table_id (8), section_syntax_indicator (1), '0' (1), reserved (2)
-        int sectionLength = pmtScratch.readBits(12);
+        data.readBytes(pmtScratch, 3);
+        pmtScratch.skipBits(12); // table_id (8), section_syntax_indicator (1), 0 (1), reserved (2)
+        sectionLength = pmtScratch.readBits(12);
 
-        if (data.capacity() == sectionLength) {
-          data.reset();
+        if (sectionData.capacity() < sectionLength) {
+          sectionData.reset(new byte[sectionLength], sectionLength);
         } else {
-          data.reset(new byte[sectionLength], 0);
+          sectionData.reset();
+          sectionData.setLimit(sectionLength);
         }
       }
 
-      // read part of the section from single TS packet (dataPart)
-      int partLength = Math.min(dataPart.bytesLeft(), data.capacity()-data.limit());
-      dataPart.readBytes(data.data, data.limit(), partLength);
-      data.setLimit(data.limit()+partLength);
-      if (data.limit() != data.capacity()) { // section is not complete yet
+      int bytesToRead = Math.min(data.bytesLeft(), sectionLength - sectionBytesRead);
+      data.readBytes(sectionData.data, sectionBytesRead, bytesToRead);
+      sectionBytesRead += bytesToRead;
+      if (sectionBytesRead < sectionLength) {
+        // Not yet fully read.
         return;
       }
-
-      int sectionLength = data.capacity();
 
       // program_number (16), reserved (2), version_number (5), current_next_indicator (1),
       // section_number (8), last_section_number (8), reserved (3), PCR_PID (13)
       // Skip the rest of the PMT header.
-      data.skipBytes(7);
+      sectionData.skipBytes(7);
 
-      data.readBytes(pmtScratch, 2);
+      // Read program_info_length.
+      sectionData.readBytes(pmtScratch, 2);
       pmtScratch.skipBits(4);
       int programInfoLength = pmtScratch.readBits(12);
 
       // Skip the descriptors.
-      data.skipBytes(programInfoLength);
+      sectionData.skipBytes(programInfoLength);
 
       if (id3Reader == null) {
         // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
@@ -300,7 +303,7 @@ public final class TsExtractor implements Extractor {
       int remainingEntriesLength = sectionLength - 9 /* Length of fields before descriptors */
           - programInfoLength - 4 /* CRC length */;
       while (remainingEntriesLength > 0) {
-        data.readBytes(pmtScratch, 5);
+        sectionData.readBytes(pmtScratch, 5);
         int streamType = pmtScratch.readBits(8);
         pmtScratch.skipBits(3); // reserved
         int elementaryPid = pmtScratch.readBits(13);
@@ -308,9 +311,9 @@ public final class TsExtractor implements Extractor {
         int esInfoLength = pmtScratch.readBits(12); // ES_info_length
         if (streamType == 0x06) {
           // Read descriptors in PES packets containing private data.
-          streamType = readPrivateDataStreamType(data, esInfoLength);
+          streamType = readPrivateDataStreamType(sectionData, esInfoLength);
         } else {
-          data.skipBytes(esInfoLength);
+          sectionData.skipBytes(esInfoLength);
         }
         remainingEntriesLength -= esInfoLength + 5;
         if (streamTypes.get(streamType)) {
