@@ -1,6 +1,6 @@
 # Release notes #
 
-### Current dev branch (from r1.5.2) ###
+### r1.5.3 ###
 
 * Support for FLV (without seeking).
 * MP4: Fix for playback of media containing basic edit lists.
