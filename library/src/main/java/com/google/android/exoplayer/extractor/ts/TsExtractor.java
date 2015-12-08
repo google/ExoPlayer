@@ -235,9 +235,11 @@ public final class TsExtractor implements Extractor {
    */
   private class PmtReader extends TsPayloadReader {
 
+    private final ParsableByteArray data;
     private final ParsableBitArray pmtScratch;
 
     public PmtReader() {
+      data = new ParsableByteArray();
       pmtScratch = new ParsableBitArray(new byte[5]);
     }
 
@@ -247,19 +249,35 @@ public final class TsExtractor implements Extractor {
     }
 
     @Override
-    public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
+    public void consume(ParsableByteArray dataPart, boolean payloadUnitStartIndicator,
         ExtractorOutput output) {
-      // Skip pointer.
       if (payloadUnitStartIndicator) {
-        int pointerField = data.readUnsignedByte();
-        data.skipBytes(pointerField);
+        // Skip pointer.
+        int pointerField = dataPart.readUnsignedByte();
+        dataPart.skipBytes(pointerField);
+
+        // Note: see ISO/IEC 13818-1, section 2.4.4.8 for detailed information on the format of
+        // the header.
+        dataPart.readBytes(pmtScratch, 3);
+        pmtScratch.skipBits(12); // table_id (8), section_syntax_indicator (1), '0' (1), reserved (2)
+        int sectionLength = pmtScratch.readBits(12);
+
+        if (data.capacity() == sectionLength) {
+          data.reset();
+        } else {
+          data.reset(new byte[sectionLength], 0);
+        }
       }
 
-      // Note: see ISO/IEC 13818-1, section 2.4.4.8 for detailed information on the format of
-      // the header.
-      data.readBytes(pmtScratch, 3);
-      pmtScratch.skipBits(12); // table_id (8), section_syntax_indicator (1), '0' (1), reserved (2)
-      int sectionLength = pmtScratch.readBits(12);
+      // read part of the section from single TS packet (dataPart)
+      int partLength = Math.min(dataPart.bytesLeft(), data.capacity()-data.limit());
+      dataPart.readBytes(data.data, data.limit(), partLength);
+      data.setLimit(data.limit()+partLength);
+      if (data.limit() != data.capacity()) { // section is not complete yet
+        return;
+      }
+
+      int sectionLength = data.capacity();
 
       // program_number (16), reserved (2), version_number (5), current_next_indicator (1),
       // section_number (8), last_section_number (8), reserved (3), PCR_PID (13)
