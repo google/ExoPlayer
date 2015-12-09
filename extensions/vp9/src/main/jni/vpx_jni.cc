@@ -44,7 +44,7 @@
     Java_com_google_android_exoplayer_ext_vp9_VpxDecoder_ ## NAME \
       (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
 
-// JNI references for OutputBuffer class.
+// JNI references for VpxOutputBuffer class.
 static jmethodID initForRgbFrame;
 static jmethodID initForYuvFrame;
 static jfieldID dataField;
@@ -69,7 +69,7 @@ FUNC(jlong, vpxInit) {
 
   // Populate JNI References.
   const jclass outputBufferClass = env->FindClass(
-      "com/google/android/exoplayer/ext/vp9/VpxDecoderWrapper$OutputBuffer");
+      "com/google/android/exoplayer/ext/vp9/VpxOutputBuffer");
   initForYuvFrame = env->GetMethodID(outputBufferClass, "initForYuvFrame",
                                      "(IIII)V");
   initForRgbFrame = env->GetMethodID(outputBufferClass, "initForRgbFrame",
