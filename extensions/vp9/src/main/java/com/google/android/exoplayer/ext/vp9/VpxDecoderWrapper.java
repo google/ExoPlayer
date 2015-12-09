@@ -28,16 +28,19 @@ import java.util.LinkedList;
   public static final int FLAG_END_OF_STREAM = 1;
 
   private static final int INPUT_BUFFER_SIZE = 768 * 1024; // Value based on cs/SoftVpx.cpp.
+  /**
+   * The total number of output buffers. {@link LibvpxVideoTrackRenderer} may hold on to 2 buffers
+   * at a time so this value should be high enough considering LibvpxVideoTrackRenderer requirement.
+   */
   private static final int NUM_BUFFERS = 16;
 
   private final Object lock;
 
-  private final LinkedList<InputBuffer> dequeuedInputBuffers;
-  private final LinkedList<InputBuffer> queuedInputBuffers;
-  private final LinkedList<OutputBuffer> queuedOutputBuffers;
-  private final LinkedList<OutputBuffer> dequeuedOutputBuffers;
-  private final InputBuffer[] availableInputBuffers;
-  private final OutputBuffer[] availableOutputBuffers;
+  private final LinkedList<VpxInputBuffer> dequeuedInputBuffers;
+  private final LinkedList<VpxInputBuffer> queuedInputBuffers;
+  private final LinkedList<VpxOutputBuffer> queuedOutputBuffers;
+  private final VpxInputBuffer[] availableInputBuffers;
+  private final VpxOutputBuffer[] availableOutputBuffers;
   private int availableInputBufferCount;
   private int availableOutputBufferCount;
 
@@ -57,14 +60,13 @@ import java.util.LinkedList;
     dequeuedInputBuffers = new LinkedList<>();
     queuedInputBuffers = new LinkedList<>();
     queuedOutputBuffers = new LinkedList<>();
-    dequeuedOutputBuffers = new LinkedList<>();
-    availableInputBuffers = new InputBuffer[NUM_BUFFERS];
-    availableOutputBuffers = new OutputBuffer[NUM_BUFFERS];
+    availableInputBuffers = new VpxInputBuffer[NUM_BUFFERS];
+    availableOutputBuffers = new VpxOutputBuffer[NUM_BUFFERS];
     availableInputBufferCount = NUM_BUFFERS;
     availableOutputBufferCount = NUM_BUFFERS;
     for (int i = 0; i < NUM_BUFFERS; i++) {
-      availableInputBuffers[i] = new InputBuffer();
-      availableOutputBuffers[i] = new OutputBuffer();
+      availableInputBuffers[i] = new VpxInputBuffer();
+      availableOutputBuffers[i] = new VpxOutputBuffer();
     }
   }
 
@@ -72,13 +74,13 @@ import java.util.LinkedList;
     this.outputMode = outputMode;
   }
 
-  public InputBuffer dequeueInputBuffer() throws VpxDecoderException {
+  public VpxInputBuffer dequeueInputBuffer() throws VpxDecoderException {
     synchronized (lock) {
       maybeThrowDecoderError();
       if (availableInputBufferCount == 0) {
         return null;
       }
-      InputBuffer inputBuffer = availableInputBuffers[--availableInputBufferCount];
+      VpxInputBuffer inputBuffer = availableInputBuffers[--availableInputBufferCount];
       inputBuffer.flags = 0;
       inputBuffer.sampleHolder.clearData();
       dequeuedInputBuffers.addLast(inputBuffer);
@@ -86,7 +88,7 @@ import java.util.LinkedList;
     }
   }
 
-  public void queueInputBuffer(InputBuffer inputBuffer) throws VpxDecoderException {
+  public void queueInputBuffer(VpxInputBuffer inputBuffer) throws VpxDecoderException {
     synchronized (lock) {
       maybeThrowDecoderError();
       dequeuedInputBuffers.remove(inputBuffer);
@@ -95,22 +97,20 @@ import java.util.LinkedList;
     }
   }
 
-  public OutputBuffer dequeueOutputBuffer() throws VpxDecoderException {
+  public VpxOutputBuffer dequeueOutputBuffer() throws VpxDecoderException {
     synchronized (lock) {
       maybeThrowDecoderError();
       if (queuedOutputBuffers.isEmpty()) {
         return null;
       }
-      OutputBuffer outputBuffer = queuedOutputBuffers.removeFirst();
-      dequeuedOutputBuffers.add(outputBuffer);
+      VpxOutputBuffer outputBuffer = queuedOutputBuffers.removeFirst();
       return outputBuffer;
     }
   }
 
-  public void releaseOutputBuffer(OutputBuffer outputBuffer) throws VpxDecoderException {
+  public void releaseOutputBuffer(VpxOutputBuffer outputBuffer) throws VpxDecoderException {
     synchronized (lock) {
       maybeThrowDecoderError();
-      dequeuedOutputBuffers.remove(outputBuffer);
       availableOutputBuffers[availableOutputBufferCount++] = outputBuffer;
       maybeNotifyDecodeLoop();
     }
@@ -127,9 +127,6 @@ import java.util.LinkedList;
       }
       while (!queuedOutputBuffers.isEmpty()) {
         availableOutputBuffers[availableOutputBufferCount++] = queuedOutputBuffers.removeFirst();
-      }
-      while (!dequeuedOutputBuffers.isEmpty()) {
-        availableOutputBuffers[availableOutputBufferCount++] = dequeuedOutputBuffers.removeFirst();
       }
     }
   }
@@ -187,8 +184,8 @@ import java.util.LinkedList;
 
   private boolean decodeBuffer(VpxDecoder decoder) throws InterruptedException,
       VpxDecoderException {
-    InputBuffer inputBuffer;
-    OutputBuffer outputBuffer;
+    VpxInputBuffer inputBuffer;
+    VpxOutputBuffer outputBuffer;
 
     // Wait until we have an input buffer to decode, and an output buffer to decode into.
     synchronized (lock) {
@@ -238,7 +235,7 @@ import java.util.LinkedList;
     return true;
   }
 
-  /* package */ static final class InputBuffer {
+  /* package */ static final class VpxInputBuffer {
 
     public final SampleHolder sampleHolder;
 
@@ -246,73 +243,9 @@ import java.util.LinkedList;
     public int height;
     public int flags;
 
-    public InputBuffer() {
+    public VpxInputBuffer() {
       sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_DIRECT);
       sampleHolder.data = ByteBuffer.allocateDirect(INPUT_BUFFER_SIZE);
-    }
-
-  }
-
-  /* package */ static final class OutputBuffer {
-
-    public ByteBuffer data;
-    public long timestampUs;
-    public int width;
-    public int height;
-    public int flags;
-    public ByteBuffer[] yuvPlanes;
-    public int[] yuvStrides;
-    public int mode;
-
-    /**
-     * This method is called from C++ through JNI after decoding is done. It will resize the
-     * buffer based on the given dimensions.
-     */
-    public void initForRgbFrame(int width, int height) {
-      this.width = width;
-      this.height = height;
-      int minimumRgbSize = width * height * 2;
-      if (data == null || data.capacity() < minimumRgbSize) {
-        data = ByteBuffer.allocateDirect(minimumRgbSize);
-        yuvPlanes = null;
-      }
-      data.position(0);
-      data.limit(minimumRgbSize);
-    }
-
-    /**
-     * This method is called from C++ through JNI after decoding is done. It will resize the
-     * buffer based on the given stride.
-     */
-    public void initForYuvFrame(int width, int height, int yStride, int uvStride) {
-      this.width = width;
-      this.height = height;
-      int yLength = yStride * height;
-      int uvLength = uvStride * ((height + 1) / 2);
-      int minimumYuvSize = yLength + (uvLength * 2);
-      if (data == null || data.capacity() < minimumYuvSize) {
-        data = ByteBuffer.allocateDirect(minimumYuvSize);
-      }
-      data.limit(minimumYuvSize);
-      if (yuvPlanes == null) {
-        yuvPlanes = new ByteBuffer[3];
-      }
-      // Rewrapping has to be done on every frame since the stride might have changed.
-      data.position(0);
-      yuvPlanes[0] = data.slice();
-      yuvPlanes[0].limit(yLength);
-      data.position(yLength);
-      yuvPlanes[1] = data.slice();
-      yuvPlanes[1].limit(uvLength);
-      data.position(yLength + uvLength);
-      yuvPlanes[2] = data.slice();
-      yuvPlanes[2].limit(uvLength);
-      if (yuvStrides == null) {
-        yuvStrides = new int[3];
-      }
-      yuvStrides[0] = yStride;
-      yuvStrides[1] = uvStride;
-      yuvStrides[2] = uvStride;
     }
 
   }

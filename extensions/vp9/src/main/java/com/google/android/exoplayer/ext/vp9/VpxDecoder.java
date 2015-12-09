@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.ext.vp9;
 
-import com.google.android.exoplayer.ext.vp9.VpxDecoderWrapper.OutputBuffer;
-
 import java.nio.ByteBuffer;
 
 /**
@@ -64,7 +62,7 @@ import java.nio.ByteBuffer;
    * @return 0 on success with a frame to render. 1 on success without a frame to render.
    * @throws VpxDecoderException on decode failure.
    */
-  public int decode(ByteBuffer encoded, int size, OutputBuffer outputBuffer)
+  public int decode(ByteBuffer encoded, int size, VpxOutputBuffer outputBuffer)
       throws VpxDecoderException {
     if (vpxDecode(vpxDecContext, encoded, size) != 0) {
       throw new VpxDecoderException("libvpx decode error: " + vpxGetErrorMessage(vpxDecContext));
@@ -94,7 +92,7 @@ import java.nio.ByteBuffer;
   private native long vpxInit();
   private native long vpxClose(long context);
   private native long vpxDecode(long context, ByteBuffer encoded, int length);
-  private native int vpxGetFrame(long context, OutputBuffer outputBuffer);
+  private native int vpxGetFrame(long context, VpxOutputBuffer outputBuffer);
   private native String vpxGetErrorMessage(long context);
 
 }
