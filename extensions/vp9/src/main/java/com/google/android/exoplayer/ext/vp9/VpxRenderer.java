@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.ext.vp9;
 
-import com.google.android.exoplayer.ext.vp9.VpxDecoderWrapper.OutputBuffer;
-
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 
@@ -67,7 +65,7 @@ import javax.microedition.khronos.opengles.GL10;
   private int program;
   private int texLocation;
   private FloatBuffer textureCoords;
-  private volatile OutputBuffer outputBuffer;
+  private VpxOutputBuffer outputBuffer;
   private int previousWidth;
   private int previousStride;
 
@@ -82,7 +80,7 @@ import javax.microedition.khronos.opengles.GL10;
    *
    * @param outputBuffer OutputBuffer containing the YUV Frame to be rendered
    */
-  public void setFrame(OutputBuffer outputBuffer) {
+  public synchronized void setFrame(VpxOutputBuffer outputBuffer) {
     this.outputBuffer = outputBuffer;
   }
 
@@ -121,33 +119,36 @@ import javax.microedition.khronos.opengles.GL10;
 
   @Override
   public void onDrawFrame(GL10 unused) {
-    OutputBuffer outputBuffer = this.outputBuffer;
+    synchronized (this) {
+      VpxOutputBuffer outputBuffer = this.outputBuffer;
+      if (outputBuffer == null) {
+        // Nothing to render yet.
+        return;
+      }
+      for (int i = 0; i < 3; i++) {
+        int h = (i == 0) ? outputBuffer.height : (outputBuffer.height + 1) / 2;
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + i);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, yuvTextures[i]);
+        GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 1);
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE,
+            outputBuffer.yuvStrides[i], h, 0, GLES20.GL_LUMINANCE, GLES20.GL_UNSIGNED_BYTE,
+            outputBuffer.yuvPlanes[i]);
+      }
+      // Set cropping of stride if either width or stride has changed.
+      if (previousWidth != outputBuffer.width || previousStride != outputBuffer.yuvStrides[0]) {
+        float crop = (float) outputBuffer.width / outputBuffer.yuvStrides[0];
+        textureCoords = nativeFloatBuffer(
+            0.0f, 0.0f,
+            0.0f, 1.0f,
+            crop, 0.0f,
+            crop, 1.0f);
+        GLES20.glVertexAttribPointer(
+            texLocation, 2, GLES20.GL_FLOAT, false, 0, textureCoords);
+        previousWidth = outputBuffer.width;
+        previousStride = outputBuffer.yuvStrides[0];
+      }
+    }
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-    if (outputBuffer == null) {
-      // Nothing to render yet.
-      return;
-    }
-    for (int i = 0; i < 3; i++) {
-      int h = (i == 0) ? outputBuffer.height : (outputBuffer.height + 1) / 2;
-      GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + i);
-      GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, yuvTextures[i]);
-      GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 1);
-      GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE, outputBuffer.yuvStrides[i],
-          h, 0, GLES20.GL_LUMINANCE, GLES20.GL_UNSIGNED_BYTE, outputBuffer.yuvPlanes[i]);
-    }
-    // Set cropping of stride if either width or stride has changed.
-    if (previousWidth != outputBuffer.width || previousStride != outputBuffer.yuvStrides[0]) {
-      float crop = (float) outputBuffer.width / outputBuffer.yuvStrides[0];
-      textureCoords = nativeFloatBuffer(
-          0.0f, 0.0f,
-          0.0f, 1.0f,
-          crop, 0.0f,
-          crop, 1.0f);
-      GLES20.glVertexAttribPointer(
-          texLocation, 2, GLES20.GL_FLOAT, false, 0, textureCoords);
-      previousWidth = outputBuffer.width;
-      previousStride = outputBuffer.yuvStrides[0];
-    }
     GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
     checkNoGLES2Error();
   }
