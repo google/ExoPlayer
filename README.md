@@ -26,23 +26,22 @@ Read news, hints and tips on the [news][] page.
 
 ## Using ExoPlayer ##
 
-### Via jCenter ###
+### via jCenter ###
 
-The easiest way to get started using ExoPlayer is by including this your project's `build.gradle` file:
+The easiest way to get started using ExoPlayer is by including the following in your project's `build.gradle` file:
 
 ```
 gradle
 compile 'com.google.android.exoplayer:exoplayer:rX.X.X'
 ```
 
-where `rX.X.X` is the your preferred version. For the latest version, see the project's [Releases][].
-
-For more details, see the project on [jCenter][].
+where `rX.X.X` is the your preferred version. For the latest version, see the project's [Releases][]. For more details,
+see the project on [Bintray][].
 
 [Releases]: https://github.com/google/ExoPlayer/releases
-[jCenter]: https://bintray.com/google/exoplayer/exoplayer/view
+[Bintray]: https://bintray.com/google/exoplayer/exoplayer/view
 
-### As source ###
+### as source ###
 
 ExoPlayer can also be built from source using Gradle. You can include it as a dependent project like so:
 
@@ -57,7 +56,7 @@ dependencies {
 }
 ```
 
-### As a jar ###
+### as a jar ###
 
 If you want to use ExoPlayer as a jar, run:
 
@@ -70,7 +69,7 @@ and copy `library.jar` to the libs folder of your new project.
 
 ## Developing ExoPlayer ##
 
-### Project branches ###
+### project branches ###
 
   * The [`master`][master] branch holds the most recent minor release.
   * Most development work happens on the [`dev`][dev] branch.
@@ -79,11 +78,11 @@ and copy `library.jar` to the libs folder of your new project.
 [master]: https://github.com/google/ExoPlayer/tree/master
 [dev]: https://github.com/google/ExoPlayer/tree/dev
 
-### Using Android Studio ###
+### using Android Studio ###
 
   1. Open the ExoPlayer project in the root directory of the repository.
 
-### Using Eclipse ###
+### using Eclipse ###
 
 The repository includes Eclipse projects for both the ExoPlayer library and its
 accompanying demo application. To get started:
