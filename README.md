@@ -1,6 +1,4 @@
-# ExoPlayer Readme #
-
-## Description ##
+# ExoPlayer #
 
 ExoPlayer is an application level media player for Android. It provides an
 alternative to Android’s MediaPlayer API for playing audio and video both
@@ -9,6 +7,42 @@ supported by Android’s MediaPlayer API, including DASH and SmoothStreaming
 adaptive playbacks. Unlike the MediaPlayer API, ExoPlayer is easy to
 customize and extend, and can be updated through Play Store application
 updates.
+
+## Installation ##
+
+### via jCenter ###
+
+The easiest way to get started using ExoPlayer in your Android project is by including this your `build.gradle` file:
+
+```gradle
+compile 'com.google.android.exoplayer:exoplayer:rX.X.X'
+```
+
+where `rX.X.X` is the your preferred version. For the latest version, see the project's  [Releases](https://github.com/google/ExoPlayer/releases).
+
+For more details, see the project on [jCenter](https://bintray.com/google/exoplayer/exoplayer/view).
+
+### via source ###
+
+ExoPlayer can also be built from source using Gradle. You can include it as a dependent project like so:
+
+```gradle
+// settings.gradle
+include ':app', ':..:ExoPlayer:library'
+
+// app/build.gradle
+dependencies {
+    compile project(':..:ExoPlayer:library')
+}
+```
+
+If you want to use ExoPlayer as a jar, run:
+
+```sh
+./gradlew jarRelease
+```
+
+and copy `library.jar` to the libs folder of your new project.
 
 ## News ##
 
@@ -29,8 +63,8 @@ started.
 
 ## Project branches ##
 
-  * The [master][] branch holds the most recent minor release.
-  * Most development work happens on the [dev][] branch.
+  * The [`master`][master] branch holds the most recent minor release.
+  * Most development work happens on the [`dev`][dev] branch.
   * Additional development branches may be established for major features.
 
 [master]: https://github.com/google/ExoPlayer/tree/master
@@ -43,42 +77,10 @@ accompanying demo application. To get started:
 
   1. Install Eclipse and setup the [Android SDK][].
 
-  1. Open Eclipse and navigate to File->Import->General->Existing Projects into
-     Workspace.
+  1. Open Eclipse and navigate to File->Import->General->Existing Projects into Workspace.
 
   1. Select the root directory of the repository.
 
   1. Import the ExoPlayerDemo and ExoPlayerLib projects.
 
 [Android SDK]: http://developer.android.com/sdk/index.html
-
-
-## Using Gradle ##
-
-ExoPlayer can also be built using Gradle. You can include it as a dependent project and build from source:
-
-```
-// settings.gradle
-include ':app', ':..:ExoPlayer:library'
-
-// app/build.gradle
-dependencies {
-    compile project(':..:ExoPlayer:library')
-}
-```
-
-If you want to use ExoPlayer as a jar, run:
-
-```
-./gradlew jarRelease
-```
-
-and copy library.jar to the libs-folder of your new project.
-
-The project is also available on [jCenter](https://bintray.com/google/exoplayer/exoplayer/view):
-
-```
-compile 'com.google.android.exoplayer:exoplayer:rX.X.X'
-```
-
-Where `rX.X.X` should be replaced with the desired version.
