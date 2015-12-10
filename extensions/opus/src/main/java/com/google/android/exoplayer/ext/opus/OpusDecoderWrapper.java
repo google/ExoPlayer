@@ -22,8 +22,6 @@ import java.util.LinkedList;
 
 /**
  * Wraps {@link OpusDecoder}, exposing a higher level decoder interface.
- *
- * @author vigneshv@google.com (Vignesh Venkatasubramanian)
  */
 /* package */ class OpusDecoderWrapper extends Thread {
 
@@ -38,8 +36,10 @@ import java.util.LinkedList;
   private final Object lock;
   private final OpusHeader opusHeader;
 
+  private final LinkedList<InputBuffer> dequeuedInputBuffers;
   private final LinkedList<InputBuffer> queuedInputBuffers;
   private final LinkedList<OutputBuffer> queuedOutputBuffers;
+  private final LinkedList<OutputBuffer> dequeuedOutputBuffers;
   private final InputBuffer[] availableInputBuffers;
   private final OutputBuffer[] availableOutputBuffers;
   private int availableInputBufferCount;
@@ -68,10 +68,14 @@ import java.util.LinkedList;
       long seekPreRollNs) throws OpusDecoderException {
     lock = new Object();
     opusHeader = parseOpusHeader(headerBytes);
-    skipSamples = (codecDelayNs == -1) ? opusHeader.skipSamples : nsToSamples(codecDelayNs);
-    seekPreRoll = (seekPreRoll == -1) ? DEFAULT_SEEK_PRE_ROLL : nsToSamples(seekPreRollNs);
+    skipSamples = (codecDelayNs == -1) ? opusHeader.skipSamples
+        : nsToSamples(opusHeader, codecDelayNs);
+    seekPreRoll = (seekPreRoll == -1) ? DEFAULT_SEEK_PRE_ROLL
+        : nsToSamples(opusHeader, seekPreRollNs);
+    dequeuedInputBuffers = new LinkedList<>();
     queuedInputBuffers = new LinkedList<>();
     queuedOutputBuffers = new LinkedList<>();
+    dequeuedOutputBuffers = new LinkedList<>();
     availableInputBuffers = new InputBuffer[NUM_BUFFERS];
     availableOutputBuffers = new OutputBuffer[NUM_BUFFERS];
     availableInputBufferCount = NUM_BUFFERS;
@@ -82,7 +86,7 @@ import java.util.LinkedList;
     }
   }
 
-  public InputBuffer getInputBuffer() throws OpusDecoderException {
+  public InputBuffer dequeueInputBuffer() throws OpusDecoderException {
     synchronized (lock) {
       maybeThrowDecoderError();
       if (availableInputBufferCount == 0) {
@@ -90,6 +94,7 @@ import java.util.LinkedList;
       }
       InputBuffer inputBuffer = availableInputBuffers[--availableInputBufferCount];
       inputBuffer.reset();
+      dequeuedInputBuffers.addLast(inputBuffer);
       return inputBuffer;
     }
   }
@@ -97,6 +102,7 @@ import java.util.LinkedList;
   public void queueInputBuffer(InputBuffer inputBuffer) throws OpusDecoderException {
     synchronized (lock) {
       maybeThrowDecoderError();
+      dequeuedInputBuffers.remove(inputBuffer);
       queuedInputBuffers.addLast(inputBuffer);
       maybeNotifyDecodeLoop();
     }
@@ -108,7 +114,9 @@ import java.util.LinkedList;
       if (queuedOutputBuffers.isEmpty()) {
         return null;
       }
-      return queuedOutputBuffers.removeFirst();
+      OutputBuffer outputBuffer = queuedOutputBuffers.removeFirst();
+      dequeuedOutputBuffers.add(outputBuffer);
+      return outputBuffer;
     }
   }
 
@@ -116,6 +124,7 @@ import java.util.LinkedList;
     synchronized (lock) {
       maybeThrowDecoderError();
       outputBuffer.reset();
+      dequeuedOutputBuffers.remove(outputBuffer);
       availableOutputBuffers[availableOutputBufferCount++] = outputBuffer;
       maybeNotifyDecodeLoop();
     }
@@ -124,11 +133,17 @@ import java.util.LinkedList;
   public void flush() {
     synchronized (lock) {
       flushDecodedOutputBuffer = true;
+      while (!dequeuedInputBuffers.isEmpty()) {
+        availableInputBuffers[availableInputBufferCount++] = dequeuedInputBuffers.removeFirst();
+      }
       while (!queuedInputBuffers.isEmpty()) {
         availableInputBuffers[availableInputBufferCount++] = queuedInputBuffers.removeFirst();
       }
       while (!queuedOutputBuffers.isEmpty()) {
         availableOutputBuffers[availableOutputBufferCount++] = queuedOutputBuffers.removeFirst();
+      }
+      while (!dequeuedOutputBuffers.isEmpty()) {
+        availableOutputBuffers[availableOutputBufferCount++] = dequeuedOutputBuffers.removeFirst();
       }
     }
   }
@@ -256,7 +271,7 @@ import java.util.LinkedList;
     return true;
   }
 
-  private OpusHeader parseOpusHeader(byte[] headerBytes) throws OpusDecoderException {
+  private static OpusHeader parseOpusHeader(byte[] headerBytes) throws OpusDecoderException {
     final int maxChannelCount = 8;
     final int maxChannelCountWithDefaultLayout = 2;
     final int headerSize = 19;
@@ -302,13 +317,13 @@ import java.util.LinkedList;
     }
   }
 
-  private int readLittleEndian16(byte[] input, int offset) {
+  private static int readLittleEndian16(byte[] input, int offset) {
     int value = input[offset];
     value |= input[offset + 1] << 8;
     return value;
   }
 
-  private int nsToSamples(long ns) {
+  private static int nsToSamples(OpusHeader opusHeader, long ns) {
     return (int) (ns * opusHeader.sampleRate / 1000000000);
   }
 

@@ -16,14 +16,14 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.google.android.exoplayer.demo"
-    android:versionCode="1502"
-    android:versionName="1.5.2"
+    android:versionCode="1503"
+    android:versionName="1.5.3"
     android:theme="@style/RootTheme">
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
-  <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="22"/>
+  <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="23"/>
 
   <application
       android:label="@string/application_name"

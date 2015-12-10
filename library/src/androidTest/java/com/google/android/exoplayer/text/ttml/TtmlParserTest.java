@@ -19,10 +19,13 @@ import com.google.android.exoplayer.text.Cue;
 
 import android.test.InstrumentationTestCase;
 import android.text.Layout;
+import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.style.AbsoluteSizeSpan;
 import android.text.style.AlignmentSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
@@ -56,6 +59,14 @@ public final class TtmlParserTest extends InstrumentationTestCase {
       "ttml/namespace_confusion.xml";
   private static final String NAMESPACE_NOT_DECLARED_TTML_FILE =
       "ttml/namespace_not_declared.xml";
+  private static final String FONT_SIZE_TTML_FILE =
+      "ttml/font_size.xml";
+  private static final String FONT_SIZE_MISSING_UNIT_TTML_FILE =
+      "ttml/font_size_no_unit.xml";
+  private static final String FONT_SIZE_INVALID_TTML_FILE =
+      "ttml/font_size_invalid.xml";
+  private static final String FONT_SIZE_EMPTY_TTML_FILE =
+      "ttml/font_size_empty.xml";
 
   public void testInlineAttributes() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
@@ -268,7 +279,91 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals("sansSerif", style.getFontFamily());
     assertFalse(style.isUnderline());
     assertTrue(style.isLinethrough());
+  }
 
+  public void testFontSizeSpans() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_TTML_FILE);
+    assertEquals(10, subtitle.getEventTimeCount());
+
+    List<Cue> cues = subtitle.getCues(10 * 1000000);
+    assertEquals(1, cues.size());
+    SpannableStringBuilder spannable = (SpannableStringBuilder) cues.get(0).text;
+    assertEquals("text 1", String.valueOf(spannable));
+    assertAbsoluteFontSize(spannable, 32);
+
+    cues = subtitle.getCues(20 * 1000000);
+    assertEquals(1, cues.size());
+    spannable = (SpannableStringBuilder) cues.get(0).text;
+    assertEquals("text 2", String.valueOf(cues.get(0).text));
+    assertRelativeFontSize(spannable, 2.2f);
+
+    cues = subtitle.getCues(30 * 1000000);
+    assertEquals(1, cues.size());
+    spannable = (SpannableStringBuilder) cues.get(0).text;
+    assertEquals("text 3", String.valueOf(cues.get(0).text));
+    assertRelativeFontSize(spannable, 1.5f);
+
+    cues = subtitle.getCues(40 * 1000000);
+    assertEquals(1, cues.size());
+    spannable = (SpannableStringBuilder) cues.get(0).text;
+    assertEquals("two values", String.valueOf(cues.get(0).text));
+    assertAbsoluteFontSize(spannable, 16);
+
+    cues = subtitle.getCues(50 * 1000000);
+    assertEquals(1, cues.size());
+    spannable = (SpannableStringBuilder) cues.get(0).text;
+    assertEquals("leading dot", String.valueOf(cues.get(0).text));
+    assertRelativeFontSize(spannable, 0.5f);
+  }
+
+  public void testFontSizeWithMissingUnitIsIgnored() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_MISSING_UNIT_TTML_FILE);
+    assertEquals(2, subtitle.getEventTimeCount());
+    List<Cue> cues = subtitle.getCues(10 * 1000000);
+    assertEquals(1, cues.size());
+    SpannableStringBuilder spannable = (SpannableStringBuilder) cues.get(0).text;
+    assertEquals("no unit", String.valueOf(spannable));
+    assertEquals(0, spannable.getSpans(0, spannable.length(), RelativeSizeSpan.class).length);
+    assertEquals(0, spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class).length);
+  }
+
+  public void testFontSizeWithInvalidValueIsIgnored() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_INVALID_TTML_FILE);
+    assertEquals(6, subtitle.getEventTimeCount());
+
+    List<Cue> cues = subtitle.getCues(10 * 1000000);
+    assertEquals(1, cues.size());
+    SpannableStringBuilder spannable = (SpannableStringBuilder) cues.get(0).text;
+    assertEquals("invalid", String.valueOf(spannable));
+    assertEquals(0, spannable.getSpans(0, spannable.length(), RelativeSizeSpan.class).length);
+    assertEquals(0, spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class).length);
+
+
+    cues = subtitle.getCues(20 * 1000000);
+    assertEquals(1, cues.size());
+    spannable = (SpannableStringBuilder) cues.get(0).text;
+    assertEquals("invalid", String.valueOf(spannable));
+    assertEquals(0, spannable.getSpans(0, spannable.length(), RelativeSizeSpan.class).length);
+    assertEquals(0, spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class).length);
+
+
+    cues = subtitle.getCues(30 * 1000000);
+    assertEquals(1, cues.size());
+    spannable = (SpannableStringBuilder) cues.get(0).text;
+    assertEquals("invalid dot", String.valueOf(spannable));
+    assertEquals(0, spannable.getSpans(0, spannable.length(), RelativeSizeSpan.class).length);
+    assertEquals(0, spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class).length);
+  }
+
+  public void testFontSizeWithEmptyValueIsIgnored() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_EMPTY_TTML_FILE);
+    assertEquals(2, subtitle.getEventTimeCount());
+    List<Cue> cues = subtitle.getCues(10 * 1000000);
+    assertEquals(1, cues.size());
+    SpannableStringBuilder spannable = (SpannableStringBuilder) cues.get(0).text;
+    assertEquals("empty", String.valueOf(spannable));
+    assertEquals(0, spannable.getSpans(0, spannable.length(), RelativeSizeSpan.class).length);
+    assertEquals(0, spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class).length);
   }
 
   private void assertSpans(TtmlSubtitle subtitle, int second,
@@ -281,26 +376,58 @@ public final class TtmlParserTest extends InstrumentationTestCase {
 
     assertEquals(1, cues.size());
     assertEquals(text, String.valueOf(cues.get(0).text));
-
     assertEquals("single cue expected for timeUs: " + timeUs, 1, cues.size());
     SpannableStringBuilder spannable = (SpannableStringBuilder) cues.get(0).text;
 
+    assertFont(spannable, font);
+    assertStyle(spannable, fontStyle);
+    assertUnderline(spannable, isUnderline);
+    assertStrikethrough(spannable, isLinethrough);
+    assertUnderline(spannable, isUnderline);
+    assertBackground(spannable, backgroundColor);
+    assertForeground(spannable, color);
+    assertAlignment(spannable, alignment);
+  }
+
+  private void assertAbsoluteFontSize(Spannable spannable, int absoluteFontSize) {
+    AbsoluteSizeSpan[] absoluteSizeSpans = spannable.getSpans(0, spannable.length(),
+        AbsoluteSizeSpan.class);
+    assertEquals(1, absoluteSizeSpans.length);
+    assertEquals(absoluteFontSize, absoluteSizeSpans[0].getSize());
+  }
+
+  private void assertRelativeFontSize(Spannable spannable, float relativeFontSize) {
+    RelativeSizeSpan[] relativeSizeSpans = spannable.getSpans(0, spannable.length(),
+        RelativeSizeSpan.class);
+    assertEquals(1, relativeSizeSpans.length);
+    assertEquals(relativeFontSize, relativeSizeSpans[0].getSizeChange());
+  }
+
+  private void assertFont(Spannable spannable, String font) {
     TypefaceSpan[] typefaceSpans = spannable.getSpans(0, spannable.length(), TypefaceSpan.class);
     assertEquals(font, typefaceSpans[typefaceSpans.length - 1].getFamily());
+  }
 
+  private void assertStyle(Spannable spannable, int fontStyle) {
     StyleSpan[] styleSpans = spannable.getSpans(0, spannable.length(), StyleSpan.class);
     assertEquals(fontStyle, styleSpans[styleSpans.length - 1].getStyle());
+  }
 
+  private void assertUnderline(Spannable spannable, boolean isUnderline) {
     UnderlineSpan[] underlineSpans = spannable.getSpans(0, spannable.length(),
         UnderlineSpan.class);
     assertEquals(isUnderline ? "must be underlined" : "must not be underlined",
         isUnderline ? 1 : 0, underlineSpans.length);
+  }
 
+  private void assertStrikethrough(Spannable spannable, boolean isStrikethrough) {
     StrikethroughSpan[] striketroughSpans = spannable.getSpans(0, spannable.length(),
         StrikethroughSpan.class);
-    assertEquals(isLinethrough ? "must be strikethrough" : "must not be strikethrough",
-        isLinethrough ? 1 : 0, striketroughSpans.length);
+    assertEquals(isStrikethrough ? "must be strikethrough" : "must not be strikethrough",
+        isStrikethrough ? 1 : 0, striketroughSpans.length);
+  }
 
+  private void assertBackground(Spannable spannable, int backgroundColor) {
     BackgroundColorSpan[] backgroundColorSpans =
         spannable.getSpans(0, spannable.length(), BackgroundColorSpan.class);
     if (backgroundColor != 0) {
@@ -309,11 +436,16 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     } else {
       assertEquals(0, backgroundColorSpans.length);
     }
+  }
 
+  private void assertForeground(Spannable spannable, int foregroundColor) {
     ForegroundColorSpan[] foregroundColorSpans =
         spannable.getSpans(0, spannable.length(), ForegroundColorSpan.class);
-    assertEquals(color, foregroundColorSpans[foregroundColorSpans.length - 1].getForegroundColor());
+    assertEquals(foregroundColor,
+        foregroundColorSpans[foregroundColorSpans.length - 1].getForegroundColor());
+  }
 
+  private void assertAlignment(Spannable spannable, Layout.Alignment alignment) {
     if (alignment != null) {
       AlignmentSpan.Standard[] alignmentSpans =
           spannable.getSpans(0, spannable.length(), AlignmentSpan.Standard.class);
@@ -334,14 +466,13 @@ public final class TtmlParserTest extends InstrumentationTestCase {
         }
       }
     }
-    return null;
+    throw new IllegalStateException("tag not found");
   }
 
   private TtmlSubtitle getSubtitle(String file) throws IOException {
-    TtmlParser ttmlParser = new TtmlParser(false);
+    TtmlParser ttmlParser = new TtmlParser();
     InputStream inputStream = getInstrumentation().getContext()
         .getResources().getAssets().open(file);
-
     return (TtmlSubtitle) ttmlParser.parse(inputStream);
   }
 }

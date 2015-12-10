@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.hls;
 
+import com.google.android.exoplayer.BehindLiveWindowException;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
@@ -32,6 +33,7 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
 
@@ -184,7 +186,9 @@ public class HlsChunkSource {
     playlistParser = new HlsPlaylistParser();
 
     if (playlist.type == HlsPlaylist.TYPE_MEDIA) {
-      variants = new Variant[] {new Variant(0, playlistUrl, 0, null, -1, -1)};
+      Format format = new Format("0", MimeTypes.APPLICATION_M3U8, -1, -1, -1, -1, -1, -1, null,
+          null);
+      variants = new Variant[] {new Variant(playlistUrl, format)};
       variantPlaylists = new HlsMediaPlaylist[1];
       variantLastPlaylistLoadTimesMs = new long[1];
       variantBlacklistTimes = new long[1];
@@ -246,14 +250,14 @@ public class HlsChunkSource {
    * be performed by the calling {@link HlsSampleSource}.
    *
    * @param previousTsChunk The previously loaded chunk that the next chunk should follow.
-   * @param seekPositionUs If there is no previous chunk, this parameter must specify the seek
-   *     position. If there is a previous chunk then this parameter is ignored.
-   * @param playbackPositionUs The current playback position.
+   * @param playbackPositionUs The current playback position. If previousTsChunk is null then this
+   *     parameter is the position from which playback is expected to start (or restart) and hence
+   *     should be interpreted as a seek position.
    * @param out The holder to populate with the result. {@link ChunkOperationHolder#queueSize} is
    *     unused.
    */
-  public void getChunkOperation(TsChunk previousTsChunk, long seekPositionUs,
-      long playbackPositionUs, ChunkOperationHolder out) {
+  public void getChunkOperation(TsChunk previousTsChunk, long playbackPositionUs,
+      ChunkOperationHolder out) {
     int nextVariantIndex;
     boolean switchingVariantSpliced;
     if (adaptiveMode == ADAPTIVE_MODE_NONE) {
@@ -283,22 +287,15 @@ public class HlsChunkSource {
         chunkMediaSequence = switchingVariantSpliced
             ? previousTsChunk.chunkIndex : previousTsChunk.chunkIndex + 1;
         if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
-          // TODO: Decide what we want to do with: https://github.com/google/ExoPlayer/issues/765
-          // if (allowSkipAhead) {
-          // If the chunk is no longer in the playlist. Skip ahead and start again.
-          chunkMediaSequence = getLiveStartChunkMediaSequence(nextVariantIndex);
-          liveDiscontinuity = true;
-          // } else {
-          //   fatalError = new BehindLiveWindowException();
-          //   return null;
-          // }
+          fatalError = new BehindLiveWindowException();
+          return;
         }
       }
     } else {
       // Not live.
       if (previousTsChunk == null) {
-        chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, seekPositionUs, true,
-            true) + mediaPlaylist.mediaSequence;
+        chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, playbackPositionUs,
+            true, true) + mediaPlaylist.mediaSequence;
       } else {
         chunkMediaSequence = switchingVariantSpliced
             ? previousTsChunk.chunkIndex : previousTsChunk.chunkIndex + 1;
@@ -364,10 +361,12 @@ public class HlsChunkSource {
       Extractor extractor = new Mp3Extractor(startTimeUs);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
           switchingVariantSpliced, adaptiveMaxWidth, adaptiveMaxHeight);
-    } else if (previousTsChunk == null || segment.discontinuity || liveDiscontinuity
+    } else if (previousTsChunk == null || liveDiscontinuity
+        || previousTsChunk.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
         || !format.equals(previousTsChunk.format)) {
       // MPEG-2 TS segments, but we need a new extractor.
-      if (previousTsChunk == null || segment.discontinuity || liveDiscontinuity
+      if (previousTsChunk == null || liveDiscontinuity
+          || previousTsChunk.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
           || ptsTimestampAdjuster == null) {
         // TODO: Use this for AAC as well, along with the ID3 PRIV priv tag values with owner
         // identifier com.apple.streaming.transportStreamTimestamp.
@@ -382,7 +381,8 @@ public class HlsChunkSource {
     }
 
     out.chunk = new TsChunk(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs,
-        chunkMediaSequence, extractorWrapper, encryptionKey, encryptionIv);
+        chunkMediaSequence, segment.discontinuitySequenceNumber, extractorWrapper, encryptionKey,
+        encryptionIv);
   }
 
   /**

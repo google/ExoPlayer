@@ -17,7 +17,6 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.chunk.FormatWrapper;
-import com.google.android.exoplayer.util.MimeTypes;
 
 /**
  * Variant stream reference.
@@ -27,10 +26,9 @@ public final class Variant implements FormatWrapper {
   public final String url;
   public final Format format;
 
-  public Variant(int index, String url, int bitrate, String codecs, int width, int height) {
+  public Variant(String url, Format format) {
     this.url = url;
-    format = new Format(Integer.toString(index), MimeTypes.APPLICATION_M3U8, width, height, -1, -1,
-        -1, bitrate, null, codecs);
+    this.format = format;
   }
 
   @Override

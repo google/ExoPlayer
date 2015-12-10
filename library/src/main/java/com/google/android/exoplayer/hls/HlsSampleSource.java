@@ -144,7 +144,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
           for (int i = 0; i < trackCount; i++) {
             MediaFormat format = extractor.getMediaFormat(i).copyWithDurationUs(durationUs);
             if (MimeTypes.isVideo(format.mimeType)) {
-              format = format.copyAsAdaptive();
+              format = format.copyAsAdaptive(null);
             }
             trackFormat[i] = format;
           }
@@ -538,8 +538,9 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       return;
     }
 
-    chunkSource.getChunkOperation(previousTsLoadable, pendingResetPositionUs,
-        downstreamPositionUs, chunkOperationHolder);
+    chunkSource.getChunkOperation(previousTsLoadable,
+        pendingResetPositionUs != NO_RESET_PENDING ? pendingResetPositionUs : downstreamPositionUs,
+        chunkOperationHolder);
     boolean endOfStream = chunkOperationHolder.endOfStream;
     Chunk nextLoadable = chunkOperationHolder.chunk;
     chunkOperationHolder.clear();

@@ -17,13 +17,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.google.android.exoplayer.playbacktests"
-    android:versionCode="1502"
-    android:versionName="1.5.2">
+    android:versionCode="1503"
+    android:versionName="1.5.3">
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
-  <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="22"/>
+  <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="23"/>
 
   <application android:debuggable="true"
       android:allowBackup="false"

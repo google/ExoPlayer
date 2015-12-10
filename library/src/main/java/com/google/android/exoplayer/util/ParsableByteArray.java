@@ -170,6 +170,12 @@ public final class ParsableByteArray {
         | (data[position++] & 0xFF);
   }
 
+  /** Reads the next two bytes as an signed value. */
+  public short readShort() {
+    return (short) ((data[position++] & 0xFF) << 8
+        | (data[position++] & 0xFF));
+  }
+
   /** Reads the next three bytes as an unsigned value. */
   public int readUnsignedInt24() {
     return (data[position++] & 0xFF) << 16

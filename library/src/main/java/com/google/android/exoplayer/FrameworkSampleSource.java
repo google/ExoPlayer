@@ -17,6 +17,7 @@ package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.SampleSource.SampleSourceReader;
 import com.google.android.exoplayer.drm.DrmInitData;
+import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer.util.Assertions;
@@ -273,10 +274,10 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
     if (psshInfo == null || psshInfo.isEmpty()) {
       return null;
     }
-    DrmInitData.Mapped drmInitData = new DrmInitData.Mapped(MimeTypes.VIDEO_MP4);
+    DrmInitData.Mapped drmInitData = new DrmInitData.Mapped();
     for (UUID uuid : psshInfo.keySet()) {
       byte[] psshAtom = PsshAtomUtil.buildPsshAtom(uuid, psshInfo.get(uuid));
-      drmInitData.put(uuid, psshAtom);
+      drmInitData.put(uuid, new SchemeInitData(MimeTypes.VIDEO_MP4, psshAtom));
     }
     return drmInitData;
   }
@@ -315,10 +316,10 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
     }
     long durationUs = format.containsKey(android.media.MediaFormat.KEY_DURATION)
         ? format.getLong(android.media.MediaFormat.KEY_DURATION) : C.UNKNOWN_TIME_US;
-    MediaFormat mediaFormat = new MediaFormat(MediaFormat.NO_VALUE, mimeType, MediaFormat.NO_VALUE,
-        maxInputSize, durationUs, width, height, rotationDegrees, MediaFormat.NO_VALUE,
-        channelCount, sampleRate, language, MediaFormat.OFFSET_SAMPLE_RELATIVE, initializationData,
-        false, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
+    MediaFormat mediaFormat = new MediaFormat(null, mimeType, MediaFormat.NO_VALUE, maxInputSize,
+        durationUs, width, height, rotationDegrees, MediaFormat.NO_VALUE, channelCount, sampleRate,
+        language, MediaFormat.OFFSET_SAMPLE_RELATIVE, initializationData, false,
+        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
     mediaFormat.setFrameworkFormatV16(format);
     return mediaFormat;
   }

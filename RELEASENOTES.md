@@ -1,5 +1,15 @@
 # Release notes #
 
+### r1.5.3 ###
+
+* Support for FLV (without seeking).
+* MP4: Fix for playback of media containing basic edit lists.
+* QuickTime: Fix parsing of QuickTime style audio sample entry.
+* HLS: Add H262 support for devices that have an H262 decoder.
+* Allow AudioTrack PlaybackParams (e.g. speed/pitch) on API level 23+.
+* Correctly detect 4K displays on API level 23+.
+* Misc bug fixes.
+
 ### r1.5.2 ###
 
 * MPEG-TS/HLS: Fix frame drops playing H265 video.

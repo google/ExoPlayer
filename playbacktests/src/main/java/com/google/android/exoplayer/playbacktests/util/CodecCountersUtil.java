@@ -77,4 +77,12 @@ public final class CodecCountersUtil {
         + "Limit: " + limit + ".", actual <= limit);
   }
 
+  public static void assertConsecutiveDroppedOutputBufferLimit(String name, CodecCounters counters,
+      int limit) {
+    counters.ensureUpdated();
+    int actual = counters.maxConsecutiveDroppedOutputBufferCount;
+    TestCase.assertTrue("Codec(" + name + ") was late decoding: " + actual
+        + " buffers consecutively. " + "Limit: " + limit + ".", actual <= limit);
+  }
+
 }

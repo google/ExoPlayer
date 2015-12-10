@@ -16,9 +16,9 @@
 package com.google.android.exoplayer.upstream;
 
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.Util;
 
 import android.content.Context;
-import android.text.TextUtils;
 
 import java.io.IOException;
 
@@ -36,7 +36,6 @@ import java.io.IOException;
  */
 public final class DefaultUriDataSource implements UriDataSource {
 
-  private static final String SCHEME_FILE = "file";
   private static final String SCHEME_ASSET = "asset";
   private static final String SCHEME_CONTENT = "content";
 
@@ -119,7 +118,7 @@ public final class DefaultUriDataSource implements UriDataSource {
     Assertions.checkState(dataSource == null);
     // Choose the correct source for the scheme.
     String scheme = dataSpec.uri.getScheme();
-    if (SCHEME_FILE.equals(scheme) || TextUtils.isEmpty(scheme)) {
+    if (Util.isLocalFileUri(dataSpec.uri)) {
       if (dataSpec.uri.getPath().startsWith("/android_asset/")) {
         dataSource = assetDataSource;
       } else {

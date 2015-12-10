@@ -26,16 +26,18 @@ import java.util.Locale;
 
     public final String name;
     public final String contentId;
+    public final String provider;
     public final String uri;
     public final int type;
 
     public Sample(String name, String uri, int type) {
-      this(name, name.toLowerCase(Locale.US).replaceAll("\\s", ""), uri, type);
+      this(name, name.toLowerCase(Locale.US).replaceAll("\\s", ""), "", uri, type);
     }
 
-    public Sample(String name, String contentId, String uri, int type) {
+    public Sample(String name, String contentId, String provider, String uri, int type) {
       this.name = name;
       this.contentId = contentId;
+      this.provider = provider;
       this.uri = uri;
       this.type = type;
     }
@@ -43,12 +45,12 @@ import java.util.Locale;
   }
 
   public static final Sample[] YOUTUBE_DASH_MP4 = new Sample[] {
-    new Sample("Google Glass",
+    new Sample("Google Glass (MP4,H264)",
         "http://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?"
         + "as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&"
         + "ipbits=0&expire=19000000000&signature=51AF5F39AB0CEC3E5497CD9C900EBFEAECCCB5C7."
         + "8506521BFC350652163895D4C26DEE124209AA9E&key=ik0", PlayerActivity.TYPE_DASH),
-    new Sample("Google Play",
+    new Sample("Google Play (MP4,H264)",
         "http://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?"
         + "as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&"
         + "ipbits=0&expire=19000000000&signature=A2716F75795F5D2AF0E88962FFCD10DB79384F29."
@@ -56,12 +58,12 @@ import java.util.Locale;
   };
 
   public static final Sample[] YOUTUBE_DASH_WEBM = new Sample[] {
-    new Sample("Google Glass",
+    new Sample("Google Glass (WebM,VP9)",
         "http://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?"
         + "as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&"
         + "ipbits=0&expire=19000000000&signature=249B04F79E984D7F86B4D8DB48AE6FAF41C17AB3."
         + "7B9F0EC0505E1566E59B8E488E9419F253DDF413&key=ik0", PlayerActivity.TYPE_DASH),
-    new Sample("Google Play",
+    new Sample("Google Play (WebM,VP9)",
         "http://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?"
         + "as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&"
         + "ipbits=0&expire=19000000000&signature=B1C2A74783AC1CC4865EB312D7DD2D48230CC9FD."
@@ -77,37 +79,132 @@ import java.util.Locale;
         PlayerActivity.TYPE_SS),
   };
 
+  private static final String WIDEVINE_GTS_MPD =
+      "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd";
   public static final Sample[] WIDEVINE_GTS = new Sample[] {
-    new Sample("WV: HDCP not specified", "d286538032258a1c",
-        "http://www.youtube.com/api/manifest/dash/id/d286538032258a1c/source/youtube?"
-        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0"
-        + "&ipbits=0&expire=19000000000&signature=477CF7D478BE26C205045D507E9358F85F84C065."
-        + "8971631EB657BC33EC2F48A2FF4211956760C3E9&key=ik0", PlayerActivity.TYPE_DASH),
-    new Sample("WV: HDCP not required", "48fcc369939ac96c",
-        "http://www.youtube.com/api/manifest/dash/id/48fcc369939ac96c/source/youtube?"
-        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0"
-        + "&ipbits=0&expire=19000000000&signature=171DAE48D00B5BE7434BC1A9F84DAE0463C7EA7A."
-        + "0925B4DBB5605BEE9F5D088C48F25F5108E96191&key=ik0", PlayerActivity.TYPE_DASH),
-    new Sample("WV: HDCP required", "e06c39f1151da3df",
-        "http://www.youtube.com/api/manifest/dash/id/e06c39f1151da3df/source/youtube?"
-        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0"
-        + "&ipbits=0&expire=19000000000&signature=8D3B8AF4E3F72B7F127C8D0D39B7AFCF37B30519."
-        + "A118BADEBF3582AD2CC257B0EE6E579C6955D8AA&key=ik0", PlayerActivity.TYPE_DASH),
-    new Sample("WV: Secure video path required", "0894c7c8719b28a0",
-        "http://www.youtube.com/api/manifest/dash/id/0894c7c8719b28a0/source/youtube?"
-        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0"
-        + "&ipbits=0&expire=19000000000&signature=A41D835C7387885A4A820628F57E481E00095931."
-        + "9D50DBEEB5E37344647EE11BDA129A7FCDE8B7B9&key=ik0", PlayerActivity.TYPE_DASH),
-    new Sample("WV: HDCP + secure video path required", "efd045b1eb61888a",
-        "http://www.youtube.com/api/manifest/dash/id/efd045b1eb61888a/source/youtube?"
-        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0"
-        + "&ipbits=0&expire=19000000000&signature=A97C9032C9D0C74F1643DB17C178873887C229E4."
-        + "0A657BF6F23C8BC1538F276137383478330B76DE&key=ik0", PlayerActivity.TYPE_DASH),
-    new Sample("WV: 30s license duration (fails at ~30s)", "f9a34cab7b05881a",
-        "http://www.youtube.com/api/manifest/dash/id/f9a34cab7b05881a/source/youtube?"
-        + "as=fmp4_audio_cenc,fmp4_sd_hd_cenc&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0"
-        + "&ipbits=0&expire=19000000000&signature=80648A12A7D5FC1FA02B52B4250E4EB74CF0C5FD."
-        + "66A261130CA137AA5C541EA9CED2DBF240829EE6&key=ik0", PlayerActivity.TYPE_DASH),
+    new Sample("WV: HDCP not specified", "d286538032258a1c", "widevine_test",
+        WIDEVINE_GTS_MPD, PlayerActivity.TYPE_DASH),
+    new Sample("WV: HDCP not required", "48fcc369939ac96c", "widevine_test",
+        WIDEVINE_GTS_MPD, PlayerActivity.TYPE_DASH),
+    new Sample("WV: HDCP required", "e06c39f1151da3df", "widevine_test",
+        WIDEVINE_GTS_MPD, PlayerActivity.TYPE_DASH),
+    new Sample("WV: Secure video path required (MP4,H264)", "0894c7c8719b28a0", "widevine_test",
+        WIDEVINE_GTS_MPD, PlayerActivity.TYPE_DASH),
+    new Sample("WV: Secure video path required (WebM,VP9)", "0894c7c8719b28a0", "widevine_test",
+        "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Secure video path required (MP4,H265)", "0894c7c8719b28a0", "widevine_test",
+        "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: HDCP + secure video path required", "efd045b1eb61888a", "widevine_test",
+        WIDEVINE_GTS_MPD, PlayerActivity.TYPE_DASH),
+    new Sample("WV: 30s license duration (fails at ~30s)", "f9a34cab7b05881a", "widevine_test",
+        WIDEVINE_GTS_MPD, PlayerActivity.TYPE_DASH),
+  };
+
+  public static final Sample[] WIDEVINE_HDCP = new Sample[] {
+    new Sample("WV: HDCP: None (not required)", "HDCP_None", "widevine_test",
+        WIDEVINE_GTS_MPD, PlayerActivity.TYPE_DASH),
+    new Sample("WV: HDCP: 1.0 required", "HDCP_V1", "widevine_test",
+        WIDEVINE_GTS_MPD, PlayerActivity.TYPE_DASH),
+    new Sample("WV: HDCP: 2.0 required", "HDCP_V2", "widevine_test",
+        WIDEVINE_GTS_MPD, PlayerActivity.TYPE_DASH),
+    new Sample("WV: HDCP: 2.1 required", "HDCP_V2_1", "widevine_test",
+        WIDEVINE_GTS_MPD, PlayerActivity.TYPE_DASH),
+    new Sample("WV: HDCP: 2.2 required", "HDCP_V2_2", "widevine_test",
+        WIDEVINE_GTS_MPD, PlayerActivity.TYPE_DASH),
+    new Sample("WV: HDCP: No digital output", "HDCP_NO_DIGTAL_OUTPUT", "widevine_test",
+        WIDEVINE_GTS_MPD, PlayerActivity.TYPE_DASH),
+  };
+
+  public static final Sample[] WIDEVINE_H264_MP4_CLEAR = new Sample[] {
+    new Sample("WV: Clear SD & HD (MP4,H264)",
+        "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Clear SD (MP4,H264)",
+        "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears_sd.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Clear HD (MP4,H264)",
+        "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears_hd.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Clear UHD (MP4,H264)",
+        "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears_uhd.mpd",
+        PlayerActivity.TYPE_DASH),
+  };
+
+  public static final Sample[] WIDEVINE_H264_MP4_SECURE = new Sample[] {
+    new Sample("WV: Secure SD & HD (MP4,H264)", "", "widevine_test",
+        "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Secure SD (MP4,H264)", "", "widevine_test",
+        "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Secure HD (MP4,H264)", "", "widevine_test",
+        "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_hd.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Secure UHD (MP4,H264)", "", "widevine_test",
+        "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_uhd.mpd",
+        PlayerActivity.TYPE_DASH),
+  };
+
+  public static final Sample[] WIDEVINE_VP9_WEBM_CLEAR = new Sample[] {
+    new Sample("WV: Clear SD & HD (WebM,VP9)",
+        "https://storage.googleapis.com/wvmedia/clear/vp9/tears/tears.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Clear SD (WebM,VP9)",
+        "https://storage.googleapis.com/wvmedia/clear/vp9/tears/tears_sd.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Clear HD (WebM,VP9)",
+        "https://storage.googleapis.com/wvmedia/clear/vp9/tears/tears_hd.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Clear UHD (WebM,VP9)",
+        "https://storage.googleapis.com/wvmedia/clear/vp9/tears/tears_uhd.mpd",
+        PlayerActivity.TYPE_DASH),
+  };
+
+  public static final Sample[] WIDEVINE_VP9_WEBM_SECURE = new Sample[] {
+    new Sample("WV: Secure SD & HD (WebM,VP9)", "", "widevine_test",
+        "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Secure SD (WebM,VP9)", "", "widevine_test",
+        "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears_sd.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Secure HD (WebM,VP9)", "", "widevine_test",
+        "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears_hd.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Secure UHD (WebM,VP9)", "", "widevine_test",
+        "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears_uhd.mpd",
+        PlayerActivity.TYPE_DASH),
+  };
+
+  public static final Sample[] WIDEVINE_H265_MP4_CLEAR = new Sample[] {
+    new Sample("WV: Clear SD & HD (MP4,H265)",
+        "https://storage.googleapis.com/wvmedia/clear/hevc/tears/tears.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Clear SD (MP4,H265)",
+        "https://storage.googleapis.com/wvmedia/clear/hevc/tears/tears_sd.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Clear HD (MP4,H265)",
+        "https://storage.googleapis.com/wvmedia/clear/hevc/tears/tears_hd.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Clear UHD (MP4,H265)",
+        "https://storage.googleapis.com/wvmedia/clear/hevc/tears/tears_uhd.mpd",
+        PlayerActivity.TYPE_DASH),
+  };
+
+  public static final Sample[] WIDEVINE_H265_MP4_SECURE = new Sample[] {
+    new Sample("WV: Secure SD & HD (MP4,H265)", "", "widevine_test",
+        "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Secure SD (MP4,H265)", "", "widevine_test",
+        "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears_sd.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Secure HD (MP4,H265)", "", "widevine_test",
+        "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears_hd.mpd",
+        PlayerActivity.TYPE_DASH),
+    new Sample("WV: Secure UHD (MP4,H265)", "", "widevine_test",
+        "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears_uhd.mpd",
+        PlayerActivity.TYPE_DASH),
   };
 
   public static final Sample[] HLS = new Sample[] {
@@ -145,6 +242,8 @@ import java.util.Locale;
         "http://storage.googleapis.com/exoplayer-test-media-0/play.mp3", PlayerActivity.TYPE_OTHER),
     new Sample("Google Glass (WebM Video with Vorbis Audio)",
         "http://demos.webmproject.org/exoplayer/glass_vp9_vorbis.webm", PlayerActivity.TYPE_OTHER),
+    new Sample("Big Buck Bunny (FLV Video)",
+        "http://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0", PlayerActivity.TYPE_OTHER),
   };
 
   private Samples() {}

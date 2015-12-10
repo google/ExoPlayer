@@ -82,6 +82,16 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     private static final int DECODER_QUERY_ERROR = CUSTOM_ERROR_CODE_BASE + 2;
 
     /**
+     * The mime type for which a decoder was being initialized.
+     */
+    public final String mimeType;
+
+    /**
+     * Whether it was required that the decoder support a secure output path.
+     */
+    public final boolean secureDecoderRequired;
+
+    /**
      * The name of the decoder that failed to initialize. Null if no suitable decoder was found.
      */
     public final String decoderName;
@@ -91,15 +101,20 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
      */
     public final String diagnosticInfo;
 
-    public DecoderInitializationException(MediaFormat mediaFormat, Throwable cause, int errorCode) {
+    public DecoderInitializationException(MediaFormat mediaFormat, Throwable cause,
+        boolean secureDecoderRequired, int errorCode) {
       super("Decoder init failed: [" + errorCode + "], " + mediaFormat, cause);
+      this.mimeType = mediaFormat.mimeType;
+      this.secureDecoderRequired = secureDecoderRequired;
       this.decoderName = null;
       this.diagnosticInfo = buildCustomDiagnosticInfo(errorCode);
     }
 
     public DecoderInitializationException(MediaFormat mediaFormat, Throwable cause,
-        String decoderName) {
+        boolean secureDecoderRequired, String decoderName) {
       super("Decoder init failed: " + decoderName + ", " + mediaFormat, cause);
+      this.mimeType = mediaFormat.mimeType;
+      this.secureDecoderRequired = secureDecoderRequired;
       this.decoderName = decoderName;
       this.diagnosticInfo = Util.SDK_INT >= 21 ? getDiagnosticInfoV21(cause) : null;
     }
@@ -313,12 +328,12 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       decoderInfo = getDecoderInfo(mimeType, requiresSecureDecoder);
     } catch (DecoderQueryException e) {
       notifyAndThrowDecoderInitError(new DecoderInitializationException(format, e,
-          DecoderInitializationException.DECODER_QUERY_ERROR));
+          requiresSecureDecoder, DecoderInitializationException.DECODER_QUERY_ERROR));
     }
 
     if (decoderInfo == null) {
       notifyAndThrowDecoderInitError(new DecoderInitializationException(format, null,
-          DecoderInitializationException.NO_SUITABLE_DECODER_ERROR));
+          requiresSecureDecoder, DecoderInitializationException.NO_SUITABLE_DECODER_ERROR));
     }
 
     String codecName = decoderInfo.name;
@@ -343,7 +358,8 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       inputBuffers = codec.getInputBuffers();
       outputBuffers = codec.getOutputBuffers();
     } catch (Exception e) {
-      notifyAndThrowDecoderInitError(new DecoderInitializationException(format, e, codecName));
+      notifyAndThrowDecoderInitError(new DecoderInitializationException(format, e,
+          requiresSecureDecoder, codecName));
     }
     codecHotswapTimeMs = getState() == TrackRenderer.STATE_STARTED ?
         SystemClock.elapsedRealtime() : -1;
@@ -450,9 +466,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     if (format == null) {
       readFormat(positionUs);
     }
-    if (codec == null && shouldInitCodec()) {
-      maybeInitCodec();
-    }
+    maybeInitCodec();
     if (codec != null) {
       TraceUtil.beginSection("drainAndFeed");
       while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
