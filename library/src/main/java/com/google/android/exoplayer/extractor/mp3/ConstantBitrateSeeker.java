@@ -47,7 +47,8 @@ import com.google.android.exoplayer.C;
 
   @Override
   public long getTimeUs(long position) {
-    return ((position - firstFramePosition) * C.MICROS_PER_SECOND * BITS_PER_BYTE) / bitrate;
+    return (Math.max(0, position - firstFramePosition) * C.MICROS_PER_SECOND * BITS_PER_BYTE)
+        / bitrate;
   }
 
   @Override
