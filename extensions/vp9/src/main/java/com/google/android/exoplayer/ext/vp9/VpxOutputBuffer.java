@@ -22,14 +22,25 @@ import java.nio.ByteBuffer;
  */
 public final class VpxOutputBuffer {
 
+  public static final int COLORSPACE_UNKNOWN = 0;
+  public static final int COLORSPACE_BT601 = 1;
+  public static final int COLORSPACE_BT709 = 2;
+
+  /**
+   * RGB buffer for RGB mode.
+   */
   public ByteBuffer data;
   public long timestampUs;
   public int width;
   public int height;
   public int flags;
+  /**
+   * YUV planes for YUV mode.
+   */
   public ByteBuffer[] yuvPlanes;
   public int[] yuvStrides;
   public int mode;
+  public int colorspace;
 
   /**
    * This method is called from C++ through JNI after decoding is done. It will resize the
@@ -51,9 +62,10 @@ public final class VpxOutputBuffer {
    * This method is called from C++ through JNI after decoding is done. It will resize the
    * buffer based on the given stride.
    */
-  public void initForYuvFrame(int width, int height, int yStride, int uvStride) {
+  public void initForYuvFrame(int width, int height, int yStride, int uvStride, int colorspace) {
     this.width = width;
     this.height = height;
+    this.colorspace = colorspace;
     int yLength = yStride * height;
     int uvLength = uvStride * ((height + 1) / 2);
     int minimumYuvSize = yLength + (uvLength * 2);
