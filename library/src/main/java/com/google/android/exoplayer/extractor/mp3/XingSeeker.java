@@ -130,7 +130,7 @@ import com.google.android.exoplayer.util.Util;
 
   @Override
   public long getTimeUs(long position) {
-    if (!isSeekable()) {
+    if (!isSeekable() || position < firstFramePosition) {
       return 0L;
     }
     double offsetByte = 256.0 * (position - firstFramePosition) / sizeBytes;
