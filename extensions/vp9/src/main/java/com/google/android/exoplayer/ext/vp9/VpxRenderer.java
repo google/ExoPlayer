@@ -31,6 +31,18 @@ import javax.microedition.khronos.opengles.GL10;
  */
 /* package */ class VpxRenderer implements GLSurfaceView.Renderer {
 
+  private static final float[] kColorConversion601 = {
+    1.164f, 1.164f, 1.164f,
+    0.0f, -0.392f, 2.017f,
+    1.596f, -0.813f, 0.0f,
+  };
+
+  private static final float[] kColorConversion709 = {
+    1.164f, 1.164f, 1.164f,
+    0.0f, -0.213f, 2.112f,
+    1.793f, -0.533f, 0.0f,
+  };
+
   private static final String VERTEX_SHADER =
       "varying vec2 interp_tc;\n"
       + "attribute vec4 in_pos;\n"
@@ -46,14 +58,13 @@ import javax.microedition.khronos.opengles.GL10;
       + "uniform sampler2D y_tex;\n"
       + "uniform sampler2D u_tex;\n"
       + "uniform sampler2D v_tex;\n"
+      + "uniform mat3 mColorConversion;\n"
       + "void main() {\n"
-      + "  float y = 1.164 * (texture2D(y_tex, interp_tc).r - 0.0625);\n"
-      + "  float u = texture2D(u_tex, interp_tc).r - 0.5;\n"
-      + "  float v = texture2D(v_tex, interp_tc).r - 0.5;\n"
-      + "  gl_FragColor = vec4(y + 1.596 * v, "
-      + "                      y - 0.391 * u - 0.813 * v, "
-      + "                      y + 2.018 * u, "
-      + "                      1.0);\n"
+      + "  vec3 yuv;"
+      + "  yuv.x = texture2D(y_tex, interp_tc).r - 0.0625;\n"
+      + "  yuv.y = texture2D(u_tex, interp_tc).r - 0.5;\n"
+      + "  yuv.z = texture2D(v_tex, interp_tc).r - 0.5;\n"
+      + "  gl_FragColor = vec4(mColorConversion * yuv, 1.0);"
       + "}\n";
   private static final FloatBuffer TEXTURE_VERTICES = nativeFloatBuffer(
       -1.0f, 1.0f,
@@ -64,6 +75,7 @@ import javax.microedition.khronos.opengles.GL10;
 
   private int program;
   private int texLocation;
+  private int colorMatrixLocation;
   private FloatBuffer textureCoords;
   private VpxOutputBuffer outputBuffer;
   private int previousWidth;
@@ -108,6 +120,9 @@ import javax.microedition.khronos.opengles.GL10;
         posLocation, 2, GLES20.GL_FLOAT, false, 0, TEXTURE_VERTICES);
     texLocation = GLES20.glGetAttribLocation(program, "in_tc");
     GLES20.glEnableVertexAttribArray(texLocation);
+    checkNoGLES2Error();
+    colorMatrixLocation = GLES20.glGetUniformLocation(program, "mColorConversion");
+    checkNoGLES2Error();
     setupTextures();
     checkNoGLES2Error();
   }
@@ -125,6 +140,12 @@ import javax.microedition.khronos.opengles.GL10;
         // Nothing to render yet.
         return;
       }
+
+      // Set color matrix. Assume BT709 if the color space is unknown.
+      float[] colorConversion = outputBuffer.colorspace == VpxOutputBuffer.COLORSPACE_BT601
+          ? kColorConversion601 : kColorConversion709;
+      GLES20.glUniformMatrix3fv(colorMatrixLocation, 1, false, colorConversion, 0);
+
       for (int i = 0; i < 3; i++) {
         int h = (i == 0) ? outputBuffer.height : (outputBuffer.height + 1) / 2;
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + i);
