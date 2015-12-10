@@ -5,6 +5,7 @@ com.google.android.exoplayer.dash
 com.google.android.exoplayer.dash.mpd
 com.google.android.exoplayer.drm
 com.google.android.exoplayer.extractor
+com.google.android.exoplayer.extractor.flv
 com.google.android.exoplayer.extractor.mp3
 com.google.android.exoplayer.extractor.mp4
 com.google.android.exoplayer.extractor.ts
