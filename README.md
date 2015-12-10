@@ -8,25 +8,36 @@ adaptive playbacks. Unlike the MediaPlayer API, ExoPlayer is easy to
 customize and extend, and can be updated through Play Store application
 updates.
 
-## Installation ##
+## News ##
 
-### via jCenter ###
+Read news, hints and tips on the [news][] page.
 
-The easiest way to get started using ExoPlayer in your Android project is by including this your `build.gradle` file:
+[news]: https://google.github.io/ExoPlayer/news.html
 
-```gradle
+## Using ExoPlayer ##
+
+### Via jCenter ###
+
+The easiest way to get started using ExoPlayer is by including this your project's `build.gradle` file:
+
+```
+gradle
 compile 'com.google.android.exoplayer:exoplayer:rX.X.X'
 ```
 
-where `rX.X.X` is the your preferred version. For the latest version, see the project's  [Releases](https://github.com/google/ExoPlayer/releases).
+where `rX.X.X` is the your preferred version. For the latest version, see the project's [Releases][].
 
-For more details, see the project on [jCenter](https://bintray.com/google/exoplayer/exoplayer/view).
+For more details, see the project on [jCenter][].
 
-### via source ###
+[Releases]: https://github.com/google/ExoPlayer/releases
+[jCenter]: https://bintray.com/google/exoplayer/exoplayer/view
+
+### As source ###
 
 ExoPlayer can also be built from source using Gradle. You can include it as a dependent project like so:
 
-```gradle
+```
+gradle
 // settings.gradle
 include ':app', ':..:ExoPlayer:library'
 
@@ -36,24 +47,20 @@ dependencies {
 }
 ```
 
+### As a jar ###
+
 If you want to use ExoPlayer as a jar, run:
 
-```sh
+```
+sh
 ./gradlew jarRelease
 ```
 
 and copy `library.jar` to the libs folder of your new project.
 
-## News ##
-
-Read news, hints and tips on the [news][] page.
-
-[news]: https://google.github.io/ExoPlayer/news.html
-
 ## Documentation ##
 
-* The [developer guide][] provides a wealth of information to help you get
-started.
+* The [developer guide][] provides a wealth of information to help you get started.
 * The [class reference][] documents the ExoPlayer library classes.
 * The [release notes][] document the major changes in each release.
 
@@ -61,7 +68,9 @@ started.
 [class reference]: https://google.github.io/ExoPlayer/doc/reference
 [release notes]: https://github.com/google/ExoPlayer/blob/dev/RELEASENOTES.md
 
-## Project branches ##
+## Development ##
+
+### Project branches ###
 
   * The [`master`][master] branch holds the most recent minor release.
   * Most development work happens on the [`dev`][dev] branch.
@@ -70,17 +79,18 @@ started.
 [master]: https://github.com/google/ExoPlayer/tree/master
 [dev]: https://github.com/google/ExoPlayer/tree/dev
 
-## Using Eclipse ##
+### Using Android Studio ###
+
+  1. Open the ExoPlayer project in the root directory of the repository.
+
+### Using Eclipse ###
 
 The repository includes Eclipse projects for both the ExoPlayer library and its
 accompanying demo application. To get started:
 
   1. Install Eclipse and setup the [Android SDK][].
-
   1. Open Eclipse and navigate to File->Import->General->Existing Projects into Workspace.
-
   1. Select the root directory of the repository.
-
-  1. Import the ExoPlayerDemo and ExoPlayerLib projects.
+  1. Import the projects.
 
 [Android SDK]: http://developer.android.com/sdk/index.html
