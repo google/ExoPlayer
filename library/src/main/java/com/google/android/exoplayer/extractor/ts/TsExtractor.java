@@ -22,6 +22,7 @@ import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
+import com.google.android.exoplayer.util.Util;
 
 import android.util.Log;
 import android.util.SparseArray;
@@ -43,19 +44,24 @@ public final class TsExtractor implements Extractor {
   private static final int TS_STREAM_TYPE_MPA = 0x03;
   private static final int TS_STREAM_TYPE_MPA_LSF = 0x04;
   private static final int TS_STREAM_TYPE_AAC = 0x0F;
-  private static final int TS_STREAM_TYPE_ATSC_AC3 = 0x81;
-  private static final int TS_STREAM_TYPE_ATSC_E_AC3 = 0x87;
+  private static final int TS_STREAM_TYPE_AC3 = 0x81;
+  private static final int TS_STREAM_TYPE_E_AC3 = 0x87;
+  private static final int TS_STREAM_TYPE_H262 = 0x02;
   private static final int TS_STREAM_TYPE_H264 = 0x1B;
   private static final int TS_STREAM_TYPE_H265 = 0x24;
   private static final int TS_STREAM_TYPE_ID3 = 0x15;
   private static final int TS_STREAM_TYPE_EIA608 = 0x100; // 0xFF + 1
 
+  private static final long AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("AC-3");
+  private static final long E_AC3_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("EAC3");
+  private static final long HEVC_FORMAT_IDENTIFIER = Util.getIntegerCodeForString("HEVC");
+
   private final PtsTimestampAdjuster ptsTimestampAdjuster;
+  private final boolean idrKeyframesOnly;
   private final ParsableByteArray tsPacketBuffer;
   private final ParsableBitArray tsScratch;
-  private final boolean idrKeyframesOnly;
-  /* package */ final SparseBooleanArray streamTypes;
   /* package */ final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
+  /* package */ final SparseBooleanArray streamTypes;
 
   // Accessed only by the loading thread.
   private ExtractorOutput output;
@@ -70,13 +76,13 @@ public final class TsExtractor implements Extractor {
   }
 
   public TsExtractor(PtsTimestampAdjuster ptsTimestampAdjuster, boolean idrKeyframesOnly) {
+    this.ptsTimestampAdjuster = ptsTimestampAdjuster;
     this.idrKeyframesOnly = idrKeyframesOnly;
-    tsScratch = new ParsableBitArray(new byte[3]);
     tsPacketBuffer = new ParsableByteArray(TS_PACKET_SIZE);
-    streamTypes = new SparseBooleanArray();
+    tsScratch = new ParsableBitArray(new byte[3]);
     tsPayloadReaders = new SparseArray<>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
-    this.ptsTimestampAdjuster = ptsTimestampAdjuster;
+    streamTypes = new SparseBooleanArray();
   }
 
   // Extractor implementation.
@@ -230,9 +236,14 @@ public final class TsExtractor implements Extractor {
   private class PmtReader extends TsPayloadReader {
 
     private final ParsableBitArray pmtScratch;
+    private final ParsableByteArray sectionData;
+
+    private int sectionLength;
+    private int sectionBytesRead;
 
     public PmtReader() {
       pmtScratch = new ParsableBitArray(new byte[5]);
+      sectionData = new ParsableByteArray();
     }
 
     @Override
@@ -243,29 +254,45 @@ public final class TsExtractor implements Extractor {
     @Override
     public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
         ExtractorOutput output) {
-      // Skip pointer.
       if (payloadUnitStartIndicator) {
+        // Skip pointer.
         int pointerField = data.readUnsignedByte();
         data.skipBytes(pointerField);
+
+        // Note: see ISO/IEC 13818-1, section 2.4.4.8 for detailed information on the format of
+        // the header.
+        data.readBytes(pmtScratch, 3);
+        pmtScratch.skipBits(12); // table_id (8), section_syntax_indicator (1), 0 (1), reserved (2)
+        sectionLength = pmtScratch.readBits(12);
+
+        if (sectionData.capacity() < sectionLength) {
+          sectionData.reset(new byte[sectionLength], sectionLength);
+        } else {
+          sectionData.reset();
+          sectionData.setLimit(sectionLength);
+        }
       }
 
-      // Note: see ISO/IEC 13818-1, section 2.4.4.8 for detailed information on the format of
-      // the header.
-      data.readBytes(pmtScratch, 3);
-      pmtScratch.skipBits(12); // table_id (8), section_syntax_indicator (1), '0' (1), reserved (2)
-      int sectionLength = pmtScratch.readBits(12);
+      int bytesToRead = Math.min(data.bytesLeft(), sectionLength - sectionBytesRead);
+      data.readBytes(sectionData.data, sectionBytesRead, bytesToRead);
+      sectionBytesRead += bytesToRead;
+      if (sectionBytesRead < sectionLength) {
+        // Not yet fully read.
+        return;
+      }
 
       // program_number (16), reserved (2), version_number (5), current_next_indicator (1),
       // section_number (8), last_section_number (8), reserved (3), PCR_PID (13)
       // Skip the rest of the PMT header.
-      data.skipBytes(7);
+      sectionData.skipBytes(7);
 
-      data.readBytes(pmtScratch, 2);
+      // Read program_info_length.
+      sectionData.readBytes(pmtScratch, 2);
       pmtScratch.skipBits(4);
       int programInfoLength = pmtScratch.readBits(12);
 
       // Skip the descriptors.
-      data.skipBytes(programInfoLength);
+      sectionData.skipBytes(programInfoLength);
 
       if (id3Reader == null) {
         // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
@@ -273,25 +300,26 @@ public final class TsExtractor implements Extractor {
         id3Reader = new Id3Reader(output.track(TS_STREAM_TYPE_ID3));
       }
 
-      int entriesSize = sectionLength - 9 /* Size of the rest of the fields before descriptors */
-          - programInfoLength - 4 /* CRC size */;
-      while (entriesSize > 0) {
-        data.readBytes(pmtScratch, 5);
+      int remainingEntriesLength = sectionLength - 9 /* Length of fields before descriptors */
+          - programInfoLength - 4 /* CRC length */;
+      while (remainingEntriesLength > 0) {
+        sectionData.readBytes(pmtScratch, 5);
         int streamType = pmtScratch.readBits(8);
         pmtScratch.skipBits(3); // reserved
         int elementaryPid = pmtScratch.readBits(13);
         pmtScratch.skipBits(4); // reserved
-        int esInfoLength = pmtScratch.readBits(12);
-
-        // Skip the descriptors.
-        data.skipBytes(esInfoLength);
-        entriesSize -= esInfoLength + 5;
-
+        int esInfoLength = pmtScratch.readBits(12); // ES_info_length
+        if (streamType == 0x06) {
+          // Read descriptors in PES packets containing private data.
+          streamType = readPrivateDataStreamType(sectionData, esInfoLength);
+        } else {
+          sectionData.skipBytes(esInfoLength);
+        }
+        remainingEntriesLength -= esInfoLength + 5;
         if (streamTypes.get(streamType)) {
           continue;
         }
 
-        // TODO: Detect and read DVB AC-3 streams with Ac3Reader.
         ElementaryStreamReader pesPayloadReader = null;
         switch (streamType) {
           case TS_STREAM_TYPE_MPA:
@@ -303,9 +331,14 @@ public final class TsExtractor implements Extractor {
           case TS_STREAM_TYPE_AAC:
             pesPayloadReader = new AdtsReader(output.track(TS_STREAM_TYPE_AAC));
             break;
-          case TS_STREAM_TYPE_ATSC_E_AC3:
-          case TS_STREAM_TYPE_ATSC_AC3:
-            pesPayloadReader = new Ac3Reader(output.track(streamType));
+          case TS_STREAM_TYPE_AC3:
+            pesPayloadReader = new Ac3Reader(output.track(TS_STREAM_TYPE_AC3), false);
+            break;
+          case TS_STREAM_TYPE_E_AC3:
+            pesPayloadReader = new Ac3Reader(output.track(TS_STREAM_TYPE_E_AC3), true);
+            break;
+          case TS_STREAM_TYPE_H262:
+            pesPayloadReader = new H262Reader(output.track(TS_STREAM_TYPE_H262));
             break;
           case TS_STREAM_TYPE_H264:
             pesPayloadReader = new H264Reader(output.track(TS_STREAM_TYPE_H264),
@@ -327,6 +360,38 @@ public final class TsExtractor implements Extractor {
       }
 
       output.endTracks();
+    }
+
+    /**
+     * Returns the stream type read from a registration descriptor in private data, or -1 if no
+     * stream type is present. Sets {@code data}'s position to the end of the descriptors.
+     *
+     * @param data A buffer with its position set to the start of the first descriptor.
+     * @param length The length of descriptors to read from the current position in {@code data}.
+     * @return The stream type read from a registration descriptor in private data, or -1 if no
+     *     stream type is present.
+     */
+    private int readPrivateDataStreamType(ParsableByteArray data, int length) {
+      int streamType = -1;
+      int descriptorsEndPosition = data.getPosition() + length;
+      while (data.getPosition() < descriptorsEndPosition) {
+        int descriptorTag = data.readUnsignedByte();
+        int descriptorLength = data.readUnsignedByte();
+        if (descriptorTag == 0x05) { // registration_descriptor
+          long formatIdentifier = data.readUnsignedInt();
+          if (formatIdentifier == AC3_FORMAT_IDENTIFIER) {
+            streamType = TS_STREAM_TYPE_AC3;
+          } else if (formatIdentifier == E_AC3_FORMAT_IDENTIFIER) {
+            streamType = TS_STREAM_TYPE_E_AC3;
+          } else if (formatIdentifier == HEVC_FORMAT_IDENTIFIER) {
+            streamType = TS_STREAM_TYPE_H265;
+          }
+          break;
+        }
+        data.skipBytes(descriptorLength);
+      }
+      data.setPosition(descriptorsEndPosition);
+      return streamType;
     }
 
   }

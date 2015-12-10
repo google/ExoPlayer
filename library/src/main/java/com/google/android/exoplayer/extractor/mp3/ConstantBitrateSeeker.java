@@ -22,7 +22,6 @@ import com.google.android.exoplayer.C;
  */
 /* package */ final class ConstantBitrateSeeker implements Mp3Extractor.Seeker {
 
-  private static final int MICROSECONDS_PER_SECOND = 1000000;
   private static final int BITS_PER_BYTE = 8;
 
   private final long firstFramePosition;
@@ -43,12 +42,12 @@ import com.google.android.exoplayer.C;
   @Override
   public long getPosition(long timeUs) {
     return durationUs == C.UNKNOWN_TIME_US ? 0
-        : firstFramePosition + (timeUs * bitrate) / (MICROSECONDS_PER_SECOND * BITS_PER_BYTE);
+        : firstFramePosition + (timeUs * bitrate) / (C.MICROS_PER_SECOND * BITS_PER_BYTE);
   }
 
   @Override
   public long getTimeUs(long position) {
-    return ((position - firstFramePosition) * MICROSECONDS_PER_SECOND * BITS_PER_BYTE) / bitrate;
+    return ((position - firstFramePosition) * C.MICROS_PER_SECOND * BITS_PER_BYTE) / bitrate;
   }
 
   @Override

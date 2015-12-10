@@ -19,6 +19,7 @@ import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.drm.DrmInitData;
+import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
 import com.google.android.exoplayer.extractor.ChunkIndex;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
@@ -26,7 +27,6 @@ import com.google.android.exoplayer.extractor.ExtractorOutput;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
-import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.LongArray;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
@@ -75,6 +75,7 @@ public final class WebmExtractor implements Extractor {
   private static final String CODEC_ID_AAC = "A_AAC";
   private static final String CODEC_ID_MP3 = "A_MPEG/L3";
   private static final String CODEC_ID_AC3 = "A_AC3";
+  private static final String CODEC_ID_E_AC3 = "A_EAC3";
   private static final String CODEC_ID_TRUEHD = "A_TRUEHD";
   private static final String CODEC_ID_DTS = "A_DTS";
   private static final String CODEC_ID_DTS_EXPRESS = "A_DTS/EXPRESS";
@@ -450,8 +451,8 @@ public final class WebmExtractor implements Extractor {
             throw new ParserException("Encrypted Track found but ContentEncKeyID was not found");
           }
           if (!sentDrmInitData) {
-            extractorOutput.drmInitData(
-                new DrmInitData.Universal(MimeTypes.VIDEO_WEBM, currentTrack.encryptionKeyId));
+            extractorOutput.drmInitData(new DrmInitData.Universal(
+                new SchemeInitData(MimeTypes.VIDEO_WEBM, currentTrack.encryptionKeyId)));
             sentDrmInitData = true;
           }
         }
@@ -738,7 +739,7 @@ public final class WebmExtractor implements Extractor {
                   contentSize - blockTrackNumberLength - headerSize - totalSamplesSize;
             } else {
               // Lacing is always in the range 0--3.
-              throw new IllegalStateException("Unexpected lacing value: " + lacing);
+              throw new ParserException("Unexpected lacing value: " + lacing);
             }
           }
 
@@ -1045,6 +1046,7 @@ public final class WebmExtractor implements Extractor {
         || CODEC_ID_AAC.equals(codecId)
         || CODEC_ID_MP3.equals(codecId)
         || CODEC_ID_AC3.equals(codecId)
+        || CODEC_ID_E_AC3.equals(codecId)
         || CODEC_ID_TRUEHD.equals(codecId)
         || CODEC_ID_DTS.equals(codecId)
         || CODEC_ID_DTS_EXPRESS.equals(codecId)
@@ -1210,6 +1212,9 @@ public final class WebmExtractor implements Extractor {
         case CODEC_ID_AC3:
           mimeType = MimeTypes.AUDIO_AC3;
           break;
+        case CODEC_ID_E_AC3:
+          mimeType = MimeTypes.AUDIO_E_AC3;
+          break;
         case CODEC_ID_TRUEHD:
           mimeType = MimeTypes.AUDIO_TRUEHD;
           break;
@@ -1228,15 +1233,18 @@ public final class WebmExtractor implements Extractor {
       }
 
       MediaFormat format;
+      // TODO: Consider reading the name elements of the tracks and, if present, incorporating them
+      // into the trackId passed when creating the formats.
       if (MimeTypes.isAudio(mimeType)) {
-        format = MediaFormat.createAudioFormat(trackId, mimeType, MediaFormat.NO_VALUE,
-            maxInputSize, durationUs, channelCount, sampleRate, initializationData, language);
+        format = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType,
+            MediaFormat.NO_VALUE, maxInputSize, durationUs, channelCount, sampleRate,
+            initializationData, language);
       } else if (MimeTypes.isVideo(mimeType)) {
-        format = MediaFormat.createVideoFormat(trackId, mimeType, MediaFormat.NO_VALUE,
-            maxInputSize, durationUs, width, height, initializationData);
+        format = MediaFormat.createVideoFormat(Integer.toString(trackId), mimeType,
+            MediaFormat.NO_VALUE, maxInputSize, durationUs, width, height, initializationData);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
-        format = MediaFormat.createTextFormat(trackId, mimeType, MediaFormat.NO_VALUE, durationUs,
-            language);
+        format = MediaFormat.createTextFormat(Integer.toString(trackId), mimeType,
+            MediaFormat.NO_VALUE, durationUs, language);
       } else {
         throw new ParserException("Unexpected MIME type.");
       }
@@ -1257,7 +1265,9 @@ public final class WebmExtractor implements Extractor {
         // TODO: Deduplicate with AtomParsers.parseAvcCFromParent.
         buffer.setPosition(4);
         int nalUnitLengthFieldLength = (buffer.readUnsignedByte() & 0x03) + 1;
-        Assertions.checkState(nalUnitLengthFieldLength != 3);
+        if (nalUnitLengthFieldLength == 3) {
+          throw new ParserException();
+        }
         List<byte[]> initializationData = new ArrayList<>();
         int numSequenceParameterSets = buffer.readUnsignedByte() & 0x1F;
         for (int i = 0; i < numSequenceParameterSets; i++) {

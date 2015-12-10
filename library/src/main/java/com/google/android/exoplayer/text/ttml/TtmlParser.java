@@ -73,6 +73,8 @@ public final class TtmlParser implements SubtitleParser {
           + "(?:(\\.[0-9]+)|:([0-9][0-9])(?:\\.([0-9]+))?)?$");
   private static final Pattern OFFSET_TIME =
       Pattern.compile("^([0-9]+(?:\\.[0-9]+)?)(h|m|s|ms|f|t)$");
+  private static final Pattern FONT_SIZE =
+      Pattern.compile("^(([0-9]*.)?[0-9]+)(px|em|%)$");
 
   // TODO: read and apply the following attributes if specified.
   private static final int DEFAULT_FRAMERATE = 30;
@@ -80,28 +82,18 @@ public final class TtmlParser implements SubtitleParser {
   private static final int DEFAULT_TICKRATE = 1;
 
   private final XmlPullParserFactory xmlParserFactory;
-  private final boolean strictParsing;
 
-  /**
-   * Equivalent to {@code TtmlParser(false)}.
-   */
   public TtmlParser() {
-    this(false);
-  }
-
-  /**
-   * @param strictParsing If true, {@link #parse(InputStream)} will throw a {@link ParserException}
-   *     if the stream contains invalid data. If false, the parser will make a best effort to ignore
-   *     minor errors in the stream. Note however that a {@link ParserException} will still be
-   *     thrown when this is not possible.
-   */
-  public TtmlParser(boolean strictParsing) {
-    this.strictParsing = strictParsing;
     try {
       xmlParserFactory = XmlPullParserFactory.newInstance();
     } catch (XmlPullParserException e) {
       throw new RuntimeException("Couldn't create XmlPullParserFactory instance", e);
     }
+  }
+
+  @Override
+  public boolean canParse(String mimeType) {
+    return MimeTypes.APPLICATION_TTML.equals(mimeType);
   }
 
   @Override
@@ -132,13 +124,9 @@ public final class TtmlParser implements SubtitleParser {
                   parent.addChild(node);
                 }
               } catch (ParserException e) {
-                if (strictParsing) {
-                  throw e;
-                } else {
-                  Log.w(TAG, "Suppressing parser error", e);
-                  // Treat the node (and by extension, all of its children) as unsupported.
-                  unsupportedNodeDepth++;
-                }
+                Log.w(TAG, "Suppressing parser error", e);
+                // Treat the node (and by extension, all of its children) as unsupported.
+                unsupportedNodeDepth++;
               }
             }
           } else if (eventType == XmlPullParser.TEXT) {
@@ -223,7 +211,12 @@ public final class TtmlParser implements SubtitleParser {
           style = createIfNull(style).setFontFamily(attributeValue);
           break;
         case TtmlNode.ATTR_TTS_FONT_SIZE:
-          // TODO: handle size
+          try {
+            style = createIfNull(style);
+            parseFontSize(attributeValue, style);
+          } catch (ParserException e) {
+            Log.w(TAG, "failed parsing fontSize value: '" + attributeValue + "'");
+          }
           break;
         case TtmlNode.ATTR_TTS_FONT_WEIGHT:
           style = createIfNull(style).setBold(
@@ -278,11 +271,6 @@ public final class TtmlParser implements SubtitleParser {
 
   private TtmlStyle createIfNull(TtmlStyle style) {
     return style == null ? new TtmlStyle() : style;
-  }
-
-  @Override
-  public boolean canParse(String mimeType) {
-    return MimeTypes.APPLICATION_TTML.equals(mimeType);
   }
 
   private TtmlNode parseNode(XmlPullParser parser, TtmlNode parent) throws ParserException {
@@ -353,6 +341,40 @@ public final class TtmlParser implements SubtitleParser {
       return true;
     }
     return false;
+  }
+
+  private static void parseFontSize(String expression, TtmlStyle out) throws ParserException {
+    String[] expressions = expression.split("\\s+");
+    Matcher matcher;
+    if (expressions.length == 1) {
+      matcher = FONT_SIZE.matcher(expression);
+    } else if (expressions.length == 2){
+      matcher = FONT_SIZE.matcher(expressions[1]);
+      Log.w(TAG, "multiple values in fontSize attribute. Picking the second "
+          + "value for vertical font size and ignoring the first.");
+    } else {
+      throw new ParserException();
+    }
+
+    if (matcher.matches()) {
+      String unit = matcher.group(3);
+      switch (unit) {
+        case "px":
+          out.setFontSizeUnit(TtmlStyle.FONT_SIZE_UNIT_PIXEL);
+          break;
+        case "em":
+          out.setFontSizeUnit(TtmlStyle.FONT_SIZE_UNIT_EM);
+          break;
+        case "%":
+          out.setFontSizeUnit(TtmlStyle.FONT_SIZE_UNIT_PERCENT);
+          break;
+        default:
+          throw new ParserException();
+      }
+      out.setFontSize(Float.valueOf(matcher.group(1)));
+    } else {
+      throw new ParserException();
+    }
   }
 
   /**

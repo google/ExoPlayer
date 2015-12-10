@@ -91,6 +91,10 @@ FUNC(void, opusReset, jlong jDecoder) {
   opus_multistream_decoder_ctl(decoder, OPUS_RESET_STATE);
 }
 
+FUNC(jstring, getLibopusVersion) {
+  return env->NewStringUTF(opus_get_version_string());
+}
+
 FUNC(jstring, opusGetErrorMessage, jint errorCode) {
   return env->NewStringUTF(opus_strerror(errorCode));
 }

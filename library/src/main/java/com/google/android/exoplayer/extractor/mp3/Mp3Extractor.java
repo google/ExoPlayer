@@ -187,7 +187,7 @@ public final class Mp3Extractor implements Extractor {
       sampleBytesRemaining = synchronizedHeader.frameSize;
     }
 
-    long timeUs = basisTimeUs + (samplesRead * 1000000L / synchronizedHeader.sampleRate);
+    long timeUs = basisTimeUs + (samplesRead * C.MICROS_PER_SECOND / synchronizedHeader.sampleRate);
 
     // Start by draining any buffered bytes, then read directly from the extractor input.
     sampleBytesRemaining -= inputBuffer.drainToOutput(trackOutput, sampleBytesRemaining);
@@ -332,10 +332,9 @@ public final class Mp3Extractor implements Extractor {
     if (seeker == null) {
       setupSeeker(extractorInput, headerPosition);
       extractorOutput.seekMap(seeker);
-      trackOutput.format(MediaFormat.createAudioFormat(MediaFormat.NO_VALUE,
-          synchronizedHeader.mimeType, MediaFormat.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES,
-          seeker.getDurationUs(), synchronizedHeader.channels, synchronizedHeader.sampleRate, null,
-          null));
+      trackOutput.format(MediaFormat.createAudioFormat(null, synchronizedHeader.mimeType,
+          MediaFormat.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES, seeker.getDurationUs(),
+          synchronizedHeader.channels, synchronizedHeader.sampleRate, null, null));
     }
 
     return headerPosition;

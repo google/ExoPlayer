@@ -32,15 +32,15 @@ import java.io.InputStream;
 public final class Tx3gParser implements SubtitleParser {
 
   @Override
+  public boolean canParse(String mimeType) {
+    return MimeTypes.APPLICATION_TX3G.equals(mimeType);
+  }
+
+  @Override
   public Subtitle parse(InputStream inputStream) throws IOException {
     DataInputStream dataInputStream  = new DataInputStream(inputStream);
     String cueText = dataInputStream.readUTF();
     return new Tx3gSubtitle(new Cue(cueText));
-  }
-
-  @Override
-  public boolean canParse(String mimeType) {
-    return MimeTypes.APPLICATION_TX3G.equals(mimeType);
   }
 
 }

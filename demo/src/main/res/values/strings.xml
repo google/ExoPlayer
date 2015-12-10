@@ -37,10 +37,20 @@
 
   <string name="off">[off]</string>
 
-  <string name="drm_error_not_supported">Protected content not supported on API levels below 18</string>
+  <string name="error_drm_not_supported">Protected content not supported on API levels below 18</string>
 
-  <string name="drm_error_unsupported_scheme">This device does not support the required DRM scheme</string>
+  <string name="error_drm_unsupported_scheme">This device does not support the required DRM scheme</string>
 
-  <string name="drm_error_unknown">An unknown DRM error occurred</string>
+  <string name="error_drm_unknown">An unknown DRM error occurred</string>
+
+  <string name="error_no_decoder">This device does not provide a decoder for <xliff:g id="mime_type">%1$s</xliff:g></string>
+
+  <string name="error_no_secure_decoder">This device does not provide a secure decoder for <xliff:g id="mime_type">%1$s</xliff:g></string>
+
+  <string name="error_querying_decoders">Unable to query device decoders</string>
+
+  <string name="error_instantiating_decoder">Unable to instantiate decoder <xliff:g id="decoder_name">%1$s</xliff:g></string>
+
+  <string name="storage_permission_denied">Permission to access storage was denied</string>
 
 </resources>

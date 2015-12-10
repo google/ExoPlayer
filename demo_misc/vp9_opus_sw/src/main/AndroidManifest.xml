@@ -17,8 +17,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.google.android.exoplayer.demo.vp9opus"
-    android:versionCode="1502"
-    android:versionName="1.5.2"
+    android:versionCode="1503"
+    android:versionName="1.5.3"
     android:theme="@style/RootTheme">
 
   <uses-permission android:name="android.permission.INTERNET"/>
@@ -26,7 +26,7 @@
 
   <uses-feature android:glEsVersion="0x00020000"></uses-feature>
 
-  <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="22"/>
+  <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="23"/>
 
   <application
       tools:ignore="UnusedAttribute"

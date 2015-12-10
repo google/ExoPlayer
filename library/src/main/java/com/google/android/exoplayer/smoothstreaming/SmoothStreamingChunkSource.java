@@ -29,6 +29,7 @@ import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer.chunk.MediaChunk;
 import com.google.android.exoplayer.drm.DrmInitData;
+import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
 import com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer.extractor.mp4.Track;
 import com.google.android.exoplayer.extractor.mp4.TrackEncryptionBox;
@@ -144,8 +145,9 @@ public class SmoothStreamingChunkSource implements ChunkSource,
       byte[] keyId = getProtectionElementKeyId(protectionElement.data);
       trackEncryptionBoxes = new TrackEncryptionBox[1];
       trackEncryptionBoxes[0] = new TrackEncryptionBox(true, INITIALIZATION_VECTOR_SIZE, keyId);
-      drmInitData = new DrmInitData.Mapped(MimeTypes.VIDEO_MP4);
-      drmInitData.put(protectionElement.uuid, protectionElement.data);
+      drmInitData = new DrmInitData.Mapped();
+      drmInitData.put(protectionElement.uuid,
+          new SchemeInitData(MimeTypes.VIDEO_MP4, protectionElement.data));
     } else {
       trackEncryptionBoxes = null;
       drmInitData = null;
@@ -234,8 +236,8 @@ public class SmoothStreamingChunkSource implements ChunkSource,
   }
 
   @Override
-  public final void getChunkOperation(List<? extends MediaChunk> queue, long seekPositionUs,
-      long playbackPositionUs, ChunkOperationHolder out) {
+  public final void getChunkOperation(List<? extends MediaChunk> queue, long playbackPositionUs,
+      ChunkOperationHolder out) {
     if (fatalError != null) {
       out.chunk = null;
       return;
@@ -279,9 +281,9 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     int chunkIndex;
     if (queue.isEmpty()) {
       if (live) {
-        seekPositionUs = getLiveSeekPosition(currentManifest, liveEdgeLatencyUs);
+        playbackPositionUs = getLiveSeekPosition(currentManifest, liveEdgeLatencyUs);
       }
-      chunkIndex = streamElement.getChunkIndex(seekPositionUs);
+      chunkIndex = streamElement.getChunkIndex(playbackPositionUs);
     } else {
       MediaChunk previous = queue.get(out.queueSize - 1);
       chunkIndex = previous.chunkIndex + 1 - currentManifestChunkOffset;
@@ -368,7 +370,7 @@ public class SmoothStreamingChunkSource implements ChunkSource,
       maxHeight = Math.max(maxHeight, mediaFormat.height);
     }
     Arrays.sort(formats, new DecreasingBandwidthComparator());
-    MediaFormat adaptiveMediaFormat = maxHeightMediaFormat.copyAsAdaptive();
+    MediaFormat adaptiveMediaFormat = maxHeightMediaFormat.copyAsAdaptive(null);
     tracks.add(new ExposedTrack(adaptiveMediaFormat, element, formats, maxWidth, maxHeight));
   }
 
@@ -398,9 +400,8 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     int mp4TrackType;
     switch (element.type) {
       case StreamElement.TYPE_VIDEO:
-        mediaFormat = MediaFormat.createVideoFormat(MediaFormat.NO_VALUE, format.mimeType,
-            format.bitrate, MediaFormat.NO_VALUE, durationUs, format.width, format.height,
-            Arrays.asList(csdArray));
+        mediaFormat = MediaFormat.createVideoFormat(format.id, format.mimeType, format.bitrate,
+            MediaFormat.NO_VALUE, durationUs, format.width, format.height, Arrays.asList(csdArray));
         mp4TrackType = Track.TYPE_vide;
         break;
       case StreamElement.TYPE_AUDIO:
@@ -411,14 +412,14 @@ public class SmoothStreamingChunkSource implements ChunkSource,
           csd = Collections.singletonList(CodecSpecificDataUtil.buildAacAudioSpecificConfig(
               format.audioSamplingRate, format.audioChannels));
         }
-        mediaFormat = MediaFormat.createAudioFormat(MediaFormat.NO_VALUE, format.mimeType,
-            format.bitrate, MediaFormat.NO_VALUE, durationUs, format.audioChannels,
-            format.audioSamplingRate, csd, format.language);
+        mediaFormat = MediaFormat.createAudioFormat(format.id, format.mimeType, format.bitrate,
+            MediaFormat.NO_VALUE, durationUs, format.audioChannels, format.audioSamplingRate, csd,
+            format.language);
         mp4TrackType = Track.TYPE_soun;
         break;
       case StreamElement.TYPE_TEXT:
-        mediaFormat = MediaFormat.createTextFormat(MediaFormat.NO_VALUE, format.mimeType,
-            format.bitrate, durationUs, format.language);
+        mediaFormat = MediaFormat.createTextFormat(format.id, format.mimeType, format.bitrate,
+            durationUs, format.language);
         mp4TrackType = Track.TYPE_text;
         break;
       default:
@@ -429,8 +430,9 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     FragmentedMp4Extractor mp4Extractor = new FragmentedMp4Extractor(
         FragmentedMp4Extractor.WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
         | FragmentedMp4Extractor.WORKAROUND_IGNORE_TFDT_BOX);
-    Track mp4Track = new Track(trackIndex, mp4TrackType, element.timescale, durationUs, mediaFormat,
-        trackEncryptionBoxes, mp4TrackType == Track.TYPE_vide ? 4 : -1);
+    Track mp4Track = new Track(trackIndex, mp4TrackType, element.timescale, C.UNKNOWN_TIME_US,
+        durationUs, mediaFormat, trackEncryptionBoxes, mp4TrackType == Track.TYPE_vide ? 4 : -1,
+        null, null);
     mp4Extractor.setTrack(mp4Track);
 
     // Store the format and a wrapper around the extractor.

@@ -33,6 +33,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
   private static final String TYPICAL_WITH_IDS_FILE = "webvtt/typical_with_identifiers";
   private static final String TYPICAL_WITH_COMMENTS_FILE = "webvtt/typical_with_comments";
   private static final String WITH_POSITIONING_FILE = "webvtt/with_positioning";
+  private static final String WITH_BAD_CUE_HEADER_FILE = "webvtt/with_bad_cue_header";
   private static final String WITH_TAGS_FILE = "webvtt/with_tags";
   private static final String EMPTY_FILE = "webvtt/empty";
 
@@ -130,6 +131,20 @@ public class WebvttParserTest extends InstrumentationTestCase {
     assertCue(subtitle, 8, 7000000, 8000000, "This is the fifth subtitle.",
         Alignment.ALIGN_OPPOSITE, Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.TYPE_UNSET, 0.1f,
         Cue.ANCHOR_TYPE_END, 0.1f);
+  }
+
+  public void testParseWithBadCueHeader() throws IOException {
+    WebvttParser parser = new WebvttParser();
+    InputStream inputStream =
+        getInstrumentation().getContext().getResources().getAssets().open(WITH_BAD_CUE_HEADER_FILE);
+    WebvttSubtitle subtitle = parser.parse(inputStream);
+
+    // test event count
+    assertEquals(4, subtitle.getEventTimeCount());
+
+    // test cues
+    assertCue(subtitle, 0, 0, 1234000, "This is the first subtitle.");
+    assertCue(subtitle, 2, 4000000, 5000000, "This is the third subtitle.");
   }
 
   private static void assertCue(WebvttSubtitle subtitle, int eventTimeIndex, long startTimeUs,

@@ -23,7 +23,7 @@ import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 /**
- * Parses a continuous AC-3 byte stream and extracts individual samples.
+ * Parses a continuous (E-)AC-3 byte stream and extracts individual samples.
  */
 /* package */ final class Ac3Reader extends ElementaryStreamReader {
 
@@ -33,6 +33,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
   private static final int HEADER_SIZE = 8;
 
+  private final boolean isEac3;
   private final ParsableBitArray headerScratchBits;
   private final ParsableByteArray headerScratchBytes;
 
@@ -43,16 +44,23 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   private boolean lastByteWas0B;
 
   // Used when parsing the header.
-  private long frameDurationUs;
+  private long sampleDurationUs;
   private MediaFormat mediaFormat;
   private int sampleSize;
-  private int bitrate;
 
   // Used when reading the samples.
   private long timeUs;
 
-  public Ac3Reader(TrackOutput output) {
+  /**
+   * Constructs a new reader for (E-)AC-3 elementary streams.
+   *
+   * @param output Track output for extracted samples.
+   * @param isEac3 Whether the stream is E-AC-3 (ETSI TS 102 366 Annex E). Specify {@code false} to
+   *     parse sample headers as AC-3.
+   */
+  public Ac3Reader(TrackOutput output, boolean isEac3) {
     super(output);
+    this.isEac3 = isEac3;
     headerScratchBits = new ParsableBitArray(new byte[HEADER_SIZE]);
     headerScratchBytes = new ParsableByteArray(headerScratchBits.data);
     state = STATE_FINDING_SYNC;
@@ -94,7 +102,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
           bytesRead += bytesToRead;
           if (bytesRead == sampleSize) {
             output.sampleMetadata(timeUs, C.SAMPLE_FLAG_SYNC, sampleSize, 0, null);
-            timeUs += frameDurationUs;
+            timeUs += sampleDurationUs;
             state = STATE_FINDING_SYNC;
           }
           break;
@@ -124,11 +132,11 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   }
 
   /**
-   * Locates the next sync word, advancing the position to the byte that immediately follows it.
-   * If a sync word was not located, the position is advanced to the limit.
+   * Locates the next syncword, advancing the position to the byte that immediately follows it. If a
+   * syncword was not located, the position is advanced to the limit.
    *
    * @param pesBuffer The buffer whose position should be advanced.
-   * @return True if a sync word position was found. False otherwise.
+   * @return True if a syncword position was found. False otherwise.
    */
   private boolean skipToNextSync(ParsableByteArray pesBuffer) {
     while (pesBuffer.bytesLeft() > 0) {
@@ -151,16 +159,21 @@ import com.google.android.exoplayer.util.ParsableByteArray;
    * Parses the sample header.
    */
   private void parseHeader() {
-    headerScratchBits.setPosition(0);
-    sampleSize = Ac3Util.parseFrameSize(headerScratchBits);
     if (mediaFormat == null) {
-      headerScratchBits.setPosition(0);
-      mediaFormat = Ac3Util.parseFrameAc3Format(headerScratchBits, MediaFormat.NO_VALUE,
-          C.UNKNOWN_TIME_US, null);
+      mediaFormat = isEac3
+          ? Ac3Util.parseEac3SyncframeFormat(headerScratchBits, null, C.UNKNOWN_TIME_US, null)
+          : Ac3Util.parseAc3SyncframeFormat(headerScratchBits, null, C.UNKNOWN_TIME_US, null);
       output.format(mediaFormat);
-      bitrate = Ac3Util.getBitrate(sampleSize, mediaFormat.sampleRate);
     }
-    frameDurationUs = (int) (1000L * 8 * sampleSize / bitrate);
+    sampleSize = isEac3 ? Ac3Util.parseEAc3SyncframeSize(headerScratchBits.data)
+        : Ac3Util.parseAc3SyncframeSize(headerScratchBits.data);
+    int audioSamplesPerSyncframe = isEac3
+        ? Ac3Util.parseEAc3SyncframeAudioSampleCount(headerScratchBits.data)
+        : Ac3Util.getAc3SyncframeAudioSampleCount();
+    // In this class a sample is an access unit (syncframe in AC-3), but the MediaFormat sample rate
+    // specifies the number of PCM audio samples per second.
+    sampleDurationUs =
+        (int) (C.MICROS_PER_SECOND * audioSamplesPerSyncframe / mediaFormat.sampleRate);
   }
 
 }

@@ -92,9 +92,9 @@ public interface ChunkSource {
    * This method should only be called when the source is enabled.
    *
    * @param queue A representation of the currently buffered {@link MediaChunk}s.
-   * @param seekPositionUs If the queue is empty, this parameter must specify the seek position. If
-   *     the queue is non-empty then this parameter is ignored.
-   * @param playbackPositionUs The current playback position.
+   * @param playbackPositionUs The current playback position. If the queue is empty then this
+   *     parameter is the position from which playback is expected to start (or restart) and hence
+   *     should be interpreted as a seek position.
    * @param out A holder for the next operation, whose {@link ChunkOperationHolder#endOfStream} is
    *     initially set to false, whose {@link ChunkOperationHolder#queueSize} is initially equal to
    *     the length of the queue, and whose {@link ChunkOperationHolder#chunk} is initially equal to
@@ -103,8 +103,8 @@ public interface ChunkSource {
    *     unchanged. Note that leaving the chunk unchanged is both preferred and more efficient than
    *     replacing it with a new but identical chunk.
    */
-  void getChunkOperation(List<? extends MediaChunk> queue, long seekPositionUs,
-      long playbackPositionUs, ChunkOperationHolder out);
+  void getChunkOperation(List<? extends MediaChunk> queue, long playbackPositionUs,
+      ChunkOperationHolder out);
 
   /**
    * Invoked when the {@link ChunkSampleSource} has finished loading a chunk obtained from this

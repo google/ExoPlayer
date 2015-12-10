@@ -75,9 +75,11 @@ import com.google.android.exoplayer.util.Util;
    * @return Index of the synchronization sample, or {@link #NO_SAMPLE} if none.
    */
   public int getIndexOfEarlierOrEqualSynchronizationSample(long timeUs) {
+    // Video frame timestamps may not be sorted, so the behavior of this call can be undefined.
+    // Frames are not reordered past synchronization samples so this works in practice.
     int startIndex = Util.binarySearchFloor(timestampsUs, timeUs, true, false);
     for (int i = startIndex; i >= 0; i--) {
-      if (timestampsUs[i] <= timeUs && (flags[i] & C.SAMPLE_FLAG_SYNC) != 0) {
+      if ((flags[i] & C.SAMPLE_FLAG_SYNC) != 0) {
         return i;
       }
     }
@@ -94,7 +96,7 @@ import com.google.android.exoplayer.util.Util;
   public int getIndexOfLaterOrEqualSynchronizationSample(long timeUs) {
     int startIndex = Util.binarySearchCeil(timestampsUs, timeUs, true, false);
     for (int i = startIndex; i < timestampsUs.length; i++) {
-      if (timestampsUs[i] >= timeUs && (flags[i] & C.SAMPLE_FLAG_SYNC) != 0) {
+      if ((flags[i] & C.SAMPLE_FLAG_SYNC) != 0) {
         return i;
       }
     }

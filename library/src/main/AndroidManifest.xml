@@ -29,6 +29,6 @@
     the library may be of use on older devices. However, please note that the core video playback
     functionality provided by the library requires API level 16 or greater.
   -->
-  <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="22"/>
+  <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="23"/>
 
 </manifest>

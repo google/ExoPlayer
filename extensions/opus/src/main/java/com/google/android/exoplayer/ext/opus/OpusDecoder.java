@@ -21,17 +21,23 @@ import java.nio.ByteBuffer;
 
 /**
  * JNI Wrapper for the libopus Opus decoder.
- *
- * @author vigneshv@google.com (Vignesh Venkatasubramanian)
  */
 /* package */ class OpusDecoder {
 
-  private final long nativeDecoderContext;
-
+  private static final boolean IS_AVAILABLE;
   static {
-    System.loadLibrary("opus");
-    System.loadLibrary("opusJNI");
+    boolean isAvailable;
+    try {
+      System.loadLibrary("opus");
+      System.loadLibrary("opusJNI");
+      isAvailable = true;
+    } catch (UnsatisfiedLinkError exception) {
+      isAvailable = false;
+    }
+    IS_AVAILABLE = isAvailable;
   }
+
+  private final long nativeDecoderContext;
 
   /**
    * Creates the Opus Decoder.
@@ -80,6 +86,18 @@ import java.nio.ByteBuffer;
   public void reset() {
     opusReset(nativeDecoderContext);
   }
+
+  /**
+   * Returns whether the underlying libopus library is available.
+   */
+  public static boolean isLibopusAvailable() {
+    return IS_AVAILABLE;
+  }
+
+  /**
+   * Returns the version string of the underlying libopus decoder.
+   */
+  public static native String getLibopusVersion();
 
   private native long opusInit(int sampleRate, int channelCount, int numStreams, int numCoupled,
       int gain, byte[] streamMap);

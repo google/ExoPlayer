@@ -101,32 +101,34 @@ import java.util.Collections;
       // Scan the appended data, processing NAL units as they are encountered
       while (offset < limit) {
         int nalUnitOffset = NalUnitUtil.findNalUnit(dataArray, offset, limit, prefixFlags);
-        if (nalUnitOffset < limit) {
-          // We've seen the start of a NAL unit.
 
-          // This is the length to the start of the unit. It may be negative if the NAL unit
-          // actually started in previously consumed data.
-          int lengthToNalUnit = nalUnitOffset - offset;
-          if (lengthToNalUnit > 0) {
-            nalUnitData(dataArray, offset, nalUnitOffset);
-          }
-          int bytesWrittenPastPosition = limit - nalUnitOffset;
-          long absolutePosition = totalBytesWritten - bytesWrittenPastPosition;
-          // Indicate the end of the previous NAL unit. If the length to the start of the next unit
-          // is negative then we wrote too many bytes to the NAL buffers. Discard the excess bytes
-          // when notifying that the unit has ended.
-          nalUnitEnd(absolutePosition, bytesWrittenPastPosition,
-              lengthToNalUnit < 0 ? -lengthToNalUnit : 0, pesTimeUs);
-
-          // Indicate the start of the next NAL unit.
-          int nalUnitType = NalUnitUtil.getH265NalUnitType(dataArray, nalUnitOffset);
-          startNalUnit(absolutePosition, bytesWrittenPastPosition, nalUnitType, pesTimeUs);
-          // Continue scanning the data.
-          offset = nalUnitOffset + 3;
-        } else {
+        if (nalUnitOffset == limit) {
+          // We've scanned to the end of the data without finding the start of another NAL unit.
           nalUnitData(dataArray, offset, limit);
-          offset = limit;
+          return;
         }
+
+        // We've seen the start of a NAL unit of the following type.
+        int nalUnitType = NalUnitUtil.getH265NalUnitType(dataArray, nalUnitOffset);
+
+        // This is the number of bytes from the current offset to the start of the next NAL unit.
+        // It may be negative if the NAL unit started in the previously consumed data.
+        int lengthToNalUnit = nalUnitOffset - offset;
+        if (lengthToNalUnit > 0) {
+          nalUnitData(dataArray, offset, nalUnitOffset);
+        }
+
+        int bytesWrittenPastPosition = limit - nalUnitOffset;
+        long absolutePosition = totalBytesWritten - bytesWrittenPastPosition;
+        // Indicate the end of the previous NAL unit. If the length to the start of the next unit
+        // is negative then we wrote too many bytes to the NAL buffers. Discard the excess bytes
+        // when notifying that the unit has ended.
+        nalUnitEnd(absolutePosition, bytesWrittenPastPosition,
+            lengthToNalUnit < 0 ? -lengthToNalUnit : 0, pesTimeUs);
+        // Indicate the start of the next NAL unit.
+        startNalUnit(absolutePosition, bytesWrittenPastPosition, nalUnitType, pesTimeUs);
+        // Continue scanning the data.
+        offset = nalUnitOffset + 3;
       }
     }
   }
@@ -167,7 +169,8 @@ import java.util.Collections;
       sps.endNalUnit(discardPadding);
       pps.endNalUnit(discardPadding);
       if (vps.isCompleted() && sps.isCompleted() && pps.isCompleted()) {
-        parseMediaFormat(vps, sps, pps);
+        output.format(parseMediaFormat(vps, sps, pps));
+        hasOutputFormat = true;
       }
     }
     if (prefixSei.endNalUnit(discardPadding)) {
@@ -188,7 +191,7 @@ import java.util.Collections;
     }
   }
 
-  private void parseMediaFormat(NalUnitTargetBuffer vps, NalUnitTargetBuffer sps,
+  private static MediaFormat parseMediaFormat(NalUnitTargetBuffer vps, NalUnitTargetBuffer sps,
       NalUnitTargetBuffer pps) {
     // Build codec-specific data.
     byte[] csd = new byte[vps.nalLength + sps.nalLength + pps.nalLength];
@@ -294,15 +297,13 @@ import java.util.Collections;
       }
     }
 
-    output.format(MediaFormat.createVideoFormat(MediaFormat.NO_VALUE, MimeTypes.VIDEO_H265,
-        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, picWidthInLumaSamples,
-        picHeightInLumaSamples, Collections.singletonList(csd), MediaFormat.NO_VALUE,
-        pixelWidthHeightRatio));
-    hasOutputFormat = true;
+    return MediaFormat.createVideoFormat(null, MimeTypes.VIDEO_H265, MediaFormat.NO_VALUE,
+        MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, picWidthInLumaSamples, picHeightInLumaSamples,
+        Collections.singletonList(csd), MediaFormat.NO_VALUE, pixelWidthHeightRatio);
   }
 
   /** Skips scaling_list_data(). See H.265/HEVC (2014) 7.3.4. */
-  private void skipScalingList(ParsableBitArray bitArray) {
+  private static void skipScalingList(ParsableBitArray bitArray) {
     for (int sizeId = 0; sizeId < 4; sizeId++) {
       for (int matrixId = 0; matrixId < 6; matrixId += sizeId == 3 ? 3 : 1) {
         if (!bitArray.readBit()) { // scaling_list_pred_mode_flag[sizeId][matrixId]

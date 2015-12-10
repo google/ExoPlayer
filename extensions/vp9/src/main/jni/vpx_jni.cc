@@ -48,6 +48,7 @@
 static jmethodID initForRgbFrame;
 static jmethodID initForYuvFrame;
 static jfieldID dataField;
+static jfieldID outputModeField;
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved) {
   JNIEnv* env;
@@ -75,6 +76,7 @@ FUNC(jlong, vpxInit) {
                                      "(II)V");
   dataField = env->GetFieldID(outputBufferClass, "data",
                               "Ljava/nio/ByteBuffer;");
+  outputModeField = env->GetFieldID(outputBufferClass, "mode", "I");
 
   return reinterpret_cast<intptr_t>(context);
 }
@@ -99,7 +101,7 @@ FUNC(jlong, vpxClose, jlong jContext) {
   return 0;
 }
 
-FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer, jboolean isRGB) {
+FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
   vpx_codec_ctx_t* const context = reinterpret_cast<vpx_codec_ctx_t*>(jContext);
   vpx_codec_iter_t iter = NULL;
   const vpx_image_t* const img = vpx_codec_get_frame(context, &iter);
@@ -108,7 +110,11 @@ FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer, jboolean isRGB) {
     return 1;
   }
 
-  if (isRGB == JNI_TRUE) {
+  const int kOutputModeYuv = 0;
+  const int kOutputModeRgb = 1;
+
+  int outputMode = env->GetIntField(jOutputBuffer, outputModeField);
+  if (outputMode == kOutputModeRgb) {
     // resize buffer if required.
     env->CallVoidMethod(jOutputBuffer, initForRgbFrame, img->d_w, img->d_h);
 
@@ -121,7 +127,7 @@ FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer, jboolean isRGB) {
                          img->planes[VPX_PLANE_U], img->stride[VPX_PLANE_U],
                          img->planes[VPX_PLANE_V], img->stride[VPX_PLANE_V],
                          dst, img->d_w * 2, img->d_w, img->d_h);
-  } else {
+  } else if (outputMode == kOutputModeYuv) {
     // resize buffer if required.
     env->CallVoidMethod(jOutputBuffer, initForYuvFrame, img->d_w, img->d_h,
                         img->stride[VPX_PLANE_Y], img->stride[VPX_PLANE_U]);
@@ -141,6 +147,10 @@ FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer, jboolean isRGB) {
     memcpy(data + y_length + uv_length, img->planes[VPX_PLANE_V], uv_length);
   }
   return 0;
+}
+
+FUNC(jstring, getLibvpxVersion) {
+  return env->NewStringUTF(vpx_codec_version_str());
 }
 
 FUNC(jstring, vpxGetErrorMessage, jlong jContext) {

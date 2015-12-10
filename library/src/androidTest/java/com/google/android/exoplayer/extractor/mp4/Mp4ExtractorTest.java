@@ -70,6 +70,9 @@ public final class Mp4ExtractorTest extends TestCase {
   private static final byte[] AUDIO_MDHD_PAYLOAD =
       getByteArray("00000000cf6c4889cf6c488a0000ac4400a3e40055c40000");
 
+  /** String of hexadecimal bytes for an ftyp payload with major_brand mp41 and minor_version 0. **/
+  private static final byte[] FTYP_PAYLOAD = getByteArray("6d70343100000000");
+
   /** String of hexadecimal bytes containing an mvhd payload from an AVC/AAC video. */
   private static final byte[] MVHD_PAYLOAD = getByteArray(
       "00000000cf6c4888cf6c48880000025800023ad40001000001000000000000000000000000010000000000"
@@ -88,7 +91,7 @@ public final class Mp4ExtractorTest extends TestCase {
   /** Indices of key-frames. */
   private static final boolean[] SAMPLE_IS_SYNC = {true, false, false, false, true, true};
   /** Indices of video frame chunk offsets. */
-  private static final int[] CHUNK_OFFSETS = {1200, 2120, 3120, 4120};
+  private static final int[] CHUNK_OFFSETS = {1208, 2128, 3128, 4128};
   /** Numbers of video frames in each chunk. */
   private static final int[] SAMPLES_IN_CHUNK = {2, 2, 1, 1};
   /** The mdat box must be large enough to avoid reading chunk sample data out of bounds. */
@@ -368,7 +371,7 @@ public final class Mp4ExtractorTest extends TestCase {
   /** Gets a valid MP4 file with audio/video tracks and synchronization data. */
   private static byte[] getTestMp4File(boolean mp4vFormat) {
     return Mp4Atom.serialize(
-        atom(Atom.TYPE_ftyp, EMPTY),
+        atom(Atom.TYPE_ftyp, FTYP_PAYLOAD),
         atom(Atom.TYPE_moov,
             atom(Atom.TYPE_mvhd, MVHD_PAYLOAD),
             atom(Atom.TYPE_trak,
@@ -400,13 +403,13 @@ public final class Mp4ExtractorTest extends TestCase {
                             atom(Atom.TYPE_stsc, getStsc()),
                             atom(Atom.TYPE_stsz, getStsz()),
                             atom(Atom.TYPE_stco, getStco())))))),
-        atom(Atom.TYPE_mdat, getMdat(mp4vFormat ? 1168 : 1158, !mp4vFormat)));
+        atom(Atom.TYPE_mdat, getMdat(mp4vFormat ? 1176 : 1166, !mp4vFormat)));
   }
 
   /** Gets a valid MP4 file with audio/video tracks and without a synchronization table. */
   private static byte[] getTestMp4FileWithoutSynchronizationData(boolean mp4vFormat) {
     return Mp4Atom.serialize(
-        atom(Atom.TYPE_ftyp, EMPTY),
+        atom(Atom.TYPE_ftyp, FTYP_PAYLOAD),
         atom(Atom.TYPE_moov,
             atom(Atom.TYPE_mvhd, MVHD_PAYLOAD),
             atom(Atom.TYPE_trak,
@@ -436,7 +439,7 @@ public final class Mp4ExtractorTest extends TestCase {
                             atom(Atom.TYPE_stsc, getStsc()),
                             atom(Atom.TYPE_stsz, getStsz()),
                             atom(Atom.TYPE_stco, getStco())))))),
-        atom(Atom.TYPE_mdat, getMdat(mp4vFormat ? 1112 : 1102, !mp4vFormat)));
+        atom(Atom.TYPE_mdat, getMdat(mp4vFormat ? 1120 : 1110, !mp4vFormat)));
   }
 
   private static Mp4Atom atom(int type, Mp4Atom... containedMp4Atoms) {
