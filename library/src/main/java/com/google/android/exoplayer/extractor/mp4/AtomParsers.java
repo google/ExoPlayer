@@ -462,6 +462,9 @@ import java.util.List;
       } else if (childAtomType == Atom.TYPE_tx3g) {
         out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId),
             MimeTypes.APPLICATION_TX3G, MediaFormat.NO_VALUE, durationUs, language);
+      } else if (childAtomType == Atom.TYPE_wvtt) {
+        out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId),
+            MimeTypes.APPLICATION_MP4VTT, MediaFormat.NO_VALUE, durationUs, language);
       } else if (childAtomType == Atom.TYPE_stpp) {
         out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId),
             MimeTypes.APPLICATION_TTML, MediaFormat.NO_VALUE, durationUs, language,
