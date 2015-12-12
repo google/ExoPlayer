@@ -35,16 +35,6 @@ import java.util.Map;
  */
 /* package */ final class TtmlRenderUtil {
 
-  /* spans which are always the same can be reused to avoid object creation */
-  private static final StrikethroughSpan STRIKETHROUGH_SPAN = new StrikethroughSpan();
-  private static final UnderlineSpan UNDERLINE_SPAN = new UnderlineSpan();
-  private static final StyleSpan[] STYLE_SPANS = new StyleSpan[] {
-    new StyleSpan(TtmlStyle.STYLE_NORMAL),
-    new StyleSpan(TtmlStyle.STYLE_BOLD),
-    new StyleSpan(TtmlStyle.STYLE_ITALIC),
-    new StyleSpan(TtmlStyle.STYLE_BOLD_ITALIC),
-  };
-
   public static TtmlStyle resolveStyle(TtmlStyle style, String[] styleIds,
       Map<String, TtmlStyle> globalStyles) {
     if (style == null && styleIds == null) {
@@ -78,14 +68,14 @@ import java.util.Map;
       int start, int end, TtmlStyle style) {
 
     if (style.getStyle() != TtmlStyle.UNSPECIFIED) {
-      builder.setSpan(STYLE_SPANS[style.getStyle()], start, end,
+      builder.setSpan(new StyleSpan(style.getStyle()), start, end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.isLinethrough()) {
-      builder.setSpan(STRIKETHROUGH_SPAN, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      builder.setSpan(new StrikethroughSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.isUnderline()) {
-      builder.setSpan(UNDERLINE_SPAN, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      builder.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.hasColorSpecified()) {
       builder.setSpan(new ForegroundColorSpan(style.getColor()), start, end,
