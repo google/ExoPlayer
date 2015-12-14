@@ -157,11 +157,39 @@ public class DefaultExtractorInputTest extends TestCase {
     assertEquals(0, input.getPosition());
   }
 
+  public void testReadFullyHalfPeeked() throws IOException, InterruptedException {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+    byte[] target = new byte[TEST_DATA.length];
+
+    input.advancePeekPosition(4);
+
+    input.readFully(target, 0, TEST_DATA.length);
+
+    // Check the read data is correct.
+    assertTrue(Arrays.equals(TEST_DATA, target));
+    assertEquals(TEST_DATA.length, input.getPosition());
+  }
+
+  public void testSkip() throws IOException, InterruptedException {
+    FakeDataSource testDataSource = buildDataSource();
+    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNBOUNDED);
+    // We expect to perform three skips of three bytes, as setup in buildTestDataSource.
+    for (int i = 0; i < 3; i++) {
+      assertEquals(3, input.skip(TEST_DATA.length));
+    }
+    // Check we're now indicated that the end of input is reached.
+    int expectedEndOfInput = input.skip(TEST_DATA.length);
+    assertEquals(-1, expectedEndOfInput);
+  }
+
   public void testSkipFullyOnce() throws IOException, InterruptedException {
     // Skip TEST_DATA.
     DefaultExtractorInput input = createDefaultExtractorInput();
     input.skipFully(TEST_DATA.length);
     assertEquals(TEST_DATA.length, input.getPosition());
+    // Check that we see end of input if we skip again with allowEndOfInput set.
+    boolean result = input.skipFully(1, true);
+    assertFalse(result);
     // Check that we fail with EOFException we skip again.
     try {
       input.skipFully(1);
@@ -180,11 +208,36 @@ public class DefaultExtractorInputTest extends TestCase {
     assertEquals(5 + 4, input.getPosition());
   }
 
+  public void testSkipFullyTwicePeeked() throws IOException, InterruptedException {
+    // Skip TEST_DATA.
+    DefaultExtractorInput input = createDefaultExtractorInput();
+
+    input.advancePeekPosition(TEST_DATA.length);
+
+    int halfLength = TEST_DATA.length / 2;
+    input.skipFully(halfLength);
+    assertEquals(halfLength, input.getPosition());
+
+    input.skipFully(TEST_DATA.length - halfLength);
+    assertEquals(TEST_DATA.length, input.getPosition());
+  }
+
   public void testSkipFullyTooMuch() throws IOException, InterruptedException {
     // Skip more than TEST_DATA. Should fail with an EOFException. Position should not update.
     DefaultExtractorInput input = createDefaultExtractorInput();
     try {
       input.skipFully(TEST_DATA.length + 1);
+      fail();
+    } catch (EOFException e) {
+      // Expected.
+    }
+    assertEquals(0, input.getPosition());
+
+    // Skip more than TEST_DATA with allowEndOfInput set. Should fail with an EOFException because
+    // the end of input isn't encountered immediately. Position should not update.
+    input = createDefaultExtractorInput();
+    try {
+      input.skipFully(TEST_DATA.length + 1, true);
       fail();
     } catch (EOFException e) {
       // Expected.
@@ -219,6 +272,29 @@ public class DefaultExtractorInputTest extends TestCase {
     // Check that we fail with EOFException we skip again.
     try {
       input.skipFully(1);
+      fail();
+    } catch (EOFException e) {
+      // Expected.
+    }
+  }
+
+  public void testPeekFully() throws IOException, InterruptedException {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+    byte[] target = new byte[TEST_DATA.length];
+    input.peekFully(target, 0, TEST_DATA.length);
+
+    // Check that we read the whole of TEST_DATA.
+    assertTrue(Arrays.equals(TEST_DATA, target));
+    assertEquals(0, input.getPosition());
+
+    // Check that we can read again from the buffer
+    byte[] target2 = new byte[TEST_DATA.length];
+    input.readFully(target2, 0, TEST_DATA.length);
+    assertTrue(Arrays.equals(TEST_DATA, target2));
+
+    // Check that we fail with EOFException if we peek again
+    try {
+      input.peekFully(target, 0, 1);
       fail();
     } catch (EOFException e) {
       // Expected.

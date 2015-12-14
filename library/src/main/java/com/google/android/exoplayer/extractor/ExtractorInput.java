@@ -80,6 +80,33 @@ public interface ExtractorInput {
   void readFully(byte[] target, int offset, int length) throws IOException, InterruptedException;
 
   /**
+   * Like {@link #read(byte[], int, int)}, except the data is skipped instead of read.
+   *
+   * @param length The maximum number of bytes to skip from the input.
+   * @return The number of bytes skipped, or {@link C#RESULT_END_OF_INPUT} if the input has ended.
+   * @throws IOException If an error occurs reading from the input.
+   * @throws InterruptedException If the thread has been interrupted.
+   */
+  int skip(int length) throws IOException, InterruptedException;
+
+  /**
+   * Like {@link #readFully(byte[], int, int, boolean)}, except the data is skipped instead of read.
+   *
+   * @param length The number of bytes to skip from the input.
+   * @param allowEndOfInput True if encountering the end of the input having skipped no data is
+   *     allowed, and should result in {@code false} being returned. False if it should be
+   *     considered an error, causing an {@link EOFException} to be thrown.
+   * @return True if the skip was successful. False if the end of the input was encountered having
+   *     skipped no data.
+   * @throws EOFException If the end of input was encountered having partially satisfied the skip
+   *     (i.e. having skipped at least one byte, but fewer than {@code length}), or if no bytes were
+   *     skipped and {@code allowEndOfInput} is false.
+   * @throws IOException If an error occurs reading from the input.
+   * @throws InterruptedException If the thread has been interrupted.
+   */
+  boolean skipFully(int length, boolean allowEndOfInput) throws IOException, InterruptedException;
+
+  /**
    * Like {@link #readFully(byte[], int, int)}, except the data is skipped instead of read.
    * <p>
    * Encountering the end of input is always considered an error, and will result in an
