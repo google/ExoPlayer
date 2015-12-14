@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.hls;
 
+import android.util.SparseArray;
+
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.chunk.Format;
@@ -28,8 +30,6 @@ import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
-
-import android.util.SparseArray;
 
 import java.io.IOException;
 
@@ -156,7 +156,9 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
     for (int i = 0; i < trackCount; i++) {
       DefaultTrackOutput currentSampleQueue = sampleQueues.valueAt(i);
       DefaultTrackOutput nextSampleQueue = nextExtractor.sampleQueues.valueAt(i);
-      spliceConfigured &= currentSampleQueue.configureSpliceTo(nextSampleQueue);
+      if (nextSampleQueue != null) {
+        spliceConfigured &= currentSampleQueue.configureSpliceTo(nextSampleQueue);
+      }
     }
     this.spliceConfigured = spliceConfigured;
     return;
@@ -225,7 +227,7 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
    */
   public boolean hasSamples(int track) {
     Assertions.checkState(isPrepared());
-    return !sampleQueues.valueAt(track).isEmpty();
+    return sampleQueues.valueAt(track) != null && !sampleQueues.valueAt(track).isEmpty();
   }
 
   /**
