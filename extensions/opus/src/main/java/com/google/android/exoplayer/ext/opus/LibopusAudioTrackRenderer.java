@@ -36,8 +36,6 @@ import java.util.List;
 
 /**
  * Decodes and renders audio using the native Opus decoder.
- *
- * @author vigneshv@google.com (Vignesh Venkatasubramanian)
  */
 public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
     implements MediaClock {
@@ -265,7 +263,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
     }
 
     if (inputBuffer == null) {
-      inputBuffer = decoder.getInputBuffer();
+      inputBuffer = decoder.dequeueInputBuffer();
       if (inputBuffer == null) {
         return false;
       }
@@ -324,7 +322,8 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
 
   @Override
   protected boolean isReady() {
-    return audioTrack.hasPendingData() || (format != null && sourceIsReady);
+    return audioTrack.hasPendingData()
+        || (format != null && (sourceIsReady || outputBuffer != null));
   }
 
   @Override
@@ -384,7 +383,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
     int result = readSource(positionUs, formatHolder, null, false);
     if (result == SampleSource.FORMAT_READ) {
       format = formatHolder.format;
-      audioTrack.reconfigure(format.getFrameworkMediaFormatV16(), false);
+      audioTrack.configure(format.getFrameworkMediaFormatV16(), false);
       return true;
     }
     return false;

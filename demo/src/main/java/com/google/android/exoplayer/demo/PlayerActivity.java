@@ -16,7 +16,10 @@
 package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.AspectRatioFrameLayout;
+import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
+import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
+import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
@@ -38,10 +41,12 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 import com.google.android.exoplayer.util.VerboseLogUtil;
 
+import android.Manifest.permission;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -172,7 +177,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     playerStateTextView = (TextView) findViewById(R.id.player_state_view);
     subtitleLayout = (SubtitleLayout) findViewById(R.id.subtitles);
 
-    mediaController = new MediaController(this);
+    mediaController = new KeyCompatibleMediaController(this);
     mediaController.setAnchorView(root);
     retryButton = (Button) findViewById(R.id.retry_button);
     retryButton.setOnClickListener(this);
@@ -207,7 +212,9 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     provider = intent.getStringExtra(PROVIDER_EXTRA);
     configureSubtitleView();
     if (player == null) {
-      preparePlayer(true);
+      if (!maybeRequestPermission()) {
+        preparePlayer(true);
+      }
     } else {
       player.setBackgrounded(false);
     }
@@ -252,6 +259,46 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     releasePlayer();
     preparePlayer(playWhenReady);
     player.setBackgrounded(backgrounded);
+  }
+
+  // Permission request listener method
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode, String[] permissions,
+      int[] grantResults) {
+    if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+      preparePlayer(true);
+    } else {
+      Toast.makeText(getApplicationContext(), R.string.storage_permission_denied,
+          Toast.LENGTH_LONG).show();
+      finish();
+    }
+  }
+
+  // Permission management methods
+
+  /**
+   * Checks whether it is necessary to ask for permission to read storage. If necessary, it also
+   * requests permission.
+   *
+   * @return true if a permission request is made. False if it is not necessary.
+   */
+  @TargetApi(23)
+  private boolean maybeRequestPermission() {
+    if (requiresPermission(contentUri)) {
+      requestPermissions(new String[] {permission.READ_EXTERNAL_STORAGE}, 0);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @TargetApi(23)
+  private boolean requiresPermission(Uri uri) {
+    return Util.SDK_INT >= 23
+        && Util.isLocalFileUri(uri)
+        && checkSelfPermission(permission.READ_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED;
   }
 
   // Internal methods
@@ -347,13 +394,35 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   @Override
   public void onError(Exception e) {
+    String errorString = null;
     if (e instanceof UnsupportedDrmException) {
       // Special case DRM failures.
       UnsupportedDrmException unsupportedDrmException = (UnsupportedDrmException) e;
-      int stringId = Util.SDK_INT < 18 ? R.string.drm_error_not_supported
+      errorString = getString(Util.SDK_INT < 18 ? R.string.error_drm_not_supported
           : unsupportedDrmException.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
-              ? R.string.drm_error_unsupported_scheme : R.string.drm_error_unknown;
-      Toast.makeText(getApplicationContext(), stringId, Toast.LENGTH_LONG).show();
+          ? R.string.error_drm_unsupported_scheme : R.string.error_drm_unknown);
+    } else if (e instanceof ExoPlaybackException
+        && e.getCause() instanceof DecoderInitializationException) {
+      // Special case for decoder initialization failures.
+      DecoderInitializationException decoderInitializationException =
+          (DecoderInitializationException) e.getCause();
+      if (decoderInitializationException.decoderName == null) {
+        if (decoderInitializationException.getCause() instanceof DecoderQueryException) {
+          errorString = getString(R.string.error_querying_decoders);
+        } else if (decoderInitializationException.secureDecoderRequired) {
+          errorString = getString(R.string.error_no_secure_decoder,
+              decoderInitializationException.mimeType);
+        } else {
+          errorString = getString(R.string.error_no_decoder,
+              decoderInitializationException.mimeType);
+        }
+      } else {
+        errorString = getString(R.string.error_instantiating_decoder,
+            decoderInitializationException.decoderName);
+      }
+    }
+    if (errorString != null) {
+      Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_LONG).show();
     }
     playerNeedsPrepare = true;
     updateButtonVisibilities();
@@ -454,7 +523,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       }
     });
     Menu menu = popup.getMenu();
-    // ID_OFFSET ensures we avoid clashing with Menu.NONE (which equals 0)
+    // ID_OFFSET ensures we avoid clashing with Menu.NONE (which equals 0).
     menu.add(MENU_GROUP_TRACKS, DemoPlayer.TRACK_DISABLED + ID_OFFSET, Menu.NONE, R.string.off);
     for (int i = 0; i < trackCount; i++) {
       menu.add(MENU_GROUP_TRACKS, i + ID_OFFSET, Menu.NONE,
@@ -634,6 +703,40 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       return TYPE_HLS;
     } else {
       return TYPE_OTHER;
+    }
+  }
+
+  private static final class KeyCompatibleMediaController extends MediaController {
+
+    private MediaController.MediaPlayerControl playerControl;
+
+    public KeyCompatibleMediaController(Context context) {
+      super(context);
+    }
+
+    @Override
+    public void setMediaPlayer(MediaController.MediaPlayerControl playerControl) {
+      super.setMediaPlayer(playerControl);
+      this.playerControl = playerControl;
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+      int keyCode = event.getKeyCode();
+      if (playerControl.canSeekForward() && keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+          playerControl.seekTo(playerControl.getCurrentPosition() + 15000); // milliseconds
+          show();
+        }
+        return true;
+      } else if (playerControl.canSeekBackward() && keyCode == KeyEvent.KEYCODE_MEDIA_REWIND) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+          playerControl.seekTo(playerControl.getCurrentPosition() - 5000); // milliseconds
+          show();
+        }
+        return true;
+      }
+      return super.dispatchKeyEvent(event);
     }
   }
 

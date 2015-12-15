@@ -45,12 +45,14 @@ public final class MimeTypes {
   public static final String AUDIO_MPEG_L2 = BASE_TYPE_AUDIO + "/mpeg-L2";
   public static final String AUDIO_RAW = BASE_TYPE_AUDIO + "/raw";
   public static final String AUDIO_AC3 = BASE_TYPE_AUDIO + "/ac3";
-  public static final String AUDIO_EC3 = BASE_TYPE_AUDIO + "/eac3";
+  public static final String AUDIO_E_AC3 = BASE_TYPE_AUDIO + "/eac3";
   public static final String AUDIO_TRUEHD = BASE_TYPE_AUDIO + "/true-hd";
   public static final String AUDIO_DTS = BASE_TYPE_AUDIO + "/vnd.dts";
   public static final String AUDIO_DTS_HD = BASE_TYPE_AUDIO + "/vnd.dts.hd";
   public static final String AUDIO_VORBIS = BASE_TYPE_AUDIO + "/vorbis";
   public static final String AUDIO_OPUS = BASE_TYPE_AUDIO + "/opus";
+  public static final String AUDIO_AMR_NB = BASE_TYPE_AUDIO + "/3gpp";
+  public static final String AUDIO_AMR_WB = BASE_TYPE_AUDIO + "/amr-wb";
 
   public static final String TEXT_UNKNOWN = BASE_TYPE_TEXT + "/x-unknown";
   public static final String TEXT_VTT = BASE_TYPE_TEXT + "/vtt";
@@ -63,6 +65,7 @@ public final class MimeTypes {
   public static final String APPLICATION_TTML = BASE_TYPE_APPLICATION + "/ttml+xml";
   public static final String APPLICATION_M3U8 = BASE_TYPE_APPLICATION + "/x-mpegURL";
   public static final String APPLICATION_TX3G = BASE_TYPE_APPLICATION + "/x-quicktime-tx3g";
+  public static final String APPLICATION_MP4VTT = BASE_TYPE_APPLICATION + "/x-mp4vtt";
 
   private MimeTypes() {}
 
@@ -164,7 +167,7 @@ public final class MimeTypes {
       } else if (codec.startsWith("ac-3") || codec.startsWith("dac3")) {
         return MimeTypes.AUDIO_AC3;
       } else if (codec.startsWith("ec-3") || codec.startsWith("dec3")) {
-        return MimeTypes.AUDIO_EC3;
+        return MimeTypes.AUDIO_E_AC3;
       } else if (codec.startsWith("dtsc") || codec.startsWith("dtse")) {
         return MimeTypes.AUDIO_DTS;
       } else if (codec.startsWith("dtsh") || codec.startsWith("dtsl")) {

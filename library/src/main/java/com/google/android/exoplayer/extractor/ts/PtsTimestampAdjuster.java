@@ -50,6 +50,13 @@ public final class PtsTimestampAdjuster {
   }
 
   /**
+   * Whether this adjuster has been initialized with a first MPEG-2 TS presentation timestamp.
+   */
+  public boolean isInitialized() {
+    return lastPts != Long.MIN_VALUE;
+  }
+
+  /**
    * Scales and adjusts an MPEG-2 TS presentation timestamp.
    *
    * @param pts The unscaled MPEG-2 TS presentation timestamp.
@@ -66,7 +73,7 @@ public final class PtsTimestampAdjuster {
           ? ptsWrapBelow : ptsWrapAbove;
     }
     // Calculate the corresponding timestamp.
-    long timeUs = (pts * C.MICROS_PER_SECOND) / 90000;
+    long timeUs = ptsToUs(pts);
     // If we haven't done the initial timestamp adjustment, do it now.
     if (lastPts == Long.MIN_VALUE) {
       timestampOffsetUs = firstSampleTimestampUs - timeUs;
@@ -74,6 +81,26 @@ public final class PtsTimestampAdjuster {
     // Record the adjusted PTS to adjust for wraparound next time.
     lastPts = pts;
     return timeUs + timestampOffsetUs;
+  }
+
+  /**
+   * Converts a value in MPEG-2 timestamp units to the corresponding value in microseconds.
+   *
+   * @param pts A value in MPEG-2 timestamp units.
+   * @return The corresponding value in microseconds.
+   */
+  public static long ptsToUs(long pts) {
+    return (pts * C.MICROS_PER_SECOND) / 90000;
+  }
+
+  /**
+   * Converts a value in microseconds to the corresponding values in MPEG-2 timestamp units.
+   *
+   * @param us A value in microseconds.
+   * @return The corresponding value in MPEG-2 timestamp units.
+   */
+  public static long usToPts(long us) {
+    return (us * 90000) / C.MICROS_PER_SECOND;
   }
 
 }

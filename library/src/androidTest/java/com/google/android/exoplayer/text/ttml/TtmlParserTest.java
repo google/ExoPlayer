@@ -470,10 +470,9 @@ public final class TtmlParserTest extends InstrumentationTestCase {
   }
 
   private TtmlSubtitle getSubtitle(String file) throws IOException {
-    TtmlParser ttmlParser = new TtmlParser(false);
+    TtmlParser ttmlParser = new TtmlParser();
     InputStream inputStream = getInstrumentation().getContext()
         .getResources().getAssets().open(file);
-
     return (TtmlSubtitle) ttmlParser.parse(inputStream);
   }
 }

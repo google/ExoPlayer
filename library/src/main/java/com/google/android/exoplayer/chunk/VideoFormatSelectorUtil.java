@@ -82,10 +82,10 @@ public final class VideoFormatSelectorUtil {
    *     viewport during playback.
    * @param viewportWidth The width in pixels of the viewport within which the video will be
    *     displayed. If the viewport size may change, this should be set to the maximum possible
-   *     width.
+   *     width. -1 if selection should not be constrained by a viewport.
    * @param viewportHeight The height in pixels of the viewport within which the video will be
    *     displayed. If the viewport size may change, this should be set to the maximum possible
-   *     height.
+   *     height. -1 if selection should not be constrained by a viewport.
    * @return An array holding the indices of the selected formats.
    * @throws DecoderQueryException
    */
@@ -107,7 +107,7 @@ public final class VideoFormatSelectorUtil {
         // Keep track of the number of pixels of the selected format whose resolution is the
         // smallest to exceed the maximum size at which it can be displayed within the viewport.
         // We'll discard formats of higher resolution in a second pass.
-        if (format.width > 0 && format.height > 0) {
+        if (format.width > 0 && format.height > 0 && viewportWidth > 0 && viewportHeight > 0) {
           Point maxVideoSizeInViewport = getMaxVideoSizeInViewport(orientationMayChange,
               viewportWidth, viewportHeight, format.width, format.height);
           int videoPixels = format.width * format.height;
@@ -123,11 +123,13 @@ public final class VideoFormatSelectorUtil {
     // Second pass to filter out formats that exceed maxVideoPixelsToRetain. These formats are have
     // unnecessarily high resolution given the size at which the video will be displayed within the
     // viewport.
-    for (int i = selectedIndexList.size() - 1; i >= 0; i--) {
-      Format format = formatWrappers.get(selectedIndexList.get(i)).getFormat();
-      if (format.width > 0 && format.height > 0
-          && format.width * format.height > maxVideoPixelsToRetain) {
-        selectedIndexList.remove(i);
+    if (maxVideoPixelsToRetain != Integer.MAX_VALUE) {
+      for (int i = selectedIndexList.size() - 1; i >= 0; i--) {
+        Format format = formatWrappers.get(selectedIndexList.get(i)).getFormat();
+        if (format.width > 0 && format.height > 0
+            && format.width * format.height > maxVideoPixelsToRetain) {
+          selectedIndexList.remove(i);
+        }
       }
     }
 
@@ -191,7 +193,7 @@ public final class VideoFormatSelectorUtil {
     // Before API 23 the platform Display object does not provide a way to identify Android TVs that
     // can show 4k resolution in a SurfaceView, so check for supported devices here.
     // See also https://developer.sony.com/develop/tvs/android-tv/design-guide/.
-    if (Util.MODEL != null && Util.MODEL.startsWith("BRAVIA")
+    if (Util.SDK_INT < 23 && Util.MODEL != null && Util.MODEL.startsWith("BRAVIA")
         && context.getPackageManager().hasSystemFeature("com.sony.dtv.hardware.panel.qfhd")) {
       return new Point(3840, 2160);
     }
@@ -202,7 +204,9 @@ public final class VideoFormatSelectorUtil {
 
   private static Point getDisplaySize(Display display) {
     Point displaySize = new Point();
-    if (Util.SDK_INT >= 17) {
+    if (Util.SDK_INT >= 23) {
+      getDisplaySizeV23(display, displaySize);
+    } else if (Util.SDK_INT >= 17) {
       getDisplaySizeV17(display, displaySize);
     } else if (Util.SDK_INT >= 16) {
       getDisplaySizeV16(display, displaySize);
@@ -210,6 +214,13 @@ public final class VideoFormatSelectorUtil {
       getDisplaySizeV9(display, displaySize);
     }
     return displaySize;
+  }
+
+  @TargetApi(23)
+  private static void getDisplaySizeV23(Display display, Point outSize) {
+    Display.Mode mode = display.getMode();
+    outSize.x = mode.getPhysicalWidth();
+    outSize.y = mode.getPhysicalHeight();
   }
 
   @TargetApi(17)

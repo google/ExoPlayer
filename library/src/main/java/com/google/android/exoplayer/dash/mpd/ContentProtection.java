@@ -15,10 +15,10 @@
  */
 package com.google.android.exoplayer.dash.mpd;
 
+import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
-import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -37,16 +37,16 @@ public class ContentProtection {
   public final UUID uuid;
 
   /**
-   * Protection scheme specific data. May be null.
+   * Protection scheme specific initialization data. May be null.
    */
-  public final byte[] data;
+  public final SchemeInitData data;
 
   /**
    * @param schemeUriId Identifies the content protection scheme.
    * @param uuid The UUID of the protection scheme, if known. May be null.
    * @param data Protection scheme specific initialization data. May be null.
    */
-  public ContentProtection(String schemeUriId, UUID uuid, byte[] data) {
+  public ContentProtection(String schemeUriId, UUID uuid, SchemeInitData data) {
     this.schemeUriId = Assertions.checkNotNull(schemeUriId);
     this.uuid = uuid;
     this.data = data;
@@ -64,20 +64,14 @@ public class ContentProtection {
     ContentProtection other = (ContentProtection) obj;
     return schemeUriId.equals(other.schemeUriId)
         && Util.areEqual(uuid, other.uuid)
-        && Arrays.equals(data, other.data);
+        && Util.areEqual(data, other.data);
   }
 
   @Override
   public int hashCode() {
-    int hashCode = 1;
-
-    hashCode = hashCode * 37 + schemeUriId.hashCode();
-    if (uuid != null) {
-      hashCode = hashCode * 37 + uuid.hashCode();
-    }
-    if (data != null) {
-      hashCode = hashCode * 37 + Arrays.hashCode(data);
-    }
+    int hashCode = schemeUriId.hashCode();
+    hashCode = (37 * hashCode) + (uuid != null ? uuid.hashCode() : 0);
+    hashCode = (37 * hashCode) + (data != null ? data.hashCode() : 0);
     return hashCode;
   }
 

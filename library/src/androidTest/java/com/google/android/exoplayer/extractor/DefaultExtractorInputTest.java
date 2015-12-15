@@ -43,8 +43,7 @@ public class DefaultExtractorInputTest extends TestCase {
   }
 
   public void testRead() throws IOException, InterruptedException {
-    FakeDataSource testDataSource = buildDataSource();
-    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNBOUNDED);
+    DefaultExtractorInput input = createDefaultExtractorInput();
     byte[] target = new byte[TEST_DATA.length];
     // We expect to perform three reads of three bytes, as setup in buildTestDataSource.
     int bytesRead = 0;
@@ -61,9 +60,34 @@ public class DefaultExtractorInputTest extends TestCase {
     assertEquals(-1, expectedEndOfInput);
   }
 
+  public void testReadPeeked() throws IOException, InterruptedException {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+    byte[] target = new byte[TEST_DATA.length];
+
+    input.advancePeekPosition(TEST_DATA.length);
+
+    int bytesRead = input.read(target, 0, TEST_DATA.length);
+    assertEquals(TEST_DATA.length, bytesRead);
+
+    // Check the read data is correct.
+    assertTrue(Arrays.equals(TEST_DATA, target));
+  }
+
+  public void testReadMoreDataPeeked() throws IOException, InterruptedException {
+    DefaultExtractorInput input = createDefaultExtractorInput();
+    byte[] target = new byte[TEST_DATA.length];
+
+    input.advancePeekPosition(TEST_DATA.length);
+
+    int bytesRead = input.read(target, 0, TEST_DATA.length + 1);
+    assertEquals(TEST_DATA.length, bytesRead);
+
+    // Check the read data is correct.
+    assertTrue(Arrays.equals(TEST_DATA, target));
+  }
+
   public void testReadFullyOnce() throws IOException, InterruptedException {
-    FakeDataSource testDataSource = buildDataSource();
-    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNBOUNDED);
+    DefaultExtractorInput input = createDefaultExtractorInput();
     byte[] target = new byte[TEST_DATA.length];
     input.readFully(target, 0, TEST_DATA.length);
     // Check that we read the whole of TEST_DATA.
@@ -83,8 +107,7 @@ public class DefaultExtractorInputTest extends TestCase {
 
   public void testReadFullyTwice() throws IOException, InterruptedException {
     // Read TEST_DATA in two parts.
-    FakeDataSource testDataSource = buildDataSource();
-    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNBOUNDED);
+    DefaultExtractorInput input = createDefaultExtractorInput();
     byte[] target = new byte[5];
     input.readFully(target, 0, 5);
     assertTrue(Arrays.equals(Arrays.copyOf(TEST_DATA, 5), target));
@@ -97,8 +120,7 @@ public class DefaultExtractorInputTest extends TestCase {
 
   public void testReadFullyTooMuch() throws IOException, InterruptedException {
     // Read more than TEST_DATA. Should fail with an EOFException. Position should not update.
-    FakeDataSource testDataSource = buildDataSource();
-    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNBOUNDED);
+    DefaultExtractorInput input = createDefaultExtractorInput();
     try {
       byte[] target = new byte[TEST_DATA.length + 1];
       input.readFully(target, 0, TEST_DATA.length + 1);
@@ -110,8 +132,7 @@ public class DefaultExtractorInputTest extends TestCase {
 
     // Read more than TEST_DATA with allowEndOfInput set. Should fail with an EOFException because
     // the end of input isn't encountered immediately. Position should not update.
-    testDataSource = buildDataSource();
-    input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNBOUNDED);
+    input = createDefaultExtractorInput();
     try {
       byte[] target = new byte[TEST_DATA.length + 1];
       input.readFully(target, 0, TEST_DATA.length + 1, true);
@@ -138,8 +159,7 @@ public class DefaultExtractorInputTest extends TestCase {
 
   public void testSkipFullyOnce() throws IOException, InterruptedException {
     // Skip TEST_DATA.
-    FakeDataSource testDataSource = buildDataSource();
-    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNBOUNDED);
+    DefaultExtractorInput input = createDefaultExtractorInput();
     input.skipFully(TEST_DATA.length);
     assertEquals(TEST_DATA.length, input.getPosition());
     // Check that we fail with EOFException we skip again.
@@ -153,8 +173,7 @@ public class DefaultExtractorInputTest extends TestCase {
 
   public void testSkipFullyTwice() throws IOException, InterruptedException {
     // Skip TEST_DATA in two parts.
-    FakeDataSource testDataSource = buildDataSource();
-    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNBOUNDED);
+    DefaultExtractorInput input = createDefaultExtractorInput();
     input.skipFully(5);
     assertEquals(5, input.getPosition());
     input.skipFully(4);
@@ -163,8 +182,7 @@ public class DefaultExtractorInputTest extends TestCase {
 
   public void testSkipFullyTooMuch() throws IOException, InterruptedException {
     // Skip more than TEST_DATA. Should fail with an EOFException. Position should not update.
-    FakeDataSource testDataSource = buildDataSource();
-    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNBOUNDED);
+    DefaultExtractorInput input = createDefaultExtractorInput();
     try {
       input.skipFully(TEST_DATA.length + 1);
       fail();
@@ -227,4 +245,8 @@ public class DefaultExtractorInputTest extends TestCase {
     return testDataSource;
   }
 
+  private static DefaultExtractorInput createDefaultExtractorInput() throws IOException {
+    FakeDataSource testDataSource = buildDataSource();
+    return new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNBOUNDED);
+  }
 }
