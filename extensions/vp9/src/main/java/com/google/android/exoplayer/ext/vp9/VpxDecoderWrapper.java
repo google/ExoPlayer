@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.ext.vp9;
 
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.util.Assertions;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
@@ -36,13 +37,13 @@ import java.util.LinkedList;
 
   private final Object lock;
 
-  private final LinkedList<VpxInputBuffer> dequeuedInputBuffers;
   private final LinkedList<VpxInputBuffer> queuedInputBuffers;
   private final LinkedList<VpxOutputBuffer> queuedOutputBuffers;
   private final VpxInputBuffer[] availableInputBuffers;
   private final VpxOutputBuffer[] availableOutputBuffers;
   private int availableInputBufferCount;
   private int availableOutputBufferCount;
+  private VpxInputBuffer dequeuedInputBuffer;
 
   private boolean flushDecodedOutputBuffer;
   private boolean released;
@@ -57,7 +58,6 @@ import java.util.LinkedList;
   public VpxDecoderWrapper(int outputMode) {
     lock = new Object();
     this.outputMode = outputMode;
-    dequeuedInputBuffers = new LinkedList<>();
     queuedInputBuffers = new LinkedList<>();
     queuedOutputBuffers = new LinkedList<>();
     availableInputBuffers = new VpxInputBuffer[NUM_BUFFERS];
@@ -77,13 +77,14 @@ import java.util.LinkedList;
   public VpxInputBuffer dequeueInputBuffer() throws VpxDecoderException {
     synchronized (lock) {
       maybeThrowDecoderError();
+      Assertions.checkState(dequeuedInputBuffer == null);
       if (availableInputBufferCount == 0) {
         return null;
       }
       VpxInputBuffer inputBuffer = availableInputBuffers[--availableInputBufferCount];
       inputBuffer.flags = 0;
       inputBuffer.sampleHolder.clearData();
-      dequeuedInputBuffers.addLast(inputBuffer);
+      dequeuedInputBuffer = inputBuffer;
       return inputBuffer;
     }
   }
@@ -91,9 +92,10 @@ import java.util.LinkedList;
   public void queueInputBuffer(VpxInputBuffer inputBuffer) throws VpxDecoderException {
     synchronized (lock) {
       maybeThrowDecoderError();
-      dequeuedInputBuffers.remove(inputBuffer);
+      Assertions.checkArgument(inputBuffer == dequeuedInputBuffer);
       queuedInputBuffers.addLast(inputBuffer);
       maybeNotifyDecodeLoop();
+      dequeuedInputBuffer = null;
     }
   }
 
@@ -119,8 +121,9 @@ import java.util.LinkedList;
   public void flush() {
     synchronized (lock) {
       flushDecodedOutputBuffer = true;
-      while (!dequeuedInputBuffers.isEmpty()) {
-        availableInputBuffers[availableInputBufferCount++] = dequeuedInputBuffers.removeFirst();
+      if (dequeuedInputBuffer != null) {
+        availableInputBuffers[availableInputBufferCount++] = dequeuedInputBuffer;
+        dequeuedInputBuffer = null;
       }
       while (!queuedInputBuffers.isEmpty()) {
         availableInputBuffers[availableInputBufferCount++] = queuedInputBuffers.removeFirst();
