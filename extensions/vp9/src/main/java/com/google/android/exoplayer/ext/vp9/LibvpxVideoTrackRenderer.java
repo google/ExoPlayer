@@ -376,7 +376,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
 
   @Override
   protected boolean isReady() {
-    return format != null && (sourceIsReady || outputBuffer != null);
+    return format != null && (sourceIsReady || outputBuffer != null) && renderedFirstFrame;
   }
 
   @Override
