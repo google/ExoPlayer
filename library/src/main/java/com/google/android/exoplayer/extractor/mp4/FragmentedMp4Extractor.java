@@ -18,6 +18,7 @@ package com.google.android.exoplayer.extractor.mp4;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.drm.DrmInitData;
+import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
 import com.google.android.exoplayer.extractor.ChunkIndex;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
@@ -226,20 +227,18 @@ public final class FragmentedMp4Extractor implements Extractor {
       return true;
     }
 
-    if (shouldParseAtom(atomType)) {
-      if (shouldParseContainerAtom(atomType)) {
-        long endPosition = input.getPosition() + atomSize - Atom.HEADER_SIZE;
-        containerAtoms.add(new ContainerAtom(atomType, endPosition));
-        enterReadingAtomHeaderState();
-      } else {
-        // We don't support parsing of leaf atoms that define extended atom sizes, or that have
-        // lengths greater than Integer.MAX_VALUE.
-        checkState(atomHeaderBytesRead == Atom.HEADER_SIZE);
-        checkState(atomSize <= Integer.MAX_VALUE);
-        atomData = new ParsableByteArray((int) atomSize);
-        System.arraycopy(atomHeader.data, 0, atomData.data, 0, Atom.HEADER_SIZE);
-        parserState = STATE_READING_ATOM_PAYLOAD;
-      }
+    if (shouldParseContainerAtom(atomType)) {
+      long endPosition = input.getPosition() + atomSize - Atom.HEADER_SIZE;
+      containerAtoms.add(new ContainerAtom(atomType, endPosition));
+      enterReadingAtomHeaderState();
+    } else if (shouldParseLeafAtom(atomType)) {
+      // We don't support parsing of leaf atoms that define extended atom sizes, or that have
+      // lengths greater than Integer.MAX_VALUE.
+      checkState(atomHeaderBytesRead == Atom.HEADER_SIZE);
+      checkState(atomSize <= Integer.MAX_VALUE);
+      atomData = new ParsableByteArray((int) atomSize);
+      System.arraycopy(atomHeader.data, 0, atomData.data, 0, Atom.HEADER_SIZE);
+      parserState = STATE_READING_ATOM_PAYLOAD;
     } else {
       // We don't support skipping of atoms that have lengths greater than Integer.MAX_VALUE.
       checkState(atomSize <= Integer.MAX_VALUE);
@@ -294,10 +293,11 @@ public final class FragmentedMp4Extractor implements Extractor {
       LeafAtom child = moovChildren.get(i);
       if (child.type == Atom.TYPE_pssh) {
         if (drmInitData == null) {
-          drmInitData = new DrmInitData.Mapped(MimeTypes.VIDEO_MP4);
+          drmInitData = new DrmInitData.Mapped();
         }
         byte[] psshData = child.data.data;
-        drmInitData.put(PsshAtomUtil.parseUuid(psshData), psshData);
+        drmInitData.put(PsshAtomUtil.parseUuid(psshData),
+            new SchemeInitData(MimeTypes.VIDEO_MP4, psshData));
       }
     }
     if (drmInitData != null) {
@@ -307,7 +307,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     ContainerAtom mvex = moov.getContainerAtomOfType(Atom.TYPE_mvex);
     extendsDefaults = parseTrex(mvex.getLeafAtomOfType(Atom.TYPE_trex).data);
     track = AtomParsers.parseTrak(moov.getContainerAtomOfType(Atom.TYPE_trak),
-        moov.getLeafAtomOfType(Atom.TYPE_mvhd));
+        moov.getLeafAtomOfType(Atom.TYPE_mvhd), false);
     checkState(track != null);
     trackOutput.format(track.mediaFormat);
   }
@@ -795,25 +795,20 @@ public final class FragmentedMp4Extractor implements Extractor {
     return 1 + vectorSize + subsampleDataLength;
   }
 
-  /** Returns whether the extractor should parse an atom with type {@code atom}. */
-  private static boolean shouldParseAtom(int atom) {
-    return atom == Atom.TYPE_avc1 || atom == Atom.TYPE_avc3 || atom == Atom.TYPE_esds
-        || atom == Atom.TYPE_hdlr || atom == Atom.TYPE_mdat || atom == Atom.TYPE_mdhd
-        || atom == Atom.TYPE_moof || atom == Atom.TYPE_moov || atom == Atom.TYPE_mp4a
-        || atom == Atom.TYPE_mvhd || atom == Atom.TYPE_sidx || atom == Atom.TYPE_stsd
-        || atom == Atom.TYPE_tfdt || atom == Atom.TYPE_tfhd || atom == Atom.TYPE_tkhd
-        || atom == Atom.TYPE_traf || atom == Atom.TYPE_trak || atom == Atom.TYPE_trex
-        || atom == Atom.TYPE_trun || atom == Atom.TYPE_mvex || atom == Atom.TYPE_mdia
-        || atom == Atom.TYPE_minf || atom == Atom.TYPE_stbl || atom == Atom.TYPE_pssh
-        || atom == Atom.TYPE_saiz || atom == Atom.TYPE_saio || atom == Atom.TYPE_uuid
-        || atom == Atom.TYPE_senc || atom == Atom.TYPE_pasp || atom == Atom.TYPE_s263;
+  /** Returns whether the extractor should parse a leaf atom with type {@code atom}. */
+  private static boolean shouldParseLeafAtom(int atom) {
+    return atom == Atom.TYPE_hdlr || atom == Atom.TYPE_mdhd || atom == Atom.TYPE_mvhd
+        || atom == Atom.TYPE_sidx || atom == Atom.TYPE_stsd || atom == Atom.TYPE_tfdt
+        || atom == Atom.TYPE_tfhd || atom == Atom.TYPE_tkhd || atom == Atom.TYPE_trex
+        || atom == Atom.TYPE_trun || atom == Atom.TYPE_pssh || atom == Atom.TYPE_saiz
+        || atom == Atom.TYPE_saio || atom == Atom.TYPE_senc || atom == Atom.TYPE_uuid;
   }
 
   /** Returns whether the extractor should parse a container atom with type {@code atom}. */
   private static boolean shouldParseContainerAtom(int atom) {
     return atom == Atom.TYPE_moov || atom == Atom.TYPE_trak || atom == Atom.TYPE_mdia
-        || atom == Atom.TYPE_minf || atom == Atom.TYPE_stbl || atom == Atom.TYPE_avcC
-        || atom == Atom.TYPE_moof || atom == Atom.TYPE_traf || atom == Atom.TYPE_mvex;
+        || atom == Atom.TYPE_minf || atom == Atom.TYPE_stbl || atom == Atom.TYPE_moof
+        || atom == Atom.TYPE_traf || atom == Atom.TYPE_mvex;
   }
 
 }

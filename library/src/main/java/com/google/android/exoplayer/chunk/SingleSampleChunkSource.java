@@ -80,8 +80,8 @@ public final class SingleSampleChunkSource implements ChunkSource {
   }
 
   @Override
-  public void getChunkOperation(List<? extends MediaChunk> queue, long seekPositionUs,
-      long playbackPositionUs, ChunkOperationHolder out) {
+  public void getChunkOperation(List<? extends MediaChunk> queue, long playbackPositionUs,
+      ChunkOperationHolder out) {
     if (!queue.isEmpty()) {
       // We've already provided the single sample.
       out.endOfStream = true;

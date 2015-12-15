@@ -173,7 +173,7 @@ public class VideoPlayer extends Activity implements OnClickListener,
     TrackRenderer videoRenderer =
         new LibvpxVideoTrackRenderer(sampleSource, true, handler, this, 50);
     if (useOpenGL) {
-      player.sendMessage(videoRenderer, LibvpxVideoTrackRenderer.MSG_SET_VPX_SURFACE_VIEW,
+      player.sendMessage(videoRenderer, LibvpxVideoTrackRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER,
           vpxVideoSurfaceView);
       surfaceView.setVisibility(View.GONE);
     } else {
@@ -202,7 +202,7 @@ public class VideoPlayer extends Activity implements OnClickListener,
     player.addListener(this);
     mediaController.setMediaPlayer(new PlayerControl(player));
     mediaController.setEnabled(true);
-    player.sendMessage(renderers[0], LibvpxVideoTrackRenderer.MSG_SET_VPX_SURFACE_VIEW,
+    player.sendMessage(renderers[0], LibvpxVideoTrackRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER,
         vpxVideoSurfaceView);
     player.prepare(renderers);
     player.setPlayWhenReady(true);

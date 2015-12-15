@@ -121,6 +121,7 @@ public class DashChunkSource implements ChunkSource, Output {
   private final boolean live;
 
   private MediaPresentationDescription currentManifest;
+  private MediaPresentationDescription processedManifest;
   private ExposedTrack enabledTrack;
   private int nextPeriodHolderIndex;
   private TimeRange availableRange;
@@ -322,8 +323,11 @@ public class DashChunkSource implements ChunkSource, Output {
     }
 
     MediaPresentationDescription newManifest = manifestFetcher.getManifest();
-    if (currentManifest != newManifest && newManifest != null) {
+    if (newManifest != null && newManifest != processedManifest) {
       processManifest(newManifest);
+      // Manifests may be rejected, so the new manifest may not become the next currentManifest.
+      // Track a manifest has been processed to avoid processing twice when it was discarded.
+      processedManifest = newManifest;
     }
 
     // TODO: This is a temporary hack to avoid constantly refreshing the MPD in cases where
@@ -342,8 +346,8 @@ public class DashChunkSource implements ChunkSource, Output {
   }
 
   @Override
-  public final void getChunkOperation(List<? extends MediaChunk> queue, long seekPositionUs,
-      long playbackPositionUs, ChunkOperationHolder out) {
+  public final void getChunkOperation(List<? extends MediaChunk> queue, long playbackPositionUs,
+      ChunkOperationHolder out) {
     if (fatalError != null) {
       out.chunk = null;
       return;
@@ -385,16 +389,16 @@ public class DashChunkSource implements ChunkSource, Output {
         if (startAtLiveEdge) {
           // We want live streams to start at the live edge instead of the beginning of the
           // manifest
-          seekPositionUs = Math.max(availableRangeValues[0],
+          playbackPositionUs = Math.max(availableRangeValues[0],
               availableRangeValues[1] - liveEdgeLatencyUs);
         } else {
           // we subtract 1 from the upper bound because it's exclusive for that bound
-          seekPositionUs = Math.min(seekPositionUs, availableRangeValues[1] - 1);
-          seekPositionUs = Math.max(seekPositionUs, availableRangeValues[0]);
+          playbackPositionUs = Math.min(playbackPositionUs, availableRangeValues[1] - 1);
+          playbackPositionUs = Math.max(playbackPositionUs, availableRangeValues[0]);
         }
       }
 
-      periodHolder = findPeriodHolder(seekPositionUs);
+      periodHolder = findPeriodHolder(playbackPositionUs);
       startingNewPeriod = true;
     } else {
       if (startAtLiveEdge) {
@@ -472,7 +476,7 @@ public class DashChunkSource implements ChunkSource, Output {
       return;
     }
 
-    int segmentNum = queue.isEmpty() ? representationHolder.getSegmentNum(seekPositionUs)
+    int segmentNum = queue.isEmpty() ? representationHolder.getSegmentNum(playbackPositionUs)
           : startingNewPeriod ? representationHolder.getFirstAvailableSegmentNum()
           : queue.get(out.queueSize - 1).chunkIndex + 1;
     Chunk nextMediaChunk = newMediaChunk(periodHolder, representationHolder, dataSource,
@@ -725,6 +729,14 @@ public class DashChunkSource implements ChunkSource, Output {
       PeriodHolder periodHolder = periodHolders.valueAt(0);
       // TODO: Use periodHolders.removeAt(0) if the minimum API level is ever increased to 11.
       periodHolders.remove(periodHolder.localIndex);
+    }
+
+    // After discarding old periods, we should never have more periods than listed in the new
+    // manifest.  That would mean that a previously announced period is no longer advertised.  If
+    // this condition occurs, assume that we are hitting a manifest server that is out of sync and
+    // behind, discard this manifest, and try again later.
+    if (periodHolders.size() > manifest.getPeriodCount()) {
+      return;
     }
 
     // Update existing periods. Only the first and last periods can change.
@@ -1042,8 +1054,6 @@ public class DashChunkSource implements ChunkSource, Output {
     }
 
     private static DrmInitData getDrmInitData(AdaptationSet adaptationSet) {
-      String drmInitMimeType = mimeTypeIsWebm(adaptationSet.representations.get(0).format.mimeType)
-          ? MimeTypes.VIDEO_WEBM : MimeTypes.VIDEO_MP4;
       if (adaptationSet.contentProtections.isEmpty()) {
         return null;
       } else {
@@ -1052,7 +1062,7 @@ public class DashChunkSource implements ChunkSource, Output {
           ContentProtection contentProtection = adaptationSet.contentProtections.get(i);
           if (contentProtection.uuid != null && contentProtection.data != null) {
             if (drmInitData == null) {
-              drmInitData = new DrmInitData.Mapped(drmInitMimeType);
+              drmInitData = new DrmInitData.Mapped();
             }
             drmInitData.put(contentProtection.uuid, contentProtection.data);
           }

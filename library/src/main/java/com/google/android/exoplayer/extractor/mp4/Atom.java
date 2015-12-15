@@ -53,6 +53,7 @@ import java.util.List;
   public static final int TYPE_d263 = Util.getIntegerCodeForString("d263");
   public static final int TYPE_mdat = Util.getIntegerCodeForString("mdat");
   public static final int TYPE_mp4a = Util.getIntegerCodeForString("mp4a");
+  public static final int TYPE_wave = Util.getIntegerCodeForString("wave");
   public static final int TYPE_ac_3 = Util.getIntegerCodeForString("ac-3");
   public static final int TYPE_dac3 = Util.getIntegerCodeForString("dac3");
   public static final int TYPE_ec_3 = Util.getIntegerCodeForString("ec-3");
@@ -100,7 +101,6 @@ import java.util.List;
   public static final int TYPE_pasp = Util.getIntegerCodeForString("pasp");
   public static final int TYPE_TTML = Util.getIntegerCodeForString("TTML");
   public static final int TYPE_vmhd = Util.getIntegerCodeForString("vmhd");
-  public static final int TYPE_smhd = Util.getIntegerCodeForString("smhd");
   public static final int TYPE_mp4v = Util.getIntegerCodeForString("mp4v");
   public static final int TYPE_stts = Util.getIntegerCodeForString("stts");
   public static final int TYPE_stss = Util.getIntegerCodeForString("stss");
@@ -110,7 +110,10 @@ import java.util.List;
   public static final int TYPE_stco = Util.getIntegerCodeForString("stco");
   public static final int TYPE_co64 = Util.getIntegerCodeForString("co64");
   public static final int TYPE_tx3g = Util.getIntegerCodeForString("tx3g");
+  public static final int TYPE_wvtt = Util.getIntegerCodeForString("wvtt");
   public static final int TYPE_stpp = Util.getIntegerCodeForString("stpp");
+  public static final int TYPE_samr = Util.getIntegerCodeForString("samr");
+  public static final int TYPE_sawb = Util.getIntegerCodeForString("sawb");
 
   public final int type;
 

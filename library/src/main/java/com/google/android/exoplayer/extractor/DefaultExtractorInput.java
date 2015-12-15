@@ -54,18 +54,29 @@ public final class DefaultExtractorInput implements ExtractorInput {
     if (Thread.interrupted()) {
       throw new InterruptedException();
     }
-    int peekBytes = Math.min(peekBufferLength, length);
-    System.arraycopy(peekBuffer, 0, target, offset, peekBytes);
-    offset += peekBytes;
-    length -= peekBytes;
-    int bytesRead = length != 0 ? dataSource.read(target, offset, length) : 0;
-    if (bytesRead == C.RESULT_END_OF_INPUT) {
-      return C.RESULT_END_OF_INPUT;
+
+    int totalBytesRead = 0;
+
+    if (peekBufferLength > 0) {
+      int peekBytes = Math.min(peekBufferLength, length);
+      System.arraycopy(peekBuffer, 0, target, offset, peekBytes);
+      updatePeekBuffer(peekBytes);
+      totalBytesRead += peekBytes;
     }
-    updatePeekBuffer(peekBytes);
-    bytesRead += peekBytes;
-    position += bytesRead;
-    return bytesRead;
+
+    if (totalBytesRead != length) {
+      int readBytes = dataSource.read(target, offset + totalBytesRead, length - totalBytesRead);
+      if (readBytes == C.RESULT_END_OF_INPUT) {
+        if (totalBytesRead == 0) {
+          return C.RESULT_END_OF_INPUT;
+        }
+      } else {
+        totalBytesRead += readBytes;
+      }
+    }
+
+    position += totalBytesRead;
+    return totalBytesRead;
   }
 
   @Override

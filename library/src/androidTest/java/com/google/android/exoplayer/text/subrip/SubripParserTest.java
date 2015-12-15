@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.text.subrip;
 
-import com.google.android.exoplayer.ParserException;
-
 import android.test.InstrumentationTestCase;
 
 import java.io.IOException;
@@ -35,7 +33,7 @@ public final class SubripParserTest extends InstrumentationTestCase {
   private static final String NO_END_TIMECODES_FILE = "subrip/no_end_timecodes";
 
   public void testParseEmpty() throws IOException {
-    SubripParser parser = new SubripParser(true);
+    SubripParser parser = new SubripParser();
     InputStream inputStream = getInputStream(EMPTY_FILE);
     SubripSubtitle subtitle = parser.parse(inputStream);
     // Assert that the subtitle is empty.
@@ -44,7 +42,7 @@ public final class SubripParserTest extends InstrumentationTestCase {
   }
 
   public void testParseTypical() throws IOException {
-    SubripParser parser = new SubripParser(true);
+    SubripParser parser = new SubripParser();
     InputStream inputStream = getInputStream(TYPICAL_FILE);
     SubripSubtitle subtitle = parser.parse(inputStream);
     assertEquals(6, subtitle.getEventTimeCount());
@@ -54,7 +52,7 @@ public final class SubripParserTest extends InstrumentationTestCase {
   }
 
   public void testParseTypicalExtraBlankLine() throws IOException {
-    SubripParser parser = new SubripParser(true);
+    SubripParser parser = new SubripParser();
     InputStream inputStream = getInputStream(TYPICAL_EXTRA_BLANK_LINE);
     SubripSubtitle subtitle = parser.parse(inputStream);
     assertEquals(6, subtitle.getEventTimeCount());
@@ -64,19 +62,9 @@ public final class SubripParserTest extends InstrumentationTestCase {
   }
 
   public void testParseTypicalMissingTimecode() throws IOException {
-    // Strict parsing should fail.
-    SubripParser parser = new SubripParser(true);
+    // Parsing should succeed, parsing the first and third cues only.
+    SubripParser parser = new SubripParser();
     InputStream inputStream = getInputStream(TYPICAL_MISSING_TIMECODE);
-    try {
-      parser.parse(inputStream);
-      fail();
-    } catch (ParserException e) {
-      // Expected.
-    }
-
-    // Non-strict parsing should succeed, parsing the first and third cues only.
-    parser = new SubripParser(false);
-    inputStream = getInputStream(TYPICAL_MISSING_TIMECODE);
     SubripSubtitle subtitle = parser.parse(inputStream);
     assertEquals(4, subtitle.getEventTimeCount());
     assertTypicalCue1(subtitle, 0);
@@ -84,19 +72,9 @@ public final class SubripParserTest extends InstrumentationTestCase {
   }
 
   public void testParseTypicalMissingSequence() throws IOException {
-    // Strict parsing should fail.
-    SubripParser parser = new SubripParser(true);
+    // Parsing should succeed, parsing the first and third cues only.
+    SubripParser parser = new SubripParser();
     InputStream inputStream = getInputStream(TYPICAL_MISSING_SEQUENCE);
-    try {
-      parser.parse(inputStream);
-      fail();
-    } catch (ParserException e) {
-      // Expected.
-    }
-
-    // Non-strict parsing should succeed, parsing the first and third cues only.
-    parser = new SubripParser(false);
-    inputStream = getInputStream(TYPICAL_MISSING_SEQUENCE);
     SubripSubtitle subtitle = parser.parse(inputStream);
     assertEquals(4, subtitle.getEventTimeCount());
     assertTypicalCue1(subtitle, 0);
@@ -104,7 +82,7 @@ public final class SubripParserTest extends InstrumentationTestCase {
   }
 
   public void testParseNoEndTimecodes() throws IOException {
-    SubripParser parser = new SubripParser(true);
+    SubripParser parser = new SubripParser();
     InputStream inputStream = getInputStream(NO_END_TIMECODES_FILE);
     SubripSubtitle subtitle = parser.parse(inputStream);
 

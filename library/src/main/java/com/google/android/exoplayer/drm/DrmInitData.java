@@ -15,25 +15,19 @@
  */
 package com.google.android.exoplayer.drm;
 
+import com.google.android.exoplayer.util.Assertions;
+
 import android.media.MediaDrm;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * Encapsulates initialization data required by a {@link MediaDrm} instance.
+ * Encapsulates initialization data required by a {@link MediaDrm} instances.
  */
-public abstract class DrmInitData {
-
-  /**
-   * The container mime type.
-   */
-  public final String mimeType;
-
-  public DrmInitData(String mimeType) {
-    this.mimeType = mimeType;
-  }
+public interface DrmInitData {
 
   /**
    * Retrieves initialization data for a given DRM scheme, specified by its UUID.
@@ -41,22 +35,21 @@ public abstract class DrmInitData {
    * @param schemeUuid The DRM scheme's UUID.
    * @return The initialization data for the scheme, or null if the scheme is not supported.
    */
-  public abstract byte[] get(UUID schemeUuid);
+  public abstract SchemeInitData get(UUID schemeUuid);
 
   /**
    * A {@link DrmInitData} implementation that maps UUID onto scheme specific data.
    */
-  public static final class Mapped extends DrmInitData {
+  public static final class Mapped implements DrmInitData {
 
-    private final Map<UUID, byte[]> schemeData;
+    private final Map<UUID, SchemeInitData> schemeData;
 
-    public Mapped(String mimeType) {
-      super(mimeType);
+    public Mapped() {
       schemeData = new HashMap<>();
     }
 
     @Override
-    public byte[] get(UUID schemeUuid) {
+    public SchemeInitData get(UUID schemeUuid) {
       return schemeData.get(schemeUuid);
     }
 
@@ -64,10 +57,10 @@ public abstract class DrmInitData {
      * Inserts scheme specific initialization data.
      *
      * @param schemeUuid The scheme UUID.
-     * @param data The corresponding initialization data.
+     * @param schemeInitData The corresponding initialization data.
      */
-    public void put(UUID schemeUuid, byte[] data) {
-      schemeData.put(schemeUuid, data);
+    public void put(UUID schemeUuid, SchemeInitData schemeInitData) {
+      schemeData.put(schemeUuid, schemeInitData);
     }
 
   }
@@ -75,18 +68,60 @@ public abstract class DrmInitData {
   /**
    * A {@link DrmInitData} implementation that returns the same initialization data for all schemes.
    */
-  public static final class Universal extends DrmInitData {
+  public static final class Universal implements DrmInitData {
 
-    private byte[] data;
+    private SchemeInitData data;
 
-    public Universal(String mimeType, byte[] data) {
-      super(mimeType);
+    public Universal(SchemeInitData data) {
       this.data = data;
     }
 
     @Override
-    public byte[] get(UUID schemeUuid) {
+    public SchemeInitData get(UUID schemeUuid) {
       return data;
+    }
+
+  }
+
+  /**
+   * Scheme initialization data.
+   */
+  public static final class SchemeInitData {
+
+    /**
+     * The mimeType of {@link #data}.
+     */
+    public final String mimeType;
+    /**
+     * The initialization data.
+     */
+    public final byte[] data;
+
+    /**
+     * @param mimeType The mimeType of the initialization data.
+     * @param data The initialization data.
+     */
+    public SchemeInitData(String mimeType, byte[] data) {
+      this.mimeType = Assertions.checkNotNull(mimeType);
+      this.data = Assertions.checkNotNull(data);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (!(obj instanceof SchemeInitData)) {
+        return false;
+      }
+      if (obj == this) {
+        return true;
+      }
+
+      SchemeInitData other = (SchemeInitData) obj;
+      return mimeType.equals(other.mimeType) && Arrays.equals(data, other.data);
+    }
+
+    @Override
+    public int hashCode() {
+      return mimeType.hashCode() + 31 * Arrays.hashCode(data);
     }
 
   }

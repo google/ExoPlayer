@@ -16,7 +16,6 @@
 
 WORKING_DIR := $(call my-dir)
 include $(CLEAR_VARS)
-APP_PLATFORM := android-10
 LIBVPX_ROOT := $(WORKING_DIR)/libvpx
 LIBYUV_ROOT := $(WORKING_DIR)/libyuv
 

@@ -50,7 +50,7 @@ import java.util.Collections;
 
   // Used when parsing the header.
   private boolean hasOutputFormat;
-  private long frameDurationUs;
+  private long sampleDurationUs;
   private int sampleSize;
 
   // Used when reading the samples.
@@ -96,7 +96,7 @@ import java.util.Collections;
           bytesRead += bytesToRead;
           if (bytesRead == sampleSize) {
             output.sampleMetadata(timeUs, C.SAMPLE_FLAG_SYNC, sampleSize, 0, null);
-            timeUs += frameDurationUs;
+            timeUs += sampleDurationUs;
             bytesRead = 0;
             state = STATE_FINDING_SYNC;
           }
@@ -173,7 +173,9 @@ import java.util.Collections;
       MediaFormat mediaFormat = MediaFormat.createAudioFormat(null, MimeTypes.AUDIO_AAC,
           MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, audioParams.second,
           audioParams.first, Collections.singletonList(audioSpecificConfig), null);
-      frameDurationUs = (C.MICROS_PER_SECOND * 1024L) / mediaFormat.sampleRate;
+      // In this class a sample is an access unit, but the MediaFormat sample rate specifies the
+      // number of PCM audio samples per second.
+      sampleDurationUs = (C.MICROS_PER_SECOND * 1024) / mediaFormat.sampleRate;
       output.format(mediaFormat);
       hasOutputFormat = true;
     } else {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.hls;
+package com.google.android.exoplayer.ext.vp9;
 
 /**
- * Subtitle media tag.
+ * Renders the {@link VpxOutputBuffer}.
  */
-public final class Subtitle {
+public interface VpxOutputBufferRenderer {
 
-  public final String name;
-  public final String uri;
-  public final String language;
-  public final boolean isDefault;
-  public final boolean autoSelect;
-
-  public Subtitle(String name, String uri, String language, boolean isDefault, boolean autoSelect) {
-    this.name = name;
-    this.uri = uri;
-    this.language = language;
-    this.autoSelect = autoSelect;
-    this.isDefault = isDefault;
-  }
+  /**
+   * Sets the output buffer to be rendered.
+   */
+  void setOutputBuffer(VpxOutputBuffer outputBuffer);
 
 }

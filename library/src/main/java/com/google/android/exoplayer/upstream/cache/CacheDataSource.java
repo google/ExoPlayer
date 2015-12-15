@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 
 /**
  * A {@link DataSource} that reads and writes a {@link Cache}. Requests are fulfilled from the cache
@@ -182,46 +183,45 @@ public final class CacheDataSource implements DataSource {
    * opened to read from the upstream source and write into the cache.
    */
   private void openNextSource() throws IOException {
-    try {
-      DataSpec dataSpec;
-      CacheSpan span;
-      if (ignoreCache) {
-        span = null;
-      } else if (bytesRemaining == C.LENGTH_UNBOUNDED) {
-        // TODO: Support caching for unbounded requests. This requires storing the source length
-        // into the cache (the simplest approach is to incorporate it into each cache file's name).
-        Log.w(TAG, "Cache bypassed due to unbounded length.");
-        span = null;
-      } else if (blockOnCache) {
+    DataSpec dataSpec;
+    CacheSpan span;
+    if (ignoreCache) {
+      span = null;
+    } else if (bytesRemaining == C.LENGTH_UNBOUNDED) {
+      // TODO: Support caching for unbounded requests. This requires storing the source length
+      // into the cache (the simplest approach is to incorporate it into each cache file's name).
+      Log.w(TAG, "Cache bypassed due to unbounded length.");
+      span = null;
+    } else if (blockOnCache) {
+      try {
         span = cache.startReadWrite(key, readPosition);
-      } else {
-        span = cache.startReadWriteNonBlocking(key, readPosition);
+      } catch (InterruptedException e) {
+        throw new InterruptedIOException();
       }
-      if (span == null) {
-        // The data is locked in the cache, or we're ignoring the cache. Bypass the cache and read
-        // from upstream.
-        currentDataSource = upstreamDataSource;
-        dataSpec = new DataSpec(uri, readPosition, bytesRemaining, key, flags);
-      } else if (span.isCached) {
-        // Data is cached, read from cache.
-        Uri fileUri = Uri.fromFile(span.file);
-        long filePosition = readPosition - span.position;
-        long length = Math.min(span.length - filePosition, bytesRemaining);
-        dataSpec = new DataSpec(fileUri, readPosition, filePosition, length, key, flags);
-        currentDataSource = cacheReadDataSource;
-      } else {
-        // Data is not cached, and data is not locked, read from upstream with cache backing.
-        lockedSpan = span;
-        long length = span.isOpenEnded() ? bytesRemaining : Math.min(span.length, bytesRemaining);
-        dataSpec = new DataSpec(uri, readPosition, length, key, flags);
-        currentDataSource = cacheWriteDataSource != null ? cacheWriteDataSource
-            : upstreamDataSource;
-      }
-      currentDataSource.open(dataSpec);
-    } catch (InterruptedException e) {
-      // Should never happen.
-      throw new RuntimeException(e);
+    } else {
+      span = cache.startReadWriteNonBlocking(key, readPosition);
     }
+    if (span == null) {
+      // The data is locked in the cache, or we're ignoring the cache. Bypass the cache and read
+      // from upstream.
+      currentDataSource = upstreamDataSource;
+      dataSpec = new DataSpec(uri, readPosition, bytesRemaining, key, flags);
+    } else if (span.isCached) {
+      // Data is cached, read from cache.
+      Uri fileUri = Uri.fromFile(span.file);
+      long filePosition = readPosition - span.position;
+      long length = Math.min(span.length - filePosition, bytesRemaining);
+      dataSpec = new DataSpec(fileUri, readPosition, filePosition, length, key, flags);
+      currentDataSource = cacheReadDataSource;
+    } else {
+      // Data is not cached, and data is not locked, read from upstream with cache backing.
+      lockedSpan = span;
+      long length = span.isOpenEnded() ? bytesRemaining : Math.min(span.length, bytesRemaining);
+      dataSpec = new DataSpec(uri, readPosition, length, key, flags);
+      currentDataSource = cacheWriteDataSource != null ? cacheWriteDataSource
+          : upstreamDataSource;
+    }
+    currentDataSource.open(dataSpec);
   }
 
   private void closeCurrentSource() throws IOException {
