@@ -220,9 +220,14 @@ public final class TsExtractor implements Extractor {
       int programCount = (sectionLength - 9) / 4;
       for (int i = 0; i < programCount; i++) {
         data.readBytes(patScratch, 4);
-        patScratch.skipBits(19); // program_number (16), reserved (3)
-        int pid = patScratch.readBits(13);
-        tsPayloadReaders.put(pid, new PmtReader());
+        int programNumber = patScratch.readBits(16);
+        patScratch.skipBits(3); // reserved (3)
+        if (programNumber == 0) {
+          patScratch.skipBits(13); // network_PID (13)
+        } else {
+          int pid = patScratch.readBits(13);
+          tsPayloadReaders.put(pid, new PmtReader());
+        }
       }
 
       // Skip CRC_32.
