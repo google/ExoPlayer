@@ -278,4 +278,48 @@ public class ParsableByteArrayTest extends TestCase {
     assertTrue(Arrays.equals(parsableByteArray.data, copy));
   }
 
+  public void testReadLittleEndianLong() {
+    ParsableByteArray byteArray = new ParsableByteArray(new byte[]{
+        0x01, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, (byte) 0xFF
+    });
+    assertEquals(0xFF00000000000001L, byteArray.readLittleEndianLong());
+  }
+
+  public void testReadLittleEndianUnsignedInt() {
+    ParsableByteArray byteArray = new ParsableByteArray(new byte[] {
+        0x10, 0x00, 0x00, (byte) 0xFF
+    });
+    assertEquals(0xFF000010L, byteArray.readLittleEndianUnsignedInt());
+  }
+
+  public void testReadLittleEndianInt() {
+    ParsableByteArray byteArray = new ParsableByteArray(new byte[]{
+        0x01, 0x00, 0x00, (byte) 0xFF
+    });
+    assertEquals(0xFF000001, byteArray.readLittleEndianInt());
+  }
+
+  public void testReadLittleEndianUnsignedInt24() {
+    byte[] data = { 0x01, 0x02, (byte) 0xFF };
+    ParsableByteArray byteArray = new ParsableByteArray(data);
+    assertEquals(0xFF0201, byteArray.readLittleEndianUnsignedInt24());
+  }
+
+  public void testReadLittleEndianUnsignedShort() {
+    ParsableByteArray byteArray = new ParsableByteArray(new byte[]{
+        0x01, (byte) 0xFF, 0x02, (byte) 0xFF
+    });
+    assertEquals(0xFF01, byteArray.readLittleEndianUnsignedShort());
+    assertEquals(0xFF02, byteArray.readLittleEndianUnsignedShort());
+  }
+
+  public void testReadLittleEndianShort() {
+    ParsableByteArray byteArray = new ParsableByteArray(new byte[]{
+        0x01, (byte) 0xFF, 0x02, (byte) 0xFF
+    });
+    assertEquals((short) 0xFF01, byteArray.readLittleEndianShort());
+    assertEquals((short) 0xFF02, byteArray.readLittleEndianShort());
+  }
+
 }
