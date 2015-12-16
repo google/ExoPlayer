@@ -107,6 +107,24 @@ public final class Util {
   }
 
   /**
+   * Converts the entirety of an {@link InputStream} to a byte array.
+   *
+   * @param inputStream the {@link InputStream} to be read. The input stream is not closed by this
+   *    method.
+   * @return a byte array containing all of the inputStream's bytes.
+   * @throws IOException if an error occurs reading from the stream.
+   */
+  public static byte[] toByteArray(InputStream inputStream) throws IOException {
+    byte[] buffer = new byte[1024 * 4];
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    int bytesRead;
+    while ((bytesRead = inputStream.read(buffer)) != -1) {
+      outputStream.write(buffer, 0, bytesRead);
+    }
+    return outputStream.toByteArray();
+  }
+
+  /**
    * Returns true if the URI is a path to a local file or a reference to a local file.
    *
    * @param uri The uri to test.
@@ -699,13 +717,7 @@ public final class Util {
       // Read and return the response body.
       InputStream inputStream = urlConnection.getInputStream();
       try {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        byte scratch[] = new byte[1024];
-        int bytesRead;
-        while ((bytesRead = inputStream.read(scratch)) != -1) {
-          byteArrayOutputStream.write(scratch, 0, bytesRead);
-        }
-        return byteArrayOutputStream.toByteArray();
+        return toByteArray(inputStream);
       } finally {
         inputStream.close();
       }
