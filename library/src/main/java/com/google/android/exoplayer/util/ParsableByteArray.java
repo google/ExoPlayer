@@ -170,10 +170,20 @@ public final class ParsableByteArray {
         | (data[position++] & 0xFF);
   }
 
+  /** Reads the next two bytes as an unsigned value. */
+  public int readLittleEndianUnsignedShort() {
+    return (data[position++] & 0xFF) | (data[position++] & 0xFF) << 8;
+  }
+
   /** Reads the next two bytes as an signed value. */
   public short readShort() {
     return (short) ((data[position++] & 0xFF) << 8
         | (data[position++] & 0xFF));
+  }
+
+  /** Reads the next two bytes as a signed value. */
+  public short readLittleEndianShort() {
+    return (short) ((data[position++] & 0xFF) | (data[position++] & 0xFF) << 8);
   }
 
   /** Reads the next three bytes as an unsigned value. */
@@ -181,6 +191,13 @@ public final class ParsableByteArray {
     return (data[position++] & 0xFF) << 16
         | (data[position++] & 0xFF) << 8
         | (data[position++] & 0xFF);
+  }
+
+  /**  Reads the next three bytes as an unsigned value in little endian order. */
+  public int readLittleEndianUnsignedInt24() {
+    return (data[position++] & 0xFF)
+        | (data[position++] & 0xFF) << 8
+        | (data[position++] & 0xFF) << 16;
   }
 
   /** Reads the next four bytes as an unsigned value. */
@@ -191,12 +208,28 @@ public final class ParsableByteArray {
         | (data[position++] & 0xFFL);
   }
 
+  /** Reads the next four bytes as an unsigned value in little endian order. */
+  public long readLittleEndianUnsignedInt() {
+    return (data[position++] & 0xFFL)
+        | (data[position++] & 0xFFL) << 8
+        | (data[position++] & 0xFFL) << 16
+        | (data[position++] & 0xFFL) << 24;
+  }
+
   /** Reads the next four bytes as a signed value. */
   public int readInt() {
     return (data[position++] & 0xFF) << 24
         | (data[position++] & 0xFF) << 16
         | (data[position++] & 0xFF) << 8
         | (data[position++] & 0xFF);
+  }
+
+  /** Reads the next four bytes as an signed value in little endian order. */
+  public int readLittleEndianInt() {
+    return (data[position++] & 0xFF)
+        | (data[position++]  & 0xFF) << 8
+        | (data[position++]  & 0xFF) << 16
+        | (data[position++]  & 0xFF) << 24;
   }
 
   /** Reads the next eight bytes as a signed value. */
@@ -209,6 +242,18 @@ public final class ParsableByteArray {
         | (data[position++] & 0xFFL) << 16
         | (data[position++] & 0xFFL) << 8
         | (data[position++] & 0xFFL);
+  }
+
+  /** Reads the next eight bytes as a signed value in little endian order. */
+  public long readLittleEndianLong() {
+    return (data[position++] & 0xFFL)
+        | (data[position++] & 0xFFL) << 8
+        | (data[position++] & 0xFFL) << 16
+        | (data[position++] & 0xFFL) << 24
+        | (data[position++] & 0xFFL) << 32
+        | (data[position++] & 0xFFL) << 40
+        | (data[position++] & 0xFFL) << 48
+        | (data[position++] & 0xFFL) << 56;
   }
 
   /** Reads the next four bytes, returning the integer portion of the fixed point 16.16 integer. */
