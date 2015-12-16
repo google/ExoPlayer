@@ -128,29 +128,34 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   /**
    * @param context A context.
    * @param source The upstream source from which the renderer obtains samples.
+   * @param mediaCodecSelector A decoder selector.
    * @param videoScalingMode The scaling mode to pass to
    *     {@link MediaCodec#setVideoScalingMode(int)}.
    */
-  public MediaCodecVideoTrackRenderer(Context context, SampleSource source, int videoScalingMode) {
-    this(context, source, videoScalingMode, 0);
+  public MediaCodecVideoTrackRenderer(Context context, SampleSource source,
+      MediaCodecSelector mediaCodecSelector, int videoScalingMode) {
+    this(context, source, mediaCodecSelector, videoScalingMode, 0);
   }
 
   /**
    * @param context A context.
    * @param source The upstream source from which the renderer obtains samples.
+   * @param mediaCodecSelector A decoder selector.
    * @param videoScalingMode The scaling mode to pass to
    *     {@link MediaCodec#setVideoScalingMode(int)}.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    */
-  public MediaCodecVideoTrackRenderer(Context context, SampleSource source, int videoScalingMode,
-      long allowedJoiningTimeMs) {
-    this(context, source, videoScalingMode, allowedJoiningTimeMs, null, null, -1);
+  public MediaCodecVideoTrackRenderer(Context context, SampleSource source,
+      MediaCodecSelector mediaCodecSelector, int videoScalingMode, long allowedJoiningTimeMs) {
+    this(context, source, mediaCodecSelector, videoScalingMode, allowedJoiningTimeMs, null, null,
+        -1);
   }
 
   /**
    * @param context A context.
    * @param source The upstream source from which the renderer obtains samples.
+   * @param mediaCodecSelector A decoder selector.
    * @param videoScalingMode The scaling mode to pass to
    *     {@link MediaCodec#setVideoScalingMode(int)}.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
@@ -161,16 +166,17 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    * @param maxDroppedFrameCountToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link EventListener#onDroppedFrames(int, long)}.
    */
-  public MediaCodecVideoTrackRenderer(Context context, SampleSource source, int videoScalingMode,
-      long allowedJoiningTimeMs, Handler eventHandler, EventListener eventListener,
-      int maxDroppedFrameCountToNotify) {
-    this(context, source, videoScalingMode, allowedJoiningTimeMs, null, false, eventHandler,
-        eventListener, maxDroppedFrameCountToNotify);
+  public MediaCodecVideoTrackRenderer(Context context, SampleSource source,
+      MediaCodecSelector mediaCodecSelector, int videoScalingMode, long allowedJoiningTimeMs,
+      Handler eventHandler, EventListener eventListener, int maxDroppedFrameCountToNotify) {
+    this(context, source, mediaCodecSelector, videoScalingMode, allowedJoiningTimeMs, null, false,
+        eventHandler, eventListener, maxDroppedFrameCountToNotify);
   }
 
   /**
    * @param context A context.
    * @param source The upstream source from which the renderer obtains samples.
+   * @param mediaCodecSelector A decoder selector.
    * @param videoScalingMode The scaling mode to pass to
    *     {@link MediaCodec#setVideoScalingMode(int)}.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
@@ -188,11 +194,12 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    * @param maxDroppedFrameCountToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link EventListener#onDroppedFrames(int, long)}.
    */
-  public MediaCodecVideoTrackRenderer(Context context, SampleSource source, int videoScalingMode,
-      long allowedJoiningTimeMs, DrmSessionManager drmSessionManager,
-      boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener,
-      int maxDroppedFrameCountToNotify) {
-    super(source, drmSessionManager, playClearSamplesWithoutKeys, eventHandler, eventListener);
+  public MediaCodecVideoTrackRenderer(Context context, SampleSource source,
+      MediaCodecSelector mediaCodecSelector, int videoScalingMode, long allowedJoiningTimeMs,
+      DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
+      Handler eventHandler, EventListener eventListener, int maxDroppedFrameCountToNotify) {
+    super(source, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
+        eventListener);
     this.frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(context);
     this.videoScalingMode = videoScalingMode;
     this.allowedJoiningTimeUs = allowedJoiningTimeMs * 1000;
@@ -209,11 +216,11 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected boolean handlesTrack(MediaFormat mediaFormat) throws DecoderQueryException {
-    // TODO: Use MediaCodecList.findDecoderForFormat on API 23.
+  protected boolean handlesTrack(MediaCodecSelector mediaCodecSelector, MediaFormat mediaFormat)
+      throws DecoderQueryException {
     String mimeType = mediaFormat.mimeType;
     return MimeTypes.isVideo(mimeType) && (MimeTypes.VIDEO_UNKNOWN.equals(mimeType)
-        || MediaCodecUtil.getDecoderInfo(mimeType, false) != null);
+        || mediaCodecSelector.getDecoderInfo(mediaFormat, false) != null);
   }
 
   @Override
@@ -316,7 +323,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   // Override configureCodec to provide the surface.
   @Override
-  protected void configureCodec(MediaCodec codec, String codecName, boolean codecIsAdaptive,
+  protected void configureCodec(MediaCodec codec, boolean codecIsAdaptive,
       android.media.MediaFormat format, MediaCrypto crypto) {
     maybeSetMaxInputSize(format, codecIsAdaptive);
     codec.configure(format, surface, crypto, 0);
