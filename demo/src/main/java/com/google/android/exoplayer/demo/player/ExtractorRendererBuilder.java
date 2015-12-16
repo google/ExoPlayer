@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.demo.player;
 
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
+import com.google.android.exoplayer.MediaCodecSelector;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioCapabilities;
@@ -30,6 +31,7 @@ import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 
 import android.content.Context;
+import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.net.Uri;
 
@@ -62,10 +64,11 @@ public class ExtractorRendererBuilder implements RendererBuilder {
     ExtractorSampleSource sampleSource = new ExtractorSampleSource(uri, dataSource, allocator,
         BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context,
-        sampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, player.getMainHandler(),
-        player, 50);
+        sampleSource, MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000,
+        player.getMainHandler(), player, 50);
     MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource,
-        null, true, player.getMainHandler(), player, AudioCapabilities.getCapabilities(context));
+        MediaCodecSelector.DEFAULT, null, true, player.getMainHandler(), player,
+        AudioCapabilities.getCapabilities(context), AudioManager.STREAM_MUSIC);
     TrackRenderer textRenderer = new TextTrackRenderer(sampleSource, player,
         player.getMainHandler().getLooper());
 

@@ -18,6 +18,7 @@ package com.google.android.exoplayer.demo.player;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
+import com.google.android.exoplayer.MediaCodecSelector;
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
@@ -40,6 +41,7 @@ import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
 
 import android.content.Context;
+import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.os.Handler;
 
@@ -149,9 +151,11 @@ public class HlsRendererBuilder implements RendererBuilder {
       HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, loadControl,
           BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_VIDEO);
       MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context,
-          sampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, mainHandler, player, 50);
+          sampleSource, MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT,
+          5000, mainHandler, player, 50);
       MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource,
-          null, true, player.getMainHandler(), player, AudioCapabilities.getCapabilities(context));
+          MediaCodecSelector.DEFAULT, null, true, player.getMainHandler(), player,
+          AudioCapabilities.getCapabilities(context), AudioManager.STREAM_MUSIC);
       MetadataTrackRenderer<Map<String, Object>> id3Renderer = new MetadataTrackRenderer<>(
           sampleSource, new Id3Parser(), player, mainHandler.getLooper());
       Eia608TrackRenderer closedCaptionRenderer = new Eia608TrackRenderer(sampleSource, player,
