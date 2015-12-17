@@ -750,8 +750,10 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * The default implementation is a no-op.
    *
    * @param outputFormat The new output format.
+   * @throws ExoPlaybackException If an error occurs on output format change.
    */
-  protected void onOutputFormatChanged(android.media.MediaFormat outputFormat) {
+  protected void onOutputFormatChanged(android.media.MediaFormat outputFormat)
+      throws ExoPlaybackException {
     // Do nothing.
   }
 
