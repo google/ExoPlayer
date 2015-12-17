@@ -21,7 +21,7 @@ package com.google.android.exoplayer.ext.vp9;
 public interface VpxOutputBufferRenderer {
 
   /**
-   * Sets the output buffer to be rendered.
+   * Sets the output buffer to be rendered. The renderer is responsible for releasing the buffer.
    */
   void setOutputBuffer(VpxOutputBuffer outputBuffer);
 
