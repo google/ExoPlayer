@@ -17,7 +17,6 @@ package com.google.android.exoplayer.text.mp4webvtt;
 
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.Cue;
-import com.google.android.exoplayer.text.Subtitle;
 import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
@@ -51,7 +50,7 @@ public final class Mp4WebvttParser implements SubtitleParser {
   }
 
   @Override
-  public Subtitle parse(InputStream inputStream) throws IOException {
+  public Mp4WebvttSubtitle parse(InputStream inputStream) throws IOException {
     // Webvtt in Mp4 samples have boxes inside of them, so we have to do a traditional box parsing:
     // first 4 bytes size and then 4 bytes type.
     int inputStreamByteCount = inputStream.available();
