@@ -24,14 +24,15 @@ import java.util.LinkedList;
 /**
  * Wraps {@link VpxDecoder}, exposing a higher level decoder interface.
  */
-/* package */ class VpxDecoderWrapper extends Thread {
+/* package */ final class VpxDecoderWrapper extends Thread {
 
   public static final int FLAG_END_OF_STREAM = 1;
 
   private static final int INPUT_BUFFER_SIZE = 768 * 1024; // Value based on cs/SoftVpx.cpp.
   /**
-   * The total number of output buffers. {@link LibvpxVideoTrackRenderer} may hold on to 2 buffers
-   * at a time so this value should be high enough considering LibvpxVideoTrackRenderer requirement.
+   * The number of input buffers and the number of output buffers. The track renderer may limit the
+   * minimum possible value due to requiring multiple output buffers to be dequeued at a time for it
+   * to make progress.
    */
   private static final int NUM_BUFFERS = 16;
 
@@ -66,7 +67,7 @@ import java.util.LinkedList;
     availableOutputBufferCount = NUM_BUFFERS;
     for (int i = 0; i < NUM_BUFFERS; i++) {
       availableInputBuffers[i] = new VpxInputBuffer();
-      availableOutputBuffers[i] = new VpxOutputBuffer();
+      availableOutputBuffers[i] = new VpxOutputBuffer(this);
     }
   }
 
@@ -105,19 +106,22 @@ import java.util.LinkedList;
       if (queuedOutputBuffers.isEmpty()) {
         return null;
       }
-      VpxOutputBuffer outputBuffer = queuedOutputBuffers.removeFirst();
-      return outputBuffer;
+      return queuedOutputBuffers.removeFirst();
     }
   }
 
-  public void releaseOutputBuffer(VpxOutputBuffer outputBuffer) throws VpxDecoderException {
+  public void releaseOutputBuffer(VpxOutputBuffer outputBuffer) {
     synchronized (lock) {
-      maybeThrowDecoderError();
       availableOutputBuffers[availableOutputBufferCount++] = outputBuffer;
       maybeNotifyDecodeLoop();
     }
   }
 
+  /**
+   * Flushes input/output buffers that have not been dequeued yet and returns ownership of any
+   * dequeued input buffer to the decoder. Flushes any pending output currently in the decoder. The
+   * caller is still responsible for releasing any dequeued output buffers.
+   */
   public void flush() {
     synchronized (lock) {
       flushDecodedOutputBuffer = true;
@@ -159,7 +163,7 @@ import java.util.LinkedList;
    * Should only be called whilst synchronized on the lock object.
    */
   private void maybeNotifyDecodeLoop() {
-    if (!queuedInputBuffers.isEmpty() && availableOutputBufferCount > 0) {
+    if (canDecodeBuffer()) {
       lock.notify();
     }
   }
@@ -192,7 +196,7 @@ import java.util.LinkedList;
 
     // Wait until we have an input buffer to decode, and an output buffer to decode into.
     synchronized (lock) {
-      while (!released && (queuedInputBuffers.isEmpty() || availableOutputBufferCount == 0)) {
+      while (!released && !canDecodeBuffer()) {
         lock.wait();
       }
       if (released) {
@@ -236,6 +240,10 @@ import java.util.LinkedList;
     }
 
     return true;
+  }
+
+  private boolean canDecodeBuffer() {
+    return !queuedInputBuffers.isEmpty() && availableOutputBufferCount > 0;
   }
 
   /* package */ static final class VpxInputBuffer {

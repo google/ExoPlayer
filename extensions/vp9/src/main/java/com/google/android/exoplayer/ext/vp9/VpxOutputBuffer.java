@@ -26,6 +26,12 @@ public final class VpxOutputBuffer {
   public static final int COLORSPACE_BT601 = 1;
   public static final int COLORSPACE_BT709 = 2;
 
+  private final VpxDecoderWrapper decoder;
+
+  /* package */ VpxOutputBuffer(VpxDecoderWrapper decoder) {
+    this.decoder = decoder;
+  }
+
   /**
    * RGB buffer for RGB mode.
    */
@@ -43,10 +49,16 @@ public final class VpxOutputBuffer {
   public int colorspace;
 
   /**
-   * This method is called from C++ through JNI after decoding is done. It will resize the
-   * buffer based on the given dimensions.
+   * Releases the buffer back to the decoder, allowing it to be reused.
    */
-  public void initForRgbFrame(int width, int height) {
+  public void release() {
+    decoder.releaseOutputBuffer(this);
+  }
+
+  /**
+   * Resizes the buffer based on the given dimensions. Called via JNI after decoding completes.
+   */
+  /* package */ void initForRgbFrame(int width, int height) {
     this.width = width;
     this.height = height;
     int minimumRgbSize = width * height * 2;
@@ -59,10 +71,10 @@ public final class VpxOutputBuffer {
   }
 
   /**
-   * This method is called from C++ through JNI after decoding is done. It will resize the
-   * buffer based on the given stride.
+   * Resizes the buffer based on the given stride. Called via JNI after decoding completes.
    */
-  public void initForYuvFrame(int width, int height, int yStride, int uvStride, int colorspace) {
+  /* package */ void initForYuvFrame(int width, int height, int yStride, int uvStride,
+      int colorspace) {
     this.width = width;
     this.height = height;
     this.colorspace = colorspace;

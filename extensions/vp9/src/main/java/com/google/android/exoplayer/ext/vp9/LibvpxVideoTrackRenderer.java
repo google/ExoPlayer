@@ -106,7 +106,6 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
   private VpxDecoderWrapper decoder;
   private VpxInputBuffer inputBuffer;
   private VpxOutputBuffer outputBuffer;
-  private VpxOutputBuffer renderedOutputBuffer;
 
   private Bitmap bitmap;
   private boolean drawnToSurface;
@@ -181,13 +180,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
       return;
     }
     sourceIsReady = continueBufferingSource(positionUs);
-    try {
-      checkForDiscontinuity(positionUs);
-    } catch (VpxDecoderException e) {
-      notifyDecoderError(e);
-      throw new ExoPlaybackException(e);
-    }
-
+    checkForDiscontinuity(positionUs);
 
     // Try and read a format if we don't have one already.
     if (format == null && !readFormat(positionUs)) {
@@ -226,7 +219,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
 
     if (outputBuffer.flags == VpxDecoderWrapper.FLAG_END_OF_STREAM) {
       outputStreamEnded = true;
-      releaseOutputBuffer(outputBuffer);
+      decoder.releaseOutputBuffer(outputBuffer);
       outputBuffer = null;
       return;
     }
@@ -241,7 +234,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
       if (droppedFrameCount == maxDroppedFrameCountToNotify) {
         notifyAndResetDroppedFrameCount();
       }
-      releaseOutputBuffer(outputBuffer);
+      decoder.releaseOutputBuffer(outputBuffer);
       outputBuffer = null;
       return;
     }
@@ -270,7 +263,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     renderBuffer();
   }
 
-  private void renderBuffer() throws VpxDecoderException {
+  private void renderBuffer() {
     codecCounters.renderedOutputBufferCount++;
     notifyIfVideoSizeChanged(outputBuffer);
     if (outputBuffer.mode == VpxDecoder.OUTPUT_MODE_RGB && surface != null) {
@@ -279,20 +272,14 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
         drawnToSurface = true;
         notifyDrawnToSurface(surface);
       }
+      outputBuffer.release();
     } else if (outputBuffer.mode == VpxDecoder.OUTPUT_MODE_YUV && outputBufferRenderer != null) {
+      // The renderer will release the buffer.
       outputBufferRenderer.setOutputBuffer(outputBuffer);
+    } else {
+      outputBuffer.release();
     }
-    // Release the output buffer we rendered during the previous cycle, now that we delivered a new
-    // buffer.
-    releaseOutputBuffer(renderedOutputBuffer);
-    renderedOutputBuffer = outputBuffer;
     outputBuffer = null;
-  }
-
-  private void releaseOutputBuffer(VpxOutputBuffer buffer) throws VpxDecoderException {
-    if (buffer != null) {
-      decoder.releaseOutputBuffer(buffer);
-    }
   }
 
   private void renderRgbFrame(VpxOutputBuffer outputBuffer, boolean scale) {
@@ -350,7 +337,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     return true;
   }
 
-  private void checkForDiscontinuity(long positionUs) throws VpxDecoderException {
+  private void checkForDiscontinuity(long positionUs) {
     if (decoder == null) {
       return;
     }
@@ -360,12 +347,12 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     }
   }
 
-  private void flushDecoder() throws VpxDecoderException {
+  private void flushDecoder() {
     inputBuffer = null;
-    VpxOutputBuffer bufferToRelease = outputBuffer;
-    // Set this to null now because releaseOutputBuffer could throw an exception.
-    outputBuffer = null;
-    releaseOutputBuffer(bufferToRelease);
+    if (outputBuffer != null) {
+      decoder.releaseOutputBuffer(outputBuffer);
+      outputBuffer = null;
+    }
     decoder.flush();
   }
 
