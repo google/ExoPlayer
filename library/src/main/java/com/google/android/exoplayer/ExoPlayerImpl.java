@@ -143,9 +143,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
       this.playWhenReady = playWhenReady;
       pendingPlayWhenReadyAcks++;
       internalPlayer.setPlayWhenReady(playWhenReady);
-      for (Listener listener : listeners) {
-        listener.onPlayerStateChanged(playWhenReady, playbackState);
-      }
     }
   }
 
