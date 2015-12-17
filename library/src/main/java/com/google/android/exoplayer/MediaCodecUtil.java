@@ -241,6 +241,27 @@ public final class MediaCodecUtil {
   }
 
   /**
+   * Tests whether the device advertises it can decode video of a given type at a specified width
+   * and height.
+   * <p>
+   * Must not be called if the device SDK version is less than 21.
+   *
+   * @param mimeType The mime type.
+   * @param secure Whether the decoder is required to support secure decryption. Always pass false
+   *     unless secure decryption really is required.
+   * @param width Width in pixels.
+   * @param height Height in pixels.
+   * @return Whether the decoder advertises support of the given size.
+   */
+  @TargetApi(21)
+  public static boolean isSizeSupportedV21(String mimeType, boolean secure, int width,
+      int height) throws DecoderQueryException {
+    Assertions.checkState(Util.SDK_INT >= 21);
+    MediaCodecInfo.VideoCapabilities videoCapabilities = getVideoCapabilitiesV21(mimeType, secure);
+    return videoCapabilities != null && videoCapabilities.isSizeSupported(width, height);
+  }
+
+  /**
    * Tests whether the device advertises it can decode video of a given type at a specified
    * width, height, and frame rate.
    * <p>
@@ -258,11 +279,7 @@ public final class MediaCodecUtil {
   public static boolean isSizeAndRateSupportedV21(String mimeType, boolean secure,
       int width, int height, double frameRate) throws DecoderQueryException {
     Assertions.checkState(Util.SDK_INT >= 21);
-    Pair<String, CodecCapabilities> info = getMediaCodecInfo(mimeType, secure);
-    if (info == null) {
-      return false;
-    }
-    MediaCodecInfo.VideoCapabilities videoCapabilities = info.second.getVideoCapabilities();
+    MediaCodecInfo.VideoCapabilities videoCapabilities = getVideoCapabilitiesV21(mimeType, secure);
     return videoCapabilities != null
         && videoCapabilities.areSizeAndRateSupported(width, height, frameRate);
   }
@@ -308,6 +325,16 @@ public final class MediaCodecUtil {
     }
 
     return maxH264DecodableFrameSize;
+  }
+
+  @TargetApi(21)
+  private static MediaCodecInfo.VideoCapabilities getVideoCapabilitiesV21(String mimeType,
+      boolean secure) throws DecoderQueryException {
+    Pair<String, CodecCapabilities> info = getMediaCodecInfo(mimeType, secure);
+    if (info == null) {
+      return null;
+    }
+    return info.second.getVideoCapabilities();
   }
 
   /**
