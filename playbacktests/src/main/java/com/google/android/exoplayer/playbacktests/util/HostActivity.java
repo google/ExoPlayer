@@ -74,12 +74,12 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     boolean isFinished();
 
     /**
-     * Asserts that the test passed.
+     * Called after the test is finished and has been released. Implementations may use this method
+     * to assert that test criteria were met.
      * <p>
-     * Called on the test thread once the test has reported that it's finished and after the test
-     * has been released.
+     * Called on the test thread.
      */
-    void assertPassed();
+    void onFinished();
 
   }
 
@@ -120,7 +120,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     if (hostedTestReleasedCondition.block(timeoutMs)) {
       if (hostedTestFinished) {
         Log.d(TAG, "Test finished. Checking pass conditions.");
-        hostedTest.assertPassed();
+        hostedTest.onFinished();
         Log.d(TAG, "Pass conditions checked.");
       } else {
         Log.e(TAG, "Test released before it finished. Activity may have been paused whilst test "
