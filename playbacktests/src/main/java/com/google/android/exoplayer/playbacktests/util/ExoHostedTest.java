@@ -112,11 +112,12 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.Listener {
   }
 
   @Override
-  public final void assertPassed() {
+  public final void onFinished() {
     if (failOnPlayerError && playerError != null) {
       throw new Error(playerError);
     }
-    assertPassedInternal();
+    logMetrics();
+    assertPassed();
   }
 
   // ExoPlayer.Listener
@@ -160,8 +161,12 @@ public abstract class ExoHostedTest implements HostedTest, ExoPlayer.Listener {
     // Do nothing. Interested subclasses may override.
   }
 
-  protected void assertPassedInternal() {
+  protected void assertPassed() {
     // Do nothing. Subclasses may override to add additional assertions.
+  }
+
+  protected void logMetrics() {
+    // Do nothing. Subclasses may override to log metrics.
   }
 
   // Utility methods and actions for subclasses.
