@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
+import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.text.Cue;
 
 import android.test.InstrumentationTestCase;
@@ -32,7 +33,6 @@ import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -471,8 +471,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
 
   private TtmlSubtitle getSubtitle(String file) throws IOException {
     TtmlParser ttmlParser = new TtmlParser();
-    InputStream inputStream = getInstrumentation().getContext()
-        .getResources().getAssets().open(file);
-    return (TtmlSubtitle) ttmlParser.parse(inputStream);
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), file);
+    return ttmlParser.parse(bytes, 0, bytes.length);
   }
 }

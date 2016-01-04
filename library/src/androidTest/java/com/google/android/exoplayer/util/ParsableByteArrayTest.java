@@ -322,4 +322,61 @@ public class ParsableByteArrayTest extends TestCase {
     assertEquals((short) 0xFF02, byteArray.readLittleEndianShort());
   }
 
+  public void testReadEmptyString() {
+    byte[] bytes = new byte[0];
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertNull(parser.readLine());
+  }
+
+  public void testReadSingleLineWithoutEndingTrail() {
+    byte[] bytes = new byte[] {
+      'f', 'o', 'o'
+    };
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertEquals("foo", parser.readLine());
+    assertNull(parser.readLine());
+  }
+
+  public void testReadSingleLineWithEndingLf() {
+    byte[] bytes = new byte[] {
+      'f', 'o', 'o', '\n'
+    };
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertEquals("foo", parser.readLine());
+    assertNull(parser.readLine());
+  }
+
+  public void testReadTwoLinesWithLfFollowedByCr() {
+    byte[] bytes = new byte[] {
+      'f', 'o', 'o', '\n', '\r', 'b', 'a', 'r'
+    };
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertEquals("foo", parser.readLine());
+    assertEquals("bar", parser.readLine());
+    assertNull(parser.readLine());
+  }
+
+  public void testReadThreeLinesWithEmptyLine() {
+    byte[] bytes = new byte[] {
+      'f', 'o', 'o', '\n', '\r', '\n', 'b', 'a', 'r'
+    };
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertEquals("foo", parser.readLine());
+    assertEquals("", parser.readLine());
+    assertEquals("bar", parser.readLine());
+    assertNull(parser.readLine());
+  }
+
+  public void testReadFourLinesWithCrFollowedByLf() {
+    byte[] bytes = new byte[] {
+      'f', 'o', 'o', '\r', '\n', '\n', 'b', 'a', 'r', '\n', '\r'
+    };
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertEquals("foo", parser.readLine());
+    assertEquals("", parser.readLine());
+    assertEquals("", parser.readLine());
+    assertEquals("bar", parser.readLine());
+    assertNull(parser.readLine());
+  }
+
 }

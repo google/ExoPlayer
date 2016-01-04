@@ -31,10 +31,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.text.TextUtils;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -111,12 +108,11 @@ import java.util.regex.Pattern;
     return Extractor.RESULT_END_OF_INPUT;
   }
 
-  private void processSample() throws IOException {
-    BufferedReader reader = new BufferedReader(
-        new InputStreamReader(new ByteArrayInputStream(sampleData), C.UTF8_NAME));
+  private void processSample() throws ParserException {
+    ParsableByteArray webvttData = new ParsableByteArray(sampleData);
 
     // Validate the first line of the header.
-    WebvttParserUtil.validateWebvttHeaderLine(reader);
+    WebvttParserUtil.validateWebvttHeaderLine(webvttData);
 
     // Defaults to use if the header doesn't contain an X-TIMESTAMP-MAP header.
     long vttTimestampUs = 0;
@@ -124,7 +120,7 @@ import java.util.regex.Pattern;
 
     // Parse the remainder of the header looking for X-TIMESTAMP-MAP.
     String line;
-    while (!TextUtils.isEmpty(line = reader.readLine())) {
+    while (!TextUtils.isEmpty(line = webvttData.readLine())) {
       if (line.startsWith("X-TIMESTAMP-MAP")) {
         Matcher localTimestampMatcher = LOCAL_TIMESTAMP.matcher(line);
         if (!localTimestampMatcher.find()) {
@@ -141,7 +137,7 @@ import java.util.regex.Pattern;
     }
 
     // Find the first cue header and parse the start time.
-    Matcher cueHeaderMatcher = WebvttParserUtil.findNextCueHeader(reader);
+    Matcher cueHeaderMatcher = WebvttParserUtil.findNextCueHeader(webvttData);
     if (cueHeaderMatcher == null) {
       // No cues found. Don't output a sample, but still output a corresponding track.
       buildTrackOutput(0);
