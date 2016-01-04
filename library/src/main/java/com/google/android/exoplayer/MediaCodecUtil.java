@@ -184,10 +184,12 @@ public final class MediaCodecUtil {
     }
 
     // Work around broken audio decoders.
-    if ((Util.SDK_INT < 18 && "CIPAACDecoder".equals(name))
-        || (Util.SDK_INT < 18 && "CIPMP3Decoder".equals(name))
-        || (Util.SDK_INT < 20 && "AACDecoder".equals(name))
-        || (Util.SDK_INT < 20 && "MP3Decoder".equals(name))) {
+    if (Util.SDK_INT < 21
+        && ("CIPAACDecoder".equals(name))
+            || "CIPMP3Decoder".equals(name)
+            || "CIPVorbisDecoder".equals(name)
+            || "AACDecoder".equals(name)
+            || "MP3Decoder".equals(name)) {
       return false;
     }
 
