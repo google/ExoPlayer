@@ -306,4 +306,38 @@ public final class ParsableByteArray {
     return result;
   }
 
+  /**
+   * Reads a line of text. A line is considered to be terminated by any one of a line feed ('\n'), a
+   * carriage return ('\r'), or a carriage return followed immediately by a line feed. Platform
+   * default's charset used.
+   *
+   * @return A String containing the contents of the line, not including any line-termination
+   *    characters, or null if the end of the stream has been reached.
+   */
+  public String readLine() {
+    if (bytesLeft() == 0) {
+      return null;
+    }
+    int lineLimit = position;
+    while (lineLimit < limit && data[lineLimit] != '\n' && data[lineLimit] != '\r') {
+      lineLimit++;
+    }
+    String line = new String(data, position, lineLimit - position);
+    position = lineLimit;
+    if (position == limit) {
+      return line;
+    }
+    if (data[position] == '\n') {
+      position++;
+      if (position == limit) {
+        return line;
+      }
+    }
+    if (data[position] == '\r') {
+      position++;
+    }
+    return line;
+  }
+
+
 }

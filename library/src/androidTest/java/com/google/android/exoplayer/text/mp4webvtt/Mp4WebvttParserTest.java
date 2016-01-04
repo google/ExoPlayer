@@ -24,7 +24,6 @@ import android.util.ArraySet;
 
 import junit.framework.TestCase;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -107,29 +106,29 @@ public final class Mp4WebvttParserTest extends TestCase {
 
   // Positive tests.
 
-  public void testSingleCueSample() throws IOException {
-    Subtitle result = parser.parse(new ByteArrayInputStream(SINGLE_CUE_SAMPLE));
+  public void testSingleCueSample() throws ParserException {
+    Subtitle result = parser.parse(SINGLE_CUE_SAMPLE, 0, SINGLE_CUE_SAMPLE.length);
     Cue expectedCue = new Cue("Hello World"); // Line feed must be trimmed by the parser
     assertMp4WebvttSubtitleEquals(result, expectedCue);
   }
 
-  public void testTwoCuesSample() throws IOException {
-    Subtitle result = parser.parse(new ByteArrayInputStream(DOUBLE_CUE_SAMPLE));
+  public void testTwoCuesSample() throws ParserException {
+    Subtitle result = parser.parse(DOUBLE_CUE_SAMPLE, 0, DOUBLE_CUE_SAMPLE.length);
     Cue firstExpectedCue = new Cue("Hello World");
     Cue secondExpectedCue = new Cue("Bye Bye");
     assertMp4WebvttSubtitleEquals(result, firstExpectedCue, secondExpectedCue);
   }
 
   public void testNoCueSample() throws IOException {
-    Subtitle result = parser.parse(new ByteArrayInputStream(NO_CUE_SAMPLE));
+    Subtitle result = parser.parse(NO_CUE_SAMPLE, 0, NO_CUE_SAMPLE.length);
     assertMp4WebvttSubtitleEquals(result, new Cue[] {});
   }
 
   // Negative tests.
 
-  public void testSampleWithVttCueWithNoPayload() throws IOException {
+  public void testSampleWithVttCueWithNoPayload() {
     try {
-      parser.parse(new ByteArrayInputStream(NO_PAYLOAD_CUE_SAMPLE));
+      parser.parse(NO_PAYLOAD_CUE_SAMPLE, 0, NO_PAYLOAD_CUE_SAMPLE.length);
     } catch (ParserException e) {
       // Expected.
       return;
@@ -137,9 +136,9 @@ public final class Mp4WebvttParserTest extends TestCase {
     fail("The parser should have failed, no payload was included in the VTTCue.");
   }
 
-  public void testSampleWithIncompleteHeader() throws IOException {
+  public void testSampleWithIncompleteHeader() {
     try {
-      parser.parse(new ByteArrayInputStream(INCOMPLETE_HEADER_SAMPLE));
+      parser.parse(INCOMPLETE_HEADER_SAMPLE, 0, INCOMPLETE_HEADER_SAMPLE.length);
     } catch (ParserException e) {
       return;
     }
