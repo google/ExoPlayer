@@ -76,11 +76,11 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   private static final String MANIFEST_URL_PREFIX = "https://storage.googleapis.com/exoplayer-test-"
       + "media-1/gen-2/screens/dash-vod-single-segment/";
   private static final String H264_MANIFEST = "manifest-h264.mpd";
+  private static final String H265_MANIFEST = "manifest-h265.mpd";
   private static final String VP9_MANIFEST = "manifest-vp9.mpd";
   private static final int AAC_AUDIO_FRAME_COUNT = 5524;
-  private static final int H264_VIDEO_FRAME_COUNT = 3841;
+  private static final int VIDEO_FRAME_COUNT = 3841;
   private static final int VORBIS_AUDIO_FRAME_COUNT = 7773;
-  private static final int VP9_VIDEO_FRAME_COUNT = 3841;
 
   private static final String AAC_AUDIO_REPRESENTATION_ID = "141";
   private static final String H264_BASELINE_240P_VIDEO_REPRESENTATION_ID = "avc-baseline-240";
@@ -100,6 +100,16 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
           H264_BASELINE_480P_VIDEO_REPRESENTATION_ID,
           H264_MAIN_240P_VIDEO_REPRESENTATION_ID,
           H264_MAIN_480P_VIDEO_REPRESENTATION_ID};
+
+  private static final String H265_BASELINE_288P_VIDEO_REPRESENTATION_ID = "hevc-main-288";
+  private static final String H265_BASELINE_360P_VIDEO_REPRESENTATION_ID = "hevc-main-360";
+  // The highest quality H265 format mandated by the Android CDD.
+  private static final String H265_CDD_FIXED = H265_BASELINE_360P_VIDEO_REPRESENTATION_ID;
+  // Multiple H265 formats mandated by the Android CDD.
+  private static final String[] H265_CDD_ADAPTIVE =
+      new String[] {
+          H265_BASELINE_288P_VIDEO_REPRESENTATION_ID,
+          H265_BASELINE_360P_VIDEO_REPRESENTATION_ID};
 
   private static final String VORBIS_AUDIO_REPRESENTATION_ID = "2";
   private static final String VP9_180P_VIDEO_REPRESENTATION_ID = "0";
@@ -165,7 +175,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       return;
     }
     String testName = "testH264Fixed";
-    testDashPlayback(getActivity(), testName, AAC_AUDIO_FRAME_COUNT, H264_VIDEO_FRAME_COUNT,
+    testDashPlayback(getActivity(), testName, AAC_AUDIO_FRAME_COUNT, VIDEO_FRAME_COUNT,
         H264_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false, H264_CDD_FIXED);
   }
 
@@ -175,7 +185,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       return;
     }
     String testName = "testH264Adaptive";
-    testDashPlayback(getActivity(), testName, AAC_AUDIO_FRAME_COUNT, H264_VIDEO_FRAME_COUNT,
+    testDashPlayback(getActivity(), testName, AAC_AUDIO_FRAME_COUNT, VIDEO_FRAME_COUNT,
         H264_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, ALLOW_ADDITIONAL_VIDEO_FORMATS,
         H264_CDD_ADAPTIVE);
   }
@@ -187,7 +197,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String testName = "testH264AdaptiveWithSeeking";
     testDashPlayback(getActivity(), testName, SEEKING_SCHEDULE, false, AAC_AUDIO_FRAME_COUNT,
-        H264_VIDEO_FRAME_COUNT, H264_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
+        VIDEO_FRAME_COUNT, H264_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
         ALLOW_ADDITIONAL_VIDEO_FORMATS, H264_CDD_ADAPTIVE);
   }
 
@@ -198,9 +208,54 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String testName = "testH264AdaptiveWithRendererDisabling";
     testDashPlayback(getActivity(), testName, RENDERER_DISABLING_SCHEDULE, false,
-        AAC_AUDIO_FRAME_COUNT, H264_VIDEO_FRAME_COUNT, H264_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
+        AAC_AUDIO_FRAME_COUNT, VIDEO_FRAME_COUNT, H264_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
         ALLOW_ADDITIONAL_VIDEO_FORMATS, H264_CDD_ADAPTIVE);
   }
+
+  // H265 CDD.
+
+  public void testH265Fixed() throws IOException {
+    if (Util.SDK_INT < 21) {
+      // Pass.
+      return;
+    }
+    String testName = "testH265Fixed";
+    testDashPlayback(getActivity(), testName, AAC_AUDIO_FRAME_COUNT, VIDEO_FRAME_COUNT,
+        H265_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false, H265_CDD_FIXED);
+  }
+
+  public void testH265Adaptive() throws IOException {
+    if (Util.SDK_INT < 21) {
+      // Pass.
+      return;
+    }
+    String testName = "testH265Adaptive";
+    testDashPlayback(getActivity(), testName, AAC_AUDIO_FRAME_COUNT, VIDEO_FRAME_COUNT,
+        H265_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, ALLOW_ADDITIONAL_VIDEO_FORMATS,
+        H265_CDD_ADAPTIVE);
+  }
+
+  public void testH265AdaptiveWithSeeking() throws IOException {
+    if (Util.SDK_INT < 21) {
+      // Pass.
+      return;
+    }
+    String testName = "testH265AdaptiveWithSeeking";
+    testDashPlayback(getActivity(), testName, SEEKING_SCHEDULE, false, AAC_AUDIO_FRAME_COUNT,
+        VIDEO_FRAME_COUNT, H265_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
+        ALLOW_ADDITIONAL_VIDEO_FORMATS, H265_CDD_ADAPTIVE);
+  }
+
+  public void testH265AdaptiveWithRendererDisabling() throws IOException {
+    if (Util.SDK_INT < 21) {
+      // Pass.
+      return;
+    }
+    String testName = "testH265AdaptiveWithRendererDisabling";
+    testDashPlayback(getActivity(), testName, RENDERER_DISABLING_SCHEDULE, false,
+        AAC_AUDIO_FRAME_COUNT, VIDEO_FRAME_COUNT, H265_MANIFEST, AAC_AUDIO_REPRESENTATION_ID,
+        ALLOW_ADDITIONAL_VIDEO_FORMATS, H265_CDD_ADAPTIVE);
+    }
 
   // VP9 (CDD).
 
@@ -210,7 +265,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       return;
     }
     String testName = "testVp9Fixed360p";
-    testDashPlayback(getActivity(), testName, VORBIS_AUDIO_FRAME_COUNT, VP9_VIDEO_FRAME_COUNT,
+    testDashPlayback(getActivity(), testName, VORBIS_AUDIO_FRAME_COUNT, VIDEO_FRAME_COUNT,
         VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID, false, VP9_CDD_FIXED);
   }
 
@@ -220,7 +275,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       return;
     }
     String testName = "testVp9Adaptive";
-    testDashPlayback(getActivity(), testName, VORBIS_AUDIO_FRAME_COUNT, VP9_VIDEO_FRAME_COUNT,
+    testDashPlayback(getActivity(), testName, VORBIS_AUDIO_FRAME_COUNT, VIDEO_FRAME_COUNT,
         VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID, ALLOW_ADDITIONAL_VIDEO_FORMATS,
         VP9_CDD_ADAPTIVE);
   }
@@ -232,7 +287,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String testName = "testVp9AdaptiveWithSeeking";
     testDashPlayback(getActivity(), testName, SEEKING_SCHEDULE, false, VORBIS_AUDIO_FRAME_COUNT,
-        VP9_VIDEO_FRAME_COUNT, VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID,
+        VIDEO_FRAME_COUNT, VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID,
         ALLOW_ADDITIONAL_VIDEO_FORMATS, VP9_CDD_ADAPTIVE);
   }
 
@@ -243,8 +298,8 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     }
     String testName = "testVp9AdaptiveWithRendererDisabling";
     testDashPlayback(getActivity(), testName, RENDERER_DISABLING_SCHEDULE, false,
-        VORBIS_AUDIO_FRAME_COUNT, VP9_VIDEO_FRAME_COUNT, VP9_MANIFEST,
-        VORBIS_AUDIO_REPRESENTATION_ID, ALLOW_ADDITIONAL_VIDEO_FORMATS, VP9_CDD_ADAPTIVE);
+        VORBIS_AUDIO_FRAME_COUNT, VIDEO_FRAME_COUNT, VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID,
+        ALLOW_ADDITIONAL_VIDEO_FORMATS, VP9_CDD_ADAPTIVE);
   }
 
   // Internal.

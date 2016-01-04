@@ -26,8 +26,7 @@ public interface MetricsLogger {
   String KEY_FRAMES_DROPPED_COUNT = "Frames Dropped (Count)";
   String KEY_FRAMES_RENDERED_COUNT = "Frames Rendered (Count)";
   String KEY_FRAMES_SKIPPED_COUNT = "Frames Skipped (Count)";
-  String KEY_MAX_CONSECUTIVE_FRAMES_DROPPED_COUNT =
-      "Maximum Consecutive Frames Skipped";
+  String KEY_MAX_CONSECUTIVE_FRAMES_DROPPED_COUNT = "Maximum Consecutive Frames Dropped";
   String KEY_TEST_NAME = "Test Name";
 
   /**
