@@ -21,6 +21,7 @@ import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecSelector;
+import com.google.android.exoplayer.MediaCodecUtil;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
@@ -45,6 +46,7 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
@@ -180,7 +182,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testH264Adaptive() throws IOException {
-    if (Util.SDK_INT < 16) {
+    if (Util.SDK_INT < 16 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
       // Pass.
       return;
     }
@@ -191,7 +193,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testH264AdaptiveWithSeeking() throws IOException {
-    if (Util.SDK_INT < 16) {
+    if (Util.SDK_INT < 16 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
       // Pass.
       return;
     }
@@ -202,7 +204,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testH264AdaptiveWithRendererDisabling() throws IOException {
-    if (Util.SDK_INT < 16) {
+    if (Util.SDK_INT < 16 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
       // Pass.
       return;
     }
@@ -225,7 +227,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testH265Adaptive() throws IOException {
-    if (Util.SDK_INT < 21) {
+    if (Util.SDK_INT < 21 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
       // Pass.
       return;
     }
@@ -236,7 +238,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testH265AdaptiveWithSeeking() throws IOException {
-    if (Util.SDK_INT < 21) {
+    if (Util.SDK_INT < 21 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
       // Pass.
       return;
     }
@@ -247,7 +249,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testH265AdaptiveWithRendererDisabling() throws IOException {
-    if (Util.SDK_INT < 21) {
+    if (Util.SDK_INT < 21 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
       // Pass.
       return;
     }
@@ -270,7 +272,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testVp9Adaptive() throws IOException {
-    if (Util.SDK_INT < 16) {
+    if (Util.SDK_INT < 16 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
       // Pass.
       return;
     }
@@ -281,7 +283,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testVp9AdaptiveWithSeeking() throws IOException {
-    if (Util.SDK_INT < 16) {
+    if (Util.SDK_INT < 16 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
       // Pass.
       return;
     }
@@ -292,7 +294,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testVp9AdaptiveWithRendererDisabling() throws IOException {
-    if (Util.SDK_INT < 16) {
+    if (Util.SDK_INT < 16 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
       // Pass.
       return;
     }
@@ -327,6 +329,14 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       test.setSchedule(actionSchedule);
     }
     activity.runTest(test, mpd.duration + MAX_ADDITIONAL_TIME_MS);
+  }
+
+  private boolean shouldSkipAdaptiveTest(String mimeType) throws IOException {
+    if (!MediaCodecUtil.getDecoderInfo(mimeType, false).adaptive) {
+      assertTrue(Util.SDK_INT < 21);
+      return true;
+    }
+    return false;
   }
 
   @TargetApi(16)
