@@ -104,20 +104,41 @@ public final class DefaultExtractorInput implements ExtractorInput {
   }
 
   @Override
+  public boolean peekFully(byte[] target, int offset, int length, boolean allowEndOfInput)
+      throws IOException, InterruptedException {
+    if (!advancePeekPosition(length, allowEndOfInput)) {
+      return false;
+    }
+    System.arraycopy(peekBuffer, peekBufferPosition - length, target, offset, length);
+    return true;
+  }
+
+  @Override
   public void peekFully(byte[] target, int offset, int length)
       throws IOException, InterruptedException {
-    advancePeekPosition(length);
-    System.arraycopy(peekBuffer, peekBufferPosition - length, target, offset, length);
+    peekFully(target, offset, length, false);
+  }
+
+  @Override
+  public boolean advancePeekPosition(int length, boolean allowEndOfInput)
+      throws IOException, InterruptedException {
+    ensureSpaceForPeek(length);
+    int bytesPeeked = Math.min(peekBufferLength - peekBufferPosition, length);
+    peekBufferLength += length - bytesPeeked;
+    while (bytesPeeked < length) {
+      bytesPeeked = readFromDataSource(peekBuffer, peekBufferPosition, length, bytesPeeked,
+          allowEndOfInput);
+      if (bytesPeeked == C.RESULT_END_OF_INPUT) {
+        return false;
+      }
+    }
+    peekBufferPosition += length;
+    return true;
   }
 
   @Override
   public void advancePeekPosition(int length) throws IOException, InterruptedException {
-    ensureSpaceForPeek(length);
-    peekBufferPosition += length;
-    while (peekBufferPosition > peekBufferLength) {
-      peekBufferLength = readFromDataSource(peekBuffer, 0, peekBufferPosition, peekBufferLength,
-          false);
-    }
+    advancePeekPosition(length, false);
   }
 
   @Override
