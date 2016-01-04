@@ -15,21 +15,17 @@
  */
 package com.google.android.exoplayer.text.subrip;
 
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.LongArray;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,14 +53,15 @@ public final class SubripParser implements SubtitleParser {
   }
 
   @Override
-  public SubripSubtitle parse(InputStream inputStream) throws IOException {
+  public SubripSubtitle parse(byte[] bytes, int offset, int length) {
     ArrayList<Cue> cues = new ArrayList<>();
     LongArray cueTimesUs = new LongArray();
-    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, C.UTF8_NAME));
+    ParsableByteArray subripData = new ParsableByteArray(bytes, offset + length);
+    subripData.setPosition(offset);
     boolean haveEndTimecode;
     String currentLine;
 
-    while ((currentLine = reader.readLine()) != null) {
+    while ((currentLine = subripData.readLine()) != null) {
       if (currentLine.length() == 0) {
         // Skip blank lines.
         continue;
@@ -80,7 +77,7 @@ public final class SubripParser implements SubtitleParser {
 
       // Read and parse the timing line.
       haveEndTimecode = false;
-      currentLine = reader.readLine();
+      currentLine = subripData.readLine();
       Matcher matcher = SUBRIP_TIMING_LINE.matcher(currentLine);
       if (matcher.find()) {
         cueTimesUs.add(parseTimecode(matcher.group(1)));
@@ -96,7 +93,7 @@ public final class SubripParser implements SubtitleParser {
 
       // Read and parse the text.
       textBuilder.setLength(0);
-      while (!TextUtils.isEmpty(currentLine = reader.readLine())) {
+      while (!TextUtils.isEmpty(currentLine = subripData.readLine())) {
         if (textBuilder.length() > 0) {
           textBuilder.append("<br>");
         }
