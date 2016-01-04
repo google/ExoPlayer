@@ -693,22 +693,22 @@ public final class FragmentedMp4Extractor implements Extractor {
    * @throws InterruptedException If the thread is interrupted.
    */
   private boolean readSample(ExtractorInput input) throws IOException, InterruptedException {
-    if (sampleIndex == 0) {
-      int bytesToSkip = (int) (fragmentRun.dataPosition - input.getPosition());
-      checkState(bytesToSkip >= 0, "Offset to sample data was negative.");
-      input.skipFully(bytesToSkip);
-    }
-
-    if (sampleIndex >= fragmentRun.length) {
-      int bytesToSkip = (int) (endOfMdatPosition - input.getPosition());
-      checkState(bytesToSkip >= 0, "Offset to end of mdat was negative.");
-      input.skipFully(bytesToSkip);
-      // We've run out of samples in the current mdat atom.
-      enterReadingAtomHeaderState();
-      return false;
-    }
-
     if (parserState == STATE_READING_SAMPLE_START) {
+      if (sampleIndex == fragmentRun.length) {
+        // We've run out of samples in the current mdat. Discard any trailing data and prepare to
+        // read the header of the next atom.
+        int bytesToSkip = (int) (endOfMdatPosition - input.getPosition());
+        checkState(bytesToSkip >= 0, "Offset to end of mdat was negative.");
+        input.skipFully(bytesToSkip);
+        enterReadingAtomHeaderState();
+        return false;
+      }
+      if (sampleIndex == 0) {
+        // We're reading the first sample in the current mdat. Discard any preceding data.
+        int bytesToSkip = (int) (fragmentRun.dataPosition - input.getPosition());
+        checkState(bytesToSkip >= 0, "Offset to sample data was negative.");
+        input.skipFully(bytesToSkip);
+      }
       sampleSize = fragmentRun.sampleSizeTable[sampleIndex];
       if (fragmentRun.definesEncryptionData) {
         sampleBytesWritten = appendSampleEncryptionData(fragmentRun.sampleEncryptionData);
