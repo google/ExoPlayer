@@ -15,11 +15,10 @@
  */
 package com.google.android.exoplayer.text;
 
-import java.io.IOException;
-import java.io.InputStream;
+import com.google.android.exoplayer.ParserException;
 
 /**
- * Parses {@link Subtitle}s from {@link InputStream}s.
+ * Parses {@link Subtitle}s from a byte array.
  */
 public interface SubtitleParser {
 
@@ -32,12 +31,14 @@ public interface SubtitleParser {
   public boolean canParse(String mimeType);
 
   /**
-   * Parses a {@link Subtitle} from the provided {@link InputStream}.
+   * Parses a {@link Subtitle} from the provided {@code byte[]}.
    *
-   * @param inputStream The stream from which to parse the subtitle.
+   * @param bytes The array holding the subtitle data.
+   * @param offset The offset of the subtitle data in bytes.
+   * @param length The length of the subtitle data in bytes.
    * @return A parsed representation of the subtitle.
-   * @throws IOException If a problem occurred reading from the stream.
+   * @throws ParserException If a problem occurred parsing the subtitle data.
    */
-  public Subtitle parse(InputStream inputStream) throws IOException;
+  public Subtitle parse(byte[] bytes, int offset, int length) throws ParserException;
 
 }

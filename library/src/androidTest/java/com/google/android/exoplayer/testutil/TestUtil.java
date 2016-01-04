@@ -21,13 +21,16 @@ import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.upstream.DataSpec;
+import com.google.android.exoplayer.util.Util;
 
+import android.app.Instrumentation;
 import android.net.Uri;
 import android.test.InstrumentationTestCase;
 
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -113,6 +116,12 @@ public class TestUtil {
     System.setProperty("dexmaker.dexcache",
         instrumentationTestCase.getInstrumentation().getTargetContext().getCacheDir().getPath());
     MockitoAnnotations.initMocks(instrumentationTestCase);
+  }
+
+  public static byte[] getByteArray(Instrumentation instrumentation, String fileName)
+      throws IOException {
+    InputStream is = instrumentation.getContext().getResources().getAssets().open(fileName);
+    return Util.toByteArray(is);
   }
 
 }

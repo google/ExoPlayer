@@ -15,13 +15,14 @@
  */
 package com.google.android.exoplayer.text.webvtt;
 
+import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.text.Cue;
 
 import android.test.InstrumentationTestCase;
 import android.text.Layout.Alignment;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -39,21 +40,19 @@ public class WebvttParserTest extends InstrumentationTestCase {
 
   public void testParseEmpty() throws IOException {
     WebvttParser parser = new WebvttParser();
-    InputStream inputStream = getInstrumentation().getContext().getResources().getAssets()
-        .open(EMPTY_FILE);
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), EMPTY_FILE);
     try {
-      parser.parse(inputStream);
-      fail("Expected IOException");
-    } catch (IOException expected) {
+      parser.parse(bytes, 0, bytes.length);
+      fail("Expected ParserException");
+    } catch (ParserException expected) {
       // Do nothing.
     }
   }
 
   public void testParseTypical() throws IOException {
     WebvttParser parser = new WebvttParser();
-    InputStream inputStream =
-        getInstrumentation().getContext().getResources().getAssets().open(TYPICAL_FILE);
-    WebvttSubtitle subtitle = parser.parse(inputStream);
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_FILE);
+    WebvttSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
 
     // test event count
     assertEquals(4, subtitle.getEventTimeCount());
@@ -65,9 +64,8 @@ public class WebvttParserTest extends InstrumentationTestCase {
 
   public void testParseTypicalWithIds() throws IOException {
     WebvttParser parser = new WebvttParser();
-    InputStream inputStream = getInstrumentation().getContext().getResources().getAssets()
-        .open(TYPICAL_WITH_IDS_FILE);
-    WebvttSubtitle subtitle = parser.parse(inputStream);
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_WITH_IDS_FILE);
+    WebvttSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
 
     // test event count
     assertEquals(4, subtitle.getEventTimeCount());
@@ -79,9 +77,8 @@ public class WebvttParserTest extends InstrumentationTestCase {
 
   public void testParseTypicalWithComments() throws IOException {
     WebvttParser parser = new WebvttParser();
-    InputStream inputStream = getInstrumentation().getContext().getResources().getAssets()
-        .open(TYPICAL_WITH_COMMENTS_FILE);
-    WebvttSubtitle subtitle = parser.parse(inputStream);
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_WITH_COMMENTS_FILE);
+    WebvttSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
 
     // test event count
     assertEquals(4, subtitle.getEventTimeCount());
@@ -93,9 +90,8 @@ public class WebvttParserTest extends InstrumentationTestCase {
 
   public void testParseWithTags() throws IOException {
     WebvttParser parser = new WebvttParser();
-    InputStream inputStream = getInstrumentation().getContext().getResources().getAssets()
-        .open(WITH_TAGS_FILE);
-    WebvttSubtitle subtitle = parser.parse(inputStream);
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), WITH_TAGS_FILE);
+    WebvttSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
 
     // test event count
     assertEquals(8, subtitle.getEventTimeCount());
@@ -109,9 +105,8 @@ public class WebvttParserTest extends InstrumentationTestCase {
 
   public void testParseWithPositioning() throws IOException {
     WebvttParser parser = new WebvttParser();
-    InputStream inputStream = getInstrumentation().getContext().getResources().getAssets()
-        .open(WITH_POSITIONING_FILE);
-    WebvttSubtitle subtitle = parser.parse(inputStream);
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), WITH_POSITIONING_FILE);
+    WebvttSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
 
     // test event count
     assertEquals(10, subtitle.getEventTimeCount());
@@ -135,9 +130,8 @@ public class WebvttParserTest extends InstrumentationTestCase {
 
   public void testParseWithBadCueHeader() throws IOException {
     WebvttParser parser = new WebvttParser();
-    InputStream inputStream =
-        getInstrumentation().getContext().getResources().getAssets().open(WITH_BAD_CUE_HEADER_FILE);
-    WebvttSubtitle subtitle = parser.parse(inputStream);
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), WITH_BAD_CUE_HEADER_FILE);
+    WebvttSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
 
     // test event count
     assertEquals(4, subtitle.getEventTimeCount());
