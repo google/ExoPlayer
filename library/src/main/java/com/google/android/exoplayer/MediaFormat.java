@@ -16,6 +16,7 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.SuppressLint;
@@ -178,6 +179,11 @@ public final class MediaFormat {
     return new MediaFormat(trackId, mimeType, bitrate, NO_VALUE, durationUs, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE, null, false, NO_VALUE,
         NO_VALUE);
+  }
+
+  public static MediaFormat createId3Format() {
+    return createFormatForMimeType(null, MimeTypes.APPLICATION_ID3, MediaFormat.NO_VALUE,
+        C.UNKNOWN_TIME_US);
   }
 
   /* package */ MediaFormat(String trackId, String mimeType, int bitrate, int maxInputSize,
