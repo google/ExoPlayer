@@ -49,7 +49,6 @@ public final class Mp3Extractor implements Extractor {
   private static final int VBRI_HEADER = Util.getIntegerCodeForString("VBRI");
 
   private final long forcedFirstSampleTimestampUs;
-  private final BufferingInput inputBuffer;
   private final ParsableByteArray scratch;
   private final MpegAudioHeader synchronizedHeader;
 
@@ -79,7 +78,6 @@ public final class Mp3Extractor implements Extractor {
    */
   public Mp3Extractor(long forcedFirstSampleTimestampUs) {
     this.forcedFirstSampleTimestampUs = forcedFirstSampleTimestampUs;
-    inputBuffer = new BufferingInput(MpegAudioHeader.MAX_FRAME_SIZE_BYTES * 3);
     scratch = new ParsableByteArray(4);
     synchronizedHeader = new MpegAudioHeader();
     basisTimeUs = -1;
@@ -157,7 +155,6 @@ public final class Mp3Extractor implements Extractor {
     samplesRead = 0;
     basisTimeUs = -1;
     sampleBytesRemaining = 0;
-    inputBuffer.reset();
   }
 
   @Override
@@ -178,7 +175,7 @@ public final class Mp3Extractor implements Extractor {
         return RESULT_END_OF_INPUT;
       }
       if (basisTimeUs == -1) {
-        basisTimeUs = seeker.getTimeUs(getPosition(extractorInput, inputBuffer));
+        basisTimeUs = seeker.getTimeUs(extractorInput.getPosition());
         if (forcedFirstSampleTimestampUs != -1) {
           long embeddedFirstSampleTimestampUs = seeker.getTimeUs(0);
           basisTimeUs += forcedFirstSampleTimestampUs - embeddedFirstSampleTimestampUs;
@@ -186,24 +183,15 @@ public final class Mp3Extractor implements Extractor {
       }
       sampleBytesRemaining = synchronizedHeader.frameSize;
     }
-
-    long timeUs = basisTimeUs + (samplesRead * C.MICROS_PER_SECOND / synchronizedHeader.sampleRate);
-
-    // Start by draining any buffered bytes, then read directly from the extractor input.
-    sampleBytesRemaining -= inputBuffer.drainToOutput(trackOutput, sampleBytesRemaining);
-    if (sampleBytesRemaining > 0) {
-      inputBuffer.mark();
-      int bytesAppended = trackOutput.sampleData(extractorInput, sampleBytesRemaining, true);
-      if (bytesAppended == C.RESULT_END_OF_INPUT) {
-        return RESULT_END_OF_INPUT;
-      }
-      sampleBytesRemaining -= bytesAppended;
-      // Return if we still need more data.
-      if (sampleBytesRemaining > 0) {
-        return RESULT_CONTINUE;
-      }
+    int bytesAppended = trackOutput.sampleData(extractorInput, sampleBytesRemaining, true);
+    if (bytesAppended == C.RESULT_END_OF_INPUT) {
+      return RESULT_END_OF_INPUT;
     }
-
+    sampleBytesRemaining -= bytesAppended;
+    if (sampleBytesRemaining > 0) {
+      return RESULT_CONTINUE;
+    }
+    long timeUs = basisTimeUs + (samplesRead * C.MICROS_PER_SECOND / synchronizedHeader.sampleRate);
     trackOutput.sampleMetadata(timeUs, C.SAMPLE_FLAG_SYNC, synchronizedHeader.frameSize, 0, null);
     samplesRead += synchronizedHeader.samplesPerFrame;
     sampleBytesRemaining = 0;
@@ -215,11 +203,10 @@ public final class Mp3Extractor implements Extractor {
    */
   private long maybeResynchronize(ExtractorInput extractorInput)
       throws IOException, InterruptedException {
-    inputBuffer.mark();
-    if (!inputBuffer.readAllowingEndOfInput(extractorInput, scratch.data, 0, 4)) {
+    extractorInput.resetPeekPosition();
+    if (!extractorInput.peekFully(scratch.data, 0, 4, true)) {
       return RESULT_END_OF_INPUT;
     }
-    inputBuffer.returnToMark();
 
     scratch.setPosition(0);
     int sampleHeaderData = scratch.readInt();
@@ -232,14 +219,14 @@ public final class Mp3Extractor implements Extractor {
     }
 
     synchronizedHeaderData = 0;
-    inputBuffer.skip(extractorInput, 1);
+    extractorInput.skipFully(1);
     return synchronizeCatchingEndOfInput(extractorInput);
   }
 
   private long synchronizeCatchingEndOfInput(ExtractorInput extractorInput)
       throws IOException, InterruptedException {
-    // An EOFException will be raised if any read operation was partially satisfied. If a seek
-    // operation resulted in reading from within the last frame, we may try to read past the end of
+    // An EOFException will be raised if any peek operation was partially satisfied. If a seek
+    // operation resulted in reading from within the last frame, we may try to peek past the end of
     // the file in a partially-satisfied read operation, so we need to catch the exception.
     try {
       return synchronize(extractorInput);
@@ -249,39 +236,28 @@ public final class Mp3Extractor implements Extractor {
   }
 
   private long synchronize(ExtractorInput extractorInput) throws IOException, InterruptedException {
-    // TODO: Use peekFully instead of a buffering input, and deduplicate with sniff().
-    if (extractorInput.getPosition() == 0) {
-      // Before preparation completes, retrying loads from the start, so clear any buffered data.
-      inputBuffer.reset();
-    } else {
-      // After preparation completes, retrying resumes loading from the old position, so return to
-      // the start of buffered data to parse it again.
-      inputBuffer.returnToMark();
-    }
-
-    long startPosition = getPosition(extractorInput, inputBuffer);
-
-    // Skip any ID3 header at the start of the file.
+    // TODO: Deduplicate with sniff().
+    extractorInput.resetPeekPosition();
+    long startPosition = extractorInput.getPosition();
     if (startPosition == 0) {
+      // Skip any ID3 headers at the start of the file.
       while (true) {
-        inputBuffer.read(extractorInput, scratch.data, 0, 3);
+        extractorInput.peekFully(scratch.data, 0, 3);
         scratch.setPosition(0);
         if (scratch.readUnsignedInt24() != ID3_TAG) {
           break;
         }
-        extractorInput.skipFully(3);
+        extractorInput.skipFully(3 + 2 + 1); // "ID3", version, flags
         extractorInput.readFully(scratch.data, 0, 4);
         int headerLength = ((scratch.data[0] & 0x7F) << 21) | ((scratch.data[1] & 0x7F) << 14)
             | ((scratch.data[2] & 0x7F) << 7) | (scratch.data[3] & 0x7F);
         extractorInput.skipFully(headerLength);
-        inputBuffer.reset();
-        startPosition = getPosition(extractorInput, inputBuffer);
+        startPosition = extractorInput.getPosition();
       }
-      inputBuffer.returnToMark();
+      extractorInput.resetPeekPosition();
     }
 
     // Try to find four consecutive valid MPEG audio frames.
-    inputBuffer.mark();
     long headerPosition = startPosition;
     int validFrameCount = 0;
     int candidateSynchronizedHeaderData = 0;
@@ -290,7 +266,7 @@ public final class Mp3Extractor implements Extractor {
         throw new ParserException("Searched too many bytes while resynchronizing.");
       }
 
-      if (!inputBuffer.readAllowingEndOfInput(extractorInput, scratch.data, 0, 4)) {
+      if (!extractorInput.peekFully(scratch.data, 0, 4, true)) {
         return RESULT_END_OF_INPUT;
       }
 
@@ -304,9 +280,7 @@ public final class Mp3Extractor implements Extractor {
         candidateSynchronizedHeaderData = 0;
 
         // Try reading a header starting at the next byte.
-        inputBuffer.returnToMark();
-        inputBuffer.skip(extractorInput, 1);
-        inputBuffer.mark();
+        extractorInput.skipFully(1);
         headerPosition++;
         continue;
       }
@@ -323,11 +297,11 @@ public final class Mp3Extractor implements Extractor {
       }
 
       // Look for more headers.
-      inputBuffer.skip(extractorInput, frameSize - 4);
+      extractorInput.advancePeekPosition(frameSize - 4);
     }
 
-    // The input buffer read position is now synchronized.
-    inputBuffer.returnToMark();
+    // The read position is now synchronized.
+    extractorInput.resetPeekPosition();
     synchronizedHeaderData = candidateSynchronizedHeaderData;
     if (seeker == null) {
       setupSeeker(extractorInput, headerPosition);
@@ -341,55 +315,48 @@ public final class Mp3Extractor implements Extractor {
   }
 
   /**
-   * Sets {@link #seeker} to seek using metadata from {@link #inputBuffer}, which should have its
-   * position set to the start of the first frame in the stream. On returning,
-   * {@link #inputBuffer}'s position and mark will be set to the start of the first frame of audio.
+   * Sets {@link #seeker} to seek using metadata read from {@code extractorInput}, which should
+   * provide data from the start of the first frame in the stream. On returning, the input's
+   * position will be set to the start of the first frame of audio.
    *
-   * @param extractorInput Source of data for {@link #inputBuffer}.
-   * @param headerPosition Position (byte offset) of the synchronized header in the stream.
+   * @param extractorInput The {@link ExtractorInput} from which to read.
+   * @param headerPosition The position (byte offset) of the synchronized header in the stream.
    * @throws IOException Thrown if there was an error reading from the stream. Not expected if the
-   *     next two frames were already read during synchronization.
+   *     next two frames were already peeked during synchronization.
    * @throws InterruptedException Thrown if reading from the stream was interrupted. Not expected if
-   *     the next two frames were already read during synchronization.
+   *     the next two frames were already peeked during synchronization.
    */
   private void setupSeeker(ExtractorInput extractorInput, long headerPosition)
       throws IOException, InterruptedException {
     // Try to set up seeking based on a XING or VBRI header.
-    if (parseSeekerFrame(extractorInput, headerPosition, extractorInput.getLength())) {
-      // Discard the parsed header so we start reading from the first audio frame.
-      inputBuffer.mark();
+    ParsableByteArray frame = new ParsableByteArray(synchronizedHeader.frameSize);
+    extractorInput.peekFully(frame.data, 0, synchronizedHeader.frameSize);
+    if (parseSeekerFrame(frame, headerPosition, extractorInput.getLength())) {
+      extractorInput.skipFully(synchronizedHeader.frameSize);
       if (seeker != null) {
         return;
       }
 
-      // If there was a header but it was not usable, synchronize to the next frame so we don't
-      // use an invalid bitrate for CBR seeking. This read is guaranteed to succeed if the frame was
+      // If there was a header but it was not usable, synchronize to the next frame so we don't use
+      // an invalid bitrate for CBR seeking. Peeking is guaranteed to succeed if the frame was
       // already read during synchronization.
-      inputBuffer.read(extractorInput, scratch.data, 0, 4);
-      scratch.setPosition(0);
       headerPosition += synchronizedHeader.frameSize;
+      extractorInput.peekFully(scratch.data, 0, 4);
+      scratch.setPosition(0);
       MpegAudioHeader.populateHeader(scratch.readInt(), synchronizedHeader);
     }
-
-    inputBuffer.returnToMark();
     seeker = new ConstantBitrateSeeker(headerPosition, synchronizedHeader.bitrate * 1000,
         extractorInput.getLength());
   }
 
   /**
-   * Consumes the frame at {@link #inputBuffer}'s current position, advancing it to the next frame.
-   * The mark is not modified. {@link #seeker} will be assigned based on seeking metadata in the
-   * frame. If there is no seeking metadata, returns {@code false} and sets {@link #seeker} to null.
-   * If seeking metadata is present and unusable, returns {@code true} and sets {@link #seeker} to
-   * null. Otherwise, returns {@code true} and assigns {@link #seeker}.
+   * Tries to read seeking metadata from the given {@code frame}. If there is no seeking metadata,
+   * returns {@code false} and sets {@link #seeker} to null. If seeking metadata is present and
+   * unusable, returns {@code true} and sets {@link #seeker} to null. Otherwise, returns
+   * {@code true} and assigns {@link #seeker}.
    */
-  private boolean parseSeekerFrame(ExtractorInput extractorInput, long headerPosition,
-      long inputLength) throws IOException, InterruptedException {
-    // Read the first frame so it can be parsed for seeking metadata.
-    inputBuffer.mark();
+  private boolean parseSeekerFrame(ParsableByteArray frame, long headerPosition, long inputLength) {
     seeker = null;
-    ParsableByteArray frame =
-        inputBuffer.getParsableByteArray(extractorInput, synchronizedHeader.frameSize);
 
     // Check if there is a XING header.
     int xingBase;
@@ -425,11 +392,6 @@ public final class Mp3Extractor implements Extractor {
 
     // Neither header is present.
     return false;
-  }
-
-  /** Returns the reading position of {@code bufferingInput} relative to the extractor's stream. */
-  private static long getPosition(ExtractorInput extractorInput, BufferingInput bufferingInput) {
-    return extractorInput.getPosition() - bufferingInput.getAvailableByteCount();
   }
 
   /**
