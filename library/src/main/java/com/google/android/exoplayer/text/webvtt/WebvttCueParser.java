@@ -54,7 +54,9 @@ import java.util.Stack;
 
   private static final String TAG = "WebvttCueParser";
 
-  public Spanned parse(String markup) {
+  private WebvttCueParser() {}
+
+  public static Spanned parse(String markup) {
     SpannableStringBuilder spannedText = new SpannableStringBuilder();
     Stack<StartTag> startTagStack = new Stack<>();
     String[] tagTokens;
@@ -126,12 +128,12 @@ import java.util.Stack;
    * @param startPos the position from where to start searching for the end of tag.
    * @return the position of the end of tag plus 1 (one).
    */
-  private int findEndOfTag(String markup, int startPos) {
+  private static int findEndOfTag(String markup, int startPos) {
     int idx = markup.indexOf(CHAR_GREATER_THAN, startPos);
     return idx == -1 ? markup.length() : idx + 1;
   }
 
-  private void applyEntity(String entity, SpannableStringBuilder spannedText) {
+  private static void applyEntity(String entity, SpannableStringBuilder spannedText) {
     switch (entity) {
       case ENTITY_LESS_THAN:
         spannedText.append('<');
@@ -151,7 +153,7 @@ import java.util.Stack;
     }
   }
 
-  private boolean isSupportedTag(String tagName) {
+  private static boolean isSupportedTag(String tagName) {
     switch (tagName) {
       case TAG_BOLD:
       case TAG_CLASS:
@@ -165,7 +167,7 @@ import java.util.Stack;
     }
   }
 
-  private void applySpansForTag(StartTag startTag, SpannableStringBuilder spannedText) {
+  private static void applySpansForTag(StartTag startTag, SpannableStringBuilder spannedText) {
     switch(startTag.name) {
       case TAG_BOLD:
         spannedText.setSpan(new StyleSpan(STYLE_BOLD), startTag.position,
@@ -191,7 +193,7 @@ import java.util.Stack;
    * @return an array of <code>String</code>s with the tag name at pos 0 followed by style classes
    *    or null if it's an empty tag: '&lt;&gt;'
    */
-  private String[] tokenizeTag(String fullTagExpression) {
+  private static String[] tokenizeTag(String fullTagExpression) {
     fullTagExpression = fullTagExpression.replace("\\s+", " ").trim();
     if (fullTagExpression.length() == 0) {
       return null;

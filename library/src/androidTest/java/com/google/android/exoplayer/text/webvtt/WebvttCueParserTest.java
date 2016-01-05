@@ -27,8 +27,7 @@ import android.text.style.UnderlineSpan;
 public final class WebvttCueParserTest extends InstrumentationTestCase {
 
   public void testParseStrictValidClassesAndTrailingTokens() throws Exception {
-    WebvttCueParser parser = new WebvttCueParser();
-    Spanned text = parser.parse("<v.first.loud Esme>"
+    Spanned text = WebvttCueParser.parse("<v.first.loud Esme>"
         + "This <u.style1.style2 some stuff>is</u> text with <b.foo><i.bar>html</i></b> tags");
 
     assertEquals("This is text with html tags", text.toString());
@@ -49,8 +48,7 @@ public final class WebvttCueParserTest extends InstrumentationTestCase {
   }
 
   public void testParseStrictValidUnsupportedTagsStrippedOut() throws Exception {
-    WebvttCueParser parser = new WebvttCueParser();
-    Spanned text = parser.parse(
+    Spanned text = WebvttCueParser.parse(
         "<v.first.loud Esme>This <unsupported>is</unsupported> text with "
         + "<notsupp><invalid>html</invalid></notsupp> tags");
 
@@ -60,8 +58,7 @@ public final class WebvttCueParserTest extends InstrumentationTestCase {
   }
 
   public void testParseWellFormedUnclosedEndAtCueEnd() throws Exception {
-    WebvttCueParser parser = new WebvttCueParser();
-    Spanned text = parser.parse(
+    Spanned text = WebvttCueParser.parse(
         "An <u some trailing stuff>unclosed u tag with <i>italic</i> inside");
 
     assertEquals("An unclosed u tag with italic inside", text.toString());
@@ -79,8 +76,7 @@ public final class WebvttCueParserTest extends InstrumentationTestCase {
   }
 
   public void testParseWellFormedUnclosedEndAtParent() throws Exception {
-    WebvttCueParser parser = new WebvttCueParser();
-    Spanned text = parser.parse(
+    Spanned text = WebvttCueParser.parse(
         "An unclosed u tag with <i><u>underline and italic</i> inside");
 
     assertEquals("An unclosed u tag with underline and italic inside", text.toString());
@@ -99,8 +95,7 @@ public final class WebvttCueParserTest extends InstrumentationTestCase {
   }
 
   public void testParseMalformedNestedElements() throws Exception {
-    WebvttCueParser parser = new WebvttCueParser();
-    Spanned text = parser.parse(
+    Spanned text = WebvttCueParser.parse(
         "<b><u>An unclosed u tag with <i>italic</u> inside</i></b>");
     assertEquals("An unclosed u tag with italic inside", text.toString());
 
@@ -126,8 +121,7 @@ public final class WebvttCueParserTest extends InstrumentationTestCase {
   }
 
   public void testParseCloseNonExistingTag() throws Exception {
-    WebvttCueParser parser = new WebvttCueParser();
-    Spanned text = parser.parse("blah<b>blah</i>blah</b>blah");
+    Spanned text = WebvttCueParser.parse("blah<b>blah</i>blah</b>blah");
     assertEquals("blahblahblahblah", text.toString());
 
     StyleSpan[] spans = getSpans(text, StyleSpan.class);
@@ -138,50 +132,42 @@ public final class WebvttCueParserTest extends InstrumentationTestCase {
   }
 
   public void testParseEmptyTagName() throws Exception {
-    WebvttCueParser parser = new WebvttCueParser();
-    Spanned text = parser.parse("An unclosed u tag with <>italic inside");
+    Spanned text = WebvttCueParser.parse("An unclosed u tag with <>italic inside");
     assertEquals("An unclosed u tag with italic inside", text.toString());
   }
 
   public void testParseEntities() throws Exception {
-    WebvttCueParser parser = new WebvttCueParser();
-    Spanned text = parser.parse("&amp; &gt; &lt; &nbsp;");
+    Spanned text = WebvttCueParser.parse("&amp; &gt; &lt; &nbsp;");
     assertEquals("& > <  ", text.toString());
   }
 
   public void testParseEntitiesUnsupported() throws Exception {
-    WebvttCueParser parser = new WebvttCueParser();
-    Spanned text = parser.parse("&noway; &sure;");
+    Spanned text = WebvttCueParser.parse("&noway; &sure;");
     assertEquals(" ", text.toString());
   }
 
   public void testParseEntitiesNotTerminated() throws Exception {
-    WebvttCueParser parser = new WebvttCueParser();
-    Spanned text = parser.parse("&amp here comes text");
+    Spanned text = WebvttCueParser.parse("&amp here comes text");
     assertEquals("& here comes text", text.toString());
   }
 
   public void testParseEntitiesNotTerminatedUnsupported() throws Exception {
-    WebvttCueParser parser = new WebvttCueParser();
-    Spanned text = parser.parse("&surenot here comes text");
+    Spanned text = WebvttCueParser.parse("&surenot here comes text");
     assertEquals(" here comes text", text.toString());
   }
 
   public void testParseEntitiesNotTerminatedNoSpace() throws Exception {
-    WebvttCueParser parser = new WebvttCueParser();
-    Spanned text = parser.parse("&surenot");
+    Spanned text = WebvttCueParser.parse("&surenot");
     assertEquals("&surenot", text.toString());
   }
 
   public void testParseVoidTag() throws Exception {
-    WebvttCueParser parser = new WebvttCueParser();
-    Spanned text = parser.parse("here comes<br/> text<br/>");
+    Spanned text = WebvttCueParser.parse("here comes<br/> text<br/>");
     assertEquals("here comes text", text.toString());
   }
 
   public void testParseMultipleTagsOfSameKind() {
-    WebvttCueParser parser = new WebvttCueParser();
-    Spanned text = parser.parse("blah <b>blah</b> blah <b>foo</b>");
+    Spanned text = WebvttCueParser.parse("blah <b>blah</b> blah <b>foo</b>");
 
     assertEquals("blah blah blah foo", text.toString());
     StyleSpan[] spans = getSpans(text, StyleSpan.class);
@@ -195,8 +181,7 @@ public final class WebvttCueParserTest extends InstrumentationTestCase {
   }
 
   public void testParseInvalidVoidSlash() {
-    WebvttCueParser parser = new WebvttCueParser();
-    Spanned text = parser.parse("blah <b/.st1.st2 trailing stuff> blah");
+    Spanned text = WebvttCueParser.parse("blah <b/.st1.st2 trailing stuff> blah");
 
     assertEquals("blah  blah", text.toString());
     StyleSpan[] spans = getSpans(text, StyleSpan.class);
@@ -204,39 +189,37 @@ public final class WebvttCueParserTest extends InstrumentationTestCase {
   }
 
   public void testParseMonkey() throws Exception {
-    WebvttCueParser parser = new WebvttCueParser();
-    Spanned text = parser.parse(
+    Spanned text = WebvttCueParser.parse(
         "< u>An unclosed u tag with <<<<< i>italic</u></u></u></u    ></i><u><u> inside");
     assertEquals("An unclosed u tag with italic inside", text.toString());
-    text = parser.parse(">>>>>>>>>An unclosed u tag with <<<<< italic</u></u></u></u  >"
+    text = WebvttCueParser.parse(">>>>>>>>>An unclosed u tag with <<<<< italic</u></u></u></u  >"
         + "</i><u><u> inside");
     assertEquals(">>>>>>>>>An unclosed u tag with  inside", text.toString());
   }
 
   public void testParseCornerCases() throws Exception {
-    WebvttCueParser parser = new WebvttCueParser();
-    Spanned text = parser.parse(">");
+    Spanned text = WebvttCueParser.parse(">");
     assertEquals(">", text.toString());
 
-    text = parser.parse("<");
+    text = WebvttCueParser.parse("<");
     assertEquals("", text.toString());
 
-    text = parser.parse("<b.st1.st2 annotation");
+    text = WebvttCueParser.parse("<b.st1.st2 annotation");
     assertEquals("", text.toString());
 
-    text = parser.parse("<<<<<<<<<<<<<<<<");
+    text = WebvttCueParser.parse("<<<<<<<<<<<<<<<<");
     assertEquals("", text.toString());
 
-    text = parser.parse("<<<<<<>><<<<<<<<<<");
+    text = WebvttCueParser.parse("<<<<<<>><<<<<<<<<<");
     assertEquals(">", text.toString());
 
-    text = parser.parse("<>");
+    text = WebvttCueParser.parse("<>");
     assertEquals("", text.toString());
 
-    text = parser.parse("&");
+    text = WebvttCueParser.parse("&");
     assertEquals("&", text.toString());
 
-    text = parser.parse("&&&&&&&");
+    text = WebvttCueParser.parse("&&&&&&&");
     assertEquals("&&&&&&&", text.toString());
   }
 
