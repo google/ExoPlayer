@@ -40,12 +40,10 @@ public final class WebvttParser implements SubtitleParser {
 
   private static final Pattern CUE_SETTING = Pattern.compile("(\\S+?):(\\S+)");
 
-  private final WebvttCueParser cueParser;
   private final PositionHolder positionHolder;
   private final StringBuilder textBuilder;
 
   public WebvttParser() {
-    this.cueParser = new WebvttCueParser();
     positionHolder = new PositionHolder();
     textBuilder = new StringBuilder();
   }
@@ -131,7 +129,7 @@ public final class WebvttParser implements SubtitleParser {
         textBuilder.append(line.trim());
       }
 
-      CharSequence cueText = cueParser.parse(textBuilder.toString());
+      CharSequence cueText = WebvttCueParser.parse(textBuilder.toString());
 
       WebvttCue cue = new WebvttCue(cueStartTime, cueEndTime, cueText, cueTextAlignment, cueLine,
           cueLineType, cueLineAnchor, cuePosition, cuePositionAnchor, cueWidth);
