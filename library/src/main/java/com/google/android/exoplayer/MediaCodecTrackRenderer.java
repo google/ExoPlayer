@@ -208,6 +208,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   private DrmInitData drmInitData;
   private MediaCodec codec;
   private boolean codecIsAdaptive;
+  private boolean codecNeedsFlushWorkaround;
   private boolean codecNeedsEosPropagationWorkaround;
   private boolean codecNeedsEosFlushWorkaround;
   private boolean codecReceivedEos;
@@ -358,6 +359,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
 
     String codecName = decoderInfo.name;
     codecIsAdaptive = decoderInfo.adaptive;
+    codecNeedsFlushWorkaround = codecNeedsFlushWorkaround(codecName);
     codecNeedsEosPropagationWorkaround = codecNeedsEosPropagationWorkaround(codecName);
     codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(codecName);
     try {
@@ -436,6 +438,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       codecReconfigured = false;
       codecHasQueuedBuffers = false;
       codecIsAdaptive = false;
+      codecNeedsFlushWorkaround = false;
       codecNeedsEosPropagationWorkaround = false;
       codecNeedsEosFlushWorkaround = false;
       codecReceivedEos = false;
@@ -521,7 +524,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     waitingForFirstSyncFrame = true;
     waitingForKeys = false;
     decodeOnlyPresentationTimestamps.clear();
-    if (Util.SDK_INT < 18 || (codecNeedsEosFlushWorkaround && codecReceivedEos)) {
+    if (codecNeedsFlushWorkaround || (codecNeedsEosFlushWorkaround && codecReceivedEos)) {
       // Workaround framework bugs. See [Internal: b/8347958, b/8578467, b/8543366, b/23361053].
       releaseCodec();
       maybeInitCodec();
@@ -942,6 +945,20 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       }
     }
     return -1;
+  }
+
+  /**
+   * Returns whether the decoder is known to fail when flushed.
+   * <p>
+   * If true is returned, the renderer will work around the issue by releasing the decoder and
+   * instantiating a new one rather than flushing the current instance.
+   *
+   * @param name The name of the decoder.
+   * @return True if the decoder is known to fail when flushed.
+   */
+  private static boolean codecNeedsFlushWorkaround(String name) {
+    return Util.SDK_INT < 18
+        || (Util.SDK_INT == 18 && "OMX.SEC.avc.dec".equals(name));
   }
 
   /**
