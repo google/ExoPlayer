@@ -22,6 +22,8 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
+import android.util.Pair;
+
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -35,12 +37,18 @@ import java.util.Collections;
   private static final int START_EXTENSION = 0xB5;
   private static final int START_GROUP = 0xB8;
 
+  // Maps (frame_rate_code - 1) indices to values, as defined in ITU-T H.262 Table 6-4.
+  private static final double[] FRAME_RATE_VALUES = new double[] {
+      24000d / 1001, 24, 25, 30000d / 1001, 30, 50, 60000d / 1001, 60};
+
   // State that should not be reset on seek.
   private boolean hasOutputFormat;
+  private long frameDurationUs;
 
   // State that should be reset on seek.
   private final boolean[] prefixFlags;
   private final CsdBuffer csdBuffer;
+  private boolean foundFirstFrameInPacket;
   private boolean foundFirstFrameInGroup;
   private long totalBytesWritten;
 
@@ -59,12 +67,16 @@ import java.util.Collections;
   public void seek() {
     NalUnitUtil.clearPrefixFlags(prefixFlags);
     csdBuffer.reset();
+    foundFirstFrameInPacket = false;
     foundFirstFrameInGroup = false;
     totalBytesWritten = 0;
   }
 
   @Override
   public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
+    if (startOfPacket) {
+      foundFirstFrameInPacket = false;
+    }
     while (data.bytesLeft() > 0) {
       int offset = data.getPosition();
       int limit = data.limit();
@@ -101,7 +113,9 @@ import java.util.Collections;
           int bytesAlreadyPassed = lengthToStartCode < 0 ? -lengthToStartCode : 0;
           if (csdBuffer.onStartCode(startCodeValue, bytesAlreadyPassed)) {
             // The csd data is complete, so we can parse and output the media format.
-            output.format(parseMediaFormat(csdBuffer));
+            Pair<MediaFormat, Long> result = parseCsdBuffer(csdBuffer);
+            output.format(result.first);
+            frameDurationUs = result.second;
             hasOutputFormat = true;
           }
         }
@@ -118,9 +132,10 @@ import java.util.Collections;
             foundFirstFrameInGroup = false;
             isKeyframe = true;
           } else /* startCode == START_PICTURE */ {
-            foundFirstFrameInGroup = true;
-            frameTimeUs = pesTimeUs;
+            frameTimeUs = !foundFirstFrameInPacket ? pesTimeUs : (frameTimeUs + frameDurationUs);
             framePosition = totalBytesWritten - bytesWrittenPastStartCode;
+            foundFirstFrameInPacket = true;
+            foundFirstFrameInGroup = true;
           }
         }
 
@@ -135,7 +150,14 @@ import java.util.Collections;
     // Do nothing.
   }
 
-  private static MediaFormat parseMediaFormat(CsdBuffer csdBuffer) {
+  /**
+   * Parses the {@link MediaFormat} and frame duration from a csd buffer.
+   *
+   * @param csdBuffer The csd buffer.
+   * @return A pair consisting of the {@link MediaFormat} and the frame duration in microseconds, or
+   *     0 if the duration could not be determined.
+   */
+  private static Pair<MediaFormat, Long> parseCsdBuffer(CsdBuffer csdBuffer) {
     byte[] csdData = Arrays.copyOf(csdBuffer.data, csdBuffer.length);
 
     int firstByte = csdData[4] & 0xFF;
@@ -161,17 +183,32 @@ import java.util.Collections;
         break;
     }
 
-    return MediaFormat.createVideoFormat(null, MimeTypes.VIDEO_MPEG2, MediaFormat.NO_VALUE,
-        MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, width, height, Collections.singletonList(csdData),
-        MediaFormat.NO_VALUE, pixelWidthHeightRatio);
+    MediaFormat format = MediaFormat.createVideoFormat(null, MimeTypes.VIDEO_MPEG2,
+        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, width, height,
+        Collections.singletonList(csdData), MediaFormat.NO_VALUE, pixelWidthHeightRatio);
+
+    long frameDurationUs = 0;
+    int frameRateCodeMinusOne = (csdData[7] & 0x0F) - 1;
+    if (0 <= frameRateCodeMinusOne && frameRateCodeMinusOne < FRAME_RATE_VALUES.length) {
+      double frameRate = FRAME_RATE_VALUES[frameRateCodeMinusOne];
+      int sequenceExtensionPosition = csdBuffer.sequenceExtensionPosition;
+      int frameRateExtensionN = (csdData[sequenceExtensionPosition + 9] & 0x60) >> 5;
+      int frameRateExtensionD = (csdData[sequenceExtensionPosition + 9] & 0x1F);
+      if (frameRateExtensionN != frameRateExtensionD) {
+        frameRate *= (frameRateExtensionN + 1d) / (frameRateExtensionD + 1);
+      }
+      frameDurationUs = (long) (C.MICROS_PER_SECOND / frameRate);
+    }
+
+    return Pair.create(format, frameDurationUs);
   }
 
   private static final class CsdBuffer {
 
     private boolean isFilling;
-    private boolean seenExtensionStartCode;
 
     public int length;
+    public int sequenceExtensionPosition;
     public byte[] data;
 
     public CsdBuffer(int initialCapacity) {
@@ -183,8 +220,8 @@ import java.util.Collections;
      */
     public void reset() {
       isFilling = false;
-      seenExtensionStartCode = false;
       length = 0;
+      sequenceExtensionPosition = 0;
     }
 
     /**
@@ -199,8 +236,8 @@ import java.util.Collections;
      */
     public boolean onStartCode(int startCodeValue, int bytesAlreadyPassed) {
       if (isFilling) {
-        if (!seenExtensionStartCode && startCodeValue == START_EXTENSION) {
-          seenExtensionStartCode = true;
+        if (sequenceExtensionPosition == 0 && startCodeValue == START_EXTENSION) {
+          sequenceExtensionPosition = length;
         } else {
           length -= bytesAlreadyPassed;
           isFilling = false;
