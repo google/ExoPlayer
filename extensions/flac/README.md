@@ -31,13 +31,18 @@ FLAC_EXT_PATH="${EXOPLAYER_ROOT}/extensions/flac/src/main"
 *   Download the [Android NDK][] and set its location in an environment
     variable:
 
+[Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
+
 ```
 NDK_PATH="<path to Android NDK>"
 ```
 
-*   Download and extract flac-1.3.1 as "${FLAC_EXT_PATH}/jni/flac" folder `curl
-    http://downloads.xiph.org/releases/flac/flac-1.3.1.tar.xz | tar xJ && \ mv
-    flac-1.3.1 flac`
+*   Download and extract flac-1.3.1 as "${FLAC_EXT_PATH}/jni/flac" folder
+
+```
+curl http://downloads.xiph.org/releases/flac/flac-1.3.1.tar.xz | tar xJ && \
+mv flac-1.3.1 flac
+```
 
 ### Android Studio
 
