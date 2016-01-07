@@ -25,6 +25,7 @@ import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.extractor.ts.PtsTimestampAdjuster;
+import com.google.android.exoplayer.text.webvtt.WebvttCueParser;
 import com.google.android.exoplayer.text.webvtt.WebvttParserUtil;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
@@ -137,7 +138,7 @@ import java.util.regex.Pattern;
     }
 
     // Find the first cue header and parse the start time.
-    Matcher cueHeaderMatcher = WebvttParserUtil.findNextCueHeader(webvttData);
+    Matcher cueHeaderMatcher = WebvttCueParser.findNextCueHeader(webvttData);
     if (cueHeaderMatcher == null) {
       // No cues found. Don't output a sample, but still output a corresponding track.
       buildTrackOutput(0);
