@@ -87,7 +87,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
   public static final String DRM_CONTENT_ID_EXTRA = "drm_content_id";
   public static final String DRM_PROVIDER_EXTRA = "drm_provider";
-  public static final String USE_EXTENSION_DECODERS = "use_extension_decoders";
+  public static final String PREFER_EXTENSION_DECODERS = "prefer_extension_decoders";
 
   // For use when launching the demo app using adb.
   public static final String ACTION_VIEW = "com.google.android.exoplayer.demo.action.VIEW";
@@ -246,7 +246,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private void initializePlayer() {
     Intent intent = getIntent();
     if (player == null) {
-      boolean useExtensionDecoders = intent.getBooleanExtra(USE_EXTENSION_DECODERS, false);
+      boolean preferExtensionDecoders = intent.getBooleanExtra(PREFER_EXTENSION_DECODERS, false);
       UUID drmSchemeUuid = (UUID) intent.getSerializableExtra(DRM_SCHEME_UUID_EXTRA);
       DrmSessionManager drmSessionManager = null;
       if (drmSchemeUuid != null) {
@@ -266,7 +266,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       trackSelector.addListener(eventLogger);
       trackSelectionHelper = new TrackSelectionHelper(trackSelector);
       player = ExoPlayerFactory.newSimpleInstance(this, trackSelector, drmSessionManager,
-          useExtensionDecoders);
+          preferExtensionDecoders);
       player.addListener(this);
       player.addListener(eventLogger);
       player.setDebugListener(eventLogger);

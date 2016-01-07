@@ -97,7 +97,7 @@ public class SampleChooserActivity extends Activity {
         .putExtra(PlayerActivity.DRM_SCHEME_UUID_EXTRA, sample.drmSchemeUuid)
         .putExtra(PlayerActivity.DRM_CONTENT_ID_EXTRA, sample.drmContentId)
         .putExtra(PlayerActivity.DRM_PROVIDER_EXTRA, sample.drmProvider)
-        .putExtra(PlayerActivity.USE_EXTENSION_DECODERS, sample.useExtensionDecoders);
+        .putExtra(PlayerActivity.PREFER_EXTENSION_DECODERS, sample.preferExtensionDecoders);
     startActivity(intent);
   }
 
@@ -171,7 +171,7 @@ public class SampleChooserActivity extends Activity {
       UUID drmUuid = null;
       String drmContentId = null;
       String drmProvider = null;
-      boolean useExtensionDecoders = false;
+      boolean preferExtensionDecoders = false;
 
       reader.beginObject();
       while (reader.hasNext()) {
@@ -191,8 +191,8 @@ public class SampleChooserActivity extends Activity {
             drmContentId = drmComponents[1];
             drmProvider = drmComponents[2];
             break;
-          case "use_extension_decoders":
-            useExtensionDecoders = reader.nextBoolean();
+          case "prefer_extension_decoders":
+            preferExtensionDecoders = reader.nextBoolean();
             break;
         }
       }
@@ -202,7 +202,7 @@ public class SampleChooserActivity extends Activity {
         throw new ParserException("Invalid sample (name or uri missing)");
       }
       return new Sample(sampleName, uri, type, drmUuid, drmContentId, drmProvider,
-          useExtensionDecoders);
+          preferExtensionDecoders);
     }
 
     private SampleGroup getGroup(String groupName, List<SampleGroup> groups) {
@@ -341,17 +341,17 @@ public class SampleChooserActivity extends Activity {
     public final UUID drmSchemeUuid;
     public final String drmContentId;
     public final String drmProvider;
-    public final boolean useExtensionDecoders;
+    public final boolean preferExtensionDecoders;
 
     public Sample(String name, String uri, int type, UUID drmSchemeUuid, String drmContentId,
-        String drmProvider, boolean useExtensionDecoders) {
+        String drmProvider, boolean preferExtensionDecoders) {
       this.name = name;
       this.uri = uri;
       this.type = type;
       this.drmSchemeUuid = drmSchemeUuid;
       this.drmContentId = drmContentId;
       this.drmProvider = drmProvider;
-      this.useExtensionDecoders = useExtensionDecoders;
+      this.preferExtensionDecoders = preferExtensionDecoders;
     }
 
   }

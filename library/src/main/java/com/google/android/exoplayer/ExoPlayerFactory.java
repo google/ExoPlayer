@@ -61,13 +61,13 @@ public final class ExoPlayerFactory {
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
    *     will not be used for DRM protected playbacks.
-   * @param useExtensionDecoders True to include {@link TrackRenderer} instances defined in
-   *     available extensions. Note that the required extensions must be included in the application
-   *     build for setting this flag to have any effect.
+   * @param preferExtensionDecoders True to prefer {@link TrackRenderer} instances defined in
+   *     available extensions over those defined in the core library. Note that extensions must be
+   *     included in the application build for setting this flag to have any effect.
    */
   public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
-      DrmSessionManager drmSessionManager, boolean useExtensionDecoders) {
-    return newSimpleInstance(context, trackSelector, drmSessionManager, useExtensionDecoders,
+      DrmSessionManager drmSessionManager, boolean preferExtensionDecoders) {
+    return newSimpleInstance(context, trackSelector, drmSessionManager, preferExtensionDecoders,
         DEFAULT_MIN_BUFFER_MS, DEFAULT_MIN_REBUFFER_MS);
   }
 
@@ -80,9 +80,9 @@ public final class ExoPlayerFactory {
    * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the instance
    *     will not be used for DRM protected playbacks.
-   * @param useExtensionDecoders True to include {@link TrackRenderer} instances defined in
-   *     available extensions. Note that the required extensions must be included in the application
-   *     build for setting this flag to have any effect.
+   * @param preferExtensionDecoders True to prefer {@link TrackRenderer} instances defined in
+   *     available extensions over those defined in the core library. Note that extensions must be
+   *     included in the application build for setting this flag to have any effect.
    * @param minBufferMs A minimum duration of data that must be buffered for playback to start
    *     or resume following a user action such as a seek.
    * @param minRebufferMs A minimum duration of data that must be buffered for playback to resume
@@ -90,9 +90,9 @@ public final class ExoPlayerFactory {
    *     not due to a user action such as starting playback or seeking).
    */
   public static SimpleExoPlayer newSimpleInstance(Context context, TrackSelector trackSelector,
-      DrmSessionManager drmSessionManager, boolean useExtensionDecoders, int minBufferMs,
+      DrmSessionManager drmSessionManager, boolean preferExtensionDecoders, int minBufferMs,
       int minRebufferMs) {
-    return new SimpleExoPlayer(context, trackSelector, drmSessionManager, useExtensionDecoders,
+    return new SimpleExoPlayer(context, trackSelector, drmSessionManager, preferExtensionDecoders,
         minBufferMs, minRebufferMs);
   }
 

@@ -104,7 +104,7 @@ public final class SimpleExoPlayer implements ExoPlayer {
   private CodecCounters audioCodecCounters;
 
   /* package */ SimpleExoPlayer(Context context, TrackSelector trackSelector,
-      DrmSessionManager drmSessionManager, boolean useExtensionDecoders, int minBufferMs,
+      DrmSessionManager drmSessionManager, boolean preferExtensionDecoders, int minBufferMs,
       int minRebufferMs) {
     mainHandler = new Handler();
     bandwidthMeter = new DefaultBandwidthMeter();
@@ -112,10 +112,13 @@ public final class SimpleExoPlayer implements ExoPlayer {
 
     // Build the renderers.
     ArrayList<TrackRenderer> renderersList = new ArrayList<>();
-    if (useExtensionDecoders) {
+    if (preferExtensionDecoders) {
+      buildExtensionRenderers(renderersList);
+      buildRenderers(context, drmSessionManager, renderersList);
+    } else {
+      buildRenderers(context, drmSessionManager, renderersList);
       buildExtensionRenderers(renderersList);
     }
-    buildRenderers(context, drmSessionManager, renderersList);
     renderers = renderersList.toArray(new TrackRenderer[renderersList.size()]);
 
     // Obtain counts of video and audio renderers.
