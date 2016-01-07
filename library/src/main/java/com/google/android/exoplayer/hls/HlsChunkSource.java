@@ -355,11 +355,11 @@ public class HlsChunkSource {
     if (chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)) {
       Extractor extractor = new AdtsExtractor(startTimeUs);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
-          switchingVariantSpliced, adaptiveMaxWidth, adaptiveMaxHeight);
+          switchingVariantSpliced, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
     } else if (chunkUri.getLastPathSegment().endsWith(MP3_FILE_EXTENSION)) {
       Extractor extractor = new Mp3Extractor(startTimeUs);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
-          switchingVariantSpliced, adaptiveMaxWidth, adaptiveMaxHeight);
+          switchingVariantSpliced, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
     } else if (previousTsChunk == null
         || previousTsChunk.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
         || !format.equals(previousTsChunk.format)) {
