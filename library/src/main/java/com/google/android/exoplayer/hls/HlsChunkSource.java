@@ -123,6 +123,7 @@ public class HlsChunkSource {
   private final DataSource dataSource;
   private final HlsPlaylistParser playlistParser;
   private final BandwidthMeter bandwidthMeter;
+  private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
   private final int adaptiveMode;
   private final String baseUri;
   private final int adaptiveMaxWidth;
@@ -145,24 +146,43 @@ public class HlsChunkSource {
   private boolean live;
   private long durationUs;
   private IOException fatalError;
-  private PtsTimestampAdjuster ptsTimestampAdjuster;
 
   private Uri encryptionKeyUri;
   private byte[] encryptionKey;
   private String encryptionIvString;
   private byte[] encryptionIv;
 
+  /**
+   * @param dataSource A {@link DataSource} suitable for loading the media data.
+   * @param playlistUrl The playlist URL.
+   * @param playlist The hls playlist.
+   * @param bandwidthMeter Provides an estimate of the currently available bandwidth.
+   * @param timestampAdjusterProvider A provider of {@link PtsTimestampAdjuster} instances. If
+   *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
+   *     same provider.
+   * @param variantIndices If {@code playlist} is a {@link HlsMasterPlaylist}, the subset of variant
+   *     indices to consider, or null to consider all of the variants. For other playlist types
+   *     this parameter is ignored.
+   * @param adaptiveMode The mode for switching from one variant to another. One of
+   *     {@link #ADAPTIVE_MODE_NONE}, {@link #ADAPTIVE_MODE_ABRUPT} and
+   *     {@link #ADAPTIVE_MODE_SPLICE}.
+   */
   public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
-      BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode) {
-    this(dataSource, playlistUrl, playlist, bandwidthMeter, variantIndices, adaptiveMode,
-        DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS, DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS);
+      BandwidthMeter bandwidthMeter, PtsTimestampAdjusterProvider timestampAdjusterProvider,
+      int[] variantIndices, int adaptiveMode) {
+    this(dataSource, playlistUrl, playlist, bandwidthMeter, timestampAdjusterProvider,
+        variantIndices, adaptiveMode, DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS,
+        DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS);
   }
 
   /**
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param playlistUrl The playlist URL.
    * @param playlist The hls playlist.
-   * @param bandwidthMeter provides an estimate of the currently available bandwidth.
+   * @param bandwidthMeter Provides an estimate of the currently available bandwidth.
+   * @param timestampAdjusterProvider A provider of {@link PtsTimestampAdjuster} instances. If
+   *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
+   *     same provider.
    * @param variantIndices If {@code playlist} is a {@link HlsMasterPlaylist}, the subset of variant
    *     indices to consider, or null to consider all of the variants. For other playlist types
    *     this parameter is ignored.
@@ -175,10 +195,12 @@ public class HlsChunkSource {
    *     for a switch to a lower quality variant to be considered.
    */
   public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
-      BandwidthMeter bandwidthMeter, int[] variantIndices, int adaptiveMode,
-      long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs) {
+      BandwidthMeter bandwidthMeter, PtsTimestampAdjusterProvider timestampAdjusterProvider,
+      int[] variantIndices, int adaptiveMode, long minBufferDurationToSwitchUpMs,
+      long maxBufferDurationToSwitchDownMs) {
     this.dataSource = dataSource;
     this.bandwidthMeter = bandwidthMeter;
+    this.timestampAdjusterProvider = timestampAdjusterProvider;
     this.adaptiveMode = adaptiveMode;
     minBufferDurationToSwitchUpUs = minBufferDurationToSwitchUpMs * 1000;
     maxBufferDurationToSwitchDownUs = maxBufferDurationToSwitchDownMs * 1000;
@@ -353,6 +375,9 @@ public class HlsChunkSource {
     // Configure the extractor that will read the chunk.
     HlsExtractorWrapper extractorWrapper;
     if (chunkUri.getLastPathSegment().endsWith(AAC_FILE_EXTENSION)) {
+      // TODO: Inject a timestamp adjuster and use it along with ID3 PRIV tag values with owner
+      // identifier com.apple.streaming.transportStreamTimestamp. This may also apply to the MP3
+      // case below.
       Extractor extractor = new AdtsExtractor(startTimeUs);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
           switchingVariantSpliced, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
@@ -364,13 +389,9 @@ public class HlsChunkSource {
         || previousTsChunk.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
         || !format.equals(previousTsChunk.format)) {
       // MPEG-2 TS segments, but we need a new extractor.
-      if (previousTsChunk == null
-          || previousTsChunk.discontinuitySequenceNumber != segment.discontinuitySequenceNumber) {
-        // TODO: Use this for AAC as well, along with the ID3 PRIV priv tag values with owner
-        // identifier com.apple.streaming.transportStreamTimestamp.
-        ptsTimestampAdjuster = new PtsTimestampAdjuster(startTimeUs);
-      }
-      Extractor extractor = new TsExtractor(ptsTimestampAdjuster);
+      PtsTimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(true,
+          segment.discontinuitySequenceNumber, startTimeUs);
+      Extractor extractor = new TsExtractor(timestampAdjuster);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
           switchingVariantSpliced, adaptiveMaxWidth, adaptiveMaxHeight);
     } else {
@@ -454,6 +475,7 @@ public class HlsChunkSource {
   }
 
   public void reset() {
+    timestampAdjusterProvider.reset();
     fatalError = null;
   }
 

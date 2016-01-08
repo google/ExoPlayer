@@ -30,6 +30,7 @@ import com.google.android.exoplayer.hls.HlsMasterPlaylist;
 import com.google.android.exoplayer.hls.HlsPlaylist;
 import com.google.android.exoplayer.hls.HlsPlaylistParser;
 import com.google.android.exoplayer.hls.HlsSampleSource;
+import com.google.android.exoplayer.hls.PtsTimestampAdjusterProvider;
 import com.google.android.exoplayer.metadata.Id3Parser;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
 import com.google.android.exoplayer.text.eia608.Eia608TrackRenderer;
@@ -147,7 +148,7 @@ public class HlsRendererBuilder implements RendererBuilder {
 
       DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter,
-          variantIndices, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
+          new PtsTimestampAdjusterProvider(), variantIndices, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
       HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, loadControl,
           BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_VIDEO);
       MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context,

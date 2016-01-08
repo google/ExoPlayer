@@ -358,6 +358,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     for (int i = 0; i < pendingDiscontinuities.length; i++) {
       pendingDiscontinuities[i] = true;
     }
+    chunkSource.reset();
     restartFrom(positionUs);
   }
 
