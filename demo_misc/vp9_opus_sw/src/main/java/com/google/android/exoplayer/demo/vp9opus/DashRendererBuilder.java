@@ -57,9 +57,9 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
 
   private final String manifestUrl;
   private final String userAgent;
-  private final VideoPlayer player;
+  private final PlayerActivity player;
 
-  public DashRendererBuilder(String manifestUrl, String userAgent, VideoPlayer player) {
+  public DashRendererBuilder(String manifestUrl, String userAgent, PlayerActivity player) {
     this.manifestUrl = manifestUrl;
     this.userAgent = userAgent;
     this.player = player;

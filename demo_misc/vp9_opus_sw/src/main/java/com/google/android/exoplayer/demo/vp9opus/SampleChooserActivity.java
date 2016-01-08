@@ -18,6 +18,7 @@ package com.google.android.exoplayer.demo.vp9opus;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,9 +42,6 @@ public class SampleChooserActivity extends Activity {
     ListView sampleList = (ListView) findViewById(R.id.sample_list);
     final SampleAdapter sampleAdapter = new SampleAdapter(this);
 
-    sampleAdapter.add(new Header("Local VP9 Video only"));
-    sampleAdapter.add(new Sample("S/W Color Conversion - upto 720p", false));
-    sampleAdapter.add(new Sample("OpenGL", true));
     sampleAdapter.add(new Header("DASH - VP9 Only"));
     sampleAdapter.add(new Sample("Google Glass",
           "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9.mpd"));
@@ -67,9 +65,9 @@ public class SampleChooserActivity extends Activity {
   }
 
   private void onSampleSelected(Sample sample) {
-    Intent playerIntent = new Intent(this, VideoPlayer.class)
-        .putExtra(VideoPlayer.DASH_MANIFEST_URL_ID_EXTRA, sample.uri)
-        .putExtra(VideoPlayer.USE_OPENGL_ID_EXTRA, sample.useOpenGL);
+    Intent playerIntent = new Intent(this, PlayerActivity.class)
+        .setData(Uri.parse(sample.uri))
+        .putExtra(PlayerActivity.USE_OPENGL_ID_EXTRA, sample.useOpenGL);
     startActivity(playerIntent);
   }
 

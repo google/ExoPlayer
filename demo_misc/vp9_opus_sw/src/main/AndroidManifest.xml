@@ -44,13 +44,10 @@
       </intent-filter>
     </activity>
 
-    <activity android:name="com.google.android.exoplayer.demo.vp9opus.VideoPlayer"
+    <activity android:name=".PlayerActivity"
         android:configChanges="keyboardHidden|orientation|screenSize"
         android:label="@string/app_name"
         android:theme="@style/PlayerTheme"/>
-
-    <activity android:name="com.google.android.exoplayer.demo.vp9opus.FilePickerActivity"
-        android:theme="@android:style/Theme.Dialog"/>
 
   </application>
 

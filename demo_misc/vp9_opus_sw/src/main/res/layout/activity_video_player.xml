@@ -40,33 +40,14 @@
   </com.google.android.exoplayer.AspectRatioFrameLayout>
 
   <LinearLayout
-      android:layout_width="wrap_content"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:orientation="vertical"
       android:background="#88000000">
 
-    <LinearLayout
-        android:id="@+id/buttons"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-      <Button
-          android:id="@+id/choose_file"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="@string/choose_file"/>
-
-      <Button
-          android:id="@+id/play"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="@string/play"/>
-
-    </LinearLayout>
-
     <TextView
         android:id="@+id/debug_info"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
   </LinearLayout>
