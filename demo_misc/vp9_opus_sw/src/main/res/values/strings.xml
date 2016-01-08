@@ -28,5 +28,6 @@
   <string name="libopus_version">
     Libopus: <xliff:g id="path">%1$s</xliff:g>
   </string>
+  <string name="storage_permission_denied">Permission to access storage was denied</string>
 
 </resources>

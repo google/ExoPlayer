@@ -30,8 +30,11 @@ import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.util.PlayerControl;
 import com.google.android.exoplayer.util.Util;
 
+import android.Manifest.permission;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -39,32 +42,23 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.widget.Button;
 import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-
 /**
  * Sample player that shows how to use ExoPlayer Extensions to playback VP9 Video and Opus Audio.
  */
-public class VideoPlayer extends Activity implements OnClickListener,
-       LibvpxVideoTrackRenderer.EventListener, ExoPlayer.Listener {
+public class PlayerActivity extends Activity implements
+    LibvpxVideoTrackRenderer.EventListener, ExoPlayer.Listener {
 
-  public static final String DASH_MANIFEST_URL_ID_EXTRA = "manifest_url";
   public static final String USE_OPENGL_ID_EXTRA = "use_opengl";
 
-  private static final int FILE_PICKER_REQUEST = 1;
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
   private static final int BUFFER_SEGMENT_COUNT = 160;
 
-  private boolean isDash;
-  private String manifestUrl;
   private boolean useOpenGL;
-  private String filename;
 
   private ExoPlayer player;
   private Handler handler;
@@ -75,14 +69,14 @@ public class VideoPlayer extends Activity implements OnClickListener,
   private TextView debugInfoView;
   private String debugInfo;
   private String playerState;
+  private Uri contentUri;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     Intent intent = getIntent();
-    manifestUrl = intent.getStringExtra(DASH_MANIFEST_URL_ID_EXTRA);
-    isDash = manifestUrl != null;
+    contentUri = intent.getData();
     useOpenGL = intent.getBooleanExtra(USE_OPENGL_ID_EXTRA, true);
 
     handler = new Handler();
@@ -109,16 +103,17 @@ public class VideoPlayer extends Activity implements OnClickListener,
     debugInfoView = (TextView) findViewById(R.id.debug_info);
     debugInfo = "";
     playerState = "";
-    filename = "";
     updateDebugInfoTextView();
 
-    // Set the buttons' onclick listeners.
-    ((Button) findViewById(R.id.choose_file)).setOnClickListener(this);
-    ((Button) findViewById(R.id.play)).setOnClickListener(this);
+    if (!maybeRequestPermission()) {
+      startPlayback();
+    }
+  }
 
-    // In case of DASH, start playback right away.
-    if (isDash) {
-      findViewById(R.id.buttons).setVisibility(View.GONE);
+  private void startPlayback() {
+    if (Util.isLocalFileUri(contentUri)) {
+      startBasicPlayback();
+    } else {
       startDashPlayback();
     }
   }
@@ -129,44 +124,13 @@ public class VideoPlayer extends Activity implements OnClickListener,
     stopPlayback();
   }
 
-  @Override
-  public void onClick(View v) {
-    switch (v.getId()) {
-      case R.id.choose_file:
-        Intent intent = new Intent();
-        intent.setClass(this, FilePickerActivity.class);
-        startActivityForResult(intent, FILE_PICKER_REQUEST);
-        break;
-      case R.id.play:
-        startBasicPlayback();
-        break;
-    }
-  }
-
-  @Override
-  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    switch (requestCode) {
-      case FILE_PICKER_REQUEST:
-        if (resultCode == Activity.RESULT_OK) {
-          filename = data.getStringExtra(FilePickerActivity.FILENAME_EXTRA_ID);
-          updateDebugInfoTextView();
-        }
-        break;
-    }
-  }
-
   private void startBasicPlayback() {
-    if (filename == null) {
-      Toast.makeText(this, "Choose a file!", Toast.LENGTH_SHORT).show();
-      return;
-    }
-    findViewById(R.id.buttons).setVisibility(View.GONE);
     player = ExoPlayer.Factory.newInstance(2);
     player.addListener(this);
     mediaController.setMediaPlayer(new PlayerControl(player));
     mediaController.setEnabled(true);
     ExtractorSampleSource sampleSource = new ExtractorSampleSource(
-        Uri.fromFile(new File(filename)),
+        contentUri,
         new DefaultUriDataSource(this, Util.getUserAgent(this, "ExoPlayerExtWebMDemo")),
         new DefaultAllocator(BUFFER_SEGMENT_SIZE), BUFFER_SEGMENT_SIZE * BUFFER_SEGMENT_COUNT,
         new WebmExtractor());
@@ -192,7 +156,8 @@ public class VideoPlayer extends Activity implements OnClickListener,
     updateDebugInfoTextView();
     final String userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like"
         + " Gecko) Chrome/38.0.2125.104 Safari/537.36";
-    DashRendererBuilder rendererBuilder = new DashRendererBuilder(manifestUrl, userAgent, this);
+    DashRendererBuilder rendererBuilder = new DashRendererBuilder(contentUri.toString(),
+        userAgent, this);
     rendererBuilder.build();
   }
 
@@ -269,6 +234,45 @@ public class VideoPlayer extends Activity implements OnClickListener,
     return handler;
   }
 
+  // Permission management methods
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode, String[] permissions,
+      int[] grantResults) {
+    if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+      startPlayback();
+    } else {
+      Toast.makeText(getApplicationContext(), R.string.storage_permission_denied,
+          Toast.LENGTH_LONG).show();
+      finish();
+    }
+  }
+
+  /**
+   * Checks whether it is necessary to ask for permission to read storage. If necessary, it also
+   * requests permission.
+   *
+   * @return true if a permission request is made. False if it is not necessary.
+   */
+  @TargetApi(23)
+  private boolean maybeRequestPermission() {
+    if (requiresPermission(contentUri)) {
+      requestPermissions(new String[] {permission.READ_EXTERNAL_STORAGE}, 0);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @TargetApi(23)
+  private boolean requiresPermission(Uri uri) {
+    return Util.SDK_INT >= 23 && Util.isLocalFileUri(uri)
+        && checkSelfPermission(permission.READ_EXTERNAL_STORAGE)
+        != PackageManager.PERMISSION_GRANTED;
+  }
+
+  // Internal methods
+
   private void stopPlayback() {
     if (player != null) {
       player.stop();
@@ -277,7 +281,7 @@ public class VideoPlayer extends Activity implements OnClickListener,
     }
   }
 
-  private void toggleControlsVisibility()  {
+  private void toggleControlsVisibility() {
     if (mediaController != null && player != null) {
       if (mediaController.isShowing()) {
         mediaController.hide();
@@ -295,7 +299,7 @@ public class VideoPlayer extends Activity implements OnClickListener,
     debugInfoText.append(
         getString(R.string.libopus_version, LibopusAudioTrackRenderer.getLibopusVersion()));
     debugInfoText.append("\n");
-    debugInfoText.append(getString(R.string.current_path, filename));
+    debugInfoText.append(getString(R.string.current_path, contentUri.toString()));
     debugInfoText.append(" ");
     debugInfoText.append(debugInfo);
     debugInfoText.append(" ");
