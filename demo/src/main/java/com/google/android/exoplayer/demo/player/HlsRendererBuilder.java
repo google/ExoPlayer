@@ -19,14 +19,12 @@ import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecSelector;
-import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioCapabilities;
-import com.google.android.exoplayer.chunk.VideoFormatSelectorUtil;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
+import com.google.android.exoplayer.hls.DefaultHlsTrackSelector;
 import com.google.android.exoplayer.hls.HlsChunkSource;
-import com.google.android.exoplayer.hls.HlsMasterPlaylist;
 import com.google.android.exoplayer.hls.HlsPlaylist;
 import com.google.android.exoplayer.hls.HlsPlaylistParser;
 import com.google.android.exoplayer.hls.HlsSampleSource;
@@ -130,25 +128,10 @@ public class HlsRendererBuilder implements RendererBuilder {
       LoadControl loadControl = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
       DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 
-      int[] variantIndices = null;
-      if (manifest instanceof HlsMasterPlaylist) {
-        HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) manifest;
-        try {
-          variantIndices = VideoFormatSelectorUtil.selectVideoFormatsForDefaultDisplay(
-              context, masterPlaylist.variants, null, false);
-        } catch (DecoderQueryException e) {
-          player.onRenderersError(e);
-          return;
-        }
-        if (variantIndices.length == 0) {
-          player.onRenderersError(new IllegalStateException("No variants selected."));
-          return;
-        }
-      }
-
       DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-      HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter,
-          new PtsTimestampAdjusterProvider(), variantIndices, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
+      HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest,
+          DefaultHlsTrackSelector.newDefaultInstance(context), bandwidthMeter,
+          new PtsTimestampAdjusterProvider(), HlsChunkSource.ADAPTIVE_MODE_SPLICE);
       HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, loadControl,
           BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_VIDEO);
       MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context,

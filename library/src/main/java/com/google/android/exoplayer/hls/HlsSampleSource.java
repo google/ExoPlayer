@@ -129,6 +129,8 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   public boolean prepare(long positionUs) {
     if (prepared) {
       return true;
+    } else if (!chunkSource.prepare()) {
+      return false;
     }
     if (!extractors.isEmpty()) {
       while (true) {
