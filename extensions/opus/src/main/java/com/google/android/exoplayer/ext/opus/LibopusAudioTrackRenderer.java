@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.ext.opus;
 
+import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.MediaClock;
@@ -74,6 +75,8 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
    * should be a {@link Float} with 0 being silence and 1 being unity gain.
    */
   public static final int MSG_SET_VOLUME = 1;
+
+  public final CodecCounters codecCounters = new CodecCounters();
 
   private final Handler eventHandler;
   private final EventListener eventListener;
@@ -191,6 +194,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
         throw new ExoPlaybackException(e);
       }
       decoder.start();
+      codecCounters.codecInitCount++;
     }
 
     // Rendering loop.
@@ -207,6 +211,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
       notifyDecoderError(e);
       throw new ExoPlaybackException(e);
     }
+    codecCounters.ensureUpdated();
   }
 
   private void renderBuffer() throws OpusDecoderException, AudioTrack.InitializationException,
@@ -253,6 +258,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
     // Release the buffer if it was consumed.
     if ((handleBufferResult & AudioTrack.RESULT_BUFFER_CONSUMED) != 0) {
       decoder.releaseOutputBuffer(outputBuffer);
+      codecCounters.renderedOutputBufferCount++;
       outputBuffer = null;
     }
   }
@@ -372,6 +378,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
       if (decoder != null) {
         decoder.release();
         decoder = null;
+        codecCounters.codecReleaseCount++;
       }
       audioTrack.release();
     } finally {
