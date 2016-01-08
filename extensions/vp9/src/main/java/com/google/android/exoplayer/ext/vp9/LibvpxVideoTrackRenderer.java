@@ -192,6 +192,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     if (decoder == null) {
       decoder = new VpxDecoderWrapper(outputMode);
       decoder.start();
+      codecCounters.codecInitCount++;
     }
 
     // Rendering loop.
@@ -202,6 +203,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
       notifyDecoderError(e);
       throw new ExoPlaybackException(e);
     }
+    codecCounters.ensureUpdated();
   }
 
   private void processOutputBuffer(long positionUs, long elapsedRealtimeUs)
@@ -406,6 +408,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
       if (decoder != null) {
         decoder.release();
         decoder = null;
+        codecCounters.codecReleaseCount++;
       }
     } finally {
       super.onDisabled();
