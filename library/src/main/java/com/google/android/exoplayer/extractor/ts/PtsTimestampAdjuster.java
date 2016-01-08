@@ -37,7 +37,9 @@ public final class PtsTimestampAdjuster {
   private final long firstSampleTimestampUs;
 
   private long timestampOffsetUs;
-  private long lastPts;
+
+  // Volatile to allow isInitialized to be called on a different thread to adjustTimestamp.
+  private volatile long lastPts;
 
   /**
    * @param firstSampleTimestampUs The desired result of the first call to
