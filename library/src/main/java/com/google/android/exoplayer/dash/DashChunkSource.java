@@ -424,7 +424,7 @@ public class DashChunkSource implements ChunkSource, Output {
         if (previous.parentId == lastPeriodHolder.localIndex) {
           RepresentationHolder representationHolder =
               lastPeriodHolder.representationHolders.get(previous.format.id);
-          if (representationHolder.isLastSegment(previous.chunkIndex)) {
+          if (representationHolder.isBeyondLastSegment(previous.getNextChunkIndex())) {
             out.endOfStream = true;
             return;
           }
@@ -443,7 +443,7 @@ public class DashChunkSource implements ChunkSource, Output {
       } else if (!periodHolder.isIndexUnbounded()) {
         RepresentationHolder representationHolder =
             periodHolder.representationHolders.get(previous.format.id);
-        if (representationHolder.isLastSegment(previous.chunkIndex)) {
+        if (representationHolder.isBeyondLastSegment(previous.getNextChunkIndex())) {
           // We reached the end of a period. Start the next one.
           periodHolder = periodHolders.get(previous.parentId + 1);
           startingNewPeriod = true;
@@ -478,9 +478,9 @@ public class DashChunkSource implements ChunkSource, Output {
 
     int segmentNum = queue.isEmpty() ? representationHolder.getSegmentNum(playbackPositionUs)
           : startingNewPeriod ? representationHolder.getFirstAvailableSegmentNum()
-          : queue.get(out.queueSize - 1).chunkIndex + 1;
+          : queue.get(out.queueSize - 1).getNextChunkIndex();
     Chunk nextMediaChunk = newMediaChunk(periodHolder, representationHolder, dataSource,
-        mediaFormat, segmentNum, evaluation.trigger);
+        mediaFormat, enabledTrack, segmentNum, evaluation.trigger);
     lastChunkWasInitialization = false;
     out.chunk = nextMediaChunk;
   }
@@ -672,8 +672,9 @@ public class DashChunkSource implements ChunkSource, Output {
         extractor, manifestIndex);
   }
 
-  private Chunk newMediaChunk(PeriodHolder periodHolder, RepresentationHolder representationHolder,
-      DataSource dataSource, MediaFormat mediaFormat, int segmentNum, int trigger) {
+  protected Chunk newMediaChunk(
+      PeriodHolder periodHolder, RepresentationHolder representationHolder, DataSource dataSource,
+      MediaFormat mediaFormat, ExposedTrack enabledTrack, int segmentNum, int trigger) {
     Representation representation = representationHolder.representation;
     Format format = representation.format;
     long startTimeUs = representationHolder.getSegmentStartTimeUs(segmentNum);
@@ -802,11 +803,13 @@ public class DashChunkSource implements ChunkSource, Output {
     }
   }
 
-  // Private classes.
+  // Protected classes.
 
-  private static final class ExposedTrack {
+  protected static final class ExposedTrack {
 
     public final MediaFormat trackFormat;
+    public final int adaptiveMaxWidth;
+    public final int adaptiveMaxHeight;
 
     private final int adaptationSetIndex;
 
@@ -815,8 +818,6 @@ public class DashChunkSource implements ChunkSource, Output {
 
     // Adaptive track variables.
     private final Format[] adaptiveFormats;
-    private final int adaptiveMaxWidth;
-    private final int adaptiveMaxHeight;
 
     public ExposedTrack(MediaFormat trackFormat, int adaptationSetIndex, Format fixedFormat) {
       this.trackFormat = trackFormat;
@@ -843,8 +844,9 @@ public class DashChunkSource implements ChunkSource, Output {
 
   }
 
-  private static final class RepresentationHolder {
+  protected static final class RepresentationHolder {
 
+    public final boolean mimeTypeIsRawText;
     public final ChunkExtractorWrapper extractorWrapper;
 
     public Representation representation;
@@ -862,7 +864,8 @@ public class DashChunkSource implements ChunkSource, Output {
       this.periodDurationUs = periodDurationUs;
       this.representation = representation;
       String mimeType = representation.format.mimeType;
-      extractorWrapper = mimeTypeIsRawText(mimeType) ? null : new ChunkExtractorWrapper(
+      mimeTypeIsRawText = mimeTypeIsRawText(mimeType);
+      extractorWrapper = mimeTypeIsRawText ? null : new ChunkExtractorWrapper(
           mimeTypeIsWebm(mimeType) ? new WebmExtractor() : new FragmentedMp4Extractor());
       segmentIndex = representation.getIndex();
     }
@@ -919,10 +922,14 @@ public class DashChunkSource implements ChunkSource, Output {
           + segmentIndex.getDurationUs(segmentNum - segmentNumShift, periodDurationUs);
     }
 
-    public boolean isLastSegment(int segmentNum) {
-      int lastSegmentNum = segmentIndex.getLastSegmentNum(periodDurationUs);
+    public int getLastSegmentNum() {
+      return segmentIndex.getLastSegmentNum(periodDurationUs);
+    }
+
+    public boolean isBeyondLastSegment(int segmentNum) {
+      int lastSegmentNum = getLastSegmentNum();
       return lastSegmentNum == DashSegmentIndex.INDEX_UNBOUNDED ? false
-          : segmentNum == (lastSegmentNum + segmentNumShift);
+          : segmentNum > (lastSegmentNum + segmentNumShift);
     }
 
     public int getFirstAvailableSegmentNum() {
@@ -935,7 +942,7 @@ public class DashChunkSource implements ChunkSource, Output {
 
   }
 
-  private static final class PeriodHolder {
+  protected static final class PeriodHolder {
 
     public final int localIndex;
     public final long startTimeUs;
@@ -1017,6 +1024,10 @@ public class DashChunkSource implements ChunkSource, Output {
 
     public boolean isIndexExplicit() {
       return indexIsExplicit;
+    }
+
+    public DrmInitData getDrmInitData() {
+      return drmInitData;
     }
 
     // Private methods.
