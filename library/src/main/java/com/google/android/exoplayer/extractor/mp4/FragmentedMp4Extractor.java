@@ -530,6 +530,17 @@ public final class FragmentedMp4Extractor implements Extractor {
     boolean sampleCompositionTimeOffsetsPresent =
         (flags & 0x800 /* sample_composition_time_offsets_present */) != 0;
 
+    // Offset to the entire video timeline. In the presence of B-frames this is usually used to
+    // ensure that the first frame's presentation timestamp is zero.
+    long edtsOffset = 0;
+
+    // Currently we only support a single edit that moves the entire media timeline (indicated by
+    // duration == 0). Other uses of edit lists are uncommon and unsupported.
+    if (track.editListDurations != null && track.editListDurations.length == 1
+        && track.editListDurations[0] == 0) {
+      edtsOffset = Util.scaleLargeTimestamp(track.editListMediaTimes[0], 1000, track.timescale);
+    }
+
     out.initTables(sampleCount);
     int[] sampleSizeTable = out.sampleSizeTable;
     int[] sampleCompositionTimeOffsetTable = out.sampleCompositionTimeOffsetTable;
@@ -558,7 +569,8 @@ public final class FragmentedMp4Extractor implements Extractor {
       } else {
         sampleCompositionTimeOffsetTable[i] = 0;
       }
-      sampleDecodingTimeTable[i] = Util.scaleLargeTimestamp(cumulativeTime, 1000, timescale);
+      sampleDecodingTimeTable[i] =
+          Util.scaleLargeTimestamp(cumulativeTime, 1000, timescale) - edtsOffset;
       sampleSizeTable[i] = sampleSize;
       sampleIsSyncFrameTable[i] = ((sampleFlags >> 16) & 0x1) == 0
           && (!workaroundEveryVideoFrameIsSyncFrame || i == 0);
@@ -802,14 +814,15 @@ public final class FragmentedMp4Extractor implements Extractor {
         || atom == Atom.TYPE_sidx || atom == Atom.TYPE_stsd || atom == Atom.TYPE_tfdt
         || atom == Atom.TYPE_tfhd || atom == Atom.TYPE_tkhd || atom == Atom.TYPE_trex
         || atom == Atom.TYPE_trun || atom == Atom.TYPE_pssh || atom == Atom.TYPE_saiz
-        || atom == Atom.TYPE_saio || atom == Atom.TYPE_senc || atom == Atom.TYPE_uuid;
+        || atom == Atom.TYPE_saio || atom == Atom.TYPE_senc || atom == Atom.TYPE_uuid
+        || atom == Atom.TYPE_elst;
   }
 
   /** Returns whether the extractor should parse a container atom with type {@code atom}. */
   private static boolean shouldParseContainerAtom(int atom) {
     return atom == Atom.TYPE_moov || atom == Atom.TYPE_trak || atom == Atom.TYPE_mdia
         || atom == Atom.TYPE_minf || atom == Atom.TYPE_stbl || atom == Atom.TYPE_moof
-        || atom == Atom.TYPE_traf || atom == Atom.TYPE_mvex;
+        || atom == Atom.TYPE_traf || atom == Atom.TYPE_mvex || atom == Atom.TYPE_edts;
   }
 
 }
