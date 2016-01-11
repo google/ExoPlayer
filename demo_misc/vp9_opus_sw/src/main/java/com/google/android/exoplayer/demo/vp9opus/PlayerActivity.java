@@ -53,11 +53,14 @@ import android.widget.Toast;
 public class PlayerActivity extends Activity implements
     LibvpxVideoTrackRenderer.EventListener, ExoPlayer.Listener {
 
-  public static final String USE_OPENGL_ID_EXTRA = "use_opengl";
+  /*package*/ static final String CONTENT_TYPE_EXTRA = "content_type";
+  /*package*/ static final String USE_OPENGL_ID_EXTRA = "use_opengl";
 
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
   private static final int BUFFER_SEGMENT_COUNT = 160;
 
+  private Uri contentUri;
+  private int contentType;
   private boolean useOpenGL;
 
   private ExoPlayer player;
@@ -69,7 +72,6 @@ public class PlayerActivity extends Activity implements
   private TextView debugInfoView;
   private String debugInfo;
   private String playerState;
-  private Uri contentUri;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -77,6 +79,8 @@ public class PlayerActivity extends Activity implements
 
     Intent intent = getIntent();
     contentUri = intent.getData();
+    contentType = intent.getIntExtra(CONTENT_TYPE_EXTRA,
+        Util.inferContentType(contentUri.toString()));
     useOpenGL = intent.getBooleanExtra(USE_OPENGL_ID_EXTRA, true);
 
     handler = new Handler();
@@ -111,7 +115,7 @@ public class PlayerActivity extends Activity implements
   }
 
   private void startPlayback() {
-    if (Util.isLocalFileUri(contentUri)) {
+    if (contentType != Util.TYPE_DASH) {
       startBasicPlayback();
     } else {
       startDashPlayback();
