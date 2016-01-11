@@ -536,6 +536,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
         // Leave the default max input size.
         return;
     }
+    // Estimate the maximum input size assuming three channel 4:2:0 subsampled input frames.
     int maxInputSize = (maxPixels * 3) / (2 * minCompressionRatio);
     format.setInteger(android.media.MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
   }
