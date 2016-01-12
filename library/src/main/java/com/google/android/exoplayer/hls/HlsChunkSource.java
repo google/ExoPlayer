@@ -212,7 +212,6 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     if (playlist.type == HlsPlaylist.TYPE_MASTER) {
       masterPlaylist = (HlsMasterPlaylist) playlist;
     } else {
-      // TODO: Infer the mime type from a chunk file extension.
       Format format = new Format("0", MimeTypes.APPLICATION_M3U8, -1, -1, -1, -1, -1, -1, null,
           null);
       List<Variant> variants = new ArrayList<>();
