@@ -118,6 +118,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   private static final String VTT_FILE_EXTENSION = ".webvtt";
   private static final float BANDWIDTH_FRACTION = 0.8f;
 
+  private final boolean isMaster;
   private final DataSource dataSource;
   private final HlsPlaylistParser playlistParser;
   private final HlsMasterPlaylist masterPlaylist;
@@ -157,6 +158,9 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   private byte[] encryptionIv;
 
   /**
+   * @param isMaster True if this is the master source for the playback. False otherwise. Each
+   *     playback must have exactly one master source, which should be the source providing video
+   *     chunks (or audio chunks for audio only playbacks).
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param playlistUrl The playlist URL.
    * @param playlist The hls playlist.
@@ -169,15 +173,18 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
    *     {@link #ADAPTIVE_MODE_NONE}, {@link #ADAPTIVE_MODE_ABRUPT} and
    *     {@link #ADAPTIVE_MODE_SPLICE}.
    */
-  public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
-      HlsTrackSelector trackSelector, BandwidthMeter bandwidthMeter,
+  public HlsChunkSource(boolean isMaster, DataSource dataSource, String playlistUrl,
+      HlsPlaylist playlist, HlsTrackSelector trackSelector, BandwidthMeter bandwidthMeter,
       PtsTimestampAdjusterProvider timestampAdjusterProvider, int adaptiveMode) {
-    this(dataSource, playlistUrl, playlist, trackSelector, bandwidthMeter,
+    this(isMaster, dataSource, playlistUrl, playlist, trackSelector, bandwidthMeter,
         timestampAdjusterProvider, adaptiveMode, DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS,
         DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS);
   }
 
   /**
+   * @param isMaster True if this is the master source for the playback. False otherwise. Each
+   *     playback must have exactly one master source, which should be the source providing video
+   *     chunks (or audio chunks for audio only playbacks).
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param playlistUrl The playlist URL.
    * @param playlist The hls playlist.
@@ -194,10 +201,11 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
    * @param maxBufferDurationToSwitchDownMs The maximum duration of media that needs to be buffered
    *     for a switch to a lower quality variant to be considered.
    */
-  public HlsChunkSource(DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
-      HlsTrackSelector trackSelector, BandwidthMeter bandwidthMeter,
+  public HlsChunkSource(boolean isMaster, DataSource dataSource, String playlistUrl,
+      HlsPlaylist playlist, HlsTrackSelector trackSelector, BandwidthMeter bandwidthMeter,
       PtsTimestampAdjusterProvider timestampAdjusterProvider, int adaptiveMode,
       long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs) {
+    this.isMaster = isMaster;
     this.dataSource = dataSource;
     this.trackSelector = trackSelector;
     this.bandwidthMeter = bandwidthMeter;
@@ -219,10 +227,6 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
       masterPlaylist = new HlsMasterPlaylist(playlistUrl, variants,
           Collections.<Variant>emptyList());
     }
-  }
-
-  public long getDurationUs() {
-    return durationUs;
   }
 
   /**
@@ -247,18 +251,84 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
       prepareCalled = true;
       try {
         trackSelector.selectTracks(masterPlaylist, this);
-        // The following 5 lines are temporarily located here until the tracks are exposed.
-        enabledTrack = tracks.get(0);
-        selectedVariantIndex = enabledTrack.defaultVariantIndex;
-        variants = enabledTrack.variants;
-        variantPlaylists = new HlsMediaPlaylist[variants.length];
-        variantLastPlaylistLoadTimesMs = new long[variants.length];
-        variantBlacklistTimes = new long[variants.length];
+        selectTrack(0);
       } catch (IOException e) {
         fatalError = e;
       }
     }
     return fatalError == null;
+  }
+
+  /**
+   * Returns the duration of the source, or {@link C#UNKNOWN_TIME_US} if the duration is unknown.
+   * <p>
+   * This method should only be called after the source has been prepared.
+   *
+   * @return The number of tracks.
+   */
+  public long getDurationUs() {
+    return durationUs;
+  }
+
+  /**
+   * Returns the number of tracks exposed by the source.
+   * <p>
+   * This method should only be called after the source has been prepared.
+   *
+   * @return The number of tracks.
+   */
+  public int getTrackCount() {
+    return tracks.size();
+  }
+
+  /**
+   * Returns the variant corresponding to the fixed track at the specified index, or null if the
+   * track at the specified index is adaptive.
+   * <p>
+   * This method should only be called after the source has been prepared.
+   *
+   * @param index The track index.
+   * @return The variant corresponding to the fixed track, or null if the track is adaptive.
+   */
+  public Variant getFixedTrackVariant(int index) {
+    Variant[] variants = tracks.get(index).variants;
+    return variants.length == 1 ? variants[0] : null;
+  }
+
+  /**
+   * Selects a track for use.
+   * <p>
+   * This method should only be called after the source has been prepared.
+   *
+   * @param index The track index.
+   */
+  public void selectTrack(int index) {
+    enabledTrack = tracks.get(index);
+    selectedVariantIndex = enabledTrack.defaultVariantIndex;
+    variants = enabledTrack.variants;
+    variantPlaylists = new HlsMediaPlaylist[variants.length];
+    variantLastPlaylistLoadTimesMs = new long[variants.length];
+    variantBlacklistTimes = new long[variants.length];
+  }
+
+  /**
+   * Notifies the source that a seek has occurred.
+   * <p>
+   * This method should only be called after the source has been prepared.
+   */
+  public void seek() {
+    if (isMaster) {
+      timestampAdjusterProvider.reset();
+    }
+  }
+
+  /**
+   * Resets the source.
+   * <p>
+   * This method should only be called after the source has been prepared.
+   */
+  public void reset() {
+    fatalError = null;
   }
 
   /**
@@ -381,11 +451,12 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
           switchingVariantSpliced, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
     } else if (lastPathSegment.endsWith(VTT_FILE_EXTENSION)) {
-      PtsTimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(false,
+      PtsTimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(isMaster,
           segment.discontinuitySequenceNumber, startTimeUs);
       if (timestampAdjuster == null) {
         // The master source has yet to instantiate an adjuster for the discontinuity sequence.
-        // TODO: Allow VTT to be the master in the case that this is the only chunks source.
+        // TODO: There's probably an edge case if the master starts playback at a chunk belonging to
+        // a discontinuity sequence greater than the one that this source is trying to start at.
         return;
       }
       Extractor extractor = new WebvttExtractor(timestampAdjuster);
@@ -395,8 +466,12 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
         || previousTsChunk.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
         || !format.equals(previousTsChunk.format)) {
       // MPEG-2 TS segments, but we need a new extractor.
-      PtsTimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(true,
+      PtsTimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(isMaster,
           segment.discontinuitySequenceNumber, startTimeUs);
+      if (timestampAdjuster == null) {
+        // The master source has yet to instantiate an adjuster for the discontinuity sequence.
+        return;
+      }
       Extractor extractor = new TsExtractor(timestampAdjuster);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
           switchingVariantSpliced, enabledTrack.adaptiveMaxWidth, enabledTrack.adaptiveMaxHeight);
@@ -478,11 +553,6 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
       }
     }
     return false;
-  }
-
-  public void reset() {
-    timestampAdjusterProvider.reset();
-    fatalError = null;
   }
 
   // HlsTrackSelector.Output implementation.
