@@ -162,8 +162,6 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     // We're not prepared and we haven't loaded what we need.
     if (loader == null) {
       loader = new Loader("Loader:HLS");
-    }
-    if (!loadControlRegistered) {
       loadControl.register(this, bufferSizeContribution);
       loadControlRegistered = true;
     }
@@ -249,10 +247,10 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     if (!extractors.isEmpty()) {
       discardSamplesForDisabledTracks(getCurrentExtractor(), downstreamPositionUs);
     }
+    maybeStartLoading();
     if (loadingFinished) {
       return true;
     }
-    maybeStartLoading();
     if (isPendingReset() || extractors.isEmpty()) {
       return false;
     }
@@ -389,6 +387,10 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   public void release() {
     Assertions.checkState(remainingReleaseCount > 0);
     if (--remainingReleaseCount == 0 && loader != null) {
+      if (loadControlRegistered) {
+        loadControl.unregister(this);
+        loadControlRegistered = false;
+      }
       loader.release();
       loader = null;
     }
@@ -413,9 +415,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
           currentLoadable.trigger, currentLoadable.format, -1, -1, now, loadDurationMs);
     }
     clearCurrentLoadable();
-    if (enabledTrackCount > 0 || !prepared) {
-      maybeStartLoading();
-    }
+    maybeStartLoading();
   }
 
   @Override
@@ -537,7 +537,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       return;
     }
 
-    if (loader.isLoading() || !nextLoader) {
+    if (loader.isLoading() || !nextLoader || (prepared && enabledTrackCount == 0)) {
       return;
     }
 
@@ -550,6 +550,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
 
     if (endOfStream) {
       loadingFinished = true;
+      loadControl.update(this, downstreamPositionUs, -1, false);
       return;
     }
     if (nextLoadable == null) {
@@ -586,7 +587,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      return loadingFinished ? -1
+      return loadingFinished || (prepared && enabledTrackCount == 0) ? -1
           : currentTsLoadable != null ? currentTsLoadable.endTimeUs : previousTsLoadable.endTimeUs;
     }
   }
