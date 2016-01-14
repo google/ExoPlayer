@@ -81,7 +81,9 @@ import java.util.Map;
     Map<String, Object> metadata = readAmfEcmaArray(data);
     if (metadata.containsKey(KEY_DURATION)) {
       double durationSeconds = (double) metadata.get(KEY_DURATION);
-      setDurationUs((long) (durationSeconds * C.MICROS_PER_SECOND));
+      if (durationSeconds > 0.0) {
+        setDurationUs((long) (durationSeconds * C.MICROS_PER_SECOND));
+      }
     }
   }
 
