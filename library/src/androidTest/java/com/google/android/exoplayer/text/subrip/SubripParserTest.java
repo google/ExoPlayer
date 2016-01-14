@@ -28,6 +28,7 @@ public final class SubripParserTest extends InstrumentationTestCase {
 
   private static final String EMPTY_FILE = "subrip/empty";
   private static final String TYPICAL_FILE = "subrip/typical";
+  private static final String TYPICAL_WITH_BYTE_ORDER_MARK = "subrip/typical_with_byte_order_mark";
   private static final String TYPICAL_EXTRA_BLANK_LINE = "subrip/typical_extra_blank_line";
   private static final String TYPICAL_MISSING_TIMECODE = "subrip/typical_missing_timecode";
   private static final String TYPICAL_MISSING_SEQUENCE = "subrip/typical_missing_sequence";
@@ -45,6 +46,16 @@ public final class SubripParserTest extends InstrumentationTestCase {
   public void testParseTypical() throws IOException {
     SubripParser parser = new SubripParser();
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_FILE);
+    SubripSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
+    assertEquals(6, subtitle.getEventTimeCount());
+    assertTypicalCue1(subtitle, 0);
+    assertTypicalCue2(subtitle, 2);
+    assertTypicalCue3(subtitle, 4);
+  }
+
+  public void testParseTypicalWithByteOrderMark() throws IOException {
+    SubripParser parser = new SubripParser();
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_WITH_BYTE_ORDER_MARK);
     SubripSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
     assertEquals(6, subtitle.getEventTimeCount());
     assertTypicalCue1(subtitle, 0);
