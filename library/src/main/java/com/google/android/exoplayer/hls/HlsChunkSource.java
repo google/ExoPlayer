@@ -115,7 +115,8 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   private static final String TAG = "HlsChunkSource";
   private static final String AAC_FILE_EXTENSION = ".aac";
   private static final String MP3_FILE_EXTENSION = ".mp3";
-  private static final String VTT_FILE_EXTENSION = ".webvtt";
+  private static final String VTT_FILE_EXTENSION = ".vtt";
+  private static final String WEBVTT_FILE_EXTENSION = ".webvtt";
   private static final float BANDWIDTH_FRACTION = 0.8f;
 
   private final boolean isMaster;
@@ -463,7 +464,8 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
       Extractor extractor = new Mp3Extractor(startTimeUs);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
           switchingVariantSpliced, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
-    } else if (lastPathSegment.endsWith(VTT_FILE_EXTENSION)) {
+    } else if (lastPathSegment.endsWith(WEBVTT_FILE_EXTENSION)
+        || lastPathSegment.endsWith(VTT_FILE_EXTENSION)) {
       PtsTimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(isMaster,
           segment.discontinuitySequenceNumber, startTimeUs);
       if (timestampAdjuster == null) {
