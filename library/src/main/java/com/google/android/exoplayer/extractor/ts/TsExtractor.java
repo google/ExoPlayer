@@ -394,11 +394,11 @@ public final class TsExtractor implements Extractor {
             streamType = TS_STREAM_TYPE_H265;
           }
           break;
-        } else if (descriptorTag == 0x6a) {
+        } else if (descriptorTag == 0x6A) {
           streamType = TS_STREAM_TYPE_AC3;
-        } else if (descriptorTag == 0x7a) {
+        } else if (descriptorTag == 0x7A) {
           streamType = TS_STREAM_TYPE_E_AC3;
-        } else if (descriptorTag == 0x7b) {
+        } else if (descriptorTag == 0x7B) {
           // TODO: TS_STREAM_TYPE_DTS;
         }
 
