@@ -346,9 +346,9 @@ public class ParsableByteArrayTest extends TestCase {
     assertNull(parser.readLine());
   }
 
-  public void testReadTwoLinesWithLfFollowedByCr() {
+  public void testReadTwoLinesWithCrFollowedByLf() {
     byte[] bytes = new byte[] {
-      'f', 'o', 'o', '\n', '\r', 'b', 'a', 'r'
+      'f', 'o', 'o', '\r', '\n', 'b', 'a', 'r'
     };
     ParsableByteArray parser = new ParsableByteArray(bytes);
     assertEquals("foo", parser.readLine());
@@ -358,7 +358,7 @@ public class ParsableByteArrayTest extends TestCase {
 
   public void testReadThreeLinesWithEmptyLine() {
     byte[] bytes = new byte[] {
-      'f', 'o', 'o', '\n', '\r', '\n', 'b', 'a', 'r'
+      'f', 'o', 'o', '\r', '\n', '\r', 'b', 'a', 'r'
     };
     ParsableByteArray parser = new ParsableByteArray(bytes);
     assertEquals("foo", parser.readLine());
@@ -367,9 +367,9 @@ public class ParsableByteArrayTest extends TestCase {
     assertNull(parser.readLine());
   }
 
-  public void testReadFourLinesWithCrFollowedByLf() {
+  public void testReadFourLinesWithLfFollowedByCr() {
     byte[] bytes = new byte[] {
-      'f', 'o', 'o', '\r', '\n', '\n', 'b', 'a', 'r', '\n', '\r'
+      'f', 'o', 'o', '\n', '\r', '\r', 'b', 'a', 'r', '\r', '\n'
     };
     ParsableByteArray parser = new ParsableByteArray(bytes);
     assertEquals("foo", parser.readLine());
