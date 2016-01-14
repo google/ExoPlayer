@@ -25,11 +25,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * An activity for selecting from a number of samples.
@@ -40,41 +43,46 @@ public class SampleChooserActivity extends Activity {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.sample_chooser_activity);
-
-    ListView sampleList = (ListView) findViewById(R.id.sample_list);
-    final SampleAdapter sampleAdapter = new SampleAdapter(this);
-
-    sampleAdapter.add(new Header("YouTube DASH"));
-    sampleAdapter.addAll((Object[]) Samples.YOUTUBE_DASH_MP4);
-    sampleAdapter.addAll((Object[]) Samples.YOUTUBE_DASH_WEBM);
-    sampleAdapter.add(new Header("Widevine DASH Policy Tests (GTS)"));
-    sampleAdapter.addAll((Object[]) Samples.WIDEVINE_GTS);
-    sampleAdapter.add(new Header("Widevine HDCP Capabilities Tests"));
-    sampleAdapter.addAll((Object[]) Samples.WIDEVINE_HDCP);
-    sampleAdapter.add(new Header("Widevine DASH: MP4,H264"));
-    sampleAdapter.addAll((Object[]) Samples.WIDEVINE_H264_MP4_CLEAR);
-    sampleAdapter.addAll((Object[]) Samples.WIDEVINE_H264_MP4_SECURE);
-    sampleAdapter.add(new Header("Widevine DASH: WebM,VP9"));
-    sampleAdapter.addAll((Object[]) Samples.WIDEVINE_VP9_WEBM_CLEAR);
-    sampleAdapter.addAll((Object[]) Samples.WIDEVINE_VP9_WEBM_SECURE);
-    sampleAdapter.add(new Header("Widevine DASH: MP4,H265"));
-    sampleAdapter.addAll((Object[]) Samples.WIDEVINE_H265_MP4_CLEAR);
-    sampleAdapter.addAll((Object[]) Samples.WIDEVINE_H265_MP4_SECURE);
-    sampleAdapter.add(new Header("SmoothStreaming"));
-    sampleAdapter.addAll((Object[]) Samples.SMOOTHSTREAMING);
-    sampleAdapter.add(new Header("HLS"));
-    sampleAdapter.addAll((Object[]) Samples.HLS);
-    sampleAdapter.add(new Header("Misc"));
-    sampleAdapter.addAll((Object[]) Samples.MISC);
-
-    sampleList.setAdapter(sampleAdapter);
-    sampleList.setOnItemClickListener(new OnItemClickListener() {
+    final List<SampleGroup> sampleGroups = new ArrayList<>();
+    SampleGroup group = new SampleGroup("YouTube DASH");
+    group.addAll(Samples.YOUTUBE_DASH_MP4);
+    group.addAll(Samples.YOUTUBE_DASH_WEBM);
+    sampleGroups.add(group);
+    group = new SampleGroup("Widevine DASH Policy Tests (GTS)");
+    group.addAll(Samples.WIDEVINE_GTS);
+    sampleGroups.add(group);
+    group = new SampleGroup("Widevine HDCP Capabilities Tests");
+    group.addAll(Samples.WIDEVINE_HDCP);
+    sampleGroups.add(group);
+    group = new SampleGroup("Widevine DASH: MP4,H264");
+    group.addAll(Samples.WIDEVINE_H264_MP4_CLEAR);
+    group.addAll(Samples.WIDEVINE_H264_MP4_SECURE);
+    sampleGroups.add(group);
+    group = new SampleGroup("Widevine DASH: WebM,VP9");
+    group.addAll(Samples.WIDEVINE_VP9_WEBM_CLEAR);
+    group.addAll(Samples.WIDEVINE_VP9_WEBM_SECURE);
+    sampleGroups.add(group);
+    group = new SampleGroup("Widevine DASH: MP4,H265");
+    group.addAll(Samples.WIDEVINE_H265_MP4_CLEAR);
+    group.addAll(Samples.WIDEVINE_H265_MP4_SECURE);
+    sampleGroups.add(group);
+    group = new SampleGroup("SmoothStreaming");
+    group.addAll(Samples.SMOOTHSTREAMING);
+    sampleGroups.add(group);
+    group = new SampleGroup("HLS");
+    group.addAll(Samples.HLS);
+    sampleGroups.add(group);
+    group = new SampleGroup("Misc");
+    group.addAll(Samples.MISC);
+    sampleGroups.add(group);
+    ExpandableListView sampleList = (ExpandableListView) findViewById(R.id.sample_list);
+    sampleList.setAdapter(new SampleAdapter(this, sampleGroups));
+    sampleList.setOnChildClickListener(new OnChildClickListener() {
       @Override
-      public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Object item = sampleAdapter.getItem(position);
-        if (item instanceof Sample) {
-          onSampleSelected((Sample) item);
-        }
+      public boolean onChildClick(ExpandableListView parent, View view, int groupPosition,
+          int childPosition, long id) {
+        onSampleSelected(sampleGroups.get(groupPosition).samples.get(childPosition));
+        return true;
       }
     });
   }
@@ -88,49 +96,94 @@ public class SampleChooserActivity extends Activity {
     startActivity(mpdIntent);
   }
 
-  private static class SampleAdapter extends ArrayAdapter<Object> {
+  private static final class SampleAdapter extends BaseExpandableListAdapter {
 
-    public SampleAdapter(Context context) {
-      super(context, 0);
+    private final Context context;
+    private final List<SampleGroup> sampleGroups;
+
+    public SampleAdapter(Context context, List<SampleGroup> sampleGroups) {
+      this.context = context;
+      this.sampleGroups = sampleGroups;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public Sample getChild(int groupPosition, int childPosition) {
+      return getGroup(groupPosition).samples.get(childPosition);
+    }
+
+    @Override
+    public long getChildId(int groupPosition, int childPosition) {
+      return childPosition;
+    }
+
+    @Override
+    public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
+        View convertView, ViewGroup parent) {
       View view = convertView;
       if (view == null) {
-        int layoutId = getItemViewType(position) == 1 ? android.R.layout.simple_list_item_1
-            : R.layout.sample_chooser_inline_header;
-        view = LayoutInflater.from(getContext()).inflate(layoutId, null, false);
+        view = LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_1, parent,
+            false);
       }
-      Object item = getItem(position);
-      String name = null;
-      if (item instanceof Sample) {
-        name = ((Sample) item).name;
-      } else if (item instanceof Header) {
-        name = ((Header) item).name;
-      }
-      ((TextView) view).setText(name);
+      ((TextView) view).setText(getChild(groupPosition, childPosition).name);
       return view;
     }
 
     @Override
-    public int getItemViewType(int position) {
-      return (getItem(position) instanceof Sample) ? 1 : 0;
+    public int getChildrenCount(int groupPosition) {
+      return getGroup(groupPosition).samples.size();
     }
 
     @Override
-    public int getViewTypeCount() {
-      return 2;
+    public SampleGroup getGroup(int groupPosition) {
+      return sampleGroups.get(groupPosition);
+    }
+
+    @Override
+    public long getGroupId(int groupPosition) {
+      return groupPosition;
+    }
+
+    @Override
+    public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
+        ViewGroup parent) {
+      View view = convertView;
+      if (view == null) {
+        view = LayoutInflater.from(context).inflate(R.layout.sample_chooser_inline_header, parent,
+            false);
+      }
+      ((TextView) view).setText(getGroup(groupPosition).title);
+      return view;
+    }
+
+    @Override
+    public int getGroupCount() {
+      return sampleGroups.size();
+    }
+
+    @Override
+    public boolean hasStableIds() {
+      return false;
+    }
+
+    @Override
+    public boolean isChildSelectable(int groupPosition, int childPosition) {
+      return true;
     }
 
   }
 
-  private static class Header {
+  private static final class SampleGroup {
 
-    public final String name;
+    public final String title;
+    public final List<Sample> samples;
 
-    public Header(String name) {
-      this.name = name;
+    public SampleGroup(String title) {
+      this.title = title;
+      this.samples = new ArrayList<>();
+    }
+
+    public void addAll(Sample[] samples) {
+      Collections.addAll(this.samples, samples);
     }
 
   }
