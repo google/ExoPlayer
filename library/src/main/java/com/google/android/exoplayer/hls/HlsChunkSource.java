@@ -133,7 +133,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   // TODO: Expose tracks.
   private final ArrayList<ExposedTrack> tracks;
 
-  private ExposedTrack enabledTrack;
+  private int selectedTrackIndex;
 
   // A list of variants considered during playback, ordered by decreasing bandwidth. The following
   // three arrays are of the same length and are ordered in the same way (i.e. variantPlaylists[i],
@@ -295,6 +295,18 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     return variants.length == 1 ? variants[0] : null;
   }
 
+
+  /**
+   * Returns the currently selected track index.
+   * <p>
+   * This method should only be called after the source has been prepared.
+   *
+   * @return The currently selected track index.
+   */
+  public int getSelectedTrackIndex() {
+    return selectedTrackIndex;
+  }
+
   /**
    * Selects a track for use.
    * <p>
@@ -303,9 +315,10 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
    * @param index The track index.
    */
   public void selectTrack(int index) {
-    enabledTrack = tracks.get(index);
-    selectedVariantIndex = enabledTrack.defaultVariantIndex;
-    variants = enabledTrack.variants;
+    selectedTrackIndex = index;
+    ExposedTrack selectedTrack = tracks.get(selectedTrackIndex);
+    selectedVariantIndex = selectedTrack.defaultVariantIndex;
+    variants = selectedTrack.variants;
     variantPlaylists = new HlsMediaPlaylist[variants.length];
     variantLastPlaylistLoadTimesMs = new long[variants.length];
     variantBlacklistTimes = new long[variants.length];
@@ -472,9 +485,10 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
         // The master source has yet to instantiate an adjuster for the discontinuity sequence.
         return;
       }
+      ExposedTrack selectedTrack = tracks.get(selectedTrackIndex);
       Extractor extractor = new TsExtractor(timestampAdjuster);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
-          switchingVariantSpliced, enabledTrack.adaptiveMaxWidth, enabledTrack.adaptiveMaxHeight);
+          switchingVariantSpliced, selectedTrack.adaptiveMaxWidth, selectedTrack.adaptiveMaxHeight);
     } else {
       // MPEG-2 TS segments, and we need to continue using the same extractor.
       extractorWrapper = previousTsChunk.extractorWrapper;
