@@ -94,7 +94,11 @@ import java.util.regex.Pattern;
       if (colorExpression.length() == 7) {
         // Set the alpha value
         color |= 0x00000000ff000000;
-      } else if (colorExpression.length() != 9) {
+      } else if (colorExpression.length() == 9) {
+        int alpha = (int) color & 0x00000000000000ff; // get the transparency
+        color >>= 8;                                  // put rgb bytes in their rightful place
+        color |= alpha << 24;                         // put the transparency byte in its rightful place
+      } else {
         throw new IllegalArgumentException();
       }
       return (int) color;
