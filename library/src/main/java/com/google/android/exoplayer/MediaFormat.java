@@ -234,6 +234,13 @@ public final class MediaFormat {
         subsampleOffsetUs, initializationData, adaptive, maxWidth, maxHeight);
   }
 
+  public MediaFormat copyWithFixedTrackInfo(String trackId, int bitrate, int width, int height,
+      String language) {
+    return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
+        rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
+        subsampleOffsetUs, initializationData, adaptive, NO_VALUE, NO_VALUE);
+  }
+
   public MediaFormat copyAsAdaptive(String trackId) {
     return new MediaFormat(trackId, mimeType, NO_VALUE, NO_VALUE, durationUs, NO_VALUE, NO_VALUE,
         NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE, null, true, maxWidth,
