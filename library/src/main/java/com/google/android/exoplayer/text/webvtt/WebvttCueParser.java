@@ -31,7 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Parser for webvtt cue text. (https://w3c.github.io/webvtt/#cue-text)
+ * Parser for WebVTT cues. (https://w3c.github.io/webvtt/#cues)
  */
 public final class WebvttCueParser {
 
@@ -66,71 +66,50 @@ public final class WebvttCueParser {
 
   private static final String TAG = "WebvttCueParser";
 
-  private StringBuilder textBuilder;
-  private PositionHolder positionHolder;
+  private final StringBuilder textBuilder;
 
   public WebvttCueParser() {
-    positionHolder = new PositionHolder();
     textBuilder = new StringBuilder();
   }
 
   /**
-   * Parses the next valid Webvtt cue in a parsable array, including timestamps, settings and text.
+   * Parses the next valid WebVTT cue in a parsable array, including timestamps, settings and text.
    *
-   * @param webvttData parsable Webvtt file data.
-   * @return a {@link WebvttCue} instance if cue content is found. {@code null} otherwise.
+   * @param webvttData Parsable WebVTT file data.
+   * @param cueBuilder Builder for WebVTT Cues.
+   * @return True if a valid Cue was found, false otherwise.
    */
-  public WebvttCue parseNextValidCue(ParsableByteArray webvttData) {
+  public boolean parseNextValidCue(ParsableByteArray webvttData, WebvttCue.Builder cueBuilder) {
     Matcher cueHeaderMatcher;
     while ((cueHeaderMatcher = findNextCueHeader(webvttData)) != null) {
-      WebvttCue currentCue = parseCue(cueHeaderMatcher, webvttData);
-      if (currentCue != null) {
-        return currentCue;
+      if (parseCue(cueHeaderMatcher, webvttData, cueBuilder, textBuilder)) {
+        return true;
       }
     }
-    return null;
+    return false;
   }
 
-  private WebvttCue parseCue(Matcher cueHeaderMatcher, ParsableByteArray webvttData) {
-    long cueStartTime;
-    long cueEndTime;
-    try {
-      // Parse the cue start and end times.
-      cueStartTime = WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(1));
-      cueEndTime = WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(2));
-    } catch (NumberFormatException e) {
-      Log.w(TAG, "Skipping cue with bad header: " + cueHeaderMatcher.group());
-      return null;
-    }
-
-    // Default cue settings.
-    Alignment cueTextAlignment = null;
-    float cueLine = Cue.DIMEN_UNSET;
-    int cueLineType = Cue.TYPE_UNSET;
-    int cueLineAnchor = Cue.TYPE_UNSET;
-    float cuePosition = Cue.DIMEN_UNSET;
-    int cuePositionAnchor = Cue.TYPE_UNSET;
-    float cueWidth = Cue.DIMEN_UNSET;
-
+  /**
+   * Parses a string containing a list of cue settings.
+   *
+   * @param cueSettingsList String containing the settings for a given cue.
+   * @param builder The {@link WebvttCue.Builder} where incremental construction takes place.
+   */
+  public static void parseCueSettingsList(String cueSettingsList, WebvttCue.Builder builder) {
     // Parse the cue settings list.
-    Matcher cueSettingMatcher = CUE_SETTING_PATTERN.matcher(cueHeaderMatcher.group(3));
+    Matcher cueSettingMatcher = CUE_SETTING_PATTERN.matcher(cueSettingsList);
     while (cueSettingMatcher.find()) {
       String name = cueSettingMatcher.group(1);
       String value = cueSettingMatcher.group(2);
       try {
         if ("line".equals(name)) {
-          parseLineAttribute(value, positionHolder);
-          cueLine = positionHolder.position;
-          cueLineType = positionHolder.lineType;
-          cueLineAnchor = positionHolder.positionAnchor;
+          parseLineAttribute(value, builder);
         } else if ("align".equals(name)) {
-          cueTextAlignment = parseTextAlignment(value);
+          builder.setTextAlignment(parseTextAlignment(value));
         } else if ("position".equals(name)) {
-          parsePositionAttribute(value, positionHolder);
-          cuePosition = positionHolder.position;
-          cuePositionAnchor = positionHolder.positionAnchor;
+          parsePositionAttribute(value, builder);
         } else if ("size".equals(name)) {
-          cueWidth = WebvttParserUtil.parsePercentage(value);
+          builder.setWidth(WebvttParserUtil.parsePercentage(value));
         } else {
           Log.w(TAG, "Unknown cue setting " + name + ":" + value);
         }
@@ -138,12 +117,44 @@ public final class WebvttCueParser {
         Log.w(TAG, "Skipping bad cue setting: " + cueSettingMatcher.group());
       }
     }
+  }
 
-    if (cuePosition != Cue.DIMEN_UNSET && cuePositionAnchor == Cue.TYPE_UNSET) {
-      // Computed position alignment should be derived from the text alignment if it has not been
-      // set explicitly.
-      cuePositionAnchor = alignmentToAnchor(cueTextAlignment);
+  /**
+   * Reads lines up to and including the next WebVTT cue header.
+   *
+   * @param input The input from which lines should be read.
+   * @return A {@link Matcher} for the WebVTT cue header, or null if the end of the input was
+   *     reached without a cue header being found. In the case that a cue header is found, groups 1,
+   *     2 and 3 of the returned matcher contain the start time, end time and settings list.
+   */
+  public static Matcher findNextCueHeader(ParsableByteArray input) {
+    String line;
+    while ((line = input.readLine()) != null) {
+      if (COMMENT.matcher(line).matches()) {
+        // Skip until the end of the comment block.
+        while ((line = input.readLine()) != null && !line.isEmpty()) {}
+      } else {
+        Matcher cueHeaderMatcher = WebvttCueParser.CUE_HEADER_PATTERN.matcher(line);
+        if (cueHeaderMatcher.matches()) {
+          return cueHeaderMatcher;
+        }
+      }
     }
+    return null;
+  }
+
+  private static boolean parseCue(Matcher cueHeaderMatcher, ParsableByteArray webvttData,
+      WebvttCue.Builder builder, StringBuilder textBuilder) {
+    try {
+      // Parse the cue start and end times.
+      builder.setStartTime(WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(1)))
+          .setEndTime(WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(2)));
+    } catch (NumberFormatException e) {
+      Log.w(TAG, "Skipping cue with bad header: " + cueHeaderMatcher.group());
+      return false;
+    }
+
+    parseCueSettingsList(cueHeaderMatcher.group(3), builder);
 
     // Parse the cue text.
     textBuilder.setLength(0);
@@ -154,11 +165,8 @@ public final class WebvttCueParser {
       }
       textBuilder.append(line.trim());
     }
-
-    CharSequence cueText = parseCueText(textBuilder.toString());
-
-    return new WebvttCue(cueStartTime, cueEndTime, cueText, cueTextAlignment, cueLine,
-        cueLineType, cueLineAnchor, cuePosition, cuePositionAnchor, cueWidth);
+    builder.setText(parseCueText(textBuilder.toString()));
+    return true;
   }
 
   /* package */ static Spanned parseCueText(String markup) {
@@ -226,77 +234,34 @@ public final class WebvttCueParser {
     return spannedText;
   }
 
-  /**
-   * Reads lines up to and including the next WebVTT cue header.
-   *
-   * @param input The input from which lines should be read.
-   * @return A {@link Matcher} for the WebVTT cue header, or null if the end of the input was
-   *     reached without a cue header being found. In the case that a cue header is found, groups 1,
-   *     2 and 3 of the returned matcher contain the start time, end time and settings list.
-   */
-  public static Matcher findNextCueHeader(ParsableByteArray input) {
-    String line;
-    while ((line = input.readLine()) != null) {
-      if (COMMENT.matcher(line).matches()) {
-        // Skip until the end of the comment block.
-        while ((line = input.readLine()) != null && !line.isEmpty()) {}
-      } else {
-        Matcher cueHeaderMatcher = WebvttCueParser.CUE_HEADER_PATTERN.matcher(line);
-        if (cueHeaderMatcher.matches()) {
-          return cueHeaderMatcher;
-        }
-      }
-    }
-    return null;
-  }
-
-  private static final class PositionHolder {
-
-    public float position;
-    public int positionAnchor;
-    public int lineType;
-
-  }
-
   // Internal methods
 
-  private static void parseLineAttribute(String s, PositionHolder out)
+  private static void parseLineAttribute(String s, WebvttCue.Builder builder)
       throws NumberFormatException {
-    int lineAnchor;
     int commaPosition = s.indexOf(',');
     if (commaPosition != -1) {
-      lineAnchor = parsePositionAnchor(s.substring(commaPosition + 1));
+      builder.setLineAnchor(parsePositionAnchor(s.substring(commaPosition + 1)));
       s = s.substring(0, commaPosition);
     } else {
-      lineAnchor = Cue.TYPE_UNSET;
+      builder.setLineAnchor(Cue.TYPE_UNSET);
     }
-    float line;
-    int lineType;
     if (s.endsWith("%")) {
-      line = WebvttParserUtil.parsePercentage(s);
-      lineType = Cue.LINE_TYPE_FRACTION;
+      builder.setLine(WebvttParserUtil.parsePercentage(s)).setLineType(Cue.LINE_TYPE_FRACTION);
     } else {
-      line = Integer.parseInt(s);
-      lineType = Cue.LINE_TYPE_NUMBER;
+      builder.setLine(Integer.parseInt(s)).setLineType(Cue.LINE_TYPE_NUMBER);
     }
-    out.position = line;
-    out.positionAnchor = lineAnchor;
-    out.lineType = lineType;
   }
 
-  private static void parsePositionAttribute(String s, PositionHolder out)
+  private static void parsePositionAttribute(String s, WebvttCue.Builder builder)
       throws NumberFormatException {
-    int positionAnchor;
     int commaPosition = s.indexOf(',');
     if (commaPosition != -1) {
-      positionAnchor = parsePositionAnchor(s.substring(commaPosition + 1));
+      builder.setPositionAnchor(parsePositionAnchor(s.substring(commaPosition + 1)));
       s = s.substring(0, commaPosition);
     } else {
-      positionAnchor = Cue.TYPE_UNSET;
+      builder.setPositionAnchor(Cue.TYPE_UNSET);
     }
-    out.position = WebvttParserUtil.parsePercentage(s);
-    out.positionAnchor = positionAnchor;
-    out.lineType = Cue.TYPE_UNSET;
+    builder.setPosition(WebvttParserUtil.parsePercentage(s));
   }
 
   private static int parsePositionAnchor(String s) {
@@ -329,27 +294,10 @@ public final class WebvttCueParser {
     }
   }
 
-  private static int alignmentToAnchor(Alignment alignment) {
-    if (alignment == null) {
-      return Cue.TYPE_UNSET;
-    }
-    switch (alignment) {
-      case ALIGN_NORMAL:
-        return Cue.ANCHOR_TYPE_START;
-      case ALIGN_CENTER:
-        return Cue.ANCHOR_TYPE_MIDDLE;
-      case ALIGN_OPPOSITE:
-        return Cue.ANCHOR_TYPE_END;
-      default:
-        Log.w(TAG, "Unrecognized alignment: " + alignment);
-        return Cue.ANCHOR_TYPE_START;
-    }
-  }
-
   /**
    * Find end of tag (&gt;). The position returned is the position of the &gt; plus one (exclusive).
    *
-   * @param markup The webvtt cue markup to be parsed.
+   * @param markup The WebVTT cue markup to be parsed.
    * @param startPos the position from where to start searching for the end of tag.
    * @return the position of the end of tag plus 1 (one).
    */
