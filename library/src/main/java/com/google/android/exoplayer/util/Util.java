@@ -67,20 +67,20 @@ public final class Util {
       : Build.VERSION.SDK_INT;
 
   /**
-   * Like {@link Build#DEVICE}, but in a place where it can be conveniently overridden
-   * for local testing.
+   * Like {@link Build#DEVICE}, but in a place where it can be conveniently overridden for local
+   * testing.
    */
   public static final String DEVICE = Build.DEVICE;
 
   /**
-   * Like {@link Build#MANUFACTURER}, but in a place where it can be conveniently
-   * overridden for local testing.
+   * Like {@link Build#MANUFACTURER}, but in a place where it can be conveniently overridden for
+   * local testing.
    */
   public static final String MANUFACTURER = Build.MANUFACTURER;
 
   /**
-   * Like {@link Build#MODEL}, but in a place where it can be conveniently overridden for
-   * local testing.
+   * Like {@link Build#MODEL}, but in a place where it can be conveniently overridden for local
+   * testing.
    */
   public static final String MODEL = Build.MODEL;
 
