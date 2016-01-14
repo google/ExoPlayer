@@ -62,25 +62,27 @@ public final class Util {
    * Like {@link android.os.Build.VERSION#SDK_INT}, but in a place where it can be conveniently
    * overridden for local testing.
    */
-  public static final int SDK_INT = android.os.Build.VERSION.SDK_INT;
+  public static final int SDK_INT =
+      (Build.VERSION.SDK_INT == 23 && Build.VERSION.CODENAME.charAt(0) == 'N') ? 24
+      : Build.VERSION.SDK_INT;
 
   /**
-   * Like {@link android.os.Build#DEVICE}, but in a place where it can be conveniently overridden
+   * Like {@link Build#DEVICE}, but in a place where it can be conveniently overridden
    * for local testing.
    */
-  public static final String DEVICE = android.os.Build.DEVICE;
+  public static final String DEVICE = Build.DEVICE;
 
   /**
-   * Like {@link android.os.Build#MANUFACTURER}, but in a place where it can be conveniently
+   * Like {@link Build#MANUFACTURER}, but in a place where it can be conveniently
    * overridden for local testing.
    */
-  public static final String MANUFACTURER = android.os.Build.MANUFACTURER;
+  public static final String MANUFACTURER = Build.MANUFACTURER;
 
   /**
-   * Like {@link android.os.Build#MODEL}, but in a place where it can be conveniently overridden for
+   * Like {@link Build#MODEL}, but in a place where it can be conveniently overridden for
    * local testing.
    */
-  public static final String MODEL = android.os.Build.MODEL;
+  public static final String MODEL = Build.MODEL;
 
   /**
    * Value returned by {@link #inferContentType(String)} for DASH manifests.
