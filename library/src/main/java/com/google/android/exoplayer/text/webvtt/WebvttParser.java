@@ -33,10 +33,12 @@ public final class WebvttParser implements SubtitleParser {
 
   private final WebvttCueParser cueParser;
   private final ParsableByteArray parsableWebvttData;
+  private final WebvttCue.Builder webvttCueBuilder;
 
   public WebvttParser() {
     cueParser = new WebvttCueParser();
     parsableWebvttData = new ParsableByteArray();
+    webvttCueBuilder = new WebvttCue.Builder();
   }
 
   @Override
@@ -48,6 +50,7 @@ public final class WebvttParser implements SubtitleParser {
   public final WebvttSubtitle parse(byte[] bytes, int offset, int length) throws ParserException {
     parsableWebvttData.reset(bytes, offset + length);
     parsableWebvttData.setPosition(offset);
+    webvttCueBuilder.reset(); // In case a previous parse run failed with a ParserException.
 
     // Validate the first line of the header, and skip the remainder.
     WebvttParserUtil.validateWebvttHeaderLine(parsableWebvttData);
@@ -55,9 +58,9 @@ public final class WebvttParser implements SubtitleParser {
 
     // Extract Cues
     ArrayList<WebvttCue> subtitles = new ArrayList<>();
-    WebvttCue currentWebvttCue;
-    while ((currentWebvttCue = cueParser.parseNextValidCue(parsableWebvttData)) != null) {
-      subtitles.add(currentWebvttCue);
+    while (cueParser.parseNextValidCue(parsableWebvttData, webvttCueBuilder)) {
+      subtitles.add(webvttCueBuilder.build());
+      webvttCueBuilder.reset();
     }
     return new WebvttSubtitle(subtitles);
   }
