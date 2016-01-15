@@ -46,6 +46,7 @@ public final class TsExtractor implements Extractor {
   private static final int TS_STREAM_TYPE_MPA_LSF = 0x04;
   private static final int TS_STREAM_TYPE_AAC = 0x0F;
   private static final int TS_STREAM_TYPE_AC3 = 0x81;
+  private static final int TS_STREAM_TYPE_DTS = 0x8A;
   private static final int TS_STREAM_TYPE_E_AC3 = 0x87;
   private static final int TS_STREAM_TYPE_H262 = 0x02;
   private static final int TS_STREAM_TYPE_H264 = 0x1B;
@@ -326,7 +327,7 @@ public final class TsExtractor implements Extractor {
           continue;
         }
 
-        ElementaryStreamReader pesPayloadReader = null;
+        ElementaryStreamReader pesPayloadReader;
         switch (streamType) {
           case TS_STREAM_TYPE_MPA:
             pesPayloadReader = new MpegAudioReader(output.track(TS_STREAM_TYPE_MPA));
@@ -357,6 +358,9 @@ public final class TsExtractor implements Extractor {
             break;
           case TS_STREAM_TYPE_ID3:
             pesPayloadReader = id3Reader;
+            break;
+          default:
+            pesPayloadReader = null;
             break;
         }
 
@@ -394,12 +398,12 @@ public final class TsExtractor implements Extractor {
             streamType = TS_STREAM_TYPE_H265;
           }
           break;
-        } else if (descriptorTag == 0x6A) {
+        } else if (descriptorTag == 0x6A) { // AC-3_descriptor in DVB (ETSI EN 300 468)
           streamType = TS_STREAM_TYPE_AC3;
-        } else if (descriptorTag == 0x7A) {
+        } else if (descriptorTag == 0x7A) { // enhanced_AC-3_descriptor
           streamType = TS_STREAM_TYPE_E_AC3;
-        } else if (descriptorTag == 0x7B) {
-          // TODO: TS_STREAM_TYPE_DTS;
+        } else if (descriptorTag == 0x7B) { // DTS_descriptor
+          streamType = TS_STREAM_TYPE_DTS;
         }
 
         data.skipBytes(descriptorLength);
