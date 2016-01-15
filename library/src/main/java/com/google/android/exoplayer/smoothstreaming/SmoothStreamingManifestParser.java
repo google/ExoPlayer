@@ -595,6 +595,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
     private static final String KEY_CHANNELS = "Channels";
     private static final String KEY_FOUR_CC = "FourCC";
     private static final String KEY_TYPE = "Type";
+    private static final String KEY_LANGUAGE = "Language";
     private static final String KEY_MAX_WIDTH = "MaxWidth";
     private static final String KEY_MAX_HEIGHT = "MaxHeight";
 
@@ -607,6 +608,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
     private int maxHeight;
     private int samplingRate;
     private int channels;
+    private String language;
 
     public TrackElementParser(ElementParser parent, String baseUri) {
       super(parent, baseUri, TAG);
@@ -632,6 +634,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
         // If fourCC is missing and the stream type is audio, we assume AAC.
         mimeType = fourCC != null ? fourCCToMimeType(fourCC)
             : type == StreamElement.TYPE_AUDIO ? MimeTypes.AUDIO_AAC : null;
+        language = (String) getNormalizedAttribute(KEY_LANGUAGE);
       }
 
       if (type == StreamElement.TYPE_AUDIO) {
@@ -664,7 +667,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
         csd.toArray(csdArray);
       }
       return new TrackElement(index, bitrate, mimeType, csdArray, maxWidth, maxHeight, samplingRate,
-          channels);
+          channels, language);
     }
 
     private static String fourCCToMimeType(String fourCC) {
