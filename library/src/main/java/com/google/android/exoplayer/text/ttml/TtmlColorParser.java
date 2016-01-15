@@ -89,12 +89,17 @@ import java.util.regex.Pattern;
     Assertions.checkArgument(!TextUtils.isEmpty(colorExpression));
     colorExpression = colorExpression.replace(" ", "");
     if (colorExpression.charAt(0) == '#') {
-      // Use a long to avoid rollovers on #ffXXXXXX
+      // Use a long to avoid rollovers on #FFXXXXXX
       long color = Long.parseLong(colorExpression.substring(1), 16);
       if (colorExpression.length() == 7) {
         // Set the alpha value
         color |= 0x00000000FF000000;
-      } else if (colorExpression.length() != 9) {
+      } else if (colorExpression.length() == 9) {
+        // We have #RRGGBBAA, but we need #AARRGGBB
+        int alpha = (int) color & 0x00000000000000FF;
+        color >>= 8;
+        color |= alpha << 24;
+      } else {
         throw new IllegalArgumentException();
       }
       return (int) color;
