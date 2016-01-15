@@ -1,6 +1,6 @@
 # ExoPlayer Readme #
 
-### Exoplayer is extended ### 
+### Exoplayer is extended 
 It can play rtmp streams and can seek on flv files If keyframes exists as metatag 
 
 To test RTMP: You need to use RTMPDataSource class as DataSource. If you want to play live videos via rtmp
