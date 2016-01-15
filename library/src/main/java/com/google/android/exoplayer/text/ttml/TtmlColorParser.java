@@ -40,7 +40,6 @@ import java.util.regex.Pattern;
   private static final Pattern RGBA_PATTERN = Pattern.compile(
       "^rgba\\((\\d{1,3}),(\\d{1,3}),(\\d{1,3}),(\\d{1,3})\\)$");
 
-
   static final int TRANSPARENT = 0x00000000;
   static final int BLACK = 0xFF000000;
   static final int SILVER = 0xFFC0C0C0;
@@ -93,12 +92,10 @@ import java.util.regex.Pattern;
       long color = Long.parseLong(colorExpression.substring(1), 16);
       if (colorExpression.length() == 7) {
         // Set the alpha value
-        color |= 0x00000000FF000000;
+        color |= 0xFF000000L;
       } else if (colorExpression.length() == 9) {
         // We have #RRGGBBAA, but we need #AARRGGBB
-        int alpha = (int) color & 0x00000000000000FF;
-        color >>= 8;
-        color |= alpha << 24;
+        color = ((color & 0xFF) << 24) | (color >> 8);
       } else {
         throw new IllegalArgumentException();
       }
