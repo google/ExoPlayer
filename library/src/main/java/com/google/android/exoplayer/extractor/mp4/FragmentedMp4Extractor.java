@@ -660,7 +660,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       }
       long referenceDuration = atom.readUnsignedInt();
 
-      sizes[i] = 0x7fffffff & firstInt;
+      sizes[i] = 0x7FFFFFFF & firstInt;
       offsets[i] = offset;
 
       // Calculate time and duration values such that any rounding errors are consistent. i.e. That
