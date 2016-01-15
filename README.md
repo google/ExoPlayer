@@ -1,5 +1,12 @@
 # ExoPlayer Readme #
 
+###Exoplayer is extended. It can play rtmp streams and can seek on flv files If keyframes exists as metatag. ### 
+
+To test RTMP: You need to use RTMPDataSource class as DataSource. If you want to play live videos via rtmp
+add " live=1" at the end of the url. If i have some time, i gonna make librtmp library as aar file and put it in a repo. 
+
+
+
 ## Description ##
 
 ExoPlayer is an application level media player for Android. It provides an
