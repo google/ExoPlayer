@@ -88,7 +88,7 @@ import java.util.regex.Pattern;
     Assertions.checkArgument(!TextUtils.isEmpty(colorExpression));
     colorExpression = colorExpression.replace(" ", "");
     if (colorExpression.charAt(0) == '#') {
-      // Parse using Long to avoid failure when the unsigned value exceeds (2^31 - 1).
+      // Parse using Long to avoid failure when colorExpression is greater than #7FFFFFFF.
       int color = (int) Long.parseLong(colorExpression.substring(1), 16);
       if (colorExpression.length() == 7) {
         // Set the alpha value
