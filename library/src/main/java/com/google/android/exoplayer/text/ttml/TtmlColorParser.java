@@ -93,7 +93,7 @@ import java.util.regex.Pattern;
       long color = Long.parseLong(colorExpression.substring(1), 16);
       if (colorExpression.length() == 7) {
         // Set the alpha value
-        color |= 0x00000000ff000000;
+        color |= 0x00000000FF000000;
       } else if (colorExpression.length() != 9) {
         throw new IllegalArgumentException();
       }
