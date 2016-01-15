@@ -543,6 +543,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
       displayWidth = parseInt(parser, KEY_DISPLAY_WIDTH, -1);
       displayHeight = parseInt(parser, KEY_DISPLAY_HEIGHT, -1);
       language = parser.getAttributeValue(null, KEY_LANGUAGE);
+      putNormalizedAttribute(KEY_LANGUAGE, language);
       timescale = parseInt(parser, KEY_TIME_SCALE, -1);
       if (timescale == -1) {
         timescale = (Long) getNormalizedAttribute(KEY_TIME_SCALE);
@@ -634,12 +635,12 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
         // If fourCC is missing and the stream type is audio, we assume AAC.
         mimeType = fourCC != null ? fourCCToMimeType(fourCC)
             : type == StreamElement.TYPE_AUDIO ? MimeTypes.AUDIO_AAC : null;
-        language = (String) getNormalizedAttribute(KEY_LANGUAGE);
       }
 
       if (type == StreamElement.TYPE_AUDIO) {
         samplingRate = parseRequiredInt(parser, KEY_SAMPLING_RATE);
         channels = parseRequiredInt(parser, KEY_CHANNELS);
+        language = (String) getNormalizedAttribute(KEY_LANGUAGE);
       } else {
         samplingRate = -1;
         channels = -1;
