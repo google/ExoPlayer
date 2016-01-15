@@ -88,18 +88,18 @@ import java.util.regex.Pattern;
     Assertions.checkArgument(!TextUtils.isEmpty(colorExpression));
     colorExpression = colorExpression.replace(" ", "");
     if (colorExpression.charAt(0) == '#') {
-      // Use a long to avoid rollovers on #FFXXXXXX
-      long color = Long.parseLong(colorExpression.substring(1), 16);
+      // Parse using Long to avoid failure when the unsigned value exceeds (2^31 - 1).
+      int color = (int) Long.parseLong(colorExpression.substring(1), 16);
       if (colorExpression.length() == 7) {
         // Set the alpha value
-        color |= 0xFF000000L;
+        color |= 0xFF000000;
       } else if (colorExpression.length() == 9) {
         // We have #RRGGBBAA, but we need #AARRGGBB
-        color = ((color & 0xFF) << 24) | (color >> 8);
+        color = ((color & 0xFF) << 24) | (color >>> 8);
       } else {
         throw new IllegalArgumentException();
       }
-      return (int) color;
+      return color;
     } else if (colorExpression.startsWith(RGBA)) {
       Matcher matcher = RGBA_PATTERN.matcher(colorExpression);
       if (matcher.matches()) {
