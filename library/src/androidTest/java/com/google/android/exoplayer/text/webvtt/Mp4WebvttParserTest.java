@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.text.mp4webvtt;
+package com.google.android.exoplayer.text.webvtt;
 
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.Cue;
@@ -73,16 +73,6 @@ public final class Mp4WebvttParserTest extends TestCase {
       0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64 // Hello World
   };
 
-  private static final byte[] NO_PAYLOAD_CUE_SAMPLE = {
-      0x00, 0x00, 0x00, 0x1B,  // Size
-      0x76, 0x74, 0x74, 0x63,  // Box type. First VTT Cue box begins:
-
-      0x00, 0x00, 0x00, 0x13,  // First contained payload box's size
-      0x71, 0x61, 0x79, 0x6c,  // Type of box, which is not payload (qayl)
-
-      0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64, // Hello World
-  };
-
   private static final byte[] INCOMPLETE_HEADER_SAMPLE = {
       0x00, 0x00, 0x00, 0x23,  // Size
       0x76, 0x74, 0x74, 0x63,  // "vttc" Box type. VTT Cue box begins:
@@ -95,7 +85,6 @@ public final class Mp4WebvttParserTest extends TestCase {
       0x00, 0x00, 0x00, 0x07, // Size of an incomplete header, which belongs to the first vttc box.
       0x76, 0x74, 0x74
   };
-
 
   private Mp4WebvttParser parser;
 
@@ -125,16 +114,6 @@ public final class Mp4WebvttParserTest extends TestCase {
   }
 
   // Negative tests.
-
-  public void testSampleWithVttCueWithNoPayload() {
-    try {
-      parser.parse(NO_PAYLOAD_CUE_SAMPLE, 0, NO_PAYLOAD_CUE_SAMPLE.length);
-    } catch (ParserException e) {
-      // Expected.
-      return;
-    }
-    fail("The parser should have failed, no payload was included in the VTTCue.");
-  }
 
   public void testSampleWithIncompleteHeader() {
     try {
@@ -193,8 +172,8 @@ public final class Mp4WebvttParserTest extends TestCase {
     if (aCue.size != anotherCue.size) {
       differences.add("size: " + aCue.size + " | " + anotherCue.size);
     }
-    if (!Util.areEqual(aCue.text, anotherCue.text)) {
-      differences.add("text: " + aCue.text + " | " + anotherCue.text);
+    if (!Util.areEqual(aCue.text.toString(), anotherCue.text.toString())) {
+      differences.add("text: '" + aCue.text + "' | '" + anotherCue.text + '\'');
     }
     if (!Util.areEqual(aCue.textAlignment, anotherCue.textAlignment)) {
       differences.add("textAlignment: " + aCue.textAlignment + " | " + anotherCue.textAlignment);
