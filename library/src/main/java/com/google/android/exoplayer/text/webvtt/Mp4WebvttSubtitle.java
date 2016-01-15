@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.text.mp4webvtt;
+package com.google.android.exoplayer.text.webvtt;
 
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.Subtitle;

@@ -76,13 +76,13 @@ public final class WebvttCueParser {
    * Parses the next valid WebVTT cue in a parsable array, including timestamps, settings and text.
    *
    * @param webvttData Parsable WebVTT file data.
-   * @param cueBuilder Builder for WebVTT Cues.
+   * @param builder Builder for WebVTT Cues.
    * @return True if a valid Cue was found, false otherwise.
    */
-  public boolean parseNextValidCue(ParsableByteArray webvttData, WebvttCue.Builder cueBuilder) {
+  /* package */ boolean parseNextValidCue(ParsableByteArray webvttData, WebvttCue.Builder builder) {
     Matcher cueHeaderMatcher;
     while ((cueHeaderMatcher = findNextCueHeader(webvttData)) != null) {
-      if (parseCue(cueHeaderMatcher, webvttData, cueBuilder, textBuilder)) {
+      if (parseCue(cueHeaderMatcher, webvttData, builder, textBuilder)) {
         return true;
       }
     }
@@ -95,7 +95,8 @@ public final class WebvttCueParser {
    * @param cueSettingsList String containing the settings for a given cue.
    * @param builder The {@link WebvttCue.Builder} where incremental construction takes place.
    */
-  public static void parseCueSettingsList(String cueSettingsList, WebvttCue.Builder builder) {
+  /* package */ static void parseCueSettingsList(String cueSettingsList,
+      WebvttCue.Builder builder) {
     // Parse the cue settings list.
     Matcher cueSettingMatcher = CUE_SETTING_PATTERN.matcher(cueSettingsList);
     while (cueSettingMatcher.find()) {
@@ -143,33 +144,13 @@ public final class WebvttCueParser {
     return null;
   }
 
-  private static boolean parseCue(Matcher cueHeaderMatcher, ParsableByteArray webvttData,
-      WebvttCue.Builder builder, StringBuilder textBuilder) {
-    try {
-      // Parse the cue start and end times.
-      builder.setStartTime(WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(1)))
-          .setEndTime(WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(2)));
-    } catch (NumberFormatException e) {
-      Log.w(TAG, "Skipping cue with bad header: " + cueHeaderMatcher.group());
-      return false;
-    }
-
-    parseCueSettingsList(cueHeaderMatcher.group(3), builder);
-
-    // Parse the cue text.
-    textBuilder.setLength(0);
-    String line;
-    while ((line = webvttData.readLine()) != null && !line.isEmpty()) {
-      if (textBuilder.length() > 0) {
-        textBuilder.append("\n");
-      }
-      textBuilder.append(line.trim());
-    }
-    builder.setText(parseCueText(textBuilder.toString()));
-    return true;
-  }
-
-  /* package */ static Spanned parseCueText(String markup) {
+  /**
+   * Parses the text payload of a WebVTT Cue and applies modifications on {@link WebvttCue.Builder}.
+   *
+   * @param markup The markup text to be parsed.
+   * @param builder Target builder.
+   */
+  /* package */ static void parseCueText(String markup, WebvttCue.Builder builder) {
     SpannableStringBuilder spannedText = new SpannableStringBuilder();
     Stack<StartTag> startTagStack = new Stack<>();
     String[] tagTokens;
@@ -231,7 +212,33 @@ public final class WebvttCueParser {
     while (!startTagStack.isEmpty()) {
       applySpansForTag(startTagStack.pop(), spannedText);
     }
-    return spannedText;
+    builder.setText(spannedText);
+  }
+
+  private static boolean parseCue(Matcher cueHeaderMatcher, ParsableByteArray webvttData,
+      WebvttCue.Builder builder, StringBuilder textBuilder) {
+    try {
+      // Parse the cue start and end times.
+      builder.setStartTime(WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(1)))
+          .setEndTime(WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(2)));
+    } catch (NumberFormatException e) {
+      Log.w(TAG, "Skipping cue with bad header: " + cueHeaderMatcher.group());
+      return false;
+    }
+
+    parseCueSettingsList(cueHeaderMatcher.group(3), builder);
+
+    // Parse the cue text.
+    textBuilder.setLength(0);
+    String line;
+    while ((line = webvttData.readLine()) != null && !line.isEmpty()) {
+      if (textBuilder.length() > 0) {
+        textBuilder.append("\n");
+      }
+      textBuilder.append(line.trim());
+    }
+    parseCueText(textBuilder.toString(), builder);
+    return true;
   }
 
   // Internal methods
