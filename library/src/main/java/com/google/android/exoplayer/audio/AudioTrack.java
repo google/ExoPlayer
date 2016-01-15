@@ -135,6 +135,10 @@ public final class AudioTrack {
    */
   private static final long MAX_BUFFER_DURATION_US = 750000;
   /**
+   * The length for passthrough {@link android.media.AudioTrack} buffers, in microseconds.
+   */
+  private static final long PASSTHROUGH_BUFFER_DURATION_US = 250000;
+  /**
    * A multiplication factor to apply to the minimum buffer size requested by the underlying
    * {@link android.media.AudioTrack}.
    */
@@ -199,7 +203,6 @@ public final class AudioTrack {
   private int encoding;
   private boolean passthrough;
   private int pcmFrameSize;
-  private int minBufferSize;
   private int bufferSize;
   private long bufferSizeUs;
 
@@ -394,15 +397,23 @@ public final class AudioTrack {
     this.sampleRate = sampleRate;
     this.channelConfig = channelConfig;
     pcmFrameSize = 2 * channelCount; // 2 bytes per 16 bit sample * number of channels.
-    minBufferSize = android.media.AudioTrack.getMinBufferSize(sampleRate, channelConfig, encoding);
-    Assertions.checkState(minBufferSize != android.media.AudioTrack.ERROR_BAD_VALUE);
+
     if (specifiedBufferSize != 0) {
       bufferSize = specifiedBufferSize;
     } else if (passthrough) {
-      // TODO: Set the minimum buffer size correctly for encoded output when getMinBufferSize takes
-      // the encoding into account. [Internal: b/25181305]
-      bufferSize = minBufferSize * BUFFER_MULTIPLICATION_FACTOR * 2;
+      // TODO: Set the minimum buffer size using getMinBufferSize when it takes the encoding into
+      // account. [Internal: b/25181305]
+      if (encoding == C.ENCODING_AC3 || encoding == C.ENCODING_E_AC3) {
+        // AC-3 allows bitrates up to 640 kbit/s.
+        bufferSize = (int) (PASSTHROUGH_BUFFER_DURATION_US * 80 * 1024 / C.MICROS_PER_SECOND);
+      } else { // encoding == C.ENCODING_DTS || encoding == C.ENCODING_DTS_HD
+        // DTS allows an 'open' bitrate, but we assume the maximum listed value: 1536 kbit/s.
+        bufferSize = (int) (PASSTHROUGH_BUFFER_DURATION_US * 192 * 1024 / C.MICROS_PER_SECOND);
+      }
     } else {
+      int minBufferSize =
+          android.media.AudioTrack.getMinBufferSize(sampleRate, channelConfig, encoding);
+      Assertions.checkState(minBufferSize != android.media.AudioTrack.ERROR_BAD_VALUE);
       int multipliedBufferSize = minBufferSize * BUFFER_MULTIPLICATION_FACTOR;
       int minAppBufferSize = (int) durationUsToFrames(MIN_BUFFER_DURATION_US) * pcmFrameSize;
       int maxAppBufferSize = (int) Math.max(minBufferSize,
