@@ -24,10 +24,12 @@ import android.test.InstrumentationTestCase;
 public class TtmlColorParserTest extends InstrumentationTestCase {
 
   public void testHexCodeParsing() {
-    assertEquals(Color.WHITE, TtmlColorParser.parseColor("#ffffff"));
-    assertEquals(Color.WHITE, TtmlColorParser.parseColor("#ffffffff"));
-    assertEquals(Color.parseColor("#00ffffff"), TtmlColorParser.parseColor("#00ffffff"));
-    assertEquals(Color.parseColor("#12341234"), TtmlColorParser.parseColor("#12341234"));
+    assertEquals(Color.WHITE, TtmlColorParser.parseColor("#FFFFFF"));
+    assertEquals(Color.WHITE, TtmlColorParser.parseColor("#FFFFFFFF"));
+    assertEquals(Color.parseColor("#FF123456"), TtmlColorParser.parseColor("#123456"));
+    // Hex colors in TTML are RGBA, where-as {@link Color#parseColor} takes ARGB.
+    assertEquals(Color.parseColor("#00FFFFFF"), TtmlColorParser.parseColor("#FFFFFF00"));
+    assertEquals(Color.parseColor("#78123456"), TtmlColorParser.parseColor("#12345678"));
   }
 
   public void testColorNameParsing() {
