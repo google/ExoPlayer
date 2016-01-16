@@ -623,6 +623,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
 
       index = parseInt(parser, KEY_INDEX, -1);
       bitrate = parseRequiredInt(parser, KEY_BITRATE);
+      language = (String) getNormalizedAttribute(KEY_LANGUAGE);
 
       if (type == StreamElement.TYPE_VIDEO) {
         maxHeight = parseRequiredInt(parser, KEY_MAX_HEIGHT);
@@ -640,7 +641,6 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
       if (type == StreamElement.TYPE_AUDIO) {
         samplingRate = parseRequiredInt(parser, KEY_SAMPLING_RATE);
         channels = parseRequiredInt(parser, KEY_CHANNELS);
-        language = (String) getNormalizedAttribute(KEY_LANGUAGE);
       } else {
         samplingRate = -1;
         channels = -1;
