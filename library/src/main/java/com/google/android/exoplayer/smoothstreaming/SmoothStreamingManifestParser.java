@@ -543,6 +543,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
       displayWidth = parseInt(parser, KEY_DISPLAY_WIDTH, -1);
       displayHeight = parseInt(parser, KEY_DISPLAY_HEIGHT, -1);
       language = parser.getAttributeValue(null, KEY_LANGUAGE);
+      putNormalizedAttribute(KEY_LANGUAGE, language);
       timescale = parseInt(parser, KEY_TIME_SCALE, -1);
       if (timescale == -1) {
         timescale = (Long) getNormalizedAttribute(KEY_TIME_SCALE);
@@ -595,6 +596,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
     private static final String KEY_CHANNELS = "Channels";
     private static final String KEY_FOUR_CC = "FourCC";
     private static final String KEY_TYPE = "Type";
+    private static final String KEY_LANGUAGE = "Language";
     private static final String KEY_MAX_WIDTH = "MaxWidth";
     private static final String KEY_MAX_HEIGHT = "MaxHeight";
 
@@ -607,6 +609,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
     private int maxHeight;
     private int samplingRate;
     private int channels;
+    private String language;
 
     public TrackElementParser(ElementParser parent, String baseUri) {
       super(parent, baseUri, TAG);
@@ -620,6 +623,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
 
       index = parseInt(parser, KEY_INDEX, -1);
       bitrate = parseRequiredInt(parser, KEY_BITRATE);
+      language = (String) getNormalizedAttribute(KEY_LANGUAGE);
 
       if (type == StreamElement.TYPE_VIDEO) {
         maxHeight = parseRequiredInt(parser, KEY_MAX_HEIGHT);
@@ -664,7 +668,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
         csd.toArray(csdArray);
       }
       return new TrackElement(index, bitrate, mimeType, csdArray, maxWidth, maxHeight, samplingRate,
-          channels);
+          channels, language);
     }
 
     private static String fourCCToMimeType(String fourCC) {
