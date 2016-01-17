@@ -395,6 +395,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   @Override
   public void onError(Exception e) {
     String errorString = null;
+
     if (e instanceof UnsupportedDrmException) {
       // Special case DRM failures.
       UnsupportedDrmException unsupportedDrmException = (UnsupportedDrmException) e;

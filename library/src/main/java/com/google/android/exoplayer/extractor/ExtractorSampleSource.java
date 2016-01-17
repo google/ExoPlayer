@@ -304,7 +304,7 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
       for (int i = 0; i < trackCount; i++) {
         MediaFormat format = sampleQueues.valueAt(i).getFormat();
         mediaFormats[i] = format;
-        if (format.durationUs != C.UNKNOWN_TIME_US && format.durationUs > maxTrackDurationUs) {
+        if (format.durationUs > 0 && format.durationUs != C.UNKNOWN_TIME_US && format.durationUs > maxTrackDurationUs) {
           maxTrackDurationUs = format.durationUs;
         }
       }
