@@ -261,6 +261,17 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   }
 
   /**
+   * Returns whether this is a live playback.
+   * <p>
+   * This method should only be called after the source has been prepared.
+   *
+   * @return True if this is a live playback. False otherwise.
+   */
+  public boolean isLive() {
+    return live;
+  }
+
+  /**
    * Returns the duration of the source, or {@link C#UNKNOWN_TIME_US} if the duration is unknown.
    * <p>
    * This method should only be called after the source has been prepared.
