@@ -958,7 +958,10 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    */
   private static boolean codecNeedsFlushWorkaround(String name) {
     return Util.SDK_INT < 18
-        || (Util.SDK_INT == 18 && "OMX.SEC.avc.dec".equals(name));
+        || (Util.SDK_INT == 18
+            && ("OMX.SEC.avc.dec".equals(name) || "OMX.SEC.avc.dec.secure".equals(name)))
+        || (Util.SDK_INT == 19 && Util.MODEL.startsWith("SM-G800")
+            && ("OMX.Exynos.avc.dec".equals(name) || "OMX.Exynos.avc.dec.secure".equals(name)));
   }
 
   /**
