@@ -194,6 +194,9 @@ public final class MediaCodecUtil {
             || "MP3Decoder".equals(name)) {
       return false;
     }
+    if (Util.SDK_INT == 16 && "OMX.SEC.MP3.Decoder".equals(name)) {
+      return false;
+    }
 
     // Work around an issue where creating a particular MP3 decoder on some devices on platform API
     // version 16 crashes mediaserver.
