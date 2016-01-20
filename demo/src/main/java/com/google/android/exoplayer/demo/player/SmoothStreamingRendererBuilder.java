@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer.demo.player;
 
+import android.content.Context;
+import android.media.MediaCodec;
+import android.os.Handler;
+
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
@@ -24,6 +28,7 @@ import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSource;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
+import com.google.android.exoplayer.demo.player.DataSource.OkUriDataSource;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.drm.MediaDrmCallback;
@@ -39,13 +44,8 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.Util;
-
-import android.content.Context;
-import android.media.MediaCodec;
-import android.os.Handler;
 
 import java.io.IOException;
 
@@ -156,7 +156,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder {
       }
 
       // Build the video renderer.
-      DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+      DataSource videoDataSource = new OkUriDataSource(context, bandwidthMeter, userAgent);
       ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
           new DefaultSmoothStreamingTrackSelector(context, StreamElement.TYPE_VIDEO),
           videoDataSource, new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
@@ -168,7 +168,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder {
           player, 50);
 
       // Build the audio renderer.
-      DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+      DataSource audioDataSource = new OkUriDataSource(context, bandwidthMeter, userAgent);
       ChunkSource audioChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
           new DefaultSmoothStreamingTrackSelector(context, StreamElement.TYPE_AUDIO),
           audioDataSource, null, LIVE_EDGE_LATENCY_MS);
@@ -179,7 +179,7 @@ public class SmoothStreamingRendererBuilder implements RendererBuilder {
           drmSessionManager, true, mainHandler, player, AudioCapabilities.getCapabilities(context));
 
       // Build the text renderer.
-      DataSource textDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+      DataSource textDataSource = new OkUriDataSource(context, bandwidthMeter, userAgent);
       ChunkSource textChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
           new DefaultSmoothStreamingTrackSelector(context, StreamElement.TYPE_TEXT),
           textDataSource, null, LIVE_EDGE_LATENCY_MS);

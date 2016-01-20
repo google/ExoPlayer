@@ -15,6 +15,11 @@
  */
 package com.google.android.exoplayer.demo.player;
 
+import android.content.Context;
+import android.media.MediaCodec;
+import android.os.Handler;
+import android.util.Log;
+
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
@@ -33,6 +38,7 @@ import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.UtcTimingElement;
 import com.google.android.exoplayer.dash.mpd.UtcTimingElementResolver;
 import com.google.android.exoplayer.dash.mpd.UtcTimingElementResolver.UtcTimingCallback;
+import com.google.android.exoplayer.demo.player.DataSource.OkUriDataSource;
 import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
 import com.google.android.exoplayer.drm.MediaDrmCallback;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
@@ -41,15 +47,9 @@ import com.google.android.exoplayer.text.TextTrackRenderer;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer.upstream.DefaultUriDataSource;
 import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.Util;
-
-import android.content.Context;
-import android.media.MediaCodec;
-import android.os.Handler;
-import android.util.Log;
 
 import java.io.IOException;
 
@@ -120,7 +120,7 @@ public class DashRendererBuilder implements RendererBuilder {
       this.drmCallback = drmCallback;
       this.player = player;
       MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
-      manifestDataSource = new DefaultUriDataSource(context, userAgent);
+      manifestDataSource = new OkUriDataSource(context, userAgent);
       manifestFetcher = new ManifestFetcher<>(url, manifestDataSource, parser);
     }
 
@@ -211,7 +211,7 @@ public class DashRendererBuilder implements RendererBuilder {
       }
 
       // Build the video renderer.
-      DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+      DataSource videoDataSource = new OkUriDataSource(context, bandwidthMeter, userAgent);
       ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher,
           DefaultDashTrackSelector.newVideoInstance(context, true, filterHdContent),
           videoDataSource, new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS,
@@ -224,7 +224,7 @@ public class DashRendererBuilder implements RendererBuilder {
           mainHandler, player, 50);
 
       // Build the audio renderer.
-      DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+      DataSource audioDataSource = new OkUriDataSource(context, bandwidthMeter, userAgent);
       ChunkSource audioChunkSource = new DashChunkSource(manifestFetcher,
           DefaultDashTrackSelector.newAudioInstance(), audioDataSource, null, LIVE_EDGE_LATENCY_MS,
           elapsedRealtimeOffset, mainHandler, player);
@@ -235,7 +235,7 @@ public class DashRendererBuilder implements RendererBuilder {
           drmSessionManager, true, mainHandler, player, AudioCapabilities.getCapabilities(context));
 
       // Build the text renderer.
-      DataSource textDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+      DataSource textDataSource = new OkUriDataSource(context, bandwidthMeter, userAgent);
       ChunkSource textChunkSource = new DashChunkSource(manifestFetcher,
           DefaultDashTrackSelector.newTextInstance(), textDataSource, null, LIVE_EDGE_LATENCY_MS,
           elapsedRealtimeOffset, mainHandler, player);
