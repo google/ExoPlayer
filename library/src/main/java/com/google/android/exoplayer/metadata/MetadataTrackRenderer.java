@@ -93,29 +93,17 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
   }
 
   @Override
-  protected void onEnabled(int track, long positionUs, boolean joining)
-      throws ExoPlaybackException {
-    super.onEnabled(track, positionUs, joining);
-    seekToInternal();
-  }
-
-  @Override
-  protected void seekTo(long positionUs) throws ExoPlaybackException {
-    super.seekTo(positionUs);
-    seekToInternal();
-  }
-
-  private void seekToInternal() {
+  protected void onDiscontinuity(long positionUs) {
     pendingMetadata = null;
     inputStreamEnded = false;
   }
 
   @Override
-  protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
-    continueBufferingSource(positionUs);
+  protected void doSomeWork(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
+      throws ExoPlaybackException {
     if (!inputStreamEnded && pendingMetadata == null) {
       sampleHolder.clearData();
-      int result = readSource(positionUs, formatHolder, sampleHolder, false);
+      int result = readSource(positionUs, formatHolder, sampleHolder);
       if (result == SampleSource.SAMPLE_READ) {
         pendingMetadataTimestamp = sampleHolder.timeUs;
         try {

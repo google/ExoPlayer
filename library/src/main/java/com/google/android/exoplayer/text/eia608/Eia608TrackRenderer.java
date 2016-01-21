@@ -97,16 +97,10 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   protected void onEnabled(int track, long positionUs, boolean joining)
       throws ExoPlaybackException {
     super.onEnabled(track, positionUs, joining);
-    seekToInternal();
   }
 
   @Override
-  protected void seekTo(long positionUs) throws ExoPlaybackException {
-    super.seekTo(positionUs);
-    seekToInternal();
-  }
-
-  private void seekToInternal() {
+  protected void onDiscontinuity(long positionUs) {
     inputStreamEnded = false;
     pendingCaptionLists.clear();
     clearPendingSample();
@@ -116,15 +110,15 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   }
 
   @Override
-  protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
-    continueBufferingSource(positionUs);
+  protected void doSomeWork(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
+      throws ExoPlaybackException {
     if (isSamplePending()) {
       maybeParsePendingSample(positionUs);
     }
 
     int result = inputStreamEnded ? SampleSource.END_OF_STREAM : SampleSource.SAMPLE_READ;
     while (!isSamplePending() && result == SampleSource.SAMPLE_READ) {
-      result = readSource(positionUs, formatHolder, sampleHolder, false);
+      result = readSource(positionUs, formatHolder, sampleHolder);
       if (result == SampleSource.SAMPLE_READ) {
         maybeParsePendingSample(positionUs);
       } else if (result == SampleSource.END_OF_STREAM) {

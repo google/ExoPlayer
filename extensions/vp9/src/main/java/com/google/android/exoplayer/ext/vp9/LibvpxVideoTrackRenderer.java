@@ -175,12 +175,11 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
   }
 
   @Override
-  protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+  protected void doSomeWork(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
+      throws ExoPlaybackException {
     if (outputStreamEnded) {
       return;
     }
-    sourceIsReady = continueBufferingSource(positionUs);
-    checkForDiscontinuity(positionUs);
 
     // Try and read a format if we don't have one already.
     if (format == null && !readFormat(positionUs)) {
@@ -311,14 +310,9 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
       }
     }
 
-    int result = readSource(positionUs, formatHolder, inputBuffer.sampleHolder,
-        false);
+    int result = readSource(positionUs, formatHolder, inputBuffer.sampleHolder);
     if (result == SampleSource.NOTHING_READ) {
       return false;
-    }
-    if (result == SampleSource.DISCONTINUITY_READ) {
-      flushDecoder();
-      return true;
     }
     if (result == SampleSource.FORMAT_READ) {
       format = formatHolder.format;
@@ -337,16 +331,6 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     decoder.queueInputBuffer(inputBuffer);
     inputBuffer = null;
     return true;
-  }
-
-  private void checkForDiscontinuity(long positionUs) {
-    if (decoder == null) {
-      return;
-    }
-    int result = readSource(positionUs, formatHolder, null, true);
-    if (result == SampleSource.DISCONTINUITY_READ) {
-      flushDecoder();
-    }
   }
 
   private void flushDecoder() {
@@ -369,23 +353,14 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
   }
 
   @Override
-  protected void seekTo(long positionUs) throws ExoPlaybackException {
-    super.seekTo(positionUs);
-    seekToInternal();
-  }
-
-  @Override
-  protected void onEnabled(int track, long positionUs, boolean joining)
-      throws ExoPlaybackException {
-    super.onEnabled(track, positionUs, joining);
-    seekToInternal();
-  }
-
-  private void seekToInternal() {
+  protected void onDiscontinuity(long positionUs) {
     sourceIsReady = false;
     inputStreamEnded = false;
     outputStreamEnded = false;
     renderedFirstFrame = false;
+    if (decoder != null) {
+      flushDecoder();
+    }
   }
 
   @Override
@@ -416,7 +391,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
   }
 
   private boolean readFormat(long positionUs) {
-    int result = readSource(positionUs, formatHolder, null, false);
+    int result = readSource(positionUs, formatHolder, null);
     if (result == SampleSource.FORMAT_READ) {
       format = formatHolder.format;
       return true;

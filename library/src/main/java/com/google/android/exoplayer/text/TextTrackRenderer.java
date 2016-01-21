@@ -185,26 +185,22 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
     parserThread = new HandlerThread("textParser");
     parserThread.start();
     parserHelper = new SubtitleParserHelper(parserThread.getLooper(), subtitleParsers[parserIndex]);
-    seekToInternal();
   }
 
   @Override
-  protected void seekTo(long positionUs) throws ExoPlaybackException {
-    super.seekTo(positionUs);
-    seekToInternal();
-  }
-
-  private void seekToInternal() {
+  protected void onDiscontinuity(long positionUs) {
     inputStreamEnded = false;
     subtitle = null;
     nextSubtitle = null;
-    parserHelper.flush();
     clearTextRenderer();
+    if (parserHelper != null) {
+      parserHelper.flush();
+    }
   }
 
   @Override
-  protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
-    continueBufferingSource(positionUs);
+  protected void doSomeWork(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
+      throws ExoPlaybackException {
     if (nextSubtitle == null) {
       try {
         nextSubtitle = parserHelper.getAndClearResult();
@@ -247,7 +243,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
       // Try and read the next subtitle from the source.
       SampleHolder sampleHolder = parserHelper.getSampleHolder();
       sampleHolder.clearData();
-      int result = readSource(positionUs, formatHolder, sampleHolder, false);
+      int result = readSource(positionUs, formatHolder, sampleHolder);
       if (result == SampleSource.FORMAT_READ) {
         parserHelper.setFormat(formatHolder.format);
       } else if (result == SampleSource.SAMPLE_READ) {

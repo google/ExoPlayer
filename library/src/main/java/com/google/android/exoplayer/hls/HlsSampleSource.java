@@ -282,21 +282,21 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   }
 
   @Override
+  public long readDiscontinuity(int track) {
+    if (pendingDiscontinuities[track]) {
+      pendingDiscontinuities[track] = false;
+      return lastSeekPositionUs;
+    }
+    return NO_DISCONTINUITY;
+  }
+
+  @Override
   public int readData(int track, long playbackPositionUs, MediaFormatHolder formatHolder,
-      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
+      SampleHolder sampleHolder) {
     Assertions.checkState(prepared);
     downstreamPositionUs = playbackPositionUs;
 
-    if (pendingDiscontinuities[track]) {
-      pendingDiscontinuities[track] = false;
-      return DISCONTINUITY_READ;
-    }
-
-    if (onlyReadDiscontinuity) {
-      return NOTHING_READ;
-    }
-
-    if (isPendingReset()) {
+    if (pendingDiscontinuities[track] || isPendingReset()) {
       return NOTHING_READ;
     }
 

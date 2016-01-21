@@ -240,13 +240,6 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected void onEnabled(int track, long positionUs, boolean joining)
-      throws ExoPlaybackException {
-    super.onEnabled(track, positionUs, joining);
-    seekToInternal(positionUs);
-  }
-
-  @Override
   protected void onOutputFormatChanged(android.media.MediaFormat outputFormat) {
     boolean passthrough = passthroughMediaFormat != null;
     audioTrack.configure(passthrough ? passthroughMediaFormat : outputFormat, passthrough);
@@ -312,13 +305,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected void seekTo(long positionUs) throws ExoPlaybackException {
-    super.seekTo(positionUs);
-    seekToInternal(positionUs);
-  }
-
-  private void seekToInternal(long positionUs) {
-    // TODO: Try and re-use the same AudioTrack instance once [Internal: b/7941810] is fixed.
+  protected void onDiscontinuity(long positionUs) throws ExoPlaybackException {
+    super.onDiscontinuity(positionUs);
     audioTrack.reset();
     currentPositionUs = positionUs;
     allowPositionDiscontinuity = true;
@@ -376,7 +364,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
 
     // If we are out of sync, allow currentPositionUs to jump backwards.
     if ((handleBufferResult & AudioTrack.RESULT_POSITION_DISCONTINUITY) != 0) {
-      handleDiscontinuity();
+      handleAudioTrackDiscontinuity();
       allowPositionDiscontinuity = true;
     }
 
@@ -395,7 +383,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
     audioTrack.handleEndOfStream();
   }
 
-  protected void handleDiscontinuity() {
+  protected void handleAudioTrackDiscontinuity() {
     // Do nothing
   }
 
