@@ -49,7 +49,6 @@ public final class Mp3Extractor implements Extractor {
    * Mask that includes the audio header values that must match between frames.
    */
   private static final int HEADER_MASK = 0xFFFE0C00;
-  private static final int ID3_TAG = Util.getIntegerCodeForString("ID3");
   private static final int XING_HEADER = Util.getIntegerCodeForString("Xing");
   private static final int INFO_HEADER = Util.getIntegerCodeForString("Info");
   private static final int VBRI_HEADER = Util.getIntegerCodeForString("VBRI");
@@ -57,6 +56,7 @@ public final class Mp3Extractor implements Extractor {
   private final long forcedFirstSampleTimestampUs;
   private final ParsableByteArray scratch;
   private final MpegAudioHeader synchronizedHeader;
+  private final Id3Util.Metadata metadata;
 
   // Extractor outputs.
   private ExtractorOutput extractorOutput;
@@ -86,6 +86,7 @@ public final class Mp3Extractor implements Extractor {
     this.forcedFirstSampleTimestampUs = forcedFirstSampleTimestampUs;
     scratch = new ParsableByteArray(4);
     synchronizedHeader = new MpegAudioHeader();
+    metadata = new Id3Util.Metadata();
     basisTimeUs = -1;
   }
 
@@ -194,30 +195,10 @@ public final class Mp3Extractor implements Extractor {
   private boolean synchronize(ExtractorInput input, boolean sniffing)
       throws IOException, InterruptedException {
     input.resetPeekPosition();
-    int peekedId3Bytes = 0;
-    if (input.getPosition() == 0) {
-      // Skip any ID3 headers at the start of the file.
-      while (true) {
-        input.peekFully(scratch.data, 0, 3);
-        scratch.setPosition(0);
-        if (scratch.readUnsignedInt24() != ID3_TAG) {
-          break;
-        }
-        input.advancePeekPosition(2 + 1); // version, flags
-        input.peekFully(scratch.data, 0, 4);
-        scratch.setPosition(0);
-        int headerLength = scratch.readSynchSafeInt();
-        input.advancePeekPosition(headerLength);
-        peekedId3Bytes += 10 + headerLength;
-      }
-      input.resetPeekPosition();
-      input.advancePeekPosition(peekedId3Bytes);
-    }
-
-    // For sniffing, limit the search range to the length of an audio frame after any ID3 metadata.
     int searched = 0;
     int validFrameCount = 0;
     int candidateSynchronizedHeaderData = 0;
+    int peekedId3Bytes = input.getPosition() == 0 ? Id3Util.parseId3(input, metadata) : 0;
     while (true) {
       if (sniffing && searched == MAX_SNIFF_BYTES) {
         return false;

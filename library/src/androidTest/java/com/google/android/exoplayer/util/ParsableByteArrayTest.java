@@ -18,6 +18,7 @@ package com.google.android.exoplayer.util;
 import junit.framework.TestCase;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
 /**
@@ -413,6 +414,13 @@ public class ParsableByteArrayTest extends TestCase {
     assertEquals("", parser.readLine());
     assertEquals("bar", parser.readLine());
     assertNull(parser.readLine());
+  }
+
+  public void testReadString() {
+    byte[] bytes = new byte[] {'t', 'e', 's', 't'};
+    ParsableByteArray testArray = new ParsableByteArray(bytes);
+    assertEquals("test", testArray.readString(bytes.length, Charset.forName("UTF-8")));
+    assertEquals(bytes.length, testArray.getPosition());
   }
 
 }
