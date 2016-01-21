@@ -59,10 +59,15 @@ public class ExtractorRendererBuilder implements RendererBuilder {
     // Build the video and audio renderers.
     DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter(player.getMainHandler(),
         null);
-    DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-    //DataSource dataSource = new RtmpDataSource();
+    DataSource dataSource;
+    if (uri.toString().startsWith("rtmp")) {
+      dataSource = new RtmpDataSource();
+    }
+    else {
+      dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+    }
     ExtractorSampleSource sampleSource = new ExtractorSampleSource(uri, dataSource, allocator,
-        BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE, new FlvExtractor());
+        BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE);
     MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context,
         sampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, player.getMainHandler(),
         player, 50);
