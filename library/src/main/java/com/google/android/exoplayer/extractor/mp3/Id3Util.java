@@ -31,13 +31,6 @@ import java.util.regex.Pattern;
  */
 /* package */ final class Id3Util {
 
-  public static final class Metadata {
-
-    public int encoderDelay;
-    public int encoderPadding;
-
-  }
-
   /**
    * The maximum valid length for metadata in bytes.
    */
@@ -54,12 +47,12 @@ import java.util.regex.Pattern;
    * Peeks data from the input and parses ID3 metadata.
    *
    * @param input The {@link ExtractorInput} from which data should be peeked.
-   * @param out {@link Metadata} to populate based on the input.
+   * @param out {@link Mp3Extractor.Metadata} to populate based on the input.
    * @return The number of bytes peeked from the input.
    * @throws IOException If an error occurred peeking from the input.
    * @throws InterruptedException If the thread was interrupted.
    */
-  public static int parseId3(ExtractorInput input, Metadata out)
+  public static int parseId3(ExtractorInput input, Mp3Extractor.Metadata out)
       throws IOException, InterruptedException {
     out.encoderDelay = 0;
     out.encoderPadding = 0;
@@ -100,7 +93,8 @@ import java.util.regex.Pattern;
         && !(majorVersion == 4 && (flags & 0x0F) != 0);
   }
 
-  private static void parseMetadata(ParsableByteArray frame, int version, int flags, Metadata out) {
+  private static void parseMetadata(ParsableByteArray frame, int version, int flags,
+      Mp3Extractor.Metadata out) {
     unescape(frame, version, flags);
 
     // Skip any extended header.
