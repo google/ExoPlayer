@@ -384,16 +384,20 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
   }
 
   @Override
-  public int readData(int track, long playbackPositionUs, MediaFormatHolder formatHolder,
-      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
-    downstreamPositionUs = playbackPositionUs;
-
+  public long readDiscontinuity(int track) {
     if (pendingDiscontinuities[track]) {
       pendingDiscontinuities[track] = false;
-      return DISCONTINUITY_READ;
+      return lastSeekPositionUs;
     }
+    return NO_DISCONTINUITY;
+  }
 
-    if (onlyReadDiscontinuity || isPendingReset()) {
+  @Override
+  public int readData(int track, long playbackPositionUs, MediaFormatHolder formatHolder,
+      SampleHolder sampleHolder) {
+    downstreamPositionUs = playbackPositionUs;
+
+    if (pendingDiscontinuities[track] || isPendingReset()) {
       return NOTHING_READ;
     }
 

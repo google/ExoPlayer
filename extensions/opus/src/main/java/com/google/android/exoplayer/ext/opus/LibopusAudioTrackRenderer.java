@@ -145,19 +145,11 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
   }
 
   @Override
-  protected void onEnabled(int track, long positionUs, boolean joining)
+  protected void doSomeWork(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
       throws ExoPlaybackException {
-    super.onEnabled(track, positionUs, joining);
-    seekToInternal(positionUs);
-  }
-
-  @Override
-  protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     if (outputStreamEnded) {
       return;
     }
-    sourceIsReady = continueBufferingSource(positionUs);
-    checkForDiscontinuity(positionUs);
 
     // Try and read a format if we don't have one already.
     if (format == null && !readFormat(positionUs)) {
@@ -275,13 +267,9 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
       }
     }
 
-    int result = readSource(positionUs, formatHolder, inputBuffer.sampleHolder, false);
+    int result = readSource(positionUs, formatHolder, inputBuffer.sampleHolder);
     if (result == SampleSource.NOTHING_READ) {
       return false;
-    }
-    if (result == SampleSource.DISCONTINUITY_READ) {
-      flushDecoder();
-      return true;
     }
     if (result == SampleSource.FORMAT_READ) {
       format = formatHolder.format;
@@ -302,16 +290,6 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
     decoder.queueInputBuffer(inputBuffer);
     inputBuffer = null;
     return true;
-  }
-
-  private void checkForDiscontinuity(long positionUs) {
-    if (decoder == null) {
-      return;
-    }
-    int result = readSource(positionUs, formatHolder, null, true);
-    if (result == SampleSource.DISCONTINUITY_READ) {
-      flushDecoder();
-    }
   }
 
   private void flushDecoder() {
@@ -344,18 +322,16 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
   }
 
   @Override
-  protected void seekTo(long positionUs) throws ExoPlaybackException {
-    super.seekTo(positionUs);
-    seekToInternal(positionUs);
-  }
-
-  private void seekToInternal(long positionUs) {
+  protected void onDiscontinuity(long positionUs) {
     audioTrack.reset();
     currentPositionUs = positionUs;
     allowPositionDiscontinuity = true;
     inputStreamEnded = false;
     outputStreamEnded = false;
     sourceIsReady = false;
+    if (decoder != null) {
+      flushDecoder();
+    }
   }
 
   @Override
@@ -387,7 +363,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
   }
 
   private boolean readFormat(long positionUs) {
-    int result = readSource(positionUs, formatHolder, null, false);
+    int result = readSource(positionUs, formatHolder, null);
     if (result == SampleSource.FORMAT_READ) {
       format = formatHolder.format;
       audioTrack.configure(format.getFrameworkMediaFormatV16(), false);

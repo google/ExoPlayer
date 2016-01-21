@@ -263,13 +263,6 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   @Override
-  protected void onEnabled(int track, long positionUs, boolean joining)
-      throws ExoPlaybackException {
-    super.onEnabled(track, positionUs, joining);
-    seekToInternal();
-  }
-
-  @Override
   protected final boolean handlesTrack(MediaFormat mediaFormat) throws DecoderQueryException {
     return handlesTrack(mediaCodecSelector, mediaFormat);
   }
@@ -458,15 +451,13 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   @Override
-  protected void seekTo(long positionUs) throws ExoPlaybackException {
-    super.seekTo(positionUs);
-    seekToInternal();
-  }
-
-  private void seekToInternal() {
+  protected void onDiscontinuity(long positionUs) throws ExoPlaybackException {
     sourceState = SOURCE_STATE_NOT_READY;
     inputStreamEnded = false;
     outputStreamEnded = false;
+    if (codec != null) {
+      flushCodec();
+    }
   }
 
   @Override
@@ -480,11 +471,11 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   @Override
-  protected void doSomeWork(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
-    sourceState = continueBufferingSource(positionUs)
+  protected void doSomeWork(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
+      throws ExoPlaybackException {
+    sourceState = sourceIsReady
         ? (sourceState == SOURCE_STATE_NOT_READY ? SOURCE_STATE_READY : sourceState)
         : SOURCE_STATE_NOT_READY;
-    checkForDiscontinuity(positionUs);
     if (format == null) {
       readFormat(positionUs);
     }
@@ -501,19 +492,9 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   private void readFormat(long positionUs) throws ExoPlaybackException {
-    int result = readSource(positionUs, formatHolder, sampleHolder, false);
+    int result = readSource(positionUs, formatHolder, null);
     if (result == SampleSource.FORMAT_READ) {
       onInputFormatChanged(formatHolder);
-    }
-  }
-
-  private void checkForDiscontinuity(long positionUs) throws ExoPlaybackException {
-    if (codec == null) {
-      return;
-    }
-    int result = readSource(positionUs, formatHolder, sampleHolder, true);
-    if (result == SampleSource.DISCONTINUITY_READ) {
-      flushCodec();
     }
   }
 
@@ -598,7 +579,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
         }
         codecReconfigurationState = RECONFIGURATION_STATE_QUEUE_PENDING;
       }
-      result = readSource(positionUs, formatHolder, sampleHolder, false);
+      result = readSource(positionUs, formatHolder, sampleHolder);
       if (firstFeed && sourceState == SOURCE_STATE_READY && result == SampleSource.NOTHING_READ) {
         sourceState = SOURCE_STATE_READY_READ_MAY_FAIL;
       }
@@ -606,10 +587,6 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
 
     if (result == SampleSource.NOTHING_READ) {
       return false;
-    }
-    if (result == SampleSource.DISCONTINUITY_READ) {
-      flushCodec();
-      return true;
     }
     if (result == SampleSource.FORMAT_READ) {
       if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
