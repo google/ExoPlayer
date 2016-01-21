@@ -56,7 +56,7 @@ public final class Mp3Extractor implements Extractor {
   private final long forcedFirstSampleTimestampUs;
   private final ParsableByteArray scratch;
   private final MpegAudioHeader synchronizedHeader;
-  private final Id3Util.Metadata metadata;
+  private final Metadata metadata;
 
   // Extractor outputs.
   private ExtractorOutput extractorOutput;
@@ -86,7 +86,7 @@ public final class Mp3Extractor implements Extractor {
     this.forcedFirstSampleTimestampUs = forcedFirstSampleTimestampUs;
     scratch = new ParsableByteArray(4);
     synchronizedHeader = new MpegAudioHeader();
-    metadata = new Id3Util.Metadata();
+    metadata = new Metadata();
     basisTimeUs = -1;
   }
 
@@ -259,64 +259,51 @@ public final class Mp3Extractor implements Extractor {
    *     the next two frames were already peeked during synchronization.
    */
   private void setupSeeker(ExtractorInput input) throws IOException, InterruptedException {
+    // Read the first frame which may contain a Xing or VBRI header with seeking metadata.
     ParsableByteArray frame = new ParsableByteArray(synchronizedHeader.frameSize);
     input.peekFully(frame.data, 0, synchronizedHeader.frameSize);
-    if (parseSeekerFrame(frame, input.getPosition(), input.getLength())) {
-      input.skipFully(synchronizedHeader.frameSize);
-      if (seeker != null) {
-        return;
+
+    long position = input.getPosition();
+    long length = input.getLength();
+
+    // Check if there is a Xing header.
+    int xingBase = (synchronizedHeader.version & 1) != 0
+        ? (synchronizedHeader.channels != 1 ? 36 : 21) // MPEG 1
+        : (synchronizedHeader.channels != 1 ? 21 : 13); // MPEG 2 or 2.5
+    frame.setPosition(xingBase);
+    int headerData = frame.readInt();
+    if (headerData == XING_HEADER || headerData == INFO_HEADER) {
+      seeker = XingSeeker.create(synchronizedHeader, frame, position, length);
+      if (seeker != null && metadata.encoderDelay == 0 && metadata.encoderPadding == 0) {
+        // If there is a Xing header, read gapless playback metadata at a fixed offset.
+        input.resetPeekPosition();
+        input.advancePeekPosition(xingBase + 141);
+        input.peekFully(scratch.data, 0, 3);
+        scratch.setPosition(0);
+        int gaplessMetadata = scratch.readUnsignedInt24();
+        metadata.encoderDelay = gaplessMetadata >> 12;
+        metadata.encoderPadding = gaplessMetadata & 0x0FFF;
       }
-      // If there was a header but it was not usable, synchronize to the next frame so we don't use
-      // an invalid bitrate for CBR seeking.
+      input.skipFully(synchronizedHeader.frameSize);
+    } else {
+      // Check if there is a VBRI header.
+      frame.setPosition(36); // MPEG audio header (4 bytes) + 32 bytes.
+      headerData = frame.readInt();
+      if (headerData == VBRI_HEADER) {
+        seeker = VbriSeeker.create(synchronizedHeader, frame, position);
+        input.skipFully(synchronizedHeader.frameSize);
+      }
+    }
+
+    if (seeker == null) {
+      // Repopulate the synchronized header in case we had to skip an invalid seeking header, which
+      // would give an invalid CBR bitrate.
+      input.resetPeekPosition();
       input.peekFully(scratch.data, 0, 4);
       scratch.setPosition(0);
       MpegAudioHeader.populateHeader(scratch.readInt(), synchronizedHeader);
+      seeker = new ConstantBitrateSeeker(input.getPosition(), synchronizedHeader.bitrate, length);
     }
-    seeker = new ConstantBitrateSeeker(input.getPosition(), synchronizedHeader.bitrate * 1000,
-        input.getLength());
-  }
-
-  /**
-   * Tries to read seeking metadata from the given {@code frame}. If there is no seeking metadata,
-   * returns {@code false} and sets {@link #seeker} to null. If seeking metadata is present and
-   * unusable, returns {@code true} and sets {@link #seeker} to null. Otherwise, returns
-   * {@code true} and assigns {@link #seeker}.
-   */
-  private boolean parseSeekerFrame(ParsableByteArray frame, long headerPosition, long inputLength) {
-    // Check if there is a Xing header.
-    int xingBase;
-    if ((synchronizedHeader.version & 1) == 1) {
-      // MPEG 1.
-      if (synchronizedHeader.channels != 1) {
-        xingBase = 32;
-      } else {
-        xingBase = 17;
-      }
-    } else {
-      // MPEG 2 or 2.5.
-      if (synchronizedHeader.channels != 1) {
-        xingBase = 17;
-      } else {
-        xingBase = 9;
-      }
-    }
-    frame.setPosition(4 + xingBase);
-    int headerData = frame.readInt();
-    if (headerData == XING_HEADER || headerData == INFO_HEADER) {
-      seeker = XingSeeker.create(synchronizedHeader, frame, headerPosition, inputLength);
-      return true;
-    }
-
-    // Check if there is a VBRI header.
-    frame.setPosition(36); // MPEG audio header (4 bytes) + 32 bytes.
-    headerData = frame.readInt();
-    if (headerData == VBRI_HEADER) {
-      seeker = VbriSeeker.create(synchronizedHeader, frame, headerPosition);
-      return true;
-    }
-
-    // Neither header is present.
-    return false;
   }
 
   /**
@@ -335,6 +322,13 @@ public final class Mp3Extractor implements Extractor {
 
     /** Returns the duration of the source, in microseconds. */
     long getDurationUs();
+
+  }
+
+  /* package */ static final class Metadata {
+
+    public int encoderDelay;
+    public int encoderPadding;
 
   }
 
