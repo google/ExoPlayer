@@ -310,13 +310,24 @@ public final class ParsableByteArray {
   /**
    * Reads the next {@code length} bytes as UTF-8 characters.
    *
-   * @param length the number of bytes to read.
-   * @return the UTF-8 {@code String} read.
+   * @param length The number of bytes to read.
+   * @return The string encoded by the bytes.
    */
   public String readString(int length) {
-    String utf8String = new String(data, position, length);
+    return readString(length, Charset.defaultCharset());
+  }
+
+  /**
+   * Reads the next {@code length} bytes as characters in the specified {@link Charset}.
+   *
+   * @param length The number of bytes to read.
+   * @param charset The character set of the encoded characters.
+   * @return The string encoded by the bytes in the specified character set.
+   */
+  public String readString(int length, Charset charset) {
+    String result = new String(data, position, length, charset);
     position += length;
-    return utf8String;
+    return result;
   }
 
   /**
@@ -357,19 +368,6 @@ public final class ParsableByteArray {
       position++;
     }
     return line;
-  }
-
-  /**
-   * Reads the next {@code bytes} bytes as characters in the specified {@link Charset}.
-   *
-   * @param bytes The number of bytes to read.
-   * @param charset The character set of the encoded characters.
-   * @return The string encoded by the bytes in the specified character set.
-   */
-  public String readString(int bytes, Charset charset) {
-    String result = new String(data, position, bytes, charset);
-    position += bytes;
-    return result;
   }
 
 }

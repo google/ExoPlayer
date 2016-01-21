@@ -346,6 +346,13 @@ public class ParsableByteArrayTest extends TestCase {
     assertEquals(data.length, byteArray.getPosition());
   }
 
+  public void testReadAsciiString() {
+    byte[] data = new byte[] {'t', 'e', 's', 't'};
+    ParsableByteArray testArray = new ParsableByteArray(data);
+    assertEquals("test", testArray.readString(data.length, Charset.forName("US-ASCII")));
+    assertEquals(data.length, testArray.getPosition());
+  }
+
   public void testReadStringOutOfBoundsDoesNotMovePosition() {
     byte[] data = {
         (byte) 0xC3, (byte) 0xA4, (byte) 0x20
@@ -414,13 +421,6 @@ public class ParsableByteArrayTest extends TestCase {
     assertEquals("", parser.readLine());
     assertEquals("bar", parser.readLine());
     assertNull(parser.readLine());
-  }
-
-  public void testReadString() {
-    byte[] bytes = new byte[] {'t', 'e', 's', 't'};
-    ParsableByteArray testArray = new ParsableByteArray(bytes);
-    assertEquals("test", testArray.readString(bytes.length, Charset.forName("UTF-8")));
-    assertEquals(bytes.length, testArray.getPosition());
   }
 
 }
