@@ -36,7 +36,7 @@ android {
 
 dependencies {
     compile project(':library')
-    compile('com.squareup.okhttp:okhttp:2.5.0') {
+    compile('com.squareup.okhttp3:okhttp:+') {
         exclude group: 'org.json'
     }
 }

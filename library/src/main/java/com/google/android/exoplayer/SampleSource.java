@@ -46,9 +46,9 @@ public interface SampleSource {
    */
   public static final int FORMAT_READ = -4;
   /**
-   * A discontinuity in the sample stream.
+   * Returned from {@link SampleSourceReader#readDiscontinuity(int)} to indicate no discontinuity.
    */
-  public static final int DISCONTINUITY_READ = -5;
+  public static final long NO_DISCONTINUITY = Long.MIN_VALUE;
 
   /**
    * A consumer of samples should call this method to register themselves and gain access to the
@@ -104,7 +104,7 @@ public interface SampleSource {
      * (i.e. @link {@link MediaFormat#adaptive} is true). Hence the track formats returned through
      * this method should not be used to configure decoders. Decoder configuration should be
      * performed using the formats obtained when reading the media stream through calls to
-     * {@link #readData(int, long, MediaFormatHolder, SampleHolder, boolean)}.
+     * {@link #readData(int, long, MediaFormatHolder, SampleHolder)}.
      * <p>
      * This method should only be called after the source has been prepared.
      *
@@ -115,7 +115,7 @@ public interface SampleSource {
 
     /**
      * Enable the specified track. This allows the track's format and samples to be read from
-     * {@link #readData(int, long, MediaFormatHolder, SampleHolder, boolean)}.
+     * {@link #readData(int, long, MediaFormatHolder, SampleHolder)}.
      * <p>
      * This method should only be called after the source has been prepared, and when the specified
      * track is disabled.
@@ -138,13 +138,27 @@ public interface SampleSource {
     public boolean continueBuffering(int track, long positionUs);
 
     /**
-     * Attempts to read either a sample, a new format or or a discontinuity from the source.
+     * Attempts to read a pending discontinuity from the source.
+     * <p>
+     * This method should only be called when the specified track is enabled.
+     *
+     * @param track The track from which to read.
+     * @return If a discontinuity was read then the playback position after the discontinuity. Else
+     *     {@link #NO_DISCONTINUITY}.
+     */
+    public long readDiscontinuity(int track);
+
+    /**
+     * Attempts to read a sample or a new format from the source.
      * <p>
      * This method should only be called when the specified track is enabled.
      * <p>
      * Note that where multiple tracks are enabled, {@link #NOTHING_READ} may be returned if the
      * next piece of data to be read from the {@link SampleSource} corresponds to a different track
      * than the one for which data was requested.
+     * <p>
+     * This method will always return {@link #NOTHING_READ} in the case that there's a pending
+     * discontinuity to be read from {@link #readDiscontinuity(int)} for the specified track.
      *
      * @param track The track from which to read.
      * @param positionUs The current playback position.
@@ -153,13 +167,11 @@ public interface SampleSource {
      * @param sampleHolder A {@link SampleHolder} object to populate in the case of a new sample.
      *     If the caller requires the sample data then it must ensure that {@link SampleHolder#data}
      *     references a valid output buffer.
-     * @param onlyReadDiscontinuity Whether to only read a discontinuity. If true, only
-     *     {@link #DISCONTINUITY_READ} or {@link #NOTHING_READ} can be returned.
      * @return The result, which can be {@link #SAMPLE_READ}, {@link #FORMAT_READ},
-     *     {@link #DISCONTINUITY_READ}, {@link #NOTHING_READ} or {@link #END_OF_STREAM}.
+     *     {@link #NOTHING_READ} or {@link #END_OF_STREAM}.
      */
     public int readData(int track, long positionUs, MediaFormatHolder formatHolder,
-        SampleHolder sampleHolder, boolean onlyReadDiscontinuity);
+        SampleHolder sampleHolder);
 
     /**
      * Seeks to the specified time in microseconds.

@@ -18,6 +18,7 @@ package com.google.android.exoplayer.demo.vp9opus;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
+import com.google.android.exoplayer.MediaCodecSelector;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
@@ -56,9 +57,9 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
 
   private final String manifestUrl;
   private final String userAgent;
-  private final VideoPlayer player;
+  private final PlayerActivity player;
 
-  public DashRendererBuilder(String manifestUrl, String userAgent, VideoPlayer player) {
+  public DashRendererBuilder(String manifestUrl, String userAgent, PlayerActivity player) {
     this.manifestUrl = manifestUrl;
     this.userAgent = userAgent;
     this.player = player;
@@ -133,7 +134,8 @@ public class DashRendererBuilder implements ManifestCallback<MediaPresentationDe
       if (audioRepresentationIsOpus) {
         audioRenderer = new LibopusAudioTrackRenderer(audioSampleSource);
       } else {
-        audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource);
+        audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource,
+            MediaCodecSelector.DEFAULT);
       }
     }
 

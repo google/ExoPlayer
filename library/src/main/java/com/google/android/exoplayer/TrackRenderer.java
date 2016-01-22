@@ -150,9 +150,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    *
    * @param track The track for which the renderer is being enabled.
    * @param positionUs The player's current position.
-   * @param joining Whether this renderer is being enabled to join an ongoing playback. If true
-   *     then {@link #start} must be called immediately after this method returns (unless a
-   *     {@link ExoPlaybackException} is thrown).
+   * @param joining Whether this renderer is being enabled to join an ongoing playback.
    * @throws ExoPlaybackException If an error occurs.
    */
   /* package */ final void enable(int track, long positionUs, boolean joining)
@@ -169,9 +167,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    *
    * @param track The track for which the renderer is being enabled.
    * @param positionUs The player's current position.
-   * @param joining Whether this renderer is being enabled to join an ongoing playback. If true
-   *     then {@link #onStarted} is guaranteed to be called immediately after this method returns
-   *     (unless a {@link ExoPlaybackException} is thrown).
+   * @param joining Whether this renderer is being enabled to join an ongoing playback.
    * @throws ExoPlaybackException If an error occurs.
    */
   protected void onEnabled(int track, long positionUs, boolean joining)

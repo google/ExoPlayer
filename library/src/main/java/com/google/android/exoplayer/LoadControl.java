@@ -26,7 +26,7 @@ public interface LoadControl {
    * Registers a loader.
    *
    * @param loader The loader being registered.
-   * @param bufferSizeContribution For controls whose {@link Allocator}s maintain a pool of memory
+   * @param bufferSizeContribution For instances whose {@link Allocator} maintains a pool of memory
    *     for the purpose of satisfying allocation requests, this is a hint indicating the loader's
    *     desired contribution to the size of the pool, in bytes.
    */

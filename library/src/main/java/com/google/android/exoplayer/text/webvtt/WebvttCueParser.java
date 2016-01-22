@@ -15,7 +15,11 @@
  */
 package com.google.android.exoplayer.text.webvtt;
 
+import com.google.android.exoplayer.text.Cue;
+import com.google.android.exoplayer.util.ParsableByteArray;
+
 import android.graphics.Typeface;
+import android.text.Layout.Alignment;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
@@ -23,11 +27,19 @@ import android.text.style.UnderlineSpan;
 import android.util.Log;
 
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Parser for webvtt cue text. (https://w3c.github.io/webvtt/#cue-text)
+ * Parser for WebVTT cues. (https://w3c.github.io/webvtt/#cues)
  */
-/* package */ final class WebvttCueParser {
+public final class WebvttCueParser {
+
+  public static final Pattern CUE_HEADER_PATTERN = Pattern
+      .compile("^(\\S+)\\s+-->\\s+(\\S+)(.*)?$");
+
+  private static final Pattern COMMENT = Pattern.compile("^NOTE((\u0020|\u0009).*)?$");
+  private static final Pattern CUE_SETTING_PATTERN = Pattern.compile("(\\S+?):(\\S+)");
 
   private static final char CHAR_LESS_THAN = '<';
   private static final char CHAR_GREATER_THAN = '>';
@@ -54,7 +66,91 @@ import java.util.Stack;
 
   private static final String TAG = "WebvttCueParser";
 
-  public Spanned parse(String markup) {
+  private final StringBuilder textBuilder;
+
+  public WebvttCueParser() {
+    textBuilder = new StringBuilder();
+  }
+
+  /**
+   * Parses the next valid WebVTT cue in a parsable array, including timestamps, settings and text.
+   *
+   * @param webvttData Parsable WebVTT file data.
+   * @param builder Builder for WebVTT Cues.
+   * @return True if a valid Cue was found, false otherwise.
+   */
+  /* package */ boolean parseNextValidCue(ParsableByteArray webvttData, WebvttCue.Builder builder) {
+    Matcher cueHeaderMatcher;
+    while ((cueHeaderMatcher = findNextCueHeader(webvttData)) != null) {
+      if (parseCue(cueHeaderMatcher, webvttData, builder, textBuilder)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Parses a string containing a list of cue settings.
+   *
+   * @param cueSettingsList String containing the settings for a given cue.
+   * @param builder The {@link WebvttCue.Builder} where incremental construction takes place.
+   */
+  /* package */ static void parseCueSettingsList(String cueSettingsList,
+      WebvttCue.Builder builder) {
+    // Parse the cue settings list.
+    Matcher cueSettingMatcher = CUE_SETTING_PATTERN.matcher(cueSettingsList);
+    while (cueSettingMatcher.find()) {
+      String name = cueSettingMatcher.group(1);
+      String value = cueSettingMatcher.group(2);
+      try {
+        if ("line".equals(name)) {
+          parseLineAttribute(value, builder);
+        } else if ("align".equals(name)) {
+          builder.setTextAlignment(parseTextAlignment(value));
+        } else if ("position".equals(name)) {
+          parsePositionAttribute(value, builder);
+        } else if ("size".equals(name)) {
+          builder.setWidth(WebvttParserUtil.parsePercentage(value));
+        } else {
+          Log.w(TAG, "Unknown cue setting " + name + ":" + value);
+        }
+      } catch (NumberFormatException e) {
+        Log.w(TAG, "Skipping bad cue setting: " + cueSettingMatcher.group());
+      }
+    }
+  }
+
+  /**
+   * Reads lines up to and including the next WebVTT cue header.
+   *
+   * @param input The input from which lines should be read.
+   * @return A {@link Matcher} for the WebVTT cue header, or null if the end of the input was
+   *     reached without a cue header being found. In the case that a cue header is found, groups 1,
+   *     2 and 3 of the returned matcher contain the start time, end time and settings list.
+   */
+  public static Matcher findNextCueHeader(ParsableByteArray input) {
+    String line;
+    while ((line = input.readLine()) != null) {
+      if (COMMENT.matcher(line).matches()) {
+        // Skip until the end of the comment block.
+        while ((line = input.readLine()) != null && !line.isEmpty()) {}
+      } else {
+        Matcher cueHeaderMatcher = WebvttCueParser.CUE_HEADER_PATTERN.matcher(line);
+        if (cueHeaderMatcher.matches()) {
+          return cueHeaderMatcher;
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Parses the text payload of a WebVTT Cue and applies modifications on {@link WebvttCue.Builder}.
+   *
+   * @param markup The markup text to be parsed.
+   * @param builder Target builder.
+   */
+  /* package */ static void parseCueText(String markup, WebvttCue.Builder builder) {
     SpannableStringBuilder spannedText = new SpannableStringBuilder();
     Stack<StartTag> startTagStack = new Stack<>();
     String[] tagTokens;
@@ -116,22 +212,108 @@ import java.util.Stack;
     while (!startTagStack.isEmpty()) {
       applySpansForTag(startTagStack.pop(), spannedText);
     }
-    return spannedText;
+    builder.setText(spannedText);
+  }
+
+  private static boolean parseCue(Matcher cueHeaderMatcher, ParsableByteArray webvttData,
+      WebvttCue.Builder builder, StringBuilder textBuilder) {
+    try {
+      // Parse the cue start and end times.
+      builder.setStartTime(WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(1)))
+          .setEndTime(WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(2)));
+    } catch (NumberFormatException e) {
+      Log.w(TAG, "Skipping cue with bad header: " + cueHeaderMatcher.group());
+      return false;
+    }
+
+    parseCueSettingsList(cueHeaderMatcher.group(3), builder);
+
+    // Parse the cue text.
+    textBuilder.setLength(0);
+    String line;
+    while ((line = webvttData.readLine()) != null && !line.isEmpty()) {
+      if (textBuilder.length() > 0) {
+        textBuilder.append("\n");
+      }
+      textBuilder.append(line.trim());
+    }
+    parseCueText(textBuilder.toString(), builder);
+    return true;
+  }
+
+  // Internal methods
+
+  private static void parseLineAttribute(String s, WebvttCue.Builder builder)
+      throws NumberFormatException {
+    int commaPosition = s.indexOf(',');
+    if (commaPosition != -1) {
+      builder.setLineAnchor(parsePositionAnchor(s.substring(commaPosition + 1)));
+      s = s.substring(0, commaPosition);
+    } else {
+      builder.setLineAnchor(Cue.TYPE_UNSET);
+    }
+    if (s.endsWith("%")) {
+      builder.setLine(WebvttParserUtil.parsePercentage(s)).setLineType(Cue.LINE_TYPE_FRACTION);
+    } else {
+      builder.setLine(Integer.parseInt(s)).setLineType(Cue.LINE_TYPE_NUMBER);
+    }
+  }
+
+  private static void parsePositionAttribute(String s, WebvttCue.Builder builder)
+      throws NumberFormatException {
+    int commaPosition = s.indexOf(',');
+    if (commaPosition != -1) {
+      builder.setPositionAnchor(parsePositionAnchor(s.substring(commaPosition + 1)));
+      s = s.substring(0, commaPosition);
+    } else {
+      builder.setPositionAnchor(Cue.TYPE_UNSET);
+    }
+    builder.setPosition(WebvttParserUtil.parsePercentage(s));
+  }
+
+  private static int parsePositionAnchor(String s) {
+    switch (s) {
+      case "start":
+        return Cue.ANCHOR_TYPE_START;
+      case "middle":
+        return Cue.ANCHOR_TYPE_MIDDLE;
+      case "end":
+        return Cue.ANCHOR_TYPE_END;
+      default:
+        Log.w(TAG, "Invalid anchor value: " + s);
+        return Cue.TYPE_UNSET;
+    }
+  }
+
+  private static Alignment parseTextAlignment(String s) {
+    switch (s) {
+      case "start":
+      case "left":
+        return Alignment.ALIGN_NORMAL;
+      case "middle":
+        return Alignment.ALIGN_CENTER;
+      case "end":
+      case "right":
+        return Alignment.ALIGN_OPPOSITE;
+      default:
+        Log.w(TAG, "Invalid alignment value: " + s);
+        return null;
+    }
   }
 
   /**
    * Find end of tag (&gt;). The position returned is the position of the &gt; plus one (exclusive).
    *
-   * @param markup The webvtt cue markup to be parsed.
+   * @param markup The WebVTT cue markup to be parsed.
    * @param startPos the position from where to start searching for the end of tag.
    * @return the position of the end of tag plus 1 (one).
    */
-  private int findEndOfTag(String markup, int startPos) {
+  private static int findEndOfTag(String markup, int startPos) {
     int idx = markup.indexOf(CHAR_GREATER_THAN, startPos);
     return idx == -1 ? markup.length() : idx + 1;
   }
 
-  private void applyEntity(String entity, SpannableStringBuilder spannedText) {
+  private static void applyEntity(String entity, SpannableStringBuilder spannedText) {
     switch (entity) {
       case ENTITY_LESS_THAN:
         spannedText.append('<');
@@ -151,7 +333,7 @@ import java.util.Stack;
     }
   }
 
-  private boolean isSupportedTag(String tagName) {
+  private static boolean isSupportedTag(String tagName) {
     switch (tagName) {
       case TAG_BOLD:
       case TAG_CLASS:
@@ -165,7 +347,7 @@ import java.util.Stack;
     }
   }
 
-  private void applySpansForTag(StartTag startTag, SpannableStringBuilder spannedText) {
+  private static void applySpansForTag(StartTag startTag, SpannableStringBuilder spannedText) {
     switch(startTag.name) {
       case TAG_BOLD:
         spannedText.setSpan(new StyleSpan(STYLE_BOLD), startTag.position,
@@ -191,7 +373,7 @@ import java.util.Stack;
    * @return an array of <code>String</code>s with the tag name at pos 0 followed by style classes
    *    or null if it's an empty tag: '&lt;&gt;'
    */
-  private String[] tokenizeTag(String fullTagExpression) {
+  private static String[] tokenizeTag(String fullTagExpression) {
     fullTagExpression = fullTagExpression.replace("\\s+", " ").trim();
     if (fullTagExpression.length() == 0) {
       return null;

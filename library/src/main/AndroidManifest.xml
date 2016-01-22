@@ -17,13 +17,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.google.android.exoplayer">
 
-  <!-- For streaming media over the network. -->
-  <uses-permission android:name="android.permission.INTERNET"/>
-  <!-- For reading media from external storage. -->
-  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-  <!-- For writing media to external storage. -->
-  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-
   <!--
     Important: ExoPlayerLib specifies a minSdkVersion of 9 because various components provided by
     the library may be of use on older devices. However, please note that the core video playback

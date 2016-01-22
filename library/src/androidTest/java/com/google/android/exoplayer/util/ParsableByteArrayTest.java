@@ -18,6 +18,7 @@ package com.google.android.exoplayer.util;
 import junit.framework.TestCase;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
 /**
@@ -276,6 +277,150 @@ public class ParsableByteArrayTest extends TestCase {
     parsableByteArray.readBytes(copy, 0, length);
     // Then the array elements are the same.
     assertTrue(Arrays.equals(parsableByteArray.data, copy));
+  }
+
+  public void testReadLittleEndianLong() {
+    ParsableByteArray byteArray = new ParsableByteArray(new byte[]{
+        0x01, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, (byte) 0xFF
+    });
+    assertEquals(0xFF00000000000001L, byteArray.readLittleEndianLong());
+    assertEquals(8, byteArray.getPosition());
+  }
+
+  public void testReadLittleEndianUnsignedInt() {
+    ParsableByteArray byteArray = new ParsableByteArray(new byte[] {
+        0x10, 0x00, 0x00, (byte) 0xFF
+    });
+    assertEquals(0xFF000010L, byteArray.readLittleEndianUnsignedInt());
+    assertEquals(4, byteArray.getPosition());
+  }
+
+  public void testReadLittleEndianInt() {
+    ParsableByteArray byteArray = new ParsableByteArray(new byte[]{
+        0x01, 0x00, 0x00, (byte) 0xFF
+    });
+    assertEquals(0xFF000001, byteArray.readLittleEndianInt());
+    assertEquals(4, byteArray.getPosition());
+  }
+
+  public void testReadLittleEndianUnsignedInt24() {
+    byte[] data = { 0x01, 0x02, (byte) 0xFF };
+    ParsableByteArray byteArray = new ParsableByteArray(data);
+    assertEquals(0xFF0201, byteArray.readLittleEndianUnsignedInt24());
+    assertEquals(3, byteArray.getPosition());
+  }
+
+  public void testReadLittleEndianUnsignedShort() {
+    ParsableByteArray byteArray = new ParsableByteArray(new byte[]{
+        0x01, (byte) 0xFF, 0x02, (byte) 0xFF
+    });
+    assertEquals(0xFF01, byteArray.readLittleEndianUnsignedShort());
+    assertEquals(2, byteArray.getPosition());
+    assertEquals(0xFF02, byteArray.readLittleEndianUnsignedShort());
+    assertEquals(4, byteArray.getPosition());
+  }
+
+  public void testReadLittleEndianShort() {
+    ParsableByteArray byteArray = new ParsableByteArray(new byte[]{
+        0x01, (byte) 0xFF, 0x02, (byte) 0xFF
+    });
+    assertEquals((short) 0xFF01, byteArray.readLittleEndianShort());
+    assertEquals(2, byteArray.getPosition());
+    assertEquals((short) 0xFF02, byteArray.readLittleEndianShort());
+    assertEquals(4, byteArray.getPosition());
+  }
+
+  public void testReadString() {
+    byte[] data = {
+        (byte) 0xC3, (byte) 0xA4, (byte) 0x20,
+        (byte) 0xC3, (byte) 0xB6, (byte) 0x20,
+        (byte) 0xC2, (byte) 0xAE, (byte) 0x20,
+        (byte) 0xCF, (byte) 0x80, (byte) 0x20,
+        (byte) 0xE2, (byte) 0x88, (byte) 0x9A, (byte) 0x20,
+        (byte) 0xC2, (byte) 0xB1, (byte) 0x20,
+        (byte) 0xE8, (byte) 0xB0, (byte) 0xA2, (byte) 0x20,
+    };
+    ParsableByteArray byteArray = new ParsableByteArray(data);
+    assertEquals("ä ö ® π √ ± 谢 ", byteArray.readString(data.length));
+    assertEquals(data.length, byteArray.getPosition());
+  }
+
+  public void testReadAsciiString() {
+    byte[] data = new byte[] {'t', 'e', 's', 't'};
+    ParsableByteArray testArray = new ParsableByteArray(data);
+    assertEquals("test", testArray.readString(data.length, Charset.forName("US-ASCII")));
+    assertEquals(data.length, testArray.getPosition());
+  }
+
+  public void testReadStringOutOfBoundsDoesNotMovePosition() {
+    byte[] data = {
+        (byte) 0xC3, (byte) 0xA4, (byte) 0x20
+    };
+    ParsableByteArray byteArray = new ParsableByteArray(data);
+    try {
+      byteArray.readString(data.length + 1);
+      fail();
+    } catch (StringIndexOutOfBoundsException e) {
+      assertEquals(0, byteArray.getPosition());
+    }
+  }
+
+  public void testReadEmptyString() {
+    byte[] bytes = new byte[0];
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertNull(parser.readLine());
+  }
+
+  public void testReadSingleLineWithoutEndingTrail() {
+    byte[] bytes = new byte[] {
+      'f', 'o', 'o'
+    };
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertEquals("foo", parser.readLine());
+    assertNull(parser.readLine());
+  }
+
+  public void testReadSingleLineWithEndingLf() {
+    byte[] bytes = new byte[] {
+      'f', 'o', 'o', '\n'
+    };
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertEquals("foo", parser.readLine());
+    assertNull(parser.readLine());
+  }
+
+  public void testReadTwoLinesWithCrFollowedByLf() {
+    byte[] bytes = new byte[] {
+      'f', 'o', 'o', '\r', '\n', 'b', 'a', 'r'
+    };
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertEquals("foo", parser.readLine());
+    assertEquals("bar", parser.readLine());
+    assertNull(parser.readLine());
+  }
+
+  public void testReadThreeLinesWithEmptyLine() {
+    byte[] bytes = new byte[] {
+      'f', 'o', 'o', '\r', '\n', '\r', 'b', 'a', 'r'
+    };
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertEquals("foo", parser.readLine());
+    assertEquals("", parser.readLine());
+    assertEquals("bar", parser.readLine());
+    assertNull(parser.readLine());
+  }
+
+  public void testReadFourLinesWithLfFollowedByCr() {
+    byte[] bytes = new byte[] {
+      'f', 'o', 'o', '\n', '\r', '\r', 'b', 'a', 'r', '\r', '\n'
+    };
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertEquals("foo", parser.readLine());
+    assertEquals("", parser.readLine());
+    assertEquals("", parser.readLine());
+    assertEquals("bar", parser.readLine());
+    assertNull(parser.readLine());
   }
 
 }

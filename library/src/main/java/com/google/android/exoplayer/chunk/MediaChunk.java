@@ -43,6 +43,10 @@ public abstract class MediaChunk extends Chunk {
         Chunk.NO_PARENT_ID);
   }
 
+  public int getNextChunkIndex() {
+    return chunkIndex + 1;
+  }
+
   /**
    * @param dataSource A {@link DataSource} for loading the data.
    * @param dataSpec Defines the data to be loaded.

@@ -158,8 +158,8 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
           String subtitleName = HlsParserUtil.parseStringAttr(line, NAME_ATTR_REGEX, NAME_ATTR);
           String uri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX, URI_ATTR);
           String language = HlsParserUtil.parseOptionalStringAttr(line, LANGUAGE_ATTR_REGEX);
-          Format format = new Format(subtitleName, MimeTypes.TEXT_VTT, -1, -1, -1, -1, -1, -1,
-              language, codecs);
+          Format format = new Format(subtitleName, MimeTypes.APPLICATION_M3U8, -1, -1, -1, -1, -1,
+              -1, language, codecs);
           subtitles.add(new Variant(uri, format));
         } else {
           // TODO: Support other types of media tag.

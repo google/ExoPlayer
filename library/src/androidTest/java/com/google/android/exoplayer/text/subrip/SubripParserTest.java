@@ -15,10 +15,11 @@
  */
 package com.google.android.exoplayer.text.subrip;
 
+import com.google.android.exoplayer.testutil.TestUtil;
+
 import android.test.InstrumentationTestCase;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Unit test for {@link SubripParser}.
@@ -27,6 +28,7 @@ public final class SubripParserTest extends InstrumentationTestCase {
 
   private static final String EMPTY_FILE = "subrip/empty";
   private static final String TYPICAL_FILE = "subrip/typical";
+  private static final String TYPICAL_WITH_BYTE_ORDER_MARK = "subrip/typical_with_byte_order_mark";
   private static final String TYPICAL_EXTRA_BLANK_LINE = "subrip/typical_extra_blank_line";
   private static final String TYPICAL_MISSING_TIMECODE = "subrip/typical_missing_timecode";
   private static final String TYPICAL_MISSING_SEQUENCE = "subrip/typical_missing_sequence";
@@ -34,8 +36,8 @@ public final class SubripParserTest extends InstrumentationTestCase {
 
   public void testParseEmpty() throws IOException {
     SubripParser parser = new SubripParser();
-    InputStream inputStream = getInputStream(EMPTY_FILE);
-    SubripSubtitle subtitle = parser.parse(inputStream);
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), EMPTY_FILE);
+    SubripSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
     // Assert that the subtitle is empty.
     assertEquals(0, subtitle.getEventTimeCount());
     assertTrue(subtitle.getCues(0).isEmpty());
@@ -43,8 +45,18 @@ public final class SubripParserTest extends InstrumentationTestCase {
 
   public void testParseTypical() throws IOException {
     SubripParser parser = new SubripParser();
-    InputStream inputStream = getInputStream(TYPICAL_FILE);
-    SubripSubtitle subtitle = parser.parse(inputStream);
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_FILE);
+    SubripSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
+    assertEquals(6, subtitle.getEventTimeCount());
+    assertTypicalCue1(subtitle, 0);
+    assertTypicalCue2(subtitle, 2);
+    assertTypicalCue3(subtitle, 4);
+  }
+
+  public void testParseTypicalWithByteOrderMark() throws IOException {
+    SubripParser parser = new SubripParser();
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_WITH_BYTE_ORDER_MARK);
+    SubripSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
     assertEquals(6, subtitle.getEventTimeCount());
     assertTypicalCue1(subtitle, 0);
     assertTypicalCue2(subtitle, 2);
@@ -53,8 +65,8 @@ public final class SubripParserTest extends InstrumentationTestCase {
 
   public void testParseTypicalExtraBlankLine() throws IOException {
     SubripParser parser = new SubripParser();
-    InputStream inputStream = getInputStream(TYPICAL_EXTRA_BLANK_LINE);
-    SubripSubtitle subtitle = parser.parse(inputStream);
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_EXTRA_BLANK_LINE);
+    SubripSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
     assertEquals(6, subtitle.getEventTimeCount());
     assertTypicalCue1(subtitle, 0);
     assertTypicalCue2(subtitle, 2);
@@ -64,8 +76,8 @@ public final class SubripParserTest extends InstrumentationTestCase {
   public void testParseTypicalMissingTimecode() throws IOException {
     // Parsing should succeed, parsing the first and third cues only.
     SubripParser parser = new SubripParser();
-    InputStream inputStream = getInputStream(TYPICAL_MISSING_TIMECODE);
-    SubripSubtitle subtitle = parser.parse(inputStream);
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_MISSING_TIMECODE);
+    SubripSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
     assertEquals(4, subtitle.getEventTimeCount());
     assertTypicalCue1(subtitle, 0);
     assertTypicalCue3(subtitle, 2);
@@ -74,8 +86,8 @@ public final class SubripParserTest extends InstrumentationTestCase {
   public void testParseTypicalMissingSequence() throws IOException {
     // Parsing should succeed, parsing the first and third cues only.
     SubripParser parser = new SubripParser();
-    InputStream inputStream = getInputStream(TYPICAL_MISSING_SEQUENCE);
-    SubripSubtitle subtitle = parser.parse(inputStream);
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_MISSING_SEQUENCE);
+    SubripSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
     assertEquals(4, subtitle.getEventTimeCount());
     assertTypicalCue1(subtitle, 0);
     assertTypicalCue3(subtitle, 2);
@@ -83,8 +95,8 @@ public final class SubripParserTest extends InstrumentationTestCase {
 
   public void testParseNoEndTimecodes() throws IOException {
     SubripParser parser = new SubripParser();
-    InputStream inputStream = getInputStream(NO_END_TIMECODES_FILE);
-    SubripSubtitle subtitle = parser.parse(inputStream);
+    byte[] bytes = TestUtil.getByteArray(getInstrumentation(), NO_END_TIMECODES_FILE);
+    SubripSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
 
     // Test event count.
     assertEquals(3, subtitle.getEventTimeCount());
@@ -103,10 +115,6 @@ public final class SubripParserTest extends InstrumentationTestCase {
     assertEquals(3456000, subtitle.getEventTime(2));
     assertEquals("Or to the end of the media.",
         subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString());
-  }
-
-  private InputStream getInputStream(String fileName) throws IOException {
-    return getInstrumentation().getContext().getResources().getAssets().open(fileName);
   }
 
   private static void assertTypicalCue1(SubripSubtitle subtitle, int eventIndex) {

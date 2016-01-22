@@ -52,7 +52,12 @@ public interface Extractor {
   /**
    * Returns whether this extractor can extract samples from the {@link ExtractorInput}, which must
    * provide data from the start of the stream.
+   * <p>
+   * If {@code true} is returned, the {@code input}'s reading position may have been modified.
+   * Otherwise, only its peek position may have been modified.
    *
+   * @param input The {@link ExtractorInput} from which data should be peeked/read.
+   * @return Whether this extractor can read the provided input.
    * @throws IOException If an error occurred reading from the input.
    * @throws InterruptedException If the thread was interrupted.
    */

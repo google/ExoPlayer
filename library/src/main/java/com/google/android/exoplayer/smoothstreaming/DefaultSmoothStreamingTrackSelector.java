@@ -17,6 +17,8 @@ package com.google.android.exoplayer.smoothstreaming;
 
 import com.google.android.exoplayer.chunk.VideoFormatSelectorUtil;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
+import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
+import com.google.android.exoplayer.util.Util;
 
 import android.content.Context;
 
@@ -26,30 +28,60 @@ import java.util.Arrays;
 /**
  * A default {@link SmoothStreamingTrackSelector} implementation.
  */
-// TODO: Add configuration options (e.g. ability to disable adaptive track output, disable format
-// filtering etc).
+// TODO: Add more configuration options (e.g. ability to disable adaptive track output).
 public final class DefaultSmoothStreamingTrackSelector implements SmoothStreamingTrackSelector {
 
-  private final Context context;
   private final int streamElementType;
 
+  private final Context context;
+  private final boolean filterVideoRepresentations;
+  private final boolean filterProtectedHdContent;
+
   /**
-   * @param context A context.
-   * @param streamElementType The type of stream to select. One of {@link StreamElement#TYPE_AUDIO},
-   *     {@link StreamElement#TYPE_VIDEO} and {@link StreamElement#TYPE_TEXT}.
+   * @param context A context. May be null if {@code filterVideoRepresentations == false}.
+   * @param filterVideoRepresentations Whether video representations should be filtered according to
+   *     the capabilities of the device. It is strongly recommended to set this to {@code true},
+   *     unless the application has already verified that all representations are playable.
+   * @param filterProtectedHdContent Whether video representations that are both drm protected and
+   *     high definition should be filtered when tracks are built. If
+   *     {@code filterVideoRepresentations == false} then this parameter is ignored.
    */
-  public DefaultSmoothStreamingTrackSelector(Context context, int streamElementType) {
+  public static DefaultSmoothStreamingTrackSelector newVideoInstance(Context context,
+      boolean filterVideoRepresentations, boolean filterProtectedHdContent) {
+    return new DefaultSmoothStreamingTrackSelector(StreamElement.TYPE_VIDEO, context,
+        filterVideoRepresentations, filterProtectedHdContent);
+  }
+
+  public static DefaultSmoothStreamingTrackSelector newAudioInstance() {
+    return new DefaultSmoothStreamingTrackSelector(StreamElement.TYPE_AUDIO, null, false, false);
+  }
+
+  public static DefaultSmoothStreamingTrackSelector newTextInstance() {
+    return new DefaultSmoothStreamingTrackSelector(StreamElement.TYPE_TEXT, null, false, false);
+  }
+
+  private DefaultSmoothStreamingTrackSelector(int streamElementType, Context context,
+      boolean filterVideoRepresentations, boolean filterProtectedHdContent) {
     this.context = context;
     this.streamElementType = streamElementType;
+    this.filterVideoRepresentations = filterVideoRepresentations;
+    this.filterProtectedHdContent = filterProtectedHdContent;
   }
 
   @Override
   public void selectTracks(SmoothStreamingManifest manifest, Output output) throws IOException {
     for (int i = 0; i < manifest.streamElements.length; i++) {
+      TrackElement[] tracks = manifest.streamElements[i].tracks;
       if (manifest.streamElements[i].type == streamElementType) {
         if (streamElementType == StreamElement.TYPE_VIDEO) {
-          int[] trackIndices = VideoFormatSelectorUtil.selectVideoFormatsForDefaultDisplay(
-              context, Arrays.asList(manifest.streamElements[i].tracks), null, false);
+          int[] trackIndices;
+          if (filterVideoRepresentations) {
+            trackIndices = VideoFormatSelectorUtil.selectVideoFormatsForDefaultDisplay(
+                context, Arrays.asList(tracks), null,
+                filterProtectedHdContent && manifest.protectionElement != null);
+          } else {
+            trackIndices = Util.firstIntegersArray(tracks.length);
+          }
           int trackCount = trackIndices.length;
           if (trackCount > 1) {
             output.adaptiveTrack(manifest, i, trackIndices);
@@ -58,7 +90,7 @@ public final class DefaultSmoothStreamingTrackSelector implements SmoothStreamin
             output.fixedTrack(manifest, i, trackIndices[j]);
           }
         } else {
-          for (int j = 0; j < manifest.streamElements[i].tracks.length; j++) {
+          for (int j = 0; j < tracks.length; j++) {
             output.fixedTrack(manifest, i, j);
           }
         }

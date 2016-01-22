@@ -111,8 +111,7 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     String typeString = xpp.getAttributeValue(null, "type");
     boolean dynamic = (typeString != null) ? typeString.equals("dynamic") : false;
     long minUpdateTimeMs = (dynamic) ? parseDuration(xpp, "minimumUpdatePeriod", -1) : -1;
-    long timeShiftBufferDepthMs = (dynamic) ? parseDuration(xpp, "timeShiftBufferDepth", -1)
-        : -1;
+    long timeShiftBufferDepthMs = (dynamic) ? parseDuration(xpp, "timeShiftBufferDepth", -1) : -1;
     UtcTimingElement utcTiming = null;
     String location = null;
 

@@ -152,7 +152,7 @@ public final class Ac3Util {
    */
   public static MediaFormat parseEac3SyncframeFormat(ParsableBitArray data, String trackId,
       long durationUs, String language) {
-    data.skipBits(16 + 2 + 11); // syncword, strmtype, frmsiz
+    data.skipBits(16 + 2 + 3 + 11); // syncword, strmtype, substreamid, frmsiz
     int sampleRate;
     int fscod = data.readBits(2);
     if (fscod == 3) {
@@ -235,8 +235,6 @@ public final class Ac3Util {
     }
   }
 
-  private Ac3Util() {
-    // Prevent instantiation.
-  }
+  private Ac3Util() {}
 
 }

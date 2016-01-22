@@ -24,6 +24,12 @@ import com.google.android.exoplayer.C;
 public final class PtsTimestampAdjuster {
 
   /**
+   * A special {@code firstSampleTimestampUs} value indicating that presentation timestamps should
+   * not be offset.
+   */
+  public static final long DO_NOT_OFFSET = Long.MAX_VALUE;
+
+  /**
    * The value one greater than the largest representable (33 bit) presentation timestamp.
    */
   private static final long MAX_PTS_PLUS_ONE = 0x200000000L;
@@ -31,11 +37,14 @@ public final class PtsTimestampAdjuster {
   private final long firstSampleTimestampUs;
 
   private long timestampOffsetUs;
-  private long lastPts;
+
+  // Volatile to allow isInitialized to be called on a different thread to adjustTimestamp.
+  private volatile long lastPts;
 
   /**
    * @param firstSampleTimestampUs The desired result of the first call to
-   *     {@link #adjustTimestamp(long)}.
+   *     {@link #adjustTimestamp(long)}, or {@link #DO_NOT_OFFSET} if presentation timestamps
+   *     should not be offset.
    */
   public PtsTimestampAdjuster(long firstSampleTimestampUs) {
     this.firstSampleTimestampUs = firstSampleTimestampUs;
@@ -57,9 +66,9 @@ public final class PtsTimestampAdjuster {
   }
 
   /**
-   * Scales and adjusts an MPEG-2 TS presentation timestamp.
+   * Scales and offsets an MPEG-2 TS presentation timestamp.
    *
-   * @param pts The unscaled MPEG-2 TS presentation timestamp.
+   * @param pts The MPEG-2 TS presentation timestamp.
    * @return The adjusted timestamp in microseconds.
    */
   public long adjustTimestamp(long pts) {
@@ -74,8 +83,8 @@ public final class PtsTimestampAdjuster {
     }
     // Calculate the corresponding timestamp.
     long timeUs = ptsToUs(pts);
-    // If we haven't done the initial timestamp adjustment, do it now.
-    if (lastPts == Long.MIN_VALUE) {
+    if (firstSampleTimestampUs != DO_NOT_OFFSET && lastPts == Long.MIN_VALUE) {
+      // Calculate the timestamp offset.
       timestampOffsetUs = firstSampleTimestampUs - timeUs;
     }
     // Record the adjusted PTS to adjust for wraparound next time.

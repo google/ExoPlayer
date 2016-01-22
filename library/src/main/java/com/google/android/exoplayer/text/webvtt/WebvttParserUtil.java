@@ -16,10 +16,8 @@
 package com.google.android.exoplayer.text.webvtt;
 
 import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.util.ParsableByteArray;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -28,8 +26,6 @@ import java.util.regex.Pattern;
 public final class WebvttParserUtil {
 
   private static final Pattern HEADER = Pattern.compile("^\uFEFF?WEBVTT((\u0020|\u0009).*)?$");
-  private static final Pattern COMMENT = Pattern.compile("^NOTE((\u0020|\u0009).*)?$");
-  private static final Pattern CUE_HEADER = Pattern.compile("^(\\S+)\\s+-->\\s+(\\S+)(.*)?$");
 
   private WebvttParserUtil() {}
 
@@ -38,38 +34,12 @@ public final class WebvttParserUtil {
    *
    * @param input The input from which the line should be read.
    * @throws ParserException If the line isn't the start of a valid WebVTT file.
-   * @throws IOException If an error occurs reading from the input.
    */
-  public static void validateWebvttHeaderLine(BufferedReader input) throws IOException {
+  public static void validateWebvttHeaderLine(ParsableByteArray input) throws ParserException {
     String line = input.readLine();
     if (line == null || !HEADER.matcher(line).matches()) {
       throw new ParserException("Expected WEBVTT. Got " + line);
     }
-  }
-
-  /**
-   * Reads lines up to and including the next WebVTT cue header.
-   *
-   * @param input The input from which lines should be read.
-   * @throws IOException If an error occurs reading from the input.
-   * @return A {@link Matcher} for the WebVTT cue header, or null if the end of the input was
-   *     reached without a cue header being found. In the case that a cue header is found, groups 1,
-   *     2 and 3 of the returned matcher contain the start time, end time and settings list.
-   */
-  public static Matcher findNextCueHeader(BufferedReader input) throws IOException {
-    String line;
-    while ((line = input.readLine()) != null) {
-      if (COMMENT.matcher(line).matches()) {
-        // Skip until the end of the comment block.
-        while ((line = input.readLine()) != null && !line.isEmpty()) {}
-      } else {
-        Matcher cueHeaderMatcher = CUE_HEADER.matcher(line);
-        if (cueHeaderMatcher.matches()) {
-          return cueHeaderMatcher;
-        }
-      }
-    }
-    return null;
   }
 
   /**
@@ -87,6 +57,19 @@ public final class WebvttParserUtil {
       value = value * 60 + Long.parseLong(subparts[i]);
     }
     return (value * 1000 + Long.parseLong(parts[1])) * 1000;
+  }
+
+  /**
+   * Parses a percentage and returns a scaled float.
+   * @param s contains the number to parse.
+   * @return a float scaled number. 1.0 represents 100%.
+   * @throws NumberFormatException if the number format is invalid or does not end with '%'.
+   */
+  public static float parsePercentage(String s) throws NumberFormatException {
+    if (!s.endsWith("%")) {
+      throw new NumberFormatException("Percentages must end with %");
+    }
+    return Float.parseFloat(s.substring(0, s.length() - 1)) / 100;
   }
 
 }

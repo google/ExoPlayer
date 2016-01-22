@@ -50,7 +50,7 @@ import java.nio.ByteBuffer;
         opusHeader.sampleRate, opusHeader.channelCount, opusHeader.numStreams,
         opusHeader.numCoupled, opusHeader.gain, opusHeader.streamMap);
     if (nativeDecoderContext == 0) {
-      throw new OpusDecoderException("failed to initialize opus decoder");
+      throw new OpusDecoderException("Failed to initialize decoder");
     }
   }
 
@@ -68,7 +68,7 @@ import java.nio.ByteBuffer;
       int outputSize) throws OpusDecoderException {
     int result = opusDecode(nativeDecoderContext, inputBuffer, inputSize, outputBuffer, outputSize);
     if (result < 0) {
-      throw new OpusDecoderException(opusGetErrorMessage(result));
+      throw new OpusDecoderException("Decode error: " + opusGetErrorMessage(result));
     }
     return result;
   }
