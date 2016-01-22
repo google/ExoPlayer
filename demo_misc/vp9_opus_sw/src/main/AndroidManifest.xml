@@ -18,7 +18,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.google.android.exoplayer.demo.vp9opus"
     android:versionCode="1503"
-    android:versionName="1.5.3"
+    android:versionName="1.5.4"
     android:theme="@style/RootTheme">
 
   <uses-permission android:name="android.permission.INTERNET"/>
