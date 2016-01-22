@@ -328,7 +328,7 @@ public final class Mp3Extractor implements Extractor {
    */
   private void setupSeeker(ExtractorInput extractorInput, long headerPosition)
       throws IOException, InterruptedException {
-    // Try to set up seeking based on a XING or VBRI header.
+    // Try to set up seeking based on a Xing or VBRI header.
     ParsableByteArray frame = new ParsableByteArray(synchronizedHeader.frameSize);
     extractorInput.peekFully(frame.data, 0, synchronizedHeader.frameSize);
     if (parseSeekerFrame(frame, headerPosition, extractorInput.getLength())) {

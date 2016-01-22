@@ -21,7 +21,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
 /**
- * MP3 seeker that uses metadata from a XING header.
+ * MP3 seeker that uses metadata from a Xing header.
  */
 /* package */ final class XingSeeker implements Mp3Extractor.Seeker {
 
@@ -32,7 +32,7 @@ import com.google.android.exoplayer.util.Util;
    *
    * @param mpegAudioHeader The MPEG audio header associated with the frame.
    * @param frame The data in this audio frame, with its position set to immediately after the
-   *    'XING' or 'INFO' tag.
+   *    'Xing' or 'Info' tag.
    * @param position The position (byte offset) of the start of this frame in the stream.
    * @param inputLength The length of the stream in bytes.
    * @return A {@link XingSeeker} for seeking in the stream, or {@code null} if the required

@@ -23,11 +23,11 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 import android.test.InstrumentationTestCase;
 
 /**
- * Tests for {@link XingSeeker}
+ * Tests for {@link XingSeeker}.
  */
 public final class XingSeekerTest extends InstrumentationTestCase {
 
-  // XING header/payload from http://storage.googleapis.com/exoplayer-test-media-0/play.mp3.
+  // Xing header/payload from http://storage.googleapis.com/exoplayer-test-media-0/play.mp3.
   private static final int XING_FRAME_HEADER_DATA = 0xFFFB3000;
   private static final byte[] XING_FRAME_PAYLOAD = TestUtil.createByteArray(
       "00000007000008dd000e7919000205080a0d0f1214171a1c1e212426292c2e303336383b3d404245484a4c4f5254"
