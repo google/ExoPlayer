@@ -1,5 +1,13 @@
 # Release notes #
 
+### r1.5.4 ###
+
+* HLS: Support for variant selection and WebVtt subtitles.
+* MP4: Support for embedded WebVtt.
+* Improved device compatibility.
+* Fix for resource leak (Issue #1066).
+* Misc bug fixes + minor features.
+
 ### r1.5.3 ###
 
 * Support for FLV (without seeking).
