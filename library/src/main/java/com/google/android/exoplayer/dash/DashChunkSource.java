@@ -85,9 +85,10 @@ public class DashChunkSource implements ChunkSource, Output {
     /**
      * Invoked when the available seek range of the stream has changed.
      *
+     * @param sourceId The id of the reporting {@link DashChunkSource}.
      * @param availableRange The range which specifies available content that can be seeked to.
      */
-    public void onAvailableRangeChanged(TimeRange availableRange);
+    public void onAvailableRangeChanged(int sourceId, TimeRange availableRange);
 
   }
 
@@ -119,6 +120,7 @@ public class DashChunkSource implements ChunkSource, Output {
   private final long elapsedRealtimeOffsetUs;
   private final long[] availableRangeValues;
   private final boolean live;
+  private final int eventSourceId;
 
   private MediaPresentationDescription currentManifest;
   private MediaPresentationDescription processedManifest;
@@ -179,7 +181,7 @@ public class DashChunkSource implements ChunkSource, Output {
   public DashChunkSource(MediaPresentationDescription manifest, DashTrackSelector trackSelector,
       DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator) {
     this(null, manifest, trackSelector, dataSource, adaptiveFormatEvaluator, new SystemClock(), 0,
-        0, false, null, null);
+        0, false, null, null, 0);
   }
 
   /**
@@ -204,14 +206,15 @@ public class DashChunkSource implements ChunkSource, Output {
    * @param eventHandler A handler to use when delivering events to {@code EventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
    */
   public DashChunkSource(ManifestFetcher<MediaPresentationDescription> manifestFetcher,
       DashTrackSelector trackSelector, DataSource dataSource,
       FormatEvaluator adaptiveFormatEvaluator, long liveEdgeLatencyMs, long elapsedRealtimeOffsetMs,
-      Handler eventHandler, EventListener eventListener) {
+      Handler eventHandler, EventListener eventListener, int eventSourceId) {
     this(manifestFetcher, manifestFetcher.getManifest(), trackSelector,
         dataSource, adaptiveFormatEvaluator, new SystemClock(), liveEdgeLatencyMs * 1000,
-        elapsedRealtimeOffsetMs * 1000, true, eventHandler, eventListener);
+        elapsedRealtimeOffsetMs * 1000, true, eventHandler, eventListener, eventSourceId);
   }
 
   /**
@@ -235,21 +238,25 @@ public class DashChunkSource implements ChunkSource, Output {
    * @param eventHandler A handler to use when delivering events to {@code EventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
    */
   public DashChunkSource(ManifestFetcher<MediaPresentationDescription> manifestFetcher,
       DashTrackSelector trackSelector, DataSource dataSource,
       FormatEvaluator adaptiveFormatEvaluator, long liveEdgeLatencyMs, long elapsedRealtimeOffsetMs,
-      boolean startAtLiveEdge, Handler eventHandler, EventListener eventListener) {
+      boolean startAtLiveEdge, Handler eventHandler, EventListener eventListener,
+      int eventSourceId) {
     this(manifestFetcher, manifestFetcher.getManifest(), trackSelector,
         dataSource, adaptiveFormatEvaluator, new SystemClock(), liveEdgeLatencyMs * 1000,
-        elapsedRealtimeOffsetMs * 1000, startAtLiveEdge, eventHandler, eventListener);
+        elapsedRealtimeOffsetMs * 1000, startAtLiveEdge, eventHandler, eventListener,
+        eventSourceId);
   }
 
   /* package */ DashChunkSource(ManifestFetcher<MediaPresentationDescription> manifestFetcher,
       MediaPresentationDescription initialManifest, DashTrackSelector trackSelector,
       DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
       Clock systemClock, long liveEdgeLatencyUs, long elapsedRealtimeOffsetUs,
-      boolean startAtLiveEdge, Handler eventHandler, EventListener eventListener) {
+      boolean startAtLiveEdge, Handler eventHandler, EventListener eventListener,
+      int eventSourceId) {
     this.manifestFetcher = manifestFetcher;
     this.currentManifest = initialManifest;
     this.trackSelector = trackSelector;
@@ -261,6 +268,7 @@ public class DashChunkSource implements ChunkSource, Output {
     this.startAtLiveEdge = startAtLiveEdge;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
+    this.eventSourceId = eventSourceId;
     this.evaluation = new Evaluation();
     this.availableRangeValues = new long[2];
     periodHolders = new SparseArray<>();
@@ -797,7 +805,7 @@ public class DashChunkSource implements ChunkSource, Output {
       eventHandler.post(new Runnable() {
         @Override
         public void run() {
-          eventListener.onAvailableRangeChanged(seekRange);
+          eventListener.onAvailableRangeChanged(eventSourceId, seekRange);
         }
       });
     }
