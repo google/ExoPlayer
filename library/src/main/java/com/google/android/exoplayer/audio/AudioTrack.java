@@ -18,6 +18,7 @@ package com.google.android.exoplayer.audio;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.util.Ac3Util;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.DtsUtil;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
@@ -965,10 +966,7 @@ public final class AudioTrack {
 
   private static int getFramesPerEncodedSample(int encoding, ByteBuffer buffer) {
     if (encoding == C.ENCODING_DTS || encoding == C.ENCODING_DTS_HD) {
-      // Calculate the sample size in frames as per ETSI TS 102 114 F.3.2.1.
-      int nblks = ((buffer.get(buffer.position() + 4) & 0x01) << 6)
-          | ((buffer.get(buffer.position() + 5) & 0xFC) >> 2);
-      return (nblks + 1) * 32;
+      return DtsUtil.parseDtsAudioSampleCount(buffer);
     } else if (encoding == C.ENCODING_AC3) {
       return Ac3Util.getAc3SyncframeAudioSampleCount();
     } else if (encoding == C.ENCODING_E_AC3) {
