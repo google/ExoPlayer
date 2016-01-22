@@ -35,17 +35,17 @@
 		<link>
 			<name>libs/dexmaker-1.2.jar</name>
 			<type>1</type>
-			<locationURI>$%7BPARENT-4-PROJECT_LOC%7D/third_party/dexmaker/dexmaker-1.2.jar</locationURI>
+			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/third_party/dexmaker/dexmaker-1.2.jar</locationURI>
 		</link>
 		<link>
 			<name>libs/dexmaker-mockito-1.2.jar</name>
 			<type>1</type>
-			<locationURI>$%7BPARENT-4-PROJECT_LOC%7D/third_party/dexmaker/dexmaker-mockito-1.2.jar</locationURI>
+			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/third_party/dexmaker/dexmaker-mockito-1.2.jar</locationURI>
 		</link>
 		<link>
 			<name>libs/mockito-all-1.9.5.jar</name>
 			<type>1</type>
-			<locationURI>$%7BPARENT-4-PROJECT_LOC%7D/third_party/mockito/mockito-all-1.9.5.jar</locationURI>
+			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/third_party/mockito/mockito-all-1.9.5.jar</locationURI>
 		</link>
 	</linkedResources>
 	<filteredResources>
