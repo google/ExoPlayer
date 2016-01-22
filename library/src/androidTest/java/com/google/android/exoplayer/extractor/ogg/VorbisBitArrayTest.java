@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.extractor.ogg;
 
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.util.ParsableBitArray;
 
 import junit.framework.TestCase;
@@ -24,7 +25,7 @@ import junit.framework.TestCase;
  */
 public final class VorbisBitArrayTest extends TestCase {
 
-  public void testReadBit() {
+  public void testReadBit() throws ParserException {
     VorbisBitArray bitArray = new VorbisBitArray(new byte[]{
         (byte) 0x5c, 0x50
     });
@@ -55,7 +56,7 @@ public final class VorbisBitArrayTest extends TestCase {
     } catch (IllegalStateException e) {/* ignored */}
   }
 
-  public void testSkipBits() {
+  public void testSkipBits() throws ParserException {
     VorbisBitArray bitArray = new VorbisBitArray(new byte[]{
         (byte) 0xF0, 0x0F
     });
@@ -78,7 +79,7 @@ public final class VorbisBitArrayTest extends TestCase {
   }
 
 
-  public void testSkipBitsThrowsErrorIfEOB() {
+  public void testSkipBitsThrowsErrorIfEOB() throws ParserException {
     VorbisBitArray bitArray = new VorbisBitArray(new byte[]{
         (byte) 0xF0, 0x0F
     });
@@ -140,7 +141,7 @@ public final class VorbisBitArrayTest extends TestCase {
     }
   }
 
-  public void testReadInt32() {
+  public void testReadInt32() throws ParserException {
     byte[] data = {(byte) 0xF0, 0x0F, (byte) 0xF0, 0x0F};
     VorbisBitArray lsb = new VorbisBitArray(data);
     assertEquals(0x0FF00FF0, lsb.readBits(32));
@@ -221,7 +222,7 @@ public final class VorbisBitArrayTest extends TestCase {
     }
   }
 
-  public void testLimit() {
+  public void testLimit() throws ParserException {
     VorbisBitArray bitArray = new VorbisBitArray(new byte[]{
         (byte) 0xc0, 0x02
     }, 1);
@@ -250,7 +251,7 @@ public final class VorbisBitArrayTest extends TestCase {
     }
   }
 
-  public void testBitsLeft() {
+  public void testBitsLeft() throws ParserException {
     VorbisBitArray bitArray = new VorbisBitArray(new byte[]{
         (byte) 0xc0, 0x02
     });
@@ -293,7 +294,7 @@ public final class VorbisBitArrayTest extends TestCase {
     }
   }
 
-  public void testReadBitCompareWithMSb() {
+  public void testReadBitCompareWithMSb() throws ParserException {
     byte[] data = {0x0F};
     VorbisBitArray lsb = new VorbisBitArray(data);
     ParsableBitArray msb = new ParsableBitArray(data);
@@ -308,7 +309,7 @@ public final class VorbisBitArrayTest extends TestCase {
     assertEquals(lsb.readBit(), !msb.readBit());
   }
 
-  public void testReadBitsCompareWithMSb() {
+  public void testReadBitsCompareWithMSb() throws ParserException {
     byte[] data = {0x0F};
     VorbisBitArray lsb = new VorbisBitArray(data);
     ParsableBitArray msb = new ParsableBitArray(data);
@@ -318,7 +319,7 @@ public final class VorbisBitArrayTest extends TestCase {
     assertEquals(15, msb.readBits(4));
   }
 
-  public void testReadBitsCompareWithMSbBeyondByteBoundary() {
+  public void testReadBitsCompareWithMSbBeyondByteBoundary() throws ParserException {
     byte[] data = {(byte) 0xF0, 0x0F};
     VorbisBitArray lsb = new VorbisBitArray(data);
     ParsableBitArray msb = new ParsableBitArray(data);
