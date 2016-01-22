@@ -191,8 +191,8 @@ public final class MpegAudioHeader {
   /** Number of samples stored in the frame. */
   public int samplesPerFrame;
 
-  private void setValues(int version, String mimeType, int frameSize,
-      int sampleRate, int channels, int bitrate, int samplesPerFrame) {
+  private void setValues(int version, String mimeType, int frameSize, int sampleRate, int channels,
+      int bitrate, int samplesPerFrame) {
     this.version = version;
     this.mimeType = mimeType;
     this.frameSize = frameSize;
