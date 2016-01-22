@@ -85,9 +85,10 @@ public class DashChunkSource implements ChunkSource, Output {
     /**
      * Invoked when the available seek range of the stream has changed.
      *
+     * @param sourceId The id of the reporting {@link DashChunkSource}.
      * @param availableRange The range which specifies available content that can be seeked to.
      */
-    public void onAvailableRangeChanged(TimeRange availableRange);
+    public void onAvailableRangeChanged(int sourceId, TimeRange availableRange);
 
   }
 
@@ -119,6 +120,7 @@ public class DashChunkSource implements ChunkSource, Output {
   private final long elapsedRealtimeOffsetUs;
   private final long[] availableRangeValues;
   private final boolean live;
+  private final int eventSourceId;
 
   private MediaPresentationDescription currentManifest;
   private MediaPresentationDescription processedManifest;
@@ -179,7 +181,7 @@ public class DashChunkSource implements ChunkSource, Output {
   public DashChunkSource(MediaPresentationDescription manifest, DashTrackSelector trackSelector,
       DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator) {
     this(null, manifest, trackSelector, dataSource, adaptiveFormatEvaluator, new SystemClock(), 0,
-        0, false, null, null);
+        0, false, null, null, 0);
   }
 
   /**
@@ -204,14 +206,15 @@ public class DashChunkSource implements ChunkSource, Output {
    * @param eventHandler A handler to use when delivering events to {@code EventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
    */
   public DashChunkSource(ManifestFetcher<MediaPresentationDescription> manifestFetcher,
       DashTrackSelector trackSelector, DataSource dataSource,
       FormatEvaluator adaptiveFormatEvaluator, long liveEdgeLatencyMs, long elapsedRealtimeOffsetMs,
-      Handler eventHandler, EventListener eventListener) {
+      Handler eventHandler, EventListener eventListener, int eventSourceId) {
     this(manifestFetcher, manifestFetcher.getManifest(), trackSelector,
         dataSource, adaptiveFormatEvaluator, new SystemClock(), liveEdgeLatencyMs * 1000,
-        elapsedRealtimeOffsetMs * 1000, true, eventHandler, eventListener);
+        elapsedRealtimeOffsetMs * 1000, true, eventHandler, eventListener, eventSourceId);
   }
 
   /**
@@ -235,21 +238,25 @@ public class DashChunkSource implements ChunkSource, Output {
    * @param eventHandler A handler to use when delivering events to {@code EventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
    */
   public DashChunkSource(ManifestFetcher<MediaPresentationDescription> manifestFetcher,
       DashTrackSelector trackSelector, DataSource dataSource,
       FormatEvaluator adaptiveFormatEvaluator, long liveEdgeLatencyMs, long elapsedRealtimeOffsetMs,
-      boolean startAtLiveEdge, Handler eventHandler, EventListener eventListener) {
+      boolean startAtLiveEdge, Handler eventHandler, EventListener eventListener,
+      int eventSourceId) {
     this(manifestFetcher, manifestFetcher.getManifest(), trackSelector,
         dataSource, adaptiveFormatEvaluator, new SystemClock(), liveEdgeLatencyMs * 1000,
-        elapsedRealtimeOffsetMs * 1000, startAtLiveEdge, eventHandler, eventListener);
+        elapsedRealtimeOffsetMs * 1000, startAtLiveEdge, eventHandler, eventListener,
+        eventSourceId);
   }
 
   /* package */ DashChunkSource(ManifestFetcher<MediaPresentationDescription> manifestFetcher,
       MediaPresentationDescription initialManifest, DashTrackSelector trackSelector,
       DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
       Clock systemClock, long liveEdgeLatencyUs, long elapsedRealtimeOffsetUs,
-      boolean startAtLiveEdge, Handler eventHandler, EventListener eventListener) {
+      boolean startAtLiveEdge, Handler eventHandler, EventListener eventListener,
+      int eventSourceId) {
     this.manifestFetcher = manifestFetcher;
     this.currentManifest = initialManifest;
     this.trackSelector = trackSelector;
@@ -261,6 +268,7 @@ public class DashChunkSource implements ChunkSource, Output {
     this.startAtLiveEdge = startAtLiveEdge;
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
+    this.eventSourceId = eventSourceId;
     this.evaluation = new Evaluation();
     this.availableRangeValues = new long[2];
     periodHolders = new SparseArray<>();
@@ -424,7 +432,7 @@ public class DashChunkSource implements ChunkSource, Output {
         if (previous.parentId == lastPeriodHolder.localIndex) {
           RepresentationHolder representationHolder =
               lastPeriodHolder.representationHolders.get(previous.format.id);
-          if (representationHolder.isLastSegment(previous.chunkIndex)) {
+          if (representationHolder.isBeyondLastSegment(previous.getNextChunkIndex())) {
             out.endOfStream = true;
             return;
           }
@@ -443,7 +451,7 @@ public class DashChunkSource implements ChunkSource, Output {
       } else if (!periodHolder.isIndexUnbounded()) {
         RepresentationHolder representationHolder =
             periodHolder.representationHolders.get(previous.format.id);
-        if (representationHolder.isLastSegment(previous.chunkIndex)) {
+        if (representationHolder.isBeyondLastSegment(previous.getNextChunkIndex())) {
           // We reached the end of a period. Start the next one.
           periodHolder = periodHolders.get(previous.parentId + 1);
           startingNewPeriod = true;
@@ -478,9 +486,9 @@ public class DashChunkSource implements ChunkSource, Output {
 
     int segmentNum = queue.isEmpty() ? representationHolder.getSegmentNum(playbackPositionUs)
           : startingNewPeriod ? representationHolder.getFirstAvailableSegmentNum()
-          : queue.get(out.queueSize - 1).chunkIndex + 1;
+          : queue.get(out.queueSize - 1).getNextChunkIndex();
     Chunk nextMediaChunk = newMediaChunk(periodHolder, representationHolder, dataSource,
-        mediaFormat, segmentNum, evaluation.trigger);
+        mediaFormat, enabledTrack, segmentNum, evaluation.trigger);
     lastChunkWasInitialization = false;
     out.chunk = nextMediaChunk;
   }
@@ -672,8 +680,9 @@ public class DashChunkSource implements ChunkSource, Output {
         extractor, manifestIndex);
   }
 
-  private Chunk newMediaChunk(PeriodHolder periodHolder, RepresentationHolder representationHolder,
-      DataSource dataSource, MediaFormat mediaFormat, int segmentNum, int trigger) {
+  protected Chunk newMediaChunk(
+      PeriodHolder periodHolder, RepresentationHolder representationHolder, DataSource dataSource,
+      MediaFormat mediaFormat, ExposedTrack enabledTrack, int segmentNum, int trigger) {
     Representation representation = representationHolder.representation;
     Format format = representation.format;
     long startTimeUs = representationHolder.getSegmentStartTimeUs(segmentNum);
@@ -796,17 +805,19 @@ public class DashChunkSource implements ChunkSource, Output {
       eventHandler.post(new Runnable() {
         @Override
         public void run() {
-          eventListener.onAvailableRangeChanged(seekRange);
+          eventListener.onAvailableRangeChanged(eventSourceId, seekRange);
         }
       });
     }
   }
 
-  // Private classes.
+  // Protected classes.
 
-  private static final class ExposedTrack {
+  protected static final class ExposedTrack {
 
     public final MediaFormat trackFormat;
+    public final int adaptiveMaxWidth;
+    public final int adaptiveMaxHeight;
 
     private final int adaptationSetIndex;
 
@@ -815,8 +826,6 @@ public class DashChunkSource implements ChunkSource, Output {
 
     // Adaptive track variables.
     private final Format[] adaptiveFormats;
-    private final int adaptiveMaxWidth;
-    private final int adaptiveMaxHeight;
 
     public ExposedTrack(MediaFormat trackFormat, int adaptationSetIndex, Format fixedFormat) {
       this.trackFormat = trackFormat;
@@ -843,8 +852,9 @@ public class DashChunkSource implements ChunkSource, Output {
 
   }
 
-  private static final class RepresentationHolder {
+  protected static final class RepresentationHolder {
 
+    public final boolean mimeTypeIsRawText;
     public final ChunkExtractorWrapper extractorWrapper;
 
     public Representation representation;
@@ -862,7 +872,8 @@ public class DashChunkSource implements ChunkSource, Output {
       this.periodDurationUs = periodDurationUs;
       this.representation = representation;
       String mimeType = representation.format.mimeType;
-      extractorWrapper = mimeTypeIsRawText(mimeType) ? null : new ChunkExtractorWrapper(
+      mimeTypeIsRawText = mimeTypeIsRawText(mimeType);
+      extractorWrapper = mimeTypeIsRawText ? null : new ChunkExtractorWrapper(
           mimeTypeIsWebm(mimeType) ? new WebmExtractor() : new FragmentedMp4Extractor());
       segmentIndex = representation.getIndex();
     }
@@ -919,10 +930,14 @@ public class DashChunkSource implements ChunkSource, Output {
           + segmentIndex.getDurationUs(segmentNum - segmentNumShift, periodDurationUs);
     }
 
-    public boolean isLastSegment(int segmentNum) {
-      int lastSegmentNum = segmentIndex.getLastSegmentNum(periodDurationUs);
+    public int getLastSegmentNum() {
+      return segmentIndex.getLastSegmentNum(periodDurationUs);
+    }
+
+    public boolean isBeyondLastSegment(int segmentNum) {
+      int lastSegmentNum = getLastSegmentNum();
       return lastSegmentNum == DashSegmentIndex.INDEX_UNBOUNDED ? false
-          : segmentNum == (lastSegmentNum + segmentNumShift);
+          : segmentNum > (lastSegmentNum + segmentNumShift);
     }
 
     public int getFirstAvailableSegmentNum() {
@@ -935,7 +950,7 @@ public class DashChunkSource implements ChunkSource, Output {
 
   }
 
-  private static final class PeriodHolder {
+  protected static final class PeriodHolder {
 
     public final int localIndex;
     public final long startTimeUs;
@@ -1017,6 +1032,10 @@ public class DashChunkSource implements ChunkSource, Output {
 
     public boolean isIndexExplicit() {
       return indexIsExplicit;
+    }
+
+    public DrmInitData getDrmInitData() {
+      return drmInitData;
     }
 
     // Private methods.

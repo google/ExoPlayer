@@ -20,7 +20,6 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
-import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.util.Pair;
@@ -83,21 +82,13 @@ import java.util.Collections;
     int packetType = data.readUnsignedByte();
     // Parse sequence header just in case it was not done before.
     if (packetType == AAC_PACKET_TYPE_SEQUENCE_HEADER && !hasOutputFormat) {
-      ParsableBitArray adtsScratch = new ParsableBitArray(new byte[data.bytesLeft()]);
-      data.readBytes(adtsScratch.data, 0, data.bytesLeft());
-
-      int audioObjectType = adtsScratch.readBits(5);
-      int sampleRateIndex = adtsScratch.readBits(4);
-      int channelConfig = adtsScratch.readBits(4);
-
-      byte[] audioSpecificConfig = CodecSpecificDataUtil.buildAacAudioSpecificConfig(
-          audioObjectType, sampleRateIndex, channelConfig);
+      byte[] audioSpecifiConfig = new byte[data.bytesLeft()];
+      data.readBytes(audioSpecifiConfig, 0, audioSpecifiConfig.length);
       Pair<Integer, Integer> audioParams = CodecSpecificDataUtil.parseAacAudioSpecificConfig(
-          audioSpecificConfig);
-
+          audioSpecifiConfig);
       MediaFormat mediaFormat = MediaFormat.createAudioFormat(null, MimeTypes.AUDIO_AAC,
           MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, getDurationUs(), audioParams.second,
-          audioParams.first, Collections.singletonList(audioSpecificConfig), null);
+          audioParams.first, Collections.singletonList(audioSpecifiConfig), null);
       output.format(mediaFormat);
       hasOutputFormat = true;
     } else if (packetType == AAC_PACKET_TYPE_AAC_RAW) {

@@ -47,4 +47,5 @@ public final class ParserUtil {
   public static String removeNamespacePrefix(String attributeName) {
     return attributeName.replaceFirst("^.*:", "");
   }
+
 }

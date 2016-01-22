@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.text;
 
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
@@ -25,9 +26,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Wraps a {@link SubtitleParser}, exposing an interface similar to {@link MediaCodec} for
@@ -165,12 +164,11 @@ import java.io.InputStream;
 
   private void handleSample(long sampleTimeUs, SampleHolder holder) {
     Subtitle parsedSubtitle = null;
-    IOException error = null;
+    ParserException error = null;
     RuntimeException runtimeError = null;
     try {
-      InputStream inputStream = new ByteArrayInputStream(holder.data.array(), 0, holder.size);
-      parsedSubtitle = parser.parse(inputStream);
-    } catch (IOException e) {
+      parsedSubtitle = parser.parse(holder.data.array(), 0, holder.size);
+    } catch (ParserException e) {
       error = e;
     } catch (RuntimeException e) {
       runtimeError = e;

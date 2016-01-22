@@ -16,6 +16,7 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
 
 import android.annotation.SuppressLint;
@@ -180,6 +181,11 @@ public final class MediaFormat {
         NO_VALUE);
   }
 
+  public static MediaFormat createId3Format() {
+    return createFormatForMimeType(null, MimeTypes.APPLICATION_ID3, MediaFormat.NO_VALUE,
+        C.UNKNOWN_TIME_US);
+  }
+
   /* package */ MediaFormat(String trackId, String mimeType, int bitrate, int maxInputSize,
       long durationUs, int width, int height, int rotationDegrees, float pixelWidthHeightRatio,
       int channelCount, int sampleRate, String language, long subsampleOffsetUs,
@@ -226,6 +232,13 @@ public final class MediaFormat {
     return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
         rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
         subsampleOffsetUs, initializationData, adaptive, maxWidth, maxHeight);
+  }
+
+  public MediaFormat copyWithFixedTrackInfo(String trackId, int bitrate, int width, int height,
+      String language) {
+    return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
+        rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
+        subsampleOffsetUs, initializationData, adaptive, NO_VALUE, NO_VALUE);
   }
 
   public MediaFormat copyAsAdaptive(String trackId) {

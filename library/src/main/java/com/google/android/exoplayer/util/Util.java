@@ -62,25 +62,48 @@ public final class Util {
    * Like {@link android.os.Build.VERSION#SDK_INT}, but in a place where it can be conveniently
    * overridden for local testing.
    */
-  public static final int SDK_INT = android.os.Build.VERSION.SDK_INT;
+  public static final int SDK_INT =
+      (Build.VERSION.SDK_INT == 23 && Build.VERSION.CODENAME.charAt(0) == 'N') ? 24
+      : Build.VERSION.SDK_INT;
 
   /**
-   * Like {@link android.os.Build#DEVICE}, but in a place where it can be conveniently overridden
-   * for local testing.
+   * Like {@link Build#DEVICE}, but in a place where it can be conveniently overridden for local
+   * testing.
    */
-  public static final String DEVICE = android.os.Build.DEVICE;
+  public static final String DEVICE = Build.DEVICE;
 
   /**
-   * Like {@link android.os.Build#MANUFACTURER}, but in a place where it can be conveniently
-   * overridden for local testing.
-   */
-  public static final String MANUFACTURER = android.os.Build.MANUFACTURER;
-
-  /**
-   * Like {@link android.os.Build#MODEL}, but in a place where it can be conveniently overridden for
+   * Like {@link Build#MANUFACTURER}, but in a place where it can be conveniently overridden for
    * local testing.
    */
-  public static final String MODEL = android.os.Build.MODEL;
+  public static final String MANUFACTURER = Build.MANUFACTURER;
+
+  /**
+   * Like {@link Build#MODEL}, but in a place where it can be conveniently overridden for local
+   * testing.
+   */
+  public static final String MODEL = Build.MODEL;
+
+  /**
+   * Value returned by {@link #inferContentType(String)} for DASH manifests.
+   */
+  public static final int TYPE_DASH = 0;
+
+  /**
+   * Value returned by {@link #inferContentType(String)} for Smooth Streaming manifests.
+   */
+  public static final int TYPE_SS = 1;
+
+  /**
+   * Value returned by {@link #inferContentType(String)} for HLS manifests.
+   */
+  public static final int TYPE_HLS = 2;
+
+  /**
+   * Value returned by {@link #inferContentType(String)} for files other than DASH, HLS or Smooth
+   * Streaming manifests.
+   */
+  public static final int TYPE_OTHER = 3;
 
   private static final Pattern XS_DATE_TIME_PATTERN = Pattern.compile(
       "(\\d\\d\\d\\d)\\-(\\d\\d)\\-(\\d\\d)[Tt]"
@@ -104,6 +127,24 @@ public final class Util {
   @SuppressLint("InlinedApi")
   public static boolean isAndroidTv(Context context) {
     return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LEANBACK);
+  }
+
+  /**
+   * Converts the entirety of an {@link InputStream} to a byte array.
+   *
+   * @param inputStream the {@link InputStream} to be read. The input stream is not closed by this
+   *    method.
+   * @return a byte array containing all of the inputStream's bytes.
+   * @throws IOException if an error occurs reading from the stream.
+   */
+  public static byte[] toByteArray(InputStream inputStream) throws IOException {
+    byte[] buffer = new byte[1024 * 4];
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    int bytesRead;
+    while ((bytesRead = inputStream.read(buffer)) != -1) {
+      outputStream.write(buffer, 0, bytesRead);
+    }
+    return outputStream.toByteArray();
   }
 
   /**
@@ -699,13 +740,7 @@ public final class Util {
       // Read and return the response body.
       InputStream inputStream = urlConnection.getInputStream();
       try {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        byte scratch[] = new byte[1024];
-        int bytesRead;
-        while ((bytesRead = inputStream.read(scratch)) != -1) {
-          byteArrayOutputStream.write(scratch, 0, bytesRead);
-        }
-        return byteArrayOutputStream.toByteArray();
+        return toByteArray(inputStream);
       } finally {
         inputStream.close();
       }
@@ -716,4 +751,23 @@ public final class Util {
     }
   }
 
+  /**
+   * Makes a best guess to infer the type from a file name.
+   *
+   * @param fileName Name of the file. It can include the path of the file.
+   * @return One of {@link #TYPE_DASH}, {@link #TYPE_SS}, {@link #TYPE_HLS} or {@link #TYPE_OTHER}.
+   */
+  public static int inferContentType(String fileName) {
+    if (fileName == null) {
+      return TYPE_OTHER;
+    } else if (fileName.endsWith(".mpd")) {
+      return TYPE_DASH;
+    } else if (fileName.endsWith(".ism")) {
+      return TYPE_SS;
+    } else if (fileName.endsWith(".m3u8")) {
+      return TYPE_HLS;
+    } else {
+      return TYPE_OTHER;
+    }
+  }
 }

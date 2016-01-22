@@ -120,11 +120,14 @@ public final class SingleSampleSource implements SampleSource, SampleSourceReade
   }
 
   @Override
+  public long readDiscontinuity(int track) {
+    return NO_DISCONTINUITY;
+  }
+
+  @Override
   public int readData(int track, long positionUs, MediaFormatHolder formatHolder,
-      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
-    if (onlyReadDiscontinuity) {
-      return NOTHING_READ;
-    } else if (state == STATE_END_OF_STREAM) {
+      SampleHolder sampleHolder) {
+    if (state == STATE_END_OF_STREAM) {
       return END_OF_STREAM;
     } else if (state == STATE_SEND_FORMAT) {
       formatHolder.format = format;

@@ -15,9 +15,12 @@
  */
 package com.google.android.exoplayer.demo.vp9opus;
 
+import com.google.android.exoplayer.util.Util;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,18 +44,18 @@ public class SampleChooserActivity extends Activity {
     ListView sampleList = (ListView) findViewById(R.id.sample_list);
     final SampleAdapter sampleAdapter = new SampleAdapter(this);
 
-    sampleAdapter.add(new Header("Local VP9 Video only"));
-    sampleAdapter.add(new Sample("S/W Color Conversion - upto 720p", false));
-    sampleAdapter.add(new Sample("OpenGL", true));
     sampleAdapter.add(new Header("DASH - VP9 Only"));
     sampleAdapter.add(new Sample("Google Glass",
-          "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9.mpd"));
+        "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9.mpd",
+        Util.TYPE_DASH));
     sampleAdapter.add(new Header("DASH - VP9 and Opus"));
     sampleAdapter.add(new Sample("Google Glass",
-          "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9_opus.mpd"));
+        "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9_opus.mpd",
+        Util.TYPE_DASH));
     sampleAdapter.add(new Header("DASH - VP9 and Vorbis"));
     sampleAdapter.add(new Sample("Google Glass",
-          "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9_vorbis.mpd"));
+        "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9_vorbis.mpd",
+        Util.TYPE_DASH));
 
     sampleList.setAdapter(sampleAdapter);
     sampleList.setOnItemClickListener(new OnItemClickListener() {
@@ -67,9 +70,9 @@ public class SampleChooserActivity extends Activity {
   }
 
   private void onSampleSelected(Sample sample) {
-    Intent playerIntent = new Intent(this, VideoPlayer.class)
-        .putExtra(VideoPlayer.DASH_MANIFEST_URL_ID_EXTRA, sample.uri)
-        .putExtra(VideoPlayer.USE_OPENGL_ID_EXTRA, sample.useOpenGL);
+    Intent playerIntent = new Intent(this, PlayerActivity.class)
+        .setData(Uri.parse(sample.uri))
+        .putExtra(PlayerActivity.CONTENT_TYPE_EXTRA, sample.type);
     startActivity(playerIntent);
   }
 
@@ -114,20 +117,12 @@ public class SampleChooserActivity extends Activity {
 
     public final String description;
     public final String uri;
-    public final boolean useOpenGL;
+    public final int type;
 
-    public Sample(String description, boolean useOpenGL) {
-      this(description, null, useOpenGL);
-    }
-
-    public Sample(String description, String uri) {
-      this(description, uri, true); // always use OpenGL for DASH playbacks.
-    }
-
-    public Sample(String description, String uri, boolean useOpenGL) {
+    public Sample(String description, String uri, int type) {
       this.description = description;
       this.uri = uri;
-      this.useOpenGL = useOpenGL;
+      this.type = type;
     }
 
   }

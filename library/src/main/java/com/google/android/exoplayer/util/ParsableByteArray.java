@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.util;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 /**
  * Wraps a byte array, providing a set of methods for parsing data from it. Numerical values are
@@ -170,10 +171,20 @@ public final class ParsableByteArray {
         | (data[position++] & 0xFF);
   }
 
+  /** Reads the next two bytes as an unsigned value. */
+  public int readLittleEndianUnsignedShort() {
+    return (data[position++] & 0xFF) | (data[position++] & 0xFF) << 8;
+  }
+
   /** Reads the next two bytes as an signed value. */
   public short readShort() {
     return (short) ((data[position++] & 0xFF) << 8
         | (data[position++] & 0xFF));
+  }
+
+  /** Reads the next two bytes as a signed value. */
+  public short readLittleEndianShort() {
+    return (short) ((data[position++] & 0xFF) | (data[position++] & 0xFF) << 8);
   }
 
   /** Reads the next three bytes as an unsigned value. */
@@ -181,6 +192,13 @@ public final class ParsableByteArray {
     return (data[position++] & 0xFF) << 16
         | (data[position++] & 0xFF) << 8
         | (data[position++] & 0xFF);
+  }
+
+  /**  Reads the next three bytes as an unsigned value in little endian order. */
+  public int readLittleEndianUnsignedInt24() {
+    return (data[position++] & 0xFF)
+        | (data[position++] & 0xFF) << 8
+        | (data[position++] & 0xFF) << 16;
   }
 
   /** Reads the next four bytes as an unsigned value. */
@@ -191,12 +209,28 @@ public final class ParsableByteArray {
         | (data[position++] & 0xFFL);
   }
 
+  /** Reads the next four bytes as an unsigned value in little endian order. */
+  public long readLittleEndianUnsignedInt() {
+    return (data[position++] & 0xFFL)
+        | (data[position++] & 0xFFL) << 8
+        | (data[position++] & 0xFFL) << 16
+        | (data[position++] & 0xFFL) << 24;
+  }
+
   /** Reads the next four bytes as a signed value. */
   public int readInt() {
     return (data[position++] & 0xFF) << 24
         | (data[position++] & 0xFF) << 16
         | (data[position++] & 0xFF) << 8
         | (data[position++] & 0xFF);
+  }
+
+  /** Reads the next four bytes as an signed value in little endian order. */
+  public int readLittleEndianInt() {
+    return (data[position++] & 0xFF)
+        | (data[position++]  & 0xFF) << 8
+        | (data[position++]  & 0xFF) << 16
+        | (data[position++]  & 0xFF) << 24;
   }
 
   /** Reads the next eight bytes as a signed value. */
@@ -209,6 +243,18 @@ public final class ParsableByteArray {
         | (data[position++] & 0xFFL) << 16
         | (data[position++] & 0xFFL) << 8
         | (data[position++] & 0xFFL);
+  }
+
+  /** Reads the next eight bytes as a signed value in little endian order. */
+  public long readLittleEndianLong() {
+    return (data[position++] & 0xFFL)
+        | (data[position++] & 0xFFL) << 8
+        | (data[position++] & 0xFFL) << 16
+        | (data[position++] & 0xFFL) << 24
+        | (data[position++] & 0xFFL) << 32
+        | (data[position++] & 0xFFL) << 40
+        | (data[position++] & 0xFFL) << 48
+        | (data[position++] & 0xFFL) << 56;
   }
 
   /** Reads the next four bytes, returning the integer portion of the fixed point 16.16 integer. */
@@ -259,6 +305,69 @@ public final class ParsableByteArray {
       throw new IllegalStateException("Top bit not zero: " + result);
     }
     return result;
+  }
+
+  /**
+   * Reads the next {@code length} bytes as UTF-8 characters.
+   *
+   * @param length The number of bytes to read.
+   * @return The string encoded by the bytes.
+   */
+  public String readString(int length) {
+    return readString(length, Charset.defaultCharset());
+  }
+
+  /**
+   * Reads the next {@code length} bytes as characters in the specified {@link Charset}.
+   *
+   * @param length The number of bytes to read.
+   * @param charset The character set of the encoded characters.
+   * @return The string encoded by the bytes in the specified character set.
+   */
+  public String readString(int length, Charset charset) {
+    String result = new String(data, position, length, charset);
+    position += length;
+    return result;
+  }
+
+  /**
+   * Reads a line of text.
+   * <p>
+   * A line is considered to be terminated by any one of a carriage return ('\r'), a line feed
+   * ('\n'), or a carriage return followed immediately by a line feed ('\r\n'). The system's default
+   * charset (UTF-8) is used.
+   *
+   * @return A String containing the contents of the line, not including any line-termination
+   *     characters, or null if the end of the stream has been reached.
+   */
+  public String readLine() {
+    if (bytesLeft() == 0) {
+      return null;
+    }
+    int lineLimit = position;
+    while (lineLimit < limit && data[lineLimit] != '\n' && data[lineLimit] != '\r') {
+      lineLimit++;
+    }
+    if (lineLimit - position >= 3 && data[position] == (byte) 0xEF
+        && data[position + 1] == (byte) 0xBB && data[position + 2] == (byte) 0xBF) {
+      // There's a byte order mark at the start of the line. Discard it.
+      position += 3;
+    }
+    String line = new String(data, position, lineLimit - position);
+    position = lineLimit;
+    if (position == limit) {
+      return line;
+    }
+    if (data[position] == '\r') {
+      position++;
+      if (position == limit) {
+        return line;
+      }
+    }
+    if (data[position] == '\n') {
+      position++;
+    }
+    return line;
   }
 
 }

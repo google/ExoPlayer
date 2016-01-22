@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.extractor.ts;
 
+import com.google.android.exoplayer.extractor.DummyTrackOutput;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
@@ -45,6 +46,8 @@ public final class TsExtractor implements Extractor {
   private static final int TS_STREAM_TYPE_MPA_LSF = 0x04;
   private static final int TS_STREAM_TYPE_AAC = 0x0F;
   private static final int TS_STREAM_TYPE_AC3 = 0x81;
+  private static final int TS_STREAM_TYPE_DTS = 0x8A;
+  private static final int TS_STREAM_TYPE_HDMV_DTS = 0x82;
   private static final int TS_STREAM_TYPE_E_AC3 = 0x87;
   private static final int TS_STREAM_TYPE_H262 = 0x02;
   private static final int TS_STREAM_TYPE_H264 = 0x1B;
@@ -220,9 +223,14 @@ public final class TsExtractor implements Extractor {
       int programCount = (sectionLength - 9) / 4;
       for (int i = 0; i < programCount; i++) {
         data.readBytes(patScratch, 4);
-        patScratch.skipBits(19); // program_number (16), reserved (3)
-        int pid = patScratch.readBits(13);
-        tsPayloadReaders.put(pid, new PmtReader());
+        int programNumber = patScratch.readBits(16);
+        patScratch.skipBits(3); // reserved (3)
+        if (programNumber == 0) {
+          patScratch.skipBits(13); // network_PID (13)
+        } else {
+          int pid = patScratch.readBits(13);
+          tsPayloadReaders.put(pid, new PmtReader());
+        }
       }
 
       // Skip CRC_32.
@@ -320,7 +328,7 @@ public final class TsExtractor implements Extractor {
           continue;
         }
 
-        ElementaryStreamReader pesPayloadReader = null;
+        ElementaryStreamReader pesPayloadReader;
         switch (streamType) {
           case TS_STREAM_TYPE_MPA:
             pesPayloadReader = new MpegAudioReader(output.track(TS_STREAM_TYPE_MPA));
@@ -329,13 +337,18 @@ public final class TsExtractor implements Extractor {
             pesPayloadReader = new MpegAudioReader(output.track(TS_STREAM_TYPE_MPA_LSF));
             break;
           case TS_STREAM_TYPE_AAC:
-            pesPayloadReader = new AdtsReader(output.track(TS_STREAM_TYPE_AAC));
+            pesPayloadReader = new AdtsReader(output.track(TS_STREAM_TYPE_AAC),
+                new DummyTrackOutput());
             break;
           case TS_STREAM_TYPE_AC3:
             pesPayloadReader = new Ac3Reader(output.track(TS_STREAM_TYPE_AC3), false);
             break;
           case TS_STREAM_TYPE_E_AC3:
             pesPayloadReader = new Ac3Reader(output.track(TS_STREAM_TYPE_E_AC3), true);
+            break;
+          case TS_STREAM_TYPE_DTS:
+          case TS_STREAM_TYPE_HDMV_DTS:
+            pesPayloadReader = new DtsReader(output.track(TS_STREAM_TYPE_DTS));
             break;
           case TS_STREAM_TYPE_H262:
             pesPayloadReader = new H262Reader(output.track(TS_STREAM_TYPE_H262));
@@ -350,6 +363,9 @@ public final class TsExtractor implements Extractor {
             break;
           case TS_STREAM_TYPE_ID3:
             pesPayloadReader = id3Reader;
+            break;
+          default:
+            pesPayloadReader = null;
             break;
         }
 
@@ -387,7 +403,14 @@ public final class TsExtractor implements Extractor {
             streamType = TS_STREAM_TYPE_H265;
           }
           break;
+        } else if (descriptorTag == 0x6A) { // AC-3_descriptor in DVB (ETSI EN 300 468)
+          streamType = TS_STREAM_TYPE_AC3;
+        } else if (descriptorTag == 0x7A) { // enhanced_AC-3_descriptor
+          streamType = TS_STREAM_TYPE_E_AC3;
+        } else if (descriptorTag == 0x7B) { // DTS_descriptor
+          streamType = TS_STREAM_TYPE_DTS;
         }
+
         data.skipBytes(descriptorLength);
       }
       data.setPosition(descriptorsEndPosition);

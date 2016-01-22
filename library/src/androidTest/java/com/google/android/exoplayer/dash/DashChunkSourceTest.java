@@ -324,7 +324,8 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
     DashChunkSource chunkSource = new DashChunkSource(manifestFetcher, mpd,
         DefaultDashTrackSelector.newVideoInstance(null, false, false), mock(DataSource.class), null,
         new FakeClock(mpd.availabilityStartTime + mpd.duration - ELAPSED_REALTIME_OFFSET_MS),
-        liveEdgeLatencyMs * 1000, ELAPSED_REALTIME_OFFSET_MS * 1000, startAtLiveEdge, null, null);
+        liveEdgeLatencyMs * 1000, ELAPSED_REALTIME_OFFSET_MS * 1000, startAtLiveEdge, null, null,
+        0);
     chunkSource.prepare();
     chunkSource.enable(0);
     return chunkSource;

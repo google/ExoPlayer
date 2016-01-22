@@ -223,21 +223,21 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   }
 
   @Override
+  public long readDiscontinuity(int track) {
+    if (pendingDiscontinuity) {
+      pendingDiscontinuity = false;
+      return lastSeekPositionUs;
+    }
+    return NO_DISCONTINUITY;
+  }
+
+  @Override
   public int readData(int track, long positionUs, MediaFormatHolder formatHolder,
-      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
+      SampleHolder sampleHolder) {
     Assertions.checkState(state == STATE_ENABLED);
     downstreamPositionUs = positionUs;
 
-    if (pendingDiscontinuity) {
-      pendingDiscontinuity = false;
-      return DISCONTINUITY_READ;
-    }
-
-    if (onlyReadDiscontinuity) {
-      return NOTHING_READ;
-    }
-
-    if (isPendingReset()) {
+    if (pendingDiscontinuity || isPendingReset()) {
       return NOTHING_READ;
     }
 

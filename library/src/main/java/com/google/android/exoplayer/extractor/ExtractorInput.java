@@ -80,6 +80,33 @@ public interface ExtractorInput {
   void readFully(byte[] target, int offset, int length) throws IOException, InterruptedException;
 
   /**
+   * Like {@link #read(byte[], int, int)}, except the data is skipped instead of read.
+   *
+   * @param length The maximum number of bytes to skip from the input.
+   * @return The number of bytes skipped, or {@link C#RESULT_END_OF_INPUT} if the input has ended.
+   * @throws IOException If an error occurs reading from the input.
+   * @throws InterruptedException If the thread has been interrupted.
+   */
+  int skip(int length) throws IOException, InterruptedException;
+
+  /**
+   * Like {@link #readFully(byte[], int, int, boolean)}, except the data is skipped instead of read.
+   *
+   * @param length The number of bytes to skip from the input.
+   * @param allowEndOfInput True if encountering the end of the input having skipped no data is
+   *     allowed, and should result in {@code false} being returned. False if it should be
+   *     considered an error, causing an {@link EOFException} to be thrown.
+   * @return True if the skip was successful. False if the end of the input was encountered having
+   *     skipped no data.
+   * @throws EOFException If the end of input was encountered having partially satisfied the skip
+   *     (i.e. having skipped at least one byte, but fewer than {@code length}), or if no bytes were
+   *     skipped and {@code allowEndOfInput} is false.
+   * @throws IOException If an error occurs reading from the input.
+   * @throws InterruptedException If the thread has been interrupted.
+   */
+  boolean skipFully(int length, boolean allowEndOfInput) throws IOException, InterruptedException;
+
+  /**
    * Like {@link #readFully(byte[], int, int)}, except the data is skipped instead of read.
    * <p>
    * Encountering the end of input is always considered an error, and will result in an
@@ -96,8 +123,38 @@ public interface ExtractorInput {
    * Peeks {@code length} bytes from the peek position, writing them into {@code target} at index
    * {@code offset}. The current read position is left unchanged.
    * <p>
+   * If the end of the input is found having peeked no data, then behavior is dependent on
+   * {@code allowEndOfInput}. If {@code allowEndOfInput == true} then {@code false} is returned.
+   * Otherwise an {@link EOFException} is thrown.
+   * <p>
    * Calling {@link #resetPeekPosition()} resets the peek position to equal the current read
-   * position, so the caller can peek the same data again. Reading also resets the peek position.
+   * position, so the caller can peek the same data again. Reading and skipping also reset the peek
+   * position.
+   *
+   * @param target A target array into which data should be written.
+   * @param offset The offset into the target array at which to write.
+   * @param length The number of bytes to peek from the input.
+   * @param allowEndOfInput True if encountering the end of the input having peeked no data is
+   *     allowed, and should result in {@code false} being returned. False if it should be
+   *     considered an error, causing an {@link EOFException} to be thrown.
+   * @return True if the peek was successful. False if the end of the input was encountered having
+   *     peeked no data.
+   * @throws EOFException If the end of input was encountered having partially satisfied the peek
+   *     (i.e. having peeked at least one byte, but fewer than {@code length}), or if no bytes were
+   *     peeked and {@code allowEndOfInput} is false.
+   * @throws IOException If an error occurs peeking from the input.
+   * @throws InterruptedException If the thread is interrupted.
+   */
+  boolean peekFully(byte[] target, int offset, int length, boolean allowEndOfInput)
+      throws IOException, InterruptedException;
+
+  /**
+   * Peeks {@code length} bytes from the peek position, writing them into {@code target} at index
+   * {@code offset}. The current read position is left unchanged.
+   * <p>
+   * Calling {@link #resetPeekPosition()} resets the peek position to equal the current read
+   * position, so the caller can peek the same data again. Reading and skipping also reset the peek
+   * position.
    *
    * @param target A target array into which data should be written.
    * @param offset The offset into the target array at which to write.
@@ -107,6 +164,28 @@ public interface ExtractorInput {
    * @throws InterruptedException If the thread is interrupted.
    */
   void peekFully(byte[] target, int offset, int length) throws IOException, InterruptedException;
+
+  /**
+   * Advances the peek position by {@code length} bytes.
+   * <p>
+   * If the end of the input is encountered before advancing the peek position, then behavior is
+   * dependent on {@code allowEndOfInput}. If {@code allowEndOfInput == true} then {@code false} is
+   * returned. Otherwise an {@link EOFException} is thrown.
+   *
+   * @param length The number of bytes by which to advance the peek position.
+   * @param allowEndOfInput True if encountering the end of the input before advancing is allowed,
+   *     and should result in {@code false} being returned. False if it should be considered an
+   *     error, causing an {@link EOFException} to be thrown.
+   * @return True if advancing the peek position was successful. False if the end of the input was
+   *     encountered before the peek position could be advanced.
+   * @throws EOFException If the end of input was encountered having partially advanced (i.e. having
+   *     advanced by at least one byte, but fewer than {@code length}), or if the end of input was
+   *     encountered before advancing and {@code allowEndOfInput} is false.
+   * @throws IOException If an error occurs advancing the peek position.
+   * @throws InterruptedException If the thread is interrupted.
+   */
+  boolean advancePeekPosition(int length, boolean allowEndOfInput)
+      throws IOException, InterruptedException;
 
   /**
    * Advances the peek position by {@code length} bytes.

@@ -262,6 +262,17 @@ import java.util.List;
     // implementation handles simple discarding/delaying of samples. The extractor may place
     // further restrictions on what edited streams are playable.
 
+    if (track.editListDurations.length == 1 && track.editListDurations[0] == 0) {
+      // The current version of the spec leaves handling of an edit with zero segment_duration in
+      // unfragmented files open to interpretation. We handle this as a special case and include all
+      // samples in the edit.
+      for (int i = 0; i < timestamps.length; i++) {
+        timestamps[i] = Util.scaleLargeTimestamp(timestamps[i] - track.editListMediaTimes[0],
+            C.MICROS_PER_SECOND, track.timescale);
+      }
+      return new TrackSampleTable(offsets, sizes, maximumSize, timestamps, flags);
+    }
+
     // Count the number of samples after applying edits.
     int editedSampleCount = 0;
     int nextSampleIndex = 0;
@@ -462,6 +473,9 @@ import java.util.List;
       } else if (childAtomType == Atom.TYPE_tx3g) {
         out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId),
             MimeTypes.APPLICATION_TX3G, MediaFormat.NO_VALUE, durationUs, language);
+      } else if (childAtomType == Atom.TYPE_wvtt) {
+        out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId),
+            MimeTypes.APPLICATION_MP4VTT, MediaFormat.NO_VALUE, durationUs, language);
       } else if (childAtomType == Atom.TYPE_stpp) {
         out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId),
             MimeTypes.APPLICATION_TTML, MediaFormat.NO_VALUE, durationUs, language,

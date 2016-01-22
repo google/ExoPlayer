@@ -20,6 +20,10 @@
     android:textAllCaps="true"
     android:textColor="@android:color/white"
     android:textSize="14sp"
-    android:padding="8dp"
-    android:focusable="true"
+    android:paddingStart="?android:attr/expandableListPreferredItemPaddingLeft"
+    android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
+    android:paddingRight="8dp"
+    android:paddingEnd="8dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
     android:background="#339999FF"/>
