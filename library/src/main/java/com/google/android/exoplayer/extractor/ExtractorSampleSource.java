@@ -27,7 +27,6 @@ import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
-import com.google.android.exoplayer.upstream.DefaultAllocator;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
@@ -206,20 +205,6 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
   /**
    * @param uri The {@link Uri} of the media stream.
    * @param dataSource A data source to read the media stream.
-   * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
-   *     The actual allocated size may exceed the value passed in if the implementation requires it.
-   * @param extractors {@link Extractor}s to extract the media stream, in order of decreasing
-   *     priority. If omitted, the default extractors will be used.
-   */
-  @Deprecated
-  public ExtractorSampleSource(Uri uri, DataSource dataSource, int requestedBufferSize,
-      Extractor... extractors) {
-    this(uri, dataSource, new DefaultAllocator(64 * 1024), requestedBufferSize, extractors);
-  }
-
-  /**
-   * @param uri The {@link Uri} of the media stream.
-   * @param dataSource A data source to read the media stream.
    * @param allocator An {@link Allocator} from which to obtain memory allocations.
    * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
    *     The actual allocated size may exceed the value passed in if the implementation requires it.
@@ -230,23 +215,6 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
       int requestedBufferSize, Extractor... extractors) {
     this(uri, dataSource, allocator, requestedBufferSize, MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA,
         extractors);
-  }
-
-  /**
-   * @param uri The {@link Uri} of the media stream.
-   * @param dataSource A data source to read the media stream.
-   * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
-   *     The actual allocated size may exceed the value passed in if the implementation requires it.
-   * @param minLoadableRetryCount The minimum number of times that the sample source will retry
-   *     if a loading error occurs.
-   * @param extractors {@link Extractor}s to extract the media stream, in order of decreasing
-   *     priority. If omitted, the default extractors will be used.
-   */
-  @Deprecated
-  public ExtractorSampleSource(Uri uri, DataSource dataSource, int requestedBufferSize,
-      int minLoadableRetryCount, Extractor... extractors) {
-    this(uri, dataSource, new DefaultAllocator(64 * 1024), requestedBufferSize,
-        minLoadableRetryCount, extractors);
   }
 
   /**

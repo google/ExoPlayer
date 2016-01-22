@@ -96,24 +96,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
     internalPlayer.prepare(renderers);
   }
 
-  @Deprecated
-  @Override
-  public boolean getRendererHasMedia(int rendererIndex) {
-    return getTrackCount(rendererIndex) > 0;
-  }
-
-  @Deprecated
-  @Override
-  public void setRendererEnabled(int rendererIndex, boolean enabled) {
-    setSelectedTrack(rendererIndex, enabled ? ExoPlayer.TRACK_DEFAULT : ExoPlayer.TRACK_DISABLED);
-  }
-
-  @Deprecated
-  @Override
-  public boolean getRendererEnabled(int rendererIndex) {
-    return getSelectedTrack(rendererIndex) >= 0;
-  }
-
   @Override
   public int getTrackCount(int rendererIndex) {
     return trackFormats[rendererIndex] != null ? trackFormats[rendererIndex].length : 0;
