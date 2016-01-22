@@ -284,6 +284,7 @@ public class ParsableByteArrayTest extends TestCase {
         0x00, 0x00, 0x00, (byte) 0xFF
     });
     assertEquals(0xFF00000000000001L, byteArray.readLittleEndianLong());
+    assertEquals(8, byteArray.getPosition());
   }
 
   public void testReadLittleEndianUnsignedInt() {
@@ -291,6 +292,7 @@ public class ParsableByteArrayTest extends TestCase {
         0x10, 0x00, 0x00, (byte) 0xFF
     });
     assertEquals(0xFF000010L, byteArray.readLittleEndianUnsignedInt());
+    assertEquals(4, byteArray.getPosition());
   }
 
   public void testReadLittleEndianInt() {
@@ -298,12 +300,14 @@ public class ParsableByteArrayTest extends TestCase {
         0x01, 0x00, 0x00, (byte) 0xFF
     });
     assertEquals(0xFF000001, byteArray.readLittleEndianInt());
+    assertEquals(4, byteArray.getPosition());
   }
 
   public void testReadLittleEndianUnsignedInt24() {
     byte[] data = { 0x01, 0x02, (byte) 0xFF };
     ParsableByteArray byteArray = new ParsableByteArray(data);
     assertEquals(0xFF0201, byteArray.readLittleEndianUnsignedInt24());
+    assertEquals(3, byteArray.getPosition());
   }
 
   public void testReadLittleEndianUnsignedShort() {
@@ -311,7 +315,9 @@ public class ParsableByteArrayTest extends TestCase {
         0x01, (byte) 0xFF, 0x02, (byte) 0xFF
     });
     assertEquals(0xFF01, byteArray.readLittleEndianUnsignedShort());
+    assertEquals(2, byteArray.getPosition());
     assertEquals(0xFF02, byteArray.readLittleEndianUnsignedShort());
+    assertEquals(4, byteArray.getPosition());
   }
 
   public void testReadLittleEndianShort() {
@@ -319,7 +325,37 @@ public class ParsableByteArrayTest extends TestCase {
         0x01, (byte) 0xFF, 0x02, (byte) 0xFF
     });
     assertEquals((short) 0xFF01, byteArray.readLittleEndianShort());
+    assertEquals(2, byteArray.getPosition());
     assertEquals((short) 0xFF02, byteArray.readLittleEndianShort());
+    assertEquals(4, byteArray.getPosition());
+  }
+
+  public void testReadString() {
+    byte[] data = {
+        (byte) 0xC3, (byte) 0xA4, (byte) 0x20,
+        (byte) 0xC3, (byte) 0xB6, (byte) 0x20,
+        (byte) 0xC2, (byte) 0xAE, (byte) 0x20,
+        (byte) 0xCF, (byte) 0x80, (byte) 0x20,
+        (byte) 0xE2, (byte) 0x88, (byte) 0x9A, (byte) 0x20,
+        (byte) 0xC2, (byte) 0xB1, (byte) 0x20,
+        (byte) 0xE8, (byte) 0xB0, (byte) 0xA2, (byte) 0x20,
+    };
+    ParsableByteArray byteArray = new ParsableByteArray(data);
+    assertEquals("ä ö ® π √ ± 谢 ", byteArray.readString(data.length));
+    assertEquals(data.length, byteArray.getPosition());
+  }
+
+  public void testReadStringOutOfBoundsDoesNotMovePosition() {
+    byte[] data = {
+        (byte) 0xC3, (byte) 0xA4, (byte) 0x20
+    };
+    ParsableByteArray byteArray = new ParsableByteArray(data);
+    try {
+      byteArray.readString(data.length + 1);
+      fail();
+    } catch (StringIndexOutOfBoundsException e) {
+      assertEquals(0, byteArray.getPosition());
+    }
   }
 
   public void testReadEmptyString() {
