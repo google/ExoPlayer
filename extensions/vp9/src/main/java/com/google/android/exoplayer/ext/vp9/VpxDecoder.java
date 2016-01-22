@@ -49,7 +49,7 @@ import java.nio.ByteBuffer;
   public VpxDecoder() throws VpxDecoderException {
     vpxDecContext = vpxInit();
     if (vpxDecContext == 0) {
-      throw new VpxDecoderException("libvpx initialization error: failed to initialize decoder");
+      throw new VpxDecoderException("Failed to initialize decoder");
     }
   }
 
@@ -65,7 +65,7 @@ import java.nio.ByteBuffer;
   public int decode(ByteBuffer encoded, int size, VpxOutputBuffer outputBuffer)
       throws VpxDecoderException {
     if (vpxDecode(vpxDecContext, encoded, size) != 0) {
-      throw new VpxDecoderException("libvpx decode error: " + vpxGetErrorMessage(vpxDecContext));
+      throw new VpxDecoderException("Decode error: " + vpxGetErrorMessage(vpxDecContext));
     }
     return vpxGetFrame(vpxDecContext, outputBuffer);
   }
