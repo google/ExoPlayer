@@ -235,8 +235,6 @@ public final class Ac3Util {
     }
   }
 
-  private Ac3Util() {
-    // Prevent instantiation.
-  }
+  private Ac3Util() {}
 
 }
