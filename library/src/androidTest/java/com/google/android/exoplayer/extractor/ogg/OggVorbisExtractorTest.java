@@ -21,6 +21,8 @@ import android.util.Log;
 
 import junit.framework.TestCase;
 
+import java.io.IOException;
+
 /**
  * Unit test for {@link OggVorbisExtractor}.
  */
@@ -60,7 +62,7 @@ public final class OggVorbisExtractorTest extends TestCase {
     assertEquals(0x01, buffer.data[3]);
   }
 
-  public void testReadSetupHeadersWithIOExceptions() {
+  public void testReadSetupHeadersWithIOExceptions() throws IOException, InterruptedException {
     extractorInput.doThrowExceptionsAtRead(true);
     extractorInput.doThrowExceptionsAtPeek(true);
 
