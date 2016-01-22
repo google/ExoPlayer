@@ -307,6 +307,18 @@ public final class ParsableByteArray {
   }
 
   /**
+   * Reads the next {@code length} bytes as UTF-8 characters.
+   *
+   * @param length the number of bytes to read.
+   * @return the UTF-8 {@code String} read.
+   */
+  public String readString(int length) {
+    String utf8String = new String(data, position, length);
+    position += length;
+    return utf8String;
+  }
+
+  /**
    * Reads a line of text.
    * <p>
    * A line is considered to be terminated by any one of a carriage return ('\r'), a line feed
@@ -345,6 +357,5 @@ public final class ParsableByteArray {
     }
     return line;
   }
-
 
 }
