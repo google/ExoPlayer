@@ -151,8 +151,9 @@ DataSource dataSource = new DefaultUriDataSource(context, null, userAgent);
 ExtractorSampleSource sampleSource = new ExtractorSampleSource(
     uri, dataSource, allocator, BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE);
 MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(
-    context, sampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
-MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
+    context, sampleSource, MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(
+    sampleSource, MediaCodecSelector.DEFAULT);
 {% endhighlight %}
 
 `ExtractorSampleSource` will automatically load the correct `Extractor` for the media being played.
@@ -205,20 +206,23 @@ DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
 ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher,
     DefaultDashTrackSelector.newVideoInstance(context, true, false), videoDataSource,
-    new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset, null, null);
+    new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset, null, null,
+    DemoPlayer.TYPE_VIDEO);
 ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
     VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
 MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context,
-    videoSampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+    videoSampleSource, MediaCodecSelector.DEFAULT,
+    MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
 
 // Build the audio renderer.
 DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
 ChunkSource audioChunkSource = new DashChunkSource(manifestFetcher,
     DefaultDashTrackSelector.newAudioInstance(), audioDataSource, null, LIVE_EDGE_LATENCY_MS,
-    elapsedRealtimeOffset, null, null);
+    elapsedRealtimeOffset, null, null, DemoPlayer.TYPE_AUDIO);
 ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource,
     loadControl, AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
-MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(audioSampleSource);
+MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(
+    audioSampleSource, MediaCodecSelector.DEFAULT);
 {% endhighlight %}
 
 In this code, `manifestFetcher` is an object responsible for loading the DASH manifest that defines
@@ -247,25 +251,19 @@ while audio is played at a fixed quality level.
 The following code example outlines how the video and audio renderers are constructed.
 
 {% highlight java %}
-// For master playlists, make a best effort to discover which variants the device is able to play.
-int[] variantIndices = null;
-if (manifest instanceof HlsMasterPlaylist) {
-  HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) manifest;
-  variantIndices = VideoFormatSelectorUtil.selectVideoFormatsForDefaultDisplay(context,
-      masterPlaylist.variants, null, false);
-}
-
-// Build the renderers
 LoadControl loadControl = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
 DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+PtsTimestampAdjusterProvider timestampAdjusterProvider = new PtsTimestampAdjusterProvider();
 DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter,
-    variantIndices, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
+HlsChunkSource chunkSource = new HlsChunkSource(true /* isMaster */, dataSource, url, manifest,
+    DefaultHlsTrackSelector.newDefaultInstance(context), bandwidthMeter, timestampAdjusterProvider,
+    HlsChunkSource.ADAPTIVE_MODE_SPLICE);
 HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, loadControl,
-    BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
+    MAIN_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE);
 MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(context, sampleSource,
-    MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
-MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
+    MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource,
+    MediaCodecSelector.DEFAULT);
 {% endhighlight %}
 
 The ExoPlayer demo app provides complete implementation of this code in `HlsRendererBuilder`. The
