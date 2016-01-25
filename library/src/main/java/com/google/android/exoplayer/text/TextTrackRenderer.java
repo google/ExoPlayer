@@ -89,7 +89,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
     }
     try {
       DEFAULT_PARSER_CLASSES.add(
-          Class.forName("com.google.android.exoplayer.text.mp4webvtt.Mp4WebvttParser")
+          Class.forName("com.google.android.exoplayer.text.webvtt.Mp4WebvttParser")
               .asSubclass(SubtitleParser.class));
     } catch (ClassNotFoundException e) {
       // Parser not found.

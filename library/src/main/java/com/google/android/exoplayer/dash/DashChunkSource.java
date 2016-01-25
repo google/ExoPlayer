@@ -644,11 +644,15 @@ public class DashChunkSource implements ChunkSource, Output {
       return MimeTypes.getVideoMediaMimeType(format.codecs);
     } else if (mimeTypeIsRawText(formatMimeType)) {
       return formatMimeType;
-    } else if (MimeTypes.APPLICATION_MP4.equals(formatMimeType) && "stpp".equals(format.codecs)) {
-      return MimeTypes.APPLICATION_TTML;
-    } else {
-      return null;
+    } else if (MimeTypes.APPLICATION_MP4.equals(formatMimeType)) {
+      if ("stpp".equals(format.codecs)) {
+        return MimeTypes.APPLICATION_TTML;
+      }
+      if ("wvtt".equals(format.codecs)) {
+        return MimeTypes.APPLICATION_MP4VTT;
+      }
     }
+    return null;
   }
 
   /* package */ static boolean mimeTypeIsWebm(String mimeType) {
