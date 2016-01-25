@@ -60,11 +60,11 @@ public class AdtsReaderTest extends TestCase {
 
   private static final long ADTS_SAMPLE_DURATION = 23219L;
 
-  private ParsableByteArray data;
-
-  private AdtsReader adtsReader;
   private FakeTrackOutput adtsOutput;
   private FakeTrackOutput id3Output;
+  private AdtsReader adtsReader;
+  private ParsableByteArray data;
+  private boolean firstFeed;
 
   @Override
   protected void setUp() throws Exception {
@@ -72,6 +72,7 @@ public class AdtsReaderTest extends TestCase {
     id3Output = new FakeTrackOutput();
     adtsReader = new AdtsReader(adtsOutput, id3Output);
     data = new ParsableByteArray(TEST_DATA);
+    firstFeed = true;
   }
 
   public void testSkipToNextSample() throws Exception {
@@ -138,7 +139,7 @@ public class AdtsReaderTest extends TestCase {
   public void testMultiPacketConsumed() throws Exception {
     for (int i = 0; i < 10; i++) {
       data.setPosition(0);
-      adtsReader.consume(data, 0, i == 0);
+      feed();
 
       long timeUs = ADTS_SAMPLE_DURATION * i;
       int j = i * 2;
@@ -158,12 +159,21 @@ public class AdtsReaderTest extends TestCase {
   }
 
   private void feedLimited(int limit) {
+    maybeStartPacket();
     data.setLimit(limit);
     feed();
   }
 
   private void feed() {
-    adtsReader.consume(data, 0, true);
+    maybeStartPacket();
+    adtsReader.consume(data);
+  }
+
+  private void maybeStartPacket() {
+    if (firstFeed) {
+      adtsReader.packetStarted(0, true);
+      firstFeed = false;
+    }
   }
 
   private void assertSampleCounts(int id3SampleCount, int adtsSampleCount) {
