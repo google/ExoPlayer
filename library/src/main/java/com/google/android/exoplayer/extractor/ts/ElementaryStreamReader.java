@@ -34,27 +34,26 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
   /**
    * Notifies the reader that a seek has occurred.
-   * <p>
-   * Following a call to this method, the data passed to the next invocation of
-   * {@link #consume(ParsableByteArray, long, boolean)} will not be a continuation of the data that
-   * was previously passed. Hence the reader should reset any internal state.
    */
   public abstract void seek();
 
   /**
-   * Consumes (possibly partial) payload data.
+   * Invoked when a packet starts.
    *
-   * @param data The payload data to consume.
-   * @param pesTimeUs The timestamp associated with the payload.
-   * @param startOfPacket True if this is the first time this method is being called for the
-   *     current packet. False otherwise.
+   * @param pesTimeUs The timestamp associated with the packet.
+   * @param dataAlignmentIndicator The data alignment indicator associated with the packet.
    */
-  public abstract void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket);
+  public abstract void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator);
 
   /**
-   * Invoked once all of the payload data for a packet has been passed to
-   * {@link #consume(ParsableByteArray, long, boolean)}. The next call to
-   * {@link #consume(ParsableByteArray, long, boolean)} will have {@code startOfPacket == true}.
+   * Consumes (possibly partial) data from the current packet.
+   *
+   * @param data The data to consume.
+   */
+  public abstract void consume(ParsableByteArray data);
+
+  /**
+   * Invoked when a packet ends.
    */
   public abstract void packetFinished();
 
