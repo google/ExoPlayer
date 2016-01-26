@@ -16,6 +16,7 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer.SampleSource.TrackStream;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.TraceUtil;
@@ -220,9 +221,9 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void onEnabled(int track, long positionUs, boolean joining)
+  protected void onEnabled(TrackStream trackStream, long positionUs, boolean joining)
       throws ExoPlaybackException {
-    super.onEnabled(track, positionUs, joining);
+    super.onEnabled(trackStream, positionUs, joining);
     if (joining && allowedJoiningTimeUs > 0) {
       joiningDeadlineUs = SystemClock.elapsedRealtime() * 1000L + allowedJoiningTimeUs;
     }

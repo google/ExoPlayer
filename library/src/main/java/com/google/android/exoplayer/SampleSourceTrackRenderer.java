@@ -15,11 +15,10 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.SampleSource.TrackStream;
+import com.google.android.exoplayer.util.Assertions;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * Base class for {@link TrackRenderer} implementations that render samples obtained from a
@@ -27,36 +26,12 @@ import java.util.Arrays;
  */
 public abstract class SampleSourceTrackRenderer extends TrackRenderer {
 
-  private SampleSource source;
   private TrackStream trackStream;
-  private int[] handledTrackIndices;
 
   @Override
-  protected final void doPrepare(SampleSource source) throws ExoPlaybackException {
-    int sourceTrackCount = source.getTrackCount();
-    int[] handledTrackIndices = new int[sourceTrackCount];
-    int handledTrackCount = 0;
-    for (int trackIndex = 0; trackIndex < sourceTrackCount; trackIndex++) {
-      MediaFormat format = source.getFormat(trackIndex);
-      boolean handlesTrack;
-      try {
-        handlesTrack = handlesTrack(format);
-      } catch (DecoderQueryException e) {
-        throw new ExoPlaybackException(e);
-      }
-      if (handlesTrack) {
-        handledTrackIndices[handledTrackCount] = trackIndex;
-        handledTrackCount++;
-      }
-    }
-    this.source = source;
-    this.handledTrackIndices = Arrays.copyOf(handledTrackIndices, handledTrackCount);
-  }
-
-  @Override
-  protected void onEnabled(int track, long positionUs, boolean joining)
+  protected void onEnabled(TrackStream trackStream, long positionUs, boolean joining)
       throws ExoPlaybackException {
-    trackStream = source.enable(handledTrackIndices[track], positionUs);
+    this.trackStream = Assertions.checkNotNull(trackStream);
     onReset(positionUs);
   }
 
@@ -74,31 +49,13 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
 
   @Override
   protected void maybeThrowError() throws IOException {
-    if (source != null) {
-      trackStream.maybeThrowError();
-    }
+    trackStream.maybeThrowError();
   }
 
   @Override
   protected void onDisabled() throws ExoPlaybackException {
     trackStream.disable();
     trackStream = null;
-  }
-
-  @Override
-  protected void onUnprepared() {
-    source = null;
-    handledTrackIndices = null;
-  }
-
-  @Override
-  protected final int getTrackCount() {
-    return handledTrackIndices.length;
-  }
-
-  @Override
-  protected final MediaFormat getFormat(int track) {
-    return source.getFormat(handledTrackIndices[track]);
   }
 
   // Methods to be called by subclasses.
@@ -119,15 +76,6 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
   }
 
   // Abstract methods.
-
-  /**
-   * Returns whether this renderer is capable of handling the provided track.
-   *
-   * @param mediaFormat The format of the track.
-   * @return True if the renderer can handle the track, false otherwise.
-   * @throws DecoderQueryException Thrown if there was an error querying decoders.
-   */
-  protected abstract boolean handlesTrack(MediaFormat mediaFormat) throws DecoderQueryException;
 
   /**
    * Invoked when a reset is encountered. Also invoked when the renderer is enabled.

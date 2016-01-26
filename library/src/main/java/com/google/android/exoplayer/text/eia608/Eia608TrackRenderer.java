@@ -91,12 +91,6 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   }
 
   @Override
-  protected void onEnabled(int track, long positionUs, boolean joining)
-      throws ExoPlaybackException {
-    super.onEnabled(track, positionUs, joining);
-  }
-
-  @Override
   protected void onReset(long positionUs) {
     inputStreamEnded = false;
     pendingCaptionLists.clear();

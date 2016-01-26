@@ -17,26 +17,12 @@ package com.google.android.exoplayer;
 
 /**
  * A {@link TrackRenderer} that does nothing.
- * <p>
- * This renderer returns 0 from {@link #getTrackCount()} in order to request that it should be
- * ignored. {@link IllegalStateException} is thrown from all other methods documented to indicate
- * that they should not be invoked unless the renderer is prepared.
  */
 public final class DummyTrackRenderer extends TrackRenderer {
 
   @Override
-  protected void doPrepare(SampleSource sampleSource) throws ExoPlaybackException {
-    // Do nothing.
-  }
-
-  @Override
-  protected int getTrackCount() {
-    return 0;
-  }
-
-  @Override
-  protected MediaFormat getFormat(int track) {
-    throw new IllegalStateException();
+  protected boolean handlesTrack(MediaFormat mediaFormat) throws ExoPlaybackException {
+    return false;
   }
 
   @Override

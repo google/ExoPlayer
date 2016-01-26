@@ -43,6 +43,7 @@ public final class MediaCodecUtil {
    * Such failures are not expected in normal operation and are normally temporary (e.g. if the
    * mediaserver process has crashed and is yet to restart).
    */
+  // TODO[REFACTOR]: Shouldn't implement IOException.
   public static class DecoderQueryException extends IOException {
 
     private DecoderQueryException(Throwable cause) {

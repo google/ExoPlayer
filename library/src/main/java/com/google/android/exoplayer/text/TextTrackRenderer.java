@@ -160,16 +160,6 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
   }
 
   @Override
-  protected void onEnabled(int track, long positionUs, boolean joining)
-      throws ExoPlaybackException {
-    super.onEnabled(track, positionUs, joining);
-    parserIndex = getParserIndex(getFormat(track));
-    parserThread = new HandlerThread("textParser");
-    parserThread.start();
-    parserHelper = new SubtitleParserHelper(parserThread.getLooper(), subtitleParsers[parserIndex]);
-  }
-
-  @Override
   protected void onReset(long positionUs) {
     inputStreamEnded = false;
     subtitle = null;
@@ -227,7 +217,15 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
       sampleHolder.clearData();
       int result = readSource(formatHolder, sampleHolder);
       if (result == TrackStream.FORMAT_READ) {
-        parserHelper.setFormat(formatHolder.format);
+        if (parserHelper == null) {
+          // This is the first format we've seen since the renderer was enabled.
+          parserIndex = getParserIndex(formatHolder.format);
+          parserThread = new HandlerThread("textParser");
+          parserThread.start();
+          parserHelper = new SubtitleParserHelper(parserThread.getLooper(),
+              subtitleParsers[parserIndex]);
+          parserHelper.setFormat(formatHolder.format);
+        }
       } else if (result == TrackStream.SAMPLE_READ) {
         parserHelper.startParseOperation();
       } else if (result == TrackStream.END_OF_STREAM) {

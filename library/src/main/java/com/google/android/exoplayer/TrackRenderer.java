@@ -16,6 +16,7 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent;
+import com.google.android.exoplayer.SampleSource.TrackStream;
 import com.google.android.exoplayer.util.Assertions;
 
 import java.io.IOException;
@@ -34,29 +35,21 @@ import java.io.IOException;
 public abstract class TrackRenderer implements ExoPlayerComponent {
 
   /**
-   * The renderer has not yet been prepared.
+   * The renderer is idle.
    */
-  protected static final int STATE_UNPREPARED = 0;
-  /**
-   * The renderer has completed necessary preparation. Preparation may include, for example,
-   * reading the header of a media file to determine the track format and duration.
-   * <p>
-   * The renderer should not hold scarce or expensive system resources (e.g. media decoders) and
-   * should not be actively buffering media data when in this state.
-   */
-  protected static final int STATE_PREPARED = 1;
+  protected static final int STATE_IDLE = 0;
   /**
    * The renderer is enabled. It should either be ready to be started, or be actively working
    * towards this state (e.g. a renderer in this state will typically hold any resources that it
    * requires, such as media decoders, and will have buffered or be buffering any media data that
    * is required to start playback).
    */
-  protected static final int STATE_ENABLED = 2;
+  protected static final int STATE_ENABLED = 1;
   /**
    * The renderer is started. Calls to {@link #doSomeWork(long, long)} should cause the media to be
    * rendered.
    */
-  protected static final int STATE_STARTED = 3;
+  protected static final int STATE_STARTED = 2;
 
   private int state;
 
@@ -82,56 +75,27 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   }
 
   /**
-   * Prepares the renderer to read from the provided {@link SampleSource}.
-   * <p>
-   * The {@link SampleSource} must itself be prepared before it is passed to this method.
+   * Returns whether this renderer is capable of handling the provided track.
    *
-   * @param sampleSource The {@link SampleSource} from which to read.
+   * @param mediaFormat The format of the track.
+   * @return True if the renderer can handle the track, false otherwise.
    * @throws ExoPlaybackException If an error occurs.
    */
-  /* package */ final void prepare(SampleSource sampleSource) throws ExoPlaybackException {
-    Assertions.checkState(state == STATE_UNPREPARED);
-    Assertions.checkState(sampleSource.isPrepared());
-    doPrepare(sampleSource);
-    state = STATE_PREPARED;
-  }
+  protected abstract boolean handlesTrack(MediaFormat mediaFormat) throws ExoPlaybackException;
 
   /**
-   * Called when the renderer is prepared.
+   * Enable the renderer to consume from the specified {@link TrackStream}.
    *
-   * @param sampleSource The {@link SampleSource} from which to read.
-   * @throws ExoPlaybackException If an error occurs.
-   */
-  protected abstract void doPrepare(SampleSource sampleSource) throws ExoPlaybackException;
-
-  /**
-   * Returns the number of tracks exposed by the renderer.
-   *
-   * @return The number of tracks.
-   */
-  protected abstract int getTrackCount();
-
-  /**
-   * Returns the format of the specified track.
-   *
-   * @param track The track index.
-   * @return The format of the specified track.
-   */
-  protected abstract MediaFormat getFormat(int track);
-
-  /**
-   * Enable the renderer for a specified track.
-   *
-   * @param track The track for which the renderer is being enabled.
+   * @param trackStream The track stream from which the renderer should consume.
    * @param positionUs The player's current position.
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
    * @throws ExoPlaybackException If an error occurs.
    */
-  /* package */ final void enable(int track, long positionUs, boolean joining)
+  /* package */ final void enable(TrackStream trackStream, long positionUs, boolean joining)
       throws ExoPlaybackException {
-    Assertions.checkState(state == STATE_PREPARED);
+    Assertions.checkState(state == STATE_IDLE);
     state = STATE_ENABLED;
-    onEnabled(track, positionUs, joining);
+    onEnabled(trackStream, positionUs, joining);
   }
 
   /**
@@ -139,12 +103,12 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * <p>
    * The default implementation is a no-op.
    *
-   * @param track The track for which the renderer is being enabled.
+   * @param trackStream The track stream from which the renderer should consume.
    * @param positionUs The player's current position.
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onEnabled(int track, long positionUs, boolean joining)
+  protected void onEnabled(TrackStream trackStream, long positionUs, boolean joining)
       throws ExoPlaybackException {
     // Do nothing.
   }
@@ -201,7 +165,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    */
   /* package */ final void disable() throws ExoPlaybackException {
     Assertions.checkState(state == STATE_ENABLED);
-    state = STATE_PREPARED;
+    state = STATE_IDLE;
     onDisabled();
   }
 
@@ -213,28 +177,6 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * @throws ExoPlaybackException If an error occurs.
    */
   protected void onDisabled() throws ExoPlaybackException {
-    // Do nothing.
-  }
-
-  /**
-   * Unprepares the renderer.
-   *
-   * @throws ExoPlaybackException If an error occurs.
-   */
-  /* package */ final void unprepare() throws ExoPlaybackException {
-    Assertions.checkState(state == STATE_PREPARED);
-    state = STATE_UNPREPARED;
-    onUnprepared();
-  }
-
-  /**
-   * Called when the renderer is unprepared.
-   * <p>
-   * The default implementation is a no-op.
-   *
-   * @throws ExoPlaybackException If an error occurs.
-   */
-  protected void onUnprepared() throws ExoPlaybackException {
     // Do nothing.
   }
 

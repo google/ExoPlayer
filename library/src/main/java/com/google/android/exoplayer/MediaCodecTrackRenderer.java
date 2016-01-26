@@ -262,8 +262,12 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   @Override
-  protected final boolean handlesTrack(MediaFormat mediaFormat) throws DecoderQueryException {
-    return handlesTrack(mediaCodecSelector, mediaFormat);
+  protected final boolean handlesTrack(MediaFormat mediaFormat) throws ExoPlaybackException {
+    try {
+      return handlesTrack(mediaCodecSelector, mediaFormat);
+    } catch (DecoderQueryException e) {
+      throw new ExoPlaybackException(e);
+    }
   }
 
   /**
