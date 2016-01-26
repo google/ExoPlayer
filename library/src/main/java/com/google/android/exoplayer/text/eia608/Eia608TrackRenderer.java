@@ -20,7 +20,7 @@ import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SampleSource.TrackStream;
 import com.google.android.exoplayer.SampleSourceTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.text.Cue;
@@ -68,7 +68,6 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   private String lastRenderedCaption;
 
   /**
-   * @param source A source from which samples containing EIA-608 closed captions can be read.
    * @param textRenderer The text renderer.
    * @param textRendererLooper The looper associated with the thread on which textRenderer should be
    *     invoked. If the renderer makes use of standard Android UI components, then this should
@@ -76,9 +75,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
    *     obtained using {@link android.app.Activity#getMainLooper()}. Null may be passed if the
    *     renderer should be invoked directly on the player's internal rendering thread.
    */
-  public Eia608TrackRenderer(SampleSource source, TextRenderer textRenderer,
-      Looper textRendererLooper) {
-    super(source);
+  public Eia608TrackRenderer(TextRenderer textRenderer, Looper textRendererLooper) {
     this.textRenderer = Assertions.checkNotNull(textRenderer);
     textRendererHandler = textRendererLooper == null ? null : new Handler(textRendererLooper, this);
     eia608Parser = new Eia608Parser();
@@ -100,7 +97,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   }
 
   @Override
-  protected void onDiscontinuity(long positionUs) {
+  protected void onReset(long positionUs) {
     inputStreamEnded = false;
     pendingCaptionLists.clear();
     clearPendingSample();
@@ -116,12 +113,12 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
       maybeParsePendingSample(positionUs);
     }
 
-    int result = inputStreamEnded ? SampleSource.END_OF_STREAM : SampleSource.SAMPLE_READ;
-    while (!isSamplePending() && result == SampleSource.SAMPLE_READ) {
-      result = readSource(positionUs, formatHolder, sampleHolder);
-      if (result == SampleSource.SAMPLE_READ) {
+    int result = inputStreamEnded ? TrackStream.END_OF_STREAM : TrackStream.SAMPLE_READ;
+    while (!isSamplePending() && result == TrackStream.SAMPLE_READ) {
+      result = readSource(formatHolder, sampleHolder);
+      if (result == TrackStream.SAMPLE_READ) {
         maybeParsePendingSample(positionUs);
-      } else if (result == SampleSource.END_OF_STREAM) {
+      } else if (result == TrackStream.END_OF_STREAM) {
         inputStreamEnded = true;
       }
     }
@@ -139,11 +136,6 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
         invokeRenderer(caption);
       }
     }
-  }
-
-  @Override
-  protected long getBufferedPositionUs() {
-    return TrackRenderer.END_OF_TRACK_US;
   }
 
   @Override

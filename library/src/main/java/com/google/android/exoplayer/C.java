@@ -27,15 +27,14 @@ import android.media.MediaExtractor;
 public final class C {
 
   /**
-   * Represents an unknown microsecond time or duration.
+   * Special microsecond constant representing an unknown time or duration.
    */
   public static final long UNKNOWN_TIME_US = -1L;
 
   /**
-   * Represents a microsecond duration whose exact value is unknown, but which should match the
-   * longest of some other known durations.
+   * Special microsecond constant representing the end of a source.
    */
-  public static final long MATCH_LONGEST_US = -2L;
+  public static final long END_OF_SOURCE_US = -2L;
 
   /**
    * The number of microseconds in one second.

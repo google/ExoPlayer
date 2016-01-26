@@ -21,8 +21,6 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
-import com.google.android.exoplayer.SampleSource.SampleSourceReader;
-import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
@@ -42,7 +40,7 @@ import java.util.LinkedList;
 /**
  * A {@link SampleSource} for HLS streams.
  */
-public final class HlsSampleSource implements SampleSource, SampleSourceReader, Loader.Callback {
+public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   /**
    * Interface definition for a callback to be notified of {@link HlsSampleSource} events.
@@ -72,7 +70,6 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   private final Handler eventHandler;
   private final EventListener eventListener;
 
-  private int remainingReleaseCount;
   private boolean prepared;
   private boolean loadControlRegistered;
   private int trackCount;
@@ -84,7 +81,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   // Indexed by track (as exposed by this source).
   private MediaFormat[] trackFormats;
   private boolean[] trackEnabledStates;
-  private boolean[] pendingDiscontinuities;
+  private boolean[] pendingResets;
   private MediaFormat[] downstreamMediaFormats;
   // Maps track index (as exposed by this source) to the corresponding chunk source track index for
   // primary tracks, or to -1 otherwise.
@@ -137,16 +134,11 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   }
 
   @Override
-  public SampleSourceReader register() {
-    remainingReleaseCount++;
-    return this;
-  }
-
-  @Override
-  public boolean prepare(long positionUs) {
+  public boolean prepare(long positionUs) throws IOException {
     if (prepared) {
       return true;
     } else if (!chunkSource.prepare()) {
+      maybeThrowError();
       return false;
     }
     if (!extractors.isEmpty()) {
@@ -179,7 +171,18 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       downstreamPositionUs = positionUs;
     }
     maybeStartLoading();
+    maybeThrowError();
     return false;
+  }
+
+  @Override
+  public boolean isPrepared() {
+    return prepared;
+  }
+
+  @Override
+  public long getDurationUs() {
+    return chunkSource.getDurationUs();
   }
 
   @Override
@@ -195,11 +198,11 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   }
 
   @Override
-  public void enable(int track, long positionUs) {
+  public TrackStream enable(int track, long positionUs) {
     Assertions.checkState(prepared);
     setTrackEnabledState(track, true);
     downstreamMediaFormats[track] = null;
-    pendingDiscontinuities[track] = false;
+    pendingResets[track] = false;
     downstreamFormat = null;
     boolean wasLoadControlRegistered = loadControlRegistered;
     if (!loadControlRegistered) {
@@ -216,9 +219,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       // renderers receive a discontinuity event.
       chunkSource.selectTrack(chunkSourceTrack);
       seekToInternal(positionUs);
-      return;
-    }
-    if (enabledTrackCount == 1) {
+    } else if (enabledTrackCount == 1) {
       lastSeekPositionUs = positionUs;
       if (wasLoadControlRegistered && downstreamPositionUs == positionUs) {
         // TODO: Address [Internal: b/21743989] to remove the need for this kind of hack.
@@ -231,10 +232,10 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
         restartFrom(positionUs);
       }
     }
+    return new TrackStreamImpl(track);
   }
 
-  @Override
-  public void disable(int track) {
+  /* package */ void disable(int track) {
     Assertions.checkState(prepared);
     setTrackEnabledState(track, false);
     if (enabledTrackCount == 0) {
@@ -254,14 +255,20 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   }
 
   @Override
-  public boolean continueBuffering(int track, long playbackPositionUs) {
+  public void continueBuffering(long playbackPositionUs) {
     Assertions.checkState(prepared);
-    Assertions.checkState(trackEnabledStates[track]);
+    if (enabledTrackCount == 0) {
+      return;
+    }
     downstreamPositionUs = playbackPositionUs;
     if (!extractors.isEmpty()) {
       discardSamplesForDisabledTracks(getCurrentExtractor(), downstreamPositionUs);
     }
     maybeStartLoading();
+  }
+
+  /* package */ boolean isReady(int track) {
+    Assertions.checkState(trackEnabledStates[track]);
     if (loadingFinished) {
       return true;
     }
@@ -281,28 +288,24 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     return false;
   }
 
-  @Override
-  public long readDiscontinuity(int track) {
-    if (pendingDiscontinuities[track]) {
-      pendingDiscontinuities[track] = false;
+  /* package */ long readReset(int track) {
+    if (pendingResets[track]) {
+      pendingResets[track] = false;
       return lastSeekPositionUs;
     }
-    return NO_DISCONTINUITY;
+    return TrackStream.NO_RESET;
   }
 
-  @Override
-  public int readData(int track, long playbackPositionUs, MediaFormatHolder formatHolder,
-      SampleHolder sampleHolder) {
+  /* package */ int readData(int track, MediaFormatHolder formatHolder, SampleHolder sampleHolder) {
     Assertions.checkState(prepared);
-    downstreamPositionUs = playbackPositionUs;
 
-    if (pendingDiscontinuities[track] || isPendingReset()) {
-      return NOTHING_READ;
+    if (pendingResets[track] || isPendingReset()) {
+      return TrackStream.NOTHING_READ;
     }
 
     HlsExtractorWrapper extractor = getCurrentExtractor();
     if (!extractor.isPrepared()) {
-      return NOTHING_READ;
+      return TrackStream.NOTHING_READ;
     }
 
     if (downstreamFormat == null || !downstreamFormat.equals(extractor.format)) {
@@ -324,7 +327,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       // next one for the current read.
       extractor = extractors.get(++extractorIndex);
       if (!extractor.isPrepared()) {
-        return NOTHING_READ;
+        return TrackStream.NOTHING_READ;
       }
     }
 
@@ -332,24 +335,23 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     if (mediaFormat != null && !mediaFormat.equals(downstreamMediaFormats[track])) {
       formatHolder.format = mediaFormat;
       downstreamMediaFormats[track] = mediaFormat;
-      return FORMAT_READ;
+      return TrackStream.FORMAT_READ;
     }
 
     if (extractor.getSample(extractorTrack, sampleHolder)) {
       boolean decodeOnly = sampleHolder.timeUs < lastSeekPositionUs;
       sampleHolder.flags |= decodeOnly ? C.SAMPLE_FLAG_DECODE_ONLY : 0;
-      return SAMPLE_READ;
+      return TrackStream.SAMPLE_READ;
     }
 
     if (loadingFinished) {
-      return END_OF_STREAM;
+      return TrackStream.END_OF_STREAM;
     }
 
-    return NOTHING_READ;
+    return TrackStream.NOTHING_READ;
   }
 
-  @Override
-  public void maybeThrowError() throws IOException {
+  /* package */ void maybeThrowError() throws IOException {
     if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
       throw currentLoadableException;
     } else if (currentLoadable == null) {
@@ -360,29 +362,21 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   @Override
   public void seekToUs(long positionUs) {
     Assertions.checkState(prepared);
-    Assertions.checkState(enabledTrackCount > 0);
-    // Treat all seeks into live streams as being to t=0.
-    positionUs = chunkSource.isLive() ? 0 : positionUs;
-
-    // Ignore seeks to the current position.
-    long currentPositionUs = isPendingReset() ? pendingResetPositionUs : downstreamPositionUs;
-    downstreamPositionUs = positionUs;
-    lastSeekPositionUs = positionUs;
-    if (currentPositionUs == positionUs) {
+    if (enabledTrackCount == 0) {
       return;
     }
-
-    seekToInternal(positionUs);
+    seekToInternal(chunkSource.isLive() ? 0 : positionUs);
   }
 
   @Override
   public long getBufferedPositionUs() {
     Assertions.checkState(prepared);
-    Assertions.checkState(enabledTrackCount > 0);
-    if (isPendingReset()) {
+    if (enabledTrackCount == 0) {
+      return C.END_OF_SOURCE_US;
+    } else if (isPendingReset()) {
       return pendingResetPositionUs;
     } else if (loadingFinished) {
-      return TrackRenderer.END_OF_TRACK_US;
+      return C.END_OF_SOURCE_US;
     } else {
       long largestParsedTimestampUs = extractors.getLast().getLargestParsedTimestampUs();
       if (extractors.size() > 1) {
@@ -398,8 +392,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
 
   @Override
   public void release() {
-    Assertions.checkState(remainingReleaseCount > 0);
-    if (--remainingReleaseCount == 0 && loader != null) {
+    if (loader != null) {
       if (loadControlRegistered) {
         loadControl.unregister(this);
         loadControlRegistered = false;
@@ -407,6 +400,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       loader.release();
       loader = null;
     }
+    prepared = false;
   }
 
   // Loader.Callback implementation.
@@ -531,7 +525,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     // Instantiate the necessary internal data-structures.
     trackFormats = new MediaFormat[trackCount];
     trackEnabledStates = new boolean[trackCount];
-    pendingDiscontinuities = new boolean[trackCount];
+    pendingResets = new boolean[trackCount];
     downstreamMediaFormats = new MediaFormat[trackCount];
     chunkSourceTrackIndices = new int[trackCount];
     extractorTrackIndices = new int[trackCount];
@@ -596,7 +590,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   private void seekToInternal(long positionUs) {
     lastSeekPositionUs = positionUs;
     downstreamPositionUs = positionUs;
-    Arrays.fill(pendingDiscontinuities, true);
+    Arrays.fill(pendingResets, true);
     chunkSource.seek();
     restartFrom(positionUs);
   }
@@ -821,6 +815,41 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
         }
       });
     }
+  }
+
+  private final class TrackStreamImpl implements TrackStream {
+
+    private final int track;
+
+    public TrackStreamImpl(int track) {
+      this.track = track;
+    }
+
+    @Override
+    public boolean isReady() {
+      return HlsSampleSource.this.isReady(track);
+    }
+
+    @Override
+    public void maybeThrowError() throws IOException {
+      HlsSampleSource.this.maybeThrowError();
+    }
+
+    @Override
+    public long readReset() {
+      return HlsSampleSource.this.readReset(track);
+    }
+
+    @Override
+    public int readData(MediaFormatHolder formatHolder, SampleHolder sampleHolder) {
+      return HlsSampleSource.this.readData(track, formatHolder, sampleHolder);
+    }
+
+    @Override
+    public void disable() {
+      HlsSampleSource.this.disable(track);
+    }
+
   }
 
 }

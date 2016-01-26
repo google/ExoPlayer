@@ -13,13 +13,3 @@
 // limitations under the License.
 include ':library'
 include ':demo'
-include ':demo-misc-vp9-opus-sw'
-include ':playbacktests'
-include ':extension-opus'
-include ':extension-vp9'
-include ':extension-okhttp'
-
-project(':demo-misc-vp9-opus-sw').projectDir = new File(settingsDir, 'demo_misc/vp9_opus_sw')
-project(':extension-opus').projectDir = new File(settingsDir, 'extensions/opus')
-project(':extension-vp9').projectDir = new File(settingsDir, 'extensions/vp9')
-project(':extension-okhttp').projectDir = new File(settingsDir, 'extensions/okhttp')

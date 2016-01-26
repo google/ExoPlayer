@@ -85,7 +85,7 @@ import android.os.Looper;
  *
  * <p>The possible playback state transitions are shown below. Transitions can be triggered either
  * by changes in the state of the {@link TrackRenderer}s being used, or as a result of
- * {@link #prepare(TrackRenderer[])}, {@link #stop()} or {@link #release()} being invoked.</p>
+ * {@link #prepare(SampleSource)}, {@link #stop()} or {@link #release()} being invoked.</p>
  * <p align="center"><img src="../../../../../images/exoplayer_playbackstate.png"
  *     alt="ExoPlayer playback state transitions"
  *     border="0"/></p>
@@ -95,7 +95,7 @@ public interface ExoPlayer {
   /**
    * A factory for instantiating ExoPlayer instances.
    */
-  public static final class Factory {
+  static final class Factory {
 
     /**
      * The default minimum duration of data that must be buffered for playback to start or resume
@@ -117,16 +117,16 @@ public interface ExoPlayer {
      * <p>
      * Must be invoked from a thread that has an associated {@link Looper}.
      *
-     * @param rendererCount The number of {@link TrackRenderer}s that will be passed to
-     *     {@link #prepare(TrackRenderer[])}.
+     * @param renderers The {@link TrackRenderer}s that will be used by the instance.
      * @param minBufferMs A minimum duration of data that must be buffered for playback to start
      *     or resume following a user action such as a seek.
      * @param minRebufferMs A minimum duration of data that must be buffered for playback to resume
      *     after a player invoked rebuffer (i.e. a rebuffer that occurs due to buffer depletion, and
      *     not due to a user action such as starting playback or seeking).
      */
-    public static ExoPlayer newInstance(int rendererCount, int minBufferMs, int minRebufferMs) {
-      return new ExoPlayerImpl(rendererCount, minBufferMs, minRebufferMs);
+    public static ExoPlayer newInstance(TrackRenderer[] renderers, int minBufferMs,
+        int minRebufferMs) {
+      return new ExoPlayerImpl(renderers, minBufferMs, minRebufferMs);
     }
 
     /**
@@ -134,11 +134,10 @@ public interface ExoPlayer {
      * <p>
      * Must be invoked from a thread that has an associated {@link Looper}.
      *
-     * @param rendererCount The number of {@link TrackRenderer}s that will be passed to
-     *     {@link #prepare(TrackRenderer[])}.
+     * @param renderers The {@link TrackRenderer}s that will be used by the instance.
      */
-    public static ExoPlayer newInstance(int rendererCount) {
-      return new ExoPlayerImpl(rendererCount, DEFAULT_MIN_BUFFER_MS, DEFAULT_MIN_REBUFFER_MS);
+    public static ExoPlayer newInstance(TrackRenderer... renderers) {
+      return new ExoPlayerImpl(renderers, DEFAULT_MIN_BUFFER_MS, DEFAULT_MIN_REBUFFER_MS);
     }
 
   }
@@ -146,7 +145,7 @@ public interface ExoPlayer {
   /**
    * Interface definition for a callback to be notified of changes in player state.
    */
-  public interface Listener {
+  interface Listener {
     /**
      * Invoked when the value returned from either {@link ExoPlayer#getPlayWhenReady()} or
      * {@link ExoPlayer#getPlaybackState()} changes.
@@ -183,7 +182,7 @@ public interface ExoPlayer {
    * Messages can be delivered to a component via {@link ExoPlayer#sendMessage} and
    * {@link ExoPlayer#blockingSendMessage}.
    */
-  public interface ExoPlayerComponent {
+  interface ExoPlayerComponent {
 
     /**
      * Handles a message delivered to the component. Invoked on the playback thread.
@@ -199,49 +198,49 @@ public interface ExoPlayer {
   /**
    * The player is neither prepared or being prepared.
    */
-  public static final int STATE_IDLE = 1;
+  static final int STATE_IDLE = 1;
   /**
    * The player is being prepared.
    */
-  public static final int STATE_PREPARING = 2;
+  static final int STATE_PREPARING = 2;
   /**
    * The player is prepared but not able to immediately play from the current position. The cause
    * is {@link TrackRenderer} specific, but this state typically occurs when more data needs
    * to be buffered for playback to start.
    */
-  public static final int STATE_BUFFERING = 3;
+  static final int STATE_BUFFERING = 3;
   /**
    * The player is prepared and able to immediately play from the current position. The player will
    * be playing if {@link #setPlayWhenReady(boolean)} returns true, and paused otherwise.
    */
-  public static final int STATE_READY = 4;
+  static final int STATE_READY = 4;
   /**
    * The player has finished playing the media.
    */
-  public static final int STATE_ENDED = 5;
+  static final int STATE_ENDED = 5;
 
   /**
    * A value that can be passed as the second argument to {@link #setSelectedTrack(int, int)} to
    * disable the renderer.
    */
-  public static final int TRACK_DISABLED = -1;
+  static final int TRACK_DISABLED = -1;
   /**
    * A value that can be passed as the second argument to {@link #setSelectedTrack(int, int)} to
    * select the default track.
    */
-  public static final int TRACK_DEFAULT = 0;
+  static final int TRACK_DEFAULT = 0;
 
   /**
    * Represents an unknown time or duration.
    */
-  public static final long UNKNOWN_TIME = -1;
+  static final long UNKNOWN_TIME = -1;
 
   /**
    * Gets the {@link Looper} associated with the playback thread.
    *
    * @return The {@link Looper} associated with the playback thread.
    */
-  public Looper getPlaybackLooper();
+  Looper getPlaybackLooper();
 
   /**
    * Register a listener to receive events from the player. The listener's methods will be invoked
@@ -249,29 +248,28 @@ public interface ExoPlayer {
    *
    * @param listener The listener to register.
    */
-  public void addListener(Listener listener);
+  void addListener(Listener listener);
 
   /**
    * Unregister a listener. The listener will no longer receive events from the player.
    *
    * @param listener The listener to unregister.
    */
-  public void removeListener(Listener listener);
+  void removeListener(Listener listener);
 
   /**
    * Returns the current state of the player.
    *
    * @return One of the {@code STATE} constants defined in this interface.
    */
-  public int getPlaybackState();
+  int getPlaybackState();
 
   /**
    * Prepares the player for playback.
    *
-   * @param renderers The {@link TrackRenderer}s to use. The number of renderers must match the
-   *     value that was passed to the {@link ExoPlayer.Factory#newInstance} method.
+   * @param sampleSource The {@link SampleSource} to play.
    */
-  public void prepare(TrackRenderer... renderers);
+  void prepare(SampleSource sampleSource);
 
   /**
    * Returns the number of tracks exposed by the specified renderer.
@@ -279,7 +277,7 @@ public interface ExoPlayer {
    * @param rendererIndex The index of the renderer.
    * @return The number of tracks.
    */
-  public int getTrackCount(int rendererIndex);
+  int getTrackCount(int rendererIndex);
 
   /**
    * Returns the format of a track.
@@ -288,7 +286,7 @@ public interface ExoPlayer {
    * @param trackIndex The index of the track.
    * @return The format of the track.
    */
-  public MediaFormat getTrackFormat(int rendererIndex, int trackIndex);
+  MediaFormat getTrackFormat(int rendererIndex, int trackIndex);
 
   /**
    * Selects a track for the specified renderer.
@@ -297,7 +295,7 @@ public interface ExoPlayer {
    * @param trackIndex The index of the track. A negative value or a value greater than or equal to
    *     the renderer's track count will disable the renderer.
    */
-  public void setSelectedTrack(int rendererIndex, int trackIndex);
+  void setSelectedTrack(int rendererIndex, int trackIndex);
 
   /**
    * Returns the index of the currently selected track for the specified renderer.
@@ -306,7 +304,7 @@ public interface ExoPlayer {
    * @return The selected track. A negative value or a value greater than or equal to the renderer's
    *     track count indicates that the renderer is disabled.
    */
-  public int getSelectedTrack(int rendererIndex);
+  int getSelectedTrack(int rendererIndex);
 
   /**
    * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.
@@ -315,14 +313,14 @@ public interface ExoPlayer {
    *
    * @param playWhenReady Whether playback should proceed when ready.
    */
-  public void setPlayWhenReady(boolean playWhenReady);
+  void setPlayWhenReady(boolean playWhenReady);
 
   /**
    * Whether playback will proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.
    *
    * @return Whether playback will proceed when ready.
    */
-  public boolean getPlayWhenReady();
+  boolean getPlayWhenReady();
 
   /**
    * Whether the current value of {@link ExoPlayer#getPlayWhenReady()} has been reflected by the
@@ -330,14 +328,14 @@ public interface ExoPlayer {
    *
    * @return True if the current value has been reflected. False otherwise.
    */
-  public boolean isPlayWhenReadyCommitted();
+  boolean isPlayWhenReadyCommitted();
 
   /**
    * Seeks to a position specified in milliseconds.
    *
    * @param positionMs The seek position.
    */
-  public void seekTo(long positionMs);
+  void seekTo(long positionMs);
 
   /**
    * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention
@@ -351,14 +349,14 @@ public interface ExoPlayer {
    * to play another video from its start, then {@code seekTo(0)} should be called after stopping
    * the player and before preparing it for the next video.
    */
-  public void stop();
+  void stop();
 
   /**
    * Releases the player. This method must be called when the player is no longer required.
    * <p>
    * The player must not be used after calling this method.
    */
-  public void release();
+  void release();
 
   /**
    * Sends a message to a specified component. The message is delivered to the component on the
@@ -369,7 +367,7 @@ public interface ExoPlayer {
    * @param messageType An integer that can be used to identify the type of the message.
    * @param message The message object.
    */
-  public void sendMessage(ExoPlayerComponent target, int messageType, Object message);
+  void sendMessage(ExoPlayerComponent target, int messageType, Object message);
 
   /**
    * Blocking variant of {@link #sendMessage(ExoPlayerComponent, int, Object)} that does not return
@@ -379,7 +377,7 @@ public interface ExoPlayer {
    * @param messageType An integer that can be used to identify the type of the message.
    * @param message The message object.
    */
-  public void blockingSendMessage(ExoPlayerComponent target, int messageType, Object message);
+  void blockingSendMessage(ExoPlayerComponent target, int messageType, Object message);
 
   /**
    * Gets the duration of the track in milliseconds.
@@ -387,14 +385,14 @@ public interface ExoPlayer {
    * @return The duration of the track in milliseconds, or {@link ExoPlayer#UNKNOWN_TIME} if the
    *     duration is not known.
    */
-  public long getDuration();
+  long getDuration();
 
   /**
    * Gets the current playback position in milliseconds.
    *
    * @return The current playback position in milliseconds.
    */
-  public long getCurrentPosition();
+  long getCurrentPosition();
 
   /**
    * Gets an estimate of the absolute position in milliseconds up to which data is buffered.
@@ -402,7 +400,7 @@ public interface ExoPlayer {
    * @return An estimate of the absolute position in milliseconds up to which data is buffered,
    *     or {@link ExoPlayer#UNKNOWN_TIME} if no estimate is available.
    */
-  public long getBufferedPosition();
+  long getBufferedPosition();
 
   /**
    * Gets an estimate of the percentage into the media up to which data is buffered.
@@ -410,6 +408,6 @@ public interface ExoPlayer {
    * @return An estimate of the percentage into the media up to which data is buffered. 0 if the
    *     duration of the media is not known or if no estimate is available.
    */
-  public int getBufferedPercentage();
+  int getBufferedPercentage();
 
 }

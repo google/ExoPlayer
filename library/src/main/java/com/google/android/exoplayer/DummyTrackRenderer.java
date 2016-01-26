@@ -25,8 +25,8 @@ package com.google.android.exoplayer;
 public final class DummyTrackRenderer extends TrackRenderer {
 
   @Override
-  protected boolean doPrepare(long positionUs) throws ExoPlaybackException {
-    return true;
+  protected void doPrepare(SampleSource sampleSource) throws ExoPlaybackException {
+    // Do nothing.
   }
 
   @Override
@@ -50,27 +50,12 @@ public final class DummyTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected void seekTo(long positionUs) {
-    throw new IllegalStateException();
-  }
-
-  @Override
   protected void doSomeWork(long positionUs, long elapsedRealtimeUs) {
     throw new IllegalStateException();
   }
 
   @Override
   protected void maybeThrowError() {
-    throw new IllegalStateException();
-  }
-
-  @Override
-  protected long getDurationUs() {
-    throw new IllegalStateException();
-  }
-
-  @Override
-  protected long getBufferedPositionUs() {
     throw new IllegalStateException();
   }
 

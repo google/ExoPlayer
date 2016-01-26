@@ -21,8 +21,7 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
-import com.google.android.exoplayer.SampleSource.SampleSourceReader;
-import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.SampleSource.TrackStream;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
@@ -40,7 +39,7 @@ import java.util.List;
  * A {@link SampleSource} that loads media in {@link Chunk}s, which are themselves obtained from a
  * {@link ChunkSource}.
  */
-public class ChunkSampleSource implements SampleSource, SampleSourceReader, Loader.Callback {
+public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Callback {
 
   /**
    * Interface definition for a callback to be notified of {@link ChunkSampleSource} events.
@@ -53,9 +52,8 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
   private static final int STATE_IDLE = 0;
-  private static final int STATE_INITIALIZED = 1;
-  private static final int STATE_PREPARED = 2;
-  private static final int STATE_ENABLED = 3;
+  private static final int STATE_PREPARED = 1;
+  private static final int STATE_ENABLED = 2;
 
   private static final long NO_RESET_PENDING = Long.MIN_VALUE;
 
@@ -76,8 +74,9 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   private long lastSeekPositionUs;
   private long pendingResetPositionUs;
   private long lastPerformedBufferOperation;
-  private boolean pendingDiscontinuity;
+  private boolean pendingReset;
 
+  private long durationUs;
   private Loader loader;
   private boolean loadingFinished;
   private IOException currentLoadableException;
@@ -145,41 +144,47 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   }
 
   @Override
-  public SampleSourceReader register() {
-    Assertions.checkState(state == STATE_IDLE);
-    state = STATE_INITIALIZED;
-    return this;
-  }
-
-  @Override
-  public boolean prepare(long positionUs) {
-    Assertions.checkState(state == STATE_INITIALIZED || state == STATE_PREPARED);
-    if (state == STATE_PREPARED) {
+  public boolean prepare(long positionUs) throws IOException {
+    if (state != STATE_IDLE) {
       return true;
-    } else if (!chunkSource.prepare()) {
+    }
+    if (!chunkSource.prepare()) {
+      maybeThrowError();
       return false;
     }
+    durationUs = C.UNKNOWN_TIME_US;
     if (chunkSource.getTrackCount() > 0) {
       loader = new Loader("Loader:" + chunkSource.getFormat(0).mimeType);
+      durationUs = chunkSource.getFormat(0).durationUs;
     }
     state = STATE_PREPARED;
     return true;
   }
 
   @Override
+  public boolean isPrepared() {
+    return state != STATE_IDLE;
+  }
+
+  @Override
+  public long getDurationUs() {
+    return durationUs;
+  }
+
+  @Override
   public int getTrackCount() {
-    Assertions.checkState(state == STATE_PREPARED || state == STATE_ENABLED);
+    Assertions.checkState(state != STATE_IDLE);
     return chunkSource.getTrackCount();
   }
 
   @Override
   public MediaFormat getFormat(int track) {
-    Assertions.checkState(state == STATE_PREPARED || state == STATE_ENABLED);
+    Assertions.checkState(state != STATE_IDLE);
     return chunkSource.getFormat(track);
   }
 
   @Override
-  public void enable(int track, long positionUs) {
+  public TrackStream enable(int track, long positionUs) {
     Assertions.checkState(state == STATE_PREPARED);
     Assertions.checkState(enabledTrackCount++ == 0);
     state = STATE_ENABLED;
@@ -189,12 +194,13 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
     downstreamMediaFormat = null;
     downstreamPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
-    pendingDiscontinuity = false;
+    pendingReset = false;
     restartFrom(positionUs);
+    return this;
   }
 
   @Override
-  public void disable(int track) {
+  public void disable() {
     Assertions.checkState(state == STATE_ENABLED);
     Assertions.checkState(--enabledTrackCount == 0);
     state = STATE_PREPARED;
@@ -214,30 +220,35 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
   }
 
   @Override
-  public boolean continueBuffering(int track, long positionUs) {
-    Assertions.checkState(state == STATE_ENABLED);
+  public void continueBuffering(long positionUs) {
+    Assertions.checkState(state != STATE_IDLE);
+    if (state == STATE_PREPARED) {
+      return;
+    }
     downstreamPositionUs = positionUs;
     chunkSource.continueBuffering(positionUs);
     updateLoadControl();
+  }
+
+  @Override
+  public boolean isReady() {
+    Assertions.checkState(state == STATE_ENABLED);
     return loadingFinished || !sampleQueue.isEmpty();
   }
 
   @Override
-  public long readDiscontinuity(int track) {
-    if (pendingDiscontinuity) {
-      pendingDiscontinuity = false;
+  public long readReset() {
+    if (pendingReset) {
+      pendingReset = false;
       return lastSeekPositionUs;
     }
-    return NO_DISCONTINUITY;
+    return TrackStream.NO_RESET;
   }
 
   @Override
-  public int readData(int track, long positionUs, MediaFormatHolder formatHolder,
-      SampleHolder sampleHolder) {
+  public int readData(MediaFormatHolder formatHolder, SampleHolder sampleHolder) {
     Assertions.checkState(state == STATE_ENABLED);
-    downstreamPositionUs = positionUs;
-
-    if (pendingDiscontinuity || isPendingReset()) {
+    if (pendingReset || isPendingReset()) {
       return NOTHING_READ;
     }
 
@@ -284,15 +295,12 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
 
   @Override
   public void seekToUs(long positionUs) {
-    Assertions.checkState(state == STATE_ENABLED);
-
-    long currentPositionUs = isPendingReset() ? pendingResetPositionUs : downstreamPositionUs;
-    downstreamPositionUs = positionUs;
-    lastSeekPositionUs = positionUs;
-    if (currentPositionUs == positionUs) {
+    Assertions.checkState(state != STATE_IDLE);
+    if (state == STATE_PREPARED) {
       return;
     }
-
+    downstreamPositionUs = positionUs;
+    lastSeekPositionUs = positionUs;
     // If we're not pending a reset, see if we can seek within the sample queue.
     boolean seekInsideBuffer = !isPendingReset() && sampleQueue.skipToKeyframeBefore(positionUs);
     if (seekInsideBuffer) {
@@ -307,7 +315,7 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
       restartFrom(positionUs);
     }
     // Either way, we need to send a discontinuity to the downstream components.
-    pendingDiscontinuity = true;
+    pendingReset = true;
   }
 
   @Override
@@ -321,11 +329,11 @@ public class ChunkSampleSource implements SampleSource, SampleSourceReader, Load
 
   @Override
   public long getBufferedPositionUs() {
-    Assertions.checkState(state == STATE_ENABLED);
-    if (isPendingReset()) {
+    Assertions.checkState(state != STATE_IDLE);
+    if (state != STATE_ENABLED || loadingFinished) {
+      return C.END_OF_SOURCE_US;
+    } else if (isPendingReset()) {
       return pendingResetPositionUs;
-    } else if (loadingFinished) {
-      return TrackRenderer.END_OF_TRACK_US;
     } else {
       long largestParsedTimestampUs = sampleQueue.getLargestParsedTimestampUs();
       return largestParsedTimestampUs == Long.MIN_VALUE ? downstreamPositionUs

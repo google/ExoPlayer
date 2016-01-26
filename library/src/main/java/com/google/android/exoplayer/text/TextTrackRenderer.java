@@ -19,7 +19,7 @@ import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SampleSource.TrackStream;
 import com.google.android.exoplayer.SampleSourceTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.util.Assertions;
@@ -124,7 +124,6 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
   private int nextSubtitleEventIndex;
 
   /**
-   * @param source A source from which samples containing subtitle data can be read.
    * @param textRenderer The text renderer.
    * @param textRendererLooper The looper associated with the thread on which textRenderer should be
    *     invoked. If the renderer makes use of standard Android UI components, then this should
@@ -134,25 +133,8 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
    * @param subtitleParsers {@link SubtitleParser}s to parse text samples, in order of decreasing
    *     priority. If omitted, the default parsers will be used.
    */
-  public TextTrackRenderer(SampleSource source, TextRenderer textRenderer,
-      Looper textRendererLooper, SubtitleParser... subtitleParsers) {
-    this(new SampleSource[] {source}, textRenderer, textRendererLooper, subtitleParsers);
-  }
-
-  /**
-   * @param sources Sources from which samples containing subtitle data can be read.
-   * @param textRenderer The text renderer.
-   * @param textRendererLooper The looper associated with the thread on which textRenderer should be
-   *     invoked. If the renderer makes use of standard Android UI components, then this should
-   *     normally be the looper associated with the applications' main thread, which can be
-   *     obtained using {@link android.app.Activity#getMainLooper()}. Null may be passed if the
-   *     renderer should be invoked directly on the player's internal rendering thread.
-   * @param subtitleParsers {@link SubtitleParser}s to parse text samples, in order of decreasing
-   *     priority. If omitted, the default parsers will be used.
-   */
-  public TextTrackRenderer(SampleSource[] sources, TextRenderer textRenderer,
-      Looper textRendererLooper, SubtitleParser... subtitleParsers) {
-    super(sources);
+  public TextTrackRenderer(TextRenderer textRenderer, Looper textRendererLooper,
+      SubtitleParser... subtitleParsers) {
     this.textRenderer = Assertions.checkNotNull(textRenderer);
     this.textRendererHandler = textRendererLooper == null ? null
         : new Handler(textRendererLooper, this);
@@ -188,7 +170,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
   }
 
   @Override
-  protected void onDiscontinuity(long positionUs) {
+  protected void onReset(long positionUs) {
     inputStreamEnded = false;
     subtitle = null;
     nextSubtitle = null;
@@ -243,12 +225,12 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
       // Try and read the next subtitle from the source.
       SampleHolder sampleHolder = parserHelper.getSampleHolder();
       sampleHolder.clearData();
-      int result = readSource(positionUs, formatHolder, sampleHolder);
-      if (result == SampleSource.FORMAT_READ) {
+      int result = readSource(formatHolder, sampleHolder);
+      if (result == TrackStream.FORMAT_READ) {
         parserHelper.setFormat(formatHolder.format);
-      } else if (result == SampleSource.SAMPLE_READ) {
+      } else if (result == TrackStream.SAMPLE_READ) {
         parserHelper.startParseOperation();
-      } else if (result == SampleSource.END_OF_STREAM) {
+      } else if (result == TrackStream.END_OF_STREAM) {
         inputStreamEnded = true;
       }
     }
@@ -263,12 +245,6 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
     parserHelper = null;
     clearTextRenderer();
     super.onDisabled();
-  }
-
-  @Override
-  protected long getBufferedPositionUs() {
-    // Don't block playback whilst subtitles are loading.
-    return END_OF_TRACK_US;
   }
 
   @Override

@@ -17,7 +17,7 @@ package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.SampleSource;
-import com.google.android.exoplayer.SampleSource.SampleSourceReader;
+import com.google.android.exoplayer.SampleSource.TrackStream;
 
 import java.io.IOException;
 
@@ -91,7 +91,7 @@ public interface BaseChunkSampleSourceEventListener {
 
   /**
    * Invoked when the downstream format changes (i.e. when the format being supplied to the
-   * caller of {@link SampleSourceReader#readData} changes).
+   * caller of {@link TrackStream#readData} changes).
    *
    * @param sourceId The id of the reporting {@link SampleSource}.
    * @param format The format.

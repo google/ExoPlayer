@@ -23,12 +23,12 @@ import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
-import com.google.android.exoplayer.demo.player.DashRendererBuilder;
+import com.google.android.exoplayer.demo.player.DashSourceBuilder;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
-import com.google.android.exoplayer.demo.player.DemoPlayer.RendererBuilder;
-import com.google.android.exoplayer.demo.player.ExtractorRendererBuilder;
-import com.google.android.exoplayer.demo.player.HlsRendererBuilder;
-import com.google.android.exoplayer.demo.player.SmoothStreamingRendererBuilder;
+import com.google.android.exoplayer.demo.player.DemoPlayer.SourceBuilder;
+import com.google.android.exoplayer.demo.player.ExtractorSourceBuilder;
+import com.google.android.exoplayer.demo.player.HlsSourceBuilder;
+import com.google.android.exoplayer.demo.player.SmoothStreamingSourceBuilder;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
 import com.google.android.exoplayer.metadata.GeobMetadata;
 import com.google.android.exoplayer.metadata.PrivMetadata;
@@ -296,19 +296,19 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   // Internal methods
 
-  private RendererBuilder getRendererBuilder() {
+  private SourceBuilder getSourceBuilder() {
     String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
     switch (contentType) {
       case Util.TYPE_SS:
-        return new SmoothStreamingRendererBuilder(this, userAgent, contentUri.toString(),
+        return new SmoothStreamingSourceBuilder(this, userAgent, contentUri.toString(),
             new SmoothStreamingTestMediaDrmCallback());
       case Util.TYPE_DASH:
-        return new DashRendererBuilder(this, userAgent, contentUri.toString(),
+        return new DashSourceBuilder(this, userAgent, contentUri.toString(),
             new WidevineTestMediaDrmCallback(contentId, provider));
       case Util.TYPE_HLS:
-        return new HlsRendererBuilder(this, userAgent, contentUri.toString());
+        return new HlsSourceBuilder(this, userAgent, contentUri.toString());
       case Util.TYPE_OTHER:
-        return new ExtractorRendererBuilder(this, userAgent, contentUri);
+        return new ExtractorSourceBuilder(this, userAgent, contentUri);
       default:
         throw new IllegalStateException("Unsupported type: " + contentType);
     }
@@ -316,7 +316,7 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
 
   private void preparePlayer(boolean playWhenReady) {
     if (player == null) {
-      player = new DemoPlayer(getRendererBuilder());
+      player = new DemoPlayer(this, getSourceBuilder());
       player.addListener(this);
       player.setCaptionListener(this);
       player.setMetadataListener(this);

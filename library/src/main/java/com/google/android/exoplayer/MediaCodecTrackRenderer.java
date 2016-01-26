@@ -16,6 +16,7 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer.SampleSource.TrackStream;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.Assertions;
@@ -230,7 +231,6 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   private boolean waitingForFirstSyncFrame;
 
   /**
-   * @param source The upstream source from which the renderer obtains samples.
    * @param mediaCodecSelector A decoder selector.
    * @param drmSessionManager For use with encrypted media. May be null if support for encrypted
    *     media is not required.
@@ -243,10 +243,9 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public MediaCodecTrackRenderer(SampleSource source, MediaCodecSelector mediaCodecSelector,
+  public MediaCodecTrackRenderer(MediaCodecSelector mediaCodecSelector,
       DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
       Handler eventHandler, EventListener eventListener) {
-    super(source);
     Assertions.checkState(Util.SDK_INT >= 16);
     this.mediaCodecSelector = Assertions.checkNotNull(mediaCodecSelector);
     this.drmSessionManager = drmSessionManager;
@@ -451,7 +450,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   @Override
-  protected void onDiscontinuity(long positionUs) throws ExoPlaybackException {
+  protected void onReset(long positionUs) throws ExoPlaybackException {
     sourceState = SOURCE_STATE_NOT_READY;
     inputStreamEnded = false;
     outputStreamEnded = false;
@@ -477,7 +476,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
         ? (sourceState == SOURCE_STATE_NOT_READY ? SOURCE_STATE_READY : sourceState)
         : SOURCE_STATE_NOT_READY;
     if (format == null) {
-      readFormat(positionUs);
+      readFormat();
     }
     maybeInitCodec();
     if (codec != null) {
@@ -491,9 +490,9 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     codecCounters.ensureUpdated();
   }
 
-  private void readFormat(long positionUs) throws ExoPlaybackException {
-    int result = readSource(positionUs, formatHolder, null);
-    if (result == SampleSource.FORMAT_READ) {
+  private void readFormat() throws ExoPlaybackException {
+    int result = readSource(formatHolder, null);
+    if (result == TrackStream.FORMAT_READ) {
       onInputFormatChanged(formatHolder);
     }
   }
@@ -568,7 +567,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     int result;
     if (waitingForKeys) {
       // We've already read an encrypted sample into sampleHolder, and are waiting for keys.
-      result = SampleSource.SAMPLE_READ;
+      result = TrackStream.SAMPLE_READ;
     } else {
       // For adaptive reconfiguration OMX decoders expect all reconfiguration data to be supplied
       // at the start of the buffer that also contains the first frame in the new format.
@@ -579,16 +578,16 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
         }
         codecReconfigurationState = RECONFIGURATION_STATE_QUEUE_PENDING;
       }
-      result = readSource(positionUs, formatHolder, sampleHolder);
-      if (firstFeed && sourceState == SOURCE_STATE_READY && result == SampleSource.NOTHING_READ) {
+      result = readSource(formatHolder, sampleHolder);
+      if (firstFeed && sourceState == SOURCE_STATE_READY && result == TrackStream.NOTHING_READ) {
         sourceState = SOURCE_STATE_READY_READ_MAY_FAIL;
       }
     }
 
-    if (result == SampleSource.NOTHING_READ) {
+    if (result == TrackStream.NOTHING_READ) {
       return false;
     }
-    if (result == SampleSource.FORMAT_READ) {
+    if (result == TrackStream.FORMAT_READ) {
       if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
         // We received two formats in a row. Clear the current buffer of any reconfiguration data
         // associated with the first format.
@@ -598,7 +597,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       onInputFormatChanged(formatHolder);
       return true;
     }
-    if (result == SampleSource.END_OF_STREAM) {
+    if (result == TrackStream.END_OF_STREAM) {
       if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
         // We received a new format immediately before the end of the stream. We need to clear
         // the corresponding reconfiguration data from the current buffer, but re-write it into

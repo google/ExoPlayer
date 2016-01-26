@@ -58,9 +58,7 @@ public final class MediaFormat {
    */
   public final int maxInputSize;
   /**
-   * The duration in microseconds, or {@link C#UNKNOWN_TIME_US} if the duration is unknown, or
-   * {@link C#MATCH_LONGEST_US} if the duration should match the duration of the longest track whose
-   * duration is known.
+   * The duration in microseconds, or {@link C#UNKNOWN_TIME_US} if the duration is unknown.
    */
   public final long durationUs;
   /**

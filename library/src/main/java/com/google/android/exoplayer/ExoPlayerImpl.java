@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.util.Assertions;
+
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
@@ -44,8 +46,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   /**
    * Constructs an instance. Must be invoked from a thread that has an associated {@link Looper}.
    *
-   * @param rendererCount The number of {@link TrackRenderer}s that will be passed to
-   *     {@link #prepare(TrackRenderer[])}.
+   * @param renderers The {@link TrackRenderer}s belonging to this instance.
    * @param minBufferMs A minimum duration of data that must be buffered for playback to start
    *     or resume following a user action such as a seek.
    * @param minRebufferMs A minimum duration of data that must be buffered for playback to resume
@@ -53,21 +54,23 @@ import java.util.concurrent.CopyOnWriteArraySet;
    *     not due to a user action such as starting playback or seeking).
    */
   @SuppressLint("HandlerLeak")
-  public ExoPlayerImpl(int rendererCount, int minBufferMs, int minRebufferMs) {
+  public ExoPlayerImpl(TrackRenderer[] renderers, int minBufferMs, int minRebufferMs) {
     Log.i(TAG, "Init " + ExoPlayerLibraryInfo.VERSION);
+    Assertions.checkNotNull(renderers);
+    Assertions.checkState(renderers.length > 0);
     this.playWhenReady = false;
     this.playbackState = STATE_IDLE;
     this.listeners = new CopyOnWriteArraySet<>();
-    this.trackFormats = new MediaFormat[rendererCount][];
-    this.selectedTrackIndices = new int[rendererCount];
+    this.trackFormats = new MediaFormat[renderers.length][];
+    this.selectedTrackIndices = new int[renderers.length];
     eventHandler = new Handler() {
       @Override
       public void handleMessage(Message msg) {
         ExoPlayerImpl.this.handleEvent(msg);
       }
     };
-    internalPlayer = new ExoPlayerImplInternal(eventHandler, playWhenReady, selectedTrackIndices,
-        minBufferMs, minRebufferMs);
+    internalPlayer = new ExoPlayerImplInternal(renderers, minBufferMs, minRebufferMs,
+        playWhenReady, selectedTrackIndices, eventHandler);
   }
 
   @Override
@@ -91,9 +94,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void prepare(TrackRenderer... renderers) {
+  public void prepare(SampleSource source) {
     Arrays.fill(trackFormats, null);
-    internalPlayer.prepare(renderers);
+    internalPlayer.prepare(source);
   }
 
   @Override

@@ -41,8 +41,7 @@ public final class SingleSampleChunkSource implements ChunkSource {
    * @param dataSpec Defines the location of the sample.
    * @param format The format of the sample.
    * @param durationUs The duration of the sample in microseconds, or {@link C#UNKNOWN_TIME_US} if
-   *     the duration is unknown, or {@link C#MATCH_LONGEST_US} if the duration should match the
-   *     duration of the longest track whose duration is known.
+   *     the duration is unknown.
    * @param mediaFormat The sample media format. May be null.
    */
   public SingleSampleChunkSource(DataSource dataSource, DataSpec dataSpec, Format format,

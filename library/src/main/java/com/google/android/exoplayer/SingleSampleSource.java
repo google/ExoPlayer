@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.SampleSource.SampleSourceReader;
+import com.google.android.exoplayer.SampleSource.TrackStream;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.Loader;
@@ -31,7 +31,7 @@ import java.util.Arrays;
 /**
  * A {@link SampleSource} that loads the data at a given {@link Uri} as a single sample.
  */
-public final class SingleSampleSource implements SampleSource, SampleSourceReader, Loader.Callback,
+public final class SingleSampleSource implements SampleSource, TrackStream, Loader.Callback,
     Loadable {
 
   /**
@@ -77,8 +77,10 @@ public final class SingleSampleSource implements SampleSource, SampleSourceReade
   }
 
   @Override
-  public SampleSourceReader register() {
-    return this;
+  public void maybeThrowError() throws IOException {
+    if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
+      throw currentLoadableException;
+    }
   }
 
   @Override
@@ -87,6 +89,16 @@ public final class SingleSampleSource implements SampleSource, SampleSourceReade
       loader = new Loader("Loader:" + format.mimeType);
     }
     return true;
+  }
+
+  @Override
+  public boolean isPrepared() {
+    return loader != null;
+  }
+
+  @Override
+  public long getDurationUs() {
+    return format.durationUs;
   }
 
   @Override
@@ -100,33 +112,30 @@ public final class SingleSampleSource implements SampleSource, SampleSourceReade
   }
 
   @Override
-  public void enable(int track, long positionUs) {
+  public TrackStream enable(int track, long positionUs) {
     state = STATE_SEND_FORMAT;
     clearCurrentLoadableException();
+    maybeStartLoading();
+    return this;
+  }
+
+  @Override
+  public void continueBuffering(long positionUs) {
     maybeStartLoading();
   }
 
   @Override
-  public boolean continueBuffering(int track, long positionUs) {
-    maybeStartLoading();
+  public boolean isReady() {
     return loadingFinished;
   }
 
   @Override
-  public void maybeThrowError() throws IOException {
-    if (currentLoadableException != null && currentLoadableExceptionCount > minLoadableRetryCount) {
-      throw currentLoadableException;
-    }
+  public long readReset() {
+    return TrackStream.NO_RESET;
   }
 
   @Override
-  public long readDiscontinuity(int track) {
-    return NO_DISCONTINUITY;
-  }
-
-  @Override
-  public int readData(int track, long positionUs, MediaFormatHolder formatHolder,
-      SampleHolder sampleHolder) {
+  public int readData(MediaFormatHolder formatHolder, SampleHolder sampleHolder) {
     if (state == STATE_END_OF_STREAM) {
       return END_OF_STREAM;
     } else if (state == STATE_SEND_FORMAT) {
@@ -158,11 +167,11 @@ public final class SingleSampleSource implements SampleSource, SampleSourceReade
 
   @Override
   public long getBufferedPositionUs() {
-    return loadingFinished ? TrackRenderer.END_OF_TRACK_US : 0;
+    return state == STATE_END_OF_STREAM || loadingFinished ? C.END_OF_SOURCE_US : 0;
   }
 
   @Override
-  public void disable(int track) {
+  public void disable() {
     state = STATE_END_OF_STREAM;
   }
 

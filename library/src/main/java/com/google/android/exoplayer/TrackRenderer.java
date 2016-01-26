@@ -18,6 +18,8 @@ package com.google.android.exoplayer;
 import com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent;
 import com.google.android.exoplayer.util.Assertions;
 
+import java.io.IOException;
+
 /**
  * Renders a single component of media.
  *
@@ -31,24 +33,6 @@ import com.google.android.exoplayer.util.Assertions;
  */
 public abstract class TrackRenderer implements ExoPlayerComponent {
 
-  /**
-   * Represents an unknown time or duration. Equal to {@link C#UNKNOWN_TIME_US}.
-   */
-  public static final long UNKNOWN_TIME_US = C.UNKNOWN_TIME_US; // -1
-  /**
-   * Represents a time or duration that should match the duration of the longest track whose
-   * duration is known. Equal to {@link C#MATCH_LONGEST_US}.
-   */
-  public static final long MATCH_LONGEST_US = C.MATCH_LONGEST_US; // -2
-  /**
-   * Represents the time of the end of the track.
-   */
-  public static final long END_OF_TRACK_US = -3;
-
-  /**
-   * The renderer has been released and should not be used.
-   */
-  protected static final int STATE_RELEASED = -1;
   /**
    * The renderer has not yet been prepared.
    */
@@ -98,37 +82,30 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   }
 
   /**
-   * Prepares the renderer. This method is non-blocking, and hence it may be necessary to call it
-   * more than once in order to transition the renderer into the prepared state.
+   * Prepares the renderer to read from the provided {@link SampleSource}.
+   * <p>
+   * The {@link SampleSource} must itself be prepared before it is passed to this method.
    *
-   * @param positionUs The player's current playback position.
-   * @return The current state (one of the STATE_* constants), for convenience.
+   * @param sampleSource The {@link SampleSource} from which to read.
    * @throws ExoPlaybackException If an error occurs.
    */
-  /* package */ final int prepare(long positionUs) throws ExoPlaybackException {
+  /* package */ final void prepare(SampleSource sampleSource) throws ExoPlaybackException {
     Assertions.checkState(state == STATE_UNPREPARED);
-    state = doPrepare(positionUs) ? STATE_PREPARED : STATE_UNPREPARED;
-    return state;
+    Assertions.checkState(sampleSource.isPrepared());
+    doPrepare(sampleSource);
+    state = STATE_PREPARED;
   }
 
   /**
-   * Invoked to make progress when the renderer is in the {@link #STATE_UNPREPARED} state. This
-   * method will be called repeatedly until {@code true} is returned.
-   * <p>
-   * This method should return quickly, and should not block if the renderer is currently unable to
-   * make any useful progress.
+   * Called when the renderer is prepared.
    *
-   * @param positionUs The player's current playback position.
-   * @return True if the renderer is now prepared. False otherwise.
+   * @param sampleSource The {@link SampleSource} from which to read.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected abstract boolean doPrepare(long positionUs) throws ExoPlaybackException;
+  protected abstract void doPrepare(SampleSource sampleSource) throws ExoPlaybackException;
 
   /**
    * Returns the number of tracks exposed by the renderer.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_PREPARED}, {@link #STATE_ENABLED}, {@link #STATE_STARTED}
    *
    * @return The number of tracks.
    */
@@ -136,9 +113,6 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
 
   /**
    * Returns the format of the specified track.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_PREPARED}, {@link #STATE_ENABLED}, {@link #STATE_STARTED}
    *
    * @param track The track index.
    * @return The format of the specified track.
@@ -243,26 +217,24 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   }
 
   /**
-   * Releases the renderer.
+   * Unprepares the renderer.
    *
    * @throws ExoPlaybackException If an error occurs.
    */
-  /* package */ final void release() throws ExoPlaybackException {
-    Assertions.checkState(state != STATE_ENABLED
-        && state != STATE_STARTED
-        && state != STATE_RELEASED);
-    state = STATE_RELEASED;
-    onReleased();
+  /* package */ final void unprepare() throws ExoPlaybackException {
+    Assertions.checkState(state == STATE_PREPARED);
+    state = STATE_UNPREPARED;
+    onUnprepared();
   }
 
   /**
-   * Called when the renderer is released.
+   * Called when the renderer is unprepared.
    * <p>
    * The default implementation is a no-op.
    *
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onReleased() throws ExoPlaybackException {
+  protected void onUnprepared() throws ExoPlaybackException {
     // Do nothing.
   }
 
@@ -322,46 +294,14 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   /**
    * Throws an error that's preventing the renderer from making progress or buffering more data at
    * this point in time.
-   *
-   * @throws ExoPlaybackException An error that's preventing the renderer from making progress or
-   *     buffering more data.
-   */
-  protected abstract void maybeThrowError() throws ExoPlaybackException;
-
-  /**
-   * Returns the duration of the media being rendered.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_PREPARED}, {@link #STATE_ENABLED}, {@link #STATE_STARTED}
-   *
-   * @return The duration of the track in microseconds, or {@link #MATCH_LONGEST_US} if
-   *     the track's duration should match that of the longest track whose duration is known, or
-   *     or {@link #UNKNOWN_TIME_US} if the duration is not known.
-   */
-  protected abstract long getDurationUs();
-
-  /**
-   * Returns an estimate of the absolute position in microseconds up to which data is buffered.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}
-   *
-   * @return An estimate of the absolute position in microseconds up to which data is buffered,
-   *     or {@link #END_OF_TRACK_US} if the track is fully buffered, or {@link #UNKNOWN_TIME_US} if
-   *     no estimate is available.
-   */
-  protected abstract long getBufferedPositionUs();
-
-  /**
-   * Seeks to a specified time in the track.
    * <p>
    * This method may be called when the renderer is in the following states:
    * {@link #STATE_ENABLED}
    *
-   * @param positionUs The desired playback position in microseconds.
-   * @throws ExoPlaybackException If an error occurs.
+   * @throws IOException An error that's preventing the renderer from making progress or buffering
+   *     more data.
    */
-  protected abstract void seekTo(long positionUs) throws ExoPlaybackException;
+  protected abstract void maybeThrowError() throws IOException;
 
   @Override
   public void handleMessage(int what, Object object) throws ExoPlaybackException {

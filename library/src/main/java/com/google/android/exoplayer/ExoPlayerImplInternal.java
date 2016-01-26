@@ -30,6 +30,7 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.util.Pair;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +39,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Implements the internal behavior of {@link ExoPlayerImpl}.
  */
+// TODO[REFACTOR]: Make sure renderer errors that will prevent prepare from being called again are
+// always propagated properly.
+// TODO[REFACTOR]: Distinguish source and renderer errors in ExoPlaybackException.
 /* package */ final class ExoPlayerImplInternal implements Handler.Callback {
 
   private static final String TAG = "ExoPlayerImplInternal";
@@ -63,21 +67,21 @@ import java.util.concurrent.atomic.AtomicInteger;
   private static final int RENDERING_INTERVAL_MS = 10;
   private static final int IDLE_INTERVAL_MS = 1000;
 
-  private final Handler handler;
-  private final HandlerThread internalPlaybackThread;
-  private final Handler eventHandler;
+  private final TrackRenderer[] renderers;
+  private final TrackRenderer rendererMediaClockSource;
+  private final MediaClock rendererMediaClock;
   private final StandaloneMediaClock standaloneMediaClock;
-  private final AtomicInteger pendingSeekCount;
+  private final long minBufferUs;
+  private final long minRebufferUs;
   private final List<TrackRenderer> enabledRenderers;
   private final MediaFormat[][] trackFormats;
   private final int[] selectedTrackIndices;
-  private final long minBufferUs;
-  private final long minRebufferUs;
+  private final Handler handler;
+  private final HandlerThread internalPlaybackThread;
+  private final Handler eventHandler;
+  private final AtomicInteger pendingSeekCount;
 
-  private TrackRenderer[] renderers;
-  private TrackRenderer rendererMediaClockSource;
-  private MediaClock rendererMediaClock;
-
+  private SampleSource source;
   private boolean released;
   private boolean playWhenReady;
   private boolean rebuffering;
@@ -91,16 +95,31 @@ import java.util.concurrent.atomic.AtomicInteger;
   private volatile long positionUs;
   private volatile long bufferedPositionUs;
 
-  public ExoPlayerImplInternal(Handler eventHandler, boolean playWhenReady,
-      int[] selectedTrackIndices, int minBufferMs, int minRebufferMs) {
-    this.eventHandler = eventHandler;
-    this.playWhenReady = playWhenReady;
+  public ExoPlayerImplInternal(TrackRenderer[] renderers, int minBufferMs, int minRebufferMs,
+      boolean playWhenReady, int[] selectedTrackIndices, Handler eventHandler) {
+    this.renderers = renderers;
     this.minBufferUs = minBufferMs * 1000L;
     this.minRebufferUs = minRebufferMs * 1000L;
+    this.playWhenReady = playWhenReady;
     this.selectedTrackIndices = Arrays.copyOf(selectedTrackIndices, selectedTrackIndices.length);
+    this.eventHandler = eventHandler;
     this.state = ExoPlayer.STATE_IDLE;
-    this.durationUs = TrackRenderer.UNKNOWN_TIME_US;
-    this.bufferedPositionUs = TrackRenderer.UNKNOWN_TIME_US;
+    this.durationUs = C.UNKNOWN_TIME_US;
+    this.bufferedPositionUs = C.UNKNOWN_TIME_US;
+
+    MediaClock rendererMediaClock = null;
+    TrackRenderer rendererMediaClockSource = null;
+    for (int i = 0; i < renderers.length; i++) {
+      MediaClock mediaClock = renderers[i].getMediaClock();
+      if (mediaClock != null) {
+        Assertions.checkState(rendererMediaClock == null);
+        rendererMediaClock = mediaClock;
+        rendererMediaClockSource = renderers[i];
+        break;
+      }
+    }
+    this.rendererMediaClock = rendererMediaClock;
+    this.rendererMediaClockSource = rendererMediaClockSource;
 
     standaloneMediaClock = new StandaloneMediaClock();
     pendingSeekCount = new AtomicInteger();
@@ -123,17 +142,16 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   public long getBufferedPosition() {
-    return bufferedPositionUs == TrackRenderer.UNKNOWN_TIME_US ? ExoPlayer.UNKNOWN_TIME
+    return bufferedPositionUs == C.UNKNOWN_TIME_US ? ExoPlayer.UNKNOWN_TIME
         : bufferedPositionUs / 1000;
   }
 
   public long getDuration() {
-    return durationUs == TrackRenderer.UNKNOWN_TIME_US ? ExoPlayer.UNKNOWN_TIME
-        : durationUs / 1000;
+    return durationUs == C.UNKNOWN_TIME_US ? ExoPlayer.UNKNOWN_TIME : durationUs / 1000;
   }
 
-  public void prepare(TrackRenderer... renderers) {
-    handler.obtainMessage(MSG_PREPARE, renderers).sendToTarget();
+  public void prepare(SampleSource sampleSource) {
+    handler.obtainMessage(MSG_PREPARE, sampleSource).sendToTarget();
   }
 
   public void setPlayWhenReady(boolean playWhenReady) {
@@ -198,7 +216,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     try {
       switch (msg.what) {
         case MSG_PREPARE: {
-          prepareInternal((TrackRenderer[]) msg.obj);
+          prepareInternal((SampleSource) msg.obj);
           return true;
         }
         case MSG_INCREMENTAL_PREPARE: {
@@ -241,6 +259,11 @@ import java.util.concurrent.atomic.AtomicInteger;
       eventHandler.obtainMessage(MSG_ERROR, e).sendToTarget();
       stopInternal();
       return true;
+    } catch (IOException e) {
+      Log.e(TAG, "Source track renderer error.", e);
+      eventHandler.obtainMessage(MSG_ERROR, new ExoPlaybackException(e)).sendToTarget();
+      stopInternal();
+      return true;
     } catch (RuntimeException e) {
       Log.e(TAG, "Internal runtime error.", e);
       eventHandler.obtainMessage(MSG_ERROR, new ExoPlaybackException(e, true)).sendToTarget();
@@ -256,47 +279,29 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
   }
 
-  private void prepareInternal(TrackRenderer[] renderers) throws ExoPlaybackException {
+  private void prepareInternal(SampleSource sampleSource) throws ExoPlaybackException, IOException {
     resetInternal();
-    this.renderers = renderers;
-    Arrays.fill(trackFormats, null);
-    for (int i = 0; i < renderers.length; i++) {
-      MediaClock mediaClock = renderers[i].getMediaClock();
-      if (mediaClock != null) {
-        Assertions.checkState(rendererMediaClock == null);
-        rendererMediaClock = mediaClock;
-        rendererMediaClockSource = renderers[i];
-      }
-    }
     setState(ExoPlayer.STATE_PREPARING);
+    this.source = sampleSource;
     incrementalPrepareInternal();
   }
 
-  private void incrementalPrepareInternal() throws ExoPlaybackException {
+  private void incrementalPrepareInternal() throws ExoPlaybackException, IOException {
     long operationStartTimeMs = SystemClock.elapsedRealtime();
-    boolean prepared = true;
-    for (int rendererIndex = 0; rendererIndex < renderers.length; rendererIndex++) {
-      TrackRenderer renderer = renderers[rendererIndex];
-      if (renderer.getState() == TrackRenderer.STATE_UNPREPARED) {
-        int state = renderer.prepare(positionUs);
-        if (state == TrackRenderer.STATE_UNPREPARED) {
-          renderer.maybeThrowError();
-          prepared = false;
-        }
-      }
-    }
-
-    if (!prepared) {
-      // We're still waiting for some sources to be prepared.
+    if (!source.prepare(positionUs)) {
+      // We're still waiting for the source to be prepared.
       scheduleNextOperation(MSG_INCREMENTAL_PREPARE, operationStartTimeMs, PREPARE_INTERVAL_MS);
       return;
     }
 
-    long durationUs = 0;
+    this.durationUs = source.getDurationUs();
+    this.bufferedPositionUs = source.getBufferedPositionUs();
+
     boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
     for (int rendererIndex = 0; rendererIndex < renderers.length; rendererIndex++) {
       TrackRenderer renderer = renderers[rendererIndex];
+      renderer.prepare(source);
       int rendererTrackCount = renderer.getTrackCount();
       MediaFormat[] rendererTrackFormats = new MediaFormat[rendererTrackCount];
       for (int trackIndex = 0; trackIndex < rendererTrackCount; trackIndex++) {
@@ -304,36 +309,22 @@ import java.util.concurrent.atomic.AtomicInteger;
       }
       trackFormats[rendererIndex] = rendererTrackFormats;
       if (rendererTrackCount > 0) {
-        if (durationUs == TrackRenderer.UNKNOWN_TIME_US) {
-          // We've already encountered a track for which the duration is unknown, so the media
-          // duration is unknown regardless of the duration of this track.
-        } else {
-          long trackDurationUs = renderer.getDurationUs();
-          if (trackDurationUs == TrackRenderer.UNKNOWN_TIME_US) {
-            durationUs = TrackRenderer.UNKNOWN_TIME_US;
-          } else if (trackDurationUs == TrackRenderer.MATCH_LONGEST_US) {
-            // Do nothing.
-          } else {
-            durationUs = Math.max(durationUs, trackDurationUs);
-          }
-        }
         int trackIndex = selectedTrackIndices[rendererIndex];
         if (0 <= trackIndex && trackIndex < rendererTrackFormats.length) {
           renderer.enable(trackIndex, positionUs, false);
           enabledRenderers.add(renderer);
           allRenderersEnded = allRenderersEnded && renderer.isEnded();
-          allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded(renderer);
+          allRenderersReadyOrEnded = allRenderersReadyOrEnded && isReadyOrEnded(renderer);
         }
       }
     }
-    this.durationUs = durationUs;
 
-    if (allRenderersEnded
-        && (durationUs == TrackRenderer.UNKNOWN_TIME_US || durationUs <= positionUs)) {
+    if (allRenderersEnded && (durationUs == C.UNKNOWN_TIME_US || durationUs <= positionUs)) {
       // We don't expect this case, but handle it anyway.
       state = ExoPlayer.STATE_ENDED;
     } else {
-      state = allRenderersReadyOrEnded ? ExoPlayer.STATE_READY : ExoPlayer.STATE_BUFFERING;
+      state = allRenderersReadyOrEnded && haveSufficientBuffer() ? ExoPlayer.STATE_READY
+          : ExoPlayer.STATE_BUFFERING;
     }
 
     // Fire an event indicating that the player has been prepared, passing the initial state and
@@ -347,26 +338,17 @@ import java.util.concurrent.atomic.AtomicInteger;
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
-  private boolean rendererReadyOrEnded(TrackRenderer renderer) {
-    if (renderer.isEnded()) {
-      return true;
-    }
-    if (!renderer.isReady()) {
-      return false;
-    }
-    if (state == ExoPlayer.STATE_READY) {
-      return true;
-    }
-    long rendererDurationUs = renderer.getDurationUs();
-    long rendererBufferedPositionUs = renderer.getBufferedPositionUs();
+  private boolean isReadyOrEnded(TrackRenderer renderer) {
+    return renderer.isReady() || renderer.isEnded();
+  }
+
+  private boolean haveSufficientBuffer() {
     long minBufferDurationUs = rebuffering ? minRebufferUs : minBufferUs;
     return minBufferDurationUs <= 0
-        || rendererBufferedPositionUs == TrackRenderer.UNKNOWN_TIME_US
-        || rendererBufferedPositionUs == TrackRenderer.END_OF_TRACK_US
-        || rendererBufferedPositionUs >= positionUs + minBufferDurationUs
-        || (rendererDurationUs != TrackRenderer.UNKNOWN_TIME_US
-            && rendererDurationUs != TrackRenderer.MATCH_LONGEST_US
-            && rendererBufferedPositionUs >= rendererDurationUs);
+        || bufferedPositionUs == C.UNKNOWN_TIME_US
+        || bufferedPositionUs == C.END_OF_SOURCE_US
+        || bufferedPositionUs >= positionUs + minBufferDurationUs
+        || (durationUs != C.UNKNOWN_TIME_US && bufferedPositionUs >= durationUs);
   }
 
   private void setPlayWhenReadyInternal(boolean playWhenReady) throws ExoPlaybackException {
@@ -415,14 +397,15 @@ import java.util.concurrent.atomic.AtomicInteger;
     elapsedRealtimeUs = SystemClock.elapsedRealtime() * 1000;
   }
 
-  private void doSomeWork() throws ExoPlaybackException {
+  private void doSomeWork() throws ExoPlaybackException, IOException {
     TraceUtil.beginSection("doSomeWork");
     long operationStartTimeMs = SystemClock.elapsedRealtime();
-    long bufferedPositionUs = durationUs != TrackRenderer.UNKNOWN_TIME_US ? durationUs
-        : Long.MAX_VALUE;
+    updatePositionUs();
+    bufferedPositionUs = source.getBufferedPositionUs();
+    source.continueBuffering(positionUs);
+
     boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
-    updatePositionUs();
     for (int i = 0; i < enabledRenderers.size(); i++) {
       TrackRenderer renderer = enabledRenderers.get(i);
       // TODO: Each renderer should return the maximum delay before which it wishes to be
@@ -430,40 +413,20 @@ import java.util.concurrent.atomic.AtomicInteger;
       // invocation of this method.
       renderer.doSomeWork(positionUs, elapsedRealtimeUs);
       allRenderersEnded = allRenderersEnded && renderer.isEnded();
-
       // Determine whether the renderer is ready (or ended). If it's not, throw an error that's
       // preventing the renderer from making progress, if such an error exists.
-      boolean rendererReadyOrEnded = rendererReadyOrEnded(renderer);
+      boolean rendererReadyOrEnded = isReadyOrEnded(renderer);
       if (!rendererReadyOrEnded) {
         renderer.maybeThrowError();
       }
       allRenderersReadyOrEnded = allRenderersReadyOrEnded && rendererReadyOrEnded;
-
-      if (bufferedPositionUs == TrackRenderer.UNKNOWN_TIME_US) {
-        // We've already encountered a track for which the buffered position is unknown. Hence the
-        // media buffer position unknown regardless of the buffered position of this track.
-      } else {
-        long rendererDurationUs = renderer.getDurationUs();
-        long rendererBufferedPositionUs = renderer.getBufferedPositionUs();
-        if (rendererBufferedPositionUs == TrackRenderer.UNKNOWN_TIME_US) {
-          bufferedPositionUs = TrackRenderer.UNKNOWN_TIME_US;
-        } else if (rendererBufferedPositionUs == TrackRenderer.END_OF_TRACK_US
-            || (rendererDurationUs != TrackRenderer.UNKNOWN_TIME_US
-                && rendererDurationUs != TrackRenderer.MATCH_LONGEST_US
-                && rendererBufferedPositionUs >= rendererDurationUs)) {
-          // This track is fully buffered.
-        } else {
-          bufferedPositionUs = Math.min(bufferedPositionUs, rendererBufferedPositionUs);
-        }
-      }
     }
-    this.bufferedPositionUs = bufferedPositionUs;
 
-    if (allRenderersEnded
-        && (durationUs == TrackRenderer.UNKNOWN_TIME_US || durationUs <= positionUs)) {
+    if (allRenderersEnded && (durationUs == C.UNKNOWN_TIME_US || durationUs <= positionUs)) {
       setState(ExoPlayer.STATE_ENDED);
       stopRenderers();
-    } else if (state == ExoPlayer.STATE_BUFFERING && allRenderersReadyOrEnded) {
+    } else if (state == ExoPlayer.STATE_BUFFERING && allRenderersReadyOrEnded
+        && haveSufficientBuffer()) {
       setState(ExoPlayer.STATE_READY);
       if (playWhenReady) {
         startRenderers();
@@ -512,9 +475,9 @@ import java.util.concurrent.atomic.AtomicInteger;
       for (int i = 0; i < enabledRenderers.size(); i++) {
         TrackRenderer renderer = enabledRenderers.get(i);
         ensureStopped(renderer);
-        renderer.seekTo(positionUs);
       }
       setState(ExoPlayer.STATE_BUFFERING);
+      source.seekToUs(positionUs);
       handler.sendEmptyMessage(MSG_DO_SOME_WORK);
     } finally {
       pendingSeekCount.decrementAndGet();
@@ -544,21 +507,20 @@ import java.util.concurrent.atomic.AtomicInteger;
       return;
     }
     for (int i = 0; i < renderers.length; i++) {
-      TrackRenderer renderer = renderers[i];
-      stopAndDisable(renderer);
-      release(renderer);
+      unprepare(renderers[i]);
     }
-    renderers = null;
-    rendererMediaClock = null;
-    rendererMediaClockSource = null;
     enabledRenderers.clear();
+    source = null;
   }
 
-  private void stopAndDisable(TrackRenderer renderer) {
+  private void unprepare(TrackRenderer renderer) {
     try {
       ensureStopped(renderer);
       if (renderer.getState() == TrackRenderer.STATE_ENABLED) {
         renderer.disable();
+        renderer.unprepare();
+      } else if (renderer.getState() == TrackRenderer.STATE_PREPARED) {
+        renderer.unprepare();
       }
     } catch (ExoPlaybackException e) {
       // There's nothing we can do.
@@ -566,18 +528,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     } catch (RuntimeException e) {
       // Ditto.
       Log.e(TAG, "Stop failed.", e);
-    }
-  }
-
-  private void release(TrackRenderer renderer) {
-    try {
-      renderer.release();
-    } catch (ExoPlaybackException e) {
-      // There's nothing we can do.
-      Log.e(TAG, "Release failed.", e);
-    } catch (RuntimeException e) {
-      // Ditto.
-      Log.e(TAG, "Release failed.", e);
     }
   }
 
@@ -612,9 +562,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     TrackRenderer renderer = renderers[rendererIndex];
     int rendererState = renderer.getState();
-    if (rendererState == TrackRenderer.STATE_UNPREPARED
-        || rendererState == TrackRenderer.STATE_RELEASED
-        || renderer.getTrackCount() == 0) {
+    if (rendererState == TrackRenderer.STATE_UNPREPARED || renderer.getTrackCount() == 0) {
       return;
     }
 

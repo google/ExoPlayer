@@ -19,7 +19,7 @@ import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SampleSource.TrackStream;
 import com.google.android.exoplayer.SampleSourceTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.util.Assertions;
@@ -67,7 +67,6 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
   private T pendingMetadata;
 
   /**
-   * @param source A source from which samples containing metadata can be read.
    * @param metadataParser A parser for parsing the metadata.
    * @param metadataRenderer The metadata renderer to receive the parsed metadata.
    * @param metadataRendererLooper The looper associated with the thread on which metadataRenderer
@@ -76,9 +75,8 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
    *     obtained using {@link android.app.Activity#getMainLooper()}. Null may be passed if the
    *     renderer should be invoked directly on the player's internal rendering thread.
    */
-  public MetadataTrackRenderer(SampleSource source, MetadataParser<T> metadataParser,
+  public MetadataTrackRenderer(MetadataParser<T> metadataParser,
       MetadataRenderer<T> metadataRenderer, Looper metadataRendererLooper) {
-    super(source);
     this.metadataParser = Assertions.checkNotNull(metadataParser);
     this.metadataRenderer = Assertions.checkNotNull(metadataRenderer);
     this.metadataHandler = metadataRendererLooper == null ? null
@@ -93,7 +91,7 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
   }
 
   @Override
-  protected void onDiscontinuity(long positionUs) {
+  protected void onReset(long positionUs) {
     pendingMetadata = null;
     inputStreamEnded = false;
   }
@@ -103,15 +101,15 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
       throws ExoPlaybackException {
     if (!inputStreamEnded && pendingMetadata == null) {
       sampleHolder.clearData();
-      int result = readSource(positionUs, formatHolder, sampleHolder);
-      if (result == SampleSource.SAMPLE_READ) {
+      int result = readSource(formatHolder, sampleHolder);
+      if (result == TrackStream.SAMPLE_READ) {
         pendingMetadataTimestamp = sampleHolder.timeUs;
         try {
           pendingMetadata = metadataParser.parse(sampleHolder.data.array(), sampleHolder.size);
         } catch (IOException e) {
           throw new ExoPlaybackException(e);
         }
-      } else if (result == SampleSource.END_OF_STREAM) {
+      } else if (result == TrackStream.END_OF_STREAM) {
         inputStreamEnded = true;
       }
     }
@@ -126,11 +124,6 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
   protected void onDisabled() throws ExoPlaybackException {
     pendingMetadata = null;
     super.onDisabled();
-  }
-
-  @Override
-  protected long getBufferedPositionUs() {
-    return TrackRenderer.END_OF_TRACK_US;
   }
 
   @Override

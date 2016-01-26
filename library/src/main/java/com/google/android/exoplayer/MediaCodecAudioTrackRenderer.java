@@ -99,15 +99,13 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   private long lastFeedElapsedRealtimeMs;
 
   /**
-   * @param source The upstream source from which the renderer obtains samples.
    * @param mediaCodecSelector A decoder selector.
    */
-  public MediaCodecAudioTrackRenderer(SampleSource source, MediaCodecSelector mediaCodecSelector) {
-    this(source, mediaCodecSelector, null, true);
+  public MediaCodecAudioTrackRenderer(MediaCodecSelector mediaCodecSelector) {
+    this(mediaCodecSelector, null, true);
   }
 
   /**
-   * @param source The upstream source from which the renderer obtains samples.
    * @param mediaCodecSelector A decoder selector.
    * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
    *     content is not required.
@@ -117,25 +115,23 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
    *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    */
-  public MediaCodecAudioTrackRenderer(SampleSource source, MediaCodecSelector mediaCodecSelector,
+  public MediaCodecAudioTrackRenderer(MediaCodecSelector mediaCodecSelector,
       DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys) {
-    this(source, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, null, null);
+    this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, null, null);
   }
 
   /**
-   * @param source The upstream source from which the renderer obtains samples.
    * @param mediaCodecSelector A decoder selector.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public MediaCodecAudioTrackRenderer(SampleSource source, MediaCodecSelector mediaCodecSelector,
-      Handler eventHandler, EventListener eventListener) {
-    this(source, mediaCodecSelector, null, true, eventHandler, eventListener);
+  public MediaCodecAudioTrackRenderer(MediaCodecSelector mediaCodecSelector, Handler eventHandler,
+      EventListener eventListener) {
+    this(mediaCodecSelector, null, true, eventHandler, eventListener);
   }
 
   /**
-   * @param source The upstream source from which the renderer obtains samples.
    * @param mediaCodecSelector A decoder selector.
    * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
    *     content is not required.
@@ -148,15 +144,14 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  public MediaCodecAudioTrackRenderer(SampleSource source, MediaCodecSelector mediaCodecSelector,
+  public MediaCodecAudioTrackRenderer(MediaCodecSelector mediaCodecSelector,
       DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
       Handler eventHandler, EventListener eventListener) {
-    this(source, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
+    this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
         eventListener, null, AudioManager.STREAM_MUSIC);
   }
 
   /**
-   * @param source The upstream source from which the renderer obtains samples.
    * @param mediaCodecSelector A decoder selector.
    * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
    *     content is not required.
@@ -172,11 +167,11 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
    *     default capabilities (no encoded audio passthrough support) should be assumed.
    * @param streamType The type of audio stream for the {@link AudioTrack}.
    */
-  public MediaCodecAudioTrackRenderer(SampleSource source, MediaCodecSelector mediaCodecSelector,
+  public MediaCodecAudioTrackRenderer(MediaCodecSelector mediaCodecSelector,
       DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
       Handler eventHandler, EventListener eventListener, AudioCapabilities audioCapabilities,
       int streamType) {
-    super(source, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
+    super(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
         eventListener);
     this.eventListener = eventListener;
     this.audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
@@ -305,8 +300,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected void onDiscontinuity(long positionUs) throws ExoPlaybackException {
-    super.onDiscontinuity(positionUs);
+  protected void onReset(long positionUs) throws ExoPlaybackException {
+    super.onReset(positionUs);
     audioTrack.reset();
     currentPositionUs = positionUs;
     allowPositionDiscontinuity = true;
