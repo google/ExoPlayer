@@ -80,7 +80,8 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
   private int[] trackStates;
   private boolean[] pendingDiscontinuities;
 
-  private long seekPositionUs;
+  private long lastSeekPositionUs;
+  private long pendingSeekPositionUs;
 
   /**
    * Instantiates a new sample extractor reading from the specified {@code uri}.
@@ -185,15 +186,20 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
   }
 
   @Override
+  public long readDiscontinuity(int track) {
+    if (pendingDiscontinuities[track]) {
+      pendingDiscontinuities[track] = false;
+      return lastSeekPositionUs;
+    }
+    return NO_DISCONTINUITY;
+  }
+
+  @Override
   public int readData(int track, long positionUs, MediaFormatHolder formatHolder,
-      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
+      SampleHolder sampleHolder) {
     Assertions.checkState(prepared);
     Assertions.checkState(trackStates[track] != TRACK_STATE_DISABLED);
     if (pendingDiscontinuities[track]) {
-      pendingDiscontinuities[track] = false;
-      return DISCONTINUITY_READ;
-    }
-    if (onlyReadDiscontinuity) {
       return NOTHING_READ;
     }
     if (trackStates[track] != TRACK_STATE_FORMAT_SENT) {
@@ -216,7 +222,7 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
       if (sampleHolder.isEncrypted()) {
         sampleHolder.cryptoInfo.setFromExtractorV16(extractor);
       }
-      seekPositionUs = C.UNKNOWN_TIME_US;
+      pendingSeekPositionUs = C.UNKNOWN_TIME_US;
       extractor.advance();
       return SAMPLE_READ;
     } else {
@@ -285,8 +291,9 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
   private void seekToUsInternal(long positionUs, boolean force) {
     // Unless forced, avoid duplicate calls to the underlying extractor's seek method in the case
     // that there have been no interleaving calls to readSample.
-    if (force || seekPositionUs != positionUs) {
-      seekPositionUs = positionUs;
+    if (force || pendingSeekPositionUs != positionUs) {
+      lastSeekPositionUs = positionUs;
+      pendingSeekPositionUs = positionUs;
       extractor.seekTo(positionUs, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
       for (int i = 0; i < trackStates.length; ++i) {
         if (trackStates[i] != TRACK_STATE_DISABLED) {

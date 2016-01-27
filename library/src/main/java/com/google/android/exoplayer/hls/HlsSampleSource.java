@@ -36,6 +36,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 /**
@@ -55,6 +56,11 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
 
   private static final long NO_RESET_PENDING = Long.MIN_VALUE;
 
+  private static final int PRIMARY_TYPE_NONE = 0;
+  private static final int PRIMARY_TYPE_TEXT = 1;
+  private static final int PRIMARY_TYPE_AUDIO = 2;
+  private static final int PRIMARY_TYPE_VIDEO = 3;
+
   private final HlsChunkSource chunkSource;
   private final LinkedList<HlsExtractorWrapper> extractors;
   private final int minLoadableRetryCount;
@@ -71,11 +77,22 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   private boolean loadControlRegistered;
   private int trackCount;
   private int enabledTrackCount;
+
+  private Format downstreamFormat;
+
+  // Tracks are complicated in HLS. See documentation of buildTracks for details.
+  // Indexed by track (as exposed by this source).
+  private MediaFormat[] trackFormats;
   private boolean[] trackEnabledStates;
   private boolean[] pendingDiscontinuities;
-  private MediaFormat[] trackFormat;
   private MediaFormat[] downstreamMediaFormats;
-  private Format downstreamFormat;
+  // Maps track index (as exposed by this source) to the corresponding chunk source track index for
+  // primary tracks, or to -1 otherwise.
+  private int[] chunkSourceTrackIndices;
+  // Maps track index (as exposed by this source) to the corresponding extractor track index.
+  private int[] extractorTrackIndices;
+  // Indexed by extractor track index.
+  private boolean[] extractorTrackEnabledStates;
 
   private long downstreamPositionUs;
   private long lastSeekPositionUs;
@@ -129,26 +146,17 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   public boolean prepare(long positionUs) {
     if (prepared) {
       return true;
+    } else if (!chunkSource.prepare()) {
+      return false;
     }
     if (!extractors.isEmpty()) {
       while (true) {
         // We're not prepared, but we might have loaded what we need.
         HlsExtractorWrapper extractor = extractors.getFirst();
         if (extractor.isPrepared()) {
-          trackCount = extractor.getTrackCount();
-          trackEnabledStates = new boolean[trackCount];
-          pendingDiscontinuities = new boolean[trackCount];
-          downstreamMediaFormats = new MediaFormat[trackCount];
-          trackFormat = new MediaFormat[trackCount];
-          long durationUs = chunkSource.getDurationUs();
-          for (int i = 0; i < trackCount; i++) {
-            MediaFormat format = extractor.getMediaFormat(i).copyWithDurationUs(durationUs);
-            if (MimeTypes.isVideo(format.mimeType)) {
-              format = format.copyAsAdaptive(null);
-            }
-            trackFormat[i] = format;
-          }
+          buildTracks(extractor);
           prepared = true;
+          maybeStartLoading(); // Update the load control.
           return true;
         } else if (extractors.size() > 1) {
           extractors.removeFirst().clear();
@@ -160,8 +168,6 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     // We're not prepared and we haven't loaded what we need.
     if (loader == null) {
       loader = new Loader("Loader:HLS");
-    }
-    if (!loadControlRegistered) {
       loadControl.register(this, bufferSizeContribution);
       loadControlRegistered = true;
     }
@@ -185,15 +191,13 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   @Override
   public MediaFormat getFormat(int track) {
     Assertions.checkState(prepared);
-    return trackFormat[track];
+    return trackFormats[track];
   }
 
   @Override
   public void enable(int track, long positionUs) {
     Assertions.checkState(prepared);
-    Assertions.checkState(!trackEnabledStates[track]);
-    enabledTrackCount++;
-    trackEnabledStates[track] = true;
+    setTrackEnabledState(track, true);
     downstreamMediaFormats[track] = null;
     pendingDiscontinuities[track] = false;
     downstreamFormat = null;
@@ -201,6 +205,18 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     if (!loadControlRegistered) {
       loadControl.register(this, bufferSizeContribution);
       loadControlRegistered = true;
+    }
+    // Treat enabling of a live stream as occurring at t=0 in both of the blocks below.
+    positionUs = chunkSource.isLive() ? 0 : positionUs;
+    int chunkSourceTrack = chunkSourceTrackIndices[track];
+    if (chunkSourceTrack != -1 && chunkSourceTrack != chunkSource.getSelectedTrackIndex()) {
+      // This is a primary track whose corresponding chunk source track is different to the one
+      // currently selected. We need to change the selection and restart. Since other exposed tracks
+      // may be enabled too, we need to implement the restart as a seek so that all downstream
+      // renderers receive a discontinuity event.
+      chunkSource.selectTrack(chunkSourceTrack);
+      seekToInternal(positionUs);
+      return;
     }
     if (enabledTrackCount == 1) {
       lastSeekPositionUs = positionUs;
@@ -220,9 +236,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   @Override
   public void disable(int track) {
     Assertions.checkState(prepared);
-    Assertions.checkState(trackEnabledStates[track]);
-    enabledTrackCount--;
-    trackEnabledStates[track] = false;
+    setTrackEnabledState(track, false);
     if (enabledTrackCount == 0) {
       chunkSource.reset();
       downstreamPositionUs = Long.MIN_VALUE;
@@ -247,10 +261,10 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     if (!extractors.isEmpty()) {
       discardSamplesForDisabledTracks(getCurrentExtractor(), downstreamPositionUs);
     }
+    maybeStartLoading();
     if (loadingFinished) {
       return true;
     }
-    maybeStartLoading();
     if (isPendingReset() || extractors.isEmpty()) {
       return false;
     }
@@ -259,7 +273,8 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       if (!extractor.isPrepared()) {
         break;
       }
-      if (extractor.hasSamples(track)) {
+      int extractorTrack = extractorTrackIndices[track];
+      if (extractor.hasSamples(extractorTrack)) {
         return true;
       }
     }
@@ -267,21 +282,21 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   }
 
   @Override
+  public long readDiscontinuity(int track) {
+    if (pendingDiscontinuities[track]) {
+      pendingDiscontinuities[track] = false;
+      return lastSeekPositionUs;
+    }
+    return NO_DISCONTINUITY;
+  }
+
+  @Override
   public int readData(int track, long playbackPositionUs, MediaFormatHolder formatHolder,
-      SampleHolder sampleHolder, boolean onlyReadDiscontinuity) {
+      SampleHolder sampleHolder) {
     Assertions.checkState(prepared);
     downstreamPositionUs = playbackPositionUs;
 
-    if (pendingDiscontinuities[track]) {
-      pendingDiscontinuities[track] = false;
-      return DISCONTINUITY_READ;
-    }
-
-    if (onlyReadDiscontinuity) {
-      return NOTHING_READ;
-    }
-
-    if (isPendingReset()) {
+    if (pendingDiscontinuities[track] || isPendingReset()) {
       return NOTHING_READ;
     }
 
@@ -302,8 +317,9 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       extractor.configureSpliceTo(extractors.get(1));
     }
 
+    int extractorTrack = extractorTrackIndices[track];
     int extractorIndex = 0;
-    while (extractors.size() > extractorIndex + 1 && !extractor.hasSamples(track)) {
+    while (extractors.size() > extractorIndex + 1 && !extractor.hasSamples(extractorTrack)) {
       // We're finished reading from the extractor for this particular track, so advance to the
       // next one for the current read.
       extractor = extractors.get(++extractorIndex);
@@ -312,14 +328,14 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       }
     }
 
-    MediaFormat mediaFormat = extractor.getMediaFormat(track);
+    MediaFormat mediaFormat = extractor.getMediaFormat(extractorTrack);
     if (mediaFormat != null && !mediaFormat.equals(downstreamMediaFormats[track])) {
       formatHolder.format = mediaFormat;
       downstreamMediaFormats[track] = mediaFormat;
       return FORMAT_READ;
     }
 
-    if (extractor.getSample(track, sampleHolder)) {
+    if (extractor.getSample(extractorTrack, sampleHolder)) {
       boolean decodeOnly = sampleHolder.timeUs < lastSeekPositionUs;
       sampleHolder.flags |= decodeOnly ? C.SAMPLE_FLAG_DECODE_ONLY : 0;
       return SAMPLE_READ;
@@ -345,7 +361,10 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   public void seekToUs(long positionUs) {
     Assertions.checkState(prepared);
     Assertions.checkState(enabledTrackCount > 0);
+    // Treat all seeks into live streams as being to t=0.
+    positionUs = chunkSource.isLive() ? 0 : positionUs;
 
+    // Ignore seeks to the current position.
     long currentPositionUs = isPendingReset() ? pendingResetPositionUs : downstreamPositionUs;
     downstreamPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
@@ -353,12 +372,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       return;
     }
 
-    // TODO: Optimize the seek for the case where the position is already buffered.
-    downstreamPositionUs = positionUs;
-    for (int i = 0; i < pendingDiscontinuities.length; i++) {
-      pendingDiscontinuities[i] = true;
-    }
-    restartFrom(positionUs);
+    seekToInternal(positionUs);
   }
 
   @Override
@@ -386,6 +400,10 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   public void release() {
     Assertions.checkState(remainingReleaseCount > 0);
     if (--remainingReleaseCount == 0 && loader != null) {
+      if (loadControlRegistered) {
+        loadControl.unregister(this);
+        loadControlRegistered = false;
+      }
       loader.release();
       loader = null;
     }
@@ -410,9 +428,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
           currentLoadable.trigger, currentLoadable.format, -1, -1, now, loadDurationMs);
     }
     clearCurrentLoadable();
-    if (enabledTrackCount > 0 || !prepared) {
-      maybeStartLoading();
-    }
+    maybeStartLoading();
   }
 
   @Override
@@ -446,6 +462,146 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   // Internal stuff.
 
   /**
+   * Builds tracks that are exposed by this {@link HlsSampleSource} instance, as well as internal
+   * data-structures required for operation.
+   * <p>
+   * Tracks in HLS are complicated. A HLS master playlist contains a number of "variants". Each
+   * variant stream typically contains muxed video, audio and (possibly) additional audio, metadata
+   * and caption tracks. We wish to allow the user to select between an adaptive track that spans
+   * all variants, as well as each individual variant. If multiple audio tracks are present within
+   * each variant then we wish to allow the user to select between those also.
+   * <p>
+   * To do this, tracks are constructed as follows. The {@link HlsChunkSource} exposes (N+1) tracks,
+   * where N is the number of variants defined in the HLS master playlist. These consist of one
+   * adaptive track defined to span all variants and a track for each individual variant. The
+   * adaptive track is initially selected. The extractor is then prepared to discover the tracks
+   * inside of each variant stream. The two sets of tracks are then combined by this method to
+   * create a third set, which is the set exposed by this {@link HlsSampleSource}:
+   * <ul>
+   * <li>The extractor tracks are inspected to infer a "primary" track type. If a video track is
+   * present then it is always the primary type. If not, audio is the primary type if present.
+   * Else text is the primary type if present. Else there is no primary type.</li>
+   * <li>If there is exactly one extractor track of the primary type, it's expanded into (N+1)
+   * exposed tracks, all of which correspond to the primary extractor track and each of which
+   * corresponds to a different chunk source track. Selecting one of these tracks has the effect
+   * of switching the selected track on the chunk source.</li>
+   * <li>All other extractor tracks are exposed directly. Selecting one of these tracks has the
+   * effect of selecting an extractor track, leaving the selected track on the chunk source
+   * unchanged.</li>
+   * </ul>
+   *
+   * @param extractor The prepared extractor.
+   */
+  private void buildTracks(HlsExtractorWrapper extractor) {
+    // Iterate through the extractor tracks to discover the "primary" track type, and the index
+    // of the single track of this type.
+    int primaryExtractorTrackType = PRIMARY_TYPE_NONE;
+    int primaryExtractorTrackIndex = -1;
+    int extractorTrackCount = extractor.getTrackCount();
+    for (int i = 0; i < extractorTrackCount; i++) {
+      String mimeType = extractor.getMediaFormat(i).mimeType;
+      int trackType;
+      if (MimeTypes.isVideo(mimeType)) {
+        trackType = PRIMARY_TYPE_VIDEO;
+      } else if (MimeTypes.isAudio(mimeType)) {
+        trackType = PRIMARY_TYPE_AUDIO;
+      } else if (MimeTypes.isText(mimeType)) {
+        trackType = PRIMARY_TYPE_TEXT;
+      } else {
+        trackType = PRIMARY_TYPE_NONE;
+      }
+      if (trackType > primaryExtractorTrackType) {
+        primaryExtractorTrackType = trackType;
+        primaryExtractorTrackIndex = i;
+      } else if (trackType == primaryExtractorTrackType && primaryExtractorTrackIndex != -1) {
+        // We have multiple tracks of the primary type. We only want an index if there only
+        // exists a single track of the primary type, so set the index back to -1.
+        primaryExtractorTrackIndex = -1;
+      }
+    }
+
+    // Calculate the number of tracks that will be exposed.
+    int chunkSourceTrackCount = chunkSource.getTrackCount();
+    boolean expandPrimaryExtractorTrack = primaryExtractorTrackIndex != -1;
+    trackCount = extractorTrackCount;
+    if (expandPrimaryExtractorTrack) {
+      trackCount += chunkSourceTrackCount - 1;
+    }
+
+    // Instantiate the necessary internal data-structures.
+    trackFormats = new MediaFormat[trackCount];
+    trackEnabledStates = new boolean[trackCount];
+    pendingDiscontinuities = new boolean[trackCount];
+    downstreamMediaFormats = new MediaFormat[trackCount];
+    chunkSourceTrackIndices = new int[trackCount];
+    extractorTrackIndices = new int[trackCount];
+    extractorTrackEnabledStates = new boolean[extractorTrackCount];
+
+    // Construct the set of exposed tracks.
+    long durationUs = chunkSource.getDurationUs();
+    int trackIndex = 0;
+    for (int i = 0; i < extractorTrackCount; i++) {
+      MediaFormat format = extractor.getMediaFormat(i).copyWithDurationUs(durationUs);
+      if (i == primaryExtractorTrackIndex) {
+        for (int j = 0; j < chunkSourceTrackCount; j++) {
+          extractorTrackIndices[trackIndex] = i;
+          chunkSourceTrackIndices[trackIndex] = j;
+          Variant fixedTrackVariant = chunkSource.getFixedTrackVariant(j);
+          trackFormats[trackIndex++] = fixedTrackVariant == null ? format.copyAsAdaptive(null)
+              : copyWithFixedTrackInfo(format, fixedTrackVariant.format);
+        }
+      } else {
+        extractorTrackIndices[trackIndex] = i;
+        chunkSourceTrackIndices[trackIndex] = -1;
+        trackFormats[trackIndex++] = format;
+      }
+    }
+  }
+
+  /**
+   * Enables or disables the track at a given index.
+   *
+   * @param track The index of the track.
+   * @param enabledState True if the track is being enabled, or false if it's being disabled.
+   */
+  private void setTrackEnabledState(int track, boolean enabledState) {
+    Assertions.checkState(trackEnabledStates[track] != enabledState);
+    int extractorTrack = extractorTrackIndices[track];
+    Assertions.checkState(extractorTrackEnabledStates[extractorTrack] != enabledState);
+    trackEnabledStates[track] = enabledState;
+    extractorTrackEnabledStates[extractorTrack] = enabledState;
+    enabledTrackCount = enabledTrackCount + (enabledState ? 1 : -1);
+  }
+
+  /**
+   * Copies a provided {@link MediaFormat}, incorporating information from the {@link Format} of
+   * a fixed (i.e. non-adaptive) track.
+   *
+   * @param format The {@link MediaFormat} to copy.
+   * @param fixedTrackFormat The {@link Format} to incorporate into the copy.
+   * @return The copied {@link MediaFormat}.
+   */
+  private static MediaFormat copyWithFixedTrackInfo(MediaFormat format, Format fixedTrackFormat) {
+    int width = fixedTrackFormat.width == -1 ? MediaFormat.NO_VALUE : fixedTrackFormat.width;
+    int height = fixedTrackFormat.height == -1 ? MediaFormat.NO_VALUE : fixedTrackFormat.height;
+    return format.copyWithFixedTrackInfo(fixedTrackFormat.id, fixedTrackFormat.bitrate, width,
+        height, fixedTrackFormat.language);
+  }
+
+  /**
+   * Performs a seek. The operation is performed even if the seek is to the current position.
+   *
+   * @param positionUs The position to seek to.
+   */
+  private void seekToInternal(long positionUs) {
+    lastSeekPositionUs = positionUs;
+    downstreamPositionUs = positionUs;
+    Arrays.fill(pendingDiscontinuities, true);
+    chunkSource.seek();
+    restartFrom(positionUs);
+  }
+
+  /**
    * Gets the current extractor from which samples should be read.
    * <p>
    * Calling this method discards extractors without any samples from the front of the queue. The
@@ -469,8 +625,8 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     if (!extractor.isPrepared()) {
       return;
     }
-    for (int i = 0; i < trackEnabledStates.length; i++) {
-      if (!trackEnabledStates[i]) {
+    for (int i = 0; i < extractorTrackEnabledStates.length; i++) {
+      if (!extractorTrackEnabledStates[i]) {
         extractor.discardUntil(i, timeUs);
       }
     }
@@ -480,8 +636,8 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     if (!extractor.isPrepared()) {
       return false;
     }
-    for (int i = 0; i < trackEnabledStates.length; i++) {
-      if (trackEnabledStates[i] && extractor.hasSamples(i)) {
+    for (int i = 0; i < extractorTrackEnabledStates.length; i++) {
+      if (extractorTrackEnabledStates[i] && extractor.hasSamples(i)) {
         return true;
       }
     }
@@ -534,7 +690,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       return;
     }
 
-    if (loader.isLoading() || !nextLoader) {
+    if (loader.isLoading() || !nextLoader || (prepared && enabledTrackCount == 0)) {
       return;
     }
 
@@ -547,6 +703,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
 
     if (endOfStream) {
       loadingFinished = true;
+      loadControl.update(this, downstreamPositionUs, -1, false);
       return;
     }
     if (nextLoadable == null) {
@@ -583,7 +740,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     if (isPendingReset()) {
       return pendingResetPositionUs;
     } else {
-      return loadingFinished ? -1
+      return loadingFinished || (prepared && enabledTrackCount == 0) ? -1
           : currentTsLoadable != null ? currentTsLoadable.endTimeUs : previousTsLoadable.endTimeUs;
     }
   }

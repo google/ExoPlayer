@@ -128,29 +128,34 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   /**
    * @param context A context.
    * @param source The upstream source from which the renderer obtains samples.
+   * @param mediaCodecSelector A decoder selector.
    * @param videoScalingMode The scaling mode to pass to
    *     {@link MediaCodec#setVideoScalingMode(int)}.
    */
-  public MediaCodecVideoTrackRenderer(Context context, SampleSource source, int videoScalingMode) {
-    this(context, source, videoScalingMode, 0);
+  public MediaCodecVideoTrackRenderer(Context context, SampleSource source,
+      MediaCodecSelector mediaCodecSelector, int videoScalingMode) {
+    this(context, source, mediaCodecSelector, videoScalingMode, 0);
   }
 
   /**
    * @param context A context.
    * @param source The upstream source from which the renderer obtains samples.
+   * @param mediaCodecSelector A decoder selector.
    * @param videoScalingMode The scaling mode to pass to
    *     {@link MediaCodec#setVideoScalingMode(int)}.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    */
-  public MediaCodecVideoTrackRenderer(Context context, SampleSource source, int videoScalingMode,
-      long allowedJoiningTimeMs) {
-    this(context, source, videoScalingMode, allowedJoiningTimeMs, null, null, -1);
+  public MediaCodecVideoTrackRenderer(Context context, SampleSource source,
+      MediaCodecSelector mediaCodecSelector, int videoScalingMode, long allowedJoiningTimeMs) {
+    this(context, source, mediaCodecSelector, videoScalingMode, allowedJoiningTimeMs, null, null,
+        -1);
   }
 
   /**
    * @param context A context.
    * @param source The upstream source from which the renderer obtains samples.
+   * @param mediaCodecSelector A decoder selector.
    * @param videoScalingMode The scaling mode to pass to
    *     {@link MediaCodec#setVideoScalingMode(int)}.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
@@ -161,16 +166,17 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    * @param maxDroppedFrameCountToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link EventListener#onDroppedFrames(int, long)}.
    */
-  public MediaCodecVideoTrackRenderer(Context context, SampleSource source, int videoScalingMode,
-      long allowedJoiningTimeMs, Handler eventHandler, EventListener eventListener,
-      int maxDroppedFrameCountToNotify) {
-    this(context, source, videoScalingMode, allowedJoiningTimeMs, null, false, eventHandler,
-        eventListener, maxDroppedFrameCountToNotify);
+  public MediaCodecVideoTrackRenderer(Context context, SampleSource source,
+      MediaCodecSelector mediaCodecSelector, int videoScalingMode, long allowedJoiningTimeMs,
+      Handler eventHandler, EventListener eventListener, int maxDroppedFrameCountToNotify) {
+    this(context, source, mediaCodecSelector, videoScalingMode, allowedJoiningTimeMs, null, false,
+        eventHandler, eventListener, maxDroppedFrameCountToNotify);
   }
 
   /**
    * @param context A context.
    * @param source The upstream source from which the renderer obtains samples.
+   * @param mediaCodecSelector A decoder selector.
    * @param videoScalingMode The scaling mode to pass to
    *     {@link MediaCodec#setVideoScalingMode(int)}.
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
@@ -188,11 +194,12 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
    * @param maxDroppedFrameCountToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link EventListener#onDroppedFrames(int, long)}.
    */
-  public MediaCodecVideoTrackRenderer(Context context, SampleSource source, int videoScalingMode,
-      long allowedJoiningTimeMs, DrmSessionManager drmSessionManager,
-      boolean playClearSamplesWithoutKeys, Handler eventHandler, EventListener eventListener,
-      int maxDroppedFrameCountToNotify) {
-    super(source, drmSessionManager, playClearSamplesWithoutKeys, eventHandler, eventListener);
+  public MediaCodecVideoTrackRenderer(Context context, SampleSource source,
+      MediaCodecSelector mediaCodecSelector, int videoScalingMode, long allowedJoiningTimeMs,
+      DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
+      Handler eventHandler, EventListener eventListener, int maxDroppedFrameCountToNotify) {
+    super(source, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
+        eventListener);
     this.frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(context);
     this.videoScalingMode = videoScalingMode;
     this.allowedJoiningTimeUs = allowedJoiningTimeMs * 1000;
@@ -209,19 +216,17 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected boolean handlesTrack(MediaFormat mediaFormat) throws DecoderQueryException {
-    // TODO: Use MediaCodecList.findDecoderForFormat on API 23.
+  protected boolean handlesTrack(MediaCodecSelector mediaCodecSelector, MediaFormat mediaFormat)
+      throws DecoderQueryException {
     String mimeType = mediaFormat.mimeType;
     return MimeTypes.isVideo(mimeType) && (MimeTypes.VIDEO_UNKNOWN.equals(mimeType)
-        || MediaCodecUtil.getDecoderInfo(mimeType, false) != null);
+        || mediaCodecSelector.getDecoderInfo(mediaFormat, false) != null);
   }
 
   @Override
   protected void onEnabled(int track, long positionUs, boolean joining)
       throws ExoPlaybackException {
     super.onEnabled(track, positionUs, joining);
-    renderedFirstFrame = false;
-    consecutiveDroppedFrameCount = 0;
     if (joining && allowedJoiningTimeUs > 0) {
       joiningDeadlineUs = SystemClock.elapsedRealtime() * 1000L + allowedJoiningTimeUs;
     }
@@ -229,8 +234,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void seekTo(long positionUs) throws ExoPlaybackException {
-    super.seekTo(positionUs);
+  protected void onDiscontinuity(long positionUs) throws ExoPlaybackException {
+    super.onDiscontinuity(positionUs);
     renderedFirstFrame = false;
     consecutiveDroppedFrameCount = 0;
     joiningDeadlineUs = -1;
@@ -316,7 +321,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   // Override configureCodec to provide the surface.
   @Override
-  protected void configureCodec(MediaCodec codec, String codecName, boolean codecIsAdaptive,
+  protected void configureCodec(MediaCodec codec, boolean codecIsAdaptive,
       android.media.MediaFormat format, MediaCrypto crypto) {
     maybeSetMaxInputSize(format, codecIsAdaptive);
     codec.configure(format, surface, crypto, 0);
@@ -491,17 +496,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   @SuppressLint("InlinedApi")
   private void maybeSetMaxInputSize(android.media.MediaFormat format, boolean codecIsAdaptive) {
-    if (!MimeTypes.VIDEO_H264.equals(format.getString(android.media.MediaFormat.KEY_MIME))) {
-      // Only set a max input size for H264 for now.
-      return;
-    }
     if (format.containsKey(android.media.MediaFormat.KEY_MAX_INPUT_SIZE)) {
       // Already set. The source of the format may know better, so do nothing.
-      return;
-    }
-    if ("BRAVIA 4K 2015".equals(Util.MODEL)) {
-      // The Sony BRAVIA 4k TV has input buffers that are too small for the calculated 4k video
-      // maximum input size, so use the default value.
       return;
     }
     int maxHeight = format.getInteger(android.media.MediaFormat.KEY_HEIGHT);
@@ -512,8 +508,34 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     if (codecIsAdaptive && format.containsKey(android.media.MediaFormat.KEY_MAX_WIDTH)) {
       maxWidth = Math.max(maxHeight, format.getInteger(android.media.MediaFormat.KEY_MAX_WIDTH));
     }
-    // H264 requires compression ratio of at least 2, and uses macroblocks.
-    int maxInputSize = ((maxWidth + 15) / 16) * ((maxHeight + 15) / 16) * 192;
+    int maxPixels;
+    int minCompressionRatio;
+    switch (format.getString(android.media.MediaFormat.KEY_MIME)) {
+      case MimeTypes.VIDEO_H264:
+        if ("BRAVIA 4K 2015".equals(Util.MODEL)) {
+          // The Sony BRAVIA 4k TV has input buffers that are too small for the calculated 4k video
+          // maximum input size, so use the default value.
+          return;
+        }
+        // Round up width/height to an integer number of macroblocks.
+        maxPixels = ((maxWidth + 15) / 16) * ((maxHeight + 15) / 16) * 16 * 16;
+        minCompressionRatio = 2;
+        break;
+      case MimeTypes.VIDEO_VP8:
+        // VPX does not specify a ratio so use the values from the platform's SoftVPX.cpp.
+        maxPixels = maxWidth * maxHeight;
+        minCompressionRatio = 2;
+        break;
+      case MimeTypes.VIDEO_VP9:
+        maxPixels = maxWidth * maxHeight;
+        minCompressionRatio = 4;
+        break;
+      default:
+        // Leave the default max input size.
+        return;
+    }
+    // Estimate the maximum input size assuming three channel 4:2:0 subsampled input frames.
+    int maxInputSize = (maxPixels * 3) / (2 * minCompressionRatio);
     format.setInteger(android.media.MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
   }
 

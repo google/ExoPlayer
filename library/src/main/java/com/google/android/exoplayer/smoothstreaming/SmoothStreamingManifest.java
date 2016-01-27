@@ -132,10 +132,10 @@ public class SmoothStreamingManifest {
     public final byte[][] csd;
 
     public TrackElement(int index, int bitrate, String mimeType, byte[][] csd, int maxWidth,
-        int maxHeight, int sampleRate, int numChannels) {
+        int maxHeight, int sampleRate, int numChannels, String language) {
       this.csd = csd;
       format = new Format(String.valueOf(index), mimeType, maxWidth, maxHeight, -1, numChannels,
-          sampleRate, bitrate);
+          sampleRate, bitrate, language);
     }
 
     @Override

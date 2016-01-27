@@ -640,7 +640,9 @@ import java.util.concurrent.atomic.AtomicInteger;
     if (shouldEnable) {
       // Re-enable the renderer with the newly selected track.
       boolean playing = playWhenReady && state == ExoPlayer.STATE_READY;
-      renderer.enable(trackIndex, positionUs, playing);
+      // Consider as joining if the renderer was previously disabled, but not when switching tracks.
+      boolean joining = !isEnabled && playing;
+      renderer.enable(trackIndex, positionUs, joining);
       enabledRenderers.add(renderer);
       if (playing) {
         renderer.start();

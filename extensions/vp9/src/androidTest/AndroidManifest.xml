@@ -13,20 +13,22 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    package="com.google.android.exoplayer.ext.vp9.test">
 
-    <TextView
-        android:id="@+id/path"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+  <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="23"/>
 
-    <ListView
-        android:id="@android:id/list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+  <application android:debuggable="true"
+      android:allowBackup="false"
+      tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
+    <uses-library android:name="android.test.runner"/>
+  </application>
 
-</LinearLayout>
+  <instrumentation
+      android:targetPackage="com.google.android.exoplayer.ext.vp9.test"
+      android:name="android.test.InstrumentationTestRunner"
+      tools:replace="android:targetPackage"/>
+
+</manifest>

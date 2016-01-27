@@ -172,7 +172,8 @@ public final class MpegAudioHeader {
 
     String mimeType = MIME_TYPE_BY_LAYER[3 - layer];
     int channels = ((headerData >> 6) & 3) == 3 ? 1 : 2;
-    header.setValues(version, mimeType, frameSize, sampleRate, channels, bitrate, samplesPerFrame);
+    header.setValues(version, mimeType, frameSize, sampleRate, channels, bitrate * 1000,
+        samplesPerFrame);
     return true;
   }
 
@@ -186,13 +187,13 @@ public final class MpegAudioHeader {
   public int sampleRate;
   /** Number of audio channels in the frame. */
   public int channels;
-  /** Bitrate of the frame in kbit/s. */
+  /** Bitrate of the frame in bit/s. */
   public int bitrate;
   /** Number of samples stored in the frame. */
   public int samplesPerFrame;
 
-  private void setValues(int version, String mimeType, int frameSize,
-      int sampleRate, int channels, int bitrate, int samplesPerFrame) {
+  private void setValues(int version, String mimeType, int frameSize, int sampleRate, int channels,
+      int bitrate, int samplesPerFrame) {
     this.version = version;
     this.mimeType = mimeType;
     this.frameSize = frameSize;

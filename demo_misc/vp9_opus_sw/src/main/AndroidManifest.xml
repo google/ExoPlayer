@@ -18,7 +18,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.google.android.exoplayer.demo.vp9opus"
     android:versionCode="1503"
-    android:versionName="1.5.3"
+    android:versionName="1.5.4"
     android:theme="@style/RootTheme">
 
   <uses-permission android:name="android.permission.INTERNET"/>
@@ -44,13 +44,10 @@
       </intent-filter>
     </activity>
 
-    <activity android:name="com.google.android.exoplayer.demo.vp9opus.VideoPlayer"
+    <activity android:name=".PlayerActivity"
         android:configChanges="keyboardHidden|orientation|screenSize"
         android:label="@string/app_name"
         android:theme="@style/PlayerTheme"/>
-
-    <activity android:name="com.google.android.exoplayer.demo.vp9opus.FilePickerActivity"
-        android:theme="@android:style/Theme.Dialog"/>
 
   </application>
 

@@ -154,9 +154,13 @@ public final class VideoFormatSelectorUtil {
     if (format.width > 0 && format.height > 0) {
       String videoMediaMimeType = MimeTypes.getVideoMediaMimeType(format.codecs);
       if (Util.SDK_INT >= 21 && !MimeTypes.VIDEO_UNKNOWN.equals(videoMediaMimeType)) {
-        float frameRate = (format.frameRate > 0) ? format.frameRate : 30.0f;
-        return MediaCodecUtil.isSizeAndRateSupportedV21(videoMediaMimeType, false,
-            format.width, format.height, frameRate);
+        if (format.frameRate > 0) {
+          return MediaCodecUtil.isSizeAndRateSupportedV21(videoMediaMimeType, false, format.width,
+              format.height, format.frameRate);
+        } else {
+          return MediaCodecUtil.isSizeSupportedV21(videoMediaMimeType, false, format.width,
+              format.height);
+        }
       }
       //Assuming that the media is H.264
       if (format.width * format.height > maxDecodableFrameSize) {

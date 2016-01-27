@@ -44,7 +44,7 @@
     Java_com_google_android_exoplayer_ext_vp9_VpxDecoder_ ## NAME \
       (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
 
-// JNI references for OutputBuffer class.
+// JNI references for VpxOutputBuffer class.
 static jmethodID initForRgbFrame;
 static jmethodID initForYuvFrame;
 static jfieldID dataField;
@@ -69,9 +69,9 @@ FUNC(jlong, vpxInit) {
 
   // Populate JNI References.
   const jclass outputBufferClass = env->FindClass(
-      "com/google/android/exoplayer/ext/vp9/VpxDecoderWrapper$OutputBuffer");
+      "com/google/android/exoplayer/ext/vp9/VpxOutputBuffer");
   initForYuvFrame = env->GetMethodID(outputBufferClass, "initForYuvFrame",
-                                     "(IIII)V");
+                                     "(IIIII)V");
   initForRgbFrame = env->GetMethodID(outputBufferClass, "initForRgbFrame",
                                      "(II)V");
   dataField = env->GetFieldID(outputBufferClass, "data",
@@ -128,9 +128,26 @@ FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
                          img->planes[VPX_PLANE_V], img->stride[VPX_PLANE_V],
                          dst, img->d_w * 2, img->d_w, img->d_h);
   } else if (outputMode == kOutputModeYuv) {
+    const int kColorspaceUnknown = 0;
+    const int kColorspaceBT601 = 1;
+    const int kColorspaceBT709 = 2;
+
+    int colorspace = kColorspaceUnknown;
+    switch (img->cs) {
+      case VPX_CS_BT_601:
+        colorspace = kColorspaceBT601;
+        break;
+      case VPX_CS_BT_709:
+        colorspace = kColorspaceBT709;
+        break;
+      default:
+        break;
+    }
+
     // resize buffer if required.
     env->CallVoidMethod(jOutputBuffer, initForYuvFrame, img->d_w, img->d_h,
-                        img->stride[VPX_PLANE_Y], img->stride[VPX_PLANE_U]);
+                        img->stride[VPX_PLANE_Y], img->stride[VPX_PLANE_U],
+                        colorspace);
 
     // get pointer to the data buffer.
     const jobject dataObject = env->GetObjectField(jOutputBuffer, dataField);

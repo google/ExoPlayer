@@ -17,6 +17,9 @@ package com.google.android.exoplayer;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Message;
 import android.view.Choreographer;
 import android.view.Choreographer.FrameCallback;
 import android.view.WindowManager;
@@ -25,7 +28,7 @@ import android.view.WindowManager;
  * Makes a best effort to adjust frame release timestamps for a smoother visual result.
  */
 @TargetApi(16)
-public final class VideoFrameReleaseTimeHelper implements FrameCallback {
+public final class VideoFrameReleaseTimeHelper {
 
   private static final long CHOREOGRAPHER_SAMPLE_DELAY_MILLIS = 500;
   private static final long MAX_ALLOWED_DRIFT_NS = 20000000;
@@ -33,12 +36,10 @@ public final class VideoFrameReleaseTimeHelper implements FrameCallback {
   private static final long VSYNC_OFFSET_PERCENTAGE = 80;
   private static final int MIN_FRAMES_FOR_ADJUSTMENT = 6;
 
+  private final VSyncSampler vsyncSampler;
   private final boolean useDefaultDisplayVsync;
   private final long vsyncDurationNs;
   private final long vsyncOffsetNs;
-
-  private Choreographer choreographer;
-  private long sampledVsyncTimeNs;
 
   private long lastFramePresentationTimeUs;
   private long adjustedLastFrameTimeNs;
@@ -71,9 +72,11 @@ public final class VideoFrameReleaseTimeHelper implements FrameCallback {
       boolean useDefaultDisplayVsync) {
     this.useDefaultDisplayVsync = useDefaultDisplayVsync;
     if (useDefaultDisplayVsync) {
+      vsyncSampler = VSyncSampler.getInstance();
       vsyncDurationNs = (long) (1000000000d / defaultDisplayRefreshRate);
       vsyncOffsetNs = (vsyncDurationNs * VSYNC_OFFSET_PERCENTAGE) / 100;
     } else {
+      vsyncSampler = null;
       vsyncDurationNs = -1;
       vsyncOffsetNs = -1;
     }
@@ -85,9 +88,7 @@ public final class VideoFrameReleaseTimeHelper implements FrameCallback {
   public void enable() {
     haveSync = false;
     if (useDefaultDisplayVsync) {
-      sampledVsyncTimeNs = 0;
-      choreographer = Choreographer.getInstance();
-      choreographer.postFrameCallback(this);
+      vsyncSampler.addObserver();
     }
   }
 
@@ -96,15 +97,8 @@ public final class VideoFrameReleaseTimeHelper implements FrameCallback {
    */
   public void disable() {
     if (useDefaultDisplayVsync) {
-      choreographer.removeFrameCallback(this);
-      choreographer = null;
+      vsyncSampler.removeObserver();
     }
-  }
-
-  @Override
-  public void doFrame(long vsyncTimeNs) {
-    sampledVsyncTimeNs = vsyncTimeNs;
-    choreographer.postFrameCallbackDelayed(this, CHOREOGRAPHER_SAMPLE_DELAY_MILLIS);
   }
 
   /**
@@ -167,12 +161,13 @@ public final class VideoFrameReleaseTimeHelper implements FrameCallback {
     lastFramePresentationTimeUs = framePresentationTimeUs;
     pendingAdjustedFrameTimeNs = adjustedFrameTimeNs;
 
-    if (sampledVsyncTimeNs == 0) {
+    if (vsyncSampler == null || vsyncSampler.sampledVsyncTimeNs == 0) {
       return adjustedReleaseTimeNs;
     }
 
     // Find the timestamp of the closest vsync. This is the vsync that we're targeting.
-    long snappedTimeNs = closestVsync(adjustedReleaseTimeNs, sampledVsyncTimeNs, vsyncDurationNs);
+    long snappedTimeNs = closestVsync(adjustedReleaseTimeNs,
+        vsyncSampler.sampledVsyncTimeNs, vsyncDurationNs);
     // Apply an offset so that we release before the target vsync, but after the previous one.
     return snappedTimeNs - vsyncOffsetNs;
   }
@@ -207,6 +202,104 @@ public final class VideoFrameReleaseTimeHelper implements FrameCallback {
   private static float getDefaultDisplayRefreshRate(Context context) {
     WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     return manager.getDefaultDisplay().getRefreshRate();
+  }
+
+  /**
+   * Manages the lifecycle of a single {@link Choreographer} to be shared among all
+   * {@link VideoFrameReleaseTimeHelper} instances. This is done to avoid a bug fixed in platform
+   * API version 23 that causes resource leakage. See [Internal: b/12455729].
+   */
+  private static final class VSyncSampler implements FrameCallback, Handler.Callback {
+
+    public volatile long sampledVsyncTimeNs;
+
+    private static final int CREATE_CHOREOGRAPHER = 0;
+    private static final int MSG_ADD_OBSERVER = 1;
+    private static final int MSG_REMOVE_OBSERVER = 2;
+
+    private static final VSyncSampler INSTANCE = new VSyncSampler();
+
+    private final Handler handler;
+    private final HandlerThread choreographerOwnerThread;
+    private Choreographer choreographer;
+    private int observerCount;
+
+    public static VSyncSampler getInstance() {
+      return INSTANCE;
+    }
+
+    private VSyncSampler() {
+      choreographerOwnerThread = new HandlerThread("ChoreographerOwner:Handler");
+      choreographerOwnerThread.start();
+      handler = new Handler(choreographerOwnerThread.getLooper(), this);
+      handler.sendEmptyMessage(CREATE_CHOREOGRAPHER);
+    }
+
+    /**
+     * Tells the {@link VSyncSampler} that there is a new {@link VideoFrameReleaseTimeHelper}
+     * instance observing the currentSampledVsyncTimeNs value. As a consequence, if necessary, it
+     * will register itself as a {@code doFrame} callback listener.
+     */
+    public void addObserver() {
+      handler.sendEmptyMessage(MSG_ADD_OBSERVER);
+    }
+
+    /**
+     * Counterpart of {@code addNewObservingHelper}. This method should be called once the observer
+     * no longer needs to read {@link #sampledVsyncTimeNs}
+     */
+    public void removeObserver() {
+      handler.sendEmptyMessage(MSG_REMOVE_OBSERVER);
+    }
+
+    @Override
+    public void doFrame(long vsyncTimeNs) {
+      sampledVsyncTimeNs = vsyncTimeNs;
+      choreographer.postFrameCallbackDelayed(this, CHOREOGRAPHER_SAMPLE_DELAY_MILLIS);
+    }
+
+    @Override
+    public boolean handleMessage(Message message) {
+      switch (message.what) {
+        case CREATE_CHOREOGRAPHER: {
+          createChoreographerInstanceInternal();
+          return true;
+        }
+        case MSG_ADD_OBSERVER: {
+          addObserverInternal();
+          return true;
+        }
+        case MSG_REMOVE_OBSERVER: {
+          removeObserverInternal();
+          return true;
+        }
+        default: {
+          return false;
+        }
+      }
+    }
+
+
+    private void createChoreographerInstanceInternal() {
+      choreographer = Choreographer.getInstance();
+    }
+
+    private void addObserverInternal() {
+      observerCount++;
+      if (observerCount == 1) {
+        choreographer.postFrameCallback(this);
+      }
+    }
+
+    private void removeObserverInternal() {
+      observerCount--;
+      if (observerCount == 0) {
+        choreographer.removeFrameCallback(this);
+        sampledVsyncTimeNs = 0;
+      }
+    }
+
+
   }
 
 }

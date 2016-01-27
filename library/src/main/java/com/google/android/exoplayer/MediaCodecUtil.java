@@ -110,9 +110,11 @@ public final class MediaCodecUtil {
     MediaCodecListCompat mediaCodecList = Util.SDK_INT >= 21
         ? new MediaCodecListCompatV21(secure) : new MediaCodecListCompatV16();
     Pair<String, CodecCapabilities> codecInfo = getMediaCodecInfo(key, mediaCodecList);
-    // TODO: Verify this cannot occur on v22, and change >= to == [Internal: b/18678462].
-    if (secure && codecInfo == null && Util.SDK_INT >= 21) {
-      // Some devices don't list secure decoders on API level 21. Try the legacy path.
+    if (secure && codecInfo == null && 21 <= Util.SDK_INT && Util.SDK_INT <= 23) {
+      // Some devices don't list secure decoders on API level 21 [Internal: b/18678462]. Try the
+      // legacy path. We also try this path on API levels 22 and 23 as a defensive measure.
+      // TODO: Verify that the issue cannot occur on API levels 22 and 23, and tighten this block
+      // to execute on API level 21 only if confirmed.
       mediaCodecList = new MediaCodecListCompatV16();
       codecInfo = getMediaCodecInfo(key, mediaCodecList);
       if (codecInfo != null) {
@@ -184,9 +186,15 @@ public final class MediaCodecUtil {
     }
 
     // Work around broken audio decoders.
-    if ((Util.SDK_INT < 18 && "CIPAACDecoder".equals(name))
-        || (Util.SDK_INT < 18 && "CIPMP3Decoder".equals(name))
-        || (Util.SDK_INT < 20 && "AACDecoder".equals(name))) {
+    if (Util.SDK_INT < 21
+        && ("CIPAACDecoder".equals(name))
+            || "CIPMP3Decoder".equals(name)
+            || "CIPVorbisDecoder".equals(name)
+            || "AACDecoder".equals(name)
+            || "MP3Decoder".equals(name)) {
+      return false;
+    }
+    if (Util.SDK_INT == 16 && "OMX.SEC.MP3.Decoder".equals(name)) {
       return false;
     }
 
@@ -240,6 +248,27 @@ public final class MediaCodecUtil {
   }
 
   /**
+   * Tests whether the device advertises it can decode video of a given type at a specified width
+   * and height.
+   * <p>
+   * Must not be called if the device SDK version is less than 21.
+   *
+   * @param mimeType The mime type.
+   * @param secure Whether the decoder is required to support secure decryption. Always pass false
+   *     unless secure decryption really is required.
+   * @param width Width in pixels.
+   * @param height Height in pixels.
+   * @return Whether the decoder advertises support of the given size.
+   */
+  @TargetApi(21)
+  public static boolean isSizeSupportedV21(String mimeType, boolean secure, int width,
+      int height) throws DecoderQueryException {
+    Assertions.checkState(Util.SDK_INT >= 21);
+    MediaCodecInfo.VideoCapabilities videoCapabilities = getVideoCapabilitiesV21(mimeType, secure);
+    return videoCapabilities != null && videoCapabilities.isSizeSupported(width, height);
+  }
+
+  /**
    * Tests whether the device advertises it can decode video of a given type at a specified
    * width, height, and frame rate.
    * <p>
@@ -257,11 +286,7 @@ public final class MediaCodecUtil {
   public static boolean isSizeAndRateSupportedV21(String mimeType, boolean secure,
       int width, int height, double frameRate) throws DecoderQueryException {
     Assertions.checkState(Util.SDK_INT >= 21);
-    Pair<String, CodecCapabilities> info = getMediaCodecInfo(mimeType, secure);
-    if (info == null) {
-      return false;
-    }
-    MediaCodecInfo.VideoCapabilities videoCapabilities = info.second.getVideoCapabilities();
+    MediaCodecInfo.VideoCapabilities videoCapabilities = getVideoCapabilitiesV21(mimeType, secure);
     return videoCapabilities != null
         && videoCapabilities.areSizeAndRateSupported(width, height, frameRate);
   }
@@ -307,6 +332,16 @@ public final class MediaCodecUtil {
     }
 
     return maxH264DecodableFrameSize;
+  }
+
+  @TargetApi(21)
+  private static MediaCodecInfo.VideoCapabilities getVideoCapabilitiesV21(String mimeType,
+      boolean secure) throws DecoderQueryException {
+    Pair<String, CodecCapabilities> info = getMediaCodecInfo(mimeType, secure);
+    if (info == null) {
+      return null;
+    }
+    return info.second.getVideoCapabilities();
   }
 
   /**

@@ -110,7 +110,7 @@ public final class AdtsExtractor implements Extractor {
 
   @Override
   public void init(ExtractorOutput output) {
-    adtsReader = new AdtsReader(output.track(0));
+    adtsReader = new AdtsReader(output.track(0), output.track(1));
     output.endTracks();
     output.seekMap(SeekMap.UNSEEKABLE);
   }
