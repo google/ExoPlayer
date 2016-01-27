@@ -174,7 +174,8 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
 
   private Surface surface;
   private TrackRenderer videoRenderer;
-  private CodecCounters codecCounters;
+    private TrackRenderer audioRenderer;
+    private CodecCounters codecCounters;
   private Format videoFormat;
   private int videoTrackToRestore;
 
@@ -306,6 +307,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     }
     // Complete preparation.
     this.videoRenderer = renderers[TYPE_VIDEO];
+      this.audioRenderer = renderers[TYPE_AUDIO];
     this.codecCounters = videoRenderer instanceof MediaCodecTrackRenderer
         ? ((MediaCodecTrackRenderer) videoRenderer).codecCounters
         : renderers[TYPE_AUDIO] instanceof MediaCodecTrackRenderer
@@ -556,7 +558,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
       long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs) {
     if (infoListener != null) {
       infoListener.onLoadCompleted(sourceId, bytesLoaded, type, trigger, format, mediaStartTimeMs,
-          mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs);
+              mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs);
     }
   }
 
@@ -596,4 +598,10 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     }
   }
 
+  public void fadeOut(float fromVolume, float maxDeviceVolume, double duration, double velocity, ExoPlayer.FadeCallback fadeCallback){
+      player.fadeOut(this.audioRenderer, fromVolume, maxDeviceVolume, duration, velocity, fadeCallback);
+  }
+    public void fadeIn(float fromVolume, float maxDeviceVolume, double duration, double velocity, ExoPlayer.FadeCallback fadeCallback){
+        player.fadeIn(this.audioRenderer, fromVolume, maxDeviceVolume, duration, velocity, fadeCallback);
+    }
 }

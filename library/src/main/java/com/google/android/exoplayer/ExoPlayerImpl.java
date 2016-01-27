@@ -41,6 +41,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private int playbackState;
   private int pendingPlayWhenReadyAcks;
 
+    // The higher the number - the higher the quality of fade
+    // and it will consume more CPU.
+    private double volumeAlterationsPerSecond = 30;
+
+    private double fadeDurationSeconds = 3;
+    private double fadeVelocity = 2;
+
+    private double mFromVolume = 0;
+    private double mToVolume = 0;
+
+    private int currentStep;
+
   /**
    * Constructs an instance. Must be invoked from a thread that has an associated {@link Looper}.
    *
@@ -156,6 +168,92 @@ import java.util.concurrent.CopyOnWriteArraySet;
     internalPlayer.release();
     eventHandler.removeCallbacksAndMessages(null);
   }
+
+  @Override
+  public void fadeIn(TrackRenderer audioRenderer, float fromVolume, float maxDeviceVolume, double duration, double velocity, FadeCallback onFinishFadeCallback) {
+      fade(audioRenderer, correctFromVolumeValue(fromVolume, maxDeviceVolume) / maxDeviceVolume, 1, duration, velocity, onFinishFadeCallback);
+  }
+
+  @Override
+  public void fadeOut(TrackRenderer audioRenderer, float fromVolume, float maxDeviceVolume, double duration, double velocity, FadeCallback onFinishFadeCallback) {
+      fade(audioRenderer, correctFromVolumeValue(fromVolume, maxDeviceVolume) / maxDeviceVolume, 0, duration, velocity, onFinishFadeCallback);
+  }
+
+    private void fade(final TrackRenderer audioRenderer, float fromVolume, double toVolume, double duration, double velocity, final FadeCallback onFinishFadeCallback) {
+
+        final Handler fadeHandler = new Handler();
+
+        this.mFromVolume = checkValueBetween0and1((double) fromVolume);
+        this.mToVolume = checkValueBetween0and1(toVolume);
+        this.fadeDurationSeconds = duration;
+        this.fadeVelocity = velocity;
+        this.currentStep = 0;
+
+        internalPlayer.sendMessage(audioRenderer, MediaCodecAudioTrackRenderer.MSG_SET_VOLUME, (float) mFromVolume);
+
+        fadeHandler.post(new Runnable() {
+
+            @Override
+            public void run() {
+
+                double currentTimeFrom0To1 = timeFrom0To1(currentStep, fadeDurationSeconds);
+                double newVolume;
+                double volumeMultiplier;
+
+                //Calculate new volume depending of fade in or fade out using logarithmic formulas.
+                if (mFromVolume < mToVolume) {
+                    volumeMultiplier = Math.exp(fadeVelocity * (currentTimeFrom0To1 - 1)) * currentTimeFrom0To1;
+                    newVolume = mFromVolume + (mToVolume - mFromVolume) * volumeMultiplier;
+
+                } else {
+                    volumeMultiplier = Math.exp(-fadeVelocity * currentTimeFrom0To1) * (1 - currentTimeFrom0To1);
+                    newVolume = mToVolume - (mToVolume - mFromVolume) * volumeMultiplier;
+                }
+
+                internalPlayer.sendMessage(audioRenderer, MediaCodecAudioTrackRenderer.MSG_SET_VOLUME, (float) newVolume);
+
+                currentStep++;
+
+                if (!timerShouldStop()) {
+                    long delay = (long) ((1 / volumeAlterationsPerSecond) * 1000);
+                    fadeHandler.postDelayed(this, delay);
+                } else {
+                    if (onFinishFadeCallback != null) {
+                        onFinishFadeCallback.onFadeFinished();
+                    }
+                }
+            }
+        });
+    }
+
+    // Assure than the from volume value is between the minimum and the maximum values
+    private float correctFromVolumeValue(float fromVolume, float maxVolume) {
+        return Math.min(Math.max(fromVolume, 0), maxVolume);
+    }
+
+    private boolean timerShouldStop() {
+        double totalSteps = fadeDurationSeconds * volumeAlterationsPerSecond;
+        return currentStep > totalSteps;
+    }
+
+    private double timeFrom0To1(int currentStep, double duration) {
+
+        double totalSteps = duration * volumeAlterationsPerSecond;
+        double result = currentStep / totalSteps;
+
+        result = checkValueBetween0and1(result);
+
+        return result;
+    }
+
+    private double checkValueBetween0and1(double value) {
+        if(value < 0 ){
+            return 0;
+        }else if(value > 1){
+            return 1;
+        }
+        return value;
+    }
 
   @Override
   public void sendMessage(ExoPlayerComponent target, int messageType, Object message) {
