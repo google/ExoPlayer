@@ -18,6 +18,7 @@ package com.google.android.exoplayer.smoothstreaming;
 import com.google.android.exoplayer.BehindLiveWindowException;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkExtractorWrapper;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
@@ -49,7 +50,6 @@ import android.util.Base64;
 import android.util.SparseArray;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -57,13 +57,13 @@ import java.util.List;
 /**
  * An {@link ChunkSource} for SmoothStreaming.
  */
-public class SmoothStreamingChunkSource implements ChunkSource,
-    SmoothStreamingTrackSelector.Output {
+// TODO[REFACTOR]: Handle multiple stream elements of the same type (at a higher level).
+public class SmoothStreamingChunkSource implements ChunkSource {
 
   private static final int MINIMUM_MANIFEST_REFRESH_PERIOD_MS = 5000;
   private static final int INITIALIZATION_VECTOR_SIZE = 8;
 
-  private final SmoothStreamingTrackSelector trackSelector;
+  private final int streamElementType;
   private final DataSource dataSource;
   private final Evaluation evaluation;
   private final long liveEdgeLatencyUs;
@@ -73,19 +73,25 @@ public class SmoothStreamingChunkSource implements ChunkSource,
   private final FormatEvaluator adaptiveFormatEvaluator;
   private final boolean live;
 
-  // The tracks exposed by this source.
-  private final ArrayList<ExposedTrack> tracks;
-
-  // Mappings from manifest track key.
-  private final SparseArray<ChunkExtractorWrapper> extractorWrappers;
-  private final SparseArray<MediaFormat> mediaFormats;
-
   private boolean prepareCalled;
   private SmoothStreamingManifest currentManifest;
   private int currentManifestChunkOffset;
   private boolean needManifestRefresh;
-  private ExposedTrack enabledTrack;
   private IOException fatalError;
+
+  // Properties of exposed tracks.
+  private int elementIndex;
+  private TrackGroup trackGroup;
+  private Format[] trackFormats;
+
+  // Properties of enabled tracks.
+  private Format[] enabledFormats;
+  private int adaptiveMaxWidth;
+  private int adaptiveMaxHeight;
+
+  // Mappings from manifest track key.
+  private final SparseArray<ChunkExtractorWrapper> extractorWrappers;
+  private final SparseArray<MediaFormat> mediaFormats;
 
   /**
    * Constructor to use for live streaming.
@@ -95,7 +101,9 @@ public class SmoothStreamingChunkSource implements ChunkSource,
    *
    * @param manifestFetcher A fetcher for the manifest, which must have already successfully
    *     completed an initial load.
-   * @param trackSelector Selects tracks from the manifest to be exposed by this source.
+   * @param streamElementType The type of stream element exposed by this source. One of
+   *     {@link StreamElement#TYPE_VIDEO}, {@link StreamElement#TYPE_AUDIO} and
+   *     {@link StreamElement#TYPE_TEXT}.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    * @param liveEdgeLatencyMs For live streams, the number of milliseconds that the playback should
@@ -105,9 +113,9 @@ public class SmoothStreamingChunkSource implements ChunkSource,
    *     Hence a small value may increase the probability of rebuffering and playback failures.
    */
   public SmoothStreamingChunkSource(ManifestFetcher<SmoothStreamingManifest> manifestFetcher,
-      SmoothStreamingTrackSelector trackSelector, DataSource dataSource,
-      FormatEvaluator adaptiveFormatEvaluator, long liveEdgeLatencyMs) {
-    this(manifestFetcher, manifestFetcher.getManifest(), trackSelector, dataSource,
+      int streamElementType, DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
+      long liveEdgeLatencyMs) {
+    this(manifestFetcher, manifestFetcher.getManifest(), streamElementType, dataSource,
         adaptiveFormatEvaluator, liveEdgeLatencyMs);
   }
 
@@ -115,27 +123,27 @@ public class SmoothStreamingChunkSource implements ChunkSource,
    * Constructor to use for fixed duration content.
    *
    * @param manifest The manifest parsed from {@code baseUrl + "/Manifest"}.
-   * @param trackSelector Selects tracks from the manifest to be exposed by this source.
+   * @param streamElementType The type of stream element exposed by this source. One of
+   *     {@link StreamElement#TYPE_VIDEO}, {@link StreamElement#TYPE_AUDIO} and
+   *     {@link StreamElement#TYPE_TEXT}.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    */
-  public SmoothStreamingChunkSource(SmoothStreamingManifest manifest,
-      SmoothStreamingTrackSelector trackSelector, DataSource dataSource,
-      FormatEvaluator adaptiveFormatEvaluator) {
-    this(null, manifest, trackSelector, dataSource, adaptiveFormatEvaluator, 0);
+  public SmoothStreamingChunkSource(SmoothStreamingManifest manifest, int streamElementType,
+      DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator) {
+    this(null, manifest, streamElementType, dataSource, adaptiveFormatEvaluator, 0);
   }
 
   private SmoothStreamingChunkSource(ManifestFetcher<SmoothStreamingManifest> manifestFetcher,
-      SmoothStreamingManifest initialManifest, SmoothStreamingTrackSelector trackSelector,
-      DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator, long liveEdgeLatencyMs) {
+      SmoothStreamingManifest initialManifest, int streamElementType, DataSource dataSource,
+      FormatEvaluator adaptiveFormatEvaluator, long liveEdgeLatencyMs) {
     this.manifestFetcher = manifestFetcher;
     this.currentManifest = initialManifest;
-    this.trackSelector = trackSelector;
+    this.streamElementType = streamElementType;
     this.dataSource = dataSource;
     this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
     this.liveEdgeLatencyUs = liveEdgeLatencyMs * 1000;
     evaluation = new Evaluation();
-    tracks = new ArrayList<>();
     extractorWrappers = new SparseArray<>();
     mediaFormats = new SparseArray<>();
     live = initialManifest.isLive;
@@ -168,31 +176,35 @@ public class SmoothStreamingChunkSource implements ChunkSource,
   @Override
   public boolean prepare() {
     if (!prepareCalled) {
+      selectTracks(currentManifest);
       prepareCalled = true;
-      try {
-        trackSelector.selectTracks(currentManifest, this);
-      } catch (IOException e) {
-        fatalError = e;
-      }
     }
-    return fatalError == null;
+    return true;
   }
 
   @Override
-  public int getTrackCount() {
-    return tracks.size();
+  public final TrackGroup getTracks() {
+    return trackGroup;
   }
 
   @Override
-  public final MediaFormat getFormat(int track) {
-    return tracks.get(track).trackFormat;
-  }
-
-  @Override
-  public void enable(int track) {
-    enabledTrack = tracks.get(track);
-    if (enabledTrack.isAdaptive()) {
+  public void enable(int[] tracks) {
+    int maxWidth = -1;
+    int maxHeight = -1;
+    enabledFormats = new Format[tracks.length];
+    for (int i = 0; i < tracks.length; i++) {
+      enabledFormats[i] = trackFormats[tracks[i]];
+      maxWidth = Math.max(enabledFormats[i].width, maxWidth);
+      maxHeight = Math.max(enabledFormats[i].height, maxHeight);
+    }
+    Arrays.sort(enabledFormats, new DecreasingBandwidthComparator());
+    if (enabledFormats.length > 1) {
+      adaptiveMaxWidth = maxWidth;
+      adaptiveMaxHeight = maxHeight;
       adaptiveFormatEvaluator.enable();
+    } else {
+      adaptiveMaxWidth = -1;
+      adaptiveMaxHeight = -1;
     }
     if (manifestFetcher != null) {
       manifestFetcher.enable();
@@ -207,9 +219,9 @@ public class SmoothStreamingChunkSource implements ChunkSource,
 
     SmoothStreamingManifest newManifest = manifestFetcher.getManifest();
     if (currentManifest != newManifest && newManifest != null) {
-      StreamElement currentElement = currentManifest.streamElements[enabledTrack.elementIndex];
+      StreamElement currentElement = currentManifest.streamElements[elementIndex];
       int currentElementChunkCount = currentElement.chunkCount;
-      StreamElement newElement = newManifest.streamElements[enabledTrack.elementIndex];
+      StreamElement newElement = newManifest.streamElements[elementIndex];
       if (currentElementChunkCount == 0 || newElement.chunkCount == 0) {
         // There's no overlap between the old and new elements because at least one is empty.
         currentManifestChunkOffset += currentElementChunkCount;
@@ -244,11 +256,10 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     }
 
     evaluation.queueSize = queue.size();
-    if (enabledTrack.isAdaptive()) {
-      adaptiveFormatEvaluator.evaluate(queue, playbackPositionUs, enabledTrack.adaptiveFormats,
-          evaluation);
+    if (enabledFormats.length > 1) {
+      adaptiveFormatEvaluator.evaluate(queue, playbackPositionUs, enabledFormats, evaluation);
     } else {
-      evaluation.format = enabledTrack.fixedFormat;
+      evaluation.format = enabledFormats[0];
       evaluation.trigger = Chunk.TRIGGER_MANUAL;
     }
 
@@ -268,7 +279,7 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     // In all cases where we return before instantiating a new chunk, we want out.chunk to be null.
     out.chunk = null;
 
-    StreamElement streamElement = currentManifest.streamElements[enabledTrack.elementIndex];
+    StreamElement streamElement = currentManifest.streamElements[elementIndex];
     if (streamElement.chunkCount == 0) {
       if (currentManifest.isLive) {
         needManifestRefresh = true;
@@ -315,12 +326,12 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     int currentAbsoluteChunkIndex = chunkIndex + currentManifestChunkOffset;
 
     int manifestTrackIndex = getManifestTrackIndex(streamElement, selectedFormat);
-    int manifestTrackKey = getManifestTrackKey(enabledTrack.elementIndex, manifestTrackIndex);
+    int manifestTrackKey = getManifestTrackKey(elementIndex, manifestTrackIndex);
     Uri uri = streamElement.buildRequestUri(manifestTrackIndex, chunkIndex);
     Chunk mediaChunk = newMediaChunk(selectedFormat, uri, null,
         extractorWrappers.get(manifestTrackKey), drmInitData, dataSource, currentAbsoluteChunkIndex,
         chunkStartTimeUs, chunkEndTimeUs, evaluation.trigger, mediaFormats.get(manifestTrackKey),
-        enabledTrack.adaptiveMaxWidth, enabledTrack.adaptiveMaxHeight);
+        adaptiveMaxWidth, adaptiveMaxHeight);
     out.chunk = mediaChunk;
   }
 
@@ -336,7 +347,7 @@ public class SmoothStreamingChunkSource implements ChunkSource,
 
   @Override
   public void disable(List<? extends MediaChunk> queue) {
-    if (enabledTrack.isAdaptive()) {
+    if (enabledFormats.length > 1) {
       adaptiveFormatEvaluator.disable();
     }
     if (manifestFetcher != null) {
@@ -346,42 +357,27 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     fatalError = null;
   }
 
-  // SmoothStreamingTrackSelector.Output implementation.
-
-  @Override
-  public void adaptiveTrack(SmoothStreamingManifest manifest, int element, int[] trackIndices) {
-    if (adaptiveFormatEvaluator == null) {
-      // Do nothing.
-      return;
-    }
-    MediaFormat maxHeightMediaFormat = null;
-    StreamElement streamElement = manifest.streamElements[element];
-    int maxWidth = -1;
-    int maxHeight = -1;
-    Format[] formats = new Format[trackIndices.length];
-    for (int i = 0; i < formats.length; i++) {
-      int manifestTrackIndex = trackIndices[i];
-      formats[i] = streamElement.tracks[manifestTrackIndex].format;
-      MediaFormat mediaFormat = initManifestTrack(manifest, element, manifestTrackIndex);
-      if (maxHeightMediaFormat == null || mediaFormat.height > maxHeight) {
-        maxHeightMediaFormat = mediaFormat;
-      }
-      maxWidth = Math.max(maxWidth, mediaFormat.width);
-      maxHeight = Math.max(maxHeight, mediaFormat.height);
-    }
-    Arrays.sort(formats, new DecreasingBandwidthComparator());
-    MediaFormat adaptiveMediaFormat = maxHeightMediaFormat.copyAsAdaptive(null);
-    tracks.add(new ExposedTrack(adaptiveMediaFormat, element, formats, maxWidth, maxHeight));
-  }
-
-  @Override
-  public void fixedTrack(SmoothStreamingManifest manifest, int element, int trackIndex) {
-    MediaFormat mediaFormat = initManifestTrack(manifest, element, trackIndex);
-    Format format = manifest.streamElements[element].tracks[trackIndex].format;
-    tracks.add(new ExposedTrack(mediaFormat, element, format));
-  }
-
   // Private methods.
+
+  private void selectTracks(SmoothStreamingManifest manifest) {
+    for (int i = 0; i < manifest.streamElements.length; i++) {
+      if (manifest.streamElements[i].type == streamElementType) {
+        // We've found an element of the desired type.
+        elementIndex = i;
+        TrackElement[] trackElements = manifest.streamElements[i].tracks;
+        trackFormats = new Format[trackElements.length];
+        MediaFormat[] trackMediaFormats = new MediaFormat[trackElements.length];
+        for (int j = 0; j < trackMediaFormats.length; j++) {
+          trackFormats[j] = trackElements[j].format;
+          trackMediaFormats[j] = initManifestTrack(manifest, i, j);
+        }
+        trackGroup = new TrackGroup(adaptiveFormatEvaluator != null, trackMediaFormats);
+        return;
+      }
+    }
+    trackGroup = new TrackGroup(adaptiveFormatEvaluator != null);
+    trackFormats = new Format[0];
+  }
 
   private MediaFormat initManifestTrack(SmoothStreamingManifest manifest, int elementIndex,
       int trackIndex) {
@@ -513,47 +509,6 @@ public class SmoothStreamingChunkSource implements ChunkSource,
     byte temp = data[firstPosition];
     data[firstPosition] = data[secondPosition];
     data[secondPosition] = temp;
-  }
-
-  // Private classes.
-
-  private static final class ExposedTrack {
-
-    public final MediaFormat trackFormat;
-
-    private final int elementIndex;
-
-    // Non-adaptive track variables.
-    private final Format fixedFormat;
-
-    // Adaptive track variables.
-    private final Format[] adaptiveFormats;
-    private final int adaptiveMaxWidth;
-    private final int adaptiveMaxHeight;
-
-    public ExposedTrack(MediaFormat trackFormat, int elementIndex, Format fixedFormat) {
-      this.trackFormat = trackFormat;
-      this.elementIndex = elementIndex;
-      this.fixedFormat = fixedFormat;
-      this.adaptiveFormats = null;
-      this.adaptiveMaxWidth = MediaFormat.NO_VALUE;
-      this.adaptiveMaxHeight = MediaFormat.NO_VALUE;
-    }
-
-    public ExposedTrack(MediaFormat trackFormat, int elementIndex, Format[] adaptiveFormats,
-        int adaptiveMaxWidth, int adaptiveMaxHeight) {
-      this.trackFormat = trackFormat;
-      this.elementIndex = elementIndex;
-      this.adaptiveFormats = adaptiveFormats;
-      this.adaptiveMaxWidth = adaptiveMaxWidth;
-      this.adaptiveMaxHeight = adaptiveMaxHeight;
-      this.fixedFormat = null;
-    }
-
-    public boolean isAdaptive() {
-      return adaptiveFormats != null;
-    }
-
   }
 
 }

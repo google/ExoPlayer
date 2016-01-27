@@ -19,10 +19,6 @@ import java.io.IOException;
 
 /**
  * A source of media.
- * <p>
- * A {@link SampleSource} may expose one or multiple tracks. The number of tracks and each track's
- * media format can be queried using {@link #getTrackCount()} and {@link #getFormat(int)}
- * respectively.
  */
 public interface SampleSource {
 
@@ -56,30 +52,23 @@ public interface SampleSource {
   long getDurationUs();
 
   /**
-   * Returns the number of tracks exposed by the source.
+   * Returns the number of track groups exposed by the source.
    * <p>
    * This method should only be called after the source has been prepared.
    *
-   * @return The number of tracks.
+   * @return The number of track groups exposed by the source.
    */
-  int getTrackCount();
+  public int getTrackGroupCount();
 
   /**
-   * Returns the format of the specified track.
-   * <p>
-   * Note that whilst the format of a track will remain constant, the format of the actual media
-   * stream may change dynamically. An example of this is where the track is adaptive (i.e.
-   * {@link MediaFormat#adaptive} is true). Hence the track formats returned through this method
-   * should not be used to configure decoders. Decoder configuration should be performed using the
-   * formats obtained when reading the media stream through calls to
-   * {@link TrackStream#readData(MediaFormatHolder, SampleHolder)}.
+   * Returns the {@link TrackGroup} at the specified index.
    * <p>
    * This method should only be called after the source has been prepared.
    *
-   * @param track The track index.
-   * @return The format of the specified track.
+   * @int group The group index.
+   * @return The corresponding {@link TrackGroup}.
    */
-  MediaFormat getFormat(int track);
+  public TrackGroup getTrackGroup(int group);
 
   /**
    * Indicates to the source that it should continue buffering data for its enabled tracks.
@@ -112,17 +101,19 @@ public interface SampleSource {
   void seekToUs(long positionUs);
 
   /**
-   * Enables the specified track. Returning a {@link TrackStream} from which the track's data can
-   * be read.
+   * Enables the specified group to read the specified tracks. A {@link TrackStream} is returned
+   * through which the enabled track's data can be read.
    * <p>
    * This method should only be called after the source has been prepared, and when the specified
-   * track is disabled.
+   * group is disabled. Note that {@code tracks.length} is only permitted to be greater than one
+   * if {@link TrackGroup#adaptive} is true for the group.
    *
-   * @param track The track to enable.
+   * @param group The group index.
+   * @param tracks The track indices.
    * @param positionUs The current playback position in microseconds.
    * @return A {@link TrackStream} from which the enabled track's data can be read.
    */
-  TrackStream enable(int track, long positionUs);
+  public TrackStream enable(int group, int[] tracks, long positionUs);
 
   /**
    * Releases the source.

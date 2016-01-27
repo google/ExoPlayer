@@ -21,6 +21,7 @@ import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -174,7 +175,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   private boolean prepared;
   private int enabledTrackCount;
-  private MediaFormat[] mediaFormats;
+  private TrackGroup[] tracks;
   private long durationUs;
   private boolean[] pendingMediaFormat;
   private boolean[] pendingResets;
@@ -262,14 +263,14 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
     if (seekMap != null && tracksBuilt && haveFormatsForAllTracks()) {
       int trackCount = sampleQueues.size();
+      tracks = new TrackGroup[trackCount];
       trackEnabledStates = new boolean[trackCount];
       pendingResets = new boolean[trackCount];
       pendingMediaFormat = new boolean[trackCount];
-      mediaFormats = new MediaFormat[trackCount];
       durationUs = C.UNKNOWN_TIME_US;
       for (int i = 0; i < trackCount; i++) {
         MediaFormat format = sampleQueues.valueAt(i).getFormat();
-        mediaFormats[i] = format;
+        tracks[i] = new TrackGroup(format);
         if (format.durationUs > durationUs) {
           durationUs = format.durationUs;
         }
@@ -292,24 +293,23 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   @Override
-  public int getTrackCount() {
-    return sampleQueues.size();
+  public int getTrackGroupCount() {
+    return tracks.length;
   }
 
   @Override
-  public MediaFormat getFormat(int track) {
-    Assertions.checkState(prepared);
-    return mediaFormats[track];
+  public TrackGroup getTrackGroup(int group) {
+    return tracks[group];
   }
 
   @Override
-  public TrackStream enable(int track, long positionUs) {
+  public TrackStream enable(int group, int[] tracks, long positionUs) {
     Assertions.checkState(prepared);
-    Assertions.checkState(!trackEnabledStates[track]);
+    Assertions.checkState(!trackEnabledStates[group]);
     enabledTrackCount++;
-    trackEnabledStates[track] = true;
-    pendingMediaFormat[track] = true;
-    pendingResets[track] = false;
+    trackEnabledStates[group] = true;
+    pendingMediaFormat[group] = true;
+    pendingResets[group] = false;
     if (enabledTrackCount == 1) {
       // Treat all enables in non-seekable media as being from t=0.
       positionUs = !seekMap.isSeekable() ? 0 : positionUs;
@@ -317,7 +317,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       lastSeekPositionUs = positionUs;
       restartFrom(positionUs);
     }
-    return new TrackStreamImpl(track);
+    return new TrackStreamImpl(group);
   }
 
   /* package */ void disable(int track) {

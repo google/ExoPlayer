@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.chunk;
 
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.TrackGroup;
 
 import java.io.IOException;
 import java.util.List;
@@ -48,33 +48,23 @@ public interface ChunkSource {
   boolean prepare();
 
   /**
-   * Returns the number of tracks exposed by the source.
+   * Gets the group of tracks provided by the source.
    * <p>
    * This method should only be called after the source has been prepared.
    *
-   * @return The number of tracks.
+   * @return The track group.
    */
-  int getTrackCount();
+  TrackGroup getTracks();
 
   /**
-   * Gets the format of the specified track.
+   * Enable the source for the specified tracks.
    * <p>
-   * This method should only be called after the source has been prepared.
-   *
-   * @param track The track index.
-   * @return The format of the track.
-   */
-  MediaFormat getFormat(int track);
-
-  /**
-   * Enable the source for the specified track.
-   * <p>
-   * This method should only be called after the source has been prepared, and when the source is
+   * This method should only be called after the source has been prepared and when the source is
    * disabled.
    *
-   * @param track The track index.
+   * @param tracks The track indices.
    */
-  void enable(int track);
+  void enable(int[] tracks);
 
   /**
    * Indicates to the source that it should still be checking for updates to the stream.

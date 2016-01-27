@@ -28,7 +28,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -43,8 +42,7 @@ public final class MediaCodecUtil {
    * Such failures are not expected in normal operation and are normally temporary (e.g. if the
    * mediaserver process has crashed and is yet to restart).
    */
-  // TODO[REFACTOR]: Shouldn't implement IOException.
-  public static class DecoderQueryException extends IOException {
+  public static class DecoderQueryException extends Exception {
 
     private DecoderQueryException(Throwable cause) {
       super("Failed to query underlying media codecs", cause);

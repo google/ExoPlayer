@@ -52,6 +52,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   private final DataSource dataSource;
   private final MediaFormat format;
   private final int minLoadableRetryCount;
+  private final TrackGroup tracks;
 
   private int state;
   private byte[] sampleData;
@@ -73,6 +74,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
     this.dataSource = dataSource;
     this.format = format;
     this.minLoadableRetryCount = minLoadableRetryCount;
+    tracks = new TrackGroup(format);
     sampleData = new byte[INITIAL_SAMPLE_SIZE];
   }
 
@@ -102,17 +104,17 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   }
 
   @Override
-  public int getTrackCount() {
+  public int getTrackGroupCount() {
     return 1;
   }
 
   @Override
-  public MediaFormat getFormat(int track) {
-    return format;
+  public TrackGroup getTrackGroup(int group) {
+    return tracks;
   }
 
   @Override
-  public TrackStream enable(int track, long positionUs) {
+  public TrackStream enable(int group, int[] tracks, long positionUs) {
     state = STATE_SEND_FORMAT;
     clearCurrentLoadableException();
     maybeStartLoading();

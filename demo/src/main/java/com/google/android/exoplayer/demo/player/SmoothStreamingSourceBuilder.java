@@ -23,7 +23,6 @@ import com.google.android.exoplayer.chunk.ChunkSource;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer.demo.player.DemoPlayer.SourceBuilder;
 import com.google.android.exoplayer.drm.MediaDrmCallback;
-import com.google.android.exoplayer.smoothstreaming.DefaultSmoothStreamingTrackSelector;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingChunkSource;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifestParser;
@@ -152,7 +151,7 @@ public class SmoothStreamingSourceBuilder implements SourceBuilder {
       // Build the video renderer.
       DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
-          DefaultSmoothStreamingTrackSelector.newVideoInstance(context, true, false),
+          SmoothStreamingManifest.StreamElement.TYPE_VIDEO,
           videoDataSource, new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
       ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
           VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
@@ -161,20 +160,18 @@ public class SmoothStreamingSourceBuilder implements SourceBuilder {
       // Build the audio renderer.
       DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       ChunkSource audioChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
-          DefaultSmoothStreamingTrackSelector.newAudioInstance(),
-          audioDataSource, null, LIVE_EDGE_LATENCY_MS);
+          SmoothStreamingManifest.StreamElement.TYPE_AUDIO, audioDataSource, null,
+          LIVE_EDGE_LATENCY_MS);
       ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
-          AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
-          DemoPlayer.TYPE_AUDIO);
+          AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_AUDIO);
 
       // Build the text renderer.
       DataSource textDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
       ChunkSource textChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
-          DefaultSmoothStreamingTrackSelector.newTextInstance(),
-          textDataSource, null, LIVE_EDGE_LATENCY_MS);
+          SmoothStreamingManifest.StreamElement.TYPE_TEXT, textDataSource, null,
+          LIVE_EDGE_LATENCY_MS);
       ChunkSampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
-          TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
-          DemoPlayer.TYPE_TEXT);
+          TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_TEXT);
 
       // Invoke the callback.
       player.onSource(

@@ -71,14 +71,14 @@ public final class FrameworkSampleSource implements SampleSource {
   private final long fileDescriptorOffset;
   private final long fileDescriptorLength;
 
-  private MediaExtractor extractor;
-  private MediaFormat[] trackFormats;
   private boolean prepared;
   private long durationUs;
-  private int enabledTrackCount;
+  private MediaExtractor extractor;
+  private TrackGroup[] tracks;
   private int[] trackStates;
   private boolean[] pendingResets;
 
+  private int enabledTrackCount;
   private long lastSeekPositionUs;
   private long pendingSeekPositionUs;
 
@@ -132,10 +132,11 @@ public final class FrameworkSampleSource implements SampleSource {
     durationUs = C.UNKNOWN_TIME_US;
     trackStates = new int[extractor.getTrackCount()];
     pendingResets = new boolean[trackStates.length];
-    trackFormats = new MediaFormat[trackStates.length];
+    tracks = new TrackGroup[trackStates.length];
     for (int i = 0; i < trackStates.length; i++) {
-      trackFormats[i] = createMediaFormat(extractor.getTrackFormat(i));
-      long trackDurationUs = trackFormats[i].durationUs;
+      MediaFormat format = createMediaFormat(extractor.getTrackFormat(i));
+      tracks[i] = new TrackGroup(format);
+      long trackDurationUs = format.durationUs;
       if (trackDurationUs > durationUs) {
         durationUs = trackDurationUs;
       }
@@ -155,15 +156,13 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public int getTrackCount() {
-    Assertions.checkState(prepared);
-    return trackStates.length;
+  public int getTrackGroupCount() {
+    return tracks.length;
   }
 
   @Override
-  public MediaFormat getFormat(int track) {
-    Assertions.checkState(prepared);
-    return trackFormats[track];
+  public TrackGroup getTrackGroup(int group) {
+    return tracks[group];
   }
 
   @Override
@@ -172,14 +171,14 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public TrackStream enable(int track, long positionUs) {
+  public TrackStream enable(int group, int[] track, long positionUs) {
     Assertions.checkState(prepared);
-    Assertions.checkState(trackStates[track] == TRACK_STATE_DISABLED);
+    Assertions.checkState(trackStates[group] == TRACK_STATE_DISABLED);
     enabledTrackCount++;
-    trackStates[track] = TRACK_STATE_ENABLED;
-    extractor.selectTrack(track);
+    trackStates[group] = TRACK_STATE_ENABLED;
+    extractor.selectTrack(group);
     seekToUsInternal(positionUs, positionUs != 0);
-    return new TrackStreamImpl(track);
+    return new TrackStreamImpl(group);
   }
 
   /* package */ long readReset(int track) {
@@ -197,7 +196,7 @@ public final class FrameworkSampleSource implements SampleSource {
       return TrackStream.NOTHING_READ;
     }
     if (trackStates[track] != TRACK_STATE_FORMAT_SENT) {
-      formatHolder.format = trackFormats[track];
+      formatHolder.format = tracks[track].getFormat(0);
       formatHolder.drmInitData = Util.SDK_INT >= 18 ? getDrmInitDataV18() : null;
       trackStates[track] = TRACK_STATE_FORMAT_SENT;
       return TrackStream.FORMAT_READ;

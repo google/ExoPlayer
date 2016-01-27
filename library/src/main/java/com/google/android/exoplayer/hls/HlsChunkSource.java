@@ -39,6 +39,7 @@ import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -54,12 +55,15 @@ import java.util.Locale;
 /**
  * A temporary test source of HLS chunks.
  */
-public class HlsChunkSource implements HlsTrackSelector.Output {
+public class HlsChunkSource {
 
   /**
    * Interface definition for a callback to be notified of {@link HlsChunkSource} events.
    */
   public interface EventListener extends BaseChunkSampleSourceEventListener {}
+
+  public static final int TYPE_DEFAULT = 0;
+  public static final int TYPE_VTT = 1;
 
   /**
    * Adaptive switching is disabled.
@@ -119,33 +123,16 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   private static final String WEBVTT_FILE_EXTENSION = ".webvtt";
   private static final float BANDWIDTH_FRACTION = 0.8f;
 
-  private final boolean isMaster;
+  private final int type;
   private final DataSource dataSource;
   private final HlsPlaylistParser playlistParser;
   private final HlsMasterPlaylist masterPlaylist;
-  private final HlsTrackSelector trackSelector;
   private final BandwidthMeter bandwidthMeter;
   private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
   private final int adaptiveMode;
   private final String baseUri;
   private final long minBufferDurationToSwitchUpUs;
   private final long maxBufferDurationToSwitchDownUs;
-
-  // TODO: Expose tracks.
-  private final ArrayList<ExposedTrack> tracks;
-
-  private int selectedTrackIndex;
-
-  // A list of variants considered during playback, ordered by decreasing bandwidth. The following
-  // three arrays are of the same length and are ordered in the same way (i.e. variantPlaylists[i],
-  // variantLastPlaylistLoadTimesMs[i] and variantBlacklistTimes[i] all correspond to variants[i]).
-  private Variant[] variants;
-  private HlsMediaPlaylist[] variantPlaylists;
-  private long[] variantLastPlaylistLoadTimesMs;
-  private long[] variantBlacklistTimes;
-
-  // The index in variants of the currently selected variant.
-  private int selectedVariantIndex;
 
   private boolean prepareCalled;
   private byte[] scratchSpace;
@@ -158,14 +145,24 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   private String encryptionIvString;
   private byte[] encryptionIv;
 
+  // Properties of exposed tracks.
+  private Variant[] exposedVariants;
+
+  // Properties of enabled variants.
+  private Variant[] enabledVariants;
+  private HlsMediaPlaylist[] enabledVariantPlaylists;
+  private long[] enabledVariantLastPlaylistLoadTimesMs;
+  private long[] enabledVariantBlacklistTimes;
+  private int adaptiveMaxWidth;
+  private int adaptiveMaxHeight;
+  private int selectedVariantIndex;
+
   /**
-   * @param isMaster True if this is the master source for the playback. False otherwise. Each
-   *     playback must have exactly one master source, which should be the source providing video
-   *     chunks (or audio chunks for audio only playbacks).
+   * @param type The type of chunk provided by the source. One of {@link #TYPE_DEFAULT} and
+   *     {@link #TYPE_VTT}.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param playlistUrl The playlist URL.
    * @param playlist The hls playlist.
-   * @param trackSelector Selects tracks to be exposed by this source.
    * @param bandwidthMeter Provides an estimate of the currently available bandwidth.
    * @param timestampAdjusterProvider A provider of {@link PtsTimestampAdjuster} instances. If
    *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
@@ -174,22 +171,19 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
    *     {@link #ADAPTIVE_MODE_NONE}, {@link #ADAPTIVE_MODE_ABRUPT} and
    *     {@link #ADAPTIVE_MODE_SPLICE}.
    */
-  public HlsChunkSource(boolean isMaster, DataSource dataSource, String playlistUrl,
-      HlsPlaylist playlist, HlsTrackSelector trackSelector, BandwidthMeter bandwidthMeter,
-      PtsTimestampAdjusterProvider timestampAdjusterProvider, int adaptiveMode) {
-    this(isMaster, dataSource, playlistUrl, playlist, trackSelector, bandwidthMeter,
-        timestampAdjusterProvider, adaptiveMode, DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS,
-        DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS);
+  public HlsChunkSource(int type, DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
+      BandwidthMeter bandwidthMeter, PtsTimestampAdjusterProvider timestampAdjusterProvider,
+      int adaptiveMode) {
+    this(type, dataSource, playlistUrl, playlist, bandwidthMeter, timestampAdjusterProvider,
+        adaptiveMode, DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS, DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS);
   }
 
   /**
-   * @param isMaster True if this is the master source for the playback. False otherwise. Each
-   *     playback must have exactly one master source, which should be the source providing video
-   *     chunks (or audio chunks for audio only playbacks).
+   * @param type The type of chunk provided by the source. One of {@link #TYPE_DEFAULT} and
+   *     {@link #TYPE_VTT}.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param playlistUrl The playlist URL.
    * @param playlist The hls playlist.
-   * @param trackSelector Selects tracks to be exposed by this source.
    * @param bandwidthMeter Provides an estimate of the currently available bandwidth.
    * @param timestampAdjusterProvider A provider of {@link PtsTimestampAdjuster} instances. If
    *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
@@ -202,13 +196,11 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
    * @param maxBufferDurationToSwitchDownMs The maximum duration of media that needs to be buffered
    *     for a switch to a lower quality variant to be considered.
    */
-  public HlsChunkSource(boolean isMaster, DataSource dataSource, String playlistUrl,
-      HlsPlaylist playlist, HlsTrackSelector trackSelector, BandwidthMeter bandwidthMeter,
-      PtsTimestampAdjusterProvider timestampAdjusterProvider, int adaptiveMode,
-      long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs) {
-    this.isMaster = isMaster;
+  public HlsChunkSource(int type, DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
+      BandwidthMeter bandwidthMeter, PtsTimestampAdjusterProvider timestampAdjusterProvider,
+      int adaptiveMode, long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs) {
+    this.type = type;
     this.dataSource = dataSource;
-    this.trackSelector = trackSelector;
     this.bandwidthMeter = bandwidthMeter;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     this.adaptiveMode = adaptiveMode;
@@ -216,8 +208,6 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     maxBufferDurationToSwitchDownUs = maxBufferDurationToSwitchDownMs * 1000;
     baseUri = playlist.baseUri;
     playlistParser = new HlsPlaylistParser();
-    tracks = new ArrayList<>();
-
     if (playlist.type == HlsPlaylist.TYPE_MASTER) {
       masterPlaylist = (HlsMasterPlaylist) playlist;
     } else {
@@ -250,14 +240,11 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   public boolean prepare() {
     if (!prepareCalled) {
       prepareCalled = true;
-      try {
-        trackSelector.selectTracks(masterPlaylist, this);
-        selectTrack(0);
-      } catch (IOException e) {
-        fatalError = e;
-      }
+      processMasterPlaylist(masterPlaylist);
+      // TODO[REFACTOR]: Come up with a sane default here.
+      selectTracks(new int[] {0});
     }
-    return fatalError == null;
+    return true;
   }
 
   /**
@@ -290,50 +277,69 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
    * @return The number of tracks.
    */
   public int getTrackCount() {
-    return tracks.size();
+    return exposedVariants.length;
   }
 
   /**
-   * Returns the variant corresponding to the fixed track at the specified index, or null if the
-   * track at the specified index is adaptive.
+   * Returns the format of the track at the specified index.
    * <p>
    * This method should only be called after the source has been prepared.
    *
    * @param index The track index.
-   * @return The variant corresponding to the fixed track, or null if the track is adaptive.
+   * @return The format of the track.
    */
-  public Variant getFixedTrackVariant(int index) {
-    Variant[] variants = tracks.get(index).variants;
-    return variants.length == 1 ? variants[0] : null;
-  }
-
-
-  /**
-   * Returns the currently selected track index.
-   * <p>
-   * This method should only be called after the source has been prepared.
-   *
-   * @return The currently selected track index.
-   */
-  public int getSelectedTrackIndex() {
-    return selectedTrackIndex;
+  public Format getTrackFormat(int index) {
+    return exposedVariants[index].format;
   }
 
   /**
-   * Selects a track for use.
+   * Selects a tracks for use.
    * <p>
    * This method should only be called after the source has been prepared.
    *
-   * @param index The track index.
+   * @param tracks The track indices.
    */
-  public void selectTrack(int index) {
-    selectedTrackIndex = index;
-    ExposedTrack selectedTrack = tracks.get(selectedTrackIndex);
-    selectedVariantIndex = selectedTrack.defaultVariantIndex;
-    variants = selectedTrack.variants;
-    variantPlaylists = new HlsMediaPlaylist[variants.length];
-    variantLastPlaylistLoadTimesMs = new long[variants.length];
-    variantBlacklistTimes = new long[variants.length];
+  public void selectTracks(int[] tracks) {
+    enabledVariants = new Variant[tracks.length];
+    enabledVariantPlaylists = new HlsMediaPlaylist[enabledVariants.length];
+    enabledVariantLastPlaylistLoadTimesMs = new long[enabledVariants.length];
+    enabledVariantBlacklistTimes = new long[enabledVariants.length];
+    // Construct and sort the enabled variants.
+    for (int i = 0; i < tracks.length; i++) {
+      enabledVariants[i] = exposedVariants[tracks[i]];
+    }
+    Arrays.sort(enabledVariants, new Comparator<Variant>() {
+      private final Comparator<Format> formatComparator =
+          new Format.DecreasingBandwidthComparator();
+      @Override
+      public int compare(Variant first, Variant second) {
+        return formatComparator.compare(first.format, second.format);
+      }
+    });
+    // Determine the initial variant index and maximum video dimensions.
+    selectedVariantIndex = 0;
+    int maxWidth = -1;
+    int maxHeight = -1;
+    int minOriginalVariantIndex = Integer.MAX_VALUE;
+    for (int i = 0; i < enabledVariants.length; i++) {
+      int originalVariantIndex = masterPlaylist.variants.indexOf(enabledVariants[i]);
+      if (originalVariantIndex < minOriginalVariantIndex) {
+        minOriginalVariantIndex = originalVariantIndex;
+        selectedVariantIndex = i;
+      }
+      Format variantFormat = enabledVariants[i].format;
+      maxWidth = Math.max(variantFormat.width, maxWidth);
+      maxHeight = Math.max(variantFormat.height, maxHeight);
+    }
+    if (tracks.length > 1) {
+      // TODO: We should allow the default values to be passed through the constructor.
+      // TODO: Print a warning if resolution tags are omitted.
+      maxWidth = maxWidth > 0 ? maxWidth : 1920;
+      maxHeight = maxHeight > 0 ? maxHeight : 1080;
+    } else {
+      adaptiveMaxWidth = -1;
+      adaptiveMaxHeight = -1;
+    }
   }
 
   /**
@@ -342,7 +348,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
    * This method should only be called after the source has been prepared.
    */
   public void seek() {
-    if (isMaster) {
+    if (type == TYPE_DEFAULT) {
       timestampAdjusterProvider.reset();
     }
   }
@@ -377,11 +383,11 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     } else {
       nextVariantIndex = getNextVariantIndex(previousTsChunk, playbackPositionUs);
       switchingVariantSpliced = previousTsChunk != null
-          && !variants[nextVariantIndex].format.equals(previousTsChunk.format)
+          && !enabledVariants[nextVariantIndex].format.equals(previousTsChunk.format)
           && adaptiveMode == ADAPTIVE_MODE_SPLICE;
     }
 
-    HlsMediaPlaylist mediaPlaylist = variantPlaylists[nextVariantIndex];
+    HlsMediaPlaylist mediaPlaylist = enabledVariantPlaylists[nextVariantIndex];
     if (mediaPlaylist == null) {
       // We don't have the media playlist for the next variant. Request it now.
       out.chunk = newMediaPlaylistChunk(nextVariantIndex);
@@ -459,7 +465,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     }
     long endTimeUs = startTimeUs + (long) (segment.durationSecs * C.MICROS_PER_SECOND);
     int trigger = Chunk.TRIGGER_UNSPECIFIED;
-    Format format = variants[selectedVariantIndex].format;
+    Format format = enabledVariants[selectedVariantIndex].format;
 
     // Configure the extractor that will read the chunk.
     HlsExtractorWrapper extractorWrapper;
@@ -477,7 +483,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
           switchingVariantSpliced, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
     } else if (lastPathSegment.endsWith(WEBVTT_FILE_EXTENSION)
         || lastPathSegment.endsWith(VTT_FILE_EXTENSION)) {
-      PtsTimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(isMaster,
+      PtsTimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(false,
           segment.discontinuitySequenceNumber, startTimeUs);
       if (timestampAdjuster == null) {
         // The master source has yet to instantiate an adjuster for the discontinuity sequence.
@@ -492,16 +498,15 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
         || previousTsChunk.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
         || !format.equals(previousTsChunk.format)) {
       // MPEG-2 TS segments, but we need a new extractor.
-      PtsTimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(isMaster,
+      PtsTimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(true,
           segment.discontinuitySequenceNumber, startTimeUs);
       if (timestampAdjuster == null) {
         // The master source has yet to instantiate an adjuster for the discontinuity sequence.
         return;
       }
-      ExposedTrack selectedTrack = tracks.get(selectedTrackIndex);
       Extractor extractor = new TsExtractor(timestampAdjuster);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
-          switchingVariantSpliced, selectedTrack.adaptiveMaxWidth, selectedTrack.adaptiveMaxHeight);
+          switchingVariantSpliced, adaptiveMaxWidth, adaptiveMaxHeight);
     } else {
       // MPEG-2 TS segments, and we need to continue using the same extractor.
       extractorWrapper = previousTsChunk.extractorWrapper;
@@ -558,8 +563,8 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
           EncryptionKeyChunk encryptionChunk = (EncryptionKeyChunk) chunk;
           variantIndex = encryptionChunk.variantIndex;
         }
-        boolean alreadyBlacklisted = variantBlacklistTimes[variantIndex] != 0;
-        variantBlacklistTimes[variantIndex] = SystemClock.elapsedRealtime();
+        boolean alreadyBlacklisted = enabledVariantBlacklistTimes[variantIndex] != 0;
+        enabledVariantBlacklistTimes[variantIndex] = SystemClock.elapsedRealtime();
         if (alreadyBlacklisted) {
           // The playlist was already blacklisted.
           Log.w(TAG, "Already blacklisted variant (" + responseCode + "): "
@@ -574,7 +579,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
           // This was the last non-blacklisted playlist. Don't blacklist it.
           Log.w(TAG, "Final variant not blacklisted (" + responseCode + "): "
               + chunk.dataSpec.uri);
-          variantBlacklistTimes[variantIndex] = 0;
+          enabledVariantBlacklistTimes[variantIndex] = 0;
           return false;
         }
       }
@@ -582,52 +587,68 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     return false;
   }
 
-  // HlsTrackSelector.Output implementation.
-
-  @Override
-  public void adaptiveTrack(HlsMasterPlaylist playlist, Variant[] variants) {
-    Arrays.sort(variants, new Comparator<Variant>() {
-      private final Comparator<Format> formatComparator =
-          new Format.DecreasingBandwidthComparator();
-      @Override
-      public int compare(Variant first, Variant second) {
-        return formatComparator.compare(first.format, second.format);
-      }
-    });
-
-    int defaultVariantIndex = 0;
-    int maxWidth = -1;
-    int maxHeight = -1;
-
-    int minOriginalVariantIndex = Integer.MAX_VALUE;
-    for (int i = 0; i < variants.length; i++) {
-      int originalVariantIndex = playlist.variants.indexOf(variants[i]);
-      if (originalVariantIndex < minOriginalVariantIndex) {
-        minOriginalVariantIndex = originalVariantIndex;
-        defaultVariantIndex = i;
-      }
-      Format variantFormat = variants[i].format;
-      maxWidth = Math.max(variantFormat.width, maxWidth);
-      maxHeight = Math.max(variantFormat.height, maxHeight);
-    }
-    // TODO: We should allow the default values to be passed through the constructor.
-    // TODO: Print a warning if resolution tags are omitted.
-    maxWidth = maxWidth > 0 ? maxWidth : 1920;
-    maxHeight = maxHeight > 0 ? maxHeight : 1080;
-    tracks.add(new ExposedTrack(variants, defaultVariantIndex, maxWidth, maxHeight));
-  }
-
-  @Override
-  public void fixedTrack(HlsMasterPlaylist playlist, Variant variant) {
-    tracks.add(new ExposedTrack(variant));
-  }
-
   // Private methods.
+
+  private void processMasterPlaylist(HlsMasterPlaylist playlist) {
+    if (type == TYPE_VTT) {
+      List<Variant> subtitleVariants = playlist.subtitles;
+      if (subtitleVariants != null) {
+        exposedVariants = new Variant[subtitleVariants.size()];
+        subtitleVariants.toArray(exposedVariants);
+      } else {
+        exposedVariants = new Variant[0];
+      }
+      return;
+    }
+
+    // Type is TYPE_DEFAULT.
+    List<Variant> enabledVariantList = playlist.variants;
+    ArrayList<Variant> definiteVideoVariants = new ArrayList<>();
+    ArrayList<Variant> definiteAudioOnlyVariants = new ArrayList<>();
+    for (int i = 0; i < enabledVariantList.size(); i++) {
+      Variant variant = enabledVariantList.get(i);
+      if (variant.format.height > 0 || variantHasExplicitCodecWithPrefix(variant, "avc")) {
+        definiteVideoVariants.add(variant);
+      } else if (variantHasExplicitCodecWithPrefix(variant, "mp4a")) {
+        definiteAudioOnlyVariants.add(variant);
+      }
+    }
+
+    if (!definiteVideoVariants.isEmpty()) {
+      // We've identified some variants as definitely containing video. Assume variants within the
+      // master playlist are marked consistently, and hence that we have the full set. Filter out
+      // any other variants, which are likely to be audio only.
+      enabledVariantList = definiteVideoVariants;
+    } else if (definiteAudioOnlyVariants.size() < enabledVariantList.size()) {
+      // We've identified some variants, but not all, as being audio only. Filter them out to leave
+      // the remaining variants, which are likely to contain video.
+      enabledVariantList.removeAll(definiteAudioOnlyVariants);
+    } else {
+      // Leave the enabled variants unchanged. They're likely either all video or all audio.
+    }
+
+    exposedVariants = new Variant[enabledVariantList.size()];
+    enabledVariantList.toArray(exposedVariants);
+  }
+
+  private static boolean variantHasExplicitCodecWithPrefix(Variant variant, String prefix) {
+    String codecs = variant.format.codecs;
+    if (TextUtils.isEmpty(codecs)) {
+      return false;
+    }
+    String[] codecArray = codecs.split("(\\s*,\\s*)|(\\s*$)");
+    for (int i = 0; i < codecArray.length; i++) {
+      if (codecArray[i].startsWith(prefix)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   private int getNextVariantIndex(TsChunk previousTsChunk, long playbackPositionUs) {
     clearStaleBlacklistedVariants();
     long bitrateEstimate = bandwidthMeter.getBitrateEstimate();
-    if (variantBlacklistTimes[selectedVariantIndex] != 0) {
+    if (enabledVariantBlacklistTimes[selectedVariantIndex] != 0) {
       // The current variant has been blacklisted, so we have no choice but to re-evaluate.
       return getVariantIndexForBandwidth(bitrateEstimate);
     }
@@ -649,7 +670,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     long bufferedPositionUs = adaptiveMode == ADAPTIVE_MODE_SPLICE ? previousTsChunk.startTimeUs
         : previousTsChunk.endTimeUs;
     long bufferedUs = bufferedPositionUs - playbackPositionUs;
-    if (variantBlacklistTimes[selectedVariantIndex] != 0
+    if (enabledVariantBlacklistTimes[selectedVariantIndex] != 0
         || (idealIndex > selectedVariantIndex && bufferedUs < maxBufferDurationToSwitchDownUs)
         || (idealIndex < selectedVariantIndex && bufferedUs > minBufferDurationToSwitchUpUs)) {
       // Switch variant.
@@ -666,9 +687,9 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     }
     int effectiveBitrate = (int) (bitrateEstimate * BANDWIDTH_FRACTION);
     int lowestQualityEnabledVariantIndex = -1;
-    for (int i = 0; i < variants.length; i++) {
-      if (variantBlacklistTimes[i] == 0) {
-        if (variants[i].format.bitrate <= effectiveBitrate) {
+    for (int i = 0; i < enabledVariants.length; i++) {
+      if (enabledVariantBlacklistTimes[i] == 0) {
+        if (enabledVariants[i].format.bitrate <= effectiveBitrate) {
           return i;
         }
         lowestQualityEnabledVariantIndex = i;
@@ -681,21 +702,21 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
 
   private boolean shouldRerequestLiveMediaPlaylist(int nextVariantIndex) {
     // Don't re-request media playlist more often than one-half of the target duration.
-    HlsMediaPlaylist mediaPlaylist = variantPlaylists[nextVariantIndex];
+    HlsMediaPlaylist mediaPlaylist = enabledVariantPlaylists[nextVariantIndex];
     long timeSinceLastMediaPlaylistLoadMs =
-        SystemClock.elapsedRealtime() - variantLastPlaylistLoadTimesMs[nextVariantIndex];
+        SystemClock.elapsedRealtime() - enabledVariantLastPlaylistLoadTimesMs[nextVariantIndex];
     return timeSinceLastMediaPlaylistLoadMs >= (mediaPlaylist.targetDurationSecs * 1000) / 2;
   }
 
   private int getLiveStartChunkMediaSequence(int variantIndex) {
     // For live start playback from the third chunk from the end.
-    HlsMediaPlaylist mediaPlaylist = variantPlaylists[variantIndex];
+    HlsMediaPlaylist mediaPlaylist = enabledVariantPlaylists[variantIndex];
     int chunkIndex = mediaPlaylist.segments.size() > 3 ? mediaPlaylist.segments.size() - 3 : 0;
     return chunkIndex + mediaPlaylist.mediaSequence;
   }
 
   private MediaPlaylistChunk newMediaPlaylistChunk(int variantIndex) {
-    Uri mediaPlaylistUri = UriUtil.resolveToUri(baseUri, variants[variantIndex].url);
+    Uri mediaPlaylistUri = UriUtil.resolveToUri(baseUri, enabledVariants[variantIndex].url);
     DataSpec dataSpec = new DataSpec(mediaPlaylistUri, 0, C.LENGTH_UNBOUNDED, null,
         DataSpec.FLAG_ALLOW_GZIP);
     return new MediaPlaylistChunk(dataSource, dataSpec, scratchSpace, playlistParser, variantIndex,
@@ -735,15 +756,15 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   }
 
   private void setMediaPlaylist(int variantIndex, HlsMediaPlaylist mediaPlaylist) {
-    variantLastPlaylistLoadTimesMs[variantIndex] = SystemClock.elapsedRealtime();
-    variantPlaylists[variantIndex] = mediaPlaylist;
+    enabledVariantLastPlaylistLoadTimesMs[variantIndex] = SystemClock.elapsedRealtime();
+    enabledVariantPlaylists[variantIndex] = mediaPlaylist;
     live |= mediaPlaylist.live;
     durationUs = live ? C.UNKNOWN_TIME_US : mediaPlaylist.durationUs;
   }
 
   private boolean allVariantsBlacklisted() {
-    for (int i = 0; i < variantBlacklistTimes.length; i++) {
-      if (variantBlacklistTimes[i] == 0) {
+    for (int i = 0; i < enabledVariantBlacklistTimes.length; i++) {
+      if (enabledVariantBlacklistTimes[i] == 0) {
         return false;
       }
     }
@@ -752,17 +773,17 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
 
   private void clearStaleBlacklistedVariants() {
     long currentTime = SystemClock.elapsedRealtime();
-    for (int i = 0; i < variantBlacklistTimes.length; i++) {
-      if (variantBlacklistTimes[i] != 0
-          && currentTime - variantBlacklistTimes[i] > DEFAULT_PLAYLIST_BLACKLIST_MS) {
-        variantBlacklistTimes[i] = 0;
+    for (int i = 0; i < enabledVariantBlacklistTimes.length; i++) {
+      if (enabledVariantBlacklistTimes[i] != 0
+          && currentTime - enabledVariantBlacklistTimes[i] > DEFAULT_PLAYLIST_BLACKLIST_MS) {
+        enabledVariantBlacklistTimes[i] = 0;
       }
     }
   }
 
   private int getVariantIndex(Format format) {
-    for (int i = 0; i < variants.length; i++) {
-      if (variants[i].format.equals(format)) {
+    for (int i = 0; i < enabledVariants.length; i++) {
+      if (enabledVariants[i].format.equals(format)) {
         return i;
       }
     }
@@ -771,31 +792,6 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   }
 
   // Private classes.
-
-  private static final class ExposedTrack {
-
-    private final Variant[] variants;
-    private final int defaultVariantIndex;
-
-    private final int adaptiveMaxWidth;
-    private final int adaptiveMaxHeight;
-
-    public ExposedTrack(Variant fixedVariant) {
-      this.variants = new Variant[] {fixedVariant};
-      this.defaultVariantIndex = 0;
-      this.adaptiveMaxWidth = MediaFormat.NO_VALUE;
-      this.adaptiveMaxHeight = MediaFormat.NO_VALUE;
-    }
-
-    public ExposedTrack(Variant[] adaptiveVariants, int defaultVariantIndex, int maxWidth,
-        int maxHeight) {
-      this.variants = adaptiveVariants;
-      this.defaultVariantIndex = defaultVariantIndex;
-      this.adaptiveMaxWidth = maxWidth;
-      this.adaptiveMaxHeight = maxHeight;
-    }
-
-  }
 
   private static final class MediaPlaylistChunk extends DataChunk {
 

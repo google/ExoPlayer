@@ -22,6 +22,7 @@ import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSource.TrackStream;
+import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
@@ -153,9 +154,11 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       return false;
     }
     durationUs = C.UNKNOWN_TIME_US;
-    if (chunkSource.getTrackCount() > 0) {
-      loader = new Loader("Loader:" + chunkSource.getFormat(0).mimeType);
-      durationUs = chunkSource.getFormat(0).durationUs;
+    TrackGroup trackGroup = chunkSource.getTracks();
+    if (trackGroup.length > 0) {
+      MediaFormat firstTrackFormat = trackGroup.getFormat(0);
+      loader = new Loader("Loader:" + firstTrackFormat.mimeType);
+      durationUs = firstTrackFormat.durationUs;
     }
     state = STATE_PREPARED;
     return true;
@@ -172,23 +175,22 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   }
 
   @Override
-  public int getTrackCount() {
-    Assertions.checkState(state != STATE_IDLE);
-    return chunkSource.getTrackCount();
+  public int getTrackGroupCount() {
+    return 1;
   }
 
   @Override
-  public MediaFormat getFormat(int track) {
+  public TrackGroup getTrackGroup(int group) {
     Assertions.checkState(state != STATE_IDLE);
-    return chunkSource.getFormat(track);
+    return chunkSource.getTracks();
   }
 
   @Override
-  public TrackStream enable(int track, long positionUs) {
+  public TrackStream enable(int group, int[] tracks, long positionUs) {
     Assertions.checkState(state == STATE_PREPARED);
     Assertions.checkState(enabledTrackCount++ == 0);
     state = STATE_ENABLED;
-    chunkSource.enable(track);
+    chunkSource.enable(tracks);
     loadControl.register(this, bufferSizeContribution);
     downstreamFormat = null;
     downstreamMediaFormat = null;

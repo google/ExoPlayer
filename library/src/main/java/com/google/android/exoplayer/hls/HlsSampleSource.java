@@ -21,6 +21,7 @@ import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
@@ -55,9 +56,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   private static final long NO_RESET_PENDING = Long.MIN_VALUE;
 
   private static final int PRIMARY_TYPE_NONE = 0;
-  private static final int PRIMARY_TYPE_TEXT = 1;
-  private static final int PRIMARY_TYPE_AUDIO = 2;
-  private static final int PRIMARY_TYPE_VIDEO = 3;
+  private static final int PRIMARY_TYPE_AUDIO = 1;
+  private static final int PRIMARY_TYPE_VIDEO = 2;
 
   private final HlsChunkSource chunkSource;
   private final LinkedList<HlsExtractorWrapper> extractors;
@@ -72,24 +72,19 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   private boolean prepared;
   private boolean loadControlRegistered;
-  private int trackCount;
   private int enabledTrackCount;
 
   private Format downstreamFormat;
 
   // Tracks are complicated in HLS. See documentation of buildTracks for details.
   // Indexed by track (as exposed by this source).
-  private MediaFormat[] trackFormats;
-  private boolean[] trackEnabledStates;
+  private TrackGroup[] trackGroups;
+  private int primaryTrackGroupIndex;
+  private int[] primarySelectedTracks;
+  // Indexed by group.
+  private boolean[] groupEnabledStates;
   private boolean[] pendingResets;
   private MediaFormat[] downstreamMediaFormats;
-  // Maps track index (as exposed by this source) to the corresponding chunk source track index for
-  // primary tracks, or to -1 otherwise.
-  private int[] chunkSourceTrackIndices;
-  // Maps track index (as exposed by this source) to the corresponding extractor track index.
-  private int[] extractorTrackIndices;
-  // Indexed by extractor track index.
-  private boolean[] extractorTrackEnabledStates;
 
   private long downstreamPositionUs;
   private long lastSeekPositionUs;
@@ -186,23 +181,22 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   @Override
-  public int getTrackCount() {
-    Assertions.checkState(prepared);
-    return trackCount;
+  public int getTrackGroupCount() {
+    return trackGroups.length;
   }
 
   @Override
-  public MediaFormat getFormat(int track) {
+  public TrackGroup getTrackGroup(int group) {
     Assertions.checkState(prepared);
-    return trackFormats[track];
+    return trackGroups[group];
   }
 
   @Override
-  public TrackStream enable(int track, long positionUs) {
+  public TrackStream enable(int group, int[] tracks, long positionUs) {
     Assertions.checkState(prepared);
-    setTrackEnabledState(track, true);
-    downstreamMediaFormats[track] = null;
-    pendingResets[track] = false;
+    setTrackGroupEnabledState(group, true);
+    downstreamMediaFormats[group] = null;
+    pendingResets[group] = false;
     downstreamFormat = null;
     boolean wasLoadControlRegistered = loadControlRegistered;
     if (!loadControlRegistered) {
@@ -211,13 +205,13 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     }
     // Treat enabling of a live stream as occurring at t=0 in both of the blocks below.
     positionUs = chunkSource.isLive() ? 0 : positionUs;
-    int chunkSourceTrack = chunkSourceTrackIndices[track];
-    if (chunkSourceTrack != -1 && chunkSourceTrack != chunkSource.getSelectedTrackIndex()) {
+    if (group == primaryTrackGroupIndex && !Arrays.equals(tracks, primarySelectedTracks)) {
       // This is a primary track whose corresponding chunk source track is different to the one
       // currently selected. We need to change the selection and restart. Since other exposed tracks
       // may be enabled too, we need to implement the restart as a seek so that all downstream
       // renderers receive a discontinuity event.
-      chunkSource.selectTrack(chunkSourceTrack);
+      chunkSource.selectTracks(tracks);
+      primarySelectedTracks = tracks;
       seekToInternal(positionUs);
     } else if (enabledTrackCount == 1) {
       lastSeekPositionUs = positionUs;
@@ -232,12 +226,12 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
         restartFrom(positionUs);
       }
     }
-    return new TrackStreamImpl(track);
+    return new TrackStreamImpl(group);
   }
 
-  /* package */ void disable(int track) {
+  /* package */ void disable(int group) {
     Assertions.checkState(prepared);
-    setTrackEnabledState(track, false);
+    setTrackGroupEnabledState(group, false);
     if (enabledTrackCount == 0) {
       chunkSource.reset();
       downstreamPositionUs = Long.MIN_VALUE;
@@ -267,8 +261,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     maybeStartLoading();
   }
 
-  /* package */ boolean isReady(int track) {
-    Assertions.checkState(trackEnabledStates[track]);
+  /* package */ boolean isReady(int group) {
+    Assertions.checkState(groupEnabledStates[group]);
     if (loadingFinished) {
       return true;
     }
@@ -280,26 +274,26 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       if (!extractor.isPrepared()) {
         break;
       }
-      int extractorTrack = extractorTrackIndices[track];
-      if (extractor.hasSamples(extractorTrack)) {
+      if (extractor.hasSamples(group)) {
         return true;
       }
     }
     return false;
   }
 
-  /* package */ long readReset(int track) {
-    if (pendingResets[track]) {
-      pendingResets[track] = false;
+  /* package */ long readReset(int group) {
+    if (pendingResets[group]) {
+      pendingResets[group] = false;
       return lastSeekPositionUs;
     }
     return TrackStream.NO_RESET;
   }
 
-  /* package */ int readData(int track, MediaFormatHolder formatHolder, SampleHolder sampleHolder) {
+  /* package */ int readData(int group, MediaFormatHolder formatHolder,
+      SampleHolder sampleHolder) {
     Assertions.checkState(prepared);
 
-    if (pendingResets[track] || isPendingReset()) {
+    if (pendingResets[group] || isPendingReset()) {
       return TrackStream.NOTHING_READ;
     }
 
@@ -320,9 +314,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       extractor.configureSpliceTo(extractors.get(1));
     }
 
-    int extractorTrack = extractorTrackIndices[track];
     int extractorIndex = 0;
-    while (extractors.size() > extractorIndex + 1 && !extractor.hasSamples(extractorTrack)) {
+    while (extractors.size() > extractorIndex + 1 && !extractor.hasSamples(group)) {
       // We're finished reading from the extractor for this particular track, so advance to the
       // next one for the current read.
       extractor = extractors.get(++extractorIndex);
@@ -331,14 +324,14 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       }
     }
 
-    MediaFormat mediaFormat = extractor.getMediaFormat(extractorTrack);
-    if (mediaFormat != null && !mediaFormat.equals(downstreamMediaFormats[track])) {
+    MediaFormat mediaFormat = extractor.getMediaFormat(group);
+    if (mediaFormat != null && !mediaFormat.equals(downstreamMediaFormats[group])) {
       formatHolder.format = mediaFormat;
-      downstreamMediaFormats[track] = mediaFormat;
+      downstreamMediaFormats[group] = mediaFormat;
       return TrackStream.FORMAT_READ;
     }
 
-    if (extractor.getSample(extractorTrack, sampleHolder)) {
+    if (extractor.getSample(group, sampleHolder)) {
       boolean decodeOnly = sampleHolder.timeUs < lastSeekPositionUs;
       sampleHolder.flags |= decodeOnly ? C.SAMPLE_FLAG_DECODE_ONLY : 0;
       return TrackStream.SAMPLE_READ;
@@ -499,8 +492,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
         trackType = PRIMARY_TYPE_VIDEO;
       } else if (MimeTypes.isAudio(mimeType)) {
         trackType = PRIMARY_TYPE_AUDIO;
-      } else if (MimeTypes.isText(mimeType)) {
-        trackType = PRIMARY_TYPE_TEXT;
       } else {
         trackType = PRIMARY_TYPE_NONE;
       }
@@ -516,54 +507,39 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
     // Calculate the number of tracks that will be exposed.
     int chunkSourceTrackCount = chunkSource.getTrackCount();
-    boolean expandPrimaryExtractorTrack = primaryExtractorTrackIndex != -1;
-    trackCount = extractorTrackCount;
-    if (expandPrimaryExtractorTrack) {
-      trackCount += chunkSourceTrackCount - 1;
-    }
 
     // Instantiate the necessary internal data-structures.
-    trackFormats = new MediaFormat[trackCount];
-    trackEnabledStates = new boolean[trackCount];
-    pendingResets = new boolean[trackCount];
-    downstreamMediaFormats = new MediaFormat[trackCount];
-    chunkSourceTrackIndices = new int[trackCount];
-    extractorTrackIndices = new int[trackCount];
-    extractorTrackEnabledStates = new boolean[extractorTrackCount];
+    primaryTrackGroupIndex = -1;
+    trackGroups = new TrackGroup[extractorTrackCount];
+    groupEnabledStates = new boolean[extractorTrackCount];
+    pendingResets = new boolean[extractorTrackCount];
+    downstreamMediaFormats = new MediaFormat[extractorTrackCount];
 
-    // Construct the set of exposed tracks.
-    long durationUs = chunkSource.getDurationUs();
-    int trackIndex = 0;
+    // Construct the set of exposed track groups.
     for (int i = 0; i < extractorTrackCount; i++) {
-      MediaFormat format = extractor.getMediaFormat(i).copyWithDurationUs(durationUs);
+      MediaFormat format = extractor.getMediaFormat(i);
       if (i == primaryExtractorTrackIndex) {
+        MediaFormat[] formats = new MediaFormat[chunkSourceTrackCount];
         for (int j = 0; j < chunkSourceTrackCount; j++) {
-          extractorTrackIndices[trackIndex] = i;
-          chunkSourceTrackIndices[trackIndex] = j;
-          Variant fixedTrackVariant = chunkSource.getFixedTrackVariant(j);
-          trackFormats[trackIndex++] = fixedTrackVariant == null ? format.copyAsAdaptive(null)
-              : copyWithFixedTrackInfo(format, fixedTrackVariant.format);
+          formats[j] = copyWithFixedTrackInfo(format, chunkSource.getTrackFormat(j));
         }
+        trackGroups[i] = new TrackGroup(true, formats);
+        primaryTrackGroupIndex = i;
       } else {
-        extractorTrackIndices[trackIndex] = i;
-        chunkSourceTrackIndices[trackIndex] = -1;
-        trackFormats[trackIndex++] = format;
+        trackGroups[i] = new TrackGroup(format);
       }
     }
   }
 
   /**
-   * Enables or disables the track at a given index.
+   * Enables or disables a specified track group.
    *
-   * @param track The index of the track.
-   * @param enabledState True if the track is being enabled, or false if it's being disabled.
+   * @param group The index of the track group.
+   * @param enabledState True if the group is being enabled, or false if it's being disabled.
    */
-  private void setTrackEnabledState(int track, boolean enabledState) {
-    Assertions.checkState(trackEnabledStates[track] != enabledState);
-    int extractorTrack = extractorTrackIndices[track];
-    Assertions.checkState(extractorTrackEnabledStates[extractorTrack] != enabledState);
-    trackEnabledStates[track] = enabledState;
-    extractorTrackEnabledStates[extractorTrack] = enabledState;
+  private void setTrackGroupEnabledState(int group, boolean enabledState) {
+    Assertions.checkState(groupEnabledStates[group] != enabledState);
+    groupEnabledStates[group] = enabledState;
     enabledTrackCount = enabledTrackCount + (enabledState ? 1 : -1);
   }
 
@@ -619,8 +595,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (!extractor.isPrepared()) {
       return;
     }
-    for (int i = 0; i < extractorTrackEnabledStates.length; i++) {
-      if (!extractorTrackEnabledStates[i]) {
+    for (int i = 0; i < groupEnabledStates.length; i++) {
+      if (!groupEnabledStates[i]) {
         extractor.discardUntil(i, timeUs);
       }
     }
@@ -630,8 +606,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (!extractor.isPrepared()) {
       return false;
     }
-    for (int i = 0; i < extractorTrackEnabledStates.length; i++) {
-      if (extractorTrackEnabledStates[i] && extractor.hasSamples(i)) {
+    for (int i = 0; i < groupEnabledStates.length; i++) {
+      if (groupEnabledStates[i] && extractor.hasSamples(i)) {
         return true;
       }
     }
@@ -819,15 +795,15 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   private final class TrackStreamImpl implements TrackStream {
 
-    private final int track;
+    private final int group;
 
-    public TrackStreamImpl(int track) {
-      this.track = track;
+    public TrackStreamImpl(int group) {
+      this.group = group;
     }
 
     @Override
     public boolean isReady() {
-      return HlsSampleSource.this.isReady(track);
+      return HlsSampleSource.this.isReady(group);
     }
 
     @Override
@@ -837,17 +813,17 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
     @Override
     public long readReset() {
-      return HlsSampleSource.this.readReset(track);
+      return HlsSampleSource.this.readReset(group);
     }
 
     @Override
     public int readData(MediaFormatHolder formatHolder, SampleHolder sampleHolder) {
-      return HlsSampleSource.this.readData(track, formatHolder, sampleHolder);
+      return HlsSampleSource.this.readData(group, formatHolder, sampleHolder);
     }
 
     @Override
     public void disable() {
-      HlsSampleSource.this.disable(track);
+      HlsSampleSource.this.disable(group);
     }
 
   }

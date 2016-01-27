@@ -17,6 +17,7 @@ package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 
@@ -34,7 +35,7 @@ public final class SingleSampleChunkSource implements ChunkSource {
   private final DataSpec dataSpec;
   private final Format format;
   private final long durationUs;
-  private final MediaFormat mediaFormat;
+  private final TrackGroup tracks;
 
   /**
    * @param dataSource A {@link DataSource} suitable for loading the sample data.
@@ -50,7 +51,7 @@ public final class SingleSampleChunkSource implements ChunkSource {
     this.dataSpec = dataSpec;
     this.format = format;
     this.durationUs = durationUs;
-    this.mediaFormat = mediaFormat;
+    tracks = new TrackGroup(mediaFormat);
   }
 
   @Override
@@ -59,17 +60,12 @@ public final class SingleSampleChunkSource implements ChunkSource {
   }
 
   @Override
-  public int getTrackCount() {
-    return 1;
+  public TrackGroup getTracks() {
+    return tracks;
   }
 
   @Override
-  public MediaFormat getFormat(int track) {
-    return mediaFormat;
-  }
-
-  @Override
-  public void enable(int track) {
+  public void enable(int[] tracks) {
     // Do nothing.
   }
 
@@ -111,7 +107,7 @@ public final class SingleSampleChunkSource implements ChunkSource {
 
   private SingleSampleMediaChunk initChunk() {
     return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_UNSPECIFIED, format, 0,
-        durationUs, 0, mediaFormat, null, Chunk.NO_PARENT_ID);
+        durationUs, 0, tracks.getFormat(0), null, Chunk.NO_PARENT_ID);
   }
 
 }

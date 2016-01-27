@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer;
 
+import android.util.Pair;
+
 import java.io.IOException;
 
 /**
@@ -26,8 +28,7 @@ public class MultiSampleSource implements SampleSource {
 
   private boolean prepared;
   private long durationUs;
-  private SampleSource[] trackSources;
-  private int[] trackIndices;
+  private TrackGroup[] tracks;
 
   public MultiSampleSource(SampleSource... sources) {
     this.sources = sources;
@@ -45,21 +46,19 @@ public class MultiSampleSource implements SampleSource {
     if (prepared) {
       this.prepared = true;
       this.durationUs = C.UNKNOWN_TIME_US;
-      int trackCount = 0;
+      int totalTrackGroupCount = 0;
       for (int i = 0; i < sources.length; i++) {
-        trackCount += sources[i].getTrackCount();
+        totalTrackGroupCount += sources[i].getTrackGroupCount();
         if (sources[i].getDurationUs() > durationUs) {
           durationUs = sources[i].getDurationUs();
         }
       }
-      trackSources = new SampleSource[trackCount];
-      trackIndices = new int[trackCount];
-      int index = 0;
+      tracks = new TrackGroup[totalTrackGroupCount];
+      int trackGroupIndex = 0;
       for (int i = 0; i < sources.length; i++) {
-        int thisSourceTrackCount = sources[i].getTrackCount();
-        for (int j = 0; j < thisSourceTrackCount; j++) {
-          trackSources[index] = sources[i];
-          trackIndices[index++] = j;
+        int sourceTrackGroupCount = sources[i].getTrackGroupCount();
+        for (int j = 0; j < sourceTrackGroupCount; j++) {
+          tracks[trackGroupIndex++] = sources[i].getTrackGroup(j);
         }
       }
     }
@@ -72,18 +71,19 @@ public class MultiSampleSource implements SampleSource {
   }
 
   @Override
-  public int getTrackCount() {
-    return trackSources.length;
+  public int getTrackGroupCount() {
+    return tracks.length;
   }
 
   @Override
-  public MediaFormat getFormat(int track) {
-    return trackSources[track].getFormat(trackIndices[track]);
+  public TrackGroup getTrackGroup(int group) {
+    return tracks[group];
   }
 
   @Override
-  public TrackStream enable(int track, long positionUs) {
-    return trackSources[track].enable(trackIndices[track], positionUs);
+  public TrackStream enable(int group, int[] tracks, long positionUs) {
+    Pair<Integer, Integer> sourceAndGroup = getSourceAndTrackGroupIndices(group);
+    return sources[sourceAndGroup.first].enable(sourceAndGroup.second, tracks, positionUs);
   }
 
   @Override
@@ -127,6 +127,18 @@ public class MultiSampleSource implements SampleSource {
       sources[i].release();
     }
     prepared = false;
+  }
+
+  private Pair<Integer, Integer> getSourceAndTrackGroupIndices(int group) {
+    int totalTrackGroupCount = 0;
+    for (int i = 0; i < sources.length; i++) {
+      int sourceTrackGroupCount = sources[i].getTrackGroupCount();
+      if (group < totalTrackGroupCount + sourceTrackGroupCount) {
+        return Pair.create(i, group - totalTrackGroupCount);
+      }
+      totalTrackGroupCount += sourceTrackGroupCount;
+    }
+    throw new IndexOutOfBoundsException();
   }
 
 }

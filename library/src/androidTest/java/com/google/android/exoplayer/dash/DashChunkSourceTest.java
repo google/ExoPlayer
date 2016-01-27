@@ -81,10 +81,10 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   }
 
   public void testGetAvailableRangeOnVod() {
-    DashChunkSource chunkSource = new DashChunkSource(buildVodMpd(),
-        DefaultDashTrackSelector.newVideoInstance(null, false, false), null, null);
+    DashChunkSource chunkSource = new DashChunkSource(buildVodMpd(), AdaptationSet.TYPE_VIDEO, null,
+        null);
     chunkSource.prepare();
-    chunkSource.enable(0);
+    chunkSource.enable(new int[] {0});
     TimeRange availableRange = chunkSource.getAvailableRange();
 
     checkAvailableRange(availableRange, 0, VOD_DURATION_MS * 1000);
@@ -103,9 +103,9 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
 
   public void testGetAvailableRangeOnMultiPeriodVod() {
     DashChunkSource chunkSource = new DashChunkSource(buildMultiPeriodVodMpd(),
-        DefaultDashTrackSelector.newVideoInstance(null, false, false), null, null);
+        AdaptationSet.TYPE_VIDEO, null, null);
     chunkSource.prepare();
-    chunkSource.enable(0);
+    chunkSource.enable(new int[] {0});
     TimeRange availableRange = chunkSource.getAvailableRange();
     checkAvailableRange(availableRange, 0, MULTI_PERIOD_VOD_DURATION_MS * 1000);
   }
@@ -118,11 +118,10 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   }
 
   public void testSegmentIndexInitializationOnVod() {
-    DashChunkSource chunkSource = new DashChunkSource(buildVodMpd(),
-        DefaultDashTrackSelector.newVideoInstance(null, false, false), mock(DataSource.class),
-        null);
+    DashChunkSource chunkSource = new DashChunkSource(buildVodMpd(), AdaptationSet.TYPE_VIDEO,
+        mock(DataSource.class), null);
     chunkSource.prepare();
-    chunkSource.enable(0);
+    chunkSource.enable(new int[] {0});
 
     List<MediaChunk> queue = new ArrayList<>();
     ChunkOperationHolder out = new ChunkOperationHolder();
@@ -322,12 +321,12 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
     ManifestFetcher<MediaPresentationDescription> manifestFetcher = mock(ManifestFetcher.class);
     when(manifestFetcher.getManifest()).thenReturn(mpd);
     DashChunkSource chunkSource = new DashChunkSource(manifestFetcher, mpd,
-        DefaultDashTrackSelector.newVideoInstance(null, false, false), mock(DataSource.class), null,
+        AdaptationSet.TYPE_VIDEO, mock(DataSource.class), null,
         new FakeClock(mpd.availabilityStartTime + mpd.duration - ELAPSED_REALTIME_OFFSET_MS),
         liveEdgeLatencyMs * 1000, ELAPSED_REALTIME_OFFSET_MS * 1000, startAtLiveEdge, null, null,
         0);
     chunkSource.prepare();
-    chunkSource.enable(0);
+    chunkSource.enable(new int[] {0});
     return chunkSource;
   }
 

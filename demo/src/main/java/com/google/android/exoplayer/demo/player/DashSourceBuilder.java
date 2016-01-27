@@ -22,7 +22,7 @@ import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSource;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
 import com.google.android.exoplayer.dash.DashChunkSource;
-import com.google.android.exoplayer.dash.DefaultDashTrackSelector;
+import com.google.android.exoplayer.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescriptionParser;
 import com.google.android.exoplayer.dash.mpd.UtcTimingElement;
@@ -201,8 +201,7 @@ public class DashSourceBuilder implements SourceBuilder {
 
       // Build the video renderer.
       DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-      ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher,
-          DefaultDashTrackSelector.newVideoInstance(context, true, false),
+      ChunkSource videoChunkSource = new DashChunkSource(manifestFetcher, AdaptationSet.TYPE_VIDEO,
           videoDataSource, new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS,
           elapsedRealtimeOffset, mainHandler, player, DemoPlayer.TYPE_VIDEO);
       ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
@@ -211,18 +210,18 @@ public class DashSourceBuilder implements SourceBuilder {
 
       // Build the audio renderer.
       DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-      ChunkSource audioChunkSource = new DashChunkSource(manifestFetcher,
-          DefaultDashTrackSelector.newAudioInstance(), audioDataSource, null, LIVE_EDGE_LATENCY_MS,
-          elapsedRealtimeOffset, mainHandler, player, DemoPlayer.TYPE_AUDIO);
+      ChunkSource audioChunkSource = new DashChunkSource(manifestFetcher, AdaptationSet.TYPE_AUDIO,
+          audioDataSource, null, LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset, mainHandler, player,
+          DemoPlayer.TYPE_AUDIO);
       ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
           AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
           DemoPlayer.TYPE_AUDIO);
 
       // Build the text renderer.
       DataSource textDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-      ChunkSource textChunkSource = new DashChunkSource(manifestFetcher,
-          DefaultDashTrackSelector.newTextInstance(), textDataSource, null, LIVE_EDGE_LATENCY_MS,
-          elapsedRealtimeOffset, mainHandler, player, DemoPlayer.TYPE_TEXT);
+      ChunkSource textChunkSource = new DashChunkSource(manifestFetcher, AdaptationSet.TYPE_TEXT,
+          textDataSource, null, LIVE_EDGE_LATENCY_MS, elapsedRealtimeOffset, mainHandler, player,
+          DemoPlayer.TYPE_TEXT);
       ChunkSampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
           TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
           DemoPlayer.TYPE_TEXT);

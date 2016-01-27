@@ -18,7 +18,6 @@ package com.google.android.exoplayer.demo.player;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.demo.player.DemoPlayer.SourceBuilder;
-import com.google.android.exoplayer.hls.DefaultHlsTrackSelector;
 import com.google.android.exoplayer.hls.HlsChunkSource;
 import com.google.android.exoplayer.hls.HlsPlaylist;
 import com.google.android.exoplayer.hls.HlsPlaylistParser;
@@ -120,9 +119,8 @@ public class HlsSourceBuilder implements SourceBuilder {
 
       // Build the video/audio/metadata renderers.
       DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-      HlsChunkSource chunkSource = new HlsChunkSource(true /* isMaster */, dataSource, url,
-          manifest, DefaultHlsTrackSelector.newDefaultInstance(context), bandwidthMeter,
-          timestampAdjusterProvider, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
+      HlsChunkSource chunkSource = new HlsChunkSource(HlsChunkSource.TYPE_DEFAULT, dataSource, url,
+          manifest, bandwidthMeter, timestampAdjusterProvider, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
       HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, loadControl,
           MAIN_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_VIDEO);
 
