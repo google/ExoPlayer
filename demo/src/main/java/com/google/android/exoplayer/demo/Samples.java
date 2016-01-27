@@ -242,8 +242,6 @@ import java.util.Locale;
         + "&key=ik0", Util.TYPE_OTHER),
     new Sample("Google Play (MP3 Audio)",
         "http://storage.googleapis.com/exoplayer-test-media-0/play.mp3", Util.TYPE_OTHER),
-    new Sample("Google Play (Ogg/Vorbis Audio)",
-        "https://storage.googleapis.com/exoplayer-test-media-1/ogg/play.ogg", Util.TYPE_OTHER),
     new Sample("Google Glass (WebM Video with Vorbis Audio)",
         "http://demos.webmproject.org/exoplayer/glass_vp9_vorbis.webm", Util.TYPE_OTHER),
     new Sample("Big Buck Bunny (FLV Video)",

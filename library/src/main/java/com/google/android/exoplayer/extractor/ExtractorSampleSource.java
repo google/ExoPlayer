@@ -148,14 +148,14 @@ public final class ExtractorSampleSource implements SampleSource, SampleSourceRe
     }
     try {
       DEFAULT_EXTRACTOR_CLASSES.add(
-          Class.forName("com.google.android.exoplayer.extractor.flv.FlvExtractor")
+          Class.forName("com.google.android.exoplayer.extractor.ts.PsExtractor")
               .asSubclass(Extractor.class));
     } catch (ClassNotFoundException e) {
       // Extractor not found.
     }
     try {
       DEFAULT_EXTRACTOR_CLASSES.add(
-          Class.forName("com.google.android.exoplayer.extractor.ogg.OggVorbisExtractor")
+          Class.forName("com.google.android.exoplayer.extractor.flv.FlvExtractor")
               .asSubclass(Extractor.class));
     } catch (ClassNotFoundException e) {
       // Extractor not found.
