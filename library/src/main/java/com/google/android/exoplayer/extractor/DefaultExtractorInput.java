@@ -80,7 +80,8 @@ public final class DefaultExtractorInput implements ExtractorInput {
   public int skip(int length) throws IOException, InterruptedException {
     int bytesSkipped = skipFromPeekBuffer(length);
     if (bytesSkipped == 0) {
-      bytesSkipped = readFromDataSource(SCRATCH_SPACE, 0, length, 0, true);
+      bytesSkipped =
+          readFromDataSource(SCRATCH_SPACE, 0, Math.min(length, SCRATCH_SPACE.length), 0, true);
     }
     commitBytesRead(bytesSkipped);
     return bytesSkipped;
