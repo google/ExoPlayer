@@ -21,28 +21,14 @@ import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.upstream.UriLoadable;
 
 import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Pair;
 
 import java.io.IOException;
-import java.util.concurrent.CancellationException;
 
 /**
- * Performs both single and repeated loads of media manifests.
- * <p>
- * Client code is responsible for ensuring that only one load is taking place at any one time.
- * Typical usage of this class is as follows:
- * <ol>
- * <li>Create an instance.</li>
- * <li>Obtain an initial manifest by calling {@link #singleLoad(Looper, ManifestCallback)} and
- *     waiting for the callback to be invoked.</li>
- * <li>For on-demand playbacks, the loader is no longer required. For live playbacks, the loader
- *     may be required to periodically refresh the manifest. In this case it is injected into any
- *     components that require it. These components will call {@link #requestRefresh()} on the
- *     loader whenever a refresh is required.</li>
- * </ol>
+ * Loads and refreshes a media manifest.
  *
  * @param <T> The type of manifest.
  */
@@ -66,29 +52,6 @@ public class ManifestFetcher<T> implements Loader.Callback {
     public void onManifestRefreshed();
 
     public void onManifestError(IOException e);
-
-  }
-
-  /**
-   * Callback for the result of a single load.
-   *
-   * @param <T> The type of manifest.
-   */
-  public interface ManifestCallback<T> {
-
-    /**
-     * Invoked when the load has successfully completed.
-     *
-     * @param manifest The loaded manifest.
-     */
-    void onSingleManifest(T manifest);
-
-    /**
-     * Invoked when the load has failed.
-     *
-     * @param e The cause of the failure.
-     */
-    void onSingleManifestError(IOException e);
 
   }
 
@@ -160,19 +123,6 @@ public class ManifestFetcher<T> implements Loader.Callback {
    */
   public void updateManifestUri(String manifestUri) {
     this.manifestUri = manifestUri;
-  }
-
-  /**
-   * Performs a single manifest load.
-   *
-   * @param callbackLooper The looper associated with the thread on which the callback should be
-   *     invoked.
-   * @param callback The callback to receive the result.
-   */
-  public void singleLoad(Looper callbackLooper, final ManifestCallback<T> callback) {
-    SingleFetchHelper fetchHelper = new SingleFetchHelper(
-        new UriLoadable<>(manifestUri, uriDataSource, parser), callbackLooper, callback);
-    fetchHelper.startLoading();
   }
 
   /**
@@ -346,65 +296,6 @@ public class ManifestFetcher<T> implements Loader.Callback {
         }
       });
     }
-  }
-
-  private class SingleFetchHelper implements Loader.Callback {
-
-    private final UriLoadable<T> singleUseLoadable;
-    private final Looper callbackLooper;
-    private final ManifestCallback<T> wrappedCallback;
-    private final Loader singleUseLoader;
-
-    private long loadStartTimestamp;
-
-    public SingleFetchHelper(UriLoadable<T> singleUseLoadable, Looper callbackLooper,
-        ManifestCallback<T> wrappedCallback) {
-      this.singleUseLoadable = singleUseLoadable;
-      this.callbackLooper = callbackLooper;
-      this.wrappedCallback = wrappedCallback;
-      singleUseLoader = new Loader("manifestLoader:single");
-    }
-
-    public void startLoading() {
-      loadStartTimestamp = SystemClock.elapsedRealtime();
-      singleUseLoader.startLoading(callbackLooper, singleUseLoadable, this);
-    }
-
-    @Override
-    public void onLoadCompleted(Loadable loadable) {
-      try {
-        T result = singleUseLoadable.getResult();
-        onSingleFetchCompleted(result, loadStartTimestamp);
-        wrappedCallback.onSingleManifest(result);
-      } finally {
-        releaseLoader();
-      }
-    }
-
-    @Override
-    public void onLoadCanceled(Loadable loadable) {
-      // This shouldn't ever happen, but handle it anyway.
-      try {
-        IOException exception = new ManifestIOException(new CancellationException());
-        wrappedCallback.onSingleManifestError(exception);
-      } finally {
-        releaseLoader();
-      }
-    }
-
-    @Override
-    public void onLoadError(Loadable loadable, IOException exception) {
-      try {
-        wrappedCallback.onSingleManifestError(exception);
-      } finally {
-        releaseLoader();
-      }
-    }
-
-    private void releaseLoader() {
-      singleUseLoader.release();
-    }
-
   }
 
 }

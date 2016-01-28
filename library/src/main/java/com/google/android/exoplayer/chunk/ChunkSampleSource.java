@@ -150,7 +150,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       return true;
     }
     if (!chunkSource.prepare()) {
-      maybeThrowError();
       return false;
     }
     durationUs = C.UNKNOWN_TIME_US;

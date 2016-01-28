@@ -69,24 +69,16 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     MetadataRenderer<Map<String, Object>>, DebugTextViewHelper.Provider {
 
   /**
-   * Builds renderers for the player.
+   * Builds a source to play.
    */
   public interface SourceBuilder {
     /**
-     * Builds renderers for playback.
+     * Builds a source to play.
      *
-     * @param player The player for which renderers are being built. {@link DemoPlayer#onSource}
-     *     should be invoked once the renderers have been built. If building fails,
-     *     {@link DemoPlayer#onSourceBuilderError} should be invoked.
+     * @param player The player for which renderers are being built.
+     * @return SampleSource The source to play.
      */
-    void buildRenderers(DemoPlayer player);
-    /**
-     * Cancels the current build operation, if there is one. Else does nothing.
-     * <p>
-     * A canceled build operation must not invoke {@link DemoPlayer#onSource} or
-     * {@link DemoPlayer#onSourceBuilderError} on the player, which may have been released.
-     */
-    void cancel();
+    SampleSource buildRenderers(DemoPlayer player);
   }
 
   /**
@@ -164,10 +156,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   public static final int TYPE_TEXT = 2;
   public static final int TYPE_METADATA = 3;
 
-  private static final int SOURCE_BUILDING_STATE_IDLE = 1;
-  private static final int SOURCE_BUILDING_STATE_BUILDING = 2;
-  private static final int SOURCE_BUILDING_STATE_BUILT = 3;
-
   private final ExoPlayer player;
   private final SourceBuilder sourceBuilder;
   private final BandwidthMeter bandwidthMeter;
@@ -175,10 +163,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   private final PlayerControl playerControl;
   private final Handler mainHandler;
   private final CopyOnWriteArrayList<Listener> listeners;
-
-  private int sourceBuildingState;
-  private int lastReportedPlaybackState;
-  private boolean lastReportedPlayWhenReady;
 
   private Surface surface;
   private Format videoFormat;
@@ -215,8 +199,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     playerControl = new PlayerControl(player);
 
     // Set initial state, with the text renderer initially disabled.
-    lastReportedPlaybackState = STATE_IDLE;
-    sourceBuildingState = SOURCE_BUILDING_STATE_IDLE;
     player.setSelectedTrack(TYPE_TEXT, TRACK_DISABLED);
   }
 
@@ -300,39 +282,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   public void prepare() {
-    if (sourceBuildingState == SOURCE_BUILDING_STATE_BUILT) {
-      player.stop();
-    }
-    sourceBuilder.cancel();
-    sourceBuildingState = SOURCE_BUILDING_STATE_BUILDING;
-    maybeReportPlayerState();
-    sourceBuilder.buildRenderers(this);
-  }
-
-  /**
-   * Invoked with the results from a {@link SourceBuilder}.
-   *
-   * @param source The {@link SampleSource} to play.
-   */
-  /* package */ void onSource(SampleSource source) {
-    player.prepare(source);
-    sourceBuildingState = SOURCE_BUILDING_STATE_BUILT;
-  }
-
-  /**
-   * Invoked if a {@link SourceBuilder} encounters an error.
-   *
-   * @param e Describes the error.
-   */
-  /* package */ void onSourceBuilderError(Exception e) {
-    if (internalErrorListener != null) {
-      internalErrorListener.onRendererInitializationError(e);
-    }
-    for (Listener listener : listeners) {
-      listener.onError(e);
-    }
-    sourceBuildingState = SOURCE_BUILDING_STATE_IDLE;
-    maybeReportPlayerState();
+    player.prepare(sourceBuilder.buildRenderers(this));
   }
 
   public void setPlayWhenReady(boolean playWhenReady) {
@@ -344,23 +294,12 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   }
 
   public void release() {
-    sourceBuilder.cancel();
-    sourceBuildingState = SOURCE_BUILDING_STATE_IDLE;
     surface = null;
     player.release();
   }
 
   public int getPlaybackState() {
-    if (sourceBuildingState == SOURCE_BUILDING_STATE_BUILDING) {
-      return STATE_PREPARING;
-    }
-    int playerState = player.getPlaybackState();
-    if (sourceBuildingState == SOURCE_BUILDING_STATE_BUILT && playerState == STATE_IDLE) {
-      // This is an edge case where the renderers are built, but are still being passed to the
-      // player's playback thread.
-      return STATE_PREPARING;
-    }
-    return playerState;
+    return player.getPlaybackState();
   }
 
   @Override
@@ -401,12 +340,13 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
 
   @Override
   public void onPlayerStateChanged(boolean playWhenReady, int state) {
-    maybeReportPlayerState();
+    for (Listener listener : listeners) {
+      listener.onStateChanged(playWhenReady, state);
+    }
   }
 
   @Override
   public void onPlayerError(ExoPlaybackException exception) {
-    sourceBuildingState = SOURCE_BUILDING_STATE_IDLE;
     for (Listener listener : listeners) {
       listener.onError(exception);
     }
@@ -567,18 +507,6 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   @Override
   public void onUpstreamDiscarded(int sourceId, long mediaStartTimeMs, long mediaEndTimeMs) {
     // Do nothing.
-  }
-
-  private void maybeReportPlayerState() {
-    boolean playWhenReady = player.getPlayWhenReady();
-    int playbackState = getPlaybackState();
-    if (lastReportedPlayWhenReady != playWhenReady || lastReportedPlaybackState != playbackState) {
-      for (Listener listener : listeners) {
-        listener.onStateChanged(playWhenReady, playbackState);
-      }
-      lastReportedPlayWhenReady = playWhenReady;
-      lastReportedPlaybackState = playbackState;
-    }
   }
 
   private void pushSurface(boolean blockForSurfacePush) {

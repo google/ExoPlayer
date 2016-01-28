@@ -31,8 +31,10 @@ import java.util.List;
 public interface ChunkSource {
 
   /**
-   * If the source is currently having difficulty preparing or providing chunks, then this method
-   * throws the underlying error. Otherwise does nothing.
+   * If the source is currently having difficulty providing chunks, then this method throws the
+   * underlying error. Otherwise does nothing.
+   * <p>
+   * This method should only be called after the source has been prepared.
    *
    * @throws IOException The underlying error.
    */
@@ -44,8 +46,9 @@ public interface ChunkSource {
    * The method can be called repeatedly until the return value indicates success.
    *
    * @return True if the source was prepared, false otherwise.
+   * @throws IOException If an error occurs preparing the source.
    */
-  boolean prepare();
+  boolean prepare() throws IOException;
 
   /**
    * Gets the group of tracks provided by the source.

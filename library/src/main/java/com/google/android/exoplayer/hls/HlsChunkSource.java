@@ -33,6 +33,7 @@ import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
@@ -123,22 +124,24 @@ public class HlsChunkSource {
   private static final String WEBVTT_FILE_EXTENSION = ".webvtt";
   private static final float BANDWIDTH_FRACTION = 0.8f;
 
+  private final ManifestFetcher<HlsPlaylist> manifestFetcher;
   private final int type;
   private final DataSource dataSource;
   private final HlsPlaylistParser playlistParser;
-  private final HlsMasterPlaylist masterPlaylist;
   private final BandwidthMeter bandwidthMeter;
   private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
   private final int adaptiveMode;
-  private final String baseUri;
+
   private final long minBufferDurationToSwitchUpUs;
   private final long maxBufferDurationToSwitchDownUs;
 
-  private boolean prepareCalled;
+  private boolean manifestFetcherEnabled;
   private byte[] scratchSpace;
   private boolean live;
   private long durationUs;
   private IOException fatalError;
+  private HlsMasterPlaylist masterPlaylist;
+  private String baseUri;
 
   private Uri encryptionKeyUri;
   private byte[] encryptionKey;
@@ -158,11 +161,10 @@ public class HlsChunkSource {
   private int selectedVariantIndex;
 
   /**
+   * @param manifestFetcher A fetcher for the playlist.
    * @param type The type of chunk provided by the source. One of {@link #TYPE_DEFAULT} and
    *     {@link #TYPE_VTT}.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
-   * @param playlistUrl The playlist URL.
-   * @param playlist The hls playlist.
    * @param bandwidthMeter Provides an estimate of the currently available bandwidth.
    * @param timestampAdjusterProvider A provider of {@link PtsTimestampAdjuster} instances. If
    *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
@@ -171,19 +173,18 @@ public class HlsChunkSource {
    *     {@link #ADAPTIVE_MODE_NONE}, {@link #ADAPTIVE_MODE_ABRUPT} and
    *     {@link #ADAPTIVE_MODE_SPLICE}.
    */
-  public HlsChunkSource(int type, DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
-      BandwidthMeter bandwidthMeter, PtsTimestampAdjusterProvider timestampAdjusterProvider,
-      int adaptiveMode) {
-    this(type, dataSource, playlistUrl, playlist, bandwidthMeter, timestampAdjusterProvider,
+  public HlsChunkSource(ManifestFetcher<HlsPlaylist> manifestFetcher, int type,
+      DataSource dataSource,  BandwidthMeter bandwidthMeter,
+      PtsTimestampAdjusterProvider timestampAdjusterProvider, int adaptiveMode) {
+    this(manifestFetcher, type, dataSource, bandwidthMeter, timestampAdjusterProvider,
         adaptiveMode, DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS, DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS);
   }
 
   /**
+   * @param manifestFetcher A fetcher for the playlist.
    * @param type The type of chunk provided by the source. One of {@link #TYPE_DEFAULT} and
    *     {@link #TYPE_VTT}.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
-   * @param playlistUrl The playlist URL.
-   * @param playlist The hls playlist.
    * @param bandwidthMeter Provides an estimate of the currently available bandwidth.
    * @param timestampAdjusterProvider A provider of {@link PtsTimestampAdjuster} instances. If
    *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
@@ -196,9 +197,11 @@ public class HlsChunkSource {
    * @param maxBufferDurationToSwitchDownMs The maximum duration of media that needs to be buffered
    *     for a switch to a lower quality variant to be considered.
    */
-  public HlsChunkSource(int type, DataSource dataSource, String playlistUrl, HlsPlaylist playlist,
-      BandwidthMeter bandwidthMeter, PtsTimestampAdjusterProvider timestampAdjusterProvider,
-      int adaptiveMode, long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs) {
+  public HlsChunkSource(ManifestFetcher<HlsPlaylist> manifestFetcher, int type,
+      DataSource dataSource, BandwidthMeter bandwidthMeter,
+      PtsTimestampAdjusterProvider timestampAdjusterProvider, int adaptiveMode,
+      long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs) {
+    this.manifestFetcher = manifestFetcher;
     this.type = type;
     this.dataSource = dataSource;
     this.bandwidthMeter = bandwidthMeter;
@@ -206,18 +209,7 @@ public class HlsChunkSource {
     this.adaptiveMode = adaptiveMode;
     minBufferDurationToSwitchUpUs = minBufferDurationToSwitchUpMs * 1000;
     maxBufferDurationToSwitchDownUs = maxBufferDurationToSwitchDownMs * 1000;
-    baseUri = playlist.baseUri;
     playlistParser = new HlsPlaylistParser();
-    if (playlist.type == HlsPlaylist.TYPE_MASTER) {
-      masterPlaylist = (HlsMasterPlaylist) playlist;
-    } else {
-      Format format = new Format("0", MimeTypes.APPLICATION_M3U8, -1, -1, -1, -1, -1, -1, null,
-          null);
-      List<Variant> variants = new ArrayList<>();
-      variants.add(new Variant(playlistUrl, format));
-      masterPlaylist = new HlsMasterPlaylist(playlistUrl, variants,
-          Collections.<Variant>emptyList());
-    }
   }
 
   /**
@@ -237,12 +229,34 @@ public class HlsChunkSource {
    *
    * @return True if the source was prepared, false otherwise.
    */
-  public boolean prepare() {
-    if (!prepareCalled) {
-      prepareCalled = true;
-      processMasterPlaylist(masterPlaylist);
-      // TODO[REFACTOR]: Come up with a sane default here.
-      selectTracks(new int[] {0});
+  public boolean prepare() throws IOException {
+    if (!manifestFetcherEnabled) {
+      // TODO[REFACTOR]: We need to disable this at some point.
+      manifestFetcher.enable();
+      manifestFetcherEnabled = true;
+    }
+    if (masterPlaylist == null) {
+      HlsPlaylist playlist = manifestFetcher.getManifest();
+      if (playlist == null) {
+        manifestFetcher.maybeThrowError();
+        manifestFetcher.requestRefresh();
+        return false;
+      } else {
+        baseUri = playlist.baseUri;
+        if (playlist.type == HlsPlaylist.TYPE_MASTER) {
+          masterPlaylist = (HlsMasterPlaylist) playlist;
+        } else {
+          Format format = new Format("0", MimeTypes.APPLICATION_M3U8, -1, -1, -1, -1, -1, -1, null,
+              null);
+          List<Variant> variants = new ArrayList<>();
+          variants.add(new Variant(baseUri, format));
+          masterPlaylist = new HlsMasterPlaylist(baseUri, variants,
+              Collections.<Variant>emptyList());
+        }
+        processMasterPlaylist(masterPlaylist);
+        // TODO[REFACTOR]: Come up with a sane default here.
+        selectTracks(new int[] {0});
+      }
     }
     return true;
   }
@@ -602,7 +616,7 @@ public class HlsChunkSource {
     }
 
     // Type is TYPE_DEFAULT.
-    List<Variant> enabledVariantList = playlist.variants;
+    List<Variant> enabledVariantList = new ArrayList<>(playlist.variants);
     ArrayList<Variant> definiteVideoVariants = new ArrayList<>();
     ArrayList<Variant> definiteAudioOnlyVariants = new ArrayList<>();
     for (int i = 0; i < enabledVariantList.size(); i++) {

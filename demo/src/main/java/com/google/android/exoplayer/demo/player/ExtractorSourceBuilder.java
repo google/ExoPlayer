@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.demo.player;
 
+import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.demo.player.DemoPlayer.SourceBuilder;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
@@ -45,18 +46,12 @@ public class ExtractorSourceBuilder implements SourceBuilder {
   }
 
   @Override
-  public void buildRenderers(DemoPlayer player) {
+  public SampleSource buildRenderers(DemoPlayer player) {
     Allocator allocator = new DefaultAllocator(BUFFER_SEGMENT_SIZE);
     DataSource dataSource = new DefaultUriDataSource(context, player.getBandwidthMeter(),
         userAgent);
-    ExtractorSampleSource source = new ExtractorSampleSource(uri, dataSource, allocator,
+    return new ExtractorSampleSource(uri, dataSource, allocator,
         BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE);
-    player.onSource(source);
-  }
-
-  @Override
-  public void cancel() {
-    // Do nothing.
   }
 
 }

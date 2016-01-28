@@ -67,17 +67,16 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private final DataSource dataSource;
   private final Evaluation evaluation;
   private final long liveEdgeLatencyUs;
-  private final TrackEncryptionBox[] trackEncryptionBoxes;
   private final ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
-  private final DrmInitData.Mapped drmInitData;
   private final FormatEvaluator adaptiveFormatEvaluator;
-  private final boolean live;
 
-  private boolean prepareCalled;
+  private boolean manifestFetcherEnabled;
+  private boolean live;
+  private TrackEncryptionBox[] trackEncryptionBoxes;
+  private DrmInitData.Mapped drmInitData;
   private SmoothStreamingManifest currentManifest;
   private int currentManifestChunkOffset;
   private boolean needManifestRefresh;
-  private IOException fatalError;
 
   // Properties of exposed tracks.
   private int elementIndex;
@@ -93,14 +92,10 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private final SparseArray<ChunkExtractorWrapper> extractorWrappers;
   private final SparseArray<MediaFormat> mediaFormats;
 
+  private IOException fatalError;
+
   /**
-   * Constructor to use for live streaming.
-   * <p>
-   * May also be used for fixed duration content, in which case the call is equivalent to calling
-   * the other constructor, passing {@code manifestFetcher.getManifest()} is the first argument.
-   *
-   * @param manifestFetcher A fetcher for the manifest, which must have already successfully
-   *     completed an initial load.
+   * @param manifestFetcher A fetcher for the manifest.
    * @param streamElementType The type of stream element exposed by this source. One of
    *     {@link StreamElement#TYPE_VIDEO}, {@link StreamElement#TYPE_AUDIO} and
    *     {@link StreamElement#TYPE_TEXT}.
@@ -115,30 +110,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   public SmoothStreamingChunkSource(ManifestFetcher<SmoothStreamingManifest> manifestFetcher,
       int streamElementType, DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
       long liveEdgeLatencyMs) {
-    this(manifestFetcher, manifestFetcher.getManifest(), streamElementType, dataSource,
-        adaptiveFormatEvaluator, liveEdgeLatencyMs);
-  }
-
-  /**
-   * Constructor to use for fixed duration content.
-   *
-   * @param manifest The manifest parsed from {@code baseUrl + "/Manifest"}.
-   * @param streamElementType The type of stream element exposed by this source. One of
-   *     {@link StreamElement#TYPE_VIDEO}, {@link StreamElement#TYPE_AUDIO} and
-   *     {@link StreamElement#TYPE_TEXT}.
-   * @param dataSource A {@link DataSource} suitable for loading the media data.
-   * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
-   */
-  public SmoothStreamingChunkSource(SmoothStreamingManifest manifest, int streamElementType,
-      DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator) {
-    this(null, manifest, streamElementType, dataSource, adaptiveFormatEvaluator, 0);
-  }
-
-  private SmoothStreamingChunkSource(ManifestFetcher<SmoothStreamingManifest> manifestFetcher,
-      SmoothStreamingManifest initialManifest, int streamElementType, DataSource dataSource,
-      FormatEvaluator adaptiveFormatEvaluator, long liveEdgeLatencyMs) {
     this.manifestFetcher = manifestFetcher;
-    this.currentManifest = initialManifest;
     this.streamElementType = streamElementType;
     this.dataSource = dataSource;
     this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
@@ -146,20 +118,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     evaluation = new Evaluation();
     extractorWrappers = new SparseArray<>();
     mediaFormats = new SparseArray<>();
-    live = initialManifest.isLive;
-
-    ProtectionElement protectionElement = initialManifest.protectionElement;
-    if (protectionElement != null) {
-      byte[] keyId = getProtectionElementKeyId(protectionElement.data);
-      trackEncryptionBoxes = new TrackEncryptionBox[1];
-      trackEncryptionBoxes[0] = new TrackEncryptionBox(true, INITIALIZATION_VECTOR_SIZE, keyId);
-      drmInitData = new DrmInitData.Mapped();
-      drmInitData.put(protectionElement.uuid,
-          new SchemeInitData(MimeTypes.VIDEO_MP4, protectionElement.data));
-    } else {
-      trackEncryptionBoxes = null;
-      drmInitData = null;
-    }
   }
 
   // ChunkSource implementation.
@@ -168,16 +126,40 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   public void maybeThrowError() throws IOException {
     if (fatalError != null) {
       throw fatalError;
-    } else {
+    } else if (live) {
       manifestFetcher.maybeThrowError();
     }
   }
 
   @Override
-  public boolean prepare() {
-    if (!prepareCalled) {
-      selectTracks(currentManifest);
-      prepareCalled = true;
+  public boolean prepare() throws IOException {
+    if (!manifestFetcherEnabled) {
+      // TODO[REFACTOR]: We need to disable this at some point.
+      manifestFetcher.enable();
+      manifestFetcherEnabled = true;
+    }
+    if (currentManifest == null) {
+      currentManifest = manifestFetcher.getManifest();
+      if (currentManifest == null) {
+        manifestFetcher.maybeThrowError();
+        manifestFetcher.requestRefresh();
+        return false;
+      } else {
+        live = currentManifest.isLive;
+        ProtectionElement protectionElement = currentManifest.protectionElement;
+        if (protectionElement != null) {
+          byte[] keyId = getProtectionElementKeyId(protectionElement.data);
+          trackEncryptionBoxes = new TrackEncryptionBox[1];
+          trackEncryptionBoxes[0] = new TrackEncryptionBox(true, INITIALIZATION_VECTOR_SIZE, keyId);
+          drmInitData = new DrmInitData.Mapped();
+          drmInitData.put(protectionElement.uuid,
+              new SchemeInitData(MimeTypes.VIDEO_MP4, protectionElement.data));
+        } else {
+          trackEncryptionBoxes = null;
+          drmInitData = null;
+        }
+        selectTracks(currentManifest);
+      }
     }
     return true;
   }
@@ -206,14 +188,11 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       adaptiveMaxWidth = -1;
       adaptiveMaxHeight = -1;
     }
-    if (manifestFetcher != null) {
-      manifestFetcher.enable();
-    }
   }
 
   @Override
   public void continueBuffering(long playbackPositionUs) {
-    if (manifestFetcher == null || !currentManifest.isLive || fatalError != null) {
+    if (!currentManifest.isLive || fatalError != null) {
       return;
     }
 
@@ -349,9 +328,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   public void disable(List<? extends MediaChunk> queue) {
     if (enabledFormats.length > 1) {
       adaptiveFormatEvaluator.disable();
-    }
-    if (manifestFetcher != null) {
-      manifestFetcher.disable();
     }
     evaluation.format = null;
     fatalError = null;

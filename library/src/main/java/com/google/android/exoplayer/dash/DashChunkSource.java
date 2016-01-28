@@ -57,7 +57,6 @@ import android.util.SparseArray;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -118,10 +117,10 @@ public class DashChunkSource implements ChunkSource {
   private final long liveEdgeLatencyUs;
   private final long elapsedRealtimeOffsetUs;
   private final long[] availableRangeValues;
-  private final boolean live;
   private final int eventSourceId;
 
-  private boolean prepareCalled;
+  private boolean manifestFetcherEnabled;
+  private boolean live;
   private MediaPresentationDescription currentManifest;
   private MediaPresentationDescription processedManifest;
   private int nextPeriodHolderIndex;
@@ -141,63 +140,7 @@ public class DashChunkSource implements ChunkSource {
   private int adaptiveMaxHeight;
 
   /**
-   * Lightweight constructor to use for fixed duration content.
-   *
-   * @param dataSource A {@link DataSource} suitable for loading the media data.
-   * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
-   * @param durationMs The duration of the content.
-   * @param adaptationSetType The type of the adaptation set to which the representations belong.
-   *     One of {@link AdaptationSet#TYPE_AUDIO}, {@link AdaptationSet#TYPE_VIDEO} and
-   *     {@link AdaptationSet#TYPE_TEXT}.
-   * @param representations The representations to be considered by the source.
-   */
-  public DashChunkSource(DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
-      long durationMs, int adaptationSetType, Representation... representations) {
-    this(dataSource, adaptiveFormatEvaluator, durationMs, adaptationSetType,
-        Arrays.asList(representations));
-  }
-
-  /**
-   * Lightweight constructor to use for fixed duration content.
-   *
-   * @param dataSource A {@link DataSource} suitable for loading the media data.
-   * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
-   * @param durationMs The duration of the content.
-   * @param adaptationSetType The type of the adaptation set to which the representations belong.
-   *     One of {@link AdaptationSet#TYPE_AUDIO}, {@link AdaptationSet#TYPE_VIDEO} and
-   *     {@link AdaptationSet#TYPE_TEXT}.
-   * @param representations The representations to be considered by the source.
-   */
-  public DashChunkSource(DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
-      long durationMs, int adaptationSetType, List<Representation> representations) {
-    this(buildManifest(durationMs, adaptationSetType, representations), adaptationSetType,
-        dataSource, adaptiveFormatEvaluator);
-  }
-
-  /**
-   * Constructor to use for fixed duration content.
-   *
-   * @param manifest The manifest.
-   * @param adaptationSetType The type of the adaptation set exposed by this source. One of
-   *     {@link AdaptationSet#TYPE_AUDIO}, {@link AdaptationSet#TYPE_VIDEO} and
-   *     {@link AdaptationSet#TYPE_TEXT}.
-   * @param dataSource A {@link DataSource} suitable for loading the media data.
-   * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
-   */
-  public DashChunkSource(MediaPresentationDescription manifest, int adaptationSetType,
-      DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator) {
-    this(null, manifest, adaptationSetType, dataSource, adaptiveFormatEvaluator, new SystemClock(),
-        0, 0, false, null, null, 0);
-  }
-
-  /**
-   * Constructor to use for live streaming.
-   * <p>
-   * May also be used for fixed duration content, in which case the call is equivalent to calling
-   * the other constructor, passing {@code manifestFetcher.getManifest()} is the first argument.
-   *
-   * @param manifestFetcher A fetcher for the manifest, which must have already successfully
-   *     completed an initial load.
+   * @param manifestFetcher A fetcher for the manifest.
    * @param adaptationSetType The type of the adaptation set exposed by this source. One of
    *     {@link AdaptationSet#TYPE_AUDIO}, {@link AdaptationSet#TYPE_VIDEO} and
    *     {@link AdaptationSet#TYPE_TEXT}.
@@ -220,16 +163,15 @@ public class DashChunkSource implements ChunkSource {
       int adaptationSetType, DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
       long liveEdgeLatencyMs, long elapsedRealtimeOffsetMs, Handler eventHandler,
       EventListener eventListener, int eventSourceId) {
-    this(manifestFetcher, manifestFetcher.getManifest(), adaptationSetType,
-        dataSource, adaptiveFormatEvaluator, new SystemClock(), liveEdgeLatencyMs * 1000,
-        elapsedRealtimeOffsetMs * 1000, true, eventHandler, eventListener, eventSourceId);
+    this(manifestFetcher, adaptationSetType, dataSource, adaptiveFormatEvaluator, new SystemClock(),
+        liveEdgeLatencyMs * 1000, elapsedRealtimeOffsetMs * 1000, true, eventHandler, eventListener,
+        eventSourceId);
   }
 
   /**
    * Constructor to use for live DVR streaming.
    *
-   * @param manifestFetcher A fetcher for the manifest, which must have already successfully
-   *     completed an initial load.
+   * @param manifestFetcher A fetcher for the manifest.
    * @param adaptationSetType The type of the adaptation set exposed by this source. One of
    *     {@link AdaptationSet#TYPE_AUDIO}, {@link AdaptationSet#TYPE_VIDEO} and
    *     {@link AdaptationSet#TYPE_TEXT}.
@@ -254,20 +196,17 @@ public class DashChunkSource implements ChunkSource {
       int adaptationSetType, DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
       long liveEdgeLatencyMs, long elapsedRealtimeOffsetMs, boolean startAtLiveEdge,
       Handler eventHandler, EventListener eventListener, int eventSourceId) {
-    this(manifestFetcher, manifestFetcher.getManifest(), adaptationSetType,
-        dataSource, adaptiveFormatEvaluator, new SystemClock(), liveEdgeLatencyMs * 1000,
-        elapsedRealtimeOffsetMs * 1000, startAtLiveEdge, eventHandler, eventListener,
-        eventSourceId);
+    this(manifestFetcher, adaptationSetType, dataSource, adaptiveFormatEvaluator, new SystemClock(),
+        liveEdgeLatencyMs * 1000, elapsedRealtimeOffsetMs * 1000, startAtLiveEdge, eventHandler,
+        eventListener, eventSourceId);
   }
 
   /* package */ DashChunkSource(ManifestFetcher<MediaPresentationDescription> manifestFetcher,
-      MediaPresentationDescription initialManifest, int adaptationSetType,
-      DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
+      int adaptationSetType, DataSource dataSource, FormatEvaluator adaptiveFormatEvaluator,
       Clock systemClock, long liveEdgeLatencyUs, long elapsedRealtimeOffsetUs,
       boolean startAtLiveEdge, Handler eventHandler, EventListener eventListener,
       int eventSourceId) {
     this.manifestFetcher = manifestFetcher;
-    this.currentManifest = initialManifest;
     this.adaptationSetType = adaptationSetType;
     this.dataSource = dataSource;
     this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
@@ -281,7 +220,6 @@ public class DashChunkSource implements ChunkSource {
     this.evaluation = new Evaluation();
     this.availableRangeValues = new long[2];
     periodHolders = new SparseArray<>();
-    live = initialManifest.dynamic;
   }
 
   // ChunkSource implementation.
@@ -290,16 +228,28 @@ public class DashChunkSource implements ChunkSource {
   public void maybeThrowError() throws IOException {
     if (fatalError != null) {
       throw fatalError;
-    } else if (manifestFetcher != null) {
+    } else if (live) {
       manifestFetcher.maybeThrowError();
     }
   }
 
   @Override
-  public boolean prepare() {
-    if (!prepareCalled) {
-      prepareCalled = true;
-      selectTracks(currentManifest, 0);
+  public boolean prepare() throws IOException {
+    if (!manifestFetcherEnabled) {
+      // TODO[REFACTOR]: We need to disable this at some point.
+      manifestFetcher.enable();
+      manifestFetcherEnabled = true;
+    }
+    if (currentManifest == null) {
+      currentManifest = manifestFetcher.getManifest();
+      if (currentManifest == null) {
+        manifestFetcher.maybeThrowError();
+        manifestFetcher.requestRefresh();
+        return false;
+      } else {
+        live = currentManifest.dynamic;
+        selectTracks(currentManifest, 0);
+      }
     }
     return true;
   }
@@ -328,17 +278,12 @@ public class DashChunkSource implements ChunkSource {
       adaptiveMaxWidth = -1;
       adaptiveMaxHeight = -1;
     }
-    if (manifestFetcher != null) {
-      manifestFetcher.enable();
-      processManifest(manifestFetcher.getManifest());
-    } else {
-      processManifest(currentManifest);
-    }
+    processManifest(manifestFetcher.getManifest());
   }
 
   @Override
   public void continueBuffering(long playbackPositionUs) {
-    if (manifestFetcher == null || !currentManifest.dynamic || fatalError != null) {
+    if (!currentManifest.dynamic || fatalError != null) {
       return;
     }
 
@@ -543,9 +488,6 @@ public class DashChunkSource implements ChunkSource {
     if (enabledFormats.length > 1) {
       adaptiveFormatEvaluator.disable();
     }
-    if (manifestFetcher != null) {
-      manifestFetcher.disable();
-    }
     periodHolders.clear();
     evaluation.format = null;
     availableRange = null;
@@ -600,14 +542,6 @@ public class DashChunkSource implements ChunkSource {
   // Visible for testing.
   /* package */ TimeRange getAvailableRange() {
     return availableRange;
-  }
-
-  private static MediaPresentationDescription buildManifest(long durationMs,
-      int adaptationSetType, List<Representation> representations) {
-    AdaptationSet adaptationSet = new AdaptationSet(0, adaptationSetType, representations);
-    Period period = new Period(null, 0, Collections.singletonList(adaptationSet));
-    return new MediaPresentationDescription(-1, durationMs, -1, false, -1, -1, null, null,
-        Collections.singletonList(period));
   }
 
   private static MediaFormat getTrackFormat(int adaptationSetType, Format format,

@@ -18,6 +18,7 @@ package com.google.android.exoplayer.demo.player;
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MultiSampleSource;
+import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSource;
 import com.google.android.exoplayer.chunk.FormatEvaluator.AdaptiveEvaluator;
@@ -37,11 +38,10 @@ import com.google.android.exoplayer.util.Util;
 import android.content.Context;
 import android.os.Handler;
 
-import java.io.IOException;
-
 /**
  * A {@link SourceBuilder} for SmoothStreaming.
  */
+// TODO[REFACTOR]: Bring back DRM support.
 public class SmoothStreamingSourceBuilder implements SourceBuilder {
 
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
@@ -55,8 +55,6 @@ public class SmoothStreamingSourceBuilder implements SourceBuilder {
   private final String url;
   private final MediaDrmCallback drmCallback;
 
-  private AsyncRendererBuilder currentAsyncBuilder;
-
   public SmoothStreamingSourceBuilder(Context context, String userAgent, String url,
       MediaDrmCallback drmCallback) {
     this.context = context;
@@ -66,118 +64,40 @@ public class SmoothStreamingSourceBuilder implements SourceBuilder {
   }
 
   @Override
-  public void buildRenderers(DemoPlayer player) {
-    currentAsyncBuilder = new AsyncRendererBuilder(context, userAgent, url, drmCallback, player);
-    currentAsyncBuilder.init();
-  }
+  public SampleSource buildRenderers(DemoPlayer player) {
+    SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
+    ManifestFetcher<SmoothStreamingManifest> manifestFetcher = new ManifestFetcher<>(url,
+        new DefaultHttpDataSource(userAgent, null), parser);
+    Handler mainHandler = player.getMainHandler();
+    BandwidthMeter bandwidthMeter = player.getBandwidthMeter();
+    LoadControl loadControl = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
 
-  @Override
-  public void cancel() {
-    if (currentAsyncBuilder != null) {
-      currentAsyncBuilder.cancel();
-      currentAsyncBuilder = null;
-    }
-  }
+    // Build the video renderer.
+    DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+    ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
+        SmoothStreamingManifest.StreamElement.TYPE_VIDEO,
+        videoDataSource, new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
+    ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
+        VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
+        DemoPlayer.TYPE_VIDEO);
 
-  private static final class AsyncRendererBuilder
-      implements ManifestFetcher.ManifestCallback<SmoothStreamingManifest> {
+    // Build the audio renderer.
+    DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+    ChunkSource audioChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
+        SmoothStreamingManifest.StreamElement.TYPE_AUDIO, audioDataSource, null,
+        LIVE_EDGE_LATENCY_MS);
+    ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
+        AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_AUDIO);
 
-    private final Context context;
-    private final String userAgent;
-    private final MediaDrmCallback drmCallback;
-    private final DemoPlayer player;
-    private final ManifestFetcher<SmoothStreamingManifest> manifestFetcher;
+    // Build the text renderer.
+    DataSource textDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+    ChunkSource textChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
+        SmoothStreamingManifest.StreamElement.TYPE_TEXT, textDataSource, null,
+        LIVE_EDGE_LATENCY_MS);
+    ChunkSampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
+        TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_TEXT);
 
-    private boolean canceled;
-
-    public AsyncRendererBuilder(Context context, String userAgent, String url,
-        MediaDrmCallback drmCallback, DemoPlayer player) {
-      this.context = context;
-      this.userAgent = userAgent;
-      this.drmCallback = drmCallback;
-      this.player = player;
-      SmoothStreamingManifestParser parser = new SmoothStreamingManifestParser();
-      manifestFetcher = new ManifestFetcher<>(url, new DefaultHttpDataSource(userAgent, null),
-          parser);
-    }
-
-    public void init() {
-      manifestFetcher.singleLoad(player.getMainHandler().getLooper(), this);
-    }
-
-    public void cancel() {
-      canceled = true;
-    }
-
-    @Override
-    public void onSingleManifestError(IOException exception) {
-      if (canceled) {
-        return;
-      }
-
-      player.onSourceBuilderError(exception);
-    }
-
-    @Override
-    public void onSingleManifest(SmoothStreamingManifest manifest) {
-      if (canceled) {
-        return;
-      }
-
-      // TODO[REFACTOR]: Bring back DRM support.
-      /*
-      // Check drm support if necessary.
-      DrmSessionManager drmSessionManager = null;
-      if (manifest.protectionElement != null) {
-        if (Util.SDK_INT < 18) {
-          player.onSourceBuilderError(
-              new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME));
-          return;
-        }
-        try {
-          drmSessionManager = new StreamingDrmSessionManager(manifest.protectionElement.uuid,
-              player.getPlaybackLooper(), drmCallback, null, player.getMainHandler(), player);
-        } catch (UnsupportedDrmException e) {
-          player.onSourceBuilderError(e);
-          return;
-        }
-      }
-      */
-
-      Handler mainHandler = player.getMainHandler();
-      BandwidthMeter bandwidthMeter = player.getBandwidthMeter();
-      LoadControl loadControl = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
-
-      // Build the video renderer.
-      DataSource videoDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-      ChunkSource videoChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
-          SmoothStreamingManifest.StreamElement.TYPE_VIDEO,
-          videoDataSource, new AdaptiveEvaluator(bandwidthMeter), LIVE_EDGE_LATENCY_MS);
-      ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
-          VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
-          DemoPlayer.TYPE_VIDEO);
-
-      // Build the audio renderer.
-      DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-      ChunkSource audioChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
-          SmoothStreamingManifest.StreamElement.TYPE_AUDIO, audioDataSource, null,
-          LIVE_EDGE_LATENCY_MS);
-      ChunkSampleSource audioSampleSource = new ChunkSampleSource(audioChunkSource, loadControl,
-          AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_AUDIO);
-
-      // Build the text renderer.
-      DataSource textDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-      ChunkSource textChunkSource = new SmoothStreamingChunkSource(manifestFetcher,
-          SmoothStreamingManifest.StreamElement.TYPE_TEXT, textDataSource, null,
-          LIVE_EDGE_LATENCY_MS);
-      ChunkSampleSource textSampleSource = new ChunkSampleSource(textChunkSource, loadControl,
-          TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_TEXT);
-
-      // Invoke the callback.
-      player.onSource(
-          new MultiSampleSource(videoSampleSource, audioSampleSource, textSampleSource));
-    }
-
+    return new MultiSampleSource(videoSampleSource, audioSampleSource, textSampleSource);
   }
 
 }

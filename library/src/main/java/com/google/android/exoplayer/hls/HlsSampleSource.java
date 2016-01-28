@@ -133,7 +133,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (prepared) {
       return true;
     } else if (!chunkSource.prepare()) {
-      maybeThrowError();
       return false;
     }
     if (!extractors.isEmpty()) {
