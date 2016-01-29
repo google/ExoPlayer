@@ -148,6 +148,11 @@ public final class DefaultExtractorInput implements ExtractorInput {
   }
 
   @Override
+  public long getPeekPosition() {
+    return position + peekBufferPosition;
+  }
+
+  @Override
   public long getPosition() {
     return position;
   }

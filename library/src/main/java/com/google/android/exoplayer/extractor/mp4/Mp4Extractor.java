@@ -268,10 +268,18 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     return false;
   }
 
-  /** Updates the stored track metadata to reflect the contents of the specified moov atom. */
+  /**
+   * Updates the stored track metadata to reflect the contents of the specified moov atom.
+   */
   private void processMoovAtom(ContainerAtom moov) {
     List<Mp4Track> tracks = new ArrayList<>();
     long earliestSampleOffset = Long.MAX_VALUE;
+    // TODO: Apply gapless information.
+    // GaplessInfo gaplessInfo = null;
+    // Atom.ContainerAtom udta = moov.getContainerAtomOfType(Atom.TYPE_udta);
+    // if (udta != null) {
+    //   gaplessInfo = AtomParsers.parseUdta(udta);
+    // }
     for (int i = 0; i < moov.containerChildren.size(); i++) {
       Atom.ContainerAtom atom = moov.containerChildren.get(i);
       if (atom.type != Atom.TYPE_trak) {
@@ -410,19 +418,24 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     return earliestSampleTrackIndex;
   }
 
-  /** Returns whether the extractor should parse a leaf atom with type {@code atom}. */
+  /**
+   * Returns whether the extractor should parse a leaf atom with type {@code atom}.
+   */
   private static boolean shouldParseLeafAtom(int atom) {
     return atom == Atom.TYPE_mdhd || atom == Atom.TYPE_mvhd || atom == Atom.TYPE_hdlr
         || atom == Atom.TYPE_stsd || atom == Atom.TYPE_stts || atom == Atom.TYPE_stss
         || atom == Atom.TYPE_ctts || atom == Atom.TYPE_elst || atom == Atom.TYPE_stsc
         || atom == Atom.TYPE_stsz || atom == Atom.TYPE_stco || atom == Atom.TYPE_co64
-        || atom == Atom.TYPE_tkhd || atom == Atom.TYPE_ftyp;
+        || atom == Atom.TYPE_tkhd || atom == Atom.TYPE_ftyp || atom == Atom.TYPE_meta;
   }
 
-  /** Returns whether the extractor should parse a container atom with type {@code atom}. */
+  /**
+   * Returns whether the extractor should parse a container atom with type {@code atom}.
+   */
   private static boolean shouldParseContainerAtom(int atom) {
     return atom == Atom.TYPE_moov || atom == Atom.TYPE_trak || atom == Atom.TYPE_mdia
-        || atom == Atom.TYPE_minf || atom == Atom.TYPE_stbl || atom == Atom.TYPE_edts;
+        || atom == Atom.TYPE_minf || atom == Atom.TYPE_stbl || atom == Atom.TYPE_edts
+        || atom == Atom.TYPE_udta;
   }
 
   private static final class Mp4Track {

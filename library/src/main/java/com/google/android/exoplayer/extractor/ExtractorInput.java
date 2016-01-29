@@ -203,7 +203,14 @@ public interface ExtractorInput {
   void resetPeekPosition();
 
   /**
-   * The current read position (byte offset) in the stream.
+   * Returns the current peek position (byte offset) in the stream.
+   *
+   * @return The peek position (byte offset) in the stream.
+   */
+  long getPeekPosition();
+
+  /**
+   * Returns the current read position (byte offset) in the stream.
    *
    * @return The read position (byte offset) in the stream.
    */
