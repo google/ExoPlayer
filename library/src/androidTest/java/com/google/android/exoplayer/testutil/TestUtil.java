@@ -80,15 +80,6 @@ public class TestUtil {
     return source;
   }
 
-  public static byte[] createByteArray(String hexBytes) {
-    byte[] result = new byte[hexBytes.length() / 2];
-    for (int i = 0; i < result.length; i++) {
-      result[i] = (byte) ((Character.digit(hexBytes.charAt(i * 2), 16) << 4)
-          + Character.digit(hexBytes.charAt(i * 2 + 1), 16));
-    }
-    return result;
-  }
-
   public static byte[] createByteArray(int... intArray) {
     byte[] byteArray = new byte[intArray.length];
     for (int i = 0; i < byteArray.length; i++) {

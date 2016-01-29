@@ -24,6 +24,7 @@ import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.Util;
 
 import android.util.Base64;
 import android.util.Pair;
@@ -648,7 +649,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
 
       value = parser.getAttributeValue(null, KEY_CODEC_PRIVATE_DATA);
       if (value != null && value.length() > 0) {
-        byte[] codecPrivateData = hexStringToByteArray(value);
+        byte[] codecPrivateData = Util.getBytesFromHexString(value);
         byte[][] split = CodecSpecificDataUtil.splitNalUnits(codecPrivateData);
         if (split == null) {
           csd.add(codecPrivateData);
@@ -692,17 +693,6 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
         return MimeTypes.AUDIO_OPUS;
       }
       return null;
-    }
-
-    private static byte[] hexStringToByteArray(String hexString) {
-      int length = hexString.length();
-      byte[] data = new byte[length / 2];
-      for (int i = 0; i < data.length; i++) {
-        int stringOffset = i * 2;
-        data[i] = (byte) ((Character.digit(hexString.charAt(stringOffset), 16) << 4)
-            + Character.digit(hexString.charAt(stringOffset + 1), 16));
-      }
-      return data;
     }
 
   }

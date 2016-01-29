@@ -147,24 +147,13 @@ public class NalUnitUtilTest extends TestCase {
   }
 
   private static void assertUnescapeMatchesExpected(String input, String expectedOutput) {
-    byte[] bitstream = getByteArrayForHexString(input);
-    byte[] expectedOutputBitstream = getByteArrayForHexString(expectedOutput);
+    byte[] bitstream = Util.getBytesFromHexString(input);
+    byte[] expectedOutputBitstream = Util.getBytesFromHexString(expectedOutput);
     int count = NalUnitUtil.unescapeStream(bitstream, bitstream.length);
     assertEquals(expectedOutputBitstream.length, count);
     byte[] outputBitstream = new byte[count];
     System.arraycopy(bitstream, 0, outputBitstream, 0, count);
     assertTrue(Arrays.equals(expectedOutputBitstream, outputBitstream));
-  }
-
-  private static byte[] getByteArrayForHexString(String hexString) {
-    int length = hexString.length();
-    Assertions.checkArgument(length % 2 == 0);
-    byte[] result = new byte[length / 2];
-    for (int i = 0; i < result.length; i++) {
-      result[i] = (byte) ((Character.digit(hexString.charAt(i * 2), 16) << 4)
-          + Character.digit(hexString.charAt(i * 2 + 1), 16));
-    }
-    return result;
   }
 
 }
