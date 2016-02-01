@@ -809,10 +809,12 @@ import java.util.List;
       mimeType = MimeTypes.AUDIO_AC3;
     } else if (atomType == Atom.TYPE_ec_3) {
       mimeType = MimeTypes.AUDIO_E_AC3;
-    } else if (atomType == Atom.TYPE_dtsc || atomType == Atom.TYPE_dtse) {
+    } else if (atomType == Atom.TYPE_dtsc) {
       mimeType = MimeTypes.AUDIO_DTS;
     } else if (atomType == Atom.TYPE_dtsh || atomType == Atom.TYPE_dtsl) {
       mimeType = MimeTypes.AUDIO_DTS_HD;
+    } else if (atomType == Atom.TYPE_dtse) {
+      mimeType = MimeTypes.AUDIO_DTS_EXPRESS;
     } else if (atomType == Atom.TYPE_samr) {
       mimeType = MimeTypes.AUDIO_AMR_NB;
     } else if (atomType == Atom.TYPE_sawb) {
