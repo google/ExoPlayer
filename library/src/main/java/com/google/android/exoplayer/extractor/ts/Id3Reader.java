@@ -25,16 +25,22 @@ import com.google.android.exoplayer.util.ParsableByteArray;
  */
 /* package */ final class Id3Reader extends ElementaryStreamReader {
 
+  private static final int ID3_HEADER_SIZE = 10;
+
+  private final ParsableByteArray id3Header;
+
   // State that should be reset on seek.
   private boolean writingSample;
 
   // Per sample state that gets reset at the start of each sample.
   private long sampleTimeUs;
   private int sampleSize;
+  private int sampleBytesRead;
 
   public Id3Reader(TrackOutput output) {
     super(output);
     output.format(MediaFormat.createId3Format());
+    id3Header = new ParsableByteArray(ID3_HEADER_SIZE);
   }
 
   @Override
@@ -43,20 +49,43 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   }
 
   @Override
-  public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
-    if (startOfPacket) {
-      writingSample = true;
-      sampleTimeUs = pesTimeUs;
-      sampleSize = 0;
+  public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {
+    if (!dataAlignmentIndicator) {
+      return;
     }
-    if (writingSample) {
-      sampleSize += data.bytesLeft();
-      output.sampleData(data, data.bytesLeft());
+    writingSample = true;
+    sampleTimeUs = pesTimeUs;
+    sampleSize = 0;
+    sampleBytesRead = 0;
+  }
+
+  @Override
+  public void consume(ParsableByteArray data) {
+    if (!writingSample) {
+      return;
     }
+    int bytesAvailable = data.bytesLeft();
+    if (sampleBytesRead < ID3_HEADER_SIZE) {
+      // We're still reading the ID3 header.
+      int headerBytesAvailable = Math.min(bytesAvailable, ID3_HEADER_SIZE - sampleBytesRead);
+      System.arraycopy(data.data, data.getPosition(), id3Header.data, sampleBytesRead,
+          headerBytesAvailable);
+      if (sampleBytesRead + headerBytesAvailable == ID3_HEADER_SIZE) {
+        // We've finished reading the ID3 header. Extract the sample size.
+        id3Header.setPosition(6); // 'ID3' (3) + version (2) + flags (1)
+        sampleSize = ID3_HEADER_SIZE + id3Header.readSynchSafeInt();
+      }
+    }
+    // Write data to the output.
+    output.sampleData(data, bytesAvailable);
+    sampleBytesRead += bytesAvailable;
   }
 
   @Override
   public void packetFinished() {
+    if (!writingSample || sampleSize == 0 || sampleBytesRead != sampleSize) {
+      return;
+    }
     output.sampleMetadata(sampleTimeUs, C.SAMPLE_FLAG_SYNC, sampleSize, 0, null);
     writingSample = false;
   }

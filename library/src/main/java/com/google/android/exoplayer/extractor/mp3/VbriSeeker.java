@@ -34,11 +34,12 @@ import com.google.android.exoplayer.util.Util;
    * @param frame The data in this audio frame, with its position set to immediately after the
    *     'VBRI' tag.
    * @param position The position (byte offset) of the start of this frame in the stream.
+   * @param inputLength The length of the stream in bytes.
    * @return A {@link VbriSeeker} for seeking in the stream, or {@code null} if the required
    *     information is not present.
    */
   public static VbriSeeker create(MpegAudioHeader mpegAudioHeader, ParsableByteArray frame,
-      long position) {
+      long position, long inputLength) {
     frame.skipBytes(10);
     int numFrames = frame.readInt();
     if (numFrames <= 0) {
@@ -47,53 +48,52 @@ import com.google.android.exoplayer.util.Util;
     int sampleRate = mpegAudioHeader.sampleRate;
     long durationUs = Util.scaleLargeTimestamp(numFrames,
         C.MICROS_PER_SECOND * (sampleRate >= 32000 ? 1152 : 576), sampleRate);
-    int numEntries = frame.readUnsignedShort();
+    int entryCount = frame.readUnsignedShort();
     int scale = frame.readUnsignedShort();
     int entrySize = frame.readUnsignedShort();
+    frame.skipBytes(2);
 
-    // Read entries in the VBRI header.
-    long[] timesUs = new long[numEntries];
-    long[] offsets = new long[numEntries];
-    long segmentDurationUs = durationUs / numEntries;
-    long now = 0;
-    int segmentIndex = 0;
-    while (segmentIndex < numEntries) {
-      int numBytes;
+    // Skip the frame containing the VBRI header.
+    position += mpegAudioHeader.frameSize;
+
+    // Read table of contents entries.
+    long[] timesUs = new long[entryCount + 1];
+    long[] positions = new long[entryCount + 1];
+    timesUs[0] = 0L;
+    positions[0] = position;
+    for (int index = 1; index < timesUs.length; index++) {
+      int segmentSize;
       switch (entrySize) {
         case 1:
-          numBytes = frame.readUnsignedByte();
+          segmentSize = frame.readUnsignedByte();
           break;
         case 2:
-          numBytes = frame.readUnsignedShort();
+          segmentSize = frame.readUnsignedShort();
           break;
         case 3:
-          numBytes = frame.readUnsignedInt24();
+          segmentSize = frame.readUnsignedInt24();
           break;
         case 4:
-          numBytes = frame.readUnsignedIntToInt();
+          segmentSize = frame.readUnsignedIntToInt();
           break;
         default:
           return null;
       }
-      now += segmentDurationUs;
-      timesUs[segmentIndex] = now;
-      position += numBytes * scale;
-      offsets[segmentIndex] = position;
-
-      segmentIndex++;
+      position += segmentSize * scale;
+      timesUs[index] = index * durationUs / entryCount;
+      positions[index] =
+          inputLength == C.LENGTH_UNBOUNDED ? position : Math.min(inputLength, position);
     }
-    return new VbriSeeker(timesUs, offsets, position + mpegAudioHeader.frameSize, durationUs);
+    return new VbriSeeker(timesUs, positions, durationUs);
   }
 
   private final long[] timesUs;
   private final long[] positions;
-  private final long basePosition;
   private final long durationUs;
 
-  private VbriSeeker(long[] timesUs, long[] positions, long basePosition, long durationUs) {
+  private VbriSeeker(long[] timesUs, long[] positions, long durationUs) {
     this.timesUs = timesUs;
     this.positions = positions;
-    this.basePosition = basePosition;
     this.durationUs = durationUs;
   }
 
@@ -104,8 +104,7 @@ import com.google.android.exoplayer.util.Util;
 
   @Override
   public long getPosition(long timeUs) {
-    int index = Util.binarySearchFloor(timesUs, timeUs, false, false);
-    return basePosition + (index == -1 ? 0L : positions[index]);
+    return positions[Util.binarySearchFloor(timesUs, timeUs, true, true)];
   }
 
   @Override

@@ -17,6 +17,7 @@ package com.google.android.exoplayer.extractor.mp4;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.extractor.GaplessInfo;
 import com.google.android.exoplayer.util.Ac3Util;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
@@ -328,6 +329,71 @@ import java.util.List;
     }
     return new TrackSampleTable(editedOffsets, editedSizes, editedMaximumSize, editedTimestamps,
         editedFlags);
+  }
+
+  /**
+   * Parses a udta atom.
+   *
+   * @param udtaAtom The udta (user data) atom to parse.
+   * @return Gapless playback information stored in the user data, or {@code null} if not present.
+   */
+  public static GaplessInfo parseUdta(Atom.ContainerAtom udtaAtom) {
+    Atom.LeafAtom metaAtom = udtaAtom.getLeafAtomOfType(Atom.TYPE_meta);
+    if (metaAtom == null) {
+      return null;
+    }
+    ParsableByteArray data = metaAtom.data;
+    data.setPosition(Atom.FULL_HEADER_SIZE);
+    ParsableByteArray ilst = new ParsableByteArray();
+    while (data.bytesLeft() > 0) {
+      int length = data.readInt() - Atom.HEADER_SIZE;
+      int type = data.readInt();
+      if (type == Atom.TYPE_ilst) {
+        ilst.reset(data.data, data.getPosition() + length);
+        ilst.setPosition(data.getPosition());
+        GaplessInfo gaplessInfo = parseIlst(ilst);
+        if (gaplessInfo != null) {
+          return gaplessInfo;
+        }
+      }
+      data.skipBytes(length);
+    }
+    return null;
+  }
+
+  private static GaplessInfo parseIlst(ParsableByteArray ilst) {
+    while (ilst.bytesLeft() > 0) {
+      int position = ilst.getPosition();
+      int endPosition = position + ilst.readInt();
+      int type = ilst.readInt();
+      if (type == Atom.TYPE_DASHES) {
+        String lastCommentMean = null;
+        String lastCommentName = null;
+        String lastCommentData = null;
+        while (ilst.getPosition() < endPosition) {
+          int length = ilst.readInt() - Atom.FULL_HEADER_SIZE;
+          int key = ilst.readInt();
+          ilst.skipBytes(4);
+          if (key == Atom.TYPE_mean) {
+            lastCommentMean = ilst.readString(length);
+          } else if (key == Atom.TYPE_name) {
+            lastCommentName = ilst.readString(length);
+          } else if (key == Atom.TYPE_data) {
+            ilst.skipBytes(4);
+            lastCommentData = ilst.readString(length - 4);
+          } else {
+            ilst.skipBytes(length);
+          }
+        }
+        if (lastCommentName != null && lastCommentData != null
+            && "com.apple.iTunes".equals(lastCommentMean)) {
+          return GaplessInfo.createFromComment(lastCommentName, lastCommentData);
+        }
+      } else {
+        ilst.setPosition(endPosition);
+      }
+    }
+    return null;
   }
 
   /**
@@ -743,10 +809,12 @@ import java.util.List;
       mimeType = MimeTypes.AUDIO_AC3;
     } else if (atomType == Atom.TYPE_ec_3) {
       mimeType = MimeTypes.AUDIO_E_AC3;
-    } else if (atomType == Atom.TYPE_dtsc || atomType == Atom.TYPE_dtse) {
+    } else if (atomType == Atom.TYPE_dtsc) {
       mimeType = MimeTypes.AUDIO_DTS;
     } else if (atomType == Atom.TYPE_dtsh || atomType == Atom.TYPE_dtsl) {
       mimeType = MimeTypes.AUDIO_DTS_HD;
+    } else if (atomType == Atom.TYPE_dtse) {
+      mimeType = MimeTypes.AUDIO_DTS_EXPRESS;
     } else if (atomType == Atom.TYPE_samr) {
       mimeType = MimeTypes.AUDIO_AMR_NB;
     } else if (atomType == Atom.TYPE_sawb) {
