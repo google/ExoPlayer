@@ -1,5 +1,12 @@
 # Release notes #
 
+### r1.5.5 ###
+
+* DASH: Enable MP4 embedded WebVTT playback (#1185)
+* HLS: Fix handling of extended ID3 tags in MPEG-TS (#1181)
+* MP3: Fix incorrect position calculation in VBRI header (#1197)
+* Fix issue seeking backward using SingleSampleSource (#1193)
+
 ### r1.5.4 ###
 
 * HLS: Support for variant selection and WebVtt subtitles.
