@@ -106,6 +106,9 @@ public final class Eia608Parser {
   private final StringBuilder stringBuilder;
   private final ArrayList<ClosedCaption> captions;
 
+  // Previous control message, used for identifying repeated ones.
+  private byte previousCtrl1 = 0, previousCtrl2 = 0;
+
   /* package */ Eia608Parser() {
     seiBuffer = new ParsableBitArray();
     stringBuilder = new StringBuilder();
@@ -153,6 +156,12 @@ public final class Eia608Parser {
         continue;
       }
 
+      // Ignore repeated control characters.
+      if (ccData1 == previousCtrl1 && ccData2 == previousCtrl2) {
+        continue;
+      }
+      previousCtrl1 = previousCtrl2 = 0;
+
       // Special North American character set.
       // ccData2 - P|0|1|1|X|X|X|X
       if ((ccData1 == 0x11 || ccData1 == 0x19)
@@ -182,6 +191,8 @@ public final class Eia608Parser {
       // Control character.
       if (ccData1 < 0x20) {
         addCtrl(ccData1, ccData2);
+        previousCtrl1 = ccData1;
+        previousCtrl2 = ccData2;
         continue;
       }
 
