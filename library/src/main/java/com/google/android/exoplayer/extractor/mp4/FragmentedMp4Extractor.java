@@ -33,10 +33,13 @@ import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
+import java.util.UUID;
 
 /**
  * Facilitates the extraction of data from the fragmented mp4 container format.
@@ -44,6 +47,8 @@ import java.util.Stack;
  * This implementation only supports de-muxed (i.e. single track) streams.
  */
 public final class FragmentedMp4Extractor implements Extractor {
+
+  private static final String TAG = "FragmentedMp4Extractor";
 
   /**
    * Flag to work around an issue in some video streams where every frame is marked as a sync frame.
@@ -299,8 +304,13 @@ public final class FragmentedMp4Extractor implements Extractor {
           drmInitData = new DrmInitData.Mapped();
         }
         byte[] psshData = child.data.data;
-        drmInitData.put(PsshAtomUtil.parseUuid(psshData),
-            new SchemeInitData(MimeTypes.VIDEO_MP4, psshData));
+        UUID uuid = PsshAtomUtil.parseUuid(psshData);
+        if (uuid == null) {
+          Log.w(TAG, "Skipped pssh atom (failed to extract uuid)");
+        } else {
+          drmInitData.put(PsshAtomUtil.parseUuid(psshData),
+              new SchemeInitData(MimeTypes.VIDEO_MP4, psshData));
+        }
       }
     }
     if (drmInitData != null) {
