@@ -17,6 +17,9 @@ package com.google.android.exoplayer.extractor.mp4;
 
 import com.google.android.exoplayer.util.ParsableByteArray;
 
+import android.util.Log;
+import android.util.Pair;
+
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
@@ -24,6 +27,8 @@ import java.util.UUID;
  * Utility methods for handling PSSH atoms.
  */
 public final class PsshAtomUtil {
+
+  private static final String TAG = "PsshAtomUtil";
 
   private PsshAtomUtil() {}
 
@@ -48,75 +53,88 @@ public final class PsshAtomUtil {
   }
 
   /**
-   * Parses the UUID from a PSSH atom.
+   * Parses the UUID from a PSSH atom. Version 0 and 1 PSSH atoms are supported.
    * <p>
    * The UUID is only parsed if the data is a valid PSSH atom.
    *
    * @param atom The atom to parse.
-   * @return The parsed UUID. Null if the data is not a valid PSSH atom.
+   * @return The parsed UUID. Null if the input is not a valid PSSH atom, or if the PSSH atom has
+   *     an unsupported version.
    */
   public static UUID parseUuid(byte[] atom) {
-    ParsableByteArray atomData = new ParsableByteArray(atom);
-    if (!isPsshAtom(atomData, null)) {
+    Pair<UUID, byte[]> parsedAtom = parsePsshAtom(atom);
+    if (parsedAtom == null) {
       return null;
     }
-    atomData.setPosition(Atom.FULL_HEADER_SIZE);
-    return new UUID(atomData.readLong(), atomData.readLong());
+    return parsedAtom.first;
   }
 
   /**
-   * Parses the scheme specific data from a PSSH atom.
+   * Parses the scheme specific data from a PSSH atom. Version 0 and 1 PSSH atoms are supported.
    * <p>
    * The scheme specific data is only parsed if the data is a valid PSSH atom matching the given
    * UUID, or if the data is a valid PSSH atom of any type in the case that the passed UUID is null.
    *
    * @param atom The atom to parse.
    * @param uuid The required UUID of the PSSH atom, or null to accept any UUID.
-   * @return The parsed scheme specific data. Null if the data is not a valid PSSH atom or if its
-   *     UUID does not match the one provided.
+   * @return The parsed scheme specific data. Null if the input is not a valid PSSH atom, or if the
+   *     PSSH atom has an unsupported version, or if the PSSH atom does not match the passed UUID.
    */
   public static byte[] parseSchemeSpecificData(byte[] atom, UUID uuid) {
-    ParsableByteArray atomData = new ParsableByteArray(atom);
-    if (!isPsshAtom(atomData, uuid)) {
+    Pair<UUID, byte[]> parsedAtom = parsePsshAtom(atom);
+    if (parsedAtom == null) {
       return null;
     }
-    atomData.setPosition(Atom.FULL_HEADER_SIZE + 16 /* UUID */);
-    int dataSize = atomData.readInt();
-    byte[] data = new byte[dataSize];
-    atomData.readBytes(data, 0, dataSize);
-    return data;
+    if (uuid != null && !uuid.equals(parsedAtom.first)) {
+      Log.w(TAG, "UUID mismatch. Expected: " + uuid + ", got: " + parsedAtom.first + ".");
+      return null;
+    }
+    return parsedAtom.second;
   }
 
-  private static boolean isPsshAtom(ParsableByteArray atomData, UUID uuid) {
+  /**
+   * Parses the UUID and scheme specific data from a PSSH atom. Version 0 and 1 PSSH atoms are
+   * supported.
+   *
+   * @param atom The atom to parse.
+   * @return A pair consisting of the parsed UUID and scheme specific data. Null if the input is
+   *     not a valid PSSH atom, or if the PSSH atom has an unsupported version.
+   */
+  private static Pair<UUID, byte[]> parsePsshAtom(byte[] atom) {
+    ParsableByteArray atomData = new ParsableByteArray(atom);
     if (atomData.limit() < Atom.FULL_HEADER_SIZE + 16 /* UUID */ + 4 /* DataSize */) {
       // Data too short.
-      return false;
+      return null;
     }
     atomData.setPosition(0);
     int atomSize = atomData.readInt();
     if (atomSize != atomData.bytesLeft() + 4) {
       // Not an atom, or incorrect atom size.
-      return false;
+      return null;
     }
     int atomType = atomData.readInt();
     if (atomType != Atom.TYPE_pssh) {
       // Not an atom, or incorrect atom type.
-      return false;
+      return null;
     }
-    atomData.setPosition(Atom.FULL_HEADER_SIZE);
-    if (uuid == null) {
-      atomData.skipBytes(16);
-    } else if (atomData.readLong() != uuid.getMostSignificantBits()
-        || atomData.readLong() != uuid.getLeastSignificantBits()) {
-      // UUID doesn't match.
-      return false;
+    int atomVersion = Atom.parseFullAtomVersion(atomData.readInt());
+    if (atomVersion > 1) {
+      Log.w(TAG, "Unsupported pssh version: " + atomVersion);
+      return null;
     }
-    int dataSize = atomData.readInt();
+    UUID uuid = new UUID(atomData.readLong(), atomData.readLong());
+    if (atomVersion == 1) {
+      int keyIdCount = atomData.readUnsignedIntToInt();
+      atomData.skipBytes(16 * keyIdCount);
+    }
+    int dataSize = atomData.readUnsignedIntToInt();
     if (dataSize != atomData.bytesLeft()) {
       // Incorrect dataSize.
-      return false;
+      return null;
     }
-    return true;
+    byte[] data = new byte[dataSize];
+    atomData.readBytes(data, 0, dataSize);
+    return Pair.create(uuid, data);
   }
 
 }
