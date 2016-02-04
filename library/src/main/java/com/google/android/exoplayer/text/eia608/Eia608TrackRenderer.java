@@ -32,6 +32,7 @@ import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
+import android.text.SpannableStringBuilder;
 
 import java.util.Collections;
 import java.util.TreeSet;
@@ -58,14 +59,14 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   private final Handler textRendererHandler;
   private final MediaFormatHolder formatHolder;
   private final SampleHolder sampleHolder;
-  private final StringBuilder captionStringBuilder;
+  private final SpannableStringBuilder captionStringBuilder;
   private final TreeSet<ClosedCaptionList> pendingCaptionLists;
 
   private boolean inputStreamEnded;
   private int captionMode;
   private int captionRowCount;
-  private String caption;
-  private String lastRenderedCaption;
+  private SpannableStringBuilder caption;
+  private SpannableStringBuilder lastRenderedCaption;
   private ClosedCaptionCtrl repeatableControl;
 
   /**
@@ -85,7 +86,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
     eia608Parser = new Eia608Parser();
     formatHolder = new MediaFormatHolder();
     sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
-    captionStringBuilder = new StringBuilder();
+    captionStringBuilder = new SpannableStringBuilder();
     pendingCaptionLists = new TreeSet<>();
   }
 
@@ -158,14 +159,15 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
     return true;
   }
 
-  private void invokeRenderer(String text) {
+  private void invokeRenderer(SpannableStringBuilder text) {
     if (Util.areEqual(lastRenderedCaption, text)) {
       // No change.
       return;
     }
-    this.lastRenderedCaption = text;
+    final SpannableStringBuilder textToRender = text == null ? null : new SpannableStringBuilder(text);
+    this.lastRenderedCaption = textToRender;
     if (textRendererHandler != null) {
-      textRendererHandler.obtainMessage(MSG_INVOKE_RENDERER, text).sendToTarget();
+      textRendererHandler.obtainMessage(MSG_INVOKE_RENDERER, textToRender).sendToTarget();
     } else {
       invokeRendererInternal(text);
     }
@@ -176,13 +178,13 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   public boolean handleMessage(Message msg) {
     switch (msg.what) {
       case MSG_INVOKE_RENDERER:
-        invokeRendererInternal((String) msg.obj);
+        invokeRendererInternal((SpannableStringBuilder) msg.obj);
         return true;
     }
     return false;
   }
 
-  private void invokeRendererInternal(String cueText) {
+  private void invokeRendererInternal(SpannableStringBuilder cueText) {
     if (cueText == null) {
       textRenderer.onCues(Collections.<Cue>emptyList());
     } else {
@@ -276,22 +278,23 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
       case ClosedCaptionCtrl.ERASE_DISPLAYED_MEMORY:
         caption = null;
         if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
-          captionStringBuilder.setLength(0);
+          captionStringBuilder.clear();
         }
         return;
       case ClosedCaptionCtrl.ERASE_NON_DISPLAYED_MEMORY:
-        captionStringBuilder.setLength(0);
+        captionStringBuilder.clear();
         return;
       case ClosedCaptionCtrl.END_OF_CAPTION:
         caption = getDisplayCaption();
-        captionStringBuilder.setLength(0);
+        captionStringBuilder.clear();
         return;
       case ClosedCaptionCtrl.CARRIAGE_RETURN:
         maybeAppendNewline();
         return;
       case ClosedCaptionCtrl.BACKSPACE:
-        if (captionStringBuilder.length() > 0) {
-          captionStringBuilder.setLength(captionStringBuilder.length() - 1);
+        int length = captionStringBuilder.length();
+        if (length > 0) {
+          captionStringBuilder.delete(length - 1, length);
         }
         return;
     }
@@ -309,7 +312,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
 
     this.captionMode = captionMode;
     // Clear the working memory.
-    captionStringBuilder.setLength(0);
+    captionStringBuilder.clear();
     if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_UNKNOWN) {
       // When switching to roll-up or unknown, we also need to clear the caption.
       caption = null;
@@ -323,7 +326,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
     }
   }
 
-  private String getDisplayCaption() {
+  private SpannableStringBuilder  getDisplayCaption() {
     int buildLength = captionStringBuilder.length();
     if (buildLength == 0) {
       return null;
@@ -336,19 +339,27 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
 
     int endIndex = endsWithNewline ? buildLength - 1 : buildLength;
     if (captionMode != CC_MODE_ROLL_UP) {
-      return captionStringBuilder.substring(0, endIndex);
+      return new SpannableStringBuilder(captionStringBuilder.subSequence(0, endIndex));
     }
 
+    // Show only the last X rows by backwards searching the last X line breaks and only
+    // returning what is after them.
+
     int startIndex = 0;
-    int searchBackwardFromIndex = endIndex;
-    for (int i = 0; i < captionRowCount && searchBackwardFromIndex != -1; i++) {
-      searchBackwardFromIndex = captionStringBuilder.lastIndexOf("\n", searchBackwardFromIndex - 1);
+    int newLineCount = 0;
+    for (int charIdx = endIndex - 1; charIdx >= 0; --charIdx) {
+      if (captionStringBuilder.charAt(charIdx) == '\n') {
+        newLineCount++;
+      }
+
+      if (newLineCount >= captionRowCount) {
+        startIndex = charIdx + 1;
+        break;
+      }
     }
-    if (searchBackwardFromIndex != -1) {
-      startIndex = searchBackwardFromIndex + 1;
-    }
+
     captionStringBuilder.delete(0, startIndex);
-    return captionStringBuilder.substring(0, endIndex - startIndex);
+    return new SpannableStringBuilder(captionStringBuilder.subSequence(0, endIndex - startIndex));
   }
 
   private void clearPendingSample() {
