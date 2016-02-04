@@ -70,8 +70,8 @@ public class ContentProtection {
   @Override
   public int hashCode() {
     int hashCode = schemeUriId.hashCode();
-    hashCode = (37 * hashCode) + (uuid != null ? uuid.hashCode() : 0);
-    hashCode = (37 * hashCode) + (data != null ? data.hashCode() : 0);
+    hashCode = (31 * hashCode) + (uuid != null ? uuid.hashCode() : 0);
+    hashCode = (31 * hashCode) + (data != null ? data.hashCode() : 0);
     return hashCode;
   }
 
