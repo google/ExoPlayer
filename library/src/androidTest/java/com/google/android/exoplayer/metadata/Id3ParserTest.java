@@ -18,6 +18,7 @@ package com.google.android.exoplayer.metadata;
 import junit.framework.TestCase;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Test for {@link Id3Parser}
@@ -26,18 +27,20 @@ public class Id3ParserTest extends TestCase {
 
   public void testParseTxxxFrames() {
     byte[] rawId3 = new byte[] { 73, 68, 51, 4, 0, 0, 0, 0, 0, 41, 84, 88, 88, 88, 0, 0, 0, 31,
-        0, 0, 3, 0, 109, 100, 105, 97, 108, 111, 103, 95, 86, 73, 78, 68, 73, 67, 79, 49, 53, 50,
-        55, 54, 54, 52, 95, 115, 116, 97, 114, 116, 0 };
+            0, 0, 3, 0, 109, 100, 105, 97, 108, 111, 103, 95, 86, 73, 78, 68, 73, 67, 79, 49, 53, 50,
+            55, 54, 54, 52, 95, 115, 116, 97, 114, 116, 0 };
 
     Id3Parser parser = new Id3Parser();
     try {
-      Map<String, Object> metadata = parser.parse(rawId3, rawId3.length);
-      assertNotNull(metadata);
-      assertEquals(1, metadata.size());
-      TxxxMetadata txxx = (TxxxMetadata) metadata.get(TxxxMetadata.TYPE);
-      assertNotNull(txxx);
-      assertEquals("", txxx.description);
-      assertEquals("mdialog_VINDICO1527664_start", txxx.value);
+      Id3Tag id3Tag = parser.parse(rawId3, rawId3.length);
+      assertNotNull(id3Tag);
+      assertEquals(1, id3Tag.size());
+      Set<TxxxMetadata> txxxFrames = id3Tag.getTxxxFrames();
+      assertEquals( 1, txxxFrames.size() );
+      TxxxMetadata txxxFrame = txxxFrames.toArray( new TxxxMetadata[1] )[1];
+      assertNotNull(txxxFrame);
+      assertEquals("", txxxFrame.description);
+      assertEquals("mdialog_VINDICO1527664_start", txxxFrame.value);
     } catch (Exception exception) {
       fail(exception.getMessage());
     }
