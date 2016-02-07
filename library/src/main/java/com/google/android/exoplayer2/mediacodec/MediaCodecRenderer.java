@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.util.Assertions;
@@ -165,7 +166,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private static final int ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT = 32;
 
   private final MediaCodecSelector mediaCodecSelector;
-  private final DrmSessionManager drmSessionManager;
+  private final DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
   private final DecoderInputBuffer buffer;
   private final FormatHolder formatHolder;
@@ -174,8 +175,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   private Format format;
   private MediaCodec codec;
-  private DrmSession drmSession;
-  private DrmSession pendingDrmSession;
+  private DrmSession<FrameworkMediaCrypto> drmSession;
+  private DrmSession<FrameworkMediaCrypto> pendingDrmSession;
   private boolean codecIsAdaptive;
   private boolean codecNeedsDiscardToSpsWorkaround;
   private boolean codecNeedsFlushWorkaround;
@@ -216,7 +217,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *     has obtained the keys necessary to decrypt encrypted regions of the media.
    */
   public MediaCodecRenderer(int trackType, MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys) {
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys) {
     super(trackType);
     Assertions.checkState(Util.SDK_INT >= 16);
     this.mediaCodecSelector = Assertions.checkNotNull(mediaCodecSelector);
@@ -296,7 +298,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         throw ExoPlaybackException.createForRenderer(drmSession.getError(), getIndex());
       } else if (drmSessionState == DrmSession.STATE_OPENED
           || drmSessionState == DrmSession.STATE_OPENED_WITH_KEYS) {
-        mediaCrypto = drmSession.getMediaCrypto();
+        mediaCrypto = drmSession.getMediaCrypto().getWrappedMediaCrypto();
         drmSessionRequiresSecureDecoder = drmSession.requiresSecureDecoderComponent(mimeType);
       } else {
         // The drm session isn't open yet.

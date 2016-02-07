@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
@@ -104,8 +105,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
-      Handler eventHandler, AudioRendererEventListener eventListener) {
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys, Handler eventHandler,
+      AudioRendererEventListener eventListener) {
     this(mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys, eventHandler,
         eventListener, null, AudioManager.STREAM_MUSIC);
   }
@@ -127,9 +129,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param streamType The type of audio stream for the {@link AudioTrack}.
    */
   public MediaCodecAudioRenderer(MediaCodecSelector mediaCodecSelector,
-      DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
-      Handler eventHandler, AudioRendererEventListener eventListener,
-      AudioCapabilities audioCapabilities, int streamType) {
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      boolean playClearSamplesWithoutKeys, Handler eventHandler,
+      AudioRendererEventListener eventListener, AudioCapabilities audioCapabilities,
+      int streamType) {
     super(C.TRACK_TYPE_AUDIO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     audioTrack = new AudioTrack(audioCapabilities, streamType);

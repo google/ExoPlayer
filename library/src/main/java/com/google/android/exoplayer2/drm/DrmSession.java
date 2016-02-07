@@ -16,13 +16,12 @@
 package com.google.android.exoplayer2.drm;
 
 import android.annotation.TargetApi;
-import android.media.MediaCrypto;
 
 /**
  * A DRM session.
  */
 @TargetApi(16)
-public interface DrmSession {
+public interface DrmSession<T extends ExoMediaCrypto> {
 
   /**
    * The session has encountered an error. {@link #getError()} can be used to retrieve the cause.
@@ -54,22 +53,23 @@ public interface DrmSession {
   int getState();
 
   /**
-   * Returns a {@link MediaCrypto} for the open session.
+   * Returns a {@link ExoMediaCrypto} for the open session.
    * <p>
    * This method may be called when the session is in the following states:
    * {@link #STATE_OPENED}, {@link #STATE_OPENED_WITH_KEYS}
    *
-   * @return A {@link MediaCrypto} for the open session.
+   * @return A {@link ExoMediaCrypto} for the open session.
    * @throws IllegalStateException If called when a session isn't opened.
    */
-  MediaCrypto getMediaCrypto();
+  T getMediaCrypto();
 
   /**
    * Whether the session requires a secure decoder for the specified mime type.
    * <p>
-   * Normally this method should return {@link MediaCrypto#requiresSecureDecoderComponent(String)},
-   * however in some cases implementations  may wish to modify the return value (i.e. to force a
-   * secure decoder even when one is not required).
+   * Normally this method should return
+   * {@link ExoMediaCrypto#requiresSecureDecoderComponent(String)}, however in some cases
+   * implementations may wish to modify the return value (i.e. to force a secure decoder even when
+   * one is not required).
    * <p>
    * This method may be called when the session is in the following states:
    * {@link #STATE_OPENED}, {@link #STATE_OPENED_WITH_KEYS}

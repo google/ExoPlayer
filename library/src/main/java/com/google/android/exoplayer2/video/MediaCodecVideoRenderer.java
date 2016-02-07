@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
@@ -145,7 +146,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
   public MediaCodecVideoRenderer(Context context, MediaCodecSelector mediaCodecSelector,
-      int videoScalingMode, long allowedJoiningTimeMs, DrmSessionManager drmSessionManager,
+      int videoScalingMode, long allowedJoiningTimeMs,
+      DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       boolean playClearSamplesWithoutKeys, Handler eventHandler,
       VideoRendererEventListener eventListener, int maxDroppedFramesToNotify) {
     super(C.TRACK_TYPE_VIDEO, mediaCodecSelector, drmSessionManager, playClearSamplesWithoutKeys);

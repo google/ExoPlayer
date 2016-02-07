@@ -16,27 +16,28 @@
 package com.google.android.exoplayer2.drm;
 
 import android.annotation.TargetApi;
-import android.os.Looper;
+import android.media.MediaCrypto;
+import com.google.android.exoplayer2.util.Assertions;
 
 /**
- * Manages a DRM session.
+ * An {@link ExoMediaCrypto} implementation that wraps the framework {@link MediaCrypto}.
  */
 @TargetApi(16)
-public interface DrmSessionManager<T extends ExoMediaCrypto> {
+public final class FrameworkMediaCrypto implements ExoMediaCrypto {
 
-  /**
-   * Acquires a {@link DrmSession} for the specified {@link DrmInitData}. The {@link DrmSession}
-   * must be returned to {@link #releaseSession(DrmSession)} when it is no longer required.
-   *
-   * @param playbackLooper The looper associated with the media playback thread.
-   * @param drmInitData DRM initialization data.
-   * @return The DRM session.
-   */
-  DrmSession<T> acquireSession(Looper playbackLooper, DrmInitData drmInitData);
+  private final MediaCrypto mediaCrypto;
 
-  /**
-   * Releases a {@link DrmSession}.
-   */
-  void releaseSession(DrmSession drmSession);
+  /* package */ FrameworkMediaCrypto(MediaCrypto mediaCrypto) {
+    this.mediaCrypto = Assertions.checkNotNull(mediaCrypto);
+  }
+
+  public MediaCrypto getWrappedMediaCrypto() {
+    return mediaCrypto;
+  }
+
+  @Override
+  public boolean requiresSecureDecoderComponent(String mimeType) {
+    return mediaCrypto.requiresSecureDecoderComponent(mimeType);
+  }
 
 }

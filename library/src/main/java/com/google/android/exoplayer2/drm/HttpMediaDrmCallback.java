@@ -16,11 +16,11 @@
 package com.google.android.exoplayer2.drm;
 
 import android.annotation.TargetApi;
-import android.media.MediaDrm.KeyRequest;
-import android.media.MediaDrm.ProvisionRequest;
 import android.net.Uri;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
+import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;

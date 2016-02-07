@@ -43,6 +43,8 @@ import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
@@ -367,7 +369,8 @@ public class PlayerActivity extends Activity implements OnKeyListener, OnTouchLi
             return new DefaultHttpDataSource(userAgent, null);
           }
         });
-    return new StreamingDrmSessionManager(uuid, drmCallback, null, mainHandler, eventLogger);
+    return new StreamingDrmSessionManager<FrameworkMediaCrypto>(uuid,
+        FrameworkMediaDrm.newInstance(uuid), drmCallback, null, mainHandler, eventLogger);
   }
 
   private void releasePlayer() {
