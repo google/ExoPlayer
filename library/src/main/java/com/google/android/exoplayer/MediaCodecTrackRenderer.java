@@ -284,15 +284,15 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * Returns a {@link DecoderInfo} for a given format.
    *
    * @param mediaCodecSelector The decoder selector.
-   * @param mediaFormat The format for which a decoder is required.
+   * @param mimeType The mime type for which a decoder is required.
    * @param requiresSecureDecoder Whether a secure decoder is required.
    * @return A {@link DecoderInfo} describing the decoder to instantiate, or null if no suitable
    *     decoder exists.
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
-  protected DecoderInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector,
-      MediaFormat mediaFormat, boolean requiresSecureDecoder) throws DecoderQueryException {
-    return mediaCodecSelector.getDecoderInfo(format, requiresSecureDecoder);
+  protected DecoderInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector, String mimeType,
+      boolean requiresSecureDecoder) throws DecoderQueryException {
+    return mediaCodecSelector.getDecoderInfo(mimeType, requiresSecureDecoder);
   }
 
   /**
@@ -338,7 +338,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
 
     DecoderInfo decoderInfo = null;
     try {
-      decoderInfo = getDecoderInfo(mediaCodecSelector, format, requiresSecureDecoder);
+      decoderInfo = getDecoderInfo(mediaCodecSelector, mimeType, requiresSecureDecoder);
     } catch (DecoderQueryException e) {
       notifyAndThrowDecoderInitError(new DecoderInitializationException(format, e,
           requiresSecureDecoder, DecoderInitializationException.DECODER_QUERY_ERROR));

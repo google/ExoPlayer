@@ -221,7 +221,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       throws DecoderQueryException {
     String mimeType = mediaFormat.mimeType;
     return MimeTypes.isVideo(mimeType) && (MimeTypes.VIDEO_UNKNOWN.equals(mimeType)
-        || mediaCodecSelector.getDecoderInfo(mediaFormat, false) != null);
+        || mediaCodecSelector.getDecoderInfo(mimeType, false) != null);
   }
 
   @Override
