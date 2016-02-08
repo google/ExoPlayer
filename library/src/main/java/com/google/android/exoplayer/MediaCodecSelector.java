@@ -35,9 +35,9 @@ public interface MediaCodecSelector {
     private static final String RAW_DECODER_NAME = "OMX.google.raw.decoder";
 
     @Override
-    public DecoderInfo getDecoderInfo(MediaFormat format, boolean requiresSecureDecoder)
+    public DecoderInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder)
         throws DecoderQueryException {
-      return MediaCodecUtil.getDecoderInfo(format.mimeType, requiresSecureDecoder);
+      return MediaCodecUtil.getDecoderInfo(mimeType, requiresSecureDecoder);
     }
 
     @Override
@@ -49,15 +49,15 @@ public interface MediaCodecSelector {
   };
 
   /**
-   * Selects a decoder to instantiate for a given format.
+   * Selects a decoder to instantiate for a given mime type.
    *
-   * @param format The format for which a decoder is required.
+   * @param mimeType The mime type for which a decoder is required.
    * @param requiresSecureDecoder Whether a secure decoder is required.
    * @return A {@link DecoderInfo} describing the decoder to instantiate, or null if no suitable
    *     decoder exists.
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
-  DecoderInfo getDecoderInfo(MediaFormat format, boolean requiresSecureDecoder)
+  DecoderInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder)
       throws DecoderQueryException;
 
   /**
