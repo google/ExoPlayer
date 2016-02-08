@@ -28,14 +28,22 @@ import com.google.android.exoplayer.text.TextRenderer;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
 import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
+import android.util.Log;
 
 import java.util.Collections;
 import java.util.TreeSet;
+
+import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
 
 /**
  * A {@link TrackRenderer} for EIA-608 closed captions in a media stream.
@@ -68,6 +76,30 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   private SpannableStringBuilder caption;
   private SpannableStringBuilder lastRenderedCaption;
   private ClosedCaptionCtrl repeatableControl;
+
+  private static final String TAG = "Eia608Captions";
+
+  // Incoming styling commands are ordered, a higher priority command clears any previous lower
+  // priority commands. Similarly, output SPANs cannot partially overlap, so we need to close all
+  // lower priority SPANs in case of opening a higher priority one. Having these preconditions we
+  // do not need stack or more complex tracking of styles
+  private static final int STYLE_PRIORITY_UNDERLINE = 1; // lowest priority
+  private static final int STYLE_PRIORITY_ITALIC = 2;
+  private static final int STYLE_PRIORITY_COLOR = 3;
+
+  // defined only to give a name to the highest priority (means "every spans").
+  private static final int STYLE_PRIORITY_ALL = 4;
+
+  // Characters (text to display) and control codes (formatting instructions) are arriving
+  // one-by-one, and we want to translate this incoming byte stream into a character sequence with
+  // spans. We need the start and the end position to correctly set up a span, so we will use the
+  // following variables to store information about previously received formatting instructions.
+  // When we get to a point where we should end or change formatting, we can set up the spans
+  // between the stored start position and the current position (new control code, end of line, etc)
+  private int styleSwitchUnderlineStartPos;
+  private int styleSwitchItalicStartPos;
+  private int styleSwitchColorStartPos;
+  private int styleSwitchColor;
 
   /**
    * @param source A source from which samples containing EIA-608 closed captions can be read.
@@ -169,7 +201,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
     if (textRendererHandler != null) {
       textRendererHandler.obtainMessage(MSG_INVOKE_RENDERER, textToRender).sendToTarget();
     } else {
-      invokeRendererInternal(text);
+      invokeRendererInternal(textToRender);
     }
   }
 
@@ -184,7 +216,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
     return false;
   }
 
-  private void invokeRendererInternal(SpannableStringBuilder cueText) {
+  private void invokeRendererInternal(CharSequence cueText) {
     if (cueText == null) {
       textRenderer.onCues(Collections.<Cue>emptyList());
     } else {
@@ -227,7 +259,9 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
         if (captionCtrl.isMiscCode()) {
           handleMiscCode(captionCtrl);
         } else if (captionCtrl.isPreambleAddressCode()) {
-          handlePreambleAddressCode();
+          handlePreambleAddressCode(captionCtrl);
+        } else if (captionCtrl.isMidRowCode()) {
+          handleMidRowCode(captionCtrl);
         }
       } else {
         handleText((ClosedCaptionText) caption);
@@ -238,7 +272,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
       repeatableControl = null;
     }
     if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
-      caption = getDisplayCaption();
+      caption = getDisplayCaption(false);
     }
   }
 
@@ -248,7 +282,49 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
     }
   }
 
+  private void handleMidRowCode(ClosedCaptionCtrl captionCtrl) {
+    //Log.i(TAG, "Mid line Command code: " + captionCtrl.getMidRowCodeMeaning());
+
+    //TODO: possibly add space character as:
+    //"All Mid-Row Codes and the Flash On command are spacing attributes which appear in the display
+    // just as if a standard space (20h) had been received"
+    // https://www.law.cornell.edu/cfr/text/47/79.101
+
+    int newColor = captionCtrl.getMidRowColorValue();
+    int captionLength = captionStringBuilder.length();
+
+    // The last color described in the standard is "transparent" meaning "Keep Previous Color" and
+    // is used to turn on Italics with the current color unchanged. So for example a command to
+    // switch to RED then TRANSPARENT would mean RED ITALIC. The first color command (RED) disables
+    // all previous color settings while the second (TRANSPARENT) does not.
+    if (newColor == Color.TRANSPARENT) {
+      closeOpenSpans(STYLE_PRIORITY_ITALIC, captionStringBuilder, true); // close already open spans
+      styleSwitchItalicStartPos = captionLength;
+    } else {
+      // Not transparent: apply new color
+      closeOpenSpans(STYLE_PRIORITY_COLOR, captionStringBuilder, true); // close already open spans
+      styleSwitchColor = newColor;
+      styleSwitchColorStartPos = captionLength;
+    }
+
+    // the last bit is the "Underline switch", it does not interfere with any other settings
+    if (captionCtrl.isUnderline()) {
+      closeOpenSpans(STYLE_PRIORITY_UNDERLINE, captionStringBuilder, true); // close already open spans
+      styleSwitchUnderlineStartPos = captionLength;
+    }
+
+    // Any color or italics Mid-Row Code should turn off flashing, but let's declare that deprecated
+  }
+
   private void handleMiscCode(ClosedCaptionCtrl captionCtrl) {
+
+    // TODO: when switching to "ROLL UP" mode, the default ROW value is 15, and
+    // The Roll-Up command, in normal practice, will be followed (not necessarily immediately) by a
+    // Preamble Address Code indicating the base row and the horizontal indent position. If no
+    // Preamble Address Code is received, the base row will default to Row 15 or, if a roll-up
+    // caption is currently displayed, to the same base row last received, and the cursor will be
+    // placed at Column 1. See 47 CFR Ch1 (10-1-13) 1 / ii
+
     switch (captionCtrl.cc2) {
       case ClosedCaptionCtrl.ROLL_UP_CAPTIONS_2_ROWS:
         captionRowCount = 2;
@@ -285,7 +361,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
         captionStringBuilder.clear();
         return;
       case ClosedCaptionCtrl.END_OF_CAPTION:
-        caption = getDisplayCaption();
+        caption = getDisplayCaption(true);
         captionStringBuilder.clear();
         return;
       case ClosedCaptionCtrl.CARRIAGE_RETURN:
@@ -300,9 +376,88 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
     }
   }
 
-  private void handlePreambleAddressCode() {
-    // TODO: Add better handling of this with specific positioning.
+
+  /**
+   * Spans cannot partially overlap each other, so the ordering (priority) is important
+   * This function sets up every spans that are marked as currently open (has start position set)
+   * with equal or lower priority than the incoming parameter.
+   * @param spanPriority limit of priority of the spans to close
+   * @param stringBuilder the new spans should be inserted into this stringBuilder
+   * @param clearSpanOpenings true if the spans currently closed should be removed
+   */
+  private void closeOpenSpans(int spanPriority, SpannableStringBuilder stringBuilder,
+                              boolean clearSpanOpenings) {
+
+    // TODO: should check if closing before rather than after a new line character makes any
+    // difference. We might want to exclude the new line characters from the spans
+
+    int textLength = stringBuilder.length();
+
+    if (styleSwitchUnderlineStartPos != -1) {
+      if (styleSwitchUnderlineStartPos < textLength) {
+        stringBuilder.setSpan(new UnderlineSpan(), styleSwitchUnderlineStartPos,
+                textLength, SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+
+      if (clearSpanOpenings) {
+        styleSwitchUnderlineStartPos = -1;
+      }
+    }
+
+    if (spanPriority < STYLE_PRIORITY_ITALIC)
+      return;
+
+    if (styleSwitchItalicStartPos != -1) {
+      if (styleSwitchItalicStartPos < textLength) {
+        stringBuilder.setSpan(new StyleSpan(Typeface.ITALIC),
+                styleSwitchItalicStartPos, textLength, SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+
+      if (clearSpanOpenings) {
+        styleSwitchItalicStartPos = -1;
+      }
+    }
+
+    if (spanPriority < STYLE_PRIORITY_COLOR)
+      return;
+
+    if (styleSwitchColorStartPos != -1) {
+      if (styleSwitchColorStartPos < textLength) {
+        stringBuilder.setSpan(new ForegroundColorSpan(styleSwitchColor),
+                styleSwitchColorStartPos, textLength, SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+
+      if (clearSpanOpenings) {
+        styleSwitchColorStartPos = -1;
+      }
+    }
+  }
+
+  private void handlePreambleAddressCode(ClosedCaptionCtrl captionCtrl) {
+    // PAC might be skipped, but it should be the beginning of every line. So we expect a line break
+    // before every PAC.
     maybeAppendNewline();
+
+    //Log.d(TAG , captionCtrl.getPreambleAddressCodeMeaning());
+
+    // TODO: Add better handling of this with specific positioning.
+    // TODO: Read CC1 for vertical positioning information
+
+    int currentLength = captionStringBuilder.length();
+
+    int preambleColor = captionCtrl.getPreambleColor();
+    if (preambleColor != Color.WHITE) {
+      styleSwitchColor = preambleColor;
+      styleSwitchColorStartPos = currentLength;
+    }
+
+    if (captionCtrl.isPreambleItalic()) {
+      styleSwitchItalicStartPos = currentLength;
+    }
+
+    if (captionCtrl.isUnderline()) {
+      styleSwitchUnderlineStartPos = currentLength;
+    }
   }
 
   private void setCaptionMode(int captionMode) {
@@ -320,13 +475,15 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   }
 
   private void maybeAppendNewline() {
+    closeOpenSpans(STYLE_PRIORITY_ALL, captionStringBuilder, true); //end of line should close all tags
+
     int buildLength = captionStringBuilder.length();
     if (buildLength > 0 && captionStringBuilder.charAt(buildLength - 1) != '\n') {
       captionStringBuilder.append('\n');
     }
   }
 
-  private SpannableStringBuilder  getDisplayCaption() {
+  private SpannableStringBuilder getDisplayCaption(boolean clearSpans) {
     int buildLength = captionStringBuilder.length();
     if (buildLength == 0) {
       return null;
@@ -339,11 +496,13 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
 
     int endIndex = endsWithNewline ? buildLength - 1 : buildLength;
     if (captionMode != CC_MODE_ROLL_UP) {
-      return new SpannableStringBuilder(captionStringBuilder.subSequence(0, endIndex));
+      SpannableStringBuilder result = new SpannableStringBuilder(captionStringBuilder, 0, endIndex);
+      closeOpenSpans(STYLE_PRIORITY_ALL, result, clearSpans);
+      return result;
     }
 
-    // Show only the last X rows by backwards searching the last X line breaks and only
-    // returning what is after them.
+    // Show only the last X rows by searching backwards the last X line breaks in the builder and
+    // returning only what is after them.
 
     int startIndex = 0;
     int newLineCount = 0;
@@ -353,13 +512,15 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
       }
 
       if (newLineCount >= captionRowCount) {
-        startIndex = charIdx + 1;
+        startIndex = charIdx + 1;  // +1 to skip the newline char
         break;
       }
     }
 
     captionStringBuilder.delete(0, startIndex);
-    return new SpannableStringBuilder(captionStringBuilder.subSequence(0, endIndex - startIndex));
+    SpannableStringBuilder result = new SpannableStringBuilder(captionStringBuilder);
+    closeOpenSpans(STYLE_PRIORITY_ALL, result, clearSpans);
+    return result;
   }
 
   private void clearPendingSample() {
@@ -370,5 +531,4 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   private boolean isSamplePending() {
     return sampleHolder.timeUs != C.UNKNOWN_TIME_US;
   }
-
 }
