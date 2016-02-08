@@ -22,7 +22,6 @@ import com.google.android.exoplayer.util.Assertions;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Stack;
 
 /**
@@ -215,9 +214,12 @@ import java.util.Stack;
    */
   private String readString(ExtractorInput input, int byteLength)
       throws IOException, InterruptedException {
+    if (byteLength == 0) {
+      return "";
+    }
     byte[] stringBytes = new byte[byteLength];
     input.readFully(stringBytes, 0, byteLength);
-    return new String(stringBytes, Charset.forName(C.UTF8_NAME));
+    return new String(stringBytes);
   }
 
   /**
