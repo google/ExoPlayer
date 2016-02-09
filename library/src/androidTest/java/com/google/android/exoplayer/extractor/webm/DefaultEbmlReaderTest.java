@@ -15,14 +15,9 @@
  */
 package com.google.android.exoplayer.extractor.webm;
 
-import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorInput;
-import com.google.android.exoplayer.testutil.FakeDataSource;
-import com.google.android.exoplayer.upstream.DataSource;
-import com.google.android.exoplayer.upstream.DataSpec;
-
-import android.net.Uri;
+import com.google.android.exoplayer.testutil.FakeExtractorInput;
+import com.google.android.exoplayer.testutil.TestUtil;
 
 import junit.framework.TestCase;
 
@@ -140,22 +135,15 @@ public class DefaultEbmlReaderTest extends TestCase {
 
   /**
    * Helper to build an {@link ExtractorInput} from byte data.
-   * <p>
-   * Each argument must be able to cast to a byte value.
    *
    * @param data Zero or more integers with values between {@code 0x00} and {@code 0xFF}.
    * @return An {@link ExtractorInput} from which the data can be read.
-   * @throws IOException If an error occurs creating the input.
    */
-  private static ExtractorInput createTestInput(int... data) throws IOException {
-    byte[] bytes = new byte[data.length];
-    for (int i = 0; i < data.length; i++) {
-      bytes[i] = (byte) data[i];
-    }
-    DataSource dataSource = new FakeDataSource.Builder().appendReadData(bytes).build();
-    dataSource.open(new DataSpec(Uri.parse("http://www.google.com")));
-    ExtractorInput input = new DefaultExtractorInput(dataSource, 0, C.LENGTH_UNBOUNDED);
-    return input;
+  private static ExtractorInput createTestInput(int... data) {
+    return new FakeExtractorInput.Builder()
+        .setData(TestUtil.createByteArray(data))
+        .setSimulateUnknownLength(true)
+        .build();
   }
 
   /**
