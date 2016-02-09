@@ -62,9 +62,16 @@ public class TestUtil {
     return source;
   }
 
+  /**
+   * Converts an array of integers in the range [0, 255] into an equivalent byte array.
+   *
+   * @param intArray An array of integers, all of which must be in the range [0, 255].
+   * @return The equivalent byte array.
+   */
   public static byte[] createByteArray(int... intArray) {
     byte[] byteArray = new byte[intArray.length];
     for (int i = 0; i < byteArray.length; i++) {
+      Assertions.checkState(0x00 <= intArray[i] && intArray[i] <= 0xFF);
       byteArray[i] = (byte) intArray[i];
     }
     return byteArray;

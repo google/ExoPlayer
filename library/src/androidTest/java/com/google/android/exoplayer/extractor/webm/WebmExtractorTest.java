@@ -667,7 +667,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
         .addOpusTrack(AUDIO_TRACK_NUMBER, TEST_CHANNEL_COUNT, TEST_SAMPLE_RATE, TEST_CODEC_DELAY,
             TEST_SEEK_PRE_ROLL, TEST_OPUS_CODEC_PRIVATE, TEST_DEFAULT_DURATION_NS)
         .addSimpleBlockMediaWithFixedSizeLacing(2 /* trackNumber */, 0 /* clusterTimecode */,
-            0 /* blockTimecode */, 20, media)
+            0 /* blockTimecode */, 20 /* lacingFrameCount */, media)
         .build(1);
 
     TestUtil.consumeTestData(extractor, data);
