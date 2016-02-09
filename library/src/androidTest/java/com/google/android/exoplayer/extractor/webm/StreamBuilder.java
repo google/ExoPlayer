@@ -136,9 +136,9 @@ import java.util.List;
   public StreamBuilder addSimpleBlockEncryptedMedia(int trackNumber, int clusterTimecode,
       int blockTimecode, boolean keyframe, boolean invisible, boolean validSignalByte,
       byte[] data) {
-    byte flags = (byte) ((keyframe ? 0x80 : 0x00) | (invisible ? 0x08 : 0x00));
-    EbmlElement simpleBlockElement = createSimpleBlock(trackNumber, blockTimecode, flags,
-        true, validSignalByte, 1, data);
+    int flags = (keyframe ? 0x80 : 0x00) | (invisible ? 0x08 : 0x00);
+    EbmlElement simpleBlockElement = createSimpleBlock(trackNumber, blockTimecode, flags, true,
+        validSignalByte, 1, data);
     mediaSegments.add(createCluster(clusterTimecode, simpleBlockElement));
     return this;
   }
@@ -146,9 +146,9 @@ import java.util.List;
 
   public StreamBuilder addSimpleBlockMedia(int trackNumber, int clusterTimecode,
       int blockTimecode, boolean keyframe, boolean invisible, byte[] data) {
-    byte flags = (byte) ((keyframe ? 0x80 : 0x00) | (invisible ? 0x08 : 0x00));
-    EbmlElement simpleBlockElement = createSimpleBlock(trackNumber, blockTimecode, flags,
-        false, true, 1, data);
+    int flags = (keyframe ? 0x80 : 0x00) | (invisible ? 0x08 : 0x00);
+    EbmlElement simpleBlockElement = createSimpleBlock(trackNumber, blockTimecode, flags, false,
+        true, 1, data);
     mediaSegments.add(createCluster(clusterTimecode, simpleBlockElement));
     return this;
   }
@@ -344,13 +344,13 @@ import java.util.List;
     byte[] simpleBlockBytes;
     if (lacingFrameCount > 1) {
       flags |= 0x04; // Fixed-size lacing
-      simpleBlockBytes = TestUtil.createByteArray(
-          0x40, trackNumberBytes[3], // Track number size=2
-          timeBytes[2], timeBytes[3], flags, lacingFrameCount - 1); // Timecode, flags and lacing.
+      simpleBlockBytes = TestUtil.joinByteArrays(
+          new byte[] {0x40, trackNumberBytes[3], timeBytes[2], timeBytes[3]},
+          TestUtil.createByteArray(flags, lacingFrameCount - 1));
     } else {
-      simpleBlockBytes = TestUtil.createByteArray(
-          0x40, trackNumberBytes[3], // Track number size=2
-          timeBytes[2], timeBytes[3], flags); // Timecode and flags
+      simpleBlockBytes = TestUtil.joinByteArrays(
+          new byte[] {0x40, trackNumberBytes[3], timeBytes[2], timeBytes[3]},
+          TestUtil.createByteArray(flags));
     }
     if (encrypted) {
       simpleBlockBytes = TestUtil.joinByteArrays(
@@ -412,10 +412,10 @@ import java.util.List;
 
   private static byte[] getIntegerBytes(int value) {
     return TestUtil.createByteArray(
-        (value & 0xFF000000) >> 24,
-        (value & 0x00FF0000) >> 16,
-        (value & 0x0000FF00) >> 8,
-        (value & 0x000000FF));
+        (value >> 24) & 0xFF,
+        (value >> 16) & 0xFF,
+        (value >> 8) & 0xFF,
+        (value) & 0xFF);
   }
 
   private static byte[] getLongBytes(long value) {
