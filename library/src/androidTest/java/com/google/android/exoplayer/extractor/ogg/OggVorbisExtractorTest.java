@@ -15,38 +15,41 @@
  */
 package com.google.android.exoplayer.extractor.ogg;
 
+import com.google.android.exoplayer.extractor.ogg.OggVorbisExtractor.VorbisSetup;
+import com.google.android.exoplayer.testutil.FakeExtractorInput;
+import com.google.android.exoplayer.testutil.FakeExtractorInput.SimulatedIOException;
+import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
-import android.util.Log;
-
 import junit.framework.TestCase;
+
+import java.io.IOException;
 
 /**
  * Unit test for {@link OggVorbisExtractor}.
  */
 public final class OggVorbisExtractorTest extends TestCase {
 
-  private static final String TAG = "OggVorbisExtractorTest";
-
   private OggVorbisExtractor extractor;
-  private RecordableOggExtractorInput extractorInput;
+  private ParsableByteArray scratch;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    extractorInput = new RecordableOggExtractorInput(1024 * 64);
     extractor = new OggVorbisExtractor();
+    scratch = new ParsableByteArray(new byte[255 * 255], 0);
   }
 
   public void testSniff() throws Exception {
-    extractorInput.recordOggHeader((byte) 0x02, 0, (byte) 0x02);
-    extractorInput.recordOggLaces(new byte[]{120, 120});
-    assertTrue(extractor.sniff(extractorInput));
+    byte[] data = TestUtil.joinByteArrays(
+        TestData.buildOggHeader(0x02, 0, 1000, 0x02),
+        TestUtil.createByteArray(120, 120)); // Laces
+    assertTrue(sniff(createInput(data)));
   }
 
   public void testSniffFails() throws Exception {
-    extractorInput.recordOggHeader((byte) 0x00, 0, (byte) 0);
-    assertFalse(extractor.sniff(extractorInput));
+    byte[] data = TestData.buildOggHeader(0x00, 0, 1000, 0x00);
+    assertFalse(sniff(createInput(data)));
   }
 
   public void testAppendNumberOfSamples() throws Exception {
@@ -60,57 +63,62 @@ public final class OggVorbisExtractorTest extends TestCase {
     assertEquals(0x01, buffer.data[3]);
   }
 
-  public void testReadSetupHeadersWithIOExceptions() {
-    extractorInput.doThrowExceptionsAtRead(true);
-    extractorInput.doThrowExceptionsAtPeek(true);
-
+  public void testReadSetupHeadersWithIOExceptions() throws IOException, InterruptedException {
     byte[] data = TestData.getVorbisHeaderPages();
-    extractorInput.record(data);
+    OggVorbisExtractor.VorbisSetup vorbisSetup = readSetupHeaders(createInput(data));
 
-    int exceptionCount = 0;
-    int maxExceptions = 20;
-    OggVorbisExtractor.VorbisSetup vorbisSetup;
-    while (exceptionCount < maxExceptions) {
+    assertNotNull(vorbisSetup.idHeader);
+    assertNotNull(vorbisSetup.commentHeader);
+    assertNotNull(vorbisSetup.setupHeaderData);
+    assertNotNull(vorbisSetup.modes);
+
+    assertEquals(45, vorbisSetup.commentHeader.length);
+    assertEquals(30, vorbisSetup.idHeader.data.length);
+    assertEquals(3597, vorbisSetup.setupHeaderData.length);
+
+    assertEquals(-1, vorbisSetup.idHeader.bitrateMax);
+    assertEquals(-1, vorbisSetup.idHeader.bitrateMin);
+    assertEquals(66666, vorbisSetup.idHeader.bitrateNominal);
+    assertEquals(512, vorbisSetup.idHeader.blockSize0);
+    assertEquals(1024, vorbisSetup.idHeader.blockSize1);
+    assertEquals(2, vorbisSetup.idHeader.channels);
+    assertTrue(vorbisSetup.idHeader.framingFlag);
+    assertEquals(22050, vorbisSetup.idHeader.sampleRate);
+    assertEquals(0, vorbisSetup.idHeader.version);
+
+    assertEquals("Xiph.Org libVorbis I 20030909", vorbisSetup.commentHeader.vendor);
+    assertEquals(1, vorbisSetup.iLogModes);
+
+    assertEquals(data[data.length - 1],
+        vorbisSetup.setupHeaderData[vorbisSetup.setupHeaderData.length - 1]);
+
+    assertFalse(vorbisSetup.modes[0].blockFlag);
+    assertTrue(vorbisSetup.modes[1].blockFlag);
+  }
+
+  private static FakeExtractorInput createInput(byte[] data) {
+    return new FakeExtractorInput.Builder().setData(data).setSimulateIOErrors(true)
+        .setSimulateUnknownLength(true).setSimulatePartialReads(true).build();
+  }
+
+  private boolean sniff(FakeExtractorInput input) throws InterruptedException, IOException {
+    while (true) {
       try {
-        vorbisSetup = extractor.readSetupHeaders(extractorInput,
-            new ParsableByteArray(new byte[255 * 255], 0));
-
-        assertNotNull(vorbisSetup.idHeader);
-        assertNotNull(vorbisSetup.commentHeader);
-        assertNotNull(vorbisSetup.setupHeaderData);
-        assertNotNull(vorbisSetup.modes);
-
-        assertEquals(45, vorbisSetup.commentHeader.length);
-        assertEquals(30, vorbisSetup.idHeader.data.length);
-        assertEquals(3597, vorbisSetup.setupHeaderData.length);
-
-        assertEquals(-1, vorbisSetup.idHeader.bitrateMax);
-        assertEquals(-1, vorbisSetup.idHeader.bitrateMin);
-        assertEquals(66666, vorbisSetup.idHeader.bitrateNominal);
-        assertEquals(512, vorbisSetup.idHeader.blockSize0);
-        assertEquals(1024, vorbisSetup.idHeader.blockSize1);
-        assertEquals(2, vorbisSetup.idHeader.channels);
-        assertTrue(vorbisSetup.idHeader.framingFlag);
-        assertEquals(22050, vorbisSetup.idHeader.sampleRate);
-        assertEquals(0, vorbisSetup.idHeader.version);
-
-        assertEquals("Xiph.Org libVorbis I 20030909", vorbisSetup.commentHeader.vendor);
-        assertEquals(1, vorbisSetup.iLogModes);
-
-        assertEquals(data[data.length - 1],
-            vorbisSetup.setupHeaderData[vorbisSetup.setupHeaderData.length - 1]);
-
-        assertFalse(vorbisSetup.modes[0].blockFlag);
-        assertTrue(vorbisSetup.modes[1].blockFlag);
-        break;
-      } catch (Throwable e) {
-        Log.e(TAG, e.getMessage(), e);
-        extractorInput.resetPeekPosition();
-        exceptionCount++;
+        return extractor.sniff(input);
+      } catch (SimulatedIOException e) {
+        // Ignore.
       }
     }
-    if (exceptionCount >= maxExceptions) {
-      fail("more than " + maxExceptions + " exceptions thrown");
+  }
+
+  private VorbisSetup readSetupHeaders(FakeExtractorInput input)
+      throws IOException, InterruptedException {
+    while (true) {
+      try {
+        return extractor.readSetupHeaders(input, scratch);
+      } catch (SimulatedIOException e) {
+        // Ignore.
+      }
     }
   }
 
