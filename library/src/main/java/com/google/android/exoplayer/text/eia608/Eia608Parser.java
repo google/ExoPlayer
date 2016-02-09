@@ -156,11 +156,16 @@ public final class Eia608Parser {
         continue;
       }
 
-      // Ignore repeated control characters.
+      // Ignore repeated control characters between 0x10 and 0x1f.
       if (ccData1 == previousCtrl1 && ccData2 == previousCtrl2) {
         continue;
       }
       previousCtrl1 = previousCtrl2 = 0;
+      
+      if (0x10 <= ccData1 && ccData1 < 0x20) {
+        previousCtrl1 = ccData1;
+        previousCtrl2 = ccData2;
+      }
 
       // Special North American character set.
       // ccData2 - P|0|1|1|X|X|X|X
@@ -191,8 +196,6 @@ public final class Eia608Parser {
       // Control character.
       if (ccData1 < 0x20) {
         addCtrl(ccData1, ccData2);
-        previousCtrl1 = ccData1;
-        previousCtrl2 = ccData2;
         continue;
       }
 
