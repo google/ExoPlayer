@@ -23,7 +23,6 @@ import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
-import android.util.Log;
 import android.util.SparseArray;
 
 import java.io.IOException;
@@ -32,8 +31,6 @@ import java.io.IOException;
  * Facilitates the extraction of data from the MPEG-2 TS container format.
  */
 public final class PsExtractor implements Extractor {
-
-  private static final String TAG = "PsExtractor";
 
   private static final int PACK_START_CODE = 0x000001BA;
   private static final int SYSTEM_HEADER_START_CODE = 0x000001BB;
@@ -73,7 +70,7 @@ public final class PsExtractor implements Extractor {
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
     byte[] scratch = new byte[14];
     input.peekFully(scratch, 0, 14);
-    
+
     // Verify the PACK_START_CODE for the first 4 bytes
     if (PACK_START_CODE != (((scratch[0] & 0xFF) << 24) | ((scratch[1] & 0xFF) << 16)
         | ((scratch[2] & 0xFF) << 8) | (scratch[3] & 0xFF))) {
@@ -141,7 +138,7 @@ public final class PsExtractor implements Extractor {
       // We only care about the pack_stuffing_length in here, skip the first 77 bits.
       psPacketBuffer.setPosition(0);
       psPacketBuffer.skipBytes(9);
-      
+
       // Last 3 bits is the length.
       int packStuffingLength = psPacketBuffer.readUnsignedByte() & 0x07;
 
@@ -151,14 +148,13 @@ public final class PsExtractor implements Extractor {
     } else if (nextStartCode == SYSTEM_HEADER_START_CODE) {
       // We just skip all this, but we need to get the length first.
       input.peekFully(psPacketBuffer.data, 0, 2);
-      
+
       // Length is the next 2 bytes.
       psPacketBuffer.setPosition(0);
       int systemHeaderLength = psPacketBuffer.readUnsignedShort();
       input.skipFully(systemHeaderLength + 6);
       return RESULT_CONTINUE;
     } else if (((nextStartCode & 0xFFFFFF00) >> 8) != PACKET_START_CODE_PREFIX) {
-      Log.w(TAG, "Missing PACKET_START_CODE_PREFIX!!");
       input.skipFully(1);  // Skip bytes until we see a valid start code again.
       return RESULT_CONTINUE;
     }
@@ -171,30 +167,28 @@ public final class PsExtractor implements Extractor {
     PesReader payloadReader = psPayloadReaders.get(streamId);
     if (!foundAllTracks) {
       if (payloadReader == null) {
-        if (streamId == PRIVATE_STREAM_1 && !foundAudioTrack) {
+        ElementaryStreamReader elementaryStreamReader = null;
+        if (!foundAudioTrack && streamId == PRIVATE_STREAM_1) {
           // Private stream, used for AC3 audio.
-          // NOTE: This may need further parsing to determine if its DTS,
-          // but that's likely only valid for DVDs.
-          payloadReader = new PesReader(new Ac3Reader(output.track(streamId), false));
-          psPayloadReaders.put(streamId, payloadReader);
+          // NOTE: This may need further parsing to determine if its DTS, but that's likely only
+          // valid for DVDs.
+          elementaryStreamReader = new Ac3Reader(output.track(streamId), false);
           foundAudioTrack = true;
-          Log.d(TAG, "Setup payload reader for AC3");
-        } else if ((streamId & AUDIO_STREAM_MASK) == AUDIO_STREAM && !foundAudioTrack) {
-          payloadReader = new PesReader(new MpegAudioReader(output.track(streamId)));
-          psPayloadReaders.put(streamId, payloadReader);
+        } else if (!foundAudioTrack && (streamId & AUDIO_STREAM_MASK) == AUDIO_STREAM) {
+          elementaryStreamReader = new MpegAudioReader(output.track(streamId));
           foundAudioTrack = true;
-          Log.d(TAG, "Setup payload reader for MP2");
-        } else if ((streamId & VIDEO_STREAM_MASK) == VIDEO_STREAM && !foundVideoTrack) {
-          payloadReader = new PesReader(new H262Reader(output.track(streamId)));
-          psPayloadReaders.put(streamId, payloadReader);
+        } else if (!foundVideoTrack && (streamId & VIDEO_STREAM_MASK) == VIDEO_STREAM) {
+          elementaryStreamReader = new H262Reader(output.track(streamId));
           foundVideoTrack = true;
-          Log.d(TAG, "Setup payload reader for MPEG2Video");
+        }
+        if (elementaryStreamReader != null) {
+          payloadReader = new PesReader(elementaryStreamReader, ptsTimestampAdjuster);
+          psPayloadReaders.put(streamId, payloadReader);
         }
       }
       if ((foundAudioTrack && foundVideoTrack) || input.getPosition() > MAX_SEARCH_LENGTH) {
         foundAllTracks = true;
         output.endTracks();
-        Log.d(TAG, "Signalled that all tracks were found");
       }
     }
 
@@ -228,12 +222,13 @@ public final class PsExtractor implements Extractor {
   /**
    * Parses PES packet data and extracts samples.
    */
-  private class PesReader {
+  private static final class PesReader {
 
     private static final int PES_SCRATCH_SIZE = 64;
 
-    private final ParsableBitArray pesScratch;
     private final ElementaryStreamReader pesPayloadReader;
+    private final PtsTimestampAdjuster ptsTimestampAdjuster;
+    private final ParsableBitArray pesScratch;
 
     private boolean ptsFlag;
     private boolean dtsFlag;
@@ -241,8 +236,10 @@ public final class PsExtractor implements Extractor {
     private int extendedHeaderLength;
     private long timeUs;
 
-    public PesReader(ElementaryStreamReader pesPayloadReader) {
+    public PesReader(ElementaryStreamReader pesPayloadReader,
+        PtsTimestampAdjuster ptsTimestampAdjuster) {
       this.pesPayloadReader = pesPayloadReader;
+      this.ptsTimestampAdjuster = ptsTimestampAdjuster;
       pesScratch = new ParsableBitArray(new byte[PES_SCRATCH_SIZE]);
     }
 
