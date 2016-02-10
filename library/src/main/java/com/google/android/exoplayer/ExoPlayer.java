@@ -212,7 +212,7 @@ public interface ExoPlayer {
   public static final int STATE_BUFFERING = 3;
   /**
    * The player is prepared and able to immediately play from the current position. The player will
-   * be playing if {@link #setPlayWhenReady(boolean)} returns true, and paused otherwise.
+   * be playing if {@link #getPlayWhenReady()} returns true, and paused otherwise.
    */
   public static final int STATE_READY = 4;
   /**
