@@ -18,6 +18,8 @@ package com.google.android.exoplayer.dash;
 import com.google.android.exoplayer.dash.mpd.RangedUri;
 import com.google.android.exoplayer.extractor.ChunkIndex;
 
+import java.util.Collections;
+
 /**
  * An implementation of {@link DashSegmentIndex} that wraps a {@link ChunkIndex} parsed from a
  * media stream.
@@ -58,7 +60,7 @@ import com.google.android.exoplayer.extractor.ChunkIndex;
 
   @Override
   public RangedUri getSegmentUrl(int segmentNum) {
-    return new RangedUri(uri, null, chunkIndex.offsets[segmentNum], chunkIndex.sizes[segmentNum]);
+    return new RangedUri(Collections.singletonList(uri), null, chunkIndex.offsets[segmentNum], chunkIndex.sizes[segmentNum]);
   }
 
   @Override
