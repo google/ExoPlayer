@@ -16,9 +16,9 @@
 package com.google.android.exoplayer.extractor.mp3;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.util.MpegAudioHeader;
 import com.google.android.exoplayer.util.ParsableByteArray;
+import com.google.android.exoplayer.util.Util;
 
 import android.test.InstrumentationTestCase;
 
@@ -29,7 +29,7 @@ public final class XingSeekerTest extends InstrumentationTestCase {
 
   // Xing header/payload from http://storage.googleapis.com/exoplayer-test-media-0/play.mp3.
   private static final int XING_FRAME_HEADER_DATA = 0xFFFB3000;
-  private static final byte[] XING_FRAME_PAYLOAD = TestUtil.createByteArray(
+  private static final byte[] XING_FRAME_PAYLOAD = Util.getBytesFromHexString(
       "00000007000008dd000e7919000205080a0d0f1214171a1c1e212426292c2e303336383b3d404245484a4c4f5254"
       + "575a5c5e616466696b6e707376787a7d808285878a8c8f929496999c9ea1a4a6a8abaeb0b3b5b8babdc0c2c4c7"
       + "cacccfd2d4d6d9dcdee1e3e6e8ebeef0f2f5f8fafd");

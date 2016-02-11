@@ -45,7 +45,7 @@ public final class AdtsExtractor implements Extractor {
 
   // Accessed only by the loading thread.
   private AdtsReader adtsReader;
-  private boolean firstPacket;
+  private boolean startedPacket;
 
   public AdtsExtractor() {
     this(0);
@@ -54,7 +54,6 @@ public final class AdtsExtractor implements Extractor {
   public AdtsExtractor(long firstSampleTimestampUs) {
     this.firstSampleTimestampUs = firstSampleTimestampUs;
     packetBuffer = new ParsableByteArray(MAX_PACKET_SIZE);
-    firstPacket = true;
   }
 
   @Override
@@ -117,7 +116,7 @@ public final class AdtsExtractor implements Extractor {
 
   @Override
   public void seek() {
-    firstPacket = true;
+    startedPacket = false;
     adtsReader.seek();
   }
 
@@ -135,8 +134,12 @@ public final class AdtsExtractor implements Extractor {
 
     // TODO: Make it possible for adtsReader to consume the dataSource directly, so that it becomes
     // unnecessary to copy the data through packetBuffer.
-    adtsReader.consume(packetBuffer, firstSampleTimestampUs, firstPacket);
-    firstPacket = false;
+    if (!startedPacket) {
+      // Pass data to the reader as though it's contained within a single infinitely long packet.
+      adtsReader.packetStarted(firstSampleTimestampUs, true);
+      startedPacket = true;
+    }
+    adtsReader.consume(packetBuffer);
     return RESULT_CONTINUE;
   }
 

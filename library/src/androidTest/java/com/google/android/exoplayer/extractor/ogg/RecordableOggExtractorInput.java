@@ -20,6 +20,8 @@ package com.google.android.exoplayer.extractor.ogg;
  */
 /* package */ final class RecordableOggExtractorInput extends RecordableExtractorInput {
 
+  public static final byte STREAM_REVISION = 0x00;
+
   private long pageSequenceCounter;
 
   public RecordableOggExtractorInput(byte[] data, int writeOffset) {

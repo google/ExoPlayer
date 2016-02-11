@@ -316,6 +316,12 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   protected boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs, MediaCodec codec,
       ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo, int bufferIndex, boolean shouldSkip)
       throws ExoPlaybackException {
+    if (passthroughEnabled && (bufferInfo.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
+      // Discard output buffers from the passthrough (raw) decoder containing codec specific data.
+      codec.releaseOutputBuffer(bufferIndex, false);
+      return true;
+    }
+
     if (shouldSkip) {
       codec.releaseOutputBuffer(bufferIndex, false);
       codecCounters.skippedOutputBufferCount++;

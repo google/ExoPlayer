@@ -57,6 +57,9 @@ import java.util.List;
   private boolean foundFirstSample;
   private long totalBytesWritten;
 
+  // Per packet state that gets reset at the start of each packet.
+  private long pesTimeUs;
+
   // Per sample state that gets reset at the start of each sample.
   private boolean isKeyframe;
   private long samplePosition;
@@ -78,7 +81,6 @@ import java.util.List;
 
   @Override
   public void seek() {
-    seiReader.seek();
     NalUnitUtil.clearPrefixFlags(prefixFlags);
     sps.reset();
     pps.reset();
@@ -91,7 +93,12 @@ import java.util.List;
   }
 
   @Override
-  public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
+  public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {
+    this.pesTimeUs = pesTimeUs;
+  }
+
+  @Override
+  public void consume(ParsableByteArray data) {
     while (data.bytesLeft() > 0) {
       int offset = data.getPosition();
       int limit = data.limit();
@@ -194,7 +201,7 @@ import java.util.List;
       int unescapedLength = NalUnitUtil.unescapeStream(sei.nalData, sei.nalLength);
       seiWrapper.reset(sei.nalData, unescapedLength);
       seiWrapper.setPosition(4); // NAL prefix and nal_unit() header.
-      seiReader.consume(seiWrapper, pesTimeUs, true);
+      seiReader.consume(pesTimeUs, seiWrapper);
     }
   }
 

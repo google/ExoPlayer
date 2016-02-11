@@ -201,6 +201,12 @@ public class PlayerActivity extends Activity implements
   }
 
   @Override
+  public void onDecoderInitialized(String decoderName, long elapsedRealtimeMs,
+      long initializationDurationMs) {
+    // do nothing.
+  }
+
+  @Override
   public void onPlayerStateChanged(boolean playWhenReady, int state) {
     switch (player.getPlaybackState()) {
       case ExoPlayer.STATE_BUFFERING:

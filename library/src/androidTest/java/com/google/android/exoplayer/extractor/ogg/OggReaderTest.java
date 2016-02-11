@@ -73,7 +73,7 @@ public final class OggReaderTest extends TestCase {
     assertEquals(0x02, oggReader.getPageHeader().type);
     assertEquals(27 + 1, oggReader.getPageHeader().headerSize);
     assertEquals(8, oggReader.getPageHeader().bodySize);
-    assertEquals(RecordableExtractorInput.STREAM_REVISION, oggReader.getPageHeader().revision);
+    assertEquals(RecordableOggExtractorInput.STREAM_REVISION, oggReader.getPageHeader().revision);
     assertEquals(1, oggReader.getPageHeader().pageSegmentCount);
     assertEquals(1000, oggReader.getPageHeader().pageSequenceNumber);
     assertEquals(4096, oggReader.getPageHeader().streamSerialNumber);
