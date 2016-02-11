@@ -109,7 +109,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
     WebvttSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
 
     // test event count
-    assertEquals(10, subtitle.getEventTimeCount());
+    assertEquals(12, subtitle.getEventTimeCount());
 
     // test cues
     assertCue(subtitle, 0, 0, 1234000, "This is the first subtitle.", Alignment.ALIGN_NORMAL,
@@ -126,6 +126,9 @@ public class WebvttParserTest extends InstrumentationTestCase {
     assertCue(subtitle, 8, 7000000, 8000000, "This is the fifth subtitle.",
         Alignment.ALIGN_OPPOSITE, Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.TYPE_UNSET, 0.1f,
         Cue.ANCHOR_TYPE_END, 0.1f);
+  assertCue(subtitle, 10, 10000000, 11000000, "This is the sixth subtitle.",
+        Alignment.ALIGN_CENTER, 0.45f, Cue.LINE_TYPE_FRACTION, Cue.ANCHOR_TYPE_END, Cue.DIMEN_UNSET,
+        Cue.TYPE_UNSET, 0.35f);
   }
 
   public void testParseWithBadCueHeader() throws IOException {
