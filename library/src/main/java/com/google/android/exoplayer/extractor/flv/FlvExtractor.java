@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.extractor.flv;
 
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
@@ -237,14 +236,6 @@ public final class FlvExtractor implements Extractor, SeekMap {
       videoReader.consume(prepareTagData(input), tagTimestampUs);
     } else if (tagType == TAG_TYPE_SCRIPT_DATA && metadataReader != null) {
       metadataReader.consume(prepareTagData(input), tagTimestampUs);
-      if (metadataReader.getDurationUs() != C.UNKNOWN_TIME_US) {
-        if (audioReader != null) {
-          audioReader.setDurationUs(metadataReader.getDurationUs());
-        }
-        if (videoReader != null) {
-          videoReader.setDurationUs(metadataReader.getDurationUs());
-        }
-      }
     } else {
       input.skipFully(tagDataSize);
       wasConsumed = false;
@@ -271,6 +262,11 @@ public final class FlvExtractor implements Extractor, SeekMap {
   @Override
   public boolean isSeekable() {
     return false;
+  }
+
+  @Override
+  public long getDurationUs() {
+    return metadataReader.getDurationUs();
   }
 
   @Override

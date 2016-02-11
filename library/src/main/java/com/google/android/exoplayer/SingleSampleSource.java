@@ -51,6 +51,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   private final Uri uri;
   private final DataSource dataSource;
   private final MediaFormat format;
+  private final long durationUs;
   private final int minLoadableRetryCount;
   private final TrackGroup tracks;
 
@@ -64,15 +65,16 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   private int currentLoadableExceptionCount;
   private long currentLoadableExceptionTimestamp;
 
-  public SingleSampleSource(Uri uri, DataSource dataSource, MediaFormat format) {
-    this(uri, dataSource, format, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
+  public SingleSampleSource(Uri uri, DataSource dataSource, MediaFormat format, long durationUs) {
+    this(uri, dataSource, format, durationUs, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
   }
 
-  public SingleSampleSource(Uri uri, DataSource dataSource, MediaFormat format,
+  public SingleSampleSource(Uri uri, DataSource dataSource, MediaFormat format, long durationUs,
       int minLoadableRetryCount) {
     this.uri = uri;
     this.dataSource = dataSource;
     this.format = format;
+    this.durationUs = durationUs;
     this.minLoadableRetryCount = minLoadableRetryCount;
     tracks = new TrackGroup(format);
     sampleData = new byte[INITIAL_SAMPLE_SIZE];
@@ -100,7 +102,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
 
   @Override
   public long getDurationUs() {
-    return format.durationUs;
+    return durationUs;
   }
 
   @Override

@@ -45,18 +45,17 @@ public final class MediaFormatTest extends TestCase {
     initData.add(initData2);
 
     testConversionToFrameworkFormatV16(MediaFormat.createVideoFormat(
-        null, "video/xyz", 5000, 102400, 1000L, 1280, 720, initData));
+        null, "video/xyz", 5000, 102400, 1280, 720, initData));
     testConversionToFrameworkFormatV16(MediaFormat.createVideoFormat(
-        null, "video/xyz", 5000, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, 1280, 720, null));
+        null, "video/xyz", 5000, MediaFormat.NO_VALUE, 1280, 720, null));
     testConversionToFrameworkFormatV16(MediaFormat.createAudioFormat(
-        null, "audio/xyz", 500, 128, 1000L, 5, 44100, initData, null));
+        null, "audio/xyz", 500, 128, 5, 44100, initData, null));
     testConversionToFrameworkFormatV16(MediaFormat.createAudioFormat(
-        null, "audio/xyz", 500, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, 5, 44100, null, null));
+        null, "audio/xyz", 500, MediaFormat.NO_VALUE, 5, 44100, null, null));
     testConversionToFrameworkFormatV16(
-        MediaFormat.createTextFormat(null, "text/xyz", MediaFormat.NO_VALUE, 1000L, "eng"));
+        MediaFormat.createTextFormat(null, "text/xyz", MediaFormat.NO_VALUE, "eng"));
     testConversionToFrameworkFormatV16(
-        MediaFormat.createTextFormat(null, "text/xyz", MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US,
-        null));
+        MediaFormat.createTextFormat(null, "text/xyz", MediaFormat.NO_VALUE, null));
   }
 
   @SuppressLint("InlinedApi")
@@ -77,11 +76,6 @@ public final class MediaFormatTest extends TestCase {
       ByteBuffer frameworkBuffer = out.getByteBuffer("csd-" + i);
       byte[] frameworkData = Arrays.copyOf(frameworkBuffer.array(), frameworkBuffer.limit());
       assertTrue(Arrays.equals(originalData, frameworkData));
-    }
-    if (in.durationUs == C.UNKNOWN_TIME_US) {
-      assertFalse(out.containsKey(android.media.MediaFormat.KEY_DURATION));
-    } else {
-      assertEquals(in.durationUs, out.getLong(android.media.MediaFormat.KEY_DURATION));
     }
   }
 

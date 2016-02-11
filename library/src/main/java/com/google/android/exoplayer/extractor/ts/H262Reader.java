@@ -184,7 +184,7 @@ import java.util.Collections;
     }
 
     MediaFormat format = MediaFormat.createVideoFormat(null, MimeTypes.VIDEO_MPEG2,
-        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, width, height,
+        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, width, height,
         Collections.singletonList(csdData), MediaFormat.NO_VALUE, pixelWidthHeightRatio);
 
     long frameDurationUs = 0;

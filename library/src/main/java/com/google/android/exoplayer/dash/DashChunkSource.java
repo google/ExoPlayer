@@ -121,6 +121,7 @@ public class DashChunkSource implements ChunkSource {
 
   private boolean manifestFetcherEnabled;
   private boolean live;
+  private long durationUs;
   private MediaPresentationDescription currentManifest;
   private MediaPresentationDescription processedManifest;
   private int nextPeriodHolderIndex;
@@ -248,10 +249,16 @@ public class DashChunkSource implements ChunkSource {
         return false;
       } else {
         live = currentManifest.dynamic;
+        durationUs = live ? C.UNKNOWN_TIME_US : currentManifest.duration * 1000;
         selectTracks(currentManifest, 0);
       }
     }
     return true;
+  }
+
+  @Override
+  public long getDurationUs() {
+    return durationUs;
   }
 
   @Override
@@ -509,7 +516,7 @@ public class DashChunkSource implements ChunkSource {
         MediaFormat[] trackMediaFormats = new MediaFormat[representations.size()];
         int trackCount = 0;
         for (int j = 0; j < trackMediaFormats.length; j++) {
-          trackMediaFormats[trackCount] = getMediaFormat(manifest, representations.get(j).format);
+          trackMediaFormats[trackCount] = getMediaFormat(representations.get(j).format);
           if (trackMediaFormats[trackCount] != null) {
             trackFormats[trackCount++] = representations.get(j).format;
           }
@@ -523,15 +530,14 @@ public class DashChunkSource implements ChunkSource {
     trackFormats = new Format[0];
   }
 
-  private MediaFormat getMediaFormat(MediaPresentationDescription manifest,
-      Format representationFormat) {
+  private MediaFormat getMediaFormat(Format representationFormat) {
     String mediaMimeType = getMediaMimeType(representationFormat);
     if (mediaMimeType == null) {
       Log.w(TAG, "Skipped track " + representationFormat.id + " (unknown media mime type)");
       return null;
     }
     MediaFormat trackFormat = getTrackFormat(adaptationSetType, representationFormat,
-        mediaMimeType, manifest.dynamic ? C.UNKNOWN_TIME_US : manifest.duration * 1000);
+        mediaMimeType);
     if (trackFormat == null) {
       Log.w(TAG, "Skipped track " + representationFormat.id + " (unknown media format)");
       return null;
@@ -545,17 +551,17 @@ public class DashChunkSource implements ChunkSource {
   }
 
   private static MediaFormat getTrackFormat(int adaptationSetType, Format format,
-      String mediaMimeType, long durationUs) {
+      String mediaMimeType) {
     switch (adaptationSetType) {
       case AdaptationSet.TYPE_VIDEO:
         return MediaFormat.createVideoFormat(format.id, mediaMimeType, format.bitrate,
-            MediaFormat.NO_VALUE, durationUs, format.width, format.height, null);
+            MediaFormat.NO_VALUE, format.width, format.height, null);
       case AdaptationSet.TYPE_AUDIO:
         return MediaFormat.createAudioFormat(format.id, mediaMimeType, format.bitrate,
-            MediaFormat.NO_VALUE, durationUs, format.audioChannels, format.audioSamplingRate, null,
+            MediaFormat.NO_VALUE, format.audioChannels, format.audioSamplingRate, null,
             format.language);
       case AdaptationSet.TYPE_TEXT:
-        return MediaFormat.createTextFormat(format.id, mediaMimeType, format.bitrate, durationUs,
+        return MediaFormat.createTextFormat(format.id, mediaMimeType, format.bitrate,
             format.language);
       default:
         return null;

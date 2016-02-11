@@ -384,7 +384,7 @@ public final class WebmExtractor implements Extractor {
           } else {
             // We don't know where the Cues element is located. It's most likely omitted. Allow
             // playback, but disable seeking.
-            extractorOutput.seekMap(SeekMap.UNSEEKABLE);
+            extractorOutput.seekMap(new SeekMap.Unseekable(durationUs));
             sentSeekMap = true;
           }
         }
@@ -464,7 +464,7 @@ public final class WebmExtractor implements Extractor {
         return;
       case ID_TRACK_ENTRY:
         if (tracks.get(currentTrack.number) == null && isCodecSupported(currentTrack.codecId)) {
-          currentTrack.initializeOutput(extractorOutput, currentTrack.number, durationUs);
+          currentTrack.initializeOutput(extractorOutput, currentTrack.number);
           tracks.put(currentTrack.number, currentTrack);
         } else {
           // We've seen this track entry before, or the codec is unsupported. Do nothing.
@@ -966,8 +966,8 @@ public final class WebmExtractor implements Extractor {
   /**
    * Builds a {@link SeekMap} from the recently gathered Cues information.
    *
-   * @return The built {@link SeekMap}. May be {@link SeekMap#UNSEEKABLE} if cues information was
-   *     missing or incomplete.
+   * @return The built {@link SeekMap}. The returned {@link SeekMap} may be unseekable if cues
+   *     information was missing or incomplete.
    */
   private SeekMap buildSeekMap() {
     if (segmentContentPosition == UNKNOWN || durationUs == C.UNKNOWN_TIME_US
@@ -976,7 +976,7 @@ public final class WebmExtractor implements Extractor {
       // Cues information is missing or incomplete.
       cueTimesUs = null;
       cueClusterPositions = null;
-      return SeekMap.UNSEEKABLE;
+      return new SeekMap.Unseekable(durationUs);
     }
     int cuePointsSize = cueTimesUs.size();
     int[] sizes = new int[cuePointsSize];
@@ -996,7 +996,7 @@ public final class WebmExtractor implements Extractor {
     durationsUs[cuePointsSize - 1] = durationUs - timesUs[cuePointsSize - 1];
     cueTimesUs = null;
     cueClusterPositions = null;
-    return new ChunkIndex(sizes, offsets, durationsUs, timesUs);
+    return new ChunkIndex(durationUs, sizes, offsets, durationsUs, timesUs);
   }
 
   /**
@@ -1150,8 +1150,7 @@ public final class WebmExtractor implements Extractor {
     /**
      * Initializes the track with an output.
      */
-    public void initializeOutput(ExtractorOutput output, int trackId, long durationUs)
-        throws ParserException {
+    public void initializeOutput(ExtractorOutput output, int trackId) throws ParserException {
       String mimeType;
       int maxInputSize = MediaFormat.NO_VALUE;
       List<byte[]> initializationData = null;
@@ -1237,14 +1236,14 @@ public final class WebmExtractor implements Extractor {
       // into the trackId passed when creating the formats.
       if (MimeTypes.isAudio(mimeType)) {
         format = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType,
-            MediaFormat.NO_VALUE, maxInputSize, durationUs, channelCount, sampleRate,
+            MediaFormat.NO_VALUE, maxInputSize, channelCount, sampleRate,
             initializationData, language);
       } else if (MimeTypes.isVideo(mimeType)) {
         format = MediaFormat.createVideoFormat(Integer.toString(trackId), mimeType,
-            MediaFormat.NO_VALUE, maxInputSize, durationUs, width, height, initializationData);
+            MediaFormat.NO_VALUE, maxInputSize, width, height, initializationData);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
         format = MediaFormat.createTextFormat(Integer.toString(trackId), mimeType,
-            MediaFormat.NO_VALUE, durationUs, language);
+            MediaFormat.NO_VALUE, language);
       } else {
         throw new ParserException("Unexpected MIME type.");
       }

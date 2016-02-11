@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.extractor.mp4;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
@@ -72,6 +73,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   // Extractor outputs.
   private ExtractorOutput extractorOutput;
   private Mp4Track[] tracks;
+  private long durationUs;
   private boolean isQuickTime;
 
   public Mp4Extractor() {
@@ -134,6 +136,11 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   @Override
   public boolean isSeekable() {
     return true;
+  }
+
+  @Override
+  public long getDurationUs() {
+    return durationUs;
   }
 
   @Override
@@ -270,6 +277,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   /** Updates the stored track metadata to reflect the contents of the specified moov atom. */
   private void processMoovAtom(ContainerAtom moov) {
+    long durationUs = C.UNKNOWN_TIME_US;
     List<Mp4Track> tracks = new ArrayList<>();
     long earliestSampleOffset = Long.MAX_VALUE;
     for (int i = 0; i < moov.containerChildren.size(); i++) {
@@ -296,6 +304,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       // Allow ten source samples per output sample, like the platform extractor.
       int maxInputSize = trackSampleTable.maximumSize + 3 * 10;
       mp4Track.trackOutput.format(track.mediaFormat.copyWithMaxInputSize(maxInputSize));
+
+      durationUs = Math.max(durationUs, track.durationUs);
       tracks.add(mp4Track);
 
       long firstSampleOffset = trackSampleTable.offsets[0];
@@ -303,6 +313,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         earliestSampleOffset = firstSampleOffset;
       }
     }
+    this.durationUs = durationUs;
     this.tracks = tracks.toArray(new Mp4Track[0]);
     extractorOutput.endTracks();
     extractorOutput.seekMap(this);

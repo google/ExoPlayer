@@ -75,7 +75,7 @@ import java.util.regex.Pattern;
   @Override
   public void init(ExtractorOutput output) {
     this.output = output;
-    output.seekMap(SeekMap.UNSEEKABLE);
+    output.seekMap(new SeekMap.Unseekable(C.UNKNOWN_TIME_US));
   }
 
   @Override
@@ -160,7 +160,7 @@ import java.util.regex.Pattern;
   private TrackOutput buildTrackOutput(long subsampleOffsetUs) {
     TrackOutput trackOutput = output.track(0);
     trackOutput.format(MediaFormat.createTextFormat("id", MimeTypes.TEXT_VTT, MediaFormat.NO_VALUE,
-        C.UNKNOWN_TIME_US, "en", subsampleOffsetUs));
+        "en", subsampleOffsetUs));
     output.endTracks();
     return trackOutput;
   }

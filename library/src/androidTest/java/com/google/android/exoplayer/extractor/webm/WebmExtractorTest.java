@@ -23,7 +23,6 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
 import com.google.android.exoplayer.extractor.ChunkIndex;
-import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.webm.StreamBuilder.ContentEncodingSettings;
 import com.google.android.exoplayer.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer.testutil.FakeTrackOutput;
@@ -98,8 +97,8 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
-    assertIndex(DEFAULT_TIMECODE_SCALE, 1);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
+    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
   }
 
   public void testReadSegmentTwice() throws IOException, InterruptedException {
@@ -114,8 +113,8 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
-    assertIndex(DEFAULT_TIMECODE_SCALE, 1);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
+    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
   }
 
   public void testPrepareOpus() throws IOException, InterruptedException {
@@ -129,8 +128,8 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertAudioFormat(AUDIO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE, MimeTypes.AUDIO_OPUS);
-    assertIndex(DEFAULT_TIMECODE_SCALE, 1);
+    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
+    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
   }
 
   public void testPrepareVorbis() throws IOException, InterruptedException {
@@ -144,8 +143,8 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertAudioFormat(AUDIO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE, MimeTypes.AUDIO_VORBIS);
-    assertIndex(DEFAULT_TIMECODE_SCALE, 1);
+    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_VORBIS);
+    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
   }
 
   public void testPrepareH264() throws IOException, InterruptedException {
@@ -158,8 +157,8 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertH264VideoFormat(VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
-    assertIndex(DEFAULT_TIMECODE_SCALE, 1);
+    assertH264VideoFormat(VIDEO_TRACK_NUMBER);
+    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
   }
 
   public void testPrepareTwoTracks() throws IOException, InterruptedException {
@@ -175,9 +174,9 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
 
     assertTracksEnded();
     assertEquals(2, extractorOutput.numberOfTracks);
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
-    assertAudioFormat(AUDIO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE, MimeTypes.AUDIO_OPUS);
-    assertIndex(DEFAULT_TIMECODE_SCALE, 1);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
+    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
+    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
   }
 
   public void testPrepareThreeTracks() throws IOException, InterruptedException {
@@ -195,9 +194,9 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     assertTracksEnded();
     // Even though the input stream has 3 tracks, only 2 of them are supported and will be reported.
     assertEquals(2, extractorOutput.numberOfTracks);
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
-    assertAudioFormat(AUDIO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE, MimeTypes.AUDIO_OPUS);
-    assertIndex(DEFAULT_TIMECODE_SCALE, 1);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
+    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
+    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
   }
 
   public void testPrepareFourTracks() throws IOException, InterruptedException {
@@ -216,11 +215,11 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
 
     assertTracksEnded();
     assertEquals(4, extractorOutput.numberOfTracks);
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
-    assertAudioFormat(AUDIO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE, MimeTypes.AUDIO_VORBIS);
-    assertVp9VideoFormat(SECOND_VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
-    assertAudioFormat(SECOND_AUDIO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE, MimeTypes.AUDIO_OPUS);
-    assertIndex(DEFAULT_TIMECODE_SCALE, 1);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
+    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_VORBIS);
+    assertVp9VideoFormat(SECOND_VIDEO_TRACK_NUMBER);
+    assertAudioFormat(SECOND_AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
+    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
   }
 
   public void testPrepareContentEncodingEncryption() throws IOException, InterruptedException {
@@ -234,8 +233,8 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
-    assertIndex(DEFAULT_TIMECODE_SCALE, 1);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
+    assertSeekMap(DEFAULT_TIMECODE_SCALE, 1);
     DrmInitData drmInitData = extractorOutput.drmInitData;
     assertNotNull(drmInitData);
     SchemeInitData widevineInitData = drmInitData.get(WIDEVINE_UUID);
@@ -256,8 +255,8 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
-    assertIndex(DEFAULT_TIMECODE_SCALE, 3);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
+    assertSeekMap(DEFAULT_TIMECODE_SCALE, 3);
   }
 
   public void testPrepareCustomTimecodeScaleBeforeDuration()
@@ -286,15 +285,25 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, timecodeScale);
-    assertIndex(timecodeScale, 3);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
+    assertSeekMap(timecodeScale, 3);
   }
 
   public void testPrepareNoCuesElement() throws IOException, InterruptedException {
+    testPrepareNoCuesElement(DEFAULT_TIMECODE_SCALE);
+  }
+
+  public void testPrepareNoCuesElementCustomTimecodeScale()
+      throws IOException, InterruptedException {
+    testPrepareNoCuesElement(1000);
+  }
+
+  private void testPrepareNoCuesElement(int timecodeScale) throws IOException,
+      InterruptedException {
     byte[] media = createFrameData(100);
     byte[] data = new StreamBuilder()
         .setHeader(WEBM_DOC_TYPE)
-        .setInfo(DEFAULT_TIMECODE_SCALE, TEST_DURATION_TIMECODE)
+        .setInfo(timecodeScale, TEST_DURATION_TIMECODE)
         .addVp9Track(VIDEO_TRACK_NUMBER, TEST_WIDTH, TEST_HEIGHT, null)
         .addSimpleBlockMedia(1 /* trackNumber */, 0 /* clusterTimecode */, 0 /* blockTimecode */,
             true /* keyframe */, false /* invisible */, media)
@@ -303,7 +312,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertIndexUnseekable();
+    assertSeekMapUnseekable(timecodeScale);
   }
 
   public void testAcceptsWebmDocType() throws IOException, InterruptedException {
@@ -433,7 +442,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
     assertSample(0, media, 0, true, false, null, getTrackOutput(VIDEO_TRACK_NUMBER));
   }
 
@@ -453,7 +462,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
     assertSample(0, unstrippedSampleBytes, 0, true, false, null,
         getTrackOutput(VIDEO_TRACK_NUMBER));
   }
@@ -474,7 +483,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
     assertSample(0, unstrippedSampleBytes, 0, true, false, null,
         getTrackOutput(VIDEO_TRACK_NUMBER));
   }
@@ -497,8 +506,8 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
 
     assertTracksEnded();
     assertEquals(2, extractorOutput.numberOfTracks);
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
-    assertAudioFormat(AUDIO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE, MimeTypes.AUDIO_OPUS);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
+    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
     assertSample(0, media, 0, true, false, null, getTrackOutput(VIDEO_TRACK_NUMBER));
     assertSample(0, media, 0, true, false, null, getTrackOutput(AUDIO_TRACK_NUMBER));
   }
@@ -524,8 +533,8 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
 
     assertTracksEnded();
     assertEquals(2, extractorOutput.numberOfTracks);
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
-    assertAudioFormat(AUDIO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE, MimeTypes.AUDIO_OPUS);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
+    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
     assertSample(0, media, 0, true, false, null, getTrackOutput(VIDEO_TRACK_NUMBER));
     assertSample(0, media, 0, true, false, null, getTrackOutput(AUDIO_TRACK_NUMBER));
   }
@@ -544,7 +553,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertAudioFormat(AUDIO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE, MimeTypes.AUDIO_OPUS);
+    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
     assertSample(0, media, 0, true, false, null, getTrackOutput(AUDIO_TRACK_NUMBER));
   }
 
@@ -561,7 +570,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
     assertSample(0, media, 0, false, false, null, getTrackOutput(VIDEO_TRACK_NUMBER));
   }
 
@@ -580,7 +589,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
     assertSample(0, media, 0, true, false, TEST_ENCRYPTION_KEY_ID,
         getTrackOutput(VIDEO_TRACK_NUMBER));
   }
@@ -620,7 +629,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
     assertSample(0, media, 25000, false, true, null, getTrackOutput(VIDEO_TRACK_NUMBER));
   }
 
@@ -638,7 +647,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, timecodeScale);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
     assertSample(0, media, 25, false, false, null, getTrackOutput(VIDEO_TRACK_NUMBER));
   }
 
@@ -655,7 +664,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertVp9VideoFormat(VIDEO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE);
+    assertVp9VideoFormat(VIDEO_TRACK_NUMBER);
     assertSample(0, media, 1000, true, true, null, getTrackOutput(VIDEO_TRACK_NUMBER));
   }
 
@@ -673,7 +682,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertAudioFormat(AUDIO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE, MimeTypes.AUDIO_OPUS);
+    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
     for (int i = 0; i < 20; i++) {
       long expectedTimeUs = i * TEST_DEFAULT_DURATION_NS / 1000;
       assertSample(i, Arrays.copyOfRange(media, i * 5, i * 5 + 5), expectedTimeUs, true, false,
@@ -695,7 +704,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     TestUtil.consumeTestData(extractor, data);
 
     assertTracksEnded();
-    assertAudioFormat(AUDIO_TRACK_NUMBER, DEFAULT_TIMECODE_SCALE, MimeTypes.AUDIO_OPUS);
+    assertAudioFormat(AUDIO_TRACK_NUMBER, MimeTypes.AUDIO_OPUS);
     assertSample(0, Arrays.copyOfRange(media, 0, 256), 0 * TEST_DEFAULT_DURATION_NS / 1000, true,
         false, null, getTrackOutput(AUDIO_TRACK_NUMBER));
     assertSample(1, Arrays.copyOfRange(media, 256, 257), 1 * TEST_DEFAULT_DURATION_NS / 1000, true,
@@ -712,28 +721,22 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     assertTrue(extractorOutput.tracksEnded);
   }
 
-  private void assertVp9VideoFormat(int trackNumber, int timecodeScale) {
+  private void assertVp9VideoFormat(int trackNumber) {
     MediaFormat format = getTrackOutput(trackNumber).format;
-    assertEquals(Util.scaleLargeTimestamp(TEST_DURATION_TIMECODE, timecodeScale, 1000),
-        format.durationUs);
     assertEquals(TEST_WIDTH, format.width);
     assertEquals(TEST_HEIGHT, format.height);
     assertEquals(MimeTypes.VIDEO_VP9, format.mimeType);
   }
 
-  private void assertH264VideoFormat(int trackNumber, int timecodeScale) {
+  private void assertH264VideoFormat(int trackNumber) {
     MediaFormat format = getTrackOutput(trackNumber).format;
-    assertEquals(Util.scaleLargeTimestamp(TEST_DURATION_TIMECODE, timecodeScale, 1000),
-        format.durationUs);
     assertEquals(TEST_WIDTH, format.width);
     assertEquals(TEST_HEIGHT, format.height);
     assertEquals(MimeTypes.VIDEO_H264, format.mimeType);
   }
 
-  private void assertAudioFormat(int trackNumber, int timecodeScale, String expectedMimeType) {
+  private void assertAudioFormat(int trackNumber, String expectedMimeType) {
     MediaFormat format = getTrackOutput(trackNumber).format;
-    assertEquals(Util.scaleLargeTimestamp(TEST_DURATION_TIMECODE, timecodeScale, 1000),
-        format.durationUs);
     assertEquals(TEST_CHANNEL_COUNT, format.channelCount);
     assertEquals(TEST_SAMPLE_RATE, format.sampleRate);
     assertEquals(expectedMimeType, format.mimeType);
@@ -752,7 +755,7 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
     }
   }
 
-  private void assertIndex(int timecodeScale, int cuePointCount) {
+  private void assertSeekMap(int timecodeScale, int cuePointCount) {
     ChunkIndex index = (ChunkIndex) extractorOutput.seekMap;
     assertEquals(cuePointCount, index.length);
     for (int i = 0; i < cuePointCount - 1; i++) {
@@ -767,10 +770,14 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
         index.timesUs[lastIndex]);
     assertEquals(Util.scaleLargeTimestamp(lastDurationTimecode, timecodeScale, 1000),
         index.durationsUs[lastIndex]);
+    assertEquals(Util.scaleLargeTimestamp(TEST_DURATION_TIMECODE, timecodeScale, 1000),
+        extractorOutput.seekMap.getDurationUs());
   }
 
-  private void assertIndexUnseekable() {
-    assertEquals(SeekMap.UNSEEKABLE, extractorOutput.seekMap);
+  private void assertSeekMapUnseekable(long timecodeScale) {
+    assertFalse(extractorOutput.seekMap.isSeekable());
+    long expectedDurationUs = Util.scaleLargeTimestamp(TEST_DURATION_TIMECODE, timecodeScale, 1000);
+    assertEquals(expectedDurationUs, extractorOutput.seekMap.getDurationUs());
   }
 
   private void assertSample(int index, byte[] expectedMedia, long timeUs, boolean keyframe,

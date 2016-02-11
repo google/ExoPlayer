@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.extractor.flv;
 
-import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.ParsableByteArray;
@@ -38,32 +37,11 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
   protected final TrackOutput output;
 
-  private long durationUs;
-
   /**
    * @param output A {@link TrackOutput} to which samples should be written.
    */
   protected TagPayloadReader(TrackOutput output) {
     this.output = output;
-    this.durationUs = C.UNKNOWN_TIME_US;
-  }
-
-  /**
-   * Sets duration in microseconds.
-   *
-   * @param durationUs duration in microseconds.
-   */
-  public final void setDurationUs(long durationUs) {
-    this.durationUs = durationUs;
-  }
-
-  /**
-   * Gets the duration in microseconds.
-   *
-   * @return The duration in microseconds.
-   */
-  public final long getDurationUs() {
-    return durationUs;
   }
 
   /**

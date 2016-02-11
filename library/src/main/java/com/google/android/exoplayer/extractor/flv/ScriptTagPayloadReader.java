@@ -43,11 +43,18 @@ import java.util.Map;
   private static final int AMF_TYPE_STRICT_ARRAY = 10;
   private static final int AMF_TYPE_DATE = 11;
 
+  private long durationUs;
+
   /**
    * @param output A {@link TrackOutput} to which samples should be written.
    */
   public ScriptTagPayloadReader(TrackOutput output) {
     super(output);
+    durationUs = C.UNKNOWN_TIME_US;
+  }
+
+  public long getDurationUs() {
+    return durationUs;
   }
 
   @Override
@@ -82,7 +89,7 @@ import java.util.Map;
     if (metadata.containsKey(KEY_DURATION)) {
       double durationSeconds = (double) metadata.get(KEY_DURATION);
       if (durationSeconds > 0.0) {
-        setDurationUs((long) (durationSeconds * C.MICROS_PER_SECOND));
+        durationUs = (long) (durationSeconds * C.MICROS_PER_SECOND);
       }
     }
   }

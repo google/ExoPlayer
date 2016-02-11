@@ -65,12 +65,11 @@ public final class Ac3Util {
    *
    * @param data The AC3SpecificBox to parse.
    * @param trackId The track identifier to set on the format, or null.
-   * @param durationUs The duration to set on the format, in microseconds.
    * @param language The language to set on the format.
    * @return The AC-3 format parsed from data in the header.
    */
   public static MediaFormat parseAc3AnnexFFormat(ParsableByteArray data, String trackId,
-      long durationUs, String language) {
+      String language) {
     int fscod = (data.readUnsignedByte() & 0xC0) >> 6;
     int sampleRate = SAMPLE_RATE_BY_FSCOD[fscod];
     int nextByte = data.readUnsignedByte();
@@ -79,7 +78,7 @@ public final class Ac3Util {
       channelCount++;
     }
     return MediaFormat.createAudioFormat(trackId, MimeTypes.AUDIO_AC3, MediaFormat.NO_VALUE,
-        MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate, null, language);
+        MediaFormat.NO_VALUE, channelCount, sampleRate, null, language);
   }
 
   /**
@@ -88,12 +87,11 @@ public final class Ac3Util {
    *
    * @param data The EC3SpecificBox to parse.
    * @param trackId The track identifier to set on the format, or null.
-   * @param durationUs The duration to set on the format, in microseconds.
    * @param language The language to set on the format.
    * @return The E-AC-3 format parsed from data in the header.
    */
   public static MediaFormat parseEAc3AnnexFFormat(ParsableByteArray data, String trackId,
-      long durationUs, String language) {
+      String language) {
     data.skipBytes(2); // data_rate, num_ind_sub
 
     // Read only the first substream.
@@ -106,7 +104,7 @@ public final class Ac3Util {
       channelCount++;
     }
     return MediaFormat.createAudioFormat(trackId, MimeTypes.AUDIO_E_AC3, MediaFormat.NO_VALUE,
-        MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate, null, language);
+        MediaFormat.NO_VALUE, channelCount, sampleRate, null, language);
   }
 
   /**
@@ -115,12 +113,11 @@ public final class Ac3Util {
    *
    * @param data The data to parse, positioned at the start of the syncframe.
    * @param trackId The track identifier to set on the format, or null.
-   * @param durationUs The duration to set on the format, in microseconds.
    * @param language The language to set on the format.
    * @return The AC-3 format parsed from data in the header.
    */
   public static MediaFormat parseAc3SyncframeFormat(ParsableBitArray data, String trackId,
-      long durationUs, String language) {
+      String language) {
     data.skipBits(16 + 16); // syncword, crc1
     int fscod = data.readBits(2);
     data.skipBits(6 + 5 + 3); // frmsizecod, bsid, bsmod
@@ -136,7 +133,7 @@ public final class Ac3Util {
     }
     boolean lfeon = data.readBit();
     return MediaFormat.createAudioFormat(trackId, MimeTypes.AUDIO_AC3, MediaFormat.NO_VALUE,
-        MediaFormat.NO_VALUE, durationUs, CHANNEL_COUNT_BY_ACMOD[acmod] + (lfeon ? 1 : 0),
+        MediaFormat.NO_VALUE, CHANNEL_COUNT_BY_ACMOD[acmod] + (lfeon ? 1 : 0),
         SAMPLE_RATE_BY_FSCOD[fscod], null, language);
   }
 
@@ -146,12 +143,11 @@ public final class Ac3Util {
    *
    * @param data The data to parse, positioned at the start of the syncframe.
    * @param trackId The track identifier to set on the format, or null.
-   * @param durationUs The duration to set on the format, in microseconds.
    * @param language The language to set on the format.
    * @return The E-AC-3 format parsed from data in the header.
    */
   public static MediaFormat parseEac3SyncframeFormat(ParsableBitArray data, String trackId,
-      long durationUs, String language) {
+      String language) {
     data.skipBits(16 + 2 + 3 + 11); // syncword, strmtype, substreamid, frmsiz
     int sampleRate;
     int fscod = data.readBits(2);
@@ -164,8 +160,8 @@ public final class Ac3Util {
     int acmod = data.readBits(3);
     boolean lfeon = data.readBit();
     return MediaFormat.createAudioFormat(trackId, MimeTypes.AUDIO_E_AC3, MediaFormat.NO_VALUE,
-        MediaFormat.NO_VALUE, durationUs, CHANNEL_COUNT_BY_ACMOD[acmod] + (lfeon ? 1 : 0),
-        sampleRate, null, language);
+        MediaFormat.NO_VALUE, CHANNEL_COUNT_BY_ACMOD[acmod] + (lfeon ? 1 : 0), sampleRate, null,
+        language);
   }
 
   /**

@@ -53,12 +53,10 @@ public final class DtsUtil {
    *
    * @param frame The DTS frame to parse.
    * @param trackId The track identifier to set on the format, or null.
-   * @param durationUs The duration to set on the format, in microseconds.
    * @param language The language to set on the format.
    * @return The DTS format parsed from data in the header.
    */
-  public static MediaFormat parseDtsFormat(byte[] frame, String trackId, long durationUs,
-      String language) {
+  public static MediaFormat parseDtsFormat(byte[] frame, String trackId, String language) {
     ParsableBitArray frameBits = SCRATCH_BITS;
     frameBits.reset(frame);
     frameBits.skipBits(4 * 8 + 1 + 5 + 1 + 7 + 14); // SYNC, FTYPE, SHORT, CPF, NBLKS, FSIZE
@@ -72,7 +70,7 @@ public final class DtsUtil {
     frameBits.skipBits(10); // MIX, DYNF, TIMEF, AUXF, HDCD, EXT_AUDIO_ID, EXT_AUDIO, ASPF
     channelCount += frameBits.readBits(2) > 0 ? 1 : 0; // LFF
     return MediaFormat.createAudioFormat(trackId, MimeTypes.AUDIO_DTS, bitrate,
-        MediaFormat.NO_VALUE, durationUs, channelCount, sampleRate, null, language);
+        MediaFormat.NO_VALUE, channelCount, sampleRate, null, language);
   }
 
   /**

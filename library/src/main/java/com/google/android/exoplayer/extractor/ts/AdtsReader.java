@@ -259,8 +259,8 @@ import java.util.Collections;
           audioSpecificConfig);
 
       MediaFormat mediaFormat = MediaFormat.createAudioFormat(null, MimeTypes.AUDIO_AAC,
-          MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, audioParams.second,
-          audioParams.first, Collections.singletonList(audioSpecificConfig), null);
+          MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, audioParams.second, audioParams.first,
+          Collections.singletonList(audioSpecificConfig), null);
       // In this class a sample is an access unit, but the MediaFormat sample rate specifies the
       // number of PCM audio samples per second.
       sampleDurationUs = (C.MICROS_PER_SECOND * 1024) / mediaFormat.sampleRate;

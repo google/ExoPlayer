@@ -47,18 +47,23 @@ public final class ChunkIndex implements SeekMap {
    */
   public final long[] timesUs;
 
+  private final long durationUs;
+
   /**
+   * @param durationUs The duration of the stream.
    * @param sizes The chunk sizes, in bytes.
    * @param offsets The chunk byte offsets.
    * @param durationsUs The chunk durations, in microseconds.
    * @param timesUs The start time of each chunk, in microseconds.
    */
-  public ChunkIndex(int[] sizes, long[] offsets, long[] durationsUs, long[] timesUs) {
-    this.length = sizes.length;
+  public ChunkIndex(long durationUs, int[] sizes, long[] offsets, long[] durationsUs,
+      long[] timesUs) {
+    this.durationUs = durationUs;
     this.sizes = sizes;
     this.offsets = offsets;
     this.durationsUs = durationsUs;
     this.timesUs = timesUs;
+    length = sizes.length;
   }
 
   /**
@@ -76,6 +81,11 @@ public final class ChunkIndex implements SeekMap {
   @Override
   public boolean isSeekable() {
     return true;
+  }
+
+  @Override
+  public long getDurationUs() {
+    return durationUs;
   }
 
   @Override

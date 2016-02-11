@@ -153,7 +153,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   private void parseHeader() {
     byte[] frameData = headerScratchBytes.data;
     if (mediaFormat == null) {
-      mediaFormat = DtsUtil.parseDtsFormat(frameData, null, C.UNKNOWN_TIME_US, null);
+      mediaFormat = DtsUtil.parseDtsFormat(frameData, null, null);
       output.format(mediaFormat);
     }
     sampleSize = DtsUtil.getDtsFrameSize(frameData);

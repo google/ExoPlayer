@@ -16,7 +16,6 @@
 package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
@@ -267,13 +266,9 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       trackEnabledStates = new boolean[trackCount];
       pendingResets = new boolean[trackCount];
       pendingMediaFormat = new boolean[trackCount];
-      durationUs = C.UNKNOWN_TIME_US;
+      durationUs = seekMap.getDurationUs();
       for (int i = 0; i < trackCount; i++) {
-        MediaFormat format = sampleQueues.valueAt(i).getFormat();
-        tracks[i] = new TrackGroup(format);
-        if (format.durationUs > durationUs) {
-          durationUs = format.durationUs;
-        }
+        tracks[i] = new TrackGroup(sampleQueues.valueAt(i).getFormat());
       }
       prepared = true;
       return true;

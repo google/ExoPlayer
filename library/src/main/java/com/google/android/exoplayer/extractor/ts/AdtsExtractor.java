@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.extractor.ts;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
@@ -112,7 +113,7 @@ public final class AdtsExtractor implements Extractor {
   public void init(ExtractorOutput output) {
     adtsReader = new AdtsReader(output.track(0), output.track(1));
     output.endTracks();
-    output.seekMap(SeekMap.UNSEEKABLE);
+    output.seekMap(new SeekMap.Unseekable(C.UNKNOWN_TIME_US));
   }
 
   @Override

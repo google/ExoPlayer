@@ -25,6 +25,7 @@ import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.extractor.ogg.VorbisUtil.Mode;
+import com.google.android.exoplayer.extractor.ogg.VorbisUtil.VorbisIdHeader;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -75,7 +76,7 @@ public final class OggVorbisExtractor implements Extractor {
   public void init(ExtractorOutput output) {
     trackOutput = output.track(0);
     output.endTracks();
-    output.seekMap(SeekMap.UNSEEKABLE);
+    output.seekMap(new SeekMap.Unseekable(C.UNKNOWN_TIME_US));
   }
 
   @Override
@@ -93,17 +94,14 @@ public final class OggVorbisExtractor implements Extractor {
 
     if (vorbisSetup == null) {
       vorbisSetup = readSetupHeaders(input, scratch);
-      ArrayList<byte[]> codecInitialisationData = new ArrayList<>();
-      codecInitialisationData.clear();
-      codecInitialisationData.add(vorbisSetup.idHeader.data);
-      codecInitialisationData.add(vorbisSetup.setupHeaderData);
-
-      long duration = input.getLength() == C.LENGTH_UNBOUNDED ? C.UNKNOWN_TIME_US
-          : input.getLength() * 8000000 / vorbisSetup.idHeader.getApproximateBitrate();
+      VorbisIdHeader idHeader = vorbisSetup.idHeader;
+      ArrayList<byte[]> codecInitializationData = new ArrayList<>();
+      codecInitializationData.clear();
+      codecInitializationData.add(idHeader.data);
+      codecInitializationData.add(vorbisSetup.setupHeaderData);
       trackOutput.format(MediaFormat.createAudioFormat(null, MimeTypes.AUDIO_VORBIS,
-          this.vorbisSetup.idHeader.bitrateNominal, OGG_MAX_SEGMENT_SIZE * 255, duration,
-          this.vorbisSetup.idHeader.channels, (int) this.vorbisSetup.idHeader.sampleRate,
-          codecInitialisationData, null));
+          idHeader.bitrateNominal, OGG_MAX_SEGMENT_SIZE * 255, idHeader.channels,
+          idHeader.sampleRate, codecInitializationData, null));
     }
     if (oggReader.readPacket(input, scratch)) {
       // if this is an audio packet...

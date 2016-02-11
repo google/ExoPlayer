@@ -216,7 +216,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     if (atomType == Atom.TYPE_mdat) {
       endOfMdatPosition = atomPosition + atomSize;
       if (!haveOutputSeekMap) {
-        extractorOutput.seekMap(SeekMap.UNSEEKABLE);
+        extractorOutput.seekMap(new SeekMap.Unseekable(track.durationUs));
         haveOutputSeekMap = true;
       }
       if (fragmentRun.sampleEncryptionDataNeedsFill) {
@@ -271,7 +271,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     if (!containerAtoms.isEmpty()) {
       containerAtoms.peek().add(leaf);
     } else if (leaf.type == Atom.TYPE_sidx) {
-      ChunkIndex segmentIndex = parseSidx(leaf.data, inputPosition);
+      ChunkIndex segmentIndex = parseSidx(track.durationUs, leaf.data, inputPosition);
       extractorOutput.seekMap(segmentIndex);
       haveOutputSeekMap = true;
     }
@@ -623,7 +623,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   /**
    * Parses a sidx atom (defined in 14496-12).
    */
-  private static ChunkIndex parseSidx(ParsableByteArray atom, long inputPosition)
+  private static ChunkIndex parseSidx(long durationUs, ParsableByteArray atom, long inputPosition)
       throws ParserException {
     atom.setPosition(Atom.HEADER_SIZE);
     int fullAtom = atom.readInt();
@@ -674,7 +674,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       offset += sizes[i];
     }
 
-    return new ChunkIndex(sizes, offsets, durationsUs, timesUs);
+    return new ChunkIndex(durationUs, sizes, offsets, durationsUs, timesUs);
   }
 
   private void readEncryptionData(ExtractorInput input) throws IOException, InterruptedException {

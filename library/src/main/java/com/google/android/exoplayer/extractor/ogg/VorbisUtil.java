@@ -75,7 +75,7 @@ import java.util.Arrays;
 
     long version = headerData.readLittleEndianUnsignedInt();
     int channels = headerData.readUnsignedByte();
-    long sampleRate = headerData.readLittleEndianUnsignedInt();
+    int sampleRate = (int) headerData.readLittleEndianUnsignedInt();
     int bitrateMax = headerData.readLittleEndianInt();
     int bitrateNominal = headerData.readLittleEndianInt();
     int bitrateMin = headerData.readLittleEndianInt();
@@ -433,7 +433,7 @@ import java.util.Arrays;
 
     public final long version;
     public final int channels;
-    public final long sampleRate;
+    public final int sampleRate;
     public final int bitrateMax;
     public final int bitrateNominal;
     public final int bitrateMin;
@@ -442,7 +442,7 @@ import java.util.Arrays;
     public final boolean framingFlag;
     public final byte[] data;
 
-    public VorbisIdHeader(long version, int channels, long sampleRate, int bitrateMax,
+    public VorbisIdHeader(long version, int channels, int sampleRate, int bitrateMax,
         int bitrateNominal, int bitrateMin, int blockSize0, int blockSize1, boolean framingFlag,
         byte[] data) {
       this.version = version;

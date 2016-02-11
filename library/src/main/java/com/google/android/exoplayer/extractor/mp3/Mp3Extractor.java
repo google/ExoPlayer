@@ -120,8 +120,8 @@ public final class Mp3Extractor implements Extractor {
       setupSeeker(input);
       extractorOutput.seekMap(seeker);
       trackOutput.format(MediaFormat.createAudioFormat(null, synchronizedHeader.mimeType,
-          MediaFormat.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES, seeker.getDurationUs(),
-          synchronizedHeader.channels, synchronizedHeader.sampleRate, null, null));
+          MediaFormat.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES, synchronizedHeader.channels,
+          synchronizedHeader.sampleRate, null, null));
     }
     return readSample(input);
   }
@@ -319,9 +319,6 @@ public final class Mp3Extractor implements Extractor {
      * @return The corresponding timestamp of the next sample to be read, in microseconds.
      */
     long getTimeUs(long position);
-
-    /** Returns the duration of the source, in microseconds. */
-    long getDurationUs();
 
   }
 

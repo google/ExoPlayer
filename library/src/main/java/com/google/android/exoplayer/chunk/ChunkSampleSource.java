@@ -152,12 +152,11 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     if (!chunkSource.prepare()) {
       return false;
     }
-    durationUs = C.UNKNOWN_TIME_US;
+    durationUs = chunkSource.getDurationUs();
     TrackGroup trackGroup = chunkSource.getTracks();
     if (trackGroup.length > 0) {
       MediaFormat firstTrackFormat = trackGroup.getFormat(0);
       loader = new Loader("Loader:" + firstTrackFormat.mimeType);
-      durationUs = firstTrackFormat.durationUs;
     }
     state = STATE_PREPARED;
     return true;

@@ -33,7 +33,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   public SeiReader(TrackOutput output) {
     super(output);
     output.format(MediaFormat.createTextFormat(null, MimeTypes.APPLICATION_EIA608,
-        MediaFormat.NO_VALUE, C.UNKNOWN_TIME_US, null));
+        MediaFormat.NO_VALUE, null));
   }
 
   @Override

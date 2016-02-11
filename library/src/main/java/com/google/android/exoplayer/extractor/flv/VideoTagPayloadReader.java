@@ -96,9 +96,8 @@ import java.util.List;
 
       // Construct and output the format.
       MediaFormat mediaFormat = MediaFormat.createVideoFormat(null, MimeTypes.VIDEO_H264,
-          MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, getDurationUs(), avcData.width,
-          avcData.height, avcData.initializationData, MediaFormat.NO_VALUE,
-          avcData.pixelWidthAspectRatio);
+          MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, avcData.width, avcData.height,
+          avcData.initializationData, MediaFormat.NO_VALUE, avcData.pixelWidthAspectRatio);
       output.format(mediaFormat);
       hasOutputFormat = true;
     } else if (packetType == AVC_PACKET_TYPE_AVC_NALU) {

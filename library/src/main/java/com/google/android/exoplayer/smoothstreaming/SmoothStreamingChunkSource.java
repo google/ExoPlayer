@@ -72,6 +72,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
   private boolean manifestFetcherEnabled;
   private boolean live;
+  private long durationUs;
   private TrackEncryptionBox[] trackEncryptionBoxes;
   private DrmInitData.Mapped drmInitData;
   private SmoothStreamingManifest currentManifest;
@@ -146,6 +147,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
         return false;
       } else {
         live = currentManifest.isLive;
+        durationUs = currentManifest.durationUs;
         ProtectionElement protectionElement = currentManifest.protectionElement;
         if (protectionElement != null) {
           byte[] keyId = getProtectionElementKeyId(protectionElement.data);
@@ -162,6 +164,11 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       }
     }
     return true;
+  }
+
+  @Override
+  public long getDurationUs() {
+    return durationUs;
   }
 
   @Override
@@ -373,7 +380,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     switch (element.type) {
       case StreamElement.TYPE_VIDEO:
         mediaFormat = MediaFormat.createVideoFormat(format.id, format.mimeType, format.bitrate,
-            MediaFormat.NO_VALUE, durationUs, format.width, format.height, Arrays.asList(csdArray));
+            MediaFormat.NO_VALUE, format.width, format.height, Arrays.asList(csdArray));
         mp4TrackType = Track.TYPE_vide;
         break;
       case StreamElement.TYPE_AUDIO:
@@ -385,13 +392,13 @@ public class SmoothStreamingChunkSource implements ChunkSource {
               format.audioSamplingRate, format.audioChannels));
         }
         mediaFormat = MediaFormat.createAudioFormat(format.id, format.mimeType, format.bitrate,
-            MediaFormat.NO_VALUE, durationUs, format.audioChannels, format.audioSamplingRate, csd,
+            MediaFormat.NO_VALUE, format.audioChannels, format.audioSamplingRate, csd,
             format.language);
         mp4TrackType = Track.TYPE_soun;
         break;
       case StreamElement.TYPE_TEXT:
         mediaFormat = MediaFormat.createTextFormat(format.id, format.mimeType, format.bitrate,
-            durationUs, format.language);
+            format.language);
         mp4TrackType = Track.TYPE_text;
         break;
       default:

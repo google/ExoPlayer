@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.extractor;
 
+import com.google.android.exoplayer.C;
+
 /**
  * Maps seek positions (in microseconds) to corresponding positions (byte offsets) in the stream.
  */
@@ -23,7 +25,17 @@ public interface SeekMap {
   /**
    * A {@link SeekMap} that does not support seeking.
    */
-  public static final SeekMap UNSEEKABLE = new SeekMap() {
+  final class Unseekable implements SeekMap {
+
+    private final long durationUs;
+
+    /**
+     * @param durationUs The duration of the stream in microseconds, or {@link C#UNKNOWN_TIME_US} if
+     *     the duration is unknown.
+     */
+    public Unseekable(long durationUs) {
+      this.durationUs = durationUs;
+    }
 
     @Override
     public boolean isSeekable() {
@@ -31,11 +43,16 @@ public interface SeekMap {
     }
 
     @Override
+    public long getDurationUs() {
+      return durationUs;
+    }
+
+    @Override
     public long getPosition(long timeUs) {
       return 0;
     }
 
-  };
+  }
 
   /**
    * Whether or not the seeking is supported.
@@ -46,6 +63,14 @@ public interface SeekMap {
    * @return True if seeking is supported. False otherwise.
    */
   boolean isSeekable();
+
+  /**
+   * Returns the duration of the stream in microseconds.
+   *
+   * @return The duration of the stream in microseconds, or {@link C#UNKNOWN_TIME_US} if the
+   *     duration is unknown.
+   */
+  long getDurationUs();
 
   /**
    * Maps a seek position in microseconds to a corresponding position (byte offset) in the stream

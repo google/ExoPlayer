@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.chunk;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.TrackGroup;
 
 import java.io.IOException;
@@ -49,6 +50,16 @@ public interface ChunkSource {
    * @throws IOException If an error occurs preparing the source.
    */
   boolean prepare() throws IOException;
+
+  /**
+   * Gets the duration of the source in microseconds.
+   * <p>
+   * This method should only be called after the source has been prepared.
+   *
+   * @return The duration of the source in microseconds, or {@link C#UNKNOWN_TIME_US} if the
+   *     duration is unknown.
+   */
+  long getDurationUs();
 
   /**
    * Gets the group of tracks provided by the source.
