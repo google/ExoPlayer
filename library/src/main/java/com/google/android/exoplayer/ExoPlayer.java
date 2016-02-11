@@ -338,7 +338,6 @@ public interface ExoPlayer {
    * @param positionMs The seek position.
    */
   public void seekTo(long positionMs);
-
   /**
    * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention
    * is to pause playback.
