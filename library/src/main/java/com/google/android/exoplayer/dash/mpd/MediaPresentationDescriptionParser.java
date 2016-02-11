@@ -324,16 +324,18 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     String schemeIdUri = xpp.getAttributeValue(null, "schemeIdUri");
     UUID uuid = null;
     SchemeInitData data = null;
+    boolean seenPsshElement = false;
     do {
       xpp.next();
       // The cenc:pssh element is defined in 23001-7:2015.
       if (ParserUtil.isStartTag(xpp, "cenc:pssh") && xpp.next() == XmlPullParser.TEXT) {
+        seenPsshElement = true;
         data = new SchemeInitData(MimeTypes.VIDEO_MP4,
             Base64.decode(xpp.getText(), Base64.DEFAULT));
         uuid = PsshAtomUtil.parseUuid(data.data);
       }
     } while (!ParserUtil.isEndTag(xpp, "ContentProtection"));
-    if (uuid == null) {
+    if (seenPsshElement && uuid == null) {
       Log.w(TAG, "Skipped unsupported ContentProtection element");
       return null;
     }
