@@ -213,11 +213,38 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected boolean handlesTrack(MediaCodecSelector mediaCodecSelector, MediaFormat mediaFormat)
+  protected int supportsFormat(MediaCodecSelector mediaCodecSelector, MediaFormat mediaFormat)
       throws DecoderQueryException {
     String mimeType = mediaFormat.mimeType;
-    return MimeTypes.isVideo(mimeType) && (MimeTypes.VIDEO_UNKNOWN.equals(mimeType)
-        || mediaCodecSelector.getDecoderInfo(mediaFormat, false) != null);
+    if (!MimeTypes.isVideo(mimeType)) {
+      return TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
+    }
+    // TODO[REFACTOR]: Propagate requiresSecureDecoder to this point. Note that we need to check
+    // that the drm session can make use of a secure decoder, as well as that a secure decoder
+    // exists.
+    DecoderInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mediaFormat.mimeType, false);
+    if (decoderInfo == null) {
+      return TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
+    }
+    if (mediaFormat.width > 0 && mediaFormat.height > 0) {
+      if (Util.SDK_INT >= 21) {
+        // TODO[REFACTOR]: Propagate frame rate to this point.
+        // if (mediaFormat.frameRate > 0) {
+        //   return decoderInfo.isSizeAndRateSupportedV21(mediaFormat.width, mediaFormat.height,
+        //       mediaFormat.frameRate) ? TrackRenderer.TRACK_HANDLED
+        //       : TrackRenderer.TRACK_NOT_HANDLED_EXCEEDS_CAPABILITIES;
+        // } else {
+        return decoderInfo.isVideoSizeSupportedV21(mediaFormat.width, mediaFormat.height)
+            ? TrackRenderer.FORMAT_HANDLED : TrackRenderer.FORMAT_EXCEEDS_CAPABILITIES;
+        // }
+      }
+      // TODO[REFACTOR]: We should probably assume that we can decode at least the resolution of
+      // the display, or the camera, as a sanity check?
+      if (mediaFormat.width * mediaFormat.height > MediaCodecUtil.maxH264DecodableFrameSize()) {
+        return TrackRenderer.FORMAT_EXCEEDS_CAPABILITIES;
+      }
+    }
+    return TrackRenderer.FORMAT_HANDLED;
   }
 
   @Override

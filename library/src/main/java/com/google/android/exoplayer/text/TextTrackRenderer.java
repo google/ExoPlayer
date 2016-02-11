@@ -155,8 +155,9 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
   }
 
   @Override
-  protected boolean handlesTrack(MediaFormat mediaFormat) {
-    return getParserIndex(mediaFormat) != -1;
+  protected int supportsFormat(MediaFormat mediaFormat) {
+    return getParserIndex(mediaFormat) != -1 ? TrackRenderer.FORMAT_HANDLED
+        : TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
   }
 
   @Override

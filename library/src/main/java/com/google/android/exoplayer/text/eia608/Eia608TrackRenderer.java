@@ -86,8 +86,9 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   }
 
   @Override
-  protected boolean handlesTrack(MediaFormat mediaFormat) {
-    return eia608Parser.canParse(mediaFormat.mimeType);
+  protected int supportsFormat(MediaFormat mediaFormat) {
+    return eia608Parser.canParse(mediaFormat.mimeType) ? TrackRenderer.FORMAT_HANDLED
+        : TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
   }
 
   @Override

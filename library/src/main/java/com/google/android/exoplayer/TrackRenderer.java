@@ -18,6 +18,7 @@ package com.google.android.exoplayer;
 import com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent;
 import com.google.android.exoplayer.SampleSource.TrackStream;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.MimeTypes;
 
 import java.io.IOException;
 
@@ -33,6 +34,42 @@ import java.io.IOException;
  *     border="0"/></p>
  */
 public abstract class TrackRenderer implements ExoPlayerComponent {
+
+  /**
+   * The {@link TrackRenderer} can seamlessly adapt between formats.
+   */
+  public static final int ADAPTIVE_SEAMLESS = 0;
+  /**
+   * The {@link TrackRenderer} can adapt between formats, but may suffer a brief discontinuity
+   * (~50-100ms) when adaptation occurs.
+   */
+  public static final int ADAPTIVE_NOT_SEAMLESS = 1;
+  /**
+   * The {@link TrackRenderer} does not support adaptation between formats.
+   */
+  public static final int ADAPTIVE_NOT_SUPPORTED = 2;
+
+  /**
+   * The {@link TrackRenderer} is capable of rendering the format.
+   */
+  public static final int FORMAT_HANDLED = 0;
+  /**
+   * The {@link TrackRenderer} is capable of rendering formats with the same mimeType, but the
+   * properties of the format exceed the renderer's capability.
+   * <p>
+   * Example: The {@link TrackRenderer} is capable of rendering H264 and the format's mimeType is
+   * {@link MimeTypes#VIDEO_H264}, but the format's resolution exceeds the maximum limit supported
+   * by the underlying H264 decoder.
+   */
+  public static final int FORMAT_EXCEEDS_CAPABILITIES = 1;
+  /**
+   * The {@link TrackRenderer} is not capable of rendering the format, or any other format with the
+   * same mimeType.
+   * <p>
+   * Example: The {@link TrackRenderer} is only capable of rendering video and the track has an
+   * audio mimeType.
+   */
+  public static final int FORMAT_UNSUPPORTED_TYPE = 2;
 
   /**
    * The renderer is idle.
@@ -75,13 +112,31 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   }
 
   /**
-   * Returns whether this renderer is capable of handling the provided track.
+   * Returns the extent to which the renderer is capable of consuming from a {@link TrackStream}
+   * that adapts between multiple supported formats of a given mimeType, or of differing mimeTypes
+   * if {@code mimeType == null} is passed.
    *
-   * @param mediaFormat The format of the track.
-   * @return True if the renderer can handle the track, false otherwise.
+   * @param mimeType The mimeType, or null to query the extent to which the renderer is capable of
+   *     adapting between formats with different mimeTypes.
+   * @return The extent to which the renderer supports the adaptation. One of
+   *     {@link #ADAPTIVE_SEAMLESS}, {@link #ADAPTIVE_NOT_SEAMLESS} and
+   *     {@link #ADAPTIVE_NOT_SUPPORTED}.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected abstract boolean handlesTrack(MediaFormat mediaFormat) throws ExoPlaybackException;
+  protected int supportsAdaptive(String mimeType) throws ExoPlaybackException {
+    return ADAPTIVE_NOT_SUPPORTED;
+  }
+
+  /**
+   * Returns the extent to which the renderer is capable of rendering a given format.
+   *
+   * @param mediaFormat The format.
+   * @return The extent to which the renderer is capable of rendering the given format. One of
+   *     {@link #FORMAT_HANDLED}, {@link #FORMAT_EXCEEDS_CAPABILITIES} and
+   *     {@link #FORMAT_UNSUPPORTED_TYPE}.
+   * @throws ExoPlaybackException If an error occurs.
+   */
+  protected abstract int supportsFormat(MediaFormat mediaFormat) throws ExoPlaybackException;
 
   /**
    * Enable the renderer to consume from the specified {@link TrackStream}.

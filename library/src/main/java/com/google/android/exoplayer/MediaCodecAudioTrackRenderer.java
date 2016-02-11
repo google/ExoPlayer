@@ -20,6 +20,7 @@ import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.Util;
 
 import android.annotation.TargetApi;
 import android.media.AudioManager;
@@ -179,12 +180,34 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected boolean handlesTrack(MediaCodecSelector mediaCodecSelector, MediaFormat mediaFormat)
+  protected int supportsFormat(MediaCodecSelector mediaCodecSelector, MediaFormat mediaFormat)
       throws DecoderQueryException {
     String mimeType = mediaFormat.mimeType;
-    return MimeTypes.isAudio(mimeType) && (MimeTypes.AUDIO_UNKNOWN.equals(mimeType)
-        || (allowPassthrough(mimeType) && mediaCodecSelector.getPassthroughDecoderName() != null)
-        || mediaCodecSelector.getDecoderInfo(mediaFormat, false) != null);
+    if (!MimeTypes.isAudio(mimeType)) {
+      return TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
+    }
+    if (allowPassthrough(mimeType) && mediaCodecSelector.getPassthroughDecoderName() != null) {
+      return TrackRenderer.FORMAT_HANDLED;
+    }
+    // TODO[REFACTOR]: Propagate requiresSecureDecoder to this point. Note that we need to check
+    // that the drm session can make use of a secure decoder, as well as that a secure decoder
+    // exists.
+    DecoderInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mediaFormat.mimeType, false);
+    if (decoderInfo == null) {
+      return TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
+    }
+    if (Util.SDK_INT >= 21) {
+      // Note: We assume support in the case that the sampleRate or channelCount is unknown.
+      if (mediaFormat.sampleRate != MediaFormat.NO_VALUE
+          && !decoderInfo.isAudioSampleRateSupportedV21(mediaFormat.sampleRate)) {
+        return TrackRenderer.FORMAT_EXCEEDS_CAPABILITIES;
+      }
+      if (mediaFormat.channelCount != MediaFormat.NO_VALUE
+          && !decoderInfo.isAudioChannelCountSupportedV21(mediaFormat.channelCount)) {
+        return TrackRenderer.FORMAT_EXCEEDS_CAPABILITIES;
+      }
+    }
+    return TrackRenderer.FORMAT_HANDLED;
   }
 
   @Override
@@ -194,7 +217,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
       String passthroughDecoderName = mediaCodecSelector.getPassthroughDecoderName();
       if (passthroughDecoderName != null) {
         passthroughEnabled = true;
-        return new DecoderInfo(passthroughDecoderName, false);
+        return new DecoderInfo(passthroughDecoderName);
       }
     }
     passthroughEnabled = false;

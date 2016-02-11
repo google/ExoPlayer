@@ -86,8 +86,9 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
   }
 
   @Override
-  protected boolean handlesTrack(MediaFormat mediaFormat) {
-    return metadataParser.canParse(mediaFormat.mimeType);
+  protected int supportsFormat(MediaFormat mediaFormat) {
+    return metadataParser.canParse(mediaFormat.mimeType) ? TrackRenderer.FORMAT_HANDLED
+        : TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
   }
 
   @Override

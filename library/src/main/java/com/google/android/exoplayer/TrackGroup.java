@@ -46,11 +46,11 @@ public final class TrackGroup {
   }
 
   /**
-   * @param supportsAdaptive Whether it's possible to adapt between multiple tracks in the group.
+   * @param adaptive Whether it's possible to adapt between multiple tracks in the group.
    * @param formats The track formats.
    */
-  public TrackGroup(boolean supportsAdaptive, MediaFormat... formats) {
-    this.adaptive = supportsAdaptive;
+  public TrackGroup(boolean adaptive, MediaFormat... formats) {
+    this.adaptive = adaptive;
     this.formats = formats;
     length = formats.length;
   }

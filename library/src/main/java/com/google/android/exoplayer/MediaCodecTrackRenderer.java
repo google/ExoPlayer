@@ -262,23 +262,40 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   @Override
-  protected final boolean handlesTrack(MediaFormat mediaFormat) throws ExoPlaybackException {
+  protected final int supportsAdaptive(String mimeType) throws ExoPlaybackException {
+    if (mimeType == null) {
+      return TrackRenderer.ADAPTIVE_NOT_SEAMLESS;
+    }
     try {
-      return handlesTrack(mediaCodecSelector, mediaFormat);
+      // TODO[REFACTOR]: Propagate requiresSecureDecoder to this point.
+      DecoderInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType, false);
+      return decoderInfo != null && decoderInfo.adaptive ? TrackRenderer.ADAPTIVE_SEAMLESS
+          : TrackRenderer.ADAPTIVE_NOT_SEAMLESS;
+    } catch (DecoderQueryException e) {
+      throw new ExoPlaybackException(e);
+    }
+  }
+
+  @Override
+  protected final int supportsFormat(MediaFormat mediaFormat) throws ExoPlaybackException {
+    try {
+      return supportsFormat(mediaCodecSelector, mediaFormat);
     } catch (DecoderQueryException e) {
       throw new ExoPlaybackException(e);
     }
   }
 
   /**
-   * Returns whether this renderer is capable of handling the provided track.
+   * Returns the extent to which the renderer is capable of rendering a given format.
    *
    * @param mediaCodecSelector The decoder selector.
-   * @param mediaFormat The format of the track.
-   * @return True if the renderer can handle the track, false otherwise.
-   * @throws DecoderQueryException Thrown if there was an error querying decoders.
+   * @param mediaFormat The format.
+   * @return The extent to which the renderer is capable of rendering the given format. One of
+   *     {@link #FORMAT_HANDLED}, {@link #FORMAT_EXCEEDS_CAPABILITIES} and
+   *     {@link #FORMAT_UNSUPPORTED_TYPE}.
+   * @throws DecoderQueryException If there was an error querying decoders.
    */
-  protected abstract boolean handlesTrack(MediaCodecSelector mediaCodecSelector,
+  protected abstract int supportsFormat(MediaCodecSelector mediaCodecSelector,
       MediaFormat mediaFormat) throws DecoderQueryException;
 
   /**
@@ -293,7 +310,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    */
   protected DecoderInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector,
       MediaFormat mediaFormat, boolean requiresSecureDecoder) throws DecoderQueryException {
-    return mediaCodecSelector.getDecoderInfo(format, requiresSecureDecoder);
+    return mediaCodecSelector.getDecoderInfo(format.mimeType, requiresSecureDecoder);
   }
 
   /**

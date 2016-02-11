@@ -328,7 +328,7 @@ import java.util.concurrent.atomic.AtomicInteger;
           MediaFormat adaptiveTrackFormat = null;
           for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
             MediaFormat trackFormat = source.getTrackGroup(groupIndex).getFormat(trackIndex);
-            if (renderer.handlesTrack(trackFormat)) {
+            if (renderer.supportsFormat(trackFormat) == TrackRenderer.FORMAT_HANDLED) {
               adaptiveTrackIndices[adaptiveTrackIndexCount++] = trackIndex;
               if (adaptiveTrackFormat == null) {
                 adaptiveTrackFormat = trackFormat.copyAsAdaptive("auto");
@@ -345,7 +345,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         }
         for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
           MediaFormat trackFormat = source.getTrackGroup(groupIndex).getFormat(trackIndex);
-          if (renderer.handlesTrack(trackFormat)) {
+          if (renderer.supportsFormat(trackFormat) == TrackRenderer.FORMAT_HANDLED) {
             rendererTrackGroups[rendererTrackCount] = groupIndex;
             rendererTrackIndices[rendererTrackCount] = new int[] {trackIndex};
             rendererTrackFormats[rendererTrackCount++] = trackFormat;
