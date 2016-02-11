@@ -16,17 +16,24 @@
 package com.google.android.exoplayer.metadata;
 
 import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.metadata.frame.BinaryFrame;
+import com.google.android.exoplayer.metadata.frame.GeobFrame;
+import com.google.android.exoplayer.metadata.frame.Id3Frame;
+import com.google.android.exoplayer.metadata.frame.PrivFrame;
+import com.google.android.exoplayer.metadata.frame.TxxxFrame;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 /**
  * Extracts individual TXXX text frames from raw ID3 data.
  */
-public final class Id3Parser implements MetadataParser<Id3Tag> {
+public final class Id3Parser implements MetadataParser<List<Id3Frame>> {
 
   private static final int ID3_TEXT_ENCODING_ISO_8859_1 = 0;
   private static final int ID3_TEXT_ENCODING_UTF_16 = 1;
@@ -39,9 +46,9 @@ public final class Id3Parser implements MetadataParser<Id3Tag> {
   }
 
   @Override
-  public Id3Tag parse(byte[] data, int size)
+  public List<Id3Frame> parse( byte[] data, int size)
           throws UnsupportedEncodingException, ParserException {
-    Id3Tag id3Tag = new Id3Tag();
+    List<Id3Frame> id3Frames = new ArrayList<>();
     ParsableByteArray id3Data = new ParsableByteArray(data, size);
     int id3Size = parseId3Header(id3Data);
 
@@ -70,7 +77,7 @@ public final class Id3Parser implements MetadataParser<Id3Tag> {
         int valueEndIndex = indexOfEOS(frame, valueStartIndex, encoding);
         String value = new String(frame, valueStartIndex, valueEndIndex - valueStartIndex,
                 charset);
-        id3Tag.addTxxxFrame( new TxxxMetadata(description, value));
+        id3Frames.add(new TxxxFrame(description, value));
       } else if (frameId0 == 'P' && frameId1 == 'R' && frameId2 == 'I' && frameId3 == 'V') {
         // Check frame ID == PRIV
         byte[] frame = new byte[frameSize];
@@ -80,7 +87,7 @@ public final class Id3Parser implements MetadataParser<Id3Tag> {
         String owner = new String(frame, 0, firstZeroIndex, "ISO-8859-1");
         byte[] privateData = new byte[frameSize - firstZeroIndex - 1];
         System.arraycopy(frame, firstZeroIndex + 1, privateData, 0, frameSize - firstZeroIndex - 1);
-        id3Tag.put(PrivMetadata.TYPE, new PrivMetadata(owner, privateData));
+        id3Frames.add(new PrivFrame(owner, privateData));
       } else if (frameId0 == 'G' && frameId1 == 'E' && frameId2 == 'O' && frameId3 == 'B') {
         // Check frame ID == GEOB
         int encoding = id3Data.readUnsignedByte();
@@ -104,19 +111,18 @@ public final class Id3Parser implements MetadataParser<Id3Tag> {
         byte[] objectData = new byte[objectDataSize];
         System.arraycopy(frame, descriptionEndIndex + delimiterLength(encoding), objectData, 0,
                 objectDataSize);
-        id3Tag.put(GeobMetadata.TYPE, new GeobMetadata(mimeType, filename,
-                description, objectData));
+        id3Frames.add(new GeobFrame(mimeType, filename, description, objectData));
       } else {
         String type = String.format(Locale.US, "%c%c%c%c", frameId0, frameId1, frameId2, frameId3);
         byte[] frame = new byte[frameSize];
         id3Data.readBytes(frame, 0, frameSize);
-        id3Tag.put(type, frame);
+        id3Frames.add(new BinaryFrame(type,frame));
       }
 
       id3Size -= frameSize + 10 /* header size */;
     }
 
-    return ( Id3Tag ) Collections.unmodifiableMap(id3Tag);
+    return Collections.unmodifiableList(id3Frames);
   }
 
   private static int indexOf(byte[] data, int fromIndex, byte key) {
