@@ -18,6 +18,10 @@ package com.google.android.exoplayer.util;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Utility methods for manipulating URIs.
  */
@@ -71,6 +75,33 @@ public final class UriUtil {
    */
   public static Uri resolveToUri(String baseUri, String referenceUri) {
     return Uri.parse(resolve(baseUri, referenceUri));
+  }
+
+  /**
+   * Performs relative resolution of a {@code referenceUri} with respect to a {@code List} of
+   * {@code baseUri}s.
+   *
+   * @param baseUris A {@code List} of base URIs.
+   * @param referenceUri The reference URI to resolve.
+     */
+  public static List<String> resolve(List<String> baseUris, String referenceUri) {
+    referenceUri = referenceUri == null ? "" : referenceUri;
+
+    int[] refIndices = getUriIndices(referenceUri);
+    if (refIndices[SCHEME_COLON] != -1) {
+      // The reference is absolute. No need to go through all baseUris.
+      StringBuilder uri = new StringBuilder();
+      uri.append(referenceUri);
+      removeDotSegments(uri, refIndices[PATH], refIndices[QUERY]);
+      return Arrays.asList(uri.toString());
+    } else {
+      // The reference is relative. Resolve using all baseUris.
+      ArrayList<String> resolvedUris = new ArrayList<>();
+      for (String baseUri : baseUris) {
+        resolvedUris.add(resolve(baseUri, referenceUri));
+      }
+      return resolvedUris;
+    }
   }
 
   /**
