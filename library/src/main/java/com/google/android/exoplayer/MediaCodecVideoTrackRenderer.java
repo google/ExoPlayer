@@ -345,10 +345,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   // Override configureCodec to provide the surface.
   @Override
-  protected void configureCodec(MediaCodec codec, boolean codecIsAdaptive,
-      android.media.MediaFormat format, MediaCrypto crypto) {
-    maybeSetMaxInputSize(format, codecIsAdaptive);
-    codec.configure(format, surface, crypto, 0);
+  protected void configureCodec(MediaCodec codec, MediaFormat format, MediaCrypto crypto) {
+    codec.configure(getFrameworkMediaFormat(format), surface, crypto, 0);
     codec.setVideoScalingMode(videoScalingMode);
   }
 
@@ -519,27 +517,24 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @SuppressLint("InlinedApi")
-  private void maybeSetMaxInputSize(android.media.MediaFormat format, boolean codecIsAdaptive) {
-    if (format.containsKey(android.media.MediaFormat.KEY_MAX_INPUT_SIZE)) {
-      // Already set. The source of the format may know better, so do nothing.
-      return;
+  private android.media.MediaFormat getFrameworkMediaFormat(MediaFormat format) {
+    android.media.MediaFormat frameworkMediaFormat = format.getFrameworkMediaFormatV16();
+    if (format.maxInputSize > 0) {
+      // The format already has a maximum input size.
+      return frameworkMediaFormat;
     }
-    int maxHeight = format.getInteger(android.media.MediaFormat.KEY_HEIGHT);
-    if (codecIsAdaptive && format.containsKey(android.media.MediaFormat.KEY_MAX_HEIGHT)) {
-      maxHeight = Math.max(maxHeight, format.getInteger(android.media.MediaFormat.KEY_MAX_HEIGHT));
-    }
-    int maxWidth = format.getInteger(android.media.MediaFormat.KEY_WIDTH);
-    if (codecIsAdaptive && format.containsKey(android.media.MediaFormat.KEY_MAX_WIDTH)) {
-      maxWidth = Math.max(maxHeight, format.getInteger(android.media.MediaFormat.KEY_MAX_WIDTH));
-    }
+
+    // If the format doesn't define a maximum input size, determine one ourselves.
+    int maxHeight = Math.max(format.maxHeight, format.height);
+    int maxWidth = Math.max(format.maxWidth, format.maxWidth);
     int maxPixels;
     int minCompressionRatio;
-    switch (format.getString(android.media.MediaFormat.KEY_MIME)) {
+    switch (format.mimeType) {
       case MimeTypes.VIDEO_H264:
         if ("BRAVIA 4K 2015".equals(Util.MODEL)) {
           // The Sony BRAVIA 4k TV has input buffers that are too small for the calculated 4k video
           // maximum input size, so use the default value.
-          return;
+          return frameworkMediaFormat;
         }
         // Round up width/height to an integer number of macroblocks.
         maxPixels = ((maxWidth + 15) / 16) * ((maxHeight + 15) / 16) * 16 * 16;
@@ -556,11 +551,12 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
         break;
       default:
         // Leave the default max input size.
-        return;
+        return frameworkMediaFormat;
     }
     // Estimate the maximum input size assuming three channel 4:2:0 subsampled input frames.
     int maxInputSize = (maxPixels * 3) / (2 * minCompressionRatio);
-    format.setInteger(android.media.MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
+    frameworkMediaFormat.setInteger(android.media.MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
+    return frameworkMediaFormat;
   }
 
   private void maybeNotifyVideoSizeChanged() {

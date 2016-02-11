@@ -318,14 +318,10 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * wish to configure the codec with a non-null surface.
    *
    * @param codec The {@link MediaCodec} to configure.
-   * @param codecIsAdaptive Whether the codec is adaptive.
    * @param format The format for which the codec is being configured.
    * @param crypto For drm protected playbacks, a {@link MediaCrypto} to use for decryption.
    */
-  protected void configureCodec(MediaCodec codec, boolean codecIsAdaptive,
-      android.media.MediaFormat format, MediaCrypto crypto) {
-    codec.configure(format, null, crypto, 0);
-  }
+  protected abstract void configureCodec(MediaCodec codec, MediaFormat format, MediaCrypto crypto);
 
   @SuppressWarnings("deprecation")
   protected final void maybeInitCodec() throws ExoPlaybackException {
@@ -381,7 +377,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       codec = MediaCodec.createByCodecName(codecName);
       TraceUtil.endSection();
       TraceUtil.beginSection("configureCodec");
-      configureCodec(codec, decoderInfo.adaptive, format.getFrameworkMediaFormatV16(), mediaCrypto);
+      configureCodec(codec, format, mediaCrypto);
       TraceUtil.endSection();
       TraceUtil.beginSection("codec.start()");
       codec.start();

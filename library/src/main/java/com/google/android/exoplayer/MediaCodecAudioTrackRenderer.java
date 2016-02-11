@@ -25,6 +25,7 @@ import com.google.android.exoplayer.util.Util;
 import android.annotation.TargetApi;
 import android.media.AudioManager;
 import android.media.MediaCodec;
+import android.media.MediaCrypto;
 import android.media.PlaybackParams;
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
@@ -237,17 +238,15 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected void configureCodec(MediaCodec codec, boolean codecIsAdaptive,
-      android.media.MediaFormat format, android.media.MediaCrypto crypto) {
-    String mimeType = format.getString(android.media.MediaFormat.KEY_MIME);
+  protected void configureCodec(MediaCodec codec, MediaFormat format, MediaCrypto crypto) {
     if (passthroughEnabled) {
       // Override the MIME type used to configure the codec if we are using a passthrough decoder.
-      format.setString(android.media.MediaFormat.KEY_MIME, MimeTypes.AUDIO_RAW);
-      codec.configure(format, null, crypto, 0);
-      format.setString(android.media.MediaFormat.KEY_MIME, mimeType);
-      passthroughMediaFormat = format;
+      passthroughMediaFormat = format.getFrameworkMediaFormatV16();
+      passthroughMediaFormat.setString(android.media.MediaFormat.KEY_MIME, MimeTypes.AUDIO_RAW);
+      codec.configure(passthroughMediaFormat, null, crypto, 0);
+      passthroughMediaFormat.setString(android.media.MediaFormat.KEY_MIME, format.mimeType);
     } else {
-      codec.configure(format, null, crypto, 0);
+      codec.configure(format.getFrameworkMediaFormatV16(), null, crypto, 0);
       passthroughMediaFormat = null;
     }
   }
