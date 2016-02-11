@@ -195,15 +195,6 @@ public interface ExoPlayer {
     void handleMessage(int messageType, Object message) throws ExoPlaybackException;
 
   }
-    /**
-     * Interface definition for a callback to be notified after fade is finished.
-     */
-    public interface FadeCallback {
-        /**
-         * Handles the callback after fade audio animation is completed.
-         */
-        void onFadeFinished();
-    }
 
   /**
    * The player is neither prepared or being prepared.
@@ -367,30 +358,6 @@ public interface ExoPlayer {
    * The player must not be used after calling this method.
    */
   public void release();
-
-  /**
-   * Allow fade in player audio.
-   *
-   * @param audioRenderer Exoplayer component for audio render.
-   * @param fromVolume Fade start volume.
-   * @param maxDeviceVolume The maximum volume value of the device.
-   * @param duration Duration of the fade in seconds.
-   * @param velocity Velocity of the fade. Velocity can vary from linear (0) to logarithmic (greater than 0).
-   * @param onFinishFadeCallback Completion callback.
-   */
-  public void fadeIn(final TrackRenderer audioRenderer, float fromVolume, float maxDeviceVolume, double duration, double velocity, FadeCallback onFinishFadeCallback);
-
-  /**
-   * Allow fade out player audio.
-   *
-   * @param audioRenderer Exoplayer component for audio render.
-   * @param fromVolume Fade start volume.
-   * @param maxDeviceVolume The maximum volume value of the device.
-   * @param duration Duration of the fade in seconds.
-   * @param velocity Velocity of the fade. Velocity can vary from linear (0) to logarithmic (greater than 0).
-   * @param onFinishFadeCallback Completion callback.
-   */
-  public void fadeOut(final TrackRenderer audioRenderer, float fromVolume, float maxDeviceVolume, double duration, double velocity, FadeCallback onFinishFadeCallback);
 
   /**
    * Sends a message to a specified component. The message is delivered to the component on the
