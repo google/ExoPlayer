@@ -15,9 +15,10 @@
  */
 package com.google.android.exoplayer.metadata;
 
+import com.google.android.exoplayer.metadata.frame.TxxxFrame;
+
 import junit.framework.TestCase;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -35,9 +36,9 @@ public class Id3ParserTest extends TestCase {
       Id3Tag id3Tag = parser.parse(rawId3, rawId3.length);
       assertNotNull(id3Tag);
       assertEquals(1, id3Tag.size());
-      Set<TxxxMetadata> txxxFrames = id3Tag.getTxxxFrames();
+      Set<TxxxFrame> txxxFrames = id3Tag.getTxxxFrames();
       assertEquals( 1, txxxFrames.size() );
-      TxxxMetadata txxxFrame = txxxFrames.toArray( new TxxxMetadata[1] )[1];
+      TxxxFrame txxxFrame = txxxFrames.toArray( new TxxxFrame[1] )[1];
       assertNotNull(txxxFrame);
       assertEquals("", txxxFrame.description);
       assertEquals("mdialog_VINDICO1527664_start", txxxFrame.value);

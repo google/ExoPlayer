@@ -30,9 +30,9 @@ import com.google.android.exoplayer.demo.player.ExtractorRendererBuilder;
 import com.google.android.exoplayer.demo.player.HlsRendererBuilder;
 import com.google.android.exoplayer.demo.player.SmoothStreamingRendererBuilder;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
-import com.google.android.exoplayer.metadata.GeobMetadata;
-import com.google.android.exoplayer.metadata.PrivMetadata;
-import com.google.android.exoplayer.metadata.TxxxMetadata;
+import com.google.android.exoplayer.metadata.frame.GeobFrame;
+import com.google.android.exoplayer.metadata.frame.PrivFrame;
+import com.google.android.exoplayer.metadata.frame.TxxxFrame;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleLayout;
@@ -607,19 +607,19 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   @Override
   public void onId3Metadata(Map<String, Object> metadata) {
     for (Map.Entry<String, Object> entry : metadata.entrySet()) {
-      if (TxxxMetadata.TYPE.equals(entry.getKey())) {
-        TxxxMetadata txxxMetadata = (TxxxMetadata) entry.getValue();
+      if ( TxxxFrame.ID.equals(entry.getKey())) {
+        TxxxFrame txxxFrame = (TxxxFrame ) entry.getValue();
         Log.i(TAG, String.format("ID3 TimedMetadata %s: description=%s, value=%s",
-            TxxxMetadata.TYPE, txxxMetadata.description, txxxMetadata.value));
-      } else if (PrivMetadata.TYPE.equals(entry.getKey())) {
-        PrivMetadata privMetadata = (PrivMetadata) entry.getValue();
+            TxxxFrame.ID, txxxFrame.description, txxxFrame.value));
+      } else if ( PrivFrame.ID.equals(entry.getKey())) {
+        PrivFrame privFrame = (PrivFrame ) entry.getValue();
         Log.i(TAG, String.format("ID3 TimedMetadata %s: owner=%s",
-            PrivMetadata.TYPE, privMetadata.owner));
-      } else if (GeobMetadata.TYPE.equals(entry.getKey())) {
-        GeobMetadata geobMetadata = (GeobMetadata) entry.getValue();
+            PrivFrame.ID, privFrame.owner));
+      } else if ( GeobFrame.TYPE.equals(entry.getKey())) {
+        GeobFrame geobFrame = (GeobFrame ) entry.getValue();
         Log.i(TAG, String.format("ID3 TimedMetadata %s: mimeType=%s, filename=%s, description=%s",
-            GeobMetadata.TYPE, geobMetadata.mimeType, geobMetadata.filename,
-            geobMetadata.description));
+            GeobFrame.TYPE, geobFrame.mimeType, geobFrame.filename,
+            geobFrame.description));
       } else {
         Log.i(TAG, String.format("ID3 TimedMetadata %s", entry.getKey()));
       }

@@ -13,26 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.metadata;
+package com.google.android.exoplayer.metadata.frame;
+
+import com.google.android.exoplayer.metadata.frame.Id3Frame;
 
 /**
- * A metadata that contains parsed ID3 GEOB (General Encapsulated Object) frame data associated
+ * A metadata that contains parsed ID3 PRIV (Private) frame data associated
  * with time indices.
  */
-public final class GeobMetadata {
+public final class PrivFrame extends Id3Frame {
 
-  public static final String TYPE = "GEOB";
+  public static final String ID = "PRIV";
 
-  public final String mimeType;
-  public final String filename;
-  public final String description;
-  public final byte[] data;
+  public final String owner;
+  public final byte[] privateData;
 
-  public GeobMetadata(String mimeType, String filename, String description, byte[] data) {
-    this.mimeType = mimeType;
-    this.filename = filename;
-    this.description = description;
-    this.data = data;
+  public PrivFrame( String owner, byte[] privateData) {
+    super(ID);
+    this.owner = owner;
+    this.privateData = privateData;
   }
 
+  public String getOwner() {
+    return owner;
+  }
+
+  public byte[] getPrivateData() {
+    return privateData;
+  }
 }
