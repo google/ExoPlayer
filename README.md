@@ -31,8 +31,7 @@ Read news, hints and tips on the [news][] page.
 The easiest way to get started using ExoPlayer is by including the following in
 your project's `build.gradle` file:
 
-```
-gradle
+```gradle
 compile 'com.google.android.exoplayer:exoplayer:rX.X.X'
 ```
 
@@ -47,8 +46,7 @@ project's [Releases][]. For more details, see the project on [Bintray][].
 ExoPlayer can also be built from source using Gradle. You can include it as a
 dependent project like so:
 
-```
-gradle
+```gradle
 // settings.gradle
 include ':app', ':..:ExoPlayer:library'
 
@@ -62,8 +60,7 @@ dependencies {
 
 If you want to use ExoPlayer as a jar, run:
 
-```
-sh
+```sh
 ./gradlew jarRelease
 ```
 
