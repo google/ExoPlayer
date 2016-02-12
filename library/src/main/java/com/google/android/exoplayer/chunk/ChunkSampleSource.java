@@ -205,7 +205,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     Assertions.checkState(--enabledTrackCount == 0);
     state = STATE_PREPARED;
     try {
-      chunkSource.disable(mediaChunks);
+      chunkSource.disable();
     } finally {
       loadControl.unregister(this);
       if (loader.isLoading()) {

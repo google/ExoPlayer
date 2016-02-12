@@ -491,7 +491,7 @@ public class DashChunkSource implements ChunkSource {
   }
 
   @Override
-  public void disable(List<? extends MediaChunk> queue) {
+  public void disable() {
     if (enabledFormats.length > 1) {
       adaptiveFormatEvaluator.disable();
     }

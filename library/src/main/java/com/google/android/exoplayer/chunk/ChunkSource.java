@@ -135,9 +135,7 @@ public interface ChunkSource {
    * Disables the source.
    * <p>
    * This method should only be called when the source is enabled.
-   *
-   * @param queue A representation of the currently buffered {@link MediaChunk}s.
    */
-  void disable(List<? extends MediaChunk> queue);
+  void disable();
 
 }
