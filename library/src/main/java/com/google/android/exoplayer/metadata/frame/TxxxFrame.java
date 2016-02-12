@@ -23,8 +23,8 @@ public final class TxxxFrame extends Id3Frame {
 
     private static final String ID = "TXXX";
 
-    public final String description;
-    public final String value;
+    private final String description;
+    private final String value;
 
     public TxxxFrame( String description, String value ) {
         super( ID );
@@ -32,4 +32,11 @@ public final class TxxxFrame extends Id3Frame {
         this.value = value;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public String getValue() {
+        return value;
+    }
 }

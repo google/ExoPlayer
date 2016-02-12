@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.metadata.frame;
 
-import com.google.android.exoplayer.metadata.frame.Id3Frame;
-
 /**
  * A metadata that contains parsed ID3 PRIV (Private) frame data associated
  * with time indices.
@@ -25,8 +23,8 @@ public final class PrivFrame extends Id3Frame {
 
   public static final String ID = "PRIV";
 
-  public final String owner;
-  public final byte[] privateData;
+  private final String owner;
+  private final byte[] privateData;
 
   public PrivFrame( String owner, byte[] privateData) {
     super(ID);
