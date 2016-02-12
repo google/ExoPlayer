@@ -75,8 +75,8 @@ public final class TtmlSubtitle implements Subtitle {
     if (builder == null) {
       return Collections.<Cue>emptyList();
     } else {
-      float positionFloat = -1;
-      float lineFloat = -1;
+      float positionFloat = Cue.DIMEN_UNSET;
+      float lineFloat = Cue.DIMEN_UNSET;
 
       if (region != null) {
         String positionString = region.getOffset().replace("%", "").split(" ")[0];
