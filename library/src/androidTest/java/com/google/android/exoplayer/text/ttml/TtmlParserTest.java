@@ -371,11 +371,20 @@ public final class TtmlParserTest extends InstrumentationTestCase {
   {
     TtmlSubtitle subtitle = getSubtitle(SINGLE_POSITIONAL_SUBTITLE);
     assertNotNull(subtitle);
+    assertEquals(2, subtitle.getEventTimeCount());
   }
 
   public void testCanReadSingleRegionOffsetForSingleSubtitle() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(SINGLE_POSITIONAL_SUBTITLE);
     assertEquals(subtitle.getGlobalRegions().size(), 1);
+  }
+
+  public void testCanSetCuePositionBasedOnRegionOffset() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(SINGLE_POSITIONAL_SUBTITLE);
+    int timeIndex = subtitle.getNextEventTimeIndex(0);
+    long timeUs = subtitle.getEventTime(timeIndex);
+    assertEquals("DANNY: He was murdered.", subtitle.getCues(timeUs).get(0).text.toString());
+    assertEquals(0.3125, subtitle.getCues(timeUs).get(0).position, 0.01);
   }
 
   private void assertSpans(TtmlSubtitle subtitle, int second,

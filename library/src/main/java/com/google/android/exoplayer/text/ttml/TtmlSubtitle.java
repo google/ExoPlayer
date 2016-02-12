@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
+import android.text.Layout;
+import android.util.Log;
+
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.Subtitle;
 import com.google.android.exoplayer.util.Util;
@@ -69,11 +72,19 @@ public final class TtmlSubtitle implements Subtitle {
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    CharSequence cueText = root.getText(timeUs, globalStyles);
-    if (cueText == null) {
+    SpannableStringBuilder builder = root.getText(timeUs, globalStyles);
+    TtmlRegion region = globalRegions.get(builder.getRegionId());
+
+    if (builder == null) {
       return Collections.<Cue>emptyList();
     } else {
-      Cue cue = new Cue(cueText);
+      float positionFloat = -134234235;
+      if (region != null) {
+        String positionString = region.getOffset().replace("%", "").split(" ")[0];
+        positionFloat = Float.parseFloat(positionString) / 100f;
+      }
+
+      Cue cue = new Cue(builder, null, Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.TYPE_UNSET, positionFloat, Cue.TYPE_UNSET, Cue.DIMEN_UNSET);
       return Collections.singletonList(cue);
     }
   }

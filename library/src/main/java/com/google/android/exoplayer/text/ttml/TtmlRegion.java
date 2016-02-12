@@ -18,4 +18,8 @@ public class TtmlRegion
         this.offset = offset;
         return this;
     }
+
+    public String getOffset() {
+        return offset;
+    }
 }

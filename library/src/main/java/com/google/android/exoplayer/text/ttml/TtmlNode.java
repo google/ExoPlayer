@@ -70,6 +70,7 @@ import java.util.TreeSet;
   public static final String START = "start";
   public static final String END = "end";
 
+  public final String regionId;
   public final String tag;
   public final String text;
   public final boolean isTextNode;
@@ -84,20 +85,21 @@ import java.util.TreeSet;
 
   public static TtmlNode buildTextNode(String text) {
     return new TtmlNode(null, TtmlRenderUtil.applyTextElementSpacePolicy(text), UNDEFINED_TIME,
-        UNDEFINED_TIME, null, null);
+        UNDEFINED_TIME, null, null, null);
   }
 
   public static TtmlNode buildNode(String tag, long startTimeUs, long endTimeUs,
-      TtmlStyle style, String[] styleIds) {
-    return new TtmlNode(tag, null, startTimeUs, endTimeUs, style, styleIds);
+      TtmlStyle style, String[] styleIds, String regionId) {
+    return new TtmlNode(tag, null, startTimeUs, endTimeUs, style, styleIds, regionId);
   }
 
   private TtmlNode(String tag, String text, long startTimeUs, long endTimeUs,
-      TtmlStyle style, String[] styleIds) {
+                   TtmlStyle style, String[] styleIds, String regionId) {
     this.tag = tag;
     this.text = text;
     this.style = style;
     this.styleIds = styleIds;
+    this.regionId = regionId;
     this.isTextNode = text != null;
     this.startTimeUs = startTimeUs;
     this.endTimeUs = endTimeUs;
@@ -163,10 +165,11 @@ import java.util.TreeSet;
     return styleIds;
   }
 
-  public CharSequence getText(long timeUs, Map<String, TtmlStyle> globalStyles) {
+  public SpannableStringBuilder getText(long timeUs, Map<String, TtmlStyle> globalStyles) {
     SpannableStringBuilder builder = new SpannableStringBuilder();
     traverseForText(timeUs, builder, false);
     traverseForStyle(builder, globalStyles);
+
     // Having joined the text elements, we need to do some final cleanup on the result.
     // 1. Collapse multiple consecutive spaces into a single space.
     int builderLength = builder.length();
@@ -215,9 +218,10 @@ import java.util.TreeSet;
   }
 
   private SpannableStringBuilder traverseForText(long timeUs, SpannableStringBuilder builder,
-      boolean descendsPNode) {
+                                                 boolean descendsPNode) {
     start = builder.length();
     end = start;
+    builder.setRegionId(regionId);
     if (isTextNode && descendsPNode) {
       builder.append(text);
     } else if (TAG_BR.equals(tag) && descendsPNode) {
@@ -251,3 +255,4 @@ import java.util.TreeSet;
   }
 
 }
+

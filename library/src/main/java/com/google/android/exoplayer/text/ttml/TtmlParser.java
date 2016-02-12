@@ -66,6 +66,7 @@ public final class TtmlParser implements SubtitleParser {
   private static final String ATTR_DURATION = "dur";
   private static final String ATTR_END = "end";
   private static final String ATTR_STYLE = "style";
+  private static final String ATTR_REGION = "region";
 
   private static final Pattern CLOCK_TIME =
       Pattern.compile("^([0-9][0-9]+):([0-9][0-9]):([0-9][0-9])"
@@ -211,7 +212,7 @@ public final class TtmlParser implements SubtitleParser {
       String attributeValue = parser.getAttributeValue(i);
       switch (ParserUtil.removeNamespacePrefix(attributeName)) {
         case TtmlNode.ATTR_ID:
-          if (TtmlNode.TAG_STYLE.equals(parser.getName())) {
+          if (TtmlNode.TAG_STYLE.equals(ParserUtil.removeNamespacePrefix(parser.getName()))) {
             style = createIfNull(style).setId(attributeValue);
           }
           break;
@@ -305,6 +306,7 @@ public final class TtmlParser implements SubtitleParser {
     long duration = 0;
     long startTime = TtmlNode.UNDEFINED_TIME;
     long endTime = TtmlNode.UNDEFINED_TIME;
+    String regionId = null;
     String[] styleIds = null;
     int attributeCount = parser.getAttributeCount();
     TtmlStyle style = parseStyleAttributes(parser, null);
@@ -326,6 +328,8 @@ public final class TtmlParser implements SubtitleParser {
         if (ids.length > 0) {
           styleIds = ids;
         }
+      } else if (attr.equals(ATTR_REGION)) {
+        regionId = value;
       } else {
         // Do nothing.
       }
@@ -347,7 +351,7 @@ public final class TtmlParser implements SubtitleParser {
         endTime = parent.endTimeUs;
       }
     }
-    return TtmlNode.buildNode(parser.getName(), startTime, endTime, style, styleIds);
+    return TtmlNode.buildNode(ParserUtil.removeNamespacePrefix(parser.getName()), startTime, endTime, style, styleIds, regionId);
   }
 
   private static boolean isSupportedTag(String tag) {
