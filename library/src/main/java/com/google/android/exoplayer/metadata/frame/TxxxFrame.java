@@ -21,7 +21,7 @@ package com.google.android.exoplayer.metadata.frame;
  */
 public final class TxxxFrame extends Id3Frame {
 
-    private static final String ID = "TXXX";
+    public static final String ID = "TXXX";
 
     private final String description;
     private final String value;
