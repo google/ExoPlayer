@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
+import android.text.SpannableStringBuilder;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -163,10 +165,12 @@ import java.util.TreeSet;
     return styleIds;
   }
 
-  public SpannableStringBuilder getText(long timeUs, Map<String, TtmlStyle> globalStyles) {
-    SpannableStringBuilder builder = new SpannableStringBuilder();
-    traverseForText(timeUs, builder, false);
-    traverseForStyle(builder, globalStyles);
+  public RegionTrackingFormattedTextBuilder getText(long timeUs, Map<String, TtmlStyle> globalStyles, Map<String, TtmlRegion> globalRegions) {
+    RegionTrackingFormattedTextBuilder formattedTextBuilder = new RegionTrackingFormattedTextBuilder(globalRegions);
+    traverseForText(timeUs, formattedTextBuilder, false);
+    traverseForStyle(formattedTextBuilder, globalStyles);
+
+    SpannableStringBuilder builder = formattedTextBuilder.builder;
 
     // Having joined the text elements, we need to do some final cleanup on the result.
     // 1. Collapse multiple consecutive spaces into a single space.
@@ -212,17 +216,17 @@ import java.util.TreeSet;
       /*builderLength--;*/
     }
 
-    return builder;
+    return formattedTextBuilder;
   }
 
-  private SpannableStringBuilder traverseForText(long timeUs, SpannableStringBuilder builder,
+  private void traverseForText(long timeUs, RegionTrackingFormattedTextBuilder builder,
                                                  boolean descendsPNode) {
-    start = builder.length();
+    start = builder.builder.length();
     end = start;
     if (isTextNode && descendsPNode) {
-      builder.append(text);
+      builder.builder.append(text);
     } else if (TAG_BR.equals(tag) && descendsPNode) {
-      builder.append('\n');
+      builder.builder.append('\n');
     } else if (TAG_METADATA.equals(tag)) {
       // Do nothing.
     } else if (isActive(timeUs)) {
@@ -233,19 +237,18 @@ import java.util.TreeSet;
         getChild(i).traverseForText(timeUs, builder, descendsPNode || isPNode);
       }
       if (isPNode) {
-        TtmlRenderUtil.endParagraph(builder);
+        TtmlRenderUtil.endParagraph(builder.builder);
       }
-      end = builder.length();
+      end = builder.builder.length();
     }
-    return builder;
   }
 
-  private void traverseForStyle(SpannableStringBuilder builder,
+  private void traverseForStyle(RegionTrackingFormattedTextBuilder builder,
       Map<String, TtmlStyle> globalStyles) {
     if (start != end) {
       TtmlStyle resolvedStyle = TtmlRenderUtil.resolveStyle(style, styleIds, globalStyles);
       if (resolvedStyle != null) {
-        TtmlRenderUtil.applyStylesToSpan(builder, start, end, resolvedStyle);
+        TtmlRenderUtil.applyStylesToSpan(builder.builder, start, end, resolvedStyle);
       }
       for (int i = 0; i < getChildCount(); ++i) {
         getChild(i).traverseForStyle(builder, globalStyles);

@@ -69,24 +69,12 @@ public final class TtmlSubtitle implements Subtitle {
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    SpannableStringBuilder builder = root.getText(timeUs, globalStyles);
-    TtmlRegion region = globalRegions.get(builder.getRegionId());
+    RegionTrackingFormattedTextBuilder builder = root.getText(timeUs, globalStyles, globalRegions);
 
     if (builder == null) {
       return Collections.<Cue>emptyList();
     } else {
-      float positionFloat = Cue.DIMEN_UNSET;
-      float lineFloat = Cue.DIMEN_UNSET;
-
-      if (region != null) {
-        String positionString = region.getOffset().replace("%", "").split(" ")[0];
-        positionFloat = Float.parseFloat(positionString) / 100f;
-
-        String lineString = region.getOffset().replace("%", "").split(" ")[1];
-        lineFloat = Float.parseFloat(lineString) / 100f;
-      }
-
-      Cue cue = new Cue(builder, null, lineFloat, Cue.LINE_TYPE_FRACTION, Cue.TYPE_UNSET, positionFloat, Cue.TYPE_UNSET, Cue.DIMEN_UNSET);
+      Cue cue = builder.buildCue();
       return Collections.singletonList(cue);
     }
   }
