@@ -31,6 +31,7 @@ import com.google.android.exoplayer.demo.player.HlsRendererBuilder;
 import com.google.android.exoplayer.demo.player.SmoothStreamingRendererBuilder;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
 import com.google.android.exoplayer.metadata.frame.GeobFrame;
+import com.google.android.exoplayer.metadata.frame.Id3Frame;
 import com.google.android.exoplayer.metadata.frame.PrivFrame;
 import com.google.android.exoplayer.metadata.frame.TxxxFrame;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
@@ -605,23 +606,23 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   // DemoPlayer.MetadataListener implementation
 
   @Override
-  public void onId3Metadata(Map<String, Object> metadata) {
-    for (Map.Entry<String, Object> entry : metadata.entrySet()) {
-      if ( TxxxFrame.ID.equals(entry.getKey())) {
-        TxxxFrame txxxFrame = (TxxxFrame ) entry.getValue();
+  public void onId3Metadata(List<Id3Frame> id3Frames) {
+    for (Id3Frame id3Frame : id3Frames) {
+      if (id3Frame instanceof TxxxFrame) {
+        TxxxFrame txxxFrame = (TxxxFrame) id3Frame;
         Log.i(TAG, String.format("ID3 TimedMetadata %s: description=%s, value=%s",
-            TxxxFrame.ID, txxxFrame.description, txxxFrame.value));
-      } else if ( PrivFrame.ID.equals(entry.getKey())) {
-        PrivFrame privFrame = (PrivFrame ) entry.getValue();
+            id3Frame.getFrameId(), txxxFrame.getDescription(), txxxFrame.getValue()));
+      } else if (id3Frame instanceof PrivFrame) {
+        PrivFrame privFrame = (PrivFrame) id3Frame;
         Log.i(TAG, String.format("ID3 TimedMetadata %s: owner=%s",
-            PrivFrame.ID, privFrame.owner));
-      } else if ( GeobFrame.TYPE.equals(entry.getKey())) {
-        GeobFrame geobFrame = (GeobFrame ) entry.getValue();
+            id3Frame.getFrameId(), privFrame.getOwner()));
+      } else if (id3Frame instanceof GeobFrame) {
+        GeobFrame geobFrame = (GeobFrame) id3Frame;
         Log.i(TAG, String.format("ID3 TimedMetadata %s: mimeType=%s, filename=%s, description=%s",
-            GeobFrame.TYPE, geobFrame.mimeType, geobFrame.filename,
-            geobFrame.description));
+            id3Frame.getFrameId(), geobFrame.getMimeType(), geobFrame.getFilename(),
+            geobFrame.getDescription()));
       } else {
-        Log.i(TAG, String.format("ID3 TimedMetadata %s", entry.getKey()));
+        Log.i(TAG, String.format("ID3 TimedMetadata %s", id3Frame.getFrameId()));
       }
     }
   }
