@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
-import android.text.SpannableStringBuilder;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -221,7 +219,6 @@ import java.util.TreeSet;
                                                  boolean descendsPNode) {
     start = builder.length();
     end = start;
-    builder.setRegionId(regionId);
     if (isTextNode && descendsPNode) {
       builder.append(text);
     } else if (TAG_BR.equals(tag) && descendsPNode) {
@@ -230,6 +227,8 @@ import java.util.TreeSet;
       // Do nothing.
     } else if (isActive(timeUs)) {
       boolean isPNode = TAG_P.equals(tag);
+      builder.setRegionId(regionId);
+
       for (int i = 0; i < getChildCount(); ++i) {
         getChild(i).traverseForText(timeUs, builder, descendsPNode || isPNode);
       }

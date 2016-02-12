@@ -1,7 +1,5 @@
 package com.google.android.exoplayer.text.ttml;
 
-import android.util.Log;
-
 public class SpannableStringBuilder extends android.text.SpannableStringBuilder
 {
     public String getRegionId() {
@@ -9,7 +7,7 @@ public class SpannableStringBuilder extends android.text.SpannableStringBuilder
     }
 
     public void setRegionId(String regionId) {
-        if (this.regionId == null) {
+        if (regionId != null) {
             this.regionId = regionId;
         }
     }

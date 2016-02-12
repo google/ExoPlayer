@@ -15,9 +15,6 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
-import com.google.android.exoplayer.testutil.TestUtil;
-import com.google.android.exoplayer.text.Cue;
-
 import android.test.InstrumentationTestCase;
 import android.text.Layout;
 import android.text.Spannable;
@@ -31,6 +28,9 @@ import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
+
+import com.google.android.exoplayer.testutil.TestUtil;
+import com.google.android.exoplayer.text.Cue;
 
 import java.io.IOException;
 import java.util.List;
@@ -68,6 +68,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
   private static final String FONT_SIZE_EMPTY_TTML_FILE =
       "ttml/font_size_empty.xml";
   private static final String SINGLE_POSITIONAL_SUBTITLE = "ttml/single_positional_subtitle.xml";
+  private static final String DUAL_POSITIONAL_SUBTITLE = "ttml/dual_positional_subtitle.xml";
 
   public void testInlineAttributes() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
@@ -381,6 +382,14 @@ public final class TtmlParserTest extends InstrumentationTestCase {
 
   public void testCanSetCuePositionBasedOnRegionOffset() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(SINGLE_POSITIONAL_SUBTITLE);
+    int timeIndex = subtitle.getNextEventTimeIndex(0);
+    long timeUs = subtitle.getEventTime(timeIndex);
+    assertEquals("DANNY: He was murdered.", subtitle.getCues(timeUs).get(0).text.toString());
+    assertEquals(0.3125, subtitle.getCues(timeUs).get(0).position, 0.01);
+  }
+
+  public void testCanSetCuePositionBasedOnRegionOffsetWithMultipleRegions() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(DUAL_POSITIONAL_SUBTITLE);
     int timeIndex = subtitle.getNextEventTimeIndex(0);
     long timeUs = subtitle.getEventTime(timeIndex);
     assertEquals("DANNY: He was murdered.", subtitle.getCues(timeUs).get(0).text.toString());
