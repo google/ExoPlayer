@@ -55,6 +55,8 @@ import java.util.TreeSet;
   public static final String ATTR_TTS_TEXT_DECORATION = "textDecoration";
   public static final String ATTR_TTS_TEXT_ALIGN = "textAlign";
 
+  public static final String ATTR_REGION_ORIGIN = "origin";
+
   public static final String LINETHROUGH = "linethrough";
   public static final String NO_LINETHROUGH = "nolinethrough";
   public static final String UNDERLINE = "underline";

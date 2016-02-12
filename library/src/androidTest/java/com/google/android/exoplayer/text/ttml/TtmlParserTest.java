@@ -67,6 +67,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
       "ttml/font_size_invalid.xml";
   private static final String FONT_SIZE_EMPTY_TTML_FILE =
       "ttml/font_size_empty.xml";
+  private static final String SINGLE_POSITIONAL_SUBTITLE = "ttml/single_positional_subtitle.xml";
 
   public void testInlineAttributes() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
@@ -364,6 +365,17 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals("empty", String.valueOf(spannable));
     assertEquals(0, spannable.getSpans(0, spannable.length(), RelativeSizeSpan.class).length);
     assertEquals(0, spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class).length);
+  }
+
+  public void testCanReadFileWithTTNamespace() throws IOException
+  {
+    TtmlSubtitle subtitle = getSubtitle(SINGLE_POSITIONAL_SUBTITLE);
+    assertNotNull(subtitle);
+  }
+
+  public void testCanReadSingleRegionOffsetForSingleSubtitle() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(SINGLE_POSITIONAL_SUBTITLE);
+    assertEquals(subtitle.getGlobalRegions().size(), 1);
   }
 
   private void assertSpans(TtmlSubtitle subtitle, int second,

@@ -26,12 +26,12 @@ public final class ParserUtil {
   private ParserUtil() {}
 
   public static boolean isEndTag(XmlPullParser xpp, String name) throws XmlPullParserException {
-    return xpp.getEventType() == XmlPullParser.END_TAG && name.equals(xpp.getName());
+    return xpp.getEventType() == XmlPullParser.END_TAG && name.equals(removeNamespacePrefix(xpp.getName()));
   }
 
   public static boolean isStartTag(XmlPullParser xpp, String name)
       throws XmlPullParserException {
-    return xpp.getEventType() == XmlPullParser.START_TAG && name.equals(xpp.getName());
+    return xpp.getEventType() == XmlPullParser.START_TAG && name.equals(removeNamespacePrefix(xpp.getName()));
   }
 
   public static boolean isStartTag(XmlPullParser xpp) throws XmlPullParserException {

@@ -100,6 +100,7 @@ public final class TtmlParser implements SubtitleParser {
     try {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
       Map<String, TtmlStyle> globalStyles = new HashMap<>();
+      Map<String, TtmlRegion> globalRegions = new HashMap<>();
       ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes, offset, length);
       xmlParser.setInput(inputStream, null);
       TtmlSubtitle ttmlSubtitle = null;
@@ -109,13 +110,13 @@ public final class TtmlParser implements SubtitleParser {
       while (eventType != XmlPullParser.END_DOCUMENT) {
         TtmlNode parent = nodeStack.peekLast();
         if (unsupportedNodeDepth == 0) {
-          String name = xmlParser.getName();
           if (eventType == XmlPullParser.START_TAG) {
+            String name = ParserUtil.removeNamespacePrefix(xmlParser.getName());
             if (!isSupportedTag(name)) {
               Log.i(TAG, "Ignoring unsupported tag: " + xmlParser.getName());
               unsupportedNodeDepth++;
             } else if (TtmlNode.TAG_HEAD.equals(name)) {
-              parseHeader(xmlParser, globalStyles);
+              parseHeader(xmlParser, globalStyles, globalRegions);
             } else {
               try {
                 TtmlNode node = parseNode(xmlParser, parent);
@@ -132,8 +133,8 @@ public final class TtmlParser implements SubtitleParser {
           } else if (eventType == XmlPullParser.TEXT) {
             parent.addChild(TtmlNode.buildTextNode(xmlParser.getText()));
           } else if (eventType == XmlPullParser.END_TAG) {
-            if (xmlParser.getName().equals(TtmlNode.TAG_TT)) {
-              ttmlSubtitle = new TtmlSubtitle(nodeStack.getLast(), globalStyles);
+            if (ParserUtil.removeNamespacePrefix(xmlParser.getName()).equals(TtmlNode.TAG_TT)) {
+              ttmlSubtitle = new TtmlSubtitle(nodeStack.getLast(), globalStyles, globalRegions);
             }
             nodeStack.removeLast();
           }
@@ -156,7 +157,8 @@ public final class TtmlParser implements SubtitleParser {
   }
 
   private Map<String, TtmlStyle> parseHeader(XmlPullParser xmlParser,
-      Map<String, TtmlStyle> globalStyles)
+                                             Map<String, TtmlStyle> globalStyles,
+                                             Map<String, TtmlRegion> globalRegions)
       throws IOException, XmlPullParserException {
 
     do {
@@ -173,9 +175,29 @@ public final class TtmlParser implements SubtitleParser {
         if (style.getId() != null) {
           globalStyles.put(style.getId(), style);
         }
+      } else if (ParserUtil.isStartTag(xmlParser, TtmlNode.TAG_REGION)) {
+        TtmlRegion region = parseRegion(xmlParser, new TtmlRegion());
+        globalRegions.put(region.getId(), region);
       }
     } while (!ParserUtil.isEndTag(xmlParser, TtmlNode.TAG_HEAD));
     return globalStyles;
+  }
+
+  private TtmlRegion parseRegion(XmlPullParser parser, TtmlRegion ttmlRegion) {
+    int attributeCount = parser.getAttributeCount();
+    for (int i = 0; i < attributeCount; i++) {
+      String attributeName = parser.getAttributeName(i);
+      String attributeValue = parser.getAttributeValue(i);
+      switch (ParserUtil.removeNamespacePrefix(attributeName)) {
+        case TtmlNode.ATTR_ID:
+          ttmlRegion = createIfNull(ttmlRegion).setId(attributeValue);
+          break;
+        case TtmlNode.ATTR_REGION_ORIGIN:
+          ttmlRegion = createIfNull(ttmlRegion).setOffset(attributeValue);
+          break;
+      }
+    }
+    return ttmlRegion;
   }
 
   private String[] parseStyleIds(String parentStyleIds) {
@@ -273,6 +295,10 @@ public final class TtmlParser implements SubtitleParser {
 
   private TtmlStyle createIfNull(TtmlStyle style) {
     return style == null ? new TtmlStyle() : style;
+  }
+
+  private TtmlRegion createIfNull(TtmlRegion region) {
+    return region == null ? new TtmlRegion() : region;
   }
 
   private TtmlNode parseNode(XmlPullParser parser, TtmlNode parent) throws ParserException {
@@ -435,3 +461,4 @@ public final class TtmlParser implements SubtitleParser {
   }
 
 }
+

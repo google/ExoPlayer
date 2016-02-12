@@ -29,11 +29,13 @@ import java.util.Map;
 public final class TtmlSubtitle implements Subtitle {
 
   private final TtmlNode root;
+  private Map<String, TtmlRegion> globalRegions;
   private final long[] eventTimesUs;
   private final Map<String, TtmlStyle> globalStyles;
 
-  public TtmlSubtitle(TtmlNode root, Map<String, TtmlStyle> globalStyles) {
+  public TtmlSubtitle(TtmlNode root, Map<String, TtmlStyle> globalStyles, Map<String, TtmlRegion> globalRegions) {
     this.root = root;
+    this.globalRegions = globalRegions;
     this.globalStyles = globalStyles != null
         ? Collections.unmodifiableMap(globalStyles) : Collections.<String, TtmlStyle>emptyMap();
     this.eventTimesUs = root.getEventTimesUs();
@@ -79,5 +81,9 @@ public final class TtmlSubtitle implements Subtitle {
   /* @VisibleForTesting */
   /* package */ Map<String, TtmlStyle> getGlobalStyles() {
     return globalStyles;
+  }
+
+  public Map<String, TtmlRegion> getGlobalRegions() {
+    return globalRegions;
   }
 }
