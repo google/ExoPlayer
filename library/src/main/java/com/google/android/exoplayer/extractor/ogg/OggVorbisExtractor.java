@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor.ogg;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
@@ -99,7 +99,7 @@ public final class OggVorbisExtractor implements Extractor {
       codecInitializationData.clear();
       codecInitializationData.add(idHeader.data);
       codecInitializationData.add(vorbisSetup.setupHeaderData);
-      trackOutput.format(MediaFormat.createAudioFormat(null, MimeTypes.AUDIO_VORBIS,
+      trackOutput.format(Format.createAudioSampleFormat(null, MimeTypes.AUDIO_VORBIS,
           idHeader.bitrateNominal, OGG_MAX_SEGMENT_SIZE * 255, idHeader.channels,
           idHeader.sampleRate, codecInitializationData, null));
     }

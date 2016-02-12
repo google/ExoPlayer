@@ -21,7 +21,7 @@ package com.google.android.exoplayer;
 public final class DummyTrackRenderer extends TrackRenderer {
 
   @Override
-  protected int supportsFormat(MediaFormat mediaFormat) throws ExoPlaybackException {
+  protected int supportsFormat(Format format) throws ExoPlaybackException {
     return TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
   }
 

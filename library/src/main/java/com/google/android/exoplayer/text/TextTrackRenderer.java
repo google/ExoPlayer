@@ -16,8 +16,8 @@
 package com.google.android.exoplayer.text;
 
 import com.google.android.exoplayer.ExoPlaybackException;
-import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.MediaFormatHolder;
+import com.google.android.exoplayer.Format;
+import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource.TrackStream;
 import com.google.android.exoplayer.SampleSourceTrackRenderer;
@@ -112,7 +112,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
 
   private final Handler textRendererHandler;
   private final TextRenderer textRenderer;
-  private final MediaFormatHolder formatHolder;
+  private final FormatHolder formatHolder;
   private final SubtitleParser[] subtitleParsers;
 
   private int parserIndex;
@@ -151,13 +151,23 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
       }
     }
     this.subtitleParsers = subtitleParsers;
-    formatHolder = new MediaFormatHolder();
+    formatHolder = new FormatHolder();
   }
 
   @Override
-  protected int supportsFormat(MediaFormat mediaFormat) {
-    return getParserIndex(mediaFormat) != -1 ? TrackRenderer.FORMAT_HANDLED
+  protected int supportsFormat(Format format) {
+    return getParserIndex(format.sampleMimeType) != -1 ? TrackRenderer.FORMAT_HANDLED
         : TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
+  }
+
+  @Override
+  protected void onEnabled(Format[] formats, TrackStream trackStream, long positionUs,
+      boolean joining) throws ExoPlaybackException {
+    super.onEnabled(formats, trackStream, positionUs, joining);
+    parserIndex = getParserIndex(formats[0].sampleMimeType);
+    parserThread = new HandlerThread("textParser");
+    parserThread.start();
+    parserHelper = new SubtitleParserHelper(parserThread.getLooper(), subtitleParsers[parserIndex]);
   }
 
   @Override
@@ -217,17 +227,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
       SampleHolder sampleHolder = parserHelper.getSampleHolder();
       sampleHolder.clearData();
       int result = readSource(formatHolder, sampleHolder);
-      if (result == TrackStream.FORMAT_READ) {
-        if (parserHelper == null) {
-          // This is the first format we've seen since the renderer was enabled.
-          parserIndex = getParserIndex(formatHolder.format);
-          parserThread = new HandlerThread("textParser");
-          parserThread.start();
-          parserHelper = new SubtitleParserHelper(parserThread.getLooper(),
-              subtitleParsers[parserIndex]);
-          parserHelper.setFormat(formatHolder.format);
-        }
-      } else if (result == TrackStream.SAMPLE_READ) {
+      if (result == TrackStream.SAMPLE_READ) {
         parserHelper.startParseOperation();
       } else if (result == TrackStream.END_OF_STREAM) {
         inputStreamEnded = true;
@@ -291,9 +291,9 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
     textRenderer.onCues(cues);
   }
 
-  private int getParserIndex(MediaFormat mediaFormat) {
+  private int getParserIndex(String sampleMimeType) {
     for (int i = 0; i < subtitleParsers.length; i++) {
-      if (subtitleParsers[i].canParse(mediaFormat.mimeType)) {
+      if (subtitleParsers[i].canParse(sampleMimeType)) {
         return i;
       }
     }

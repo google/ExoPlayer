@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.hls;
 
-import com.google.android.exoplayer.chunk.Format;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.chunk.MediaChunk;
 import com.google.android.exoplayer.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer.extractor.Extractor;

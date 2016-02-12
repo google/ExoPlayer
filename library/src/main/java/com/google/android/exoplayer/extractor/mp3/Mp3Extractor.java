@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor.mp3;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
@@ -119,8 +119,8 @@ public final class Mp3Extractor implements Extractor {
     if (seeker == null) {
       setupSeeker(input);
       extractorOutput.seekMap(seeker);
-      trackOutput.format(MediaFormat.createAudioFormat(null, synchronizedHeader.mimeType,
-          MediaFormat.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES, synchronizedHeader.channels,
+      trackOutput.format(Format.createAudioSampleFormat(null, synchronizedHeader.mimeType,
+          Format.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES, synchronizedHeader.channels,
           synchronizedHeader.sampleRate, null, null));
     }
     return readSample(input);

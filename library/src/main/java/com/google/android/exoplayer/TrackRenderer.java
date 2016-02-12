@@ -130,27 +130,28 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   /**
    * Returns the extent to which the renderer is capable of rendering a given format.
    *
-   * @param mediaFormat The format.
+   * @param format The format.
    * @return The extent to which the renderer is capable of rendering the given format. One of
    *     {@link #FORMAT_HANDLED}, {@link #FORMAT_EXCEEDS_CAPABILITIES} and
    *     {@link #FORMAT_UNSUPPORTED_TYPE}.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected abstract int supportsFormat(MediaFormat mediaFormat) throws ExoPlaybackException;
+  protected abstract int supportsFormat(Format format) throws ExoPlaybackException;
 
   /**
    * Enable the renderer to consume from the specified {@link TrackStream}.
    *
+   * @param formats The enabled formats.
    * @param trackStream The track stream from which the renderer should consume.
    * @param positionUs The player's current position.
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
    * @throws ExoPlaybackException If an error occurs.
    */
-  /* package */ final void enable(TrackStream trackStream, long positionUs, boolean joining)
-      throws ExoPlaybackException {
+  /* package */ final void enable(Format[] formats, TrackStream trackStream, long positionUs,
+      boolean joining) throws ExoPlaybackException {
     Assertions.checkState(state == STATE_IDLE);
     state = STATE_ENABLED;
-    onEnabled(trackStream, positionUs, joining);
+    onEnabled(formats, trackStream, positionUs, joining);
   }
 
   /**
@@ -158,13 +159,14 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * <p>
    * The default implementation is a no-op.
    *
+   * @param formats The enabled formats.
    * @param trackStream The track stream from which the renderer should consume.
    * @param positionUs The player's current position.
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onEnabled(TrackStream trackStream, long positionUs, boolean joining)
-      throws ExoPlaybackException {
+  protected void onEnabled(Format[] formats, TrackStream trackStream, long positionUs,
+      boolean joining) throws ExoPlaybackException {
     // Do nothing.
   }
 

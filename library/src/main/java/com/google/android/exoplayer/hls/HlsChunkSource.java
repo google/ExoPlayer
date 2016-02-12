@@ -17,12 +17,11 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.BehindLiveWindowException;
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.DataChunk;
-import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer.extractor.ts.AdtsExtractor;
@@ -156,8 +155,6 @@ public class HlsChunkSource {
   private HlsMediaPlaylist[] enabledVariantPlaylists;
   private long[] enabledVariantLastPlaylistLoadTimesMs;
   private long[] enabledVariantBlacklistTimes;
-  private int adaptiveMaxWidth;
-  private int adaptiveMaxHeight;
   private int selectedVariantIndex;
 
   /**
@@ -246,10 +243,10 @@ public class HlsChunkSource {
         if (playlist.type == HlsPlaylist.TYPE_MASTER) {
           masterPlaylist = (HlsMasterPlaylist) playlist;
         } else {
-          Format format = new Format("0", MimeTypes.APPLICATION_M3U8, -1, -1, -1, -1, -1, -1, null,
-              null);
+          Format format = Format.createContainerFormat("0", MimeTypes.APPLICATION_M3U8, null,
+              Format.NO_VALUE);
           List<Variant> variants = new ArrayList<>();
-          variants.add(new Variant(baseUri, format));
+          variants.add(new Variant(baseUri, format, null));
           masterPlaylist = new HlsMasterPlaylist(baseUri, variants,
               Collections.<Variant>emptyList());
         }
@@ -332,8 +329,6 @@ public class HlsChunkSource {
     });
     // Determine the initial variant index and maximum video dimensions.
     selectedVariantIndex = 0;
-    int maxWidth = -1;
-    int maxHeight = -1;
     int minOriginalVariantIndex = Integer.MAX_VALUE;
     for (int i = 0; i < enabledVariants.length; i++) {
       int originalVariantIndex = masterPlaylist.variants.indexOf(enabledVariants[i]);
@@ -341,18 +336,6 @@ public class HlsChunkSource {
         minOriginalVariantIndex = originalVariantIndex;
         selectedVariantIndex = i;
       }
-      Format variantFormat = enabledVariants[i].format;
-      maxWidth = Math.max(variantFormat.width, maxWidth);
-      maxHeight = Math.max(variantFormat.height, maxHeight);
-    }
-    if (tracks.length > 1) {
-      // TODO: We should allow the default values to be passed through the constructor.
-      // TODO: Print a warning if resolution tags are omitted.
-      maxWidth = maxWidth > 0 ? maxWidth : 1920;
-      maxHeight = maxHeight > 0 ? maxHeight : 1080;
-    } else {
-      adaptiveMaxWidth = -1;
-      adaptiveMaxHeight = -1;
     }
   }
 
@@ -397,7 +380,7 @@ public class HlsChunkSource {
     } else {
       nextVariantIndex = getNextVariantIndex(previousTsChunk, playbackPositionUs);
       switchingVariantSpliced = previousTsChunk != null
-          && !enabledVariants[nextVariantIndex].format.equals(previousTsChunk.format)
+          && enabledVariants[nextVariantIndex].format != previousTsChunk.format
           && adaptiveMode == ADAPTIVE_MODE_SPLICE;
     }
 
@@ -490,11 +473,11 @@ public class HlsChunkSource {
       // case below.
       Extractor extractor = new AdtsExtractor(startTimeUs);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
-          switchingVariantSpliced, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
+          switchingVariantSpliced);
     } else if (lastPathSegment.endsWith(MP3_FILE_EXTENSION)) {
       Extractor extractor = new Mp3Extractor(startTimeUs);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
-          switchingVariantSpliced, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
+          switchingVariantSpliced);
     } else if (lastPathSegment.endsWith(WEBVTT_FILE_EXTENSION)
         || lastPathSegment.endsWith(VTT_FILE_EXTENSION)) {
       PtsTimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(false,
@@ -505,12 +488,12 @@ public class HlsChunkSource {
         // a discontinuity sequence greater than the one that this source is trying to start at.
         return;
       }
-      Extractor extractor = new WebvttExtractor(timestampAdjuster);
+      Extractor extractor = new WebvttExtractor(format.language, timestampAdjuster);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
-          switchingVariantSpliced, MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
+          switchingVariantSpliced);
     } else if (previousTsChunk == null
         || previousTsChunk.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
-        || !format.equals(previousTsChunk.format)) {
+        || format != previousTsChunk.format) {
       // MPEG-2 TS segments, but we need a new extractor.
       PtsTimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(true,
           segment.discontinuitySequenceNumber, startTimeUs);
@@ -520,7 +503,7 @@ public class HlsChunkSource {
       }
       Extractor extractor = new TsExtractor(timestampAdjuster);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
-          switchingVariantSpliced, adaptiveMaxWidth, adaptiveMaxHeight);
+          switchingVariantSpliced);
     } else {
       // MPEG-2 TS segments, and we need to continue using the same extractor.
       extractorWrapper = previousTsChunk.extractorWrapper;
@@ -566,19 +549,19 @@ public class HlsChunkSource {
       InvalidResponseCodeException responseCodeException = (InvalidResponseCodeException) e;
       int responseCode = responseCodeException.responseCode;
       if (responseCode == 404 || responseCode == 410) {
-        int variantIndex;
+        int enabledVariantIndex;
         if (chunk instanceof TsChunk) {
           TsChunk tsChunk = (TsChunk) chunk;
-          variantIndex = getVariantIndex(tsChunk.format);
+          enabledVariantIndex = getEnabledVariantIndex(tsChunk.format);
         } else if (chunk instanceof MediaPlaylistChunk) {
           MediaPlaylistChunk playlistChunk = (MediaPlaylistChunk) chunk;
-          variantIndex = playlistChunk.variantIndex;
+          enabledVariantIndex = playlistChunk.variantIndex;
         } else {
           EncryptionKeyChunk encryptionChunk = (EncryptionKeyChunk) chunk;
-          variantIndex = encryptionChunk.variantIndex;
+          enabledVariantIndex = encryptionChunk.variantIndex;
         }
-        boolean alreadyBlacklisted = enabledVariantBlacklistTimes[variantIndex] != 0;
-        enabledVariantBlacklistTimes[variantIndex] = SystemClock.elapsedRealtime();
+        boolean alreadyBlacklisted = enabledVariantBlacklistTimes[enabledVariantIndex] != 0;
+        enabledVariantBlacklistTimes[enabledVariantIndex] = SystemClock.elapsedRealtime();
         if (alreadyBlacklisted) {
           // The playlist was already blacklisted.
           Log.w(TAG, "Already blacklisted variant (" + responseCode + "): "
@@ -593,7 +576,7 @@ public class HlsChunkSource {
           // This was the last non-blacklisted playlist. Don't blacklist it.
           Log.w(TAG, "Final variant not blacklisted (" + responseCode + "): "
               + chunk.dataSpec.uri);
-          enabledVariantBlacklistTimes[variantIndex] = 0;
+          enabledVariantBlacklistTimes[enabledVariantIndex] = 0;
           return false;
         }
       }
@@ -646,7 +629,7 @@ public class HlsChunkSource {
   }
 
   private static boolean variantHasExplicitCodecWithPrefix(Variant variant, String prefix) {
-    String codecs = variant.format.codecs;
+    String codecs = variant.codecs;
     if (TextUtils.isEmpty(codecs)) {
       return false;
     }
@@ -795,9 +778,9 @@ public class HlsChunkSource {
     }
   }
 
-  private int getVariantIndex(Format format) {
+  private int getEnabledVariantIndex(Format format) {
     for (int i = 0; i < enabledVariants.length; i++) {
-      if (enabledVariants[i].format.equals(format)) {
+      if (enabledVariants[i].format == format) {
         return i;
       }
     }

@@ -16,8 +16,8 @@
 package com.google.android.exoplayer.metadata;
 
 import com.google.android.exoplayer.ExoPlaybackException;
-import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.MediaFormatHolder;
+import com.google.android.exoplayer.Format;
+import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource.TrackStream;
 import com.google.android.exoplayer.SampleSourceTrackRenderer;
@@ -59,7 +59,7 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
   private final MetadataParser<T> metadataParser;
   private final MetadataRenderer<T> metadataRenderer;
   private final Handler metadataHandler;
-  private final MediaFormatHolder formatHolder;
+  private final FormatHolder formatHolder;
   private final SampleHolder sampleHolder;
 
   private boolean inputStreamEnded;
@@ -81,13 +81,13 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
     this.metadataRenderer = Assertions.checkNotNull(metadataRenderer);
     this.metadataHandler = metadataRendererLooper == null ? null
         : new Handler(metadataRendererLooper, this);
-    formatHolder = new MediaFormatHolder();
+    formatHolder = new FormatHolder();
     sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
   }
 
   @Override
-  protected int supportsFormat(MediaFormat mediaFormat) {
-    return metadataParser.canParse(mediaFormat.mimeType) ? TrackRenderer.FORMAT_HANDLED
+  protected int supportsFormat(Format format) {
+    return metadataParser.canParse(format.sampleMimeType) ? TrackRenderer.FORMAT_HANDLED
         : TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
   }
 

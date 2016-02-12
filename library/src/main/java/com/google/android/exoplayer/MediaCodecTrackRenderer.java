@@ -28,6 +28,7 @@ import android.media.MediaCodec;
 import android.media.MediaCodec.CodecException;
 import android.media.MediaCodec.CryptoException;
 import android.media.MediaCrypto;
+import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.SystemClock;
 
@@ -102,19 +103,19 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
      */
     public final String diagnosticInfo;
 
-    public DecoderInitializationException(MediaFormat mediaFormat, Throwable cause,
+    public DecoderInitializationException(Format format, Throwable cause,
         boolean secureDecoderRequired, int errorCode) {
-      super("Decoder init failed: [" + errorCode + "], " + mediaFormat, cause);
-      this.mimeType = mediaFormat.mimeType;
+      super("Decoder init failed: [" + errorCode + "], " + format, cause);
+      this.mimeType = format.sampleMimeType;
       this.secureDecoderRequired = secureDecoderRequired;
       this.decoderName = null;
       this.diagnosticInfo = buildCustomDiagnosticInfo(errorCode);
     }
 
-    public DecoderInitializationException(MediaFormat mediaFormat, Throwable cause,
+    public DecoderInitializationException(Format format, Throwable cause,
         boolean secureDecoderRequired, String decoderName) {
-      super("Decoder init failed: " + decoderName + ", " + mediaFormat, cause);
-      this.mimeType = mediaFormat.mimeType;
+      super("Decoder init failed: " + decoderName + ", " + format, cause);
+      this.mimeType = format.sampleMimeType;
       this.secureDecoderRequired = secureDecoderRequired;
       this.decoderName = decoderName;
       this.diagnosticInfo = Util.SDK_INT >= 21 ? getDiagnosticInfoV21(cause) : null;
@@ -199,13 +200,13 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   private final DrmSessionManager drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
   private final SampleHolder sampleHolder;
-  private final MediaFormatHolder formatHolder;
+  private final FormatHolder formatHolder;
   private final List<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
   private final EventListener eventListener;
   protected final Handler eventHandler;
 
-  private MediaFormat format;
+  private Format format;
   private DrmInitData drmInitData;
   private MediaCodec codec;
   private boolean codecIsAdaptive;
@@ -254,7 +255,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     this.eventListener = eventListener;
     codecCounters = new CodecCounters();
     sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_DISABLED);
-    formatHolder = new MediaFormatHolder();
+    formatHolder = new FormatHolder();
     decodeOnlyPresentationTimestamps = new ArrayList<>();
     outputBufferInfo = new MediaCodec.BufferInfo();
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
@@ -277,9 +278,9 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   @Override
-  protected final int supportsFormat(MediaFormat mediaFormat) throws ExoPlaybackException {
+  protected final int supportsFormat(Format format) throws ExoPlaybackException {
     try {
-      return supportsFormat(mediaCodecSelector, mediaFormat);
+      return supportsFormat(mediaCodecSelector, format);
     } catch (DecoderQueryException e) {
       throw new ExoPlaybackException(e);
     }
@@ -289,28 +290,28 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * Returns the extent to which the renderer is capable of rendering a given format.
    *
    * @param mediaCodecSelector The decoder selector.
-   * @param mediaFormat The format.
+   * @param format The format.
    * @return The extent to which the renderer is capable of rendering the given format. One of
    *     {@link #FORMAT_HANDLED}, {@link #FORMAT_EXCEEDS_CAPABILITIES} and
    *     {@link #FORMAT_UNSUPPORTED_TYPE}.
    * @throws DecoderQueryException If there was an error querying decoders.
    */
-  protected abstract int supportsFormat(MediaCodecSelector mediaCodecSelector,
-      MediaFormat mediaFormat) throws DecoderQueryException;
+  protected abstract int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
+      throws DecoderQueryException;
 
   /**
    * Returns a {@link DecoderInfo} for a given format.
    *
    * @param mediaCodecSelector The decoder selector.
-   * @param mediaFormat The format for which a decoder is required.
+   * @param format The format for which a decoder is required.
    * @param requiresSecureDecoder Whether a secure decoder is required.
    * @return A {@link DecoderInfo} describing the decoder to instantiate, or null if no suitable
    *     decoder exists.
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
-  protected DecoderInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector,
-      MediaFormat mediaFormat, boolean requiresSecureDecoder) throws DecoderQueryException {
-    return mediaCodecSelector.getDecoderInfo(format.mimeType, requiresSecureDecoder);
+  protected DecoderInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector, Format format,
+      boolean requiresSecureDecoder) throws DecoderQueryException {
+    return mediaCodecSelector.getDecoderInfo(format.sampleMimeType, requiresSecureDecoder);
   }
 
   /**
@@ -321,7 +322,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * @param format The format for which the codec is being configured.
    * @param crypto For drm protected playbacks, a {@link MediaCrypto} to use for decryption.
    */
-  protected abstract void configureCodec(MediaCodec codec, MediaFormat format, MediaCrypto crypto);
+  protected abstract void configureCodec(MediaCodec codec, Format format, MediaCrypto crypto);
 
   @SuppressWarnings("deprecation")
   protected final void maybeInitCodec() throws ExoPlaybackException {
@@ -329,7 +330,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       return;
     }
 
-    String mimeType = format.mimeType;
+    String mimeType = format.sampleMimeType;
     MediaCrypto mediaCrypto = null;
     boolean requiresSecureDecoder = false;
     if (drmInitData != null) {
@@ -499,8 +500,8 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     if (codec != null) {
       TraceUtil.beginSection("drainAndFeed");
       while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
-      if (feedInputBuffer(positionUs, true)) {
-        while (feedInputBuffer(positionUs, false)) {}
+      if (feedInputBuffer(true)) {
+        while (feedInputBuffer(false)) {}
       }
       TraceUtil.endSection();
     }
@@ -543,14 +544,12 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   /**
-   * @param positionUs The current media time in microseconds, measured at the start of the
-   *     current iteration of the rendering loop.
    * @param firstFeed True if this is the first call to this method from the current invocation of
    *     {@link #doSomeWork(long, long)}. False otherwise.
    * @return True if it may be possible to feed more input data. False otherwise.
    * @throws ExoPlaybackException If an error occurs feeding the input buffer.
    */
-  private boolean feedInputBuffer(long positionUs, boolean firstFeed) throws ExoPlaybackException {
+  private boolean feedInputBuffer(boolean firstFeed) throws ExoPlaybackException {
     if (inputStreamEnded
         || codecReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
       // The input stream has ended, or we need to re-initialize the codec but are still waiting
@@ -721,8 +720,8 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * @param formatHolder Holds the new format.
    * @throws ExoPlaybackException If an error occurs reinitializing the {@link MediaCodec}.
    */
-  protected void onInputFormatChanged(MediaFormatHolder formatHolder) throws ExoPlaybackException {
-    MediaFormat oldFormat = format;
+  protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
+    Format oldFormat = format;
     format = formatHolder.format;
     drmInitData = formatHolder.drmInitData;
     if (codec != null && canReconfigureCodec(codec, codecIsAdaptive, oldFormat, format)) {
@@ -748,8 +747,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * @param outputFormat The new output format.
    * @throws ExoPlaybackException If an error occurs on output format change.
    */
-  protected void onOutputFormatChanged(android.media.MediaFormat outputFormat)
-      throws ExoPlaybackException {
+  protected void onOutputFormatChanged(MediaFormat outputFormat) throws ExoPlaybackException {
     // Do nothing.
   }
 
@@ -779,8 +777,8 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * @param newFormat The new format.
    * @return True if the existing instance can be reconfigured. False otherwise.
    */
-  protected boolean canReconfigureCodec(MediaCodec codec, boolean codecIsAdaptive,
-      MediaFormat oldFormat, MediaFormat newFormat) {
+  protected boolean canReconfigureCodec(MediaCodec codec, boolean codecIsAdaptive, Format oldFormat,
+      Format newFormat) {
     return false;
   }
 

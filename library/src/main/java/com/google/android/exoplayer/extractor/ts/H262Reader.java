@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor.ts;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
@@ -113,7 +113,7 @@ import java.util.Collections;
           int bytesAlreadyPassed = lengthToStartCode < 0 ? -lengthToStartCode : 0;
           if (csdBuffer.onStartCode(startCodeValue, bytesAlreadyPassed)) {
             // The csd data is complete, so we can parse and output the media format.
-            Pair<MediaFormat, Long> result = parseCsdBuffer(csdBuffer);
+            Pair<Format, Long> result = parseCsdBuffer(csdBuffer);
             output.format(result.first);
             frameDurationUs = result.second;
             hasOutputFormat = true;
@@ -151,13 +151,13 @@ import java.util.Collections;
   }
 
   /**
-   * Parses the {@link MediaFormat} and frame duration from a csd buffer.
+   * Parses the {@link Format} and frame duration from a csd buffer.
    *
    * @param csdBuffer The csd buffer.
-   * @return A pair consisting of the {@link MediaFormat} and the frame duration in microseconds, or
+   * @return A pair consisting of the {@link Format} and the frame duration in microseconds, or
    *     0 if the duration could not be determined.
    */
-  private static Pair<MediaFormat, Long> parseCsdBuffer(CsdBuffer csdBuffer) {
+  private static Pair<Format, Long> parseCsdBuffer(CsdBuffer csdBuffer) {
     byte[] csdData = Arrays.copyOf(csdBuffer.data, csdBuffer.length);
 
     int firstByte = csdData[4] & 0xFF;
@@ -183,9 +183,9 @@ import java.util.Collections;
         break;
     }
 
-    MediaFormat format = MediaFormat.createVideoFormat(null, MimeTypes.VIDEO_MPEG2,
-        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, width, height,
-        Collections.singletonList(csdData), MediaFormat.NO_VALUE, pixelWidthHeightRatio);
+    Format format = Format.createVideoSampleFormat(null, MimeTypes.VIDEO_MPEG2, Format.NO_VALUE,
+        Format.NO_VALUE, width, height, Format.NO_VALUE, Collections.singletonList(csdData),
+        Format.NO_VALUE, pixelWidthHeightRatio);
 
     long frameDurationUs = 0;
     int frameRateCodeMinusOne = (csdData[7] & 0x0F) - 1;

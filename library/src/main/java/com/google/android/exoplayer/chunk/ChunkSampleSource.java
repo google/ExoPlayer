@@ -16,9 +16,9 @@
 package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.Format;
+import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.LoadControl;
-import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSource.TrackStream;
@@ -86,8 +86,8 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   private long currentLoadableExceptionTimestamp;
   private long currentLoadStartTimeMs;
 
-  private MediaFormat downstreamMediaFormat;
   private Format downstreamFormat;
+  private Format downstreamSampleFormat;
 
   /**
    * @param chunkSource A {@link ChunkSource} from which chunks to load are obtained.
@@ -155,8 +155,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     durationUs = chunkSource.getDurationUs();
     TrackGroup trackGroup = chunkSource.getTracks();
     if (trackGroup.length > 0) {
-      MediaFormat firstTrackFormat = trackGroup.getFormat(0);
-      loader = new Loader("Loader:" + firstTrackFormat.mimeType);
+      loader = new Loader("Loader:" + trackGroup.getFormat(0).containerMimeType);
     }
     state = STATE_PREPARED;
     return true;
@@ -191,7 +190,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     chunkSource.enable(tracks);
     loadControl.register(this, bufferSizeContribution);
     downstreamFormat = null;
-    downstreamMediaFormat = null;
+    downstreamSampleFormat = null;
     downstreamPositionUs = positionUs;
     lastSeekPositionUs = positionUs;
     pendingReset = false;
@@ -246,7 +245,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   }
 
   @Override
-  public int readData(MediaFormatHolder formatHolder, SampleHolder sampleHolder) {
+  public int readData(FormatHolder formatHolder, SampleHolder sampleHolder) {
     Assertions.checkState(state == STATE_ENABLED);
     if (pendingReset || isPendingReset()) {
       return NOTHING_READ;
@@ -266,12 +265,12 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
       downstreamFormat = currentChunk.format;
     }
 
-    if (haveSamples || currentChunk.isMediaFormatFinal) {
-      MediaFormat mediaFormat = currentChunk.getMediaFormat();
-      if (!mediaFormat.equals(downstreamMediaFormat)) {
-        formatHolder.format = mediaFormat;
+    if (haveSamples || currentChunk.isSampleFormatFinal) {
+      Format sampleFormat = currentChunk.getSampleFormat();
+      if (!sampleFormat.equals(downstreamSampleFormat)) {
+        formatHolder.format = sampleFormat;
         formatHolder.drmInitData = currentChunk.getDrmInitData();
-        downstreamMediaFormat = mediaFormat;
+        downstreamSampleFormat = sampleFormat;
         return FORMAT_READ;
       }
     }

@@ -15,25 +15,21 @@
  */
 package com.google.android.exoplayer.hls;
 
-import com.google.android.exoplayer.chunk.Format;
-import com.google.android.exoplayer.chunk.FormatWrapper;
+import com.google.android.exoplayer.Format;
 
 /**
  * Variant stream reference.
  */
-public final class Variant implements FormatWrapper {
+public final class Variant {
 
   public final String url;
   public final Format format;
+  public final String codecs;
 
-  public Variant(String url, Format format) {
+  public Variant(String url, Format format, String codecs) {
     this.url = url;
     this.format = format;
-  }
-
-  @Override
-  public Format getFormat() {
-    return format;
+    this.codecs = codecs;
   }
 
 }

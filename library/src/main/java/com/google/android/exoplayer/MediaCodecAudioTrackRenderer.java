@@ -26,6 +26,7 @@ import android.annotation.TargetApi;
 import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
+import android.media.MediaFormat;
 import android.media.PlaybackParams;
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
@@ -181,30 +182,30 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected int supportsFormat(MediaCodecSelector mediaCodecSelector, MediaFormat mediaFormat)
+  protected int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
       throws DecoderQueryException {
-    String mimeType = mediaFormat.mimeType;
+    String mimeType = format.sampleMimeType;
     if (!MimeTypes.isAudio(mimeType)) {
       return TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
     }
     if (allowPassthrough(mimeType) && mediaCodecSelector.getPassthroughDecoderName() != null) {
       return TrackRenderer.FORMAT_HANDLED;
     }
-    // TODO[REFACTOR]: Propagate requiresSecureDecoder to this point. Note that we need to check
-    // that the drm session can make use of a secure decoder, as well as that a secure decoder
-    // exists.
-    DecoderInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mediaFormat.mimeType, false);
+    // TODO[REFACTOR]: If requiresSecureDecryption then we should probably also check that the
+    // drmSession is able to make use of a secure decoder.
+    DecoderInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
+        format.requiresSecureDecryption);
     if (decoderInfo == null) {
       return TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
     }
     if (Util.SDK_INT >= 21) {
       // Note: We assume support in the case that the sampleRate or channelCount is unknown.
-      if (mediaFormat.sampleRate != MediaFormat.NO_VALUE
-          && !decoderInfo.isAudioSampleRateSupportedV21(mediaFormat.sampleRate)) {
+      if (format.sampleRate != Format.NO_VALUE
+          && !decoderInfo.isAudioSampleRateSupportedV21(format.sampleRate)) {
         return TrackRenderer.FORMAT_EXCEEDS_CAPABILITIES;
       }
-      if (mediaFormat.channelCount != MediaFormat.NO_VALUE
-          && !decoderInfo.isAudioChannelCountSupportedV21(mediaFormat.channelCount)) {
+      if (format.channelCount != Format.NO_VALUE
+          && !decoderInfo.isAudioChannelCountSupportedV21(format.channelCount)) {
         return TrackRenderer.FORMAT_EXCEEDS_CAPABILITIES;
       }
     }
@@ -212,9 +213,9 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected DecoderInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector, MediaFormat format,
+  protected DecoderInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector, Format format,
       boolean requiresSecureDecoder) throws DecoderQueryException {
-    if (allowPassthrough(format.mimeType)) {
+    if (allowPassthrough(format.sampleMimeType)) {
       String passthroughDecoderName = mediaCodecSelector.getPassthroughDecoderName();
       if (passthroughDecoderName != null) {
         passthroughEnabled = true;
@@ -238,13 +239,13 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected void configureCodec(MediaCodec codec, MediaFormat format, MediaCrypto crypto) {
+  protected void configureCodec(MediaCodec codec, Format format, MediaCrypto crypto) {
     if (passthroughEnabled) {
       // Override the MIME type used to configure the codec if we are using a passthrough decoder.
       passthroughMediaFormat = format.getFrameworkMediaFormatV16();
-      passthroughMediaFormat.setString(android.media.MediaFormat.KEY_MIME, MimeTypes.AUDIO_RAW);
+      passthroughMediaFormat.setString(MediaFormat.KEY_MIME, MimeTypes.AUDIO_RAW);
       codec.configure(passthroughMediaFormat, null, crypto, 0);
-      passthroughMediaFormat.setString(android.media.MediaFormat.KEY_MIME, format.mimeType);
+      passthroughMediaFormat.setString(MediaFormat.KEY_MIME, format.sampleMimeType);
     } else {
       codec.configure(format.getFrameworkMediaFormatV16(), null, crypto, 0);
       passthroughMediaFormat = null;
@@ -257,7 +258,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected void onOutputFormatChanged(android.media.MediaFormat outputFormat) {
+  protected void onOutputFormatChanged(MediaFormat outputFormat) {
     boolean passthrough = passthroughMediaFormat != null;
     audioTrack.configure(passthrough ? passthroughMediaFormat : outputFormat, passthrough);
   }

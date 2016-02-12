@@ -36,12 +36,12 @@ public final class TrackGroup {
    */
   public final boolean adaptive;
 
-  private final MediaFormat[] formats;
+  private final Format[] formats;
 
   /**
    * @param format The format of the single track.
    */
-  public TrackGroup(MediaFormat format) {
+  public TrackGroup(Format format) {
     this(false, format);
   }
 
@@ -49,7 +49,7 @@ public final class TrackGroup {
    * @param adaptive Whether it's possible to adapt between multiple tracks in the group.
    * @param formats The track formats.
    */
-  public TrackGroup(boolean adaptive, MediaFormat... formats) {
+  public TrackGroup(boolean adaptive, Format... formats) {
     this.adaptive = adaptive;
     this.formats = formats;
     length = formats.length;
@@ -61,7 +61,7 @@ public final class TrackGroup {
    * @param index The index of the track.
    * @return The track's format.
    */
-  public MediaFormat getFormat(int index) {
+  public Format getFormat(int index) {
     return formats[index];
   }
 

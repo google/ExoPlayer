@@ -16,8 +16,7 @@
 package com.google.android.exoplayer.smoothstreaming;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.chunk.Format;
-import com.google.android.exoplayer.chunk.FormatWrapper;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
@@ -124,28 +123,6 @@ public class SmoothStreamingManifest {
   }
 
   /**
-   * Represents a QualityLevel element.
-   */
-  public static class TrackElement implements FormatWrapper {
-
-    public final Format format;
-    public final byte[][] csd;
-
-    public TrackElement(int index, int bitrate, String mimeType, byte[][] csd, int maxWidth,
-        int maxHeight, int sampleRate, int numChannels, String language) {
-      this.csd = csd;
-      format = new Format(String.valueOf(index), mimeType, maxWidth, maxHeight, -1, numChannels,
-          sampleRate, bitrate, language);
-    }
-
-    @Override
-    public Format getFormat() {
-      return format;
-    }
-
-  }
-
-  /**
    * Represents a StreamIndex element.
    */
   public static class StreamElement {
@@ -168,7 +145,7 @@ public class SmoothStreamingManifest {
     public final int displayWidth;
     public final int displayHeight;
     public final String language;
-    public final TrackElement[] tracks;
+    public final Format[] formats;
     public final int chunkCount;
 
     private final String baseUri;
@@ -180,7 +157,7 @@ public class SmoothStreamingManifest {
 
     public StreamElement(String baseUri, String chunkTemplate, int type, String subType,
         long timescale, String name, int qualityLevels, int maxWidth, int maxHeight,
-        int displayWidth, int displayHeight, String language, TrackElement[] tracks,
+        int displayWidth, int displayHeight, String language, Format[] formats,
         List<Long> chunkStartTimes, long lastChunkDuration) {
       this.baseUri = baseUri;
       this.chunkTemplate = chunkTemplate;
@@ -194,7 +171,7 @@ public class SmoothStreamingManifest {
       this.displayWidth = displayWidth;
       this.displayHeight = displayHeight;
       this.language = language;
-      this.tracks = tracks;
+      this.formats = formats;
       this.chunkCount = chunkStartTimes.size();
       this.chunkStartTimes = chunkStartTimes;
       lastChunkDurationUs =
@@ -242,11 +219,11 @@ public class SmoothStreamingManifest {
      * @return The request uri.
      */
     public Uri buildRequestUri(int track, int chunkIndex) {
-      Assertions.checkState(tracks != null);
+      Assertions.checkState(formats != null);
       Assertions.checkState(chunkStartTimes != null);
       Assertions.checkState(chunkIndex < chunkStartTimes.size());
       String chunkUrl = chunkTemplate
-          .replace(URL_PLACEHOLDER_BITRATE, Integer.toString(tracks[track].format.bitrate))
+          .replace(URL_PLACEHOLDER_BITRATE, Integer.toString(formats[track].bitrate))
           .replace(URL_PLACEHOLDER_START_TIME, chunkStartTimes.get(chunkIndex).toString());
       return UriUtil.resolveToUri(baseUri, chunkUrl);
     }

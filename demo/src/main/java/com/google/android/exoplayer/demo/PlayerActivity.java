@@ -18,9 +18,9 @@ package com.google.android.exoplayer.demo;
 import com.google.android.exoplayer.AspectRatioFrameLayout;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
 import com.google.android.exoplayer.demo.player.DashSourceBuilder;
@@ -526,15 +526,12 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     menu.findItem(player.getSelectedTrack(trackType) + ID_OFFSET).setChecked(true);
   }
 
-  private static String buildTrackName(MediaFormat format) {
-    if (format.adaptive) {
-      return "auto";
-    }
+  private static String buildTrackName(Format format) {
     String trackName;
-    if (MimeTypes.isVideo(format.mimeType)) {
+    if (MimeTypes.isVideo(format.sampleMimeType)) {
       trackName = joinWithSeparator(joinWithSeparator(buildResolutionString(format),
           buildBitrateString(format)), buildTrackIdString(format));
-    } else if (MimeTypes.isAudio(format.mimeType)) {
+    } else if (MimeTypes.isAudio(format.sampleMimeType)) {
       trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(buildLanguageString(format),
           buildAudioPropertyString(format)), buildBitrateString(format)),
           buildTrackIdString(format));
@@ -545,23 +542,23 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     return trackName.length() == 0 ? "unknown" : trackName;
   }
 
-  private static String buildResolutionString(MediaFormat format) {
-    return format.width == MediaFormat.NO_VALUE || format.height == MediaFormat.NO_VALUE
+  private static String buildResolutionString(Format format) {
+    return format.width == Format.NO_VALUE || format.height == Format.NO_VALUE
         ? "" : format.width + "x" + format.height;
   }
 
-  private static String buildAudioPropertyString(MediaFormat format) {
-    return format.channelCount == MediaFormat.NO_VALUE || format.sampleRate == MediaFormat.NO_VALUE
+  private static String buildAudioPropertyString(Format format) {
+    return format.channelCount == Format.NO_VALUE || format.sampleRate == Format.NO_VALUE
         ? "" : format.channelCount + "ch, " + format.sampleRate + "Hz";
   }
 
-  private static String buildLanguageString(MediaFormat format) {
+  private static String buildLanguageString(Format format) {
     return TextUtils.isEmpty(format.language) || "und".equals(format.language) ? ""
         : format.language;
   }
 
-  private static String buildBitrateString(MediaFormat format) {
-    return format.bitrate == MediaFormat.NO_VALUE ? ""
+  private static String buildBitrateString(Format format) {
+    return format.bitrate == Format.NO_VALUE ? ""
         : String.format(Locale.US, "%.2fMbit", format.bitrate / 1000000f);
   }
 
@@ -569,8 +566,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     return first.length() == 0 ? second : (second.length() == 0 ? first : first + ", " + second);
   }
 
-  private static String buildTrackIdString(MediaFormat format) {
-    return format.trackId == null ? "" : " (" + format.trackId + ")";
+  private static String buildTrackIdString(Format format) {
+    return format.id == null ? "" : " (" + format.id + ")";
   }
 
   private boolean onTrackItemClick(MenuItem item, int type) {

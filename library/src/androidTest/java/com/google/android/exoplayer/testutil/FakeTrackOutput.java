@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.testutil;
 
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.ParsableByteArray;
@@ -40,7 +40,7 @@ public final class FakeTrackOutput implements TrackOutput {
   private final ArrayList<byte[]> sampleEncryptionKeys;
 
   private byte[] sampleData;
-  public MediaFormat format;
+  public Format format;
 
   public FakeTrackOutput() {
     sampleData = new byte[0];
@@ -52,7 +52,7 @@ public final class FakeTrackOutput implements TrackOutput {
   }
 
   @Override
-  public void format(MediaFormat format) {
+  public void format(Format format) {
     this.format = format;
   }
 

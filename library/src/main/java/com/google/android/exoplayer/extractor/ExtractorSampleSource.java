@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormatHolder;
+import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
@@ -360,7 +360,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     return TrackStream.NO_RESET;
   }
 
-  /* package */ int readData(int track, MediaFormatHolder formatHolder, SampleHolder sampleHolder) {
+  /* package */ int readData(int track, FormatHolder formatHolder, SampleHolder sampleHolder) {
     if (pendingResets[track] || isPendingReset()) {
       return TrackStream.NOTHING_READ;
     }
@@ -665,7 +665,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     }
 
     @Override
-    public int readData(MediaFormatHolder formatHolder, SampleHolder sampleHolder) {
+    public int readData(FormatHolder formatHolder, SampleHolder sampleHolder) {
       return ExtractorSampleSource.this.readData(track, formatHolder, sampleHolder);
     }
 

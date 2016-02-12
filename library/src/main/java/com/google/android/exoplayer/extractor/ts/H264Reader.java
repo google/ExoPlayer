@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor.ts;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil.SpsData;
@@ -198,7 +198,7 @@ import java.util.List;
     }
   }
 
-  private static MediaFormat parseMediaFormat(NalUnitTargetBuffer sps, NalUnitTargetBuffer pps) {
+  private static Format parseMediaFormat(NalUnitTargetBuffer sps, NalUnitTargetBuffer pps) {
     List<byte[]> initializationData = new ArrayList<>();
     initializationData.add(Arrays.copyOf(sps.nalData, sps.nalLength));
     initializationData.add(Arrays.copyOf(pps.nalData, pps.nalLength));
@@ -209,9 +209,9 @@ import java.util.List;
     bitArray.skipBits(32); // NAL header
     SpsData parsedSpsData = CodecSpecificDataUtil.parseSpsNalUnit(bitArray);
 
-    return MediaFormat.createVideoFormat(null, MimeTypes.VIDEO_H264, MediaFormat.NO_VALUE,
-        MediaFormat.NO_VALUE, parsedSpsData.width, parsedSpsData.height, initializationData,
-        MediaFormat.NO_VALUE, parsedSpsData.pixelWidthAspectRatio);
+    return Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264, Format.NO_VALUE,
+        Format.NO_VALUE, parsedSpsData.width, parsedSpsData.height, Format.NO_VALUE,
+        initializationData, Format.NO_VALUE, parsedSpsData.pixelWidthAspectRatio);
   }
 
   /**

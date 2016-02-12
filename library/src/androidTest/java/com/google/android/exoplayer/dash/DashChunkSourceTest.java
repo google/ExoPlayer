@@ -15,8 +15,9 @@
  */
 package com.google.android.exoplayer.dash;
 
-import com.google.android.exoplayer.chunk.Format;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.testutil.TestUtil;
+import com.google.android.exoplayer.util.MimeTypes;
 
 import android.test.InstrumentationTestCase;
 
@@ -42,12 +43,13 @@ public class DashChunkSourceTest extends InstrumentationTestCase {
   private static final int TALL_HEIGHT = 200;
   private static final int WIDE_WIDTH = 400;
 
-  private static final Format REGULAR_VIDEO =
-      new Format("1", "video/mp4", 480, 240, -1, -1, -1, 1000);
-  private static final Format TALL_VIDEO =
-      new Format("2", "video/mp4", 100, TALL_HEIGHT, -1, -1, -1, 1000);
-  private static final Format WIDE_VIDEO =
-      new Format("3", "video/mp4", WIDE_WIDTH, 50, -1, -1, -1, 1000);
+  private static final Format REGULAR_VIDEO = Format.createVideoContainerFormat("1",
+      MimeTypes.APPLICATION_MP4, MimeTypes.VIDEO_H264, 1000, 480, 240, Format.NO_VALUE, null);
+  private static final Format TALL_VIDEO = Format.createVideoContainerFormat("2",
+      MimeTypes.APPLICATION_MP4, MimeTypes.VIDEO_H264, 1000, 100, TALL_HEIGHT, Format.NO_VALUE,
+      null);
+  private static final Format WIDE_VIDEO = Format.createVideoContainerFormat("3",
+      MimeTypes.APPLICATION_MP4, MimeTypes.VIDEO_H264, 1000, WIDE_WIDTH, 50, Format.NO_VALUE, null);
 
   @Override
   public void setUp() throws Exception {

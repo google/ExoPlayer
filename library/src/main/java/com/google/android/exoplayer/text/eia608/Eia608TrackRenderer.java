@@ -17,8 +17,8 @@ package com.google.android.exoplayer.text.eia608;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ExoPlaybackException;
-import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.MediaFormatHolder;
+import com.google.android.exoplayer.Format;
+import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource.TrackStream;
 import com.google.android.exoplayer.SampleSourceTrackRenderer;
@@ -56,7 +56,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   private final Eia608Parser eia608Parser;
   private final TextRenderer textRenderer;
   private final Handler textRendererHandler;
-  private final MediaFormatHolder formatHolder;
+  private final FormatHolder formatHolder;
   private final SampleHolder sampleHolder;
   private final StringBuilder captionStringBuilder;
   private final TreeSet<ClosedCaptionList> pendingCaptionLists;
@@ -79,15 +79,15 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
     this.textRenderer = Assertions.checkNotNull(textRenderer);
     textRendererHandler = textRendererLooper == null ? null : new Handler(textRendererLooper, this);
     eia608Parser = new Eia608Parser();
-    formatHolder = new MediaFormatHolder();
+    formatHolder = new FormatHolder();
     sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
     captionStringBuilder = new StringBuilder();
     pendingCaptionLists = new TreeSet<>();
   }
 
   @Override
-  protected int supportsFormat(MediaFormat mediaFormat) {
-    return eia608Parser.canParse(mediaFormat.mimeType) ? TrackRenderer.FORMAT_HANDLED
+  protected int supportsFormat(Format format) {
+    return eia608Parser.canParse(format.sampleMimeType) ? TrackRenderer.FORMAT_HANDLED
         : TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
   }
 

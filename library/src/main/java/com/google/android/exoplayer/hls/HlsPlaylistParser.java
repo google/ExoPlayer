@@ -16,8 +16,8 @@
 package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.hls.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -158,9 +158,9 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
           String subtitleName = HlsParserUtil.parseStringAttr(line, NAME_ATTR_REGEX, NAME_ATTR);
           String uri = HlsParserUtil.parseStringAttr(line, URI_ATTR_REGEX, URI_ATTR);
           String language = HlsParserUtil.parseOptionalStringAttr(line, LANGUAGE_ATTR_REGEX);
-          Format format = new Format(subtitleName, MimeTypes.APPLICATION_M3U8, -1, -1, -1, -1, -1,
-              -1, language, codecs);
-          subtitles.add(new Variant(uri, format));
+          Format format = Format.createTextContainerFormat(subtitleName, MimeTypes.APPLICATION_M3U8,
+              MimeTypes.TEXT_VTT, bitrate, language);
+          subtitles.add(new Variant(uri, format, null));
         } else {
           // TODO: Support other types of media tag.
         }
@@ -191,9 +191,9 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         if (name == null) {
           name = Integer.toString(variants.size());
         }
-        Format format = new Format(name, MimeTypes.APPLICATION_M3U8, width, height, -1, -1, -1,
-            bitrate, null, codecs);
-        variants.add(new Variant(line, format));
+        Format format = Format.createVideoContainerFormat(name, MimeTypes.APPLICATION_M3U8, null,
+            bitrate, width, height, Format.NO_VALUE, null);
+        variants.add(new Variant(line, format, codecs));
         bitrate = 0;
         codecs = null;
         name = null;

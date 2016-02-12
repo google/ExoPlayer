@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor.webm;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
@@ -1131,8 +1131,8 @@ public final class WebmExtractor implements Extractor {
     public byte[] codecPrivate;
 
     // Video elements.
-    public int width = MediaFormat.NO_VALUE;
-    public int height = MediaFormat.NO_VALUE;
+    public int width = Format.NO_VALUE;
+    public int height = Format.NO_VALUE;
 
     // Audio elements. Initially set to their default values.
     public int channelCount = 1;
@@ -1152,7 +1152,7 @@ public final class WebmExtractor implements Extractor {
      */
     public void initializeOutput(ExtractorOutput output, int trackId) throws ParserException {
       String mimeType;
-      int maxInputSize = MediaFormat.NO_VALUE;
+      int maxInputSize = Format.NO_VALUE;
       List<byte[]> initializationData = null;
       switch (codecId) {
         case CODEC_ID_VP8:
@@ -1231,19 +1231,18 @@ public final class WebmExtractor implements Extractor {
           throw new ParserException("Unrecognized codec identifier.");
       }
 
-      MediaFormat format;
+      Format format;
       // TODO: Consider reading the name elements of the tracks and, if present, incorporating them
       // into the trackId passed when creating the formats.
       if (MimeTypes.isAudio(mimeType)) {
-        format = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType,
-            MediaFormat.NO_VALUE, maxInputSize, channelCount, sampleRate,
-            initializationData, language);
+        format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
+            Format.NO_VALUE, maxInputSize, channelCount, sampleRate, initializationData, language);
       } else if (MimeTypes.isVideo(mimeType)) {
-        format = MediaFormat.createVideoFormat(Integer.toString(trackId), mimeType,
-            MediaFormat.NO_VALUE, maxInputSize, width, height, initializationData);
+        format = Format.createVideoSampleFormat(Integer.toString(trackId), mimeType,
+            Format.NO_VALUE, maxInputSize, width, height, Format.NO_VALUE, initializationData);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
-        format = MediaFormat.createTextFormat(Integer.toString(trackId), mimeType,
-            MediaFormat.NO_VALUE, language);
+        format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, Format.NO_VALUE,
+            language);
       } else {
         throw new ParserException("Unexpected MIME type.");
       }
@@ -1253,9 +1252,9 @@ public final class WebmExtractor implements Extractor {
     }
 
     /**
-     * Builds initialization data for a {@link MediaFormat} from H.264 (AVC) codec private data.
+     * Builds initialization data for a {@link Format} from H.264 (AVC) codec private data.
      *
-     * @return The initialization data for the {@link MediaFormat}.
+     * @return The initialization data for the {@link Format}.
      * @throws ParserException If the initialization data could not be built.
      */
     private static Pair<List<byte[]>, Integer> parseAvcCodecPrivate(ParsableByteArray buffer)
@@ -1283,9 +1282,9 @@ public final class WebmExtractor implements Extractor {
     }
 
     /**
-     * Builds initialization data for a {@link MediaFormat} from H.265 (HEVC) codec private data.
+     * Builds initialization data for a {@link Format} from H.265 (HEVC) codec private data.
      *
-     * @return The initialization data for the {@link MediaFormat}.
+     * @return The initialization data for the {@link Format}.
      * @throws ParserException If the initialization data could not be built.
      */
     private static Pair<List<byte[]>, Integer> parseHevcCodecPrivate(ParsableByteArray parent)
@@ -1336,9 +1335,9 @@ public final class WebmExtractor implements Extractor {
     }
 
     /**
-     * Builds initialization data for a {@link MediaFormat} from Vorbis codec private data.
+     * Builds initialization data for a {@link Format} from Vorbis codec private data.
      *
-     * @return The initialization data for the {@link MediaFormat}.
+     * @return The initialization data for the {@link Format}.
      * @throws ParserException If the initialization data could not be built.
      */
     private static List<byte[]> parseVorbisCodecPrivate(byte[] codecPrivate)

@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor.mp4;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.util.Ac3Util;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
@@ -69,9 +69,9 @@ import java.util.List;
     StsdData stsdData = parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, tkhdData.id,
         tkhdData.rotationDegrees, mdhdData.second, isQuickTime);
     Pair<long[], long[]> edtsData = parseEdts(trak.getContainerAtomOfType(Atom.TYPE_edts));
-    return stsdData.mediaFormat == null ? null
+    return stsdData.format == null ? null
         : new Track(tkhdData.id, trackType, mdhdData.first, movieTimescale, durationUs,
-            stsdData.mediaFormat, stsdData.trackEncryptionBoxes, stsdData.nalUnitLengthFieldLength,
+            stsdData.format, stsdData.trackEncryptionBoxes, stsdData.nalUnitLengthFieldLength,
             edtsData.first, edtsData.second);
   }
 
@@ -467,17 +467,17 @@ import java.util.List;
         parseAudioSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             language, isQuickTime, out, i);
       } else if (childAtomType == Atom.TYPE_TTML) {
-        out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_TTML, MediaFormat.NO_VALUE, language);
+        out.format = Format.createTextSampleFormat(Integer.toString(trackId),
+            MimeTypes.APPLICATION_TTML, Format.NO_VALUE, language);
       } else if (childAtomType == Atom.TYPE_tx3g) {
-        out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_TX3G, MediaFormat.NO_VALUE, language);
+        out.format = Format.createTextSampleFormat(Integer.toString(trackId),
+            MimeTypes.APPLICATION_TX3G, Format.NO_VALUE, language);
       } else if (childAtomType == Atom.TYPE_wvtt) {
-        out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_MP4VTT, MediaFormat.NO_VALUE, language);
+        out.format = Format.createTextSampleFormat(Integer.toString(trackId),
+            MimeTypes.APPLICATION_MP4VTT, Format.NO_VALUE, language);
       } else if (childAtomType == Atom.TYPE_stpp) {
-        out.mediaFormat = MediaFormat.createTextFormat(Integer.toString(trackId),
-            MimeTypes.APPLICATION_TTML, MediaFormat.NO_VALUE, language,
+        out.format = Format.createTextSampleFormat(Integer.toString(trackId),
+            MimeTypes.APPLICATION_TTML, Format.NO_VALUE, language,
             0 /* subsample timing is absolute */);
       }
       stsd.setPosition(childStartPosition + childAtomSize);
@@ -548,8 +548,8 @@ import java.util.List;
       return;
     }
 
-    out.mediaFormat = MediaFormat.createVideoFormat(Integer.toString(trackId), mimeType,
-        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, width, height, initializationData,
+    out.format = Format.createVideoSampleFormat(Integer.toString(trackId), mimeType,
+        Format.NO_VALUE, Format.NO_VALUE, width, height, Format.NO_VALUE, initializationData,
         rotationDegrees, pixelWidthHeightRatio);
   }
 
@@ -786,19 +786,17 @@ import java.util.List;
         // TODO: Choose the right AC-3 track based on the contents of dac3/dec3.
         // TODO: Add support for encryption (by setting out.trackEncryptionBoxes).
         parent.setPosition(Atom.HEADER_SIZE + childAtomPosition);
-        out.mediaFormat = Ac3Util.parseAc3AnnexFFormat(parent, Integer.toString(trackId),
-            language);
+        out.format = Ac3Util.parseAc3AnnexFFormat(parent, Integer.toString(trackId), language);
         return;
       } else if (atomType == Atom.TYPE_ec_3 && childAtomType == Atom.TYPE_dec3) {
         parent.setPosition(Atom.HEADER_SIZE + childAtomPosition);
-        out.mediaFormat = Ac3Util.parseEAc3AnnexFFormat(parent, Integer.toString(trackId),
-            language);
+        out.format = Ac3Util.parseEAc3AnnexFFormat(parent, Integer.toString(trackId), language);
         return;
       } else if ((atomType == Atom.TYPE_dtsc || atomType == Atom.TYPE_dtse
           || atomType == Atom.TYPE_dtsh || atomType == Atom.TYPE_dtsl)
           && childAtomType == Atom.TYPE_ddts) {
-        out.mediaFormat = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType,
-            MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, channelCount, sampleRate, null, language);
+        out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
+            Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, null, language);
         return;
       }
       childAtomPosition += childAtomSize;
@@ -809,8 +807,8 @@ import java.util.List;
       return;
     }
 
-    out.mediaFormat = MediaFormat.createAudioFormat(Integer.toString(trackId), mimeType,
-        MediaFormat.NO_VALUE, sampleSize, channelCount, sampleRate,
+    out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
+        Format.NO_VALUE, sampleSize, channelCount, sampleRate,
         initializationData == null ? null : Collections.singletonList(initializationData),
         language);
   }
@@ -945,7 +943,7 @@ import java.util.List;
 
     public final TrackEncryptionBox[] trackEncryptionBoxes;
 
-    public MediaFormat mediaFormat;
+    public Format format;
     public int nalUnitLengthFieldLength;
 
     public StsdData(int numberOfEntries) {

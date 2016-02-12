@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor.mp4;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer.testutil.FakeTrackOutput;
@@ -125,12 +125,12 @@ public final class Mp4ExtractorTest extends TestCase {
 
     // The video and audio formats are set correctly.
     assertEquals(2, extractorOutput.trackOutputs.size());
-    MediaFormat videoFormat = extractorOutput.trackOutputs.get(0).format;
-    MediaFormat audioFormat = extractorOutput.trackOutputs.get(1).format;
-    assertEquals(MimeTypes.VIDEO_H264, videoFormat.mimeType);
+    Format videoFormat = extractorOutput.trackOutputs.get(0).format;
+    Format audioFormat = extractorOutput.trackOutputs.get(1).format;
+    assertEquals(MimeTypes.VIDEO_H264, videoFormat.sampleMimeType);
     assertEquals(VIDEO_WIDTH, videoFormat.width);
     assertEquals(VIDEO_HEIGHT, videoFormat.height);
-    assertEquals(MimeTypes.AUDIO_AAC, audioFormat.mimeType);
+    assertEquals(MimeTypes.AUDIO_AAC, audioFormat.sampleMimeType);
 
     // The timestamps and sizes are set correctly.
     FakeTrackOutput videoTrackOutput = extractorOutput.trackOutputs.get(0);
@@ -170,12 +170,12 @@ public final class Mp4ExtractorTest extends TestCase {
 
     // The video and audio formats are set correctly.
     assertEquals(2, extractorOutput.trackOutputs.size());
-    MediaFormat videoFormat = extractorOutput.trackOutputs.get(0).format;
-    MediaFormat audioFormat = extractorOutput.trackOutputs.get(1).format;
-    assertEquals(MimeTypes.VIDEO_MP4V, videoFormat.mimeType);
+    Format videoFormat = extractorOutput.trackOutputs.get(0).format;
+    Format audioFormat = extractorOutput.trackOutputs.get(1).format;
+    assertEquals(MimeTypes.VIDEO_MP4V, videoFormat.sampleMimeType);
     assertEquals(VIDEO_MP4V_WIDTH, videoFormat.width);
     assertEquals(VIDEO_MP4V_HEIGHT, videoFormat.height);
-    assertEquals(MimeTypes.AUDIO_AAC, audioFormat.mimeType);
+    assertEquals(MimeTypes.AUDIO_AAC, audioFormat.sampleMimeType);
 
     // The timestamps and sizes are set correctly.
     FakeTrackOutput videoTrackOutput = extractorOutput.trackOutputs.get(0);

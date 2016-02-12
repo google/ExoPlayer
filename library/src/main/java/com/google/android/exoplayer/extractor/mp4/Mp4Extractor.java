@@ -303,7 +303,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       // Each sample has up to three bytes of overhead for the start code that replaces its length.
       // Allow ten source samples per output sample, like the platform extractor.
       int maxInputSize = trackSampleTable.maximumSize + 3 * 10;
-      mp4Track.trackOutput.format(track.mediaFormat.copyWithMaxInputSize(maxInputSize));
+      mp4Track.trackOutput.format(track.format.copyWithMaxInputSize(maxInputSize));
 
       durationUs = Math.max(durationUs, track.durationUs);
       tracks.add(mp4Track);

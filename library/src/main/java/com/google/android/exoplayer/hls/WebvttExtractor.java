@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
@@ -50,6 +50,7 @@ import java.util.regex.Pattern;
   private static final Pattern LOCAL_TIMESTAMP = Pattern.compile("LOCAL:([^,]+)");
   private static final Pattern MEDIA_TIMESTAMP = Pattern.compile("MPEGTS:(\\d+)");
 
+  private final String language;
   private final PtsTimestampAdjuster ptsTimestampAdjuster;
   private final ParsableByteArray sampleDataWrapper;
 
@@ -58,7 +59,8 @@ import java.util.regex.Pattern;
   private byte[] sampleData;
   private int sampleSize;
 
-  public WebvttExtractor(PtsTimestampAdjuster ptsTimestampAdjuster) {
+  public WebvttExtractor(String language, PtsTimestampAdjuster ptsTimestampAdjuster) {
+    this.language = language;
     this.ptsTimestampAdjuster = ptsTimestampAdjuster;
     this.sampleDataWrapper = new ParsableByteArray();
     sampleData = new byte[1024];
@@ -159,8 +161,8 @@ import java.util.regex.Pattern;
 
   private TrackOutput buildTrackOutput(long subsampleOffsetUs) {
     TrackOutput trackOutput = output.track(0);
-    trackOutput.format(MediaFormat.createTextFormat("id", MimeTypes.TEXT_VTT, MediaFormat.NO_VALUE,
-        "en", subsampleOffsetUs));
+    trackOutput.format(Format.createTextSampleFormat(null, MimeTypes.TEXT_VTT, Format.NO_VALUE,
+        language, subsampleOffsetUs));
     output.endTracks();
     return trackOutput;
   }

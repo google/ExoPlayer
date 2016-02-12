@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor.ts;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.Ac3Util;
 import com.google.android.exoplayer.util.ParsableBitArray;
@@ -45,7 +45,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
   // Used when parsing the header.
   private long sampleDurationUs;
-  private MediaFormat mediaFormat;
+  private Format format;
   private int sampleSize;
 
   // Used when reading the samples.
@@ -159,11 +159,11 @@ import com.google.android.exoplayer.util.ParsableByteArray;
    * Parses the sample header.
    */
   private void parseHeader() {
-    if (mediaFormat == null) {
-      mediaFormat = isEac3
+    if (format == null) {
+      format = isEac3
           ? Ac3Util.parseEac3SyncframeFormat(headerScratchBits, null, null)
           : Ac3Util.parseAc3SyncframeFormat(headerScratchBits, null, null);
-      output.format(mediaFormat);
+      output.format(format);
     }
     sampleSize = isEac3 ? Ac3Util.parseEAc3SyncframeSize(headerScratchBits.data)
         : Ac3Util.parseAc3SyncframeSize(headerScratchBits.data);
@@ -173,7 +173,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
     // In this class a sample is an access unit (syncframe in AC-3), but the MediaFormat sample rate
     // specifies the number of PCM audio samples per second.
     sampleDurationUs =
-        (int) (C.MICROS_PER_SECOND * audioSamplesPerSyncframe / mediaFormat.sampleRate);
+        (int) (C.MICROS_PER_SECOND * audioSamplesPerSyncframe / format.sampleRate);
   }
 
 }

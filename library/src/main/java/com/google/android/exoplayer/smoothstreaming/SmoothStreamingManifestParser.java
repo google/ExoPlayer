@@ -15,11 +15,11 @@
  */
 package com.google.android.exoplayer.smoothstreaming;
 
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
-import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
 import com.google.android.exoplayer.upstream.UriLoadable;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.CodecSpecificDataUtil;
@@ -35,6 +35,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -461,7 +462,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
     private static final String KEY_FRAGMENT_REPEAT_COUNT = "r";
 
     private final String baseUri;
-    private final List<TrackElement> tracks;
+    private final List<Format> formats;
 
     private int type;
     private String subType;
@@ -481,7 +482,7 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
     public StreamElementParser(ElementParser parent, String baseUri) {
       super(parent, baseUri, TAG);
       this.baseUri = baseUri;
-      tracks = new LinkedList<>();
+      formats = new LinkedList<>();
     }
 
     @Override
@@ -569,17 +570,17 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
 
     @Override
     public void addChild(Object child) {
-      if (child instanceof TrackElement) {
-        tracks.add((TrackElement) child);
+      if (child instanceof Format) {
+        formats.add((Format) child);
       }
     }
 
     @Override
     public Object build() {
-      TrackElement[] trackElements = new TrackElement[tracks.size()];
-      tracks.toArray(trackElements);
+      Format[] formatArray = new Format[formats.size()];
+      formats.toArray(formatArray);
       return new StreamElement(baseUri, url, type, subType, timescale, name, qualityLevels,
-          maxWidth, maxHeight, displayWidth, displayHeight, language, trackElements, startTimes,
+          maxWidth, maxHeight, displayWidth, displayHeight, language, formatArray, startTimes,
           lastChunkDuration);
     }
 
@@ -600,75 +601,62 @@ public class SmoothStreamingManifestParser implements UriLoadable.Parser<SmoothS
     private static final String KEY_MAX_WIDTH = "MaxWidth";
     private static final String KEY_MAX_HEIGHT = "MaxHeight";
 
-    private final List<byte[]> csd;
-
-    private int index;
-    private int bitrate;
-    private String mimeType;
-    private int maxWidth;
-    private int maxHeight;
-    private int samplingRate;
-    private int channels;
-    private String language;
+    private Format format;
 
     public TrackElementParser(ElementParser parent, String baseUri) {
       super(parent, baseUri, TAG);
-      this.csd = new LinkedList<>();
     }
 
     @Override
     public void parseStartTag(XmlPullParser parser) throws ParserException {
       int type = (Integer) getNormalizedAttribute(KEY_TYPE);
-      String value;
-
-      index = parseInt(parser, KEY_INDEX, -1);
-      bitrate = parseRequiredInt(parser, KEY_BITRATE);
-      language = (String) getNormalizedAttribute(KEY_LANGUAGE);
+      String id = parser.getAttributeValue(null, KEY_INDEX);
+      int bitrate = parseRequiredInt(parser, KEY_BITRATE);
+      String sampleMimeType = fourCCToMimeType(parseRequiredString(parser, KEY_FOUR_CC));
 
       if (type == StreamElement.TYPE_VIDEO) {
-        maxHeight = parseRequiredInt(parser, KEY_MAX_HEIGHT);
-        maxWidth = parseRequiredInt(parser, KEY_MAX_WIDTH);
-        mimeType = fourCCToMimeType(parseRequiredString(parser, KEY_FOUR_CC));
+        int width = parseRequiredInt(parser, KEY_MAX_WIDTH);
+        int height = parseRequiredInt(parser, KEY_MAX_HEIGHT);
+        List<byte[]> codecSpecificData = buildCodecSpecificData(
+            parser.getAttributeValue(null, KEY_CODEC_PRIVATE_DATA));
+        format = Format.createVideoContainerFormat(id, MimeTypes.VIDEO_MP4, sampleMimeType, bitrate,
+            width, height, Format.NO_VALUE, codecSpecificData);
+      } else if (type == StreamElement.TYPE_AUDIO) {
+        sampleMimeType = sampleMimeType == null ? MimeTypes.AUDIO_AAC : sampleMimeType;
+        int channels = parseRequiredInt(parser, KEY_CHANNELS);
+        int samplingRate = parseRequiredInt(parser, KEY_SAMPLING_RATE);
+        List<byte[]> codecSpecificData = buildCodecSpecificData(
+            parser.getAttributeValue(null, KEY_CODEC_PRIVATE_DATA));
+        String language = (String) getNormalizedAttribute(KEY_LANGUAGE);
+        format = Format.createAudioContainerFormat(id, MimeTypes.AUDIO_MP4, sampleMimeType, bitrate,
+            channels, samplingRate, codecSpecificData, language);
+      } else if (type == StreamElement.TYPE_TEXT) {
+        String language = (String) getNormalizedAttribute(KEY_LANGUAGE);
+        format = Format.createTextContainerFormat(id, MimeTypes.APPLICATION_MP4, sampleMimeType,
+            bitrate, language);
       } else {
-        maxHeight = -1;
-        maxWidth = -1;
-        String fourCC = parser.getAttributeValue(null, KEY_FOUR_CC);
-        // If fourCC is missing and the stream type is audio, we assume AAC.
-        mimeType = fourCC != null ? fourCCToMimeType(fourCC)
-            : type == StreamElement.TYPE_AUDIO ? MimeTypes.AUDIO_AAC : null;
-      }
-
-      if (type == StreamElement.TYPE_AUDIO) {
-        samplingRate = parseRequiredInt(parser, KEY_SAMPLING_RATE);
-        channels = parseRequiredInt(parser, KEY_CHANNELS);
-      } else {
-        samplingRate = -1;
-        channels = -1;
-      }
-
-      value = parser.getAttributeValue(null, KEY_CODEC_PRIVATE_DATA);
-      if (value != null && value.length() > 0) {
-        byte[] codecPrivateData = hexStringToByteArray(value);
-        byte[][] split = CodecSpecificDataUtil.splitNalUnits(codecPrivateData);
-        if (split == null) {
-          csd.add(codecPrivateData);
-        } else {
-          for (int i = 0; i < split.length; i++) {
-            csd.add(split[i]);
-          }
-        }
+        format = Format.createContainerFormat(id, MimeTypes.APPLICATION_MP4, sampleMimeType,
+            bitrate);
       }
     }
 
     @Override
     public Object build() {
-      byte[][] csdArray = null;
-      if (!csd.isEmpty()) {
-        csdArray = new byte[csd.size()][];
-        csd.toArray(csdArray);
+      return format;
+    }
+
+    private static List<byte[]> buildCodecSpecificData(String codecSpecificDataString) {
+      ArrayList<byte[]> csd = new ArrayList<>();
+      if (codecSpecificDataString != null && !codecSpecificDataString.isEmpty()) {
+        byte[] codecPrivateData = hexStringToByteArray(codecSpecificDataString);
+        byte[][] split = CodecSpecificDataUtil.splitNalUnits(codecPrivateData);
+        if (split == null) {
+          csd.add(codecPrivateData);
+        } else {
+          Collections.addAll(csd, split);
+        }
       }
-      return new TrackElement(index, bitrate, mimeType, csdArray, maxWidth, maxHeight, samplingRate,
-          channels, language);
+      return csd;
     }
 
     private static String fourCCToMimeType(String fourCC) {

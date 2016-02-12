@@ -18,7 +18,7 @@ package com.google.android.exoplayer.extractor.webm;
 import static com.google.android.exoplayer.extractor.webm.StreamBuilder.TEST_ENCRYPTION_KEY_ID;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmInitData.SchemeInitData;
@@ -722,24 +722,24 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
   }
 
   private void assertVp9VideoFormat(int trackNumber) {
-    MediaFormat format = getTrackOutput(trackNumber).format;
+    Format format = getTrackOutput(trackNumber).format;
     assertEquals(TEST_WIDTH, format.width);
     assertEquals(TEST_HEIGHT, format.height);
-    assertEquals(MimeTypes.VIDEO_VP9, format.mimeType);
+    assertEquals(MimeTypes.VIDEO_VP9, format.sampleMimeType);
   }
 
   private void assertH264VideoFormat(int trackNumber) {
-    MediaFormat format = getTrackOutput(trackNumber).format;
+    Format format = getTrackOutput(trackNumber).format;
     assertEquals(TEST_WIDTH, format.width);
     assertEquals(TEST_HEIGHT, format.height);
-    assertEquals(MimeTypes.VIDEO_H264, format.mimeType);
+    assertEquals(MimeTypes.VIDEO_H264, format.sampleMimeType);
   }
 
   private void assertAudioFormat(int trackNumber, String expectedMimeType) {
-    MediaFormat format = getTrackOutput(trackNumber).format;
+    Format format = getTrackOutput(trackNumber).format;
     assertEquals(TEST_CHANNEL_COUNT, format.channelCount);
     assertEquals(TEST_SAMPLE_RATE, format.sampleRate);
-    assertEquals(expectedMimeType, format.mimeType);
+    assertEquals(expectedMimeType, format.sampleMimeType);
     if (MimeTypes.AUDIO_OPUS.equals(expectedMimeType)) {
       assertEquals(3, format.initializationData.size());
       android.test.MoreAsserts.assertEquals(TEST_OPUS_CODEC_PRIVATE,

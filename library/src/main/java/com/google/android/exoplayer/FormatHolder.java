@@ -13,16 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.chunk;
+package com.google.android.exoplayer;
+
+import com.google.android.exoplayer.drm.DrmInitData;
 
 /**
- * Represents an object that wraps a {@link Format}.
+ * Holds a {@link Format} and corresponding drm scheme initialization data.
  */
-public interface FormatWrapper {
+public final class FormatHolder {
 
   /**
-   * Returns the wrapped format.
+   * The format of the media.
    */
-  Format getFormat();
+  public Format format;
+  /**
+   * Initialization data for drm schemes supported by the media. Null if the media is not encrypted.
+   */
+  public DrmInitData drmInitData;
 
 }

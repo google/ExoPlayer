@@ -16,16 +16,15 @@
 package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.Format;
+import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.LoadControl;
-import com.google.android.exoplayer.MediaFormat;
-import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
-import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
@@ -84,7 +83,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   // Indexed by group.
   private boolean[] groupEnabledStates;
   private boolean[] pendingResets;
-  private MediaFormat[] downstreamMediaFormats;
+  private Format[] downstreamSampleFormats;
 
   private long downstreamPositionUs;
   private long lastSeekPositionUs;
@@ -194,7 +193,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   public TrackStream enable(int group, int[] tracks, long positionUs) {
     Assertions.checkState(prepared);
     setTrackGroupEnabledState(group, true);
-    downstreamMediaFormats[group] = null;
+    downstreamSampleFormats[group] = null;
     pendingResets[group] = false;
     downstreamFormat = null;
     boolean wasLoadControlRegistered = loadControlRegistered;
@@ -288,8 +287,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     return TrackStream.NO_RESET;
   }
 
-  /* package */ int readData(int group, MediaFormatHolder formatHolder,
-      SampleHolder sampleHolder) {
+  /* package */ int readData(int group, FormatHolder formatHolder, SampleHolder sampleHolder) {
     Assertions.checkState(prepared);
 
     if (pendingResets[group] || isPendingReset()) {
@@ -323,10 +321,10 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       }
     }
 
-    MediaFormat mediaFormat = extractor.getMediaFormat(group);
-    if (mediaFormat != null && !mediaFormat.equals(downstreamMediaFormats[group])) {
-      formatHolder.format = mediaFormat;
-      downstreamMediaFormats[group] = mediaFormat;
+    Format sampleFormat = extractor.getSampleFormat(group);
+    if (sampleFormat != null && !sampleFormat.equals(downstreamSampleFormats[group])) {
+      formatHolder.format = sampleFormat;
+      downstreamSampleFormats[group] = sampleFormat;
       return TrackStream.FORMAT_READ;
     }
 
@@ -485,11 +483,11 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     int primaryExtractorTrackIndex = -1;
     int extractorTrackCount = extractor.getTrackCount();
     for (int i = 0; i < extractorTrackCount; i++) {
-      String mimeType = extractor.getMediaFormat(i).mimeType;
+      String sampleMimeType = extractor.getSampleFormat(i).sampleMimeType;
       int trackType;
-      if (MimeTypes.isVideo(mimeType)) {
+      if (MimeTypes.isVideo(sampleMimeType)) {
         trackType = PRIMARY_TYPE_VIDEO;
-      } else if (MimeTypes.isAudio(mimeType)) {
+      } else if (MimeTypes.isAudio(sampleMimeType)) {
         trackType = PRIMARY_TYPE_AUDIO;
       } else {
         trackType = PRIMARY_TYPE_NONE;
@@ -512,20 +510,20 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     trackGroups = new TrackGroup[extractorTrackCount];
     groupEnabledStates = new boolean[extractorTrackCount];
     pendingResets = new boolean[extractorTrackCount];
-    downstreamMediaFormats = new MediaFormat[extractorTrackCount];
+    downstreamSampleFormats = new Format[extractorTrackCount];
 
     // Construct the set of exposed track groups.
     for (int i = 0; i < extractorTrackCount; i++) {
-      MediaFormat format = extractor.getMediaFormat(i);
+      Format sampleFormat = extractor.getSampleFormat(i);
       if (i == primaryExtractorTrackIndex) {
-        MediaFormat[] formats = new MediaFormat[chunkSourceTrackCount];
+        Format[] formats = new Format[chunkSourceTrackCount];
         for (int j = 0; j < chunkSourceTrackCount; j++) {
-          formats[j] = copyWithFixedTrackInfo(format, chunkSource.getTrackFormat(j));
+          formats[j] = getSampleFormat(chunkSource.getTrackFormat(j), sampleFormat);
         }
         trackGroups[i] = new TrackGroup(true, formats);
         primaryTrackGroupIndex = i;
       } else {
-        trackGroups[i] = new TrackGroup(format);
+        trackGroups[i] = new TrackGroup(sampleFormat);
       }
     }
   }
@@ -543,18 +541,18 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   /**
-   * Copies a provided {@link MediaFormat}, incorporating information from the {@link Format} of
-   * a fixed (i.e. non-adaptive) track.
+   * Derives a sample format corresponding to a given container format, by combining it with sample
+   * level information obtained from a second sample format.
    *
-   * @param format The {@link MediaFormat} to copy.
-   * @param fixedTrackFormat The {@link Format} to incorporate into the copy.
-   * @return The copied {@link MediaFormat}.
+   * @param containerFormat The container format for which the sample format should be derived.
+   * @param sampleFormat A sample format from which to obtain sample level information.
+   * @return The derived sample format.
    */
-  private static MediaFormat copyWithFixedTrackInfo(MediaFormat format, Format fixedTrackFormat) {
-    int width = fixedTrackFormat.width == -1 ? MediaFormat.NO_VALUE : fixedTrackFormat.width;
-    int height = fixedTrackFormat.height == -1 ? MediaFormat.NO_VALUE : fixedTrackFormat.height;
-    return format.copyWithFixedTrackInfo(fixedTrackFormat.id, fixedTrackFormat.bitrate, width,
-        height, fixedTrackFormat.language);
+  private static Format getSampleFormat(Format containerFormat, Format sampleFormat) {
+    int width = containerFormat.width == -1 ? Format.NO_VALUE : containerFormat.width;
+    int height = containerFormat.height == -1 ? Format.NO_VALUE : containerFormat.height;
+    return sampleFormat.copyWithContainerInfo(containerFormat.id, containerFormat.bitrate, width,
+        height, containerFormat.language);
   }
 
   /**
@@ -816,7 +814,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     }
 
     @Override
-    public int readData(MediaFormatHolder formatHolder, SampleHolder sampleHolder) {
+    public int readData(FormatHolder formatHolder, SampleHolder sampleHolder) {
       return HlsSampleSource.this.readData(group, formatHolder, sampleHolder);
     }
 

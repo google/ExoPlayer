@@ -152,7 +152,7 @@ public interface SampleSource {
      * Returns whether data is available to be read.
      * <p>
      * Note: If the stream has ended then {@link #END_OF_STREAM} can always be read from
-     * {@link #readData(MediaFormatHolder, SampleHolder)}. Hence an ended stream is always ready.
+     * {@link #readData(FormatHolder, SampleHolder)}. Hence an ended stream is always ready.
      *
      * @return True if data is available to be read. False otherwise.
      */
@@ -179,14 +179,14 @@ public interface SampleSource {
      * This method will always return {@link #NOTHING_READ} in the case that there's a pending
      * discontinuity to be read from {@link #readReset} for the specified track.
      *
-     * @param formatHolder A {@link MediaFormatHolder} to populate in the case of a new format.
+     * @param formatHolder A {@link FormatHolder} to populate in the case of a new format.
      * @param sampleHolder A {@link SampleHolder} to populate in the case of a new sample. If the
      *     caller requires the sample data then it must ensure that {@link SampleHolder#data}
      *     references a valid output buffer.
      * @return The result, which can be {@link #END_OF_STREAM}, {@link #NOTHING_READ},
      *     {@link #FORMAT_READ} or {@link #SAMPLE_READ}.
      */
-    int readData(MediaFormatHolder formatHolder, SampleHolder sampleHolder);
+    int readData(FormatHolder formatHolder, SampleHolder sampleHolder);
 
     /**
      * Disables the track.

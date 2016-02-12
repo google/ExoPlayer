@@ -17,7 +17,8 @@ package com.google.android.exoplayer.dash;
 
 import com.google.android.exoplayer.BehindLiveWindowException;
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
+import com.google.android.exoplayer.Format.DecreasingBandwidthComparator;
 import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.TimeRange.DynamicTimeRange;
 import com.google.android.exoplayer.TimeRange.StaticTimeRange;
@@ -27,8 +28,6 @@ import com.google.android.exoplayer.chunk.ChunkExtractorWrapper;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.ChunkSource;
 import com.google.android.exoplayer.chunk.ContainerMediaChunk;
-import com.google.android.exoplayer.chunk.Format;
-import com.google.android.exoplayer.chunk.Format.DecreasingBandwidthComparator;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer.chunk.InitializationChunk;
@@ -52,12 +51,10 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.SystemClock;
 
 import android.os.Handler;
-import android.util.Log;
 import android.util.SparseArray;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -102,8 +99,6 @@ public class DashChunkSource implements ChunkSource {
 
   }
 
-  private static final String TAG = "DashChunkSource";
-
   private final Handler eventHandler;
   private final EventListener eventListener;
 
@@ -133,12 +128,9 @@ public class DashChunkSource implements ChunkSource {
   // Properties of exposed tracks.
   private int adaptationSetIndex;
   private TrackGroup trackGroup;
-  private Format[] trackFormats;
 
   // Properties of enabled tracks.
   private Format[] enabledFormats;
-  private int adaptiveMaxWidth;
-  private int adaptiveMaxHeight;
 
   /**
    * @param manifestFetcher A fetcher for the manifest.
@@ -250,7 +242,7 @@ public class DashChunkSource implements ChunkSource {
       } else {
         live = currentManifest.dynamic;
         durationUs = live ? C.UNKNOWN_TIME_US : currentManifest.duration * 1000;
-        selectTracks(currentManifest, 0);
+        initForManifest(currentManifest);
       }
     }
     return true;
@@ -268,22 +260,13 @@ public class DashChunkSource implements ChunkSource {
 
   @Override
   public void enable(int[] tracks) {
-    int maxWidth = -1;
-    int maxHeight = -1;
     enabledFormats = new Format[tracks.length];
     for (int i = 0; i < tracks.length; i++) {
-      enabledFormats[i] = trackFormats[tracks[i]];
-      maxWidth = Math.max(enabledFormats[i].width, maxWidth);
-      maxHeight = Math.max(enabledFormats[i].height, maxHeight);
+      enabledFormats[i] = trackGroup.getFormat(tracks[i]);
     }
     Arrays.sort(enabledFormats, new DecreasingBandwidthComparator());
     if (enabledFormats.length > 1) {
-      adaptiveMaxWidth = maxWidth;
-      adaptiveMaxHeight = maxHeight;
       adaptiveFormatEvaluator.enable();
-    } else {
-      adaptiveMaxWidth = -1;
-      adaptiveMaxHeight = -1;
     }
     processManifest(manifestFetcher.getManifest());
   }
@@ -342,7 +325,7 @@ public class DashChunkSource implements ChunkSource {
       out.chunk = null;
       return;
     } else if (out.queueSize == queue.size() && out.chunk != null
-        && out.chunk.format.equals(selectedFormat)) {
+        && out.chunk.format == selectedFormat) {
       // We already have a chunk, and the evaluation hasn't changed either the format or the size
       // of the queue. Leave unchanged.
       return;
@@ -394,7 +377,7 @@ public class DashChunkSource implements ChunkSource {
         PeriodHolder lastPeriodHolder = periodHolders.valueAt(periodHolders.size() - 1);
         if (previous.parentId == lastPeriodHolder.localIndex) {
           RepresentationHolder representationHolder =
-              lastPeriodHolder.representationHolders.get(previous.format.id);
+              lastPeriodHolder.representationHolders[getTrackIndex(previous.format)];
           if (representationHolder.isBeyondLastSegment(previous.getNextChunkIndex())) {
             out.endOfStream = true;
             return;
@@ -413,7 +396,7 @@ public class DashChunkSource implements ChunkSource {
         startingNewPeriod = true;
       } else if (!periodHolder.isIndexUnbounded()) {
         RepresentationHolder representationHolder =
-            periodHolder.representationHolders.get(previous.format.id);
+            periodHolder.representationHolders[getTrackIndex(previous.format)];
         if (representationHolder.isBeyondLastSegment(previous.getNextChunkIndex())) {
           // We reached the end of a period. Start the next one.
           periodHolder = periodHolders.get(previous.parentId + 1);
@@ -423,14 +406,14 @@ public class DashChunkSource implements ChunkSource {
     }
 
     RepresentationHolder representationHolder =
-        periodHolder.representationHolders.get(selectedFormat.id);
+        periodHolder.representationHolders[getTrackIndex(selectedFormat)];
     Representation selectedRepresentation = representationHolder.representation;
 
     RangedUri pendingInitializationUri = null;
     RangedUri pendingIndexUri = null;
 
-    MediaFormat mediaFormat = representationHolder.mediaFormat;
-    if (mediaFormat == null) {
+    Format sampleFormat = representationHolder.sampleFormat;
+    if (sampleFormat == null) {
       pendingInitializationUri = selectedRepresentation.getInitializationUri();
     }
     if (representationHolder.segmentIndex == null) {
@@ -451,7 +434,7 @@ public class DashChunkSource implements ChunkSource {
           : startingNewPeriod ? representationHolder.getFirstAvailableSegmentNum()
           : queue.get(out.queueSize - 1).getNextChunkIndex();
     Chunk nextMediaChunk = newMediaChunk(periodHolder, representationHolder, dataSource,
-        mediaFormat, adaptiveMaxWidth, adaptiveMaxHeight, segmentNum, evaluation.trigger);
+        sampleFormat, segmentNum, evaluation.trigger);
     lastChunkWasInitialization = false;
     out.chunk = nextMediaChunk;
   }
@@ -460,16 +443,16 @@ public class DashChunkSource implements ChunkSource {
   public void onChunkLoadCompleted(Chunk chunk) {
     if (chunk instanceof InitializationChunk) {
       InitializationChunk initializationChunk = (InitializationChunk) chunk;
-      String formatId = initializationChunk.format.id;
       PeriodHolder periodHolder = periodHolders.get(initializationChunk.parentId);
       if (periodHolder == null) {
         // period for this initialization chunk may no longer be on the manifest
         return;
       }
 
-      RepresentationHolder representationHolder = periodHolder.representationHolders.get(formatId);
-      if (initializationChunk.hasFormat()) {
-        representationHolder.mediaFormat = initializationChunk.getFormat();
+      RepresentationHolder representationHolder =
+          periodHolder.representationHolders[getTrackIndex(initializationChunk.format)];
+      if (initializationChunk.hasSampleFormat()) {
+        representationHolder.sampleFormat = initializationChunk.getSampleFormat();
       }
       if (initializationChunk.hasSeekMap()) {
         representationHolder.segmentIndex = new DashWrappingSegmentIndex(
@@ -504,92 +487,28 @@ public class DashChunkSource implements ChunkSource {
 
   // Private methods.
 
-  private void selectTracks(MediaPresentationDescription manifest, int periodIndex) {
-    Period period = manifest.getPeriod(periodIndex);
+  private void initForManifest(MediaPresentationDescription manifest) {
+    Period period = manifest.getPeriod(0);
     for (int i = 0; i < period.adaptationSets.size(); i++) {
       AdaptationSet adaptationSet = period.adaptationSets.get(i);
       if (adaptationSet.type == adaptationSetType) {
         // We've found an adaptation set of the exposed type.
         adaptationSetIndex = i;
         List<Representation> representations = adaptationSet.representations;
-        trackFormats = new Format[representations.size()];
-        MediaFormat[] trackMediaFormats = new MediaFormat[representations.size()];
-        int trackCount = 0;
-        for (int j = 0; j < trackMediaFormats.length; j++) {
-          trackMediaFormats[trackCount] = getMediaFormat(representations.get(j).format);
-          if (trackMediaFormats[trackCount] != null) {
-            trackFormats[trackCount++] = representations.get(j).format;
-          }
+        Format[] trackFormats = new Format[representations.size()];
+        for (int j = 0; j < trackFormats.length; j++) {
+          trackFormats[j] = representations.get(j).format;
         }
-        trackGroup = new TrackGroup(adaptiveFormatEvaluator != null,
-            Arrays.copyOf(trackMediaFormats, trackCount));
+        trackGroup = new TrackGroup(adaptiveFormatEvaluator != null, trackFormats);
         return;
       }
     }
     trackGroup = new TrackGroup(adaptiveFormatEvaluator != null);
-    trackFormats = new Format[0];
-  }
-
-  private MediaFormat getMediaFormat(Format representationFormat) {
-    String mediaMimeType = getMediaMimeType(representationFormat);
-    if (mediaMimeType == null) {
-      Log.w(TAG, "Skipped track " + representationFormat.id + " (unknown media mime type)");
-      return null;
-    }
-    MediaFormat trackFormat = getTrackFormat(adaptationSetType, representationFormat,
-        mediaMimeType);
-    if (trackFormat == null) {
-      Log.w(TAG, "Skipped track " + representationFormat.id + " (unknown media format)");
-      return null;
-    }
-    return trackFormat;
   }
 
   // Visible for testing.
   /* package */ TimeRange getAvailableRange() {
     return availableRange;
-  }
-
-  private static MediaFormat getTrackFormat(int adaptationSetType, Format format,
-      String mediaMimeType) {
-    switch (adaptationSetType) {
-      case AdaptationSet.TYPE_VIDEO:
-        return MediaFormat.createVideoFormat(format.id, mediaMimeType, format.bitrate,
-            MediaFormat.NO_VALUE, format.width, format.height, null);
-      case AdaptationSet.TYPE_AUDIO:
-        return MediaFormat.createAudioFormat(format.id, mediaMimeType, format.bitrate,
-            MediaFormat.NO_VALUE, format.audioChannels, format.audioSamplingRate, null,
-            format.language);
-      case AdaptationSet.TYPE_TEXT:
-        return MediaFormat.createTextFormat(format.id, mediaMimeType, format.bitrate,
-            format.language);
-      default:
-        return null;
-    }
-  }
-
-  private static String getMediaMimeType(Format format) {
-    String formatMimeType = format.mimeType;
-    if (MimeTypes.isAudio(formatMimeType)) {
-      return MimeTypes.getAudioMediaMimeType(format.codecs);
-    } else if (MimeTypes.isVideo(formatMimeType)) {
-      return MimeTypes.getVideoMediaMimeType(format.codecs);
-    } else if (mimeTypeIsRawText(formatMimeType)) {
-      return formatMimeType;
-    } else if (MimeTypes.APPLICATION_MP4.equals(formatMimeType) && "stpp".equals(format.codecs)) {
-      return MimeTypes.APPLICATION_TTML;
-    } else {
-      return null;
-    }
-  }
-
-  /* package */ static boolean mimeTypeIsWebm(String mimeType) {
-    return mimeType.startsWith(MimeTypes.VIDEO_WEBM) || mimeType.startsWith(MimeTypes.AUDIO_WEBM)
-        || mimeType.startsWith(MimeTypes.APPLICATION_WEBM);
-  }
-
-  /* package */ static boolean mimeTypeIsRawText(String mimeType) {
-    return MimeTypes.TEXT_VTT.equals(mimeType) || MimeTypes.APPLICATION_TTML.equals(mimeType);
   }
 
   private Chunk newInitializationChunk(RangedUri initializationUri, RangedUri indexUri,
@@ -613,26 +532,25 @@ public class DashChunkSource implements ChunkSource {
   }
 
   protected Chunk newMediaChunk(PeriodHolder periodHolder,
-      RepresentationHolder representationHolder, DataSource dataSource, MediaFormat mediaFormat,
-      int adaptiveMaxWidth, int adaptiveMaxHeight, int segmentNum, int trigger) {
+      RepresentationHolder representationHolder, DataSource dataSource, Format sampleFormat,
+      int segmentNum, int trigger) {
     Representation representation = representationHolder.representation;
-    Format format = representation.format;
     long startTimeUs = representationHolder.getSegmentStartTimeUs(segmentNum);
     long endTimeUs = representationHolder.getSegmentEndTimeUs(segmentNum);
     RangedUri segmentUri = representationHolder.getSegmentUrl(segmentNum);
     DataSpec dataSpec = new DataSpec(segmentUri.getUri(), segmentUri.start, segmentUri.length,
         representation.getCacheKey());
 
+    Format format = representation.format;
     long sampleOffsetUs = periodHolder.startTimeUs - representation.presentationTimeOffsetUs;
-    if (mimeTypeIsRawText(format.mimeType)) {
+    if (representationHolder.extractorWrapper == null) {
       return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_INITIAL, format,
-          startTimeUs, endTimeUs, segmentNum, mediaFormat, null, periodHolder.localIndex);
+          startTimeUs, endTimeUs, segmentNum, format, null, periodHolder.localIndex);
     } else {
-      boolean isMediaFormatFinal = (mediaFormat != null);
+      boolean isSampleFormatFinal = sampleFormat != null;
       return new ContainerMediaChunk(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs,
-          segmentNum, sampleOffsetUs, representationHolder.extractorWrapper, mediaFormat,
-          adaptiveMaxWidth, adaptiveMaxHeight, periodHolder.drmInitData,
-          isMediaFormatFinal, periodHolder.localIndex);
+          segmentNum, sampleOffsetUs, representationHolder.extractorWrapper, sampleFormat,
+          periodHolder.drmInitData, isSampleFormatFinal, periodHolder.localIndex);
     }
   }
 
@@ -696,8 +614,8 @@ public class DashChunkSource implements ChunkSource {
 
     // Add new periods.
     for (int i = periodHolders.size(); i < manifest.getPeriodCount(); i++) {
-      PeriodHolder holder = new PeriodHolder(nextPeriodHolderIndex, manifest, i, adaptationSetIndex,
-          enabledFormats);
+      PeriodHolder holder = new PeriodHolder(nextPeriodHolderIndex, manifest, i,
+          adaptationSetIndex);
       periodHolders.put(nextPeriodHolderIndex, holder);
       nextPeriodHolderIndex++;
     }
@@ -732,6 +650,16 @@ public class DashChunkSource implements ChunkSource {
         timeShiftBufferDepthUs, systemClock);
   }
 
+  private int getTrackIndex(Format format) {
+    for (int i = 0; i < trackGroup.length; i++) {
+      if (trackGroup.getFormat(i) == format) {
+        return i;
+      }
+    }
+    // Should never happen.
+    throw new IllegalStateException("Invalid format: " + format);
+  }
+
   private void notifyAvailableRangeChanged(final TimeRange seekRange) {
     if (eventHandler != null && eventListener != null) {
       eventHandler.post(new Runnable() {
@@ -747,12 +675,11 @@ public class DashChunkSource implements ChunkSource {
 
   protected static final class RepresentationHolder {
 
-    public final boolean mimeTypeIsRawText;
     public final ChunkExtractorWrapper extractorWrapper;
 
     public Representation representation;
     public DashSegmentIndex segmentIndex;
-    public MediaFormat mediaFormat;
+    public Format sampleFormat;
 
     private final long periodStartTimeUs;
 
@@ -764,10 +691,9 @@ public class DashChunkSource implements ChunkSource {
       this.periodStartTimeUs = periodStartTimeUs;
       this.periodDurationUs = periodDurationUs;
       this.representation = representation;
-      String mimeType = representation.format.mimeType;
-      mimeTypeIsRawText = mimeTypeIsRawText(mimeType);
-      extractorWrapper = mimeTypeIsRawText ? null : new ChunkExtractorWrapper(
-          mimeTypeIsWebm(mimeType) ? new WebmExtractor() : new FragmentedMp4Extractor());
+      String containerMimeType = representation.format.containerMimeType;
+      extractorWrapper = mimeTypeIsRawText(containerMimeType) ? null : new ChunkExtractorWrapper(
+          mimeTypeIsWebm(containerMimeType) ? new WebmExtractor() : new FragmentedMp4Extractor());
       segmentIndex = representation.getIndex();
     }
 
@@ -841,15 +767,22 @@ public class DashChunkSource implements ChunkSource {
       return segmentIndex.getSegmentUrl(segmentNum - segmentNumShift);
     }
 
+    private static boolean mimeTypeIsWebm(String mimeType) {
+      return mimeType.startsWith(MimeTypes.VIDEO_WEBM) || mimeType.startsWith(MimeTypes.AUDIO_WEBM)
+          || mimeType.startsWith(MimeTypes.APPLICATION_WEBM);
+    }
+
+    private static boolean mimeTypeIsRawText(String mimeType) {
+      return MimeTypes.isText(mimeType) || MimeTypes.APPLICATION_TTML.equals(mimeType);
+    }
+
   }
 
   protected static final class PeriodHolder {
 
     public final int localIndex;
     public final long startTimeUs;
-    public final HashMap<String, RepresentationHolder> representationHolders;
-
-    private final int[] representationIndices;
+    public final RepresentationHolder[] representationHolders;
 
     private DrmInitData drmInitData;
 
@@ -859,7 +792,7 @@ public class DashChunkSource implements ChunkSource {
     private long availableEndTimeUs;
 
     public PeriodHolder(int localIndex, MediaPresentationDescription manifest, int manifestIndex,
-        int adaptationSetIndex, Format[] enabledFormats) {
+        int adaptationSetIndex) {
       this.localIndex = localIndex;
 
       Period period = manifest.getPeriod(manifestIndex);
@@ -870,25 +803,14 @@ public class DashChunkSource implements ChunkSource {
       startTimeUs = period.startMs * 1000;
       drmInitData = getDrmInitData(adaptationSet);
 
-      if (enabledFormats.length > 1) {
-        representationIndices = new int[enabledFormats.length];
-        for (int j = 0; j < enabledFormats.length; j++) {
-          representationIndices[j] = getRepresentationIndex(representations, enabledFormats[j].id);
-        }
-      } else {
-        representationIndices = new int[] {
-            getRepresentationIndex(representations, enabledFormats[0].id)};
-      }
-
-      representationHolders = new HashMap<>();
-      for (int i = 0; i < representationIndices.length; i++) {
-        Representation representation = representations.get(representationIndices[i]);
-        RepresentationHolder representationHolder = new RepresentationHolder(startTimeUs,
+      representationHolders = new RepresentationHolder[representations.size()];
+      for (int i = 0; i < representationHolders.length; i++) {
+        Representation representation = representations.get(i);
+        representationHolders[i] = new RepresentationHolder(startTimeUs,
             periodDurationUs, representation);
-        representationHolders.put(representation.format.id, representationHolder);
       }
       updateRepresentationIndependentProperties(periodDurationUs,
-          representations.get(representationIndices[0]));
+          representationHolders[0].representation);
     }
 
     public void updatePeriod(MediaPresentationDescription manifest, int manifestIndex,
@@ -898,13 +820,12 @@ public class DashChunkSource implements ChunkSource {
       List<Representation> representations = period.adaptationSets
           .get(adaptationSetIndex).representations;
 
-      for (int j = 0; j < representationIndices.length; j++) {
-        Representation representation = representations.get(representationIndices[j]);
-        representationHolders.get(representation.format.id).updateRepresentation(periodDurationUs,
-            representation);
+      for (int i = 0; i < representationHolders.length; i++) {
+        Representation representation = representations.get(i);
+        representationHolders[i].updateRepresentation(periodDurationUs, representation);
       }
       updateRepresentationIndependentProperties(periodDurationUs,
-          representations.get(representationIndices[0]));
+          representationHolders[0].representation);
     }
 
     public long getAvailableStartTimeUs() {
@@ -951,17 +872,6 @@ public class DashChunkSource implements ChunkSource {
         availableStartTimeUs = startTimeUs;
         availableEndTimeUs = startTimeUs + periodDurationUs;
       }
-    }
-
-    private static int getRepresentationIndex(List<Representation> representations,
-        String formatId) {
-      for (int i = 0; i < representations.size(); i++) {
-        Representation representation = representations.get(i);
-        if (formatId.equals(representation.format.id)) {
-          return i;
-        }
-      }
-      throw new IllegalStateException("Missing format id: " + formatId);
     }
 
     private static DrmInitData getDrmInitData(AdaptationSet adaptationSet) {

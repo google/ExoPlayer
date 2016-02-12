@@ -29,8 +29,8 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
   private TrackStream trackStream;
 
   @Override
-  protected void onEnabled(TrackStream trackStream, long positionUs, boolean joining)
-      throws ExoPlaybackException {
+  protected void onEnabled(Format[] formats, TrackStream trackStream, long positionUs,
+      boolean joining) throws ExoPlaybackException {
     this.trackStream = Assertions.checkNotNull(trackStream);
     onReset(positionUs);
   }
@@ -63,7 +63,7 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
   /**
    * Reads from the enabled upstream source.
    *
-   * @param formatHolder A {@link MediaFormatHolder} object to populate in the case of a new format.
+   * @param formatHolder A {@link FormatHolder} object to populate in the case of a new format.
    * @param sampleHolder A {@link SampleHolder} object to populate in the case of a new sample.
    *     If the caller requires the sample data then it must ensure that {@link SampleHolder#data}
    *     references a valid output buffer.
@@ -71,7 +71,7 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
    *     {@link TrackStream#FORMAT_READ}, {@link TrackStream#NOTHING_READ} or
    *     {@link TrackStream#END_OF_STREAM}.
    */
-  protected final int readSource(MediaFormatHolder formatHolder, SampleHolder sampleHolder) {
+  protected final int readSource(FormatHolder formatHolder, SampleHolder sampleHolder) {
     return trackStream.readData(formatHolder, sampleHolder);
   }
 

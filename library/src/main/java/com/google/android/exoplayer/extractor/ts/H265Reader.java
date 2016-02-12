@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor.ts;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.NalUnitUtil;
@@ -191,7 +191,7 @@ import java.util.Collections;
     }
   }
 
-  private static MediaFormat parseMediaFormat(NalUnitTargetBuffer vps, NalUnitTargetBuffer sps,
+  private static Format parseMediaFormat(NalUnitTargetBuffer vps, NalUnitTargetBuffer sps,
       NalUnitTargetBuffer pps) {
     // Build codec-specific data.
     byte[] csd = new byte[vps.nalLength + sps.nalLength + pps.nalLength];
@@ -297,9 +297,9 @@ import java.util.Collections;
       }
     }
 
-    return MediaFormat.createVideoFormat(null, MimeTypes.VIDEO_H265, MediaFormat.NO_VALUE,
-        MediaFormat.NO_VALUE, picWidthInLumaSamples, picHeightInLumaSamples,
-        Collections.singletonList(csd), MediaFormat.NO_VALUE, pixelWidthHeightRatio);
+    return Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H265, Format.NO_VALUE,
+        Format.NO_VALUE, picWidthInLumaSamples, picHeightInLumaSamples, Format.NO_VALUE,
+        Collections.singletonList(csd), Format.NO_VALUE, pixelWidthHeightRatio);
   }
 
   /** Skips scaling_list_data(). See H.265/HEVC (2014) 7.3.4. */

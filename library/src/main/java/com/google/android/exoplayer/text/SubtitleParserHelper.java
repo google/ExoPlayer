@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.text;
 
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.Assertions;
@@ -97,7 +97,7 @@ import java.io.IOException;
    *
    * @param format The format.
    */
-  public void setFormat(MediaFormat format) {
+  public void setFormat(Format format) {
     handler.obtainMessage(MSG_FORMAT, format).sendToTarget();
   }
 
@@ -146,7 +146,7 @@ import java.io.IOException;
   public boolean handleMessage(Message msg) {
     switch (msg.what) {
       case MSG_FORMAT:
-        handleFormat((MediaFormat) msg.obj);
+        handleFormat((Format) msg.obj);
         break;
       case MSG_SAMPLE:
         long sampleTimeUs = Util.getLong(msg.arg1, msg.arg2);
@@ -157,8 +157,8 @@ import java.io.IOException;
     return true;
   }
 
-  private void handleFormat(MediaFormat format) {
-    subtitlesAreRelative = format.subsampleOffsetUs == MediaFormat.OFFSET_SAMPLE_RELATIVE;
+  private void handleFormat(Format format) {
+    subtitlesAreRelative = format.subsampleOffsetUs == Format.OFFSET_SAMPLE_RELATIVE;
     subtitleOffsetUs = subtitlesAreRelative ? 0 : format.subsampleOffsetUs;
   }
 

@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.chunk;
 
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
@@ -122,7 +122,7 @@ public final class ChunkExtractorWrapper implements ExtractorOutput, TrackOutput
   // TrackOutput implementation.
 
   @Override
-  public void format(MediaFormat format) {
+  public void format(Format format) {
     output.format(format);
   }
 

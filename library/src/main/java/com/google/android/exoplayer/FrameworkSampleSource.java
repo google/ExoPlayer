@@ -27,6 +27,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaExtractor;
+import android.media.MediaFormat;
 import android.net.Uri;
 
 import java.io.FileDescriptor;
@@ -134,11 +135,11 @@ public final class FrameworkSampleSource implements SampleSource {
     pendingResets = new boolean[trackStates.length];
     tracks = new TrackGroup[trackStates.length];
     for (int i = 0; i < trackStates.length; i++) {
-      android.media.MediaFormat format = extractor.getTrackFormat(i);
-      if (format.containsKey(android.media.MediaFormat.KEY_DURATION)) {
-        durationUs = Math.max(durationUs, format.getLong(android.media.MediaFormat.KEY_DURATION));
+      MediaFormat format = extractor.getTrackFormat(i);
+      if (format.containsKey(MediaFormat.KEY_DURATION)) {
+        durationUs = Math.max(durationUs, format.getLong(MediaFormat.KEY_DURATION));
       }
-      tracks[i] = new TrackGroup(createMediaFormat(format));
+      tracks[i] = new TrackGroup(createFormat(i, format));
     }
     prepared = true;
     return true;
@@ -188,7 +189,7 @@ public final class FrameworkSampleSource implements SampleSource {
     return TrackStream.NO_RESET;
   }
 
-  /* package */ int readData(int track, MediaFormatHolder formatHolder, SampleHolder sampleHolder) {
+  /* package */ int readData(int track, FormatHolder formatHolder, SampleHolder sampleHolder) {
     Assertions.checkState(prepared);
     Assertions.checkState(trackStates[track] != TRACK_STATE_DISABLED);
     if (pendingResets[track]) {
@@ -296,39 +297,50 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @SuppressLint("InlinedApi")
-  private static MediaFormat createMediaFormat(android.media.MediaFormat format) {
-    String mimeType = format.getString(android.media.MediaFormat.KEY_MIME);
-    String language = getOptionalStringV16(format, android.media.MediaFormat.KEY_LANGUAGE);
-    int maxInputSize = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_MAX_INPUT_SIZE);
-    int width = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_WIDTH);
-    int height = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_HEIGHT);
-    int rotationDegrees = getOptionalIntegerV16(format, "rotation-degrees");
-    int channelCount = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_CHANNEL_COUNT);
-    int sampleRate = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_SAMPLE_RATE);
+  private static Format createFormat(int index, MediaFormat mediaFormat) {
+    String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
+    String language = getOptionalStringV16(mediaFormat, MediaFormat.KEY_LANGUAGE);
+    int maxInputSize = getOptionalIntegerV16(mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE);
+    int width = getOptionalIntegerV16(mediaFormat, MediaFormat.KEY_WIDTH);
+    int height = getOptionalIntegerV16(mediaFormat, MediaFormat.KEY_HEIGHT);
+    float frameRate;
+    try {
+      frameRate = getOptionalIntegerV16(mediaFormat, MediaFormat.KEY_FRAME_RATE);
+    } catch (ClassCastException e) {
+      // There's an entry for KEY_FRAME_RATE but it's not a integer. It must be a float.
+      frameRate = getOptionalFloatV16(mediaFormat, MediaFormat.KEY_FRAME_RATE);
+    }
+    int rotationDegrees = getOptionalIntegerV16(mediaFormat, "rotation-degrees");
+    int channelCount = getOptionalIntegerV16(mediaFormat, MediaFormat.KEY_CHANNEL_COUNT);
+    int sampleRate = getOptionalIntegerV16(mediaFormat, MediaFormat.KEY_SAMPLE_RATE);
     ArrayList<byte[]> initializationData = new ArrayList<>();
-    for (int i = 0; format.containsKey("csd-" + i); i++) {
-      ByteBuffer buffer = format.getByteBuffer("csd-" + i);
+    for (int i = 0; mediaFormat.containsKey("csd-" + i); i++) {
+      ByteBuffer buffer = mediaFormat.getByteBuffer("csd-" + i);
       byte[] data = new byte[buffer.limit()];
       buffer.get(data);
       initializationData.add(data);
       buffer.flip();
     }
-    MediaFormat mediaFormat = new MediaFormat(null, mimeType, MediaFormat.NO_VALUE, maxInputSize,
-        width, height, rotationDegrees, MediaFormat.NO_VALUE, channelCount, sampleRate, language,
-        MediaFormat.OFFSET_SAMPLE_RELATIVE, initializationData, false, MediaFormat.NO_VALUE,
-        MediaFormat.NO_VALUE);
-    mediaFormat.setFrameworkFormatV16(format);
-    return mediaFormat;
+    Format format = new Format(Integer.toString(index), null, mimeType, Format.NO_VALUE,
+        maxInputSize, width, height, frameRate, rotationDegrees, Format.NO_VALUE, channelCount,
+        sampleRate, language, Format.OFFSET_SAMPLE_RELATIVE, initializationData, false);
+    format.setFrameworkMediaFormatV16(mediaFormat);
+    return format;
   }
 
   @TargetApi(16)
-  private static final String getOptionalStringV16(android.media.MediaFormat format, String key) {
+  private static String getOptionalStringV16(MediaFormat format, String key) {
     return format.containsKey(key) ? format.getString(key) : null;
   }
 
   @TargetApi(16)
-  private static final int getOptionalIntegerV16(android.media.MediaFormat format, String key) {
-    return format.containsKey(key) ? format.getInteger(key) : MediaFormat.NO_VALUE;
+  private static int getOptionalIntegerV16(MediaFormat format, String key) {
+    return format.containsKey(key) ? format.getInteger(key) : Format.NO_VALUE;
+  }
+
+  @TargetApi(16)
+  private static float getOptionalFloatV16(MediaFormat format, String key) {
+    return format.containsKey(key) ? format.getFloat(key) : Format.NO_VALUE;
   }
 
   private final class TrackStreamImpl implements TrackStream {
@@ -359,7 +371,7 @@ public final class FrameworkSampleSource implements SampleSource {
     }
 
     @Override
-    public int readData(MediaFormatHolder formatHolder, SampleHolder sampleHolder) {
+    public int readData(FormatHolder formatHolder, SampleHolder sampleHolder) {
       return FrameworkSampleSource.this.readData(track, formatHolder, sampleHolder);
     }
 

@@ -75,9 +75,10 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final long minBufferUs;
   private final long minRebufferUs;
   private final List<TrackRenderer> enabledRenderers;
+  private final int[] selectedTrackIndices;
   private final int[][] groupIndices;
   private final int[][][] trackIndices;
-  private final int[] selectedTrackIndices;
+  private final Format[][][] trackFormats;
   private final Handler handler;
   private final HandlerThread internalPlaybackThread;
   private final Handler eventHandler;
@@ -127,6 +128,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     pendingSeekCount = new AtomicInteger();
     enabledRenderers = new ArrayList<>(renderers.length);
     groupIndices = new int[renderers.length][];
+    trackFormats = new Format[renderers.length][][];
     trackIndices = new int[renderers.length][][];
     // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
     // not normally change to this priority" is incorrect.
@@ -310,13 +312,14 @@ import java.util.concurrent.atomic.AtomicInteger;
       maxTrackCount += source.getTrackGroup(groupIndex).length;
     }
     // Construct tracks for each renderer.
-    MediaFormat[][] trackFormats = new MediaFormat[renderers.length][];
+    Format[][] externalTrackFormats = new Format[renderers.length][];
     for (int rendererIndex = 0; rendererIndex < renderers.length; rendererIndex++) {
       TrackRenderer renderer = renderers[rendererIndex];
       int rendererTrackCount = 0;
+      Format[] rendererExternalTrackFormats = new Format[maxTrackCount];
       int[] rendererTrackGroups = new int[maxTrackCount];
       int[][] rendererTrackIndices = new int[maxTrackCount][];
-      MediaFormat[] rendererTrackFormats = new MediaFormat[maxTrackCount];
+      Format[][] rendererTrackFormats = new Format[maxTrackCount][];
       for (int groupIndex = 0; groupIndex < source.getTrackGroupCount(); groupIndex++) {
         TrackGroup trackGroup = source.getTrackGroup(groupIndex);
         // TODO[REFACTOR]: This should check that the renderer is capable of adaptive playback, in
@@ -325,14 +328,12 @@ import java.util.concurrent.atomic.AtomicInteger;
           // Try and build an adaptive track.
           int adaptiveTrackIndexCount = 0;
           int[] adaptiveTrackIndices = new int[trackGroup.length];
-          MediaFormat adaptiveTrackFormat = null;
+          Format[] adaptiveTrackFormats = new Format[trackGroup.length];
           for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
-            MediaFormat trackFormat = source.getTrackGroup(groupIndex).getFormat(trackIndex);
+            Format trackFormat = source.getTrackGroup(groupIndex).getFormat(trackIndex);
             if (renderer.supportsFormat(trackFormat) == TrackRenderer.FORMAT_HANDLED) {
-              adaptiveTrackIndices[adaptiveTrackIndexCount++] = trackIndex;
-              if (adaptiveTrackFormat == null) {
-                adaptiveTrackFormat = trackFormat.copyAsAdaptive("auto");
-              }
+              adaptiveTrackIndices[adaptiveTrackIndexCount] = trackIndex;
+              adaptiveTrackFormats[adaptiveTrackIndexCount++] = trackFormat;
             }
           }
           if (adaptiveTrackIndexCount > 1) {
@@ -340,21 +341,27 @@ import java.util.concurrent.atomic.AtomicInteger;
             rendererTrackGroups[rendererTrackCount] = groupIndex;
             rendererTrackIndices[rendererTrackCount] =
                 Arrays.copyOf(adaptiveTrackIndices, adaptiveTrackIndexCount);
-            rendererTrackFormats[rendererTrackCount++] = adaptiveTrackFormat;
+            rendererTrackFormats[rendererTrackCount] =
+                Arrays.copyOf(adaptiveTrackFormats, adaptiveTrackIndexCount);
+            rendererExternalTrackFormats[rendererTrackCount++] = Format.createSampleFormat(
+                "auto", adaptiveTrackFormats[0].sampleMimeType, Format.NO_VALUE);
           }
         }
         for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
-          MediaFormat trackFormat = source.getTrackGroup(groupIndex).getFormat(trackIndex);
+          Format trackFormat = source.getTrackGroup(groupIndex).getFormat(trackIndex);
           if (renderer.supportsFormat(trackFormat) == TrackRenderer.FORMAT_HANDLED) {
             rendererTrackGroups[rendererTrackCount] = groupIndex;
             rendererTrackIndices[rendererTrackCount] = new int[] {trackIndex};
-            rendererTrackFormats[rendererTrackCount++] = trackFormat;
+            rendererTrackFormats[rendererTrackCount] = new Format[] {trackFormat};
+            rendererExternalTrackFormats[rendererTrackCount++] = trackFormat;
           }
         }
       }
       groupIndices[rendererIndex] = Arrays.copyOf(rendererTrackGroups, rendererTrackCount);
       trackIndices[rendererIndex] = Arrays.copyOf(rendererTrackIndices, rendererTrackCount);
       trackFormats[rendererIndex] = Arrays.copyOf(rendererTrackFormats, rendererTrackCount);
+      externalTrackFormats[rendererIndex] = Arrays.copyOf(rendererExternalTrackFormats,
+          rendererTrackCount);
     }
 
     // Enable renderers where appropriate.
@@ -364,7 +371,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       if (0 <= trackIndex && trackIndex < trackIndices[rendererIndex].length) {
         TrackStream trackStream = source.enable(groupIndices[rendererIndex][trackIndex],
             trackIndices[rendererIndex][trackIndex], positionUs);
-        renderer.enable(trackStream, positionUs, false);
+        renderer.enable(trackFormats[rendererIndex][trackIndex], trackStream, positionUs, false);
         enabledRenderers.add(renderer);
         allRenderersEnded = allRenderersEnded && renderer.isEnded();
         allRenderersReadyOrEnded = allRenderersReadyOrEnded && isReadyOrEnded(renderer);
@@ -381,7 +388,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     // Fire an event indicating that the player has been prepared, passing the initial state and
     // renderer track information.
-    eventHandler.obtainMessage(MSG_PREPARED, state, 0, trackFormats).sendToTarget();
+    eventHandler.obtainMessage(MSG_PREPARED, state, 0, externalTrackFormats).sendToTarget();
 
     // Start the renderers if required, and schedule the first piece of work.
     if (playWhenReady && state == ExoPlayer.STATE_READY) {
@@ -642,7 +649,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       boolean joining = !isEnabled && playing;
       TrackStream trackStream = source.enable(groupIndices[rendererIndex][trackIndex],
           trackIndices[rendererIndex][trackIndex], positionUs);
-      renderer.enable(trackStream, positionUs, joining);
+      renderer.enable(trackFormats[rendererIndex][trackIndex], trackStream, positionUs, joining);
       enabledRenderers.add(renderer);
       if (playing) {
         renderer.start();

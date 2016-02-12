@@ -17,15 +17,14 @@ package com.google.android.exoplayer.smoothstreaming;
 
 import com.google.android.exoplayer.BehindLiveWindowException;
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
+import com.google.android.exoplayer.Format.DecreasingBandwidthComparator;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkExtractorWrapper;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.ChunkSource;
 import com.google.android.exoplayer.chunk.ContainerMediaChunk;
-import com.google.android.exoplayer.chunk.Format;
-import com.google.android.exoplayer.chunk.Format.DecreasingBandwidthComparator;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer.chunk.MediaChunk;
@@ -36,22 +35,18 @@ import com.google.android.exoplayer.extractor.mp4.Track;
 import com.google.android.exoplayer.extractor.mp4.TrackEncryptionBox;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.ProtectionElement;
 import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.StreamElement;
-import com.google.android.exoplayer.smoothstreaming.SmoothStreamingManifest.TrackElement;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
-import com.google.android.exoplayer.util.Assertions;
-import com.google.android.exoplayer.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.MimeTypes;
 
 import android.net.Uri;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Base64;
-import android.util.SparseArray;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -82,16 +77,10 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   // Properties of exposed tracks.
   private int elementIndex;
   private TrackGroup trackGroup;
-  private Format[] trackFormats;
+  private ChunkExtractorWrapper[] extractorWrappers;
 
   // Properties of enabled tracks.
   private Format[] enabledFormats;
-  private int adaptiveMaxWidth;
-  private int adaptiveMaxHeight;
-
-  // Mappings from manifest track key.
-  private final SparseArray<ChunkExtractorWrapper> extractorWrappers;
-  private final SparseArray<MediaFormat> mediaFormats;
 
   private IOException fatalError;
 
@@ -117,8 +106,6 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
     this.liveEdgeLatencyUs = liveEdgeLatencyMs * 1000;
     evaluation = new Evaluation();
-    extractorWrappers = new SparseArray<>();
-    mediaFormats = new SparseArray<>();
   }
 
   // ChunkSource implementation.
@@ -160,7 +147,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
           trackEncryptionBoxes = null;
           drmInitData = null;
         }
-        selectTracks(currentManifest);
+        initForManifest(currentManifest);
       }
     }
     return true;
@@ -178,22 +165,13 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
   @Override
   public void enable(int[] tracks) {
-    int maxWidth = -1;
-    int maxHeight = -1;
     enabledFormats = new Format[tracks.length];
     for (int i = 0; i < tracks.length; i++) {
-      enabledFormats[i] = trackFormats[tracks[i]];
-      maxWidth = Math.max(enabledFormats[i].width, maxWidth);
-      maxHeight = Math.max(enabledFormats[i].height, maxHeight);
+      enabledFormats[i] = trackGroup.getFormat(tracks[i]);
     }
     Arrays.sort(enabledFormats, new DecreasingBandwidthComparator());
     if (enabledFormats.length > 1) {
-      adaptiveMaxWidth = maxWidth;
-      adaptiveMaxHeight = maxHeight;
       adaptiveFormatEvaluator.enable();
-    } else {
-      adaptiveMaxWidth = -1;
-      adaptiveMaxHeight = -1;
     }
   }
 
@@ -256,7 +234,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
       out.chunk = null;
       return;
     } else if (out.queueSize == queue.size() && out.chunk != null
-        && out.chunk.format.equals(selectedFormat)) {
+        && out.chunk.format == selectedFormat) {
       // We already have a chunk, and the evaluation hasn't changed either the format or the size
       // of the queue. Leave unchanged.
       return;
@@ -311,13 +289,15 @@ public class SmoothStreamingChunkSource implements ChunkSource {
         : chunkStartTimeUs + streamElement.getChunkDurationUs(chunkIndex);
     int currentAbsoluteChunkIndex = chunkIndex + currentManifestChunkOffset;
 
+    int trackGroupTrackIndex = getTrackGroupTrackIndex(trackGroup, selectedFormat);
+    ChunkExtractorWrapper extractorWrapper = extractorWrappers[trackGroupTrackIndex];
+
     int manifestTrackIndex = getManifestTrackIndex(streamElement, selectedFormat);
-    int manifestTrackKey = getManifestTrackKey(elementIndex, manifestTrackIndex);
     Uri uri = streamElement.buildRequestUri(manifestTrackIndex, chunkIndex);
-    Chunk mediaChunk = newMediaChunk(selectedFormat, uri, null,
-        extractorWrappers.get(manifestTrackKey), drmInitData, dataSource, currentAbsoluteChunkIndex,
-        chunkStartTimeUs, chunkEndTimeUs, evaluation.trigger, mediaFormats.get(manifestTrackKey),
-        adaptiveMaxWidth, adaptiveMaxHeight);
+
+    Chunk mediaChunk = newMediaChunk(selectedFormat, dataSource, uri, null,
+        currentAbsoluteChunkIndex, chunkStartTimeUs, chunkEndTimeUs, evaluation.trigger,
+        extractorWrapper, drmInitData, selectedFormat);
     out.chunk = mediaChunk;
   }
 
@@ -342,82 +322,30 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
   // Private methods.
 
-  private void selectTracks(SmoothStreamingManifest manifest) {
+  private void initForManifest(SmoothStreamingManifest manifest) {
     for (int i = 0; i < manifest.streamElements.length; i++) {
       if (manifest.streamElements[i].type == streamElementType) {
         // We've found an element of the desired type.
         elementIndex = i;
-        TrackElement[] trackElements = manifest.streamElements[i].tracks;
-        trackFormats = new Format[trackElements.length];
-        MediaFormat[] trackMediaFormats = new MediaFormat[trackElements.length];
-        for (int j = 0; j < trackMediaFormats.length; j++) {
-          trackFormats[j] = trackElements[j].format;
-          trackMediaFormats[j] = initManifestTrack(manifest, i, j);
+        long timescale = manifest.streamElements[i].timescale;
+        Format[] formats = manifest.streamElements[i].formats;
+        extractorWrappers = new ChunkExtractorWrapper[formats.length];
+        for (int j = 0; j < formats.length; j++) {
+          int nalUnitLengthFieldLength = streamElementType == StreamElement.TYPE_VIDEO ? 4 : -1;
+          Track track = new Track(j, streamElementType, timescale, C.UNKNOWN_TIME_US, durationUs,
+              formats[j], trackEncryptionBoxes, nalUnitLengthFieldLength, null, null);
+          FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
+              FragmentedMp4Extractor.WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
+              | FragmentedMp4Extractor.WORKAROUND_IGNORE_TFDT_BOX);
+          extractor.setTrack(track);
+          extractorWrappers[j] = new ChunkExtractorWrapper(extractor);
         }
-        trackGroup = new TrackGroup(adaptiveFormatEvaluator != null, trackMediaFormats);
+        trackGroup = new TrackGroup(adaptiveFormatEvaluator != null, formats);
         return;
       }
     }
+    extractorWrappers = null;
     trackGroup = new TrackGroup(adaptiveFormatEvaluator != null);
-    trackFormats = new Format[0];
-  }
-
-  private MediaFormat initManifestTrack(SmoothStreamingManifest manifest, int elementIndex,
-      int trackIndex) {
-    int manifestTrackKey = getManifestTrackKey(elementIndex, trackIndex);
-    MediaFormat mediaFormat = mediaFormats.get(manifestTrackKey);
-    if (mediaFormat != null) {
-      // Already initialized.
-      return mediaFormat;
-    }
-
-    // Build the media format.
-    long durationUs = live ? C.UNKNOWN_TIME_US : manifest.durationUs;
-    StreamElement element = manifest.streamElements[elementIndex];
-    Format format = element.tracks[trackIndex].format;
-    byte[][] csdArray = element.tracks[trackIndex].csd;
-    int mp4TrackType;
-    switch (element.type) {
-      case StreamElement.TYPE_VIDEO:
-        mediaFormat = MediaFormat.createVideoFormat(format.id, format.mimeType, format.bitrate,
-            MediaFormat.NO_VALUE, format.width, format.height, Arrays.asList(csdArray));
-        mp4TrackType = Track.TYPE_vide;
-        break;
-      case StreamElement.TYPE_AUDIO:
-        List<byte[]> csd;
-        if (csdArray != null) {
-          csd = Arrays.asList(csdArray);
-        } else {
-          csd = Collections.singletonList(CodecSpecificDataUtil.buildAacAudioSpecificConfig(
-              format.audioSamplingRate, format.audioChannels));
-        }
-        mediaFormat = MediaFormat.createAudioFormat(format.id, format.mimeType, format.bitrate,
-            MediaFormat.NO_VALUE, format.audioChannels, format.audioSamplingRate, csd,
-            format.language);
-        mp4TrackType = Track.TYPE_soun;
-        break;
-      case StreamElement.TYPE_TEXT:
-        mediaFormat = MediaFormat.createTextFormat(format.id, format.mimeType, format.bitrate,
-            format.language);
-        mp4TrackType = Track.TYPE_text;
-        break;
-      default:
-        throw new IllegalStateException("Invalid type: " + element.type);
-    }
-
-    // Build the extractor.
-    FragmentedMp4Extractor mp4Extractor = new FragmentedMp4Extractor(
-        FragmentedMp4Extractor.WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
-        | FragmentedMp4Extractor.WORKAROUND_IGNORE_TFDT_BOX);
-    Track mp4Track = new Track(trackIndex, mp4TrackType, element.timescale, C.UNKNOWN_TIME_US,
-        durationUs, mediaFormat, trackEncryptionBoxes, mp4TrackType == Track.TYPE_vide ? 4 : -1,
-        null, null);
-    mp4Extractor.setTrack(mp4Track);
-
-    // Store the format and a wrapper around the extractor.
-    mediaFormats.put(manifestTrackKey, mediaFormat);
-    extractorWrappers.put(manifestTrackKey, new ChunkExtractorWrapper(mp4Extractor));
-    return mediaFormat;
   }
 
   /**
@@ -443,10 +371,12 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     return liveEdgeTimestampUs - liveEdgeLatencyUs;
   }
 
-  private static int getManifestTrackIndex(StreamElement element, Format format) {
-    TrackElement[] tracks = element.tracks;
-    for (int i = 0; i < tracks.length; i++) {
-      if (tracks[i].format.equals(format)) {
+  /**
+   * Gets the index of a format in a track group, using referential equality.
+   */
+  private static int getTrackGroupTrackIndex(TrackGroup trackGroup, Format format) {
+    for (int i = 0; i < trackGroup.length; i++) {
+      if (trackGroup.getFormat(i) == format) {
         return i;
       }
     }
@@ -454,22 +384,34 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     throw new IllegalStateException("Invalid format: " + format);
   }
 
-  private static MediaChunk newMediaChunk(Format formatInfo, Uri uri, String cacheKey,
-      ChunkExtractorWrapper extractorWrapper, DrmInitData drmInitData, DataSource dataSource,
-      int chunkIndex, long chunkStartTimeUs, long chunkEndTimeUs, int trigger,
-      MediaFormat mediaFormat, int adaptiveMaxWidth, int adaptiveMaxHeight) {
-    long offset = 0;
-    DataSpec dataSpec = new DataSpec(uri, offset, -1, cacheKey);
-    // In SmoothStreaming each chunk contains sample timestamps relative to the start of the chunk.
-    // To convert them the absolute timestamps, we need to set sampleOffsetUs to -chunkStartTimeUs.
-    return new ContainerMediaChunk(dataSource, dataSpec, trigger, formatInfo, chunkStartTimeUs,
-        chunkEndTimeUs, chunkIndex, chunkStartTimeUs, extractorWrapper, mediaFormat,
-        adaptiveMaxWidth, adaptiveMaxHeight, drmInitData, true, Chunk.NO_PARENT_ID);
+  /**
+   * Gets the index of a format in an element, using format.id equality.
+   * <p>
+   * This method will return the same index as {@link #getTrackGroupTrackIndex(TrackGroup, Format)}
+   * except in the case where a live manifest is refreshed and the ordering of the tracks in the
+   * manifest has changed.
+   */
+  private static int getManifestTrackIndex(StreamElement element, Format format) {
+    Format[] formats = element.formats;
+    for (int i = 0; i < formats.length; i++) {
+      if (TextUtils.equals(formats[i].id, format.id)) {
+        return i;
+      }
+    }
+    // Should never happen.
+    throw new IllegalStateException("Invalid format: " + format);
   }
 
-  private static int getManifestTrackKey(int elementIndex, int trackIndex) {
-    Assertions.checkState(elementIndex <= 65536 && trackIndex <= 65536);
-    return (elementIndex << 16) | trackIndex;
+  private static MediaChunk newMediaChunk(Format format, DataSource dataSource, Uri uri,
+      String cacheKey, int chunkIndex, long chunkStartTimeUs, long chunkEndTimeUs, int trigger,
+      ChunkExtractorWrapper extractorWrapper, DrmInitData drmInitData, Format sampleFormat) {
+    DataSpec dataSpec = new DataSpec(uri, 0, -1, cacheKey);
+    // In SmoothStreaming each chunk contains sample timestamps relative to the start of the chunk.
+    // To convert them the absolute timestamps, we need to set sampleOffsetUs to chunkStartTimeUs.
+    long sampleOffsetUs = chunkStartTimeUs;
+    return new ContainerMediaChunk(dataSource, dataSpec, trigger, format, chunkStartTimeUs,
+        chunkEndTimeUs, chunkIndex, sampleOffsetUs, extractorWrapper, sampleFormat, drmInitData,
+        true, Chunk.NO_PARENT_ID);
   }
 
   private static byte[] getProtectionElementKeyId(byte[] initData) {

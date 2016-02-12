@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -41,7 +41,7 @@ public class DefaultTrackOutput implements TrackOutput {
 
   // Accessed by both the loading and consuming threads.
   private volatile long largestParsedTimestampUs;
-  private volatile MediaFormat format;
+  private volatile Format format;
 
   /**
    * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
@@ -105,7 +105,7 @@ public class DefaultTrackOutput implements TrackOutput {
   /**
    * The format most recently received by the output, or null if a format has yet to be received.
    */
-  public MediaFormat getFormat() {
+  public Format getFormat() {
     return format;
   }
 
@@ -246,7 +246,7 @@ public class DefaultTrackOutput implements TrackOutput {
   // TrackOutput implementation. Called by the loading thread.
 
   @Override
-  public void format(MediaFormat format) {
+  public void format(Format format) {
     this.format = format;
   }
 

@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -29,11 +29,11 @@ import java.io.IOException;
 public interface TrackOutput {
 
   /**
-   * Invoked when the {@link MediaFormat} of the track has been extracted from the stream.
+   * Invoked when the {@link Format} of the track has been extracted from the stream.
    *
-   * @param format The extracted {@link MediaFormat}.
+   * @param format The extracted {@link Format}.
    */
-  void format(MediaFormat format);
+  void format(Format format);
 
   /**
    * Invoked to write sample data to the output.

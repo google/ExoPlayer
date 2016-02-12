@@ -27,8 +27,10 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
+import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 
@@ -88,6 +90,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   }
 
+  private static final String TAG = "MediaCodecVideoTrackRenderer";
+
   // TODO: Use MediaFormat constants if these get exposed through the API. See
   // [Internal: b/14127601].
   private static final String KEY_CROP_LEFT = "crop-left";
@@ -107,6 +111,9 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   private final long allowedJoiningTimeUs;
   private final int videoScalingMode;
   private final int maxDroppedFrameCountToNotify;
+
+  private int adaptiveMaxWidth;
+  private int adaptiveMaxHeight;
 
   private Surface surface;
   private boolean reportedDrawnToSurface;
@@ -213,34 +220,33 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected int supportsFormat(MediaCodecSelector mediaCodecSelector, MediaFormat mediaFormat)
+  protected int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
       throws DecoderQueryException {
-    String mimeType = mediaFormat.mimeType;
+    String mimeType = format.sampleMimeType;
     if (!MimeTypes.isVideo(mimeType)) {
       return TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
     }
-    // TODO[REFACTOR]: Propagate requiresSecureDecoder to this point. Note that we need to check
-    // that the drm session can make use of a secure decoder, as well as that a secure decoder
-    // exists.
-    DecoderInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mediaFormat.mimeType, false);
+    // TODO[REFACTOR]: If requiresSecureDecryption then we should probably also check that the
+    // drmSession is able to make use of a secure decoder.
+    DecoderInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
+        format.requiresSecureDecryption);
     if (decoderInfo == null) {
       return TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
     }
-    if (mediaFormat.width > 0 && mediaFormat.height > 0) {
+    if (format.width > 0 && format.height > 0) {
       if (Util.SDK_INT >= 21) {
-        // TODO[REFACTOR]: Propagate frame rate to this point.
-        // if (mediaFormat.frameRate > 0) {
-        //   return decoderInfo.isSizeAndRateSupportedV21(mediaFormat.width, mediaFormat.height,
-        //       mediaFormat.frameRate) ? TrackRenderer.TRACK_HANDLED
-        //       : TrackRenderer.TRACK_NOT_HANDLED_EXCEEDS_CAPABILITIES;
-        // } else {
-        return decoderInfo.isVideoSizeSupportedV21(mediaFormat.width, mediaFormat.height)
-            ? TrackRenderer.FORMAT_HANDLED : TrackRenderer.FORMAT_EXCEEDS_CAPABILITIES;
-        // }
+        if (format.frameRate > 0) {
+          return decoderInfo.isVideoSizeAndRateSupportedV21(format.width, format.height,
+              format.frameRate) ? TrackRenderer.FORMAT_HANDLED
+                  : TrackRenderer.FORMAT_EXCEEDS_CAPABILITIES;
+        } else {
+          return decoderInfo.isVideoSizeSupportedV21(format.width, format.height)
+              ? TrackRenderer.FORMAT_HANDLED : TrackRenderer.FORMAT_EXCEEDS_CAPABILITIES;
+        }
       }
       // TODO[REFACTOR]: We should probably assume that we can decode at least the resolution of
       // the display, or the camera, as a sanity check?
-      if (mediaFormat.width * mediaFormat.height > MediaCodecUtil.maxH264DecodableFrameSize()) {
+      if (format.width * format.height > MediaCodecUtil.maxH264DecodableFrameSize()) {
         return TrackRenderer.FORMAT_EXCEEDS_CAPABILITIES;
       }
     }
@@ -248,9 +254,23 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void onEnabled(TrackStream trackStream, long positionUs, boolean joining)
-      throws ExoPlaybackException {
-    super.onEnabled(trackStream, positionUs, joining);
+  protected void onEnabled(Format[] formats, TrackStream trackStream, long positionUs,
+      boolean joining) throws ExoPlaybackException {
+    super.onEnabled(formats, trackStream, positionUs, joining);
+    adaptiveMaxWidth = Format.NO_VALUE;
+    adaptiveMaxHeight = Format.NO_VALUE;
+    if (formats.length > 1) {
+      for (int i = 0; i < formats.length; i++) {
+        adaptiveMaxWidth = Math.max(adaptiveMaxWidth, formats[i].width);
+        adaptiveMaxHeight = Math.max(adaptiveMaxHeight, formats[i].height);
+      }
+      if (adaptiveMaxWidth == Format.NO_VALUE
+          || adaptiveMaxHeight == Format.NO_VALUE) {
+        Log.w(TAG, "Maximum dimensions unknown. Assuming 1920x1080.");
+        adaptiveMaxWidth = 1920;
+        adaptiveMaxHeight = 1080;
+      }
+    }
     if (joining && allowedJoiningTimeUs > 0) {
       joiningDeadlineUs = SystemClock.elapsedRealtime() * 1000L + allowedJoiningTimeUs;
     }
@@ -345,17 +365,17 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   // Override configureCodec to provide the surface.
   @Override
-  protected void configureCodec(MediaCodec codec, MediaFormat format, MediaCrypto crypto) {
+  protected void configureCodec(MediaCodec codec, Format format, MediaCrypto crypto) {
     codec.configure(getFrameworkMediaFormat(format), surface, crypto, 0);
     codec.setVideoScalingMode(videoScalingMode);
   }
 
   @Override
-  protected void onInputFormatChanged(MediaFormatHolder holder) throws ExoPlaybackException {
+  protected void onInputFormatChanged(FormatHolder holder) throws ExoPlaybackException {
     super.onInputFormatChanged(holder);
-    pendingPixelWidthHeightRatio = holder.format.pixelWidthHeightRatio == MediaFormat.NO_VALUE ? 1
+    pendingPixelWidthHeightRatio = holder.format.pixelWidthHeightRatio == Format.NO_VALUE ? 1
         : holder.format.pixelWidthHeightRatio;
-    pendingRotationDegrees = holder.format.rotationDegrees == MediaFormat.NO_VALUE ? 0
+    pendingRotationDegrees = holder.format.rotationDegrees == Format.NO_VALUE ? 0
         : holder.format.rotationDegrees;
   }
 
@@ -367,16 +387,16 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void onOutputFormatChanged(android.media.MediaFormat outputFormat) {
+  protected void onOutputFormatChanged(MediaFormat outputFormat) {
     boolean hasCrop = outputFormat.containsKey(KEY_CROP_RIGHT)
         && outputFormat.containsKey(KEY_CROP_LEFT) && outputFormat.containsKey(KEY_CROP_BOTTOM)
         && outputFormat.containsKey(KEY_CROP_TOP);
     currentWidth = hasCrop
         ? outputFormat.getInteger(KEY_CROP_RIGHT) - outputFormat.getInteger(KEY_CROP_LEFT) + 1
-        : outputFormat.getInteger(android.media.MediaFormat.KEY_WIDTH);
+        : outputFormat.getInteger(MediaFormat.KEY_WIDTH);
     currentHeight = hasCrop
         ? outputFormat.getInteger(KEY_CROP_BOTTOM) - outputFormat.getInteger(KEY_CROP_TOP) + 1
-        : outputFormat.getInteger(android.media.MediaFormat.KEY_HEIGHT);
+        : outputFormat.getInteger(MediaFormat.KEY_HEIGHT);
     currentPixelWidthHeightRatio = pendingPixelWidthHeightRatio;
     if (Util.SDK_INT >= 21) {
       // On API level 21 and above the decoder applies the rotation when rendering to the surface.
@@ -396,8 +416,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected boolean canReconfigureCodec(MediaCodec codec, boolean codecIsAdaptive,
-      MediaFormat oldFormat, MediaFormat newFormat) {
-    return newFormat.mimeType.equals(oldFormat.mimeType)
+      Format oldFormat, Format newFormat) {
+    return newFormat.sampleMimeType.equals(oldFormat.sampleMimeType)
         && (codecIsAdaptive
             || (oldFormat.width == newFormat.width && oldFormat.height == newFormat.height));
   }
@@ -517,19 +537,26 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @SuppressLint("InlinedApi")
-  private android.media.MediaFormat getFrameworkMediaFormat(MediaFormat format) {
+  private android.media.MediaFormat getFrameworkMediaFormat(Format format) {
     android.media.MediaFormat frameworkMediaFormat = format.getFrameworkMediaFormatV16();
+
+    // Set the maximum adaptive video dimensions if applicable.
+    if (adaptiveMaxWidth != Format.NO_VALUE && adaptiveMaxHeight != Format.NO_VALUE) {
+      frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_WIDTH, adaptiveMaxWidth);
+      frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_HEIGHT, adaptiveMaxHeight);
+    }
+
     if (format.maxInputSize > 0) {
       // The format already has a maximum input size.
       return frameworkMediaFormat;
     }
 
     // If the format doesn't define a maximum input size, determine one ourselves.
-    int maxHeight = Math.max(format.maxHeight, format.height);
-    int maxWidth = Math.max(format.maxWidth, format.maxWidth);
+    int maxWidth = Math.max(adaptiveMaxWidth, format.width);
+    int maxHeight = Math.max(adaptiveMaxHeight, format.height);
     int maxPixels;
     int minCompressionRatio;
-    switch (format.mimeType) {
+    switch (format.sampleMimeType) {
       case MimeTypes.VIDEO_H264:
         if ("BRAVIA 4K 2015".equals(Util.MODEL)) {
           // The Sony BRAVIA 4k TV has input buffers that are too small for the calculated 4k video
@@ -555,7 +582,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     }
     // Estimate the maximum input size assuming three channel 4:2:0 subsampled input frames.
     int maxInputSize = (maxPixels * 3) / (2 * minCompressionRatio);
-    frameworkMediaFormat.setInteger(android.media.MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
+    frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, maxInputSize);
     return frameworkMediaFormat;
   }
 

@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor.ts;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.MpegAudioHeader;
 import com.google.android.exoplayer.util.ParsableByteArray;
@@ -160,10 +160,9 @@ import com.google.android.exoplayer.util.ParsableByteArray;
     frameSize = header.frameSize;
     if (!hasOutputFormat) {
       frameDurationUs = (C.MICROS_PER_SECOND * header.samplesPerFrame) / header.sampleRate;
-      MediaFormat mediaFormat = MediaFormat.createAudioFormat(null, header.mimeType,
-          MediaFormat.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES, header.channels,
-          header.sampleRate, null, null);
-      output.format(mediaFormat);
+      Format format = Format.createAudioSampleFormat(null, header.mimeType, Format.NO_VALUE,
+          MpegAudioHeader.MAX_FRAME_SIZE_BYTES, header.channels, header.sampleRate, null, null);
+      output.format(format);
       hasOutputFormat = true;
     }
 

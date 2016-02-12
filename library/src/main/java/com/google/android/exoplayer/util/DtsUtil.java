@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.util;
 
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 
 import java.nio.ByteBuffer;
 
@@ -56,7 +56,7 @@ public final class DtsUtil {
    * @param language The language to set on the format.
    * @return The DTS format parsed from data in the header.
    */
-  public static MediaFormat parseDtsFormat(byte[] frame, String trackId, String language) {
+  public static Format parseDtsFormat(byte[] frame, String trackId, String language) {
     ParsableBitArray frameBits = SCRATCH_BITS;
     frameBits.reset(frame);
     frameBits.skipBits(4 * 8 + 1 + 5 + 1 + 7 + 14); // SYNC, FTYPE, SHORT, CPF, NBLKS, FSIZE
@@ -65,12 +65,12 @@ public final class DtsUtil {
     int sfreq = frameBits.readBits(4);
     int sampleRate = SAMPLE_RATE_BY_SFREQ[sfreq];
     int rate = frameBits.readBits(5);
-    int bitrate = rate >= TWICE_BITRATE_KBPS_BY_RATE.length ? MediaFormat.NO_VALUE
+    int bitrate = rate >= TWICE_BITRATE_KBPS_BY_RATE.length ? Format.NO_VALUE
         : TWICE_BITRATE_KBPS_BY_RATE[rate] * 1000 / 2;
     frameBits.skipBits(10); // MIX, DYNF, TIMEF, AUXF, HDCD, EXT_AUDIO_ID, EXT_AUDIO, ASPF
     channelCount += frameBits.readBits(2) > 0 ? 1 : 0; // LFF
-    return MediaFormat.createAudioFormat(trackId, MimeTypes.AUDIO_DTS, bitrate,
-        MediaFormat.NO_VALUE, channelCount, sampleRate, null, language);
+    return Format.createAudioSampleFormat(trackId, MimeTypes.AUDIO_DTS, bitrate, Format.NO_VALUE,
+        channelCount, sampleRate, null, language);
   }
 
   /**

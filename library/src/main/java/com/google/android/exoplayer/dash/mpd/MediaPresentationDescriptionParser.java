@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer.dash.mpd;
 
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentList;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTemplate;
 import com.google.android.exoplayer.dash.mpd.SegmentBase.SegmentTimelineElement;
@@ -287,22 +287,15 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   }
 
   protected int getContentType(Representation representation) {
-    String mimeType = representation.format.mimeType;
-    if (TextUtils.isEmpty(mimeType)) {
+    String sampleMimeType = representation.format.sampleMimeType;
+    if (TextUtils.isEmpty(sampleMimeType)) {
       return AdaptationSet.TYPE_UNKNOWN;
-    } else if (MimeTypes.isVideo(mimeType)) {
+    } else if (MimeTypes.isVideo(sampleMimeType)) {
       return AdaptationSet.TYPE_VIDEO;
-    } else if (MimeTypes.isAudio(mimeType)) {
+    } else if (MimeTypes.isAudio(sampleMimeType)) {
       return AdaptationSet.TYPE_AUDIO;
-    } else if (MimeTypes.isText(mimeType) || MimeTypes.APPLICATION_TTML.equals(mimeType)) {
+    } else if (mimeTypeIsRawText(sampleMimeType)) {
       return AdaptationSet.TYPE_TEXT;
-    } else if (MimeTypes.APPLICATION_MP4.equals(mimeType)) {
-      // The representation uses mp4 but does not contain video or audio. Use codecs to determine
-      // whether the container holds text.
-      String codecs = representation.format.codecs;
-      if ("stpp".equals(codecs) || "wvtt".equals(codecs)) {
-        return AdaptationSet.TYPE_TEXT;
-      }
     }
     return AdaptationSet.TYPE_UNKNOWN;
   }
@@ -397,10 +390,22 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         segmentBase != null ? segmentBase : new SingleSegmentBase(baseUrl));
   }
 
-  protected Format buildFormat(String id, String mimeType, int width, int height, float frameRate,
-      int audioChannels, int audioSamplingRate, int bandwidth, String language, String codecs) {
-    return new Format(id, mimeType, width, height, frameRate, audioChannels, audioSamplingRate,
-        bandwidth, language, codecs);
+  protected Format buildFormat(String id, String containerMimeType, int width, int height,
+      float frameRate, int audioChannels, int audioSamplingRate, int bitrate, String language,
+      String codecs) {
+    String sampleMimeType = getSampleMimeType(containerMimeType, codecs);
+    if (MimeTypes.isVideo(sampleMimeType)) {
+      return Format.createVideoContainerFormat(id, containerMimeType, sampleMimeType, bitrate,
+          width, height, frameRate, null);
+    } else if (MimeTypes.isAudio(sampleMimeType)) {
+      return Format.createAudioContainerFormat(id, containerMimeType, sampleMimeType, bitrate,
+          audioChannels, audioSamplingRate, null, language);
+    } else if (mimeTypeIsRawText(sampleMimeType)) {
+      return Format.createTextContainerFormat(id, containerMimeType, sampleMimeType, bitrate,
+          language);
+    } else {
+      return Format.createContainerFormat(id, containerMimeType, sampleMimeType, bitrate);
+    }
   }
 
   protected Representation buildRepresentation(String contentId, int revisionId, Format format,
@@ -609,6 +614,95 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   }
 
   // Utility methods.
+
+  /**
+   * Derives a sample mimeType from a container mimeType and codecs attribute.
+   *
+   * @param containerMimeType The mimeType of the container.
+   * @param codecs The codecs attribute.
+   * @return The derived sample mimeType, or null if it could not be derived.
+   */
+  private static String getSampleMimeType(String containerMimeType, String codecs) {
+    if (MimeTypes.isAudio(containerMimeType)) {
+      return getAudioMediaMimeType(codecs);
+    } else if (MimeTypes.isVideo(containerMimeType)) {
+      return getVideoMediaMimeType(codecs);
+    } else if (mimeTypeIsRawText(containerMimeType)) {
+      return containerMimeType;
+    } else if (MimeTypes.APPLICATION_MP4.equals(containerMimeType) && "stpp".equals(codecs)) {
+      return MimeTypes.APPLICATION_TTML;
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Derives a video sample mimeType from a codecs attribute.
+   *
+   * @param codecs The codecs attribute.
+   * @return The derived video mimeType, or null if it could not be derived.
+   */
+  private static String getVideoMediaMimeType(String codecs) {
+    if (codecs == null) {
+      return null;
+    }
+    String[] codecList = codecs.split(",");
+    for (String codec : codecList) {
+      codec = codec.trim();
+      if (codec.startsWith("avc1") || codec.startsWith("avc3")) {
+        return MimeTypes.VIDEO_H264;
+      } else if (codec.startsWith("hev1") || codec.startsWith("hvc1")) {
+        return MimeTypes.VIDEO_H265;
+      } else if (codec.startsWith("vp9")) {
+        return MimeTypes.VIDEO_VP9;
+      } else if (codec.startsWith("vp8")) {
+        return MimeTypes.VIDEO_VP8;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Derives a audio sample mimeType from a codecs attribute.
+   *
+   * @param codecs The codecs attribute.
+   * @return The derived audio mimeType, or null if it could not be derived.
+   */
+  private static String getAudioMediaMimeType(String codecs) {
+    if (codecs == null) {
+      return null;
+    }
+    String[] codecList = codecs.split(",");
+    for (String codec : codecList) {
+      codec = codec.trim();
+      if (codec.startsWith("mp4a")) {
+        return MimeTypes.AUDIO_AAC;
+      } else if (codec.startsWith("ac-3") || codec.startsWith("dac3")) {
+        return MimeTypes.AUDIO_AC3;
+      } else if (codec.startsWith("ec-3") || codec.startsWith("dec3")) {
+        return MimeTypes.AUDIO_E_AC3;
+      } else if (codec.startsWith("dtsc") || codec.startsWith("dtse")) {
+        return MimeTypes.AUDIO_DTS;
+      } else if (codec.startsWith("dtsh") || codec.startsWith("dtsl")) {
+        return MimeTypes.AUDIO_DTS_HD;
+      } else if (codec.startsWith("opus")) {
+        return MimeTypes.AUDIO_OPUS;
+      } else if (codec.startsWith("vorbis")) {
+        return MimeTypes.AUDIO_VORBIS;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Returns whether a mimeType is a text sample mimeType.
+   *
+   * @param mimeType The mimeType.
+   * @return True if the mimeType is a text sample mimeType. False otherwise.
+   */
+  private static boolean mimeTypeIsRawText(String mimeType) {
+    return MimeTypes.isText(mimeType) || MimeTypes.APPLICATION_TTML.equals(mimeType);
+  }
 
   /**
    * Checks two languages for consistency, returning the consistent language, or throwing an

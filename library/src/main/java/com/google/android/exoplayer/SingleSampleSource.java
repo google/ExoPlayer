@@ -50,7 +50,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
 
   private final Uri uri;
   private final DataSource dataSource;
-  private final MediaFormat format;
+  private final Format format;
   private final long durationUs;
   private final int minLoadableRetryCount;
   private final TrackGroup tracks;
@@ -65,11 +65,11 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   private int currentLoadableExceptionCount;
   private long currentLoadableExceptionTimestamp;
 
-  public SingleSampleSource(Uri uri, DataSource dataSource, MediaFormat format, long durationUs) {
+  public SingleSampleSource(Uri uri, DataSource dataSource, Format format, long durationUs) {
     this(uri, dataSource, format, durationUs, DEFAULT_MIN_LOADABLE_RETRY_COUNT);
   }
 
-  public SingleSampleSource(Uri uri, DataSource dataSource, MediaFormat format, long durationUs,
+  public SingleSampleSource(Uri uri, DataSource dataSource, Format format, long durationUs,
       int minLoadableRetryCount) {
     this.uri = uri;
     this.dataSource = dataSource;
@@ -90,7 +90,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   @Override
   public boolean prepare(long positionUs) {
     if (loader == null) {
-      loader = new Loader("Loader:" + format.mimeType);
+      loader = new Loader("Loader:" + format.sampleMimeType);
     }
     return true;
   }
@@ -139,7 +139,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   }
 
   @Override
-  public int readData(MediaFormatHolder formatHolder, SampleHolder sampleHolder) {
+  public int readData(FormatHolder formatHolder, SampleHolder sampleHolder) {
     if (state == STATE_END_OF_STREAM) {
       return END_OF_STREAM;
     } else if (state == STATE_SEND_FORMAT) {

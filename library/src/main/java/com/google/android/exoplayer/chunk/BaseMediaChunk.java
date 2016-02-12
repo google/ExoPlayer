@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.chunk;
 
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -29,11 +29,11 @@ import com.google.android.exoplayer.upstream.DataSpec;
 public abstract class BaseMediaChunk extends MediaChunk {
 
   /**
-   * Whether {@link #getMediaFormat()} and {@link #getDrmInitData()} can be called at any time to
-   * obtain the chunk's media format and drm initialization data. If false, these methods are only
+   * Whether {@link #getSampleFormat()} and {@link #getDrmInitData()} can be called at any time to
+   * obtain the chunk's sample format and drm initialization data. If false, these methods are only
    * guaranteed to return correct data after the first sample data has been output from the chunk.
    */
-  public final boolean isMediaFormatFinal;
+  public final boolean isSampleFormatFinal;
 
   private DefaultTrackOutput output;
   private int firstSampleIndex;
@@ -46,16 +46,16 @@ public abstract class BaseMediaChunk extends MediaChunk {
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
    * @param chunkIndex The index of the chunk.
-   * @param isMediaFormatFinal True if {@link #getMediaFormat()} and {@link #getDrmInitData()} can
-   *     be called at any time to obtain the media format and drm initialization data. False if
+   * @param isSampleFormatFinal True if {@link #getSampleFormat()} and {@link #getDrmInitData()} can
+   *     be called at any time to obtain the sample format and drm initialization data. False if
    *     these methods are only guaranteed to return correct data after the first sample data has
    *     been output from the chunk.
    * @param parentId Identifier for a parent from which this chunk originates.
    */
   public BaseMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger, Format format,
-      long startTimeUs, long endTimeUs, int chunkIndex, boolean isMediaFormatFinal, int parentId) {
+      long startTimeUs, long endTimeUs, int chunkIndex, boolean isSampleFormatFinal, int parentId) {
     super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, parentId);
-    this.isMediaFormatFinal = isMediaFormatFinal;
+    this.isSampleFormatFinal = isSampleFormatFinal;
   }
 
   /**
@@ -78,19 +78,19 @@ public abstract class BaseMediaChunk extends MediaChunk {
   }
 
   /**
-   * Gets the {@link MediaFormat} corresponding to the chunk.
+   * Gets the {@link Format} of the samples in the chunk.
    * <p>
-   * See {@link #isMediaFormatFinal} for information about when this method is guaranteed to return
+   * See {@link #isSampleFormatFinal} for information about when this method is guaranteed to return
    * correct data.
    *
-   * @return The {@link MediaFormat} corresponding to this chunk.
+   * @return The {@link Format} of the samples in the chunk.
    */
-  public abstract MediaFormat getMediaFormat();
+  public abstract Format getSampleFormat();
 
   /**
    * Gets the {@link DrmInitData} corresponding to the chunk.
    * <p>
-   * See {@link #isMediaFormatFinal} for information about when this method is guaranteed to return
+   * See {@link #isSampleFormatFinal} for information about when this method is guaranteed to return
    * correct data.
    *
    * @return The {@link DrmInitData} corresponding to this chunk.

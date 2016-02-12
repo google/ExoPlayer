@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor.flv;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.util.Assertions;
@@ -95,10 +95,11 @@ import java.util.List;
       nalUnitLengthFieldLength = avcData.nalUnitLengthFieldLength;
 
       // Construct and output the format.
-      MediaFormat mediaFormat = MediaFormat.createVideoFormat(null, MimeTypes.VIDEO_H264,
-          MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, avcData.width, avcData.height,
-          avcData.initializationData, MediaFormat.NO_VALUE, avcData.pixelWidthAspectRatio);
-      output.format(mediaFormat);
+      Format format = Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264,
+          Format.NO_VALUE, Format.NO_VALUE, avcData.width, avcData.height,
+          Format.NO_VALUE, avcData.initializationData, Format.NO_VALUE,
+          avcData.pixelWidthAspectRatio);
+      output.format(format);
       hasOutputFormat = true;
     } else if (packetType == AVC_PACKET_TYPE_AVC_NALU) {
       // TODO: Deduplicate with Mp4Extractor.
@@ -135,7 +136,7 @@ import java.util.List;
   }
 
   /**
-   * Builds initialization data for a {@link MediaFormat} from H.264 (AVC) codec private data.
+   * Builds initialization data for a {@link Format} from H.264 (AVC) codec private data.
    *
    * @return The AvcSequenceHeader data needed to initialize the video codec.
    * @throws ParserException If the initialization data could not be built.
@@ -157,8 +158,8 @@ import java.util.List;
     }
 
     float pixelWidthAspectRatio = 1;
-    int width = MediaFormat.NO_VALUE;
-    int height = MediaFormat.NO_VALUE;
+    int width = Format.NO_VALUE;
+    int height = Format.NO_VALUE;
     if (numSequenceParameterSets > 0) {
       // Parse the first sequence parameter set to obtain pixelWidthAspectRatio.
       ParsableBitArray spsDataBitArray = new ParsableBitArray(initializationData.get(0));

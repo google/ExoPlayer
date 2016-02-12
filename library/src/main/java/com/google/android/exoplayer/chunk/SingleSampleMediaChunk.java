@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -29,7 +29,7 @@ import java.io.IOException;
  */
 public final class SingleSampleMediaChunk extends BaseMediaChunk {
 
-  private final MediaFormat sampleFormat;
+  private final Format sampleFormat;
   private final DrmInitData sampleDrmInitData;
 
   private volatile int bytesLoaded;
@@ -49,7 +49,7 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
    * @param parentId Identifier for a parent from which this chunk originates.
    */
   public SingleSampleMediaChunk(DataSource dataSource, DataSpec dataSpec, int trigger,
-      Format format, long startTimeUs, long endTimeUs, int chunkIndex, MediaFormat sampleFormat,
+      Format format, long startTimeUs, long endTimeUs, int chunkIndex, Format sampleFormat,
       DrmInitData sampleDrmInitData, int parentId) {
     super(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs, chunkIndex, true,
         parentId);
@@ -63,7 +63,7 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
   }
 
   @Override
-  public MediaFormat getMediaFormat() {
+  public Format getSampleFormat() {
     return sampleFormat;
   }
 

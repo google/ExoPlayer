@@ -18,18 +18,17 @@ package com.google.android.exoplayer.demo.player;
 import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecSelector;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
-import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
-import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.hls.HlsSampleSource;
@@ -248,7 +247,7 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     return player.getTrackCount(type);
   }
 
-  public MediaFormat getTrackFormat(int type, int index) {
+  public Format getTrackFormat(int type, int index) {
     return player.getTrackFormat(type, index);
   }
 

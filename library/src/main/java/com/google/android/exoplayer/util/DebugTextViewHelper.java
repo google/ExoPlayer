@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.util;
 
 import com.google.android.exoplayer.CodecCounters;
-import com.google.android.exoplayer.chunk.Format;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.upstream.BandwidthMeter;
 
 import android.widget.TextView;

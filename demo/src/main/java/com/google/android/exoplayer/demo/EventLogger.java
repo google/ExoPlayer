@@ -16,10 +16,10 @@
 package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.ExoPlayer;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.audio.AudioTrack;
-import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
 import com.google.android.exoplayer.util.VerboseLogUtil;
 

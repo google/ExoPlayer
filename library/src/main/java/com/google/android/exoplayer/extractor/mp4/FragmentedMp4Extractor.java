@@ -314,7 +314,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     if (track == null) {
       throw new ParserException("Track type not supported.");
     }
-    trackOutput.format(track.mediaFormat);
+    trackOutput.format(track.format);
   }
 
   private void onMoofContainerAtomRead(ContainerAtom moof) throws ParserException {

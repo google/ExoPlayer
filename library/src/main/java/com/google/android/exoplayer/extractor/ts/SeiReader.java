@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor.ts;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.text.eia608.Eia608Parser;
 import com.google.android.exoplayer.util.MimeTypes;
@@ -32,8 +32,8 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
   public SeiReader(TrackOutput output) {
     super(output);
-    output.format(MediaFormat.createTextFormat(null, MimeTypes.APPLICATION_EIA608,
-        MediaFormat.NO_VALUE, null));
+    output.format(Format.createTextSampleFormat(null, MimeTypes.APPLICATION_EIA608, Format.NO_VALUE,
+        null));
   }
 
   @Override
