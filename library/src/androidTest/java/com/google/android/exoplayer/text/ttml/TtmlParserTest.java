@@ -396,6 +396,16 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals(0.3125, subtitle.getCues(timeUs).get(0).position, 0.01);
   }
 
+  public void testCanSetCueLineBasedOnRegionOffsetWithMultipleRegions() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(DUAL_POSITIONAL_SUBTITLE);
+    int timeIndex = subtitle.getNextEventTimeIndex(0);
+    long timeUs = subtitle.getEventTime(timeIndex);
+    assertEquals("DANNY: He was murdered.", subtitle.getCues(timeUs).get(0).text.toString());
+    assertEquals(0.5009, subtitle.getCues(timeUs).get(0).line, 0.01);
+  }
+
+
+
   private void assertSpans(TtmlSubtitle subtitle, int second,
       String text, String font, int fontStyle,
       int backgroundColor, int color, boolean isUnderline,
