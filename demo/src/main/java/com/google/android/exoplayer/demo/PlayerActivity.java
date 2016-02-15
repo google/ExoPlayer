@@ -75,7 +75,6 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 /**
  * An activity that plays media using {@link DemoPlayer}.
@@ -611,18 +610,18 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       if (id3Frame instanceof TxxxFrame) {
         TxxxFrame txxxFrame = (TxxxFrame) id3Frame;
         Log.i(TAG, String.format("ID3 TimedMetadata %s: description=%s, value=%s",
-            id3Frame.getFrameId(), txxxFrame.getDescription(), txxxFrame.getValue()));
+            id3Frame.frameId, txxxFrame.description, txxxFrame.value));
       } else if (id3Frame instanceof PrivFrame) {
         PrivFrame privFrame = (PrivFrame) id3Frame;
         Log.i(TAG, String.format("ID3 TimedMetadata %s: owner=%s",
-            id3Frame.getFrameId(), privFrame.getOwner()));
+            id3Frame.frameId, privFrame.owner));
       } else if (id3Frame instanceof GeobFrame) {
         GeobFrame geobFrame = (GeobFrame) id3Frame;
         Log.i(TAG, String.format("ID3 TimedMetadata %s: mimeType=%s, filename=%s, description=%s",
-            id3Frame.getFrameId(), geobFrame.getMimeType(), geobFrame.getFilename(),
-            geobFrame.getDescription()));
+            id3Frame.frameId, geobFrame.mimeType, geobFrame.filename,
+            geobFrame.description));
       } else {
-        Log.i(TAG, String.format("ID3 TimedMetadata %s", id3Frame.getFrameId()));
+        Log.i(TAG, String.format("ID3 TimedMetadata %s", id3Frame.frameId));
       }
     }
   }

@@ -29,35 +29,35 @@ import java.util.List;
  */
 public class Id3ParserTest extends TestCase {
 
-    public void testParseTxxxFrames() {
-        byte[] rawId3 = new byte[]{ 73, 68, 51, 4, 0, 0, 0, 0, 0, 41, 84, 88, 88, 88, 0, 0, 0, 31,
-                0, 0, 3, 0, 109, 100, 105, 97, 108, 111, 103, 95, 86, 73, 78, 68, 73, 67, 79, 49, 53, 50,
-                55, 54, 54, 52, 95, 115, 116, 97, 114, 116, 0 };
+  public void testParseTxxxFrames() {
+    byte[] rawId3 = new byte[]{73, 68, 51, 4, 0, 0, 0, 0, 0, 41, 84, 88, 88, 88, 0, 0, 0, 31,
+        0, 0, 3, 0, 109, 100, 105, 97, 108, 111, 103, 95, 86, 73, 78, 68, 73, 67, 79, 49, 53, 50,
+        55, 54, 54, 52, 95, 115, 116, 97, 114, 116, 0};
 
-        Id3Parser parser = new Id3Parser();
-        try {
-            List<Id3Frame> id3Frames = parser.parse( rawId3, rawId3.length );
-            assertNotNull( id3Frames );
-            assertEquals( 1, id3Frames.size() );
-            List<TxxxFrame> txxxFrames = ofType( id3Frames, TxxxFrame.class );
-            assertEquals( 1, txxxFrames.size() );
-            TxxxFrame txxxFrame = txxxFrames.toArray( new TxxxFrame[1] )[0];
-            assertNotNull( txxxFrame );
-            assertEquals( "", txxxFrame.getDescription() );
-            assertEquals( "mdialog_VINDICO1527664_start", txxxFrame.getValue() );
-        } catch ( Exception exception ) {
-            fail( exception.getMessage() );
-        }
+    Id3Parser parser = new Id3Parser();
+    try {
+      List<Id3Frame> id3Frames = parser.parse(rawId3, rawId3.length);
+      assertNotNull(id3Frames);
+      assertEquals(1, id3Frames.size());
+      List<TxxxFrame> txxxFrames = ofType(id3Frames, TxxxFrame.class);
+      assertEquals(1, txxxFrames.size());
+      TxxxFrame txxxFrame = txxxFrames.toArray(new TxxxFrame[1])[0];
+      assertNotNull(txxxFrame);
+      assertEquals("", txxxFrame.description);
+      assertEquals("mdialog_VINDICO1527664_start", txxxFrame.value);
+    } catch (Exception exception) {
+      fail(exception.getMessage());
     }
+  }
 
-    private static <T> List<T> ofType( Collection<? super T> col, Class<T> type ) {
-        final List<T> ret = new ArrayList<>();
-        for ( Object o : col ) {
-            if ( type.isInstance( o ) ) {
-                ret.add( ( T ) o );
-            }
-        }
-        return ret;
+  private static <T> List<T> ofType(Collection<? super T> col, Class<T> type) {
+    final List<T> ret = new ArrayList<>();
+    for (Object o : col) {
+      if(type.isInstance(o)) {
+        ret.add((T) o);
+      }
     }
+    return ret;
+  }
 
 }
