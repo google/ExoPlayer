@@ -23,32 +23,16 @@ public final class GeobFrame extends Id3Frame {
 
   public static final String ID = "GEOB";
 
-  private final String mimeType;
-  private final String filename;
-  private final String description;
-  private final byte[] data;
+  public final String mimeType;
+  public final String filename;
+  public final String description;
+  public final byte[] data;
 
-  public GeobFrame( String mimeType, String filename, String description, byte[] data) {
+  public GeobFrame(String mimeType, String filename, String description, byte[] data) {
     super(ID);
     this.mimeType = mimeType;
     this.filename = filename;
     this.description = description;
     this.data = data;
-  }
-
-  public String getMimeType() {
-    return mimeType;
-  }
-
-  public String getFilename() {
-    return filename;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public byte[] getData() {
-    return data;
   }
 }

@@ -5,13 +5,9 @@ package com.google.android.exoplayer.metadata.frame;
  */
 public abstract class Id3Frame {
 
-    private final String frameId;
+  public final String frameId;
 
-    public Id3Frame( String frameId ){
-        this.frameId = frameId;
-    }
-
-    public String getFrameId() {
-        return frameId;
-    }
+  public Id3Frame(String frameId) {
+    this.frameId = frameId;
+  }
 }

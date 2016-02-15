@@ -23,20 +23,12 @@ public final class PrivFrame extends Id3Frame {
 
   public static final String ID = "PRIV";
 
-  private final String owner;
-  private final byte[] privateData;
+  public final String owner;
+  public final byte[] privateData;
 
-  public PrivFrame( String owner, byte[] privateData) {
+  public PrivFrame(String owner, byte[] privateData) {
     super(ID);
     this.owner = owner;
     this.privateData = privateData;
-  }
-
-  public String getOwner() {
-    return owner;
-  }
-
-  public byte[] getPrivateData() {
-    return privateData;
   }
 }
