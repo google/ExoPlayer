@@ -30,10 +30,10 @@ import com.google.android.exoplayer.demo.player.ExtractorRendererBuilder;
 import com.google.android.exoplayer.demo.player.HlsRendererBuilder;
 import com.google.android.exoplayer.demo.player.SmoothStreamingRendererBuilder;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
-import com.google.android.exoplayer.metadata.frame.GeobFrame;
-import com.google.android.exoplayer.metadata.frame.Id3Frame;
-import com.google.android.exoplayer.metadata.frame.PrivFrame;
-import com.google.android.exoplayer.metadata.frame.TxxxFrame;
+import com.google.android.exoplayer.metadata.id3.GeobFrame;
+import com.google.android.exoplayer.metadata.id3.Id3Frame;
+import com.google.android.exoplayer.metadata.id3.PrivFrame;
+import com.google.android.exoplayer.metadata.id3.TxxxFrame;
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleLayout;
@@ -610,18 +610,18 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       if (id3Frame instanceof TxxxFrame) {
         TxxxFrame txxxFrame = (TxxxFrame) id3Frame;
         Log.i(TAG, String.format("ID3 TimedMetadata %s: description=%s, value=%s",
-            id3Frame.frameId, txxxFrame.description, txxxFrame.value));
+            txxxFrame.id, txxxFrame.description, txxxFrame.value));
       } else if (id3Frame instanceof PrivFrame) {
         PrivFrame privFrame = (PrivFrame) id3Frame;
         Log.i(TAG, String.format("ID3 TimedMetadata %s: owner=%s",
-            id3Frame.frameId, privFrame.owner));
+            privFrame.id, privFrame.owner));
       } else if (id3Frame instanceof GeobFrame) {
         GeobFrame geobFrame = (GeobFrame) id3Frame;
         Log.i(TAG, String.format("ID3 TimedMetadata %s: mimeType=%s, filename=%s, description=%s",
-            id3Frame.frameId, geobFrame.mimeType, geobFrame.filename,
+            geobFrame.id, geobFrame.mimeType, geobFrame.filename,
             geobFrame.description));
       } else {
-        Log.i(TAG, String.format("ID3 TimedMetadata %s", id3Frame.frameId));
+        Log.i(TAG, String.format("ID3 TimedMetadata %s", id3Frame.id));
       }
     }
   }
