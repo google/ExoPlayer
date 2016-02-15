@@ -609,17 +609,15 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     for (Id3Frame id3Frame : id3Frames) {
       if (id3Frame instanceof TxxxFrame) {
         TxxxFrame txxxFrame = (TxxxFrame) id3Frame;
-        Log.i(TAG, String.format("ID3 TimedMetadata %s: description=%s, value=%s",
-            txxxFrame.id, txxxFrame.description, txxxFrame.value));
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: description=%s, value=%s", txxxFrame.id,
+            txxxFrame.description, txxxFrame.value));
       } else if (id3Frame instanceof PrivFrame) {
         PrivFrame privFrame = (PrivFrame) id3Frame;
-        Log.i(TAG, String.format("ID3 TimedMetadata %s: owner=%s",
-            privFrame.id, privFrame.owner));
+        Log.i(TAG, String.format("ID3 TimedMetadata %s: owner=%s", privFrame.id, privFrame.owner));
       } else if (id3Frame instanceof GeobFrame) {
         GeobFrame geobFrame = (GeobFrame) id3Frame;
         Log.i(TAG, String.format("ID3 TimedMetadata %s: mimeType=%s, filename=%s, description=%s",
-            geobFrame.id, geobFrame.mimeType, geobFrame.filename,
-            geobFrame.description));
+            geobFrame.id, geobFrame.mimeType, geobFrame.filename, geobFrame.description));
       } else {
         Log.i(TAG, String.format("ID3 TimedMetadata %s", id3Frame.id));
       }
