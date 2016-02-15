@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.metadata;
+package com.google.android.exoplayer.metadata.frame;
 
 /**
- * A metadata that contains parsed ID3 TXXX (User defined text information) frame data associated
+ * A metadata that contains parsed ID3 PRIV (Private) frame data associated
  * with time indices.
  */
-public final class TxxxMetadata {
+public final class TxxxFrame extends Id3Frame {
 
-  public static final String TYPE = "TXXX";
+  public static final String ID = "TXXX";
 
   public final String description;
   public final String value;
 
-  public TxxxMetadata(String description, String value) {
+  public TxxxFrame(String description, String value) {
+    super(ID);
     this.description = description;
     this.value = value;
   }
-
 }
