@@ -39,6 +39,7 @@ import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -498,8 +499,21 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
         // The master source has yet to instantiate an adjuster for the discontinuity sequence.
         return;
       }
+      int workaroundFlags = 0;
+      String codecs = format.codecs;
+      if (!TextUtils.isEmpty(codecs)) {
+        // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
+        // exist. If we know from the codec attribute that they don't exist, then we can explicitly
+        // ignore them even if they're declared.
+        if (MimeTypes.getAudioMediaMimeType(codecs) != MimeTypes.AUDIO_AAC) {
+          workaroundFlags |= TsExtractor.WORKAROUND_IGNORE_AAC_STREAM;
+        }
+        if (MimeTypes.getVideoMediaMimeType(codecs) != MimeTypes.VIDEO_H264) {
+          workaroundFlags |= TsExtractor.WORKAROUND_IGNORE_H264_STREAM;
+        }
+      }
+      Extractor extractor = new TsExtractor(timestampAdjuster, workaroundFlags);
       ExposedTrack selectedTrack = tracks.get(selectedTrackIndex);
-      Extractor extractor = new TsExtractor(timestampAdjuster);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
           switchingVariantSpliced, selectedTrack.adaptiveMaxWidth, selectedTrack.adaptiveMaxHeight);
     } else {

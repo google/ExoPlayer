@@ -68,11 +68,11 @@ import java.util.List;
   // Scratch variables to avoid allocations.
   private final ParsableByteArray seiWrapper;
 
-  public H264Reader(TrackOutput output, SeiReader seiReader, boolean idrKeyframesOnly) {
+  public H264Reader(TrackOutput output, SeiReader seiReader, boolean allowNonIdrKeyframes) {
     super(output);
     this.seiReader = seiReader;
     prefixFlags = new boolean[3];
-    ifrParserBuffer = (idrKeyframesOnly) ? null : new IfrParserBuffer();
+    ifrParserBuffer = allowNonIdrKeyframes ? new IfrParserBuffer() : null;
     sps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SPS, 128);
     pps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_PPS, 128);
     sei = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SEI, 128);
