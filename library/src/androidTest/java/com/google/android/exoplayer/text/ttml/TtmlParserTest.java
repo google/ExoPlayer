@@ -69,6 +69,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
       "ttml/font_size_empty.xml";
   private static final String SINGLE_POSITIONAL_SUBTITLE = "ttml/single_positional_subtitle.xml";
   private static final String DUAL_POSITIONAL_SUBTITLE = "ttml/dual_positional_subtitle.xml";
+  private static final String BADLY_FORMATTED_ORIGIN_FILE = "ttml/badly_formatted_origin.xml";
 
   public void testInlineAttributes() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
@@ -380,31 +381,36 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals(subtitle.getGlobalRegions().size(), 1);
   }
 
-  public void testCanSetCuePositionBasedOnRegionOffset() throws IOException {
-    TtmlSubtitle subtitle = getSubtitle(SINGLE_POSITIONAL_SUBTITLE);
-    int timeIndex = subtitle.getNextEventTimeIndex(0);
-    long timeUs = subtitle.getEventTime(timeIndex);
-    assertEquals("DANNY: He was murdered.", subtitle.getCues(timeUs).get(0).text.toString());
-    assertEquals(0.3125, subtitle.getCues(timeUs).get(0).position, 0.01);
-  }
-
-  public void testCanSetCuePositionBasedOnRegionOffsetWithMultipleRegions() throws IOException {
+  public void testCanSetCuePositionBasedOnCorrectRegionOffsetWhenMultipleRegionsAreInInputFile() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(DUAL_POSITIONAL_SUBTITLE);
     int timeIndex = subtitle.getNextEventTimeIndex(0);
     long timeUs = subtitle.getEventTime(timeIndex);
-    assertEquals("DANNY: He was murdered.", subtitle.getCues(timeUs).get(0).text.toString());
     assertEquals(0.3125, subtitle.getCues(timeUs).get(0).position, 0.01);
   }
 
-  public void testCanSetCueLineBasedOnRegionOffsetWithMultipleRegions() throws IOException {
+  public void testCanSetCueLineBasedOnCorrectRegionOffsetWhenMultipleRegionsAreInInputFile() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(DUAL_POSITIONAL_SUBTITLE);
     int timeIndex = subtitle.getNextEventTimeIndex(0);
     long timeUs = subtitle.getEventTime(timeIndex);
-    assertEquals("DANNY: He was murdered.", subtitle.getCues(timeUs).get(0).text.toString());
-    assertEquals(0.5009, subtitle.getCues(timeUs).get(0).line, 0.01);
+    assertEquals(0.3125, subtitle.getCues(timeUs).get(0).position, 0.01);
   }
 
+  public void testSetsPositionalSettingsToDefaultWhenBadlyFormattedOriginSupplied() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(BADLY_FORMATTED_ORIGIN_FILE);
+    int timeIndex = subtitle.getNextEventTimeIndex(0);
+    long timeUs = subtitle.getEventTime(timeIndex);
+    assertEquals(Cue.DIMEN_UNSET, subtitle.getCues(timeUs).get(0).position, 0.001);
+    assertEquals(Cue.DIMEN_UNSET, subtitle.getCues(timeUs).get(0).line, 0.001);
+  }
 
+  public void testSetsPositionalSettingsToDefaultWhenOriginIsMissingPercentageMarks() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(BADLY_FORMATTED_ORIGIN_FILE);
+    int timeIndex = subtitle.getNextEventTimeIndex(3704000);
+    long timeUs = subtitle.getEventTime(timeIndex);
+    assertEquals("to be young again", subtitle.getCues(timeUs).get(0).text.toString());
+    assertEquals(Cue.DIMEN_UNSET, subtitle.getCues(timeUs).get(0).position, 0.001);
+    assertEquals(Cue.DIMEN_UNSET, subtitle.getCues(timeUs).get(0).line, 0.001);
+  }
 
   private void assertSpans(TtmlSubtitle subtitle, int second,
       String text, String font, int fontStyle,
