@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.metadata.frame;
+package com.google.android.exoplayer.metadata.id3;
 
 /**
- * A metadata that contains parsed ID3 GEOB (General Encapsulated Object) frame data associated
- * with time indices.
+ * GEOB (General Encapsulated Object) ID3 frame.
  */
 public final class GeobFrame extends Id3Frame {
 
@@ -35,4 +34,5 @@ public final class GeobFrame extends Id3Frame {
     this.description = description;
     this.data = data;
   }
+
 }
