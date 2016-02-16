@@ -29,7 +29,7 @@ import java.util.Map;
 public final class TtmlSubtitle implements Subtitle {
 
   private final TtmlNode root;
-  private Map<String, TtmlRegion> globalRegions;
+  private final Map<String, TtmlRegion> globalRegions;
   private final long[] eventTimesUs;
   private final Map<String, TtmlStyle> globalStyles;
 
@@ -84,7 +84,8 @@ public final class TtmlSubtitle implements Subtitle {
     return globalStyles;
   }
 
-  public Map<String, TtmlRegion> getGlobalRegions() {
+  /* @VisibleForTesting */
+  /* package */ Map<String, TtmlRegion> getGlobalRegions() {
     return globalRegions;
   }
 }
