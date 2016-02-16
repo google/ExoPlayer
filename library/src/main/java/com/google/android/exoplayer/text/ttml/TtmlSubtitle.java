@@ -19,6 +19,7 @@ import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.Subtitle;
 import com.google.android.exoplayer.util.Util;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -74,8 +75,7 @@ public final class TtmlSubtitle implements Subtitle {
     if (builder == null) {
       return Collections.<Cue>emptyList();
     } else {
-      Cue cue = builder.buildCue();
-      return Collections.singletonList(cue);
+      return builder.buildCue();
     }
   }
 

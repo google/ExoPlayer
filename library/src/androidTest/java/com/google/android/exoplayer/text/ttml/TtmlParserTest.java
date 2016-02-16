@@ -71,6 +71,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
   private static final String DUAL_POSITIONAL_SUBTITLE = "ttml/dual_positional_subtitle.xml";
   private static final String BADLY_FORMATTED_ORIGIN_FILE = "ttml/badly_formatted_origin.xml";
   private static final String MISSING_REGION_FILE = "ttml/missing_region.xml";
+  private static final String MULTIPLE_SUBTITLES_SAME_TIME_FILE = "ttml/multiple_subtitles_at_same_time.xml";
 
   public void testInlineAttributes() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
@@ -391,6 +392,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
   public void testCanSetCueLineBasedOnCorrectRegionOffsetWhenMultipleRegionsAreInInputFile() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(DUAL_POSITIONAL_SUBTITLE);
     long timeUs = getNextEventTimeFrom(subtitle, 0);
+    assertEquals(1, subtitle.getCues(timeUs).size());
     assertEquals(0.3125, subtitle.getCues(timeUs).get(0).position, 0.01);
   }
 
@@ -413,6 +415,27 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     TtmlSubtitle subtitle = getSubtitle(MISSING_REGION_FILE);
     long timeUs = getNextEventTimeFrom(subtitle, 0);
     assertEquals("DANNY: He was murdered.", subtitle.getCues(timeUs).get(0).text.toString());
+  }
+
+  public void testGeneratesTwoCuesWhenTheyOverlap() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(MULTIPLE_SUBTITLES_SAME_TIME_FILE);
+    long timeUs = getNextEventTimeFrom(subtitle, 0);
+    final List<Cue> cues = subtitle.getCues(timeUs);
+    assertEquals(1, cues.size());
+    assertEquals("Now thats what I call a subtitle", cues.get(0).text.toString());
+  }
+
+  public void testGeneratesSingleCueAfterOverlapPeriodFinishes() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(MULTIPLE_SUBTITLES_SAME_TIME_FILE);
+    assertEquals(4, subtitle.getEventTimeCount());
+    long timeUs = getNextEventTimeFrom(subtitle, 4169000);
+    final List<Cue> cues = getCues(subtitle, timeUs);
+    assertEquals(1, cues.size());
+    assertEquals("Last subtitle", cues.get(0).text.toString());
+  }
+
+  private List<Cue> getCues(TtmlSubtitle subtitle, long timeUs) {
+    return subtitle.getCues(timeUs);
   }
 
   private long getNextEventTimeFrom(TtmlSubtitle subtitle, long fromTime) {
