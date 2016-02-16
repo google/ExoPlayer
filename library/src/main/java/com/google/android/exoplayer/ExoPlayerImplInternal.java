@@ -42,7 +42,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 // TODO[REFACTOR]: Make sure renderer errors that will prevent prepare from being called again are
 // always propagated properly.
-// TODO[REFACTOR]: Distinguish source and renderer errors in ExoPlaybackException.
 /* package */ final class ExoPlayerImplInternal implements Handler.Callback {
 
   private static final String TAG = "ExoPlayerImplInternal";
@@ -113,6 +112,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     MediaClock rendererMediaClock = null;
     TrackRenderer rendererMediaClockSource = null;
     for (int i = 0; i < renderers.length; i++) {
+      renderers[i].setIndex(i);
       MediaClock mediaClock = renderers[i].getMediaClock();
       if (mediaClock != null) {
         Assertions.checkState(rendererMediaClock == null);
@@ -266,12 +266,13 @@ import java.util.concurrent.atomic.AtomicInteger;
       return true;
     } catch (IOException e) {
       Log.e(TAG, "Source track renderer error.", e);
-      eventHandler.obtainMessage(MSG_ERROR, new ExoPlaybackException(e)).sendToTarget();
+      eventHandler.obtainMessage(MSG_ERROR, ExoPlaybackException.createForSource(e)).sendToTarget();
       stopInternal();
       return true;
     } catch (RuntimeException e) {
       Log.e(TAG, "Internal runtime error.", e);
-      eventHandler.obtainMessage(MSG_ERROR, new ExoPlaybackException(e, true)).sendToTarget();
+      eventHandler.obtainMessage(MSG_ERROR, ExoPlaybackException.createForUnexpected(e))
+          .sendToTarget();
       stopInternal();
       return true;
     }

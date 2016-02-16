@@ -353,7 +353,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
         audioTrackHasData = false;
       } catch (AudioTrack.InitializationException e) {
         notifyAudioTrackInitializationError(e);
-        throw new ExoPlaybackException(e);
+        throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
       if (getState() == TrackRenderer.STATE_STARTED) {
         audioTrack.play();
@@ -377,7 +377,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
       lastFeedElapsedRealtimeMs = SystemClock.elapsedRealtime();
     } catch (AudioTrack.WriteException e) {
       notifyAudioTrackWriteError(e);
-      throw new ExoPlaybackException(e);
+      throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
 
     // If we are out of sync, allow currentPositionUs to jump backwards.

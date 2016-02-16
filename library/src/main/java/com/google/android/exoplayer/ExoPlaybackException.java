@@ -15,37 +15,85 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.util.Assertions;
+
+import java.io.IOException;
+
 /**
  * Thrown when a non-recoverable playback failure occurs.
- * <p>
- * Where possible, the cause returned by {@link #getCause()} will indicate the reason for failure.
  */
 public final class ExoPlaybackException extends Exception {
 
   /**
-   * True if the cause (i.e. the {@link Throwable} returned by {@link #getCause()}) was only caught
-   * by a fail-safe at the top level of the player. False otherwise.
+   * The error occurred loading data from a {@link SampleSource}.
+   * <p>
+   * Call {@link #getSourceException()} to retrieve the underlying cause.
    */
-  public final boolean caughtAtTopLevel;
+  public static final int TYPE_SOURCE = 0;
+  /**
+   * The error occurred in a {@link TrackRenderer}.
+   * <p>
+   * Call {@link #getRendererException()} to retrieve the underlying cause.
+   */
+  public static final int TYPE_RENDERER = 1;
+  /**
+   * The error was an unexpected {@link RuntimeException}.
+   * <p>
+   * Call {@link #getUnexpectedException()} to retrieve the underlying cause.
+   */
+  public static final int TYPE_UNEXPECTED = 2;
 
-  public ExoPlaybackException(String message) {
-    super(message);
-    caughtAtTopLevel = false;
+  /**
+   * The type of the playback failure. One of {@link #TYPE_SOURCE}, {@link #TYPE_RENDERER} and
+   * {@link #TYPE_UNEXPECTED}.
+   */
+  public final int type;
+
+  /**
+   * If {@link #type} is {@link #TYPE_RENDERER}, this is the index of the renderer.
+   */
+  public final int rendererIndex;
+
+  public static ExoPlaybackException createForRenderer(Exception cause, int rendererIndex) {
+    return new ExoPlaybackException(TYPE_RENDERER, null, cause, rendererIndex);
   }
 
-  public ExoPlaybackException(Throwable cause) {
-    super(cause);
-    caughtAtTopLevel = false;
+  public static ExoPlaybackException createForSource(IOException cause) {
+    return new ExoPlaybackException(TYPE_SOURCE, null, cause, -1);
   }
 
-  public ExoPlaybackException(String message, Throwable cause) {
+  /* package */ static ExoPlaybackException createForUnexpected(RuntimeException cause) {
+    return new ExoPlaybackException(TYPE_UNEXPECTED, null, cause, -1);
+  }
+
+  private ExoPlaybackException(int type, String message, Throwable cause, int rendererIndex) {
     super(message, cause);
-    caughtAtTopLevel = false;
+    this.type = type;
+    this.rendererIndex = rendererIndex;
   }
 
-  /* package */ ExoPlaybackException(Throwable cause, boolean caughtAtTopLevel) {
-    super(cause);
-    this.caughtAtTopLevel = caughtAtTopLevel;
+  /**
+   * Retrieves the underlying error when {@link #type} is {@link #TYPE_SOURCE}.
+   */
+  public IOException getSourceException() {
+    Assertions.checkState(type == TYPE_SOURCE);
+    return (IOException) getCause();
+  }
+
+  /**
+   * Retrieves the underlying error when {@link #type} is {@link #TYPE_RENDERER}.
+   */
+  public Exception getRendererException() {
+    Assertions.checkState(type == TYPE_RENDERER);
+    return (Exception) getCause();
+  }
+
+  /**
+   * Retrieves the underlying error when {@link #type} is {@link #TYPE_UNEXPECTED}.
+   */
+  public RuntimeException getUnexpectedException() {
+    Assertions.checkState(type == TYPE_UNEXPECTED);
+    return (RuntimeException) getCause();
   }
 
 }

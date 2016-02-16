@@ -273,7 +273,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       return decoderInfo != null && decoderInfo.adaptive ? TrackRenderer.ADAPTIVE_SEAMLESS
           : TrackRenderer.ADAPTIVE_NOT_SEAMLESS;
     } catch (DecoderQueryException e) {
-      throw new ExoPlaybackException(e);
+      throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
   }
 
@@ -282,7 +282,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     try {
       return supportsFormat(mediaCodecSelector, format);
     } catch (DecoderQueryException e) {
-      throw new ExoPlaybackException(e);
+      throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
   }
 
@@ -335,7 +335,8 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     boolean requiresSecureDecoder = false;
     if (drmInitData != null) {
       if (drmSessionManager == null) {
-        throw new ExoPlaybackException("Media requires a DrmSessionManager");
+        throw ExoPlaybackException.createForRenderer(
+            new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
       }
       if (!openedDrmSession) {
         drmSessionManager.open(drmInitData);
@@ -343,7 +344,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       }
       int drmSessionState = drmSessionManager.getState();
       if (drmSessionState == DrmSessionManager.STATE_ERROR) {
-        throw new ExoPlaybackException(drmSessionManager.getError());
+        throw ExoPlaybackException.createForRenderer(drmSessionManager.getError(), getIndex());
       } else if (drmSessionState == DrmSessionManager.STATE_OPENED
           || drmSessionState == DrmSessionManager.STATE_OPENED_WITH_KEYS) {
         mediaCrypto = drmSessionManager.getMediaCrypto();
@@ -403,7 +404,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   private void notifyAndThrowDecoderInitError(DecoderInitializationException e)
       throws ExoPlaybackException {
     notifyDecoderInitializationError(e);
-    throw new ExoPlaybackException(e);
+    throw ExoPlaybackException.createForRenderer(e, getIndex());
   }
 
   protected boolean shouldInitCodec() {
@@ -636,7 +637,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
         }
       } catch (CryptoException e) {
         notifyCryptoError(e);
-        throw new ExoPlaybackException(e);
+        throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
       return false;
     }
@@ -678,7 +679,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     } catch (CryptoException e) {
       notifyCryptoError(e);
-      throw new ExoPlaybackException(e);
+      throw ExoPlaybackException.createForRenderer(e, getIndex());
     }
     return true;
   }
@@ -705,7 +706,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     }
     int drmManagerState = drmSessionManager.getState();
     if (drmManagerState == DrmSessionManager.STATE_ERROR) {
-      throw new ExoPlaybackException(drmSessionManager.getError());
+      throw ExoPlaybackException.createForRenderer(drmSessionManager.getError(), getIndex());
     }
     if (drmManagerState != DrmSessionManager.STATE_OPENED_WITH_KEYS &&
         (sampleEncrypted || !playClearSamplesWithoutKeys)) {

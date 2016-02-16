@@ -188,7 +188,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
       try {
         nextSubtitle = parserHelper.getAndClearResult();
       } catch (IOException e) {
-        throw new ExoPlaybackException(e);
+        throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
     }
 

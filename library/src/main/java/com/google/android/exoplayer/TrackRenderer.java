@@ -88,7 +88,26 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    */
   protected static final int STATE_STARTED = 2;
 
+  private int index;
   private int state;
+
+  /**
+   * Sets the index of this renderer within the player.
+   *
+   * @param index The renderer index.
+   */
+  /* package */ final void setIndex(int index) {
+    this.index = index;
+  }
+
+  /**
+   * Returns the index of the renderer within the player.
+   *
+   * @return The index of the renderer within the player.
+   */
+  protected final int getIndex() {
+    return index;
+  }
 
   /**
    * If the renderer advances its own playback position then this method returns a corresponding
