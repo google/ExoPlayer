@@ -30,11 +30,13 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
 import java.io.IOException;
+import java.util.Vector;
 
 /**
  * Facilitates the extraction of data from the MPEG-2 TS container format.
+ * This is copied from exoplayer library but I worked on adding seeking capability
  */
-public final class TsExtractor implements Extractor {
+public final class TsExtractor implements Extractor,SeekMap {
 
   private static final String TAG = "TsExtractor";
 
@@ -70,6 +72,9 @@ public final class TsExtractor implements Extractor {
   private ExtractorOutput output;
   /* package */ Id3Reader id3Reader;
 
+  //pcr array for seeking
+  private Vector<TimeBytePosition> timeToByte;
+
   public TsExtractor() {
     this(new PtsTimestampAdjuster(0));
   }
@@ -86,6 +91,7 @@ public final class TsExtractor implements Extractor {
     tsPayloadReaders = new SparseArray<>();
     tsPayloadReaders.put(TS_PAT_PID, new PatReader());
     streamTypes = new SparseBooleanArray();
+    timeToByte = new Vector<>();
   }
 
   // Extractor implementation.
@@ -106,12 +112,17 @@ public final class TsExtractor implements Extractor {
   @Override
   public void init(ExtractorOutput output) {
     this.output = output;
-    output.seekMap(SeekMap.UNSEEKABLE);
+    output.seekMap(this);
+  }
+
+  @Override
+  public boolean isSeekable(){
+    return true;
   }
 
   @Override
   public void seek() {
-    ptsTimestampAdjuster.reset();
+    //ptsTimestampAdjuster.reset(); this reset is not good for seeking
     for (int i = 0; i < tsPayloadReaders.size(); i++) {
       tsPayloadReaders.valueAt(i).seek();
     }
@@ -119,7 +130,7 @@ public final class TsExtractor implements Extractor {
 
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+          throws IOException, InterruptedException {
     if (!input.readFully(tsPacketBuffer.data, 0, TS_PACKET_SIZE, true)) {
       return RESULT_END_OF_INPUT;
     }
@@ -132,7 +143,6 @@ public final class TsExtractor implements Extractor {
     if (syncByte != TS_SYNC_BYTE) {
       return RESULT_CONTINUE;
     }
-
     tsPacketBuffer.readBytes(tsScratch, 3);
     tsScratch.skipBits(1); // transport_error_indicator
     boolean payloadUnitStartIndicator = tsScratch.readBit();
@@ -143,10 +153,22 @@ public final class TsExtractor implements Extractor {
     boolean payloadExists = tsScratch.readBit();
     // Last 4 bits of scratch are skipped: continuity_counter
 
-    // Skip the adaptation field.
+    // check for pcr
     if (adaptationFieldExists) {
       int adaptationFieldLength = tsPacketBuffer.readUnsignedByte();
-      tsPacketBuffer.skipBytes(adaptationFieldLength);
+      if (adaptationFieldLength > 0) {
+        int flags = tsPacketBuffer.readUnsignedByte();
+        boolean pcrFlagSet = (flags & 0x10) == 0x10;
+        if (pcrFlagSet && adaptationFieldLength>=7) {
+          byte[] pcrBytes=new byte[6];
+          tsPacketBuffer.readBytes(pcrBytes, 0, pcrBytes.length);
+          long positionMs=getPcrPositionMs(pcrBytes);
+          timeToByte.add(new TimeBytePosition(positionMs, input.getPosition() - TS_PACKET_SIZE));
+          tsPacketBuffer.skipBytes(adaptationFieldLength-7);
+        } else {
+          tsPacketBuffer.skipBytes(adaptationFieldLength-1);
+        }
+      }
     }
 
     // Read the payload.
@@ -158,6 +180,48 @@ public final class TsExtractor implements Extractor {
     }
 
     return RESULT_CONTINUE;
+  }
+
+  @Override
+  public long getPosition(long positionUs) {
+    //search for the closest position using binary search
+    positionUs/=1000;
+    //the first time-position might not be aligned with 0(live-streaming)
+    positionUs+=timeToByte.get(0).timeMs;
+    int q = 0, r = timeToByte.size();
+    int mid = -1;
+    while (q < r) {
+      mid = (q + r) / 2;
+      if (timeToByte.get(mid).timeMs == positionUs) {
+        break;
+      } else if (timeToByte.get(mid).timeMs > positionUs) {
+        r = mid;
+      } else if (timeToByte.get(mid).timeMs < positionUs) {
+        q = mid + 1;
+      }
+    }
+    return mid == -1 ? 0 : timeToByte.get(mid).bytePos;
+  }
+
+  //gets time position in milliseconds from pcr value
+  private long getPcrPositionMs(byte[] pcrBytes) {
+    long pcr=(((long)((pcrBytes[0]<<24)
+            +(pcrBytes[1]<<16 & 0x00FF0000)
+            +(pcrBytes[2]<<8 & 0x0000FF00)
+            +(pcrBytes[3] & 0x000000FF)))<<1 & 0x00000001FFFFFFFFL)
+            +(pcrBytes[4]>>7 & 1);
+    return (pcr/90);
+  }
+
+  private class TimeBytePosition{
+    //position in time
+    public long timeMs;
+    //equivalent byte offset
+    public long bytePos;
+    public TimeBytePosition(long timeMs,long bytePos){
+      this.timeMs = timeMs;
+      this.bytePos = bytePos;
+    }
   }
 
   // Internals.
@@ -184,7 +248,7 @@ public final class TsExtractor implements Extractor {
      * @param output The output to which parsed data should be written.
      */
     public abstract void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
-        ExtractorOutput output);
+                                 ExtractorOutput output);
 
   }
 
@@ -206,7 +270,7 @@ public final class TsExtractor implements Extractor {
 
     @Override
     public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
-        ExtractorOutput output) {
+                        ExtractorOutput output) {
       // Skip pointer.
       if (payloadUnitStartIndicator) {
         int pointerField = data.readUnsignedByte();
@@ -261,7 +325,7 @@ public final class TsExtractor implements Extractor {
 
     @Override
     public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
-        ExtractorOutput output) {
+                        ExtractorOutput output) {
       if (payloadUnitStartIndicator) {
         // Skip pointer.
         int pointerField = data.readUnsignedByte();
@@ -309,7 +373,7 @@ public final class TsExtractor implements Extractor {
       }
 
       int remainingEntriesLength = sectionLength - 9 /* Length of fields before descriptors */
-          - programInfoLength - 4 /* CRC length */;
+              - programInfoLength - 4 /* CRC length */;
       while (remainingEntriesLength > 0) {
         sectionData.readBytes(pmtScratch, 5);
         int streamType = pmtScratch.readBits(8);
@@ -338,7 +402,7 @@ public final class TsExtractor implements Extractor {
             break;
           case TS_STREAM_TYPE_AAC:
             pesPayloadReader = new AdtsReader(output.track(TS_STREAM_TYPE_AAC),
-                new DummyTrackOutput());
+                    new DummyTrackOutput());
             break;
           case TS_STREAM_TYPE_AC3:
             pesPayloadReader = new Ac3Reader(output.track(TS_STREAM_TYPE_AC3), false);
@@ -355,11 +419,11 @@ public final class TsExtractor implements Extractor {
             break;
           case TS_STREAM_TYPE_H264:
             pesPayloadReader = new H264Reader(output.track(TS_STREAM_TYPE_H264),
-                new SeiReader(output.track(TS_STREAM_TYPE_EIA608)), idrKeyframesOnly);
+                    new SeiReader(output.track(TS_STREAM_TYPE_EIA608)), idrKeyframesOnly);
             break;
           case TS_STREAM_TYPE_H265:
             pesPayloadReader = new H265Reader(output.track(TS_STREAM_TYPE_H265),
-                new SeiReader(output.track(TS_STREAM_TYPE_EIA608)));
+                    new SeiReader(output.track(TS_STREAM_TYPE_EIA608)));
             break;
           case TS_STREAM_TYPE_ID3:
             pesPayloadReader = id3Reader;
@@ -463,7 +527,7 @@ public final class TsExtractor implements Extractor {
 
     @Override
     public void consume(ParsableByteArray data, boolean payloadUnitStartIndicator,
-        ExtractorOutput output) {
+                        ExtractorOutput output) {
       if (payloadUnitStartIndicator) {
         switch (state) {
           case STATE_FINDING_HEADER:
@@ -502,7 +566,7 @@ public final class TsExtractor implements Extractor {
             int readLength = Math.min(MAX_HEADER_EXTENSION_SIZE, extendedHeaderLength);
             // Read as much of the extended header as we're interested in, and skip the rest.
             if (continueRead(data, pesScratch.data, readLength)
-                && continueRead(data, null, extendedHeaderLength)) {
+                    && continueRead(data, null, extendedHeaderLength)) {
               parseHeaderExtension();
               pesPayloadReader.packetStarted(timeUs, dataAlignmentIndicator);
               setState(STATE_READING_BODY);
@@ -582,7 +646,7 @@ public final class TsExtractor implements Extractor {
         payloadSize = -1;
       } else {
         payloadSize = packetLength + 6 /* packetLength does not include the first 6 bytes */
-            - HEADER_SIZE - extendedHeaderLength;
+                - HEADER_SIZE - extendedHeaderLength;
       }
       return true;
     }
