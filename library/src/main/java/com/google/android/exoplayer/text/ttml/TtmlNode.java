@@ -165,14 +165,14 @@ import java.util.TreeSet;
     return styleIds;
   }
 
-  public RegionTrackingFormattedTextBuilder getText(long timeUs, Map<String, TtmlStyle> globalStyles, Map<String, TtmlRegion> globalRegions) {
-    RegionTrackingFormattedTextBuilder formattedTextBuilder = new RegionTrackingFormattedTextBuilder(globalRegions);
+  public RegionTrackingFormattedTextManage getText(long timeUs, Map<String, TtmlStyle> globalStyles, Map<String, TtmlRegion> globalRegions) {
+    RegionTrackingFormattedTextManage formattedTextBuilder = new RegionTrackingFormattedTextManage(globalRegions);
     traverseForText(timeUs, formattedTextBuilder, false);
     traverseForStyle(formattedTextBuilder, globalStyles);
     return formattedTextBuilder;
   }
 
-  private void traverseForText(long timeUs, RegionTrackingFormattedTextBuilder builder,
+  private void traverseForText(long timeUs, RegionTrackingFormattedTextManage builder,
                                                  boolean descendsPNode) {
     start = builder.getBuilder().length();
     end = start;
@@ -196,7 +196,7 @@ import java.util.TreeSet;
     }
   }
 
-  private void traverseForStyle(RegionTrackingFormattedTextBuilder builder,
+  private void traverseForStyle(RegionTrackingFormattedTextManage builder,
       Map<String, TtmlStyle> globalStyles) {
     if (start != end) {
       TtmlStyle resolvedStyle = TtmlRenderUtil.resolveStyle(style, styleIds, globalStyles);
