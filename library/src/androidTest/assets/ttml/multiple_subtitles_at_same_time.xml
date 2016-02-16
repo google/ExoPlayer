@@ -8,8 +8,8 @@
     </tt:head>
     <tt:body>
         <tt:div style="normal">
-            <tt:p xml:id="sub1" begin="00:00:02.169" end="00:00:07.704" region="first">Now thats what I call a subtitle</tt:p>
-            <tt:p xml:id="sub2" begin="00:00:04.169" end="00:00:13.704" region="second">Last subtitle</tt:p>
+            <tt:p xml:id="sub1" begin="00:00:02.169" end="00:00:07.704" region="first" tts:fontSize="32px">Now thats what I call a subtitle</tt:p>
+            <tt:p xml:id="sub2" begin="00:00:04.169" end="00:00:13.704" region="second" tts:fontSize="6px">Last subtitle</tt:p>
         </tt:div>
     </tt:body>
 </tt:tt>

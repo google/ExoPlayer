@@ -19,6 +19,7 @@ import android.test.InstrumentationTestCase;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.AlignmentSpan;
 import android.text.style.BackgroundColorSpan;
@@ -423,6 +424,21 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     final List<Cue> cues = subtitle.getCues(timeUs);
     assertEquals(1, cues.size());
     assertEquals("Now thats what I call a subtitle", cues.get(0).text.toString());
+  }
+
+  public void testSetsStyleDataOnFirstCue() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(MULTIPLE_SUBTITLES_SAME_TIME_FILE);
+    long timeUs = getNextEventTimeFrom(subtitle, 0);
+    final List<Cue> cues = subtitle.getCues(timeUs);
+    assertAbsoluteFontSize((SpannableStringBuilder) cues.get(0).text, 32);
+  }
+
+  public void testSetsStyleDataOnTwoCuesWhenTheyOverlap() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(MULTIPLE_SUBTITLES_SAME_TIME_FILE);
+    long timeUs = getNextEventTimeFrom(subtitle, 2169000);
+    final List<Cue> cues = subtitle.getCues(timeUs);
+    assertAbsoluteFontSize((SpannableStringBuilder)cues.get(0).text, 32);
+    assertAbsoluteFontSize((SpannableStringBuilder)cues.get(1).text, 6);
   }
 
   public void testGeneratesSingleCueAfterOverlapPeriodFinishes() throws IOException {
