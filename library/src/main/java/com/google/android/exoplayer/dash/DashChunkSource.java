@@ -131,6 +131,7 @@ public class DashChunkSource implements ChunkSource {
 
   // Properties of enabled tracks.
   private Format[] enabledFormats;
+  private boolean[] adaptiveFormatBlacklistFlags;
 
   /**
    * @param manifestFetcher A fetcher for the manifest.
@@ -266,7 +267,8 @@ public class DashChunkSource implements ChunkSource {
     }
     Arrays.sort(enabledFormats, new DecreasingBandwidthComparator());
     if (enabledFormats.length > 1) {
-      adaptiveFormatEvaluator.enable();
+      adaptiveFormatEvaluator.enable(enabledFormats);
+      adaptiveFormatBlacklistFlags = new boolean[tracks.length];
     }
     processManifest(manifestFetcher.getManifest());
   }
@@ -311,7 +313,8 @@ public class DashChunkSource implements ChunkSource {
     evaluation.queueSize = queue.size();
     if (evaluation.format == null || !lastChunkWasInitialization) {
       if (enabledFormats.length > 1) {
-        adaptiveFormatEvaluator.evaluate(queue, playbackPositionUs, enabledFormats, evaluation);
+        adaptiveFormatEvaluator.evaluate(queue, playbackPositionUs, 0, adaptiveFormatBlacklistFlags,
+            evaluation);
       } else {
         evaluation.format = enabledFormats[0];
         evaluation.trigger = Chunk.TRIGGER_MANUAL;
@@ -479,7 +482,7 @@ public class DashChunkSource implements ChunkSource {
       adaptiveFormatEvaluator.disable();
     }
     periodHolders.clear();
-    evaluation.format = null;
+    evaluation.clear();
     availableRange = null;
     fatalError = null;
     enabledFormats = null;

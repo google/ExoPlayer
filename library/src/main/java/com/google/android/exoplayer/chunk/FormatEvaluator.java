@@ -28,8 +28,10 @@ public interface FormatEvaluator {
 
   /**
    * Enables the evaluator.
+   *
+   * @param formats The formats from which to select, ordered by decreasing bandwidth.
    */
-  void enable();
+  void enable(Format[] formats);
 
   /**
    * Disables the evaluator.
@@ -39,22 +41,27 @@ public interface FormatEvaluator {
   /**
    * Update the supplied evaluation.
    * <p>
-   * When the method is invoked, {@code evaluation} will contain the currently selected
-   * format (null for the first evaluation), the most recent trigger (TRIGGER_INITIAL for the
-   * first evaluation) and the current queue size. The implementation should update these
-   * fields as necessary.
-   * <p>
-   * The trigger should be considered "sticky" for as long as a given representation is selected,
-   * and so should only be changed if the representation is also changed.
+   * When invoked, {@code evaluation} must contain the currently selected format (null for an
+   * initial evaluation), the most recent trigger (@link Chunk#TRIGGER_INITIAL} for an initial
+   * evaluation) and the size of {@code queue}. The invocation will update the format and trigger,
+   * and may also reduce {@link Evaluation#queueSize} to indicate that chunks should be discarded
+   * from the end of the queue to allow re-buffering in a different format. The evaluation will
+   * always retain the first chunk in the queue, if there is one.
    *
-   * @param queue A read only representation of the currently buffered {@link MediaChunk}s.
-   * @param playbackPositionUs The current playback position.
-   * @param formats The formats from which to select, ordered by decreasing bandwidth.
-   * @param evaluation The evaluation.
+   * @param queue A read only representation of currently buffered chunks. Must not be empty unless
+   *     the evaluation is at the start of playback or immediately follows a seek. All but the first
+   *     chunk may be discarded. A caller may pass a singleton list containing only the most
+   *     recently buffered chunk in the case that it does not support discarding of chunks.
+   * @param playbackPositionUs The current playback position in microseconds.
+   * @param switchingOverlapUs If switching format requires downloading overlapping media then this
+   *     is the duration of the required overlap in microseconds. 0 otherwise.
+   * @param blacklistFlags An array whose length is equal to the number of available formats. A
+   *     {@code true} element indicates that a format is currently blacklisted and should not be
+   *     selected by the evaluation. At least one element must be {@code false}.
+   * @param evaluation The evaluation to be updated.
    */
-  // TODO: Pass more useful information into this method, and finalize the interface.
-  void evaluate(List<? extends MediaChunk> queue, long playbackPositionUs, Format[] formats,
-      Evaluation evaluation);
+  void evaluate(List<? extends MediaChunk> queue, long playbackPositionUs,
+      long switchingOverlapUs, boolean[] blacklistFlags, Evaluation evaluation);
 
   /**
    * A format evaluation.
@@ -62,9 +69,9 @@ public interface FormatEvaluator {
   public static final class Evaluation {
 
     /**
-     * The desired size of the queue.
+     * The selected format.
      */
-    public int queueSize;
+    public Format format;
 
     /**
      * The sticky reason for the format selection.
@@ -72,45 +79,32 @@ public interface FormatEvaluator {
     public int trigger;
 
     /**
-     * The selected format.
+     * The desired size of the queue.
      */
-    public Format format;
+    public int queueSize;
 
     public Evaluation() {
+      trigger = Chunk.TRIGGER_INITIAL;
+    }
+
+    /**
+     * Clears {@link #format} and sets {@link #trigger} to {@link Chunk#TRIGGER_INITIAL}.
+     */
+    public void clear() {
+      format = null;
       trigger = Chunk.TRIGGER_INITIAL;
     }
 
   }
 
   /**
-   * Always selects the first format.
-   */
-  public static final class FixedEvaluator implements FormatEvaluator {
-
-    @Override
-    public void enable() {
-      // Do nothing.
-    }
-
-    @Override
-    public void disable() {
-      // Do nothing.
-    }
-
-    @Override
-    public void evaluate(List<? extends MediaChunk> queue, long playbackPositionUs,
-        Format[] formats, Evaluation evaluation) {
-      evaluation.format = formats[0];
-    }
-
-  }
-
-  /**
-   * Selects randomly between the available formats.
+   * Selects randomly between the available formats, excluding those that are blacklisted.
    */
   public static final class RandomEvaluator implements FormatEvaluator {
 
     private final Random random;
+
+    private Format[] formats;
 
     public RandomEvaluator() {
       this.random = new Random();
@@ -124,20 +118,39 @@ public interface FormatEvaluator {
     }
 
     @Override
-    public void enable() {
-      // Do nothing.
+    public void enable(Format[] formats) {
+      this.formats = formats;
     }
 
     @Override
     public void disable() {
-      // Do nothing.
+      formats = null;
     }
 
     @Override
     public void evaluate(List<? extends MediaChunk> queue, long playbackPositionUs,
-        Format[] formats, Evaluation evaluation) {
-      Format newFormat = formats[random.nextInt(formats.length)];
-      if (evaluation.format != null && !evaluation.format.equals(newFormat)) {
+        long switchingOverlapUs, boolean[] blacklistFlags, Evaluation evaluation) {
+      // Count the number of non-blacklisted formats.
+      int nonBlacklistedFormatCount = 0;
+      for (int i = 0; i < blacklistFlags.length; i++) {
+        if (!blacklistFlags[i]) {
+          nonBlacklistedFormatCount++;
+        }
+      }
+
+      int formatIndex = random.nextInt(nonBlacklistedFormatCount);
+      if (nonBlacklistedFormatCount != formats.length) {
+        // Adjust the format index to account for blacklisted formats.
+        nonBlacklistedFormatCount = 0;
+        for (int i = 0; i < blacklistFlags.length; i++) {
+          if (!blacklistFlags[i] && formatIndex == nonBlacklistedFormatCount++) {
+            formatIndex = i;
+            break;
+          }
+        }
+      }
+      Format newFormat = formats[formatIndex];
+      if (evaluation.format != null && evaluation.format != newFormat) {
         evaluation.trigger = Chunk.TRIGGER_ADAPTIVE;
       }
       evaluation.format = newFormat;
@@ -163,12 +176,13 @@ public interface FormatEvaluator {
     public static final float DEFAULT_BANDWIDTH_FRACTION = 0.75f;
 
     private final BandwidthMeter bandwidthMeter;
-
     private final int maxInitialBitrate;
     private final long minDurationForQualityIncreaseUs;
     private final long maxDurationForQualityDecreaseUs;
     private final long minDurationToRetainAfterDiscardUs;
     private final float bandwidthFraction;
+
+    private Format[] formats;
 
     /**
      * @param bandwidthMeter Provides an estimate of the currently available bandwidth.
@@ -211,22 +225,26 @@ public interface FormatEvaluator {
     }
 
     @Override
-    public void enable() {
-      // Do nothing.
+    public void enable(Format[] formats) {
+      this.formats = formats;
     }
 
     @Override
     public void disable() {
-      // Do nothing.
+      formats = null;
     }
 
     @Override
     public void evaluate(List<? extends MediaChunk> queue, long playbackPositionUs,
-        Format[] formats, Evaluation evaluation) {
+        long switchingOverlapUs, boolean[] blacklistFlags, Evaluation evaluation) {
       long bufferedDurationUs = queue.isEmpty() ? 0
           : queue.get(queue.size() - 1).endTimeUs - playbackPositionUs;
+      if (switchingOverlapUs > 0) {
+        bufferedDurationUs = Math.max(0, bufferedDurationUs - switchingOverlapUs);
+      }
       Format current = evaluation.format;
-      Format ideal = determineIdealFormat(formats, bandwidthMeter.getBitrateEstimate());
+      Format ideal = determineIdealFormat(formats, blacklistFlags,
+          bandwidthMeter.getBitrateEstimate());
       boolean isHigher = ideal != null && current != null && ideal.bitrate > current.bitrate;
       boolean isLower = ideal != null && current != null && ideal.bitrate < current.bitrate;
       if (isHigher) {
@@ -267,17 +285,22 @@ public interface FormatEvaluator {
     /**
      * Compute the ideal format ignoring buffer health.
      */
-    private Format determineIdealFormat(Format[] formats, long bitrateEstimate) {
+    private Format determineIdealFormat(Format[] formats, boolean[] blacklistFlags,
+        long bitrateEstimate) {
+      int lowestBitrateNonBlacklistedIndex = 0;
       long effectiveBitrate = bitrateEstimate == BandwidthMeter.NO_ESTIMATE
           ? maxInitialBitrate : (long) (bitrateEstimate * bandwidthFraction);
       for (int i = 0; i < formats.length; i++) {
         Format format = formats[i];
-        if (format.bitrate <= effectiveBitrate) {
-          return format;
+        if (!blacklistFlags[i]) {
+          if (format.bitrate <= effectiveBitrate) {
+            return format;
+          } else {
+            lowestBitrateNonBlacklistedIndex = i;
+          }
         }
       }
-      // We didn't manage to calculate a suitable format. Return the lowest quality format.
-      return formats[formats.length - 1];
+      return formats[lowestBitrateNonBlacklistedIndex];
     }
 
   }

@@ -81,6 +81,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
   // Properties of enabled tracks.
   private Format[] enabledFormats;
+  private boolean[] adaptiveFormatBlacklistFlags;
 
   private IOException fatalError;
 
@@ -171,7 +172,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     }
     Arrays.sort(enabledFormats, new DecreasingBandwidthComparator());
     if (enabledFormats.length > 1) {
-      adaptiveFormatEvaluator.enable();
+      adaptiveFormatEvaluator.enable(enabledFormats);
+      adaptiveFormatBlacklistFlags = new boolean[tracks.length];
     }
   }
 
@@ -221,7 +223,8 @@ public class SmoothStreamingChunkSource implements ChunkSource {
 
     evaluation.queueSize = queue.size();
     if (enabledFormats.length > 1) {
-      adaptiveFormatEvaluator.evaluate(queue, playbackPositionUs, enabledFormats, evaluation);
+      adaptiveFormatEvaluator.evaluate(queue, playbackPositionUs, 0, adaptiveFormatBlacklistFlags,
+          evaluation);
     } else {
       evaluation.format = enabledFormats[0];
       evaluation.trigger = Chunk.TRIGGER_MANUAL;
@@ -316,7 +319,7 @@ public class SmoothStreamingChunkSource implements ChunkSource {
     if (enabledFormats.length > 1) {
       adaptiveFormatEvaluator.disable();
     }
-    evaluation.format = null;
+    evaluation.clear();
     fatalError = null;
   }
 

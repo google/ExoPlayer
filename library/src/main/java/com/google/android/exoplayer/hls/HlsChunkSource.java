@@ -22,6 +22,8 @@ import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.DataChunk;
+import com.google.android.exoplayer.chunk.FormatEvaluator;
+import com.google.android.exoplayer.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer.extractor.ts.AdtsExtractor;
@@ -31,7 +33,6 @@ import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.HttpDataSource.InvalidResponseCodeException;
-import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.UriUtil;
@@ -100,18 +101,6 @@ public class HlsChunkSource {
   public static final int ADAPTIVE_MODE_ABRUPT = 3;
 
   /**
-   * The default minimum duration of media that needs to be buffered for a switch to a higher
-   * quality variant to be considered.
-   */
-  public static final long DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS = 5000;
-
-  /**
-   * The default maximum duration of media that needs to be buffered for a switch to a lower
-   * quality variant to be considered.
-   */
-  public static final long DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS = 20000;
-
-  /**
    * The default time for which a media playlist should be blacklisted.
    */
   public static final long DEFAULT_PLAYLIST_BLACKLIST_MS = 60000;
@@ -121,18 +110,15 @@ public class HlsChunkSource {
   private static final String MP3_FILE_EXTENSION = ".mp3";
   private static final String VTT_FILE_EXTENSION = ".vtt";
   private static final String WEBVTT_FILE_EXTENSION = ".webvtt";
-  private static final float BANDWIDTH_FRACTION = 0.8f;
 
   private final ManifestFetcher<HlsPlaylist> manifestFetcher;
   private final int type;
   private final DataSource dataSource;
+  private final FormatEvaluator adaptiveFormatEvaluator;
+  private final Evaluation evaluation;
   private final HlsPlaylistParser playlistParser;
-  private final BandwidthMeter bandwidthMeter;
   private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
   private final int adaptiveMode;
-
-  private final long minBufferDurationToSwitchUpUs;
-  private final long maxBufferDurationToSwitchDownUs;
 
   private boolean manifestFetcherEnabled;
   private byte[] scratchSpace;
@@ -155,6 +141,7 @@ public class HlsChunkSource {
   private HlsMediaPlaylist[] enabledVariantPlaylists;
   private long[] enabledVariantLastPlaylistLoadTimesMs;
   private long[] enabledVariantBlacklistTimes;
+  private boolean[] enabledVariantBlacklistFlags;
   private int selectedVariantIndex;
 
   /**
@@ -171,42 +158,16 @@ public class HlsChunkSource {
    *     {@link #ADAPTIVE_MODE_SPLICE}.
    */
   public HlsChunkSource(ManifestFetcher<HlsPlaylist> manifestFetcher, int type,
-      DataSource dataSource,  BandwidthMeter bandwidthMeter,
-      PtsTimestampAdjusterProvider timestampAdjusterProvider, int adaptiveMode) {
-    this(manifestFetcher, type, dataSource, bandwidthMeter, timestampAdjusterProvider,
-        adaptiveMode, DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS, DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS);
-  }
-
-  /**
-   * @param manifestFetcher A fetcher for the playlist.
-   * @param type The type of chunk provided by the source. One of {@link #TYPE_DEFAULT} and
-   *     {@link #TYPE_VTT}.
-   * @param dataSource A {@link DataSource} suitable for loading the media data.
-   * @param bandwidthMeter Provides an estimate of the currently available bandwidth.
-   * @param timestampAdjusterProvider A provider of {@link PtsTimestampAdjuster} instances. If
-   *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
-   *     same provider.
-   * @param adaptiveMode The mode for switching from one variant to another. One of
-   *     {@link #ADAPTIVE_MODE_NONE}, {@link #ADAPTIVE_MODE_ABRUPT} and
-   *     {@link #ADAPTIVE_MODE_SPLICE}.
-   * @param minBufferDurationToSwitchUpMs The minimum duration of media that needs to be buffered
-   *     for a switch to a higher quality variant to be considered.
-   * @param maxBufferDurationToSwitchDownMs The maximum duration of media that needs to be buffered
-   *     for a switch to a lower quality variant to be considered.
-   */
-  public HlsChunkSource(ManifestFetcher<HlsPlaylist> manifestFetcher, int type,
       DataSource dataSource, BandwidthMeter bandwidthMeter,
-      PtsTimestampAdjusterProvider timestampAdjusterProvider, int adaptiveMode,
-      long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs) {
+      PtsTimestampAdjusterProvider timestampAdjusterProvider, int adaptiveMode) {
     this.manifestFetcher = manifestFetcher;
     this.type = type;
     this.dataSource = dataSource;
-    this.bandwidthMeter = bandwidthMeter;
+    this.adaptiveFormatEvaluator = new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter);
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     this.adaptiveMode = adaptiveMode;
-    minBufferDurationToSwitchUpUs = minBufferDurationToSwitchUpMs * 1000;
-    maxBufferDurationToSwitchDownUs = maxBufferDurationToSwitchDownMs * 1000;
     playlistParser = new HlsPlaylistParser();
+    evaluation = new Evaluation();
   }
 
   /**
@@ -304,17 +265,19 @@ public class HlsChunkSource {
   }
 
   /**
-   * Selects a tracks for use.
+   * Selects tracks for use.
    * <p>
    * This method should only be called after the source has been prepared.
    *
    * @param tracks The track indices.
    */
   public void selectTracks(int[] tracks) {
+    evaluation.clear();
     enabledVariants = new Variant[tracks.length];
     enabledVariantPlaylists = new HlsMediaPlaylist[enabledVariants.length];
     enabledVariantLastPlaylistLoadTimesMs = new long[enabledVariants.length];
     enabledVariantBlacklistTimes = new long[enabledVariants.length];
+    enabledVariantBlacklistFlags = new boolean[enabledVariants.length];
     // Construct and sort the enabled variants.
     for (int i = 0; i < tracks.length; i++) {
       enabledVariants[i] = exposedVariants[tracks[i]];
@@ -327,15 +290,13 @@ public class HlsChunkSource {
         return formatComparator.compare(first.format, second.format);
       }
     });
-    // Determine the initial variant index and maximum video dimensions.
-    selectedVariantIndex = 0;
-    int minOriginalVariantIndex = Integer.MAX_VALUE;
-    for (int i = 0; i < enabledVariants.length; i++) {
-      int originalVariantIndex = masterPlaylist.variants.indexOf(enabledVariants[i]);
-      if (originalVariantIndex < minOriginalVariantIndex) {
-        minOriginalVariantIndex = originalVariantIndex;
-        selectedVariantIndex = i;
+    if (enabledVariants.length > 1) {
+      // TODO[REFACTOR]: We need to disable this at some point.
+      Format[] formats = new Format[enabledVariants.length];
+      for (int i = 0; i < formats.length; i++) {
+        formats[i] = enabledVariants[i].format;
       }
+      adaptiveFormatEvaluator.enable(formats);
     }
   }
 
@@ -560,7 +521,8 @@ public class HlsChunkSource {
           EncryptionKeyChunk encryptionChunk = (EncryptionKeyChunk) chunk;
           enabledVariantIndex = encryptionChunk.variantIndex;
         }
-        boolean alreadyBlacklisted = enabledVariantBlacklistTimes[enabledVariantIndex] != 0;
+        boolean alreadyBlacklisted = enabledVariantBlacklistFlags[enabledVariantIndex];
+        enabledVariantBlacklistFlags[enabledVariantIndex] = true;
         enabledVariantBlacklistTimes[enabledVariantIndex] = SystemClock.elapsedRealtime();
         if (alreadyBlacklisted) {
           // The playlist was already blacklisted.
@@ -576,7 +538,7 @@ public class HlsChunkSource {
           // This was the last non-blacklisted playlist. Don't blacklist it.
           Log.w(TAG, "Final variant not blacklisted (" + responseCode + "): "
               + chunk.dataSpec.uri);
-          enabledVariantBlacklistTimes[enabledVariantIndex] = 0;
+          enabledVariantBlacklistFlags[enabledVariantIndex] = false;
           return false;
         }
       }
@@ -644,57 +606,29 @@ public class HlsChunkSource {
 
   private int getNextVariantIndex(TsChunk previousTsChunk, long playbackPositionUs) {
     clearStaleBlacklistedVariants();
-    long bitrateEstimate = bandwidthMeter.getBitrateEstimate();
-    if (enabledVariantBlacklistTimes[selectedVariantIndex] != 0) {
-      // The current variant has been blacklisted, so we have no choice but to re-evaluate.
-      return getVariantIndexForBandwidth(bitrateEstimate);
+    long switchingOverlapUs;
+    List<TsChunk> queue;
+    if (previousTsChunk != null) {
+      switchingOverlapUs = adaptiveMode == ADAPTIVE_MODE_SPLICE
+          ? previousTsChunk.endTimeUs - previousTsChunk.startTimeUs : 0;
+      queue = Collections.singletonList(previousTsChunk);
+    } else {
+      switchingOverlapUs = 0;
+      queue = Collections.<TsChunk>emptyList();
     }
-    if (previousTsChunk == null) {
-      // Don't consider switching if we don't have a previous chunk.
-      return selectedVariantIndex;
+    if (enabledVariants.length > 1) {
+      adaptiveFormatEvaluator.evaluate(queue, playbackPositionUs, switchingOverlapUs,
+          enabledVariantBlacklistFlags, evaluation);
+    } else {
+      evaluation.format = enabledVariants[0].format;
+      evaluation.trigger = Chunk.TRIGGER_MANUAL;
     }
-    if (bitrateEstimate == BandwidthMeter.NO_ESTIMATE) {
-      // Don't consider switching if we don't have a bandwidth estimate.
-      return selectedVariantIndex;
-    }
-    int idealIndex = getVariantIndexForBandwidth(bitrateEstimate);
-    if (idealIndex == selectedVariantIndex) {
-      // We're already using the ideal variant.
-      return selectedVariantIndex;
-    }
-    // We're not using the ideal variant for the available bandwidth, but only switch if the
-    // conditions are appropriate.
-    long bufferedPositionUs = adaptiveMode == ADAPTIVE_MODE_SPLICE ? previousTsChunk.startTimeUs
-        : previousTsChunk.endTimeUs;
-    long bufferedUs = bufferedPositionUs - playbackPositionUs;
-    if (enabledVariantBlacklistTimes[selectedVariantIndex] != 0
-        || (idealIndex > selectedVariantIndex && bufferedUs < maxBufferDurationToSwitchDownUs)
-        || (idealIndex < selectedVariantIndex && bufferedUs > minBufferDurationToSwitchUpUs)) {
-      // Switch variant.
-      return idealIndex;
-    }
-    // Stick with the current variant for now.
-    return selectedVariantIndex;
-  }
-
-  private int getVariantIndexForBandwidth(long bitrateEstimate) {
-    if (bitrateEstimate == BandwidthMeter.NO_ESTIMATE) {
-      // Select the lowest quality.
-      bitrateEstimate = 0;
-    }
-    int effectiveBitrate = (int) (bitrateEstimate * BANDWIDTH_FRACTION);
-    int lowestQualityEnabledVariantIndex = -1;
     for (int i = 0; i < enabledVariants.length; i++) {
-      if (enabledVariantBlacklistTimes[i] == 0) {
-        if (enabledVariants[i].format.bitrate <= effectiveBitrate) {
-          return i;
-        }
-        lowestQualityEnabledVariantIndex = i;
+      if (enabledVariants[i].format == evaluation.format) {
+        return i;
       }
     }
-    // At least one variant should always be enabled.
-    Assertions.checkState(lowestQualityEnabledVariantIndex != -1);
-    return lowestQualityEnabledVariantIndex;
+    throw new IllegalStateException();
   }
 
   private boolean shouldRerequestLiveMediaPlaylist(int nextVariantIndex) {
@@ -760,8 +694,8 @@ public class HlsChunkSource {
   }
 
   private boolean allVariantsBlacklisted() {
-    for (int i = 0; i < enabledVariantBlacklistTimes.length; i++) {
-      if (enabledVariantBlacklistTimes[i] == 0) {
+    for (int i = 0; i < enabledVariantBlacklistFlags.length; i++) {
+      if (!enabledVariantBlacklistFlags[i]) {
         return false;
       }
     }
@@ -770,10 +704,10 @@ public class HlsChunkSource {
 
   private void clearStaleBlacklistedVariants() {
     long currentTime = SystemClock.elapsedRealtime();
-    for (int i = 0; i < enabledVariantBlacklistTimes.length; i++) {
-      if (enabledVariantBlacklistTimes[i] != 0
+    for (int i = 0; i < enabledVariantBlacklistFlags.length; i++) {
+      if (enabledVariantBlacklistFlags[i]
           && currentTime - enabledVariantBlacklistTimes[i] > DEFAULT_PLAYLIST_BLACKLIST_MS) {
-        enabledVariantBlacklistTimes[i] = 0;
+        enabledVariantBlacklistFlags[i] = false;
       }
     }
   }

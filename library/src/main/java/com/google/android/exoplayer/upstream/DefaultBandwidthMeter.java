@@ -30,15 +30,21 @@ public final class DefaultBandwidthMeter implements BandwidthMeter {
 
   public static final int DEFAULT_MAX_WEIGHT = 2000;
 
+  private static final int ELAPSED_MILLIS_FOR_ESTIMATE = 2000;
+  private static final int BYTES_TRANSFERRED_FOR_ESTIMATE = 512 * 1024;
+
   private final Handler eventHandler;
   private final EventListener eventListener;
   private final Clock clock;
   private final SlidingPercentile slidingPercentile;
 
-  private long bytesAccumulator;
-  private long startTimeMs;
-  private long bitrateEstimate;
   private int streamCount;
+  private long sampleStartTimeMs;
+  private long sampleBytesTransferred;
+
+  private long totalElapsedTimeMs;
+  private long totalBytesTransferred;
+  private long bitrateEstimate;
 
   public DefaultBandwidthMeter() {
     this(null, null);
@@ -73,34 +79,38 @@ public final class DefaultBandwidthMeter implements BandwidthMeter {
   @Override
   public synchronized void onTransferStart() {
     if (streamCount == 0) {
-      startTimeMs = clock.elapsedRealtime();
+      sampleStartTimeMs = clock.elapsedRealtime();
     }
     streamCount++;
   }
 
   @Override
   public synchronized void onBytesTransferred(int bytes) {
-    bytesAccumulator += bytes;
+    sampleBytesTransferred += bytes;
   }
 
   @Override
   public synchronized void onTransferEnd() {
     Assertions.checkState(streamCount > 0);
     long nowMs = clock.elapsedRealtime();
-    int elapsedMs = (int) (nowMs - startTimeMs);
-    if (elapsedMs > 0) {
-      float bitsPerSecond = (bytesAccumulator * 8000) / elapsedMs;
-      slidingPercentile.addSample((int) Math.sqrt(bytesAccumulator), bitsPerSecond);
-      float bandwidthEstimateFloat = slidingPercentile.getPercentile(0.5f);
-      bitrateEstimate = Float.isNaN(bandwidthEstimateFloat) ? NO_ESTIMATE
-          : (long) bandwidthEstimateFloat;
-      notifyBandwidthSample(elapsedMs, bytesAccumulator, bitrateEstimate);
+    int sampleElapsedTimeMs = (int) (nowMs - sampleStartTimeMs);
+    totalElapsedTimeMs += sampleElapsedTimeMs;
+    totalBytesTransferred += sampleBytesTransferred;
+    if (sampleElapsedTimeMs > 0) {
+      float bitsPerSecond = (sampleBytesTransferred * 8000) / sampleElapsedTimeMs;
+      slidingPercentile.addSample((int) Math.sqrt(sampleBytesTransferred), bitsPerSecond);
+      if (totalElapsedTimeMs >= ELAPSED_MILLIS_FOR_ESTIMATE
+          || totalBytesTransferred >= BYTES_TRANSFERRED_FOR_ESTIMATE) {
+        float bitrateEstimateFloat = slidingPercentile.getPercentile(0.5f);
+        bitrateEstimate = Float.isNaN(bitrateEstimateFloat) ? NO_ESTIMATE
+            : (long) bitrateEstimateFloat;
+      }
     }
-    streamCount--;
-    if (streamCount > 0) {
-      startTimeMs = nowMs;
+    notifyBandwidthSample(sampleElapsedTimeMs, sampleBytesTransferred, bitrateEstimate);
+    if (--streamCount > 0) {
+      sampleStartTimeMs = nowMs;
     }
-    bytesAccumulator = 0;
+    sampleBytesTransferred = 0;
   }
 
   private void notifyBandwidthSample(final int elapsedMs, final long bytes, final long bitrate) {
