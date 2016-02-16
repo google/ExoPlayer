@@ -437,8 +437,10 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     TtmlSubtitle subtitle = getSubtitle(MULTIPLE_SUBTITLES_SAME_TIME_FILE);
     long timeUs = getNextEventTimeFrom(subtitle, 2169000);
     final List<Cue> cues = subtitle.getCues(timeUs);
-    assertAbsoluteFontSize((SpannableStringBuilder)cues.get(0).text, 32);
-    assertAbsoluteFontSize((SpannableStringBuilder)cues.get(1).text, 6);
+    assertEquals("Last subtitle", cues.get(0).text.toString());
+    assertAbsoluteFontSize((SpannableStringBuilder)cues.get(0).text, 6);
+    assertEquals("Now thats what I call a subtitle", cues.get(1).text.toString());
+    assertAbsoluteFontSize((SpannableStringBuilder)cues.get(1).text, 32);
   }
 
   public void testGeneratesSingleCueAfterOverlapPeriodFinishes() throws IOException {

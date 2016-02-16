@@ -69,7 +69,7 @@ public final class TtmlSubtitle implements Subtitle {
 
   @Override
   public List<Cue> getCues(long timeUs) {
-    RegionTrackingFormattedTextManage builder = root.getText(timeUs, globalStyles, globalRegions);
+    RegionTrackingFormattedTextManager builder = root.getText(timeUs, globalStyles, globalRegions);
 
     if (builder == null) {
       return Collections.<Cue>emptyList();

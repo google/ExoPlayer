@@ -1,7 +1,6 @@
 package com.google.android.exoplayer.text.ttml;
 
 import android.text.SpannableStringBuilder;
-import android.util.Log;
 
 import com.google.android.exoplayer.text.Cue;
 
@@ -12,7 +11,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RegionTrackingFormattedTextManage
+public class RegionTrackingFormattedTextManager
 {
     private String currentRegionId = null;
     private android.text.SpannableStringBuilder currentBuilder = new SpannableStringBuilder();
@@ -20,7 +19,7 @@ public class RegionTrackingFormattedTextManage
     private static final Pattern WIDTH_HEIGHT = Pattern.compile("^([\\d\\.]+)% ([\\d\\.]+)%$");
     private Map<String, SpannableStringBuilder> builderMap = new HashMap<>();
 
-    public RegionTrackingFormattedTextManage(Map<String, TtmlRegion> globalRegions) {
+    public RegionTrackingFormattedTextManager(Map<String, TtmlRegion> globalRegions) {
         this.globalRegions = globalRegions;
     }
 
@@ -28,27 +27,30 @@ public class RegionTrackingFormattedTextManage
         return currentBuilder;
     }
 
-    public void setRegionId(String regionId) {
+    public Boolean setRegionId(String regionId) {
+        Boolean didChange = false;
         if (regionId != null) {
             if (this.currentRegionId != regionId) {
-                changeRegion(regionId);
+                didChange = changeRegion(regionId);
             }
             this.currentRegionId = regionId;
         }
+        return didChange;
     }
 
-    private void changeRegion(String newRegionId) {
-        if (currentBuilder.toString().length() == 0)
-            return;
-
-        Log.i("AWPAWP", "changeRegion: Storing region " + currentRegionId + " with text " + currentBuilder.toString());
-        storeRegion();
+    private Boolean changeRegion(String newRegionId) {
+        Boolean didChange = storeRegion();
         SpannableStringBuilder nextBuilder = builderMap.get(newRegionId);
         currentBuilder = nextBuilder != null ? nextBuilder : new SpannableStringBuilder();
+        return didChange;
     }
 
-    private void storeRegion() {
+    private Boolean storeRegion() {
+        if (currentBuilder.toString().length() == 0)
+            return false;
+
         builderMap.put(currentRegionId, currentBuilder);
+        return true;
     }
 
     public List<Cue> buildCue() {

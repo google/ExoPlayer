@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
-import android.text.SpannableStringBuilder;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -165,14 +163,14 @@ import java.util.TreeSet;
     return styleIds;
   }
 
-  public RegionTrackingFormattedTextManage getText(long timeUs, Map<String, TtmlStyle> globalStyles, Map<String, TtmlRegion> globalRegions) {
-    RegionTrackingFormattedTextManage formattedTextBuilder = new RegionTrackingFormattedTextManage(globalRegions);
+  public RegionTrackingFormattedTextManager getText(long timeUs, Map<String, TtmlStyle> globalStyles, Map<String, TtmlRegion> globalRegions) {
+    RegionTrackingFormattedTextManager formattedTextBuilder = new RegionTrackingFormattedTextManager(globalRegions);
     traverseForText(timeUs, formattedTextBuilder, false);
     traverseForStyle(formattedTextBuilder, globalStyles);
     return formattedTextBuilder;
   }
 
-  private void traverseForText(long timeUs, RegionTrackingFormattedTextManage builder,
+  private void traverseForText(long timeUs, RegionTrackingFormattedTextManager builder,
                                                  boolean descendsPNode) {
     start = builder.getBuilder().length();
     end = start;
@@ -184,7 +182,9 @@ import java.util.TreeSet;
       // Do nothing.
     } else if (isActive(timeUs)) {
       boolean isPNode = TAG_P.equals(tag);
-      builder.setRegionId(regionId);
+      if (builder.setRegionId(regionId)) {
+        start = builder.getBuilder().length();
+      }
 
       for (int i = 0; i < getChildCount(); ++i) {
         getChild(i).traverseForText(timeUs, builder, descendsPNode || isPNode);
@@ -196,11 +196,12 @@ import java.util.TreeSet;
     }
   }
 
-  private void traverseForStyle(RegionTrackingFormattedTextManage builder,
+  private void traverseForStyle(RegionTrackingFormattedTextManager builder,
       Map<String, TtmlStyle> globalStyles) {
     if (start != end) {
       TtmlStyle resolvedStyle = TtmlRenderUtil.resolveStyle(style, styleIds, globalStyles);
       if (resolvedStyle != null) {
+        builder.setRegionId(regionId);
         TtmlRenderUtil.applyStylesToSpan(builder.getBuilder(), start, end, resolvedStyle);
       }
       for (int i = 0; i < getChildCount(); ++i) {
