@@ -121,7 +121,7 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected final void doSomeWork(long positionUs, long elapsedRealtimeUs)
+  protected void doSomeWork(long positionUs, long elapsedRealtimeUs)
       throws ExoPlaybackException {
     positionUs = shiftInputPosition(positionUs);
     boolean sourceIsReady = enabledSource.continueBuffering(enabledSourceTrackIndex, positionUs);
