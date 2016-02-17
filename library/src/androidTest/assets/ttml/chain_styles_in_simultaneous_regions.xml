@@ -17,7 +17,7 @@
                 WOMAN:
                 <tt:span style="spanstyle-1">Who murdered him?</tt:span>
             </tt:p>
-            <tt:p xml:id="sub1" style="spanstyle-1" begin="00:00:30.000" end="00:00:40.000" region="a">The quick brown fox</tt:p>
+            <tt:p xml:id="sub1" begin="00:00:30.000" end="00:00:40.000" region="a">The quick brown fox</tt:p>
             <tt:p xml:id="sub4" begin="00:00:30.000" end="00:00:40.000" region="b">
                 JUMPS:
                 <tt:span style="spanstyle-1">But who murdered him?</tt:span>

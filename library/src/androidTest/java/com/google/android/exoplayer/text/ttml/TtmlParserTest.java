@@ -455,7 +455,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals("Last subtitle", cues.get(0).text.toString());
   }
 
-  public void testInheritsFontSizeInRegionsAtDifferentTimes() throws IOException {
+  public void testInheritsFontSizeInDifferentRegionsAtDifferentTimes() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(STYLE_INHERITANCE_MULTIPLE_SUBTITLES_SAME_TIME_FILE);
     assertEquals(6, subtitle.getEventTimeCount());
     final List<Cue> cues = subtitle.getCues(2169000);
@@ -467,6 +467,18 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     final List<Cue> secondCues = subtitle.getCues(12169000);
     cue = cues.get(indexOf(secondCues, "WOMAN: Who murdered him?"));
     assertNotNull(cue);
+  }
+
+  public void testInheritsFontSizeInDifferentRegionsAtTheSameTime() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(STYLE_INHERITANCE_MULTIPLE_SUBTITLES_SAME_TIME_FILE);
+    assertEquals(6, subtitle.getEventTimeCount());
+    final List<Cue> cues = subtitle.getCues(30000000);
+    Cue cue = cues.get(indexOf(cues, "The quick brown fox"));
+    assertFont((SpannableStringBuilder)cue.text, "Arial");
+    assertRelativeFontSize((SpannableStringBuilder) cue.text, 0.78f);
+
+//    cue = cues.get(indexOf(cues, "JUMPS: But who murdered him?"));
+//    assertNotNull(cue);
   }
 
   private List<Cue> getCues(TtmlSubtitle subtitle, long timeUs) {
