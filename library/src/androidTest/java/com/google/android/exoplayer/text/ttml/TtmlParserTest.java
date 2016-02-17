@@ -28,6 +28,7 @@ import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
+import android.util.Log;
 
 import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.text.Cue;
@@ -72,6 +73,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
   private static final String BADLY_FORMATTED_ORIGIN_FILE = "ttml/badly_formatted_origin.xml";
   private static final String MISSING_REGION_FILE = "ttml/missing_region.xml";
   private static final String MULTIPLE_SUBTITLES_SAME_TIME_FILE = "ttml/multiple_subtitles_at_same_time.xml";
+  private static final String STYLE_INHERITANCE_MULTIPLE_SUBTITLES_SAME_TIME_FILE = "ttml/chain_styles_in_simultaneous_regions.xml";
 
   public void testInlineAttributes() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
@@ -93,7 +95,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
     assertEquals(4, subtitle.getEventTimeCount());
     assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_ITALIC,
-        TtmlColorParser.CYAN, TtmlColorParser.parseColor("lime"), false, true, null);
+            TtmlColorParser.CYAN, TtmlColorParser.parseColor("lime"), false, true, null);
   }
 
   /**
@@ -127,7 +129,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals(4, subtitle.getEventTimeCount());
 
     assertSpans(subtitle, 10, "text 1", "serif", TtmlStyle.STYLE_BOLD_ITALIC, TtmlColorParser.BLUE,
-        TtmlColorParser.YELLOW, true, false, null);
+            TtmlColorParser.YELLOW, true, false, null);
     assertSpans(subtitle, 20, "text 2", "sansSerif", TtmlStyle.STYLE_ITALIC, TtmlColorParser.RED,
         TtmlColorParser.YELLOW, true, false, null);
   }
@@ -453,6 +455,20 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals("Last subtitle", cues.get(0).text.toString());
   }
 
+  public void testInheritsFontSizeInRegionsAtDifferentTimes() throws IOException {
+    TtmlSubtitle subtitle = getSubtitle(STYLE_INHERITANCE_MULTIPLE_SUBTITLES_SAME_TIME_FILE);
+    assertEquals(6, subtitle.getEventTimeCount());
+    final List<Cue> cues = subtitle.getCues(2169000);
+    Cue cue = cues.get(indexOf(cues, "DANNY: He was murdered."));
+    assertEquals("DANNY: He was murdered.", cue.text.toString());
+    assertRelativeFontSize((SpannableStringBuilder) cue.text, 0.78f);
+    assertStyle((SpannableStringBuilder) cue.text, TtmlStyle.STYLE_ITALIC);
+
+    final List<Cue> secondCues = subtitle.getCues(12169000);
+    cue = cues.get(indexOf(secondCues, "WOMAN: Who murdered him?"));
+    assertNotNull(cue);
+  }
+
   private List<Cue> getCues(TtmlSubtitle subtitle, long timeUs) {
     return subtitle.getCues(timeUs);
   }
@@ -464,6 +480,7 @@ public final class TtmlParserTest extends InstrumentationTestCase {
   private int indexOf(List<Cue> cues, String value) {
     for (int i = 0; i < cues.size(); i++) {
       Cue cue = cues.get(i);
+      Log.i("AWPAWP", "indexOf: " + cue.text.toString());
       if (cue.text.toString().equals(value)) {
         return i;
       }

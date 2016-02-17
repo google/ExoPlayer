@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.text.ttml;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -192,6 +194,7 @@ import java.util.TreeSet;
       if (isPNode) {
         TtmlRenderUtil.endParagraph(builder.getBuilder());
       }
+
       end = builder.getBuilder().length();
     }
   }
@@ -202,6 +205,7 @@ import java.util.TreeSet;
       TtmlStyle resolvedStyle = TtmlRenderUtil.resolveStyle(style, styleIds, globalStyles);
       if (resolvedStyle != null) {
         builder.setRegionId(regionId);
+        Log.i("AWPAWP", "traverseForStyle: " + builder.getBuilder().toString());
         TtmlRenderUtil.applyStylesToSpan(builder.getBuilder(), start, end, resolvedStyle);
       }
       for (int i = 0; i < getChildCount(); ++i) {

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt:tt xmlns:ttp="http://www.w3.org/ns/ttml#parameter" xmlns:tts="http://www.w3.org/ns/ttml#styling" xmlns:tt="http://www.w3.org/ns/ttml" xmlns:ttm="http://www.w3.org/ns/ttml#metadata" xmlns:ebuttm="urn:ebu:metadata" xmlns:ebutts="urn:ebu:style" ttp:timeBase="media" xml:lang="en" ttp:cellResolution="50 30">
+    <tt:head>
+        <tt:styling>
+            <tt:style xml:id="normal" tts:fontFamily="Arial" tts:fontSize="78%" tts:lineHeight="125%" tts:color="#FFFFFFFF" tts:backgroundColor="#000000FF" ebutts:linePadding="0.5c" tts:textAlign="center"/>
+            <tt:style xml:id="spanstyle-1" tts:fontStyle="italic" tts:color="green"/>
+        </tt:styling>
+        <tt:layout>
+            <tt:region xml:id="a" tts:showBackground="whenActive" tts:origin="11.25% 10.09%" tts:extent="68.75% 49.91%" tts:displayAlign="after"/>
+            <tt:region xml:id="b" tts:showBackground="whenActive" tts:origin="70.25% 70.09%" tts:extent="68.75% 49.91%" tts:displayAlign="after"/>
+        </tt:layout>
+    </tt:head>
+    <tt:body>
+        <tt:div style="normal">
+            <tt:p xml:id="sub1" style="spanstyle-1" begin="00:00:02.169" end="00:00:06.704" region="a">DANNY: He was murdered.</tt:p>
+            <tt:p xml:id="sub4" begin="00:00:12.169" end="00:00:16.704" region="b">
+                WOMAN:
+                <tt:span style="spanstyle-1">Who murdered him?</tt:span>
+            </tt:p>
+            <tt:p xml:id="sub1" style="spanstyle-1" begin="00:00:30.000" end="00:00:40.000" region="a">The quick brown fox</tt:p>
+            <tt:p xml:id="sub4" begin="00:00:30.000" end="00:00:40.000" region="b">
+                JUMPS:
+                <tt:span style="spanstyle-1">But who murdered him?</tt:span>
+            </tt:p>
+        </tt:div>
+    </tt:body>
+</tt:tt>
