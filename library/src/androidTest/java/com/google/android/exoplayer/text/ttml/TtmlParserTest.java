@@ -417,13 +417,13 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     assertEquals("DANNY: He was murdered.", subtitle.getCues(timeUs).get(0).text.toString());
   }
 
-  // TODO: Does test title conflict with assertion?
   public void testGeneratesTwoCuesWhenTheyOverlap() throws IOException {
     TtmlSubtitle subtitle = getSubtitle(MULTIPLE_SUBTITLES_SAME_TIME_FILE);
-    long timeUs = getNextEventTimeFrom(subtitle, 0);
+    long timeUs = getNextEventTimeFrom(subtitle, 2169000);
     final List<Cue> cues = subtitle.getCues(timeUs);
-    assertEquals(1, cues.size());
-    assertEquals("Now thats what I call a subtitle", cues.get(0).text.toString());
+    assertEquals(2, cues.size());
+    assertTrue(contains(cues, "Last subtitle"));
+    assertTrue(contains(cues, "Now thats what I call a subtitle"));
   }
 
   public void testSetsStyleDataOnFirstCue() throws IOException {
@@ -438,11 +438,10 @@ public final class TtmlParserTest extends InstrumentationTestCase {
     long timeUs = getNextEventTimeFrom(subtitle, 2169000);
     final List<Cue> cues = subtitle.getCues(timeUs);
     assertEquals(2, cues.size());
-    // TODO: Can't guarantee the order from the Map Keyset used internally. Test contains?
-//    assertEquals("Last subtitle", cues.get(0).text.toString());
-//    assertAbsoluteFontSize((SpannableStringBuilder)cues.get(0).text, 6);
-//    assertEquals("Now thats what I call a subtitle", cues.get(1).text.toString());
-//    assertAbsoluteFontSize((SpannableStringBuilder)cues.get(1).text, 32);
+    int lastSubtitle = indexOf(cues, "Last subtitle");
+    int nowSubtitle = indexOf(cues, "Now thats what I call a subtitle");
+    assertAbsoluteFontSize((SpannableStringBuilder)cues.get(lastSubtitle).text, 6);
+    assertAbsoluteFontSize((SpannableStringBuilder)cues.get(nowSubtitle).text, 32);
   }
 
   public void testGeneratesSingleCueAfterOverlapPeriodFinishes() throws IOException {
@@ -456,6 +455,20 @@ public final class TtmlParserTest extends InstrumentationTestCase {
 
   private List<Cue> getCues(TtmlSubtitle subtitle, long timeUs) {
     return subtitle.getCues(timeUs);
+  }
+
+  private boolean contains(List<Cue> cues, String value) {
+    return indexOf(cues, value) > -1;
+  }
+
+  private int indexOf(List<Cue> cues, String value) {
+    for (int i = 0; i < cues.size(); i++) {
+      Cue cue = cues.get(i);
+      if (cue.text.toString().equals(value)) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   private long getNextEventTimeFrom(TtmlSubtitle subtitle, long fromTime) {
