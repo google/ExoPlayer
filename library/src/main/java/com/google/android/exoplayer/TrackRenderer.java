@@ -36,23 +36,15 @@ import java.io.IOException;
 public abstract class TrackRenderer implements ExoPlayerComponent {
 
   /**
-   * The {@link TrackRenderer} can seamlessly adapt between formats.
+   * A mask to apply to the result of {@link #supportsFormat(Format)} to obtain one of
+   * {@link #FORMAT_HANDLED}, {@link #FORMAT_EXCEEDS_CAPABILITIES} and
+   * {@link #FORMAT_UNSUPPORTED_TYPE}.
    */
-  public static final int ADAPTIVE_SEAMLESS = 0;
-  /**
-   * The {@link TrackRenderer} can adapt between formats, but may suffer a brief discontinuity
-   * (~50-100ms) when adaptation occurs.
-   */
-  public static final int ADAPTIVE_NOT_SEAMLESS = 1;
-  /**
-   * The {@link TrackRenderer} does not support adaptation between formats.
-   */
-  public static final int ADAPTIVE_NOT_SUPPORTED = 2;
-
+  public static final int FORMAT_SUPPORT_MASK = 0b11;
   /**
    * The {@link TrackRenderer} is capable of rendering the format.
    */
-  public static final int FORMAT_HANDLED = 0;
+  public static final int FORMAT_HANDLED = 0b10;
   /**
    * The {@link TrackRenderer} is capable of rendering formats with the same mimeType, but the
    * properties of the format exceed the renderer's capability.
@@ -61,7 +53,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * {@link MimeTypes#VIDEO_H264}, but the format's resolution exceeds the maximum limit supported
    * by the underlying H264 decoder.
    */
-  public static final int FORMAT_EXCEEDS_CAPABILITIES = 1;
+  public static final int FORMAT_EXCEEDS_CAPABILITIES = 0b01;
   /**
    * The {@link TrackRenderer} is not capable of rendering the format, or any other format with the
    * same mimeType.
@@ -69,7 +61,26 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * Example: The {@link TrackRenderer} is only capable of rendering video and the track has an
    * audio mimeType.
    */
-  public static final int FORMAT_UNSUPPORTED_TYPE = 2;
+  public static final int FORMAT_UNSUPPORTED_TYPE = 0b00;
+
+  /**
+   * A mask to apply to the result of {@link #supportsFormat(Format)} to obtain one of
+   * {@link #ADAPTIVE_SEAMLESS}, {@link #ADAPTIVE_NOT_SEAMLESS} and {@link #ADAPTIVE_NOT_SUPPORTED}.
+   */
+  public static final int ADAPTIVE_SUPPORT_MASK = 0b1100;
+  /**
+   * The {@link TrackRenderer} can seamlessly adapt between formats.
+   */
+  public static final int ADAPTIVE_SEAMLESS = 0b1000;
+  /**
+   * The {@link TrackRenderer} can adapt between formats, but may suffer a brief discontinuity
+   * (~50-100ms) when adaptation occurs.
+   */
+  public static final int ADAPTIVE_NOT_SEAMLESS = 0b0100;
+  /**
+   * The {@link TrackRenderer} does not support adaptation between formats.
+   */
+  public static final int ADAPTIVE_NOT_SUPPORTED = 0b0000;
 
   /**
    * The renderer is idle.
@@ -131,28 +142,34 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   }
 
   /**
-   * Returns the extent to which the renderer is capable of consuming from a {@link TrackStream}
-   * that adapts between multiple supported formats of a given mimeType, or of differing mimeTypes
-   * if {@code mimeType == null} is passed.
+   * Returns the extent to which the renderer supports adapting between supported formats that have
+   * different mimeTypes.
    *
-   * @param mimeType The mimeType, or null to query the extent to which the renderer is capable of
-   *     adapting between formats with different mimeTypes.
-   * @return The extent to which the renderer supports the adaptation. One of
-   *     {@link #ADAPTIVE_SEAMLESS}, {@link #ADAPTIVE_NOT_SEAMLESS} and
+   * @return The extent to which the renderer supports adapting between supported formats that have
+   *     different mimeTypes. One of {@link #ADAPTIVE_SEAMLESS}, {@link #ADAPTIVE_NOT_SEAMLESS} and
    *     {@link #ADAPTIVE_NOT_SUPPORTED}.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected int supportsAdaptive(String mimeType) throws ExoPlaybackException {
+  protected int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
     return ADAPTIVE_NOT_SUPPORTED;
   }
 
   /**
-   * Returns the extent to which the renderer is capable of rendering a given format.
+   * Returns the extent to which the renderer supports a given format.
+   * <p>
+   * The returned value is the bitwise OR of two properties:
+   * <ul>
+   * <li>The level of support for the format itself. One of {@code}link #FORMAT_HANDLED},
+   * {@link #FORMAT_EXCEEDS_CAPABILITIES} and {@link #FORMAT_UNSUPPORTED_TYPE}.</li>
+   * <li>The level of support for adapting from the format to another format of the same mimeType.
+   * One of {@link #ADAPTIVE_SEAMLESS}, {@link #ADAPTIVE_NOT_SEAMLESS} and
+   * {@link #ADAPTIVE_NOT_SUPPORTED}.</li>
+   * </ul>
+   * The individual properties can be retrieved by performing a bitwise AND with
+   * {@link #FORMAT_SUPPORT_MASK} and {@link #ADAPTIVE_SUPPORT_MASK} respectively.
    *
    * @param format The format.
-   * @return The extent to which the renderer is capable of rendering the given format. One of
-   *     {@link #FORMAT_HANDLED}, {@link #FORMAT_EXCEEDS_CAPABILITIES} and
-   *     {@link #FORMAT_UNSUPPORTED_TYPE}.
+   * @return The extent to which the renderer is capable of supporting the given format.
    * @throws ExoPlaybackException If an error occurs.
    */
   protected abstract int supportsFormat(Format format) throws ExoPlaybackException;

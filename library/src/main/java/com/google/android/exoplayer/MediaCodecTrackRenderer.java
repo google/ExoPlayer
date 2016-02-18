@@ -263,18 +263,8 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   @Override
-  protected final int supportsAdaptive(String mimeType) throws ExoPlaybackException {
-    if (mimeType == null) {
-      return TrackRenderer.ADAPTIVE_NOT_SEAMLESS;
-    }
-    try {
-      // TODO[REFACTOR]: Propagate requiresSecureDecoder to this point.
-      DecoderInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType, false);
-      return decoderInfo != null && decoderInfo.adaptive ? TrackRenderer.ADAPTIVE_SEAMLESS
-          : TrackRenderer.ADAPTIVE_NOT_SEAMLESS;
-    } catch (DecoderQueryException e) {
-      throw ExoPlaybackException.createForRenderer(e, getIndex());
-    }
+  protected final int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
+    return ADAPTIVE_NOT_SEAMLESS;
   }
 
   @Override
@@ -287,13 +277,12 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   /**
-   * Returns the extent to which the renderer is capable of rendering a given format.
+   * Returns the extent to which the renderer is capable of supporting a given format.
    *
    * @param mediaCodecSelector The decoder selector.
    * @param format The format.
-   * @return The extent to which the renderer is capable of rendering the given format. One of
-   *     {@link #FORMAT_HANDLED}, {@link #FORMAT_EXCEEDS_CAPABILITIES} and
-   *     {@link #FORMAT_UNSUPPORTED_TYPE}.
+   * @return The extent to which the renderer is capable of supporting the given format. See
+   *     {@link #supportsFormat(Format)} for more detail.
    * @throws DecoderQueryException If there was an error querying decoders.
    */
   protected abstract int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)

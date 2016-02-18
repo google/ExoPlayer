@@ -186,30 +186,26 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
       throws DecoderQueryException {
     String mimeType = format.sampleMimeType;
     if (!MimeTypes.isAudio(mimeType)) {
-      return TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
+      return FORMAT_UNSUPPORTED_TYPE;
     }
     if (allowPassthrough(mimeType) && mediaCodecSelector.getPassthroughDecoderName() != null) {
-      return TrackRenderer.FORMAT_HANDLED;
+      return ADAPTIVE_NOT_SEAMLESS | FORMAT_HANDLED;
     }
     // TODO[REFACTOR]: If requiresSecureDecryption then we should probably also check that the
     // drmSession is able to make use of a secure decoder.
     DecoderInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
         format.requiresSecureDecryption);
     if (decoderInfo == null) {
-      return TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
+      return FORMAT_UNSUPPORTED_TYPE;
     }
-    if (Util.SDK_INT >= 21) {
-      // Note: We assume support in the case that the sampleRate or channelCount is unknown.
-      if (format.sampleRate != Format.NO_VALUE
-          && !decoderInfo.isAudioSampleRateSupportedV21(format.sampleRate)) {
-        return TrackRenderer.FORMAT_EXCEEDS_CAPABILITIES;
-      }
-      if (format.channelCount != Format.NO_VALUE
-          && !decoderInfo.isAudioChannelCountSupportedV21(format.channelCount)) {
-        return TrackRenderer.FORMAT_EXCEEDS_CAPABILITIES;
-      }
-    }
-    return TrackRenderer.FORMAT_HANDLED;
+    // Note: We assume support for unknown sampleRate and channelCount.
+    boolean decoderCapable = Util.SDK_INT < 21
+        || ((format.sampleRate == Format.NO_VALUE
+            || decoderInfo.isAudioSampleRateSupportedV21(format.sampleRate))
+        && (format.channelCount == Format.NO_VALUE
+            ||  decoderInfo.isAudioChannelCountSupportedV21(format.channelCount)));
+    int formatSupport = decoderCapable ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
+    return ADAPTIVE_NOT_SEAMLESS | formatSupport;
   }
 
   @Override

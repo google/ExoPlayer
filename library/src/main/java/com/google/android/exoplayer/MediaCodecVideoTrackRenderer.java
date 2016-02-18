@@ -224,33 +224,38 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       throws DecoderQueryException {
     String mimeType = format.sampleMimeType;
     if (!MimeTypes.isVideo(mimeType)) {
-      return TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
+      return FORMAT_UNSUPPORTED_TYPE;
     }
     // TODO[REFACTOR]: If requiresSecureDecryption then we should probably also check that the
     // drmSession is able to make use of a secure decoder.
     DecoderInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
         format.requiresSecureDecryption);
     if (decoderInfo == null) {
-      return TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
+      return FORMAT_UNSUPPORTED_TYPE;
     }
+
+    boolean decoderCapable;
     if (format.width > 0 && format.height > 0) {
       if (Util.SDK_INT >= 21) {
         if (format.frameRate > 0) {
-          return decoderInfo.isVideoSizeAndRateSupportedV21(format.width, format.height,
-              format.frameRate) ? TrackRenderer.FORMAT_HANDLED
-                  : TrackRenderer.FORMAT_EXCEEDS_CAPABILITIES;
+          decoderCapable = decoderInfo.isVideoSizeAndRateSupportedV21(format.width, format.height,
+              format.frameRate);
         } else {
-          return decoderInfo.isVideoSizeSupportedV21(format.width, format.height)
-              ? TrackRenderer.FORMAT_HANDLED : TrackRenderer.FORMAT_EXCEEDS_CAPABILITIES;
+          decoderCapable = decoderInfo.isVideoSizeSupportedV21(format.width, format.height);
         }
+      } else {
+        // TODO[REFACTOR]: We should probably assume that we can decode at least the resolution of
+        // the display, or the camera, as a sanity check?
+        decoderCapable = format.width * format.height > MediaCodecUtil.maxH264DecodableFrameSize();
       }
-      // TODO[REFACTOR]: We should probably assume that we can decode at least the resolution of
-      // the display, or the camera, as a sanity check?
-      if (format.width * format.height > MediaCodecUtil.maxH264DecodableFrameSize()) {
-        return TrackRenderer.FORMAT_EXCEEDS_CAPABILITIES;
-      }
+    } else {
+      // We don't know any better, so assume true.
+      decoderCapable = true;
     }
-    return TrackRenderer.FORMAT_HANDLED;
+
+    int adaptiveSupport = decoderInfo.adaptive ? ADAPTIVE_SEAMLESS : ADAPTIVE_NOT_SEAMLESS;
+    int formatSupport = decoderCapable ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
+    return adaptiveSupport | formatSupport;
   }
 
   @Override

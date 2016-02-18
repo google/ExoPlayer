@@ -332,7 +332,8 @@ import java.util.concurrent.atomic.AtomicInteger;
           Format[] adaptiveTrackFormats = new Format[trackGroup.length];
           for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
             Format trackFormat = source.getTrackGroup(groupIndex).getFormat(trackIndex);
-            if (renderer.supportsFormat(trackFormat) == TrackRenderer.FORMAT_HANDLED) {
+            if ((renderer.supportsFormat(trackFormat) & TrackRenderer.FORMAT_SUPPORT_MASK)
+                == TrackRenderer.FORMAT_HANDLED) {
               adaptiveTrackIndices[adaptiveTrackIndexCount] = trackIndex;
               adaptiveTrackFormats[adaptiveTrackIndexCount++] = trackFormat;
             }
@@ -350,7 +351,8 @@ import java.util.concurrent.atomic.AtomicInteger;
         }
         for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
           Format trackFormat = source.getTrackGroup(groupIndex).getFormat(trackIndex);
-          if (renderer.supportsFormat(trackFormat) == TrackRenderer.FORMAT_HANDLED) {
+          if ((renderer.supportsFormat(trackFormat) & TrackRenderer.FORMAT_SUPPORT_MASK)
+              == TrackRenderer.FORMAT_HANDLED) {
             rendererTrackGroups[rendererTrackCount] = groupIndex;
             rendererTrackIndices[rendererTrackCount] = new int[] {trackIndex};
             rendererTrackFormats[rendererTrackCount] = new Format[] {trackFormat};
