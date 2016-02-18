@@ -660,6 +660,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       inputIndex = -1;
       codecHasQueuedBuffers = true;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
+      onQueuedInputBuffer(presentationTimeUs);
     } catch (CryptoException e) {
       notifyCryptoError(e);
       throw new ExoPlaybackException(e);
@@ -756,6 +757,28 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   /**
+   * Invoked when an input buffer is queued into the codec.
+   * <p>
+   * The default implementation is a no-op.
+   *
+   * @param presentationTimeUs The timestamp associated with the input buffer.
+   */
+  protected void onQueuedInputBuffer(long presentationTimeUs) {
+    // Do nothing.
+  }
+
+  /**
+   * Invoked when an output buffer is successfully processed.
+   * <p>
+   * The default implementation is a no-op.
+   *
+   * @param presentationTimeUs The timestamp associated with the output buffer.
+   */
+  protected void onProcessedOutputBuffer(long presentationTimeUs) {
+    // Do Nothing.
+  }
+
+  /**
    * Determines whether the existing {@link MediaCodec} should be reconfigured for a new format by
    * sending codec specific initialization data at the start of the next input buffer. If true is
    * returned then the {@link MediaCodec} instance will be reconfigured in this way. If false is
@@ -849,6 +872,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     int decodeOnlyIndex = getDecodeOnlyIndex(outputBufferInfo.presentationTimeUs);
     if (processOutputBuffer(positionUs, elapsedRealtimeUs, codec, outputBuffers[outputIndex],
         outputBufferInfo, outputIndex, decodeOnlyIndex != -1)) {
+      onProcessedOutputBuffer(outputBufferInfo.presentationTimeUs);
       if (decodeOnlyIndex != -1) {
         decodeOnlyPresentationTimestamps.remove(decodeOnlyIndex);
       }
