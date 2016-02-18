@@ -22,7 +22,6 @@ import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecSelector;
 import com.google.android.exoplayer.MediaCodecUtil;
-import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.ChunkSource;
@@ -37,6 +36,7 @@ import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.Representation;
 import com.google.android.exoplayer.playbacktests.util.ActionSchedule;
 import com.google.android.exoplayer.playbacktests.util.CodecCountersUtil;
+import com.google.android.exoplayer.playbacktests.util.DebugMediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.playbacktests.util.ExoHostedTest;
 import com.google.android.exoplayer.playbacktests.util.HostActivity;
 import com.google.android.exoplayer.playbacktests.util.LogcatLogger;
@@ -413,11 +413,11 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       ChunkSampleSource videoSampleSource = new ChunkSampleSource(videoChunkSource, loadControl,
           VIDEO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, handler, logger, VIDEO_EVENT_ID,
           MIN_LOADABLE_RETRY_COUNT);
-      MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(host,
+      DebugMediaCodecVideoTrackRenderer videoRenderer = new DebugMediaCodecVideoTrackRenderer(host,
           videoSampleSource, MediaCodecSelector.DEFAULT, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT,
-          0, handler, logger, 50);
+          0, handler, logger, 50, fullPlaybackNoSeeking);
       videoCounters = videoRenderer.codecCounters;
-      player.sendMessage(videoRenderer, MediaCodecVideoTrackRenderer.MSG_SET_SURFACE, surface);
+      player.sendMessage(videoRenderer, DebugMediaCodecVideoTrackRenderer.MSG_SET_SURFACE, surface);
 
       // Build the audio renderer.
       DataSource audioDataSource = new DefaultUriDataSource(host, null, userAgent);
