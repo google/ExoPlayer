@@ -207,6 +207,9 @@ public final class Mp3Extractor implements Extractor {
     if (input.getPosition() == 0) {
       gaplessInfo = Id3Util.parseId3(input);
       peekedId3Bytes = (int) input.getPeekPosition();
+      if (!sniffing) {
+        input.skipFully(peekedId3Bytes);
+      }
     }
     while (true) {
       if (sniffing && searched == MAX_SNIFF_BYTES) {
