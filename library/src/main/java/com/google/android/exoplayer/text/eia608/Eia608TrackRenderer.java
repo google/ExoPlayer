@@ -313,7 +313,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
           handleMiscCode(captionCtrl, captionList.decodeOnly);
         } else if (captionCtrl.isPreambleAddressCode()) {
           // In ROLL-UP mode, an incoming PAC just moves the entire window (with captions intact)
-          // to the now place, but does not clear the previous captions. When there are no empty
+          // to the new place, but does not clear the previous captions. When there are no empty
           // rows left, than the next Carriage Return will remove the top row from the memory, so
           // clearing is implemented there.
           createCueFromCurrentBuffers(!isModeRollUp());
@@ -336,8 +336,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
     if (isModePaintOn() || isModeRollUp()) {
       // We need to keep the old buffers intact, as new characters will be concatenated to the
       // current content.
-      final boolean clearOldBuffers = false;
-      createCueFromCurrentBuffers(clearOldBuffers);
+      createCueFromCurrentBuffers(false);
 
       sendCaptionToRenderer(captionList.decodeOnly);
     }
@@ -430,6 +429,14 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
     }
   }
 
+  /**
+   * Handles Misc Command Codes
+   * @param captionCtrl command to process
+   * @param decodeOnly set it to false to update buffers but skip sending them to the renderer
+   *                - useful after seeking to process the commands before the first update of the
+   *                   screen)
+   *                - ERASE_DISPLAYED_MEMORY should always immediately clear the screen
+   */
   private void handleMiscCode(ClosedCaptionCtrl captionCtrl, boolean decodeOnly) {
     if (DEBUG) {
       Log.i(TAG, "MISC: " + captionCtrl.getMiscControlCodeMeaning());

@@ -30,7 +30,7 @@ public class Eia608CueBuilder {
   }
 
   public Eia608CueBuilder(Eia608CueBuilder other) {
-    text = other.text;
+    text = new SpannableStringBuilder(other.text);
     position = other.position;
     line = other.line;
     rowIndex = other.rowIndex;
