@@ -205,7 +205,6 @@ import java.util.TreeSet;
       TtmlStyle resolvedStyle = TtmlRenderUtil.resolveStyle(style, styleIds, globalStyles);
       if (resolvedStyle != null) {
         builder.setRegionId(regionId);
-        Log.i("AWPAWP", "traverseForStyle: " + builder.getBuilder().toString());
         TtmlRenderUtil.applyStylesToSpan(builder.getBuilder(), start, end, resolvedStyle);
       }
       for (int i = 0; i < getChildCount(); ++i) {

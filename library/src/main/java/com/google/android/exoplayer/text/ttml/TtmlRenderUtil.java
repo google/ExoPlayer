@@ -94,8 +94,7 @@ import java.util.Map;
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.getFontSizeUnit() != TtmlStyle.UNSPECIFIED) {
-
-      if(notAlreadyAppliedAFontSizeToThisSpannable(builder))
+      if(notAlreadyAppliedAFontSizeToThisSpannable(builder, start, end))
       {
       switch (style.getFontSizeUnit()) {
         case TtmlStyle.FONT_SIZE_UNIT_PIXEL:
@@ -114,9 +113,9 @@ import java.util.Map;
     }
   }
 
-  private static boolean notAlreadyAppliedAFontSizeToThisSpannable(SpannableStringBuilder builder) {
-    return builder.getSpans(0, builder.length(),RelativeSizeSpan.class).length <1 &&
-       builder.getSpans(0, builder.length(),AbsoluteSizeSpan.class).length <1;
+  private static boolean notAlreadyAppliedAFontSizeToThisSpannable(SpannableStringBuilder builder, int start, int end) {
+    return builder.getSpans(start, end, RelativeSizeSpan.class).length <1 &&
+       builder.getSpans(start, end, AbsoluteSizeSpan.class).length <1;
   }
 
   /**
