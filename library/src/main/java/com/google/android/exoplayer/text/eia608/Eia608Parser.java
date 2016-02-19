@@ -165,7 +165,7 @@ public final class Eia608Parser {
       // ccData2 - P|0|1|X|X|X|X|X
       if ((ccData1 == 0x12 || ccData1 == 0x1A)
           && ((ccData2 & 0x60) == 0x20)) {
-        backspace(); // Remove standard equivalent of the special extended char.
+        removeLastCharFromStream(); // Remove standard equivalent of the special extended char.
         stringBuilder.append(getExtendedEsFrChar(ccData2));
         continue;
       }
@@ -174,7 +174,7 @@ public final class Eia608Parser {
       // ccData2 - P|0|1|X|X|X|X|X
       if ((ccData1 == 0x13 || ccData1 == 0x1B)
           && ((ccData2 & 0x60) == 0x20)) {
-        backspace(); // Remove standard equivalent of the special extended char.
+        removeLastCharFromStream(); // Remove standard equivalent of the special extended char.
         stringBuilder.append(getExtendedPtDeChar(ccData2));
         continue;
       }
@@ -201,6 +201,23 @@ public final class Eia608Parser {
     ClosedCaption[] captionArray = new ClosedCaption[captions.size()];
     captions.toArray(captionArray);
     return new ClosedCaptionList(sampleHolder.timeUs, sampleHolder.isDecodeOnly(), captionArray);
+  }
+
+  /**
+   * Special characters were not supported at the beginning. To be backwards compatible the special
+   * characters are always preceded with the normal equivalent in the stream. Old devices showed the
+   * normal character and threw away the unknown bytes. New devices could interpret the special
+   * character and added a backspace to remove the old equivalent, so both types of devices showed
+   * one character only. Let's try to avoid sending out those double characters and backspaces
+   * separately, and only send out the backspace if we cannot remove one character from our buffer.
+   */
+  private void removeLastCharFromStream() {
+    int curLength = stringBuilder.length();
+    if (curLength > 0) {
+      stringBuilder.setLength(curLength - 1);
+    } else {
+      backspace();
+    }
   }
 
   private static char getChar(byte ccData) {
@@ -263,5 +280,4 @@ public final class Eia608Parser {
     return countryCode == COUNTRY_CODE && providerCode == PROVIDER_CODE
         && userIdentifier == USER_ID && userDataTypeCode == USER_DATA_TYPE_CODE;
   }
-
 }

@@ -24,4 +24,9 @@ package com.google.android.exoplayer.text.eia608;
     this.text = text;
   }
 
+  // for debug purposes
+  @Override
+  public String toString() {
+    return text;
+  }
 }

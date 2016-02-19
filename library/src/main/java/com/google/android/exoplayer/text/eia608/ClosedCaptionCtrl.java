@@ -70,6 +70,8 @@ import android.graphics.Color;
   public static final byte TAB_OFFSET_CHAN_1 = 0x17;
   public static final byte TAB_OFFSET_CHAN_2 = 0x1F;
 
+  public static final int COLUMN_INDEX_BASE = 1; // standard uses 1 based index for positioning
+
   private static final int[] COLOR_VALUES = {
           Color.WHITE,
           Color.GREEN,
@@ -172,17 +174,20 @@ import android.graphics.Color;
     return (cc1 > 0x17) ? 1 : 0;
   }
 
-  // for debug purposes
-  public String getPreambleAddressCodeMeaning() {
+  // returns a 1 based index!
+  public int getPreambleAddressCodePositionRow() {
     int cc1Bits = (cc1 & 0x7);
     int cc2bit = (cc2 & 0x20) > 0 ? 1 : 0;
 
     int index = (cc1Bits << 1) + cc2bit;
 
-    int rowAddress = ROW_INDICES[ index ];
+    return ROW_INDICES[ index ];
+  }
 
-    return "Row:"+rowAddress
-            + "; Col:" + getIndentation()
+  // for debug purposes
+  public String getPreambleAddressCodeMeaning() {
+    return "Row:"+getPreambleAddressCodePositionRow()
+            + "; Col:" + getPreambleAddressCodePositionColumn()
             + "; Color:" + getPreambleColorName()
             + "; italic:" + isPreambleItalic()
             + "; underline:" + isUnderline();
@@ -238,7 +243,7 @@ import android.graphics.Color;
   // the aspect ratio of the video content. What if the content is letterboxed? Than aspect ration
   // checks will return incorrect results. I do not introduce this dependency at this time.
   // See Federal Communications Commission §79.102
-  private int getIndentation() {
+  public int getPreambleAddressCodePositionColumn() {
     // The bits of the two bytes of the Preamble Are:
     // CC1: 0bP001CRRR CC2: 0b1RSSSSU
     // P is the parity bit for
@@ -250,7 +255,7 @@ import android.graphics.Color;
     // we are again interested in the 4 bits marked with S. If the most significant one is set to 1,
     // than the bits mean indentation, color otherwise.
     if ((cc2 & 0x10) == 0) {
-      return 0; // the S bits mean a color value.
+      return COLUMN_INDEX_BASE; // the S bits mean a color value.
     }
 
     // If we are here, the S bits mean indentation.
@@ -260,7 +265,7 @@ import android.graphics.Color;
     // the required indentation is 4 times of this value represented by the bits.
     // Note: Indentation is between 0 and 28 columns this way, and there can be 0-3 tabs also added
     // by following TAB offset codes.
-    return indentValue * 4;
+    return indentValue * 4 + COLUMN_INDEX_BASE;
   }
 
   // last bit of the styling commands (Preamble Address Code or Mid Row CODE) is "Underline Flag".
@@ -269,7 +274,7 @@ import android.graphics.Color;
   }
 
   // for debug purposes
-  private String getControlCodeMeaning() {
+  public String getMiscControlCodeMeaning() {
     switch ( cc2 ) {
       case RESUME_CAPTION_LOADING:     return "RESUME_CAPTION_LOADING";
       case ROLL_UP_CAPTIONS_2_ROWS:    return "ROLL_UP_CAPTIONS_2_ROWS";
@@ -285,19 +290,20 @@ import android.graphics.Color;
     return "UNKNOWN";
   }
 
-  // for debug purposes
+  // for debug purposes, useful as the IDE shows this string value of the commands while debugging
   @Override
   public String toString() {
-    String value = "CC1:" + Integer.toHexString(cc1) + "; CC2:" + Integer.toHexString(cc2) + " ";
 
     if (isPreambleAddressCode()) {
-      value += getPreambleAddressCodeMeaning();
+      return "PAC: " + getPreambleAddressCodeMeaning();
     } else if (isMidRowCode()) {
-      value += getMidRowCodeMeaning();
-    } else {
-      value += getControlCodeMeaning();
+      return "MRC: " + getMidRowCodeMeaning();
+    } else if (isTabOffsetCode()) {
+      return "TAB: " + (cc2 - 0x20) ;
+    } else if (isMiscCode()){
+      return "MISC: " + getMiscControlCodeMeaning();
     }
 
-    return value;
+    return "UNKNOWN - CC1:" + Integer.toHexString(cc1) + "; CC2:" + Integer.toHexString(cc2);
   }
 }
