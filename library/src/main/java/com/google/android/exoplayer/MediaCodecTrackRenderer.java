@@ -19,6 +19,7 @@ import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.TraceUtil;
 import com.google.android.exoplayer.util.Util;
 
@@ -209,6 +210,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   private DrmInitData drmInitData;
   private MediaCodec codec;
   private boolean codecIsAdaptive;
+  private boolean codecNeedsDiscardToSpsWorkaround;
   private boolean codecNeedsFlushWorkaround;
   private boolean codecNeedsEosPropagationWorkaround;
   private boolean codecNeedsEosFlushWorkaround;
@@ -351,6 +353,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
 
     String codecName = decoderInfo.name;
     codecIsAdaptive = decoderInfo.adaptive;
+    codecNeedsDiscardToSpsWorkaround = codecNeedsDiscardToSpsWorkaround(codecName, format);
     codecNeedsFlushWorkaround = codecNeedsFlushWorkaround(codecName);
     codecNeedsEosPropagationWorkaround = codecNeedsEosPropagationWorkaround(codecName);
     codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(codecName);
@@ -430,6 +433,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       codecReconfigured = false;
       codecHasQueuedBuffers = false;
       codecIsAdaptive = false;
+      codecNeedsDiscardToSpsWorkaround = false;
       codecNeedsFlushWorkaround = false;
       codecNeedsEosPropagationWorkaround = false;
       codecNeedsEosFlushWorkaround = false;
@@ -642,6 +646,13 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     waitingForKeys = shouldWaitForKeys(sampleEncrypted);
     if (waitingForKeys) {
       return false;
+    }
+    if (codecNeedsDiscardToSpsWorkaround && !sampleEncrypted) {
+      NalUnitUtil.discardToSps(sampleHolder.data);
+      if (sampleHolder.data.position() == 0) {
+        return true;
+      }
+      codecNeedsDiscardToSpsWorkaround = false;
     }
     try {
       int bufferSize = sampleHolder.data.position();
@@ -970,6 +981,21 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
             && ("OMX.SEC.avc.dec".equals(name) || "OMX.SEC.avc.dec.secure".equals(name)))
         || (Util.SDK_INT == 19 && Util.MODEL.startsWith("SM-G800")
             && ("OMX.Exynos.avc.dec".equals(name) || "OMX.Exynos.avc.dec.secure".equals(name)));
+  }
+
+  /**
+   * Returns whether the decoder is an H.264/AVC decoder known to fail if NAL units are queued
+   * before the codec specific data.
+   * <p>
+   * If true is returned, the renderer will work around the issue by discarding data up to the SPS.
+   *
+   * @param name The name of the decoder.
+   * @param format The format used to configure the decoder.
+   * @return True if the decoder is known to fail if NAL units are queued before CSD.
+   */
+  private static boolean codecNeedsDiscardToSpsWorkaround(String name, MediaFormat format) {
+    return Util.SDK_INT < 21 && format.initializationData.isEmpty()
+        && "OMX.MTK.VIDEO.DECODER.AVC".equals(name);
   }
 
   /**

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer.util;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
@@ -47,6 +48,8 @@ public final class NalUnitUtil {
     3f / 2f,
     2f
   };
+
+  private static final int NAL_UNIT_TYPE_SPS = 7;
 
   private static final Object scratchEscapePositionsLock = new Object();
 
@@ -101,6 +104,43 @@ public final class NalUnitUtil {
       System.arraycopy(data, escapedPosition, data, unescapedPosition, remainingLength);
       return unescapedLength;
     }
+  }
+
+  /**
+   * Discards data from the buffer up to the first SPS, where {@code data.position()} is interpreted
+   * as the length of the buffer.
+   * <p>
+   * When the method returns, {@code data.position()} will contain the new length of the buffer. If
+   * the buffer is not empty it is guaranteed to start with an SPS.
+   *
+   * @param data Buffer containing start code delimited NAL units.
+   */
+  public static void discardToSps(ByteBuffer data) {
+    int length = data.position();
+    int consecutiveZeros = 0;
+    int offset = 0;
+    while (offset + 1 < length) {
+      int value = data.get(offset) & 0xFF;
+      if (consecutiveZeros == 3) {
+        if (value == 1 && (data.get(offset + 1) & 0x1F) == NAL_UNIT_TYPE_SPS) {
+          // Copy from this NAL unit onwards to the start of the buffer.
+          ByteBuffer offsetData = data.duplicate();
+          offsetData.position(offset - 3);
+          offsetData.limit(length);
+          data.position(0);
+          data.put(offsetData);
+          return;
+        }
+      } else if (value == 0) {
+        consecutiveZeros++;
+      }
+      if (value != 0) {
+        consecutiveZeros = 0;
+      }
+      offset++;
+    }
+    // Empty the buffer if the SPS NAL unit was not found.
+    data.clear();
   }
 
   /**
