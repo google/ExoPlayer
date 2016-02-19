@@ -31,6 +31,9 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -351,7 +354,34 @@ public final class TtmlParser implements SubtitleParser {
         endTime = parent.endTimeUs;
       }
     }
+    styleIds = inheritStyleIDsFromParent(parent, styleIds);
+
+
     return TtmlNode.buildNode(ParserUtil.removeNamespacePrefix(parser.getName()), startTime, endTime, style, styleIds, regionId);
+  }
+
+  private String[] inheritStyleIDsFromParent(TtmlNode parent, String[] styleIds) {
+    //inherit styles from parent
+    if(parent!=null) {
+      String[] idsOnThisNode = styleIds;
+      String[] parentIds = parent.getStyleIds();
+      int parentLength = parentIds == null ? 0 : parentIds.length;
+      int thisNodeLength = idsOnThisNode != null ? idsOnThisNode.length : 0;
+      String[] ids = new String[thisNodeLength + parentLength];
+
+      ArrayList<String> arrayList = new ArrayList<>();
+      if (idsOnThisNode != null) {
+        Collections.addAll(arrayList, idsOnThisNode);
+      }
+      if (parentIds != null) {
+        Collections.addAll(arrayList, parentIds);
+      }
+      ids = arrayList.toArray(ids);
+      if (ids.length > 0) {
+        styleIds = ids;
+      }
+    }
+    return styleIds;
   }
 
   private static boolean isSupportedTag(String tag) {
