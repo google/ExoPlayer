@@ -15,16 +15,26 @@
  */
 package com.google.android.exoplayer.ext.opus;
 
-import com.google.android.exoplayer.ext.opus.OpusDecoderWrapper.OpusHeader;
+import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.util.extensions.Buffer;
+import com.google.android.exoplayer.util.extensions.Decoder;
+import com.google.android.exoplayer.util.extensions.DecoderWrapper;
+import com.google.android.exoplayer.util.extensions.InputBuffer;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.List;
 
 /**
- * JNI Wrapper for the libopus Opus decoder.
+ * JNI wrapper for the libopus Opus decoder.
  */
-/* package */ class OpusDecoder {
+/* package */ final class OpusDecoder implements Decoder<InputBuffer, OpusOutputBuffer,
+    OpusDecoderException> {
 
-  private static final boolean IS_AVAILABLE;
+  /**
+   * Whether the underlying libopus library is available.
+   */
+  public static final boolean IS_AVAILABLE;
   static {
     boolean isAvailable;
     try {
@@ -37,67 +47,155 @@ import java.nio.ByteBuffer;
     IS_AVAILABLE = isAvailable;
   }
 
+  /**
+   * Returns the version string of the underlying libopus decoder.
+   */
+  public static native String getLibopusVersion();
+
+  private static final int DEFAULT_SEEK_PRE_ROLL_SAMPLES = 3840;
+
+  /**
+   * Opus streams are always decoded at 48000 Hz.
+   */
+  private static final int SAMPLE_RATE = 48000;
+
+  private final int channelCount;
+  private final int seekPreRollSamples;
   private final long nativeDecoderContext;
+
+  private int skipSamples;
+
+  private OpusDecoderException exception;
 
   /**
    * Creates the Opus Decoder.
    *
-   * @param opusHeader OpusHeader used to initialize the decoder.
-   * @throws OpusDecoderException if the decoder initialization fails.
+   * @param initializationData Codec-specific initialization data. The first element must contain an
+   *     opus header. Optionally, the list may contain two additional buffers, which must contain
+   *     the encoder delay and seek pre roll values in nanoseconds, encoded as longs.
+   * @throws OpusDecoderException Thrown if an exception occurs when initializing the decoder.
    */
-  public OpusDecoder(OpusHeader opusHeader) throws OpusDecoderException {
-    nativeDecoderContext = opusInit(
-        opusHeader.sampleRate, opusHeader.channelCount, opusHeader.numStreams,
-        opusHeader.numCoupled, opusHeader.gain, opusHeader.streamMap);
+  public OpusDecoder(List<byte[]> initializationData) throws OpusDecoderException {
+    byte[] headerBytes = initializationData.get(0);
+    if (headerBytes.length < 19) {
+      throw new OpusDecoderException("Header size is too small.");
+    }
+    channelCount = headerBytes[9] & 0xFF;
+    if (channelCount > 8) {
+      throw new OpusDecoderException("Invalid channel count: " + channelCount);
+    }
+    skipSamples = readLittleEndian16(headerBytes, 10);
+    int gain = readLittleEndian16(headerBytes, 16);
+
+    byte[] streamMap = new byte[8];
+    int numStreams, numCoupled;
+    if (headerBytes[18] == 0) { // Channel mapping
+      // If there is no channel mapping, use the defaults.
+      if (channelCount > 2) { // Maximum channel count with default layout.
+        throw new OpusDecoderException("Invalid Header, missing stream map.");
+      }
+      numStreams = 1;
+      numCoupled = (channelCount == 2) ? 1 : 0;
+      streamMap[0] = 0;
+      streamMap[1] = 1;
+    } else {
+      if (headerBytes.length < 21 + channelCount) {
+        throw new OpusDecoderException("Header size is too small.");
+      }
+      // Read the channel mapping.
+      numStreams = headerBytes[19] & 0xFF;
+      numCoupled = headerBytes[20] & 0xFF;
+      for (int i = 0; i < channelCount; i++) {
+        streamMap[i] = headerBytes[21 + i];
+      }
+    }
+    if (initializationData.size() == 3) {
+      if (initializationData.get(1).length != 8 || initializationData.get(2).length != 8) {
+        throw new OpusDecoderException("Invalid Codec Delay or Seek Preroll");
+      }
+      long codecDelayNs =
+          ByteBuffer.wrap(initializationData.get(1)).order(ByteOrder.LITTLE_ENDIAN).getLong();
+      long seekPreRollNs =
+          ByteBuffer.wrap(initializationData.get(2)).order(ByteOrder.LITTLE_ENDIAN).getLong();
+      skipSamples = nsToSamples(codecDelayNs);
+      seekPreRollSamples = nsToSamples(seekPreRollNs);
+    } else {
+      seekPreRollSamples = DEFAULT_SEEK_PRE_ROLL_SAMPLES;
+    }
+    nativeDecoderContext = opusInit(SAMPLE_RATE, channelCount, numStreams, numCoupled, gain,
+        streamMap);
     if (nativeDecoderContext == 0) {
       throw new OpusDecoderException("Failed to initialize decoder");
     }
   }
 
-  /**
-   * Decodes an Opus Encoded Stream.
-   *
-   * @param inputBuffer buffer containing the encoded data. Must be allocated using allocateDirect.
-   * @param inputSize size of the input buffer.
-   * @param outputBuffer buffer to write the decoded data. Must be allocated using allocateDirect.
-   * @param outputSize Maximum capacity of the output buffer.
-   * @return number of decoded bytes.
-   * @throws OpusDecoderException if decode fails.
-   */
-  public int decode(ByteBuffer inputBuffer, int inputSize, ByteBuffer outputBuffer,
-      int outputSize) throws OpusDecoderException {
-    int result = opusDecode(nativeDecoderContext, inputBuffer, inputSize, outputBuffer, outputSize);
-    if (result < 0) {
-      throw new OpusDecoderException("Decode error: " + opusGetErrorMessage(result));
-    }
-    return result;
+  @Override
+  public InputBuffer createInputBuffer(int initialSize) {
+    return new InputBuffer(initialSize);
   }
 
-  /**
-   * Closes the native decoder.
-   */
-  public void close() {
+  @Override
+  public OpusOutputBuffer createOutputBuffer(
+      DecoderWrapper<InputBuffer, OpusOutputBuffer, OpusDecoderException> owner) {
+    return new OpusOutputBuffer(owner);
+  }
+
+  @Override
+  public boolean decode(InputBuffer inputBuffer, OpusOutputBuffer outputBuffer) {
+    outputBuffer.reset();
+    if (inputBuffer.getFlag(Buffer.FLAG_END_OF_STREAM)) {
+      outputBuffer.setFlag(Buffer.FLAG_END_OF_STREAM);
+      return true;
+    }
+    if (inputBuffer.getFlag(Buffer.FLAG_DECODE_ONLY)) {
+      outputBuffer.setFlag(Buffer.FLAG_DECODE_ONLY);
+    }
+    if (inputBuffer.getFlag(Buffer.FLAG_RESET)) {
+      opusReset(nativeDecoderContext);
+      // When seeking to 0, skip number of samples as specified in opus header. When seeking to
+      // any other time, skip number of samples as specified by seek preroll.
+      skipSamples =
+          (inputBuffer.sampleHolder.timeUs == 0) ? skipSamples : seekPreRollSamples;
+    }
+    SampleHolder sampleHolder = inputBuffer.sampleHolder;
+    outputBuffer.timestampUs = sampleHolder.timeUs;
+    sampleHolder.data.position(sampleHolder.data.position() - sampleHolder.size);
+    outputBuffer.init(sampleHolder.data.capacity() * 2);
+    int result = opusDecode(nativeDecoderContext, sampleHolder.data, sampleHolder.size,
+        outputBuffer.data, outputBuffer.data.capacity());
+    if (result < 0) {
+      exception = new OpusDecoderException("Decode error: " + opusGetErrorMessage(result));
+      return false;
+    }
+    outputBuffer.size = result;
+    outputBuffer.data.position(0);
+    if (skipSamples > 0) {
+      int bytesPerSample = channelCount * 2;
+      int skipBytes = skipSamples * bytesPerSample;
+      if (outputBuffer.size <= skipBytes) {
+        skipSamples -= outputBuffer.size / bytesPerSample;
+        outputBuffer.size = 0;
+        outputBuffer.setFlag(Buffer.FLAG_DECODE_ONLY);
+      } else {
+        skipSamples = 0;
+        outputBuffer.size -= skipBytes;
+        outputBuffer.data.position(skipBytes);
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public void maybeThrowException() throws OpusDecoderException {
+    if (exception != null) {
+      throw exception;
+    }
+  }
+
+  @Override
+  public void release() {
     opusClose(nativeDecoderContext);
   }
-
-  /**
-   * Resets the native decode on discontinuity (during seek for example).
-   */
-  public void reset() {
-    opusReset(nativeDecoderContext);
-  }
-
-  /**
-   * Returns whether the underlying libopus library is available.
-   */
-  public static boolean isLibopusAvailable() {
-    return IS_AVAILABLE;
-  }
-
-  /**
-   * Returns the version string of the underlying libopus decoder.
-   */
-  public static native String getLibopusVersion();
 
   private native long opusInit(int sampleRate, int channelCount, int numStreams, int numCoupled,
       int gain, byte[] streamMap);
@@ -106,5 +204,15 @@ import java.nio.ByteBuffer;
   private native void opusClose(long decoder);
   private native void opusReset(long decoder);
   private native String opusGetErrorMessage(int errorCode);
+
+  private static int nsToSamples(long ns) {
+    return (int) (ns * SAMPLE_RATE / 1000000000);
+  }
+
+  private static int readLittleEndian16(byte[] input, int offset) {
+    int value = input[offset] & 0xFF;
+    value |= (input[offset + 1] & 0xFF) << 8;
+    return value;
+  }
 
 }

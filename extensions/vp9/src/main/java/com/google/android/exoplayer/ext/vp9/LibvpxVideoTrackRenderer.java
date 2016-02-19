@@ -23,8 +23,9 @@ import com.google.android.exoplayer.MediaFormatHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.SampleSourceTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
-import com.google.android.exoplayer.ext.vp9.VpxDecoderWrapper.VpxInputBuffer;
 import com.google.android.exoplayer.util.MimeTypes;
+import com.google.android.exoplayer.util.extensions.Buffer;
+import com.google.android.exoplayer.util.extensions.DecoderWrapper;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -105,6 +106,14 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
    */
   public static final int MSG_SET_OUTPUT_BUFFER_RENDERER = 2;
 
+  /**
+   * The number of input buffers and the number of output buffers. The track renderer may limit the
+   * minimum possible value due to requiring multiple output buffers to be dequeued at a time for it
+   * to make progress.
+   */
+  private static final int NUM_BUFFERS = 16;
+  private static final int INITIAL_INPUT_BUFFER_SIZE = 768 * 1024; // Value based on cs/SoftVpx.cpp.
+
   public final CodecCounters codecCounters = new CodecCounters();
 
   private final boolean scaleToFit;
@@ -114,7 +123,8 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
   private final MediaFormatHolder formatHolder;
 
   private MediaFormat format;
-  private VpxDecoderWrapper decoder;
+  private VpxDecoder decoder;
+  private DecoderWrapper<VpxInputBuffer, VpxOutputBuffer, VpxDecoderException> decoderWrapper;
   private VpxInputBuffer inputBuffer;
   private VpxOutputBuffer outputBuffer;
 
@@ -170,7 +180,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
    * Returns whether the underlying libvpx library is available.
    */
   public static boolean isLibvpxAvailable() {
-    return VpxDecoder.isLibvpxAvailable();
+    return VpxDecoder.IS_AVAILABLE;
   }
 
   /**
@@ -199,17 +209,18 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
       return;
     }
 
-    // If we don't have a decoder yet, we need to instantiate one.
-    if (decoder == null) {
-      long startElapsedRealtimeMs = SystemClock.elapsedRealtime();
-      decoder = new VpxDecoderWrapper(outputMode);
-      decoder.start();
-      notifyDecoderInitialized(startElapsedRealtimeMs, SystemClock.elapsedRealtime());
-      codecCounters.codecInitCount++;
-    }
-
-    // Rendering loop.
     try {
+      if (decoder == null) {
+        // If we don't have a decoder yet, we need to instantiate one.
+        long startElapsedRealtimeMs = SystemClock.elapsedRealtime();
+        decoder = new VpxDecoder();
+        decoder.setOutputMode(outputMode);
+        decoderWrapper = new DecoderWrapper<>(decoder, new VpxInputBuffer[NUM_BUFFERS],
+            new VpxOutputBuffer[NUM_BUFFERS], INITIAL_INPUT_BUFFER_SIZE);
+        decoderWrapper.start();
+        notifyDecoderInitialized(startElapsedRealtimeMs, SystemClock.elapsedRealtime());
+        codecCounters.codecInitCount++;
+      }
       processOutputBuffer(positionUs, elapsedRealtimeUs);
       while (feedInputBuffer(positionUs)) {}
     } catch (VpxDecoderException e) {
@@ -226,15 +237,15 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     }
 
     if (outputBuffer == null) {
-      outputBuffer = decoder.dequeueOutputBuffer();
+      outputBuffer = decoderWrapper.dequeueOutputBuffer();
       if (outputBuffer == null) {
         return;
       }
     }
 
-    if (outputBuffer.flags == VpxDecoderWrapper.FLAG_END_OF_STREAM) {
+    if (outputBuffer.getFlag(Buffer.FLAG_END_OF_STREAM)) {
       outputStreamEnded = true;
-      decoder.releaseOutputBuffer(outputBuffer);
+      outputBuffer.release();
       outputBuffer = null;
       return;
     }
@@ -249,7 +260,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
       if (droppedFrameCount == maxDroppedFrameCountToNotify) {
         notifyAndResetDroppedFrameCount();
       }
-      decoder.releaseOutputBuffer(outputBuffer);
+      outputBuffer.release();
       outputBuffer = null;
       return;
     }
@@ -318,7 +329,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     }
 
     if (inputBuffer == null) {
-      inputBuffer = decoder.dequeueInputBuffer();
+      inputBuffer = decoderWrapper.dequeueInputBuffer();
       if (inputBuffer == null) {
         return false;
       }
@@ -333,8 +344,8 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
       return true;
     }
     if (result == SampleSource.END_OF_STREAM) {
-      inputBuffer.flags = VpxDecoderWrapper.FLAG_END_OF_STREAM;
-      decoder.queueInputBuffer(inputBuffer);
+      inputBuffer.setFlag(Buffer.FLAG_END_OF_STREAM);
+      decoderWrapper.queueInputBuffer(inputBuffer);
       inputBuffer = null;
       inputStreamEnded = true;
       return false;
@@ -342,7 +353,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
 
     inputBuffer.width = format.width;
     inputBuffer.height = format.height;
-    decoder.queueInputBuffer(inputBuffer);
+    decoderWrapper.queueInputBuffer(inputBuffer);
     inputBuffer = null;
     return true;
   }
@@ -350,10 +361,10 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
   private void flushDecoder() {
     inputBuffer = null;
     if (outputBuffer != null) {
-      decoder.releaseOutputBuffer(outputBuffer);
+      outputBuffer.release();
       outputBuffer = null;
     }
-    decoder.flush();
+    decoderWrapper.flush();
   }
 
   @Override
@@ -372,7 +383,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     inputStreamEnded = false;
     outputStreamEnded = false;
     renderedFirstFrame = false;
-    if (decoder != null) {
+    if (decoderWrapper != null) {
       flushDecoder();
     }
   }
@@ -394,9 +405,9 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     outputBuffer = null;
     format = null;
     try {
-      if (decoder != null) {
-        decoder.release();
-        decoder = null;
+      if (decoderWrapper != null) {
+        decoderWrapper.release();
+        decoderWrapper = null;
         codecCounters.codecReleaseCount++;
       }
     } finally {

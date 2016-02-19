@@ -15,14 +15,27 @@
  */
 package com.google.android.exoplayer.ext.vp9;
 
+import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.util.extensions.Buffer;
+import com.google.android.exoplayer.util.extensions.Decoder;
+import com.google.android.exoplayer.util.extensions.DecoderWrapper;
+
 import java.nio.ByteBuffer;
 
 /**
- * JNI Wrapper for the libvpx VP9 decoder.
+ * JNI wrapper for the libvpx VP9 decoder.
  */
-/* package */ class VpxDecoder {
+/* package */ final class VpxDecoder implements Decoder<VpxInputBuffer, VpxOutputBuffer,
+    VpxDecoderException> {
 
-  private static final boolean IS_AVAILABLE;
+  public static final int OUTPUT_MODE_UNKNOWN = -1;
+  public static final int OUTPUT_MODE_YUV = 0;
+  public static final int OUTPUT_MODE_RGB = 1;
+
+  /**
+   * Whether the underlying libvpx library is available.
+   */
+  public static final boolean IS_AVAILABLE;
   static {
     boolean isAvailable;
     try {
@@ -35,16 +48,20 @@ import java.nio.ByteBuffer;
     IS_AVAILABLE = isAvailable;
   }
 
-  public static final int OUTPUT_MODE_UNKNOWN = -1;
-  public static final int OUTPUT_MODE_YUV = 0;
-  public static final int OUTPUT_MODE_RGB = 1;
+  /**
+   * Returns the version string of the underlying libvpx decoder.
+   */
+  public static native String getLibvpxVersion();
 
   private final long vpxDecContext;
+
+  private volatile int outputMode;
+  private VpxDecoderException exception;
 
   /**
    * Creates the VP9 Decoder.
    *
-   * @throws VpxDecoderException if the decoder fails to initialize.
+   * @throws VpxDecoderException Thrown if the decoder fails to initialize.
    */
   public VpxDecoder() throws VpxDecoderException {
     vpxDecContext = vpxInit();
@@ -54,40 +71,58 @@ import java.nio.ByteBuffer;
   }
 
   /**
-   * Decodes a vp9 encoded frame and converts it to RGB565.
+   * Sets the output mode for frames rendered by the decoder.
    *
-   * @param encoded The encoded buffer.
-   * @param size Size of the encoded buffer.
-   * @param outputBuffer The buffer into which the decoded frame should be written.
-   * @return 0 on success with a frame to render. 1 on success without a frame to render.
-   * @throws VpxDecoderException on decode failure.
+   * @param outputMode The output mode to use, which must be one of the {@code OUTPUT_MODE_*}
+   *     constants in {@link VpxDecoder}.
    */
-  public int decode(ByteBuffer encoded, int size, VpxOutputBuffer outputBuffer)
-      throws VpxDecoderException {
-    if (vpxDecode(vpxDecContext, encoded, size) != 0) {
-      throw new VpxDecoderException("Decode error: " + vpxGetErrorMessage(vpxDecContext));
-    }
-    return vpxGetFrame(vpxDecContext, outputBuffer);
+  public void setOutputMode(int outputMode) {
+    this.outputMode = outputMode;
   }
 
-  /**
-   * Destroys the decoder.
-   */
-  public void close() {
+  @Override
+  public VpxInputBuffer createInputBuffer(int initialSize) {
+    return new VpxInputBuffer(initialSize);
+  }
+
+  @Override
+  public VpxOutputBuffer createOutputBuffer(
+      DecoderWrapper<VpxInputBuffer, VpxOutputBuffer, VpxDecoderException> owner) {
+    return new VpxOutputBuffer(owner);
+  }
+
+  @Override
+  public boolean decode(VpxInputBuffer inputBuffer, VpxOutputBuffer outputBuffer) {
+    outputBuffer.reset();
+    if (inputBuffer.getFlag(Buffer.FLAG_END_OF_STREAM)) {
+      outputBuffer.setFlag(Buffer.FLAG_END_OF_STREAM);
+      return true;
+    }
+    SampleHolder sampleHolder = inputBuffer.sampleHolder;
+    outputBuffer.timestampUs = sampleHolder.timeUs;
+    sampleHolder.data.position(sampleHolder.data.position() - sampleHolder.size);
+    if (vpxDecode(vpxDecContext, sampleHolder.data, sampleHolder.size) != 0) {
+      exception = new VpxDecoderException("Decode error: " + vpxGetErrorMessage(vpxDecContext));
+      return false;
+    }
+    outputBuffer.mode = outputMode;
+    if (vpxGetFrame(vpxDecContext, outputBuffer) != 0) {
+      outputBuffer.setFlag(Buffer.FLAG_DECODE_ONLY);
+    }
+    return true;
+  }
+
+  @Override
+  public void maybeThrowException() throws VpxDecoderException {
+    if (exception != null) {
+      throw exception;
+    }
+  }
+
+  @Override
+  public void release() {
     vpxClose(vpxDecContext);
   }
-
-  /**
-   * Returns whether the underlying libvpx library is available.
-   */
-  public static boolean isLibvpxAvailable() {
-    return IS_AVAILABLE;
-  }
-
-  /**
-   * Returns the version string of the underlying libvpx decoder.
-   */
-  public static native String getLibvpxVersion();
 
   private native long vpxInit();
   private native long vpxClose(long context);
