@@ -13,15 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.ext.vp9;
+package com.google.android.exoplayer.util.extensions;
+
+import com.google.android.exoplayer.SampleHolder;
 
 /**
- * Thrown when a libvpx decoder error occurs.
+ * Input buffer to be decoded by a {@link Decoder}.
  */
-public class VpxDecoderException extends Exception {
+public class InputBuffer extends Buffer {
 
-    /* package */ VpxDecoderException(String message) {
-      super(message);
-    }
+  public final SampleHolder sampleHolder;
+
+  public InputBuffer(int initialSize) {
+    sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_DIRECT);
+    sampleHolder.ensureSpaceForWrite(initialSize);
+  }
+
+  @Override
+  public void reset() {
+    super.reset();
+    sampleHolder.clearData();
+  }
 
 }

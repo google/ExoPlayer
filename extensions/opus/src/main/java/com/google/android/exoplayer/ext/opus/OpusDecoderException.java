@@ -18,10 +18,10 @@ package com.google.android.exoplayer.ext.opus;
 /**
  * Thrown when an Opus decoder error occurs.
  */
-public class OpusDecoderException extends Exception {
+public final class OpusDecoderException extends Exception {
 
-    public OpusDecoderException(String message) {
-      super(message);
-    }
+  /* package */ OpusDecoderException(String message) {
+    super(message);
+  }
 
 }

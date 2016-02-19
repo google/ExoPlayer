@@ -15,13 +15,18 @@
  */
 package com.google.android.exoplayer.ext.vp9;
 
-/**
- * Thrown when a libvpx decoder error occurs.
- */
-public class VpxDecoderException extends Exception {
+import com.google.android.exoplayer.util.extensions.InputBuffer;
 
-    /* package */ VpxDecoderException(String message) {
-      super(message);
-    }
+/**
+ * Input buffer to a {@link VpxDecoder}.
+ */
+/* package */ final class VpxInputBuffer extends InputBuffer {
+
+  public int width;
+  public int height;
+
+  public VpxInputBuffer(int initialSize) {
+    super(initialSize);
+  }
 
 }

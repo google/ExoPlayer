@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.ext.vp9;
+package com.google.android.exoplayer.util.extensions;
 
 /**
- * Thrown when a libvpx decoder error occurs.
+ * Output buffer decoded by a {@link Decoder}.
  */
-public class VpxDecoderException extends Exception {
+public abstract class OutputBuffer extends Buffer {
 
-    /* package */ VpxDecoderException(String message) {
-      super(message);
-    }
+  /**
+   * The presentation timestamp for the buffer, in microseconds.
+   */
+  public long timestampUs;
+
+  /**
+   * Releases the output buffer for reuse. Must be called when the buffer is no longer needed.
+   */
+  public abstract void release();
 
 }
