@@ -30,8 +30,9 @@ import com.google.android.exoplayer.hls.HlsPlaylist;
 import com.google.android.exoplayer.hls.HlsPlaylistParser;
 import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.hls.PtsTimestampAdjusterProvider;
-import com.google.android.exoplayer.metadata.Id3Parser;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
+import com.google.android.exoplayer.metadata.id3.Id3Frame;
+import com.google.android.exoplayer.metadata.id3.Id3Parser;
 import com.google.android.exoplayer.text.TextTrackRenderer;
 import com.google.android.exoplayer.text.eia608.Eia608TrackRenderer;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -47,7 +48,7 @@ import android.media.MediaCodec;
 import android.os.Handler;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.List;
 
 /**
  * A {@link RendererBuilder} for HLS.
@@ -145,7 +146,7 @@ public class HlsRendererBuilder implements RendererBuilder {
       MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource,
           MediaCodecSelector.DEFAULT, null, true, player.getMainHandler(), player,
           AudioCapabilities.getCapabilities(context), AudioManager.STREAM_MUSIC);
-      MetadataTrackRenderer<Map<String, Object>> id3Renderer = new MetadataTrackRenderer<>(
+      MetadataTrackRenderer<List<Id3Frame>> id3Renderer = new MetadataTrackRenderer<>(
           sampleSource, new Id3Parser(), player, mainHandler.getLooper());
 
       // Build the text renderer, preferring Webvtt where available.

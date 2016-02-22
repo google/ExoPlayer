@@ -275,6 +275,7 @@ public final class WebvttCueParser {
     switch (s) {
       case "start":
         return Cue.ANCHOR_TYPE_START;
+      case "center":
       case "middle":
         return Cue.ANCHOR_TYPE_MIDDLE;
       case "end":
@@ -290,6 +291,7 @@ public final class WebvttCueParser {
       case "start":
       case "left":
         return Alignment.ALIGN_NORMAL;
+      case "center":
       case "middle":
         return Alignment.ALIGN_CENTER;
       case "end":

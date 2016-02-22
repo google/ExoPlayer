@@ -191,6 +191,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     if (outputStreamEnded) {
       return;
     }
+    this.sourceIsReady = sourceIsReady;
 
     // Try and read a format if we don't have one already.
     if (format == null && !readFormat(positionUs)) {

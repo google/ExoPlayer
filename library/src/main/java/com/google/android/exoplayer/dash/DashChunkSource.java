@@ -514,12 +514,14 @@ public class DashChunkSource implements ChunkSource, Output {
       if (initializationChunk.hasFormat()) {
         representationHolder.mediaFormat = initializationChunk.getFormat();
       }
-      if (initializationChunk.hasSeekMap()) {
+      // The null check avoids overwriting an index obtained from the manifest with one obtained
+      // from the stream. If the manifest defines an index then the stream shouldn't, but in cases
+      // where it does we should ignore it.
+      if (representationHolder.segmentIndex == null && initializationChunk.hasSeekMap()) {
         representationHolder.segmentIndex = new DashWrappingSegmentIndex(
             (ChunkIndex) initializationChunk.getSeekMap(),
             initializationChunk.dataSpec.uri.toString());
       }
-
       // The null check avoids overwriting drmInitData obtained from the manifest with drmInitData
       // obtained from the stream, as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
       if (periodHolder.drmInitData == null && initializationChunk.hasDrmInitData()) {

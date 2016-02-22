@@ -189,13 +189,13 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
     String mimeType = mediaFormat.mimeType;
     return MimeTypes.isAudio(mimeType) && (MimeTypes.AUDIO_UNKNOWN.equals(mimeType)
         || (allowPassthrough(mimeType) && mediaCodecSelector.getPassthroughDecoderName() != null)
-        || mediaCodecSelector.getDecoderInfo(mediaFormat, false) != null);
+        || mediaCodecSelector.getDecoderInfo(mimeType, false) != null);
   }
 
   @Override
-  protected DecoderInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector, MediaFormat format,
+  protected DecoderInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector, String mimeType,
       boolean requiresSecureDecoder) throws DecoderQueryException {
-    if (allowPassthrough(format.mimeType)) {
+    if (allowPassthrough(mimeType)) {
       String passthroughDecoderName = mediaCodecSelector.getPassthroughDecoderName();
       if (passthroughDecoderName != null) {
         passthroughEnabled = true;
@@ -203,7 +203,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
       }
     }
     passthroughEnabled = false;
-    return super.getDecoderInfo(mediaCodecSelector, format, requiresSecureDecoder);
+    return super.getDecoderInfo(mediaCodecSelector, mimeType, requiresSecureDecoder);
   }
 
   /**

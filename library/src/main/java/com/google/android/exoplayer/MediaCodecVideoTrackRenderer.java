@@ -221,7 +221,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
       throws DecoderQueryException {
     String mimeType = mediaFormat.mimeType;
     return MimeTypes.isVideo(mimeType) && (MimeTypes.VIDEO_UNKNOWN.equals(mimeType)
-        || mediaCodecSelector.getDecoderInfo(mediaFormat, false) != null);
+        || mediaCodecSelector.getDecoderInfo(mimeType, false) != null);
   }
 
   @Override
@@ -527,6 +527,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
         maxPixels = maxWidth * maxHeight;
         minCompressionRatio = 2;
         break;
+      case MimeTypes.VIDEO_H265:
       case MimeTypes.VIDEO_VP9:
         maxPixels = maxWidth * maxHeight;
         minCompressionRatio = 4;
