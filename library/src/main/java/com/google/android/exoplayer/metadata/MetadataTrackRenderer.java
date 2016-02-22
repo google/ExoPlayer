@@ -19,9 +19,9 @@ import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.SampleSource.TrackStream;
 import com.google.android.exoplayer.SampleSourceTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.util.Assertions;
 
 import android.os.Handler;

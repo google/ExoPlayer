@@ -21,8 +21,9 @@ import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
-import com.google.android.exoplayer.SampleSource.TrackStream;
 import com.google.android.exoplayer.TrackGroup;
+import com.google.android.exoplayer.TrackSelection;
+import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.upstream.Loader;
 import com.google.android.exoplayer.upstream.Loader.Loadable;
@@ -77,6 +78,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   private long lastPerformedBufferOperation;
   private boolean pendingReset;
 
+  private TrackGroup[] trackGroups;
   private long durationUs;
   private Loader loader;
   private boolean loadingFinished;
@@ -156,6 +158,9 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     TrackGroup trackGroup = chunkSource.getTracks();
     if (trackGroup.length > 0) {
       loader = new Loader("Loader:" + trackGroup.getFormat(0).containerMimeType);
+      trackGroups = new TrackGroup[] {trackGroup};
+    } else {
+      trackGroups = new TrackGroup[0];
     }
     state = STATE_PREPARED;
     return true;
@@ -172,22 +177,17 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   }
 
   @Override
-  public int getTrackGroupCount() {
-    return 1;
-  }
-
-  @Override
-  public TrackGroup getTrackGroup(int group) {
+  public TrackGroup[] getTrackGroups() {
     Assertions.checkState(state != STATE_IDLE);
-    return chunkSource.getTracks();
+    return trackGroups;
   }
 
   @Override
-  public TrackStream enable(int group, int[] tracks, long positionUs) {
+  public TrackStream enable(TrackSelection selection, long positionUs) {
     Assertions.checkState(state == STATE_PREPARED);
     Assertions.checkState(enabledTrackCount++ == 0);
     state = STATE_ENABLED;
-    chunkSource.enable(tracks);
+    chunkSource.enable(selection.tracks);
     loadControl.register(this, bufferSizeContribution);
     downstreamFormat = null;
     downstreamSampleFormat = null;

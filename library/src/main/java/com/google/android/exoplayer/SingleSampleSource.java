@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.SampleSource.TrackStream;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.Loader;
@@ -53,7 +52,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   private final Format format;
   private final long durationUs;
   private final int minLoadableRetryCount;
-  private final TrackGroup tracks;
+  private final TrackGroup[] trackGroups;
 
   private int state;
   private byte[] sampleData;
@@ -76,7 +75,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
     this.format = format;
     this.durationUs = durationUs;
     this.minLoadableRetryCount = minLoadableRetryCount;
-    tracks = new TrackGroup(format);
+    trackGroups = new TrackGroup[] {new TrackGroup(format)};
     sampleData = new byte[INITIAL_SAMPLE_SIZE];
   }
 
@@ -106,17 +105,12 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   }
 
   @Override
-  public int getTrackGroupCount() {
-    return 1;
+  public TrackGroup[] getTrackGroups() {
+    return trackGroups;
   }
 
   @Override
-  public TrackGroup getTrackGroup(int group) {
-    return tracks;
-  }
-
-  @Override
-  public TrackStream enable(int group, int[] tracks, long positionUs) {
+  public TrackStream enable(TrackSelection selection, long positionUs) {
     state = STATE_SEND_FORMAT;
     clearCurrentLoadableException();
     maybeStartLoading();

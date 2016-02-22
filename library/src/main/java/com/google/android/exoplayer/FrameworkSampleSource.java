@@ -156,13 +156,8 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public int getTrackGroupCount() {
-    return tracks.length;
-  }
-
-  @Override
-  public TrackGroup getTrackGroup(int group) {
-    return tracks[group];
+  public TrackGroup[] getTrackGroups() {
+    return tracks;
   }
 
   @Override
@@ -171,14 +166,17 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public TrackStream enable(int group, int[] track, long positionUs) {
+  public TrackStream enable(TrackSelection selection, long positionUs) {
     Assertions.checkState(prepared);
-    Assertions.checkState(trackStates[group] == TRACK_STATE_DISABLED);
+    Assertions.checkState(selection.tracks.length == 1);
+    Assertions.checkState(selection.tracks[0] == 0);
+    int track = selection.group;
+    Assertions.checkState(trackStates[track] == TRACK_STATE_DISABLED);
     enabledTrackCount++;
-    trackStates[group] = TRACK_STATE_ENABLED;
-    extractor.selectTrack(group);
+    trackStates[track] = TRACK_STATE_ENABLED;
+    extractor.selectTrack(track);
     seekToUsInternal(positionUs, positionUs != 0);
-    return new TrackStreamImpl(group);
+    return new TrackStreamImpl(track);
   }
 
   /* package */ long readReset(int track) {

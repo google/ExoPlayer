@@ -48,7 +48,7 @@ public class MultiSampleSource implements SampleSource {
       this.durationUs = C.UNKNOWN_TIME_US;
       int totalTrackGroupCount = 0;
       for (int i = 0; i < sources.length; i++) {
-        totalTrackGroupCount += sources[i].getTrackGroupCount();
+        totalTrackGroupCount += sources[i].getTrackGroups().length;
         if (sources[i].getDurationUs() > durationUs) {
           durationUs = sources[i].getDurationUs();
         }
@@ -56,9 +56,9 @@ public class MultiSampleSource implements SampleSource {
       tracks = new TrackGroup[totalTrackGroupCount];
       int trackGroupIndex = 0;
       for (int i = 0; i < sources.length; i++) {
-        int sourceTrackGroupCount = sources[i].getTrackGroupCount();
+        int sourceTrackGroupCount = sources[i].getTrackGroups().length;
         for (int j = 0; j < sourceTrackGroupCount; j++) {
-          tracks[trackGroupIndex++] = sources[i].getTrackGroup(j);
+          tracks[trackGroupIndex++] = sources[i].getTrackGroups()[j];
         }
       }
     }
@@ -71,19 +71,15 @@ public class MultiSampleSource implements SampleSource {
   }
 
   @Override
-  public int getTrackGroupCount() {
-    return tracks.length;
+  public TrackGroup[] getTrackGroups() {
+    return tracks;
   }
 
   @Override
-  public TrackGroup getTrackGroup(int group) {
-    return tracks[group];
-  }
-
-  @Override
-  public TrackStream enable(int group, int[] tracks, long positionUs) {
-    Pair<Integer, Integer> sourceAndGroup = getSourceAndTrackGroupIndices(group);
-    return sources[sourceAndGroup.first].enable(sourceAndGroup.second, tracks, positionUs);
+  public TrackStream enable(TrackSelection selection, long positionUs) {
+    Pair<Integer, Integer> sourceAndGroup = getSourceAndTrackGroupIndices(selection.group);
+    return sources[sourceAndGroup.first].enable(
+        new TrackSelection(sourceAndGroup.second, selection.tracks), positionUs);
   }
 
   @Override
@@ -132,7 +128,7 @@ public class MultiSampleSource implements SampleSource {
   private Pair<Integer, Integer> getSourceAndTrackGroupIndices(int group) {
     int totalTrackGroupCount = 0;
     for (int i = 0; i < sources.length; i++) {
-      int sourceTrackGroupCount = sources[i].getTrackGroupCount();
+      int sourceTrackGroupCount = sources[i].getTrackGroups().length;
       if (group < totalTrackGroupCount + sourceTrackGroupCount) {
         return Pair.create(i, group - totalTrackGroupCount);
       }

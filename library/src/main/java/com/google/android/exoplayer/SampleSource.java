@@ -52,23 +52,13 @@ public interface SampleSource {
   long getDurationUs();
 
   /**
-   * Returns the number of track groups exposed by the source.
+   * Returns the {@link TrackGroup}s exposed by the source.
    * <p>
    * This method should only be called after the source has been prepared.
    *
-   * @return The number of track groups exposed by the source.
+   * @return The {@link TrackGroup}s.
    */
-  public int getTrackGroupCount();
-
-  /**
-   * Returns the {@link TrackGroup} at the specified index.
-   * <p>
-   * This method should only be called after the source has been prepared.
-   *
-   * @int group The group index.
-   * @return The corresponding {@link TrackGroup}.
-   */
-  public TrackGroup getTrackGroup(int group);
+  public TrackGroup[] getTrackGroups();
 
   /**
    * Indicates to the source that it should continue buffering data for its enabled tracks.
@@ -101,19 +91,19 @@ public interface SampleSource {
   void seekToUs(long positionUs);
 
   /**
-   * Enables the specified group to read the specified tracks. A {@link TrackStream} is returned
-   * through which the enabled track's data can be read.
+   * Enables the source to read a track defined by a {@link TrackSelection}. A {@link TrackStream}
+   * is returned through which the track's data can be read.
    * <p>
-   * This method should only be called after the source has been prepared, and when the specified
-   * group is disabled. Note that {@code tracks.length} is only permitted to be greater than one
-   * if {@link TrackGroup#adaptive} is true for the group.
+   * This method should only be called after the source has been prepared, and when there are no
+   * other enabled tracks with the same {@link TrackSelection#group} index. Note that
+   * {@code TrackSelection#tracks} must be of length 1 unless {@link TrackGroup#adaptive} is true
+   * for the group.
    *
-   * @param group The group index.
-   * @param tracks The track indices.
+   * @param selection Defines the track.
    * @param positionUs The current playback position in microseconds.
    * @return A {@link TrackStream} from which the enabled track's data can be read.
    */
-  public TrackStream enable(int group, int[] tracks, long positionUs);
+  public TrackStream enable(TrackSelection selection, long positionUs);
 
   /**
    * Releases the source.
@@ -121,78 +111,5 @@ public interface SampleSource {
    * This method should be called when the source is no longer required.
    */
   void release();
-
-  /**
-   * A stream of data corresponding to a single {@link SampleSource} track.
-   */
-  interface TrackStream {
-
-    /**
-     * The end of stream has been reached.
-     */
-    static final int END_OF_STREAM = -1;
-    /**
-     * Nothing was read.
-     */
-    static final int NOTHING_READ = -2;
-    /**
-     * A sample was read.
-     */
-    static final int SAMPLE_READ = -3;
-    /**
-     * A format was read.
-     */
-    static final int FORMAT_READ = -4;
-    /**
-     * Returned from {@link #readReset()} to indicate no reset is required.
-     */
-    static final long NO_RESET = Long.MIN_VALUE;
-
-    /**
-     * Returns whether data is available to be read.
-     * <p>
-     * Note: If the stream has ended then {@link #END_OF_STREAM} can always be read from
-     * {@link #readData(FormatHolder, SampleHolder)}. Hence an ended stream is always ready.
-     *
-     * @return True if data is available to be read. False otherwise.
-     */
-    boolean isReady();
-
-    /**
-     * If there's an underlying error preventing data from being read, it's thrown by this method.
-     * If not, this method does nothing.
-     *
-     * @throws IOException The underlying error.
-     */
-    void maybeThrowError() throws IOException;
-
-    /**
-     * Attempts to read a pending reset.
-     *
-     * @return If a reset was read then the position after the reset. Else {@link #NO_RESET}.
-     */
-    long readReset();
-
-    /**
-     * Attempts to read the next format or sample.
-     * <p>
-     * This method will always return {@link #NOTHING_READ} in the case that there's a pending
-     * discontinuity to be read from {@link #readReset} for the specified track.
-     *
-     * @param formatHolder A {@link FormatHolder} to populate in the case of a new format.
-     * @param sampleHolder A {@link SampleHolder} to populate in the case of a new sample. If the
-     *     caller requires the sample data then it must ensure that {@link SampleHolder#data}
-     *     references a valid output buffer.
-     * @return The result, which can be {@link #END_OF_STREAM}, {@link #NOTHING_READ},
-     *     {@link #FORMAT_READ} or {@link #SAMPLE_READ}.
-     */
-    int readData(FormatHolder formatHolder, SampleHolder sampleHolder);
-
-    /**
-     * Disables the track.
-     */
-    void disable();
-
-  }
 
 }

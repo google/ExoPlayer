@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.SampleSource.TrackStream;
 import com.google.android.exoplayer.util.Assertions;
 
 import java.io.IOException;

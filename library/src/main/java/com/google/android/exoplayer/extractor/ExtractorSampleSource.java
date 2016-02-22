@@ -21,6 +21,8 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
+import com.google.android.exoplayer.TrackSelection;
+import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -288,23 +290,21 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   @Override
-  public int getTrackGroupCount() {
-    return tracks.length;
+  public TrackGroup[] getTrackGroups() {
+    return tracks;
   }
 
   @Override
-  public TrackGroup getTrackGroup(int group) {
-    return tracks[group];
-  }
-
-  @Override
-  public TrackStream enable(int group, int[] tracks, long positionUs) {
+  public TrackStream enable(TrackSelection selection, long positionUs) {
     Assertions.checkState(prepared);
-    Assertions.checkState(!trackEnabledStates[group]);
+    Assertions.checkState(selection.tracks.length == 1);
+    Assertions.checkState(selection.tracks[0] == 0);
+    int track = selection.group;
+    Assertions.checkState(!trackEnabledStates[track]);
     enabledTrackCount++;
-    trackEnabledStates[group] = true;
-    pendingMediaFormat[group] = true;
-    pendingResets[group] = false;
+    trackEnabledStates[track] = true;
+    pendingMediaFormat[track] = true;
+    pendingResets[track] = false;
     if (enabledTrackCount == 1) {
       // Treat all enables in non-seekable media as being from t=0.
       positionUs = !seekMap.isSeekable() ? 0 : positionUs;
@@ -312,7 +312,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       lastSeekPositionUs = positionUs;
       restartFrom(positionUs);
     }
-    return new TrackStreamImpl(group);
+    return new TrackStreamImpl(track);
   }
 
   /* package */ void disable(int track) {

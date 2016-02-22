@@ -16,7 +16,6 @@
 package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent;
-import com.google.android.exoplayer.SampleSource.TrackStream;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.MimeTypes;
 

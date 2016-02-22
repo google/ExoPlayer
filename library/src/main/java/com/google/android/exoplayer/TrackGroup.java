@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer;
 
-import com.google.android.exoplayer.SampleSource.TrackStream;
-
 /**
  * Defines a group of tracks exposed by a {@link SampleSource}.
  * <p>

@@ -22,6 +22,8 @@ import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
+import com.google.android.exoplayer.TrackSelection;
+import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
@@ -179,19 +181,16 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   @Override
-  public int getTrackGroupCount() {
-    return trackGroups.length;
+  public TrackGroup[] getTrackGroups() {
+    Assertions.checkState(prepared);
+    return trackGroups;
   }
 
   @Override
-  public TrackGroup getTrackGroup(int group) {
+  public TrackStream enable(TrackSelection selection, long positionUs) {
     Assertions.checkState(prepared);
-    return trackGroups[group];
-  }
-
-  @Override
-  public TrackStream enable(int group, int[] tracks, long positionUs) {
-    Assertions.checkState(prepared);
+    int group = selection.group;
+    int[] tracks = selection.tracks;
     setTrackGroupEnabledState(group, true);
     downstreamSampleFormats[group] = null;
     pendingResets[group] = false;
