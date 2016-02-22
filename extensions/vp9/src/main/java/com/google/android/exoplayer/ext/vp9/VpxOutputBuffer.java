@@ -15,43 +15,44 @@
  */
 package com.google.android.exoplayer.ext.vp9;
 
-import com.google.android.exoplayer.util.extensions.DecoderWrapper;
-import com.google.android.exoplayer.util.extensions.OutputBuffer;
-
 import java.nio.ByteBuffer;
 
 /**
- * Output buffer containing video frame data, populated by {@link VpxDecoder}.
+ * OutputBuffer for storing the video frame.
  */
-public final class VpxOutputBuffer extends OutputBuffer {
+public final class VpxOutputBuffer {
 
   public static final int COLORSPACE_UNKNOWN = 0;
   public static final int COLORSPACE_BT601 = 1;
   public static final int COLORSPACE_BT709 = 2;
 
-  private final DecoderWrapper<?, VpxOutputBuffer, ?> owner;
+  private final VpxDecoderWrapper decoder;
 
-  public int mode;
+  /* package */ VpxOutputBuffer(VpxDecoderWrapper decoder) {
+    this.decoder = decoder;
+  }
+
   /**
    * RGB buffer for RGB mode.
    */
   public ByteBuffer data;
+  public long timestampUs;
   public int width;
   public int height;
+  public int flags;
   /**
    * YUV planes for YUV mode.
    */
   public ByteBuffer[] yuvPlanes;
   public int[] yuvStrides;
+  public int mode;
   public int colorspace;
 
-  /* package */ VpxOutputBuffer(DecoderWrapper<?, VpxOutputBuffer, ?> owner) {
-    this.owner = owner;
-  }
-
-  @Override
+  /**
+   * Releases the buffer back to the decoder, allowing it to be reused.
+   */
   public void release() {
-    owner.releaseOutputBuffer(this);
+    decoder.releaseOutputBuffer(this);
   }
 
   /**
