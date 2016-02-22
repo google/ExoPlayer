@@ -1,6 +1,6 @@
 # Release notes #
 
-### Current dev branch (from r1.5.5) ###
+### r1.5.6 ###
 
 * MP3: Fix mono streams playing at 2x speed on some MediaTek based devices (#801).
 * MP3: Fix playback of some streams when stream length is unknown.
