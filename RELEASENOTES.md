@@ -1,5 +1,16 @@
 # Release notes #
 
+### r1.5.6 ###
+
+* MP3: Fix mono streams playing at 2x speed on some MediaTek based devices (#801).
+* MP3: Fix playback of some streams when stream length is unknown.
+* ID3: Support multiple frames of the same type in a single tag.
+* EIA608: Correctly handle repeated control characters, fixing an issue in which captions would
+  immediately disappear.
+* AVC3: Fix decoder failures on some MediaTek devices in the case where the first buffer fed to the
+  decoder does not start with SPS/PPS NAL units.
+* Misc bug fixes.
+
 ### r1.5.5 ###
 
 * DASH: Enable MP4 embedded WebVTT playback (#1185)

@@ -17,8 +17,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.google.android.exoplayer.demo.vp9opus"
-    android:versionCode="1505"
-    android:versionName="1.5.5"
+    android:versionCode="1506"
+    android:versionName="1.5.6"
     android:theme="@style/RootTheme">
 
   <uses-permission android:name="android.permission.INTERNET"/>

@@ -19,6 +19,7 @@ import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.drm.DrmSessionManager;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.NalUnitUtil;
 import com.google.android.exoplayer.util.TraceUtil;
 import com.google.android.exoplayer.util.Util;
 
@@ -209,10 +210,11 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   private DrmInitData drmInitData;
   private MediaCodec codec;
   private boolean codecIsAdaptive;
+  private boolean codecNeedsDiscardToSpsWorkaround;
   private boolean codecNeedsFlushWorkaround;
   private boolean codecNeedsEosPropagationWorkaround;
   private boolean codecNeedsEosFlushWorkaround;
-  private boolean codecReceivedEos;
+  private boolean codecNeedsMonoChannelCountWorkaround;
   private ByteBuffer[] inputBuffers;
   private ByteBuffer[] outputBuffers;
   private long codecHotswapTimeMs;
@@ -222,7 +224,8 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   private boolean codecReconfigured;
   private int codecReconfigurationState;
   private int codecReinitializationState;
-  private boolean codecHasQueuedBuffers;
+  private boolean codecReceivedBuffers;
+  private boolean codecReceivedEos;
 
   private int sourceState;
   private boolean inputStreamEnded;
@@ -284,15 +287,15 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * Returns a {@link DecoderInfo} for a given format.
    *
    * @param mediaCodecSelector The decoder selector.
-   * @param mediaFormat The format for which a decoder is required.
+   * @param mimeType The mime type for which a decoder is required.
    * @param requiresSecureDecoder Whether a secure decoder is required.
    * @return A {@link DecoderInfo} describing the decoder to instantiate, or null if no suitable
    *     decoder exists.
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
-  protected DecoderInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector,
-      MediaFormat mediaFormat, boolean requiresSecureDecoder) throws DecoderQueryException {
-    return mediaCodecSelector.getDecoderInfo(format, requiresSecureDecoder);
+  protected DecoderInfo getDecoderInfo(MediaCodecSelector mediaCodecSelector, String mimeType,
+      boolean requiresSecureDecoder) throws DecoderQueryException {
+    return mediaCodecSelector.getDecoderInfo(mimeType, requiresSecureDecoder);
   }
 
   /**
@@ -338,7 +341,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
 
     DecoderInfo decoderInfo = null;
     try {
-      decoderInfo = getDecoderInfo(mediaCodecSelector, format, requiresSecureDecoder);
+      decoderInfo = getDecoderInfo(mediaCodecSelector, mimeType, requiresSecureDecoder);
     } catch (DecoderQueryException e) {
       notifyAndThrowDecoderInitError(new DecoderInitializationException(format, e,
           requiresSecureDecoder, DecoderInitializationException.DECODER_QUERY_ERROR));
@@ -351,9 +354,11 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
 
     String codecName = decoderInfo.name;
     codecIsAdaptive = decoderInfo.adaptive;
+    codecNeedsDiscardToSpsWorkaround = codecNeedsDiscardToSpsWorkaround(codecName, format);
     codecNeedsFlushWorkaround = codecNeedsFlushWorkaround(codecName);
     codecNeedsEosPropagationWorkaround = codecNeedsEosPropagationWorkaround(codecName);
     codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(codecName);
+    codecNeedsMonoChannelCountWorkaround = codecNeedsMonoChannelCountWorkaround(codecName, format);
     try {
       long codecInitializingTimestamp = SystemClock.elapsedRealtime();
       TraceUtil.beginSection("createByCodecName(" + codecName + ")");
@@ -428,11 +433,13 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       inputBuffers = null;
       outputBuffers = null;
       codecReconfigured = false;
-      codecHasQueuedBuffers = false;
+      codecReceivedBuffers = false;
       codecIsAdaptive = false;
+      codecNeedsDiscardToSpsWorkaround = false;
       codecNeedsFlushWorkaround = false;
       codecNeedsEosPropagationWorkaround = false;
       codecNeedsEosFlushWorkaround = false;
+      codecNeedsMonoChannelCountWorkaround = false;
       codecReceivedEos = false;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
       codecReinitializationState = REINITIALIZATION_STATE_NONE;
@@ -516,7 +523,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     } else {
       // We can flush and re-use the existing decoder.
       codec.flush();
-      codecHasQueuedBuffers = false;
+      codecReceivedBuffers = false;
     }
     if (codecReconfigured && format != null) {
       // Any reconfiguration data that we send shortly before the flush may be discarded. We
@@ -606,7 +613,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
         codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
       }
       inputStreamEnded = true;
-      if (!codecHasQueuedBuffers) {
+      if (!codecReceivedBuffers) {
         processEndOfStream();
         return false;
       }
@@ -643,6 +650,13 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     if (waitingForKeys) {
       return false;
     }
+    if (codecNeedsDiscardToSpsWorkaround && !sampleEncrypted) {
+      NalUnitUtil.discardToSps(sampleHolder.data);
+      if (sampleHolder.data.position() == 0) {
+        return true;
+      }
+      codecNeedsDiscardToSpsWorkaround = false;
+    }
     try {
       int bufferSize = sampleHolder.data.position();
       int adaptiveReconfigurationBytes = bufferSize - sampleHolder.size;
@@ -658,8 +672,9 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
         codec.queueInputBuffer(inputIndex, 0, bufferSize, presentationTimeUs, 0);
       }
       inputIndex = -1;
-      codecHasQueuedBuffers = true;
+      codecReceivedBuffers = true;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
+      onQueuedInputBuffer(presentationTimeUs);
     } catch (CryptoException e) {
       notifyCryptoError(e);
       throw new ExoPlaybackException(e);
@@ -720,7 +735,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       codecReconfigured = true;
       codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
     } else {
-      if (codecHasQueuedBuffers) {
+      if (codecReceivedBuffers) {
         // Signal end of stream and wait for any final output buffers before re-initialization.
         codecReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
       } else {
@@ -753,6 +768,28 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    */
   protected void onOutputStreamEnded() {
     // Do nothing.
+  }
+
+  /**
+   * Invoked when an input buffer is queued into the codec.
+   * <p>
+   * The default implementation is a no-op.
+   *
+   * @param presentationTimeUs The timestamp associated with the input buffer.
+   */
+  protected void onQueuedInputBuffer(long presentationTimeUs) {
+    // Do nothing.
+  }
+
+  /**
+   * Invoked when an output buffer is successfully processed.
+   * <p>
+   * The default implementation is a no-op.
+   *
+   * @param presentationTimeUs The timestamp associated with the output buffer.
+   */
+  protected void onProcessedOutputBuffer(long presentationTimeUs) {
+    // Do Nothing.
   }
 
   /**
@@ -825,8 +862,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     }
 
     if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-      onOutputFormatChanged(codec.getOutputFormat());
-      codecCounters.outputFormatChangedCount++;
+      processOutputFormat();
       return true;
     } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
       outputBuffers = codec.getOutputBuffers();
@@ -849,6 +885,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     int decodeOnlyIndex = getDecodeOnlyIndex(outputBufferInfo.presentationTimeUs);
     if (processOutputBuffer(positionUs, elapsedRealtimeUs, codec, outputBuffers[outputIndex],
         outputBufferInfo, outputIndex, decodeOnlyIndex != -1)) {
+      onProcessedOutputBuffer(outputBufferInfo.presentationTimeUs);
       if (decodeOnlyIndex != -1) {
         decodeOnlyPresentationTimestamps.remove(decodeOnlyIndex);
       }
@@ -857,6 +894,20 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     }
 
     return false;
+  }
+
+  /**
+   * Processes a new output format.
+   *
+   * @throws ExoPlaybackException If an error occurs processing the output format.
+   */
+  private void processOutputFormat() throws ExoPlaybackException {
+    android.media.MediaFormat format = codec.getOutputFormat();
+    if (codecNeedsMonoChannelCountWorkaround) {
+      format.setInteger(android.media.MediaFormat.KEY_CHANNEL_COUNT, 1);
+    }
+    onOutputFormatChanged(format);
+    codecCounters.outputFormatChangedCount++;
   }
 
   /**
@@ -949,6 +1000,21 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   /**
+   * Returns whether the decoder is an H.264/AVC decoder known to fail if NAL units are queued
+   * before the codec specific data.
+   * <p>
+   * If true is returned, the renderer will work around the issue by discarding data up to the SPS.
+   *
+   * @param name The name of the decoder.
+   * @param format The format used to configure the decoder.
+   * @return True if the decoder is known to fail if NAL units are queued before CSD.
+   */
+  private static boolean codecNeedsDiscardToSpsWorkaround(String name, MediaFormat format) {
+    return Util.SDK_INT < 21 && format.initializationData.isEmpty()
+        && "OMX.MTK.VIDEO.DECODER.AVC".equals(name);
+  }
+
+  /**
    * Returns whether the decoder is known to handle the propagation of the
    * {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM} flag incorrectly on the host device.
    * <p>
@@ -977,6 +1043,24 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    */
   private static boolean codecNeedsEosFlushWorkaround(String name) {
     return Util.SDK_INT <= 23 && "OMX.google.vorbis.decoder".equals(name);
+  }
+
+  /**
+   * Returns whether the decoder is known to set the number of audio channels in the output format
+   * to 2 for the given input format, whilst only actually outputting a single channel.
+   * <p>
+   * If true is returned then we explicitly override the number of channels in the output format,
+   * setting it to 1.
+   *
+   * @param name The decoder name.
+   * @param format The input format.
+   * @return True if the device is known to set the number of audio channels in the output format
+   *     to 2 for the given input format, whilst only actually outputting a single channel. False
+   *     otherwise.
+   */
+  private static boolean codecNeedsMonoChannelCountWorkaround(String name, MediaFormat format) {
+    return Util.SDK_INT <= 18 && format.channelCount == 1
+        && "OMX.MTK.AUDIO.DECODER.MP3".equals(name);
   }
 
   /**

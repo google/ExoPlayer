@@ -94,4 +94,8 @@ package com.google.android.exoplayer.text.eia608;
     return (cc1 >= 0x10 && cc1 <= 0x1F) && (cc2 >= 0x40 && cc2 <= 0x7F);
   }
 
+  public boolean isRepeatable() {
+    return cc1 >= 0x10 && cc1 <= 0x1F;
+  }
+
 }

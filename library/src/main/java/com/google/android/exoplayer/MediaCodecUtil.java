@@ -345,7 +345,7 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Conversion values taken from: https://en.wikipedia.org/wiki/H.264/MPEG-4_AVC.
+   * Conversion values taken from ISO 14496-10 Table A-1.
    *
    * @param avcLevel one of CodecProfileLevel.AVCLevel* constants.
    * @return maximum frame size that can be decoded by a decoder with the specified avc level
@@ -353,21 +353,21 @@ public final class MediaCodecUtil {
    */
   private static int avcLevelToMaxFrameSize(int avcLevel) {
     switch (avcLevel) {
-      case CodecProfileLevel.AVCLevel1: return 25344;
-      case CodecProfileLevel.AVCLevel1b: return 25344;
-      case CodecProfileLevel.AVCLevel12: return 101376;
-      case CodecProfileLevel.AVCLevel13: return 101376;
-      case CodecProfileLevel.AVCLevel2: return 101376;
-      case CodecProfileLevel.AVCLevel21: return 202752;
-      case CodecProfileLevel.AVCLevel22: return 414720;
-      case CodecProfileLevel.AVCLevel3: return 414720;
-      case CodecProfileLevel.AVCLevel31: return 921600;
-      case CodecProfileLevel.AVCLevel32: return 1310720;
-      case CodecProfileLevel.AVCLevel4: return 2097152;
-      case CodecProfileLevel.AVCLevel41: return 2097152;
-      case CodecProfileLevel.AVCLevel42: return 2228224;
-      case CodecProfileLevel.AVCLevel5: return 5652480;
-      case CodecProfileLevel.AVCLevel51: return 9437184;
+      case CodecProfileLevel.AVCLevel1: return 99 * 16 * 16;
+      case CodecProfileLevel.AVCLevel1b: return 99 * 16 * 16;
+      case CodecProfileLevel.AVCLevel12: return 396 * 16 * 16;
+      case CodecProfileLevel.AVCLevel13: return 396 * 16 * 16;
+      case CodecProfileLevel.AVCLevel2: return 396 * 16 * 16;
+      case CodecProfileLevel.AVCLevel21: return 792 * 16 * 16;
+      case CodecProfileLevel.AVCLevel22: return 1620 * 16 * 16;
+      case CodecProfileLevel.AVCLevel3: return 1620 * 16 * 16;
+      case CodecProfileLevel.AVCLevel31: return 3600 * 16 * 16;
+      case CodecProfileLevel.AVCLevel32: return 5120 * 16 * 16;
+      case CodecProfileLevel.AVCLevel4: return 8192 * 16 * 16;
+      case CodecProfileLevel.AVCLevel41: return 8192 * 16 * 16;
+      case CodecProfileLevel.AVCLevel42: return 8704 * 16 * 16;
+      case CodecProfileLevel.AVCLevel5: return 22080 * 16 * 16;
+      case CodecProfileLevel.AVCLevel51: return 36864 * 16 * 16;
       default: return -1;
     }
   }

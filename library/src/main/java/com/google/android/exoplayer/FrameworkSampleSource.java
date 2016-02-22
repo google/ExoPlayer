@@ -313,6 +313,8 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
     int rotationDegrees = getOptionalIntegerV16(format, "rotation-degrees");
     int channelCount = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_CHANNEL_COUNT);
     int sampleRate = getOptionalIntegerV16(format, android.media.MediaFormat.KEY_SAMPLE_RATE);
+    int encoderDelay = getOptionalIntegerV16(format, "encoder-delay");
+    int encoderPadding = getOptionalIntegerV16(format, "encoder-padding");
     ArrayList<byte[]> initializationData = new ArrayList<>();
     for (int i = 0; format.containsKey("csd-" + i); i++) {
       ByteBuffer buffer = format.getByteBuffer("csd-" + i);
@@ -326,7 +328,7 @@ public final class FrameworkSampleSource implements SampleSource, SampleSourceRe
     MediaFormat mediaFormat = new MediaFormat(null, mimeType, MediaFormat.NO_VALUE, maxInputSize,
         durationUs, width, height, rotationDegrees, MediaFormat.NO_VALUE, channelCount, sampleRate,
         language, MediaFormat.OFFSET_SAMPLE_RELATIVE, initializationData, false,
-        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE);
+        MediaFormat.NO_VALUE, MediaFormat.NO_VALUE, encoderDelay, encoderPadding);
     mediaFormat.setFrameworkFormatV16(format);
     return mediaFormat;
   }
