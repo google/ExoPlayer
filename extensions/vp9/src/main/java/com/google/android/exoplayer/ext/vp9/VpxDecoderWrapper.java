@@ -13,90 +13,86 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.util.extensions;
+package com.google.android.exoplayer.ext.vp9;
 
+import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.Assertions;
 
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
 /**
- * Wraps a {@link Decoder}, exposing a higher level decoder interface.
+ * Wraps {@link VpxDecoder}, exposing a higher level decoder interface.
  */
-public final class DecoderWrapper<I extends InputBuffer, O extends OutputBuffer,
-    E extends Exception> extends Thread {
+/* package */ final class VpxDecoderWrapper extends Thread {
 
+  public static final int FLAG_END_OF_STREAM = 1;
+
+  private static final int INPUT_BUFFER_SIZE = 768 * 1024; // Value based on cs/SoftVpx.cpp.
   /**
-   * Listener for {@link DecoderWrapper} events.
+   * The number of input buffers and the number of output buffers. The track renderer may limit the
+   * minimum possible value due to requiring multiple output buffers to be dequeued at a time for it
+   * to make progress.
    */
-  public interface EventListener<E> {
+  private static final int NUM_BUFFERS = 16;
 
-    /**
-     * Invoked when the decoder encounters an error.
-     *
-     * @param e The corresponding exception.
-     */
-    void onDecoderError(E e);
-
-  }
-
-  private final Decoder<I, O, E> decoder;
   private final Object lock;
 
-  private final LinkedList<I> queuedInputBuffers;
-  private final LinkedList<O> queuedOutputBuffers;
-  private final I[] availableInputBuffers;
-  private final O[] availableOutputBuffers;
+  private final LinkedList<VpxInputBuffer> queuedInputBuffers;
+  private final LinkedList<VpxOutputBuffer> queuedOutputBuffers;
+  private final VpxInputBuffer[] availableInputBuffers;
+  private final VpxOutputBuffer[] availableOutputBuffers;
   private int availableInputBufferCount;
   private int availableOutputBufferCount;
-  private I dequeuedInputBuffer;
+  private VpxInputBuffer dequeuedInputBuffer;
 
   private boolean flushDecodedOutputBuffer;
   private boolean released;
+  private int outputMode;
+
+  private VpxDecoderException decoderException;
 
   /**
-   * Creates a new wrapper around {@code decoder}, using the specified {@code inputBuffers} and
-   * {@code outputBuffers}. The arrays will be populated using buffers created by the decoder.
-   *
-   * @param decoder The decoder to wrap.
-   * @param inputBuffers An array of nulls that will be used to store references to input buffers.
-   * @param outputBuffers An array of nulls that will be used to store references to output buffers.
-   * @param initialInputBufferSize The initial size for each input buffer, in bytes.
+   * @param outputMode One of OUTPUT_MODE_* constants from {@link VpxDecoderWrapper}
+   *     depending on the desired output mode.
    */
-  public DecoderWrapper(Decoder<I, O, E> decoder, I[] inputBuffers, O[] outputBuffers,
-      int initialInputBufferSize) {
-    this.decoder = decoder;
+  public VpxDecoderWrapper(int outputMode) {
     lock = new Object();
+    this.outputMode = outputMode;
     queuedInputBuffers = new LinkedList<>();
     queuedOutputBuffers = new LinkedList<>();
-    availableInputBuffers = inputBuffers;
-    availableInputBufferCount = inputBuffers.length;
-    for (int i = 0; i < availableInputBufferCount; i++) {
-      availableInputBuffers[i] = decoder.createInputBuffer(initialInputBufferSize);
-    }
-    availableOutputBuffers = outputBuffers;
-    availableOutputBufferCount = outputBuffers.length;
-    for (int i = 0; i < availableOutputBufferCount; i++) {
-      availableOutputBuffers[i] = decoder.createOutputBuffer(this);
+    availableInputBuffers = new VpxInputBuffer[NUM_BUFFERS];
+    availableOutputBuffers = new VpxOutputBuffer[NUM_BUFFERS];
+    availableInputBufferCount = NUM_BUFFERS;
+    availableOutputBufferCount = NUM_BUFFERS;
+    for (int i = 0; i < NUM_BUFFERS; i++) {
+      availableInputBuffers[i] = new VpxInputBuffer();
+      availableOutputBuffers[i] = new VpxOutputBuffer(this);
     }
   }
 
-  public I dequeueInputBuffer() throws E {
+  public void setOutputMode(int outputMode) {
+    this.outputMode = outputMode;
+  }
+
+  public VpxInputBuffer dequeueInputBuffer() throws VpxDecoderException {
     synchronized (lock) {
-      decoder.maybeThrowException();
+      maybeThrowDecoderError();
       Assertions.checkState(dequeuedInputBuffer == null);
       if (availableInputBufferCount == 0) {
         return null;
       }
-      I inputBuffer = availableInputBuffers[--availableInputBufferCount];
-      inputBuffer.reset();
+      VpxInputBuffer inputBuffer = availableInputBuffers[--availableInputBufferCount];
+      inputBuffer.flags = 0;
+      inputBuffer.sampleHolder.clearData();
       dequeuedInputBuffer = inputBuffer;
       return inputBuffer;
     }
   }
 
-  public void queueInputBuffer(I inputBuffer) throws E {
+  public void queueInputBuffer(VpxInputBuffer inputBuffer) throws VpxDecoderException {
     synchronized (lock) {
-      decoder.maybeThrowException();
+      maybeThrowDecoderError();
       Assertions.checkArgument(inputBuffer == dequeuedInputBuffer);
       queuedInputBuffers.addLast(inputBuffer);
       maybeNotifyDecodeLoop();
@@ -104,9 +100,9 @@ public final class DecoderWrapper<I extends InputBuffer, O extends OutputBuffer,
     }
   }
 
-  public O dequeueOutputBuffer() throws E {
+  public VpxOutputBuffer dequeueOutputBuffer() throws VpxDecoderException {
     synchronized (lock) {
-      decoder.maybeThrowException();
+      maybeThrowDecoderError();
       if (queuedOutputBuffers.isEmpty()) {
         return null;
       }
@@ -114,7 +110,7 @@ public final class DecoderWrapper<I extends InputBuffer, O extends OutputBuffer,
     }
   }
 
-  public void releaseOutputBuffer(O outputBuffer) {
+  public void releaseOutputBuffer(VpxOutputBuffer outputBuffer) {
     synchronized (lock) {
       availableOutputBuffers[availableOutputBufferCount++] = outputBuffer;
       maybeNotifyDecodeLoop();
@@ -154,6 +150,12 @@ public final class DecoderWrapper<I extends InputBuffer, O extends OutputBuffer,
     }
   }
 
+  private void maybeThrowDecoderError() throws VpxDecoderException {
+    if (decoderException != null) {
+      throw decoderException;
+    }
+  }
+
   /**
    * Notifies the decode loop if there exists a queued input buffer and an available output buffer
    * to decode into.
@@ -168,23 +170,29 @@ public final class DecoderWrapper<I extends InputBuffer, O extends OutputBuffer,
 
   @Override
   public void run() {
+    VpxDecoder decoder = null;
     try {
+      decoder = new VpxDecoder();
       while (decodeBuffer(decoder)) {
         // Do nothing.
       }
+    } catch (VpxDecoderException e) {
+      synchronized (lock) {
+        decoderException = e;
+      }
     } catch (InterruptedException e) {
-      // Not expected.
-      throw new IllegalStateException(e);
+      // Shouldn't ever happen.
     } finally {
       if (decoder != null) {
-        decoder.release();
+        decoder.close();
       }
     }
   }
 
-  private boolean decodeBuffer(Decoder<I, O, E> decoder) throws InterruptedException {
-    I inputBuffer;
-    O outputBuffer;
+  private boolean decodeBuffer(VpxDecoder decoder) throws InterruptedException,
+      VpxDecoderException {
+    VpxInputBuffer inputBuffer;
+    VpxOutputBuffer outputBuffer;
 
     // Wait until we have an input buffer to decode, and an output buffer to decode into.
     synchronized (lock) {
@@ -199,17 +207,29 @@ public final class DecoderWrapper<I extends InputBuffer, O extends OutputBuffer,
       flushDecodedOutputBuffer = false;
     }
 
-    if (!decoder.decode(inputBuffer, outputBuffer)) {
-      // Memory barrier to ensure that the decoder exception is visible from the playback thread.
-      synchronized (lock) {}
-      return false;
+    // Decode.
+    int decodeResult = -1;
+    if (inputBuffer.flags == FLAG_END_OF_STREAM) {
+      outputBuffer.flags = FLAG_END_OF_STREAM;
+    } else {
+      SampleHolder sampleHolder = inputBuffer.sampleHolder;
+      outputBuffer.timestampUs = sampleHolder.timeUs;
+      outputBuffer.flags = 0;
+      outputBuffer.mode = outputMode;
+      sampleHolder.data.position(sampleHolder.data.position() - sampleHolder.size);
+      decodeResult = decoder.decode(sampleHolder.data, sampleHolder.size, outputBuffer);
     }
 
-    boolean decodeOnly = outputBuffer.getFlag(Buffer.FLAG_DECODE_ONLY);
     synchronized (lock) {
-      if (flushDecodedOutputBuffer || decodeOnly) {
-        // If a flush occurred while decoding or the buffer was only for decoding (not presentation)
-        // then make the output buffer available again rather than queueing it to be consumed.
+      if (flushDecodedOutputBuffer
+          || inputBuffer.sampleHolder.isDecodeOnly()
+          || decodeResult == 1) {
+        // In the following cases, we make the output buffer available again rather than queuing it
+        // to be consumed:
+        // 1) A flush occured whilst we were decoding.
+        // 2) The input sample has decodeOnly flag set.
+        // 3) The decode succeeded, but we did not get any frame back for rendering (happens in case
+        // of an unpacked altref frame).
         availableOutputBuffers[availableOutputBufferCount++] = outputBuffer;
       } else {
         // Queue the decoded output buffer to be consumed.
@@ -224,6 +244,21 @@ public final class DecoderWrapper<I extends InputBuffer, O extends OutputBuffer,
 
   private boolean canDecodeBuffer() {
     return !queuedInputBuffers.isEmpty() && availableOutputBufferCount > 0;
+  }
+
+  /* package */ static final class VpxInputBuffer {
+
+    public final SampleHolder sampleHolder;
+
+    public int width;
+    public int height;
+    public int flags;
+
+    public VpxInputBuffer() {
+      sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_DIRECT);
+      sampleHolder.data = ByteBuffer.allocateDirect(INPUT_BUFFER_SIZE);
+    }
+
   }
 
 }
