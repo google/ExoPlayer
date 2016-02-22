@@ -1,1 +1,22 @@
-Test...
+Please make sure to search for an existing issue before filing a new one, including issues that are
+closed. If you wish to go ahead and open a new issue, please make sure to include all of the
+following, unless you're certain that they're not required for the particular issue being reported.
+
+- [] A description of the issue.
+- [] Steps describing how the issue can be reproduced, ideally in the ExoPlayer demo app.
+- [] If the issue only reproduces with certain content, a link to some content that we can use to
+     reproduce. If you have a link but don't wish to post it publicly, please submit the issue, then
+     email the link or content to `dev.exoplayer@gmail.com` including the issue number in the
+     subject line.
+- [] The version of ExoPlayer being used.
+- [] The device(s) and version(s) of Android on which the issue can be reproduced, and how easily it
+     reproduces. Does it happen every time, or only occassionally? If possible, please test on
+     multiple devices and Android versions. If the issue does not reproduce on some combinations,
+     that’s useful information!
+- [] A full bug report taken from the device just after the issue occurs, attached as a file. A bug
+     report can be captured from the command line using "adb bugreport". Note that the output from
+     "adb logcat" or a log snippet (in particular a snippet that only contains a stack trace) is not
+     sufficient.
+- [] Anything else you think might be relevant!
+
+Thanks!
