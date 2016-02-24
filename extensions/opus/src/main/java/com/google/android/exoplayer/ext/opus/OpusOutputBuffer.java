@@ -28,7 +28,6 @@ public final class OpusOutputBuffer extends OutputBuffer {
   private final DecoderWrapper<?, OpusOutputBuffer, ?> owner;
 
   public ByteBuffer data;
-  public int size;
 
   /* package */ OpusOutputBuffer(DecoderWrapper<?, OpusOutputBuffer, ?> owner) {
     this.owner = owner;
