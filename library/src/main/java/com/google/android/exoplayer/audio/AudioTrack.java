@@ -302,8 +302,13 @@ public final class AudioTrack {
       maybeSampleSyncParams();
     }
 
+    long currentPositionWithoutSmoothUs = audioTrackUtil.getPlaybackHeadPositionUs() + startMediaTimeUs;
+    if (!sourceEnded) {
+      currentPositionWithoutSmoothUs -= latencyUs;
+    }
+
     long systemClockUs = System.nanoTime() / 1000;
-    long currentPositionUs;
+    long currentPositionWithSmoothUs;
     if (audioTimestampSet) {
       // How long ago in the past the audio timestamp is (negative if it's in the future).
       long presentationDiff = systemClockUs - (audioTrackUtil.getTimestampNanoTime() / 1000);
@@ -313,23 +318,27 @@ public final class AudioTrack {
       long framesDiff = durationUsToFrames(actualSpeedPresentationDiff);
       // The position of the frame that's currently being presented.
       long currentFramePosition = audioTrackUtil.getTimestampFramePosition() + framesDiff;
-      currentPositionUs = framesToDurationUs(currentFramePosition) + startMediaTimeUs;
+      currentPositionWithSmoothUs = framesToDurationUs(currentFramePosition) + startMediaTimeUs;
     } else {
       if (playheadOffsetCount == 0) {
         // The AudioTrack has started, but we don't have any samples to compute a smoothed position.
-        currentPositionUs = audioTrackUtil.getPlaybackHeadPositionUs() + startMediaTimeUs;
+        currentPositionWithSmoothUs = audioTrackUtil.getPlaybackHeadPositionUs() + startMediaTimeUs;
       } else {
         // getPlayheadPositionUs() only has a granularity of ~20ms, so we base the position off the
         // system clock (and a smoothed offset between it and the playhead position) so as to
         // prevent jitter in the reported positions.
-        currentPositionUs = systemClockUs + smoothedPlayheadOffsetUs + startMediaTimeUs;
+        currentPositionWithSmoothUs = systemClockUs + smoothedPlayheadOffsetUs + startMediaTimeUs;
       }
       if (!sourceEnded) {
-        currentPositionUs -= latencyUs;
+        currentPositionWithSmoothUs -= latencyUs;
       }
     }
-
-    return currentPositionUs;
+    if (Math.abs(currentPositionWithSmoothUs - currentPositionWithoutSmoothUs) > 20000) {
+      playheadOffsetCount = 0;
+      audioTimestampSet = false;
+      return currentPositionWithoutSmoothUs;
+    }
+    return currentPositionWithSmoothUs;
   }
 
   /**
