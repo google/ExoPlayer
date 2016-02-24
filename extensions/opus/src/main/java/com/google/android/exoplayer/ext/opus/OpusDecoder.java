@@ -167,18 +167,17 @@ import java.util.List;
       exception = new OpusDecoderException("Decode error: " + opusGetErrorMessage(result));
       return false;
     }
-    outputBuffer.size = result;
     outputBuffer.data.position(0);
+    outputBuffer.data.limit(result);
     if (skipSamples > 0) {
       int bytesPerSample = channelCount * 2;
       int skipBytes = skipSamples * bytesPerSample;
-      if (outputBuffer.size <= skipBytes) {
-        skipSamples -= outputBuffer.size / bytesPerSample;
-        outputBuffer.size = 0;
+      if (result <= skipBytes) {
+        skipSamples -= result / bytesPerSample;
         outputBuffer.setFlag(Buffer.FLAG_DECODE_ONLY);
+        outputBuffer.data.position(result);
       } else {
         skipSamples = 0;
-        outputBuffer.size -= skipBytes;
         outputBuffer.data.position(skipBytes);
       }
     }

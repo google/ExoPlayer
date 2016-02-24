@@ -235,7 +235,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
 
     int handleBufferResult;
     handleBufferResult = audioTrack.handleBuffer(outputBuffer.data, outputBuffer.data.position(),
-        outputBuffer.size, outputBuffer.timestampUs);
+        outputBuffer.data.remaining(), outputBuffer.timestampUs);
 
     // If we are out of sync, allow currentPositionUs to jump backwards.
     if ((handleBufferResult & AudioTrack.RESULT_POSITION_DISCONTINUITY) != 0) {
