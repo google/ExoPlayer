@@ -196,7 +196,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
     DecoderInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
         format.requiresSecureDecryption);
     if (decoderInfo == null) {
-      return FORMAT_UNSUPPORTED_TYPE;
+      return FORMAT_UNSUPPORTED_SUBTYPE;
     }
     // Note: We assume support for unknown sampleRate and channelCount.
     boolean decoderCapable = Util.SDK_INT < 21

@@ -23,6 +23,7 @@ import com.google.android.exoplayer.SampleSourceTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.util.Assertions;
+import com.google.android.exoplayer.util.MimeTypes;
 
 import android.annotation.TargetApi;
 import android.os.Handler;
@@ -157,7 +158,8 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
   @Override
   protected int supportsFormat(Format format) {
     return getParserIndex(format.sampleMimeType) != -1 ? TrackRenderer.FORMAT_HANDLED
-        : TrackRenderer.FORMAT_UNSUPPORTED_TYPE;
+        : (MimeTypes.isText(format.sampleMimeType) ? FORMAT_UNSUPPORTED_SUBTYPE
+            : FORMAT_UNSUPPORTED_TYPE);
   }
 
   @Override

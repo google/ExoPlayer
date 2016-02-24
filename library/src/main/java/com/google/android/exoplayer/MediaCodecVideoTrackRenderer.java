@@ -230,7 +230,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     DecoderInfo decoderInfo = mediaCodecSelector.getDecoderInfo(mimeType,
         format.requiresSecureDecryption);
     if (decoderInfo == null) {
-      return FORMAT_UNSUPPORTED_TYPE;
+      return FORMAT_UNSUPPORTED_SUBTYPE;
     }
 
     boolean decoderCapable;

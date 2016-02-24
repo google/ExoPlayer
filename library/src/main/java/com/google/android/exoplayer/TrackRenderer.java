@@ -36,14 +36,14 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
 
   /**
    * A mask to apply to the result of {@link #supportsFormat(Format)} to obtain one of
-   * {@link #FORMAT_HANDLED}, {@link #FORMAT_EXCEEDS_CAPABILITIES} and
-   * {@link #FORMAT_UNSUPPORTED_TYPE}.
+   * {@link #FORMAT_HANDLED}, {@link #FORMAT_EXCEEDS_CAPABILITIES},
+   * {@link #FORMAT_UNSUPPORTED_SUBTYPE} and {@link #FORMAT_UNSUPPORTED_TYPE}.
    */
   public static final int FORMAT_SUPPORT_MASK = 0b11;
   /**
    * The {@link TrackRenderer} is capable of rendering the format.
    */
-  public static final int FORMAT_HANDLED = 0b10;
+  public static final int FORMAT_HANDLED = 0b11;
   /**
    * The {@link TrackRenderer} is capable of rendering formats with the same mimeType, but the
    * properties of the format exceed the renderer's capability.
@@ -52,12 +52,22 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * {@link MimeTypes#VIDEO_H264}, but the format's resolution exceeds the maximum limit supported
    * by the underlying H264 decoder.
    */
-  public static final int FORMAT_EXCEEDS_CAPABILITIES = 0b01;
+  public static final int FORMAT_EXCEEDS_CAPABILITIES = 0b10;
   /**
-   * The {@link TrackRenderer} is not capable of rendering the format, or any other format with the
-   * same mimeType.
+   * The {@link TrackRenderer} is a general purpose renderer for formats of the same top-level type,
+   * but is not capable of rendering the format or any other format with the same mimeType because
+   * the sub-type is not supported.
    * <p>
-   * Example: The {@link TrackRenderer} is only capable of rendering video and the track has an
+   * Example: The {@link TrackRenderer} is a general purpose audio renderer and the format's
+   * mimeType matches audio/[subtype], but there does not exist a suitable decoder for [subtype].
+   */
+  public static final int FORMAT_UNSUPPORTED_SUBTYPE = 0b01;
+  /**
+   * The {@link TrackRenderer} is not capable of rendering the format, either because it does not
+   * support the format's top-level type, or because it's a specialized renderer for a different
+   * mimeType.
+   * <p>
+   * Example: The {@link TrackRenderer} is a general purpose video renderer, but the format has an
    * audio mimeType.
    */
   public static final int FORMAT_UNSUPPORTED_TYPE = 0b00;
@@ -159,7 +169,8 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * The returned value is the bitwise OR of two properties:
    * <ul>
    * <li>The level of support for the format itself. One of {@code}link #FORMAT_HANDLED},
-   * {@link #FORMAT_EXCEEDS_CAPABILITIES} and {@link #FORMAT_UNSUPPORTED_TYPE}.</li>
+   * {@link #FORMAT_EXCEEDS_CAPABILITIES}, {@link #FORMAT_UNSUPPORTED_SUBTYPE} and
+   * {@link #FORMAT_UNSUPPORTED_TYPE}.</li>
    * <li>The level of support for adapting from the format to another format of the same mimeType.
    * One of {@link #ADAPTIVE_SEAMLESS}, {@link #ADAPTIVE_NOT_SEAMLESS} and
    * {@link #ADAPTIVE_NOT_SUPPORTED}.</li>
