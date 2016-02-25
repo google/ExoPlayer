@@ -78,7 +78,7 @@ public final class InitializationChunk extends Chunk implements SingleTrackOutpu
    * Should be called after loading has completed.
    */
   public boolean hasSampleFormat() {
-    return format != null;
+    return sampleFormat != null;
   }
 
   /**
