@@ -143,7 +143,7 @@ public final class Format {
    */
   public final String language;
 
-  // Lazy-initialized hashcode and framework media format.
+  // Lazily initialized hashcode and framework media format.
 
   private int hashCode;
   private MediaFormat frameworkMediaFormat;

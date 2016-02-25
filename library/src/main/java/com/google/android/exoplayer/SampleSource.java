@@ -58,7 +58,7 @@ public interface SampleSource {
    *
    * @return The {@link TrackGroup}s.
    */
-  public TrackGroup[] getTrackGroups();
+  public TrackGroupArray getTrackGroups();
 
   /**
    * Indicates to the source that it should continue buffering data for its enabled tracks.

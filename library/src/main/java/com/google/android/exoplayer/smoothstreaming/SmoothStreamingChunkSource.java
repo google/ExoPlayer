@@ -328,27 +328,29 @@ public class SmoothStreamingChunkSource implements ChunkSource {
   private void initForManifest(SmoothStreamingManifest manifest) {
     for (int i = 0; i < manifest.streamElements.length; i++) {
       if (manifest.streamElements[i].type == streamElementType) {
-        // We've found an element of the desired type.
-        elementIndex = i;
-        long timescale = manifest.streamElements[i].timescale;
         Format[] formats = manifest.streamElements[i].formats;
-        extractorWrappers = new ChunkExtractorWrapper[formats.length];
-        for (int j = 0; j < formats.length; j++) {
-          int nalUnitLengthFieldLength = streamElementType == StreamElement.TYPE_VIDEO ? 4 : -1;
-          Track track = new Track(j, streamElementType, timescale, C.UNKNOWN_TIME_US, durationUs,
-              formats[j], trackEncryptionBoxes, nalUnitLengthFieldLength, null, null);
-          FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
-              FragmentedMp4Extractor.WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
-              | FragmentedMp4Extractor.WORKAROUND_IGNORE_TFDT_BOX);
-          extractor.setTrack(track);
-          extractorWrappers[j] = new ChunkExtractorWrapper(extractor);
+        if (formats.length > 0) {
+          // We've found an element of the desired type.
+          long timescale = manifest.streamElements[i].timescale;
+          extractorWrappers = new ChunkExtractorWrapper[formats.length];
+          for (int j = 0; j < formats.length; j++) {
+            int nalUnitLengthFieldLength = streamElementType == StreamElement.TYPE_VIDEO ? 4 : -1;
+            Track track = new Track(j, streamElementType, timescale, C.UNKNOWN_TIME_US, durationUs,
+                formats[j], trackEncryptionBoxes, nalUnitLengthFieldLength, null, null);
+            FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
+                FragmentedMp4Extractor.WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
+                | FragmentedMp4Extractor.WORKAROUND_IGNORE_TFDT_BOX);
+            extractor.setTrack(track);
+            extractorWrappers[j] = new ChunkExtractorWrapper(extractor);
+          }
+          elementIndex = i;
+          trackGroup = new TrackGroup(adaptiveFormatEvaluator != null, formats);
+          return;
         }
-        trackGroup = new TrackGroup(adaptiveFormatEvaluator != null, formats);
-        return;
       }
     }
     extractorWrappers = null;
-    trackGroup = new TrackGroup(adaptiveFormatEvaluator != null);
+    trackGroup = null;
   }
 
   /**

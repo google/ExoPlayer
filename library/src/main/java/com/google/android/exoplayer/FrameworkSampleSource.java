@@ -75,7 +75,7 @@ public final class FrameworkSampleSource implements SampleSource {
   private boolean prepared;
   private long durationUs;
   private MediaExtractor extractor;
-  private TrackGroup[] tracks;
+  private TrackGroupArray tracks;
   private int[] trackStates;
   private boolean[] pendingResets;
 
@@ -133,7 +133,7 @@ public final class FrameworkSampleSource implements SampleSource {
     durationUs = C.UNKNOWN_TIME_US;
     trackStates = new int[extractor.getTrackCount()];
     pendingResets = new boolean[trackStates.length];
-    tracks = new TrackGroup[trackStates.length];
+    TrackGroup[] tracks = new TrackGroup[trackStates.length];
     for (int i = 0; i < trackStates.length; i++) {
       MediaFormat format = extractor.getTrackFormat(i);
       if (format.containsKey(MediaFormat.KEY_DURATION)) {
@@ -141,6 +141,7 @@ public final class FrameworkSampleSource implements SampleSource {
       }
       tracks[i] = new TrackGroup(createFormat(i, format));
     }
+    this.tracks = new TrackGroupArray(tracks);
     prepared = true;
     return true;
   }
@@ -156,7 +157,7 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public TrackGroup[] getTrackGroups() {
+  public TrackGroupArray getTrackGroups() {
     return tracks;
   }
 
@@ -194,7 +195,7 @@ public final class FrameworkSampleSource implements SampleSource {
       return TrackStream.NOTHING_READ;
     }
     if (trackStates[track] != TRACK_STATE_FORMAT_SENT) {
-      formatHolder.format = tracks[track].getFormat(0);
+      formatHolder.format = tracks.get(track).getFormat(0);
       formatHolder.drmInitData = Util.SDK_INT >= 18 ? getDrmInitDataV18() : null;
       trackStates[track] = TRACK_STATE_FORMAT_SENT;
       return TrackStream.FORMAT_READ;

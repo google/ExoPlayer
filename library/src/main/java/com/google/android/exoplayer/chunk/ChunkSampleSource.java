@@ -22,6 +22,7 @@ import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
+import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
@@ -78,7 +79,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   private long lastPerformedBufferOperation;
   private boolean pendingReset;
 
-  private TrackGroup[] trackGroups;
+  private TrackGroupArray trackGroups;
   private long durationUs;
   private Loader loader;
   private boolean loadingFinished;
@@ -156,11 +157,11 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     }
     durationUs = chunkSource.getDurationUs();
     TrackGroup trackGroup = chunkSource.getTracks();
-    if (trackGroup.length > 0) {
+    if (trackGroup != null) {
       loader = new Loader("Loader:" + trackGroup.getFormat(0).containerMimeType);
-      trackGroups = new TrackGroup[] {trackGroup};
+      trackGroups = new TrackGroupArray(trackGroup);
     } else {
-      trackGroups = new TrackGroup[0];
+      trackGroups = new TrackGroupArray();
     }
     state = STATE_PREPARED;
     return true;
@@ -177,7 +178,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   }
 
   @Override
-  public TrackGroup[] getTrackGroups() {
+  public TrackGroupArray getTrackGroups() {
     Assertions.checkState(state != STATE_IDLE);
     return trackGroups;
   }

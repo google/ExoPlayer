@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.util.Assertions;
+
+import java.util.Arrays;
+
 /**
  * Defines a group of tracks exposed by a {@link SampleSource}.
  * <p>
@@ -26,7 +30,7 @@ package com.google.android.exoplayer;
 public final class TrackGroup {
 
   /**
-   * The number of tracks in the group.
+   * The number of tracks in the group. Always greater than zero.
    */
   public final int length;
   /**
@@ -36,18 +40,22 @@ public final class TrackGroup {
 
   private final Format[] formats;
 
+  // Lazily initialized hashcode.
+  private int hashCode;
+
   /**
    * @param format The format of the single track.
    */
   public TrackGroup(Format format) {
-    this(false, format);
+    this(false, Assertions.checkNotNull(format));
   }
 
   /**
    * @param adaptive Whether it's possible to adapt between multiple tracks in the group.
-   * @param formats The track formats.
+   * @param formats The track formats. Must not be null or empty. Must not contain null elements.
    */
   public TrackGroup(boolean adaptive, Format... formats) {
+    Assertions.checkState(formats.length > 0);
     this.adaptive = adaptive;
     this.formats = formats;
     length = formats.length;
@@ -61,6 +69,31 @@ public final class TrackGroup {
    */
   public Format getFormat(int index) {
     return formats[index];
+  }
+
+  @Override
+  public int hashCode() {
+    if (hashCode == 0) {
+      int result = 17;
+      result = 31 * result + (adaptive ? 1231 : 1237);
+      result = 31 * result + Arrays.hashCode(formats);
+      result = 31 * result + length;
+      hashCode = result;
+    }
+    return hashCode;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    TrackGroup other = (TrackGroup) obj;
+    return adaptive == other.adaptive && length == other.length
+        && Arrays.equals(formats, other.formats);
   }
 
 }

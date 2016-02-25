@@ -22,6 +22,7 @@ import com.google.android.exoplayer.LoadControl;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
+import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
@@ -79,7 +80,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   // Tracks are complicated in HLS. See documentation of buildTracks for details.
   // Indexed by track (as exposed by this source).
-  private TrackGroup[] trackGroups;
+  private TrackGroupArray trackGroups;
   private int primaryTrackGroupIndex;
   private int[] primarySelectedTracks;
   // Indexed by group.
@@ -181,7 +182,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   @Override
-  public TrackGroup[] getTrackGroups() {
+  public TrackGroupArray getTrackGroups() {
     Assertions.checkState(prepared);
     return trackGroups;
   }
@@ -506,12 +507,12 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
     // Instantiate the necessary internal data-structures.
     primaryTrackGroupIndex = -1;
-    trackGroups = new TrackGroup[extractorTrackCount];
     groupEnabledStates = new boolean[extractorTrackCount];
     pendingResets = new boolean[extractorTrackCount];
     downstreamSampleFormats = new Format[extractorTrackCount];
 
     // Construct the set of exposed track groups.
+    TrackGroup[] trackGroups = new TrackGroup[extractorTrackCount];
     for (int i = 0; i < extractorTrackCount; i++) {
       Format sampleFormat = extractor.getSampleFormat(i);
       if (i == primaryExtractorTrackIndex) {
@@ -525,6 +526,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
         trackGroups[i] = new TrackGroup(sampleFormat);
       }
     }
+    this.trackGroups = new TrackGroupArray(trackGroups);
   }
 
   /**

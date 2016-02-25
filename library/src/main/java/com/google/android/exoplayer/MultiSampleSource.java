@@ -28,7 +28,7 @@ public class MultiSampleSource implements SampleSource {
 
   private boolean prepared;
   private long durationUs;
-  private TrackGroup[] tracks;
+  private TrackGroupArray trackGroups;
 
   public MultiSampleSource(SampleSource... sources) {
     this.sources = sources;
@@ -53,14 +53,15 @@ public class MultiSampleSource implements SampleSource {
           durationUs = sources[i].getDurationUs();
         }
       }
-      tracks = new TrackGroup[totalTrackGroupCount];
+      TrackGroup[] trackGroups = new TrackGroup[totalTrackGroupCount];
       int trackGroupIndex = 0;
       for (int i = 0; i < sources.length; i++) {
         int sourceTrackGroupCount = sources[i].getTrackGroups().length;
         for (int j = 0; j < sourceTrackGroupCount; j++) {
-          tracks[trackGroupIndex++] = sources[i].getTrackGroups()[j];
+          trackGroups[trackGroupIndex++] = sources[i].getTrackGroups().get(j);
         }
       }
+      this.trackGroups = new TrackGroupArray(trackGroups);
     }
     return prepared;
   }
@@ -71,8 +72,8 @@ public class MultiSampleSource implements SampleSource {
   }
 
   @Override
-  public TrackGroup[] getTrackGroups() {
-    return tracks;
+  public TrackGroupArray getTrackGroups() {
+    return trackGroups;
   }
 
   @Override

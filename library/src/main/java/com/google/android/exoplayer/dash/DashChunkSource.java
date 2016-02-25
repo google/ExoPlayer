@@ -495,18 +495,20 @@ public class DashChunkSource implements ChunkSource {
     for (int i = 0; i < period.adaptationSets.size(); i++) {
       AdaptationSet adaptationSet = period.adaptationSets.get(i);
       if (adaptationSet.type == adaptationSetType) {
-        // We've found an adaptation set of the exposed type.
         adaptationSetIndex = i;
         List<Representation> representations = adaptationSet.representations;
-        Format[] trackFormats = new Format[representations.size()];
-        for (int j = 0; j < trackFormats.length; j++) {
-          trackFormats[j] = representations.get(j).format;
+        if (!representations.isEmpty()) {
+          // We've found a non-empty adaptation set of the exposed type.
+          Format[] trackFormats = new Format[representations.size()];
+          for (int j = 0; j < trackFormats.length; j++) {
+            trackFormats[j] = representations.get(j).format;
+          }
+          trackGroup = new TrackGroup(adaptiveFormatEvaluator != null, trackFormats);
+          return;
         }
-        trackGroup = new TrackGroup(adaptiveFormatEvaluator != null, trackFormats);
-        return;
       }
     }
-    trackGroup = new TrackGroup(adaptiveFormatEvaluator != null);
+    trackGroup = null;
   }
 
   // Visible for testing.

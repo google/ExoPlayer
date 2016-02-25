@@ -299,13 +299,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     durationUs = source.getDurationUs();
     bufferedPositionUs = source.getBufferedPositionUs();
-    TrackGroup[] trackGroups = source.getTrackGroups();
+    TrackGroupArray trackGroups = source.getTrackGroups();
 
     // The maximum number of tracks that one renderer can support is the total number of tracks in
     // all groups, plus possibly one adaptive track per group.
     int maxTrackCount = trackGroups.length;
     for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
-      maxTrackCount += trackGroups[groupIndex].length;
+      maxTrackCount += trackGroups.get(groupIndex).length;
     }
     // Construct tracks for each renderer.
     Format[][] externalTrackFormats = new Format[renderers.length][];
@@ -316,7 +316,7 @@ import java.util.concurrent.atomic.AtomicInteger;
       TrackSelection[] rendererTrackSelections = new TrackSelection[maxTrackCount];
       Format[][] rendererTrackFormats = new Format[maxTrackCount][];
       for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
-        TrackGroup trackGroup = trackGroups[groupIndex];
+        TrackGroup trackGroup = trackGroups.get(groupIndex);
         // TODO[REFACTOR]: This should check that the renderer is capable of adaptive playback, in
         // addition to checking that the group is adaptive.
         if (trackGroup.adaptive) {

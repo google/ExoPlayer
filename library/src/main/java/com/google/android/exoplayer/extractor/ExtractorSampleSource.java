@@ -21,6 +21,7 @@ import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
+import com.google.android.exoplayer.TrackGroupArray;
 import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.TrackStream;
 import com.google.android.exoplayer.drm.DrmInitData;
@@ -176,7 +177,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   private boolean prepared;
   private int enabledTrackCount;
-  private TrackGroup[] tracks;
+  private TrackGroupArray tracks;
   private long durationUs;
   private boolean[] pendingMediaFormat;
   private boolean[] pendingResets;
@@ -264,7 +265,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
     if (seekMap != null && tracksBuilt && haveFormatsForAllTracks()) {
       int trackCount = sampleQueues.size();
-      tracks = new TrackGroup[trackCount];
+      TrackGroup[] tracks = new TrackGroup[trackCount];
       trackEnabledStates = new boolean[trackCount];
       pendingResets = new boolean[trackCount];
       pendingMediaFormat = new boolean[trackCount];
@@ -272,6 +273,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       for (int i = 0; i < trackCount; i++) {
         tracks[i] = new TrackGroup(sampleQueues.valueAt(i).getFormat());
       }
+      this.tracks = new TrackGroupArray(tracks);
       prepared = true;
       return true;
     }
@@ -290,7 +292,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   @Override
-  public TrackGroup[] getTrackGroups() {
+  public TrackGroupArray getTrackGroups() {
     return tracks;
   }
 
