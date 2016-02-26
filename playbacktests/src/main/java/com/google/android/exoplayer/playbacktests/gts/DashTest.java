@@ -76,10 +76,13 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   private static final int MIN_LOADABLE_RETRY_COUNT = 10;
 
   private static final String MANIFEST_URL_PREFIX = "https://storage.googleapis.com/exoplayer-test-"
-      + "media-1/gen-2/screens/dash-vod-single-segment/";
+      + "media-1/gen-3/screens/dash-vod-single-segment/";
   private static final String H264_MANIFEST = "manifest-h264.mpd";
   private static final String H265_MANIFEST = "manifest-h265.mpd";
   private static final String VP9_MANIFEST = "manifest-vp9.mpd";
+  private static final String H264_23_MANIFEST = "manifest-h264-23.mpd";
+  private static final String H264_24_MANIFEST = "manifest-h264-24.mpd";
+  private static final String H264_29_MANIFEST = "manifest-h264-29.mpd";
 
   private static final String AAC_AUDIO_REPRESENTATION_ID = "141";
   private static final String H264_BASELINE_240P_VIDEO_REPRESENTATION_ID = "avc-baseline-240";
@@ -100,6 +103,13 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
           H264_MAIN_240P_VIDEO_REPRESENTATION_ID,
           H264_MAIN_480P_VIDEO_REPRESENTATION_ID};
 
+  private static final String H264_BASELINE_480P_23FPS_VIDEO_REPRESENTATION_ID =
+      "avc-baseline-480-23";
+  private static final String H264_BASELINE_480P_24FPS_VIDEO_REPRESENTATION_ID =
+      "avc-baseline-480-24";
+  private static final String H264_BASELINE_480P_29FPS_VIDEO_REPRESENTATION_ID =
+      "avc-baseline-480-29";
+
   private static final String H265_BASELINE_288P_VIDEO_REPRESENTATION_ID = "hevc-main-288";
   private static final String H265_BASELINE_360P_VIDEO_REPRESENTATION_ID = "hevc-main-360";
   // The highest quality H265 format mandated by the Android CDD.
@@ -110,7 +120,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
           H265_BASELINE_288P_VIDEO_REPRESENTATION_ID,
           H265_BASELINE_360P_VIDEO_REPRESENTATION_ID};
 
-  private static final String VORBIS_AUDIO_REPRESENTATION_ID = "2";
+  private static final String VORBIS_AUDIO_REPRESENTATION_ID = "4";
   private static final String VP9_180P_VIDEO_REPRESENTATION_ID = "0";
   private static final String VP9_360P_VIDEO_REPRESENTATION_ID = "1";
   // The highest quality VP9 format mandated by the Android CDD.
@@ -292,6 +302,41 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
     testDashPlayback(getActivity(), testName, RENDERER_DISABLING_SCHEDULE, false,
         VP9_MANIFEST, VORBIS_AUDIO_REPRESENTATION_ID, ALLOW_ADDITIONAL_VIDEO_FORMATS,
         VP9_CDD_ADAPTIVE);
+  }
+
+  // H264: Other frame-rates for output buffer count assertions.
+
+  // 23.976 fps.
+  public void test23FpsH264Fixed() throws IOException {
+    if (Util.SDK_INT < 16) {
+      // Pass.
+      return;
+    }
+    String testName = "test23FpsH264Fixed";
+    testDashPlayback(getActivity(), testName, H264_23_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false,
+        H264_BASELINE_480P_23FPS_VIDEO_REPRESENTATION_ID);
+  }
+
+  // 24 fps.
+  public void test24FpsH264Fixed() throws IOException {
+    if (Util.SDK_INT < 16) {
+      // Pass.
+      return;
+    }
+    String testName = "test24FpsH264Fixed";
+    testDashPlayback(getActivity(), testName, H264_24_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false,
+        H264_BASELINE_480P_24FPS_VIDEO_REPRESENTATION_ID);
+  }
+
+  // 29.97 fps.
+  public void test29FpsH264Fixed() throws IOException {
+    if (Util.SDK_INT < 16) {
+      // Pass.
+      return;
+    }
+    String testName = "test29FpsH264Fixed";
+    testDashPlayback(getActivity(), testName, H264_29_MANIFEST, AAC_AUDIO_REPRESENTATION_ID, false,
+        H264_BASELINE_480P_29FPS_VIDEO_REPRESENTATION_ID);
   }
 
   // Internal.
