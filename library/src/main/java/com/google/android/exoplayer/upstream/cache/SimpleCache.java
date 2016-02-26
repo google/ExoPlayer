@@ -245,6 +245,7 @@ public final class SimpleCache implements Cache {
       if (file.length() == 0) {
         file.delete();
       } else {
+        file = CacheSpan.upgradeIfNeeded(file);
         CacheSpan span = CacheSpan.createCacheEntry(file);
         if (span == null) {
           file.delete();

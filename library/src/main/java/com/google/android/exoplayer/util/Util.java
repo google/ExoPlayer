@@ -114,6 +114,8 @@ public final class Util {
       Pattern.compile("^(-)?P(([0-9]*)Y)?(([0-9]*)M)?(([0-9]*)D)?"
           + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
 
+  private static final Pattern ESCAPED_CHARACTER_PATTERN = Pattern.compile("%([A-Fa-f0-9]{2})");
+
   private static final long MAX_BYTES_TO_DRAIN = 2048;
 
   private Util() {}
@@ -785,5 +787,104 @@ public final class Util {
     } else {
       return TYPE_OTHER;
     }
+  }
+
+  /**
+   * Escapes a string so that it's safe for use as a file or directory name on at least FAT32
+   * filesystems. FAT32 is the most restrictive of all filesystems still commonly used today.
+   *
+   * <p>For simplicity, this only handles common characters known to be illegal on FAT32:
+   * <, >, :, ", /, \, |, ?, and *. % is also escaped since it is used as the escape character.
+   * Escaping is performed in a consistent way so that no collisions occur and
+   * {@link #unescapeFileName(String)} can be used to retrieve the original file name.
+   *
+   * @param fileName File name to be escaped.
+   * @return An escaped file name which will be safe for use on at least FAT32 filesystems.
+   */
+  public static String escapeFileName(String fileName) {
+    int length = fileName.length();
+    int charactersToEscapeCount = 0;
+    for (int i = 0; i < length; i++) {
+      if (shouldEscapeCharacter(fileName.charAt(i))) {
+        charactersToEscapeCount++;
+      }
+    }
+    if (charactersToEscapeCount == 0) {
+      return fileName;
+    }
+
+    int i = 0;
+    StringBuilder builder = new StringBuilder(length + charactersToEscapeCount * 2);
+    while (charactersToEscapeCount > 0) {
+      char c = fileName.charAt(i++);
+      if (shouldEscapeCharacter(c)) {
+        builder.append('%').append(Integer.toHexString(c));
+        charactersToEscapeCount--;
+      } else {
+        builder.append(c);
+      }
+    }
+    if (i < length) {
+      builder.append(fileName, i, length);
+    }
+    return builder.toString();
+  }
+
+  private static boolean shouldEscapeCharacter(char c) {
+    switch (c) {
+      case '<':
+      case '>':
+      case ':':
+      case '"':
+      case '/':
+      case '\\':
+      case '|':
+      case '?':
+      case '*':
+      case '%':
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Unescapes an escaped file or directory name back to its original value.
+   *
+   * <p>See {@link #escapeFileName(String)} for more information.
+   *
+   * @param fileName File name to be unescaped.
+   * @return The original value of the file name before it was escaped,
+   *    or null if the escaped fileName seems invalid.
+   */
+  public static String unescapeFileName(String fileName) {
+    int length = fileName.length();
+    int percentCharacterCount = 0;
+    for (int i = 0; i < length; i++) {
+      if (fileName.charAt(i) == '%') {
+        percentCharacterCount++;
+      }
+    }
+    if (percentCharacterCount == 0) {
+      return fileName;
+    }
+
+    int expectedLength = length - percentCharacterCount * 2;
+    StringBuilder builder = new StringBuilder(expectedLength);
+    Matcher matcher = ESCAPED_CHARACTER_PATTERN.matcher(fileName);
+    int endOfLastMatch = 0;
+    while (percentCharacterCount > 0 && matcher.find()) {
+      char unescapedCharacter = (char) Integer.parseInt(matcher.group(1), 16);
+      builder.append(fileName, endOfLastMatch, matcher.start()).append(unescapedCharacter);
+      endOfLastMatch = matcher.end();
+      percentCharacterCount--;
+    }
+    if (endOfLastMatch < length) {
+      builder.append(fileName, endOfLastMatch, length);
+    }
+    if (builder.length() != expectedLength) {
+      return null;
+    }
+    return builder.toString();
   }
 }
