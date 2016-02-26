@@ -674,6 +674,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       inputIndex = -1;
       codecReceivedBuffers = true;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
+      codecCounters.inputBufferCount++;
       onQueuedInputBuffer(presentationTimeUs);
     } catch (CryptoException e) {
       notifyCryptoError(e);
@@ -789,7 +790,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    * @param presentationTimeUs The timestamp associated with the output buffer.
    */
   protected void onProcessedOutputBuffer(long presentationTimeUs) {
-    // Do Nothing.
+    // Do nothing.
   }
 
   /**
