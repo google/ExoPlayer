@@ -127,6 +127,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
   private DecoderWrapper<VpxInputBuffer, VpxOutputBuffer, VpxDecoderException> decoderWrapper;
   private VpxInputBuffer inputBuffer;
   private VpxOutputBuffer outputBuffer;
+  private VpxOutputBuffer nextOutputBuffer;
 
   private Bitmap bitmap;
   private boolean drawnToSurface;
@@ -221,7 +222,7 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
         notifyDecoderInitialized(startElapsedRealtimeMs, SystemClock.elapsedRealtime());
         codecCounters.codecInitCount++;
       }
-      processOutputBuffer(positionUs, elapsedRealtimeUs);
+      while (processOutputBuffer(positionUs)) {}
       while (feedInputBuffer(positionUs)) {}
     } catch (VpxDecoderException e) {
       notifyDecoderError(e);
@@ -230,30 +231,39 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     codecCounters.ensureUpdated();
   }
 
-  private void processOutputBuffer(long positionUs, long elapsedRealtimeUs)
+  private boolean processOutputBuffer(long positionUs)
       throws VpxDecoderException {
     if (outputStreamEnded) {
-      return;
+      return false;
     }
 
+    // Acquire outputBuffer either from nextOutputBuffer or from the decoder.
     if (outputBuffer == null) {
-      outputBuffer = decoderWrapper.dequeueOutputBuffer();
-      if (outputBuffer == null) {
-        return;
+      if (nextOutputBuffer != null) {
+        outputBuffer = nextOutputBuffer;
+        nextOutputBuffer = null;
+      } else {
+        outputBuffer = decoderWrapper.dequeueOutputBuffer();
       }
+      if (outputBuffer == null) {
+        return false;
+      }
+    }
+
+    if (nextOutputBuffer == null) {
+      nextOutputBuffer = decoderWrapper.dequeueOutputBuffer();
     }
 
     if (outputBuffer.getFlag(Buffer.FLAG_END_OF_STREAM)) {
       outputStreamEnded = true;
       outputBuffer.release();
       outputBuffer = null;
-      return;
+      return false;
     }
 
-    long elapsedSinceStartOfLoop = SystemClock.elapsedRealtime() * 1000 - elapsedRealtimeUs;
-    long timeToRenderUs = outputBuffer.timestampUs - positionUs - elapsedSinceStartOfLoop;
-
-    if (timeToRenderUs < -30000 || outputBuffer.timestampUs < positionUs) {
+    // Drop frame only if we have the next frame and that's also late, otherwise render whatever we
+    // have.
+    if (nextOutputBuffer != null && nextOutputBuffer.timestampUs < positionUs) {
       // Drop frame if we are too late.
       codecCounters.droppedOutputBufferCount++;
       droppedFrameCount++;
@@ -262,31 +272,22 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
       }
       outputBuffer.release();
       outputBuffer = null;
-      return;
+      return true;
     }
 
     // If we have not rendered any frame so far (either initially or immediately following a seek),
-    // render one frame irrespective of the state.
+    // render one frame irrespective of the state or current position.
     if (!renderedFirstFrame) {
       renderBuffer();
       renderedFirstFrame = true;
-      return;
+      return false;
     }
 
-    // Do nothing if we are not playing or if we are too early to render the next frame.
-    if (getState() != TrackRenderer.STATE_STARTED || timeToRenderUs > 30000) {
-      return;
+    if (getState() == TrackRenderer.STATE_STARTED
+        && outputBuffer.timestampUs <= positionUs + 30000) {
+      renderBuffer();
     }
-
-    if (timeToRenderUs > 11000) {
-      try {
-        // Subtracting 10000 rather than 11000 ensures that the sleep time will be at least 1ms.
-        Thread.sleep((timeToRenderUs - 10000) / 1000);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-      }
-    }
-    renderBuffer();
+    return false;
   }
 
   private void renderBuffer() {
@@ -363,6 +364,10 @@ public final class LibvpxVideoTrackRenderer extends SampleSourceTrackRenderer {
     if (outputBuffer != null) {
       outputBuffer.release();
       outputBuffer = null;
+    }
+    if (nextOutputBuffer != null) {
+      nextOutputBuffer.release();
+      nextOutputBuffer = null;
     }
     decoderWrapper.flush();
   }
