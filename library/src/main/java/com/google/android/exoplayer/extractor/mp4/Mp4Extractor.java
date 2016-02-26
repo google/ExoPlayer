@@ -188,7 +188,12 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     if (shouldParseContainerAtom(atomType)) {
       long endPosition = input.getPosition() + atomSize - atomHeaderBytesRead;
       containerAtoms.add(new ContainerAtom(atomType, endPosition));
-      enterReadingAtomHeaderState();
+      if (atomSize == atomHeaderBytesRead) {
+        processAtomEnded(endPosition);
+      } else {
+        // Start reading the first child atom.
+        enterReadingAtomHeaderState();
+      }
     } else if (shouldParseLeafAtom(atomType)) {
       // We don't support parsing of leaf atoms that define extended atom sizes, or that have
       // lengths greater than Integer.MAX_VALUE.
@@ -231,7 +236,11 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         seekRequired = true;
       }
     }
+    processAtomEnded(atomEndPosition);
+    return seekRequired && parserState != STATE_READING_SAMPLE;
+  }
 
+  private void processAtomEnded(long atomEndPosition) {
     while (!containerAtoms.isEmpty() && containerAtoms.peek().endPosition == atomEndPosition) {
       Atom.ContainerAtom containerAtom = containerAtoms.pop();
       if (containerAtom.type == Atom.TYPE_moov) {
@@ -239,14 +248,13 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         processMoovAtom(containerAtom);
         containerAtoms.clear();
         parserState = STATE_READING_SAMPLE;
-        return false;
       } else if (!containerAtoms.isEmpty()) {
         containerAtoms.peek().add(containerAtom);
       }
     }
-
-    enterReadingAtomHeaderState();
-    return seekRequired;
+    if (parserState != STATE_READING_SAMPLE) {
+      enterReadingAtomHeaderState();
+    }
   }
 
   /**
