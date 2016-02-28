@@ -38,11 +38,13 @@ public final class DefaultUriDataSource implements UriDataSource {
 
   private static final String SCHEME_ASSET = "asset";
   private static final String SCHEME_CONTENT = "content";
+  private static final String SCHEME_UDP = "udp";
 
   private final UriDataSource httpDataSource;
   private final UriDataSource fileDataSource;
   private final UriDataSource assetDataSource;
   private final UriDataSource contentDataSource;
+  private final UriDataSource udpDataSource;
 
   /**
    * {@code null} if no data source is open. Otherwise, equal to {@link #fileDataSource} if the open
@@ -111,6 +113,7 @@ public final class DefaultUriDataSource implements UriDataSource {
     this.fileDataSource = new FileDataSource(listener);
     this.assetDataSource = new AssetDataSource(context, listener);
     this.contentDataSource = new ContentDataSource(context, listener);
+    this.udpDataSource = new UdpDataSource(listener);
   }
 
   @Override
@@ -128,6 +131,8 @@ public final class DefaultUriDataSource implements UriDataSource {
       dataSource = assetDataSource;
     } else if (SCHEME_CONTENT.equals(scheme)) {
       dataSource = contentDataSource;
+    } else if (SCHEME_UDP.equals(scheme)) {
+      dataSource = udpDataSource;
     } else {
       dataSource = httpDataSource;
     }
