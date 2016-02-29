@@ -60,7 +60,8 @@ import java.util.List;
   private static final int SAMPLE_RATE = 48000;
 
   private final int channelCount;
-  private final int seekPreRollSamples;
+  private final int headerSkipSamples;
+  private final int headerSeekPreRollSamples;
   private final long nativeDecoderContext;
 
   private int skipSamples;
@@ -84,7 +85,7 @@ import java.util.List;
     if (channelCount > 8) {
       throw new OpusDecoderException("Invalid channel count: " + channelCount);
     }
-    skipSamples = readLittleEndian16(headerBytes, 10);
+    int preskip = readLittleEndian16(headerBytes, 10);
     int gain = readLittleEndian16(headerBytes, 16);
 
     byte[] streamMap = new byte[8];
@@ -117,10 +118,11 @@ import java.util.List;
           ByteBuffer.wrap(initializationData.get(1)).order(ByteOrder.LITTLE_ENDIAN).getLong();
       long seekPreRollNs =
           ByteBuffer.wrap(initializationData.get(2)).order(ByteOrder.LITTLE_ENDIAN).getLong();
-      skipSamples = nsToSamples(codecDelayNs);
-      seekPreRollSamples = nsToSamples(seekPreRollNs);
+      headerSkipSamples = nsToSamples(codecDelayNs);
+      headerSeekPreRollSamples = nsToSamples(seekPreRollNs);
     } else {
-      seekPreRollSamples = DEFAULT_SEEK_PRE_ROLL_SAMPLES;
+      headerSkipSamples = preskip;
+      headerSeekPreRollSamples = DEFAULT_SEEK_PRE_ROLL_SAMPLES;
     }
     nativeDecoderContext = opusInit(SAMPLE_RATE, channelCount, numStreams, numCoupled, gain,
         streamMap);
@@ -155,7 +157,7 @@ import java.util.List;
       // When seeking to 0, skip number of samples as specified in opus header. When seeking to
       // any other time, skip number of samples as specified by seek preroll.
       skipSamples =
-          (inputBuffer.sampleHolder.timeUs == 0) ? skipSamples : seekPreRollSamples;
+          (inputBuffer.sampleHolder.timeUs == 0) ? headerSkipSamples : headerSeekPreRollSamples;
     }
     SampleHolder sampleHolder = inputBuffer.sampleHolder;
     outputBuffer.timestampUs = sampleHolder.timeUs;
