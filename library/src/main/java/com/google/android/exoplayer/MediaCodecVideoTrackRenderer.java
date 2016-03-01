@@ -512,6 +512,11 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     int maxPixels;
     int minCompressionRatio;
     switch (format.getString(android.media.MediaFormat.KEY_MIME)) {
+      case MimeTypes.VIDEO_H263:
+      case MimeTypes.VIDEO_MP4V:
+        maxPixels = maxWidth * maxHeight;
+        minCompressionRatio = 2;
+        break;
       case MimeTypes.VIDEO_H264:
         if ("BRAVIA 4K 2015".equals(Util.MODEL)) {
           // The Sony BRAVIA 4k TV has input buffers that are too small for the calculated 4k video
