@@ -59,12 +59,12 @@ ${NDK_PATH}/ndk-build APP_ABI=all -j4
 ```
 // in settings.gradle
 include ':..:ExoPlayer:library'
-include ':..:ExoPlayer:opus-extension'
+include ':..:ExoPlayer:extension-opus'
 
 // in build.gradle
 dependencies {
     compile project(':..:ExoPlayer:library')
-    compile project(':..:ExoPlayer:opus-extension')
+    compile project(':..:ExoPlayer:extension-opus')
 }
 ```
 
