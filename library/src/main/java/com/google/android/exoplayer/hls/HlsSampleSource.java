@@ -206,8 +206,7 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       loadControl.register(this, bufferSizeContribution);
       loadControlRegistered = true;
     }
-    // Treat enabling of a live stream as occurring at t=0 in both of the blocks below.
-    positionUs = chunkSource.isLive() ? 0 : positionUs;
+
     int chunkSourceTrack = chunkSourceTrackIndices[track];
     if (chunkSourceTrack != -1 && chunkSourceTrack != chunkSource.getSelectedTrackIndex()) {
       // This is a primary track whose corresponding chunk source track is different to the one
@@ -361,8 +360,6 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
   public void seekToUs(long positionUs) {
     Assertions.checkState(prepared);
     Assertions.checkState(enabledTrackCount > 0);
-    // Treat all seeks into live streams as being to t=0.
-    positionUs = chunkSource.isLive() ? 0 : positionUs;
 
     // Ignore seeks to the current position.
     long currentPositionUs = isPendingReset() ? pendingResetPositionUs : downstreamPositionUs;
@@ -697,14 +694,17 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
       }
       return;
     }
-
-    if (loader.isLoading() || !nextLoader || (prepared && enabledTrackCount == 0)) {
+    // We now call chunkSource.getChunkOperation even if nextLoader is false, so that it is given
+    // an opportunity to frequently re-fetch the playlist for live DVR use case. However, we
+    // pass the  boolean nextLoader to the getChunkOperation function so that it knows not to load
+    // the TS Chunk and instead only re-fetch the playlist if needed
+    if (loader.isLoading() || (prepared && enabledTrackCount == 0)) {
       return;
     }
 
     chunkSource.getChunkOperation(previousTsLoadable,
         pendingResetPositionUs != NO_RESET_PENDING ? pendingResetPositionUs : downstreamPositionUs,
-        chunkOperationHolder);
+        chunkOperationHolder, nextLoader);
     boolean endOfStream = chunkOperationHolder.endOfStream;
     Chunk nextLoadable = chunkOperationHolder.chunk;
     chunkOperationHolder.clear();

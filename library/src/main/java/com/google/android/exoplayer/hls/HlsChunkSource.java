@@ -18,6 +18,7 @@ package com.google.android.exoplayer.hls;
 import com.google.android.exoplayer.BehindLiveWindowException;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
+import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.chunk.BaseChunkSampleSourceEventListener;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
@@ -38,6 +39,7 @@ import com.google.android.exoplayer.util.UriUtil;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
@@ -60,7 +62,14 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   /**
    * Interface definition for a callback to be notified of {@link HlsChunkSource} events.
    */
-  public interface EventListener extends BaseChunkSampleSourceEventListener {}
+  public interface EventListener extends BaseChunkSampleSourceEventListener {
+    /**
+     * Invoked when the available seek range of the stream has changed.
+     *
+     * @param availableRange The range which specifies available content that can be seeked to.
+     */
+    public void onAvailableRangeChanged(int sourceId, TimeRange availableRange);
+  }
 
   /**
    * Adaptive switching is disabled.
@@ -159,29 +168,16 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   private String encryptionIvString;
   private byte[] encryptionIv;
 
-  /**
-   * @param isMaster True if this is the master source for the playback. False otherwise. Each
-   *     playback must have exactly one master source, which should be the source providing video
-   *     chunks (or audio chunks for audio only playbacks).
-   * @param dataSource A {@link DataSource} suitable for loading the media data.
-   * @param playlistUrl The playlist URL.
-   * @param playlist The hls playlist.
-   * @param trackSelector Selects tracks to be exposed by this source.
-   * @param bandwidthMeter Provides an estimate of the currently available bandwidth.
-   * @param timestampAdjusterProvider A provider of {@link PtsTimestampAdjuster} instances. If
-   *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
-   *     same provider.
-   * @param adaptiveMode The mode for switching from one variant to another. One of
-   *     {@link #ADAPTIVE_MODE_NONE}, {@link #ADAPTIVE_MODE_ABRUPT} and
-   *     {@link #ADAPTIVE_MODE_SPLICE}.
-   */
-  public HlsChunkSource(boolean isMaster, DataSource dataSource, String playlistUrl,
-      HlsPlaylist playlist, HlsTrackSelector trackSelector, BandwidthMeter bandwidthMeter,
-      PtsTimestampAdjusterProvider timestampAdjusterProvider, int adaptiveMode) {
-    this(isMaster, dataSource, playlistUrl, playlist, trackSelector, bandwidthMeter,
-        timestampAdjusterProvider, adaptiveMode, DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS,
-        DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS);
-  }
+  private TimeRange availableRange[];
+  private int currentAvailableRangeIndex = -1;
+  private final long[] availableRangeBoundsUs;
+  private long mediaTimeOffsetUs;
+  private boolean isMediaTimeBaseSet;
+  private long mediaSequenceOffset;
+  private final Handler eventHandler;
+  private final EventListener eventListener;
+  private final int eventSourceId;
+  private static final int LIVE_EDGE_CHUNK_INDEX_OFFSET = 3;
 
   /**
    * @param isMaster True if this is the master source for the playback. False otherwise. Each
@@ -198,6 +194,38 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
    * @param adaptiveMode The mode for switching from one variant to another. One of
    *     {@link #ADAPTIVE_MODE_NONE}, {@link #ADAPTIVE_MODE_ABRUPT} and
    *     {@link #ADAPTIVE_MODE_SPLICE}.
+   * @param eventHandler A handler to use when delivering events to {@code EventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
+   */
+  public HlsChunkSource(boolean isMaster, DataSource dataSource, String playlistUrl,
+      HlsPlaylist playlist, HlsTrackSelector trackSelector, BandwidthMeter bandwidthMeter,
+      PtsTimestampAdjusterProvider timestampAdjusterProvider, int adaptiveMode,
+      Handler eventHandler, EventListener eventListener, int eventSourceId) {
+    this(isMaster, dataSource, playlistUrl, playlist, trackSelector, bandwidthMeter,
+        timestampAdjusterProvider, adaptiveMode, eventHandler, eventListener, eventSourceId,
+        DEFAULT_MIN_BUFFER_TO_SWITCH_UP_MS, DEFAULT_MAX_BUFFER_TO_SWITCH_DOWN_MS);
+  }
+  /**
+   * @param isMaster True if this is the master source for the playback. False otherwise. Each
+   *     playback must have exactly one master source, which should be the source providing video
+   *     chunks (or audio chunks for audio only playbacks).
+   * @param dataSource A {@link DataSource} suitable for loading the media data.
+   * @param playlistUrl The playlist URL.
+   * @param playlist The hls playlist.
+   * @param trackSelector Selects tracks to be exposed by this source.
+   * @param bandwidthMeter Provides an estimate of the currently available bandwidth.
+   * @param timestampAdjusterProvider A provider of {@link PtsTimestampAdjuster} instances. If
+   *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
+   *     same provider.
+   * @param adaptiveMode The mode for switching from one variant to another. One of
+   *     {@link #ADAPTIVE_MODE_NONE}, {@link #ADAPTIVE_MODE_ABRUPT} and
+   *     {@link #ADAPTIVE_MODE_SPLICE}.
+   * @param eventHandler A handler to use when delivering events to {@code EventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
    * @param minBufferDurationToSwitchUpMs The minimum duration of media that needs to be buffered
    *     for a switch to a higher quality variant to be considered.
    * @param maxBufferDurationToSwitchDownMs The maximum duration of media that needs to be buffered
@@ -206,6 +234,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   public HlsChunkSource(boolean isMaster, DataSource dataSource, String playlistUrl,
       HlsPlaylist playlist, HlsTrackSelector trackSelector, BandwidthMeter bandwidthMeter,
       PtsTimestampAdjusterProvider timestampAdjusterProvider, int adaptiveMode,
+      Handler eventHandler, EventListener eventListener, int eventSourceId,
       long minBufferDurationToSwitchUpMs, long maxBufferDurationToSwitchDownMs) {
     this.isMaster = isMaster;
     this.dataSource = dataSource;
@@ -215,6 +244,11 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     this.adaptiveMode = adaptiveMode;
     minBufferDurationToSwitchUpUs = minBufferDurationToSwitchUpMs * 1000;
     maxBufferDurationToSwitchDownUs = maxBufferDurationToSwitchDownMs * 1000;
+    this.eventHandler = eventHandler;
+    this.eventListener = eventListener;
+    this.eventSourceId = eventSourceId;
+    isMediaTimeBaseSet = false;
+    availableRangeBoundsUs = new long[2];
     baseUri = playlist.baseUri;
     playlistParser = new HlsPlaylistParser();
     tracks = new ArrayList<>();
@@ -350,6 +384,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     selectedVariantIndex = selectedTrack.defaultVariantIndex;
     variants = selectedTrack.variants;
     variantPlaylists = new HlsMediaPlaylist[variants.length];
+    availableRange = new TimeRange[variants.length];
     variantLastPlaylistLoadTimesMs = new long[variants.length];
     variantBlacklistTimes = new long[variants.length];
   }
@@ -382,11 +417,14 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
    * @param playbackPositionUs The current playback position. If previousTsChunk is null then this
    *     parameter is the position from which playback is expected to start (or restart) and hence
    *     should be interpreted as a seek position.
+   * @param shouldLoadTschunk A boolean to indicate whether the Ts chunk should be loaded or not.
+   *     If false, this function just checks if we need to refresh the live media playlist or not,
+   *     and if needed triggers the re-fetch.
    * @param out The holder to populate with the result. {@link ChunkOperationHolder#queueSize} is
    *     unused.
    */
   public void getChunkOperation(TsChunk previousTsChunk, long playbackPositionUs,
-      ChunkOperationHolder out) {
+      ChunkOperationHolder out, boolean shouldLoadTschunk) {
     int nextVariantIndex;
     boolean switchingVariantSpliced;
     if (adaptiveMode == ADAPTIVE_MODE_NONE) {
@@ -406,18 +444,28 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
       return;
     }
 
+    // if the media playlist is live
+    // we need to check if it needs a reload
+    if (mediaPlaylist.live &&
+            shouldRerequestLiveMediaPlaylist(nextVariantIndex)) {
+      out.chunk = newMediaPlaylistChunk(nextVariantIndex);
+      return;
+    }
+    if (!shouldLoadTschunk) {
+      out.chunk = null;
+      return;
+    }
+
     selectedVariantIndex = nextVariantIndex;
     int chunkMediaSequence = 0;
     if (live) {
       if (previousTsChunk == null) {
-        chunkMediaSequence = getLiveStartChunkMediaSequence(nextVariantIndex);
+        chunkMediaSequence = getLiveChunkMediaSequence(nextVariantIndex,
+                                playbackPositionUs, true);
       } else {
-        chunkMediaSequence = switchingVariantSpliced
-            ? previousTsChunk.chunkIndex : previousTsChunk.chunkIndex + 1;
-        if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
-          fatalError = new BehindLiveWindowException();
-          return;
-        }
+        chunkMediaSequence = getLiveChunkMediaSequence(nextVariantIndex,
+                switchingVariantSpliced ? previousTsChunk.startTimeUs :
+                        previousTsChunk.endTimeUs, false);
       }
     } else {
       // Not live.
@@ -465,13 +513,14 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     // Compute start and end times, and the sequence number of the next chunk.
     long startTimeUs;
     if (live) {
-      if (previousTsChunk == null) {
-        startTimeUs = 0;
-      } else if (switchingVariantSpliced) {
-        startTimeUs = previousTsChunk.startTimeUs;
-      } else {
-        startTimeUs = previousTsChunk.endTimeUs;
-      }
+      // Always calculate the chunk start time because the previous chunk's timestamp
+      // cannot always be used to calculate this chunk timestamp.
+      // For example: when the playback is near the lower available range and the user
+      // paused the playback for some time so that the current variant's DVR window
+      // would have moved ahead than the previous variant. In this scenario, we cannot blindly
+      // use previous TS chunk's timestamp to calculate the current chunk's Timestamp.
+      availableRange[selectedVariantIndex].getCurrentBoundsUs(availableRangeBoundsUs);
+      startTimeUs = segment.startTimeUs + availableRangeBoundsUs[0];
     } else /* Not live */ {
       startTimeUs = segment.startTimeUs;
     }
@@ -718,12 +767,51 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     return timeSinceLastMediaPlaylistLoadMs >= (mediaPlaylist.targetDurationSecs * 1000) / 2;
   }
 
-  private int getLiveStartChunkMediaSequence(int variantIndex) {
+
+  private int getLiveChunkMediaSequence(int variantIndex, long playbackPositionUs, boolean isReset) {
     // For live start playback from the third chunk from the end.
     HlsMediaPlaylist mediaPlaylist = variantPlaylists[variantIndex];
-    int chunkIndex = mediaPlaylist.segments.size() > 3 ? mediaPlaylist.segments.size() - 3 : 0;
+    int chunkIndex;
+    // playbackPositionUs 0 is a special case of seeking/reseting to start playback from
+    // live edge
+    if (playbackPositionUs == 0) {
+      chunkIndex = mediaPlaylist.segments.size() > LIVE_EDGE_CHUNK_INDEX_OFFSET ?
+              mediaPlaylist.segments.size() - LIVE_EDGE_CHUNK_INDEX_OFFSET : 0;
+    } else {
+      availableRange[selectedVariantIndex].getCurrentBoundsUs(availableRangeBoundsUs);
+      long relativePlaybackPositionUs = Math.abs(playbackPositionUs)  - availableRangeBoundsUs[0];
+      if (isReset) {
+        // for seek case we try to find the right chunk index.
+        // if seek position is less than lower bound we cap it at lower bound.
+        // if seek position is greater than upper bound, we cap it at the live edge
+        if (playbackPositionUs > availableRangeBoundsUs[1]) {
+          chunkIndex = mediaPlaylist.segments.size() - LIVE_EDGE_CHUNK_INDEX_OFFSET;
+        } else if (playbackPositionUs < availableRangeBoundsUs[0]) {
+          chunkIndex = 0;
+        } else {
+          chunkIndex = Util.binarySearchFloor(mediaPlaylist.segments, relativePlaybackPositionUs,
+                  true, true);
+        }
+      } else {
+        // for normal playback case, we always try to find the chunk index by searching
+        // in the segments. We cannot use Util.binarySearch,because if the timestamp is more than
+        // the upper bound, it returns the last chunk index. Hence we cannot use it here because
+        // we want to indicate to the callee that we have reached beyond the last chunk index.
+        // negative playbackPositionUs will never happen here because the seek case would have
+        // handled it already.
+        chunkIndex =  Collections.binarySearch(mediaPlaylist.segments, relativePlaybackPositionUs);
+        if (chunkIndex == -1) {
+          chunkIndex = 0;// fallen behind live window - maybe due to long pause
+        } else if (chunkIndex < (-1 * mediaPlaylist.segments.size())) {
+          chunkIndex = mediaPlaylist.segments.size(); // reached the end
+        } else if (chunkIndex < 0) {
+          chunkIndex = -(chunkIndex + 2); // select the chunk index containing the position
+        }
+      }
+    }
     return chunkIndex + mediaPlaylist.mediaSequence;
   }
+
 
   private MediaPlaylistChunk newMediaPlaylistChunk(int variantIndex) {
     Uri mediaPlaylistUri = UriUtil.resolveToUri(baseUri, variants[variantIndex].url);
@@ -770,6 +858,16 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     variantPlaylists[variantIndex] = mediaPlaylist;
     live |= mediaPlaylist.live;
     durationUs = live ? C.UNKNOWN_TIME_US : mediaPlaylist.durationUs;
+
+    // get this variant's TimeRange
+    TimeRange variantRange = getAvailableRange(mediaPlaylist);
+
+    // now may be notify app about new time range
+    maybeUpdateAvailableRange(variantIndex,variantRange);
+
+    // now update this variant's time range
+    availableRange[variantIndex] = variantRange;
+
   }
 
   private boolean allVariantsBlacklisted() {
@@ -799,6 +897,77 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
     }
     // Should never happen.
     throw new IllegalStateException("Invalid format: " + format);
+  }
+
+  private void maybeUpdateAvailableRange(int variantIndex, TimeRange variantRange) {
+    // It is very much possible that this variant's playlist's window is behind the currently
+    // playing variant's window because the server might be still generating the content for it.
+    // For simplicity, we only update the availableRange to the app if the window has moved
+    // forward - to avoid moving the window back and forth temporarily.
+    // Hence we need to maintain a currentAvailableRangeIndex to indicate which variant's
+    // range was last notified to the app.
+    if (currentAvailableRangeIndex == -1) {
+      currentAvailableRangeIndex = variantIndex;
+      notifyAvailableRangeChanged(variantRange);
+    } else {
+      availableRange[currentAvailableRangeIndex].getCurrentBoundsUs(availableRangeBoundsUs);
+      long currentMinBoundUs = availableRangeBoundsUs[0];
+
+      variantRange.getCurrentBoundsUs(availableRangeBoundsUs);
+      long variantMinBoundUs = availableRangeBoundsUs[0];
+      // notify app only if the new variant time range is ahead than current time range
+      if (variantMinBoundUs > currentMinBoundUs) {
+        currentAvailableRangeIndex = variantIndex;
+        notifyAvailableRangeChanged(variantRange);
+      }
+    }
+  }
+
+  private TimeRange getAvailableRange(HlsMediaPlaylist mediaPlaylist) {
+    int lastIndex = mediaPlaylist.segments.size() -
+            (mediaPlaylist.live ? LIVE_EDGE_CHUNK_INDEX_OFFSET : 1);
+    HlsMediaPlaylist.Segment lastSegment = mediaPlaylist.segments.get(lastIndex);
+    if (!isMediaTimeBaseSet) {
+      if (mediaPlaylist.programDateTime != null) {
+        mediaTimeOffsetUs = mediaPlaylist.programDateTime.getTime() * 1000;
+      } else {
+        // program date time not present!! trying to use media sequence
+        mediaSequenceOffset = mediaPlaylist.mediaSequence;
+      }
+      isMediaTimeBaseSet = true;
+    }
+    long minStartPositionUs = 0;
+    if (mediaPlaylist.programDateTime != null) {
+      // Use media Time Offset to calculate the start position
+      minStartPositionUs = (mediaPlaylist.programDateTime.getTime() * 1000) - mediaTimeOffsetUs;
+    } else {
+      // Use media sequence offset to calculate the start position
+      // TODO : We right now assume all segments are of equal duration.
+      // Need TO handle case where each media segment can be of different duration
+      minStartPositionUs = (long) ((mediaPlaylist.mediaSequence - mediaSequenceOffset) *
+                                    mediaPlaylist.segments.get(0).durationSecs *
+                                    C.MICROS_PER_SECOND);
+
+    }
+    long maxEndPositionUs = lastSegment.startTimeUs +
+                             (long) (lastSegment.durationSecs * C.MICROS_PER_SECOND) +
+                             minStartPositionUs;
+    // We don't use DynamicTimeRange because we want to allow app to
+    // seek within the chunk duration as long as the chunk is available in the playlist,
+    // because unlike MPEG-DASH, there is no timeShiftBufferDepth that is
+    // enforced by the HLS spec
+    return new TimeRange.StaticTimeRange(minStartPositionUs, maxEndPositionUs);
+  }
+
+  private void notifyAvailableRangeChanged(final TimeRange seekRange) {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          eventListener.onAvailableRangeChanged(eventSourceId, seekRange);
+        }
+      });
+    }
   }
 
   // Private classes.

@@ -17,6 +17,7 @@ package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -68,15 +69,16 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public final List<Segment> segments;
   public final boolean live;
   public final long durationUs;
-
+  public final Date programDateTime;
   public HlsMediaPlaylist(String baseUri, int mediaSequence, int targetDurationSecs, int version,
-      boolean live, List<Segment> segments) {
+      boolean live, List<Segment> segments, Date programDateTime) {
     super(baseUri, HlsPlaylist.TYPE_MEDIA);
     this.mediaSequence = mediaSequence;
     this.targetDurationSecs = targetDurationSecs;
     this.version = version;
     this.live = live;
     this.segments = segments;
+    this.programDateTime = programDateTime;
 
     if (!segments.isEmpty()) {
       Segment last = segments.get(segments.size() - 1);

@@ -33,6 +33,7 @@ import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.extractor.ExtractorSampleSource;
+import com.google.android.exoplayer.hls.HlsChunkSource;
 import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer.MetadataRenderer;
 import com.google.android.exoplayer.metadata.id3.Id3Frame;
@@ -63,7 +64,8 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
     SingleSampleSource.EventListener, DefaultBandwidthMeter.EventListener,
     MediaCodecVideoTrackRenderer.EventListener, MediaCodecAudioTrackRenderer.EventListener,
     StreamingDrmSessionManager.EventListener, DashChunkSource.EventListener, TextRenderer,
-    MetadataRenderer<List<Id3Frame>>, DebugTextViewHelper.Provider {
+    MetadataRenderer<List<Id3Frame>>, DebugTextViewHelper.Provider,
+    HlsChunkSource.EventListener {
 
   /**
    * Builds renderers for the player.
@@ -532,6 +534,9 @@ public class DemoPlayer implements ExoPlayer.Listener, ChunkSampleSource.EventLi
   public void onAvailableRangeChanged(int sourceId, TimeRange availableRange) {
     if (infoListener != null) {
       infoListener.onAvailableRangeChanged(sourceId, availableRange);
+    }
+    if (playerControl != null) {
+      playerControl.setAvailableRange(availableRange);
     }
   }
 

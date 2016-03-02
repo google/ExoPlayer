@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.hls;
 
+import android.util.Log;
+
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.chunk.Format;
@@ -26,6 +28,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+
+import java.util.Date;
+import java.util.TimeZone;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -49,6 +55,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
   private static final String ENDLIST_TAG = "#EXT-X-ENDLIST";
   private static final String KEY_TAG = "#EXT-X-KEY";
   private static final String BYTERANGE_TAG = "#EXT-X-BYTERANGE";
+  private static final String PROGRAM_DATE_TIME_TAG = "#EXT-X-PROGRAM-DATE-TIME";
 
   private static final String BANDWIDTH_ATTR = "BANDWIDTH";
   private static final String CODECS_ATTR = "CODECS";
@@ -85,6 +92,8 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
       Pattern.compile(VERSION_TAG + ":(\\d+)\\b");
   private static final Pattern BYTERANGE_REGEX =
       Pattern.compile(BYTERANGE_TAG + ":(\\d+(?:@\\d+)?)\\b");
+  private static final Pattern PROGRAM_DATE_TIME_REGEX =
+      Pattern.compile(PROGRAM_DATE_TIME_TAG + ":(\\S*)");
 
   private static final Pattern METHOD_ATTR_REGEX =
       Pattern.compile(METHOD_ATTR + "=(" + METHOD_NONE + "|" + METHOD_AES128 + ")");
@@ -127,7 +136,8 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
             || line.startsWith(BYTERANGE_TAG)
             || line.equals(DISCONTINUITY_TAG)
             || line.equals(DISCONTINUITY_SEQUENCE_TAG)
-            || line.equals(ENDLIST_TAG)) {
+            || line.equals(ENDLIST_TAG)
+            || line.equals(PROGRAM_DATE_TIME_TAG)) {
           extraLines.add(line);
           return parseMediaPlaylist(new LineIterator(extraLines, reader), connectionUrl);
         } else {
@@ -242,7 +252,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
     int segmentByterangeOffset = 0;
     int segmentByterangeLength = C.LENGTH_UNBOUNDED;
     int segmentMediaSequence = 0;
-
+    Date programDateTime = null;
     boolean isEncrypted = false;
     String encryptionKeyUri = null;
     String encryptionIV = null;
@@ -278,6 +288,18 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
         if (splitByteRange.length > 1) {
           segmentByterangeOffset = Integer.parseInt(splitByteRange[1]);
         }
+      } else if (line.startsWith(PROGRAM_DATE_TIME_TAG) && programDateTime == null) {
+         String programDateTimeStr = HlsParserUtil.parseStringAttr(line, PROGRAM_DATE_TIME_REGEX, PROGRAM_DATE_TIME_TAG);
+          // TODO: Need to handle the Timezone & fractional part too
+        // Currently, either the playlist is assumed to always have timezone, or
+        // never have timezone. If this assumption fails, live DVR functionality will be broken.
+        SimpleDateFormat ISO8601Datefmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        ISO8601Datefmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+        try {
+          programDateTime = ISO8601Datefmt.parse(programDateTimeStr);
+        } catch (Exception e) {
+          Log.e("HLS", "Error in parsing program date " + programDateTimeStr, e);
+        }
       } else if (line.startsWith(DISCONTINUITY_SEQUENCE_TAG)) {
         discontinuitySequenceNumber = Integer.parseInt(line.substring(line.indexOf(':') + 1));
       } else if (line.equals(DISCONTINUITY_TAG)) {
@@ -310,7 +332,7 @@ public final class HlsPlaylistParser implements UriLoadable.Parser<HlsPlaylist> 
       }
     }
     return new HlsMediaPlaylist(baseUri, mediaSequence, targetDurationSecs, version, live,
-        Collections.unmodifiableList(segments));
+        Collections.unmodifiableList(segments), programDateTime);
   }
 
   private static class LineIterator {

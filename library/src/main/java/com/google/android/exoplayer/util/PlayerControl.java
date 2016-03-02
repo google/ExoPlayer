@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer.util;
 
+
 import com.google.android.exoplayer.ExoPlayer;
+import com.google.android.exoplayer.TimeRange;
 
 import android.widget.MediaController.MediaPlayerControl;
 
@@ -28,6 +30,9 @@ import android.widget.MediaController.MediaPlayerControl;
 public class PlayerControl implements MediaPlayerControl {
 
   private final ExoPlayer exoPlayer;
+
+  private TimeRange availableRange;
+  private long availableRangeValuesMs[] = new long[2];
 
   public PlayerControl(ExoPlayer exoPlayer) {
     this.exoPlayer = exoPlayer;
@@ -70,8 +75,9 @@ public class PlayerControl implements MediaPlayerControl {
 
   @Override
   public int getCurrentPosition() {
-    return exoPlayer.getDuration() == ExoPlayer.UNKNOWN_TIME ? 0
-        : (int) exoPlayer.getCurrentPosition();
+    // we allow query of current position for live content
+    // to allow seeking within DVR window. See the PlayerActivity.java
+    return (int) exoPlayer.getCurrentPosition();
   }
 
   @Override
@@ -97,9 +103,24 @@ public class PlayerControl implements MediaPlayerControl {
 
   @Override
   public void seekTo(int timeMillis) {
-    long seekPosition = exoPlayer.getDuration() == ExoPlayer.UNKNOWN_TIME ? 0
-        : Math.min(Math.max(0, timeMillis), getDuration());
+    long seekPosition = (long) timeMillis;
+    if (exoPlayer.getDuration() == ExoPlayer.UNKNOWN_TIME) {
+      if (availableRange != null) {
+        availableRange.getCurrentBoundsMs(availableRangeValuesMs);
+        seekPosition = Math.min(Math.max(availableRangeValuesMs[0], timeMillis), availableRangeValuesMs[1]);
+      }
+    } else {
+      seekPosition = Math.min(Math.max(0, timeMillis), getDuration());
+    }
     exoPlayer.seekTo(seekPosition);
+  }
+
+  public void setAvailableRange(TimeRange availableRange) {
+    this.availableRange = availableRange;
+  }
+
+  public TimeRange getAvailableRange() {
+    return availableRange;
   }
 
 }
