@@ -57,6 +57,7 @@ import java.util.regex.Pattern;
  *   <li>time-clock
  *   <li>time-offset-with-frames
  *   <li>time-offset-with-ticks
+ *   <li>region
  * </ul>
  * </p>
  * @see <a href="http://www.w3.org/TR/ttaf1-dfxp/">TTML specification</a>
