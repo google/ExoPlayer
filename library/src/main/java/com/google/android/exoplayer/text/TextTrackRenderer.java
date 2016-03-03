@@ -270,10 +270,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
                 inputStreamEnded = true;
             }
         }
-
-
-        Log.i(TAG, "positionUs: " + positionUs);
-        Log.i(TAG, "elapsedRealtimeUs: " + elapsedRealtimeUs);
+        
         previousPositionUs = positionUs;
 
     }
