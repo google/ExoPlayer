@@ -30,7 +30,7 @@ public class RegionTrackingFormattedTextManager
     public Boolean setRegionId(String regionId) {
         Boolean didChange = false;
         if (regionId != null) {
-            if (this.currentRegionId != regionId) {
+            if (!regionId.equals(this.currentRegionId)) {
                 didChange = changeRegion(regionId);
             }
             this.currentRegionId = regionId;
@@ -39,15 +39,18 @@ public class RegionTrackingFormattedTextManager
     }
 
     private Boolean changeRegion(String newRegionId) {
-        Boolean didChange = storeRegion();
-        SpannableStringBuilder nextBuilder = builderMap.get(newRegionId);
-        currentBuilder = nextBuilder != null ? nextBuilder : new SpannableStringBuilder();
-        return didChange;
+        if (storeRegion()) {
+            SpannableStringBuilder builderForNewRegion = builderMap.get(newRegionId);
+            currentBuilder = builderForNewRegion == null ? new SpannableStringBuilder() : builderForNewRegion;
+            return true;
+        }
+        return false;
     }
 
     private Boolean storeRegion() {
-        if (currentBuilder.toString().length() == 0)
+        if (currentBuilder.length() == 0) {
             return false;
+        }
 
         builderMap.put(currentRegionId, currentBuilder);
         return true;
