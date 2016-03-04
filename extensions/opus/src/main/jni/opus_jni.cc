@@ -45,6 +45,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
   return JNI_VERSION_1_6;
 }
 
+static const int kBytesPerSample = 2;  // opus fixed point uses 16 bit samples.
 static int channelCount;
 
 FUNC(jlong, opusInit, jint sampleRate, jint channelCount, jint numStreams,
@@ -76,9 +77,19 @@ FUNC(jint, opusDecode, jlong jDecoder, jobject jInputBuffer, jint inputSize,
           env->GetDirectBufferAddress(jInputBuffer));
   int16_t* outputBuffer = reinterpret_cast<int16_t*>(
       env->GetDirectBufferAddress(jOutputBuffer));
-  int numFrames = opus_multistream_decode(decoder, inputBuffer, inputSize,
-                                          outputBuffer, outputSize, 0);
-  return (numFrames < 0) ? numFrames : numFrames * 2 * channelCount;
+  int sampleCount = opus_multistream_decode(decoder, inputBuffer, inputSize,
+                                            outputBuffer, outputSize, 0);
+  return (sampleCount < 0) ? sampleCount
+                           : sampleCount * kBytesPerSample * channelCount;
+}
+
+FUNC(jint, opusGetRequiredOutputBufferSize, jobject jInputBuffer,
+     jint inputSize, jint sampleRate) {
+  const uint8_t* inputBuffer = reinterpret_cast<const uint8_t*>(
+      env->GetDirectBufferAddress(jInputBuffer));
+  const int32_t sampleCount =
+      opus_packet_get_nb_samples(inputBuffer, inputSize, sampleRate);
+  return sampleCount * kBytesPerSample * channelCount;
 }
 
 FUNC(void, opusClose, jlong jDecoder) {

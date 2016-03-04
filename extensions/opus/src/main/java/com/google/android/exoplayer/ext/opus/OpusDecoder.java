@@ -162,7 +162,13 @@ import java.util.List;
     SampleHolder sampleHolder = inputBuffer.sampleHolder;
     outputBuffer.timestampUs = sampleHolder.timeUs;
     sampleHolder.data.position(sampleHolder.data.position() - sampleHolder.size);
-    outputBuffer.init(sampleHolder.data.capacity() * 2);
+    int requiredOutputBufferSize =
+        opusGetRequiredOutputBufferSize(sampleHolder.data, sampleHolder.size, SAMPLE_RATE);
+    if (requiredOutputBufferSize < 0) {
+      exception = new OpusDecoderException("Error when computing required output buffer size.");
+      return false;
+    }
+    outputBuffer.init(requiredOutputBufferSize);
     int result = opusDecode(nativeDecoderContext, sampleHolder.data, sampleHolder.size,
         outputBuffer.data, outputBuffer.data.capacity());
     if (result < 0) {
@@ -202,6 +208,8 @@ import java.util.List;
       int gain, byte[] streamMap);
   private native int opusDecode(long decoder, ByteBuffer inputBuffer, int inputSize,
       ByteBuffer outputBuffer, int outputSize);
+  private native int opusGetRequiredOutputBufferSize(
+      ByteBuffer inputBuffer, int inputSize, int sampleRate);
   private native void opusClose(long decoder);
   private native void opusReset(long decoder);
   private native String opusGetErrorMessage(int errorCode);
