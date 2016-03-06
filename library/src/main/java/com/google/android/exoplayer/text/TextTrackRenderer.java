@@ -122,6 +122,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
   private SubtitleParserHelper parserHelper;
   private HandlerThread parserThread;
   private int nextSubtitleEventIndex;
+  private long previousPositionUs = 0;
 
   /**
    * @param source A source from which samples containing subtitle data can be read.
@@ -218,11 +219,20 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
     if (subtitle != null) {
       // We're iterating through the events in a subtitle. Set textRendererNeedsUpdate if we
       // advance to the next event.
+
       subtitleNextEventTimeUs = getNextEventTime();
-      while (subtitleNextEventTimeUs <= positionUs) {
-        nextSubtitleEventIndex++;
-        subtitleNextEventTimeUs = getNextEventTime();
-        textRendererNeedsUpdate = true;
+      if (previousPositionUs > positionUs) {  // seeking backward
+        while (subtitleNextEventTimeUs >= positionUs) {
+          nextSubtitleEventIndex--;
+          subtitleNextEventTimeUs = getNextEventTime();
+          textRendererNeedsUpdate = true;
+        }
+      } else {  // seeking forward
+        while (subtitleNextEventTimeUs <= positionUs) {
+          nextSubtitleEventIndex++;
+          subtitleNextEventTimeUs = getNextEventTime();
+          textRendererNeedsUpdate = true;
+        }
       }
     }
 
@@ -252,6 +262,8 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
         inputStreamEnded = true;
       }
     }
+    
+    previousPositionUs = positionUs;
   }
 
   @Override
@@ -284,8 +296,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
   }
 
   private long getNextEventTime() {
-    return ((nextSubtitleEventIndex == -1)
-        || (nextSubtitleEventIndex >= subtitle.getEventTimeCount())) ? Long.MAX_VALUE
+    return ((nextSubtitleEventIndex == -1) ? Long.MAX_VALUE
         : (subtitle.getEventTime(nextSubtitleEventIndex));
   }
 
