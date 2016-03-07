@@ -335,28 +335,46 @@ import java.util.List;
    * Parses a udta atom.
    *
    * @param udtaAtom The udta (user data) atom to parse.
+   * @param isQuickTime True for QuickTime media. False otherwise.
    * @return Gapless playback information stored in the user data, or {@code null} if not present.
    */
-  public static GaplessInfo parseUdta(Atom.ContainerAtom udtaAtom) {
-    Atom.LeafAtom metaAtom = udtaAtom.getLeafAtomOfType(Atom.TYPE_meta);
-    if (metaAtom == null) {
+  public static GaplessInfo parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime) {
+    if (isQuickTime) {
+      // Meta boxes are regular boxes rather than full boxes in QuickTime. For now, don't try and
+      // parse one.
       return null;
     }
-    ParsableByteArray data = metaAtom.data;
-    data.setPosition(Atom.FULL_HEADER_SIZE);
+    ParsableByteArray udtaData = udtaAtom.data;
+    udtaData.setPosition(Atom.HEADER_SIZE);
+    while (udtaData.bytesLeft() >= Atom.HEADER_SIZE) {
+      int atomSize = udtaData.readInt();
+      int atomType = udtaData.readInt();
+      if (atomType == Atom.TYPE_meta) {
+        udtaData.setPosition(udtaData.getPosition() - Atom.HEADER_SIZE);
+        udtaData.setLimit(udtaData.getPosition() + atomSize);
+        return parseMetaAtom(udtaData);
+      } else {
+        udtaData.skipBytes(atomSize - Atom.HEADER_SIZE);
+      }
+    }
+    return null;
+  }
+
+  private static GaplessInfo parseMetaAtom(ParsableByteArray data) {
+    data.skipBytes(Atom.FULL_HEADER_SIZE);
     ParsableByteArray ilst = new ParsableByteArray();
-    while (data.bytesLeft() > 0) {
-      int length = data.readInt() - Atom.HEADER_SIZE;
-      int type = data.readInt();
-      if (type == Atom.TYPE_ilst) {
-        ilst.reset(data.data, data.getPosition() + length);
+    while (data.bytesLeft() >= Atom.HEADER_SIZE) {
+      int payloadSize = data.readInt() - Atom.HEADER_SIZE;
+      int atomType = data.readInt();
+      if (atomType == Atom.TYPE_ilst) {
+        ilst.reset(data.data, data.getPosition() + payloadSize);
         ilst.setPosition(data.getPosition());
         GaplessInfo gaplessInfo = parseIlst(ilst);
         if (gaplessInfo != null) {
           return gaplessInfo;
         }
       }
-      data.skipBytes(length);
+      data.skipBytes(payloadSize);
     }
     return null;
   }
