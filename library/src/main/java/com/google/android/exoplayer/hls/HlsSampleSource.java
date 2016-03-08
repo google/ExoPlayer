@@ -191,7 +191,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   public TrackStream enable(TrackSelection selection, long positionUs) {
     Assertions.checkState(prepared);
     int group = selection.group;
-    int[] tracks = selection.tracks;
+    int[] tracks = selection.getTracks();
     setTrackGroupEnabledState(group, true);
     downstreamSampleFormats[group] = null;
     pendingResets[group] = false;

@@ -188,7 +188,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
     Assertions.checkState(state == STATE_PREPARED);
     Assertions.checkState(enabledTrackCount++ == 0);
     state = STATE_ENABLED;
-    chunkSource.enable(selection.tracks);
+    chunkSource.enable(selection.getTracks());
     loadControl.register(this, bufferSizeContribution);
     downstreamFormat = null;
     downstreamSampleFormat = null;

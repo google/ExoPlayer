@@ -80,7 +80,7 @@ public class MultiSampleSource implements SampleSource {
   public TrackStream enable(TrackSelection selection, long positionUs) {
     Pair<Integer, Integer> sourceAndGroup = getSourceAndTrackGroupIndices(selection.group);
     return sources[sourceAndGroup.first].enable(
-        new TrackSelection(sourceAndGroup.second, selection.tracks), positionUs);
+        new TrackSelection(sourceAndGroup.second, selection.getTracks()), positionUs);
   }
 
   @Override

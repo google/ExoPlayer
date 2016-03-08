@@ -15,27 +15,80 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.util.Assertions;
+
+import java.util.Arrays;
+
 /**
  * Defines a track selection.
  */
 public final class TrackSelection {
 
   /**
-   * The index of the {@link TrackGroup}.
+   * The index of the selected {@link TrackGroup}.
    */
   public final int group;
   /**
-   * The indices of the individual tracks within the {@link TrackGroup}.
+   * The number of selected tracks within the {@link TrackGroup}. Always greater than zero.
    */
-  public final int[] tracks;
+  public final int length;
+
+  private final int[] tracks;
+
+  // Lazily initialized hashcode.
+  private int hashCode;
 
   /**
    * @param group The index of the {@link TrackGroup}.
-   * @param tracks The indices of the individual tracks within the {@link TrackGroup}.
+   * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
+   *     null or empty.
    */
   public TrackSelection(int group, int... tracks) {
+    Assertions.checkState(tracks.length > 0);
     this.group = group;
     this.tracks = tracks;
+    this.length = tracks.length;
+  }
+
+  /**
+   * Gets the index of the selected track at a given index in the selection.
+   *
+   * @param index The index in the selection.
+   * @return The index of the selected track.
+   */
+  public int getTrack(int index) {
+    return getTracks()[index];
+  }
+
+  /**
+   * Gets a copy of the individual track indices.
+   *
+   * @return The track indices.
+   */
+  public int[] getTracks() {
+    return tracks.clone();
+  }
+
+  @Override
+  public int hashCode() {
+    if (hashCode == 0) {
+      int result = 17;
+      result = 31 * result + group;
+      result = 31 * result + Arrays.hashCode(tracks);
+    }
+    return hashCode;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    TrackSelection other = (TrackSelection) obj;
+    return group == other.group && Arrays.equals(tracks, other.tracks);
   }
 
 }

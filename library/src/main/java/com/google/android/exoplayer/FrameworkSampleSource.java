@@ -169,8 +169,8 @@ public final class FrameworkSampleSource implements SampleSource {
   @Override
   public TrackStream enable(TrackSelection selection, long positionUs) {
     Assertions.checkState(prepared);
-    Assertions.checkState(selection.tracks.length == 1);
-    Assertions.checkState(selection.tracks[0] == 0);
+    Assertions.checkState(selection.length == 1);
+    Assertions.checkState(selection.getTrack(0) == 0);
     int track = selection.group;
     Assertions.checkState(trackStates[track] == TRACK_STATE_DISABLED);
     enabledTrackCount++;
