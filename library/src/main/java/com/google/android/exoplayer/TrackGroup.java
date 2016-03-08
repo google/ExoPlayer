@@ -58,7 +58,7 @@ public final class TrackGroup {
     Assertions.checkState(formats.length > 0);
     this.adaptive = adaptive;
     this.formats = formats;
-    length = formats.length;
+    this.length = formats.length;
   }
 
   /**
@@ -77,7 +77,6 @@ public final class TrackGroup {
       int result = 17;
       result = 31 * result + (adaptive ? 1231 : 1237);
       result = 31 * result + Arrays.hashCode(formats);
-      result = 31 * result + length;
       hashCode = result;
     }
     return hashCode;

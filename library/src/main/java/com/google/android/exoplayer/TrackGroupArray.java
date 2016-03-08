@@ -53,10 +53,7 @@ public final class TrackGroupArray {
   @Override
   public int hashCode() {
     if (hashCode == 0) {
-      int result = 17;
-      result = 31 * result + Arrays.hashCode(trackGroups);
-      result = 31 * result + length;
-      hashCode = result;
+      hashCode = Arrays.hashCode(trackGroups);
     }
     return hashCode;
   }
