@@ -542,18 +542,24 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
     int trackIndex = 0;
     for (int i = 0; i < extractorTrackCount; i++) {
       MediaFormat format = extractor.getMediaFormat(i).copyWithDurationUs(durationUs);
+      String language = null;
+      if (MimeTypes.isAudio(format.mimeType)) {
+        language = chunkSource.getMuxedAudioLanguage();
+      } else if (MimeTypes.APPLICATION_EIA608.equals(format.mimeType)) {
+        language = chunkSource.getMuxedCaptionLanguage();
+      }
       if (i == primaryExtractorTrackIndex) {
         for (int j = 0; j < chunkSourceTrackCount; j++) {
           extractorTrackIndices[trackIndex] = i;
           chunkSourceTrackIndices[trackIndex] = j;
           Variant fixedTrackVariant = chunkSource.getFixedTrackVariant(j);
           trackFormats[trackIndex++] = fixedTrackVariant == null ? format.copyAsAdaptive(null)
-              : copyWithFixedTrackInfo(format, fixedTrackVariant.format);
+              : copyWithFixedTrackInfo(format, fixedTrackVariant.format, language);
         }
       } else {
         extractorTrackIndices[trackIndex] = i;
         chunkSourceTrackIndices[trackIndex] = -1;
-        trackFormats[trackIndex++] = format;
+        trackFormats[trackIndex++] = format.copyWithLanguage(language);
       }
     }
   }
@@ -575,17 +581,19 @@ public final class HlsSampleSource implements SampleSource, SampleSourceReader, 
 
   /**
    * Copies a provided {@link MediaFormat}, incorporating information from the {@link Format} of
-   * a fixed (i.e. non-adaptive) track.
+   * a fixed (i.e. non-adaptive) track, as well as a language.
    *
    * @param format The {@link MediaFormat} to copy.
    * @param fixedTrackFormat The {@link Format} to incorporate into the copy.
+   * @param language The language to incorporate into the copy.
    * @return The copied {@link MediaFormat}.
    */
-  private static MediaFormat copyWithFixedTrackInfo(MediaFormat format, Format fixedTrackFormat) {
+  private static MediaFormat copyWithFixedTrackInfo(MediaFormat format, Format fixedTrackFormat,
+      String language) {
     int width = fixedTrackFormat.width == -1 ? MediaFormat.NO_VALUE : fixedTrackFormat.width;
     int height = fixedTrackFormat.height == -1 ? MediaFormat.NO_VALUE : fixedTrackFormat.height;
     return format.copyWithFixedTrackInfo(fixedTrackFormat.id, fixedTrackFormat.bitrate, width,
-        height, fixedTrackFormat.language);
+        height, language);
   }
 
   /**

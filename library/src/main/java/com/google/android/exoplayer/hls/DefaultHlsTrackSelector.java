@@ -30,7 +30,8 @@ import java.util.List;
 public final class DefaultHlsTrackSelector implements HlsTrackSelector {
 
   private static final int TYPE_DEFAULT = 0;
-  private static final int TYPE_VTT = 1;
+  private static final int TYPE_AUDIO = 1;
+  private static final int TYPE_SUBTITLE = 2;
 
   private final Context context;
   private final int type;
@@ -46,12 +47,21 @@ public final class DefaultHlsTrackSelector implements HlsTrackSelector {
   }
 
   /**
+   * Creates a {@link DefaultHlsTrackSelector} that selects alternate audio renditions.
+   *
+   * @return The selector instance.
+   */
+  public static DefaultHlsTrackSelector newAudioInstance() {
+    return new DefaultHlsTrackSelector(null, TYPE_AUDIO);
+  }
+
+  /**
    * Creates a {@link DefaultHlsTrackSelector} that selects subtitle renditions.
    *
    * @return The selector instance.
    */
-  public static DefaultHlsTrackSelector newVttInstance() {
-    return new DefaultHlsTrackSelector(null, TYPE_VTT);
+  public static DefaultHlsTrackSelector newSubtitleInstance() {
+    return new DefaultHlsTrackSelector(null, TYPE_SUBTITLE);
   }
 
   private DefaultHlsTrackSelector(Context context, int type) {
@@ -61,11 +71,11 @@ public final class DefaultHlsTrackSelector implements HlsTrackSelector {
 
   @Override
   public void selectTracks(HlsMasterPlaylist playlist, Output output) throws IOException {
-    if (type == TYPE_VTT) {
-      List<Variant> subtitleVariants = playlist.subtitles;
-      if (subtitleVariants != null && !subtitleVariants.isEmpty()) {
-        for (int i = 0; i < subtitleVariants.size(); i++) {
-          output.fixedTrack(playlist, subtitleVariants.get(i));
+    if (type == TYPE_AUDIO || type == TYPE_SUBTITLE) {
+      List<Variant> variants = type == TYPE_AUDIO ? playlist.audios : playlist.subtitles;
+      if (variants != null && !variants.isEmpty()) {
+        for (int i = 0; i < variants.size(); i++) {
+          output.fixedTrack(playlist, variants.get(i));
         }
       }
       return;

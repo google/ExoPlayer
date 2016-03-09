@@ -250,7 +250,28 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   public MediaCodecTrackRenderer(SampleSource source, MediaCodecSelector mediaCodecSelector,
       DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
       Handler eventHandler, EventListener eventListener) {
-    super(source);
+    this (new SampleSource[] {source}, mediaCodecSelector, drmSessionManager,
+        playClearSamplesWithoutKeys, eventHandler, eventListener);
+  }
+
+  /**
+   * @param sources The upstream sources from which the renderer obtains samples.
+   * @param mediaCodecSelector A decoder selector.
+   * @param drmSessionManager For use with encrypted media. May be null if support for encrypted
+   *     media is not required.
+   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
+   *     For example a media file may start with a short clear region so as to allow playback to
+   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
+   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
+   *     has obtained the keys necessary to decrypt encrypted regions of the media.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   */
+  public MediaCodecTrackRenderer(SampleSource[] sources, MediaCodecSelector mediaCodecSelector,
+      DrmSessionManager drmSessionManager, boolean playClearSamplesWithoutKeys,
+      Handler eventHandler, EventListener eventListener) {
+    super(sources);
     Assertions.checkState(Util.SDK_INT >= 16);
     this.mediaCodecSelector = Assertions.checkNotNull(mediaCodecSelector);
     this.drmSessionManager = drmSessionManager;
