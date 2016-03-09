@@ -249,6 +249,13 @@ public final class MediaFormat {
         encoderPadding);
   }
 
+  public MediaFormat copyWithLanguage(String language) {
+    return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
+        rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate, language,
+        subsampleOffsetUs, initializationData, adaptive, maxWidth, maxHeight, encoderDelay,
+        encoderPadding);
+  }
+
   public MediaFormat copyWithFixedTrackInfo(String trackId, int bitrate, int width, int height,
       String language) {
     return new MediaFormat(trackId, mimeType, bitrate, maxInputSize, durationUs, width, height,
