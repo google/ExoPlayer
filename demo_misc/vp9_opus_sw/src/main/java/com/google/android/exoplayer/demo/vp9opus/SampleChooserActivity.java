@@ -44,6 +44,7 @@ public class SampleChooserActivity extends Activity {
     ListView sampleList = (ListView) findViewById(R.id.sample_list);
     final SampleAdapter sampleAdapter = new SampleAdapter(this);
 
+
     sampleAdapter.add(new Header("DASH - VP9 Only"));
     sampleAdapter.add(new Sample("Google Glass",
         "http://demos.webmproject.org/dash/201410/vp9_glass/manifest_vp9.mpd",
