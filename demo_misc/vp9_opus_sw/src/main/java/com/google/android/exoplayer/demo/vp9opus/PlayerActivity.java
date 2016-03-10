@@ -19,6 +19,7 @@ import com.google.android.exoplayer.AspectRatioFrameLayout;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.ext.flac.LibflacAudioTrackRenderer;
 import com.google.android.exoplayer.ext.opus.LibopusAudioTrackRenderer;
 import com.google.android.exoplayer.ext.vp9.LibvpxVideoTrackRenderer;
 import com.google.android.exoplayer.ext.vp9.VpxDecoderException;
@@ -129,7 +130,7 @@ public class PlayerActivity extends Activity implements
   }
 
   private void startBasicPlayback() {
-    player = ExoPlayer.Factory.newInstance(2);
+    player = ExoPlayer.Factory.newInstance(3);
     player.addListener(this);
     mediaController.setMediaPlayer(new PlayerControl(player));
     mediaController.setEnabled(true);
@@ -150,8 +151,10 @@ public class PlayerActivity extends Activity implements
           surfaceView.getHolder().getSurface());
       vpxVideoSurfaceView.setVisibility(View.GONE);
     }
-    TrackRenderer audioRenderer = new LibopusAudioTrackRenderer(sampleSource);
-    player.prepare(videoRenderer, audioRenderer);
+    TrackRenderer opusAudioTrackRenderer = new LibopusAudioTrackRenderer(sampleSource);
+    TrackRenderer flacAudioTrackRenderer = new LibflacAudioTrackRenderer(sampleSource);
+
+    player.prepare(videoRenderer, opusAudioTrackRenderer, flacAudioTrackRenderer);
     player.setPlayWhenReady(true);
   }
 
