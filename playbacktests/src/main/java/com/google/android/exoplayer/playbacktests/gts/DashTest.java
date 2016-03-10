@@ -221,7 +221,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   // H265 CDD.
 
   public void testH265Fixed() throws IOException {
-    if (Util.SDK_INT < 21) {
+    if (Util.SDK_INT < 23) {
       // Pass.
       return;
     }
@@ -231,7 +231,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testH265Adaptive() throws IOException {
-    if (Util.SDK_INT < 21 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
+    if (Util.SDK_INT < 23 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
       // Pass.
       return;
     }
@@ -241,7 +241,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testH265AdaptiveWithSeeking() throws IOException {
-    if (Util.SDK_INT < 21 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
+    if (Util.SDK_INT < 23 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
       // Pass.
       return;
     }
@@ -251,7 +251,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testH265AdaptiveWithRendererDisabling() throws IOException {
-    if (Util.SDK_INT < 21 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
+    if (Util.SDK_INT < 23 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
       // Pass.
       return;
     }
@@ -264,7 +264,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   // VP9 (CDD).
 
   public void testVp9Fixed360p() throws IOException {
-    if (Util.SDK_INT < 16) {
+    if (Util.SDK_INT < 23) {
       // Pass.
       return;
     }
@@ -274,7 +274,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testVp9Adaptive() throws IOException {
-    if (Util.SDK_INT < 16 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
+    if (Util.SDK_INT < 23 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
       // Pass.
       return;
     }
@@ -284,7 +284,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testVp9AdaptiveWithSeeking() throws IOException {
-    if (Util.SDK_INT < 16 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
+    if (Util.SDK_INT < 23 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
       // Pass.
       return;
     }
@@ -294,7 +294,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
   }
 
   public void testVp9AdaptiveWithRendererDisabling() throws IOException {
-    if (Util.SDK_INT < 16 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
+    if (Util.SDK_INT < 23 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
       // Pass.
       return;
     }
@@ -308,7 +308,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
   // 23.976 fps.
   public void test23FpsH264Fixed() throws IOException {
-    if (Util.SDK_INT < 16) {
+    if (Util.SDK_INT < 23) {
       // Pass.
       return;
     }
@@ -319,7 +319,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
   // 24 fps.
   public void test24FpsH264Fixed() throws IOException {
-    if (Util.SDK_INT < 16) {
+    if (Util.SDK_INT < 23) {
       // Pass.
       return;
     }
@@ -330,7 +330,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
 
   // 29.97 fps.
   public void test29FpsH264Fixed() throws IOException {
-    if (Util.SDK_INT < 16) {
+    if (Util.SDK_INT < 23) {
       // Pass.
       return;
     }
