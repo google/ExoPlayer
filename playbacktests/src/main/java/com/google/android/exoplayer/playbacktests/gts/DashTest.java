@@ -139,10 +139,10 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
       .delay(10000).seek(15000)
       .delay(10000).seek(30000).seek(31000).seek(32000).seek(33000).seek(34000)
       .delay(1000).pause().delay(1000).play()
-      .delay(1000).pause().seek(100000).delay(1000).play()
+      .delay(1000).pause().seek(120000).delay(1000).play()
       .build();
   private static final ActionSchedule RENDERER_DISABLING_SCHEDULE = new ActionSchedule.Builder(TAG)
-      // Wait 10 seconds, disable the video renderer, wait another 5 seconds and enable it again.
+      // Wait 10 seconds, disable the video renderer, wait another 10 seconds and enable it again.
       .delay(10000).disableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
       .delay(10000).enableRenderer(DashHostedTest.VIDEO_RENDERER_INDEX)
       // Ditto for the audio renderer.
@@ -170,6 +170,7 @@ public final class DashTest extends ActivityInstrumentationTestCase2<HostActivit
           .enableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
           .disableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
           .enableRenderer(DashHostedTest.AUDIO_RENDERER_INDEX)
+      .delay(10000).seek(120000)
       .build();
 
   public DashTest() {
