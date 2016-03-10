@@ -49,15 +49,14 @@ import java.util.List;
  * format will be detected automatically from the following supported formats:
  *
  * <ul>
- * <li>Fragmented MP4
- * ({@link com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor})</li>
- * <li>Unfragmented MP4, including M4A
- * ({@link com.google.android.exoplayer.extractor.mp4.Mp4Extractor})</li>
- * <li>Matroska, including WebM
- * ({@link com.google.android.exoplayer.extractor.webm.WebmExtractor})</li>
+ * <li>MP4, including M4A ({@link com.google.android.exoplayer.extractor.mp4.Mp4Extractor})</li>
+ * <li>fMP4 ({@link com.google.android.exoplayer.extractor.mp4.FragmentedMp4Extractor})</li>
+ * <li>Matroska and WebM ({@link com.google.android.exoplayer.extractor.webm.WebmExtractor})</li>
+ * <li>Ogg Vorbis ({@link com.google.android.exoplayer.extractor.ogg.OggVorbisExtractor}</li>
  * <li>MP3 ({@link com.google.android.exoplayer.extractor.mp3.Mp3Extractor})</li>
  * <li>AAC ({@link com.google.android.exoplayer.extractor.ts.AdtsExtractor})</li>
  * <li>MPEG TS ({@link com.google.android.exoplayer.extractor.ts.TsExtractor}</li>
+ * <li>MPEG PS ({@link com.google.android.exoplayer.extractor.ts.PsExtractor}</li>
  * <li>FLV ({@link com.google.android.exoplayer.extractor.flv.FlvExtractor}</li>
  * </ul>
  *
