@@ -152,14 +152,7 @@ import java.util.List;
     int timestampOffset = 0;
     if (ctts != null) {
       ctts.setPosition(Atom.FULL_HEADER_SIZE);
-      remainingTimestampOffsetChanges = ctts.readUnsignedIntToInt() - 1;
-      remainingSamplesAtTimestampOffset = ctts.readUnsignedIntToInt();
-      // The BMFF spec (ISO 14496-12) states that sample offsets should be unsigned integers in
-      // version 0 ctts boxes, however some streams violate the spec and use signed integers
-      // instead. It's safe to always parse sample offsets as signed integers here, because
-      // unsigned integers will still be parsed correctly (unless their top bit is set, which
-      // is never true in practice because sample offsets are always small).
-      timestampOffset = ctts.readInt();
+      remainingTimestampOffsetChanges = ctts.readUnsignedIntToInt();
     }
 
     int nextSynchronizationSampleIndex = -1;
@@ -180,6 +173,21 @@ import java.util.List;
 
     long timestampTimeUnits = 0;
     for (int i = 0; i < sampleCount; i++) {
+      // Add on the timestamp offset if ctts is present.
+      if (ctts != null) {
+        while (remainingSamplesAtTimestampOffset == 0 && remainingTimestampOffsetChanges > 0) {
+          remainingSamplesAtTimestampOffset = ctts.readUnsignedIntToInt();
+          // The BMFF spec (ISO 14496-12) states that sample offsets should be unsigned integers in
+          // version 0 ctts boxes, however some streams violate the spec and use signed integers
+          // instead. It's safe to always parse sample offsets as signed integers here, because
+          // unsigned integers will still be parsed correctly (unless their top bit is set, which is
+          // never true in practice because sample offsets are always small).
+          timestampOffset = ctts.readInt();
+          remainingTimestampOffsetChanges--;
+        }
+        remainingSamplesAtTimestampOffset--;
+      }
+
       offsets[i] = offsetBytes;
       sizes[i] = fixedSampleSize == 0 ? stsz.readUnsignedIntToInt() : fixedSampleSize;
       if (sizes[i] > maximumSize) {
@@ -204,17 +212,6 @@ import java.util.List;
         remainingSamplesAtTimestampDelta = stts.readUnsignedIntToInt();
         timestampDeltaInTimeUnits = stts.readUnsignedIntToInt();
         remainingTimestampDeltaChanges--;
-      }
-
-      // Add on the timestamp offset if ctts is present.
-      if (ctts != null) {
-        remainingSamplesAtTimestampOffset--;
-        if (remainingSamplesAtTimestampOffset == 0 && remainingTimestampOffsetChanges > 0) {
-          remainingSamplesAtTimestampOffset = ctts.readUnsignedIntToInt();
-          // Read a signed offset even for version 0 ctts boxes (see comment above).
-          timestampOffset = ctts.readInt();
-          remainingTimestampOffsetChanges--;
-        }
       }
 
       // If we're at the last sample in this chunk, move to the next chunk.
