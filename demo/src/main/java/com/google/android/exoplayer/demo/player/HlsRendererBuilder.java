@@ -164,7 +164,8 @@ public class HlsRendererBuilder implements RendererBuilder {
             url, manifest, DefaultHlsTrackSelector.newAudioInstance(), bandwidthMeter,
             timestampAdjusterProvider, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
         HlsSampleSource audioSampleSource = new HlsSampleSource(audioChunkSource, loadControl,
-            AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_TEXT);
+            AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player,
+            DemoPlayer.TYPE_AUDIO);
         audioRenderer = new MediaCodecAudioTrackRenderer(
             new SampleSource[] {sampleSource, audioSampleSource}, MediaCodecSelector.DEFAULT, null,
             true, player.getMainHandler(), player, AudioCapabilities.getCapabilities(context),
