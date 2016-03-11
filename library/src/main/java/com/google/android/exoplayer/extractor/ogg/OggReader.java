@@ -15,11 +15,12 @@
  */
 package com.google.android.exoplayer.extractor.ogg;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.ExtractorInput;
+import com.google.android.exoplayer.extractor.ogg.OggUtil.PacketInfoHolder;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.ParsableByteArray;
-import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
 
@@ -28,12 +29,14 @@ import java.io.IOException;
  */
 /* package */ final class OggReader {
 
-  private static final String CAPTURE_PATTERN_PAGE = "OggS";
+  public static final int OGG_MAX_SEGMENT_SIZE = 255;
 
-  private final PageHeader pageHeader = new PageHeader();
+  private final OggUtil.PageHeader pageHeader = new OggUtil.PageHeader();
   private final ParsableByteArray headerArray = new ParsableByteArray(27 + 255);
+  private final PacketInfoHolder holder = new PacketInfoHolder();
 
   private int currentSegmentIndex = -1;
+  private long elapsedSamples;
 
   /**
    * Resets this reader.
@@ -65,37 +68,99 @@ import java.io.IOException;
     while (!packetComplete) {
       if (currentSegmentIndex < 0) {
         // We're at the start of a page.
-        if (!populatePageHeader(input, pageHeader, headerArray, false)) {
+        if (!OggUtil.populatePageHeader(input, pageHeader, headerArray, true)) {
           return false;
         }
-        currentSegmentIndex = 0;
-      }
-
-      int packetSize = 0;
-      int segmentIndex = currentSegmentIndex;
-      // add up packetSize from laces
-      while (segmentIndex < pageHeader.pageSegmentCount) {
-        int segmentLength = pageHeader.laces[segmentIndex++];
-        packetSize += segmentLength;
-        if (segmentLength != 255) {
-          // packets end at first lace < 255
-          break;
+        int segmentIndex = 0;
+        int bytesToSkip = pageHeader.headerSize;
+        if ((pageHeader.type & 0x01) == 0x01 && packetArray.limit() == 0) {
+          // After seeking, the first packet may be the remainder
+          // part of a continued packet which has to be discarded.
+          OggUtil.calculatePacketSize(pageHeader, segmentIndex, holder);
+          segmentIndex += holder.segmentCount;
+          bytesToSkip += holder.size;
         }
+        input.skipFully(bytesToSkip);
+        currentSegmentIndex = segmentIndex;
       }
 
-      if (packetSize > 0) {
-        input.readFully(packetArray.data, packetArray.limit(), packetSize);
-        packetArray.setLimit(packetArray.limit() + packetSize);
+      OggUtil.calculatePacketSize(pageHeader, currentSegmentIndex, holder);
+      int segmentIndex = currentSegmentIndex + holder.segmentCount;
+      if (holder.size > 0) {
+        input.readFully(packetArray.data, packetArray.limit(), holder.size);
+        packetArray.setLimit(packetArray.limit() + holder.size);
         packetComplete = pageHeader.laces[segmentIndex - 1] != 255;
       }
       // advance now since we are sure reading didn't throw an exception
-      currentSegmentIndex = segmentIndex == pageHeader.pageSegmentCount ? -1 : segmentIndex;
+      currentSegmentIndex = segmentIndex == pageHeader.pageSegmentCount ? -1
+          : segmentIndex;
     }
     return true;
   }
 
   /**
-   * Returns the {@link OggReader.PageHeader} of the current page. The header might not have been
+   * Skips to the last Ogg page in the stream and reads the header's granule field which is the
+   * total number of samples per channel.
+   *
+   * @param input The {@link ExtractorInput} to read from.
+   * @return the total number of samples of this input.
+   * @throws IOException thrown if reading from the input fails.
+   * @throws InterruptedException thrown if interrupted while reading from the input.
+   */
+  public long readGranuleOfLastPage(ExtractorInput input)
+      throws IOException, InterruptedException {
+    Assertions.checkArgument(input.getLength() != C.LENGTH_UNBOUNDED); // never read forever!
+    OggUtil.skipToNextPage(input);
+    pageHeader.reset();
+    while ((pageHeader.type & 0x04) != 0x04) {
+      if (pageHeader.bodySize > 0) {
+        input.skipFully(pageHeader.bodySize);
+      }
+      OggUtil.populatePageHeader(input, pageHeader, headerArray, false);
+      input.skipFully(pageHeader.headerSize);
+    }
+    return pageHeader.granulePosition;
+  }
+
+  /**
+   * Skips to the position of the start of the page containing the {@code targetGranule} and
+   * returns the elapsed samples which is the granule of the page previous to the target page.
+   * <p>
+   * Note that the position of the {@code input} must be before the start of the page previous to
+   * the page containing the targetGranule to get the correct number of elapsed samples.
+   * Which is in short like: {@code pos(input) <= pos(targetPage.pageSequence - 1)}.
+   *
+   * @param input the {@link ExtractorInput} to read from.
+   * @param targetGranule the target granule (number of frames per channel).
+   * @return the number of elapsed samples at the start of the target page.
+   * @throws ParserException thrown if populating the page header fails.
+   * @throws IOException thrown if reading from the input fails.
+   * @throws InterruptedException thrown if interrupted while reading from the input.
+   */
+  public long skipToPageOfGranule(ExtractorInput input, long targetGranule)
+      throws IOException, InterruptedException {
+    OggUtil.skipToNextPage(input);
+    OggUtil.populatePageHeader(input, pageHeader, headerArray, false);
+    while (pageHeader.granulePosition < targetGranule) {
+      input.skipFully(pageHeader.headerSize + pageHeader.bodySize);
+      // Store in a member field to be able to resume after IOExceptions.
+      elapsedSamples = pageHeader.granulePosition;
+      // Peek next header.
+      OggUtil.populatePageHeader(input, pageHeader, headerArray, false);
+    }
+    if (elapsedSamples == 0) {
+      throw new ParserException();
+    }
+    input.resetPeekPosition();
+    long returnValue = elapsedSamples;
+    // Reset member state.
+    elapsedSamples = 0;
+    currentSegmentIndex = -1;
+    return returnValue;
+  }
+
+  /**
+   * Returns the {@link OggUtil.PageHeader} of the current page. The header might not have been
    * populated if the first packet has yet to be read.
    * <p>
    * Note that there is only a single instance of {@code OggReader.PageHeader} which is mutable.
@@ -104,93 +169,8 @@ import java.io.IOException;
    *
    * @return the {@code PageHeader} of the current page or {@code null}.
    */
-  public PageHeader getPageHeader() {
+  public OggUtil.PageHeader getPageHeader() {
     return pageHeader;
-  }
-
-  /**
-   * Reads/peeks an Ogg page header and stores the data in the {@code header} object passed
-   * as argument.
-   *
-   * @param input the {@link ExtractorInput} to read from.
-   * @param header the {@link PageHeader} to read from.
-   * @param scratch a scratch array temporary use.
-   * @param peek pass {@code true} if data should only be peeked from current peek position.
-   * @return {@code true} if the read was successful. {@code false} if the end of the
-   *     input was encountered having read no data.
-   * @throws IOException thrown if reading data fails or the stream is invalid.
-   * @throws InterruptedException thrown if thread is interrupted when reading/peeking.
-   */
-  public static boolean populatePageHeader(ExtractorInput input, PageHeader header,
-      ParsableByteArray scratch, boolean peek) throws IOException, InterruptedException {
-
-    scratch.reset();
-    header.reset();
-    if (!input.peekFully(scratch.data, 0, 27, true)) {
-      return false;
-    }
-    if (scratch.readUnsignedInt() != Util.getIntegerCodeForString(CAPTURE_PATTERN_PAGE)) {
-      throw new ParserException("expected OggS capture pattern at begin of page");
-    }
-
-    header.revision = scratch.readUnsignedByte();
-    if (header.revision != 0x00) {
-      throw new ParserException("unsupported bit stream revision");
-    }
-    header.type = scratch.readUnsignedByte();
-
-    header.granulePosition = scratch.readLittleEndianLong();
-    header.streamSerialNumber = scratch.readLittleEndianUnsignedInt();
-    header.pageSequenceNumber = scratch.readLittleEndianUnsignedInt();
-    header.pageChecksum = scratch.readLittleEndianUnsignedInt();
-    header.pageSegmentCount = scratch.readUnsignedByte();
-
-    scratch.reset();
-    // calculate total size of header including laces
-    header.headerSize = 27 + header.pageSegmentCount;
-    input.peekFully(scratch.data, 0, header.pageSegmentCount);
-    for (int i = 0; i < header.pageSegmentCount; i++) {
-      header.laces[i] = scratch.readUnsignedByte();
-      header.bodySize += header.laces[i];
-    }
-    if (!peek) {
-      input.skipFully(header.headerSize);
-    }
-    return true;
-  }
-
-  /**
-   * Data object to store header information. Be aware that {@code laces.length} is always 255.
-   * Instead use {@code pageSegmentCount} to iterate.
-   */
-  public static final class PageHeader {
-
-    public int revision;
-    public int type;
-    public long granulePosition;
-    public long streamSerialNumber;
-    public long pageSequenceNumber;
-    public long pageChecksum;
-    public int pageSegmentCount;
-    public int headerSize;
-    public int bodySize;
-    public int[] laces = new int[255];
-
-    /**
-     * Resets all primitive member fields to zero.
-     */
-    public void reset() {
-      revision = 0;
-      type = 0;
-      granulePosition = 0;
-      streamSerialNumber = 0;
-      pageSequenceNumber = 0;
-      pageChecksum = 0;
-      pageSegmentCount = 0;
-      headerSize = 0;
-      bodySize = 0;
-    }
-
   }
 
 }

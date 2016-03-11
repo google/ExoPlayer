@@ -43,12 +43,33 @@ public final class OggVorbisExtractorTest extends TestCase {
   public void testSniff() throws Exception {
     byte[] data = TestUtil.joinByteArrays(
         TestData.buildOggHeader(0x02, 0, 1000, 0x02),
-        TestUtil.createByteArray(120, 120)); // Laces
+        TestUtil.createByteArray(120, 120),  // Laces
+        new byte[]{0x01, 'v', 'o', 'r', 'b', 'i', 's'});
     assertTrue(sniff(createInput(data)));
   }
 
-  public void testSniffFails() throws Exception {
+  public void testSniffFailsOpusFile() throws Exception {
+    byte[] data = TestUtil.joinByteArrays(
+        TestData.buildOggHeader(0x02, 0, 1000, 0x00),
+        new byte[]{'O', 'p', 'u', 's'});
+    assertFalse(sniff(createInput(data)));
+  }
+
+  public void testSniffFailsInvalidOggHeader() throws Exception {
     byte[] data = TestData.buildOggHeader(0x00, 0, 1000, 0x00);
+    assertFalse(sniff(createInput(data)));
+  }
+
+  public void testSniffInvalidVorbisHeader() throws Exception {
+    byte[] data = TestUtil.joinByteArrays(
+        TestData.buildOggHeader(0x02, 0, 1000, 0x02),
+        TestUtil.createByteArray(120, 120),  // Laces
+        new byte[]{0x01, 'X', 'o', 'r', 'b', 'i', 's'});
+    assertFalse(sniff(createInput(data)));
+  }
+
+  public void testSniffFailsEOF() throws Exception {
+    byte[] data = TestData.buildOggHeader(0x02, 0, 1000, 0x00);
     assertFalse(sniff(createInput(data)));
   }
 

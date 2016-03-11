@@ -47,19 +47,6 @@ import java.util.Arrays;
   }
 
   /**
-   * Reads an int of {@code length} bits from {@code src} starting at
-   * {@code leastSignificantBitIndex}.
-   *
-   * @param src the {@code byte} to read from.
-   * @param length the length in bits of the int to read.
-   * @param leastSignificantBitIndex the index of the least significant bit of the int to read.
-   * @return the int value read.
-   */
-  public static int readBits(byte src, int length, int leastSignificantBitIndex) {
-    return (src >> leastSignificantBitIndex) & (255 >>> (8 - length));
-  }
-
-  /**
    * Reads a vorbis identification header from {@code headerData}.
    *
    * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-630004.2.2">Vorbis
@@ -71,7 +58,7 @@ import java.util.Arrays;
   public static VorbisIdHeader readVorbisIdentificationHeader(ParsableByteArray headerData)
       throws ParserException {
 
-    captureVorbisHeader(0x01, headerData);
+    verifyVorbisHeaderCapturePattern(0x01, headerData, false);
 
     long version = headerData.readLittleEndianUnsignedInt();
     int channels = headerData.readUnsignedByte();
@@ -104,7 +91,8 @@ import java.util.Arrays;
   public static CommentHeader readVorbisCommentHeader(ParsableByteArray headerData)
       throws ParserException {
 
-    int length = captureVorbisHeader(0x03, headerData);
+    verifyVorbisHeaderCapturePattern(0x03, headerData, false);
+    int length = 7;
 
     int len = (int) headerData.readLittleEndianUnsignedInt();
     length += 4;
@@ -127,21 +115,40 @@ import java.util.Arrays;
     return new CommentHeader(vendor, comments, length);
   }
 
-  private static int captureVorbisHeader(int headerType, ParsableByteArray idHeader)
+  /**
+   * Verifies whether the next bytes in {@code header} are a vorbis header of the given
+   * {@code headerType}.
+   *
+   * @param headerType the type of the header expected.
+   * @param header the alleged header bytes.
+   * @param quite if {@code true} no exceptions are thrown. Instead {@code false} is returned.
+   * @return the number of bytes read.
+   * @throws ParserException thrown if header type or capture pattern is not as expected.
+   */
+  public static boolean verifyVorbisHeaderCapturePattern(int headerType, ParsableByteArray header,
+      boolean quite)
       throws ParserException {
-    if (idHeader.readUnsignedByte() != headerType) {
-      throw new ParserException("expected header type " + Integer.toHexString(headerType));
+    if (header.readUnsignedByte() != headerType) {
+      if (quite) {
+        return false;
+      } else {
+        throw new ParserException("expected header type " + Integer.toHexString(headerType));
+      }
     }
 
-    if (!(idHeader.readUnsignedByte() == 'v'
-        && idHeader.readUnsignedByte() == 'o'
-        && idHeader.readUnsignedByte() == 'r'
-        && idHeader.readUnsignedByte() == 'b'
-        && idHeader.readUnsignedByte() == 'i'
-        && idHeader.readUnsignedByte() == 's')) {
-      throw new ParserException("expected characters 'vorbis'");
+    if (!(header.readUnsignedByte() == 'v'
+        && header.readUnsignedByte() == 'o'
+        && header.readUnsignedByte() == 'r'
+        && header.readUnsignedByte() == 'b'
+        && header.readUnsignedByte() == 'i'
+        && header.readUnsignedByte() == 's')) {
+      if (quite) {
+        return false;
+      } else {
+        throw new ParserException("expected characters 'vorbis'");
+      }
     }
-    return 7; // bytes read
+    return true;
   }
 
   /**
@@ -159,7 +166,7 @@ import java.util.Arrays;
   public static Mode[] readVorbisModes(ParsableByteArray headerData, int channels)
       throws ParserException {
 
-    captureVorbisHeader(0x05, headerData);
+    verifyVorbisHeaderCapturePattern(0x05, headerData, false);
 
     int numberOfBooks = headerData.readUnsignedByte() + 1;
 
