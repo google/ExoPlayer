@@ -38,13 +38,6 @@ public final class VorbisUtilTest extends TestCase {
     assertEquals(0, VorbisUtil.iLog(-122));
   }
 
-  public void testReadBits() throws Exception {
-    assertEquals(0, VorbisUtil.readBits((byte) 0x00, 2, 2));
-    assertEquals(1, VorbisUtil.readBits((byte) 0x02, 1, 1));
-    assertEquals(15, VorbisUtil.readBits((byte) 0xF0, 4, 4));
-    assertEquals(1, VorbisUtil.readBits((byte) 0x80, 1, 7));
-  }
-
   public void testReadIdHeader() throws Exception {
     byte[] data = TestData.getIdentificationHeaderData();
     ParsableByteArray headerData = new ParsableByteArray(data, data.length);
@@ -93,6 +86,47 @@ public final class VorbisUtilTest extends TestCase {
     assertEquals(1, modes[1].mapping);
     assertEquals(0, modes[1].transformType);
     assertEquals(0, modes[1].windowType);
+  }
+
+  public void testVerifyVorbisHeaderCapturePattern() throws ParserException {
+    ParsableByteArray header = new ParsableByteArray(
+        new byte[]{0x01, 'v', 'o', 'r', 'b', 'i', 's'});
+    assertEquals(true, VorbisUtil.verifyVorbisHeaderCapturePattern(0x01, header, false));
+  }
+
+  public void testVerifyVorbisHeaderCapturePatternInvalidHeader() throws ParserException {
+    ParsableByteArray header = new ParsableByteArray(
+        new byte[]{0x01, 'v', 'o', 'r', 'b', 'i', 's'});
+    try {
+      VorbisUtil.verifyVorbisHeaderCapturePattern(0x99, header, false);
+      fail();
+    } catch (ParserException e) {
+      assertEquals("expected header type 99", e.getMessage());
+    }
+  }
+
+  public void testVerifyVorbisHeaderCapturePatternInvalidHeaderQuite() throws ParserException {
+    ParsableByteArray header = new ParsableByteArray(
+        new byte[]{0x01, 'v', 'o', 'r', 'b', 'i', 's'});
+    assertFalse(VorbisUtil.verifyVorbisHeaderCapturePattern(0x99, header, true));
+  }
+
+  public void testVerifyVorbisHeaderCapturePatternInvalidPattern() throws ParserException {
+    ParsableByteArray header = new ParsableByteArray(
+        new byte[]{0x01, 'x', 'v', 'o', 'r', 'b', 'i', 's'});
+    try {
+      VorbisUtil.verifyVorbisHeaderCapturePattern(0x01, header, false);
+      fail();
+    } catch (ParserException e) {
+      assertEquals("expected characters 'vorbis'", e.getMessage());
+    }
+  }
+
+  public void testVerifyVorbisHeaderCapturePatternQuiteInvalidPatternQuite()
+      throws ParserException {
+    ParsableByteArray header = new ParsableByteArray(
+        new byte[]{0x01, 'x', 'v', 'o', 'r', 'b', 'i', 's'});
+    assertFalse(VorbisUtil.verifyVorbisHeaderCapturePattern(0x01, header, true));
   }
 
 }
