@@ -44,6 +44,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
 
 /**
  * An extractor to facilitate data retrieval from the WebM container format.
@@ -152,6 +154,9 @@ public final class WebmExtractor implements Extractor {
   private static final int LACING_FIXED_SIZE = 2;
   private static final int LACING_EBML = 3;
 
+  private static final int CONTENT_COMPRESSION_ZLIB = 0;
+  private static final int CONTENT_COMPRESSION_HEADER_STRIPPING = 3;
+
   /**
    * A template for the prefix that must be added to each subrip sample. The 12 byte end timecode
    * starting at {@link #SUBRIP_PREFIX_END_TIMECODE_OFFSET} is set to a dummy value, and must be
@@ -190,6 +195,7 @@ public final class WebmExtractor implements Extractor {
   private final ParsableByteArray seekEntryIdBytes;
   private final ParsableByteArray sampleStrippedBytes;
   private final ParsableByteArray subripSample;
+  private final ParsableByteArray sampleDecompressedBytes;
 
   private long segmentContentPosition = UNKNOWN;
   private long segmentContentSize = UNKNOWN;
@@ -235,6 +241,7 @@ public final class WebmExtractor implements Extractor {
   private int sampleBytesWritten;
   private boolean sampleRead;
   private boolean sampleSeenReferenceBlock;
+  private Inflater sampleInflator;
 
   // Extractor outputs.
   private ExtractorOutput extractorOutput;
@@ -255,6 +262,7 @@ public final class WebmExtractor implements Extractor {
     nalLength = new ParsableByteArray(4);
     sampleStrippedBytes = new ParsableByteArray();
     subripSample = new ParsableByteArray();
+    sampleDecompressedBytes = new ParsableByteArray();
   }
 
   @Override
@@ -401,6 +409,12 @@ public final class WebmExtractor implements Extractor {
         return;
       case ID_CONTENT_ENCODING:
         // TODO: check and fail if more than one content encoding is present.
+        return;
+      case ID_CONTENT_COMPRESSION:
+        // A number of muxers (e.g. mkvmerge v4.0.0) do not write EBML elements which correspond to the default values
+        // as defined in the spec. They assume that if they provide a ID_CONTENT_COMPRESSION with no specific
+        // ID_CONTENT_COMPRESSION_ALGORITHM, zlib will be used.
+        currentTrack.contentCompression = CONTENT_COMPRESSION_ZLIB;
         return;
       case ID_CONTENT_ENCRYPTION:
         currentTrack.hasContentEncryption = true;
@@ -560,10 +574,11 @@ public final class WebmExtractor implements Extractor {
         }
         return;
       case ID_CONTENT_COMPRESSION_ALGORITHM:
-        // This extractor only supports header stripping.
-        if (value != 3) {
+        // This extractor only supports header stripping and zlib.
+        if (value != CONTENT_COMPRESSION_HEADER_STRIPPING && value != CONTENT_COMPRESSION_ZLIB) {
           throw new ParserException("ContentCompAlgo " + value + " not supported");
         }
+        currentTrack.contentCompression = (int) value;
         return;
       case ID_CONTENT_ENCRYPTION_ALGORITHM:
         // Only the value 5 (AES) is allowed according to the WebM specification.
@@ -646,9 +661,10 @@ public final class WebmExtractor implements Extractor {
         input.readFully(currentTrack.codecPrivate, 0, contentSize);
         return;
       case ID_CONTENT_COMPRESSION_SETTINGS:
-        // This extractor only supports header stripping, so the payload is the stripped bytes.
-        currentTrack.sampleStrippedBytes = new byte[contentSize];
-        input.readFully(currentTrack.sampleStrippedBytes, 0, contentSize);
+        if (currentTrack.contentCompression == CONTENT_COMPRESSION_HEADER_STRIPPING) {
+          currentTrack.sampleStrippedBytes = new byte[contentSize];
+          input.readFully(currentTrack.sampleStrippedBytes, 0, contentSize);
+        }
         return;
       case ID_CONTENT_ENCRYPTION_KEY_ID:
         currentTrack.encryptionKeyId = new byte[contentSize];
@@ -661,15 +677,23 @@ public final class WebmExtractor implements Extractor {
         // for info about how data is organized in SimpleBlock and Block elements respectively. They
         // differ only in the way flags are specified.
 
+        Track track = null;
         if (blockState == BLOCK_STATE_START) {
           blockTrackNumber = (int) varintReader.readUnsignedVarint(input, false, true, 8);
           blockTrackNumberLength = varintReader.getLastLength();
           blockDurationUs = UNKNOWN;
           blockState = BLOCK_STATE_HEADER;
           scratch.reset();
+
+          track = tracks.get(blockTrackNumber);
+          if (track.contentCompression == CONTENT_COMPRESSION_ZLIB) {
+            sampleInflator = new Inflater(false);
+          }
         }
 
-        Track track = tracks.get(blockTrackNumber);
+        if (track == null) {
+          track = tracks.get(blockTrackNumber);
+        }
 
         // Ignore the block if we don't know about the track to which it belongs.
         if (track == null) {
@@ -807,6 +831,8 @@ public final class WebmExtractor implements Extractor {
     sampleCurrentNalBytesRemaining = 0;
     sampleEncodingHandled = false;
     sampleStrippedBytes.reset();
+    sampleDecompressedBytes.reset();
+    sampleInflator = null;
   }
 
   /**
@@ -967,15 +993,37 @@ public final class WebmExtractor implements Extractor {
   private int readToOutput(ExtractorInput input, TrackOutput output, int length)
       throws IOException, InterruptedException {
     int bytesRead;
+    int bytesWritten = 0;
     int strippedBytesLeft = sampleStrippedBytes.bytesLeft();
     if (strippedBytesLeft > 0) {
       bytesRead = Math.min(length, strippedBytesLeft);
       output.sampleData(sampleStrippedBytes, bytesRead);
+      bytesWritten = bytesRead;
+    } else if (sampleInflator != null) {
+
+      byte[] compressedBuffer = new byte[length];
+      bytesRead = input.read(compressedBuffer, 0, length);
+      sampleInflator.setInput(compressedBuffer, 0, bytesRead);
+
+      try {
+        byte[] tmp = new byte[1024];
+        while (sampleInflator.getRemaining() > 0) {
+          sampleDecompressedBytes.reset(tmp, tmp.length);
+          int bytesInflated = sampleInflator.inflate(sampleDecompressedBytes.data);
+          output.sampleData(sampleDecompressedBytes, bytesInflated);
+
+          bytesWritten += bytesInflated;
+        }
+
+      } catch (DataFormatException ex) {
+        throw new ParserException("Unable to decompress zlib sample");
+      }
     } else {
       bytesRead = output.sampleData(input, length, false);
+      bytesWritten = bytesRead;
     }
     sampleBytesRead += bytesRead;
-    sampleBytesWritten += bytesRead;
+    sampleBytesWritten += bytesWritten;
     return bytesRead;
   }
 
@@ -1168,6 +1216,9 @@ public final class WebmExtractor implements Extractor {
     // Set when the output is initialized. nalUnitLengthFieldLength is only set for H264/H265.
     public TrackOutput output;
     public int nalUnitLengthFieldLength;
+
+    // Content compression.
+    public int contentCompression = CONTENT_COMPRESSION_HEADER_STRIPPING;
 
     /**
      * Initializes the track with an output.
