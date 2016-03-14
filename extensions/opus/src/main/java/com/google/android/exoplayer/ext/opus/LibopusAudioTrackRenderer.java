@@ -81,6 +81,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
 
   private final Handler eventHandler;
   private final EventListener eventListener;
+  private final AudioTrack audioTrack;
   private final MediaFormatHolder formatHolder;
 
   private MediaFormat format;
@@ -95,7 +96,6 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
   private boolean sourceIsReady;
   private boolean notifyDiscontinuityToDecoder;
 
-  private AudioTrack audioTrack;
   private int audioSessionId;
 
   /**
@@ -117,7 +117,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     this.audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
-    this.audioTrack = new AudioTrack();
+    audioTrack = new AudioTrack();
     formatHolder = new MediaFormatHolder();
   }
 
