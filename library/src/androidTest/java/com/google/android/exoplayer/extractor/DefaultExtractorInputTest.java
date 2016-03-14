@@ -297,11 +297,14 @@ public class DefaultExtractorInputTest extends TestCase {
     // Check that we read the whole of TEST_DATA.
     assertTrue(Arrays.equals(TEST_DATA, target));
     assertEquals(0, input.getPosition());
+    assertEquals(TEST_DATA.length, input.getPeekPosition());
 
     // Check that we can read again from the buffer
     byte[] target2 = new byte[TEST_DATA.length];
     input.readFully(target2, 0, TEST_DATA.length);
     assertTrue(Arrays.equals(TEST_DATA, target2));
+    assertEquals(TEST_DATA.length, input.getPosition());
+    assertEquals(TEST_DATA.length, input.getPeekPosition());
 
     // Check that we fail with EOFException if we peek again
     try {

@@ -25,12 +25,11 @@ import java.io.IOException;
  * Implementation of {@link ExtractorInput} for testing purpose.
  */
 /* package */ class RecordableExtractorInput implements ExtractorInput {
-  protected static final byte STREAM_REVISION = 0x00;
 
   private byte[] data;
-  private int readOffset;
-  private int writeOffset;
-  private int peekOffset;
+  private int readPosition;
+  private int writePosition;
+  private int peekPosition;
 
   private boolean throwExceptionsAtRead = false;
   private boolean throwExceptionsAtPeek = false;
@@ -47,12 +46,12 @@ import java.io.IOException;
   /**
    * Constructs an instance with a initial array of bytes.
    *
-   * @param data the initial data.
-   * @param writeOffset the {@code writeOffset} from where to start recording.
+   * @param data The initial data.
+   * @param writePosition The {@code writePosition} from where to start recording.
    */
-  public RecordableExtractorInput(byte[] data, int writeOffset) {
+  public RecordableExtractorInput(byte[] data, int writePosition) {
     this.data = data;
-    this.writeOffset = writeOffset;
+    this.writePosition = writePosition;
   }
 
   /**
@@ -82,15 +81,15 @@ import java.io.IOException;
       readExceptionCounter++;
       throw new IOException("deliberately thrown an exception for testing");
     }
-    if (readOffset + length > writeOffset) {
+    if (readPosition + length > writePosition) {
       if (!allowEndOfInput) {
         throw new EOFException();
       }
       return false;
     }
-    System.arraycopy(data, readOffset, target, offset, length);
-    readOffset += length;
-    peekOffset = readOffset;
+    System.arraycopy(data, readPosition, target, offset, length);
+    readPosition += length;
+    peekPosition = readPosition;
     return true;
   }
 
@@ -107,20 +106,20 @@ import java.io.IOException;
   }
 
   private boolean isEOF() {
-    return readOffset == writeOffset;
+    return readPosition == writePosition;
   }
 
   @Override
   public boolean skipFully(int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
-    if (readOffset + length >= writeOffset) {
+    if (readPosition + length >= writePosition) {
       if (!allowEndOfInput) {
         throw new EOFException();
       }
       return false;
     }
-    readOffset += length;
-    peekOffset = readOffset;
+    readPosition += length;
+    peekPosition = readPosition;
     return true;
   }
 
@@ -141,14 +140,14 @@ import java.io.IOException;
       peekExceptionCounter++;
       throw new IOException("deliberately thrown an exception for testing");
     }
-    if (peekOffset + length > writeOffset) {
+    if (peekPosition + length > writePosition) {
       if (!allowEndOfInput) {
         throw new EOFException();
       }
       return false;
     }
-    System.arraycopy(data, peekOffset, target, offset, length);
-    peekOffset += length;
+    System.arraycopy(data, peekPosition, target, offset, length);
+    peekPosition += length;
     return true;
   }
 
@@ -161,13 +160,13 @@ import java.io.IOException;
   @Override
   public boolean advancePeekPosition(int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
-    if (peekOffset + length >= writeOffset) {
+    if (peekPosition + length >= writePosition) {
       if (!allowEndOfInput) {
         throw new EOFException();
       }
       return false;
     }
-    peekOffset += length;
+    peekPosition += length;
     return true;
   }
 
@@ -178,17 +177,22 @@ import java.io.IOException;
 
   @Override
   public void resetPeekPosition() {
-    peekOffset = readOffset;
+    peekPosition = readPosition;
+  }
+
+  @Override
+  public long getPeekPosition() {
+    return peekPosition;
   }
 
   @Override
   public long getPosition() {
-    return readOffset;
+    return readPosition;
   }
 
   @Override
   public long getLength() {
-    return writeOffset;
+    return writePosition;
   }
 
   /**
@@ -197,13 +201,13 @@ import java.io.IOException;
    * @param bytes the bytes to record.
    */
   public void record(final byte[] bytes) {
-    System.arraycopy(bytes, 0, data, writeOffset, bytes.length);
-    writeOffset += bytes.length;
+    System.arraycopy(bytes, 0, data, writePosition, bytes.length);
+    writePosition += bytes.length;
   }
 
   /** Records a single byte. **/
   public void record(byte b) {
-    record(new byte[]{b});
+    record(new byte[] {b});
   }
 
   /**

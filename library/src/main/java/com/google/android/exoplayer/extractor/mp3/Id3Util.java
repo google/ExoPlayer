@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.extractor.mp3;
 
 import com.google.android.exoplayer.extractor.ExtractorInput;
+import com.google.android.exoplayer.extractor.GaplessInfo;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
@@ -23,8 +24,6 @@ import android.util.Pair;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Utility for parsing ID3 version 2 metadata in MP3 files.
@@ -37,9 +36,6 @@ import java.util.regex.Pattern;
   private static final int MAXIMUM_METADATA_SIZE = 3 * 1024 * 1024;
 
   private static final int ID3_TAG = Util.getIntegerCodeForString("ID3");
-  private static final String GAPLESS_COMMENT_NAME = "iTunSMPB";
-  private static final Pattern GAPLESS_COMMENT_VALUE_PATTERN =
-      Pattern.compile("^ [0-9a-fA-F]{8} ([0-9a-fA-F]{8}) ([0-9a-fA-F]{8})");
   private static final Charset[] CHARSET_BY_ENCODING = new Charset[] {Charset.forName("ISO-8859-1"),
       Charset.forName("UTF-16LE"), Charset.forName("UTF-16BE"), Charset.forName("UTF-8")};
 
@@ -47,17 +43,15 @@ import java.util.regex.Pattern;
    * Peeks data from the input and parses ID3 metadata.
    *
    * @param input The {@link ExtractorInput} from which data should be peeked.
-   * @param out {@link Mp3Extractor.Metadata} to populate based on the input.
-   * @return The number of bytes peeked from the input.
+   * @return The gapless playback information, if present and non-zero. {@code null} otherwise.
    * @throws IOException If an error occurred peeking from the input.
    * @throws InterruptedException If the thread was interrupted.
    */
-  public static int parseId3(ExtractorInput input, Mp3Extractor.Metadata out)
+  public static GaplessInfo parseId3(ExtractorInput input)
       throws IOException, InterruptedException {
-    out.encoderDelay = 0;
-    out.encoderPadding = 0;
     ParsableByteArray scratch = new ParsableByteArray(10);
     int peekedId3Bytes = 0;
+    GaplessInfo metadata = null;
     while (true) {
       input.peekFully(scratch.data, 0, 10);
       scratch.setPosition(0);
@@ -69,10 +63,10 @@ import java.util.regex.Pattern;
       int minorVersion = scratch.readUnsignedByte();
       int flags = scratch.readUnsignedByte();
       int length = scratch.readSynchSafeInt();
-      if (canParseMetadata(majorVersion, minorVersion, flags, length)) {
+      if (metadata == null && canParseMetadata(majorVersion, minorVersion, flags, length)) {
         byte[] frame = new byte[length];
         input.peekFully(frame, 0, length);
-        parseMetadata(new ParsableByteArray(frame), majorVersion, flags, out);
+        metadata = parseGaplessInfo(new ParsableByteArray(frame), majorVersion, flags);
       } else {
         input.advancePeekPosition(length);
       }
@@ -81,7 +75,7 @@ import java.util.regex.Pattern;
     }
     input.resetPeekPosition();
     input.advancePeekPosition(peekedId3Bytes);
-    return peekedId3Bytes;
+    return metadata;
   }
 
   private static boolean canParseMetadata(int majorVersion, int minorVersion, int flags,
@@ -93,19 +87,18 @@ import java.util.regex.Pattern;
         && !(majorVersion == 4 && (flags & 0x0F) != 0);
   }
 
-  private static void parseMetadata(ParsableByteArray frame, int version, int flags,
-      Mp3Extractor.Metadata out) {
+  private static GaplessInfo parseGaplessInfo(ParsableByteArray frame, int version, int flags) {
     unescape(frame, version, flags);
 
     // Skip any extended header.
     frame.setPosition(0);
     if (version == 3 && (flags & 0x40) != 0) {
       if (frame.bytesLeft() < 4) {
-        return;
+        return null;
       }
       int extendedHeaderSize = frame.readUnsignedIntToInt();
       if (extendedHeaderSize > frame.bytesLeft()) {
-        return;
+        return null;
       }
       int paddingSize = 0;
       if (extendedHeaderSize >= 6) {
@@ -114,17 +107,17 @@ import java.util.regex.Pattern;
         frame.setPosition(4);
         frame.setLimit(frame.limit() - paddingSize);
         if (frame.bytesLeft() < extendedHeaderSize) {
-          return;
+          return null;
         }
       }
       frame.skipBytes(extendedHeaderSize);
     } else if (version == 4 && (flags & 0x40) != 0) {
       if (frame.bytesLeft() < 4) {
-        return;
+        return null;
       }
       int extendedHeaderSize = frame.readSynchSafeInt();
       if (extendedHeaderSize < 6 || extendedHeaderSize > frame.bytesLeft() + 4) {
-        return;
+        return null;
       }
       frame.setPosition(extendedHeaderSize);
     }
@@ -132,20 +125,15 @@ import java.util.regex.Pattern;
     // Extract gapless playback metadata stored in comments.
     Pair<String, String> comment;
     while ((comment = findNextComment(version, frame)) != null) {
-      if (comment.first.length() > 3 && comment.first.substring(3).equals(GAPLESS_COMMENT_NAME)) {
-        Matcher matcher = GAPLESS_COMMENT_VALUE_PATTERN.matcher(comment.second);
-        if (matcher.find()) {
-          try {
-            out.encoderDelay = Integer.parseInt(matcher.group(1), 16);
-            out.encoderPadding = Integer.parseInt(matcher.group(2), 16);
-            break;
-          } catch (NumberFormatException e) {
-            out.encoderDelay = 0;
-            return;
-          }
+      if (comment.first.length() > 3) {
+        GaplessInfo gaplessInfo =
+            GaplessInfo.createFromComment(comment.first.substring(3), comment.second);
+        if (gaplessInfo != null) {
+          return gaplessInfo;
         }
       }
     }
+    return null;
   }
 
   private static Pair<String, String> findNextComment(int majorVersion, ParsableByteArray data) {
