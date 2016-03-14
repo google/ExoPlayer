@@ -34,6 +34,7 @@ public class DefaultExtractorInputTest extends TestCase {
 
   private static final String TEST_URI = "http://www.google.com";
   private static final byte[] TEST_DATA = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8};
+  private static final int LARGE_TEST_DATA_LENGTH = 8192;
 
   public void testInitialPosition() throws IOException {
     FakeDataSource testDataSource = buildDataSource();
@@ -180,6 +181,16 @@ public class DefaultExtractorInputTest extends TestCase {
     // Check we're now indicated that the end of input is reached.
     int expectedEndOfInput = input.skip(TEST_DATA.length);
     assertEquals(-1, expectedEndOfInput);
+  }
+
+  public void testLargeSkip() throws IOException, InterruptedException {
+    FakeDataSource testDataSource = buildLargeDataSource();
+    DefaultExtractorInput input = new DefaultExtractorInput(testDataSource, 0, C.LENGTH_UNBOUNDED);
+    // Check that skipping the entire data source succeeds.
+    int bytesToSkip = LARGE_TEST_DATA_LENGTH;
+    while (bytesToSkip > 0) {
+      bytesToSkip -= input.skip(bytesToSkip);
+    }
   }
 
   public void testSkipFullyOnce() throws IOException, InterruptedException {
@@ -386,6 +397,14 @@ public class DefaultExtractorInputTest extends TestCase {
     builder.appendReadData(Arrays.copyOfRange(TEST_DATA, 0, 6));
     builder.appendReadError(new IOException());
     builder.appendReadData(Arrays.copyOfRange(TEST_DATA, 6, 9));
+    FakeDataSource testDataSource = builder.build();
+    testDataSource.open(new DataSpec(Uri.parse(TEST_URI)));
+    return testDataSource;
+  }
+
+  private static FakeDataSource buildLargeDataSource() throws IOException {
+    FakeDataSource.Builder builder = new FakeDataSource.Builder();
+    builder.appendReadData(new byte[LARGE_TEST_DATA_LENGTH]);
     FakeDataSource testDataSource = builder.build();
     testDataSource.open(new DataSpec(Uri.parse(TEST_URI)));
     return testDataSource;
