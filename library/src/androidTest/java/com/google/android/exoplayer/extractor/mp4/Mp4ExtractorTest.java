@@ -39,21 +39,21 @@ import java.util.List;
 public final class Mp4ExtractorTest extends TestCase {
 
   /** String of hexadecimal bytes containing the video stsd payload from an AVC video. */
-  private static final byte[] VIDEO_STSD_PAYLOAD = TestUtil.createByteArray(
+  private static final byte[] VIDEO_STSD_PAYLOAD = Util.getBytesFromHexString(
       "00000000000000010000009961766331000000000000000100000000000000000000000000000000050002d00048"
       + "000000480000000000000001000000000000000000000000000000000000000000000000000000000000000000"
       + "18ffff0000002f617663430164001fffe100186764001facb402802dd80880000003008000001e078c19500100"
       + "0468ee3cb000000014627472740000e35c0042a61000216cb8");
-  private static final byte[] VIDEO_HDLR_PAYLOAD = TestUtil.createByteArray(
+  private static final byte[] VIDEO_HDLR_PAYLOAD = Util.getBytesFromHexString(
       "000000000000000076696465");
-  private static final byte[] VIDEO_MDHD_PAYLOAD = TestUtil.createByteArray(
+  private static final byte[] VIDEO_MDHD_PAYLOAD = Util.getBytesFromHexString(
       "0000000000000000cf6c48890000001e00001c8a55c40000");
   private static final int TIMESCALE = 30;
   private static final int VIDEO_WIDTH = 1280;
   private static final int VIDEO_HEIGHT = 720;
 
   /** String of hexadecimal bytes containing the video stsd payload for an mp4v track. */
-  private static final byte[] VIDEO_STSD_MP4V_PAYLOAD = TestUtil.createByteArray(
+  private static final byte[] VIDEO_STSD_MP4V_PAYLOAD = Util.getBytesFromHexString(
       "0000000000000001000000A36D703476000000000000000100000000000000000000000000000000014000B40048"
       + "000000480000000000000001000000000000000000000000000000000000000000000000000000000000000000"
       + "18FFFF0000004D6573647300000000033F00000004372011001A400004CF280002F1180528000001B001000001"
@@ -62,26 +62,26 @@ public final class Mp4ExtractorTest extends TestCase {
   private static final int VIDEO_MP4V_HEIGHT = 180;
 
   /** String of hexadecimal bytes containing the audio stsd payload from an AAC track. */
-  private static final byte[] AUDIO_STSD_PAYLOAD = TestUtil.createByteArray(
+  private static final byte[] AUDIO_STSD_PAYLOAD = Util.getBytesFromHexString(
       "0000000000000001000000596d703461000000000000000100000000000000000001001000000000ac4400000000"
       + "003565736473000000000327000000041f401500023e00024bc000023280051012080000000000000000000000"
       + "000000060102");
-  private static final byte[] AUDIO_HDLR_PAYLOAD = TestUtil.createByteArray(
+  private static final byte[] AUDIO_HDLR_PAYLOAD = Util.getBytesFromHexString(
       "0000000000000000736f756e");
-  private static final byte[] AUDIO_MDHD_PAYLOAD = TestUtil.createByteArray(
+  private static final byte[] AUDIO_MDHD_PAYLOAD = Util.getBytesFromHexString(
       "00000000cf6c4889cf6c488a0000ac4400a3e40055c40000");
 
   /** String of hexadecimal bytes for an ftyp payload with major_brand mp41 and minor_version 0. **/
-  private static final byte[] FTYP_PAYLOAD = TestUtil.createByteArray("6d70343100000000");
+  private static final byte[] FTYP_PAYLOAD = Util.getBytesFromHexString("6d70343100000000");
 
   /** String of hexadecimal bytes containing an mvhd payload from an AVC/AAC video. */
-  private static final byte[] MVHD_PAYLOAD = TestUtil.createByteArray(
+  private static final byte[] MVHD_PAYLOAD = Util.getBytesFromHexString(
       "00000000cf6c4888cf6c48880000025800023ad40001000001000000000000000000000000010000000000000000"
       + "000000000000000100000000000000000000000000004000000000000000000000000000000000000000000000"
       + "000000000000000003");
 
   /** String of hexadecimal bytes containing a tkhd payload with an unknown duration. */
-  private static final byte[] TKHD_PAYLOAD = TestUtil.createByteArray(
+  private static final byte[] TKHD_PAYLOAD = Util.getBytesFromHexString(
       "00000007D1F0C7BFD1F0C7BF0000000000000000FFFFFFFF00000000000000000000000000000000000100000000"
       + "0000000000000000000000010000000000000000000000000000400000000780000004380000");
 
