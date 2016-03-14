@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.ext.flac;
 
-import com.google.android.exoplayer.util.extensions.DecoderWrapper;
 import com.google.android.exoplayer.util.extensions.OutputBuffer;
 
 import java.nio.ByteBuffer;
@@ -25,11 +24,11 @@ import java.nio.ByteBuffer;
  */
 public final class FlacOutputBuffer extends OutputBuffer {
 
-  private final DecoderWrapper<?, FlacOutputBuffer, ?> owner;
+  private final FlacDecoder owner;
 
   public ByteBuffer data;
 
-  /* package */ FlacOutputBuffer(DecoderWrapper<?, FlacOutputBuffer, ?> owner) {
+  /* package */ FlacOutputBuffer(FlacDecoder owner) {
     this.owner = owner;
   }
 

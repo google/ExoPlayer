@@ -20,13 +20,13 @@ import com.google.android.exoplayer.util.Assertions;
 import java.util.LinkedList;
 
 /**
- * Wraps a {@link Decoder}, exposing a higher level decoder interface.
+ * Base class for {@link Decoder}s that use their own decode thread.
  */
-public final class DecoderWrapper<I extends InputBuffer, O extends OutputBuffer,
-    E extends Exception> extends Thread {
+public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffer,
+    E extends Exception> extends Thread implements Decoder<I, O, E> {
 
   /**
-   * Listener for {@link DecoderWrapper} events.
+   * Listener for {@link SimpleDecoder} events.
    */
   public interface EventListener<E> {
 
@@ -39,50 +39,59 @@ public final class DecoderWrapper<I extends InputBuffer, O extends OutputBuffer,
 
   }
 
-  private final Decoder<I, O, E> decoder;
   private final Object lock;
-
   private final LinkedList<I> queuedInputBuffers;
   private final LinkedList<O> queuedOutputBuffers;
   private final I[] availableInputBuffers;
   private final O[] availableOutputBuffers;
+
   private int availableInputBufferCount;
   private int availableOutputBufferCount;
   private I dequeuedInputBuffer;
 
+  private E exception;
   private boolean flushDecodedOutputBuffer;
   private boolean released;
 
   /**
-   * Creates a new wrapper around {@code decoder}, using the specified {@code inputBuffers} and
-   * {@code outputBuffers}. The arrays will be populated using buffers created by the decoder.
-   *
-   * @param decoder The decoder to wrap.
    * @param inputBuffers An array of nulls that will be used to store references to input buffers.
    * @param outputBuffers An array of nulls that will be used to store references to output buffers.
-   * @param initialInputBufferSize The initial size for each input buffer, in bytes.
    */
-  public DecoderWrapper(Decoder<I, O, E> decoder, I[] inputBuffers, O[] outputBuffers,
-      int initialInputBufferSize) {
-    this.decoder = decoder;
+  protected SimpleDecoder(I[] inputBuffers, O[] outputBuffers) {
     lock = new Object();
     queuedInputBuffers = new LinkedList<>();
     queuedOutputBuffers = new LinkedList<>();
     availableInputBuffers = inputBuffers;
     availableInputBufferCount = inputBuffers.length;
     for (int i = 0; i < availableInputBufferCount; i++) {
-      availableInputBuffers[i] = decoder.createInputBuffer(initialInputBufferSize);
+      availableInputBuffers[i] = createInputBuffer();
     }
     availableOutputBuffers = outputBuffers;
     availableOutputBufferCount = outputBuffers.length;
     for (int i = 0; i < availableOutputBufferCount; i++) {
-      availableOutputBuffers[i] = decoder.createOutputBuffer(this);
+      availableOutputBuffers[i] = createOutputBuffer();
     }
   }
 
-  public I dequeueInputBuffer() throws E {
+  /**
+   * Sets the initial size of each input buffer.
+   * <p>
+   * This method should only be called before the decoder is used (i.e. before the first call to
+   * {@link #dequeueInputBuffer()}.
+   *
+   * @param size The required input buffer size.
+   */
+  protected final void setInitialInputBufferSize(int size) {
+    Assertions.checkState(availableInputBufferCount == availableInputBuffers.length);
+    for (int i = 0; i < availableInputBuffers.length; i++) {
+      availableInputBuffers[i].sampleHolder.ensureSpaceForWrite(size);
+    }
+  }
+
+  @Override
+  public final I dequeueInputBuffer() throws E {
     synchronized (lock) {
-      decoder.maybeThrowException();
+      maybeThrowException();
       Assertions.checkState(dequeuedInputBuffer == null);
       if (availableInputBufferCount == 0) {
         return null;
@@ -94,9 +103,10 @@ public final class DecoderWrapper<I extends InputBuffer, O extends OutputBuffer,
     }
   }
 
-  public void queueInputBuffer(I inputBuffer) throws E {
+  @Override
+  public final void queueInputBuffer(I inputBuffer) throws E {
     synchronized (lock) {
-      decoder.maybeThrowException();
+      maybeThrowException();
       Assertions.checkArgument(inputBuffer == dequeuedInputBuffer);
       queuedInputBuffers.addLast(inputBuffer);
       maybeNotifyDecodeLoop();
@@ -104,9 +114,10 @@ public final class DecoderWrapper<I extends InputBuffer, O extends OutputBuffer,
     }
   }
 
-  public O dequeueOutputBuffer() throws E {
+  @Override
+  public final O dequeueOutputBuffer() throws E {
     synchronized (lock) {
-      decoder.maybeThrowException();
+      maybeThrowException();
       if (queuedOutputBuffers.isEmpty()) {
         return null;
       }
@@ -114,19 +125,20 @@ public final class DecoderWrapper<I extends InputBuffer, O extends OutputBuffer,
     }
   }
 
-  public void releaseOutputBuffer(O outputBuffer) {
+  /**
+   * Releases an output buffer back to the decoder.
+   *
+   * @param outputBuffer The output buffer being released.
+   */
+  protected void releaseOutputBuffer(O outputBuffer) {
     synchronized (lock) {
       availableOutputBuffers[availableOutputBufferCount++] = outputBuffer;
       maybeNotifyDecodeLoop();
     }
   }
 
-  /**
-   * Flushes input/output buffers that have not been dequeued yet and returns ownership of any
-   * dequeued input buffer to the decoder. Flushes any pending output currently in the decoder. The
-   * caller is still responsible for releasing any dequeued output buffers.
-   */
-  public void flush() {
+  @Override
+  public final void flush() {
     synchronized (lock) {
       flushDecodedOutputBuffer = true;
       if (dequeuedInputBuffer != null) {
@@ -142,6 +154,7 @@ public final class DecoderWrapper<I extends InputBuffer, O extends OutputBuffer,
     }
   }
 
+  @Override
   public void release() {
     synchronized (lock) {
       released = true;
@@ -151,6 +164,17 @@ public final class DecoderWrapper<I extends InputBuffer, O extends OutputBuffer,
       join();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
+    }
+  }
+
+  /**
+   * Throws a decode exception, if there is one.
+   *
+   * @throws E The decode exception.
+   */
+  private void maybeThrowException() throws E {
+    if (exception != null) {
+      throw exception;
     }
   }
 
@@ -167,22 +191,18 @@ public final class DecoderWrapper<I extends InputBuffer, O extends OutputBuffer,
   }
 
   @Override
-  public void run() {
+  public final void run() {
     try {
-      while (decodeBuffer(decoder)) {
+      while (decode()) {
         // Do nothing.
       }
     } catch (InterruptedException e) {
       // Not expected.
       throw new IllegalStateException(e);
-    } finally {
-      if (decoder != null) {
-        decoder.release();
-      }
     }
   }
 
-  private boolean decodeBuffer(Decoder<I, O, E> decoder) throws InterruptedException {
+  private boolean decode() throws InterruptedException {
     I inputBuffer;
     O outputBuffer;
 
@@ -199,7 +219,8 @@ public final class DecoderWrapper<I extends InputBuffer, O extends OutputBuffer,
       flushDecodedOutputBuffer = false;
     }
 
-    if (!decoder.decode(inputBuffer, outputBuffer)) {
+    exception = decode(inputBuffer, outputBuffer);
+    if (exception != null) {
       // Memory barrier to ensure that the decoder exception is visible from the playback thread.
       synchronized (lock) {}
       return false;
@@ -225,5 +246,26 @@ public final class DecoderWrapper<I extends InputBuffer, O extends OutputBuffer,
   private boolean canDecodeBuffer() {
     return !queuedInputBuffers.isEmpty() && availableOutputBufferCount > 0;
   }
+
+  /**
+   * Creates a new input buffer.
+   */
+  protected abstract I createInputBuffer();
+
+  /**
+   * Creates a new output buffer.
+   */
+  protected abstract O createOutputBuffer();
+
+  /**
+   * Decodes the {@code inputBuffer} and stores any decoded output in {@code outputBuffer}.
+   *
+   * @param inputBuffer The buffer to decode.
+   * @param outputBuffer The output buffer to store decoded data. If the flag
+   *     {@link Buffer#FLAG_DECODE_ONLY} is set after this method returns, any output should not be
+   *     presented.
+   * @return A decode exception if an error occurred, or null if the decode was successful.
+   */
+  protected abstract E decode(I inputBuffer, O outputBuffer);
 
 }

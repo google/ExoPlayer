@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.ext.opus;
 
-import com.google.android.exoplayer.util.extensions.DecoderWrapper;
 import com.google.android.exoplayer.util.extensions.OutputBuffer;
 
 import java.nio.ByteBuffer;
@@ -25,11 +24,11 @@ import java.nio.ByteBuffer;
  */
 public final class OpusOutputBuffer extends OutputBuffer {
 
-  private final DecoderWrapper<?, OpusOutputBuffer, ?> owner;
+  private final OpusDecoder owner;
 
   public ByteBuffer data;
 
-  /* package */ OpusOutputBuffer(DecoderWrapper<?, OpusOutputBuffer, ?> owner) {
+  /* package */ OpusOutputBuffer(OpusDecoder owner) {
     this.owner = owner;
   }
 

@@ -27,7 +27,6 @@ import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.extensions.Buffer;
-import com.google.android.exoplayer.util.extensions.DecoderWrapper;
 import com.google.android.exoplayer.util.extensions.InputBuffer;
 
 import android.os.Handler;
@@ -85,7 +84,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
   private final MediaFormatHolder formatHolder;
 
   private MediaFormat format;
-  private DecoderWrapper<InputBuffer, OpusOutputBuffer, OpusDecoderException> decoderWrapper;
+  private OpusDecoder decoder;
   private InputBuffer inputBuffer;
   private OpusOutputBuffer outputBuffer;
 
@@ -161,7 +160,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
     }
 
     // If we don't have a decoder yet, we need to instantiate one.
-    if (decoderWrapper == null) {
+    if (decoder == null) {
       // For opus, the format can contain upto 3 entries in initializationData in the following
       // exact order:
       // 1) Opus Header Information (required)
@@ -171,16 +170,14 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
       if (initializationData.size() < 1) {
         throw new ExoPlaybackException("Missing initialization data");
       }
-      OpusDecoder decoder;
       try {
-        decoder = new OpusDecoder(initializationData);
+        decoder = new OpusDecoder(NUM_BUFFERS, NUM_BUFFERS, INITIAL_INPUT_BUFFER_SIZE,
+            initializationData);
       } catch (OpusDecoderException e) {
         notifyDecoderError(e);
         throw new ExoPlaybackException(e);
       }
-      decoderWrapper = new DecoderWrapper<>(decoder, new InputBuffer[NUM_BUFFERS],
-          new OpusOutputBuffer[NUM_BUFFERS], INITIAL_INPUT_BUFFER_SIZE);
-      decoderWrapper.start();
+      decoder.start();
       codecCounters.codecInitCount++;
     }
 
@@ -208,7 +205,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
     }
 
     if (outputBuffer == null) {
-      outputBuffer = decoderWrapper.dequeueOutputBuffer();
+      outputBuffer = decoder.dequeueOutputBuffer();
       if (outputBuffer == null) {
         return;
       }
@@ -256,7 +253,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
     }
 
     if (inputBuffer == null) {
-      inputBuffer = decoderWrapper.dequeueInputBuffer();
+      inputBuffer = decoder.dequeueInputBuffer();
       if (inputBuffer == null) {
         return false;
       }
@@ -272,7 +269,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
     }
     if (result == SampleSource.END_OF_STREAM) {
       inputBuffer.setFlag(Buffer.FLAG_END_OF_STREAM);
-      decoderWrapper.queueInputBuffer(inputBuffer);
+      decoder.queueInputBuffer(inputBuffer);
       inputBuffer = null;
       inputStreamEnded = true;
       return false;
@@ -282,7 +279,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
       inputBuffer.setFlag(Buffer.FLAG_RESET);
     }
 
-    decoderWrapper.queueInputBuffer(inputBuffer);
+    decoder.queueInputBuffer(inputBuffer);
     inputBuffer = null;
     return true;
   }
@@ -293,7 +290,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
       outputBuffer.release();
       outputBuffer = null;
     }
-    decoderWrapper.flush();
+    decoder.flush();
     notifyDiscontinuityToDecoder = true;
   }
 
@@ -327,7 +324,7 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
     inputStreamEnded = false;
     outputStreamEnded = false;
     sourceIsReady = false;
-    if (decoderWrapper != null) {
+    if (decoder != null) {
       flushDecoder();
     }
   }
@@ -349,9 +346,9 @@ public final class LibopusAudioTrackRenderer extends SampleSourceTrackRenderer
     format = null;
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     try {
-      if (decoderWrapper != null) {
-        decoderWrapper.release();
-        decoderWrapper = null;
+      if (decoder != null) {
+        decoder.release();
+        decoder = null;
         codecCounters.codecReleaseCount++;
       }
       audioTrack.release();

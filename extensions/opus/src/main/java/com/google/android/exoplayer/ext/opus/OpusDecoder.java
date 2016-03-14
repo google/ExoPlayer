@@ -17,9 +17,8 @@ package com.google.android.exoplayer.ext.opus;
 
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.extensions.Buffer;
-import com.google.android.exoplayer.util.extensions.Decoder;
-import com.google.android.exoplayer.util.extensions.DecoderWrapper;
 import com.google.android.exoplayer.util.extensions.InputBuffer;
+import com.google.android.exoplayer.util.extensions.SimpleDecoder;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -28,8 +27,8 @@ import java.util.List;
 /**
  * JNI wrapper for the libopus Opus decoder.
  */
-/* package */ final class OpusDecoder implements Decoder<InputBuffer, OpusOutputBuffer,
-    OpusDecoderException> {
+/* package */ final class OpusDecoder extends
+    SimpleDecoder<InputBuffer, OpusOutputBuffer, OpusDecoderException> {
 
   /**
    * Whether the underlying libopus library is available.
@@ -66,17 +65,20 @@ import java.util.List;
 
   private int skipSamples;
 
-  private OpusDecoderException exception;
-
   /**
-   * Creates the Opus Decoder.
+   * Creates an Opus decoder.
    *
+   * @param numInputBuffers The number of input buffers.
+   * @param numOutputBuffers The number of output buffers.
+   * @param initialInputBufferSize The initial size of each input buffer.
    * @param initializationData Codec-specific initialization data. The first element must contain an
    *     opus header. Optionally, the list may contain two additional buffers, which must contain
    *     the encoder delay and seek pre roll values in nanoseconds, encoded as longs.
    * @throws OpusDecoderException Thrown if an exception occurs when initializing the decoder.
    */
-  public OpusDecoder(List<byte[]> initializationData) throws OpusDecoderException {
+  public OpusDecoder(int numInputBuffers, int numOutputBuffers, int initialInputBufferSize,
+      List<byte[]> initializationData) throws OpusDecoderException {
+    super(new InputBuffer[numInputBuffers], new OpusOutputBuffer[numOutputBuffers]);
     byte[] headerBytes = initializationData.get(0);
     if (headerBytes.length < 19) {
       throw new OpusDecoderException("Header size is too small.");
@@ -129,25 +131,30 @@ import java.util.List;
     if (nativeDecoderContext == 0) {
       throw new OpusDecoderException("Failed to initialize decoder");
     }
+    setInitialInputBufferSize(initialInputBufferSize);
   }
 
   @Override
-  public InputBuffer createInputBuffer(int initialSize) {
-    return new InputBuffer(initialSize);
+  public InputBuffer createInputBuffer() {
+    return new InputBuffer();
   }
 
   @Override
-  public OpusOutputBuffer createOutputBuffer(
-      DecoderWrapper<InputBuffer, OpusOutputBuffer, OpusDecoderException> owner) {
-    return new OpusOutputBuffer(owner);
+  public OpusOutputBuffer createOutputBuffer() {
+    return new OpusOutputBuffer(this);
   }
 
   @Override
-  public boolean decode(InputBuffer inputBuffer, OpusOutputBuffer outputBuffer) {
+  protected void releaseOutputBuffer(OpusOutputBuffer buffer) {
+    super.releaseOutputBuffer(buffer);
+  }
+
+  @Override
+  public OpusDecoderException decode(InputBuffer inputBuffer, OpusOutputBuffer outputBuffer) {
     outputBuffer.reset();
     if (inputBuffer.getFlag(Buffer.FLAG_END_OF_STREAM)) {
       outputBuffer.setFlag(Buffer.FLAG_END_OF_STREAM);
-      return true;
+      return null;
     }
     if (inputBuffer.getFlag(Buffer.FLAG_DECODE_ONLY)) {
       outputBuffer.setFlag(Buffer.FLAG_DECODE_ONLY);
@@ -165,15 +172,13 @@ import java.util.List;
     int requiredOutputBufferSize =
         opusGetRequiredOutputBufferSize(sampleHolder.data, sampleHolder.size, SAMPLE_RATE);
     if (requiredOutputBufferSize < 0) {
-      exception = new OpusDecoderException("Error when computing required output buffer size.");
-      return false;
+      return new OpusDecoderException("Error when computing required output buffer size.");
     }
     outputBuffer.init(requiredOutputBufferSize);
     int result = opusDecode(nativeDecoderContext, sampleHolder.data, sampleHolder.size,
         outputBuffer.data, outputBuffer.data.capacity());
     if (result < 0) {
-      exception = new OpusDecoderException("Decode error: " + opusGetErrorMessage(result));
-      return false;
+      return new OpusDecoderException("Decode error: " + opusGetErrorMessage(result));
     }
     outputBuffer.data.position(0);
     outputBuffer.data.limit(result);
@@ -189,18 +194,12 @@ import java.util.List;
         outputBuffer.data.position(skipBytes);
       }
     }
-    return true;
-  }
-
-  @Override
-  public void maybeThrowException() throws OpusDecoderException {
-    if (exception != null) {
-      throw exception;
-    }
+    return null;
   }
 
   @Override
   public void release() {
+    super.release();
     opusClose(nativeDecoderContext);
   }
 

@@ -17,16 +17,15 @@ package com.google.android.exoplayer.ext.vp9;
 
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.extensions.Buffer;
-import com.google.android.exoplayer.util.extensions.Decoder;
-import com.google.android.exoplayer.util.extensions.DecoderWrapper;
+import com.google.android.exoplayer.util.extensions.SimpleDecoder;
 
 import java.nio.ByteBuffer;
 
 /**
  * JNI wrapper for the libvpx VP9 decoder.
  */
-/* package */ final class VpxDecoder implements Decoder<VpxInputBuffer, VpxOutputBuffer,
-    VpxDecoderException> {
+/* package */ final class VpxDecoder extends
+    SimpleDecoder<VpxInputBuffer, VpxOutputBuffer, VpxDecoderException> {
 
   public static final int OUTPUT_MODE_UNKNOWN = -1;
   public static final int OUTPUT_MODE_YUV = 0;
@@ -56,18 +55,23 @@ import java.nio.ByteBuffer;
   private final long vpxDecContext;
 
   private volatile int outputMode;
-  private VpxDecoderException exception;
 
   /**
-   * Creates the VP9 Decoder.
+   * Creates a VP9 decoder.
    *
-   * @throws VpxDecoderException Thrown if the decoder fails to initialize.
+   * @param numInputBuffers The number of input buffers.
+   * @param numOutputBuffers The number of output buffers.
+   * @param initialInputBufferSize The initial size of each input buffer.
+   * @throws VpxDecoderException Thrown if an exception occurs when initializing the decoder.
    */
-  public VpxDecoder() throws VpxDecoderException {
+  public VpxDecoder(int numInputBuffers, int numOutputBuffers, int initialInputBufferSize)
+      throws VpxDecoderException {
+    super(new VpxInputBuffer[numInputBuffers], new VpxOutputBuffer[numOutputBuffers]);
     vpxDecContext = vpxInit();
     if (vpxDecContext == 0) {
       throw new VpxDecoderException("Failed to initialize decoder");
     }
+    setInitialInputBufferSize(initialInputBufferSize);
   }
 
   /**
@@ -81,46 +85,43 @@ import java.nio.ByteBuffer;
   }
 
   @Override
-  public VpxInputBuffer createInputBuffer(int initialSize) {
-    return new VpxInputBuffer(initialSize);
+  protected VpxInputBuffer createInputBuffer() {
+    return new VpxInputBuffer();
   }
 
   @Override
-  public VpxOutputBuffer createOutputBuffer(
-      DecoderWrapper<VpxInputBuffer, VpxOutputBuffer, VpxDecoderException> owner) {
-    return new VpxOutputBuffer(owner);
+  protected VpxOutputBuffer createOutputBuffer() {
+    return new VpxOutputBuffer(this);
   }
 
   @Override
-  public boolean decode(VpxInputBuffer inputBuffer, VpxOutputBuffer outputBuffer) {
+  protected void releaseOutputBuffer(VpxOutputBuffer buffer) {
+    super.releaseOutputBuffer(buffer);
+  }
+
+  @Override
+  protected VpxDecoderException decode(VpxInputBuffer inputBuffer, VpxOutputBuffer outputBuffer) {
     outputBuffer.reset();
     if (inputBuffer.getFlag(Buffer.FLAG_END_OF_STREAM)) {
       outputBuffer.setFlag(Buffer.FLAG_END_OF_STREAM);
-      return true;
+      return null;
     }
     SampleHolder sampleHolder = inputBuffer.sampleHolder;
     outputBuffer.timestampUs = sampleHolder.timeUs;
     sampleHolder.data.position(sampleHolder.data.position() - sampleHolder.size);
     if (vpxDecode(vpxDecContext, sampleHolder.data, sampleHolder.size) != 0) {
-      exception = new VpxDecoderException("Decode error: " + vpxGetErrorMessage(vpxDecContext));
-      return false;
+      return new VpxDecoderException("Decode error: " + vpxGetErrorMessage(vpxDecContext));
     }
     outputBuffer.mode = outputMode;
     if (vpxGetFrame(vpxDecContext, outputBuffer) != 0) {
       outputBuffer.setFlag(Buffer.FLAG_DECODE_ONLY);
     }
-    return true;
-  }
-
-  @Override
-  public void maybeThrowException() throws VpxDecoderException {
-    if (exception != null) {
-      throw exception;
-    }
+    return null;
   }
 
   @Override
   public void release() {
+    super.release();
     vpxClose(vpxDecContext);
   }
 
