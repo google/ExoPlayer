@@ -375,14 +375,20 @@ public class DashChunkSource implements ChunkSource {
         // we'll need to wait until it's refreshed. If it's unbounded we just need to wait for a
         // while before attempting to load the chunk.
         return;
-      } else if (!currentManifest.dynamic) {
-        // The current manifest isn't dynamic, so check whether we've reached the end of the stream.
+      } else {
+        // A period's duration is the maximum of its various representation's durations, so it's
+        // possible that due to the minor differences between them our available range values might
+        // not sync exactly with the actual available content, so double check whether or not we've
+        // really run out of content to play.
         PeriodHolder lastPeriodHolder = periodHolders.valueAt(periodHolders.size() - 1);
         if (previous.parentId == lastPeriodHolder.localIndex) {
           RepresentationHolder representationHolder =
               lastPeriodHolder.representationHolders[getTrackIndex(previous.format)];
           if (representationHolder.isBeyondLastSegment(previous.getNextChunkIndex())) {
-            out.endOfStream = true;
+            if (!currentManifest.dynamic) {
+              // The current manifest isn't dynamic, so we've reached the end of the stream.
+              out.endOfStream = true;
+            }
             return;
           }
         }
