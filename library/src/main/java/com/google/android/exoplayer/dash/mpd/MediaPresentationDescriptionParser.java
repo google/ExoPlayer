@@ -629,11 +629,14 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       return getVideoMediaMimeType(codecs);
     } else if (mimeTypeIsRawText(containerMimeType)) {
       return containerMimeType;
-    } else if (MimeTypes.APPLICATION_MP4.equals(containerMimeType) && "stpp".equals(codecs)) {
-      return MimeTypes.APPLICATION_TTML;
-    } else {
-      return null;
+    } else if (MimeTypes.APPLICATION_MP4.equals(containerMimeType)) {
+      if ("stpp".equals(codecs)) {
+        return MimeTypes.APPLICATION_TTML;
+      } else if ("wvtt".equals(codecs)) {
+        return MimeTypes.APPLICATION_MP4VTT;
+      }
     }
+    return null;
   }
 
   /**
