@@ -58,6 +58,9 @@ import java.util.Collections;
   private final SampleReader sampleReader;
   private long totalBytesWritten;
 
+  // Per packet state that gets reset at the start of each packet.
+  private long pesTimeUs;
+
   // Scratch variables to avoid allocations.
   private final ParsableByteArray seiWrapper;
 
@@ -76,7 +79,6 @@ import java.util.Collections;
 
   @Override
   public void seek() {
-    seiReader.seek();
     NalUnitUtil.clearPrefixFlags(prefixFlags);
     vps.reset();
     sps.reset();
@@ -88,7 +90,12 @@ import java.util.Collections;
   }
 
   @Override
-  public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
+  public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {
+    this.pesTimeUs = pesTimeUs;
+  }
+
+  @Override
+  public void consume(ParsableByteArray data) {
     while (data.bytesLeft() > 0) {
       int offset = data.getPosition();
       int limit = data.limit();
@@ -179,7 +186,7 @@ import java.util.Collections;
 
       // Skip the NAL prefix and type.
       seiWrapper.skipBytes(5);
-      seiReader.consume(seiWrapper, pesTimeUs, true);
+      seiReader.consume(pesTimeUs, seiWrapper);
     }
     if (suffixSei.endNalUnit(discardPadding)) {
       int unescapedLength = NalUnitUtil.unescapeStream(suffixSei.nalData, suffixSei.nalLength);
@@ -187,7 +194,7 @@ import java.util.Collections;
 
       // Skip the NAL prefix and type.
       seiWrapper.skipBytes(5);
-      seiReader.consume(seiWrapper, pesTimeUs, true);
+      seiReader.consume(pesTimeUs, seiWrapper);
     }
   }
 

@@ -48,9 +48,12 @@ import java.util.Collections;
   // State that should be reset on seek.
   private final boolean[] prefixFlags;
   private final CsdBuffer csdBuffer;
-  private boolean foundFirstFrameInPacket;
   private boolean foundFirstFrameInGroup;
   private long totalBytesWritten;
+
+  // Per packet state that gets reset at the start of each packet.
+  private long pesTimeUs;
+  private boolean foundFirstFrameInPacket;
 
   // Per sample state that gets reset at the start of each frame.
   private boolean isKeyframe;
@@ -73,10 +76,13 @@ import java.util.Collections;
   }
 
   @Override
-  public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
-    if (startOfPacket) {
-      foundFirstFrameInPacket = false;
-    }
+  public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {
+    this.pesTimeUs = pesTimeUs;
+    foundFirstFrameInPacket = false;
+  }
+
+  @Override
+  public void consume(ParsableByteArray data) {
     while (data.bytesLeft() > 0) {
       int offset = data.getPosition();
       int limit = data.limit();

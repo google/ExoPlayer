@@ -74,10 +74,12 @@ import com.google.android.exoplayer.util.ParsableByteArray;
   }
 
   @Override
-  public void consume(ParsableByteArray data, long pesTimeUs, boolean startOfPacket) {
-    if (startOfPacket) {
-      timeUs = pesTimeUs;
-    }
+  public void packetStarted(long pesTimeUs, boolean dataAlignmentIndicator) {
+    timeUs = pesTimeUs;
+  }
+
+  @Override
+  public void consume(ParsableByteArray data) {
     while (data.bytesLeft() > 0) {
       switch (state) {
         case STATE_FINDING_SYNC:
