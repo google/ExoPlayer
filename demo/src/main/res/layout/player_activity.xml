@@ -94,13 +94,6 @@
           android:visibility="gone"
           android:onClick="showTextPopup"/>
 
-      <Button android:id="@+id/verbose_log_controls"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="@string/logging"
-          style="@style/DemoButton"
-          android:onClick="showVerboseLogPopup"/>
-
       <Button android:id="@+id/retry_button"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"

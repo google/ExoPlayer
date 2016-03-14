@@ -19,23 +19,19 @@
   <!-- The user visible name of the application. [CHAR LIMIT=20] -->
   <string name="application_name">ExoPlayer Demo</string>
 
-  <string name="enable_background_audio">Play in background</string>
-
   <string name="video">Video</string>
 
   <string name="audio">Audio</string>
 
   <string name="text">Text</string>
 
-  <string name="logging">Logging</string>
-
-  <string name="logging_normal">Normal</string>
-
-  <string name="logging_verbose">Verbose</string>
-
   <string name="retry">Retry</string>
 
-  <string name="off">[off]</string>
+  <string name="selection_disabled">Disabled</string>
+
+  <string name="selection_default">Default</string>
+
+  <string name="selection_default_none">Default (none)</string>
 
   <string name="error_drm_not_supported">Protected content not supported on API levels below 18</string>
 

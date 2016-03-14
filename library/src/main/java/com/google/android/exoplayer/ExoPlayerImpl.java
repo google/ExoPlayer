@@ -23,7 +23,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
-import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
@@ -36,8 +35,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   private final Handler eventHandler;
   private final ExoPlayerImplInternal internalPlayer;
   private final CopyOnWriteArraySet<Listener> listeners;
-  private final Format[][] trackFormats;
-  private final int[] selectedTrackIndices;
 
   private boolean playWhenReady;
   private int playbackState;
@@ -46,7 +43,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
   /**
    * Constructs an instance. Must be invoked from a thread that has an associated {@link Looper}.
    *
-   * @param renderers The {@link TrackRenderer}s belonging to this instance.
+   * @param renderers The {@link TrackRenderer}s that will be used by the instance.
+   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
    * @param minBufferMs A minimum duration of data that must be buffered for playback to start
    *     or resume following a user action such as a seek.
    * @param minRebufferMs A minimum duration of data that must be buffered for playback to resume
@@ -54,23 +52,22 @@ import java.util.concurrent.CopyOnWriteArraySet;
    *     not due to a user action such as starting playback or seeking).
    */
   @SuppressLint("HandlerLeak")
-  public ExoPlayerImpl(TrackRenderer[] renderers, int minBufferMs, int minRebufferMs) {
+  public ExoPlayerImpl(TrackRenderer[] renderers, TrackSelector trackSelector, int minBufferMs,
+      int minRebufferMs) {
     Log.i(TAG, "Init " + ExoPlayerLibraryInfo.VERSION);
     Assertions.checkNotNull(renderers);
     Assertions.checkState(renderers.length > 0);
     this.playWhenReady = false;
     this.playbackState = STATE_IDLE;
     this.listeners = new CopyOnWriteArraySet<>();
-    this.trackFormats = new Format[renderers.length][];
-    this.selectedTrackIndices = new int[renderers.length];
     eventHandler = new Handler() {
       @Override
       public void handleMessage(Message msg) {
         ExoPlayerImpl.this.handleEvent(msg);
       }
     };
-    internalPlayer = new ExoPlayerImplInternal(renderers, minBufferMs, minRebufferMs,
-        playWhenReady, selectedTrackIndices, eventHandler);
+    internalPlayer = new ExoPlayerImplInternal(renderers, trackSelector, minBufferMs, minRebufferMs,
+        playWhenReady, eventHandler);
   }
 
   @Override
@@ -95,31 +92,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   @Override
   public void prepare(SampleSource source) {
-    Arrays.fill(trackFormats, null);
     internalPlayer.prepare(source);
-  }
-
-  @Override
-  public int getTrackCount(int rendererIndex) {
-    return trackFormats[rendererIndex] != null ? trackFormats[rendererIndex].length : 0;
-  }
-
-  @Override
-  public Format getTrackFormat(int rendererIndex, int trackIndex) {
-    return trackFormats[rendererIndex][trackIndex];
-  }
-
-  @Override
-  public void setSelectedTrack(int rendererIndex, int trackIndex) {
-    if (selectedTrackIndices[rendererIndex] != trackIndex) {
-      selectedTrackIndices[rendererIndex] = trackIndex;
-      internalPlayer.setRendererSelectedTrack(rendererIndex, trackIndex);
-    }
-  }
-
-  @Override
-  public int getSelectedTrack(int rendererIndex) {
-    return selectedTrackIndices[rendererIndex];
   }
 
   @Override
@@ -196,14 +169,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
   // Not private so it can be called from an inner class without going through a thunk method.
   /* package */ void handleEvent(Message msg) {
     switch (msg.what) {
-      case ExoPlayerImplInternal.MSG_PREPARED: {
-        System.arraycopy(msg.obj, 0, trackFormats, 0, trackFormats.length);
-        playbackState = msg.arg1;
-        for (Listener listener : listeners) {
-          listener.onPlayerStateChanged(playWhenReady, playbackState);
-        }
-        break;
-      }
       case ExoPlayerImplInternal.MSG_STATE_CHANGED: {
         playbackState = msg.arg1;
         for (Listener listener : listeners) {

@@ -69,6 +69,21 @@ public final class TrackSelection {
     return tracks.clone();
   }
 
+  /**
+   * Gets whether a given track index is included in the selection.
+   *
+   * @param trackIndex The track index.
+   * @return True if the index is included in the selection. False otherwise.
+   */
+  public boolean containsTrack(int trackIndex) {
+    for (int i = 0; i < length; i++) {
+      if (tracks[i] == trackIndex) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @Override
   public int hashCode() {
     if (hashCode == 0) {

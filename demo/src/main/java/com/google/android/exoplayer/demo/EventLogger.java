@@ -15,13 +15,17 @@
  */
 package com.google.android.exoplayer.demo;
 
+import com.google.android.exoplayer.DefaultTrackSelector.TrackInfo;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.TimeRange;
+import com.google.android.exoplayer.TrackGroup;
+import com.google.android.exoplayer.TrackGroupArray;
+import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.TrackSelection;
 import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
-import com.google.android.exoplayer.util.VerboseLogUtil;
 
 import android.media.MediaCodec.CryptoException;
 import android.os.SystemClock;
@@ -46,12 +50,7 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   }
 
   private long sessionStartTimeMs;
-  private long[] loadStartTimeMs;
   private long[] availableRangeValuesUs;
-
-  public EventLogger() {
-    loadStartTimeMs = new long[DemoPlayer.RENDERER_COUNT];
-  }
 
   public void startSession() {
     sessionStartTimeMs = SystemClock.elapsedRealtime();
@@ -82,6 +81,54 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
         + ", " + pixelWidthHeightRatio + "]");
   }
 
+  @Override
+  public void onTracksChanged(TrackInfo trackInfo) {
+    Log.d(TAG, "Tracks [");
+    // Log tracks associated to renderers.
+    for (int rendererIndex = 0; rendererIndex < trackInfo.rendererCount; rendererIndex++) {
+      TrackGroupArray trackGroups = trackInfo.getTrackGroups(rendererIndex);
+      TrackSelection trackSelection = trackInfo.getTrackSelection(rendererIndex);
+      if (trackGroups.length > 0) {
+        Log.d(TAG, "  Renderer:" + rendererIndex + " [");
+        for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
+          TrackGroup trackGroup = trackGroups.get(groupIndex);
+          String adaptiveSupport = getAdaptiveSupportString(
+              trackGroup.length, trackInfo.getAdaptiveSupport(rendererIndex, groupIndex, false));
+          Log.d(TAG, "    Group:" + groupIndex + ", adaptive_supported=" + adaptiveSupport + " [");
+          for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+            String status = getTrackStatusString(trackSelection, groupIndex, trackIndex);
+            String formatSupport = getFormatSupportString(
+                trackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex));
+            Log.d(TAG, "      " + status + " Track:" + trackIndex + ", "
+                + getFormatString(trackGroup.getFormat(trackIndex))
+                + ", supported=" + formatSupport);
+          }
+          Log.d(TAG, "    ]");
+        }
+        Log.d(TAG, "  ]");
+      }
+    }
+    // Log tracks not associated with a renderer.
+    TrackGroupArray trackGroups = trackInfo.getUnassociatedTrackGroups();
+    if (trackGroups.length > 0) {
+      Log.d(TAG, "  Renderer:None [");
+      for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
+        Log.d(TAG, "    Group:" + groupIndex + " [");
+        TrackGroup trackGroup = trackGroups.get(groupIndex);
+        for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+          String status = getTrackStatusString(false);
+          String formatSupport = getFormatSupportString(TrackRenderer.FORMAT_UNSUPPORTED_TYPE);
+          Log.d(TAG, "      " + status + " Track:" + trackIndex + ", "
+              + getFormatString(trackGroup.getFormat(trackIndex))
+              + ", supported=" + formatSupport);
+        }
+        Log.d(TAG, "    ]");
+      }
+      Log.d(TAG, "  ]");
+    }
+    Log.d(TAG, "]");
+  }
+
   // DemoPlayer.InfoListener
 
   @Override
@@ -98,21 +145,13 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
   @Override
   public void onLoadStarted(int sourceId, long length, int type, int trigger, Format format,
       long mediaStartTimeMs, long mediaEndTimeMs) {
-    loadStartTimeMs[sourceId] = SystemClock.elapsedRealtime();
-    if (VerboseLogUtil.isTagEnabled(TAG)) {
-      Log.v(TAG, "loadStart [" + getSessionTimeString() + ", " + sourceId + ", " + type
-          + ", " + mediaStartTimeMs + ", " + mediaEndTimeMs + "]");
-    }
+    // Do nothing.
   }
 
   @Override
   public void onLoadCompleted(int sourceId, long bytesLoaded, int type, int trigger, Format format,
        long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs) {
-    if (VerboseLogUtil.isTagEnabled(TAG)) {
-      long downloadTime = SystemClock.elapsedRealtime() - loadStartTimeMs[sourceId];
-      Log.v(TAG, "loadEnd [" + getSessionTimeString() + ", " + sourceId + ", " + downloadTime
-          + "]");
-    }
+    // Do nothing.
   }
 
   @Override
@@ -187,7 +226,15 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
     Log.e(TAG, "internalError [" + getSessionTimeString() + ", " + type + "]", e);
   }
 
-  private String getStateString(int state) {
+  private String getSessionTimeString() {
+    return getTimeString(SystemClock.elapsedRealtime() - sessionStartTimeMs);
+  }
+
+  private static String getTimeString(long timeMs) {
+    return TIME_FORMAT.format((timeMs) / 1000f);
+  }
+
+  private static String getStateString(int state) {
     switch (state) {
       case ExoPlayer.STATE_BUFFERING:
         return "B";
@@ -204,12 +251,76 @@ public class EventLogger implements DemoPlayer.Listener, DemoPlayer.InfoListener
     }
   }
 
-  private String getSessionTimeString() {
-    return getTimeString(SystemClock.elapsedRealtime() - sessionStartTimeMs);
+  private static String getFormatSupportString(int formatSupport) {
+    switch (formatSupport) {
+      case TrackRenderer.FORMAT_HANDLED:
+        return "YES";
+      case TrackRenderer.FORMAT_EXCEEDS_CAPABILITIES:
+        return "NO_EXCEEDS_CAPABILITIES";
+      case TrackRenderer.FORMAT_UNSUPPORTED_SUBTYPE:
+        return "NO_UNSUPPORTED_TYPE";
+      case TrackRenderer.FORMAT_UNSUPPORTED_TYPE:
+        return "NO";
+      default:
+        return "?";
+    }
   }
 
-  private String getTimeString(long timeMs) {
-    return TIME_FORMAT.format((timeMs) / 1000f);
+  private static String getAdaptiveSupportString(int trackCount, int adaptiveSupport) {
+    if (trackCount < 2) {
+      return "N/A";
+    }
+    switch (adaptiveSupport) {
+      case TrackRenderer.ADAPTIVE_SEAMLESS:
+        return "YES";
+      case TrackRenderer.ADAPTIVE_NOT_SEAMLESS:
+        return "YES_NOT_SEAMLESS";
+      case TrackRenderer.ADAPTIVE_NOT_SUPPORTED:
+        return "NO";
+      default:
+        return "?";
+    }
+  }
+
+  private static String getFormatString(Format format) {
+    StringBuilder builder = new StringBuilder();
+    builder.append("id=").append(format.id).append(", mimeType=").append(format.sampleMimeType);
+    if (format.bitrate != Format.NO_VALUE) {
+      builder.append(", bitrate=").append(format.bitrate);
+    }
+    if (format.width != -1 && format.height != -1) {
+      builder.append(", res=").append(format.width).append("x").append(format.height);
+    }
+    if (format.frameRate != -1) {
+      builder.append(", fps=").append(format.frameRate);
+    }
+    if (format.channelCount != -1) {
+      builder.append(", channels=").append(format.channelCount);
+    }
+    if (format.sampleRate != -1) {
+      builder.append(", sample_rate=").append(format.sampleRate);
+    }
+    if (format.language != null) {
+      builder.append(", language=").append(format.language);
+    }
+    return builder.toString();
+  }
+
+  private static String getTrackStatusString(TrackSelection selection, int groupIndex,
+      int trackIndex) {
+    boolean groupEnabled = selection != null && selection.group == groupIndex;
+    if (groupEnabled) {
+      for (int i = 0; i < selection.length; i++) {
+        if (selection.getTrack(i) == trackIndex) {
+          return getTrackStatusString(true);
+        }
+      }
+    }
+    return getTrackStatusString(false);
+  }
+
+  private static String getTrackStatusString(boolean enabled) {
+    return enabled ? "[X]" : "[ ]";
   }
 
 }

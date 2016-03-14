@@ -306,9 +306,8 @@ public final class Format {
   @Override
   public String toString() {
     return "Format(" + id + ", " + containerMimeType + ", " + sampleMimeType + ", " + bitrate + ", "
-        + maxInputSize + ", " + language + ", [" + width + ", " + height + ", " + frameRate + ", "
-        + rotationDegrees + ", " + pixelWidthHeightRatio + "]" + ", [" + channelCount + ", "
-        + sampleRate + "])";
+        + ", " + language + ", [" + width + ", " + height + ", " + frameRate + "]"
+        + ", [" + channelCount + ", " + sampleRate + "])";
   }
 
   @Override

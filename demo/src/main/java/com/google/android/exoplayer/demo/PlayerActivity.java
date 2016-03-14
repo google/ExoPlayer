@@ -16,19 +16,19 @@
 package com.google.android.exoplayer.demo;
 
 import com.google.android.exoplayer.AspectRatioFrameLayout;
+import com.google.android.exoplayer.DefaultTrackSelector;
+import com.google.android.exoplayer.DefaultTrackSelector.TrackInfo;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.ExoPlayer;
-import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer.audio.AudioCapabilities;
-import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
 import com.google.android.exoplayer.demo.player.DashSourceBuilder;
 import com.google.android.exoplayer.demo.player.DemoPlayer;
 import com.google.android.exoplayer.demo.player.DemoPlayer.SourceBuilder;
 import com.google.android.exoplayer.demo.player.ExtractorSourceBuilder;
 import com.google.android.exoplayer.demo.player.HlsSourceBuilder;
 import com.google.android.exoplayer.demo.player.SmoothStreamingSourceBuilder;
+import com.google.android.exoplayer.demo.ui.TrackSelectionHelper;
 import com.google.android.exoplayer.drm.UnsupportedDrmException;
 import com.google.android.exoplayer.metadata.GeobMetadata;
 import com.google.android.exoplayer.metadata.PrivMetadata;
@@ -37,9 +37,7 @@ import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleLayout;
 import com.google.android.exoplayer.util.DebugTextViewHelper;
-import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.Util;
-import com.google.android.exoplayer.util.VerboseLogUtil;
 
 import android.Manifest.permission;
 import android.annotation.TargetApi;
@@ -52,8 +50,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -64,8 +60,6 @@ import android.view.View.OnTouchListener;
 import android.view.accessibility.CaptioningManager;
 import android.widget.Button;
 import android.widget.MediaController;
-import android.widget.PopupMenu;
-import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,15 +67,13 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
  * An activity that plays media using {@link DemoPlayer}.
  */
 public class PlayerActivity extends Activity implements SurfaceHolder.Callback, OnClickListener,
-    DemoPlayer.Listener, DemoPlayer.CaptionListener, DemoPlayer.Id3MetadataListener,
-    AudioCapabilitiesReceiver.Listener {
+    DemoPlayer.Listener, DemoPlayer.CaptionListener, DemoPlayer.Id3MetadataListener {
 
   // For use within demo app code.
   public static final String CONTENT_ID_EXTRA = "content_id";
@@ -92,8 +84,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private static final String CONTENT_EXT_EXTRA = "type";
 
   private static final String TAG = "PlayerActivity";
-  private static final int MENU_GROUP_TRACKS = 1;
-  private static final int ID_OFFSET = 2;
 
   private static final CookieManager defaultCookieManager;
   static {
@@ -116,18 +106,17 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   private Button retryButton;
 
   private DemoPlayer player;
+  private DefaultTrackSelector trackSelector;
+  private TrackSelectionHelper trackSelectionHelper;
   private DebugTextViewHelper debugViewHelper;
   private boolean playerNeedsPrepare;
 
   private long playerPosition;
-  private boolean enableBackgroundAudio;
 
   private Uri contentUri;
   private int contentType;
   private String contentId;
   private String provider;
-
-  private AudioCapabilitiesReceiver audioCapabilitiesReceiver;
 
   // Activity lifecycle
 
@@ -182,9 +171,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (currentHandler != defaultCookieManager) {
       CookieHandler.setDefault(defaultCookieManager);
     }
-
-    audioCapabilitiesReceiver = new AudioCapabilitiesReceiver(this, this);
-    audioCapabilitiesReceiver.register();
   }
 
   @Override
@@ -204,31 +190,16 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     contentId = intent.getStringExtra(CONTENT_ID_EXTRA);
     provider = intent.getStringExtra(PROVIDER_EXTRA);
     configureSubtitleView();
-    if (player == null) {
-      if (!maybeRequestPermission()) {
-        preparePlayer(true);
-      }
-    } else {
-      player.setBackgrounded(false);
+    if (!maybeRequestPermission()) {
+      preparePlayer(true);
     }
   }
 
   @Override
   public void onPause() {
-    super.onPause();
-    if (!enableBackgroundAudio) {
-      releasePlayer();
-    } else {
-      player.setBackgrounded(true);
-    }
     shutterView.setVisibility(View.VISIBLE);
-  }
-
-  @Override
-  public void onDestroy() {
-    super.onDestroy();
-    audioCapabilitiesReceiver.unregister();
     releasePlayer();
+    super.onPause();
   }
 
   // OnClickListener methods
@@ -238,20 +209,6 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
     if (view == retryButton) {
       preparePlayer(true);
     }
-  }
-
-  // AudioCapabilitiesReceiver.Listener methods
-
-  @Override
-  public void onAudioCapabilitiesChanged(AudioCapabilities audioCapabilities) {
-    if (player == null) {
-      return;
-    }
-    boolean backgrounded = player.getBackgrounded();
-    boolean playWhenReady = player.getPlayWhenReady();
-    releasePlayer();
-    preparePlayer(playWhenReady);
-    player.setBackgrounded(backgrounded);
   }
 
   // Permission request listener method
@@ -321,6 +278,8 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
       player.setCaptionListener(this);
       player.setMetadataListener(this);
       player.seekTo(playerPosition);
+      trackSelector = player.getTrackSelector();
+      trackSelectionHelper = new TrackSelectionHelper(trackSelector);
       playerNeedsPrepare = true;
       mediaController.setMediaPlayer(player.getPlayerControl());
       mediaController.setEnabled(true);
@@ -354,6 +313,11 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   }
 
   // DemoPlayer.Listener implementation
+
+  @Override
+  public void onTracksChanged(TrackInfo trackSet) {
+    updateButtonVisibilities();
+  }
 
   @Override
   public void onStateChanged(boolean playWhenReady, int playbackState) {
@@ -440,142 +404,23 @@ public class PlayerActivity extends Activity implements SurfaceHolder.Callback, 
   }
 
   private boolean haveTracks(int type) {
-    return player != null && player.getTrackCount(type) > 0;
+    TrackInfo trackInfo = player == null ? null : player.getTrackInfo();
+    return trackInfo != null && trackInfo.getTrackGroups(type).length != 0;
   }
 
-  public void showVideoPopup(View v) {
-    PopupMenu popup = new PopupMenu(this, v);
-    configurePopupWithTracks(popup, null, DemoPlayer.TYPE_VIDEO);
-    popup.show();
+  public void showVideoPopup(@SuppressWarnings("unused") View v) {
+    trackSelectionHelper.showSelectionDialog(this, R.string.video, player.getTrackInfo(),
+        DemoPlayer.TYPE_VIDEO);
   }
 
-  public void showAudioPopup(View v) {
-    PopupMenu popup = new PopupMenu(this, v);
-    Menu menu = popup.getMenu();
-    menu.add(Menu.NONE, Menu.NONE, Menu.NONE, R.string.enable_background_audio);
-    final MenuItem backgroundAudioItem = menu.findItem(0);
-    backgroundAudioItem.setCheckable(true);
-    backgroundAudioItem.setChecked(enableBackgroundAudio);
-    OnMenuItemClickListener clickListener = new OnMenuItemClickListener() {
-      @Override
-      public boolean onMenuItemClick(MenuItem item) {
-        if (item == backgroundAudioItem) {
-          enableBackgroundAudio = !item.isChecked();
-          return true;
-        }
-        return false;
-      }
-    };
-    configurePopupWithTracks(popup, clickListener, DemoPlayer.TYPE_AUDIO);
-    popup.show();
+  public void showAudioPopup(@SuppressWarnings("unused") View v) {
+    trackSelectionHelper.showSelectionDialog(this, R.string.audio, player.getTrackInfo(),
+        DemoPlayer.TYPE_AUDIO);
   }
 
-  public void showTextPopup(View v) {
-    PopupMenu popup = new PopupMenu(this, v);
-    configurePopupWithTracks(popup, null, DemoPlayer.TYPE_TEXT);
-    popup.show();
-  }
-
-  public void showVerboseLogPopup(View v) {
-    PopupMenu popup = new PopupMenu(this, v);
-    Menu menu = popup.getMenu();
-    menu.add(Menu.NONE, 0, Menu.NONE, R.string.logging_normal);
-    menu.add(Menu.NONE, 1, Menu.NONE, R.string.logging_verbose);
-    menu.setGroupCheckable(Menu.NONE, true, true);
-    menu.findItem((VerboseLogUtil.areAllTagsEnabled()) ? 1 : 0).setChecked(true);
-    popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-      @Override
-      public boolean onMenuItemClick(MenuItem item) {
-        if (item.getItemId() == 0) {
-          VerboseLogUtil.setEnableAllTags(false);
-        } else {
-          VerboseLogUtil.setEnableAllTags(true);
-        }
-        return true;
-      }
-    });
-    popup.show();
-  }
-
-  private void configurePopupWithTracks(PopupMenu popup,
-      final OnMenuItemClickListener customActionClickListener,
-      final int trackType) {
-    if (player == null) {
-      return;
-    }
-    int trackCount = player.getTrackCount(trackType);
-    if (trackCount == 0) {
-      return;
-    }
-    popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-      @Override
-      public boolean onMenuItemClick(MenuItem item) {
-        return (customActionClickListener != null
-            && customActionClickListener.onMenuItemClick(item))
-            || onTrackItemClick(item, trackType);
-      }
-    });
-    Menu menu = popup.getMenu();
-    // ID_OFFSET ensures we avoid clashing with Menu.NONE (which equals 0).
-    menu.add(MENU_GROUP_TRACKS, DemoPlayer.TRACK_DISABLED + ID_OFFSET, Menu.NONE, R.string.off);
-    for (int i = 0; i < trackCount; i++) {
-      menu.add(MENU_GROUP_TRACKS, i + ID_OFFSET, Menu.NONE,
-          buildTrackName(player.getTrackFormat(trackType, i)));
-    }
-    menu.setGroupCheckable(MENU_GROUP_TRACKS, true, true);
-    menu.findItem(player.getSelectedTrack(trackType) + ID_OFFSET).setChecked(true);
-  }
-
-  private static String buildTrackName(Format format) {
-    String trackName;
-    if (MimeTypes.isVideo(format.sampleMimeType)) {
-      trackName = joinWithSeparator(joinWithSeparator(buildResolutionString(format),
-          buildBitrateString(format)), buildTrackIdString(format));
-    } else if (MimeTypes.isAudio(format.sampleMimeType)) {
-      trackName = joinWithSeparator(joinWithSeparator(joinWithSeparator(buildLanguageString(format),
-          buildAudioPropertyString(format)), buildBitrateString(format)),
-          buildTrackIdString(format));
-    } else {
-      trackName = joinWithSeparator(joinWithSeparator(buildLanguageString(format),
-          buildBitrateString(format)), buildTrackIdString(format));
-    }
-    return trackName.length() == 0 ? "unknown" : trackName;
-  }
-
-  private static String buildResolutionString(Format format) {
-    return format.width == Format.NO_VALUE || format.height == Format.NO_VALUE
-        ? "" : format.width + "x" + format.height;
-  }
-
-  private static String buildAudioPropertyString(Format format) {
-    return format.channelCount == Format.NO_VALUE || format.sampleRate == Format.NO_VALUE
-        ? "" : format.channelCount + "ch, " + format.sampleRate + "Hz";
-  }
-
-  private static String buildLanguageString(Format format) {
-    return TextUtils.isEmpty(format.language) || "und".equals(format.language) ? ""
-        : format.language;
-  }
-
-  private static String buildBitrateString(Format format) {
-    return format.bitrate == Format.NO_VALUE ? ""
-        : String.format(Locale.US, "%.2fMbit", format.bitrate / 1000000f);
-  }
-
-  private static String joinWithSeparator(String first, String second) {
-    return first.length() == 0 ? second : (second.length() == 0 ? first : first + ", " + second);
-  }
-
-  private static String buildTrackIdString(Format format) {
-    return format.id == null ? "" : " (" + format.id + ")";
-  }
-
-  private boolean onTrackItemClick(MenuItem item, int type) {
-    if (player == null || item.getGroupId() != MENU_GROUP_TRACKS) {
-      return false;
-    }
-    player.setSelectedTrack(type, item.getItemId() - ID_OFFSET);
-    return true;
+  public void showTextPopup(@SuppressWarnings("unused") View v) {
+    trackSelectionHelper.showSelectionDialog(this, R.string.text, player.getTrackInfo(),
+        DemoPlayer.TYPE_TEXT);
   }
 
   private void toggleControlsVisibility()  {

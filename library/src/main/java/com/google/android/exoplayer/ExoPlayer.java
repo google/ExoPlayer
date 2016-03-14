@@ -73,12 +73,13 @@ import android.os.Looper;
  * <a name="State"></a>
  * <h3>Player state</h3>
  *
- * <p>The components of an {@link ExoPlayer}'s state can be divided into two distinct groups. State
- * accessed by {@link #getSelectedTrack(int)} and {@link #getPlayWhenReady()} is only ever
- * changed by invoking the player's methods, and are never changed as a result of operations that
- * have been performed asynchronously by the playback thread. In contrast, the playback state
- * accessed by {@link #getPlaybackState()} is only ever changed as a result of operations
- * completing on the playback thread, as illustrated below.</p>
+ * <p>The components of an {@link ExoPlayer}'s state can be divided into two distinct groups. The
+ * state accessed by calling {@link #getPlayWhenReady()} is only ever changed by invoking
+ * {@link #setPlayWhenReady(boolean)}, and is never changed as a result of operations that have been
+ * performed asynchronously by the playback thread. In contrast, the playback state accessed by
+ * calling {@link #getPlaybackState()} is only ever changed as a result of operations completing on
+ * the playback thread, as illustrated below.</p>
+ *
  * <p align="center"><img src="../../../../../images/exoplayer_state.png"
  *     alt="ExoPlayer state"
  *     border="0"/></p>
@@ -118,15 +119,16 @@ public interface ExoPlayer {
      * Must be invoked from a thread that has an associated {@link Looper}.
      *
      * @param renderers The {@link TrackRenderer}s that will be used by the instance.
+     * @param trackSelector The {@link TrackSelector} that will be used by the instance.
      * @param minBufferMs A minimum duration of data that must be buffered for playback to start
      *     or resume following a user action such as a seek.
      * @param minRebufferMs A minimum duration of data that must be buffered for playback to resume
      *     after a player invoked rebuffer (i.e. a rebuffer that occurs due to buffer depletion, and
      *     not due to a user action such as starting playback or seeking).
      */
-    public static ExoPlayer newInstance(TrackRenderer[] renderers, int minBufferMs,
-        int minRebufferMs) {
-      return new ExoPlayerImpl(renderers, minBufferMs, minRebufferMs);
+    public static ExoPlayer newInstance(TrackRenderer[] renderers, TrackSelector trackSelector,
+        int minBufferMs, int minRebufferMs) {
+      return new ExoPlayerImpl(renderers, trackSelector, minBufferMs, minRebufferMs);
     }
 
     /**
@@ -135,9 +137,11 @@ public interface ExoPlayer {
      * Must be invoked from a thread that has an associated {@link Looper}.
      *
      * @param renderers The {@link TrackRenderer}s that will be used by the instance.
+     * @param trackSelector The {@link TrackSelector} that will be used by the instance.
      */
-    public static ExoPlayer newInstance(TrackRenderer... renderers) {
-      return new ExoPlayerImpl(renderers, DEFAULT_MIN_BUFFER_MS, DEFAULT_MIN_REBUFFER_MS);
+    public static ExoPlayer newInstance(TrackRenderer[] renderers, TrackSelector trackSelector) {
+      return new ExoPlayerImpl(renderers, trackSelector, DEFAULT_MIN_BUFFER_MS,
+          DEFAULT_MIN_REBUFFER_MS);
     }
 
   }
@@ -220,17 +224,6 @@ public interface ExoPlayer {
   static final int STATE_ENDED = 5;
 
   /**
-   * A value that can be passed as the second argument to {@link #setSelectedTrack(int, int)} to
-   * disable the renderer.
-   */
-  static final int TRACK_DISABLED = -1;
-  /**
-   * A value that can be passed as the second argument to {@link #setSelectedTrack(int, int)} to
-   * select the default track.
-   */
-  static final int TRACK_DEFAULT = 0;
-
-  /**
    * Represents an unknown time or duration.
    */
   static final long UNKNOWN_TIME = -1;
@@ -270,41 +263,6 @@ public interface ExoPlayer {
    * @param sampleSource The {@link SampleSource} to play.
    */
   void prepare(SampleSource sampleSource);
-
-  /**
-   * Returns the number of tracks exposed by the specified renderer.
-   *
-   * @param rendererIndex The index of the renderer.
-   * @return The number of tracks.
-   */
-  int getTrackCount(int rendererIndex);
-
-  /**
-   * Returns the format of a track.
-   *
-   * @param rendererIndex The index of the renderer.
-   * @param trackIndex The index of the track.
-   * @return The format of the track.
-   */
-  Format getTrackFormat(int rendererIndex, int trackIndex);
-
-  /**
-   * Selects a track for the specified renderer.
-   *
-   * @param rendererIndex The index of the renderer.
-   * @param trackIndex The index of the track. A negative value or a value greater than or equal to
-   *     the renderer's track count will disable the renderer.
-   */
-  void setSelectedTrack(int rendererIndex, int trackIndex);
-
-  /**
-   * Returns the index of the currently selected track for the specified renderer.
-   *
-   * @param rendererIndex The index of the renderer.
-   * @return The selected track. A negative value or a value greater than or equal to the renderer's
-   *     track count indicates that the renderer is disabled.
-   */
-  int getSelectedTrack(int rendererIndex);
 
   /**
    * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.
