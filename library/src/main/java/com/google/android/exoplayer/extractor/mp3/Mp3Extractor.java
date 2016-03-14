@@ -290,7 +290,7 @@ public final class Mp3Extractor implements Extractor {
       frame.setPosition(36); // MPEG audio header (4 bytes) + 32 bytes.
       headerData = frame.readInt();
       if (headerData == VBRI_HEADER) {
-        seeker = VbriSeeker.create(synchronizedHeader, frame, position);
+        seeker = VbriSeeker.create(synchronizedHeader, frame, position, length);
         input.skipFully(synchronizedHeader.frameSize);
       }
     }
