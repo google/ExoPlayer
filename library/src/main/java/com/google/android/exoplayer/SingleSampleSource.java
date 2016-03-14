@@ -58,6 +58,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   private byte[] sampleData;
   private int sampleSize;
 
+  private long pendingResetPositionUs;
   private boolean loadingFinished;
   private Loader loader;
   private IOException currentLoadableException;
@@ -112,6 +113,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   @Override
   public TrackStream enable(TrackSelection selection, long positionUs) {
     state = STATE_SEND_FORMAT;
+    pendingResetPositionUs = NO_RESET;
     clearCurrentLoadableException();
     maybeStartLoading();
     return this;
@@ -129,7 +131,9 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
 
   @Override
   public long readReset() {
-    return TrackStream.NO_RESET;
+    long resetPositionUs = pendingResetPositionUs;
+    pendingResetPositionUs = NO_RESET;
+    return resetPositionUs;
   }
 
   @Override
@@ -159,6 +163,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   @Override
   public void seekToUs(long positionUs) {
     if (state == STATE_END_OF_STREAM) {
+      pendingResetPositionUs = positionUs;
       state = STATE_SEND_SAMPLE;
     }
   }
