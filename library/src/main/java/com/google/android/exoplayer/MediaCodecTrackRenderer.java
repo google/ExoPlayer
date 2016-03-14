@@ -303,8 +303,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   /**
-   * Configures a newly created {@link MediaCodec}. Sub-classes should override this method if they
-   * wish to configure the codec with a non-null surface.
+   * Configures a newly created {@link MediaCodec}.
    *
    * @param codec The {@link MediaCodec} to configure.
    * @param format The format for which the codec is being configured.

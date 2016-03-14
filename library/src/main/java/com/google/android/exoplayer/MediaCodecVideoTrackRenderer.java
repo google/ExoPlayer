@@ -110,6 +110,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   private final long allowedJoiningTimeUs;
   private final int videoScalingMode;
   private final int maxDroppedFrameCountToNotify;
+  private final boolean deviceNeedsAutoFrcWorkaround;
 
   private int adaptiveMaxWidth;
   private int adaptiveMaxHeight;
@@ -208,6 +209,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     this.allowedJoiningTimeUs = allowedJoiningTimeMs * 1000;
     this.eventListener = eventListener;
     this.maxDroppedFrameCountToNotify = maxDroppedFrameCountToNotify;
+    deviceNeedsAutoFrcWorkaround = deviceNeedsAutoFrcWorkaround();
     joiningDeadlineUs = -1;
     currentWidth = -1;
     currentHeight = -1;
@@ -544,6 +546,10 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   private android.media.MediaFormat getFrameworkMediaFormat(Format format) {
     android.media.MediaFormat frameworkMediaFormat = format.getFrameworkMediaFormatV16();
 
+    if (deviceNeedsAutoFrcWorkaround) {
+      frameworkMediaFormat.setInteger("auto-frc", 0);
+    }
+
     // Set the maximum adaptive video dimensions if applicable.
     if (adaptiveMaxWidth != Format.NO_VALUE && adaptiveMaxHeight != Format.NO_VALUE) {
       frameworkMediaFormat.setInteger(MediaFormat.KEY_MAX_WIDTH, adaptiveMaxWidth);
@@ -649,6 +655,24 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     // Reset the dropped frame tracking.
     droppedFrameCount = 0;
     droppedFrameAccumulationStartTimeMs = now;
+  }
+
+  /**
+   * Returns whether the device is known to enable frame-rate conversion logic that negatively
+   * impacts ExoPlayer.
+   * <p>
+   * If true is returned then we explicitly disable the feature.
+   *
+   * @return True if the device is known to enable frame-rate conversion logic that negatively
+   *     impacts ExoPlayer. False otherwise.
+   */
+  private static boolean deviceNeedsAutoFrcWorkaround() {
+    // nVidia Shield prior to M tries to adjust the playback rate to better map the frame-rate of
+    // content to the refresh rate of the display. For example playback of 23.976fps content is
+    // adjusted to play at 1.001x speed when the output display is 60Hz. Unfortunately the
+    // implementation causes ExoPlayer's reported playback position to drift out of sync. Captions
+    // also lose sync [Internal: b/26453592].
+    return Util.SDK_INT <= 22 && "foster".equals(Util.DEVICE) && "NVIDIA".equals(Util.MANUFACTURER);
   }
 
 }
