@@ -32,6 +32,7 @@ import com.google.android.exoplayer.util.Util;
 
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.util.Pair;
 
 import org.xml.sax.helpers.DefaultHandler;
@@ -55,6 +56,8 @@ import java.util.regex.Pattern;
  */
 public class MediaPresentationDescriptionParser extends DefaultHandler
     implements UriLoadable.Parser<MediaPresentationDescription> {
+
+  private static final String TAG = "MediaPresentationDescriptionParser";
 
   private static final Pattern FRAME_RATE_PATTERN = Pattern.compile("(\\d+)(?:/(\\d+))?");
 
@@ -244,7 +247,10 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
           seenFirstBaseUrl = true;
         }
       } else if (ParserUtil.isStartTag(xpp, "ContentProtection")) {
-        contentProtectionsBuilder.addAdaptationSetProtection(parseContentProtection(xpp));
+        ContentProtection contentProtection = parseContentProtection(xpp);
+        if (contentProtection != null) {
+          contentProtectionsBuilder.addAdaptationSetProtection(contentProtection);
+        }
       } else if (ParserUtil.isStartTag(xpp, "ContentComponent")) {
         language = checkLanguageConsistency(language, xpp.getAttributeValue(null, "lang"));
         contentType = checkContentTypeConsistency(contentType, parseContentType(xpp));
@@ -300,10 +306,11 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
   }
 
   /**
-   * Parses a ContentProtection element.
+   * Parses a {@link ContentProtection} element.
    *
    * @throws XmlPullParserException If an error occurs parsing the element.
    * @throws IOException If an error occurs reading the element.
+   * @return The parsed {@link ContentProtection} element, or null if the element is unsupported.
    **/
   protected ContentProtection parseContentProtection(XmlPullParser xpp)
       throws XmlPullParserException, IOException {
@@ -312,16 +319,17 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
     SchemeInitData data = null;
     do {
       xpp.next();
-      // The cenc:pssh element is defined in 23001-7:2015
+      // The cenc:pssh element is defined in 23001-7:2015.
       if (ParserUtil.isStartTag(xpp, "cenc:pssh") && xpp.next() == XmlPullParser.TEXT) {
         data = new SchemeInitData(MimeTypes.VIDEO_MP4,
             Base64.decode(xpp.getText(), Base64.DEFAULT));
         uuid = PsshAtomUtil.parseUuid(data.data);
-        if (uuid == null) {
-          throw new ParserException("Invalid pssh atom in cenc:pssh element");
-        }
       }
     } while (!ParserUtil.isEndTag(xpp, "ContentProtection"));
+    if (uuid == null) {
+      Log.w(TAG, "Skipped unsupported ContentProtection element");
+      return null;
+    }
     return buildContentProtection(schemeIdUri, uuid, data);
   }
 
@@ -379,7 +387,10 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       } else if (ParserUtil.isStartTag(xpp, "SegmentTemplate")) {
         segmentBase = parseSegmentTemplate(xpp, baseUrl, (SegmentTemplate) segmentBase);
       } else if (ParserUtil.isStartTag(xpp, "ContentProtection")) {
-        contentProtectionsBuilder.addRepresentationProtection(parseContentProtection(xpp));
+        ContentProtection contentProtection = parseContentProtection(xpp);
+        if (contentProtection != null) {
+          contentProtectionsBuilder.addAdaptationSetProtection(contentProtection);
+        }
       }
     } while (!ParserUtil.isEndTag(xpp, "Representation"));
 
