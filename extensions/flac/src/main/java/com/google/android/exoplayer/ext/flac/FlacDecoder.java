@@ -17,9 +17,8 @@ package com.google.android.exoplayer.ext.flac;
 
 import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.extensions.Buffer;
-import com.google.android.exoplayer.util.extensions.Decoder;
-import com.google.android.exoplayer.util.extensions.DecoderWrapper;
 import com.google.android.exoplayer.util.extensions.InputBuffer;
+import com.google.android.exoplayer.util.extensions.SimpleDecoder;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -27,8 +26,8 @@ import java.util.List;
 /**
  * JNI wrapper for the libflac Flac decoder.
  */
-/* package */ final class FlacDecoder implements Decoder<InputBuffer, FlacOutputBuffer,
-    FlacDecoderException> {
+/* package */ final class FlacDecoder extends
+    SimpleDecoder<InputBuffer, FlacOutputBuffer, FlacDecoderException> {
 
   /**
    * Whether the underlying libflac library is available.
@@ -45,15 +44,20 @@ import java.util.List;
     IS_AVAILABLE = isAvailable;
   }
 
-  public final int maxFrameSize;
-
   private final int maxOutputBufferSize;
-
   private final long nativeDecoderContext;
 
-  private FlacDecoderException exception;
-
-  public FlacDecoder(List<byte[]> initializationData) throws FlacDecoderException {
+  /**
+   * Creates a Flac decoder.
+   *
+   * @param numInputBuffers The number of input buffers.
+   * @param numOutputBuffers The number of output buffers.
+   * @param initializationData Codec-specific initialization data.
+   * @throws FlacDecoderException Thrown if an exception occurs when initializing the decoder.
+   */
+  public FlacDecoder(int numInputBuffers, int numOutputBuffers, List<byte[]> initializationData)
+      throws FlacDecoderException {
+    super(new InputBuffer[numInputBuffers], new FlacOutputBuffer[numOutputBuffers]);
     if (initializationData.size() != 1) {
       throw new FlacDecoderException("Wrong number of initialization data");
     }
@@ -69,27 +73,31 @@ import java.util.List;
       throw new FlacDecoderException("Metadata decoding failed");
     }
 
-    maxFrameSize = flacGetMaxFrameSize(nativeDecoderContext);
+    setInitialInputBufferSize(flacGetMaxFrameSize(nativeDecoderContext));
     maxOutputBufferSize = flacGetMaxOutputBufferSize(nativeDecoderContext);
   }
 
   @Override
-  public InputBuffer createInputBuffer(int initialSize) {
-    return new InputBuffer(initialSize);
+  public InputBuffer createInputBuffer() {
+    return new InputBuffer();
   }
 
   @Override
-  public FlacOutputBuffer createOutputBuffer(
-      DecoderWrapper<InputBuffer, FlacOutputBuffer, FlacDecoderException> owner) {
-    return new FlacOutputBuffer(owner);
+  public FlacOutputBuffer createOutputBuffer() {
+    return new FlacOutputBuffer(this);
   }
 
   @Override
-  public boolean decode(InputBuffer inputBuffer, FlacOutputBuffer outputBuffer) {
+  protected void releaseOutputBuffer(FlacOutputBuffer buffer) {
+    super.releaseOutputBuffer(buffer);
+  }
+
+  @Override
+  public FlacDecoderException decode(InputBuffer inputBuffer, FlacOutputBuffer outputBuffer) {
     outputBuffer.reset();
     if (inputBuffer.getFlag(Buffer.FLAG_END_OF_STREAM)) {
       outputBuffer.setFlag(Buffer.FLAG_END_OF_STREAM);
-      return true;
+      return null;
     }
     if (inputBuffer.getFlag(Buffer.FLAG_DECODE_ONLY)) {
       outputBuffer.setFlag(Buffer.FLAG_DECODE_ONLY);
@@ -101,23 +109,16 @@ import java.util.List;
     int result = flacDecode(nativeDecoderContext, sampleHolder.data, sampleHolder.size,
         outputBuffer.data, outputBuffer.data.capacity());
     if (result < 0) {
-      exception = new FlacDecoderException("Frame decoding failed");
-      return false;
+      return new FlacDecoderException("Frame decoding failed");
     }
     outputBuffer.data.position(0);
     outputBuffer.data.limit(result);
-    return true;
-  }
-
-  @Override
-  public void maybeThrowException() throws FlacDecoderException {
-    if (exception != null) {
-      throw exception;
-    }
+    return null;
   }
 
   @Override
   public void release() {
+    super.release();
     flacClose(nativeDecoderContext);
   }
 

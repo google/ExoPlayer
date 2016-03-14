@@ -24,9 +24,8 @@ public class InputBuffer extends Buffer {
 
   public final SampleHolder sampleHolder;
 
-  public InputBuffer(int initialSize) {
+  public InputBuffer() {
     sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_DIRECT);
-    sampleHolder.ensureSpaceForWrite(initialSize);
   }
 
   @Override

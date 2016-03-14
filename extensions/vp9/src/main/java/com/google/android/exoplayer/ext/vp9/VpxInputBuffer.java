@@ -25,8 +25,4 @@ import com.google.android.exoplayer.util.extensions.InputBuffer;
   public int width;
   public int height;
 
-  public VpxInputBuffer(int initialSize) {
-    super(initialSize);
-  }
-
 }

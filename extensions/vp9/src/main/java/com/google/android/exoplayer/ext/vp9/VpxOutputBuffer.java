@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.ext.vp9;
 
-import com.google.android.exoplayer.util.extensions.DecoderWrapper;
 import com.google.android.exoplayer.util.extensions.OutputBuffer;
 
 import java.nio.ByteBuffer;
@@ -29,7 +28,7 @@ public final class VpxOutputBuffer extends OutputBuffer {
   public static final int COLORSPACE_BT601 = 1;
   public static final int COLORSPACE_BT709 = 2;
 
-  private final DecoderWrapper<?, VpxOutputBuffer, ?> owner;
+  private final VpxDecoder owner;
 
   public int mode;
   /**
@@ -45,7 +44,7 @@ public final class VpxOutputBuffer extends OutputBuffer {
   public int[] yuvStrides;
   public int colorspace;
 
-  /* package */ VpxOutputBuffer(DecoderWrapper<?, VpxOutputBuffer, ?> owner) {
+  /* package */ VpxOutputBuffer(VpxDecoder owner) {
     this.owner = owner;
   }
 

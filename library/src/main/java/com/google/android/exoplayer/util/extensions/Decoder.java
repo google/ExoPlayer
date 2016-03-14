@@ -16,44 +16,47 @@
 package com.google.android.exoplayer.util.extensions;
 
 /**
- * Decoder interface for extensions that use a blocking/synchronous decoder. Implementations can be
- * wrapped by {@link DecoderWrapper}, which exposes a higher level MediaCodec-like interface.
+ * A media decoder.
+ *
+ * @param <I> The type of buffer input to the decoder.
+ * @param <O> The type of buffer output from the decoder.
+ * @param <E> The type of exception thrown from the decoder.
  */
-public interface Decoder<I extends InputBuffer, O extends OutputBuffer, E extends Exception> {
+public interface Decoder<I, O, E extends Exception> {
 
   /**
-   * Returns a new decoder input buffer for use by a {@link DecoderWrapper}.
+   * Dequeues the next input buffer to be filled and queued to the decoder.
    *
-   * @return A new decoder input buffer.
+   * @return The input buffer, or null if an input buffer isn't available.
+   * @throws E If a decoder error has occurred.
    */
-  I createInputBuffer(int size);
+  I dequeueInputBuffer() throws E;
 
   /**
-   * Returns a new decoder output buffer for use by a {@link DecoderWrapper}.
-   */
-  O createOutputBuffer(DecoderWrapper<I, O, E> owner);
-
-  /**
-   * Decodes the {@code inputBuffer} and stores any decoded output in {@code outputBuffer}.
+   * Queues an input buffer to the decoder.
    *
-   * @param inputBuffer The buffer to decode.
-   * @param outputBuffer The output buffer to store decoded data. If the flag
-   *     {@link Buffer#FLAG_DECODE_ONLY} is set after this method returns, any output should not be
-   *     presented.
-   * @return True if decoding was successful. False if an exception was thrown, in which case
-   *     {@link #maybeThrowException()} will throw the error.
+   * @param inputBuffer The input buffer.
+   * @throws E If a decoder error has occurred.
    */
-  boolean decode(I inputBuffer, O outputBuffer);
+  void queueInputBuffer(I inputBuffer) throws E;
 
   /**
-   * Throws any exception that was previously thrown by the underlying decoder.
+   * Dequeues the next output buffer from the decoder.
    *
-   * @throws E Thrown if the underlying decoder encountered an error.
+   * @return The output buffer, or null if an output buffer isn't available.
+   * @throws E If a decoder error has occurred.
    */
-  void maybeThrowException() throws E;
+  O dequeueOutputBuffer() throws E;
 
   /**
-   * Releases the decoder and any associated resources.
+   * Flushes input/output buffers that have not been dequeued yet and returns ownership of any
+   * dequeued input buffer to the decoder. Flushes any pending output currently in the decoder. The
+   * caller is still responsible for releasing any dequeued output buffers.
+   */
+  void flush();
+
+  /**
+   * Releases the decoder. Must be called when the decoder is no longer needed.
    */
   void release();
 

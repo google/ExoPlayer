@@ -27,7 +27,6 @@ import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.extensions.Buffer;
-import com.google.android.exoplayer.util.extensions.DecoderWrapper;
 import com.google.android.exoplayer.util.extensions.InputBuffer;
 
 import android.os.Handler;
@@ -84,7 +83,7 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
   private final MediaFormatHolder formatHolder;
 
   private MediaFormat format;
-  private DecoderWrapper<InputBuffer, FlacOutputBuffer, FlacDecoderException> decoderWrapper;
+  private FlacDecoder decoder;
   private InputBuffer inputBuffer;
   private FlacOutputBuffer outputBuffer;
 
@@ -153,23 +152,20 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
     }
 
     // If we don't have a decoder yet, we need to instantiate one.
-    if (decoderWrapper == null) {
+    if (decoder == null) {
       // For flac, the format can contain only one entry in initializationData which is the flac
       // file header.
       List<byte[]> initializationData = format.initializationData;
       if (initializationData.size() < 1) {
         throw new ExoPlaybackException("Missing initialization data");
       }
-      FlacDecoder decoder;
       try {
-        decoder = new FlacDecoder(initializationData);
+        decoder = new FlacDecoder(NUM_BUFFERS, NUM_BUFFERS, initializationData);
       } catch (FlacDecoderException e) {
         notifyDecoderError(e);
         throw new ExoPlaybackException(e);
       }
-      decoderWrapper = new DecoderWrapper<>(decoder, new InputBuffer[NUM_BUFFERS],
-          new FlacOutputBuffer[NUM_BUFFERS], decoder.maxFrameSize);
-      decoderWrapper.start();
+      decoder.start();
       codecCounters.codecInitCount++;
     }
 
@@ -197,7 +193,7 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
     }
 
     if (outputBuffer == null) {
-      outputBuffer = decoderWrapper.dequeueOutputBuffer();
+      outputBuffer = decoder.dequeueOutputBuffer();
       if (outputBuffer == null) {
         return;
       }
@@ -245,7 +241,7 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
     }
 
     if (inputBuffer == null) {
-      inputBuffer = decoderWrapper.dequeueInputBuffer();
+      inputBuffer = decoder.dequeueInputBuffer();
       if (inputBuffer == null) {
         return false;
       }
@@ -261,7 +257,7 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
     }
     if (result == SampleSource.END_OF_STREAM) {
       inputBuffer.setFlag(Buffer.FLAG_END_OF_STREAM);
-      decoderWrapper.queueInputBuffer(inputBuffer);
+      decoder.queueInputBuffer(inputBuffer);
       inputBuffer = null;
       inputStreamEnded = true;
       return false;
@@ -271,7 +267,7 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
       inputBuffer.setFlag(Buffer.FLAG_RESET);
     }
 
-    decoderWrapper.queueInputBuffer(inputBuffer);
+    decoder.queueInputBuffer(inputBuffer);
     inputBuffer = null;
     return true;
   }
@@ -282,7 +278,7 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
       outputBuffer.release();
       outputBuffer = null;
     }
-    decoderWrapper.flush();
+    decoder.flush();
     notifyDiscontinuityToDecoder = true;
   }
 
@@ -316,7 +312,7 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
     inputStreamEnded = false;
     outputStreamEnded = false;
     sourceIsReady = false;
-    if (decoderWrapper != null) {
+    if (decoder != null) {
       flushDecoder();
     }
   }
@@ -338,9 +334,9 @@ public final class LibflacAudioTrackRenderer extends SampleSourceTrackRenderer
     format = null;
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     try {
-      if (decoderWrapper != null) {
-        decoderWrapper.release();
-        decoderWrapper = null;
+      if (decoder != null) {
+        decoder.release();
+        decoder = null;
         codecCounters.codecReleaseCount++;
       }
       audioTrack.release();
