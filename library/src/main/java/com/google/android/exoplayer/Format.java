@@ -126,6 +126,14 @@ public final class Format {
    * The audio sampling rate in Hz, or {@link #NO_VALUE} if unknown or not applicable.
    */
   public final int sampleRate;
+  /**
+   * The number of samples to trim from the start of the decoded audio stream.
+   */
+  public final int encoderDelay;
+  /**
+   * The number of samples to trim from the end of the decoded audio stream.
+   */
+  public final int encoderPadding;
 
   // Text specific.
 
@@ -154,8 +162,8 @@ public final class Format {
       String sampleMimeType, int bitrate, int width, int height, float frameRate,
       List<byte[]> initializationData) {
     return new Format(id, containerMimeType, sampleMimeType, bitrate, NO_VALUE, width, height,
-        frameRate, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE,
-        initializationData, false);
+        frameRate, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null,
+        OFFSET_SAMPLE_RELATIVE, initializationData, false);
   }
 
   public static Format createVideoSampleFormat(String id, String sampleMimeType, int bitrate,
@@ -168,8 +176,8 @@ public final class Format {
       int maxInputSize, int width, int height, float frameRate, List<byte[]> initializationData,
       int rotationDegrees, float pixelWidthHeightRatio) {
     return new Format(id, null, sampleMimeType, bitrate, maxInputSize, width, height, frameRate,
-        rotationDegrees, pixelWidthHeightRatio, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE,
-        initializationData, false);
+        rotationDegrees, pixelWidthHeightRatio, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null,
+        OFFSET_SAMPLE_RELATIVE, initializationData, false);
   }
 
   // Audio.
@@ -178,16 +186,23 @@ public final class Format {
       String sampleMimeType, int bitrate, int channelCount, int sampleRate,
       List<byte[]> initializationData, String language) {
     return new Format(id, containerMimeType, sampleMimeType, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, channelCount, sampleRate, language, OFFSET_SAMPLE_RELATIVE,
-        initializationData, false);
+        NO_VALUE, NO_VALUE, NO_VALUE, channelCount, sampleRate, NO_VALUE, NO_VALUE, language,
+        OFFSET_SAMPLE_RELATIVE, initializationData, false);
   }
 
   public static Format createAudioSampleFormat(String id, String sampleMimeType, int bitrate,
       int maxInputSize, int channelCount, int sampleRate, List<byte[]> initializationData,
       String language) {
+    return createAudioSampleFormat(id, sampleMimeType, bitrate, maxInputSize, channelCount,
+        sampleRate, NO_VALUE, NO_VALUE, initializationData, language);
+  }
+
+  public static Format createAudioSampleFormat(String id, String sampleMimeType, int bitrate,
+      int maxInputSize, int channelCount, int sampleRate, int encoderDelay, int encoderPadding,
+      List<byte[]> initializationData, String language) {
     return new Format(id, null, sampleMimeType, bitrate, maxInputSize, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, channelCount, sampleRate, language, OFFSET_SAMPLE_RELATIVE,
-        initializationData, false);
+        NO_VALUE, NO_VALUE, channelCount, sampleRate, encoderDelay, encoderPadding, language,
+        OFFSET_SAMPLE_RELATIVE, initializationData, false);
   }
 
   // Text.
@@ -195,8 +210,8 @@ public final class Format {
   public static Format createTextContainerFormat(String id, String containerMimeType,
       String sampleMimeType, int bitrate, String language) {
     return new Format(id, containerMimeType, sampleMimeType, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, language, OFFSET_SAMPLE_RELATIVE, null,
-        false);
+        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, language,
+        OFFSET_SAMPLE_RELATIVE, null, false);
   }
 
   public static Format createTextSampleFormat(String id, String sampleMimeType, int bitrate,
@@ -207,7 +222,8 @@ public final class Format {
   public static Format createTextSampleFormat(String id, String sampleMimeType, int bitrate,
       String language, long subsampleOffsetUs) {
     return new Format(id, null, sampleMimeType, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, language, subsampleOffsetUs, null, false);
+        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, language,
+        subsampleOffsetUs, null, false);
   }
 
   // Generic.
@@ -215,19 +231,21 @@ public final class Format {
   public static Format createContainerFormat(String id, String containerMimeType,
       String sampleMimeType, int bitrate) {
     return new Format(id, containerMimeType, sampleMimeType, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE, null,
-        false);
+        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null,
+        OFFSET_SAMPLE_RELATIVE, null, false);
   }
 
   public static Format createSampleFormat(String id, String sampleMimeType, int bitrate) {
     return new Format(id, null, sampleMimeType, bitrate, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE, null, false);
+        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, null, OFFSET_SAMPLE_RELATIVE,
+        null, false);
   }
 
   /* package */ Format(String id, String containerMimeType, String sampleMimeType,
       int bitrate, int maxInputSize, int width, int height, float frameRate, int rotationDegrees,
-      float pixelWidthHeightRatio, int channelCount, int sampleRate, String language,
-      long subsampleOffsetUs, List<byte[]> initializationData, boolean requiresSecureDecryption) {
+      float pixelWidthHeightRatio, int channelCount, int sampleRate, int encoderDelay,
+      int encoderPadding, String language, long subsampleOffsetUs, List<byte[]> initializationData,
+      boolean requiresSecureDecryption) {
     this.id = id;
     this.containerMimeType = containerMimeType;
     this.sampleMimeType = sampleMimeType;
@@ -240,6 +258,8 @@ public final class Format {
     this.pixelWidthHeightRatio = pixelWidthHeightRatio;
     this.channelCount = channelCount;
     this.sampleRate = sampleRate;
+    this.encoderDelay = encoderDelay;
+    this.encoderPadding = encoderPadding;
     this.language = language;
     this.subsampleOffsetUs = subsampleOffsetUs;
     this.initializationData = initializationData == null ? Collections.<byte[]>emptyList()
@@ -250,22 +270,32 @@ public final class Format {
   public Format copyWithMaxInputSize(int maxInputSize) {
     return new Format(id, containerMimeType, sampleMimeType, bitrate, maxInputSize, width,
         height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
-        language, subsampleOffsetUs, initializationData, requiresSecureDecryption);
+        encoderDelay, encoderPadding, language, subsampleOffsetUs, initializationData,
+        requiresSecureDecryption);
   }
 
   public Format copyWithSubsampleOffsetUs(long subsampleOffsetUs) {
     return new Format(id, containerMimeType, sampleMimeType, bitrate, maxInputSize, width,
         height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
-        language, subsampleOffsetUs, initializationData, requiresSecureDecryption);
+        encoderDelay, encoderPadding, language, subsampleOffsetUs, initializationData,
+        requiresSecureDecryption);
   }
 
   public Format copyWithContainerInfo(String id, int bitrate, int width, int height,
       String language) {
     return new Format(id, containerMimeType, sampleMimeType, bitrate, maxInputSize, width,
         height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
-        language, subsampleOffsetUs, initializationData, requiresSecureDecryption);
+        encoderDelay, encoderPadding, language, subsampleOffsetUs, initializationData,
+        requiresSecureDecryption);
   }
 
+  public Format copyWithGaplessInfo(int encoderDelay, int encoderPadding) {
+    return new Format(id, containerMimeType, sampleMimeType, bitrate, maxInputSize, width,
+        height, frameRate, rotationDegrees, pixelWidthHeightRatio, channelCount, sampleRate,
+        encoderDelay, encoderPadding, language, subsampleOffsetUs, initializationData,
+        requiresSecureDecryption);
+  }
+  
   /**
    * @return A {@link MediaFormat} representation of this format.
    */
@@ -283,6 +313,8 @@ public final class Format {
       maybeSetIntegerV16(format, "rotation-degrees", rotationDegrees);
       maybeSetIntegerV16(format, MediaFormat.KEY_CHANNEL_COUNT, channelCount);
       maybeSetIntegerV16(format, MediaFormat.KEY_SAMPLE_RATE, sampleRate);
+      maybeSetIntegerV16(format, "encoder-delay", encoderDelay);
+      maybeSetIntegerV16(format, "encoder-padding", encoderPadding);
       for (int i = 0; i < initializationData.size(); i++) {
         format.setByteBuffer("csd-" + i, ByteBuffer.wrap(initializationData.get(i)));
       }
@@ -322,6 +354,8 @@ public final class Format {
       result = 31 * result + height;
       result = 31 * result + channelCount;
       result = 31 * result + sampleRate;
+      result = 31 * result + encoderDelay;
+      result = 31 * result + encoderPadding;
       result = 31 * result + (language == null ? 0 : language.hashCode());
       hashCode = result;
     }
@@ -343,6 +377,7 @@ public final class Format {
         || rotationDegrees != other.rotationDegrees
         || pixelWidthHeightRatio != other.pixelWidthHeightRatio
         || channelCount != other.channelCount || sampleRate != other.sampleRate
+        || encoderDelay != other.encoderDelay || encoderPadding != other.encoderPadding
         || subsampleOffsetUs != other.subsampleOffsetUs
         || !Util.areEqual(id, other.id) || !Util.areEqual(language, other.language)
         || !Util.areEqual(containerMimeType, other.containerMimeType)

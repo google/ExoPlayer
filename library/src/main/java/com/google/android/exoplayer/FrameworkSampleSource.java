@@ -312,6 +312,8 @@ public final class FrameworkSampleSource implements SampleSource {
     int rotationDegrees = getOptionalIntegerV16(mediaFormat, "rotation-degrees");
     int channelCount = getOptionalIntegerV16(mediaFormat, MediaFormat.KEY_CHANNEL_COUNT);
     int sampleRate = getOptionalIntegerV16(mediaFormat, MediaFormat.KEY_SAMPLE_RATE);
+    int encoderDelay = getOptionalIntegerV16(mediaFormat, "encoder-delay");
+    int encoderPadding = getOptionalIntegerV16(mediaFormat, "encoder-padding");
     ArrayList<byte[]> initializationData = new ArrayList<>();
     for (int i = 0; mediaFormat.containsKey("csd-" + i); i++) {
       ByteBuffer buffer = mediaFormat.getByteBuffer("csd-" + i);
@@ -322,7 +324,8 @@ public final class FrameworkSampleSource implements SampleSource {
     }
     Format format = new Format(Integer.toString(index), null, mimeType, Format.NO_VALUE,
         maxInputSize, width, height, frameRate, rotationDegrees, Format.NO_VALUE, channelCount,
-        sampleRate, language, Format.OFFSET_SAMPLE_RELATIVE, initializationData, false);
+        sampleRate, encoderDelay, encoderPadding, language, Format.OFFSET_SAMPLE_RELATIVE,
+        initializationData, false);
     format.setFrameworkMediaFormatV16(mediaFormat);
     return format;
   }

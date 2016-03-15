@@ -16,9 +16,11 @@
 package com.google.android.exoplayer.extractor.mp4;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
+import com.google.android.exoplayer.extractor.GaplessInfo;
 import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
@@ -282,12 +284,12 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     long durationUs = C.UNKNOWN_TIME_US;
     List<Mp4Track> tracks = new ArrayList<>();
     long earliestSampleOffset = Long.MAX_VALUE;
-    // TODO: Apply gapless information.
-    // GaplessInfo gaplessInfo = null;
-    // Atom.ContainerAtom udta = moov.getContainerAtomOfType(Atom.TYPE_udta);
-    // if (udta != null) {
-    //   gaplessInfo = AtomParsers.parseUdta(udta);
-    // }
+    GaplessInfo gaplessInfo = null;
+    Atom.ContainerAtom udta = moov.getContainerAtomOfType(Atom.TYPE_udta);
+    if (udta != null) {
+      gaplessInfo = AtomParsers.parseUdta(udta);
+    }
+
     for (int i = 0; i < moov.containerChildren.size(); i++) {
       Atom.ContainerAtom atom = moov.containerChildren.get(i);
       if (atom.type != Atom.TYPE_trak) {
@@ -311,7 +313,11 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       // Each sample has up to three bytes of overhead for the start code that replaces its length.
       // Allow ten source samples per output sample, like the platform extractor.
       int maxInputSize = trackSampleTable.maximumSize + 3 * 10;
-      mp4Track.trackOutput.format(track.format.copyWithMaxInputSize(maxInputSize));
+      Format format = track.format.copyWithMaxInputSize(maxInputSize);
+      if (gaplessInfo != null) {
+        format = format.copyWithGaplessInfo(gaplessInfo.encoderDelay, gaplessInfo.encoderPadding);
+      }
+      mp4Track.trackOutput.format(format);
 
       durationUs = Math.max(durationUs, track.durationUs);
       tracks.add(mp4Track);

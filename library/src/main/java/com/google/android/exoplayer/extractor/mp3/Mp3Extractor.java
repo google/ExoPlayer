@@ -119,9 +119,11 @@ public final class Mp3Extractor implements Extractor {
     if (seeker == null) {
       setupSeeker(input);
       extractorOutput.seekMap(seeker);
+      int encoderDelay = gaplessInfo != null ? gaplessInfo.encoderDelay : Format.NO_VALUE;
+      int encoderPadding = gaplessInfo != null ? gaplessInfo.encoderPadding : Format.NO_VALUE;
       trackOutput.format(Format.createAudioSampleFormat(null, synchronizedHeader.mimeType,
           Format.NO_VALUE, MpegAudioHeader.MAX_FRAME_SIZE_BYTES, synchronizedHeader.channels,
-          synchronizedHeader.sampleRate, null, null));
+          synchronizedHeader.sampleRate, encoderDelay, encoderPadding, null, null));
     }
     return readSample(input);
   }
