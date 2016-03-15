@@ -17,6 +17,7 @@ package com.google.android.exoplayer.extractor.mp4;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.GaplessInfo;
 import com.google.android.exoplayer.util.Ac3Util;
 import com.google.android.exoplayer.util.Assertions;
@@ -82,8 +83,10 @@ import java.util.List;
    * @param track Track to which this sample table corresponds.
    * @param stblAtom stbl (sample table) atom to parse.
    * @return Sample table described by the stbl atom.
+   * @throws ParserException If the resulting sample sequence does not contain a sync sample.
    */
-  public static TrackSampleTable parseStbl(Track track, Atom.ContainerAtom stblAtom) {
+  public static TrackSampleTable parseStbl(Track track, Atom.ContainerAtom stblAtom)
+      throws ParserException {
     // Array of sample sizes.
     ParsableByteArray stsz = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz).data;
 
@@ -327,6 +330,15 @@ import java.util.List;
       }
       pts += duration;
     }
+
+    boolean hasSyncSample = false;
+    for (int i = 0; i < editedFlags.length && !hasSyncSample; i++) {
+      hasSyncSample |= (editedFlags[i] & C.SAMPLE_FLAG_SYNC) != 0;
+    }
+    if (!hasSyncSample) {
+      throw new ParserException("The edited sample sequence does not contain a sync sample.");
+    }
+
     return new TrackSampleTable(editedOffsets, editedSizes, editedMaximumSize, editedTimestamps,
         editedFlags);
   }

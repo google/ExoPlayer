@@ -17,6 +17,7 @@ package com.google.android.exoplayer.extractor.mp4;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
+import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.extractor.Extractor;
 import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.ExtractorOutput;
@@ -247,7 +248,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     return seekRequired && parserState != STATE_READING_SAMPLE;
   }
 
-  private void processAtomEnded(long atomEndPosition) {
+  private void processAtomEnded(long atomEndPosition) throws ParserException {
     while (!containerAtoms.isEmpty() && containerAtoms.peek().endPosition == atomEndPosition) {
       Atom.ContainerAtom containerAtom = containerAtoms.pop();
       if (containerAtom.type == Atom.TYPE_moov) {
@@ -288,7 +289,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   /**
    * Updates the stored track metadata to reflect the contents of the specified moov atom.
    */
-  private void processMoovAtom(ContainerAtom moov) {
+  private void processMoovAtom(ContainerAtom moov) throws ParserException {
     long durationUs = C.UNKNOWN_TIME_US;
     List<Mp4Track> tracks = new ArrayList<>();
     long earliestSampleOffset = Long.MAX_VALUE;
