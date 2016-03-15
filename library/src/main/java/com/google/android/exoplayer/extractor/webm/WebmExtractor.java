@@ -122,6 +122,9 @@ public final class WebmExtractor implements Extractor {
   private static final int ID_VIDEO = 0xE0;
   private static final int ID_PIXEL_WIDTH = 0xB0;
   private static final int ID_PIXEL_HEIGHT = 0xBA;
+  private static final int ID_DISPLAY_WIDTH = 0x54B0;
+  private static final int ID_DISPLAY_HEIGHT = 0x54BA;
+  private static final int ID_DISPLAY_UNIT = 0x54B2;
   private static final int ID_AUDIO = 0xE1;
   private static final int ID_CHANNELS = 0x9F;
   private static final int ID_SAMPLING_FREQUENCY = 0xB5;
@@ -317,6 +320,9 @@ public final class WebmExtractor implements Extractor {
       case ID_BLOCK_DURATION:
       case ID_PIXEL_WIDTH:
       case ID_PIXEL_HEIGHT:
+      case ID_DISPLAY_WIDTH:
+      case ID_DISPLAY_HEIGHT:
+      case ID_DISPLAY_UNIT:
       case ID_TRACK_NUMBER:
       case ID_TRACK_TYPE:
       case ID_DEFAULT_DURATION:
@@ -510,6 +516,15 @@ public final class WebmExtractor implements Extractor {
         return;
       case ID_PIXEL_HEIGHT:
         currentTrack.height = (int) value;
+        return;
+      case ID_DISPLAY_WIDTH:
+        currentTrack.displayWidth = (int) value;
+        return;
+      case ID_DISPLAY_HEIGHT:
+        currentTrack.displayHeight = (int) value;
+        return;
+      case ID_DISPLAY_UNIT:
+        currentTrack.displayUnit = (int) value;
         return;
       case ID_TRACK_NUMBER:
         currentTrack.number = (int) value;
@@ -1122,6 +1137,8 @@ public final class WebmExtractor implements Extractor {
 
   private static final class Track {
 
+    private static final int DISPLAY_UNIT_PIXELS = 0;
+
     // Common elements.
     public String codecId;
     public int number;
@@ -1135,6 +1152,9 @@ public final class WebmExtractor implements Extractor {
     // Video elements.
     public int width = Format.NO_VALUE;
     public int height = Format.NO_VALUE;
+    public int displayWidth = Format.NO_VALUE;
+    public int displayHeight = Format.NO_VALUE;
+    public int displayUnit = DISPLAY_UNIT_PIXELS;
 
     // Audio elements. Initially set to their default values.
     public int channelCount = 1;
@@ -1244,8 +1264,17 @@ public final class WebmExtractor implements Extractor {
         format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType,
             Format.NO_VALUE, maxInputSize, channelCount, sampleRate, initializationData, language);
       } else if (MimeTypes.isVideo(mimeType)) {
+        if (displayUnit == Track.DISPLAY_UNIT_PIXELS) {
+          displayWidth = displayWidth == Format.NO_VALUE ? width : displayWidth;
+          displayHeight = displayHeight == Format.NO_VALUE ? height : displayHeight;
+        }
+        float pixelWidthHeightRatio = Format.NO_VALUE;
+        if (displayWidth != Format.NO_VALUE && displayHeight != Format.NO_VALUE) {
+          pixelWidthHeightRatio = ((float) (height * displayWidth)) / (width * displayHeight);
+        }
         format = Format.createVideoSampleFormat(Integer.toString(trackId), mimeType,
-            Format.NO_VALUE, maxInputSize, width, height, Format.NO_VALUE, initializationData);
+            Format.NO_VALUE, maxInputSize, width, height, Format.NO_VALUE, initializationData,
+            Format.NO_VALUE, pixelWidthHeightRatio);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
         format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, Format.NO_VALUE,
             language);
