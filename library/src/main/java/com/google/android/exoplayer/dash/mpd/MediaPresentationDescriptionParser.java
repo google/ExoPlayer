@@ -636,9 +636,9 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
    */
   private static String getSampleMimeType(String containerMimeType, String codecs) {
     if (MimeTypes.isAudio(containerMimeType)) {
-      return getAudioMediaMimeType(codecs);
+      return MimeTypes.getAudioMediaMimeType(codecs);
     } else if (MimeTypes.isVideo(containerMimeType)) {
-      return getVideoMediaMimeType(codecs);
+      return MimeTypes.getVideoMediaMimeType(codecs);
     } else if (mimeTypeIsRawText(containerMimeType)) {
       return containerMimeType;
     } else if (MimeTypes.APPLICATION_MP4.equals(containerMimeType)) {
@@ -646,64 +646,6 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
         return MimeTypes.APPLICATION_TTML;
       } else if ("wvtt".equals(codecs)) {
         return MimeTypes.APPLICATION_MP4VTT;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Derives a video sample mimeType from a codecs attribute.
-   *
-   * @param codecs The codecs attribute.
-   * @return The derived video mimeType, or null if it could not be derived.
-   */
-  private static String getVideoMediaMimeType(String codecs) {
-    if (codecs == null) {
-      return null;
-    }
-    String[] codecList = codecs.split(",");
-    for (String codec : codecList) {
-      codec = codec.trim();
-      if (codec.startsWith("avc1") || codec.startsWith("avc3")) {
-        return MimeTypes.VIDEO_H264;
-      } else if (codec.startsWith("hev1") || codec.startsWith("hvc1")) {
-        return MimeTypes.VIDEO_H265;
-      } else if (codec.startsWith("vp9")) {
-        return MimeTypes.VIDEO_VP9;
-      } else if (codec.startsWith("vp8")) {
-        return MimeTypes.VIDEO_VP8;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Derives a audio sample mimeType from a codecs attribute.
-   *
-   * @param codecs The codecs attribute.
-   * @return The derived audio mimeType, or null if it could not be derived.
-   */
-  private static String getAudioMediaMimeType(String codecs) {
-    if (codecs == null) {
-      return null;
-    }
-    String[] codecList = codecs.split(",");
-    for (String codec : codecList) {
-      codec = codec.trim();
-      if (codec.startsWith("mp4a")) {
-        return MimeTypes.AUDIO_AAC;
-      } else if (codec.startsWith("ac-3") || codec.startsWith("dac3")) {
-        return MimeTypes.AUDIO_AC3;
-      } else if (codec.startsWith("ec-3") || codec.startsWith("dec3")) {
-        return MimeTypes.AUDIO_E_AC3;
-      } else if (codec.startsWith("dtsc") || codec.startsWith("dtse")) {
-        return MimeTypes.AUDIO_DTS;
-      } else if (codec.startsWith("dtsh") || codec.startsWith("dtsl")) {
-        return MimeTypes.AUDIO_DTS_HD;
-      } else if (codec.startsWith("opus")) {
-        return MimeTypes.AUDIO_OPUS;
-      } else if (codec.startsWith("vorbis")) {
-        return MimeTypes.AUDIO_VORBIS;
       }
     }
     return null;
