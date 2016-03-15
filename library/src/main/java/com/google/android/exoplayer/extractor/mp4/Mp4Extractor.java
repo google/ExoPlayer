@@ -293,9 +293,9 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     List<Mp4Track> tracks = new ArrayList<>();
     long earliestSampleOffset = Long.MAX_VALUE;
     GaplessInfo gaplessInfo = null;
-    Atom.ContainerAtom udta = moov.getContainerAtomOfType(Atom.TYPE_udta);
+    Atom.LeafAtom udta = moov.getLeafAtomOfType(Atom.TYPE_udta);
     if (udta != null) {
-      gaplessInfo = AtomParsers.parseUdta(udta);
+      gaplessInfo = AtomParsers.parseUdta(udta, isQuickTime);
     }
     for (int i = 0; i < moov.containerChildren.size(); i++) {
       Atom.ContainerAtom atom = moov.containerChildren.get(i);
