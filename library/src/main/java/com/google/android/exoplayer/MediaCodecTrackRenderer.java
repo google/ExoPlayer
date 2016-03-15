@@ -661,6 +661,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       inputIndex = -1;
       codecReceivedBuffers = true;
       codecReconfigurationState = RECONFIGURATION_STATE_NONE;
+      codecCounters.inputBufferCount++;
       onQueuedInputBuffer(presentationTimeUs);
     } catch (CryptoException e) {
       notifyCryptoError(e);
