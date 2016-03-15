@@ -22,7 +22,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.test.MoreAsserts;
 
-import junit.framework.TestCase;
+import junit.framework.Assert;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -82,20 +82,37 @@ public final class FakeTrackOutput implements TrackOutput {
   }
 
   public void assertSampleCount(int count) {
-    TestCase.assertEquals(count, sampleTimesUs.size());
+    Assert.assertEquals(count, sampleTimesUs.size());
   }
 
   public void assertSample(int index, byte[] data, long timeUs, int flags, byte[] encryptionKey) {
     byte[] actualData = Arrays.copyOfRange(sampleData, sampleStartOffsets.get(index),
         sampleEndOffsets.get(index));
     MoreAsserts.assertEquals(data, actualData);
-    TestCase.assertEquals(timeUs, (long) sampleTimesUs.get(index));
-    TestCase.assertEquals(flags, (int) sampleFlags.get(index));
+    Assert.assertEquals(timeUs, (long) sampleTimesUs.get(index));
+    Assert.assertEquals(flags, (int) sampleFlags.get(index));
     byte[] sampleEncryptionKey = sampleEncryptionKeys.get(index);
     if (encryptionKey == null) {
-      TestCase.assertEquals(null, sampleEncryptionKey);
+      Assert.assertEquals(null, sampleEncryptionKey);
     } else {
       MoreAsserts.assertEquals(encryptionKey, sampleEncryptionKey);
+    }
+  }
+
+  public void assertEquals(FakeTrackOutput expected) {
+    Assert.assertEquals(expected.format, format);
+    Assert.assertEquals(expected.sampleTimesUs.size(), sampleTimesUs.size());
+    MoreAsserts.assertEquals(expected.sampleData, sampleData);
+    for (int i = 0; i < sampleTimesUs.size(); i++) {
+      Assert.assertEquals(expected.sampleTimesUs.get(i), sampleTimesUs.get(i));
+      Assert.assertEquals(expected.sampleFlags.get(i), sampleFlags.get(i));
+      Assert.assertEquals(expected.sampleStartOffsets.get(i), sampleStartOffsets.get(i));
+      Assert.assertEquals(expected.sampleEndOffsets.get(i), sampleEndOffsets.get(i));
+      if (expected.sampleEncryptionKeys.get(i) == null) {
+        Assert.assertNull(sampleEncryptionKeys.get(i));
+      } else {
+        MoreAsserts.assertEquals(expected.sampleEncryptionKeys.get(i), sampleEncryptionKeys.get(i));
+      }
     }
   }
 
