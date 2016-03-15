@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.demo.vp9opus;
+package com.google.android.exoplayer.demo.ext;
 
 import com.google.android.exoplayer.util.Util;
 
