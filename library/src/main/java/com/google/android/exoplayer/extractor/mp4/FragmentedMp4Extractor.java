@@ -105,6 +105,7 @@ public final class FragmentedMp4Extractor implements Extractor {
   private ParsableByteArray atomData;
   private long endOfMdatPosition;
 
+  private long durationUs;
   private TrackBundle currentTrackBundle;
   private int sampleSize;
   private int sampleBytesWritten;
@@ -230,7 +231,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       currentTrackBundle = null;
       endOfMdatPosition = atomPosition + atomSize;
       if (!haveOutputSeekMap) {
-        extractorOutput.seekMap(new SeekMap.Unseekable(C.UNKNOWN_TIME_US));
+        extractorOutput.seekMap(new SeekMap.Unseekable(durationUs));
         haveOutputSeekMap = true;
       }
       parserState = STATE_READING_ENCRYPTION_DATA;
@@ -336,6 +337,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     }
 
     // Construction of Tracks and TrackOutputs.
+    durationUs = C.UNKNOWN_TIME_US;
     trackBundles.clear();
     int moovContainerChildrenSize = moov.containerChildren.size();
     int trackBundlesSize = 0;
@@ -349,6 +351,7 @@ public final class FragmentedMp4Extractor implements Extractor {
               extractorOutput.track(trackBundlesSize++), defaultSampleValues);
           bundle.output.format(track.format);
           trackBundles.put(track.id, bundle);
+          durationUs = Math.max(track.durationUs, durationUs);
         }
       }
     }

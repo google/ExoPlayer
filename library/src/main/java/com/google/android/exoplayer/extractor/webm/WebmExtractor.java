@@ -997,7 +997,7 @@ public final class WebmExtractor implements Extractor {
     durationsUs[cuePointsSize - 1] = durationUs - timesUs[cuePointsSize - 1];
     cueTimesUs = null;
     cueClusterPositions = null;
-    return new ChunkIndex(durationUs, sizes, offsets, durationsUs, timesUs);
+    return new ChunkIndex(sizes, offsets, durationsUs, timesUs);
   }
 
   /**
