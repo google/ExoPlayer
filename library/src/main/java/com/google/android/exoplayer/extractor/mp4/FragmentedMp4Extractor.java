@@ -143,6 +143,7 @@ public final class FragmentedMp4Extractor implements Extractor {
     extendedTypeScratch = new byte[16];
     containerAtoms = new Stack<>();
     trackBundles = new SparseArray<>();
+    durationUs = C.UNKNOWN_TIME_US;
     enterReadingAtomHeaderState();
   }
 
@@ -155,8 +156,9 @@ public final class FragmentedMp4Extractor implements Extractor {
   public void init(ExtractorOutput output) {
     extractorOutput = output;
     if (sideloadedTrack != null) {
-      trackBundles.put(0, new TrackBundle(sideloadedTrack, new TrackFragment(), output.track(0),
-          new DefaultSampleValues(0, 0, 0, 0)));
+      TrackBundle bundle = new TrackBundle(output.track(0));
+      bundle.init(sideloadedTrack, new DefaultSampleValues(0, 0, 0, 0));
+      trackBundles.put(0, bundle);
       extractorOutput.endTracks();
     }
   }
@@ -324,7 +326,7 @@ public final class FragmentedMp4Extractor implements Extractor {
       extractorOutput.drmInitData(drmInitData);
     }
 
-    // Read declaration of Track Fragments in the Moov box.
+    // Read declaration of track fragments in the Moov box.
     ContainerAtom mvex = moov.getContainerAtomOfType(Atom.TYPE_mvex);
     SparseArray<DefaultSampleValues> defaultSampleValuesArray = new SparseArray<>();
     int mvexChildrenSize = mvex.leafChildren.size();
@@ -336,26 +338,37 @@ public final class FragmentedMp4Extractor implements Extractor {
       }
     }
 
-    // Construction of Tracks and TrackOutputs.
-    durationUs = C.UNKNOWN_TIME_US;
-    trackBundles.clear();
+    // Construction of tracks.
+    SparseArray<Track> tracks = new SparseArray<>();
     int moovContainerChildrenSize = moov.containerChildren.size();
-    int trackBundlesSize = 0;
     for (int i = 0; i < moovContainerChildrenSize; i++) {
       Atom.ContainerAtom atom = moov.containerChildren.get(i);
       if (atom.type == Atom.TYPE_trak) {
         Track track = AtomParsers.parseTrak(atom, moov.getLeafAtomOfType(Atom.TYPE_mvhd), false);
         if (track != null) {
-          DefaultSampleValues defaultSampleValues = defaultSampleValuesArray.get(track.id);
-          TrackBundle bundle = new TrackBundle(track, new TrackFragment(),
-              extractorOutput.track(trackBundlesSize++), defaultSampleValues);
-          bundle.output.format(track.format);
-          trackBundles.put(track.id, bundle);
-          durationUs = Math.max(track.durationUs, durationUs);
+          tracks.put(track.id, track);
         }
       }
     }
-    extractorOutput.endTracks();
+
+    int trackCount = tracks.size();
+    if (trackBundles.size() == 0) {
+      // We need to create the track bundles.
+      for (int i = 0; i < trackCount; i++) {
+        Track track = tracks.valueAt(i);
+        trackBundles.put(track.id, new TrackBundle(extractorOutput.track(i)));
+        durationUs = Math.max(durationUs, track.durationUs);
+      }
+      extractorOutput.endTracks();
+    } else {
+      Assertions.checkState(trackBundles.size() == trackCount);
+    }
+
+    // Initialization of tracks and default sample values.
+    for (int i = 0; i < trackCount; i++) {
+      Track track = tracks.valueAt(i);
+      trackBundles.get(track.id).init(track, defaultSampleValuesArray.get(track.id));
+    }
   }
 
   private void onMoofContainerAtomRead(ContainerAtom moof) throws ParserException {
@@ -951,18 +964,24 @@ public final class FragmentedMp4Extractor implements Extractor {
    */
   private static final class TrackBundle {
 
-    public final Track track;
     public final TrackFragment fragment;
     public final TrackOutput output;
-    public final DefaultSampleValues defaultSampleValues;
+
+    public Track track;
+    public DefaultSampleValues defaultSampleValues;
     public int currentSampleIndex;
 
-    public TrackBundle(Track track, TrackFragment fragment, TrackOutput output,
-        DefaultSampleValues defaultSampleValues) {
+    public TrackBundle(TrackOutput output) {
+      fragment = new TrackFragment();
+      this.output = output;
+    }
+
+    public void init(Track track, DefaultSampleValues defaultSampleValues) {
       this.track = Assertions.checkNotNull(track);
-      this.fragment = Assertions.checkNotNull(fragment);
-      this.output = Assertions.checkNotNull(output);
       this.defaultSampleValues = Assertions.checkNotNull(defaultSampleValues);
+      output.format(track.format);
+      fragment.reset();
+      currentSampleIndex = 0;
     }
 
   }
