@@ -161,6 +161,13 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     } catch (ClassNotFoundException e) {
       // Extractor not found.
     }
+    try {
+      DEFAULT_EXTRACTOR_CLASSES.add(
+          Class.forName("com.google.android.exoplayer.extractor.ts.PsExtractor")
+              .asSubclass(Extractor.class));
+    } catch (ClassNotFoundException e) {
+      // Extractor not found.
+    }
   }
 
   private final ExtractorHolder extractorHolder;
