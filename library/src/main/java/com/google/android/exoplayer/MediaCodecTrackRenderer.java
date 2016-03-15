@@ -228,7 +228,6 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
-  private boolean waitingForFirstSyncFrame;
 
   /**
    * @param mediaCodecSelector A decoder selector.
@@ -384,7 +383,6 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
         SystemClock.elapsedRealtime() : -1;
     inputIndex = -1;
     outputIndex = -1;
-    waitingForFirstSyncFrame = true;
     codecCounters.codecInitCount++;
   }
 
@@ -507,7 +505,6 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     codecHotswapTimeMs = -1;
     inputIndex = -1;
     outputIndex = -1;
-    waitingForFirstSyncFrame = true;
     waitingForKeys = false;
     decodeOnlyPresentationTimestamps.clear();
     if (codecNeedsFlushWorkaround || (codecNeedsEosFlushWorkaround && codecReceivedEos)) {
@@ -627,20 +624,6 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
         throw ExoPlaybackException.createForRenderer(e, getIndex());
       }
       return false;
-    }
-    if (waitingForFirstSyncFrame) {
-      // TODO: Find out if it's possible to supply samples prior to the first sync
-      // frame for HE-AAC.
-      if (!sampleHolder.isSyncFrame()) {
-        sampleHolder.clearData();
-        if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
-          // The buffer we just cleared contained reconfiguration data. We need to re-write this
-          // data into a subsequent buffer (if there is one).
-          codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
-        }
-        return true;
-      }
-      waitingForFirstSyncFrame = false;
     }
     boolean sampleEncrypted = sampleHolder.isEncrypted();
     waitingForKeys = shouldWaitForKeys(sampleEncrypted);
