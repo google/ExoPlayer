@@ -15,24 +15,18 @@
  */
 package com.google.android.exoplayer.testutil;
 
-import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer.extractor.Extractor;
-import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.extractor.PositionHolder;
-import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
 import android.app.Instrumentation;
-import android.net.Uri;
 import android.test.InstrumentationTestCase;
 
 import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -44,30 +38,17 @@ public class TestUtil {
 
   public static void consumeTestData(Extractor extractor, byte[] data)
       throws IOException, InterruptedException {
-    ExtractorInput input = createTestExtractorInput(data);
+    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
     PositionHolder seekPositionHolder = new PositionHolder();
     int readResult = Extractor.RESULT_CONTINUE;
     while (readResult != Extractor.RESULT_END_OF_INPUT) {
       readResult = extractor.read(input, seekPositionHolder);
       if (readResult == Extractor.RESULT_SEEK) {
-        input = createTestExtractorInput(data, (int) seekPositionHolder.position);
+        long seekPosition = seekPositionHolder.position;
+        Assertions.checkState(0 < seekPosition && seekPosition <= Integer.MAX_VALUE);
+        input.setPosition((int) seekPosition);
       }
     }
-  }
-
-  public static ExtractorInput createTestExtractorInput(byte[] data) throws IOException {
-    return createTestExtractorInput(data, 0);
-  }
-
-  public static ExtractorInput createTestExtractorInput(byte[] data, int offset)
-      throws IOException {
-    if (offset != 0) {
-      data = Arrays.copyOfRange(data, offset, data.length);
-    }
-    FakeDataSource dataSource = new FakeDataSource.Builder().appendReadData(data).build();
-    dataSource.open(new DataSpec(Uri.parse("http://www.google.com")));
-    ExtractorInput input = new DefaultExtractorInput(dataSource, offset, C.LENGTH_UNBOUNDED);
-    return input;
   }
 
   public static byte[] buildTestData(int length) {
