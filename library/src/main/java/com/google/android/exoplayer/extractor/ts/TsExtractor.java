@@ -372,7 +372,8 @@ public final class TsExtractor implements Extractor {
 
         if (pesPayloadReader != null) {
           streamTypes.put(streamType, true);
-          tsPayloadReaders.put(elementaryPid, new PesReader(pesPayloadReader));
+          tsPayloadReaders.put(elementaryPid,
+              new PesReader(pesPayloadReader, ptsTimestampAdjuster));
         }
       }
 
@@ -423,7 +424,7 @@ public final class TsExtractor implements Extractor {
   /**
    * Parses PES packet data and extracts samples.
    */
-  private class PesReader extends TsPayloadReader {
+  private static final class PesReader extends TsPayloadReader {
 
     private static final int STATE_FINDING_HEADER = 0;
     private static final int STATE_READING_HEADER = 1;
@@ -434,8 +435,9 @@ public final class TsExtractor implements Extractor {
     private static final int MAX_HEADER_EXTENSION_SIZE = 10;
     private static final int PES_SCRATCH_SIZE = 10; // max(HEADER_SIZE, MAX_HEADER_EXTENSION_SIZE)
 
-    private final ParsableBitArray pesScratch;
     private final ElementaryStreamReader pesPayloadReader;
+    private final PtsTimestampAdjuster ptsTimestampAdjuster;
+    private final ParsableBitArray pesScratch;
 
     private int state;
     private int bytesRead;
@@ -448,8 +450,10 @@ public final class TsExtractor implements Extractor {
     private boolean dataAlignmentIndicator;
     private long timeUs;
 
-    public PesReader(ElementaryStreamReader pesPayloadReader) {
+    public PesReader(ElementaryStreamReader pesPayloadReader,
+        PtsTimestampAdjuster ptsTimestampAdjuster) {
       this.pesPayloadReader = pesPayloadReader;
+      this.ptsTimestampAdjuster = ptsTimestampAdjuster;
       pesScratch = new ParsableBitArray(new byte[PES_SCRATCH_SIZE]);
       state = STATE_FINDING_HEADER;
     }
