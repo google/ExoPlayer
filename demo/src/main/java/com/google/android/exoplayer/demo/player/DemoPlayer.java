@@ -34,9 +34,10 @@ import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
 import com.google.android.exoplayer.hls.HlsSampleSource;
-import com.google.android.exoplayer.metadata.Id3Parser;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer.MetadataRenderer;
+import com.google.android.exoplayer.metadata.id3.Id3Frame;
+import com.google.android.exoplayer.metadata.id3.Id3Parser;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.TextRenderer;
 import com.google.android.exoplayer.text.TextTrackRenderer;
@@ -54,7 +55,6 @@ import android.view.Surface;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -66,7 +66,7 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
     ChunkSampleSource.EventListener, HlsSampleSource.EventListener,
     DefaultBandwidthMeter.EventListener, MediaCodecVideoTrackRenderer.EventListener,
     MediaCodecAudioTrackRenderer.EventListener, StreamingDrmSessionManager.EventListener,
-    DashChunkSource.EventListener, TextRenderer, MetadataRenderer<Map<String, Object>>,
+    DashChunkSource.EventListener, TextRenderer, MetadataRenderer<List<Id3Frame>>,
     DebugTextViewHelper.Provider {
 
   /**
@@ -140,7 +140,7 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
    * A listener for receiving ID3 metadata parsed from the media stream.
    */
   public interface Id3MetadataListener {
-    void onId3Metadata(Map<String, Object> metadata);
+    void onId3Metadata(List<Id3Frame> id3Frames);
   }
 
   // Constants pulled into this class for convenience.
@@ -187,8 +187,8 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
         true, mainHandler, this, AudioCapabilities.getCapabilities(context),
         AudioManager.STREAM_MUSIC);
     TrackRenderer textRenderer = new TextTrackRenderer(this, mainHandler.getLooper());
-    MetadataTrackRenderer<Map<String, Object>> id3Renderer = new MetadataTrackRenderer<>(
-        new Id3Parser(), this, mainHandler.getLooper());
+    MetadataTrackRenderer<List<Id3Frame>> id3Renderer = new MetadataTrackRenderer<>(new Id3Parser(),
+        this, mainHandler.getLooper());
     TrackRenderer[] renderers = new TrackRenderer[] {videoRenderer, audioRenderer, textRenderer,
         id3Renderer};
 
@@ -434,9 +434,9 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
   }
 
   @Override
-  public void onMetadata(Map<String, Object> metadata) {
+  public void onMetadata(List<Id3Frame> id3Frames) {
     if (id3MetadataListener != null && trackInfo.getTrackSelection(TYPE_METADATA) != null) {
-      id3MetadataListener.onId3Metadata(metadata);
+      id3MetadataListener.onId3Metadata(id3Frames);
     }
   }
 
