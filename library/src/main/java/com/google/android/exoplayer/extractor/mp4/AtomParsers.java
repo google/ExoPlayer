@@ -929,10 +929,7 @@ import java.util.List;
     parent.setPosition(position + Atom.HEADER_SIZE + 4);
     // Start of the ES_Descriptor (defined in 14496-1)
     parent.skipBytes(1); // ES_Descriptor tag
-    int varIntByte = parent.readUnsignedByte();
-    while (varIntByte > 127) {
-      varIntByte = parent.readUnsignedByte();
-    }
+    parseExpandableClassSize(parent);
     parent.skipBytes(2); // ES_ID
 
     int flags = parent.readUnsignedByte();
@@ -948,10 +945,7 @@ import java.util.List;
 
     // Start of the DecoderConfigDescriptor (defined in 14496-1)
     parent.skipBytes(1); // DecoderConfigDescriptor tag
-    varIntByte = parent.readUnsignedByte();
-    while (varIntByte > 127) {
-      varIntByte = parent.readUnsignedByte();
-    }
+    parseExpandableClassSize(parent);
 
     // Set the MIME type based on the object type indication (14496-1 table 5).
     int objectTypeIndication = parent.readUnsignedByte();
@@ -998,16 +992,21 @@ import java.util.List;
 
     // Start of the AudioSpecificConfig.
     parent.skipBytes(1); // AudioSpecificConfig tag
-    varIntByte = parent.readUnsignedByte();
-    int varInt = varIntByte & 0x7F;
-    while (varIntByte > 127) {
-      varIntByte = parent.readUnsignedByte();
-      varInt = varInt << 8;
-      varInt |= varIntByte & 0x7F;
-    }
-    byte[] initializationData = new byte[varInt];
-    parent.readBytes(initializationData, 0, varInt);
+    int initializationDataSize = parseExpandableClassSize(parent);
+    byte[] initializationData = new byte[initializationDataSize];
+    parent.readBytes(initializationData, 0, initializationDataSize);
     return Pair.create(mimeType, initializationData);
+  }
+
+  /** Parses the size of an expandable class, as specified by ISO 14496-1 subsection 8.3.3. */
+  private static int parseExpandableClassSize(ParsableByteArray data) {
+    int currentByte = data.readUnsignedByte();
+    int size = currentByte & 0x7F;
+    while ((currentByte & 0x80) == 0x80) {
+      currentByte = data.readUnsignedByte();
+      size = (size << 7) | (currentByte & 0x7F);
+    }
+    return size;
   }
 
   private AtomParsers() {
