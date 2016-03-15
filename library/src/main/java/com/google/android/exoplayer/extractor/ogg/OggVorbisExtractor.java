@@ -25,11 +25,8 @@ import com.google.android.exoplayer.extractor.PositionHolder;
 import com.google.android.exoplayer.extractor.SeekMap;
 import com.google.android.exoplayer.extractor.TrackOutput;
 import com.google.android.exoplayer.extractor.ogg.VorbisUtil.Mode;
-import com.google.android.exoplayer.extractor.ogg.VorbisUtil.VorbisIdHeader;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
-
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,15 +34,12 @@ import java.util.ArrayList;
 /**
  * {@link Extractor} to extract Vorbis data out of Ogg byte stream.
  */
-public final class OggVorbisExtractor implements Extractor {
-
-  private static final String TAG = "OggVorbisExtractor";
-
-  private static final int OGG_MAX_SEGMENT_SIZE = 255;
+public final class OggVorbisExtractor implements Extractor, SeekMap {
 
   private final ParsableByteArray scratch = new ParsableByteArray(
-      new byte[OGG_MAX_SEGMENT_SIZE * 255], 0);
-  private final OggReader oggReader =  new OggReader();
+      new byte[OggReader.OGG_MAX_SEGMENT_SIZE * 255], 0);
+
+  private final OggReader oggReader = new OggReader();
 
   private TrackOutput trackOutput;
   private VorbisSetup vorbisSetup;
@@ -53,36 +47,48 @@ public final class OggVorbisExtractor implements Extractor {
   private long elapsedSamples;
   private boolean seenFirstAudioPacket;
 
+  private final OggSeeker oggSeeker = new OggSeeker();
+  private long targetGranule = -1;
+
+  private ExtractorOutput extractorOutput;
   private VorbisUtil.VorbisIdHeader vorbisIdHeader;
   private VorbisUtil.CommentHeader commentHeader;
+  private long inputLength;
+  private long audioStartPosition;
+  private long totalSamples;
+  private long durationUs;
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
     try {
-      OggReader.PageHeader header = new OggReader.PageHeader();
-      OggReader.populatePageHeader(input, header, scratch, true);
-      if ((header.type & 0x02) != 0x02) {
-        throw new ParserException("expected page to be first page of a logical stream");
+      OggUtil.PageHeader header = new OggUtil.PageHeader();
+      if (!OggUtil.populatePageHeader(input, header, scratch, true)
+          || (header.type & 0x02) != 0x02 || header.bodySize < 7) {
+        return false;
       }
-      input.resetPeekPosition();
+      scratch.reset();
+      input.peekFully(scratch.data, 0, 7);
+      return VorbisUtil.verifyVorbisHeaderCapturePattern(0x01, scratch, true);
     } catch (ParserException e) {
-      Log.e(TAG, e.getMessage());
-      return false;
+      // does not happen
+    } finally {
+      input.resetPeekPosition();
+      scratch.reset();
     }
-    return true;
+    return false;
   }
 
   @Override
   public void init(ExtractorOutput output) {
     trackOutput = output.track(0);
     output.endTracks();
-    output.seekMap(new SeekMap.Unseekable(C.UNKNOWN_TIME_US));
+    extractorOutput = output;
   }
 
   @Override
   public void seek() {
     oggReader.reset();
-    previousPacketBlockSize = -1;
+    previousPacketBlockSize = 0;
     elapsedSamples = 0;
     seenFirstAudioPacket = false;
     scratch.reset();
@@ -92,35 +98,77 @@ public final class OggVorbisExtractor implements Extractor {
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
 
-    if (vorbisSetup == null) {
-      vorbisSetup = readSetupHeaders(input, scratch);
-      VorbisIdHeader idHeader = vorbisSetup.idHeader;
-      ArrayList<byte[]> codecInitializationData = new ArrayList<>();
-      codecInitializationData.clear();
-      codecInitializationData.add(idHeader.data);
-      codecInitializationData.add(vorbisSetup.setupHeaderData);
-      trackOutput.format(Format.createAudioSampleFormat(null, MimeTypes.AUDIO_VORBIS,
-          idHeader.bitrateNominal, OGG_MAX_SEGMENT_SIZE * 255, idHeader.channels,
-          idHeader.sampleRate, codecInitializationData, null));
+    // Setup.
+    if (totalSamples == 0) {
+      if (vorbisSetup == null) {
+        inputLength = input.getLength();
+        vorbisSetup = readSetupHeaders(input, scratch);
+        audioStartPosition = input.getPosition();
+        // Output the format.
+        ArrayList<byte[]> codecInitialisationData = new ArrayList<>();
+        codecInitialisationData.add(vorbisSetup.idHeader.data);
+        codecInitialisationData.add(vorbisSetup.setupHeaderData);
+        trackOutput.format(Format.createAudioSampleFormat(null, MimeTypes.AUDIO_VORBIS,
+            vorbisSetup.idHeader.bitrateNominal, OggReader.OGG_MAX_SEGMENT_SIZE * 255,
+            vorbisSetup.idHeader.channels, (int) vorbisSetup.idHeader.sampleRate,
+            codecInitialisationData, null));
+        if (inputLength == C.LENGTH_UNBOUNDED) {
+          // If the length is unbounded, we cannot determine the duration or seek.
+          totalSamples = -1;
+          durationUs = C.LENGTH_UNBOUNDED;
+          extractorOutput.seekMap(this);
+          return RESULT_CONTINUE;
+        }
+        // Seek to just before the last page of stream to get the duration.
+        seekPosition.position = input.getLength() - 8000;
+        return RESULT_SEEK;
+      }
+
+      totalSamples = oggReader.readGranuleOfLastPage(input);
+      durationUs = totalSamples * C.MICROS_PER_SECOND / vorbisSetup.idHeader.sampleRate;
+      oggSeeker.setup(inputLength - audioStartPosition, totalSamples);
+      extractorOutput.seekMap(this);
+      // Seek back to resume from where we finished reading vorbis headers.
+      seekPosition.position = audioStartPosition;
+      return RESULT_SEEK;
     }
+
+    // Seeking requested.
+    if (!seenFirstAudioPacket && targetGranule > -1) {
+      OggUtil.skipToNextPage(input);
+      long position = oggSeeker.getNextSeekPosition(targetGranule, input);
+      if (position != -1) {
+        seekPosition.position = position;
+        return RESULT_SEEK;
+      } else {
+        elapsedSamples = oggReader.skipToPageOfGranule(input, targetGranule);
+        previousPacketBlockSize = vorbisIdHeader.blockSize0;
+        // We're never at the first packet after seeking.
+        seenFirstAudioPacket = true;
+        oggSeeker.reset();
+      }
+    }
+
+    // Playback.
     if (oggReader.readPacket(input, scratch)) {
-      // if this is an audio packet...
+      // If this is an audio packet...
       if ((scratch.data[0] & 0x01) != 1) {
-        // ... we need to decode the block size
+        // ... Then we need to decode the block size
         int packetBlockSize = decodeBlockSize(scratch.data[0], vorbisSetup);
-        // a packet contains samples produced from overlapping the previous and current frame data
-        // (https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-350001.3.2)
-        int samplesInPacket = seenFirstAudioPacket ? (packetBlockSize + previousPacketBlockSize) / 4
-            : 0;
-        // codec expects the number of samples appended to audio data
-        appendNumberOfSamples(scratch, samplesInPacket);
-
-        // calculate time and send audio data to codec
-        long timeUs = elapsedSamples * C.MICROS_PER_SECOND / vorbisSetup.idHeader.sampleRate;
-        trackOutput.sampleData(scratch, scratch.limit());
-        trackOutput.sampleMetadata(timeUs, C.SAMPLE_FLAG_SYNC, scratch.limit(), 0, null);
-
-        // update state in members for next iteration
+        // A packet contains samples produced from overlapping the previous and current frame data
+        // (https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-350001.3.2).
+        int samplesInPacket = seenFirstAudioPacket
+            ? ((packetBlockSize + previousPacketBlockSize) / 4) : 0;
+        if (elapsedSamples + samplesInPacket >= targetGranule) {
+          // Codec expects the number of samples appended to audio data.
+          appendNumberOfSamples(scratch, samplesInPacket);
+          // Calculate time and send audio data to codec.
+          long timeUs = elapsedSamples * C.MICROS_PER_SECOND / vorbisSetup.idHeader.sampleRate;
+          trackOutput.sampleData(scratch, scratch.limit());
+          trackOutput.sampleMetadata(timeUs, C.SAMPLE_FLAG_SYNC, scratch.limit(), 0, null);
+          targetGranule = -1;
+        }
+        // Update state in members for next iteration.
         seenFirstAudioPacket = true;
         elapsedSamples += samplesInPacket;
         previousPacketBlockSize = packetBlockSize;
@@ -176,7 +224,7 @@ public final class OggVorbisExtractor implements Extractor {
 
   private static int decodeBlockSize(byte firstByteOfAudioPacket, VorbisSetup vorbisSetup) {
     // read modeNumber (https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-730004.3.1)
-    int modeNumber = VorbisUtil.readBits(firstByteOfAudioPacket, vorbisSetup.iLogModes, 1);
+    int modeNumber = OggUtil.readBits(firstByteOfAudioPacket, vorbisSetup.iLogModes, 1);
     int currentBlockSize;
     if (!vorbisSetup.modes[modeNumber].blockFlag) {
       currentBlockSize = vorbisSetup.idHeader.blockSize0;
@@ -185,6 +233,31 @@ public final class OggVorbisExtractor implements Extractor {
     }
     return currentBlockSize;
   }
+
+  // SeekMap implementation.
+
+  @Override
+  public boolean isSeekable() {
+    return inputLength != C.LENGTH_UNBOUNDED;
+  }
+
+  @Override
+  public long getDurationUs() {
+    return durationUs;
+  }
+
+  @Override
+  public long getPosition(long timeUs) {
+    if (timeUs == 0) {
+      targetGranule = -1;
+      return audioStartPosition;
+    }
+    targetGranule = vorbisSetup.idHeader.sampleRate * timeUs / C.MICROS_PER_SECOND;
+    return Math.max(audioStartPosition, ((inputLength - audioStartPosition) * timeUs
+        / durationUs) - 4000);
+  }
+
+  // Internal classes.
 
   /**
    * Class to hold all data read from Vorbis setup headers.

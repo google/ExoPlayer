@@ -15,8 +15,9 @@
  */
 package com.google.android.exoplayer.extractor.ogg;
 
+import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.extractor.ExtractorInput;
 import com.google.android.exoplayer.testutil.FakeExtractorInput;
-import com.google.android.exoplayer.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer.testutil.TestUtil;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -24,12 +25,13 @@ import android.test.MoreAsserts;
 
 import junit.framework.TestCase;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
 /**
- * Unit test for {@link OggReader}
+ * Unit test for {@link OggReader}.
  */
 public final class OggReaderTest extends TestCase {
 
@@ -51,7 +53,7 @@ public final class OggReaderTest extends TestCase {
     byte[] thirdPacket = TestUtil.buildTestData(256, random);
     byte[] fourthPacket = TestUtil.buildTestData(271, random);
 
-    FakeExtractorInput input = createInput(
+    FakeExtractorInput input = TestData.createInput(
         TestUtil.joinByteArrays(
             // First page with a single packet.
             TestData.buildOggHeader(0x02,  0, 1000, 0x01),
@@ -67,7 +69,7 @@ public final class OggReaderTest extends TestCase {
             TestData.buildOggHeader(0x04,  128, 1003, 0x04),
             TestUtil.createByteArray(0xFF, 0x01, 0xFF, 0x10), // Laces
             thirdPacket,
-            fourthPacket));
+            fourthPacket), true);
 
     assertReadPacket(input, firstPacket);
     assertTrue((oggReader.getPageHeader().type & 0x02) == 0x02);
@@ -111,12 +113,12 @@ public final class OggReaderTest extends TestCase {
     byte[] firstPacket = TestUtil.buildTestData(255, random);
     byte[] secondPacket = TestUtil.buildTestData(8, random);
 
-    FakeExtractorInput input = createInput(
+    FakeExtractorInput input = TestData.createInput(
         TestUtil.joinByteArrays(
             TestData.buildOggHeader(0x06, 0, 1000, 0x04),
             TestUtil.createByteArray(0xFF, 0x00, 0x00, 0x08), // Laces.
             firstPacket,
-            secondPacket));
+            secondPacket), true);
 
     assertReadPacket(input, firstPacket);
     assertReadPacket(input, secondPacket);
@@ -126,7 +128,7 @@ public final class OggReaderTest extends TestCase {
   public void testReadContinuedPacketOverTwoPages() throws Exception {
     byte[] firstPacket = TestUtil.buildTestData(518);
 
-    FakeExtractorInput input = createInput(
+    FakeExtractorInput input = TestData.createInput(
         TestUtil.joinByteArrays(
             // First page.
             TestData.buildOggHeader(0x02, 0, 1000, 0x02),
@@ -135,7 +137,7 @@ public final class OggReaderTest extends TestCase {
             // Second page (continued packet).
             TestData.buildOggHeader(0x05, 10, 1001, 0x01),
             TestUtil.createByteArray(0x08), // Laces.
-            Arrays.copyOfRange(firstPacket, 510, 510 + 8)));
+            Arrays.copyOfRange(firstPacket, 510, 510 + 8)), true);
 
     assertReadPacket(input, firstPacket);
     assertTrue((oggReader.getPageHeader().type & 0x04) == 0x04);
@@ -148,7 +150,7 @@ public final class OggReaderTest extends TestCase {
   public void testReadContinuedPacketOverFourPages() throws Exception {
     byte[] firstPacket = TestUtil.buildTestData(1028);
 
-    FakeExtractorInput input = createInput(
+    FakeExtractorInput input = TestData.createInput(
         TestUtil.joinByteArrays(
             // First page.
             TestData.buildOggHeader(0x02, 0, 1000, 0x02),
@@ -165,7 +167,7 @@ public final class OggReaderTest extends TestCase {
             // Fourth page (continued packet).
             TestData.buildOggHeader(0x05, 10, 1003, 0x01),
             TestUtil.createByteArray(0x08), // Laces.
-            Arrays.copyOfRange(firstPacket, 510 + 255 + 255, 510 + 255 + 255 + 8)));
+            Arrays.copyOfRange(firstPacket, 510 + 255 + 255, 510 + 255 + 255 + 8)), true);
 
     assertReadPacket(input, firstPacket);
     assertTrue((oggReader.getPageHeader().type & 0x04) == 0x04);
@@ -175,12 +177,27 @@ public final class OggReaderTest extends TestCase {
     assertReadEof(input);
   }
 
+  public void testReadDiscardContinuedPacketAtStart() throws Exception {
+    byte[] pageBody = TestUtil.buildTestData(256 + 8);
+
+    FakeExtractorInput input = TestData.createInput(
+        TestUtil.joinByteArrays(
+            // Page with a continued packet at start.
+            TestData.buildOggHeader(0x01, 10, 1001, 0x03),
+            TestUtil.createByteArray(255, 1, 8), // Laces.
+            pageBody), true);
+
+    // Expect the first partial packet to be discarded.
+    assertReadPacket(input, Arrays.copyOfRange(pageBody, 256, 256 + 8));
+    assertReadEof(input);
+  }
+
   public void testReadZeroSizedPacketsAtEndOfStream() throws Exception {
     byte[] firstPacket = TestUtil.buildTestData(8, random);
     byte[] secondPacket = TestUtil.buildTestData(8, random);
     byte[] thirdPacket = TestUtil.buildTestData(8, random);
 
-    FakeExtractorInput input = createInput(
+    FakeExtractorInput input = TestData.createInput(
         TestUtil.joinByteArrays(
             TestData.buildOggHeader(0x02, 0, 1000, 0x01),
             TestUtil.createByteArray(0x08), // Laces.
@@ -190,7 +207,7 @@ public final class OggReaderTest extends TestCase {
             secondPacket,
             TestData.buildOggHeader(0x04, 0, 1002, 0x03),
             TestUtil.createByteArray(0x08, 0x00, 0x00), // Laces.
-            thirdPacket));
+            thirdPacket), true);
 
     assertReadPacket(input, firstPacket);
     assertReadPacket(input, secondPacket);
@@ -198,9 +215,127 @@ public final class OggReaderTest extends TestCase {
     assertReadEof(input);
   }
 
-  private static FakeExtractorInput createInput(byte[] data) {
-    return new FakeExtractorInput.Builder().setData(data).setSimulateIOErrors(true)
-        .setSimulateUnknownLength(true).setSimulatePartialReads(true).build();
+  public void testSkipToPageOfGranule() throws IOException, InterruptedException {
+    byte[] packet = TestUtil.buildTestData(3 * 254, random);
+    FakeExtractorInput input = TestData.createInput(
+        TestUtil.joinByteArrays(
+            TestData.buildOggHeader(0x01, 20000, 1000, 0x03),
+            TestUtil.createByteArray(254, 254, 254), // Laces.
+            packet,
+            TestData.buildOggHeader(0x04, 40000, 1001, 0x03),
+            TestUtil.createByteArray(254, 254, 254), // Laces.
+            packet,
+            TestData.buildOggHeader(0x04, 60000, 1002, 0x03),
+            TestUtil.createByteArray(254, 254, 254), // Laces.
+            packet), false);
+
+    // expect to be granule of the previous page returned as elapsedSamples
+    skipToPageOfGranule(input, 54000, 40000);
+    // expect to be at the start of the third page
+    assertEquals(2 * (30 + (3 * 254)), input.getPosition());
+  }
+
+  public void testSkipToPageOfGranulePreciseMatch() throws IOException, InterruptedException {
+    byte[] packet = TestUtil.buildTestData(3 * 254, random);
+    FakeExtractorInput input = TestData.createInput(
+        TestUtil.joinByteArrays(
+            TestData.buildOggHeader(0x01, 20000, 1000, 0x03),
+            TestUtil.createByteArray(254, 254, 254), // Laces.
+            packet,
+            TestData.buildOggHeader(0x04, 40000, 1001, 0x03),
+            TestUtil.createByteArray(254, 254, 254), // Laces.
+            packet,
+            TestData.buildOggHeader(0x04, 60000, 1002, 0x03),
+            TestUtil.createByteArray(254, 254, 254), // Laces.
+            packet), false);
+
+    skipToPageOfGranule(input, 40000, 20000);
+    // expect to be at the start of the second page
+    assertEquals((30 + (3 * 254)), input.getPosition());
+  }
+
+  public void testSkipToPageOfGranuleAfterTargetPage() throws IOException, InterruptedException {
+    byte[] packet = TestUtil.buildTestData(3 * 254, random);
+    FakeExtractorInput input = TestData.createInput(
+        TestUtil.joinByteArrays(
+            TestData.buildOggHeader(0x01, 20000, 1000, 0x03),
+            TestUtil.createByteArray(254, 254, 254), // Laces.
+            packet,
+            TestData.buildOggHeader(0x04, 40000, 1001, 0x03),
+            TestUtil.createByteArray(254, 254, 254), // Laces.
+            packet,
+            TestData.buildOggHeader(0x04, 60000, 1002, 0x03),
+            TestUtil.createByteArray(254, 254, 254), // Laces.
+            packet), false);
+
+    try {
+      skipToPageOfGranule(input, 10000, 20000);
+      fail();
+    } catch (ParserException e) {
+      // ignored
+    }
+    assertEquals(0, input.getPosition());
+  }
+
+  private void skipToPageOfGranule(ExtractorInput input, long granule,
+      long elapsedSamplesExpected) throws IOException, InterruptedException {
+    while (true) {
+      try {
+        assertEquals(elapsedSamplesExpected, oggReader.skipToPageOfGranule(input, granule));
+        return;
+      } catch (FakeExtractorInput.SimulatedIOException e) {
+        input.resetPeekPosition();
+      }
+    }
+  }
+
+  public void testReadGranuleOfLastPage() throws IOException, InterruptedException {
+    FakeExtractorInput input = TestData.createInput(TestUtil.joinByteArrays(
+        TestUtil.buildTestData(100, random),
+        TestData.buildOggHeader(0x00, 20000, 66, 3),
+        TestUtil.createByteArray(254, 254, 254), // laces
+        TestUtil.buildTestData(3 * 254, random),
+        TestData.buildOggHeader(0x00, 40000, 67, 3),
+        TestUtil.createByteArray(254, 254, 254), // laces
+        TestUtil.buildTestData(3 * 254, random),
+        TestData.buildOggHeader(0x05, 60000, 68, 3),
+        TestUtil.createByteArray(254, 254, 254), // laces
+        TestUtil.buildTestData(3 * 254, random)
+    ), false);
+    assertReadGranuleOfLastPage(input, 60000);
+  }
+
+  public void testReadGranuleOfLastPageAfterLastHeader() throws IOException, InterruptedException {
+    FakeExtractorInput input = TestData.createInput(TestUtil.buildTestData(100, random), false);
+    try {
+      assertReadGranuleOfLastPage(input, 60000);
+      fail();
+    } catch (EOFException e) {
+      // ignored
+    }
+  }
+
+  public void testReadGranuleOfLastPageWithUnboundedLength()
+      throws IOException, InterruptedException {
+    FakeExtractorInput input = TestData.createInput(new byte[0], true);
+    try {
+      assertReadGranuleOfLastPage(input, 60000);
+      fail();
+    } catch (IllegalArgumentException e) {
+      // ignored
+    }
+  }
+
+  private void assertReadGranuleOfLastPage(FakeExtractorInput input, int expected)
+      throws IOException, InterruptedException {
+    while (true) {
+      try {
+        assertEquals(expected, oggReader.readGranuleOfLastPage(input));
+        break;
+      } catch (FakeExtractorInput.SimulatedIOException e) {
+        // ignored
+      }
+    }
   }
 
   private void assertReadPacket(FakeExtractorInput extractorInput, byte[] expected)
@@ -221,7 +356,7 @@ public final class OggReaderTest extends TestCase {
     while (true) {
       try {
         return oggReader.readPacket(input, scratch);
-      } catch (SimulatedIOException e) {
+      } catch (FakeExtractorInput.SimulatedIOException e) {
         // Ignore.
       }
     }

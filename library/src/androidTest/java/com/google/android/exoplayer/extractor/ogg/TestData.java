@@ -15,12 +15,18 @@
  */
 package com.google.android.exoplayer.extractor.ogg;
 
+import com.google.android.exoplayer.testutil.FakeExtractorInput;
 import com.google.android.exoplayer.testutil.TestUtil;
 
 /**
  * Provides ogg/vorbis test data in bytes for unit tests.
  */
 /* package */ final class TestData {
+
+  /* package */ static FakeExtractorInput createInput(byte[] data, boolean simulateUnkownLength) {
+    return new FakeExtractorInput.Builder().setData(data).setSimulateIOErrors(true)
+        .setSimulateUnknownLength(simulateUnkownLength).setSimulatePartialReads(true).build();
+  }
 
   public static byte[] buildOggHeader(int headerType, long granule, int pageSequenceCounter,
       int pageSegmentCount) {
@@ -46,7 +52,7 @@ import com.google.android.exoplayer.testutil.TestUtil;
         (pageSequenceCounter >> 24) & 0xFF,
         0x00, // LSB of page checksum.
         0x00,
-        0x00,
+        0x10,
         0x00, // MSB of page checksum.
         pageSegmentCount);
   }
