@@ -173,7 +173,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
   }
 
   @Override
-  protected void onReset(long positionUs) {
+  protected void reset(long positionUs) {
     inputStreamEnded = false;
     subtitle = null;
     nextSubtitle = null;
@@ -184,7 +184,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
   }
 
   @Override
-  protected void doSomeWork(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
+  protected void render(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
       throws ExoPlaybackException {
     if (nextSubtitle == null) {
       try {

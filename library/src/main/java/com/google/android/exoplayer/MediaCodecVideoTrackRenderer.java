@@ -284,8 +284,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void onReset(long positionUs) throws ExoPlaybackException {
-    super.onReset(positionUs);
+  protected void reset(long positionUs) throws ExoPlaybackException {
+    super.reset(positionUs);
     renderedFirstFrame = false;
     consecutiveDroppedFrameCount = 0;
     joiningDeadlineUs = -1;
@@ -293,8 +293,8 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
 
   @Override
   protected boolean isReady() {
-    if (super.isReady() && (renderedFirstFrame || !codecInitialized()
-        || getSourceState() == SOURCE_STATE_READY_READ_MAY_FAIL)) {
+    if (super.isReady()
+        && (renderedFirstFrame || getSourceState() == SOURCE_STATE_READY_READ_MAY_FAIL)) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
       joiningDeadlineUs = -1;
       return true;

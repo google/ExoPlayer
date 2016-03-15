@@ -92,13 +92,13 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
   }
 
   @Override
-  protected void onReset(long positionUs) {
+  protected void reset(long positionUs) {
     pendingMetadata = null;
     inputStreamEnded = false;
   }
 
   @Override
-  protected void doSomeWork(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
+  protected void render(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
       throws ExoPlaybackException {
     if (!inputStreamEnded && pendingMetadata == null) {
       sampleHolder.clearData();

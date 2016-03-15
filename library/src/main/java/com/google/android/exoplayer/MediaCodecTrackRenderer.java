@@ -461,7 +461,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   @Override
-  protected void onReset(long positionUs) throws ExoPlaybackException {
+  protected void reset(long positionUs) throws ExoPlaybackException {
     sourceState = SOURCE_STATE_NOT_READY;
     inputStreamEnded = false;
     outputStreamEnded = false;
@@ -481,7 +481,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   @Override
-  protected void doSomeWork(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
+  protected void render(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
       throws ExoPlaybackException {
     sourceState = sourceIsReady
         ? (sourceState == SOURCE_STATE_NOT_READY ? SOURCE_STATE_READY : sourceState)
@@ -537,7 +537,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
 
   /**
    * @param firstFeed True if this is the first call to this method from the current invocation of
-   *     {@link #doSomeWork(long, long)}. False otherwise.
+   *     {@link #render(long, long)}. False otherwise.
    * @return True if it may be possible to feed more input data. False otherwise.
    * @throws ExoPlaybackException If an error occurs feeding the input buffer.
    */

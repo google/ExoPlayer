@@ -31,23 +31,26 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
   protected void onEnabled(Format[] formats, TrackStream trackStream, long positionUs,
       boolean joining) throws ExoPlaybackException {
     this.trackStream = Assertions.checkNotNull(trackStream);
-    onReset(positionUs);
+    reset(positionUs);
   }
 
   @Override
-  protected final void doSomeWork(long positionUs, long elapsedRealtimeUs)
-      throws ExoPlaybackException {
-    // TODO[REFACTOR]: Consider splitting reading of resets into a separate method?
+  protected final void checkForReset() throws ExoPlaybackException {
     long resetPositionUs = trackStream.readReset();
     if (resetPositionUs != TrackStream.NO_RESET) {
-      onReset(resetPositionUs);
+      reset(resetPositionUs);
       return;
     }
-    doSomeWork(positionUs, elapsedRealtimeUs, trackStream.isReady());
   }
 
   @Override
-  protected void maybeThrowError() throws IOException {
+  protected final void render(long positionUs, long elapsedRealtimeUs)
+      throws ExoPlaybackException {
+    render(positionUs, elapsedRealtimeUs, trackStream.isReady());
+  }
+
+  @Override
+  protected final void maybeThrowError() throws IOException {
     trackStream.maybeThrowError();
   }
 
@@ -77,15 +80,15 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
   // Abstract methods.
 
   /**
-   * Invoked when a reset is encountered. Also invoked when the renderer is enabled.
+   * Invoked when a reset is encountered, and also when the renderer is enabled.
    *
    * @param positionUs The playback position in microseconds.
    * @throws ExoPlaybackException If an error occurs handling the reset.
    */
-  protected abstract void onReset(long positionUs) throws ExoPlaybackException;
+  protected abstract void reset(long positionUs) throws ExoPlaybackException;
 
   /**
-   * Called by {@link #doSomeWork(long, long)}.
+   * Called by {@link #render(long, long)}.
    *
    * @param positionUs The current media time in microseconds, measured at the start of the
    *     current iteration of the rendering loop.
@@ -93,9 +96,8 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
    *     measured at the start of the current iteration of the rendering loop.
    * @param sourceIsReady The result of the most recent call to  {@link TrackStream#isReady()}.
    * @throws ExoPlaybackException If an error occurs.
-   * @throws ExoPlaybackException
    */
-  protected abstract void doSomeWork(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
+  protected abstract void render(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
       throws ExoPlaybackException;
 
 }

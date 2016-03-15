@@ -92,19 +92,16 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   public static final int ADAPTIVE_NOT_SUPPORTED = 0b0000;
 
   /**
-   * The renderer is idle.
+   * The renderer is disabled.
    */
-  protected static final int STATE_IDLE = 0;
+  protected static final int STATE_DISABLED = 0;
   /**
-   * The renderer is enabled. It should either be ready to be started, or be actively working
-   * towards this state (e.g. a renderer in this state will typically hold any resources that it
-   * requires, such as media decoders, and will have buffered or be buffering any media data that
-   * is required to start playback).
+   * The renderer is enabled but not started. A renderer in this state will typically hold any
+   * resources that it requires for rendering (e.g. media decoders).
    */
   protected static final int STATE_ENABLED = 1;
   /**
-   * The renderer is started. Calls to {@link #doSomeWork(long, long)} should cause the media to be
-   * rendered.
+   * The renderer is started. Calls to {@link #render(long, long)} will cause media to be rendered.
    */
   protected static final int STATE_STARTED = 2;
 
@@ -195,7 +192,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    */
   /* package */ final void enable(Format[] formats, TrackStream trackStream, long positionUs,
       boolean joining) throws ExoPlaybackException {
-    Assertions.checkState(state == STATE_IDLE);
+    Assertions.checkState(state == STATE_DISABLED);
     state = STATE_ENABLED;
     onEnabled(formats, trackStream, positionUs, joining);
   }
@@ -217,8 +214,8 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
   }
 
   /**
-   * Starts the renderer, meaning that calls to {@link #doSomeWork(long, long)} will cause the
-   * track to be rendered.
+   * Starts the renderer, meaning that calls to {@link #render(long, long)} will cause media to be
+   * rendered.
    *
    * @throws ExoPlaybackException If an error occurs.
    */
@@ -268,7 +265,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    */
   /* package */ final void disable() throws ExoPlaybackException {
     Assertions.checkState(state == STATE_ENABLED);
-    state = STATE_IDLE;
+    state = STATE_DISABLED;
     onDisabled();
   }
 
@@ -289,7 +286,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * returned by all of its {@link TrackRenderer}s.
    * <p>
    * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}
+   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
    *
    * @return Whether the renderer is ready for the player to transition to the ended state.
    */
@@ -306,26 +303,30 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * renderer is ready for playback to be started. Returning false indicates that it is not.
    * <p>
    * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}
+   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
    *
    * @return True if the renderer is ready to render media. False otherwise.
    */
   protected abstract boolean isReady();
 
   /**
-   * Invoked to make progress when the renderer is in the {@link #STATE_ENABLED} or
-   * {@link #STATE_STARTED} states.
-   * <p>
-   * If the renderer's state is {@link #STATE_STARTED}, then repeated calls to this method should
-   * cause the media track to be rendered. If the state is {@link #STATE_ENABLED}, then repeated
-   * calls should make progress towards getting the renderer into a position where it is ready to
-   * render the track.
-   * <p>
-   * This method should return quickly, and should not block if the renderer is currently unable to
-   * make any useful progress.
+   * Attempts to read and process a pending reset from the {@link TrackStream}.
    * <p>
    * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}
+   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
+   *
+   * @throws ExoPlaybackException If an error occurs.
+   */
+  protected abstract void checkForReset() throws ExoPlaybackException;
+
+  /**
+   * Incrementally renders the {@link TrackStream}.
+   * <p>
+   * This method should return quickly, and should not block if the renderer is unable to make
+   * useful progress.
+   * <p>
+   * This method may be called when the renderer is in the following states:
+   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
    *
    * @param positionUs The current media time in microseconds, measured at the start of the
    *     current iteration of the rendering loop.
@@ -333,7 +334,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    *     measured at the start of the current iteration of the rendering loop.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected abstract void doSomeWork(long positionUs, long elapsedRealtimeUs)
+  protected abstract void render(long positionUs, long elapsedRealtimeUs)
       throws ExoPlaybackException;
 
   /**
@@ -341,7 +342,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
    * this point in time.
    * <p>
    * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}
+   * {@link #STATE_ENABLED}.
    *
    * @throws IOException An error that's preventing the renderer from making progress or buffering
    *     more data.

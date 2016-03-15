@@ -319,8 +319,8 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected void onReset(long positionUs) throws ExoPlaybackException {
-    super.onReset(positionUs);
+  protected void reset(long positionUs) throws ExoPlaybackException {
+    super.reset(positionUs);
     audioTrack.reset();
     currentPositionUs = positionUs;
     allowPositionDiscontinuity = true;

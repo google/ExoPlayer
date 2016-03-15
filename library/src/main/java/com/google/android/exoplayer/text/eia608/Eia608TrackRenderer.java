@@ -93,7 +93,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   }
 
   @Override
-  protected void onReset(long positionUs) {
+  protected void reset(long positionUs) {
     inputStreamEnded = false;
     repeatableControl = null;
     pendingCaptionLists.clear();
@@ -104,7 +104,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   }
 
   @Override
-  protected void doSomeWork(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
+  protected void render(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
       throws ExoPlaybackException {
     if (isSamplePending()) {
       maybeParsePendingSample(positionUs);

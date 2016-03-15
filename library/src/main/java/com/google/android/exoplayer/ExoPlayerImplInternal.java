@@ -32,9 +32,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -73,7 +71,6 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final StandaloneMediaClock standaloneMediaClock;
   private final long minBufferUs;
   private final long minRebufferUs;
-  private final List<TrackRenderer> enabledRenderers;
   private final TrackSelection[] trackSelections;
   private final Handler handler;
   private final HandlerThread internalPlaybackThread;
@@ -81,6 +78,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final AtomicInteger pendingSeekCount;
 
   private SampleSource source;
+  private TrackRenderer[] enabledRenderers;
   private boolean released;
   private boolean playWhenReady;
   private boolean rebuffering;
@@ -123,8 +121,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     standaloneMediaClock = new StandaloneMediaClock();
     pendingSeekCount = new AtomicInteger();
-    enabledRenderers = new ArrayList<>(renderers.length);
     trackSelections = new TrackSelection[renderers.length];
+    enabledRenderers = new TrackRenderer[0];
 
     trackSelector.init(this);
 
@@ -361,21 +359,21 @@ import java.util.concurrent.atomic.AtomicInteger;
   private void startRenderers() throws ExoPlaybackException {
     rebuffering = false;
     standaloneMediaClock.start();
-    for (int i = 0; i < enabledRenderers.size(); i++) {
-      enabledRenderers.get(i).start();
+    for (TrackRenderer renderer : enabledRenderers) {
+      renderer.start();
     }
   }
 
   private void stopRenderers() throws ExoPlaybackException {
     standaloneMediaClock.stop();
-    for (int i = 0; i < enabledRenderers.size(); i++) {
-      ensureStopped(enabledRenderers.get(i));
+    for (TrackRenderer renderer : enabledRenderers) {
+      ensureStopped(renderer);
     }
   }
 
   private void updatePositionUs() {
-    if (rendererMediaClock != null && enabledRenderers.contains(rendererMediaClockSource)
-        && !rendererMediaClockSource.isEnded()) {
+    if (rendererMediaClock != null
+        && rendererMediaClockSource.getState() != TrackRenderer.STATE_DISABLED) {
       positionUs = rendererMediaClock.getPositionUs();
       standaloneMediaClock.setPositionUs(positionUs);
     } else {
@@ -387,18 +385,23 @@ import java.util.concurrent.atomic.AtomicInteger;
   private void doSomeWork() throws ExoPlaybackException, IOException {
     TraceUtil.beginSection("doSomeWork");
     long operationStartTimeMs = SystemClock.elapsedRealtime();
+
+    // Process resets.
+    for (TrackRenderer renderer : enabledRenderers) {
+      renderer.checkForReset();
+    }
+
     updatePositionUs();
     bufferedPositionUs = source.getBufferedPositionUs();
     source.continueBuffering(positionUs);
 
     boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
-    for (int i = 0; i < enabledRenderers.size(); i++) {
-      TrackRenderer renderer = enabledRenderers.get(i);
+    for (TrackRenderer renderer : enabledRenderers) {
       // TODO: Each renderer should return the maximum delay before which it wishes to be
       // invoked again. The minimum of these values should then be used as the delay before the next
       // invocation of this method.
-      renderer.doSomeWork(positionUs, elapsedRealtimeUs);
+      renderer.render(positionUs, elapsedRealtimeUs);
       allRenderersEnded = allRenderersEnded && renderer.isEnded();
       // Determine whether the renderer is ready (or ended). If it's not, throw an error that's
       // preventing the renderer from making progress, if such an error exists.
@@ -427,7 +430,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     handler.removeMessages(MSG_DO_SOME_WORK);
     if ((playWhenReady && state == ExoPlayer.STATE_READY) || state == ExoPlayer.STATE_BUFFERING) {
       scheduleNextOperation(MSG_DO_SOME_WORK, operationStartTimeMs, RENDERING_INTERVAL_MS);
-    } else if (!enabledRenderers.isEmpty()) {
+    } else if (enabledRenderers.length != 0) {
       scheduleNextOperation(MSG_DO_SOME_WORK, operationStartTimeMs, IDLE_INTERVAL_MS);
     }
 
@@ -459,12 +462,16 @@ import java.util.concurrent.atomic.AtomicInteger;
       if (state == ExoPlayer.STATE_IDLE || state == ExoPlayer.STATE_PREPARING) {
         return;
       }
-      for (int i = 0; i < enabledRenderers.size(); i++) {
-        TrackRenderer renderer = enabledRenderers.get(i);
+
+      for (TrackRenderer renderer : enabledRenderers) {
         ensureStopped(renderer);
       }
       setState(ExoPlayer.STATE_BUFFERING);
       source.seekToUs(positionUs);
+      for (TrackRenderer renderer : enabledRenderers) {
+        renderer.checkForReset();
+      }
+
       handler.sendEmptyMessage(MSG_DO_SOME_WORK);
     } finally {
       pendingSeekCount.decrementAndGet();
@@ -493,10 +500,10 @@ import java.util.concurrent.atomic.AtomicInteger;
     if (renderers == null) {
       return;
     }
-    for (int i = 0; i < renderers.length; i++) {
-      resetRendererInternal(renderers[i]);
+    for (TrackRenderer renderer : renderers) {
+      resetRendererInternal(renderer);
     }
-    enabledRenderers.clear();
+    enabledRenderers = new TrackRenderer[0];
     Arrays.fill(trackSelections, null);
     source = null;
   }
@@ -547,16 +554,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     // Disable renderers whose track selections have changed.
     boolean[] rendererWasEnabledFlags = new boolean[renderers.length];
+    int enabledRendererCount = 0;
     for (int i = 0; i < renderers.length; i++) {
       TrackRenderer renderer = renderers[i];
       TrackSelection previousTrackSelection = trackSelections[i];
       trackSelections[i] = newTrackSelections.get(i);
+      if (trackSelections[i] != null) {
+        enabledRendererCount++;
+      }
+      rendererWasEnabledFlags[i] = renderer.getState() != TrackRenderer.STATE_DISABLED;
       if (!Util.areEqual(previousTrackSelection, trackSelections[i])) {
         // The track selection has changed for this renderer.
-        int rendererState = renderer.getState();
-        boolean isEnabled = rendererState == TrackRenderer.STATE_ENABLED
-            || rendererState == TrackRenderer.STATE_STARTED;
-        if (isEnabled) {
+        if (rendererWasEnabledFlags[i]) {
+          // We need to disable the renderer so that we can enable it with its new selection.
           if (trackSelections[i] == null && renderer == rendererMediaClockSource) {
             // We've been using rendererMediaClockSource to advance the current position, but it's
             // being disabled and won't be re-enabled. Sync standaloneMediaClock so that it can take
@@ -564,37 +574,37 @@ import java.util.concurrent.atomic.AtomicInteger;
             standaloneMediaClock.setPositionUs(rendererMediaClock.getPositionUs());
           }
           ensureStopped(renderer);
-          enabledRenderers.remove(renderer);
           renderer.disable();
         }
-        rendererWasEnabledFlags[i] = isEnabled;
       }
     }
+
+    enabledRenderers = new TrackRenderer[enabledRendererCount];
+    enabledRendererCount = 0;
 
     // Enable renderers with their new track selections.
     for (int i = 0; i < renderers.length; i++) {
       TrackRenderer renderer = renderers[i];
       TrackSelection trackSelection = trackSelections[i];
-      int rendererState = renderer.getState();
-      boolean isEnabled = rendererState == TrackRenderer.STATE_ENABLED
-          || rendererState == TrackRenderer.STATE_STARTED;
-      if (!isEnabled && trackSelection != null) {
-        // The renderer needs enabling with its new track selection.
-        boolean playing = playWhenReady && state == ExoPlayer.STATE_READY;
-        // Consider as joining only if the renderer was previously disabled.
-        boolean joining = !rendererWasEnabledFlags[i] && playing;
-        // Enable the source and obtain the stream for the renderer to consume.
-        TrackStream trackStream = source.enable(trackSelection, positionUs);
-        // Build an array of formats contained by the new selection.
-        Format[] formats = new Format[trackSelection.length];
-        for (int j = 0; j < formats.length; j++) {
-          formats[j] = groups.get(trackSelections[i].group).getFormat(trackSelection.getTrack(j));
-        }
-        // Enable the renderer.
-        renderer.enable(formats, trackStream, positionUs, joining);
-        enabledRenderers.add(renderer);
-        if (playing) {
-          renderer.start();
+      if (trackSelection != null) {
+        enabledRenderers[enabledRendererCount++] = renderer;
+        if (renderer.getState() == TrackRenderer.STATE_DISABLED) {
+          // The renderer needs enabling with its new track selection.
+          boolean playing = playWhenReady && state == ExoPlayer.STATE_READY;
+          // Consider as joining only if the renderer was previously disabled.
+          boolean joining = !rendererWasEnabledFlags[i] && playing;
+          // Enable the source and obtain the stream for the renderer to consume.
+          TrackStream trackStream = source.enable(trackSelection, positionUs);
+          // Build an array of formats contained by the new selection.
+          Format[] formats = new Format[trackSelection.length];
+          for (int j = 0; j < formats.length; j++) {
+            formats[j] = groups.get(trackSelections[i].group).getFormat(trackSelection.getTrack(j));
+          }
+          // Enable the renderer.
+          renderer.enable(formats, trackStream, positionUs, joining);
+          if (playing) {
+            renderer.start();
+          }
         }
       }
     }
