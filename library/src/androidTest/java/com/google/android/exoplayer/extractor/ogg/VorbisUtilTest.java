@@ -94,7 +94,7 @@ public final class VorbisUtilTest extends TestCase {
     assertEquals(true, VorbisUtil.verifyVorbisHeaderCapturePattern(0x01, header, false));
   }
 
-  public void testVerifyVorbisHeaderCapturePatternInvalidHeader() throws ParserException {
+  public void testVerifyVorbisHeaderCapturePatternInvalidHeader() {
     ParsableByteArray header = new ParsableByteArray(
         new byte[]{0x01, 'v', 'o', 'r', 'b', 'i', 's'});
     try {
@@ -111,7 +111,7 @@ public final class VorbisUtilTest extends TestCase {
     assertFalse(VorbisUtil.verifyVorbisHeaderCapturePattern(0x99, header, true));
   }
 
-  public void testVerifyVorbisHeaderCapturePatternInvalidPattern() throws ParserException {
+  public void testVerifyVorbisHeaderCapturePatternInvalidPattern() {
     ParsableByteArray header = new ParsableByteArray(
         new byte[]{0x01, 'x', 'v', 'o', 'r', 'b', 'i', 's'});
     try {
