@@ -34,6 +34,7 @@ import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.Util;
 
 import android.net.Uri;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.util.SparseArray;
 
@@ -69,6 +70,21 @@ import java.util.List;
  * from {@link Extractor#sniff(ExtractorInput)} will be used.
  */
 public final class ExtractorSampleSource implements SampleSource, ExtractorOutput, Loader.Callback {
+
+  /**
+   * Interface definition for a callback to be notified of {@link ExtractorSampleSource} events.
+   */
+  public interface EventListener {
+
+    /**
+     * Invoked when an error occurs loading media data.
+     *
+     * @param sourceId The id of the reporting {@link SampleSource}.
+     * @param e The cause of the failure.
+     */
+    void onLoadError(int sourceId, IOException e);
+
+  }
 
   /**
    * Thrown if the input format could not recognized.
@@ -177,6 +193,9 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private final int minLoadableRetryCount;
   private final Uri uri;
   private final DataSource dataSource;
+  private final Handler eventHandler;
+  private final EventListener eventListener;
+  private final int eventSourceId;
 
   private volatile boolean tracksBuilt;
   private volatile SeekMap seekMap;
@@ -230,6 +249,26 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
    * @param allocator An {@link Allocator} from which to obtain memory allocations.
    * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
    *     The actual allocated size may exceed the value passed in if the implementation requires it.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
+   * @param extractors {@link Extractor}s to extract the media stream, in order of decreasing
+   *     priority. If omitted, the default extractors will be used.
+   */
+  public ExtractorSampleSource(Uri uri, DataSource dataSource, Allocator allocator,
+      int requestedBufferSize, Handler eventHandler, EventListener eventListener,
+      int eventSourceId, Extractor... extractors) {
+    this(uri, dataSource, allocator, requestedBufferSize, MIN_RETRY_COUNT_DEFAULT_FOR_MEDIA,
+        eventHandler, eventListener, eventSourceId, extractors);
+  }
+
+  /**
+   * @param uri The {@link Uri} of the media stream.
+   * @param dataSource A data source to read the media stream.
+   * @param allocator An {@link Allocator} from which to obtain memory allocations.
+   * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
+   *     The actual allocated size may exceed the value passed in if the implementation requires it.
    * @param minLoadableRetryCount The minimum number of times that the sample source will retry
    *     if a loading error occurs.
    * @param extractors {@link Extractor}s to extract the media stream, in order of decreasing
@@ -237,8 +276,33 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
    */
   public ExtractorSampleSource(Uri uri, DataSource dataSource, Allocator allocator,
       int requestedBufferSize, int minLoadableRetryCount, Extractor... extractors) {
+    this(uri, dataSource, allocator, requestedBufferSize, minLoadableRetryCount, null, null, 0,
+        extractors);
+  }
+
+  /**
+   * @param uri The {@link Uri} of the media stream.
+   * @param dataSource A data source to read the media stream.
+   * @param allocator An {@link Allocator} from which to obtain memory allocations.
+   * @param requestedBufferSize The requested total buffer size for storing sample data, in bytes.
+   *     The actual allocated size may exceed the value passed in if the implementation requires it.
+   * @param minLoadableRetryCount The minimum number of times that the sample source will retry
+   *     if a loading error occurs.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
+   * @param extractors {@link Extractor}s to extract the media stream, in order of decreasing
+   *     priority. If omitted, the default extractors will be used.
+   */
+  public ExtractorSampleSource(Uri uri, DataSource dataSource, Allocator allocator,
+      int requestedBufferSize, int minLoadableRetryCount, Handler eventHandler,
+      EventListener eventListener, int eventSourceId, Extractor... extractors) {
     this.uri = uri;
     this.dataSource = dataSource;
+    this.eventListener = eventListener;
+    this.eventHandler = eventHandler;
+    this.eventSourceId = eventSourceId;
     this.allocator = allocator;
     this.requestedBufferSize = requestedBufferSize;
     this.minLoadableRetryCount = minLoadableRetryCount;
@@ -493,6 +557,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     currentLoadableExceptionCount = extractedSampleCount > extractedSampleCountAtStartOfLoad ? 1
         : currentLoadableExceptionCount + 1;
     currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
+    notifyLoadError(e);
     maybeStartLoading();
   }
 
@@ -648,6 +713,17 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   private long getRetryDelayMillis(long errorCount) {
     return Math.min((errorCount - 1) * 1000, 5000);
+  }
+
+  private void notifyLoadError(final IOException e) {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable()  {
+        @Override
+        public void run() {
+          eventListener.onLoadError(eventSourceId, e);
+        }
+      });
+    }
   }
 
   private final class TrackStreamImpl implements TrackStream {
