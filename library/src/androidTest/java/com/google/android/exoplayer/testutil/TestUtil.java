@@ -56,7 +56,10 @@ public class TestUtil {
   }
 
   public static byte[] buildTestData(int length, int seed) {
-    Random random = new Random(seed);
+    return buildTestData(length, new Random(seed));
+  }
+
+  public static byte[] buildTestData(int length, Random random) {
     byte[] source = new byte[length];
     random.nextBytes(source);
     return source;
