@@ -17,7 +17,6 @@ package com.google.android.exoplayer;
 
 import com.google.android.exoplayer.ExoPlayer.ExoPlayerComponent;
 import com.google.android.exoplayer.TrackSelector.InvalidationListener;
-import com.google.android.exoplayer.util.Assertions;
 import com.google.android.exoplayer.util.PriorityHandlerThread;
 import com.google.android.exoplayer.util.TraceUtil;
 import com.google.android.exoplayer.util.Util;
@@ -66,8 +65,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   private final TrackSelector trackSelector;
   private final TrackRenderer[] renderers;
-  private final TrackRenderer rendererMediaClockSource;
-  private final MediaClock rendererMediaClock;
   private final StandaloneMediaClock standaloneMediaClock;
   private final long minBufferUs;
   private final long minRebufferUs;
@@ -77,6 +74,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final Handler eventHandler;
   private final AtomicInteger pendingSeekCount;
 
+  private TrackRenderer rendererMediaClockSource;
+  private MediaClock rendererMediaClock;
   private SampleSource source;
   private TrackRenderer[] enabledRenderers;
   private boolean released;
@@ -103,22 +102,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     this.state = ExoPlayer.STATE_IDLE;
     this.durationUs = C.UNKNOWN_TIME_US;
     this.bufferedPositionUs = C.UNKNOWN_TIME_US;
-
-    MediaClock rendererMediaClock = null;
-    TrackRenderer rendererMediaClockSource = null;
-    for (int i = 0; i < renderers.length; i++) {
-      renderers[i].setIndex(i);
-      MediaClock mediaClock = renderers[i].getMediaClock();
-      if (mediaClock != null) {
-        Assertions.checkState(rendererMediaClock == null);
-        rendererMediaClock = mediaClock;
-        rendererMediaClockSource = renderers[i];
-        break;
-      }
-    }
-    this.rendererMediaClock = rendererMediaClock;
-    this.rendererMediaClockSource = rendererMediaClockSource;
-
     standaloneMediaClock = new StandaloneMediaClock();
     pendingSeekCount = new AtomicInteger();
     trackSelections = new TrackSelection[renderers.length];
@@ -510,10 +493,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   private void resetRendererInternal(TrackRenderer renderer) {
     try {
-      ensureStopped(renderer);
-      if (renderer.getState() == TrackRenderer.STATE_ENABLED) {
-        renderer.disable();
-      }
+      ensureDisabled(renderer);
     } catch (ExoPlaybackException e) {
       // There's nothing we can do.
       Log.e(TAG, "Stop failed.", e);
@@ -573,8 +553,7 @@ import java.util.concurrent.atomic.AtomicInteger;
             // over timing responsibilities.
             standaloneMediaClock.setPositionUs(rendererMediaClock.getPositionUs());
           }
-          ensureStopped(renderer);
-          renderer.disable();
+          ensureDisabled(renderer);
         }
       }
     }
@@ -602,6 +581,16 @@ import java.util.concurrent.atomic.AtomicInteger;
           }
           // Enable the renderer.
           renderer.enable(formats, trackStream, positionUs, joining);
+          MediaClock mediaClock = renderer.getMediaClock();
+          if (mediaClock != null) {
+            if (rendererMediaClock != null) {
+              throw ExoPlaybackException.createForUnexpected(
+                  new IllegalStateException("Multiple renderer media clocks enabled."));
+            }
+            rendererMediaClock = mediaClock;
+            rendererMediaClockSource = renderer;
+          }
+          // Start the renderer if playing.
           if (playing) {
             renderer.start();
           }
@@ -620,6 +609,17 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
     selectTracksInternal();
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+  }
+
+  private void ensureDisabled(TrackRenderer renderer) throws ExoPlaybackException {
+    ensureStopped(renderer);
+    if (renderer.getState() == TrackRenderer.STATE_ENABLED) {
+      renderer.disable();
+      if (renderer == rendererMediaClockSource) {
+        rendererMediaClock = null;
+        rendererMediaClockSource = null;
+      }
+    }
   }
 
   private void ensureStopped(TrackRenderer renderer) throws ExoPlaybackException {
