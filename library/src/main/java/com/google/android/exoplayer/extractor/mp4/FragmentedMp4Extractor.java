@@ -243,7 +243,12 @@ public final class FragmentedMp4Extractor implements Extractor {
     if (shouldParseContainerAtom(atomType)) {
       long endPosition = input.getPosition() + atomSize - Atom.HEADER_SIZE;
       containerAtoms.add(new ContainerAtom(atomType, endPosition));
-      enterReadingAtomHeaderState();
+      if (atomSize == atomHeaderBytesRead) {
+        processAtomEnded(endPosition);
+      } else {
+        // Start reading the first child atom.
+        enterReadingAtomHeaderState();
+      }
     } else if (shouldParseLeafAtom(atomType)) {
       if (atomHeaderBytesRead != Atom.HEADER_SIZE) {
         throw new ParserException("Leaf atom defines extended atom size (unsupported).");
@@ -273,8 +278,11 @@ public final class FragmentedMp4Extractor implements Extractor {
     } else {
       input.skipFully(atomPayloadSize);
     }
-    long currentPosition = input.getPosition();
-    while (!containerAtoms.isEmpty() && containerAtoms.peek().endPosition == currentPosition) {
+    processAtomEnded(input.getPosition());
+  }
+
+  private void processAtomEnded(long atomEndPosition) throws ParserException {
+    while (!containerAtoms.isEmpty() && containerAtoms.peek().endPosition == atomEndPosition) {
       onContainerAtomRead(containerAtoms.pop());
     }
     enterReadingAtomHeaderState();
