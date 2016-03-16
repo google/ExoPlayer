@@ -185,8 +185,8 @@ public final class MediaFormat {
   public static MediaFormat createImageFormat(String trackId, String mimeType, int bitrate,
       long durationUs, List<byte[]> initializationData, String language) {
     return new MediaFormat(trackId, mimeType, bitrate, NO_VALUE, durationUs, NO_VALUE, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, language, OFFSET_SAMPLE_RELATIVE, initializationData, false, NO_VALUE,
-        NO_VALUE, NO_VALUE, NO_VALUE);
+        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, language, OFFSET_SAMPLE_RELATIVE,
+        initializationData, false, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE);
   }
 
   public static MediaFormat createFormatForMimeType(String trackId, String mimeType, int bitrate,
