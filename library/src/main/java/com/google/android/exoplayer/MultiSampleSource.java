@@ -36,16 +36,16 @@ public class MultiSampleSource implements SampleSource {
 
   @Override
   public boolean prepare(long positionUs) throws IOException {
-    if (this.prepared) {
+    if (prepared) {
       return true;
     }
-    boolean prepared = true;
+    boolean sourcesPrepared = true;
     for (int i = 0; i < sources.length; i++) {
-      prepared &= sources[i].prepare(positionUs);
+      sourcesPrepared &= sources[i].prepare(positionUs);
     }
-    if (prepared) {
-      this.prepared = true;
-      this.durationUs = C.UNKNOWN_TIME_US;
+    if (sourcesPrepared) {
+      prepared = true;
+      durationUs = C.UNKNOWN_TIME_US;
       int totalTrackGroupCount = 0;
       for (int i = 0; i < sources.length; i++) {
         totalTrackGroupCount += sources[i].getTrackGroups().length;
@@ -63,11 +63,6 @@ public class MultiSampleSource implements SampleSource {
       }
       this.trackGroups = new TrackGroupArray(trackGroups);
     }
-    return prepared;
-  }
-
-  @Override
-  public boolean isPrepared() {
     return prepared;
   }
 

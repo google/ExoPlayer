@@ -177,11 +177,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   }
 
   @Override
-  public boolean isPrepared() {
-    return prepared;
-  }
-
-  @Override
   public long getDurationUs() {
     return chunkSource.getDurationUs();
   }

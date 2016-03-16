@@ -96,11 +96,6 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   }
 
   @Override
-  public boolean isPrepared() {
-    return loader != null;
-  }
-
-  @Override
   public long getDurationUs() {
     return durationUs;
   }

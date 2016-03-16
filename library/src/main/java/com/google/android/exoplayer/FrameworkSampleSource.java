@@ -147,11 +147,6 @@ public final class FrameworkSampleSource implements SampleSource {
   }
 
   @Override
-  public boolean isPrepared() {
-    return prepared;
-  }
-
-  @Override
   public long getDurationUs() {
     return C.UNKNOWN_TIME_US;
   }

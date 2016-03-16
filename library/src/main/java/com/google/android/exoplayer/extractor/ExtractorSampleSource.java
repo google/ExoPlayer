@@ -352,11 +352,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   }
 
   @Override
-  public boolean isPrepared() {
-    return prepared;
-  }
-
-  @Override
   public long getDurationUs() {
     return durationUs;
   }

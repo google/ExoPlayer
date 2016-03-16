@@ -35,13 +35,6 @@ public interface SampleSource {
   boolean prepare(long positionUs) throws IOException;
 
   /**
-   * Returns whether the source is prepared.
-   *
-   * @return True if the source is prepared. False otherwise.
-   */
-  boolean isPrepared();
-
-  /**
    * Returns the duration of the source.
    * <p>
    * This method should only be called after the source has been prepared.
@@ -58,7 +51,7 @@ public interface SampleSource {
    *
    * @return The {@link TrackGroup}s.
    */
-  public TrackGroupArray getTrackGroups();
+  TrackGroupArray getTrackGroups();
 
   /**
    * Indicates to the source that it should continue buffering data for its enabled tracks.
@@ -103,7 +96,7 @@ public interface SampleSource {
    * @param positionUs The current playback position in microseconds.
    * @return A {@link TrackStream} from which the enabled track's data can be read.
    */
-  public TrackStream enable(TrackSelection selection, long positionUs);
+  TrackStream enable(TrackSelection selection, long positionUs);
 
   /**
    * Releases the source.

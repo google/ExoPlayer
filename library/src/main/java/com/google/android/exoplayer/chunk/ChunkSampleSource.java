@@ -168,11 +168,6 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   }
 
   @Override
-  public boolean isPrepared() {
-    return state != STATE_IDLE;
-  }
-
-  @Override
   public long getDurationUs() {
     return durationUs;
   }
