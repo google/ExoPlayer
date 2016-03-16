@@ -29,7 +29,6 @@ import com.google.android.exoplayer.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer.extractor.ts.PtsTimestampAdjuster;
 import com.google.android.exoplayer.extractor.ts.TsExtractor;
-import com.google.android.exoplayer.upstream.BandwidthMeter;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
 import com.google.android.exoplayer.upstream.HttpDataSource.InvalidResponseCodeException;
@@ -64,41 +63,8 @@ public class HlsChunkSource {
   public interface EventListener extends BaseChunkSampleSourceEventListener {}
 
   public static final int TYPE_DEFAULT = 0;
-  public static final int TYPE_VTT = 1;
-
-  /**
-   * Adaptive switching is disabled.
-   * <p>
-   * The initially selected variant will be used throughout playback.
-   */
-  public static final int ADAPTIVE_MODE_NONE = 0;
-
-  /**
-   * Adaptive switches splice overlapping segments of the old and new variants.
-   * <p>
-   * When performing a switch from one variant to another, overlapping segments will be requested
-   * from both the old and new variants. These segments will then be spliced together, allowing
-   * a seamless switch from one variant to another even if keyframes are misaligned or if keyframes
-   * are not positioned at the start of each segment.
-   * <p>
-   * Note that where it can be guaranteed that the source content has keyframes positioned at the
-   * start of each segment, {@link #ADAPTIVE_MODE_ABRUPT} should always be used in preference to
-   * this mode.
-   */
-  public static final int ADAPTIVE_MODE_SPLICE = 1;
-
-  /**
-   * Adaptive switches are performed at segment boundaries.
-   * <p>
-   * For this mode to perform seamless switches, the source content is required to have keyframes
-   * positioned at the start of each segment. If this is not the case a visual discontinuity may
-   * be experienced when switching from one variant to another.
-   * <p>
-   * Note that where it can be guaranteed that the source content does have keyframes positioned at
-   * the start of each segment, this mode should always be used in preference to
-   * {@link #ADAPTIVE_MODE_SPLICE} because it requires fetching less data.
-   */
-  public static final int ADAPTIVE_MODE_ABRUPT = 3;
+  public static final int TYPE_AUDIO = 1;
+  public static final int TYPE_SUBTITLE = 2;
 
   /**
    * The default time for which a media playlist should be blacklisted.
@@ -118,7 +84,6 @@ public class HlsChunkSource {
   private final Evaluation evaluation;
   private final HlsPlaylistParser playlistParser;
   private final PtsTimestampAdjusterProvider timestampAdjusterProvider;
-  private final int adaptiveMode;
 
   private boolean manifestFetcherEnabled;
   private byte[] scratchSpace;
@@ -146,26 +111,22 @@ public class HlsChunkSource {
 
   /**
    * @param manifestFetcher A fetcher for the playlist.
-   * @param type The type of chunk provided by the source. One of {@link #TYPE_DEFAULT} and
-   *     {@link #TYPE_VTT}.
+   * @param type The type of chunk provided by the source. One of {@link #TYPE_DEFAULT},
+   *     {@link #TYPE_AUDIO} and {@link #TYPE_SUBTITLE}.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
-   * @param bandwidthMeter Provides an estimate of the currently available bandwidth.
    * @param timestampAdjusterProvider A provider of {@link PtsTimestampAdjuster} instances. If
    *     multiple {@link HlsChunkSource}s are used for a single playback, they should all share the
    *     same provider.
-   * @param adaptiveMode The mode for switching from one variant to another. One of
-   *     {@link #ADAPTIVE_MODE_NONE}, {@link #ADAPTIVE_MODE_ABRUPT} and
-   *     {@link #ADAPTIVE_MODE_SPLICE}.
+   * @param adaptiveFormatEvaluator For adaptive tracks, selects from the available formats.
    */
   public HlsChunkSource(ManifestFetcher<HlsPlaylist> manifestFetcher, int type,
-      DataSource dataSource, BandwidthMeter bandwidthMeter,
-      PtsTimestampAdjusterProvider timestampAdjusterProvider, int adaptiveMode) {
+      DataSource dataSource, PtsTimestampAdjusterProvider timestampAdjusterProvider,
+      FormatEvaluator adaptiveFormatEvaluator) {
     this.manifestFetcher = manifestFetcher;
     this.type = type;
     this.dataSource = dataSource;
-    this.adaptiveFormatEvaluator = new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter);
+    this.adaptiveFormatEvaluator = adaptiveFormatEvaluator;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
-    this.adaptiveMode = adaptiveMode;
     playlistParser = new HlsPlaylistParser();
     evaluation = new Evaluation();
   }
@@ -180,6 +141,15 @@ public class HlsChunkSource {
     if (fatalError != null) {
       throw fatalError;
     }
+  }
+
+  /**
+   * Returns whether this source supports adaptation between its tracks.
+   *
+   * @return Whether this source supports adaptation between its tracks.
+   */
+  public boolean isAdaptive() {
+    return adaptiveFormatEvaluator != null;
   }
 
   /**
@@ -209,11 +179,13 @@ public class HlsChunkSource {
           List<Variant> variants = new ArrayList<>();
           variants.add(new Variant(baseUri, format, null));
           masterPlaylist = new HlsMasterPlaylist(baseUri, variants,
-              Collections.<Variant>emptyList());
+              Collections.<Variant>emptyList(), Collections.<Variant>emptyList(), null, null);
         }
         processMasterPlaylist(masterPlaylist);
-        // TODO[REFACTOR]: Come up with a sane default here.
-        selectTracks(new int[] {0});
+        if (exposedVariants.length > 0) {
+          // TODO[REFACTOR]: Come up with a sane default here.
+          selectTracks(new int[] {0});
+        }
       }
     }
     return true;
@@ -262,6 +234,28 @@ public class HlsChunkSource {
    */
   public Format getTrackFormat(int index) {
     return exposedVariants[index].format;
+  }
+
+  /**
+   * Returns the format of the audio muxed into variants, or null if unknown.
+   * <p>
+   * This method should only be called after the source has been prepared.
+   *
+   * @return The format of the audio muxed into variants, or null if unknown.
+   */
+  public Format getMuxedAudioFormat() {
+    return masterPlaylist.muxedAudioFormat;
+  }
+
+  /**
+   * Returns the format of the captions muxed into variants, or null if unknown.
+   * <p>
+   * This method should only be called after the source has been prepared.
+   *
+   * @return The format of the captions muxed into variants, or null if unknown.
+   */
+  public Format getMuxedCaptionFormat() {
+    return masterPlaylist.muxedCaptionFormat;
   }
 
   /**
@@ -333,17 +327,9 @@ public class HlsChunkSource {
    */
   public void getChunkOperation(TsChunk previousTsChunk, long playbackPositionUs,
       ChunkOperationHolder out) {
-    int nextVariantIndex;
-    boolean switchingVariantSpliced;
-    if (adaptiveMode == ADAPTIVE_MODE_NONE) {
-      nextVariantIndex = selectedVariantIndex;
-      switchingVariantSpliced = false;
-    } else {
-      nextVariantIndex = getNextVariantIndex(previousTsChunk, playbackPositionUs);
-      switchingVariantSpliced = previousTsChunk != null
-          && enabledVariants[nextVariantIndex].format != previousTsChunk.format
-          && adaptiveMode == ADAPTIVE_MODE_SPLICE;
-    }
+    int nextVariantIndex = getNextVariantIndex(previousTsChunk, playbackPositionUs);
+    boolean switchingVariant = previousTsChunk != null
+        && enabledVariants[nextVariantIndex].format != previousTsChunk.format;
 
     HlsMediaPlaylist mediaPlaylist = enabledVariantPlaylists[nextVariantIndex];
     if (mediaPlaylist == null) {
@@ -358,8 +344,8 @@ public class HlsChunkSource {
       if (previousTsChunk == null) {
         chunkMediaSequence = getLiveStartChunkMediaSequence(nextVariantIndex);
       } else {
-        chunkMediaSequence = switchingVariantSpliced
-            ? previousTsChunk.chunkIndex : previousTsChunk.chunkIndex + 1;
+        chunkMediaSequence = switchingVariant ? previousTsChunk.chunkIndex
+            : previousTsChunk.chunkIndex + 1;
         if (chunkMediaSequence < mediaPlaylist.mediaSequence) {
           fatalError = new BehindLiveWindowException();
           return;
@@ -371,8 +357,8 @@ public class HlsChunkSource {
         chunkMediaSequence = Util.binarySearchFloor(mediaPlaylist.segments, playbackPositionUs,
             true, true) + mediaPlaylist.mediaSequence;
       } else {
-        chunkMediaSequence = switchingVariantSpliced
-            ? previousTsChunk.chunkIndex : previousTsChunk.chunkIndex + 1;
+        chunkMediaSequence = switchingVariant ? previousTsChunk.chunkIndex
+            : previousTsChunk.chunkIndex + 1;
       }
     }
 
@@ -413,7 +399,7 @@ public class HlsChunkSource {
     if (live) {
       if (previousTsChunk == null) {
         startTimeUs = 0;
-      } else if (switchingVariantSpliced) {
+      } else if (switchingVariant) {
         startTimeUs = previousTsChunk.startTimeUs;
       } else {
         startTimeUs = previousTsChunk.endTimeUs;
@@ -434,11 +420,11 @@ public class HlsChunkSource {
       // case below.
       Extractor extractor = new AdtsExtractor(startTimeUs);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
-          switchingVariantSpliced);
+          switchingVariant);
     } else if (lastPathSegment.endsWith(MP3_FILE_EXTENSION)) {
       Extractor extractor = new Mp3Extractor(startTimeUs);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
-          switchingVariantSpliced);
+          switchingVariant);
     } else if (lastPathSegment.endsWith(WEBVTT_FILE_EXTENSION)
         || lastPathSegment.endsWith(VTT_FILE_EXTENSION)) {
       PtsTimestampAdjuster timestampAdjuster = timestampAdjusterProvider.getAdjuster(false,
@@ -451,7 +437,7 @@ public class HlsChunkSource {
       }
       Extractor extractor = new WebvttExtractor(format.language, timestampAdjuster);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
-          switchingVariantSpliced);
+          switchingVariant);
     } else if (previousTsChunk == null
         || previousTsChunk.discontinuitySequenceNumber != segment.discontinuitySequenceNumber
         || format != previousTsChunk.format) {
@@ -468,16 +454,16 @@ public class HlsChunkSource {
         // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
         // exist. If we know from the codec attribute that they don't exist, then we can explicitly
         // ignore them even if they're declared.
-        if (MimeTypes.getAudioMediaMimeType(codecs) != MimeTypes.AUDIO_AAC) {
+        if (!MimeTypes.AUDIO_AAC.equals(MimeTypes.getAudioMediaMimeType(codecs))) {
           workaroundFlags |= TsExtractor.WORKAROUND_IGNORE_AAC_STREAM;
         }
-        if (MimeTypes.getVideoMediaMimeType(codecs) != MimeTypes.VIDEO_H264) {
+        if (!MimeTypes.VIDEO_H264.equals(MimeTypes.getVideoMediaMimeType(codecs))) {
           workaroundFlags |= TsExtractor.WORKAROUND_IGNORE_H264_STREAM;
         }
       }
       Extractor extractor = new TsExtractor(timestampAdjuster, workaroundFlags);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
-          switchingVariantSpliced);
+          switchingVariant);
     } else {
       // MPEG-2 TS segments, and we need to continue using the same extractor.
       extractorWrapper = previousTsChunk.extractorWrapper;
@@ -562,11 +548,11 @@ public class HlsChunkSource {
   // Private methods.
 
   private void processMasterPlaylist(HlsMasterPlaylist playlist) {
-    if (type == TYPE_VTT) {
-      List<Variant> subtitleVariants = playlist.subtitles;
-      if (subtitleVariants != null) {
-        exposedVariants = new Variant[subtitleVariants.size()];
-        subtitleVariants.toArray(exposedVariants);
+    if (type == TYPE_SUBTITLE || type == TYPE_AUDIO) {
+      List<Variant> variants = type == TYPE_AUDIO ? playlist.audios : playlist.subtitles;
+      if (variants != null && !variants.isEmpty()) {
+        exposedVariants = new Variant[variants.size()];
+        variants.toArray(exposedVariants);
       } else {
         exposedVariants = new Variant[0];
       }
@@ -622,8 +608,7 @@ public class HlsChunkSource {
     long switchingOverlapUs;
     List<TsChunk> queue;
     if (previousTsChunk != null) {
-      switchingOverlapUs = adaptiveMode == ADAPTIVE_MODE_SPLICE
-          ? previousTsChunk.endTimeUs - previousTsChunk.startTimeUs : 0;
+      switchingOverlapUs = previousTsChunk.endTimeUs - previousTsChunk.startTimeUs;
       queue = Collections.singletonList(previousTsChunk);
     } else {
       switchingOverlapUs = 0;

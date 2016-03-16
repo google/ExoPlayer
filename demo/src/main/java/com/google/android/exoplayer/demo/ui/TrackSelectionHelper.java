@@ -121,10 +121,12 @@ public class TrackSelectionHelper implements View.OnClickListener, DialogInterfa
     boolean haveSupportedTracks = false;
     trackViews = new CheckedTextView[trackGroups.length][];
     for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
-      root.addView(inflater.inflate(R.layout.list_divider, root, false));
       TrackGroup group = trackGroups.get(groupIndex);
       trackViews[groupIndex] = new CheckedTextView[group.length];
       for (int trackIndex = 0; trackIndex < group.length; trackIndex++) {
+        if (trackIndex == 0 || !group.adaptive) {
+          root.addView(inflater.inflate(R.layout.list_divider, root, false));
+        }
         int trackViewLayoutId = group.length < 2 || !trackGroupsAdaptive[groupIndex]
             ? android.R.layout.simple_list_item_single_choice
             : android.R.layout.simple_list_item_multiple_choice;

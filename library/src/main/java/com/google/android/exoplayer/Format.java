@@ -295,7 +295,7 @@ public final class Format {
         encoderDelay, encoderPadding, language, subsampleOffsetUs, initializationData,
         requiresSecureDecryption);
   }
-  
+
   /**
    * @return A {@link MediaFormat} representation of this format.
    */

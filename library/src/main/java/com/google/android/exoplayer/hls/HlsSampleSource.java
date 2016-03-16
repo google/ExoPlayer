@@ -58,8 +58,9 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   private static final long NO_RESET_PENDING = Long.MIN_VALUE;
 
   private static final int PRIMARY_TYPE_NONE = 0;
-  private static final int PRIMARY_TYPE_AUDIO = 1;
-  private static final int PRIMARY_TYPE_VIDEO = 2;
+  private static final int PRIMARY_TYPE_TEXT = 1;
+  private static final int PRIMARY_TYPE_AUDIO = 2;
+  private static final int PRIMARY_TYPE_VIDEO = 3;
 
   private final HlsChunkSource chunkSource;
   private final LinkedList<HlsExtractorWrapper> extractors;
@@ -136,6 +137,10 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       return true;
     } else if (!chunkSource.prepare()) {
       return false;
+    } else if (chunkSource.getTrackCount() == 0) {
+      trackGroups = new TrackGroupArray();
+      prepared = true;
+      return true;
     }
     if (!extractors.isEmpty()) {
       while (true) {
@@ -368,15 +373,20 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     } else if (loadingFinished) {
       return C.END_OF_SOURCE_US;
     } else {
-      long largestParsedTimestampUs = extractors.getLast().getLargestParsedTimestampUs();
+      long bufferedPositionUs = extractors.getLast().getLargestParsedTimestampUs();
       if (extractors.size() > 1) {
         // When adapting from one format to the next, the penultimate extractor may have the largest
         // parsed timestamp (e.g. if the last extractor hasn't parsed any timestamps yet).
-        largestParsedTimestampUs = Math.max(largestParsedTimestampUs,
+        bufferedPositionUs = Math.max(bufferedPositionUs,
             extractors.get(extractors.size() - 2).getLargestParsedTimestampUs());
       }
-      return largestParsedTimestampUs == Long.MIN_VALUE ? downstreamPositionUs
-          : largestParsedTimestampUs;
+      if (previousTsLoadable != null) {
+        // Buffered position should be at least as large as the end time of the previously loaded
+        // chunk.
+        bufferedPositionUs = Math.max(previousTsLoadable.endTimeUs, bufferedPositionUs);
+      }
+      return bufferedPositionUs == Long.MIN_VALUE ? downstreamPositionUs
+          : bufferedPositionUs;
     }
   }
 
@@ -489,6 +499,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
         trackType = PRIMARY_TYPE_VIDEO;
       } else if (MimeTypes.isAudio(sampleMimeType)) {
         trackType = PRIMARY_TYPE_AUDIO;
+      } else if (MimeTypes.isText(sampleMimeType)) {
+        trackType = PRIMARY_TYPE_TEXT;
       } else {
         trackType = PRIMARY_TYPE_NONE;
       }
@@ -520,10 +532,18 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
         for (int j = 0; j < chunkSourceTrackCount; j++) {
           formats[j] = getSampleFormat(chunkSource.getTrackFormat(j), sampleFormat);
         }
-        trackGroups[i] = new TrackGroup(true, formats);
+        trackGroups[i] = new TrackGroup(chunkSource.isAdaptive(), formats);
         primaryTrackGroupIndex = i;
       } else {
-        trackGroups[i] = new TrackGroup(sampleFormat);
+        Format trackFormat = null;
+        if (primaryExtractorTrackType == PRIMARY_TYPE_VIDEO) {
+          if (MimeTypes.isAudio(sampleFormat.sampleMimeType)) {
+            trackFormat = chunkSource.getMuxedAudioFormat();
+          } else if (MimeTypes.APPLICATION_EIA608.equals(sampleFormat.sampleMimeType)) {
+            trackFormat = chunkSource.getMuxedCaptionFormat();
+          }
+        }
+        trackGroups[i] = new TrackGroup(getSampleFormat(trackFormat, sampleFormat));
       }
     }
     this.trackGroups = new TrackGroupArray(trackGroups);
@@ -550,6 +570,9 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
    * @return The derived sample format.
    */
   private static Format getSampleFormat(Format containerFormat, Format sampleFormat) {
+    if (containerFormat == null) {
+      return sampleFormat;
+    }
     int width = containerFormat.width == -1 ? Format.NO_VALUE : containerFormat.width;
     int height = containerFormat.height == -1 ? Format.NO_VALUE : containerFormat.height;
     return sampleFormat.copyWithContainerInfo(containerFormat.id, containerFormat.bitrate, width,

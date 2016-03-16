@@ -17,7 +17,9 @@ package com.google.android.exoplayer.demo.player;
 
 import com.google.android.exoplayer.DefaultLoadControl;
 import com.google.android.exoplayer.LoadControl;
+import com.google.android.exoplayer.MultiSampleSource;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.demo.player.DemoPlayer.SourceBuilder;
 import com.google.android.exoplayer.hls.HlsChunkSource;
 import com.google.android.exoplayer.hls.HlsPlaylist;
@@ -40,7 +42,9 @@ import android.os.Handler;
 public class HlsSourceBuilder implements SourceBuilder {
 
   private static final int BUFFER_SEGMENT_SIZE = 64 * 1024;
-  private static final int MAIN_BUFFER_SEGMENTS = 256;
+  private static final int MAIN_BUFFER_SEGMENTS = 254;
+  private static final int AUDIO_BUFFER_SEGMENTS = 54;
+  private static final int TEXT_BUFFER_SEGMENTS = 2;
 
   private final Context context;
   private final String userAgent;
@@ -64,11 +68,26 @@ public class HlsSourceBuilder implements SourceBuilder {
     LoadControl loadControl = new DefaultLoadControl(new DefaultAllocator(BUFFER_SEGMENT_SIZE));
     PtsTimestampAdjusterProvider timestampAdjusterProvider = new PtsTimestampAdjusterProvider();
 
-    DataSource dataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
-    HlsChunkSource chunkSource = new HlsChunkSource(manifestFetcher, HlsChunkSource.TYPE_DEFAULT,
-        dataSource, bandwidthMeter, timestampAdjusterProvider, HlsChunkSource.ADAPTIVE_MODE_SPLICE);
-    return new HlsSampleSource(chunkSource, loadControl,
+    DataSource defaultDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+    HlsChunkSource defaultChunkSource = new HlsChunkSource(manifestFetcher,
+        HlsChunkSource.TYPE_DEFAULT, defaultDataSource, timestampAdjusterProvider,
+        new FormatEvaluator.AdaptiveEvaluator(bandwidthMeter));
+    HlsSampleSource defaultSampleSource = new HlsSampleSource(defaultChunkSource, loadControl,
         MAIN_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_VIDEO);
+
+    DataSource audioDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+    HlsChunkSource audioChunkSource = new HlsChunkSource(manifestFetcher, HlsChunkSource.TYPE_AUDIO,
+        audioDataSource, timestampAdjusterProvider, null);
+    HlsSampleSource audioSampleSource = new HlsSampleSource(audioChunkSource, loadControl,
+        AUDIO_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_AUDIO);
+
+    DataSource subtitleDataSource = new DefaultUriDataSource(context, bandwidthMeter, userAgent);
+    HlsChunkSource subtitleChunkSource = new HlsChunkSource(manifestFetcher,
+        HlsChunkSource.TYPE_SUBTITLE, subtitleDataSource, timestampAdjusterProvider, null);
+    HlsSampleSource subtitleSampleSource = new HlsSampleSource(subtitleChunkSource, loadControl,
+        TEXT_BUFFER_SEGMENTS * BUFFER_SEGMENT_SIZE, mainHandler, player, DemoPlayer.TYPE_TEXT);
+
+    return new MultiSampleSource(defaultSampleSource, audioSampleSource, subtitleSampleSource);
   }
 
 }

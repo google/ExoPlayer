@@ -558,6 +558,8 @@ import java.util.concurrent.atomic.AtomicInteger;
       }
     }
 
+    // The new selections are being activated.
+    trackSelector.onSelectionActivated(result.second);
     enabledRenderers = new TrackRenderer[enabledRendererCount];
     enabledRendererCount = 0;
 
@@ -597,9 +599,6 @@ import java.util.concurrent.atomic.AtomicInteger;
         }
       }
     }
-
-    // The new selections have been activated.
-    trackSelector.onSelectionActivated(result.second);
   }
 
   private void reselectTracksInternal() throws ExoPlaybackException {

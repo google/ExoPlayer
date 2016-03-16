@@ -428,14 +428,14 @@ public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.Even
 
   @Override
   public void onCues(List<Cue> cues) {
-    if (captionListener != null && trackInfo.getTrackSelection(TYPE_TEXT) != null) {
+    if (captionListener != null) {
       captionListener.onCues(cues);
     }
   }
 
   @Override
   public void onMetadata(List<Id3Frame> id3Frames) {
-    if (id3MetadataListener != null && trackInfo.getTrackSelection(TYPE_METADATA) != null) {
+    if (id3MetadataListener != null) {
       id3MetadataListener.onId3Metadata(id3Frames);
     }
   }
