@@ -16,7 +16,7 @@
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-  <string name="app_name">WebM ExoPlayer Demo</string>
+  <string name="app_name">ExoPlayer Extensions Demo</string>
   <string name="choose_file">Choose File</string>
   <string name="play">Play</string>
   <string name="current_path">
