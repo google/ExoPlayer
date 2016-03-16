@@ -1291,7 +1291,8 @@ public final class WebmExtractor implements Extractor {
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
         format = MediaFormat.createTextFormat(Integer.toString(trackId), mimeType,
             MediaFormat.NO_VALUE, durationUs, language);
-      } else if (MimeTypes.APPLICATION_VOBSUB.equals(mimeType) || MimeTypes.APPLICATION_PGS.equals(mimeType)) {
+      } else if (MimeTypes.APPLICATION_VOBSUB.equals(mimeType)
+          || MimeTypes.APPLICATION_PGS.equals(mimeType)) {
         format = MediaFormat.createImageFormat(Integer.toString(trackId), mimeType,
             MediaFormat.NO_VALUE, durationUs, initializationData, language);
       } else {
