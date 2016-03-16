@@ -96,7 +96,7 @@ public interface ExoPlayer {
   /**
    * A factory for instantiating ExoPlayer instances.
    */
-  static final class Factory {
+  final class Factory {
 
     /**
      * The default minimum duration of data that must be buffered for playback to start or resume
@@ -202,31 +202,31 @@ public interface ExoPlayer {
   /**
    * The player is neither prepared or being prepared.
    */
-  static final int STATE_IDLE = 1;
+  int STATE_IDLE = 1;
   /**
    * The player is being prepared.
    */
-  static final int STATE_PREPARING = 2;
+  int STATE_PREPARING = 2;
   /**
    * The player is prepared but not able to immediately play from the current position. The cause
    * is {@link TrackRenderer} specific, but this state typically occurs when more data needs
    * to be buffered for playback to start.
    */
-  static final int STATE_BUFFERING = 3;
+  int STATE_BUFFERING = 3;
   /**
    * The player is prepared and able to immediately play from the current position. The player will
    * be playing if {@link #getPlayWhenReady()} returns true, and paused otherwise.
    */
-  static final int STATE_READY = 4;
+  int STATE_READY = 4;
   /**
    * The player has finished playing the media.
    */
-  static final int STATE_ENDED = 5;
+  int STATE_ENDED = 5;
 
   /**
    * Represents an unknown time or duration.
    */
-  static final long UNKNOWN_TIME = -1;
+  long UNKNOWN_TIME = -1;
 
   /**
    * Gets the {@link Looper} associated with the playback thread.
