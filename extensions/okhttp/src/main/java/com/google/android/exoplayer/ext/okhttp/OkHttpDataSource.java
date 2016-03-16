@@ -173,7 +173,7 @@ public class OkHttpDataSource implements HttpDataSource {
 
     // Check for a valid content type.
     MediaType mediaType = response.body().contentType();
-    String contentType = mediaType != null? mediaType.toString(): null;
+    String contentType = mediaType != null ? mediaType.toString() : null;
     if (contentTypePredicate != null && !contentTypePredicate.evaluate(contentType)) {
       closeConnectionQuietly();
       throw new InvalidContentTypeException(contentType, dataSpec);
