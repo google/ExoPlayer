@@ -13,29 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer.util.extensions;
+package com.google.android.exoplayer.text;
 
 import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.util.extensions.InputBuffer;
 
 /**
- * Input buffer to be decoded by a {@link Decoder}.
+ * An input buffer for {@link SubtitleParser}.
  */
-public class InputBuffer extends Buffer {
+/* package */ final class SubtitleInputBuffer extends InputBuffer {
 
-  public final SampleHolder sampleHolder;
+  public long subsampleOffsetUs;
 
-  public InputBuffer() {
-    this(SampleHolder.BUFFER_REPLACEMENT_MODE_DIRECT);
-  }
-
-  public InputBuffer(int bufferReplacementMode) {
-    sampleHolder = new SampleHolder(bufferReplacementMode);
-  }
-
-  @Override
-  public void reset() {
-    super.reset();
-    sampleHolder.clearData();
+  public SubtitleInputBuffer() {
+    super(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
   }
 
 }

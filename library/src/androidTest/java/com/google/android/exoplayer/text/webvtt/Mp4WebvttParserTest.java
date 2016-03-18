@@ -18,16 +18,11 @@ package com.google.android.exoplayer.text.webvtt;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.Subtitle;
-import com.google.android.exoplayer.util.Util;
-
-import android.util.ArraySet;
 
 import junit.framework.TestCase;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Unit test for {@link Mp4WebvttParser}.
@@ -96,20 +91,20 @@ public final class Mp4WebvttParserTest extends TestCase {
   // Positive tests.
 
   public void testSingleCueSample() throws ParserException {
-    Subtitle result = parser.parse(SINGLE_CUE_SAMPLE, 0, SINGLE_CUE_SAMPLE.length);
+    Subtitle result = parser.decode(SINGLE_CUE_SAMPLE, SINGLE_CUE_SAMPLE.length);
     Cue expectedCue = new Cue("Hello World"); // Line feed must be trimmed by the parser
     assertMp4WebvttSubtitleEquals(result, expectedCue);
   }
 
   public void testTwoCuesSample() throws ParserException {
-    Subtitle result = parser.parse(DOUBLE_CUE_SAMPLE, 0, DOUBLE_CUE_SAMPLE.length);
+    Subtitle result = parser.decode(DOUBLE_CUE_SAMPLE, DOUBLE_CUE_SAMPLE.length);
     Cue firstExpectedCue = new Cue("Hello World");
     Cue secondExpectedCue = new Cue("Bye Bye");
     assertMp4WebvttSubtitleEquals(result, firstExpectedCue, secondExpectedCue);
   }
 
   public void testNoCueSample() throws IOException {
-    Subtitle result = parser.parse(NO_CUE_SAMPLE, 0, NO_CUE_SAMPLE.length);
+    Subtitle result = parser.decode(NO_CUE_SAMPLE, NO_CUE_SAMPLE.length);
     assertMp4WebvttSubtitleEquals(result, new Cue[] {});
   }
 
@@ -117,7 +112,7 @@ public final class Mp4WebvttParserTest extends TestCase {
 
   public void testSampleWithIncompleteHeader() {
     try {
-      parser.parse(INCOMPLETE_HEADER_SAMPLE, 0, INCOMPLETE_HEADER_SAMPLE.length);
+      parser.decode(INCOMPLETE_HEADER_SAMPLE, INCOMPLETE_HEADER_SAMPLE.length);
     } catch (ParserException e) {
       return;
     }
@@ -130,55 +125,31 @@ public final class Mp4WebvttParserTest extends TestCase {
    * Asserts that the Subtitle's cues (which are all part of the event at t=0) are equal to the
    * expected Cues.
    *
-   * @param sub The parsed {@link Subtitle} to check.
-   * @param expectedCues Expected {@link Cue}s in order of appearance.
+   * @param subtitle The {@link Subtitle} to check.
+   * @param expectedCues The expected {@link Cue}s.
    */
-  private static void assertMp4WebvttSubtitleEquals(Subtitle sub, Cue... expectedCues) {
-    assertEquals(1, sub.getEventTimeCount());
-    assertEquals(0, sub.getEventTime(0));
-    List<Cue> subtitleCues = sub.getCues(0);
+  private static void assertMp4WebvttSubtitleEquals(Subtitle subtitle, Cue... expectedCues) {
+    assertEquals(1, subtitle.getEventTimeCount());
+    assertEquals(0, subtitle.getEventTime(0));
+    List<Cue> subtitleCues = subtitle.getCues(0);
     assertEquals(expectedCues.length, subtitleCues.size());
     for (int i = 0; i < subtitleCues.size(); i++) {
-      Set<String> differences = getCueDifferences(subtitleCues.get(i), expectedCues[i]);
-      assertTrue("Cues at position " + i + " are not equal. Different fields are "
-          + Arrays.toString(differences.toArray()), differences.isEmpty());
+      assertCueEquals(expectedCues[i], subtitleCues.get(i));
     }
   }
 
   /**
-   * Checks whether two non null cues are equal. Check fails if any of the Cues are null.
-   *
-   * @return a set that contains the names of the different fields.
+   * Asserts that two cues are equal.
    */
-  private static Set<String> getCueDifferences(Cue aCue, Cue anotherCue) {
-    assertNotNull(aCue);
-    assertNotNull(anotherCue);
-    Set<String> differences = new ArraySet<>();
-    if (aCue.line != anotherCue.line) {
-      differences.add("line: " + aCue.line + " | " + anotherCue.line);
-    }
-    if (aCue.lineAnchor != anotherCue.lineAnchor) {
-      differences.add("lineAnchor: " + aCue.lineAnchor + " | " + anotherCue.lineAnchor);
-    }
-    if (aCue.lineType != anotherCue.lineType) {
-      differences.add("lineType: " + aCue.lineType + " | " + anotherCue.lineType);
-    }
-    if (aCue.position != anotherCue.position) {
-      differences.add("position: " + aCue.position + " | " + anotherCue.position);
-    }
-    if (aCue.positionAnchor != anotherCue.positionAnchor) {
-      differences.add("positionAnchor: " + aCue.positionAnchor + " | " + anotherCue.positionAnchor);
-    }
-    if (aCue.size != anotherCue.size) {
-      differences.add("size: " + aCue.size + " | " + anotherCue.size);
-    }
-    if (!Util.areEqual(aCue.text.toString(), anotherCue.text.toString())) {
-      differences.add("text: '" + aCue.text + "' | '" + anotherCue.text + '\'');
-    }
-    if (!Util.areEqual(aCue.textAlignment, anotherCue.textAlignment)) {
-      differences.add("textAlignment: " + aCue.textAlignment + " | " + anotherCue.textAlignment);
-    }
-    return differences;
+  private static void assertCueEquals(Cue expected, Cue actual) {
+    assertEquals(expected.line, actual.line);
+    assertEquals(expected.lineAnchor, actual.lineAnchor);
+    assertEquals(expected.lineType, actual.lineType);
+    assertEquals(expected.position, actual.position);
+    assertEquals(expected.positionAnchor, actual.positionAnchor);
+    assertEquals(expected.size, actual.size);
+    assertEquals(expected.text.toString(), actual.text.toString());
+    assertEquals(expected.textAlignment, actual.textAlignment);
   }
 
 }

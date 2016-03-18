@@ -18,7 +18,6 @@ package com.google.android.exoplayer.text.ttml;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.SubtitleParser;
-import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParserUtil;
 import com.google.android.exoplayer.util.Util;
 
@@ -58,7 +57,7 @@ import java.util.regex.Pattern;
  * </p>
  * @see <a href="http://www.w3.org/TR/ttaf1-dfxp/">TTML specification</a>
  */
-public final class TtmlParser implements SubtitleParser {
+public final class TtmlParser extends SubtitleParser {
 
   private static final String TAG = "TtmlParser";
 
@@ -91,16 +90,11 @@ public final class TtmlParser implements SubtitleParser {
   }
 
   @Override
-  public boolean canParse(String mimeType) {
-    return MimeTypes.APPLICATION_TTML.equals(mimeType);
-  }
-
-  @Override
-  public TtmlSubtitle parse(byte[] bytes, int offset, int length) throws ParserException {
+  protected TtmlSubtitle decode(byte[] bytes, int length) throws ParserException {
     try {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
       Map<String, TtmlStyle> globalStyles = new HashMap<>();
-      ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes, offset, length);
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes, 0, length);
       xmlParser.setInput(inputStream, null);
       TtmlSubtitle ttmlSubtitle = null;
       LinkedList<TtmlNode> nodeStack = new LinkedList<>();

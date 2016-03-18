@@ -42,7 +42,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
     WebvttParser parser = new WebvttParser();
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), EMPTY_FILE);
     try {
-      parser.parse(bytes, 0, bytes.length);
+      parser.decode(bytes, bytes.length);
       fail("Expected ParserException");
     } catch (ParserException expected) {
       // Do nothing.
@@ -52,7 +52,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
   public void testParseTypical() throws IOException {
     WebvttParser parser = new WebvttParser();
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_FILE);
-    WebvttSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
+    WebvttSubtitle subtitle = parser.decode(bytes, bytes.length);
 
     // test event count
     assertEquals(4, subtitle.getEventTimeCount());
@@ -65,7 +65,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
   public void testParseTypicalWithIds() throws IOException {
     WebvttParser parser = new WebvttParser();
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_WITH_IDS_FILE);
-    WebvttSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
+    WebvttSubtitle subtitle = parser.decode(bytes, bytes.length);
 
     // test event count
     assertEquals(4, subtitle.getEventTimeCount());
@@ -78,7 +78,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
   public void testParseTypicalWithComments() throws IOException {
     WebvttParser parser = new WebvttParser();
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), TYPICAL_WITH_COMMENTS_FILE);
-    WebvttSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
+    WebvttSubtitle subtitle = parser.decode(bytes, bytes.length);
 
     // test event count
     assertEquals(4, subtitle.getEventTimeCount());
@@ -91,7 +91,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
   public void testParseWithTags() throws IOException {
     WebvttParser parser = new WebvttParser();
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), WITH_TAGS_FILE);
-    WebvttSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
+    WebvttSubtitle subtitle = parser.decode(bytes, bytes.length);
 
     // test event count
     assertEquals(8, subtitle.getEventTimeCount());
@@ -106,7 +106,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
   public void testParseWithPositioning() throws IOException {
     WebvttParser parser = new WebvttParser();
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), WITH_POSITIONING_FILE);
-    WebvttSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
+    WebvttSubtitle subtitle = parser.decode(bytes, bytes.length);
 
     // test event count
     assertEquals(12, subtitle.getEventTimeCount());
@@ -134,7 +134,7 @@ public class WebvttParserTest extends InstrumentationTestCase {
   public void testParseWithBadCueHeader() throws IOException {
     WebvttParser parser = new WebvttParser();
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), WITH_BAD_CUE_HEADER_FILE);
-    WebvttSubtitle subtitle = parser.parse(bytes, 0, bytes.length);
+    WebvttSubtitle subtitle = parser.decode(bytes, bytes.length);
 
     // test event count
     assertEquals(4, subtitle.getEventTimeCount());

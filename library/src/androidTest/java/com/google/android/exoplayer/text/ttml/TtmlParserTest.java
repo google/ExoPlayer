@@ -472,6 +472,6 @@ public final class TtmlParserTest extends InstrumentationTestCase {
   private TtmlSubtitle getSubtitle(String file) throws IOException {
     TtmlParser ttmlParser = new TtmlParser();
     byte[] bytes = TestUtil.getByteArray(getInstrumentation(), file);
-    return ttmlParser.parse(bytes, 0, bytes.length);
+    return ttmlParser.decode(bytes, bytes.length);
   }
 }

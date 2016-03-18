@@ -18,7 +18,6 @@ package com.google.android.exoplayer.text.webvtt;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleParser;
-import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 import com.google.android.exoplayer.util.Util;
 
@@ -28,7 +27,7 @@ import java.util.List;
 /**
  * A {@link SubtitleParser} for Webvtt embedded in a Mp4 container file.
  */
-public final class Mp4WebvttParser implements SubtitleParser {
+public final class Mp4WebvttParser extends SubtitleParser {
 
   private static final int BOX_HEADER_SIZE = 8;
 
@@ -45,16 +44,10 @@ public final class Mp4WebvttParser implements SubtitleParser {
   }
 
   @Override
-  public boolean canParse(String mimeType) {
-    return MimeTypes.APPLICATION_MP4VTT.equals(mimeType);
-  }
-
-  @Override
-  public Mp4WebvttSubtitle parse(byte[] bytes, int offset, int length) throws ParserException {
+  protected Mp4WebvttSubtitle decode(byte[] bytes, int length) throws ParserException {
     // Webvtt in Mp4 samples have boxes inside of them, so we have to do a traditional box parsing:
     // first 4 bytes size and then 4 bytes type.
-    sampleData.reset(bytes, offset + length);
-    sampleData.setPosition(offset);
+    sampleData.reset(bytes, length);
     List<Cue> resultingCueList = new ArrayList<>();
     while (sampleData.bytesLeft() > 0) {
       if (sampleData.bytesLeft() < BOX_HEADER_SIZE) {

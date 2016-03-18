@@ -17,7 +17,6 @@ package com.google.android.exoplayer.text.webvtt;
 
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.SubtitleParser;
-import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.text.TextUtils;
@@ -29,7 +28,7 @@ import java.util.ArrayList;
  * <p>
  * @see <a href="http://dev.w3.org/html5/webvtt">WebVTT specification</a>
  */
-public final class WebvttParser implements SubtitleParser {
+public final class WebvttParser extends SubtitleParser {
 
   private final WebvttCueParser cueParser;
   private final ParsableByteArray parsableWebvttData;
@@ -42,14 +41,8 @@ public final class WebvttParser implements SubtitleParser {
   }
 
   @Override
-  public final boolean canParse(String mimeType) {
-    return MimeTypes.TEXT_VTT.equals(mimeType);
-  }
-
-  @Override
-  public final WebvttSubtitle parse(byte[] bytes, int offset, int length) throws ParserException {
-    parsableWebvttData.reset(bytes, offset + length);
-    parsableWebvttData.setPosition(offset);
+  protected final WebvttSubtitle decode(byte[] bytes, int length) throws ParserException {
+    parsableWebvttData.reset(bytes, length);
     webvttCueBuilder.reset(); // In case a previous parse run failed with a ParserException.
 
     // Validate the first line of the header, and skip the remainder.

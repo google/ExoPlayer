@@ -16,29 +16,48 @@
 package com.google.android.exoplayer.text;
 
 import com.google.android.exoplayer.ParserException;
+import com.google.android.exoplayer.util.extensions.SimpleDecoder;
 
 /**
- * Parses {@link Subtitle}s from a byte array.
+ * Parses {@link Subtitle}s from {@link SubtitleInputBuffer}s.
  */
-public interface SubtitleParser {
+public abstract class SubtitleParser extends
+    SimpleDecoder<SubtitleInputBuffer, SubtitleOutputBuffer, ParserException> {
 
-  /**
-   * Checks whether the parser supports a given subtitle mime type.
-   *
-   * @param mimeType A subtitle mime type.
-   * @return Whether the mime type is supported.
-   */
-  public boolean canParse(String mimeType);
+  protected SubtitleParser() {
+    super(new SubtitleInputBuffer[2], new SubtitleOutputBuffer[2]);
+    setInitialInputBufferSize(1024);
+  }
 
-  /**
-   * Parses a {@link Subtitle} from the provided {@code byte[]}.
-   *
-   * @param bytes The array holding the subtitle data.
-   * @param offset The offset of the subtitle data in bytes.
-   * @param length The length of the subtitle data in bytes.
-   * @return A parsed representation of the subtitle.
-   * @throws ParserException If a problem occurred parsing the subtitle data.
-   */
-  public Subtitle parse(byte[] bytes, int offset, int length) throws ParserException;
+  @Override
+  protected final SubtitleInputBuffer createInputBuffer() {
+    return new SubtitleInputBuffer();
+  }
+
+  @Override
+  protected final SubtitleOutputBuffer createOutputBuffer() {
+    return new SubtitleOutputBuffer(this);
+  }
+
+  @Override
+  protected final void releaseOutputBuffer(SubtitleOutputBuffer buffer) {
+    super.releaseOutputBuffer(buffer);
+  }
+
+  @Override
+  protected final ParserException decode(SubtitleInputBuffer inputBuffer,
+      SubtitleOutputBuffer outputBuffer) {
+    try {
+      Subtitle subtitle = decode(inputBuffer.sampleHolder.data.array(),
+          inputBuffer.sampleHolder.size);
+      outputBuffer.setOutput(inputBuffer.sampleHolder.timeUs, subtitle,
+          inputBuffer.subsampleOffsetUs);
+      return null;
+    } catch (ParserException e) {
+      return e;
+    }
+  }
+
+  protected abstract Subtitle decode(byte[] data, int size) throws ParserException;
 
 }

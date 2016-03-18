@@ -18,23 +18,17 @@ package com.google.android.exoplayer.text.tx3g;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.Subtitle;
 import com.google.android.exoplayer.text.SubtitleParser;
-import com.google.android.exoplayer.util.MimeTypes;
 
 /**
  * A {@link SubtitleParser} for tx3g.
  * <p>
  * Currently only supports parsing of a single text track.
  */
-public final class Tx3gParser implements SubtitleParser {
+public final class Tx3gParser extends SubtitleParser {
 
   @Override
-  public boolean canParse(String mimeType) {
-    return MimeTypes.APPLICATION_TX3G.equals(mimeType);
-  }
-
-  @Override
-  public Subtitle parse(byte[] bytes, int offset, int length) {
-    String cueText = new String(bytes, offset, length);
+  protected Subtitle decode(byte[] bytes, int length) {
+    String cueText = new String(bytes, 0, length);
     return new Tx3gSubtitle(new Cue(cueText));
   }
 

@@ -18,7 +18,6 @@ package com.google.android.exoplayer.text.subrip;
 import com.google.android.exoplayer.text.Cue;
 import com.google.android.exoplayer.text.SubtitleParser;
 import com.google.android.exoplayer.util.LongArray;
-import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import android.text.Html;
@@ -33,7 +32,7 @@ import java.util.regex.Pattern;
 /**
  * A simple SubRip parser.
  */
-public final class SubripParser implements SubtitleParser {
+public final class SubripParser extends SubtitleParser {
 
   private static final String TAG = "SubripParser";
 
@@ -48,16 +47,10 @@ public final class SubripParser implements SubtitleParser {
   }
 
   @Override
-  public boolean canParse(String mimeType) {
-    return MimeTypes.APPLICATION_SUBRIP.equals(mimeType);
-  }
-
-  @Override
-  public SubripSubtitle parse(byte[] bytes, int offset, int length) {
+  protected SubripSubtitle decode(byte[] bytes, int length) {
     ArrayList<Cue> cues = new ArrayList<>();
     LongArray cueTimesUs = new LongArray();
-    ParsableByteArray subripData = new ParsableByteArray(bytes, offset + length);
-    subripData.setPosition(offset);
+    ParsableByteArray subripData = new ParsableByteArray(bytes, length);
     boolean haveEndTimecode;
     String currentLine;
 
