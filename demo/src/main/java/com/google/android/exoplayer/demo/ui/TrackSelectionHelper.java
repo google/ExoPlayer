@@ -46,17 +46,16 @@ public class TrackSelectionHelper implements View.OnClickListener, DialogInterfa
 
   private final DefaultTrackSelector selector;
 
-  private CheckedTextView disableView;
-  private CheckedTextView defaultView;
-  private CheckedTextView[][] trackViews;
-
   private TrackInfo trackInfo;
   private int rendererIndex;
   private TrackGroupArray trackGroups;
   private boolean[] trackGroupsAdaptive;
-
   private boolean isDisabled;
   private TrackSelection override;
+
+  private CheckedTextView disableView;
+  private CheckedTextView defaultView;
+  private CheckedTextView[][] trackViews;
 
   /**
    * @param selector The track selector.
@@ -85,9 +84,8 @@ public class TrackSelectionHelper implements View.OnClickListener, DialogInterfa
           != TrackRenderer.ADAPTIVE_NOT_SUPPORTED;
     }
     isDisabled = selector.getRendererDisabled(rendererIndex);
-    if (selector.hasSelectionOverride(rendererIndex, trackGroups)) {
-      override = trackInfo.getTrackSelection(rendererIndex);
-    }
+    override = selector.hasSelectionOverride(rendererIndex, trackGroups)
+        ? trackInfo.getTrackSelection(rendererIndex) : null;
 
     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
     builder.setTitle(titleId)
