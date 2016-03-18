@@ -66,6 +66,8 @@ public final class TsExtractor implements Extractor {
 
   private final PtsTimestampAdjuster ptsTimestampAdjuster;
   private final int workaroundFlags;
+  private final int overrideAacObjectType;
+
   private final ParsableByteArray tsPacketBuffer;
   private final ParsableBitArray tsScratch;
   /* package */ final SparseArray<TsPayloadReader> tsPayloadReaders; // Indexed by pid
@@ -84,8 +86,13 @@ public final class TsExtractor implements Extractor {
   }
 
   public TsExtractor(PtsTimestampAdjuster ptsTimestampAdjuster, int workaroundFlags) {
+    this(ptsTimestampAdjuster, workaroundFlags, -1);
+  }
+
+  public TsExtractor(PtsTimestampAdjuster ptsTimestampAdjuster, int workaroundFlags, int overrideAacObjectType) {
     this.ptsTimestampAdjuster = ptsTimestampAdjuster;
     this.workaroundFlags = workaroundFlags;
+    this.overrideAacObjectType = overrideAacObjectType;
     tsPacketBuffer = new ParsableByteArray(TS_PACKET_SIZE);
     tsScratch = new ParsableBitArray(new byte[3]);
     tsPayloadReaders = new SparseArray<>();
@@ -343,7 +350,7 @@ public final class TsExtractor implements Extractor {
             break;
           case TS_STREAM_TYPE_AAC:
             pesPayloadReader = (workaroundFlags & WORKAROUND_IGNORE_AAC_STREAM) != 0 ? null
-                : new AdtsReader(output.track(TS_STREAM_TYPE_AAC), new DummyTrackOutput());
+                : new AdtsReader(output.track(TS_STREAM_TYPE_AAC), new DummyTrackOutput(), overrideAacObjectType);
             break;
           case TS_STREAM_TYPE_AC3:
             pesPayloadReader = new Ac3Reader(output.track(TS_STREAM_TYPE_AC3), false);

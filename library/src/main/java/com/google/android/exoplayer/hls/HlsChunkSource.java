@@ -136,6 +136,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
   private final ArrayList<ExposedTrack> tracks;
 
   private int selectedTrackIndex;
+  private int overrideAacObjectType = -1;
 
   // A list of variants considered during playback, ordered by decreasing bandwidth. The following
   // three arrays are of the same length and are ordered in the same way (i.e. variantPlaylists[i],
@@ -229,6 +230,13 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
       masterPlaylist = new HlsMasterPlaylist(playlistUrl, variants,
           Collections.<Variant>emptyList(), Collections.<Variant>emptyList(), null, null);
     }
+  }
+
+  /**
+   * Somehow some streams have the wrong signaling and forcing the AAC object type make them works
+   */
+  public void setOverrideAacObjectType(int overrideAacObjectType) {
+    this.overrideAacObjectType = overrideAacObjectType;
   }
 
   /**
@@ -517,6 +525,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
         return;
       }
       int workaroundFlags = 0;
+
       String codecs = format.codecs;
       if (!TextUtils.isEmpty(codecs)) {
         // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
@@ -529,7 +538,7 @@ public class HlsChunkSource implements HlsTrackSelector.Output {
           workaroundFlags |= TsExtractor.WORKAROUND_IGNORE_H264_STREAM;
         }
       }
-      Extractor extractor = new TsExtractor(timestampAdjuster, workaroundFlags);
+      Extractor extractor = new TsExtractor(timestampAdjuster, workaroundFlags, overrideAacObjectType);
       ExposedTrack selectedTrack = tracks.get(selectedTrackIndex);
       extractorWrapper = new HlsExtractorWrapper(trigger, format, startTimeUs, extractor,
           switchingVariantSpliced, selectedTrack.adaptiveMaxWidth, selectedTrack.adaptiveMaxHeight);
