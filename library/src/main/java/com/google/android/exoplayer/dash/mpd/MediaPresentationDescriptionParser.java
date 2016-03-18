@@ -406,15 +406,19 @@ public class MediaPresentationDescriptionParser extends DefaultHandler
       float frameRate, int audioChannels, int audioSamplingRate, int bitrate, String language,
       String codecs) {
     String sampleMimeType = getSampleMimeType(containerMimeType, codecs);
-    if (MimeTypes.isVideo(sampleMimeType)) {
-      return Format.createVideoContainerFormat(id, containerMimeType, sampleMimeType, bitrate,
-          width, height, frameRate, null);
-    } else if (MimeTypes.isAudio(sampleMimeType)) {
-      return Format.createAudioContainerFormat(id, containerMimeType, sampleMimeType, bitrate,
-          audioChannels, audioSamplingRate, null, language);
-    } else if (mimeTypeIsRawText(sampleMimeType)) {
-      return Format.createTextContainerFormat(id, containerMimeType, sampleMimeType, bitrate,
-          language);
+    if (sampleMimeType != null) {
+      if (MimeTypes.isVideo(sampleMimeType)) {
+        return Format.createVideoContainerFormat(id, containerMimeType, sampleMimeType, bitrate,
+            width, height, frameRate, null);
+      } else if (MimeTypes.isAudio(sampleMimeType)) {
+        return Format.createAudioContainerFormat(id, containerMimeType, sampleMimeType, bitrate,
+            audioChannels, audioSamplingRate, null, language);
+      } else if (mimeTypeIsRawText(sampleMimeType)) {
+        return Format.createTextContainerFormat(id, containerMimeType, sampleMimeType, bitrate,
+            language);
+      } else {
+        return Format.createContainerFormat(id, containerMimeType, sampleMimeType, bitrate);
+      }
     } else {
       return Format.createContainerFormat(id, containerMimeType, sampleMimeType, bitrate);
     }

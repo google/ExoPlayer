@@ -26,12 +26,23 @@ import java.io.InputStream;
 public class MediaPresentationDescriptionParserTest extends InstrumentationTestCase {
 
   private static final String SAMPLE_MPD_1 = "dash/sample_mpd_1";
+  private static final String SAMPLE_MPD_2_UNKNOWN_MIME_TYPE =
+      "dash/sample_mpd_2_unknown_mime_type";
 
   public void testParseMediaPresentationDescription() throws IOException {
     MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
     InputStream inputStream =
         getInstrumentation().getContext().getResources().getAssets().open(SAMPLE_MPD_1);
     // Simple test to ensure that the sample manifest parses without throwing any exceptions.
+    parser.parse("https://example.com/test.mpd", inputStream);
+  }
+
+  public void testParseMediaPresentationDescriptionWithUnknownMimeType() throws IOException {
+    MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
+    InputStream inputStream = getInstrumentation().getContext().getResources().getAssets()
+        .open(SAMPLE_MPD_2_UNKNOWN_MIME_TYPE);
+    // Simple test to ensure that the sample manifest with an unknown mime type parses without
+    // throwing any exceptions.
     parser.parse("https://example.com/test.mpd", inputStream);
   }
 
