@@ -443,7 +443,7 @@ public class DashChunkSource implements ChunkSource {
           : startingNewPeriod ? representationHolder.getFirstAvailableSegmentNum()
           : queue.get(out.queueSize - 1).getNextChunkIndex();
     Chunk nextMediaChunk = newMediaChunk(periodHolder, representationHolder, dataSource,
-        sampleFormat, segmentNum, evaluation.trigger);
+        selectedFormat, sampleFormat, segmentNum, evaluation.trigger);
     lastChunkWasInitialization = false;
     out.chunk = nextMediaChunk;
   }
@@ -545,8 +545,8 @@ public class DashChunkSource implements ChunkSource {
   }
 
   protected Chunk newMediaChunk(PeriodHolder periodHolder,
-      RepresentationHolder representationHolder, DataSource dataSource, Format sampleFormat,
-      int segmentNum, int trigger) {
+      RepresentationHolder representationHolder, DataSource dataSource, Format trackFormat,
+      Format sampleFormat, int segmentNum, int trigger) {
     Representation representation = representationHolder.representation;
     long startTimeUs = representationHolder.getSegmentStartTimeUs(segmentNum);
     long endTimeUs = representationHolder.getSegmentEndTimeUs(segmentNum);
@@ -554,16 +554,15 @@ public class DashChunkSource implements ChunkSource {
     DataSpec dataSpec = new DataSpec(segmentUri.getUri(), segmentUri.start, segmentUri.length,
         representation.getCacheKey());
 
-    Format format = representation.format;
     long sampleOffsetUs = periodHolder.startTimeUs - representation.presentationTimeOffsetUs;
     if (representationHolder.extractorWrapper == null) {
-      return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_INITIAL, format,
-          startTimeUs, endTimeUs, segmentNum, format, null, periodHolder.localIndex);
+      return new SingleSampleMediaChunk(dataSource, dataSpec, Chunk.TRIGGER_INITIAL, trackFormat,
+          startTimeUs, endTimeUs, segmentNum, trackFormat, null, periodHolder.localIndex);
     } else {
       boolean isSampleFormatFinal = sampleFormat != null;
-      return new ContainerMediaChunk(dataSource, dataSpec, trigger, format, startTimeUs, endTimeUs,
-          segmentNum, sampleOffsetUs, representationHolder.extractorWrapper, sampleFormat,
-          periodHolder.drmInitData, isSampleFormatFinal, periodHolder.localIndex);
+      return new ContainerMediaChunk(dataSource, dataSpec, trigger, trackFormat, startTimeUs,
+          endTimeUs, segmentNum, sampleOffsetUs, representationHolder.extractorWrapper,
+          sampleFormat, periodHolder.drmInitData, isSampleFormatFinal, periodHolder.localIndex);
     }
   }
 
