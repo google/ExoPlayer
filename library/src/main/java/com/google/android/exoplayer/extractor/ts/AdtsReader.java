@@ -55,6 +55,7 @@ import java.util.Collections;
   private final ParsableBitArray adtsScratch;
   private final ParsableByteArray id3HeaderBuffer;
   private final TrackOutput id3Output;
+  private final int overrideAudioObjectType;
 
   private int state;
   private int bytesRead;
@@ -79,10 +80,15 @@ import java.util.Collections;
    * @param id3Output A {@link TrackOutput} to which ID3 samples should be written.
    */
   public AdtsReader(TrackOutput output, TrackOutput id3Output) {
+    this(output, id3Output, -1);
+  }
+
+  public AdtsReader(TrackOutput output, TrackOutput id3Output, int overrideAudioObjectType) {
     super(output);
     this.id3Output = id3Output;
     id3Output.format(MediaFormat.createId3Format());
     adtsScratch = new ParsableBitArray(new byte[HEADER_SIZE + CRC_SIZE]);
+    this.overrideAudioObjectType = overrideAudioObjectType;
     id3HeaderBuffer = new ParsableByteArray(Arrays.copyOf(ID3_IDENTIFIER, ID3_HEADER_SIZE));
     setFindingSampleState();
   }
@@ -255,6 +261,9 @@ import java.util.Collections;
       adtsScratch.skipBits(1);
       int channelConfig = adtsScratch.readBits(3);
 
+      if (overrideAudioObjectType != -1) {
+        audioObjectType = overrideAudioObjectType;
+      }
       byte[] audioSpecificConfig = CodecSpecificDataUtil.buildAacAudioSpecificConfig(
           audioObjectType, sampleRateIndex, channelConfig);
       Pair<Integer, Integer> audioParams = CodecSpecificDataUtil.parseAacAudioSpecificConfig(
