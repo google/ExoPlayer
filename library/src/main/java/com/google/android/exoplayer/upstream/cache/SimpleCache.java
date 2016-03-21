@@ -240,8 +240,7 @@ public final class SimpleCache implements Cache {
     if (files == null) {
       return;
     }
-    for (int i = 0; i < files.length; i++) {
-      File file = files[i];
+    for (File file : files) {
       if (file.length() == 0) {
         file.delete();
       } else {

@@ -285,8 +285,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
     boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
-    for (int rendererIndex = 0; rendererIndex < renderers.length; rendererIndex++) {
-      TrackRenderer renderer = renderers[rendererIndex];
+    for (TrackRenderer renderer : renderers) {
       allRenderersEnded = allRenderersEnded && renderer.isEnded();
       allRenderersReadyOrEnded = allRenderersReadyOrEnded && isReadyOrEnded(renderer);
     }

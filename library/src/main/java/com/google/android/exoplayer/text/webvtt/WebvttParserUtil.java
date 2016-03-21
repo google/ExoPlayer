@@ -53,8 +53,8 @@ public final class WebvttParserUtil {
     long value = 0;
     String[] parts = timestamp.split("\\.", 2);
     String[] subparts = parts[0].split(":");
-    for (int i = 0; i < subparts.length; i++) {
-      value = value * 60 + Long.parseLong(subparts[i]);
+    for (String subpart : subparts) {
+      value = value * 60 + Long.parseLong(subpart);
     }
     return (value * 1000 + Long.parseLong(parts[1])) * 1000;
   }

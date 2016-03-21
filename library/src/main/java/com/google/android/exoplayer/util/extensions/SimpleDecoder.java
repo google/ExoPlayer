@@ -83,8 +83,8 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
    */
   protected final void setInitialInputBufferSize(int size) {
     Assertions.checkState(availableInputBufferCount == availableInputBuffers.length);
-    for (int i = 0; i < availableInputBuffers.length; i++) {
-      availableInputBuffers[i].sampleHolder.ensureSpaceForWrite(size);
+    for (I inputBuffer : availableInputBuffers) {
+      inputBuffer.sampleHolder.ensureSpaceForWrite(size);
     }
   }
 

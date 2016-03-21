@@ -228,8 +228,8 @@ public final class MediaCodecUtil {
     }
 
     CodecProfileLevel[] profileLevels = info.getProfileLevels();
-    for (int i = 0; i < profileLevels.length; i++) {
-      if (profileLevels[i].profile == profile && profileLevels[i].level >= level) {
+    for (CodecProfileLevel profileLevel : profileLevels) {
+      if (profileLevel.profile == profile && profileLevel.level >= level) {
         return true;
       }
     }
@@ -250,8 +250,7 @@ public final class MediaCodecUtil {
 
     int maxH264DecodableFrameSize = 0;
     CodecProfileLevel[] profileLevels = info.getProfileLevels();
-    for (int i = 0; i < profileLevels.length; i++) {
-      CodecProfileLevel profileLevel = profileLevels[i];
+    for (CodecProfileLevel profileLevel : profileLevels) {
       maxH264DecodableFrameSize = Math.max(avcLevelToMaxFrameSize(profileLevel.level),
           maxH264DecodableFrameSize);
     }

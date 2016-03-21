@@ -266,9 +266,9 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
     adaptiveMaxWidth = Format.NO_VALUE;
     adaptiveMaxHeight = Format.NO_VALUE;
     if (formats.length > 1) {
-      for (int i = 0; i < formats.length; i++) {
-        adaptiveMaxWidth = Math.max(adaptiveMaxWidth, formats[i].width);
-        adaptiveMaxHeight = Math.max(adaptiveMaxHeight, formats[i].height);
+      for (Format format : formats) {
+        adaptiveMaxWidth = Math.max(adaptiveMaxWidth, format.width);
+        adaptiveMaxHeight = Math.max(adaptiveMaxHeight, format.height);
       }
       if (adaptiveMaxWidth == Format.NO_VALUE
           || adaptiveMaxHeight == Format.NO_VALUE) {

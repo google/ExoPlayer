@@ -595,8 +595,8 @@ public class HlsChunkSource {
       return false;
     }
     String[] codecArray = codecs.split("(\\s*,\\s*)|(\\s*$)");
-    for (int i = 0; i < codecArray.length; i++) {
-      if (codecArray[i].startsWith(prefix)) {
+    for (String codec : codecArray) {
+      if (codec.startsWith(prefix)) {
         return true;
       }
     }

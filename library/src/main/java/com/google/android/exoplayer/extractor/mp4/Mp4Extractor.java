@@ -149,14 +149,14 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   @Override
   public long getPosition(long timeUs) {
     long earliestSamplePosition = Long.MAX_VALUE;
-    for (int trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
-      TrackSampleTable sampleTable = tracks[trackIndex].sampleTable;
+    for (Mp4Track track : tracks) {
+      TrackSampleTable sampleTable = track.sampleTable;
       int sampleIndex = sampleTable.getIndexOfEarlierOrEqualSynchronizationSample(timeUs);
       if (sampleIndex == TrackSampleTable.NO_SAMPLE) {
         // Handle the case where the requested time is before the first synchronization sample.
         sampleIndex = sampleTable.getIndexOfLaterOrEqualSynchronizationSample(timeUs);
       }
-      tracks[trackIndex].sampleIndex = sampleIndex;
+      track.sampleIndex = sampleIndex;
 
       long offset = sampleTable.offsets[sampleIndex];
       if (offset < earliestSamplePosition) {

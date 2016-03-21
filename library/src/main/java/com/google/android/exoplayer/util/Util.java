@@ -182,8 +182,8 @@ public final class Util {
    * @return True if the array contains an object equal to the item being searched for.
    */
   public static boolean contains(Object[] items, Object item) {
-    for (int i = 0; i < items.length; i++) {
-      if (Util.areEqual(items[i], item)) {
+    for (Object arrayItem : items) {
+      if (Util.areEqual(arrayItem, item)) {
         return true;
       }
     }

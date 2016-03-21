@@ -160,8 +160,8 @@ public final class TtmlParser extends SubtitleParser {
         TtmlStyle style = parseStyleAttributes(xmlParser, new TtmlStyle());
         if (parentStyleId != null) {
           String[] ids = parseStyleIds(parentStyleId);
-          for (int i = 0; i < ids.length; i++) {
-            style.chain(globalStyles.get(ids[i]));
+          for (String id : ids) {
+            style.chain(globalStyles.get(id));
           }
         }
         if (style.getId() != null) {

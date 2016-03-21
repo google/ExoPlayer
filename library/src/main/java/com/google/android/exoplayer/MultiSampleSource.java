@@ -43,25 +43,25 @@ public final class MultiSampleSource implements SampleSource {
       return true;
     }
     boolean sourcesPrepared = true;
-    for (int i = 0; i < sources.length; i++) {
-      sourcesPrepared &= sources[i].prepare(positionUs);
+    for (SampleSource source : sources) {
+      sourcesPrepared &= source.prepare(positionUs);
     }
     if (sourcesPrepared) {
       prepared = true;
       durationUs = C.UNKNOWN_TIME_US;
       int totalTrackGroupCount = 0;
-      for (int i = 0; i < sources.length; i++) {
-        totalTrackGroupCount += sources[i].getTrackGroups().length;
-        if (sources[i].getDurationUs() > durationUs) {
-          durationUs = sources[i].getDurationUs();
+      for (SampleSource source : sources) {
+        totalTrackGroupCount += source.getTrackGroups().length;
+        if (source.getDurationUs() > durationUs) {
+          durationUs = source.getDurationUs();
         }
       }
       TrackGroup[] trackGroups = new TrackGroup[totalTrackGroupCount];
       int trackGroupIndex = 0;
-      for (int i = 0; i < sources.length; i++) {
-        int sourceTrackGroupCount = sources[i].getTrackGroups().length;
+      for (SampleSource source : sources) {
+        int sourceTrackGroupCount = source.getTrackGroups().length;
         for (int j = 0; j < sourceTrackGroupCount; j++) {
-          trackGroups[trackGroupIndex++] = sources[i].getTrackGroups().get(j);
+          trackGroups[trackGroupIndex++] = source.getTrackGroups().get(j);
         }
       }
       this.trackGroups = new TrackGroupArray(trackGroups);
@@ -91,15 +91,15 @@ public final class MultiSampleSource implements SampleSource {
 
   @Override
   public void continueBuffering(long positionUs) {
-    for (int i = 0; i < sources.length; i++) {
-      sources[i].continueBuffering(positionUs);
+    for (SampleSource source : sources) {
+      source.continueBuffering(positionUs);
     }
   }
 
   @Override
   public void seekToUs(long positionUs) {
-    for (int i = 0; i < sources.length; i++) {
-      sources[i].seekToUs(positionUs);
+    for (SampleSource source : sources) {
+      source.seekToUs(positionUs);
     }
   }
 
@@ -111,8 +111,8 @@ public final class MultiSampleSource implements SampleSource {
   @Override
   public long getBufferedPositionUs() {
     long bufferedPositionUs = durationUs != C.UNKNOWN_TIME_US ? durationUs : Long.MAX_VALUE;
-    for (int i = 0; i < sources.length; i++) {
-      long rendererBufferedPositionUs = sources[i].getBufferedPositionUs();
+    for (SampleSource source : sources) {
+      long rendererBufferedPositionUs = source.getBufferedPositionUs();
       if (rendererBufferedPositionUs == C.UNKNOWN_TIME_US) {
         return C.UNKNOWN_TIME_US;
       } else if (rendererBufferedPositionUs == C.END_OF_SOURCE_US) {
@@ -126,8 +126,8 @@ public final class MultiSampleSource implements SampleSource {
 
   @Override
   public void release() {
-    for (int i = 0; i < sources.length; i++) {
-      sources[i].release();
+    for (SampleSource source : sources) {
+      source.release();
     }
     prepared = false;
   }
