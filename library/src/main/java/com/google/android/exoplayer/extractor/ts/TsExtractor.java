@@ -40,6 +40,7 @@ public final class TsExtractor implements Extractor {
   public static final int WORKAROUND_ALLOW_NON_IDR_KEYFRAMES = 1;
   public static final int WORKAROUND_IGNORE_AAC_STREAM = 2;
   public static final int WORKAROUND_IGNORE_H264_STREAM = 4;
+  public static final int WORKAROUND_DETECT_ACCESS_UNITS = 8;
 
   private static final String TAG = "TsExtractor";
 
@@ -362,7 +363,8 @@ public final class TsExtractor implements Extractor {
             pesPayloadReader = (workaroundFlags & WORKAROUND_IGNORE_H264_STREAM) != 0 ? null
                 : new H264Reader(output.track(TS_STREAM_TYPE_H264),
                     new SeiReader(output.track(TS_STREAM_TYPE_EIA608)),
-                    (workaroundFlags & WORKAROUND_ALLOW_NON_IDR_KEYFRAMES) != 0);
+                    (workaroundFlags & WORKAROUND_ALLOW_NON_IDR_KEYFRAMES) != 0,
+                    (workaroundFlags & WORKAROUND_DETECT_ACCESS_UNITS) != 0);
             break;
           case TS_STREAM_TYPE_H265:
             pesPayloadReader = new H265Reader(output.track(TS_STREAM_TYPE_H265),
