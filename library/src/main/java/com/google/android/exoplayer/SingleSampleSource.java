@@ -169,7 +169,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   }
 
   @Override
-  public void disable() {
+  public void disable(TrackStream trackStream) {
     state = STATE_END_OF_STREAM;
   }
 

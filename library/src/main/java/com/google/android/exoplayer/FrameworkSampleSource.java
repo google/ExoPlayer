@@ -217,8 +217,10 @@ public final class FrameworkSampleSource implements SampleSource {
     }
   }
 
-  /* package */ void disable(int track) {
+  @Override
+  public void disable(TrackStream trackStream) {
     Assertions.checkState(prepared);
+    int track = ((TrackStreamImpl) trackStream).track;
     Assertions.checkState(trackStates[track] != TRACK_STATE_DISABLED);
     extractor.unselectTrack(track);
     trackStates[track] = TRACK_STATE_DISABLED;
@@ -370,11 +372,6 @@ public final class FrameworkSampleSource implements SampleSource {
     @Override
     public int readData(FormatHolder formatHolder, SampleHolder sampleHolder) {
       return FrameworkSampleSource.this.readData(track, formatHolder, sampleHolder);
-    }
-
-    @Override
-    public void disable() {
-      FrameworkSampleSource.this.disable(track);
     }
 
   }

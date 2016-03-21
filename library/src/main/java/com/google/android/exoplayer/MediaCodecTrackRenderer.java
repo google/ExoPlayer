@@ -410,7 +410,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   }
 
   @Override
-  protected void onDisabled() throws ExoPlaybackException {
+  protected void onDisabled() {
     format = null;
     drmInitData = null;
     try {

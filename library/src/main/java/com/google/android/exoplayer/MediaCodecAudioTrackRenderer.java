@@ -309,7 +309,7 @@ public class MediaCodecAudioTrackRenderer extends MediaCodecTrackRenderer implem
   }
 
   @Override
-  protected void onDisabled() throws ExoPlaybackException {
+  protected void onDisabled() {
     audioSessionId = AudioTrack.SESSION_ID_NOT_SET;
     try {
       audioTrack.release();

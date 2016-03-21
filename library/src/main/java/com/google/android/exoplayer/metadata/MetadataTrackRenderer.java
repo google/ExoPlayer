@@ -122,7 +122,7 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
   }
 
   @Override
-  protected void onDisabled() throws ExoPlaybackException {
+  protected void onDisabled() {
     pendingMetadata = null;
     super.onDisabled();
   }

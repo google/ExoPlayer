@@ -107,6 +107,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
 
   private int index;
   private int state;
+  private TrackStream stream;
 
   /**
    * Sets the index of this renderer within the player.
@@ -194,6 +195,7 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
       boolean joining) throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     state = STATE_ENABLED;
+    stream = trackStream;
     onEnabled(formats, trackStream, positionUs, joining);
   }
 
@@ -260,23 +262,22 @@ public abstract class TrackRenderer implements ExoPlayerComponent {
 
   /**
    * Disable the renderer.
-   *
-   * @throws ExoPlaybackException If an error occurs.
    */
-  /* package */ final void disable() throws ExoPlaybackException {
+  /* package */ final TrackStream disable() {
     Assertions.checkState(state == STATE_ENABLED);
     state = STATE_DISABLED;
     onDisabled();
+    TrackStream trackStream = stream;
+    stream = null;
+    return trackStream;
   }
 
   /**
    * Called when the renderer is disabled.
    * <p>
    * The default implementation is a no-op.
-   *
-   * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onDisabled() throws ExoPlaybackException {
+  protected void onDisabled() {
     // Do nothing.
   }
 

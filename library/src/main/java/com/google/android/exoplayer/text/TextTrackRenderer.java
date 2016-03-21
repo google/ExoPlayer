@@ -192,7 +192,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
   }
 
   @Override
-  protected void onDisabled() throws ExoPlaybackException {
+  protected void onDisabled() {
     if (subtitle != null) {
       subtitle.release();
       subtitle = null;

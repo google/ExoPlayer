@@ -99,6 +99,13 @@ public interface SampleSource {
   TrackStream enable(TrackSelection selection, long positionUs);
 
   /**
+   * Disables a {@link TrackStream} previously obtained from {@link #enable(TrackSelection, long)}.
+   *
+   * @param trackStream The {@link TrackStream} to disable.
+   */
+  void disable(TrackStream trackStream);
+
+  /**
    * Releases the source.
    * <p>
    * This method should be called when the source is no longer required.

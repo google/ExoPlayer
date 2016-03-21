@@ -195,7 +195,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   }
 
   @Override
-  public void disable() {
+  public void disable(TrackStream trackStream) {
     Assertions.checkState(state == STATE_ENABLED);
     Assertions.checkState(--enabledTrackCount == 0);
     state = STATE_PREPARED;

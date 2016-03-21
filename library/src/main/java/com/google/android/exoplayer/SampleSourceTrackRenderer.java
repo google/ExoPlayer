@@ -55,8 +55,7 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
   }
 
   @Override
-  protected void onDisabled() throws ExoPlaybackException {
-    trackStream.disable();
+  protected void onDisabled() {
     trackStream = null;
   }
 

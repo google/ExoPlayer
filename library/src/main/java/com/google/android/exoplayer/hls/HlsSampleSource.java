@@ -227,8 +227,10 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     return new TrackStreamImpl(group);
   }
 
-  /* package */ void disable(int group) {
+  @Override
+  public void disable(TrackStream trackStream) {
     Assertions.checkState(prepared);
+    int group = ((TrackStreamImpl) trackStream).group;
     setTrackGroupEnabledState(group, false);
     if (enabledTrackCount == 0) {
       chunkSource.reset();
@@ -835,11 +837,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     @Override
     public int readData(FormatHolder formatHolder, SampleHolder sampleHolder) {
       return HlsSampleSource.this.readData(group, formatHolder, sampleHolder);
-    }
-
-    @Override
-    public void disable() {
-      HlsSampleSource.this.disable(group);
     }
 
   }

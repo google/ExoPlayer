@@ -83,9 +83,4 @@ public interface TrackStream {
    */
   int readData(FormatHolder formatHolder, SampleHolder sampleHolder);
 
-  /**
-   * Disables the track.
-   */
-  void disable();
-
 }

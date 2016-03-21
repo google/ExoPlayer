@@ -613,7 +613,8 @@ import java.util.concurrent.atomic.AtomicInteger;
   private void ensureDisabled(TrackRenderer renderer) throws ExoPlaybackException {
     ensureStopped(renderer);
     if (renderer.getState() == TrackRenderer.STATE_ENABLED) {
-      renderer.disable();
+      TrackStream trackStream = renderer.disable();
+      source.disable(trackStream);
       if (renderer == rendererMediaClockSource) {
         rendererMediaClock = null;
         rendererMediaClockSource = null;

@@ -382,8 +382,10 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     return new TrackStreamImpl(track);
   }
 
-  /* package */ void disable(int track) {
+  @Override
+  public void disable(TrackStream trackStream) {
     Assertions.checkState(prepared);
+    int track = ((TrackStreamImpl) trackStream).track;
     Assertions.checkState(trackEnabledStates[track]);
     enabledTrackCount--;
     trackEnabledStates[track] = false;
@@ -746,11 +748,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     @Override
     public int readData(FormatHolder formatHolder, SampleHolder sampleHolder) {
       return ExtractorSampleSource.this.readData(track, formatHolder, sampleHolder);
-    }
-
-    @Override
-    public void disable() {
-      ExtractorSampleSource.this.disable(track);
     }
 
   }

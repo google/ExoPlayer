@@ -18,13 +18,15 @@ package com.google.android.exoplayer;
 import android.util.Pair;
 
 import java.io.IOException;
+import java.util.IdentityHashMap;
 
 /**
  * Combines multiple {@link SampleSource} instances.
  */
-public class MultiSampleSource implements SampleSource {
+public final class MultiSampleSource implements SampleSource {
 
   private final SampleSource[] sources;
+  private final IdentityHashMap<TrackStream, Integer> trackStreamSourceIndices;
 
   private boolean prepared;
   private long durationUs;
@@ -32,6 +34,7 @@ public class MultiSampleSource implements SampleSource {
 
   public MultiSampleSource(SampleSource... sources) {
     this.sources = sources;
+    trackStreamSourceIndices = new IdentityHashMap<>();
   }
 
   @Override
@@ -74,8 +77,16 @@ public class MultiSampleSource implements SampleSource {
   @Override
   public TrackStream enable(TrackSelection selection, long positionUs) {
     Pair<Integer, Integer> sourceAndGroup = getSourceAndTrackGroupIndices(selection.group);
-    return sources[sourceAndGroup.first].enable(
+    TrackStream trackStream = sources[sourceAndGroup.first].enable(
         new TrackSelection(sourceAndGroup.second, selection.getTracks()), positionUs);
+    trackStreamSourceIndices.put(trackStream, sourceAndGroup.first);
+    return trackStream;
+  }
+
+  @Override
+  public void disable(TrackStream trackStream) {
+    int sourceIndex = trackStreamSourceIndices.remove(trackStream);
+    sources[sourceIndex].disable(trackStream);
   }
 
   @Override

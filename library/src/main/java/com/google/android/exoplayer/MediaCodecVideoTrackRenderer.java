@@ -326,7 +326,7 @@ public class MediaCodecVideoTrackRenderer extends MediaCodecTrackRenderer {
   }
 
   @Override
-  protected void onDisabled() throws ExoPlaybackException {
+  protected void onDisabled() {
     currentWidth = -1;
     currentHeight = -1;
     currentPixelWidthHeightRatio = -1;
