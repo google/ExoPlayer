@@ -18,6 +18,7 @@ package com.google.android.exoplayer.text.ttml;
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.ParserException;
 import com.google.android.exoplayer.text.SubtitleParser;
+import com.google.android.exoplayer.util.ColorParser;
 import com.google.android.exoplayer.util.ParserUtil;
 import com.google.android.exoplayer.util.Util;
 
@@ -190,7 +191,7 @@ public final class TtmlParser extends SubtitleParser {
         case TtmlNode.ATTR_TTS_BACKGROUND_COLOR:
           style = createIfNull(style);
           try {
-            style.setBackgroundColor(TtmlColorParser.parseColor(attributeValue));
+            style.setBackgroundColor(ColorParser.parseTtmlColor(attributeValue));
           } catch (IllegalArgumentException e) {
             Log.w(TAG, "failed parsing background value: '" + attributeValue + "'");
           }
@@ -198,7 +199,7 @@ public final class TtmlParser extends SubtitleParser {
         case TtmlNode.ATTR_TTS_COLOR:
           style = createIfNull(style);
           try {
-            style.setColor(TtmlColorParser.parseColor(attributeValue));
+            style.setColor(ColorParser.parseTtmlColor(attributeValue));
           } catch (IllegalArgumentException e) {
             Log.w(TAG, "failed parsing color value: '" + attributeValue + "'");
           }
