@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer.util;
 
-import android.util.Log;
 import android.util.Pair;
 
 import java.util.ArrayList;
@@ -25,23 +24,6 @@ import java.util.List;
  * Provides static utility methods for manipulating various types of codec specific data.
  */
 public final class CodecSpecificDataUtil {
-
-  /**
-   * Holds data parsed from a sequence parameter set NAL unit.
-   */
-  public static final class SpsData {
-
-    public final int width;
-    public final int height;
-    public final float pixelWidthAspectRatio;
-
-    public SpsData(int width, int height, float pixelWidthAspectRatio) {
-      this.width = width;
-      this.height = height;
-      this.pixelWidthAspectRatio = pixelWidthAspectRatio;
-    }
-
-  }
 
   private static final byte[] NAL_START_CODE = new byte[] {0, 0, 0, 1};
 
@@ -93,8 +75,6 @@ public final class CodecSpecificDataUtil {
   private static final int AUDIO_OBJECT_TYPE_ER_BSAC = 22;
   // Parametric Stereo.
   private static final int AUDIO_OBJECT_TYPE_PS = 29;
-
-  private static final String TAG = "CodecSpecificDataUtil";
 
   private CodecSpecificDataUtil() {}
 
@@ -265,123 +245,6 @@ public final class CodecSpecificDataUtil {
       }
     }
     return true;
-  }
-
-  /**
-   * Parses an SPS NAL unit.
-   *
-   * @param bitArray A {@link ParsableBitArray} containing the SPS data. The position must to set
-   *     to the start of the data (i.e. the first bit of the profile_idc field).
-   * @return A parsed representation of the SPS data.
-   */
-  public static SpsData parseSpsNalUnit(ParsableBitArray bitArray) {
-    int profileIdc = bitArray.readBits(8);
-    bitArray.skipBits(16); // constraint bits (6), reserved (2) and level_idc (8)
-    bitArray.readUnsignedExpGolombCodedInt(); // seq_parameter_set_id
-
-    int chromaFormatIdc = 1; // Default is 4:2:0
-    if (profileIdc == 100 || profileIdc == 110 || profileIdc == 122 || profileIdc == 244
-        || profileIdc == 44 || profileIdc == 83 || profileIdc == 86 || profileIdc == 118
-        || profileIdc == 128 || profileIdc == 138) {
-      chromaFormatIdc = bitArray.readUnsignedExpGolombCodedInt();
-      if (chromaFormatIdc == 3) {
-        bitArray.skipBits(1); // separate_colour_plane_flag
-      }
-      bitArray.readUnsignedExpGolombCodedInt(); // bit_depth_luma_minus8
-      bitArray.readUnsignedExpGolombCodedInt(); // bit_depth_chroma_minus8
-      bitArray.skipBits(1); // qpprime_y_zero_transform_bypass_flag
-      boolean seqScalingMatrixPresentFlag = bitArray.readBit();
-      if (seqScalingMatrixPresentFlag) {
-        int limit = (chromaFormatIdc != 3) ? 8 : 12;
-        for (int i = 0; i < limit; i++) {
-          boolean seqScalingListPresentFlag = bitArray.readBit();
-          if (seqScalingListPresentFlag) {
-            skipScalingList(bitArray, i < 6 ? 16 : 64);
-          }
-        }
-      }
-    }
-
-    bitArray.readUnsignedExpGolombCodedInt(); // log2_max_frame_num_minus4
-    long picOrderCntType = bitArray.readUnsignedExpGolombCodedInt();
-    if (picOrderCntType == 0) {
-      bitArray.readUnsignedExpGolombCodedInt(); // log2_max_pic_order_cnt_lsb_minus4
-    } else if (picOrderCntType == 1) {
-      bitArray.skipBits(1); // delta_pic_order_always_zero_flag
-      bitArray.readSignedExpGolombCodedInt(); // offset_for_non_ref_pic
-      bitArray.readSignedExpGolombCodedInt(); // offset_for_top_to_bottom_field
-      long numRefFramesInPicOrderCntCycle = bitArray.readUnsignedExpGolombCodedInt();
-      for (int i = 0; i < numRefFramesInPicOrderCntCycle; i++) {
-        bitArray.readUnsignedExpGolombCodedInt(); // offset_for_ref_frame[i]
-      }
-    }
-    bitArray.readUnsignedExpGolombCodedInt(); // max_num_ref_frames
-    bitArray.skipBits(1); // gaps_in_frame_num_value_allowed_flag
-
-    int picWidthInMbs = bitArray.readUnsignedExpGolombCodedInt() + 1;
-    int picHeightInMapUnits = bitArray.readUnsignedExpGolombCodedInt() + 1;
-    boolean frameMbsOnlyFlag = bitArray.readBit();
-    int frameHeightInMbs = (2 - (frameMbsOnlyFlag ? 1 : 0)) * picHeightInMapUnits;
-    if (!frameMbsOnlyFlag) {
-      bitArray.skipBits(1); // mb_adaptive_frame_field_flag
-    }
-
-    bitArray.skipBits(1); // direct_8x8_inference_flag
-    int frameWidth = picWidthInMbs * 16;
-    int frameHeight = frameHeightInMbs * 16;
-    boolean frameCroppingFlag = bitArray.readBit();
-    if (frameCroppingFlag) {
-      int frameCropLeftOffset = bitArray.readUnsignedExpGolombCodedInt();
-      int frameCropRightOffset = bitArray.readUnsignedExpGolombCodedInt();
-      int frameCropTopOffset = bitArray.readUnsignedExpGolombCodedInt();
-      int frameCropBottomOffset = bitArray.readUnsignedExpGolombCodedInt();
-      int cropUnitX, cropUnitY;
-      if (chromaFormatIdc == 0) {
-        cropUnitX = 1;
-        cropUnitY = 2 - (frameMbsOnlyFlag ? 1 : 0);
-      } else {
-        int subWidthC = (chromaFormatIdc == 3) ? 1 : 2;
-        int subHeightC = (chromaFormatIdc == 1) ? 2 : 1;
-        cropUnitX = subWidthC;
-        cropUnitY = subHeightC * (2 - (frameMbsOnlyFlag ? 1 : 0));
-      }
-      frameWidth -= (frameCropLeftOffset + frameCropRightOffset) * cropUnitX;
-      frameHeight -= (frameCropTopOffset + frameCropBottomOffset) * cropUnitY;
-    }
-
-    float pixelWidthHeightRatio = 1;
-    boolean vuiParametersPresentFlag = bitArray.readBit();
-    if (vuiParametersPresentFlag) {
-      boolean aspectRatioInfoPresentFlag = bitArray.readBit();
-      if (aspectRatioInfoPresentFlag) {
-        int aspectRatioIdc = bitArray.readBits(8);
-        if (aspectRatioIdc == NalUnitUtil.EXTENDED_SAR) {
-          int sarWidth = bitArray.readBits(16);
-          int sarHeight = bitArray.readBits(16);
-          if (sarWidth != 0 && sarHeight != 0) {
-            pixelWidthHeightRatio = (float) sarWidth / sarHeight;
-          }
-        } else if (aspectRatioIdc < NalUnitUtil.ASPECT_RATIO_IDC_VALUES.length) {
-          pixelWidthHeightRatio = NalUnitUtil.ASPECT_RATIO_IDC_VALUES[aspectRatioIdc];
-        } else {
-          Log.w(TAG, "Unexpected aspect_ratio_idc value: " + aspectRatioIdc);
-        }
-      }
-    }
-
-    return new SpsData(frameWidth, frameHeight, pixelWidthHeightRatio);
-  }
-
-  private static void skipScalingList(ParsableBitArray bitArray, int size) {
-    int lastScale = 8;
-    int nextScale = 8;
-    for (int i = 0; i < size; i++) {
-      if (nextScale != 0) {
-        int deltaScale = bitArray.readSignedExpGolombCodedInt();
-        nextScale = (lastScale + deltaScale + 256) % 256;
-      }
-      lastScale = (nextScale == 0) ? lastScale : nextScale;
-    }
   }
 
 }

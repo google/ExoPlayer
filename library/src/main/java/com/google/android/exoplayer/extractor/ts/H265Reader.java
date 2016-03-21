@@ -64,6 +64,10 @@ import java.util.Collections;
   // Scratch variables to avoid allocations.
   private final ParsableByteArray seiWrapper;
 
+  /**
+   * @param output A {@link TrackOutput} to which H.265 samples should be written.
+   * @param seiReader A reader for EIA-608 samples in SEI NAL units.
+   */
   public H265Reader(TrackOutput output, SeiReader seiReader) {
     super(output);
     this.seiReader = seiReader;
@@ -130,7 +134,7 @@ import java.util.Collections;
         // Indicate the end of the previous NAL unit. If the length to the start of the next unit
         // is negative then we wrote too many bytes to the NAL buffers. Discard the excess bytes
         // when notifying that the unit has ended.
-        nalUnitEnd(absolutePosition, bytesWrittenPastPosition,
+        endNalUnit(absolutePosition, bytesWrittenPastPosition,
             lengthToNalUnit < 0 ? -lengthToNalUnit : 0, pesTimeUs);
         // Indicate the start of the next NAL unit.
         startNalUnit(absolutePosition, bytesWrittenPastPosition, nalUnitType, pesTimeUs);
@@ -168,7 +172,7 @@ import java.util.Collections;
     suffixSei.appendToNalUnit(dataArray, offset, limit);
   }
 
-  private void nalUnitEnd(long position, int offset, int discardPadding, long pesTimeUs) {
+  private void endNalUnit(long position, int offset, int discardPadding, long pesTimeUs) {
     if (hasOutputFormat) {
       sampleReader.endNalUnit(position, offset);
     } else {
@@ -218,10 +222,10 @@ import java.util.Collections;
     bitArray.skipBits(8); // general_level_idc
     int toSkip = 0;
     for (int i = 0; i < maxSubLayersMinus1; i++) {
-      if (bitArray.readBits(1) == 1) { // sub_layer_profile_present_flag[i]
+      if (bitArray.readBit()) { // sub_layer_profile_present_flag[i]
         toSkip += 89;
       }
-      if (bitArray.readBits(1) == 1) { // sub_layer_level_present_flag[i]
+      if (bitArray.readBit()) { // sub_layer_level_present_flag[i]
         toSkip += 8;
       }
     }
@@ -309,7 +313,9 @@ import java.util.Collections;
         Collections.singletonList(csd), MediaFormat.NO_VALUE, pixelWidthHeightRatio);
   }
 
-  /** Skips scaling_list_data(). See H.265/HEVC (2014) 7.3.4. */
+  /**
+   * Skips scaling_list_data(). See H.265/HEVC (2014) 7.3.4.
+   */
   private static void skipScalingList(ParsableBitArray bitArray) {
     for (int sizeId = 0; sizeId < 4; sizeId++) {
       for (int matrixId = 0; matrixId < 6; matrixId += sizeId == 3 ? 3 : 1) {
