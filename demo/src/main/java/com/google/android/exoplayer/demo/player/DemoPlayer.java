@@ -26,6 +26,7 @@ import com.google.android.exoplayer.MediaCodecSelector;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.SampleSource;
+import com.google.android.exoplayer.SingleSampleSource;
 import com.google.android.exoplayer.TimeRange;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioCapabilities;
@@ -33,6 +34,7 @@ import com.google.android.exoplayer.audio.AudioTrack;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.dash.DashChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
+import com.google.android.exoplayer.extractor.ExtractorSampleSource;
 import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer.MetadataRenderer;
@@ -64,6 +66,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class DemoPlayer implements ExoPlayer.Listener, DefaultTrackSelector.EventListener,
     ChunkSampleSource.EventListener, HlsSampleSource.EventListener,
+    ExtractorSampleSource.EventListener, SingleSampleSource.EventListener,
     DefaultBandwidthMeter.EventListener, MediaCodecVideoTrackRenderer.EventListener,
     MediaCodecAudioTrackRenderer.EventListener, StreamingDrmSessionManager.EventListener,
     DashChunkSource.EventListener, TextRenderer, MetadataRenderer<List<Id3Frame>>,

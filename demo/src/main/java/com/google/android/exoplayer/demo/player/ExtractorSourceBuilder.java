@@ -51,7 +51,7 @@ public class ExtractorSourceBuilder implements SourceBuilder {
     DataSource dataSource = new DefaultUriDataSource(context, player.getBandwidthMeter(),
         userAgent);
     return new ExtractorSampleSource(uri, dataSource, allocator,
-        BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE);
+        BUFFER_SEGMENT_COUNT * BUFFER_SEGMENT_SIZE, player.getMainHandler(), player, 0);
   }
 
 }

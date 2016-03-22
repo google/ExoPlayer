@@ -22,6 +22,7 @@ import com.google.android.exoplayer.upstream.Loader.Loadable;
 import com.google.android.exoplayer.util.Assertions;
 
 import android.net.Uri;
+import android.os.Handler;
 import android.os.SystemClock;
 
 import java.io.IOException;
@@ -32,6 +33,21 @@ import java.util.Arrays;
  */
 public final class SingleSampleSource implements SampleSource, TrackStream, Loader.Callback,
     Loadable {
+
+  /**
+   * Interface definition for a callback to be notified of {@link SingleSampleSource} events.
+   */
+  public interface EventListener {
+
+    /**
+     * Invoked when an error occurs loading media data.
+     *
+     * @param sourceId The id of the reporting {@link SampleSource}.
+     * @param e The cause of the failure.
+     */
+    void onLoadError(int sourceId, IOException e);
+
+  }
 
   /**
    * The default minimum number of times to retry loading data prior to failing.
@@ -53,6 +69,9 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   private final long durationUs;
   private final int minLoadableRetryCount;
   private final TrackGroupArray tracks;
+  private final Handler eventHandler;
+  private final EventListener eventListener;
+  private final int eventSourceId;
 
   private int state;
   private byte[] sampleData;
@@ -71,11 +90,20 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
 
   public SingleSampleSource(Uri uri, DataSource dataSource, Format format, long durationUs,
       int minLoadableRetryCount) {
+    this(uri, dataSource, format, durationUs, minLoadableRetryCount, null, null, 0);
+  }
+
+  public SingleSampleSource(Uri uri, DataSource dataSource, Format format, long durationUs,
+      int minLoadableRetryCount, Handler eventHandler, EventListener eventListener,
+      int eventSourceId) {
     this.uri = uri;
     this.dataSource = dataSource;
     this.format = format;
     this.durationUs = durationUs;
     this.minLoadableRetryCount = minLoadableRetryCount;
+    this.eventHandler = eventHandler;
+    this.eventListener = eventListener;
+    this.eventSourceId = eventSourceId;
     tracks = new TrackGroupArray(new TrackGroup(format));
     sampleData = new byte[INITIAL_SAMPLE_SIZE];
   }
@@ -224,6 +252,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
     currentLoadableException = e;
     currentLoadableExceptionCount++;
     currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
+    notifyLoadError(e);
     maybeStartLoading();
   }
 
@@ -257,6 +286,17 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
       }
     } finally {
       dataSource.close();
+    }
+  }
+
+  private void notifyLoadError(final IOException e) {
+    if (eventHandler != null && eventListener != null) {
+      eventHandler.post(new Runnable()  {
+        @Override
+        public void run() {
+          eventListener.onLoadError(eventSourceId, e);
+        }
+      });
     }
   }
 
