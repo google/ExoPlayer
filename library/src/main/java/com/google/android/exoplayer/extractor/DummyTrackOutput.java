@@ -15,9 +15,11 @@
  */
 package com.google.android.exoplayer.extractor;
 
+import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
+import java.io.EOFException;
 import java.io.IOException;
 
 /**
@@ -33,7 +35,14 @@ public final class DummyTrackOutput implements TrackOutput {
   @Override
   public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
-    return input.skip(length);
+    int bytesSkipped = input.skip(length);
+    if (bytesSkipped == C.RESULT_END_OF_INPUT) {
+      if (allowEndOfInput) {
+        return C.RESULT_END_OF_INPUT;
+      }
+      throw new EOFException();
+    }
+    return bytesSkipped;
   }
 
   @Override

@@ -219,13 +219,10 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   private Loader loader;
   private ExtractingLoadable loadable;
   private IOException currentLoadableException;
-  // TODO: Set this back to 0 in the correct place (some place indicative of making progress).
   private int currentLoadableExceptionCount;
   private long currentLoadableExceptionTimestamp;
+  private boolean currentLoadableExtractedSamples;
   private boolean loadingFinished;
-
-  private int extractedSampleCount;
-  private int extractedSampleCountAtStartOfLoad;
 
   /**
    * @param uri The {@link Uri} of the media stream.
@@ -550,7 +547,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
   @Override
   public void onLoadError(Loadable ignored, IOException e) {
     currentLoadableException = e;
-    currentLoadableExceptionCount = extractedSampleCount > extractedSampleCountAtStartOfLoad ? 1
+    currentLoadableExceptionCount = currentLoadableExtractedSamples ? 1
         : currentLoadableExceptionCount + 1;
     currentLoadableExceptionTimestamp = SystemClock.elapsedRealtime();
     notifyLoadError(e);
@@ -635,7 +632,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
           // We're playing a seekable on-demand stream. Resume the current loadable, which will
           // request data starting from the point it left off.
         }
-        extractedSampleCountAtStartOfLoad = extractedSampleCount;
+        currentLoadableExtractedSamples = false;
         loader.startLoading(loadable, this);
       }
       return;
@@ -659,7 +656,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       loadable = createLoadableFromPositionUs(pendingResetPositionUs);
       pendingResetPositionUs = NO_RESET_PENDING;
     }
-    extractedSampleCountAtStartOfLoad = extractedSampleCount;
+    currentLoadableExtractedSamples = false;
     loader.startLoading(loadable, this);
   }
 
@@ -765,7 +762,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     @Override
     public void sampleMetadata(long timeUs, int flags, int size, int offset, byte[] encryptionKey) {
       super.sampleMetadata(timeUs, flags, size, offset, encryptionKey);
-      extractedSampleCount++;
+      currentLoadableExtractedSamples = true;
     }
 
   }
