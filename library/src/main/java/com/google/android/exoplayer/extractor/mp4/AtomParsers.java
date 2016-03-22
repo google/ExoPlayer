@@ -669,8 +669,7 @@ import java.util.List;
       ParsableBitArray spsDataBitArray = new ParsableBitArray(initializationData.get(0));
       // Skip the NAL header consisting of the nalUnitLengthField and the type (1 byte).
       spsDataBitArray.setPosition(8 * (nalUnitLengthFieldLength + 1));
-      pixelWidthAspectRatio = CodecSpecificDataUtil.parseSpsNalUnit(spsDataBitArray)
-          .pixelWidthAspectRatio;
+      pixelWidthAspectRatio = NalUnitUtil.parseSpsNalUnit(spsDataBitArray).pixelWidthAspectRatio;
     }
 
     return new AvcCData(initializationData, nalUnitLengthFieldLength, pixelWidthAspectRatio);
