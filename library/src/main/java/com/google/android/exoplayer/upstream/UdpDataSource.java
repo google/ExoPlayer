@@ -82,9 +82,8 @@ public final class UdpDataSource implements UriDataSource {
   @Override
   public long open(DataSpec dataSpec) throws UdpDataSourceException {
     this.dataSpec = dataSpec;
-    String uri = dataSpec.uri.toString();
-    String host = uri.substring(0, uri.indexOf(':'));
-    int port = Integer.parseInt(uri.substring(uri.indexOf(':') + 1));
+    String host = dataSpec.uri.getHost();
+    int port = dataSpec.uri.getPort();
 
     try {
       address = InetAddress.getByName(host);

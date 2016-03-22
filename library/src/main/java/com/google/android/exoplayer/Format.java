@@ -226,6 +226,15 @@ public final class Format {
         subsampleOffsetUs, null, false);
   }
 
+  // Image.
+
+  public static Format createImageSampleFormat(String id, String sampleMimeType, int bitrate,
+      List<byte[]> initializationData, String language) {
+    return new Format(id, null, sampleMimeType, bitrate, NO_VALUE, NO_VALUE, NO_VALUE,
+        NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, language,
+        OFFSET_SAMPLE_RELATIVE, initializationData, false);
+  }
+
   // Generic.
 
   public static Format createContainerFormat(String id, String containerMimeType,

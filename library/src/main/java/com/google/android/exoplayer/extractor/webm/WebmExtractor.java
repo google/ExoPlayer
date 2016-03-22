@@ -82,6 +82,8 @@ public final class WebmExtractor implements Extractor {
   private static final String CODEC_ID_DTS_LOSSLESS = "A_DTS/LOSSLESS";
   private static final String CODEC_ID_FLAC = "A_FLAC";
   private static final String CODEC_ID_SUBRIP = "S_TEXT/UTF8";
+  private static final String CODEC_ID_VOBSUB = "S_VOBSUB";
+  private static final String CODEC_ID_PGS = "S_HDMV/PGS";
 
   private static final int VORBIS_MAX_INPUT_SIZE = 8192;
   private static final int OPUS_MAX_INPUT_SIZE = 5760;
@@ -1068,7 +1070,9 @@ public final class WebmExtractor implements Extractor {
         || CODEC_ID_DTS_EXPRESS.equals(codecId)
         || CODEC_ID_DTS_LOSSLESS.equals(codecId)
         || CODEC_ID_FLAC.equals(codecId)
-        || CODEC_ID_SUBRIP.equals(codecId);
+        || CODEC_ID_SUBRIP.equals(codecId)
+        || CODEC_ID_VOBSUB.equals(codecId)
+        || CODEC_ID_PGS.equals(codecId);
   }
 
   /**
@@ -1253,6 +1257,13 @@ public final class WebmExtractor implements Extractor {
         case CODEC_ID_SUBRIP:
           mimeType = MimeTypes.APPLICATION_SUBRIP;
           break;
+        case CODEC_ID_VOBSUB:
+          mimeType = MimeTypes.APPLICATION_VOBSUB;
+          initializationData = Collections.singletonList(codecPrivate);
+          break;
+        case CODEC_ID_PGS:
+          mimeType = MimeTypes.APPLICATION_PGS;
+          break;
         default:
           throw new ParserException("Unrecognized codec identifier.");
       }
@@ -1278,6 +1289,10 @@ public final class WebmExtractor implements Extractor {
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
         format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, Format.NO_VALUE,
             language);
+      } else if (MimeTypes.APPLICATION_VOBSUB.equals(mimeType)
+          || MimeTypes.APPLICATION_PGS.equals(mimeType)) {
+        format = Format.createImageSampleFormat(Integer.toString(trackId), mimeType,
+            Format.NO_VALUE, initializationData, language);
       } else {
         throw new ParserException("Unexpected MIME type.");
       }
