@@ -151,14 +151,6 @@ import java.util.List;
 
   @Override
   public OpusDecoderException decode(InputBuffer inputBuffer, OpusOutputBuffer outputBuffer) {
-    outputBuffer.reset();
-    if (inputBuffer.getFlag(Buffer.FLAG_END_OF_STREAM)) {
-      outputBuffer.setFlag(Buffer.FLAG_END_OF_STREAM);
-      return null;
-    }
-    if (inputBuffer.getFlag(Buffer.FLAG_DECODE_ONLY)) {
-      outputBuffer.setFlag(Buffer.FLAG_DECODE_ONLY);
-    }
     if (inputBuffer.getFlag(Buffer.FLAG_RESET)) {
       opusReset(nativeDecoderContext);
       // When seeking to 0, skip number of samples as specified in opus header. When seeking to
