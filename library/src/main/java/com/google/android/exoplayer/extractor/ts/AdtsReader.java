@@ -23,6 +23,7 @@ import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
+import android.util.Log;
 import android.util.Pair;
 
 import java.util.Arrays;
@@ -32,6 +33,8 @@ import java.util.Collections;
  * Parses a continuous ADTS byte stream and extracts individual frames.
  */
 /* package */ final class AdtsReader extends ElementaryStreamReader {
+
+  private static final String TAG = "AdtsReader";
 
   private static final int STATE_FINDING_SAMPLE = 0;
   private static final int STATE_READING_ID3_HEADER = 1;
@@ -251,6 +254,16 @@ import java.util.Collections;
 
     if (!hasOutputFormat) {
       int audioObjectType = adtsScratch.readBits(2) + 1;
+      if (audioObjectType == 1) {
+        // The stream indicates AAC Main but it's more likely that the stream contains HE-AAC.
+        // HE-AAC cannot be represented correctly in the ADTS header because it has an
+        // audioObjectType value of 5 whereas an ADTS header can only represent values up to 4.
+        // Since most Android devices don't support AAC Main anyway, we pretend that we're dealing
+        // with AAC LC and hope for the best. In practice this often works.
+        Log.w(TAG, "Detected AAC Main audio, but assuming AAC LC.");
+        audioObjectType = 2;
+      }
+
       int sampleRateIndex = adtsScratch.readBits(4);
       adtsScratch.skipBits(1);
       int channelConfig = adtsScratch.readBits(3);
