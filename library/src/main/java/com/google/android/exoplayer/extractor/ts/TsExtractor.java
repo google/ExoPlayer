@@ -600,7 +600,7 @@ public final class TsExtractor implements Extractor {
 
     private void parseHeaderExtension() {
       pesScratch.setPosition(0);
-      timeUs = 0;
+      timeUs = C.UNKNOWN_TIME_US;
       if (ptsFlag) {
         pesScratch.skipBits(4); // '0010' or '0011'
         long pts = (long) pesScratch.readBits(3) << 30;
