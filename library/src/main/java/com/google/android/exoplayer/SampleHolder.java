@@ -50,8 +50,7 @@ public final class SampleHolder {
   public int size;
 
   /**
-   * Flags that accompany the sample. A combination of {@link C#SAMPLE_FLAG_SYNC},
-   * {@link C#SAMPLE_FLAG_ENCRYPTED} and {@link C#SAMPLE_FLAG_DECODE_ONLY}.
+   * Flags that accompany the sample. A combination of the {@code C.SAMPLE_FLAG_*} constants.
    */
   public int flags;
 

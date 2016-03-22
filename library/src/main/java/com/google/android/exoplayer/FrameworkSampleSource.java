@@ -56,8 +56,6 @@ import java.util.UUID;
 @TargetApi(16)
 public final class FrameworkSampleSource implements SampleSource {
 
-  private static final int ALLOWED_FLAGS_MASK = C.SAMPLE_FLAG_SYNC | C.SAMPLE_FLAG_ENCRYPTED;
-
   private static final int TRACK_STATE_DISABLED = 0;
   private static final int TRACK_STATE_ENABLED = 1;
   private static final int TRACK_STATE_FORMAT_SENT = 2;
@@ -196,6 +194,7 @@ public final class FrameworkSampleSource implements SampleSource {
       return TrackStream.FORMAT_READ;
     }
     int extractorTrackIndex = extractor.getSampleTrackIndex();
+    sampleHolder.flags = 0;
     if (extractorTrackIndex == track) {
       if (sampleHolder.data != null) {
         int offset = sampleHolder.data.position();
@@ -205,15 +204,22 @@ public final class FrameworkSampleSource implements SampleSource {
         sampleHolder.size = 0;
       }
       sampleHolder.timeUs = extractor.getSampleTime();
-      sampleHolder.flags = extractor.getSampleFlags() & ALLOWED_FLAGS_MASK;
-      if (sampleHolder.isEncrypted()) {
+      int flags = extractor.getSampleFlags();
+      if ((flags & MediaExtractor.SAMPLE_FLAG_SYNC) != 0) {
+        sampleHolder.flags |= C.SAMPLE_FLAG_SYNC;
+      }
+      if ((flags & MediaExtractor.SAMPLE_FLAG_ENCRYPTED) != 0) {
+        sampleHolder.flags |= C.SAMPLE_FLAG_ENCRYPTED;
         sampleHolder.cryptoInfo.setFromExtractorV16(extractor);
       }
       pendingSeekPositionUs = C.UNKNOWN_TIME_US;
       extractor.advance();
       return TrackStream.SAMPLE_READ;
+    } else if (extractorTrackIndex < 0) {
+      sampleHolder.flags |= C.SAMPLE_FLAG_END_OF_STREAM;
+      return TrackStream.END_OF_STREAM;
     } else {
-      return extractorTrackIndex < 0 ? TrackStream.END_OF_STREAM : TrackStream.NOTHING_READ;
+      return TrackStream.NOTHING_READ;
     }
   }
 

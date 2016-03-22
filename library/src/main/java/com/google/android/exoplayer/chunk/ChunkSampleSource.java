@@ -273,6 +273,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
     if (!haveSamples) {
       if (loadingFinished) {
+        sampleHolder.flags = C.SAMPLE_FLAG_END_OF_STREAM;
         return END_OF_STREAM;
       }
       return NOTHING_READ;

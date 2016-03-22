@@ -19,7 +19,6 @@ import com.google.android.exoplayer.util.Util;
 
 import android.media.AudioFormat;
 import android.media.MediaCodec;
-import android.media.MediaExtractor;
 
 /**
  * Defines constants that are generally useful throughout the library.
@@ -89,21 +88,26 @@ public final class C {
       ? AudioFormat.CHANNEL_OUT_7POINT1 : AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
 
   /**
-   * @see MediaExtractor#SAMPLE_FLAG_SYNC
+   * Indicates that a sample is a synchronization sample.
    */
   @SuppressWarnings("InlinedApi")
-  public static final int SAMPLE_FLAG_SYNC = MediaExtractor.SAMPLE_FLAG_SYNC;
+  public static final int SAMPLE_FLAG_SYNC = MediaCodec.BUFFER_FLAG_KEY_FRAME;
 
   /**
-   * @see MediaExtractor#SAMPLE_FLAG_ENCRYPTED
+   * Flag for empty buffers that signal that the end of the stream was reached.
    */
   @SuppressWarnings("InlinedApi")
-  public static final int SAMPLE_FLAG_ENCRYPTED = MediaExtractor.SAMPLE_FLAG_ENCRYPTED;
+  public static final int SAMPLE_FLAG_END_OF_STREAM = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
+
+  /**
+   * Indicates that a sample is (at least partially) encrypted.
+   */
+  public static final int SAMPLE_FLAG_ENCRYPTED = 0x40000000;
 
   /**
    * Indicates that a sample should be decoded but not rendered.
    */
-  public static final int SAMPLE_FLAG_DECODE_ONLY = 0x8000000;
+  public static final int SAMPLE_FLAG_DECODE_ONLY = 0x80000000;
 
   /**
    * A return value for methods where the end of an input was encountered.

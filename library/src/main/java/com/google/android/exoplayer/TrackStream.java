@@ -77,7 +77,9 @@ public interface TrackStream {
    * @param formatHolder A {@link FormatHolder} to populate in the case of a new format.
    * @param sampleHolder A {@link SampleHolder} to populate in the case of a new sample. If the
    *     caller requires the sample data then it must ensure that {@link SampleHolder#data}
-   *     references a valid output buffer.
+   *     references a valid output buffer. If the end of the stream has been reached,
+   *     {@link #END_OF_STREAM} will be returned and {@link C#SAMPLE_FLAG_END_OF_STREAM} will be set
+   *     on the sample holder.
    * @return The result, which can be {@link #END_OF_STREAM}, {@link #NOTHING_READ},
    *     {@link #FORMAT_READ} or {@link #SAMPLE_READ}.
    */

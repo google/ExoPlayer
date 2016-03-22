@@ -162,6 +162,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   @Override
   public int readData(FormatHolder formatHolder, SampleHolder sampleHolder) {
     if (state == STATE_END_OF_STREAM) {
+      sampleHolder.flags = C.SAMPLE_FLAG_END_OF_STREAM;
       return END_OF_STREAM;
     } else if (state == STATE_SEND_FORMAT) {
       formatHolder.format = format;

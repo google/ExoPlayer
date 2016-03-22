@@ -460,6 +460,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     }
 
     if (loadingFinished) {
+      sampleHolder.flags = C.SAMPLE_FLAG_END_OF_STREAM;
       return TrackStream.END_OF_STREAM;
     }
 
