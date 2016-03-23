@@ -72,7 +72,6 @@ public final class OggVorbisExtractor implements Extractor, SeekMap {
     } catch (ParserException e) {
       // does not happen
     } finally {
-      input.resetPeekPosition();
       scratch.reset();
     }
     return false;
