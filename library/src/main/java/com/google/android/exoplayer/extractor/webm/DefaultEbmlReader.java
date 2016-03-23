@@ -147,15 +147,14 @@ import java.util.Stack;
    */
   private long maybeResyncToNextLevel1Element(ExtractorInput input) throws EOFException,
       IOException, InterruptedException {
+    input.resetPeekPosition();
     while (true) {
-      input.resetPeekPosition();
       input.peekFully(scratch, 0, MAX_ID_BYTES);
       int varintLength = VarintReader.parseUnsignedVarintLength(scratch[0]);
       if (varintLength != -1 && varintLength <= MAX_ID_BYTES) {
         int potentialId = (int) VarintReader.assembleVarint(scratch, varintLength, false);
         if (output.isLevel1Element(potentialId)) {
           input.skipFully(varintLength);
-          input.resetPeekPosition();
           return potentialId;
         }
       }
