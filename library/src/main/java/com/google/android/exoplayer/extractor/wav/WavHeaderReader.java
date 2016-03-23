@@ -72,6 +72,7 @@ import java.io.IOException;
       throw new ParserException(
           "Second chunk in RIFF WAV should be format; got: " + formatChunkHeader.id);
     }
+    Assertions.checkState(formatChunkHeader.size >= 16);
 
     input.peekFully(scratch.data, 0, 16);
     scratch.setPosition(0);
@@ -95,17 +96,13 @@ import java.io.IOException;
       return null;
     }
 
-    if (type == TYPE_PCM) {
-      Assertions.checkState(formatChunkHeader.size == 16);
-      // No more data to read.
-    } else if (type == TYPE_WAVE_FORMAT_EXTENSIBLE) {
-      Assertions.checkState(formatChunkHeader.size == 40);
-      // Skip extensionSize, validBitsPerSample, channelMask, subFormatGuid.
-      input.advancePeekPosition(2 + 2 + 4 + 16);
-    } else {
+    if (type != TYPE_PCM && type != TYPE_WAVE_FORMAT_EXTENSIBLE) {
       Log.e(TAG, "Unsupported WAV format type: " + type);
       return null;
     }
+
+    // If present, skip extensionSize, validBitsPerSample, channelMask, subFormatGuid, ...
+    input.advancePeekPosition((int) formatChunkHeader.size - 16);
 
     return new WavHeader(
         numChannels, sampleRateHz, averageBytesPerSecond, blockAlignment, bitsPerSample);
