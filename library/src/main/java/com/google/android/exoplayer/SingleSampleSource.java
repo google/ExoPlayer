@@ -162,7 +162,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
   @Override
   public int readData(FormatHolder formatHolder, SampleHolder sampleHolder) {
     if (state == STATE_END_OF_STREAM) {
-      sampleHolder.flags = C.SAMPLE_FLAG_END_OF_STREAM;
+      sampleHolder.addFlag(C.SAMPLE_FLAG_END_OF_STREAM);
       return END_OF_STREAM;
     } else if (state == STATE_SEND_FORMAT) {
       formatHolder.format = format;
@@ -176,7 +176,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
     } else {
       sampleHolder.timeUs = 0;
       sampleHolder.size = sampleSize;
-      sampleHolder.flags = C.SAMPLE_FLAG_SYNC;
+      sampleHolder.addFlag(C.SAMPLE_FLAG_SYNC);
       sampleHolder.ensureSpaceForWrite(sampleHolder.size);
       sampleHolder.data.put(sampleData, 0, sampleSize);
       state = STATE_END_OF_STREAM;

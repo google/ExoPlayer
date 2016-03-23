@@ -331,13 +331,14 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     }
 
     if (extractor.getSample(group, sampleHolder)) {
-      boolean decodeOnly = sampleHolder.timeUs < lastSeekPositionUs;
-      sampleHolder.flags |= decodeOnly ? C.SAMPLE_FLAG_DECODE_ONLY : 0;
+      if (sampleHolder.timeUs < lastSeekPositionUs) {
+        sampleHolder.addFlag(C.SAMPLE_FLAG_DECODE_ONLY);
+      }
       return TrackStream.SAMPLE_READ;
     }
 
     if (loadingFinished) {
-      sampleHolder.flags = C.SAMPLE_FLAG_END_OF_STREAM;
+      sampleHolder.addFlag(C.SAMPLE_FLAG_END_OF_STREAM);
       return TrackStream.END_OF_STREAM;
     }
 

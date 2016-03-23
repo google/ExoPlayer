@@ -339,8 +339,8 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   }
 
   private void clearPendingSample() {
+    sampleHolder.clear();
     sampleHolder.timeUs = C.UNKNOWN_TIME_US;
-    sampleHolder.clearData();
   }
 
   private boolean isSamplePending() {

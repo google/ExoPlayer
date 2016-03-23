@@ -16,6 +16,7 @@
 package com.google.android.exoplayer.util.extensions;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.Assertions;
 
 import java.util.LinkedList;
@@ -23,7 +24,7 @@ import java.util.LinkedList;
 /**
  * Base class for {@link Decoder}s that use their own decode thread.
  */
-public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffer,
+public abstract class SimpleDecoder<I extends SampleHolder, O extends OutputBuffer,
     E extends Exception> extends Thread implements Decoder<I, O, E> {
 
   /**
@@ -85,7 +86,7 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
   protected final void setInitialInputBufferSize(int size) {
     Assertions.checkState(availableInputBufferCount == availableInputBuffers.length);
     for (I inputBuffer : availableInputBuffers) {
-      inputBuffer.sampleHolder.ensureSpaceForWrite(size);
+      inputBuffer.ensureSpaceForWrite(size);
     }
   }
 
@@ -94,13 +95,9 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
     synchronized (lock) {
       maybeThrowException();
       Assertions.checkState(dequeuedInputBuffer == null);
-      if (availableInputBufferCount == 0) {
-        return null;
-      }
-      I inputBuffer = availableInputBuffers[--availableInputBufferCount];
-      inputBuffer.reset();
-      dequeuedInputBuffer = inputBuffer;
-      return inputBuffer;
+      dequeuedInputBuffer = availableInputBufferCount == 0 ? null
+          : availableInputBuffers[--availableInputBufferCount];
+      return dequeuedInputBuffer;
     }
   }
 
@@ -133,7 +130,7 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
    */
   protected void releaseOutputBuffer(O outputBuffer) {
     synchronized (lock) {
-      availableOutputBuffers[availableOutputBufferCount++] = outputBuffer;
+      releaseOutputBufferInternal(outputBuffer);
       maybeNotifyDecodeLoop();
     }
   }
@@ -143,14 +140,14 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
     synchronized (lock) {
       flushDecodedOutputBuffer = true;
       if (dequeuedInputBuffer != null) {
-        availableInputBuffers[availableInputBufferCount++] = dequeuedInputBuffer;
+        releaseInputBufferInternal(dequeuedInputBuffer);
         dequeuedInputBuffer = null;
       }
       while (!queuedInputBuffers.isEmpty()) {
-        availableInputBuffers[availableInputBufferCount++] = queuedInputBuffers.removeFirst();
+        releaseInputBufferInternal(queuedInputBuffers.removeFirst());
       }
       while (!queuedOutputBuffers.isEmpty()) {
-        availableOutputBuffers[availableOutputBufferCount++] = queuedOutputBuffers.removeFirst();
+        releaseOutputBufferInternal(queuedOutputBuffers.removeFirst());
       }
     }
   }
@@ -220,12 +217,11 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
       flushDecodedOutputBuffer = false;
     }
 
-    outputBuffer.reset();
-    if (inputBuffer.getFlag(C.SAMPLE_FLAG_END_OF_STREAM)) {
-      outputBuffer.setFlag(C.SAMPLE_FLAG_END_OF_STREAM);
+    if (inputBuffer.isEndOfStream()) {
+      outputBuffer.addFlag(C.SAMPLE_FLAG_END_OF_STREAM);
     } else {
-      if (inputBuffer.getFlag(C.SAMPLE_FLAG_DECODE_ONLY)) {
-        outputBuffer.setFlag(C.SAMPLE_FLAG_DECODE_ONLY);
+      if (inputBuffer.isDecodeOnly()) {
+        outputBuffer.addFlag(C.SAMPLE_FLAG_DECODE_ONLY);
       }
       exception = decode(inputBuffer, outputBuffer);
       if (exception != null) {
@@ -236,16 +232,16 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
     }
 
     synchronized (lock) {
-      if (flushDecodedOutputBuffer || outputBuffer.getFlag(C.SAMPLE_FLAG_DECODE_ONLY)) {
+      if (flushDecodedOutputBuffer || outputBuffer.isDecodeOnly()) {
         // If a flush occurred while decoding or the buffer was only for decoding (not presentation)
         // then make the output buffer available again rather than queueing it to be consumed.
-        availableOutputBuffers[availableOutputBufferCount++] = outputBuffer;
+        releaseOutputBufferInternal(outputBuffer);
       } else {
         // Queue the decoded output buffer to be consumed.
         queuedOutputBuffers.addLast(outputBuffer);
       }
       // Make the input buffer available again.
-      availableInputBuffers[availableInputBufferCount++] = inputBuffer;
+      releaseInputBufferInternal(inputBuffer);
     }
 
     return true;
@@ -253,6 +249,16 @@ public abstract class SimpleDecoder<I extends InputBuffer, O extends OutputBuffe
 
   private boolean canDecodeBuffer() {
     return !queuedInputBuffers.isEmpty() && availableOutputBufferCount > 0;
+  }
+
+  private void releaseInputBufferInternal(I inputBuffer) {
+    inputBuffer.clear();
+    availableInputBuffers[availableInputBufferCount++] = inputBuffer;
+  }
+
+  private void releaseOutputBufferInternal(O outputBuffer) {
+    outputBuffer.clear();
+    availableOutputBuffers[availableOutputBufferCount++] = outputBuffer;
   }
 
   /**

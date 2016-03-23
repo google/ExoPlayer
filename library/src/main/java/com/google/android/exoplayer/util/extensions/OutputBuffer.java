@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer.util.extensions;
 
+import com.google.android.exoplayer.util.Buffer;
+
 /**
  * Output buffer decoded by a {@link Decoder}.
  */

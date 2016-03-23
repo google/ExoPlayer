@@ -15,12 +15,14 @@
  */
 package com.google.android.exoplayer;
 
+import com.google.android.exoplayer.util.Buffer;
+
 import java.nio.ByteBuffer;
 
 /**
  * Holds sample data and corresponding metadata.
  */
-public final class SampleHolder {
+public class SampleHolder extends Buffer {
 
   /**
    * Disallows buffer replacement.
@@ -37,10 +39,13 @@ public final class SampleHolder {
    */
   public static final int BUFFER_REPLACEMENT_MODE_DIRECT = 2;
 
+  /**
+   * {@link CryptoInfo} for encrypted samples.
+   */
   public final CryptoInfo cryptoInfo;
 
   /**
-   * A buffer holding the sample data.
+   * A buffer holding the sample data, or {@code null} if no sample data has been set.
    */
   public ByteBuffer data;
 
@@ -48,11 +53,6 @@ public final class SampleHolder {
    * The size of the sample in bytes.
    */
   public int size;
-
-  /**
-   * Flags that accompany the sample. A combination of the {@code C.SAMPLE_FLAG_*} constants.
-   */
-  public int flags;
 
   /**
    * The time at which the sample should be presented.
@@ -108,30 +108,15 @@ public final class SampleHolder {
   }
 
   /**
-   * Returns whether {@link #flags} has {@link C#SAMPLE_FLAG_ENCRYPTED} set.
+   * Returns whether the sample has the {@link C#SAMPLE_FLAG_ENCRYPTED} flag set.
    */
-  public boolean isEncrypted() {
-    return (flags & C.SAMPLE_FLAG_ENCRYPTED) != 0;
+  public final boolean isEncrypted() {
+    return getFlag(C.SAMPLE_FLAG_ENCRYPTED);
   }
 
-  /**
-   * Returns whether {@link #flags} has {@link C#SAMPLE_FLAG_DECODE_ONLY} set.
-   */
-  public boolean isDecodeOnly() {
-    return (flags & C.SAMPLE_FLAG_DECODE_ONLY) != 0;
-  }
-
-  /**
-   * Returns whether {@link #flags} has {@link C#SAMPLE_FLAG_SYNC} set.
-   */
-  public boolean isSyncFrame() {
-    return (flags & C.SAMPLE_FLAG_SYNC) != 0;
-  }
-
-  /**
-   * Clears {@link #data}. Does nothing if {@link #data} is null.
-   */
-  public void clearData() {
+  @Override
+  public void clear() {
+    super.clear();
     if (data != null) {
       data.clear();
     }

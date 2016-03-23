@@ -555,7 +555,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
         return false;
       }
       sampleHolder.data = inputBuffers[inputIndex];
-      sampleHolder.clearData();
+      sampleHolder.clear();
     }
 
     if (codecReinitializationState == REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM) {
@@ -599,7 +599,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
         // We received two formats in a row. Clear the current buffer of any reconfiguration data
         // associated with the first format.
-        sampleHolder.clearData();
+        sampleHolder.clear();
         codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
       }
       onInputFormatChanged(formatHolder);
@@ -610,7 +610,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
         // We received a new format immediately before the end of the stream. We need to clear
         // the corresponding reconfiguration data from the current buffer, but re-write it into
         // a subsequent buffer if there are any (e.g. if the user seeks backwards).
-        sampleHolder.clearData();
+        sampleHolder.clear();
         codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
       }
       inputStreamEnded = true;

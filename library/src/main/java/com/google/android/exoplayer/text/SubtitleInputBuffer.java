@@ -16,12 +16,11 @@
 package com.google.android.exoplayer.text;
 
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer.util.extensions.InputBuffer;
 
 /**
  * An input buffer for {@link SubtitleParser}.
  */
-/* package */ final class SubtitleInputBuffer extends InputBuffer {
+/* package */ final class SubtitleInputBuffer extends SampleHolder {
 
   public long subsampleOffsetUs;
 

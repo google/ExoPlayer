@@ -48,10 +48,8 @@ public abstract class SubtitleParser extends
   protected final ParserException decode(SubtitleInputBuffer inputBuffer,
       SubtitleOutputBuffer outputBuffer) {
     try {
-      Subtitle subtitle = decode(inputBuffer.sampleHolder.data.array(),
-          inputBuffer.sampleHolder.size);
-      outputBuffer.setOutput(inputBuffer.sampleHolder.timeUs, subtitle,
-          inputBuffer.subsampleOffsetUs);
+      Subtitle subtitle = decode(inputBuffer.data.array(), inputBuffer.size);
+      outputBuffer.setOutput(inputBuffer.timeUs, subtitle, inputBuffer.subsampleOffsetUs);
       return null;
     } catch (ParserException e) {
       return e;

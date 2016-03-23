@@ -17,7 +17,6 @@ package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.Format;
-import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
 import java.io.EOFException;
@@ -66,7 +65,7 @@ public interface TrackOutput {
    * {@link #sampleData(ParsableByteArray, int)}.
    *
    * @param timeUs The media timestamp associated with the sample, in microseconds.
-   * @param flags Flags associated with the sample. See {@link SampleHolder#flags}.
+   * @param flags Flags associated with the sample. See {@code C.SAMPLE_FLAG_*}.
    * @param size The size of the sample data, in bytes.
    * @param offset The number of bytes that have been passed to
    *     {@link #sampleData(ExtractorInput, int, boolean)} or

@@ -273,15 +273,16 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
     if (!haveSamples) {
       if (loadingFinished) {
-        sampleHolder.flags = C.SAMPLE_FLAG_END_OF_STREAM;
+        sampleHolder.addFlag(C.SAMPLE_FLAG_END_OF_STREAM);
         return END_OF_STREAM;
       }
       return NOTHING_READ;
     }
 
     if (sampleQueue.getSample(sampleHolder)) {
-      boolean decodeOnly = sampleHolder.timeUs < lastSeekPositionUs;
-      sampleHolder.flags |= decodeOnly ? C.SAMPLE_FLAG_DECODE_ONLY : 0;
+      if (sampleHolder.timeUs < lastSeekPositionUs) {
+        sampleHolder.addFlag(C.SAMPLE_FLAG_DECODE_ONLY);
+      }
       onSampleRead(currentChunk, sampleHolder);
       return SAMPLE_READ;
     }

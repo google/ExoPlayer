@@ -101,7 +101,7 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
   protected void render(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
       throws ExoPlaybackException {
     if (!inputStreamEnded && pendingMetadata == null) {
-      sampleHolder.clearData();
+      sampleHolder.clear();
       int result = readSource(formatHolder, sampleHolder);
       if (result == TrackStream.SAMPLE_READ) {
         pendingMetadataTimestamp = sampleHolder.timeUs;

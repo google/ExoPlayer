@@ -19,7 +19,6 @@ import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSourceTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackStream;
@@ -176,9 +175,7 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
           }
         }
         // Try and read the next subtitle from the source.
-        SampleHolder sampleHolder = nextInputBuffer.sampleHolder;
-        sampleHolder.clearData();
-        int result = readSource(formatHolder, sampleHolder);
+        int result = readSource(formatHolder, nextInputBuffer);
         if (result == TrackStream.SAMPLE_READ) {
           nextInputBuffer.subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
           parser.queueInputBuffer(nextInputBuffer);

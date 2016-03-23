@@ -27,7 +27,7 @@ public interface Decoder<I, O, E extends Exception> {
   /**
    * Dequeues the next input buffer to be filled and queued to the decoder.
    *
-   * @return The input buffer, or null if an input buffer isn't available.
+   * @return The input buffer, which will have been cleared, or null if a buffer isn't available.
    * @throws E If a decoder error has occurred.
    */
   I dequeueInputBuffer() throws E;

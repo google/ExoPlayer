@@ -448,8 +448,9 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     }
 
     if (sampleQueue.getSample(sampleHolder)) {
-      boolean decodeOnly = sampleHolder.timeUs < lastSeekPositionUs;
-      sampleHolder.flags |= decodeOnly ? C.SAMPLE_FLAG_DECODE_ONLY : 0;
+      if (sampleHolder.timeUs < lastSeekPositionUs) {
+        sampleHolder.addFlag(C.SAMPLE_FLAG_DECODE_ONLY);
+      }
       if (havePendingNextSampleUs) {
         // Set the offset to make the timestamp of this sample equal to pendingNextSampleUs.
         sampleTimeOffsetUs = pendingNextSampleUs - sampleHolder.timeUs;
@@ -460,7 +461,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     }
 
     if (loadingFinished) {
-      sampleHolder.flags = C.SAMPLE_FLAG_END_OF_STREAM;
+      sampleHolder.addFlag(C.SAMPLE_FLAG_END_OF_STREAM);
       return TrackStream.END_OF_STREAM;
     }
 

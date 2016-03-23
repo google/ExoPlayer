@@ -71,4 +71,10 @@ import java.util.List;
     owner.releaseOutputBuffer(this);
   }
 
+  @Override
+  public void clear() {
+    super.clear();
+    subtitle = null;
+  }
+
 }

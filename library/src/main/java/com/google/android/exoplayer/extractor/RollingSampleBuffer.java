@@ -135,8 +135,7 @@ import java.util.concurrent.LinkedBlockingDeque;
   /**
    * Fills {@code holder} with information about the current sample, but does not write its data.
    * <p>
-   * The fields set are {@link SampleHolder#size}, {@link SampleHolder#timeUs} and
-   * {@link SampleHolder#flags}.
+   * Populates {@link SampleHolder#size}, {@link SampleHolder#timeUs} and the sample flags.
    *
    * @param holder The holder into which the current sample information should be written.
    * @return True if the holder was filled. False if there is no current sample.
@@ -419,7 +418,7 @@ import java.util.concurrent.LinkedBlockingDeque;
    * Indicates the end point for the current sample, making it available for consumption.
    *
    * @param sampleTimeUs The sample timestamp.
-   * @param flags Flags that accompany the sample. See {@link SampleHolder#flags}.
+   * @param flags Flags that accompany the sample. See {@code C.SAMPLE_FLAG_*}.
    * @param position The position of the sample data in the rolling buffer.
    * @param size The size of the sample, in bytes.
    * @param encryptionKey The encryption key associated with the sample, or null.
@@ -528,8 +527,8 @@ import java.util.concurrent.LinkedBlockingDeque;
      * The first entry in {@code offsetHolder} is filled with the absolute position of the sample's
      * data in the rolling buffer.
      * <p>
-     * The fields set are {SampleHolder#size}, {SampleHolder#timeUs}, {SampleHolder#flags} and
-     * {@code offsetHolder[0]}.
+     * Populates {@link SampleHolder#size}, {@link SampleHolder#timeUs}, the sample flags and
+     * {@code extrasHolder}.
      *
      * @param holder The holder into which the current sample information should be written.
      * @param extrasHolder The holder into which extra sample information should be written.
@@ -541,7 +540,7 @@ import java.util.concurrent.LinkedBlockingDeque;
       }
       holder.timeUs = timesUs[relativeReadIndex];
       holder.size = sizes[relativeReadIndex];
-      holder.flags = flags[relativeReadIndex];
+      holder.setFlags(flags[relativeReadIndex]);
       extrasHolder.offset = offsets[relativeReadIndex];
       extrasHolder.encryptionKeyId = encryptionKeys[relativeReadIndex];
       return true;

@@ -194,7 +194,6 @@ public final class FrameworkSampleSource implements SampleSource {
       return TrackStream.FORMAT_READ;
     }
     int extractorTrackIndex = extractor.getSampleTrackIndex();
-    sampleHolder.flags = 0;
     if (extractorTrackIndex == track) {
       if (sampleHolder.data != null) {
         int offset = sampleHolder.data.position();
@@ -206,17 +205,17 @@ public final class FrameworkSampleSource implements SampleSource {
       sampleHolder.timeUs = extractor.getSampleTime();
       int flags = extractor.getSampleFlags();
       if ((flags & MediaExtractor.SAMPLE_FLAG_SYNC) != 0) {
-        sampleHolder.flags |= C.SAMPLE_FLAG_SYNC;
+        sampleHolder.addFlag(C.SAMPLE_FLAG_SYNC);
       }
       if ((flags & MediaExtractor.SAMPLE_FLAG_ENCRYPTED) != 0) {
-        sampleHolder.flags |= C.SAMPLE_FLAG_ENCRYPTED;
+        sampleHolder.addFlag(C.SAMPLE_FLAG_ENCRYPTED);
         sampleHolder.cryptoInfo.setFromExtractorV16(extractor);
       }
       pendingSeekPositionUs = C.UNKNOWN_TIME_US;
       extractor.advance();
       return TrackStream.SAMPLE_READ;
     } else if (extractorTrackIndex < 0) {
-      sampleHolder.flags |= C.SAMPLE_FLAG_END_OF_STREAM;
+      sampleHolder.addFlag(C.SAMPLE_FLAG_END_OF_STREAM);
       return TrackStream.END_OF_STREAM;
     } else {
       return TrackStream.NOTHING_READ;
