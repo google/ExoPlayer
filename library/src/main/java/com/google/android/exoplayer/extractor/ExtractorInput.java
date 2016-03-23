@@ -26,7 +26,7 @@ import java.io.IOException;
 public interface ExtractorInput {
 
   /**
-   * Reads up to {@code length} bytes from the input.
+   * Reads up to {@code length} bytes from the input and resets the peek position.
    * <p>
    * This method blocks until at least one byte of data can be read, the end of the input is
    * detected, or an exception is thrown.
@@ -153,7 +153,7 @@ public interface ExtractorInput {
    * {@code offset}. The current read position is left unchanged.
    * <p>
    * Calling {@link #resetPeekPosition()} resets the peek position to equal the current read
-   * position, so the caller can peek the same data again. Reading and skipping also reset the peek
+   * position, so the caller can peek the same data again. Reading or skipping also resets the peek
    * position.
    *
    * @param target A target array into which data should be written.
