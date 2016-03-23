@@ -118,7 +118,7 @@ import java.io.IOException;
    * If an exception is thrown, the input position will be left pointing to a chunk header.
    *
    * @param input Input stream to skip to the data chunk in. Its peek position must be pointing to
-   *     a valid chunk header that is not the RIFF chunk.
+   *     a valid chunk header.
    * @param wavHeader WAV header to populate with data bounds.
    * @throws IOException If reading from the input fails.
    * @throws InterruptedException If interrupted while reading from input.
@@ -135,6 +135,10 @@ import java.io.IOException;
     while (chunkHeader.id != Util.getIntegerCodeForString("data")) {
       Log.w(TAG, "Ignoring unknown WAV chunk: " + chunkHeader.id);
       long bytesToSkip = ChunkHeader.SIZE_IN_BYTES + chunkHeader.size;
+      // Override size of RIFF chunk, since it describes its size as the entire file.
+      if (chunkHeader.id == Util.getIntegerCodeForString("RIFF")) {
+        bytesToSkip = ChunkHeader.SIZE_IN_BYTES + 4;
+      }
       if (bytesToSkip > Integer.MAX_VALUE) {
         throw new ParserException("Chunk is too large (~2GB+) to skip; id: " + chunkHeader.id);
       }
