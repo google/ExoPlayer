@@ -164,7 +164,7 @@ public final class OggVorbisExtractor implements Extractor, SeekMap {
           // Calculate time and send audio data to codec.
           long timeUs = elapsedSamples * C.MICROS_PER_SECOND / vorbisSetup.idHeader.sampleRate;
           trackOutput.sampleData(scratch, scratch.limit());
-          trackOutput.sampleMetadata(timeUs, C.SAMPLE_FLAG_SYNC, scratch.limit(), 0, null);
+          trackOutput.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, scratch.limit(), 0, null);
           targetGranule = -1;
         }
         // Update state in members for next iteration.

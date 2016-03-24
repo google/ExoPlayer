@@ -196,9 +196,9 @@ import java.util.List;
       timestamps[i] = timestampTimeUnits + timestampOffset;
 
       // All samples are synchronization samples if the stss is not present.
-      flags[i] = stss == null ? C.SAMPLE_FLAG_SYNC : 0;
+      flags[i] = stss == null ? C.BUFFER_FLAG_KEY_FRAME : 0;
       if (i == nextSynchronizationSampleIndex) {
-        flags[i] = C.SAMPLE_FLAG_SYNC;
+        flags[i] = C.BUFFER_FLAG_KEY_FRAME;
         remainingSynchronizationSamples--;
         if (remainingSynchronizationSamples > 0) {
           nextSynchronizationSampleIndex = stss.readUnsignedIntToInt() - 1;
@@ -330,7 +330,7 @@ import java.util.List;
 
     boolean hasSyncSample = false;
     for (int i = 0; i < editedFlags.length && !hasSyncSample; i++) {
-      hasSyncSample |= (editedFlags[i] & C.SAMPLE_FLAG_SYNC) != 0;
+      hasSyncSample |= (editedFlags[i] & C.BUFFER_FLAG_KEY_FRAME) != 0;
     }
     if (!hasSyncSample) {
       throw new ParserException("The edited sample sequence does not contain a sync sample.");

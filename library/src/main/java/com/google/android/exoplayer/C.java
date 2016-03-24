@@ -88,26 +88,26 @@ public final class C {
       ? AudioFormat.CHANNEL_OUT_7POINT1 : AudioFormat.CHANNEL_OUT_7POINT1_SURROUND;
 
   /**
-   * Indicates that a sample is a synchronization sample.
+   * Indicates that a buffer holds a synchronization sample.
    */
   @SuppressWarnings("InlinedApi")
-  public static final int SAMPLE_FLAG_SYNC = MediaCodec.BUFFER_FLAG_KEY_FRAME;
+  public static final int BUFFER_FLAG_KEY_FRAME = MediaCodec.BUFFER_FLAG_KEY_FRAME;
 
   /**
    * Flag for empty buffers that signal that the end of the stream was reached.
    */
   @SuppressWarnings("InlinedApi")
-  public static final int SAMPLE_FLAG_END_OF_STREAM = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
+  public static final int BUFFER_FLAG_END_OF_STREAM = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
 
   /**
-   * Indicates that a sample is (at least partially) encrypted.
+   * Indicates that a buffer is (at least partially) encrypted.
    */
-  public static final int SAMPLE_FLAG_ENCRYPTED = 0x40000000;
+  public static final int BUFFER_FLAG_ENCRYPTED = 0x40000000;
 
   /**
-   * Indicates that a sample should be decoded but not rendered.
+   * Indicates that a buffer should be decoded but not rendered.
    */
-  public static final int SAMPLE_FLAG_DECODE_ONLY = 0x80000000;
+  public static final int BUFFER_FLAG_DECODE_ONLY = 0x80000000;
 
   /**
    * A return value for methods where the end of an input was encountered.

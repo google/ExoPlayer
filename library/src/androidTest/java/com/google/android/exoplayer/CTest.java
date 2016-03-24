@@ -28,8 +28,8 @@ public class CTest extends TestCase {
   @SuppressLint("InlinedApi")
   public static final void testContants() {
     // Sanity check that constant values match those defined by the platform.
-    assertEquals(MediaCodec.BUFFER_FLAG_KEY_FRAME, C.SAMPLE_FLAG_SYNC);
-    assertEquals(MediaCodec.BUFFER_FLAG_END_OF_STREAM, C.SAMPLE_FLAG_END_OF_STREAM);
+    assertEquals(MediaCodec.BUFFER_FLAG_KEY_FRAME, C.BUFFER_FLAG_KEY_FRAME);
+    assertEquals(MediaCodec.BUFFER_FLAG_END_OF_STREAM, C.BUFFER_FLAG_END_OF_STREAM);
     assertEquals(MediaCodec.CRYPTO_MODE_AES_CTR, C.CRYPTO_MODE_AES_CTR);
   }
 

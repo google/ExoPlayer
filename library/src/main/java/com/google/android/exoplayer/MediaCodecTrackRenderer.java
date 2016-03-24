@@ -199,7 +199,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
   private final MediaCodecSelector mediaCodecSelector;
   private final DrmSessionManager drmSessionManager;
   private final boolean playClearSamplesWithoutKeys;
-  private final SampleHolder sampleHolder;
+  private final DecoderInputBuffer buffer;
   private final FormatHolder formatHolder;
   private final List<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
@@ -255,7 +255,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     this.eventHandler = eventHandler;
     this.eventListener = eventListener;
     codecCounters = new CodecCounters();
-    sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_DISABLED);
+    buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     formatHolder = new FormatHolder();
     decodeOnlyPresentationTimestamps = new ArrayList<>();
     outputBufferInfo = new MediaCodec.BufferInfo();
@@ -554,8 +554,8 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       if (inputIndex < 0) {
         return false;
       }
-      sampleHolder.data = inputBuffers[inputIndex];
-      sampleHolder.clear();
+      buffer.data = inputBuffers[inputIndex];
+      buffer.clear();
     }
 
     if (codecReinitializationState == REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM) {
@@ -574,19 +574,19 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
 
     int result;
     if (waitingForKeys) {
-      // We've already read an encrypted sample into sampleHolder, and are waiting for keys.
-      result = TrackStream.SAMPLE_READ;
+      // We've already read an encrypted sample into buffer, and are waiting for keys.
+      result = TrackStream.BUFFER_READ;
     } else {
       // For adaptive reconfiguration OMX decoders expect all reconfiguration data to be supplied
       // at the start of the buffer that also contains the first frame in the new format.
       if (codecReconfigurationState == RECONFIGURATION_STATE_WRITE_PENDING) {
         for (int i = 0; i < format.initializationData.size(); i++) {
           byte[] data = format.initializationData.get(i);
-          sampleHolder.data.put(data);
+          buffer.data.put(data);
         }
         codecReconfigurationState = RECONFIGURATION_STATE_QUEUE_PENDING;
       }
-      result = readSource(formatHolder, sampleHolder);
+      result = readSource(formatHolder, buffer);
       if (firstFeed && sourceState == SOURCE_STATE_READY && result == TrackStream.NOTHING_READ) {
         sourceState = SOURCE_STATE_READY_READ_MAY_FAIL;
       }
@@ -599,18 +599,20 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
         // We received two formats in a row. Clear the current buffer of any reconfiguration data
         // associated with the first format.
-        sampleHolder.clear();
+        buffer.clear();
         codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
       }
       onInputFormatChanged(formatHolder);
       return true;
     }
-    if (result == TrackStream.END_OF_STREAM) {
+
+    // We've read a buffer.
+    if (buffer.isEndOfStream()) {
       if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
         // We received a new format immediately before the end of the stream. We need to clear
         // the corresponding reconfiguration data from the current buffer, but re-write it into
         // a subsequent buffer if there are any (e.g. if the user seeks backwards).
-        sampleHolder.clear();
+        buffer.clear();
         codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
       }
       inputStreamEnded = true;
@@ -632,30 +634,30 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       }
       return false;
     }
-    boolean sampleEncrypted = sampleHolder.isEncrypted();
-    waitingForKeys = shouldWaitForKeys(sampleEncrypted);
+    boolean bufferEncrypted = buffer.isEncrypted();
+    waitingForKeys = shouldWaitForKeys(bufferEncrypted);
     if (waitingForKeys) {
       return false;
     }
-    if (codecNeedsDiscardToSpsWorkaround && !sampleEncrypted) {
-      NalUnitUtil.discardToSps(sampleHolder.data);
-      if (sampleHolder.data.position() == 0) {
+    if (codecNeedsDiscardToSpsWorkaround && !bufferEncrypted) {
+      NalUnitUtil.discardToSps(buffer.data);
+      if (buffer.data.position() == 0) {
         return true;
       }
       codecNeedsDiscardToSpsWorkaround = false;
     }
     try {
-      int bufferSize = sampleHolder.data.position();
-      int adaptiveReconfigurationBytes = bufferSize - sampleHolder.size;
-      long presentationTimeUs = sampleHolder.timeUs;
-      if (sampleHolder.isDecodeOnly()) {
+      int bufferSize = buffer.data.position();
+      int adaptiveReconfigurationBytes = bufferSize - buffer.size;
+      long presentationTimeUs = buffer.timeUs;
+      if (buffer.isDecodeOnly()) {
         decodeOnlyPresentationTimestamps.add(presentationTimeUs);
       }
 
-      onQueuedInputBuffer(presentationTimeUs, sampleHolder.data, bufferSize, sampleEncrypted);
+      onQueuedInputBuffer(presentationTimeUs, buffer.data, bufferSize, bufferEncrypted);
 
-      if (sampleEncrypted) {
-        MediaCodec.CryptoInfo cryptoInfo = getFrameworkCryptoInfo(sampleHolder,
+      if (bufferEncrypted) {
+        MediaCodec.CryptoInfo cryptoInfo = getFrameworkCryptoInfo(buffer,
             adaptiveReconfigurationBytes);
         codec.queueSecureInputBuffer(inputIndex, 0, cryptoInfo, presentationTimeUs, 0);
       } else {
@@ -672,9 +674,9 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     return true;
   }
 
-  private static MediaCodec.CryptoInfo getFrameworkCryptoInfo(SampleHolder sampleHolder,
+  private static MediaCodec.CryptoInfo getFrameworkCryptoInfo(DecoderInputBuffer buffer,
       int adaptiveReconfigurationBytes) {
-    MediaCodec.CryptoInfo cryptoInfo = sampleHolder.cryptoInfo.getFrameworkCryptoInfoV16();
+    MediaCodec.CryptoInfo cryptoInfo = buffer.cryptoInfo.getFrameworkCryptoInfoV16();
     if (adaptiveReconfigurationBytes == 0) {
       return cryptoInfo;
     }
@@ -688,7 +690,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
     return cryptoInfo;
   }
 
-  private boolean shouldWaitForKeys(boolean sampleEncrypted) throws ExoPlaybackException {
+  private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
     if (!openedDrmSession) {
       return false;
     }
@@ -697,7 +699,7 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
       throw ExoPlaybackException.createForRenderer(drmSessionManager.getError(), getIndex());
     }
     if (drmManagerState != DrmSessionManager.STATE_OPENED_WITH_KEYS &&
-        (sampleEncrypted || !playClearSamplesWithoutKeys)) {
+        (bufferEncrypted || !playClearSamplesWithoutKeys)) {
       return true;
     }
     return false;
@@ -758,11 +760,11 @@ public abstract class MediaCodecTrackRenderer extends SampleSourceTrackRenderer 
    *
    * @param presentationTimeUs The timestamp associated with the input buffer.
    * @param buffer The buffer to be queued.
-   * @param bufferSize the size of the sample data stored in the buffer.
-   * @param sampleEncrypted Whether the sample data is encrypted.
+   * @param bufferSize The size of the sample data stored in the buffer.
+   * @param bufferEncrypted Whether the buffer is encrypted.
    */
-  protected void onQueuedInputBuffer(
-      long presentationTimeUs, ByteBuffer buffer, int bufferSize, boolean sampleEncrypted) {
+  protected void onQueuedInputBuffer(long presentationTimeUs, ByteBuffer buffer, int bufferSize,
+      boolean bufferEncrypted) {
     // Do nothing.
   }
 

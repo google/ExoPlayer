@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer.hls;
 
+import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.Format;
-import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.drm.DrmInitData;
 import com.google.android.exoplayer.extractor.DefaultTrackOutput;
 import com.google.android.exoplayer.extractor.Extractor;
@@ -182,12 +182,12 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
    * This method must only be called after the extractor has been prepared.
    *
    * @param track The track from which to read.
-   * @param holder A {@link SampleHolder} into which the sample should be read.
+   * @param buffer A {@link DecoderInputBuffer} to populate with a sample.
    * @return True if a sample was read. False otherwise.
    */
-  public boolean getSample(int track, SampleHolder holder) {
+  public boolean getSample(int track, DecoderInputBuffer buffer) {
     Assertions.checkState(isPrepared());
-    return sampleQueues.valueAt(track).getSample(holder);
+    return sampleQueues.valueAt(track).getSample(buffer);
   }
 
   /**
@@ -204,13 +204,13 @@ public final class HlsExtractorWrapper implements ExtractorOutput {
   }
 
   /**
-   * Whether samples are available for reading from {@link #getSample(int, SampleHolder)} for the
-   * specified track.
+   * Whether samples are available for reading from {@link #getSample(int, DecoderInputBuffer)} for
+   * the specified track.
    * <p>
    * This method must only be called after the extractor has been prepared.
    *
-   * @return True if samples are available for reading from {@link #getSample(int, SampleHolder)}
-   *     for the specified track. False otherwise.
+   * @return True if samples are available for reading from
+   *     {@link #getSample(int, DecoderInputBuffer)} for the specified track. False otherwise.
    */
   public boolean hasSamples(int track) {
     Assertions.checkState(isPrepared());

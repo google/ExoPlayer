@@ -194,7 +194,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
       return;
     }
 
-    output.sampleMetadata(timeUs, C.SAMPLE_FLAG_SYNC, frameSize, 0, null);
+    output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, frameSize, 0, null);
     timeUs += frameDurationUs;
     frameBytesRead = 0;
     state = STATE_FINDING_HEADER;

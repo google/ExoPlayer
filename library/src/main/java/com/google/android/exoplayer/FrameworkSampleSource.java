@@ -212,7 +212,7 @@ public final class FrameworkSampleSource implements SampleSource {
     return TrackStream.NO_RESET;
   }
 
-  /* package */ int readData(int track, FormatHolder formatHolder, SampleHolder sampleHolder) {
+  /* package */ int readData(int track, FormatHolder formatHolder, DecoderInputBuffer buffer) {
     Assertions.checkState(trackStates[track] != TRACK_STATE_DISABLED);
     if (pendingResets[track]) {
       return TrackStream.NOTHING_READ;
@@ -225,28 +225,28 @@ public final class FrameworkSampleSource implements SampleSource {
     }
     int extractorTrackIndex = extractor.getSampleTrackIndex();
     if (extractorTrackIndex == track) {
-      if (sampleHolder.data != null) {
-        int offset = sampleHolder.data.position();
-        sampleHolder.size = extractor.readSampleData(sampleHolder.data, offset);
-        sampleHolder.data.position(offset + sampleHolder.size);
+      if (buffer.data != null) {
+        int offset = buffer.data.position();
+        buffer.size = extractor.readSampleData(buffer.data, offset);
+        buffer.data.position(offset + buffer.size);
       } else {
-        sampleHolder.size = 0;
+        buffer.size = 0;
       }
-      sampleHolder.timeUs = extractor.getSampleTime();
+      buffer.timeUs = extractor.getSampleTime();
       int flags = extractor.getSampleFlags();
       if ((flags & MediaExtractor.SAMPLE_FLAG_SYNC) != 0) {
-        sampleHolder.addFlag(C.SAMPLE_FLAG_SYNC);
+        buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
       }
       if ((flags & MediaExtractor.SAMPLE_FLAG_ENCRYPTED) != 0) {
-        sampleHolder.addFlag(C.SAMPLE_FLAG_ENCRYPTED);
-        sampleHolder.cryptoInfo.setFromExtractorV16(extractor);
+        buffer.addFlag(C.BUFFER_FLAG_ENCRYPTED);
+        buffer.cryptoInfo.setFromExtractorV16(extractor);
       }
       pendingSeekPositionUs = C.UNKNOWN_TIME_US;
       extractor.advance();
-      return TrackStream.SAMPLE_READ;
+      return TrackStream.BUFFER_READ;
     } else if (extractorTrackIndex < 0) {
-      sampleHolder.addFlag(C.SAMPLE_FLAG_END_OF_STREAM);
-      return TrackStream.END_OF_STREAM;
+      buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
+      return TrackStream.BUFFER_READ;
     } else {
       return TrackStream.NOTHING_READ;
     }
@@ -392,8 +392,8 @@ public final class FrameworkSampleSource implements SampleSource {
     }
 
     @Override
-    public int readData(FormatHolder formatHolder, SampleHolder sampleHolder) {
-      return FrameworkSampleSource.this.readData(track, formatHolder, sampleHolder);
+    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
+      return FrameworkSampleSource.this.readData(track, formatHolder, buffer);
     }
 
   }

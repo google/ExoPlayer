@@ -15,10 +15,10 @@
  */
 package com.google.android.exoplayer.metadata;
 
+import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
-import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSourceTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackStream;
@@ -60,7 +60,7 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
   private final MetadataRenderer<T> metadataRenderer;
   private final Handler metadataHandler;
   private final FormatHolder formatHolder;
-  private final SampleHolder sampleHolder;
+  private final DecoderInputBuffer buffer;
 
   private boolean inputStreamEnded;
   private long pendingMetadataTimestamp;
@@ -82,7 +82,7 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
     this.metadataHandler = metadataRendererLooper == null ? null
         : new Handler(metadataRendererLooper, this);
     formatHolder = new FormatHolder();
-    sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
+    buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
   }
 
   @Override
@@ -101,17 +101,19 @@ public final class MetadataTrackRenderer<T> extends SampleSourceTrackRenderer im
   protected void render(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
       throws ExoPlaybackException {
     if (!inputStreamEnded && pendingMetadata == null) {
-      sampleHolder.clear();
-      int result = readSource(formatHolder, sampleHolder);
-      if (result == TrackStream.SAMPLE_READ) {
-        pendingMetadataTimestamp = sampleHolder.timeUs;
-        try {
-          pendingMetadata = metadataParser.parse(sampleHolder.data.array(), sampleHolder.size);
-        } catch (IOException e) {
-          throw ExoPlaybackException.createForRenderer(e, getIndex());
+      buffer.clear();
+      int result = readSource(formatHolder, buffer);
+      if (result == TrackStream.BUFFER_READ) {
+        if (buffer.isEndOfStream()) {
+          inputStreamEnded = true;
+        } else {
+          pendingMetadataTimestamp = buffer.timeUs;
+          try {
+            pendingMetadata = metadataParser.parse(buffer.data.array(), buffer.size);
+          } catch (IOException e) {
+            throw ExoPlaybackException.createForRenderer(e, getIndex());
+          }
         }
-      } else if (result == TrackStream.END_OF_STREAM) {
-        inputStreamEnded = true;
       }
     }
 

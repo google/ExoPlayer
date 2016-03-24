@@ -15,17 +15,17 @@
  */
 package com.google.android.exoplayer.text;
 
-import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.DecoderInputBuffer;
 
 /**
  * An input buffer for {@link SubtitleParser}.
  */
-/* package */ final class SubtitleInputBuffer extends SampleHolder {
+/* package */ final class SubtitleInputBuffer extends DecoderInputBuffer {
 
   public long subsampleOffsetUs;
 
   public SubtitleInputBuffer() {
-    super(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
+    super(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
   }
 
 }

@@ -129,7 +129,7 @@ import java.util.List;
         output.sampleData(data, bytesToWrite);
         bytesWritten += bytesToWrite;
       }
-      output.sampleMetadata(timeUs, frameType == VIDEO_FRAME_KEYFRAME ? C.SAMPLE_FLAG_SYNC : 0,
+      output.sampleMetadata(timeUs, frameType == VIDEO_FRAME_KEYFRAME ? C.BUFFER_FLAG_KEY_FRAME : 0,
           bytesWritten, 0, null);
     }
   }

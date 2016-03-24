@@ -16,10 +16,10 @@
 package com.google.android.exoplayer.chunk;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.LoadControl;
-import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
@@ -246,7 +246,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
   }
 
   @Override
-  public int readData(FormatHolder formatHolder, SampleHolder sampleHolder) {
+  public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
     if (pendingReset || isPendingReset()) {
       return NOTHING_READ;
     }
@@ -277,18 +277,18 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
     if (!haveSamples) {
       if (loadingFinished) {
-        sampleHolder.addFlag(C.SAMPLE_FLAG_END_OF_STREAM);
-        return END_OF_STREAM;
+        buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
+        return BUFFER_READ;
       }
       return NOTHING_READ;
     }
 
-    if (sampleQueue.getSample(sampleHolder)) {
-      if (sampleHolder.timeUs < lastSeekPositionUs) {
-        sampleHolder.addFlag(C.SAMPLE_FLAG_DECODE_ONLY);
+    if (sampleQueue.getSample(buffer)) {
+      if (buffer.timeUs < lastSeekPositionUs) {
+        buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
       }
-      onSampleRead(currentChunk, sampleHolder);
-      return SAMPLE_READ;
+      onSampleRead(currentChunk, buffer);
+      return BUFFER_READ;
     }
 
     return NOTHING_READ;
@@ -395,9 +395,9 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
    * the sample is returned.
    *
    * @param mediaChunk The chunk from which the sample was obtained.
-   * @param sampleHolder Holds the read sample.
+   * @param buffer Holds the read sample.
    */
-  protected void onSampleRead(MediaChunk mediaChunk, SampleHolder sampleHolder) {
+  protected void onSampleRead(MediaChunk mediaChunk, DecoderInputBuffer buffer) {
     // Do nothing.
   }
 

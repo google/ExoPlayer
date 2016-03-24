@@ -65,7 +65,7 @@ public interface TrackOutput {
    * {@link #sampleData(ParsableByteArray, int)}.
    *
    * @param timeUs The media timestamp associated with the sample, in microseconds.
-   * @param flags Flags associated with the sample. See {@code C.SAMPLE_FLAG_*}.
+   * @param flags Flags associated with the sample. See {@code C.BUFFER_FLAG_*}.
    * @param size The size of the sample data, in bytes.
    * @param offset The number of bytes that have been passed to
    *     {@link #sampleData(ExtractorInput, int, boolean)} or

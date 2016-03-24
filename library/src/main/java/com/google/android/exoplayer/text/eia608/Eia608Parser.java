@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer.text.eia608;
 
-import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.util.MimeTypes;
 import com.google.android.exoplayer.util.ParsableBitArray;
 import com.google.android.exoplayer.util.ParsableByteArray;
@@ -116,14 +116,14 @@ public final class Eia608Parser {
     return mimeType.equals(MimeTypes.APPLICATION_EIA608);
   }
 
-  /* package */ ClosedCaptionList parse(SampleHolder sampleHolder) {
-    if (sampleHolder.size < 10) {
+  /* package */ ClosedCaptionList parse(DecoderInputBuffer buffer) {
+    if (buffer.size < 10) {
       return null;
     }
 
     captions.clear();
     stringBuilder.setLength(0);
-    seiBuffer.reset(sampleHolder.data.array());
+    seiBuffer.reset(buffer.data.array());
 
     // country_code (8) + provider_code (16) + user_identifier (32) + user_data_type_code (8) +
     // reserved (1) + process_cc_data_flag (1) + zero_bit (1)
@@ -200,7 +200,7 @@ public final class Eia608Parser {
 
     ClosedCaption[] captionArray = new ClosedCaption[captions.size()];
     captions.toArray(captionArray);
-    return new ClosedCaptionList(sampleHolder.timeUs, sampleHolder.isDecodeOnly(), captionArray);
+    return new ClosedCaptionList(buffer.timeUs, buffer.isDecodeOnly(), captionArray);
   }
 
   private static char getChar(byte ccData) {

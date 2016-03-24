@@ -32,30 +32,30 @@ public abstract class Buffer {
   }
 
   /**
-   * Returns whether the {@link C#SAMPLE_FLAG_DECODE_ONLY} flag is set.
+   * Returns whether the {@link C#BUFFER_FLAG_DECODE_ONLY} flag is set.
    */
   public final boolean isDecodeOnly() {
-    return getFlag(C.SAMPLE_FLAG_DECODE_ONLY);
+    return getFlag(C.BUFFER_FLAG_DECODE_ONLY);
   }
 
   /**
-   * Returns whether the {@link C#SAMPLE_FLAG_END_OF_STREAM} flag is set.
+   * Returns whether the {@link C#BUFFER_FLAG_END_OF_STREAM} flag is set.
    */
   public final boolean isEndOfStream() {
-    return getFlag(C.SAMPLE_FLAG_END_OF_STREAM);
+    return getFlag(C.BUFFER_FLAG_END_OF_STREAM);
   }
 
   /**
-   * Returns whether the sample has the {@link C#SAMPLE_FLAG_SYNC} flag set.
+   * Returns whether the {@link C#BUFFER_FLAG_KEY_FRAME} flag is set.
    */
-  public final boolean isSyncFrame() {
-    return getFlag(C.SAMPLE_FLAG_SYNC);
+  public final boolean isKeyFrame() {
+    return getFlag(C.BUFFER_FLAG_KEY_FRAME);
   }
 
   /**
    * Replaces this buffer's flags with {@code flags}.
    *
-   * @param flags The flags to set, which should be a combination of the {@code C.SAMPLE_FLAG_*}
+   * @param flags The flags to set, which should be a combination of the {@code C.BUFFER_FLAG_*}
    *     constants.
    */
   public final void setFlags(int flags) {
@@ -66,7 +66,7 @@ public abstract class Buffer {
    * Adds the {@code flag} to this buffer's flags.
    *
    * @param flag The flag to add to this buffer's flags, which should be one of the
-   *     {@code C.SAMPLE_FLAG_*} constants.
+   *     {@code C.BUFFER_FLAG_*} constants.
    */
   public final void addFlag(int flag) {
     flags |= flag;

@@ -449,7 +449,7 @@ public final class WebmExtractor implements Extractor {
         }
         // If the ReferenceBlock element was not found for this sample, then it is a keyframe.
         if (!sampleSeenReferenceBlock) {
-          blockFlags |= C.SAMPLE_FLAG_SYNC;
+          blockFlags |= C.BUFFER_FLAG_KEY_FRAME;
         }
         commitSampleToOutput(tracks.get(blockTrackNumber), blockTimeUs);
         blockState = BLOCK_STATE_START;
@@ -766,8 +766,8 @@ public final class WebmExtractor implements Extractor {
           boolean isInvisible = (scratch.data[2] & 0x08) == 0x08;
           boolean isKeyframe = track.type == TRACK_TYPE_AUDIO
               || (id == ID_SIMPLE_BLOCK && (scratch.data[2] & 0x80) == 0x80);
-          blockFlags = (isKeyframe ? C.SAMPLE_FLAG_SYNC : 0)
-              | (isInvisible ? C.SAMPLE_FLAG_DECODE_ONLY : 0);
+          blockFlags = (isKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0)
+              | (isInvisible ? C.BUFFER_FLAG_DECODE_ONLY : 0);
           blockState = BLOCK_STATE_DATA;
           blockLacingSampleIndex = 0;
         }
@@ -850,7 +850,7 @@ public final class WebmExtractor implements Extractor {
       if (track.hasContentEncryption) {
         // If the sample is encrypted, read its encryption signal byte and set the IV size.
         // Clear the encrypted flag.
-        blockFlags &= ~C.SAMPLE_FLAG_ENCRYPTED;
+        blockFlags &= ~C.BUFFER_FLAG_ENCRYPTED;
         input.readFully(scratch.data, 0, 1);
         sampleBytesRead++;
         if ((scratch.data[0] & 0x80) == 0x80) {
@@ -861,7 +861,7 @@ public final class WebmExtractor implements Extractor {
           scratch.setPosition(0);
           output.sampleData(scratch, 1);
           sampleBytesWritten++;
-          blockFlags |= C.SAMPLE_FLAG_ENCRYPTED;
+          blockFlags |= C.BUFFER_FLAG_ENCRYPTED;
         }
       } else if (track.sampleStrippedBytes != null) {
         // If the sample has header stripping, prepare to read/output the stripped bytes first.

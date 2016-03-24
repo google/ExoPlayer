@@ -94,7 +94,7 @@ public class AdtsReaderTest extends TestCase {
         ADTS_CONTENT));
     feed();
     assertSampleCounts(0, 1);
-    adtsOutput.assertSample(0, ADTS_CONTENT, 0, C.SAMPLE_FLAG_SYNC, null);
+    adtsOutput.assertSample(0, ADTS_CONTENT, 0, C.BUFFER_FLAG_KEY_FRAME, null);
   }
 
   public void testNoData() throws Exception {
@@ -120,20 +120,20 @@ public class AdtsReaderTest extends TestCase {
   public void testConsumeWholeId3Packet() throws Exception {
     feedLimited(ID3_DATA_1.length);
     assertSampleCounts(1, 0);
-    id3Output.assertSample(0, ID3_DATA_1, 0, C.SAMPLE_FLAG_SYNC, null);
+    id3Output.assertSample(0, ID3_DATA_1, 0, C.BUFFER_FLAG_KEY_FRAME, null);
   }
 
   public void testMultiId3Packet() throws Exception {
     feedLimited(ID3_DATA_1.length + ID3_DATA_2.length - 1);
     assertSampleCounts(1, 0);
-    id3Output.assertSample(0, ID3_DATA_1, 0, C.SAMPLE_FLAG_SYNC, null);
+    id3Output.assertSample(0, ID3_DATA_1, 0, C.BUFFER_FLAG_KEY_FRAME, null);
   }
 
   public void testMultiId3PacketConsumed() throws Exception {
     feedLimited(ID3_DATA_1.length + ID3_DATA_2.length);
     assertSampleCounts(2, 0);
-    id3Output.assertSample(0, ID3_DATA_1, 0, C.SAMPLE_FLAG_SYNC, null);
-    id3Output.assertSample(1, ID3_DATA_2, 0, C.SAMPLE_FLAG_SYNC, null);
+    id3Output.assertSample(0, ID3_DATA_1, 0, C.BUFFER_FLAG_KEY_FRAME, null);
+    id3Output.assertSample(1, ID3_DATA_2, 0, C.BUFFER_FLAG_KEY_FRAME, null);
   }
 
   public void testMultiPacketConsumed() throws Exception {
@@ -145,9 +145,9 @@ public class AdtsReaderTest extends TestCase {
       int j = i * 2;
       assertSampleCounts(j + 2, i + 1);
 
-      id3Output.assertSample(j, ID3_DATA_1, timeUs, C.SAMPLE_FLAG_SYNC, null);
-      id3Output.assertSample(j + 1, ID3_DATA_2, timeUs, C.SAMPLE_FLAG_SYNC, null);
-      adtsOutput.assertSample(i, ADTS_CONTENT, timeUs, C.SAMPLE_FLAG_SYNC, null);
+      id3Output.assertSample(j, ID3_DATA_1, timeUs, C.BUFFER_FLAG_KEY_FRAME, null);
+      id3Output.assertSample(j + 1, ID3_DATA_2, timeUs, C.BUFFER_FLAG_KEY_FRAME, null);
+      adtsOutput.assertSample(i, ADTS_CONTENT, timeUs, C.BUFFER_FLAG_KEY_FRAME, null);
     }
   }
 
@@ -155,7 +155,7 @@ public class AdtsReaderTest extends TestCase {
     data.setPosition(ID3_DATA_1.length + ID3_DATA_2.length);
     feed();
     assertSampleCounts(0, 1);
-    adtsOutput.assertSample(0, ADTS_CONTENT, 0, C.SAMPLE_FLAG_SYNC, null);
+    adtsOutput.assertSample(0, ADTS_CONTENT, 0, C.BUFFER_FLAG_KEY_FRAME, null);
   }
 
   private void feedLimited(int limit) {

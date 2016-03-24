@@ -95,7 +95,7 @@ import java.util.Collections;
       // Sample audio AAC frames
       int bytesToWrite = data.bytesLeft();
       output.sampleData(data, bytesToWrite);
-      output.sampleMetadata(timeUs, C.SAMPLE_FLAG_SYNC, bytesToWrite, 0, null);
+      output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, bytesToWrite, 0, null);
     }
   }
 

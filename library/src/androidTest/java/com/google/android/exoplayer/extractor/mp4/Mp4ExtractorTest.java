@@ -137,7 +137,7 @@ public final class Mp4ExtractorTest extends TestCase {
     videoTrackOutput.assertSampleCount(SAMPLE_TIMESTAMPS.length);
     for (int i = 0; i < SAMPLE_TIMESTAMPS.length; i++) {
       byte[] sampleData = getOutputSampleData(i, true);
-      int sampleFlags = SAMPLE_IS_SYNC[i] ? C.SAMPLE_FLAG_SYNC : 0;
+      int sampleFlags = SAMPLE_IS_SYNC[i] ? C.BUFFER_FLAG_KEY_FRAME : 0;
       long sampleTimestampUs = getVideoTimestampUs(SAMPLE_TIMESTAMPS[i]);
       videoTrackOutput.assertSample(i, sampleData, sampleTimestampUs, sampleFlags, null);
     }
@@ -155,7 +155,7 @@ public final class Mp4ExtractorTest extends TestCase {
     videoTrackOutput.assertSampleCount(SAMPLE_TIMESTAMPS.length);
     for (int i = 0; i < SAMPLE_TIMESTAMPS.length; i++) {
       byte[] sampleData = getOutputSampleData(i, true);
-      int sampleFlags = C.SAMPLE_FLAG_SYNC;
+      int sampleFlags = C.BUFFER_FLAG_KEY_FRAME;
       long sampleTimestampUs = getVideoTimestampUs(SAMPLE_TIMESTAMPS[i]);
       videoTrackOutput.assertSample(i, sampleData, sampleTimestampUs, sampleFlags, null);
     }
@@ -182,7 +182,7 @@ public final class Mp4ExtractorTest extends TestCase {
     videoTrackOutput.assertSampleCount(SAMPLE_TIMESTAMPS.length);
     for (int i = 0; i < SAMPLE_TIMESTAMPS.length; i++) {
       byte[] sampleData = getOutputSampleData(i, false);
-      int sampleFlags = SAMPLE_IS_SYNC[i] ? C.SAMPLE_FLAG_SYNC : 0;
+      int sampleFlags = SAMPLE_IS_SYNC[i] ? C.BUFFER_FLAG_KEY_FRAME : 0;
       long sampleTimestampUs = getVideoTimestampUs(SAMPLE_TIMESTAMPS[i]);
       videoTrackOutput.assertSample(i, sampleData, sampleTimestampUs, sampleFlags, null);
     }

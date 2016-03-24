@@ -302,7 +302,7 @@ import java.util.Collections;
     currentOutput.sampleData(data, bytesToRead);
     bytesRead += bytesToRead;
     if (bytesRead == sampleSize) {
-      currentOutput.sampleMetadata(timeUs, C.SAMPLE_FLAG_SYNC, sampleSize, 0, null);
+      currentOutput.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
       timeUs += currentSampleDuration;
       setFindingSampleState();
     }

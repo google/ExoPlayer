@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.upstream.Allocation;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.upstream.DataSource;
@@ -40,7 +40,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
   private final InfoQueue infoQueue;
   private final LinkedBlockingDeque<Allocation> dataQueue;
-  private final SampleExtrasHolder extrasHolder;
+  private final BufferExtrasHolder extrasHolder;
   private final ParsableByteArray scratch;
 
   // Accessed only by the consuming thread.
@@ -59,7 +59,7 @@ import java.util.concurrent.LinkedBlockingDeque;
     allocationLength = allocator.getIndividualAllocationLength();
     infoQueue = new InfoQueue();
     dataQueue = new LinkedBlockingDeque<>();
-    extrasHolder = new SampleExtrasHolder();
+    extrasHolder = new BufferExtrasHolder();
     scratch = new ParsableByteArray(INITIAL_SCRATCH_SIZE);
     lastAllocationOffset = allocationLength;
   }
@@ -133,15 +133,16 @@ import java.util.concurrent.LinkedBlockingDeque;
   }
 
   /**
-   * Fills {@code holder} with information about the current sample, but does not write its data.
+   * Fills {@code buffer} with information about the current sample, but does not write its data.
    * <p>
-   * Populates {@link SampleHolder#size}, {@link SampleHolder#timeUs} and the sample flags.
+   * Populates {@link DecoderInputBuffer#size}, {@link DecoderInputBuffer#timeUs} and the buffer
+   * flags.
    *
-   * @param holder The holder into which the current sample information should be written.
-   * @return True if the holder was filled. False if there is no current sample.
+   * @param buffer The buffer into which the current sample information should be written.
+   * @return True if the buffer was filled. False if there is no current sample.
    */
-  public boolean peekSample(SampleHolder holder) {
-    return infoQueue.peekSample(holder, extrasHolder);
+  public boolean peekSample(DecoderInputBuffer buffer) {
+    return infoQueue.peekSample(buffer, extrasHolder);
   }
 
   /**
@@ -170,23 +171,23 @@ import java.util.concurrent.LinkedBlockingDeque;
   /**
    * Reads the current sample, advancing the read index to the next sample.
    *
-   * @param sampleHolder The holder into which the current sample should be written.
+   * @param buffer The buffer into which the current sample should be written.
    * @return True if a sample was read. False if there is no current sample.
    */
-  public boolean readSample(SampleHolder sampleHolder) {
-    // Write the sample information into the holder and extrasHolder.
-    boolean haveSample = infoQueue.peekSample(sampleHolder, extrasHolder);
+  public boolean readSample(DecoderInputBuffer buffer) {
+    // Write the sample information into the buffer and extrasHolder.
+    boolean haveSample = infoQueue.peekSample(buffer, extrasHolder);
     if (!haveSample) {
       return false;
     }
 
     // Read encryption data if the sample is encrypted.
-    if (sampleHolder.isEncrypted()) {
-      readEncryptionData(sampleHolder, extrasHolder);
+    if (buffer.isEncrypted()) {
+      readEncryptionData(buffer, extrasHolder);
     }
     // Write the sample data into the holder.
-    sampleHolder.ensureSpaceForWrite(sampleHolder.size);
-    readData(extrasHolder.offset, sampleHolder.data, sampleHolder.size);
+    buffer.ensureSpaceForWrite(buffer.size);
+    readData(extrasHolder.offset, buffer.data, buffer.size);
     // Advance the read head.
     long nextOffset = infoQueue.moveToNextSample();
     dropDownstreamTo(nextOffset);
@@ -196,14 +197,14 @@ import java.util.concurrent.LinkedBlockingDeque;
   /**
    * Reads encryption data for the current sample.
    * <p>
-   * The encryption data is written into {@code sampleHolder.cryptoInfo}, and
-   * {@code sampleHolder.size} is adjusted to subtract the number of bytes that were read. The
-   * same value is added to {@code extrasHolder.offset}.
+   * The encryption data is written into {@link DecoderInputBuffer#cryptoInfo}, and
+   * {@link DecoderInputBuffer#size} is adjusted to subtract the number of bytes that were read. The
+   * same value is added to {@link BufferExtrasHolder#offset}.
    *
-   * @param sampleHolder The holder into which the encryption data should be written.
+   * @param buffer The buffer into which the encryption data should be written.
    * @param extrasHolder The extras holder whose offset should be read and subsequently adjusted.
    */
-  private void readEncryptionData(SampleHolder sampleHolder, SampleExtrasHolder extrasHolder) {
+  private void readEncryptionData(DecoderInputBuffer buffer, BufferExtrasHolder extrasHolder) {
     long offset = extrasHolder.offset;
 
     // Read the signal byte.
@@ -214,10 +215,10 @@ import java.util.concurrent.LinkedBlockingDeque;
     int ivSize = signalByte & 0x7F;
 
     // Read the initialization vector.
-    if (sampleHolder.cryptoInfo.iv == null) {
-      sampleHolder.cryptoInfo.iv = new byte[16];
+    if (buffer.cryptoInfo.iv == null) {
+      buffer.cryptoInfo.iv = new byte[16];
     }
-    readData(offset, sampleHolder.cryptoInfo.iv, ivSize);
+    readData(offset, buffer.cryptoInfo.iv, ivSize);
     offset += ivSize;
 
     // Read the subsample count, if present.
@@ -232,11 +233,11 @@ import java.util.concurrent.LinkedBlockingDeque;
     }
 
     // Write the clear and encrypted subsample sizes.
-    int[] clearDataSizes = sampleHolder.cryptoInfo.numBytesOfClearData;
+    int[] clearDataSizes = buffer.cryptoInfo.numBytesOfClearData;
     if (clearDataSizes == null || clearDataSizes.length < subsampleCount) {
       clearDataSizes = new int[subsampleCount];
     }
-    int[] encryptedDataSizes = sampleHolder.cryptoInfo.numBytesOfEncryptedData;
+    int[] encryptedDataSizes = buffer.cryptoInfo.numBytesOfEncryptedData;
     if (encryptedDataSizes == null || encryptedDataSizes.length < subsampleCount) {
       encryptedDataSizes = new int[subsampleCount];
     }
@@ -252,17 +253,17 @@ import java.util.concurrent.LinkedBlockingDeque;
       }
     } else {
       clearDataSizes[0] = 0;
-      encryptedDataSizes[0] = sampleHolder.size - (int) (offset - extrasHolder.offset);
+      encryptedDataSizes[0] = buffer.size - (int) (offset - extrasHolder.offset);
     }
 
     // Populate the cryptoInfo.
-    sampleHolder.cryptoInfo.set(subsampleCount, clearDataSizes, encryptedDataSizes,
-        extrasHolder.encryptionKeyId, sampleHolder.cryptoInfo.iv, C.CRYPTO_MODE_AES_CTR);
+    buffer.cryptoInfo.set(subsampleCount, clearDataSizes, encryptedDataSizes,
+        extrasHolder.encryptionKeyId, buffer.cryptoInfo.iv, C.CRYPTO_MODE_AES_CTR);
 
     // Adjust the offset and size to take into account the bytes read.
     int bytesRead = (int) (offset - extrasHolder.offset);
     extrasHolder.offset += bytesRead;
-    sampleHolder.size -= bytesRead;
+    buffer.size -= bytesRead;
   }
 
   /**
@@ -418,7 +419,7 @@ import java.util.concurrent.LinkedBlockingDeque;
    * Indicates the end point for the current sample, making it available for consumption.
    *
    * @param sampleTimeUs The sample timestamp.
-   * @param flags Flags that accompany the sample. See {@code C.SAMPLE_FLAG_*}.
+   * @param flags Flags that accompany the sample. See {@code C.BUFFER_FLAG_*}.
    * @param position The position of the sample data in the rolling buffer.
    * @param size The size of the sample, in bytes.
    * @param encryptionKey The encryption key associated with the sample, or null.
@@ -523,24 +524,25 @@ import java.util.concurrent.LinkedBlockingDeque;
     }
 
     /**
-     * Fills {@code holder} with information about the current sample, but does not write its data.
-     * The first entry in {@code offsetHolder} is filled with the absolute position of the sample's
-     * data in the rolling buffer.
-     * <p>
-     * Populates {@link SampleHolder#size}, {@link SampleHolder#timeUs}, the sample flags and
+     * Fills {@code buffer} with information about the current sample, but does not write its data.
+     * The absolute position of the sample's data in the rolling buffer is stored in
      * {@code extrasHolder}.
+     * <p>
+     * Populates {@link DecoderInputBuffer#size}, {@link DecoderInputBuffer#timeUs}, the buffer
+     * flags and {@code extrasHolder}.
      *
-     * @param holder The holder into which the current sample information should be written.
+     * @param buffer The buffer into which the current sample information should be written.
      * @param extrasHolder The holder into which extra sample information should be written.
-     * @return True if the holders were filled. False if there is no current sample.
+     * @return True if the buffer and extras were filled. False if there is no current sample.
      */
-    public synchronized boolean peekSample(SampleHolder holder, SampleExtrasHolder extrasHolder) {
+    public synchronized boolean peekSample(DecoderInputBuffer buffer,
+        BufferExtrasHolder extrasHolder) {
       if (queueSize == 0) {
         return false;
       }
-      holder.timeUs = timesUs[relativeReadIndex];
-      holder.size = sizes[relativeReadIndex];
-      holder.setFlags(flags[relativeReadIndex]);
+      buffer.timeUs = timesUs[relativeReadIndex];
+      buffer.size = sizes[relativeReadIndex];
+      buffer.setFlags(flags[relativeReadIndex]);
       extrasHolder.offset = offsets[relativeReadIndex];
       extrasHolder.encryptionKeyId = encryptionKeys[relativeReadIndex];
       return true;
@@ -590,7 +592,7 @@ import java.util.concurrent.LinkedBlockingDeque;
         if (timesUs[searchIndex] > timeUs) {
           // We've gone too far.
           break;
-        } else if ((flags[searchIndex] & C.SAMPLE_FLAG_SYNC) != 0) {
+        } else if ((flags[searchIndex] & C.BUFFER_FLAG_KEY_FRAME) != 0) {
           // We've found a keyframe, and we're still before the seek position.
           sampleCountToKeyframe = sampleCount;
         }
@@ -660,9 +662,9 @@ import java.util.concurrent.LinkedBlockingDeque;
   }
 
   /**
-   * Holds additional sample information not held by {@link SampleHolder}.
+   * Holds additional buffer information not held by {@link DecoderInputBuffer}.
    */
-  private static final class SampleExtrasHolder {
+  private static final class BufferExtrasHolder {
 
     public long offset;
     public byte[] encryptionKeyId;

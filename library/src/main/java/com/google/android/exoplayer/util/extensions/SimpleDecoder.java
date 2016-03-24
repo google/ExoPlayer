@@ -16,7 +16,7 @@
 package com.google.android.exoplayer.util.extensions;
 
 import com.google.android.exoplayer.C;
-import com.google.android.exoplayer.SampleHolder;
+import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.util.Assertions;
 
 import java.util.LinkedList;
@@ -24,7 +24,7 @@ import java.util.LinkedList;
 /**
  * Base class for {@link Decoder}s that use their own decode thread.
  */
-public abstract class SimpleDecoder<I extends SampleHolder, O extends OutputBuffer,
+public abstract class SimpleDecoder<I extends DecoderInputBuffer, O extends OutputBuffer,
     E extends Exception> extends Thread implements Decoder<I, O, E> {
 
   /**
@@ -218,10 +218,10 @@ public abstract class SimpleDecoder<I extends SampleHolder, O extends OutputBuff
     }
 
     if (inputBuffer.isEndOfStream()) {
-      outputBuffer.addFlag(C.SAMPLE_FLAG_END_OF_STREAM);
+      outputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
     } else {
       if (inputBuffer.isDecodeOnly()) {
-        outputBuffer.addFlag(C.SAMPLE_FLAG_DECODE_ONLY);
+        outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
       }
       exception = decode(inputBuffer, outputBuffer);
       if (exception != null) {
@@ -276,7 +276,7 @@ public abstract class SimpleDecoder<I extends SampleHolder, O extends OutputBuff
    *
    * @param inputBuffer The buffer to decode.
    * @param outputBuffer The output buffer to store decoded data. The flag
-   *     {@link C#SAMPLE_FLAG_DECODE_ONLY} will be set if the same flag is set on
+   *     {@link C#BUFFER_FLAG_DECODE_ONLY} will be set if the same flag is set on
    *     {@code inputBuffer}, but the decoder may set/unset the flag if required. If the flag is set
    *     after this method returns, any output will not be presented.
    * @return A decoder exception if an error occurred, or null if decoding was successful.

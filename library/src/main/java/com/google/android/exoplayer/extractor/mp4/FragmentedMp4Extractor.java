@@ -874,8 +874,8 @@ public final class FragmentedMp4Extractor implements Extractor {
     }
 
     long sampleTimeUs = fragment.getSamplePresentationTime(sampleIndex) * 1000L;
-    int sampleFlags = (fragment.definesEncryptionData ? C.SAMPLE_FLAG_ENCRYPTED : 0)
-        | (fragment.sampleIsSyncFrameTable[sampleIndex] ? C.SAMPLE_FLAG_SYNC : 0);
+    int sampleFlags = (fragment.definesEncryptionData ? C.BUFFER_FLAG_ENCRYPTED : 0)
+        | (fragment.sampleIsSyncFrameTable[sampleIndex] ? C.BUFFER_FLAG_KEY_FRAME : 0);
     int sampleDescriptionIndex = fragment.header.sampleDescriptionIndex;
     byte[] encryptionKey = fragment.definesEncryptionData
         ? track.sampleDescriptionEncryptionBoxes[sampleDescriptionIndex].keyId : null;

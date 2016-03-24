@@ -788,9 +788,9 @@ public final class WebmExtractorTest extends InstrumentationTestCase {
           StreamBuilder.TEST_INITIALIZATION_VECTOR, expectedMedia);
     }
     int flags = 0;
-    flags |= keyframe ? C.SAMPLE_FLAG_SYNC : 0;
-    flags |= invisible ? C.SAMPLE_FLAG_DECODE_ONLY : 0;
-    flags |= encryptionKey != null ? C.SAMPLE_FLAG_ENCRYPTED : 0;
+    flags |= keyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
+    flags |= invisible ? C.BUFFER_FLAG_DECODE_ONLY : 0;
+    flags |= encryptionKey != null ? C.BUFFER_FLAG_ENCRYPTED : 0;
     output.assertSample(index, expectedMedia, timeUs, flags, encryptionKey);
   }
 

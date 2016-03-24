@@ -176,11 +176,14 @@ public final class TextTrackRenderer extends SampleSourceTrackRenderer implement
         }
         // Try and read the next subtitle from the source.
         int result = readSource(formatHolder, nextInputBuffer);
-        if (result == TrackStream.SAMPLE_READ) {
-          nextInputBuffer.subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
-          parser.queueInputBuffer(nextInputBuffer);
-        } else if (result == TrackStream.END_OF_STREAM) {
-          inputStreamEnded = true;
+        if (result == TrackStream.BUFFER_READ) {
+          if (nextInputBuffer.isEndOfStream()) {
+            inputStreamEnded = true;
+            // TODO: Queue the end of stream buffer.
+          } else {
+            nextInputBuffer.subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
+            parser.queueInputBuffer(nextInputBuffer);
+          }
         }
       }
     } catch (ParserException e) {

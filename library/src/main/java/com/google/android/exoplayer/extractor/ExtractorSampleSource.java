@@ -16,9 +16,9 @@
 package com.google.android.exoplayer.extractor;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.ParserException;
-import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
@@ -445,7 +445,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     return TrackStream.NO_RESET;
   }
 
-  /* package */ int readData(int track, FormatHolder formatHolder, SampleHolder sampleHolder) {
+  /* package */ int readData(int track, FormatHolder formatHolder, DecoderInputBuffer buffer) {
     if (pendingResets[track] || isPendingReset()) {
       return TrackStream.NOTHING_READ;
     }
@@ -458,22 +458,22 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
       return TrackStream.FORMAT_READ;
     }
 
-    if (sampleQueue.getSample(sampleHolder)) {
-      if (sampleHolder.timeUs < lastSeekPositionUs) {
-        sampleHolder.addFlag(C.SAMPLE_FLAG_DECODE_ONLY);
+    if (sampleQueue.getSample(buffer)) {
+      if (buffer.timeUs < lastSeekPositionUs) {
+        buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
       }
       if (havePendingNextSampleUs) {
         // Set the offset to make the timestamp of this sample equal to pendingNextSampleUs.
-        sampleTimeOffsetUs = pendingNextSampleUs - sampleHolder.timeUs;
+        sampleTimeOffsetUs = pendingNextSampleUs - buffer.timeUs;
         havePendingNextSampleUs = false;
       }
-      sampleHolder.timeUs += sampleTimeOffsetUs;
-      return TrackStream.SAMPLE_READ;
+      buffer.timeUs += sampleTimeOffsetUs;
+      return TrackStream.BUFFER_READ;
     }
 
     if (loadingFinished) {
-      sampleHolder.addFlag(C.SAMPLE_FLAG_END_OF_STREAM);
-      return TrackStream.END_OF_STREAM;
+      buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
+      return TrackStream.BUFFER_READ;
     }
 
     return TrackStream.NOTHING_READ;
@@ -764,8 +764,8 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
     }
 
     @Override
-    public int readData(FormatHolder formatHolder, SampleHolder sampleHolder) {
-      return ExtractorSampleSource.this.readData(track, formatHolder, sampleHolder);
+    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
+      return ExtractorSampleSource.this.readData(track, formatHolder, buffer);
     }
 
   }

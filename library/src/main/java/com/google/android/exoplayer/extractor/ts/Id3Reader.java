@@ -87,7 +87,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
     if (!writingSample || sampleSize == 0 || sampleBytesRead != sampleSize) {
       return;
     }
-    output.sampleMetadata(sampleTimeUs, C.SAMPLE_FLAG_SYNC, sampleSize, 0, null);
+    output.sampleMetadata(sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
     writingSample = false;
   }
 

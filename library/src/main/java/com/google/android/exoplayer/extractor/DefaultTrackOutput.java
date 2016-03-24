@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer.extractor;
 
+import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.Format;
-import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.upstream.Allocator;
 import com.google.android.exoplayer.util.ParsableByteArray;
 
@@ -29,7 +29,7 @@ import java.io.IOException;
 public class DefaultTrackOutput implements TrackOutput {
 
   private final RollingSampleBuffer rollingBuffer;
-  private final SampleHolder sampleInfoHolder;
+  private final DecoderInputBuffer sampleBuffer;
 
   // Accessed only by the consuming thread.
   private boolean needKeyframe;
@@ -45,7 +45,7 @@ public class DefaultTrackOutput implements TrackOutput {
    */
   public DefaultTrackOutput(Allocator allocator) {
     rollingBuffer = new RollingSampleBuffer(allocator);
-    sampleInfoHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_DISABLED);
+    sampleBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     needKeyframe = true;
     lastReadTimeUs = Long.MIN_VALUE;
     spliceOutTimeUs = Long.MIN_VALUE;
@@ -79,7 +79,7 @@ public class DefaultTrackOutput implements TrackOutput {
    */
   public void discardUpstreamSamples(int discardFromIndex) {
     rollingBuffer.discardUpstreamSamples(discardFromIndex);
-    largestParsedTimestampUs = rollingBuffer.peekSample(sampleInfoHolder) ? sampleInfoHolder.timeUs
+    largestParsedTimestampUs = rollingBuffer.peekSample(sampleBuffer) ? sampleBuffer.timeUs
         : Long.MIN_VALUE;
   }
 
@@ -122,23 +122,23 @@ public class DefaultTrackOutput implements TrackOutput {
   }
 
   /**
-   * Removes the next sample from the head of the queue, writing it into the provided holder.
+   * Removes the next sample from the head of the queue, writing it into the provided buffer.
    * <p>
    * The first sample returned is guaranteed to be a keyframe, since any non-keyframe samples
    * queued prior to the first keyframe are discarded.
    *
-   * @param holder A {@link SampleHolder} into which the sample should be read.
+   * @param buffer A {@link DecoderInputBuffer} into which the sample should be read.
    * @return True if a sample was read. False otherwise.
    */
-  public boolean getSample(SampleHolder holder) {
+  public boolean getSample(DecoderInputBuffer buffer) {
     boolean foundEligibleSample = advanceToEligibleSample();
     if (!foundEligibleSample) {
       return false;
     }
-    // Write the sample into the holder.
-    rollingBuffer.readSample(holder);
+    // Write the sample into the buffer.
+    rollingBuffer.readSample(buffer);
     needKeyframe = false;
-    lastReadTimeUs = holder.timeUs;
+    lastReadTimeUs = buffer.timeUs;
     return true;
   }
 
@@ -148,7 +148,7 @@ public class DefaultTrackOutput implements TrackOutput {
    * @param timeUs The time up to which samples should be discarded, in microseconds.
    */
   public void discardUntil(long timeUs) {
-    while (rollingBuffer.peekSample(sampleInfoHolder) && sampleInfoHolder.timeUs < timeUs) {
+    while (rollingBuffer.peekSample(sampleBuffer) && sampleBuffer.timeUs < timeUs) {
       rollingBuffer.skipSample();
       // We're discarding one or more samples. A subsequent read will need to start at a keyframe.
       needKeyframe = true;
@@ -178,22 +178,22 @@ public class DefaultTrackOutput implements TrackOutput {
       return true;
     }
     long firstPossibleSpliceTime;
-    if (rollingBuffer.peekSample(sampleInfoHolder)) {
-      firstPossibleSpliceTime = sampleInfoHolder.timeUs;
+    if (rollingBuffer.peekSample(sampleBuffer)) {
+      firstPossibleSpliceTime = sampleBuffer.timeUs;
     } else {
       firstPossibleSpliceTime = lastReadTimeUs + 1;
     }
     RollingSampleBuffer nextRollingBuffer = nextQueue.rollingBuffer;
-    while (nextRollingBuffer.peekSample(sampleInfoHolder)
-        && (sampleInfoHolder.timeUs < firstPossibleSpliceTime || !sampleInfoHolder.isSyncFrame())) {
+    while (nextRollingBuffer.peekSample(sampleBuffer)
+        && (sampleBuffer.timeUs < firstPossibleSpliceTime || !sampleBuffer.isKeyFrame())) {
       // Discard samples from the next queue for as long as they are before the earliest possible
       // splice time, or not keyframes.
       nextRollingBuffer.skipSample();
     }
-    if (nextRollingBuffer.peekSample(sampleInfoHolder)) {
+    if (nextRollingBuffer.peekSample(sampleBuffer)) {
       // We've found a keyframe in the next queue that can serve as the splice point. Set the
       // splice point now.
-      spliceOutTimeUs = sampleInfoHolder.timeUs;
+      spliceOutTimeUs = sampleBuffer.timeUs;
       return true;
     }
     return false;
@@ -206,17 +206,17 @@ public class DefaultTrackOutput implements TrackOutput {
    *     buffer has been emptied.
    */
   private boolean advanceToEligibleSample() {
-    boolean haveNext = rollingBuffer.peekSample(sampleInfoHolder);
+    boolean haveNext = rollingBuffer.peekSample(sampleBuffer);
     if (needKeyframe) {
-      while (haveNext && !sampleInfoHolder.isSyncFrame()) {
+      while (haveNext && !sampleBuffer.isKeyFrame()) {
         rollingBuffer.skipSample();
-        haveNext = rollingBuffer.peekSample(sampleInfoHolder);
+        haveNext = rollingBuffer.peekSample(sampleBuffer);
       }
     }
     if (!haveNext) {
       return false;
     }
-    if (spliceOutTimeUs != Long.MIN_VALUE && sampleInfoHolder.timeUs >= spliceOutTimeUs) {
+    if (spliceOutTimeUs != Long.MIN_VALUE && sampleBuffer.timeUs >= spliceOutTimeUs) {
       return false;
     }
     return true;

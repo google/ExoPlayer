@@ -20,9 +20,9 @@ import com.google.android.exoplayer.util.Buffer;
 import java.nio.ByteBuffer;
 
 /**
- * Holds sample data and corresponding metadata.
+ * Holds input for a decoder and corresponding metadata.
  */
-public class SampleHolder extends Buffer {
+public class DecoderInputBuffer extends Buffer {
 
   /**
    * Disallows buffer replacement.
@@ -40,17 +40,17 @@ public class SampleHolder extends Buffer {
   public static final int BUFFER_REPLACEMENT_MODE_DIRECT = 2;
 
   /**
-   * {@link CryptoInfo} for encrypted samples.
+   * {@link CryptoInfo} for encrypted data.
    */
   public final CryptoInfo cryptoInfo;
 
   /**
-   * A buffer holding the sample data, or {@code null} if no sample data has been set.
+   * The buffer's data, or {@code null} if no data has been set.
    */
   public ByteBuffer data;
 
   /**
-   * The size of the sample in bytes.
+   * The size of the data in bytes.
    */
   public int size;
 
@@ -66,7 +66,7 @@ public class SampleHolder extends Buffer {
    *     of {@link #BUFFER_REPLACEMENT_MODE_DISABLED}, {@link #BUFFER_REPLACEMENT_MODE_NORMAL} and
    *     {@link #BUFFER_REPLACEMENT_MODE_DIRECT}.
    */
-  public SampleHolder(int bufferReplacementMode) {
+  public DecoderInputBuffer(int bufferReplacementMode) {
     this.cryptoInfo = new CryptoInfo();
     this.bufferReplacementMode = bufferReplacementMode;
   }
@@ -85,7 +85,7 @@ public class SampleHolder extends Buffer {
    */
   public void ensureSpaceForWrite(int length) throws IllegalStateException {
     if (data == null) {
-      data = createReplacementBuffer(length);
+      data = createReplacementByteBuffer(length);
       return;
     }
     // Check whether the current buffer is sufficient.
@@ -96,7 +96,7 @@ public class SampleHolder extends Buffer {
       return;
     }
     // Instantiate a new buffer if possible.
-    ByteBuffer newData = createReplacementBuffer(requiredCapacity);
+    ByteBuffer newData = createReplacementByteBuffer(requiredCapacity);
     // Copy data up to the current position from the old buffer to the new one.
     if (position > 0) {
       data.position(0);
@@ -108,10 +108,10 @@ public class SampleHolder extends Buffer {
   }
 
   /**
-   * Returns whether the sample has the {@link C#SAMPLE_FLAG_ENCRYPTED} flag set.
+   * Returns whether the {@link C#BUFFER_FLAG_ENCRYPTED} flag is set.
    */
   public final boolean isEncrypted() {
-    return getFlag(C.SAMPLE_FLAG_ENCRYPTED);
+    return getFlag(C.BUFFER_FLAG_ENCRYPTED);
   }
 
   @Override
@@ -122,7 +122,7 @@ public class SampleHolder extends Buffer {
     }
   }
 
-  private ByteBuffer createReplacementBuffer(int requiredCapacity) {
+  private ByteBuffer createReplacementByteBuffer(int requiredCapacity) {
     if (bufferReplacementMode == BUFFER_REPLACEMENT_MODE_NORMAL) {
       return ByteBuffer.allocate(requiredCapacity);
     } else if (bufferReplacementMode == BUFFER_REPLACEMENT_MODE_DIRECT) {

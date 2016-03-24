@@ -23,21 +23,17 @@ import java.io.IOException;
 public interface TrackStream {
 
   /**
-   * The end of stream has been reached.
-   */
-  int END_OF_STREAM = -1;
-  /**
    * Nothing was read.
    */
-  int NOTHING_READ = -2;
+  int NOTHING_READ = -1;
   /**
-   * A sample was read.
+   * The buffer was populated.
    */
-  int SAMPLE_READ = -3;
+  int BUFFER_READ = -2;
   /**
    * A format was read.
    */
-  int FORMAT_READ = -4;
+  int FORMAT_READ = -3;
   /**
    * Returned from {@link #readReset()} to indicate no reset is required.
    */
@@ -46,8 +42,8 @@ public interface TrackStream {
   /**
    * Returns whether data is available to be read.
    * <p>
-   * Note: If the stream has ended then {@link #END_OF_STREAM} can always be read from
-   * {@link #readData(FormatHolder, SampleHolder)}. Hence an ended stream is always ready.
+   * Note: If the stream has ended then a buffer with the end of stream flag can always be read from
+   * {@link #readData(FormatHolder, DecoderInputBuffer)}. Hence an ended stream is always ready.
    *
    * @return True if data is available to be read. False otherwise.
    */
@@ -69,20 +65,19 @@ public interface TrackStream {
   long readReset();
 
   /**
-   * Attempts to read the next format or sample.
+   * Attempts to read from the stream.
    * <p>
    * This method will always return {@link #NOTHING_READ} in the case that there's a pending
    * discontinuity to be read from {@link #readReset} for the specified track.
    *
-   * @param formatHolder A {@link FormatHolder} to populate in the case of a new format.
-   * @param sampleHolder A {@link SampleHolder} to populate in the case of a new sample. If the
-   *     caller requires the sample data then it must ensure that {@link SampleHolder#data}
-   *     references a valid output buffer. If the end of the stream has been reached,
-   *     {@link #END_OF_STREAM} will be returned and {@link C#SAMPLE_FLAG_END_OF_STREAM} will be set
-   *     on the sample holder.
-   * @return The result, which can be {@link #END_OF_STREAM}, {@link #NOTHING_READ},
-   *     {@link #FORMAT_READ} or {@link #SAMPLE_READ}.
+   * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
+   * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
+   *     end of the stream. If the caller requires the sample data then it must ensure that
+   *     {@link DecoderInputBuffer#data} references a valid buffer. If the end of the stream has
+   *     been reached, the {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
+   * @return The result, which can be {@link #NOTHING_READ}, {@link #FORMAT_READ} or
+   *     {@link #BUFFER_READ}.
    */
-  int readData(FormatHolder formatHolder, SampleHolder sampleHolder);
+  int readData(FormatHolder formatHolder, DecoderInputBuffer buffer);
 
 }

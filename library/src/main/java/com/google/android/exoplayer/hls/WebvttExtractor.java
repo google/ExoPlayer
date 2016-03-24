@@ -156,7 +156,7 @@ import java.util.regex.Pattern;
     // Output the sample.
     sampleDataWrapper.reset(sampleData, sampleSize);
     trackOutput.sampleData(sampleDataWrapper, sampleSize);
-    trackOutput.sampleMetadata(sampleTimeUs, C.SAMPLE_FLAG_SYNC, sampleSize, 0, null);
+    trackOutput.sampleMetadata(sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
   }
 
   private TrackOutput buildTrackOutput(long subsampleOffsetUs) {

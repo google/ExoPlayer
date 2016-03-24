@@ -64,18 +64,10 @@ public abstract class SampleSourceTrackRenderer extends TrackRenderer {
   /**
    * Reads from the enabled upstream source.
    *
-   * @param formatHolder A {@link FormatHolder} object to populate in the case of a new format.
-   * @param sampleHolder A {@link SampleHolder} object to populate in the case of a new sample.
-   *     If the caller requires the sample data then it must ensure that {@link SampleHolder#data}
-   *     references a valid output buffer. If the end of the stream has been reached,
-   *     {@link TrackStream#END_OF_STREAM} will be returned and {@link C#SAMPLE_FLAG_END_OF_STREAM}
-   *     will be set on the sample holder.
-   * @return The result, which can be {@link TrackStream#SAMPLE_READ},
-   *     {@link TrackStream#FORMAT_READ}, {@link TrackStream#NOTHING_READ} or
-   *     {@link TrackStream#END_OF_STREAM}.
+   * @see TrackStream#readData(FormatHolder, DecoderInputBuffer)
    */
-  protected final int readSource(FormatHolder formatHolder, SampleHolder sampleHolder) {
-    return trackStream.readData(formatHolder, sampleHolder);
+  protected final int readSource(FormatHolder formatHolder, DecoderInputBuffer buffer) {
+    return trackStream.readData(formatHolder, buffer);
   }
 
   // Abstract methods.

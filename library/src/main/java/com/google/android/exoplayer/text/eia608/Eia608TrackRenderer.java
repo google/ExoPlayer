@@ -16,10 +16,10 @@
 package com.google.android.exoplayer.text.eia608;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
-import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSourceTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.TrackStream;
@@ -51,13 +51,13 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   // The default number of rows to display in roll-up captions mode.
   private static final int DEFAULT_CAPTIONS_ROW_COUNT = 4;
   // The maximum duration that captions are parsed ahead of the current position.
-  private static final int MAX_SAMPLE_READAHEAD_US = 5000000;
+  private static final int MAX_BUFFER_READAHEAD_US = 5000000;
 
   private final Eia608Parser eia608Parser;
   private final TextRenderer textRenderer;
   private final Handler textRendererHandler;
   private final FormatHolder formatHolder;
-  private final SampleHolder sampleHolder;
+  private final DecoderInputBuffer buffer;
   private final StringBuilder captionStringBuilder;
   private final TreeSet<ClosedCaptionList> pendingCaptionLists;
 
@@ -81,7 +81,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
     textRendererHandler = textRendererLooper == null ? null : new Handler(textRendererLooper, this);
     eia608Parser = new Eia608Parser();
     formatHolder = new FormatHolder();
-    sampleHolder = new SampleHolder(SampleHolder.BUFFER_REPLACEMENT_MODE_NORMAL);
+    buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
     captionStringBuilder = new StringBuilder();
     pendingCaptionLists = new TreeSet<>();
   }
@@ -97,7 +97,7 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
     inputStreamEnded = false;
     repeatableControl = null;
     pendingCaptionLists.clear();
-    clearPendingSample();
+    clearPendingBuffer();
     captionRowCount = DEFAULT_CAPTIONS_ROW_COUNT;
     setCaptionMode(CC_MODE_UNKNOWN);
     invokeRenderer(null);
@@ -106,17 +106,20 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
   @Override
   protected void render(long positionUs, long elapsedRealtimeUs, boolean sourceIsReady)
       throws ExoPlaybackException {
-    if (isSamplePending()) {
-      maybeParsePendingSample(positionUs);
+    if (isBufferPending()) {
+      maybeParsePendingBuffer(positionUs);
     }
 
-    int result = inputStreamEnded ? TrackStream.END_OF_STREAM : TrackStream.SAMPLE_READ;
-    while (!isSamplePending() && result == TrackStream.SAMPLE_READ) {
-      result = readSource(formatHolder, sampleHolder);
-      if (result == TrackStream.SAMPLE_READ) {
-        maybeParsePendingSample(positionUs);
-      } else if (result == TrackStream.END_OF_STREAM) {
-        inputStreamEnded = true;
+    while (!isBufferPending() && !inputStreamEnded) {
+      int result = readSource(formatHolder, buffer);
+      if (result == TrackStream.BUFFER_READ) {
+        if (buffer.isEndOfStream()) {
+          inputStreamEnded = true;
+        } else {
+          maybeParsePendingBuffer(positionUs);
+        }
+      } else if (result == TrackStream.NOTHING_READ) {
+        break;
       }
     }
 
@@ -177,13 +180,13 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
     }
   }
 
-  private void maybeParsePendingSample(long positionUs) {
-    if (sampleHolder.timeUs > positionUs + MAX_SAMPLE_READAHEAD_US) {
-      // We're too early to parse the sample.
+  private void maybeParsePendingBuffer(long positionUs) {
+    if (buffer.timeUs > positionUs + MAX_BUFFER_READAHEAD_US) {
+      // We're too early to parse the buffer.
       return;
     }
-    ClosedCaptionList holder = eia608Parser.parse(sampleHolder);
-    clearPendingSample();
+    ClosedCaptionList holder = eia608Parser.parse(buffer);
+    clearPendingBuffer();
     if (holder != null) {
       pendingCaptionLists.add(holder);
     }
@@ -338,13 +341,13 @@ public final class Eia608TrackRenderer extends SampleSourceTrackRenderer impleme
     return captionStringBuilder.substring(0, endIndex - startIndex);
   }
 
-  private void clearPendingSample() {
-    sampleHolder.clear();
-    sampleHolder.timeUs = C.UNKNOWN_TIME_US;
+  private void clearPendingBuffer() {
+    buffer.clear();
+    buffer.timeUs = C.UNKNOWN_TIME_US;
   }
 
-  private boolean isSamplePending() {
-    return sampleHolder.timeUs != C.UNKNOWN_TIME_US;
+  private boolean isBufferPending() {
+    return buffer.timeUs != C.UNKNOWN_TIME_US;
   }
 
 }

@@ -55,7 +55,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
       // Process the payload.
       if (Eia608Parser.isSeiMessageEia608(payloadType, payloadSize, seiBuffer)) {
         output.sampleData(seiBuffer, payloadSize);
-        output.sampleMetadata(pesTimeUs, C.SAMPLE_FLAG_SYNC, payloadSize, 0, null);
+        output.sampleMetadata(pesTimeUs, C.BUFFER_FLAG_KEY_FRAME, payloadSize, 0, null);
       } else {
         seiBuffer.skipBytes(payloadSize);
       }

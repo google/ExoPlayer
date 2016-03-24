@@ -16,10 +16,10 @@
 package com.google.android.exoplayer.hls;
 
 import com.google.android.exoplayer.C;
+import com.google.android.exoplayer.DecoderInputBuffer;
 import com.google.android.exoplayer.Format;
 import com.google.android.exoplayer.FormatHolder;
 import com.google.android.exoplayer.LoadControl;
-import com.google.android.exoplayer.SampleHolder;
 import com.google.android.exoplayer.SampleSource;
 import com.google.android.exoplayer.TrackGroup;
 import com.google.android.exoplayer.TrackGroupArray;
@@ -293,7 +293,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     return TrackStream.NO_RESET;
   }
 
-  /* package */ int readData(int group, FormatHolder formatHolder, SampleHolder sampleHolder) {
+  /* package */ int readData(int group, FormatHolder formatHolder, DecoderInputBuffer buffer) {
     if (pendingResets[group] || isPendingReset()) {
       return TrackStream.NOTHING_READ;
     }
@@ -332,16 +332,16 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
       return TrackStream.FORMAT_READ;
     }
 
-    if (extractor.getSample(group, sampleHolder)) {
-      if (sampleHolder.timeUs < lastSeekPositionUs) {
-        sampleHolder.addFlag(C.SAMPLE_FLAG_DECODE_ONLY);
+    if (extractor.getSample(group, buffer)) {
+      if (buffer.timeUs < lastSeekPositionUs) {
+        buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
       }
-      return TrackStream.SAMPLE_READ;
+      return TrackStream.BUFFER_READ;
     }
 
     if (loadingFinished) {
-      sampleHolder.addFlag(C.SAMPLE_FLAG_END_OF_STREAM);
-      return TrackStream.END_OF_STREAM;
+      buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
+      return TrackStream.BUFFER_READ;
     }
 
     return TrackStream.NOTHING_READ;
@@ -836,8 +836,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     }
 
     @Override
-    public int readData(FormatHolder formatHolder, SampleHolder sampleHolder) {
-      return HlsSampleSource.this.readData(group, formatHolder, sampleHolder);
+    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer) {
+      return HlsSampleSource.this.readData(group, formatHolder, buffer);
     }
 
   }

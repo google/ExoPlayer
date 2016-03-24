@@ -100,7 +100,7 @@ import com.google.android.exoplayer.util.ParsableByteArray;
           output.sampleData(data, bytesToRead);
           bytesRead += bytesToRead;
           if (bytesRead == sampleSize) {
-            output.sampleMetadata(timeUs, C.SAMPLE_FLAG_SYNC, sampleSize, 0, null);
+            output.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, sampleSize, 0, null);
             timeUs += sampleDurationUs;
             state = STATE_FINDING_SYNC;
           }

@@ -151,7 +151,8 @@ public final class Mp3Extractor implements Extractor {
       return RESULT_CONTINUE;
     }
     long timeUs = basisTimeUs + (samplesRead * C.MICROS_PER_SECOND / synchronizedHeader.sampleRate);
-    trackOutput.sampleMetadata(timeUs, C.SAMPLE_FLAG_SYNC, synchronizedHeader.frameSize, 0, null);
+    trackOutput.sampleMetadata(timeUs, C.BUFFER_FLAG_KEY_FRAME, synchronizedHeader.frameSize, 0,
+        null);
     samplesRead += synchronizedHeader.samplesPerFrame;
     sampleBytesRemaining = 0;
     return RESULT_CONTINUE;

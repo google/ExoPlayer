@@ -131,7 +131,7 @@ import java.util.Collections;
         if (hasOutputFormat && (startCodeValue == START_GROUP || startCodeValue == START_PICTURE)) {
           int bytesWrittenPastStartCode = limit - startCodeOffset;
           if (foundFirstFrameInGroup) {
-            int flags = isKeyframe ? C.SAMPLE_FLAG_SYNC : 0;
+            int flags = isKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
             int size = (int) (totalBytesWritten - framePosition) - bytesWrittenPastStartCode;
             output.sampleMetadata(frameTimeUs, flags, size, bytesWrittenPastStartCode, null);
             isKeyframe = false;

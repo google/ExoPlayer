@@ -83,7 +83,7 @@ public final class WavExtractor implements Extractor, SeekMap {
     }
 
     trackOutput.sampleMetadata(
-        wavHeader.getTimeUs(inputPosition), C.SAMPLE_FLAG_SYNC, bytesRead, 0, null);
+        wavHeader.getTimeUs(inputPosition), C.BUFFER_FLAG_KEY_FRAME, bytesRead, 0, null);
     return RESULT_CONTINUE;
   }
 
