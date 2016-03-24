@@ -132,7 +132,8 @@ public interface SampleSource {
   /**
    * Indicates to the source that it should continue buffering data for its enabled tracks.
    * <p>
-   * This method should only be called when the state is {@link #STATE_READING}.
+   * This method should only be called when the state is {@link #STATE_READING} and at least one
+   * track is selected.
    *
    * @param positionUs The current playback position.
    */
@@ -141,19 +142,20 @@ public interface SampleSource {
   /**
    * Returns an estimate of the position up to which data is buffered for the enabled tracks.
    * <p>
-   * This method should only be called when the state is {@link #STATE_READING}.
+   * This method should only be called when the state is {@link #STATE_READING} and at least one
+   * track is selected.
    *
    * @return An estimate of the absolute position in microseconds up to which data is buffered,
    *     or {@link C#END_OF_SOURCE_US} if the track is fully buffered, or {@link C#UNKNOWN_TIME_US}
-   *     if no estimate is available. If no tracks are enabled then {@link C#END_OF_SOURCE_US} is
-   *     returned.
+   *     if no estimate is available.
    */
   long getBufferedPositionUs();
 
   /**
    * Seeks to the specified time in microseconds.
    * <p>
-   * This method should only be called when the state is {@link #STATE_READING}.
+   * This method should only be called when the state is {@link #STATE_READING} and at least one
+   * track is selected.
    *
    * @param positionUs The seek position in microseconds.
    */

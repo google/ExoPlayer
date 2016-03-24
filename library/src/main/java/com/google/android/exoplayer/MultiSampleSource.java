@@ -20,6 +20,7 @@ import com.google.android.exoplayer.util.Assertions;
 import android.util.Pair;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.IdentityHashMap;
 
 /**
@@ -28,14 +29,17 @@ import java.util.IdentityHashMap;
 public final class MultiSampleSource implements SampleSource {
 
   private final SampleSource[] sources;
+  private final int[] sourceEnabledTrackCounts;
   private final IdentityHashMap<TrackStream, Integer> trackStreamSourceIndices;
 
   private int state;
   private long durationUs;
   private TrackGroupArray trackGroups;
+  private SampleSource[] enabledSources;
 
   public MultiSampleSource(SampleSource... sources) {
     this.sources = sources;
+    sourceEnabledTrackCounts = new int[sources.length];
     trackStreamSourceIndices = new IdentityHashMap<>();
     state = STATE_UNPREPARED;
   }
@@ -100,7 +104,9 @@ public final class MultiSampleSource implements SampleSource {
     Pair<Integer, Integer> sourceAndGroup = getSourceAndTrackGroupIndices(selection.group);
     TrackStream trackStream = sources[sourceAndGroup.first].selectTrack(
         new TrackSelection(sourceAndGroup.second, selection.getTracks()), positionUs);
-    trackStreamSourceIndices.put(trackStream, sourceAndGroup.first);
+    int sourceIndex = sourceAndGroup.first;
+    sourceEnabledTrackCounts[sourceIndex]++;
+    trackStreamSourceIndices.put(trackStream, sourceIndex);
     return trackStream;
   }
 
@@ -109,27 +115,34 @@ public final class MultiSampleSource implements SampleSource {
     Assertions.checkState(state == STATE_SELECTING_TRACKS);
     int sourceIndex = trackStreamSourceIndices.remove(trackStream);
     sources[sourceIndex].unselectTrack(trackStream);
+    sourceEnabledTrackCounts[sourceIndex]--;
   }
 
   @Override
   public void endTrackSelection(long positionUs) {
     Assertions.checkState(state == STATE_SELECTING_TRACKS);
     state = STATE_READING;
-    for (SampleSource source : sources) {
-      source.endTrackSelection(positionUs);
+    int newEnabledSourceCount = 0;
+    SampleSource[] newEnabledSources = new SampleSource[sources.length];
+    for (int i = 0; i < sources.length; i++) {
+      sources[i].endTrackSelection(positionUs);
+      if (sourceEnabledTrackCounts[i] > 0) {
+        newEnabledSources[newEnabledSourceCount++] = sources[i];
+      }
     }
+    enabledSources = Arrays.copyOf(newEnabledSources, newEnabledSourceCount);
   }
 
   @Override
   public void continueBuffering(long positionUs) {
-    for (SampleSource source : sources) {
+    for (SampleSource source : enabledSources) {
       source.continueBuffering(positionUs);
     }
   }
 
   @Override
   public void seekToUs(long positionUs) {
-    for (SampleSource source : sources) {
+    for (SampleSource source : enabledSources) {
       source.seekToUs(positionUs);
     }
   }
@@ -142,7 +155,7 @@ public final class MultiSampleSource implements SampleSource {
   @Override
   public long getBufferedPositionUs() {
     long bufferedPositionUs = durationUs != C.UNKNOWN_TIME_US ? durationUs : Long.MAX_VALUE;
-    for (SampleSource source : sources) {
+    for (SampleSource source : enabledSources) {
       long rendererBufferedPositionUs = source.getBufferedPositionUs();
       if (rendererBufferedPositionUs == C.UNKNOWN_TIME_US) {
         return C.UNKNOWN_TIME_US;

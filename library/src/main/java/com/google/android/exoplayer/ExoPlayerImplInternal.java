@@ -125,11 +125,13 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   public long getBufferedPosition() {
+    long bufferedPositionUs = this.bufferedPositionUs;
     return bufferedPositionUs == C.UNKNOWN_TIME_US ? ExoPlayer.UNKNOWN_TIME
         : bufferedPositionUs / 1000;
   }
 
   public long getDuration() {
+    long durationUs = this.durationUs;
     return durationUs == C.UNKNOWN_TIME_US ? ExoPlayer.UNKNOWN_TIME : durationUs / 1000;
   }
 
@@ -279,7 +281,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     durationUs = source.getDurationUs();
-    bufferedPositionUs = source.getBufferedPositionUs();
     selectTracksInternal(true);
 
     boolean allRenderersEnded = true;
@@ -363,6 +364,13 @@ import java.util.concurrent.atomic.AtomicInteger;
     elapsedRealtimeUs = SystemClock.elapsedRealtime() * 1000;
   }
 
+  private void updateBufferedPositionUs() {
+    long sourceBufferedPositionUs = enabledRenderers.length > 0 ? source.getBufferedPositionUs()
+        : C.END_OF_SOURCE_US;
+    bufferedPositionUs = sourceBufferedPositionUs == C.END_OF_SOURCE_US
+        && durationUs != C.UNKNOWN_TIME_US ? durationUs : sourceBufferedPositionUs;
+  }
+
   private void doSomeWork() throws ExoPlaybackException, IOException {
     TraceUtil.beginSection("doSomeWork");
     long operationStartTimeMs = SystemClock.elapsedRealtime();
@@ -373,8 +381,10 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     updatePositionUs();
-    bufferedPositionUs = source.getBufferedPositionUs();
-    source.continueBuffering(positionUs);
+    updateBufferedPositionUs();
+    if (enabledRenderers.length > 0) {
+      source.continueBuffering(positionUs);
+    }
 
     boolean allRenderersEnded = true;
     boolean allRenderersReadyOrEnded = true;
@@ -444,13 +454,14 @@ import java.util.concurrent.atomic.AtomicInteger;
         return;
       }
 
-      for (TrackRenderer renderer : enabledRenderers) {
-        ensureStopped(renderer);
-      }
-      setState(ExoPlayer.STATE_BUFFERING);
-      source.seekToUs(positionUs);
-      for (TrackRenderer renderer : enabledRenderers) {
-        renderer.checkForReset();
+      if (enabledRenderers != null) {
+        for (TrackRenderer renderer : enabledRenderers) {
+          ensureStopped(renderer);
+        }
+        source.seekToUs(positionUs);
+        for (TrackRenderer renderer : enabledRenderers) {
+          renderer.checkForReset();
+        }
       }
 
       handler.sendEmptyMessage(MSG_DO_SOME_WORK);
@@ -622,6 +633,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     source.endTrackSelection(positionUs);
+    updateBufferedPositionUs();
   }
 
   private void reselectTracksInternal() throws ExoPlaybackException {

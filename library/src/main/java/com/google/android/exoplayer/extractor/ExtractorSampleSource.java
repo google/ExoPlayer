@@ -423,9 +423,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   @Override
   public void continueBuffering(long playbackPositionUs) {
-    if (enabledTrackCount == 0) {
-      return;
-    }
     downstreamPositionUs = playbackPositionUs;
     discardSamplesForDisabledTracks(downstreamPositionUs);
     if (loadingFinished) {
@@ -504,9 +501,6 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   @Override
   public void seekToUs(long positionUs) {
-    if (enabledTrackCount == 0) {
-      return;
-    }
     seekToInternal(positionUs);
   }
 
@@ -529,7 +523,7 @@ public final class ExtractorSampleSource implements SampleSource, ExtractorOutpu
 
   @Override
   public long getBufferedPositionUs() {
-    if (enabledTrackCount == 0 || loadingFinished) {
+    if (loadingFinished) {
       return C.END_OF_SOURCE_US;
     } else if (isPendingReset()) {
       return pendingResetPositionUs;

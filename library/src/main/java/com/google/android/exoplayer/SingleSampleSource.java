@@ -220,7 +220,7 @@ public final class SingleSampleSource implements SampleSource, TrackStream, Load
 
   @Override
   public long getBufferedPositionUs() {
-    return streamState == STREAM_STATE_END_OF_STREAM || loadingFinished ? C.END_OF_SOURCE_US : 0;
+    return loadingFinished ? C.END_OF_SOURCE_US : 0;
   }
 
   @Override

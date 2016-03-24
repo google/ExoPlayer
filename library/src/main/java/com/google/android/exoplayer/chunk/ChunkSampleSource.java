@@ -326,7 +326,7 @@ public class ChunkSampleSource implements SampleSource, TrackStream, Loader.Call
 
   @Override
   public long getBufferedPositionUs() {
-    if (!trackEnabled || loadingFinished) {
+    if (loadingFinished) {
       return C.END_OF_SOURCE_US;
     } else if (isPendingReset()) {
       return pendingResetPositionUs;

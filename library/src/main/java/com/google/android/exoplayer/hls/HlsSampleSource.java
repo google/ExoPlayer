@@ -258,9 +258,6 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public void continueBuffering(long playbackPositionUs) {
-    if (enabledTrackCount == 0) {
-      return;
-    }
     downstreamPositionUs = playbackPositionUs;
     if (!extractors.isEmpty()) {
       discardSamplesForDisabledTracks(getCurrentExtractor(), downstreamPositionUs);
@@ -360,17 +357,12 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
 
   @Override
   public void seekToUs(long positionUs) {
-    if (enabledTrackCount == 0) {
-      return;
-    }
     seekToInternal(positionUs);
   }
 
   @Override
   public long getBufferedPositionUs() {
-    if (enabledTrackCount == 0) {
-      return C.END_OF_SOURCE_US;
-    } else if (isPendingReset()) {
+    if (isPendingReset()) {
       return pendingResetPositionUs;
     } else if (loadingFinished) {
       return C.END_OF_SOURCE_US;
