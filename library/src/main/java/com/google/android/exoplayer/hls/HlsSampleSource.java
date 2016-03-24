@@ -83,8 +83,9 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   // Indexed by track (as exposed by this source).
   private TrackGroupArray trackGroups;
   private int primaryTrackGroupIndex;
-  private int[] primarySelectedTracks;
-  private boolean primarySelectedTracksChanged;
+  private boolean isFirstTrackSelection;
+  private boolean newTracksSelected;
+  private boolean primaryTracksDeselected;
   // Indexed by group.
   private boolean[] groupEnabledStates;
   private boolean[] pendingResets;
@@ -146,6 +147,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (chunkSource.getTrackCount() == 0) {
       trackGroups = new TrackGroupArray();
       state = STATE_SELECTING_TRACKS;
+      isFirstTrackSelection = true;
       return true;
     }
     if (!extractors.isEmpty()) {
@@ -155,6 +157,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
         if (extractor.isPrepared()) {
           buildTracks(extractor);
           state = STATE_SELECTING_TRACKS;
+          isFirstTrackSelection = true;
           maybeStartLoading(); // Update the load control.
           return true;
         } else if (extractors.size() > 1) {
@@ -197,7 +200,9 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
   public void startTrackSelection() {
     Assertions.checkState(state == STATE_READING);
     state = STATE_SELECTING_TRACKS;
-    primarySelectedTracksChanged = false;
+    isFirstTrackSelection = false;
+    newTracksSelected = false;
+    primaryTracksDeselected = false;
   }
 
   @Override
@@ -208,9 +213,9 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     setTrackGroupEnabledState(group, true);
     downstreamSampleFormats[group] = null;
     pendingResets[group] = false;
-    if (group == primaryTrackGroupIndex && !Arrays.equals(tracks, primarySelectedTracks)) {
-      primarySelectedTracks = tracks;
-      primarySelectedTracksChanged = true;
+    newTracksSelected = true;
+    if (group == primaryTrackGroupIndex) {
+      primaryTracksDeselected |= chunkSource.selectTracks(tracks);
     }
     return new TrackStreamImpl(group);
   }
@@ -242,24 +247,12 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
           loadControl.trimAllocator();
         }
       }
-    } else {
+    } else if (primaryTracksDeselected || (!isFirstTrackSelection && newTracksSelected)) {
       if (!loadControlRegistered) {
         loadControl.register(this, bufferSizeContribution);
         loadControlRegistered = true;
       }
-      // Treat enabling of a live stream as occurring at t=0 in both of the blocks below.
-      positionUs = chunkSource.isLive() ? 0 : positionUs;
-      if (primarySelectedTracksChanged) {
-        // If the primary tracks change then this will affect other exposed tracks that are enabled
-        // as well. Hence we implement the restart as a seek so that all downstream renderers
-        // receive a discontinuity event.
-        chunkSource.selectTracks(primarySelectedTracks);
-        seekToInternal(positionUs);
-      } else {
-        lastSeekPositionUs = positionUs;
-        downstreamPositionUs = positionUs;
-        restartFrom(positionUs);
-      }
+      seekToInternal(positionUs);
     }
   }
 
@@ -370,7 +363,7 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
     if (enabledTrackCount == 0) {
       return;
     }
-    seekToInternal(chunkSource.isLive() ? 0 : positionUs);
+    seekToInternal(positionUs);
   }
 
   @Override
@@ -595,6 +588,8 @@ public final class HlsSampleSource implements SampleSource, Loader.Callback {
    * @param positionUs The position to seek to.
    */
   private void seekToInternal(long positionUs) {
+    // Treat all seeks into non-seekable media as being to t=0.
+    positionUs = chunkSource.isLive() ? 0 : positionUs;
     lastSeekPositionUs = positionUs;
     downstreamPositionUs = positionUs;
     Arrays.fill(pendingResets, true);
